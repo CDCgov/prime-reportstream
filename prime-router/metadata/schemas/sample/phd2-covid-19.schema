@@ -1,0 +1,18 @@
+---
+name: phd2-covid-19
+topic: covid-19
+elements:
+  - name: lab
+  - name: firstName
+    pii: true
+  - name: lastName
+    pii: true
+  - name: state
+    type: TEXT
+  - name: ssn
+  - name: testTime
+    type: DATE
+  - name: specimenId
+    type: ID
+  - name: observation
+    type: TEXT

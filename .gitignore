@@ -1,0 +1,38 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Build output
+**/target/**
+**/log/**
+**/dependency-reduced-pom.xml
+
+# IDEA files
+**/.idea/**
+**/*.iml
+
+# Play files
+**/result_files/*.csv
+**/routed_files/*.csv
+Test.csv
+
+# Mac files
+.DS_Store
+.DS_Store
+

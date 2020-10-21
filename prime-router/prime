@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+java -jar target/prime-router-1.0-SNAPSHOT.jar "$@"

@@ -1,0 +1,13 @@
+---
+name: fed1-covid-19
+topic: covid-19
+elements:
+  - name: lab
+  - name: state
+    type: TEXT
+  - name: test_time
+    type: DATE
+  - name: specimen_id
+    type: ID
+  - name: observation
+    type: TEXT

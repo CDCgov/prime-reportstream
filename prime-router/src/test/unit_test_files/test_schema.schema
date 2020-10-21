@@ -1,0 +1,16 @@
+---
+name: lab_test_results_schema
+topic: test
+elements:
+  - name: lab
+  - name: first_name
+  - name: last_name
+  - name: state
+    type: TEXT
+  - name: test_time
+    type: DATE
+  - name: observation
+    type: TEXT
+
+
+
