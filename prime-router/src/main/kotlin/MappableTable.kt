@@ -160,7 +160,7 @@ class MappableTable {
         return MappableTable(name, mapping.toSchema, newTable)
     }
 
-    private fun buildColumn(mapping: Schema.Mapping, toElement: Schema.Element): StringColumn {
+    private fun buildColumn(mapping: Schema.Mapping, toElement: Element): StringColumn {
         return when (toElement.name) {
             in mapping.useFromName -> {
                 table.stringColumn(mapping.useFromName[toElement.name]).copy().setName(toElement.name)
@@ -172,7 +172,7 @@ class MappableTable {
         }
     }
 
-    private fun createDefaultColumn(element: Schema.Element): StringColumn {
+    private fun createDefaultColumn(element: Element): StringColumn {
         val defaultValues = Array(table.rowCount()) { (element.default ?: "") }
         return StringColumn.create(element.name, defaultValues.asList())
     }
