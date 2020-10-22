@@ -1,16 +1,11 @@
 ---
 name: lab_test_results_schema
 topic: test
+elementsFile: test_schema
 elements:
-  - name: lab
-  - name: first_name
-  - name: last_name
-  - name: state
+  - name: extra
     type: TEXT
-  - name: test_time
-    type: DATE
-  - name: observation
-    type: TEXT
+
 
 
 

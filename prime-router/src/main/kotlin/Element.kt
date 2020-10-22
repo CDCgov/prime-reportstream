@@ -8,7 +8,7 @@ data class Element(
     val basedOn: String? = null,
 
     // General information
-    val type: Type = Type.TEXT,
+    val type: Type? = null,
     val format: String? = null,
     val valueSetId: String? = null,
     val valueSet: List<String> = emptyList(),
@@ -36,6 +36,7 @@ data class Element(
         TEXT,
         NUMBER,
         DATE,
+        DATETIME,
         DURATION,
         CODED,
         CODED_LONIC,

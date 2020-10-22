@@ -29,6 +29,9 @@ class SchemaTests {
     fun `test loading schema catalog`() {
         Schema.loadSchemaCatalog("./src/test/unit_test_files")
         assertNotNull(Schema.schemas["lab_test_results_schema"])
+        assertEquals(7, Schema.schemas.getValue("lab_test_results_schema").elements.size)
+        assertEquals("lab", Schema.schemas.getValue("lab_test_results_schema").elements[0].name)
+        assertEquals("extra", Schema.schemas.getValue("lab_test_results_schema").elements[6].name)
     }
 
     @Test
@@ -66,7 +69,7 @@ class SchemaTests {
         val three = Schema(
             name = "three",
             topic = "test",
-            elements = listOf(Element("a_"), Element("c", optional = false))
+            elements = listOf(Element("a_"), Element("c", required = true))
         )
         val oneToThree = one.buildMapping(toSchema = three)
         assertEquals(1, oneToThree.useFromName.size)

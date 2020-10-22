@@ -14,6 +14,7 @@ data class Schema(
     val name: String, // Name should include version
     val topic: String,
     val elements: List<Element> = emptyList(),
+    val elementsFile: String? = null,
 ) {
     // A mapping maps from one schema to another
     data class Mapping(
@@ -62,7 +63,7 @@ data class Schema(
     }
 
     private fun normalizeName(name: String): String {
-        return name.replace("_|\\s".toRegex(),"").toLowerCase()
+        return name.replace("_|\\s".toRegex(), "").toLowerCase()
     }
 
     companion object {
@@ -71,32 +72,56 @@ data class Schema(
         private val schemaStore = HashMap<String, Schema>()
         private const val defaultCatalog = "./metadata/schemas"
         private const val schemaExtension = ".schema"
+        private const val elementExtension = ".element"
         private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
         // Load the schema catalog either from the default location or from the passed location
         fun loadSchemaCatalog(catalog: String? = null) {
-            val newSchemas = HashMap<String, Schema>()
-            val rootDir = File(catalog ?: defaultCatalog)
+            fun readSchema(dirRelPath: String, file: File): Pair<String, Schema> {
+                val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
+                val catalogName =
+                    if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
 
-            fun addSchemasInADirectory(dirSubPath: String) {
-                val schemaExtFilter = FilenameFilter { _: File, name: String -> name.endsWith(schemaExtension) }
-                val dir = File(rootDir.absolutePath, dirSubPath)
-                val files = dir.listFiles(schemaExtFilter) ?: return
-                files.forEach {
-                    val schema = mapper.readValue<Schema>(it.inputStream())
-                    val fullName = if (dirSubPath.isEmpty()) schema.name else dirSubPath + "/" + schema.name
-                    newSchemas[fullName] = schema
-                }
-
-                val subDirs = dir.listFiles { file -> file.isDirectory } ?: return
-                subDirs.forEach {
-                    addSchemasInADirectory(if (dirSubPath.isEmpty()) it.name else dirSubPath + "/" + it.name)
+                return if (fromSchemaFile.elementsFile != null) {
+                    // Read an element file for the first set of elements. Merge in with
+                    // the elements in the elements field
+                    val elementFile = File(file.parentFile, fromSchemaFile.elementsFile + elementExtension)
+                    if (!elementFile.exists()) error("${elementFile.absolutePath} does not exist")
+                    val fromElementsFile = mapper.readValue<List<Element>>(elementFile.inputStream())
+                    val elements = mutableListOf<Element>()
+                    elements.addAll(fromElementsFile)
+                    fromSchemaFile.elements.forEach { (name) ->
+                        elements.removeIf { it.name == name }
+                    }
+                    elements.addAll(fromSchemaFile.elements)
+                    Pair(catalogName, fromSchemaFile.copy(elements = elements))
+                } else {
+                    Pair(catalogName, fromSchemaFile)
                 }
             }
 
-            if (!rootDir.isDirectory) error("Expected ${rootDir.absolutePath} to be a directory")
-            addSchemasInADirectory("")
-            loadSchemas(newSchemas)
+            fun readAllSchemas(catalogDir: File, dirRelPath: String): Map<String, Schema> {
+                val outputSchemas = mutableMapOf<String, Schema>()
+
+                // read the .schema files in the director
+                val schemaExtFilter = FilenameFilter { _: File, name: String -> name.endsWith(schemaExtension) }
+                val dir = File(catalogDir.absolutePath, dirRelPath)
+                val files = dir.listFiles(schemaExtFilter) ?: emptyArray()
+                outputSchemas.putAll(files.map { readSchema(dirRelPath, it) }.toMap())
+
+                // read the schemas in the sub-directory
+                val subDirs = dir.listFiles { file -> file.isDirectory } ?: emptyArray()
+                subDirs.forEach {
+                    val childPath = if (dirRelPath.isEmpty()) it.name else dirRelPath + "/" + it.name
+                    outputSchemas.putAll(readAllSchemas(catalogDir, childPath))
+                }
+
+                return outputSchemas
+            }
+
+            val catalogDir = File(catalog ?: defaultCatalog)
+            if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
+            loadSchemas(readAllSchemas(catalogDir, ""))
         }
 
         fun loadSchemas(schemas: Map<String, Schema>) {
