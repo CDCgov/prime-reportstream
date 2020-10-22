@@ -7,7 +7,7 @@ import kotlin.test.*
 class MappableTableTests {
     @Test
     fun `test concat`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = MappableTable("example1", one, listOf(listOf("1", "2"), listOf("3", "4")))
         val table2 = MappableTable("example2", one, listOf(listOf("5", "6"), listOf("7", "8")))
         val concatTable = table1.concat("concat", table2)
@@ -18,7 +18,7 @@ class MappableTableTests {
 
     @Test
     fun `test filter`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = MappableTable("example", one, listOf(listOf("1", "2"), listOf("3", "4")))
         assertEquals(2, table1.rowCount)
         val filteredTable = table1.filter("filtered", mapOf("a" to "1"))
@@ -30,7 +30,7 @@ class MappableTableTests {
 
     @Test
     fun `test filterByReceiver with One Receiver`() {
-        val schema1 = Schema(name = "test", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val schema1 = Schema(name = "test", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = MappableTable("one", schema1, listOf(listOf("X", "1"), listOf("Y", "2"), listOf("Z", "3")))
         val receiver1 = Receiver(
             name = "rec1",
@@ -46,7 +46,7 @@ class MappableTableTests {
 
     @Test
     fun `test filterByReceiver with Multiple Receivers`() {
-        val schema1 = Schema(name = "test", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val schema1 = Schema(name = "test", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = MappableTable("one", schema1, listOf(listOf("X", "1"), listOf("Y", "2"), listOf("Z", "3")))
         val receiver1 = Receiver(
             name = "rec1",
@@ -76,7 +76,7 @@ class MappableTableTests {
 
     @Test
     fun `test isEmpty`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val emptyTable = MappableTable("test", one)
         assertEquals(true, emptyTable.isEmpty())
         val table1 = MappableTable("test", one, listOf(listOf("1", "2")))
@@ -85,7 +85,7 @@ class MappableTableTests {
 
     @Test
     fun `test create with list`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = MappableTable("test", one, listOf(listOf("1", "2")))
         assertEquals("test", table1.name)
         assertEquals(one, table1.schema)
@@ -94,7 +94,7 @@ class MappableTableTests {
 
     @Test
     fun `test create from csv`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val csv = """
             a,b
             1,2
@@ -109,7 +109,7 @@ class MappableTableTests {
         val one = Schema(
             name = "one",
             topic = "test",
-            elements = listOf(Schema.Element("a", csv_field = "A"), Schema.Element("b"))
+            elements = listOf(Element("a", csv_field = "A"), Element("b"))
         )
         val csv = """
             A,b
@@ -123,7 +123,7 @@ class MappableTableTests {
 
     @Test
     fun `test write as csv`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = MappableTable("test", one, listOf(listOf("1", "2")))
         val expectedCsv = """
             a,b
@@ -140,7 +140,7 @@ class MappableTableTests {
         val one = Schema(
             name = "one",
             topic = "test",
-            elements = listOf(Schema.Element("a", csv_field = "A"), Schema.Element("b"))
+            elements = listOf(Element("a", csv_field = "A"), Element("b"))
         )
         val table1 = MappableTable("test", one, listOf(listOf("1", "2")))
         val expectedCsv = """
@@ -155,8 +155,8 @@ class MappableTableTests {
 
     @Test
     fun `test applyMapping`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
-        val two = Schema(name = "two", topic = "test", elements = listOf(Schema.Element("B")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val two = Schema(name = "two", topic = "test", elements = listOf(Element("B")))
 
         val oneTable =
             MappableTable(name = "one", schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")))
@@ -174,9 +174,9 @@ class MappableTableTests {
         val one = Schema(
             name = "one",
             topic = "test",
-            elements = listOf(Schema.Element("a", default = "~"), Schema.Element("b"))
+            elements = listOf(Element("a", default = "~"), Element("b"))
         )
-        val two = Schema(name = "two", topic = "test", elements = listOf(Schema.Element("B")))
+        val two = Schema(name = "two", topic = "test", elements = listOf(Element("B")))
 
         val twoTable =
             MappableTable(name = "one", schema = two, values = listOf(listOf("b1"), listOf("b2")))
@@ -194,7 +194,7 @@ class MappableTableTests {
         val one = Schema(
             name = "one",
             topic = "test",
-            elements = listOf(Schema.Element("a", pii = true), Schema.Element("b"))
+            elements = listOf(Element("a", pii = true), Element("b"))
         )
 
         val oneTable =

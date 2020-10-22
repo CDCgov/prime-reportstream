@@ -9,27 +9,27 @@ class ElementTests {
 
     @Test
     fun `create element`() {
-        val elem1 = Schema.Element(name = "first", type = Schema.Element.Type.NUMBER)
+        val elem1 = Element(name = "first", type = Element.Type.NUMBER)
         assertNotNull(elem1)
     }
 
     @Test
     fun `compare elements`() {
-        val elem1 = Schema.Element(name = "first", type = Schema.Element.Type.NUMBER)
-        val elem2 = Schema.Element(name = "first", type = Schema.Element.Type.NUMBER)
+        val elem1 = Element(name = "first", type = Element.Type.NUMBER)
+        val elem2 = Element(name = "first", type = Element.Type.NUMBER)
         assertEquals(elem1, elem2)
 
-        val elem3 = Schema.Element(name = "first", type = Schema.Element.Type.TEXT)
+        val elem3 = Element(name = "first", type = Element.Type.TEXT)
         assertNotEquals(elem1, elem3)
     }
 
     @Test
     fun `test schema element`() {
-        val elem1 = Schema.Element(name = "first", type = Schema.Element.Type.NUMBER)
-        val elem2 = Schema.Element(name = "first", type = Schema.Element.Type.NUMBER)
+        val elem1 = Element(name = "first", type = Element.Type.NUMBER)
+        val elem2 = Element(name = "first", type = Element.Type.NUMBER)
         assertEquals(elem1, elem2)
 
-        val elem3 = Schema.Element(name = "first", type = Schema.Element.Type.TEXT)
+        val elem3 = Element(name = "first", type = Element.Type.TEXT)
         assertNotEquals(elem1, elem3)
     }
 }

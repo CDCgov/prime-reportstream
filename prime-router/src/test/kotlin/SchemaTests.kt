@@ -5,23 +5,23 @@ import kotlin.test.*
 class SchemaTests {
     @Test
     fun `create schema`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         assertNotNull(one)
     }
 
     @Test
     fun `compare schemas`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
-        val oneAgain = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
-        val two = Schema(name = "two", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val oneAgain = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
         assertEquals(one, oneAgain)
         assertNotEquals(one, two)
     }
 
     @Test
     fun `find element`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
-        assertEquals(one.findElement("a"), Schema.Element("a"))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        assertEquals(one.findElement("a"), Element("a"))
         assertNull(one.findElement("c"))
     }
 
@@ -33,8 +33,8 @@ class SchemaTests {
 
     @Test
     fun `test loading two schemas`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("a")))
-        val two = Schema(name = "two", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
+        val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
         Schema.loadSchemas(mapOf("one" to one, "two" to two))
         assertEquals(2, Schema.schemas.size)
         assertNotNull(Schema.schemas["one"])
@@ -42,8 +42,8 @@ class SchemaTests {
 
     @Test
     fun `test buildMapping`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("A")))
-        val two = Schema(name = "two", topic = "test", elements = listOf(Schema.Element("a"), Schema.Element("b")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("A")))
+        val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
 
         val oneToTwo = one.buildMapping(two)
         assertEquals(one, oneToTwo.fromSchema)
@@ -62,11 +62,11 @@ class SchemaTests {
 
     @Test
     fun `test buildMapping with missing`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Schema.Element("A")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("A")))
         val three = Schema(
             name = "three",
             topic = "test",
-            elements = listOf(Schema.Element("a_"), Schema.Element("c", optional = false))
+            elements = listOf(Element("a_"), Element("c", optional = false))
         )
         val oneToThree = one.buildMapping(toSchema = three)
         assertEquals(1, oneToThree.useFromName.size)
