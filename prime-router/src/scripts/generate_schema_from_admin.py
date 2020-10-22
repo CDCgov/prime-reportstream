@@ -11,10 +11,10 @@ def main():
                 if row[3] == '':
                     break
                 print(f'- name: {row[3]}')
-                print(f'  hl7_field: {row[4]}')
-                print(f'  hl7_operation: {row[5]}')
-                print(f'  hl7_validation: {row[6]}')
-                print(f'  hl7_template: {"~" if row[7] == "" else row[7]}')
+                print(f'  hl7Field: {row[4]}')
+                print(f'  hl7Operation: {row[5]}')
+                print(f'  hl7Validation: {row[6]}')
+                print(f'  hl7Template: {"~" if row[7] == "" else row[7]}')
             line_count += 1
 
 if __name__ == "__main__":

@@ -4,11 +4,9 @@ package gov.cdc.prime.router
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
-import tech.tablesaw.api.ColumnType
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
-import tech.tablesaw.io.csv.CsvReadOptions
 import tech.tablesaw.selection.Selection
 import java.io.InputStream
 import java.io.OutputStream
@@ -54,7 +52,7 @@ class MappableTable {
                 schema.elements.forEachIndexed { index, element ->
                     val header = rows[0]
                     if (index >= header.size ||
-                        (header[index] != element.csv_field && header[index] != element.name)
+                        (header[index] != element.csvField && header[index] != element.name)
                     ) {
                         error("Element ${element.name} is not found in the input stream header")
                     }
@@ -88,7 +86,7 @@ class MappableTable {
 
         when (streamType) {
             StreamType.CSV -> {
-                val allRows = mutableListOf(schema.elements.map { it.csv_field ?: it.name })
+                val allRows = mutableListOf(schema.elements.map { it.csvField ?: it.name })
                 allRows.addAll(
                     table.map { row ->
                         schema.elements.mapIndexed { index, _ -> row.getString(index) }

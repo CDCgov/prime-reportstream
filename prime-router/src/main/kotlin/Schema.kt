@@ -29,7 +29,7 @@ data class Schema(
     }
 
     fun findUsingCsvField(name: String): Element? {
-        return elements.find { it.csv_field == name || it.name == name }
+        return elements.find { it.csvField == name || it.name == name }
     }
 
     fun buildMapping(toSchema: Schema): Mapping {
@@ -42,10 +42,10 @@ data class Schema(
             if (mappedName != null) {
                 useFromName[it.name] = mappedName
             } else {
-                if (it.optional) {
-                    useDefault.add(it.name)
-                } else {
+                if (it.required) {
                     missing.add(it.name)
+                } else {
+                    useDefault.add(it.name)
                 }
             }
         }

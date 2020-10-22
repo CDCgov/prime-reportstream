@@ -5,19 +5,32 @@ package gov.cdc.prime.router
 
 data class Element(
     val name: String,
+    val basedOn: String? = null,
+
+    // General information
     val type: Type = Type.TEXT,
-    val format: String = "",
-    val codeSystem: CodeSystem = CodeSystem.NONE,
-    val code: String = "",
-    val optional: Boolean = true,
+    val format: String? = null,
+    val valueSetId: String? = null,
+    val valueSet: List<String> = emptyList(),
+    val required: Boolean = false,
     val pii: Boolean = false,
     val phi: Boolean = false,
-    val default: String? = "",
-    val hl7_field: String? = null,
-    val hl7_operation: String? = null,
-    val hl7_validation: String? = null,
-    val hl7_template: String? = null,
-    val csv_field: String? = null,
+    val default: String? = null,
+
+    // Correspondence to the national standards
+    val hhsGuidanceField: String? = null,
+    val uscdiField: String? = null,
+    val natFlatFileField: String? = null,
+
+    // Format specific information used to format the table
+
+    // HL7 specific information
+    val hl7Field: String? = null,
+    val hl7Operation: String? = null,
+    val hl7Validation: String? = null,
+    val hl7Template: String? = null,
+    // CSV specific information
+    val csvField: String? = null,
 ) {
     enum class Type {
         TEXT,
@@ -25,19 +38,18 @@ data class Element(
         DATE,
         DURATION,
         CODED,
+        CODED_LONIC,
+        CODED_SNOMED,
         ID,
         ID_DLN,
         ID_SSN,
-        ADDRESS,
+        STREET,
+        CITY,
+        STATE,
+        COUNTY,
         POSTAL_CODE,
         PERSON_NAME,
         TELEPHONE,
         EMAIL,
-    }
-
-    enum class CodeSystem {
-        NONE,
-        LOINC,
-        SNOMED
     }
 }
