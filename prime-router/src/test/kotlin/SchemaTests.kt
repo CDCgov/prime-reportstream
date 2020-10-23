@@ -29,9 +29,10 @@ class SchemaTests {
     fun `test loading schema catalog`() {
         Schema.loadSchemaCatalog("./src/test/unit_test_files")
         assertNotNull(Schema.schemas["lab_test_results_schema"])
-        assertEquals(7, Schema.schemas.getValue("lab_test_results_schema").elements.size)
+        assertEquals(9, Schema.schemas.getValue("lab_test_results_schema").elements.size)
         assertEquals("lab", Schema.schemas.getValue("lab_test_results_schema").elements[0].name)
         assertEquals("extra", Schema.schemas.getValue("lab_test_results_schema").elements[6].name)
+        assertEquals(Element.Type.POSTAL_CODE, Schema.schemas.getValue("lab_test_results_schema").elements[8].type)
     }
 
     @Test

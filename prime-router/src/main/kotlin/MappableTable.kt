@@ -142,7 +142,7 @@ class MappableTable {
 
     fun deidentify(): MappableTable {
         val columns = schema.elements.map {
-            if (it.pii) {
+            if (it.pii == true) {
                 createDefaultColumn(it)
             } else {
                 table.column(it.name).copy()

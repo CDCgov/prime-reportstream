@@ -43,7 +43,7 @@ data class Schema(
             if (mappedName != null) {
                 useFromName[it.name] = mappedName
             } else {
-                if (it.required) {
+                if (it.required == true) {
                     missing.add(it.name)
                 } else {
                     useDefault.add(it.name)
@@ -67,9 +67,8 @@ data class Schema(
     }
 
     companion object {
-        val schemas: Map<String, Schema> get() = schemaStore
+        var schemas: Map<String, Schema> = emptyMap()
 
-        private val schemaStore = HashMap<String, Schema>()
         private const val defaultCatalog = "./metadata/schemas"
         private const val schemaExtension = ".schema"
         private const val elementExtension = ".element"
@@ -77,56 +76,72 @@ data class Schema(
 
         // Load the schema catalog either from the default location or from the passed location
         fun loadSchemaCatalog(catalog: String? = null) {
-            fun readSchema(dirRelPath: String, file: File): Pair<String, Schema> {
-                val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
-                val catalogName =
-                    if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
-
-                return if (fromSchemaFile.elementsFile != null) {
-                    // Read an element file for the first set of elements. Merge in with
-                    // the elements in the elements field
-                    val elementFile = File(file.parentFile, fromSchemaFile.elementsFile + elementExtension)
-                    if (!elementFile.exists()) error("${elementFile.absolutePath} does not exist")
-                    val fromElementsFile = mapper.readValue<List<Element>>(elementFile.inputStream())
-                    val elements = mutableListOf<Element>()
-                    elements.addAll(fromElementsFile)
-                    fromSchemaFile.elements.forEach { (name) ->
-                        elements.removeIf { it.name == name }
-                    }
-                    elements.addAll(fromSchemaFile.elements)
-                    Pair(catalogName, fromSchemaFile.copy(elements = elements))
-                } else {
-                    Pair(catalogName, fromSchemaFile)
-                }
-            }
-
-            fun readAllSchemas(catalogDir: File, dirRelPath: String): Map<String, Schema> {
-                val outputSchemas = mutableMapOf<String, Schema>()
-
-                // read the .schema files in the director
-                val schemaExtFilter = FilenameFilter { _: File, name: String -> name.endsWith(schemaExtension) }
-                val dir = File(catalogDir.absolutePath, dirRelPath)
-                val files = dir.listFiles(schemaExtFilter) ?: emptyArray()
-                outputSchemas.putAll(files.map { readSchema(dirRelPath, it) }.toMap())
-
-                // read the schemas in the sub-directory
-                val subDirs = dir.listFiles { file -> file.isDirectory } ?: emptyArray()
-                subDirs.forEach {
-                    val childPath = if (dirRelPath.isEmpty()) it.name else dirRelPath + "/" + it.name
-                    outputSchemas.putAll(readAllSchemas(catalogDir, childPath))
-                }
-
-                return outputSchemas
-            }
-
             val catalogDir = File(catalog ?: defaultCatalog)
             if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
             loadSchemas(readAllSchemas(catalogDir, ""))
         }
 
+        private fun readSchema(dirRelPath: String, file: File): Pair<String, Schema> {
+            val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
+            val catalogName =
+                if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
+
+            return if (fromSchemaFile.elementsFile != null) {
+                // Read an element file for the first set of elements. Merge in with
+                // the elements in the elements field
+                val elementFile = File(file.parentFile, fromSchemaFile.elementsFile + elementExtension)
+                if (!elementFile.exists()) error("${elementFile.absolutePath} does not exist")
+                val fromElementsFile = mapper.readValue<List<Element>>(elementFile.inputStream())
+                val elements = mutableListOf<Element>()
+                elements.addAll(fromElementsFile)
+                fromSchemaFile.elements.forEach { (name) ->
+                    elements.removeIf { it.name == name }
+                }
+                elements.addAll(fromSchemaFile.elements)
+                Pair(catalogName, fromSchemaFile.copy(elements = elements))
+            } else {
+                Pair(catalogName, fromSchemaFile)
+            }
+        }
+
+        private fun readAllSchemas(catalogDir: File, dirRelPath: String): Map<String, Schema> {
+            val outputSchemas = mutableMapOf<String, Schema>()
+
+            // read the .schema files in the director
+            val schemaExtFilter = FilenameFilter { _: File, name: String -> name.endsWith(schemaExtension) }
+            val dir = File(catalogDir.absolutePath, dirRelPath)
+            val files = dir.listFiles(schemaExtFilter) ?: emptyArray()
+            outputSchemas.putAll(files.map { readSchema(dirRelPath, it) }.toMap())
+
+            // read the schemas in the sub-directory
+            val subDirs = dir.listFiles { file -> file.isDirectory } ?: emptyArray()
+            subDirs.forEach {
+                val childPath = if (dirRelPath.isEmpty()) it.name else dirRelPath + "/" + it.name
+                outputSchemas.putAll(readAllSchemas(catalogDir, childPath))
+            }
+
+            return outputSchemas
+        }
+
         fun loadSchemas(schemas: Map<String, Schema>) {
-            schemaStore.clear()
-            schemaStore.putAll(schemas)
+            this.schemas = extendSchemas(schemas)
+        }
+
+        private fun extendSchemas(schemas: Map<String, Schema>): Map<String, Schema> {
+            return schemas.mapValues { (name, schema) ->
+                val expandedElements: List<Element> = schema.elements.map { element ->
+                    if (element.name.contains('.')) {
+                        val splitName = element.name.split('.')
+                        if (splitName.size != 2) error("${element.name} is not a valid base name")
+                        val basedElement = schemas[splitName[0]]?.findElement(splitName[1])
+                            ?: error("${element.name} does not exists")
+                        element.extendFrom(basedElement)
+                    } else {
+                        element
+                    }
+                }
+                schema.copy(elements = expandedElements)
+            }
         }
     }
 }

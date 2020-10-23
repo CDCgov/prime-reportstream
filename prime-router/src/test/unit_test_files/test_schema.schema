@@ -5,6 +5,8 @@ elementsFile: test_schema
 elements:
   - name: extra
     type: TEXT
+  - name: standard.address
+  - name: standard.zip_code
 
 
 
