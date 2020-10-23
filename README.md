@@ -30,9 +30,9 @@ Our vision is to help public health systems make faster, more effective decision
 Time to action
 * Metric: Time from Report Generation to Case Action at the PHD
 * This funnel will likely involve several steps, e.g.
- * Report generated to Received
- * Received to cleaned
- * Cleaned file to action
+  * Report generated to Received
+  * Received to cleaned
+  * Cleaned file to action
 * Success in the long term could look like: A data platform and set workflow tools that PHDs use day-to-day to manage data related tasks
 
 Quality of actions
@@ -57,25 +57,25 @@ Sub-Milestones to achieve an user facing experience
 *Components*
 Sending and transforming
 * Story
- * "Once data is collected by the Data Input app, the Routing app will send it to the correct PHD in the correct format."
+  * "Once data is collected by the Data Input app, the Routing app will send it to the correct PHD in the correct format."
 * Features/Tasks
- * App can figure out where to send the data the proper jurisdiction
- * App can transform the data to send the fields required by the target PHD, in the required format [TBD - is it CSV, is it ELR?]
+  * App can figure out where to send the data the proper jurisdiction
+  * App can transform the data to send the fields required by the target PHD, in the required format [TBD - is it CSV, is it ELR?]
 
 Authentication and security
 * Story
- * "The app securely connects with each PHD. Along the way, data is protected."
+  * "The app securely connects with each PHD. Along the way, data is protected."
 * Features/Tasks
- * App is able to save authentication information for each individual PHD
- * App is able to authenticate with different types of configurations
- * App has proper restrictions on what data is sent/accessible
+  * App is able to save authentication information for each individual PHD
+  * App is able to authenticate with different types of configurations
+  * App has proper restrictions on what data is sent/accessible
 
 Integration with Pilot customers
 * Story
- * "For our first pilot customers, we know the requirements to connect with each jurisdiction and are integrated"
+  * "For our first pilot customers, we know the requirements to connect with each jurisdiction and are integrated"
 * Features/Tasks
- * What are the data fields for each PHD
- * What are the logistics/timeline for connecting with each of them
+  * What are the data fields for each PHD
+  * What are the logistics/timeline for connecting with each of them
 
 **Milestone 2: Reporting and Monitoring**
 
@@ -84,24 +84,24 @@ The second milestone is to make the data more useful to the users of the Hub - t
 *Components*
 Monitoring
 * Story
- * "As a human interacting with the app, I can get helpful updates about the status of data I expect to be sent"
+  * "As a human interacting with the app, I can get helpful updates about the status of data I expect to be sent"
 * Features/Tasks
- * Sender is able to check receiving status for a given report
- * Sender receives weekly summary of reports sent and summarized demographics
+  * Sender is able to check receiving status for a given report
+  * Sender receives weekly summary of reports sent and summarized demographics
 
 Reporting basics
 * Story
- * “As an analyst at the PHD, I can get timely, regular updates about the reports sent through the Router”
+  * “As an analyst at the PHD, I can get timely, regular updates about the reports sent through the Router”
 * Features/Tasks
- * PHD receives weekly summary of reports sent and summarized demographics
+  * PHD receives weekly summary of reports sent and summarized demographics
 
 **Milestone 3+ Onward: Scaling**
 
 *Components*
 * Configurability
- * "As USDS/CDC works with more PHDs, we can easily add more jurisdictions to the Routing app"
+  * "As USDS/CDC works with more PHDs, we can easily add more jurisdictions to the Routing app"
 * Data flexibility
- * The router is able to receive additional data types, e.g. hospital case data
+  * The router is able to receive additional data types, e.g. hospital case data
 
 
 
