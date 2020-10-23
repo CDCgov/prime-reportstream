@@ -11,6 +11,7 @@ Other PRIME repositories include
 
 
 **Problem Scope**
+
 Public health departments (PHDs) rely on accurate, timely data to fulfill day to day-operations to make long-term strategic decisions. Between the time when they receive report files from reporting entities like laboratories and point of care centers, to taking action on this data, there are many barriers and challenges. Data Hub aims to provide the infrastructure and tools to address these challenges.
 
 Our vision is to help public health systems make faster, more effective decisions. We want to both improve the speed of receiving data to action, as well as increase the quality and effectiveness of actions they can take. 
