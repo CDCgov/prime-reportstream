@@ -18,11 +18,11 @@ Our vision is to help public health systems make faster, more effective decision
 
 **Target users**
 * Senders of data
- * Healthcare institutions that generate data (e.g. reports) that needs to be reported to public health departments
-*PHDs
- * Epidemiologists who rely on health data to take regular actions
- * Senior stakeholders who make executive decisions using aggregate health data
- * IT teams who have to support epidemiologists and external stakeholders integrating with the PHD
+  * Healthcare institutions that generate data (e.g. reports) that needs to be reported to public health departments
+* PHDs
+  * Epidemiologists who rely on health data to take regular actions
+  * Senior stakeholders who make executive decisions using aggregate health data
+  * IT teams who have to support epidemiologists and external stakeholders integrating with the PHD
 
 
 **Measuring success**
