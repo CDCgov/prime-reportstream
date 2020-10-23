@@ -14,10 +14,6 @@ ij_formatter_tags_enabled = true
 ij_smart_tabs = false
 ij_wrap_on_typing = false
 
-[]
-max_line_length = 2147483647
-ij_csv_wrap_long_lines = false
-
 [*.conf]
 indent_size = 2
 tab_width = 2
