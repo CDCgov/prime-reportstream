@@ -1,0 +1,125 @@
+---
+name: az-covid-19
+description: AZ COVID-19 flat file
+topic: covid-19
+trackingElement: standard.Testing_lab_specimen_ID
+elements:
+  - name: standard.Report_facil_data_source_app
+    type: TEXT
+    csvField: Sending_Application
+
+  - name: Sending_Application_ID
+    type: ID
+    csvField: Sending_Application_ID
+
+  - name: standard.Testing_lab_name
+    csvField: Lab_Name
+
+  - name: standard.Testing_lab_ID
+    csvField: Lab_CLIA
+
+  - name: standard.Testing_lab_street
+    csvField: Lab_Address
+
+  - name: standard.Testing_lab_city
+    csvField: Lab_City
+
+  - name: standard.Testing_lab_state
+    csvField: Lab_State
+
+  - name: standard.Testing_lab_zip_code
+    csvField: Lab_Zip
+
+  - name: standard.Testing_lab_phone_number
+    csvField: Lab_Phone
+
+  - name: standard.Patient_ID
+    csvField: Patient_ID
+
+  - name: standard.Patient_first_name
+    csvField: Patient_First_Name
+
+  - name: standard.Patient_last_name
+    csvField: Patient_Last_Name
+
+  - name: standard.Patient_DOB
+    csvField: Patient_Date_of_Birth
+
+  - name: standard.Patient_gender
+    csvField: Patient_Sex
+
+  - name: standard.Patient_race
+    csvField: Race
+
+  - name: standard.Patient_ethnicity
+    csvField: Ethnicity
+
+  - name: standard.Patient_street
+    csvField: Patient_Street_Address
+
+  - name: standard.Patient_city
+    csvField: Patient_City
+
+  - name: standard.Patient_state
+    csvField: Patient_State
+
+  - name: standard.Patient_zip_code
+    csvField: Patient_Zip
+
+  - name: standard.Patient_county
+    csvField: Patient_County
+
+  - name: standard.Patient_phone_number
+    csvField: Patient_Phone_Number
+
+  - name: standard.Ordering_facility_name
+    csvField: Ordering_Facility
+
+  - name: standard.Ordering_facility_street
+    csvField: Ordering_Facility_Address
+
+  - name: standard.Ordering_facility_city
+    csvField: Ordering_Facility_City
+
+  - name: standard.Ordering_facility_state
+    csvField: Ordering_Facility_State
+
+  - name: standard.Ordering_facility_zip_code
+    csvField: Ordering_Facility_Zip
+
+  - name: standard.Ordering_provider_first_name
+    csvField: Provider_First_Name
+
+  - name: standard.Ordering_provider_last_name
+    csvField: Provider_Last_Name
+
+  - name: standard.Ordering_provider_phone_number
+    csvField: Provider_Phone_Number
+
+  - name: standard.Testing_lab_specimen_ID
+    csvField: Specimen_ID
+
+  - name: standard.Specimen_collection_date_time
+    csvField: Collection_Date
+
+  - name: standard.Specimen_type_free_text
+    csvField: Specimen_Type
+
+  - name: standard.Specimen_source_site_description
+    csvField: Specimen_Site
+
+  - name: standard.Test_performed_code
+    csvField: Test_Code
+
+  - name: standard.Test_performed_description
+    csvField: Test_Name
+
+  - name: standard.Test_result_free_text
+    csvField: Result
+
+  - name: standard.Test_result_date
+    csvField: Result_Date
+
+  - name: standard.Comments
+    csvField: Notes
+

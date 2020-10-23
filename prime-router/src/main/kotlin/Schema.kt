@@ -14,7 +14,8 @@ data class Schema(
     val name: String, // Name should include version
     val topic: String,
     val elements: List<Element> = emptyList(),
-    val elementsFile: String? = null,
+    val trackingElement: String? = null, // the element to use for tracking this test
+    val description: String? = null,
 ) {
     // A mapping maps from one schema to another
     data class Mapping(
@@ -26,7 +27,7 @@ data class Schema(
     )
 
     fun findElement(name: String): Element? {
-        return elements.find { it.name == name }
+        return elements.find { it.name.compareTo(name, ignoreCase = true) == 0 }
     }
 
     fun findUsingCsvField(name: String): Element? {
@@ -55,15 +56,11 @@ data class Schema(
 
     private fun findMatchingElement(matchElement: Element): String? {
         // TODO: Much more can be done here
-        val matchName = normalizeName(matchElement.name)
-        for (element in elements) {
-            if (matchName == normalizeName(element.name)) return element.name
+        val matchName = normalizeElementName(matchElement.name)
+        for ((name) in elements) {
+            if (matchName == normalizeElementName(name)) return name
         }
         return null
-    }
-
-    private fun normalizeName(name: String): String {
-        return name.replace("_|\\s".toRegex(), "").toLowerCase()
     }
 
     companion object {
@@ -71,7 +68,6 @@ data class Schema(
 
         private const val defaultCatalog = "./metadata/schemas"
         private const val schemaExtension = ".schema"
-        private const val elementExtension = ".element"
         private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
         // Load the schema catalog either from the default location or from the passed location
@@ -85,23 +81,7 @@ data class Schema(
             val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
             val catalogName =
                 if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
-
-            return if (fromSchemaFile.elementsFile != null) {
-                // Read an element file for the first set of elements. Merge in with
-                // the elements in the elements field
-                val elementFile = File(file.parentFile, fromSchemaFile.elementsFile + elementExtension)
-                if (!elementFile.exists()) error("${elementFile.absolutePath} does not exist")
-                val fromElementsFile = mapper.readValue<List<Element>>(elementFile.inputStream())
-                val elements = mutableListOf<Element>()
-                elements.addAll(fromElementsFile)
-                fromSchemaFile.elements.forEach { (name) ->
-                    elements.removeIf { it.name == name }
-                }
-                elements.addAll(fromSchemaFile.elements)
-                Pair(catalogName, fromSchemaFile.copy(elements = elements))
-            } else {
-                Pair(catalogName, fromSchemaFile)
-            }
+            return Pair(catalogName, fromSchemaFile)
         }
 
         private fun readAllSchemas(catalogDir: File, dirRelPath: String): Map<String, Schema> {
@@ -133,8 +113,9 @@ data class Schema(
                     if (element.name.contains('.')) {
                         val splitName = element.name.split('.')
                         if (splitName.size != 2) error("${element.name} is not a valid base name")
-                        val basedElement = schemas[splitName[0]]?.findElement(splitName[1])
-                            ?: error("${element.name} does not exists")
+                        val baseSchemaName = normalizeSchemaName(splitName[0])
+                        val basedElement = schemas[baseSchemaName]?.findElement(splitName[1])
+                            ?: error("${element.name} does not exists in $name")
                         element.extendFrom(basedElement)
                     } else {
                         element
@@ -142,6 +123,14 @@ data class Schema(
                 }
                 schema.copy(elements = expandedElements)
             }
+        }
+
+        private fun normalizeElementName(name: String): String {
+            return name.replace("_|\\s".toRegex(), "").toLowerCase()
+        }
+
+        private fun normalizeSchemaName(name: String): String {
+            return name.toLowerCase()
         }
     }
 }

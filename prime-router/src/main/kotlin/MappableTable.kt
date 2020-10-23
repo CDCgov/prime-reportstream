@@ -151,7 +151,6 @@ class MappableTable {
         return MappableTable(name, schema, Table.create(columns))
     }
 
-
     fun applyMapping(name: String, mapping: Schema.Mapping): MappableTable {
         val columns = mapping.toSchema.elements.map { buildColumn(mapping, it) }
         val newTable = Table.create(columns)
