@@ -70,7 +70,7 @@ elements:
   - name: standard.First_test
     csvField: First_test
 
-  - name: Symptomatic_for_disease
+  - name: standard.Symptomatic_for_disease
     csvField: Symptomatic_for_disease
 
   - name: standard.Testing_lab_name
@@ -100,7 +100,7 @@ elements:
   - name: standard.Specimen_source_site_code
     csvField: Specimen_source_site_code
 
-  - name: standard.Equipment_instance_identifier
+  - name: standard.Instrument_instance_ID
     csvField: Device_type
 
   - name: standard.Test_result_date

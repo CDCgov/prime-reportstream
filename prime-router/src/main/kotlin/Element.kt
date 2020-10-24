@@ -42,6 +42,7 @@ data class Element(
         CODED,
         CODED_LONIC,
         CODED_SNOMED,
+        CODED_HL7,
         ID,
         ID_DLN,
         ID_SSN,
@@ -53,6 +54,10 @@ data class Element(
         PERSON_NAME,
         TELEPHONE,
         EMAIL,
+    }
+
+    fun nameContains(substring: String): Boolean {
+        return name.contains(substring, ignoreCase = true)
     }
 
     fun extendFrom(baseElement: Element): Element {

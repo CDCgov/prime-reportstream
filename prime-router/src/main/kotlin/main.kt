@@ -61,7 +61,7 @@ class RouterCli : CliktCommand(
     ) {
         if (outputDir == null && outputFile == null) return
         tables.forEach { table ->
-            val outputFile = File((outputDir ?: ".") + "/${table.name}")
+            val outputFile = File(outputDir ?: ".", "${table.name}.csv")
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
                 outputFile.createNewFile()

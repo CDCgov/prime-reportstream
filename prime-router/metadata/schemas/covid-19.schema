@@ -30,22 +30,24 @@ elements:
     hl7Field: REPEAT_OBX_MAP_MULTIPLE
 
   - name: Employed_in_healthcare
-    type: CODED
+    type: CODED_HL7
+    valueSet:
+      - YES
+      - NO
+      - UNK - Unknown
     natFlatFileField: Employed_in_healthcare
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
   - name: Employed_in_high_risk_setting
-    type: CODED
+    type: CODED_HL7
+    valueSet:
+      - YES
+      - NO
+      - UNK - Unknown
     natFlatFileField: Employed_in_high_risk_setting
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
-
-  - name: Equipment_instance_identifier
-    type: ID
-    natFlatFileField:
-    hhsGuidanceField: Device Identifier
-    hl7Field: OBX-18
 
   - name: File_created_date
     type: DATE
@@ -54,8 +56,11 @@ elements:
     hl7Field: MSH-7
 
   - name: First_test
-    type: CODED_LONIC
-    valueSetId: 95417-2
+    type: CODED_HL7
+    valueSet:
+      - YES
+      - NO
+      - UNK - Unknown
     natFlatFileField: First_test
     hhsGuidanceField: First Test
     hl7Field: REPEAT_OBX_MAP
@@ -67,13 +72,21 @@ elements:
     hl7Field: IGNORE
 
   - name: Hospitalized
-    type: CODED
+    type: CODED_HL7
+    valueSet:
+      - YES
+      - NO
+      - UNK - Unknown
     natFlatFileField: Hospitalized
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
   - name: ICU
-    type: CODED
+    type: CODED_HL7
+    valueSet:
+      - YES
+      - NO
+      - UNK - Unknown
     natFlatFileField: ICU
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
@@ -91,7 +104,7 @@ elements:
     hl7Field: OBX-18
 
   - name: Instrument_model_ID
-    type: ID
+    type: TEXT
     natFlatFileField: Instrument_model_ID
     hhsGuidanceField:
     hl7Field: OBX-17
@@ -127,7 +140,7 @@ elements:
     hl7Field: ORC-15
 
   - name: Ordered_test_code
-    type: CODED
+    type: TEXT
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: 'Test ordered '
     hl7Field: OBR-4.1
@@ -260,6 +273,9 @@ elements:
 
   - name: Patient_age_units
     type: CODED
+    valueSet:
+      - months
+      - years
     natFlatFileField: Patient_age_units
     hhsGuidanceField:
     hl7Field: OBX-6
@@ -296,6 +312,11 @@ elements:
 
   - name: Patient_ethnicity
     type: CODED
+    valueSet:
+      - 2135-2 Hispanic or Latino
+      - 2186-5 Non Hispanic or Latino
+      - UNK Unknown
+      - ASKU Asked, but unknown
     natFlatFileField: Patient_ethnicity
     hhsGuidanceField: Patient ethnicity
     hl7Field: PID-22.2
@@ -308,6 +329,10 @@ elements:
 
   - name: Patient_gender
     type: CODED
+    valueSet:
+      - M (Male)
+      - F (Female)
+      - O (Other)
     natFlatFileField: Patient_gender
     hhsGuidanceField: Patient sex
     hl7Field: PID-8
@@ -380,6 +405,14 @@ elements:
 
   - name: Patient_race
     type: CODED
+    valueSet:
+      - 1002-5 American Indian or Alaska Native
+      - 2028-9 Asian
+      - 2054-5 Black or African American
+      - 2076-8 Native Hawaiian or Other Pacific Islander
+      - 2106-3 White
+      - UNK Unknown
+      - ASKU Asked, but unknown
     natFlatFileField: Patient_race
     hhsGuidanceField: 'Patient race '
     hl7Field: PID-10
@@ -421,10 +454,15 @@ elements:
     hl7Field: PID-11.5
 
   - name: Pregnant
-    type: CODED
+    type: CODED_SNOMED
+    valueSet:
+      - 77386006 Pregnant
+      - 60001007 Not Pregnant
+      - 261665006 Unknown
+      - 276727009 Null
     natFlatFileField: Pregnant
     hhsGuidanceField:
-    hl7Field: REPEAT_OBX_MAP
+    hl7Field: OBX-5
 
   - name: Public_health_case_ID
     type: ID
@@ -487,7 +525,7 @@ elements:
     hl7Field: SPM-18
 
   - name: Specimen_source_site_code
-    type: TEXT
+    type: CODED_SNOMED
     natFlatFileField: Specimen_source_site_code
     hhsGuidanceField: Specimen source
     hl7Field: SPM-8.1
@@ -535,16 +573,20 @@ elements:
     hl7Field: SPM-2.1.2
 
   - name: Submitter_unique_sample_ID
-    type: TEXT
+    type: ID
     natFlatFileField: Submitter_unique_sample_ID
     hhsGuidanceField:
     hl7Field: SPM-2.1.1
 
   - name: Symptomatic_for_disease
-    type: TEXT
+    type: CODED_HL7
+    valueSet:
+      - YES
+      - NO
+      - UNK - Unknown
     natFlatFileField: Symptomatic_for_disease
     hhsGuidanceField: Symptomatic per CDC
-    hl7Field: REPEAT_OBX_MAP
+    hl7Field: OBX-5
 
   - name: Test_kit_EUA_ID
     type: ID
@@ -608,6 +650,12 @@ elements:
 
   - name: Test_result_coded
     type: CODED_SNOMED
+    valueSet:
+      - 260373001 Detected
+      - 260415000 Not detected
+      - 895231008 Not detected in pooled specimen
+      - 462371000124108 Detected in pooled specimen
+      - 419984006 Inconclusive
     natFlatFileField: Test_result_coded
     hhsGuidanceField: 'Test result '
     hl7Field: OBX-5.1

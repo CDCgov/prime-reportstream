@@ -19,6 +19,9 @@ class MappableTable {
     // The use of a TableSaw is an implementation detail hidden by this class
     // The TableSaw table is mutable, while this class is has immutable semantics
     //
+    // Dev Note: TableSaw is not multi-platform, so it could be switched out in the future.
+    // Don't let the TableSaw abstraction leak.
+    //
     private val table: Table
 
     enum class StreamType { CSV }
@@ -82,8 +85,6 @@ class MappableTable {
     }
 
     fun write(outputStream: OutputStream, streamType: StreamType = StreamType.CSV) {
-        if (isEmpty()) return
-
         when (streamType) {
             StreamType.CSV -> {
                 val allRows = mutableListOf(schema.elements.map { it.csvField ?: it.name })
