@@ -4,12 +4,12 @@ description: AZ COVID-19 flat file
 topic: covid-19
 trackingElement: standard.Testing_lab_specimen_ID
 elements:
-  - name: standard.Report_facil_data_source_app
+  - name: standard.Sending_application
     type: TEXT
     csvField: Sending_Application
 
-  - name: standard.Sending_application
-    type: ID
+  - name: standard.Sending_application_id
+    type: HD
     csvField: Sending_Application_ID
 
   - name: standard.Testing_lab_name

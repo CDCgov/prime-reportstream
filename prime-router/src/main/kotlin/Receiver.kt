@@ -25,7 +25,7 @@ data class Receiver(
     }
 
     companion object {
-        const val defaultReceivers = "metadata/recievers.yml"
+        const val defaultReceivers = "metadata/receivers.yml"
 
         val receivers: List<Receiver> get() = receiversStore
         private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())

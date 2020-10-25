@@ -114,9 +114,7 @@ class RouterCli : CliktCommand(
                     MappableTable(name, schema, stream, MappableTable.StreamType.CSV)
                 }
             }
-            is InputSource.DirSource -> {
-                error("dir input is not implemented")
-            }
+            is InputSource.DirSource -> TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
                 val schema = Schema.schemas[inputSchema] ?: error("invalid schema")
                 FakeTable.build("fake-${schema.name}", schema, (inputSource as InputSource.FakeSource).count)
@@ -129,7 +127,7 @@ class RouterCli : CliktCommand(
         // Transform tables
         val outputMappableTables: List<MappableTable> = when {
             route -> routeByReceivers(listOf(inputMappableTable))
-            partitionBy != null -> error("Not implemented")
+            partitionBy != null -> TODO("Partition by not implemented")
             else -> listOf(inputMappableTable)
         }
 

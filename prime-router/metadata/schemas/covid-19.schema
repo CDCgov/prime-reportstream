@@ -476,12 +476,6 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-7
 
-  - name: Report_facil_data_source_app
-    type: TEXT
-    natFlatFileField: Report_facil_data_source_app
-    hhsGuidanceField:
-    hl7Field: IGNORE
-
   - name: Reporting_facility_ID
     type: ID
     natFlatFileField: Reporting_facility_ID
@@ -507,14 +501,14 @@ elements:
     hl7Field: OBX-2
 
   - name: Sending_application
-    type: HD
+    type: TEXT
     natFlatFileField:
     hl7Field: MSH-3
 
-  - name: Sending_facility
+  - name: Sending_application_id
     type: HD
     natFlatFileField:
-    hl7Field: MSH-4
+    hl7Field: MSH-3.1
 
   - name: Specimen_collection_site # collection location
     type: TEXT # CWE without a defined table
@@ -685,7 +679,8 @@ elements:
     hl7Field: OBX-1
 
   - name: Test_result_code_system
-    type: TEXT
+    type: CODED_HL7
+    valueSet: ["L", "SCT"]
     natFlatFileField: Test_result_code_system
     hhsGuidanceField:
     hl7Field: OBX-5.3
@@ -693,11 +688,11 @@ elements:
   - name: Test_result_coded
     type: CODED_SNOMED
     valueSet:
-      - 260373001 Detected
-      - 260415000 Not detected
-      - 895231008 Not detected in pooled specimen
-      - 462371000124108 Detected in pooled specimen
-      - 419984006 Inconclusive
+      - 260373001 #Detected
+      - 260415000 #Not detected
+      - 895231008 #Not detected in pooled specimen
+      - 462371000124108 #Detected in pooled specimen
+      - 419984006 #Inconclusive
     natFlatFileField: Test_result_coded
     hhsGuidanceField: 'Test result '
     hl7Field: OBX-5.1
