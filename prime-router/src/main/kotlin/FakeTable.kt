@@ -64,7 +64,7 @@ class FakeTable {
                         element.nameContains("first") -> patient_name.firstName()
                         element.nameContains("last") -> patient_name.lastName()
                         element.nameContains("middle") -> patient_name.firstName()
-                        element.nameContains("suffix") -> patient_name.suffix()
+                        element.nameContains("suffix") -> randomChoice(patient_name.suffix(), "")
                         else -> TODO()
                     }
                 }

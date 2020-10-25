@@ -313,10 +313,10 @@ elements:
   - name: Patient_ethnicity
     type: CODED
     valueSet:
-      - 2135-2 Hispanic or Latino
-      - 2186-5 Non Hispanic or Latino
-      - UNK Unknown
-      - ASKU Asked, but unknown
+      - Hispanic or Latino # 2135-2
+      - Non Hispanic or Latino # 2186-5
+      - Unknown # UNK
+      - Asked, but unknown # ASKU
     natFlatFileField: Patient_ethnicity
     hhsGuidanceField: Patient ethnicity
     hl7Field: PID-22.2
@@ -330,9 +330,11 @@ elements:
   - name: Patient_gender
     type: CODED
     valueSet:
-      - M (Male)
-      - F (Female)
-      - O (Other)
+      - Male
+      - Female
+      - Other
+      - Ambiguous
+      - Unknown
     natFlatFileField: Patient_gender
     hhsGuidanceField: Patient sex
     hl7Field: PID-8
@@ -406,13 +408,13 @@ elements:
   - name: Patient_race
     type: CODED
     valueSet:
-      - 1002-5 American Indian or Alaska Native
-      - 2028-9 Asian
-      - 2054-5 Black or African American
-      - 2076-8 Native Hawaiian or Other Pacific Islander
-      - 2106-3 White
-      - UNK Unknown
-      - ASKU Asked, but unknown
+      - American Indian or Alaska Native #1002-5
+      - Asian #2028-9
+      - Black or African American #2054-5
+      - Native Hawaiian or Other Pacific Islander #2076-8
+      - White #2106-3
+      - Unknown #UNK
+      - Asked, but unknown #ASKU
     natFlatFileField: Patient_race
     hhsGuidanceField: 'Patient race '
     hl7Field: PID-10
