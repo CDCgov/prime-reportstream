@@ -32,6 +32,9 @@ data class Element(
 
     // CSV specific information
     val csvField: String? = null,
+
+    // FHIR specific information
+    val fhirFeild: String? = null,
 ) {
     enum class Type {
         TEXT,

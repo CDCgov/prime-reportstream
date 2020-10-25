@@ -455,15 +455,26 @@ elements:
     hhsGuidanceField: Patient residence zip code
     hl7Field: PID-11.5
 
-  - name: Pregnant
+  - name: Pregnant_code
     type: CODED_SNOMED
     valueSet:
-      - 77386006 Pregnant
-      - 60001007 Not Pregnant
-      - 261665006 Unknown
-      - 276727009 Null
+      - 77386006 # Pregnant
+      - 60001007 # Not Pregnant
+      - 261665006 # Unknown
+      - 276727009 # Null
     natFlatFileField: Pregnant
-    hhsGuidanceField:
+    hhsGuidanceField: Pregnant
+    hl7Field: OBX-5
+
+  - name: Pregnant
+    type: CODED
+    valueSet:
+      - Pregnant
+      - Not Pregnant
+      - Unknown
+      - Null
+    natFlatFileField: Pregnant
+    hhsGuidanceField: Pregnant
     hl7Field: OBX-5
 
   - name: Public_health_case_ID
