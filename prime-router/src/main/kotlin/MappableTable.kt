@@ -4,11 +4,9 @@ package gov.cdc.prime.router
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
-import tech.tablesaw.api.ColumnType
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
-import tech.tablesaw.io.csv.CsvReadOptions
 import tech.tablesaw.selection.Selection
 import java.io.InputStream
 import java.io.OutputStream
@@ -20,6 +18,9 @@ class MappableTable {
 
     // The use of a TableSaw is an implementation detail hidden by this class
     // The TableSaw table is mutable, while this class is has immutable semantics
+    //
+    // Dev Note: TableSaw is not multi-platform, so it could be switched out in the future.
+    // Don't let the TableSaw abstraction leak.
     //
     private val table: Table
 
@@ -54,7 +55,7 @@ class MappableTable {
                 schema.elements.forEachIndexed { index, element ->
                     val header = rows[0]
                     if (index >= header.size ||
-                        (header[index] != element.csv_field && header[index] != element.name)
+                        (header[index] != element.csvField && header[index] != element.name)
                     ) {
                         error("Element ${element.name} is not found in the input stream header")
                     }
@@ -84,11 +85,9 @@ class MappableTable {
     }
 
     fun write(outputStream: OutputStream, streamType: StreamType = StreamType.CSV) {
-        if (isEmpty()) return
-
         when (streamType) {
             StreamType.CSV -> {
-                val allRows = mutableListOf(schema.elements.map { it.csv_field ?: it.name })
+                val allRows = mutableListOf(schema.elements.map { it.csvField ?: it.name })
                 allRows.addAll(
                     table.map { row ->
                         schema.elements.mapIndexed { index, _ -> row.getString(index) }
@@ -144,7 +143,7 @@ class MappableTable {
 
     fun deidentify(): MappableTable {
         val columns = schema.elements.map {
-            if (it.pii) {
+            if (it.pii == true) {
                 createDefaultColumn(it)
             } else {
                 table.column(it.name).copy()
@@ -152,7 +151,6 @@ class MappableTable {
         }
         return MappableTable(name, schema, Table.create(columns))
     }
-
 
     fun applyMapping(name: String, mapping: Schema.Mapping): MappableTable {
         val columns = mapping.toSchema.elements.map { buildColumn(mapping, it) }

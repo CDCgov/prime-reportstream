@@ -1,0 +1,65 @@
+---
+name: pa-covid-19
+description: PA COVID-19 flat file
+topic: covid-19
+trackingElement: standard.Testing_lab_specimen_ID
+elements:
+  - name: standard.Patient_first_name
+    csvField: PatientFirstName
+
+  - name: standard.Patient_middle_name
+    csvField: PatientMiddleInitial
+
+  - name: standard.Patient_last_name
+    csvField: PatientLastName
+
+  - name: standard.Patient_suffix
+    csvField: PatientSuffix
+
+  - name: standard.Patient_DOB
+    csvField: PatientDOB
+
+  - name: standard.Patient_street
+    csvField: PatientAddress1
+
+  - name: standard.Patient_city
+    csvField: PatientCity
+
+  - name: standard.Patient_state
+    csvField: PatientState
+
+  - name: standard.Patient_zip_code
+    csvField: PatientZipCode
+
+  - name: standard.Patient_phone_number
+    csvField: PatientPhoneNumber
+
+  - name: standard.Patient_gender
+    csvField: PatientGender
+
+  - name: standard.Patient_race
+    csvField: PatientRace
+
+  - name: standard.Patient_ethnicity
+    csvField: PatientEthnicity
+
+  - name: standard.Testing_lab_specimen_ID
+    csvField: TestID
+
+  - name: standard.Specimen_collection_date_time
+    csvField: SpecimenCollectedDate
+
+  - name: standard.Specimen_source_site_description
+    csvField: SpecimenSource
+
+  - name: standard.Specimen_type_free_text
+    csvField: TestName
+
+  - name: standard.Test_result_free_text
+    csvField: TestQualitativeResult
+
+  - name: standard.Comments
+    csvField: Notes
+
+  - name: standard.Ordering_facility_name
+    csvField: PerformingFacilityName

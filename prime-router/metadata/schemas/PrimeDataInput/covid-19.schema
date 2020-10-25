@@ -1,0 +1,111 @@
+---
+name: pdi-covid-19
+description: PRIME POC COVID-19 flat file
+topic: covid-19
+trackingElement: standard.Testing_lab_specimen_ID
+elements:
+  - name: standard.Patient_last_name
+    csvField: Patient_last_name
+
+  - name: standard.Patient_first_name
+    csvField: Patient_first_name
+
+  - name: standard.Patient_middle_name
+    csvField: Patient_middle_name
+
+  - name: standard.Patient_suffix
+    csvField: Patient_suffix
+
+  - name: standard.Patient_race
+    csvField: Patient_race
+
+  - name: standard.Patient_DOB
+    csvField: Patient_DOB
+
+  - name: standard.Patient_gender
+    csvField: Patient_gender
+
+  - name: standard.Patient_ethnicity
+    csvField: Patient_ethnicity
+
+  - name: standard.Patient_street
+    csvField: Patient_street
+
+  - name: standard.Patient_street2
+    csvField: Patient_street2
+
+  - name: standard.Patient_city
+    csvField: Patient_city
+
+  - name: standard.Patient_county
+    csvField: Patient_county
+
+  - name: standard.Patient_state
+    csvField: Patient_state
+
+  - name: standard.Patient_zip_code
+    csvField: Patient_zip_code
+
+  - name: standard.Patient_phone_number
+    csvField: Patient_phone_number
+
+  - name: standard.Employed_in_healthcare
+    csvField: Employed_in_healthcare
+
+  - name: standard.Resident_congregate_setting
+    csvField: Resident_congregate_setting
+
+  - name: standard.Testing_lab_specimen_ID
+    csvField: Testing_lab_specimen_ID
+
+  - name: standard.Test_result_coded
+    csvField: Test_result_coded
+
+  - name: standard.Specimen_collection_date_time
+    csvField: Specimen_collection_date_time
+
+  - name: standard.Ordering_provider_ID
+    csvField: Ordering_provider_ID
+
+  - name: standard.First_test
+    csvField: First_test
+
+  - name: standard.Symptomatic_for_disease
+    csvField: Symptomatic_for_disease
+
+  - name: standard.Testing_lab_name
+    csvField: Testing_lab_name
+
+  - name: standard.Testing_lab_ID
+    csvField: Testing_lab_ID
+
+  - name: standard.Ordering_provider_last_name
+    csvField: Ordering_provider_last_name
+
+  - name: standard.Ordering_provider_first_name
+    csvField: Ordering_provider_first_name
+
+  - name: standard.Ordering_provider_street
+    csvField: Ordering_provider_street
+
+  - name: standard.Ordering_provider_zip_code
+    csvField: Ordering_provider_zip_code
+
+  - name: standard.Ordering_provider_phone_number
+    csvField: Ordering_provider_phone
+
+  - name: standard.Ordered_test_code
+    csvField: Ordered_test_code
+
+  - name: standard.Specimen_source_site_code
+    csvField: Specimen_source_site_code
+
+  - name: standard.Instrument_instance_ID
+    csvField: Device_type
+
+  - name: standard.Test_result_date
+    csvField: Test_date
+
+  - name: standard.Date_result_released
+    csvField: Date_result_released
+

@@ -109,7 +109,7 @@ class MappableTableTests {
         val one = Schema(
             name = "one",
             topic = "test",
-            elements = listOf(Element("a", csv_field = "A"), Element("b"))
+            elements = listOf(Element("a", csvField = "A"), Element("b"))
         )
         val csv = """
             A,b
@@ -140,7 +140,7 @@ class MappableTableTests {
         val one = Schema(
             name = "one",
             topic = "test",
-            elements = listOf(Element("a", csv_field = "A"), Element("b"))
+            elements = listOf(Element("a", csvField = "A"), Element("b"))
         )
         val table1 = MappableTable("test", one, listOf(listOf("1", "2")))
         val expectedCsv = """

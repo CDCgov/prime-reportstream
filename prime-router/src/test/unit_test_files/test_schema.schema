@@ -3,14 +3,22 @@ name: lab_test_results_schema
 topic: test
 elements:
   - name: lab
-  - name: first_name
-  - name: last_name
-  - name: state
     type: TEXT
+  - name: first_name
+    type: PERSON_NAME
+  - name: last_name
+    type: PERSON_NAME
+  - name: state
+    type: STATE
   - name: test_time
     type: DATE
   - name: observation
     type: TEXT
+  - name: extra
+    type: TEXT
+  - name: standard.address
+  - name: standard.zip_code
+
 
 
 

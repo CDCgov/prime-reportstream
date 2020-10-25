@@ -20,8 +20,8 @@ data class Receiver(
 
     enum class TopicFormat {
         CSV,
-        HL7,
-        FHIR
+        //HL7,
+        //FHIR
     }
 
     companion object {
