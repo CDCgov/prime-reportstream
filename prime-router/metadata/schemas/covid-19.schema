@@ -34,7 +34,7 @@ elements:
     valueSet:
       - YES
       - NO
-      - UNK - Unknown
+      - UNK # Unknown
     natFlatFileField: Employed_in_healthcare
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
@@ -44,7 +44,7 @@ elements:
     valueSet:
       - YES
       - NO
-      - UNK - Unknown
+      - UNK # Unknown
     natFlatFileField: Employed_in_high_risk_setting
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
@@ -60,7 +60,7 @@ elements:
     valueSet:
       - YES
       - NO
-      - UNK - Unknown
+      - UNK # Unknown
     natFlatFileField: First_test
     hhsGuidanceField: First Test
     hl7Field: REPEAT_OBX_MAP
@@ -76,7 +76,7 @@ elements:
     valueSet:
       - YES
       - NO
-      - UNK - Unknown
+      - UNK # Unknown
     natFlatFileField: Hospitalized
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
@@ -86,7 +86,7 @@ elements:
     valueSet:
       - YES
       - NO
-      - UNK - Unknown
+      - UNK # Unknown
     natFlatFileField: ICU
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
@@ -632,7 +632,7 @@ elements:
     valueSet:
       - YES
       - NO
-      - UNK - Unknown
+      - UNK # Unknown
     natFlatFileField: Symptomatic_for_disease
     hhsGuidanceField: Symptomatic per CDC
     hl7Field: OBX-5

@@ -68,7 +68,7 @@ class FakeTable {
                         else -> TODO()
                     }
                 }
-                Element.Type.TELEPHONE -> faker.phoneNumber().phoneNumber()
+                Element.Type.TELEPHONE -> faker.phoneNumber().cellPhone()
                 Element.Type.EMAIL -> "${patient_name.username()}@email.com"
                 null -> error("Invalid element type for ${element.name}")
             }
