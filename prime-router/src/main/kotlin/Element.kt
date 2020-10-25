@@ -43,6 +43,7 @@ data class Element(
         CODED_LONIC,
         CODED_SNOMED,
         CODED_HL7,
+        HD,
         ID,
         ID_DLN,
         ID_SSN,

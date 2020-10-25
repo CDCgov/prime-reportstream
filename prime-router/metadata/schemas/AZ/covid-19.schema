@@ -8,7 +8,7 @@ elements:
     type: TEXT
     csvField: Sending_Application
 
-  - name: Sending_Application_ID
+  - name: standard.Sending_application
     type: ID
     csvField: Sending_Application_ID
 
@@ -120,6 +120,6 @@ elements:
   - name: standard.Test_result_date
     csvField: Result_Date
 
-  - name: standard.Comments
+  - name: standard.Comment
     csvField: Notes
 

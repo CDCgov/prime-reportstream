@@ -47,6 +47,12 @@ class FakeTable {
                 Element.Type.CODED_SNOMED -> randomChoice(
                     *(element.valueSet?.toTypedArray() ?: arrayOf("random SNOMED"))
                 )
+                Element.Type.HD -> {
+                    when {
+                        element.nameContains("sending_application") -> "fake app"
+                        else -> "fake description"
+                    }
+                }
                 Element.Type.ID -> faker.idNumber().valid()
                 Element.Type.ID_DLN -> faker.idNumber().valid()
                 Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()

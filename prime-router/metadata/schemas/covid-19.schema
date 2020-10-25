@@ -11,7 +11,7 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-8
 
-  - name: Comments
+  - name: Comment
     type: TEXT
     natFlatFileField: Comments
     hhsGuidanceField:
@@ -505,6 +505,16 @@ elements:
     natFlatFileField: Result_format
     hhsGuidanceField:
     hl7Field: OBX-2
+
+  - name: Sending_application
+    type: HD
+    natFlatFileField:
+    hl7Field: MSH-3
+
+  - name: Sending_facility
+    type: HD
+    natFlatFileField:
+    hl7Field: MSH-4
 
   - name: Specimen_collection_site # collection location
     type: TEXT # CWE without a defined table
