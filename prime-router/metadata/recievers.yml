@@ -3,7 +3,7 @@ receivers:
   # Arizona PHD
   - name: phd1
     description: Arizona PHD
-    topic: covid-19
+    topic: sample
     schema: sample/phd1-covid-19
     patterns: {observation: covid-19:pos, state: AZ}
     transforms: {deidentify: false}
@@ -12,7 +12,7 @@ receivers:
   # Florida PHD
   - name: phd2
     description: Florida PHD
-    topic: covid-19
+    topic: sample
     schema: sample/phd2-covid-19
     patterns: {observation: covid-19:.*, state: FL}
     transforms: {deidentify: false}
@@ -21,7 +21,7 @@ receivers:
   # HHS
   - name: fed1
     description: Federal feed
-    topic: covid-19
+    topic: sample
     schema: sample/fed1-covid-19
     patterns: {observation: covid-19:.*, state: .*}
     transforms: {deidentify: true}
