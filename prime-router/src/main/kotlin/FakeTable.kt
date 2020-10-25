@@ -23,14 +23,6 @@ class FakeTable {
                 Element.Type.TEXT -> {
                     when {
                         element.nameContains("lab_name") -> "Any lab USA"
-                        element.nameContains("Specimen_source_site_code") -> {
-                            randomChoice(
-                                "nasal swab (445297001^Swab of internal nose^SCT)",
-                                "nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)",
-                                "throat swabs (258529004^Throat swab^SCT)",
-                                "Nasal and throat swab combination (433801000124107^Nasopharyngeal and oropharyngeal swab^SCT))"
-                            )
-                        }
                         else -> faker.lorem().characters(5, 10)
                     }
                 }
@@ -43,7 +35,7 @@ class FakeTable {
                     SimpleDateFormat("YYYYMMDD").format(date)
                 }
                 Element.Type.DATETIME -> {
-                    val formatter = SimpleDateFormat("YYYYMMDD")
+                    val formatter = SimpleDateFormat("YYYYMMDDhhmm")
                     formatter.format(faker.date().past(10, TimeUnit.DAYS))
                 }
                 Element.Type.DURATION -> TODO()

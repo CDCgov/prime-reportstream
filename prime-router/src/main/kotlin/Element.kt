@@ -14,7 +14,7 @@ data class Element(
     val type: Type? = null,
     val format: String? = null,
     val valueSetId: String? = null,
-    val valueSet: List<String>? = null,
+    val valueSet: List<String>? = null, // If unspecified, any value is valid
     val required: Boolean? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,

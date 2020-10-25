@@ -506,11 +506,9 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-2
 
-  - name: Role
-    type: TEXT
-    natFlatFileField:
-    hhsGuidanceField:
-    hl7Field:
+  - name: Specimen_collection_site # collection location
+    type: TEXT # CWE without a defined table
+    hl7Field: SPM-10
 
   - name: Specimen_collection_date_time
     type: DATETIME
@@ -524,6 +522,23 @@ elements:
     hhsGuidanceField:
     hl7Field: SPM-18
 
+  - name: Specimen_role
+    type: CODED_HL7
+    valueSet:
+      - B # Blind sample
+      - E # Electronic QC
+      - F # Filer
+      - G # Group
+      - L # Pool
+      - O # Operator proficiency
+      - P # Patient
+      - Q # Control specimen
+      - R # Replicate
+      - V # Verifying collaborator
+    natFlatFileField: Role
+    hhsGuidanceField:
+    hl7Field: SPM-11
+
   - name: Specimen_source_site_code
     type: CODED_SNOMED
     natFlatFileField: Specimen_source_site_code
@@ -531,7 +546,8 @@ elements:
     hl7Field: SPM-8.1
 
   - name: Specimen_source_site_code_sys
-    type: TEXT
+    type: CODED
+    valueSet: [SCT,L]
     natFlatFileField: Specimen_source_site_code_sys
     hhsGuidanceField:
     hl7Field: SPM-8.3
@@ -543,13 +559,29 @@ elements:
     hl7Field: SPM-8.2
 
   - name: Specimen_type_code
-    type: TEXT
+    type: CODED_SNOMED
+    valueSet:
+      - 258500001 # Nasopharyngeal swab
+      - 871810001 # Mid-turbinate nasal swab
+      - 697989009 # Anterior nares swab
+      - 258411007 # Nasopharyngeal aspirate
+      - 429931000124105 # Nasal aspirate
+      - 258529004 # Throat swab
+      - 119334006 # Sputum specimen
+      - 119342007 # Saliva specimen
+      - 258607008 # Bronchoalveolar lavage fluid sample
+      - 119364003 # Serum specimen
+      - 119361006 # Plasma specimen
+      - 440500007 # Dried blood spot specimen
+      - 258580003 # Whole blood sample
+      - 122555007 # Venous blood specimen
     natFlatFileField: Specimen_type_code
-    hhsGuidanceField:
+    hhsGuidanceField: Specimen source
     hl7Field: SPM-4.1
 
   - name: Specimen_type_code_system
-    type: TEXT
+    type: CODED
+    valueSet: [SCT]
     natFlatFileField: Specimen_type_code_system
     hhsGuidanceField:
     hl7Field: SPM-4.3
