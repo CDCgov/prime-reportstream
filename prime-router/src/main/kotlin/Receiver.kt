@@ -44,8 +44,10 @@ data class Receiver(
             receiversStore = receivers
         }
 
-        fun get(name: String): Receiver? {
-            return receiversStore.first { it.name == name }
+        fun get(name: String, topic: String): Receiver? {
+            return receiversStore.first {
+                it.name.equals(name, ignoreCase = true) && it.topic.equals(topic, ignoreCase = true)
+            }
         }
 
         private var receiversStore: List<Receiver> = ArrayList()

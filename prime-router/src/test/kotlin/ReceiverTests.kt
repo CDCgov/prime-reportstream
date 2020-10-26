@@ -23,7 +23,7 @@ class ReceiverTests {
         val input = ByteArrayInputStream(receiversYaml.toByteArray())
         Receiver.loadReceiversList(input)
         assertEquals(1, Receiver.receivers.size)
-        assertEquals(2, Receiver.get("phd1")?.patterns?.size)
+        assertEquals(2, Receiver.get("phd1", "covid-19")?.patterns?.size)
     }
 
     @Test

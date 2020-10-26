@@ -32,15 +32,17 @@ data class Schema(
     }
 
     fun findUsingCsvField(name: String): Element? {
-        return elements.find { it.csvField == name || it.name == name }
+        return elements.find { it.csvField.equals(name, ignoreCase = true) || it.name.equals(name, ignoreCase = true) }
     }
 
     fun buildMapping(toSchema: Schema): Mapping {
         if (toSchema.topic != this.topic) error("Trying to match schema with different topics")
+
         val useDirectly = mutableMapOf<String, String>()
         val useTranslator = mutableMapOf<String, String>()
         val useDefault = mutableSetOf<String>()
         val missing = mutableSetOf<String>()
+
         toSchema.elements.forEach {
             val mappedName = findMatchingElement(it)
             if (mappedName != null) {
@@ -60,7 +62,7 @@ data class Schema(
         // TODO: Much more can be done here
         val matchName = normalizeElementName(matchElement.name)
         for ((name) in elements) {
-            if (matchName == normalizeElementName(name)) return name
+            if (matchName.equals(normalizeElementName(name), ignoreCase = true)) return name
         }
         return null
     }
@@ -83,7 +85,7 @@ data class Schema(
             val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
             val catalogName =
                 if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
-            return Pair(catalogName, fromSchemaFile)
+            return Pair(catalogName.toLowerCase(), fromSchemaFile)
         }
 
         private fun readAllSchemas(catalogDir: File, dirRelPath: String): Map<String, Schema> {

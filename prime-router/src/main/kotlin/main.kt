@@ -39,7 +39,7 @@ class RouterCli : CliktCommand(
     private val partitionBy by option("--partition_by", help = "<col> to partition")
     private val send by option("--send", help = "send to a receiver if specified").flag(default = false)
 
-    private val outputFile by option("--output", help = "<file> not compatible with route or partition")
+    private val outputFileName by option("--output", help = "<file> not compatible with route or partition")
     private val outputDir by option("--output_dir", help = "<directory>")
     private val outputSchema by option("--output_schema", help = "<schema_name> or use input schema if not specified")
 
@@ -47,21 +47,25 @@ class RouterCli : CliktCommand(
         fileName: String,
         readBlock: (name: String, schema: Schema, stream: InputStream) -> MappableTable
     ): MappableTable {
-        val schemaName = inputSchema ?: error("Schema is not specified. Use the --inputSchema option")
+        val schemaName = inputSchema.toLowerCase() ?: error("Schema is not specified. Use the --inputSchema option")
         val schema = Schema.schemas[schemaName] ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
-        return readBlock(file.name, schema, file.inputStream())
+        return readBlock(file.nameWithoutExtension, schema, file.inputStream())
     }
 
     private fun writeMappableTablesToFile(
         tables: List<MappableTable>,
         writeBlock: (table: MappableTable, stream: OutputStream) -> Unit
     ) {
-        if (outputDir == null && outputFile == null) return
+        if (outputDir == null && outputFileName == null) return
         tables.forEach { table ->
-            val outputFile = File(outputDir ?: ".", "${table.name}.csv")
+            val outputFile = if (outputFileName == null) {
+                File( outputDir ?: ".", "${table.name}.csv")
+            } else {
+                File(outputFileName)
+            }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
                 outputFile.createNewFile()

@@ -57,7 +57,7 @@ class FakeTable {
                 Element.Type.ID_DLN -> faker.idNumber().valid()
                 Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
                 Element.Type.STREET -> if (element.name.contains("2")) "" else address.streetAddress()
-                Element.Type.STATE -> address.stateAbbr()
+                Element.Type.STATE -> randomChoice("AZ", "FL", "PA")
                 Element.Type.COUNTY -> "Any County"
                 Element.Type.PERSON_NAME -> {
                     when {
