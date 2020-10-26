@@ -21,7 +21,8 @@ data class Schema(
     data class Mapping(
         val toSchema: Schema,
         val fromSchema: Schema,
-        val useFromName: Map<String, String>,
+        val useDirectly: Map<String, String>,
+        val useTranslator: Map<String, String>,
         val useDefault: Set<String>,
         val missing: Set<String>
     )
@@ -36,13 +37,14 @@ data class Schema(
 
     fun buildMapping(toSchema: Schema): Mapping {
         if (toSchema.topic != this.topic) error("Trying to match schema with different topics")
-        val useFromName = HashMap<String, String>()
-        val useDefault = HashSet<String>()
-        val missing = HashSet<String>()
+        val useDirectly = mutableMapOf<String, String>()
+        val useTranslator = mutableMapOf<String, String>()
+        val useDefault = mutableSetOf<String>()
+        val missing = mutableSetOf<String>()
         toSchema.elements.forEach {
             val mappedName = findMatchingElement(it)
             if (mappedName != null) {
-                useFromName[it.name] = mappedName
+                useDirectly[it.name] = mappedName
             } else {
                 if (it.required == true) {
                     missing.add(it.name)
@@ -51,7 +53,7 @@ data class Schema(
                 }
             }
         }
-        return Mapping(toSchema, this, useFromName, useDefault, missing)
+        return Mapping(toSchema, this, useDirectly, useTranslator, useDefault, missing)
     }
 
     private fun findMatchingElement(matchElement: Element): String? {

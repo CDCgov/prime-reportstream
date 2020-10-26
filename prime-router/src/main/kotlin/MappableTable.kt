@@ -160,8 +160,8 @@ class MappableTable {
 
     private fun buildColumn(mapping: Schema.Mapping, toElement: Element): StringColumn {
         return when (toElement.name) {
-            in mapping.useFromName -> {
-                table.stringColumn(mapping.useFromName[toElement.name]).copy().setName(toElement.name)
+            in mapping.useDirectly -> {
+                table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
             }
             in mapping.useDefault -> {
                 createDefaultColumn(toElement)
