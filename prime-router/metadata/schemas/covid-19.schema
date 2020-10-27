@@ -387,6 +387,12 @@ elements:
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP_OTHER
 
+  - name: Patient_middle_initial
+    type: PERSON_NAME
+    natFlatFileField: Patient_middle_name
+    hhsGuidanceField: 'Patient name '
+    hl7Field: PID-5.3
+
   - name: Patient_middle_name
     type: PERSON_NAME
     natFlatFileField: Patient_middle_name

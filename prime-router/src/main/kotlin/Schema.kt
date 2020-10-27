@@ -22,7 +22,7 @@ data class Schema(
         val toSchema: Schema,
         val fromSchema: Schema,
         val useDirectly: Map<String, String>,
-        val useTranslator: Map<String, String>,
+        val useTranslator: Map<String, Translator>,
         val useDefault: Set<String>,
         val missing: Set<String>
     )
@@ -39,20 +39,23 @@ data class Schema(
         if (toSchema.topic != this.topic) error("Trying to match schema with different topics")
 
         val useDirectly = mutableMapOf<String, String>()
-        val useTranslator = mutableMapOf<String, String>()
+        val useTranslator = mutableMapOf<String, Translator>()
         val useDefault = mutableSetOf<String>()
         val missing = mutableSetOf<String>()
 
-        toSchema.elements.forEach {
-            val mappedName = findMatchingElement(it)
-            if (mappedName != null) {
-                useDirectly[it.name] = mappedName
+        toSchema.elements.forEach { toElement ->
+            findMatchingElement(toElement)?.let {
+                useDirectly[toElement.name] = it
+                return@forEach
+            }
+            findMatchingTranslator(toElement)?.let {
+                useTranslator[toElement.name] = it
+                return@forEach
+            }
+            if (toElement.required == true) {
+                missing.add(toElement.name)
             } else {
-                if (it.required == true) {
-                    missing.add(it.name)
-                } else {
-                    useDefault.add(it.name)
-                }
+                useDefault.add(toElement.name)
             }
         }
         return Mapping(toSchema, this, useDirectly, useTranslator, useDefault, missing)
@@ -67,8 +70,18 @@ data class Schema(
         return null
     }
 
+    private fun findMatchingTranslator(matchElement: Element): Translator? {
+        val candidates = translators[this.topic]?.get(matchElement.name) ?: return null
+        return candidates.find { translator ->
+            translator.fromElements.find { findElement(it) == null } == null
+        }
+    }
+
     companion object {
-        var schemas: Map<String, Schema> = emptyMap()
+        var schemas = mapOf<String, Schema>()
+        var translators: Map<String, Map<String, List<Translator>>> = mapOf(
+            "covid-19" to mapOf("standard.Patient_middle_initial" to listOf(MITranslator()))
+        )
 
         private const val defaultCatalog = "./metadata/schemas"
         private const val schemaExtension = ".schema"

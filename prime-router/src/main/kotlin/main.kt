@@ -62,7 +62,7 @@ class RouterCli : CliktCommand(
         if (outputDir == null && outputFileName == null) return
         tables.forEach { table ->
             val outputFile = if (outputFileName == null) {
-                File( outputDir ?: ".", "${table.name}.csv")
+                File(outputDir ?: ".", "${table.name}.csv")
             } else {
                 File(outputFileName)
             }
