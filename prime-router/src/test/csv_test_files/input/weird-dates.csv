@@ -1,0 +1,8 @@
+lab,first_name,last_name,state,test_time,specimen_id,observation
+lab1,Gary,Aguilar,FL,"January 31, 2020",28504428,covid-19:neg
+lab1,Brooke,Johnson,AZ,1-31-2020,46000469,covid-19:neg
+lab1,Mary,Ponce,FL,01/31/2020,89423698,covid-19:neg
+lab1,Crystal,Bates,FL,31/01/2020,22829307,covid-19:pos
+lab1,James,Mills,FL,"Jan 31, 2020",77404373,covid-19:neg
+lab1,Shelby,Kemp,FL,2020-01-31,43269633,covid-19:neg
+lab1,Scott,Pratt,FL,1/31/2020,31027967,covid-19:pos

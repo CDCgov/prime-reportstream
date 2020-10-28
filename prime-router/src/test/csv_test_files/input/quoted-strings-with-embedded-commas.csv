@@ -1,0 +1,5 @@
+lab,first_name,last_name,state,test_time,specimen_id,observation
+"Bob's Country Bunker Lab",Gary,Aguilar,FL,2020-10-10T17:42:31+00:00,28504428,covid-19:neg
+"Labs, Inc",Brooke,Johnson,AZ,2020-10-10T17:42:31+00:00,46000469,covid-19:neg
+'Labs Inc',Mary,Ponce,FL,2020-10-10T17:42:31+00:00,89423698,covid-19:neg
+This Lab Name is Very Long with Lots of Spaces and Even	a Tab Character In it.,Crystal,Bates,FL,2020-10-10T17:42:31+00:00,22829307,covid-19:pos
