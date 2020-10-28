@@ -33,13 +33,13 @@ class SendingAppIdTranslator : Translator {
     override val fromElements = emptyList<String>()
 
     override fun apply(values: List<String>): String? {
-        return null
+        return "TODO PRIME OID"
     }
 }
 
 class SpecimenTypeFreeTranslator : Translator {
     override val topic = "covid-19"
-    override val toElement = "standard.Specimen_type_free_text"
+    override val toElement = "standard.specimen_type_text"
     override val fromElements = listOf("standard.Specimen_type_code")
 
     override fun apply(values: List<String>): String? {
@@ -65,7 +65,7 @@ class SpecimenTypeFreeTranslator : Translator {
 
 class LabTestResultTranslator : Translator {
     override val topic = "covid-19"
-    override val toElement = "standard.Test_result_free_text"
+    override val toElement = "standard.test_result_text"
     override val fromElements = listOf("standard.Test_result_coded")
 
     override fun apply(values: List<String>): String? {

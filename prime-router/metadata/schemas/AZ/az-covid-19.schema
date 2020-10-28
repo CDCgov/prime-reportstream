@@ -4,122 +4,122 @@ description: AZ COVID-19 flat file
 topic: covid-19
 trackingElement: standard.Testing_lab_specimen_ID
 elements:
-  - name: standard.Sending_application
+  - name: standard.sending_application
     type: TEXT
     csvField: Sending_Application
 
-  - name: standard.Sending_application_id
+  - name: standard.sending_application_id
     type: HD
     csvField: Sending_Application_ID
 
-  - name: standard.Testing_lab_name
+  - name: standard.testing_lab_name
     csvField: Lab_Name
 
-  - name: standard.Testing_lab_ID
+  - name: standard.testing_lab_ID
     csvField: Lab_CLIA
 
-  - name: standard.Testing_lab_street
+  - name: standard.testing_lab_street
     csvField: Lab_Address
 
-  - name: standard.Testing_lab_city
+  - name: standard.testing_lab_city
     csvField: Lab_City
 
-  - name: standard.Testing_lab_state
+  - name: standard.testing_lab_state
     csvField: Lab_State
 
-  - name: standard.Testing_lab_zip_code
+  - name: standard.testing_lab_zip_code
     csvField: Lab_Zip
 
-  - name: standard.Testing_lab_phone_number
+  - name: standard.testing_lab_phone_number
     csvField: Lab_Phone
 
-  - name: standard.Patient_ID
+  - name: standard.patient_ID
     csvField: Patient_ID
 
-  - name: standard.Patient_first_name
+  - name: standard.patient_first_name
     csvField: Patient_First_Name
 
-  - name: standard.Patient_last_name
+  - name: standard.patient_last_name
     csvField: Patient_Last_Name
 
-  - name: standard.Patient_DOB
+  - name: standard.patient_DOB
     csvField: Patient_Date_of_Birth
 
-  - name: standard.Patient_gender
+  - name: standard.patient_gender
     csvField: Patient_Sex
 
-  - name: standard.Patient_race
+  - name: standard.patient_race
     csvField: Race
 
-  - name: standard.Patient_ethnicity
+  - name: standard.patient_ethnicity
     csvField: Ethnicity
 
-  - name: standard.Patient_street
+  - name: standard.patient_street
     csvField: Patient_Street_Address
 
-  - name: standard.Patient_city
+  - name: standard.patient_city
     csvField: Patient_City
 
-  - name: standard.Patient_state
+  - name: standard.patient_state
     csvField: Patient_State
 
-  - name: standard.Patient_zip_code
+  - name: standard.patient_zip_code
     csvField: Patient_Zip
 
-  - name: standard.Patient_county
+  - name: standard.patient_county
     csvField: Patient_County
 
-  - name: standard.Patient_phone_number
+  - name: standard.patient_phone_number
     csvField: Patient_Phone_Number
 
-  - name: standard.Ordering_facility_name
+  - name: standard.ordering_facility_name
     csvField: Ordering_Facility
 
-  - name: standard.Ordering_facility_street
+  - name: standard.ordering_facility_street
     csvField: Ordering_Facility_Address
 
-  - name: standard.Ordering_facility_city
+  - name: standard.ordering_facility_city
     csvField: Ordering_Facility_City
 
-  - name: standard.Ordering_facility_state
+  - name: standard.ordering_facility_state
     csvField: Ordering_Facility_State
 
-  - name: standard.Ordering_facility_zip_code
+  - name: standard.ordering_facility_zip_code
     csvField: Ordering_Facility_Zip
 
-  - name: standard.Ordering_provider_first_name
+  - name: standard.ordering_provider_first_name
     csvField: Provider_First_Name
 
-  - name: standard.Ordering_provider_last_name
+  - name: standard.ordering_provider_last_name
     csvField: Provider_Last_Name
 
-  - name: standard.Ordering_provider_phone_number
+  - name: standard.ordering_provider_phone_number
     csvField: Provider_Phone_Number
 
-  - name: standard.Testing_lab_specimen_ID
+  - name: standard.testing_lab_specimen_ID
     csvField: Specimen_ID
 
-  - name: standard.Specimen_collection_date_time
+  - name: standard.specimen_collection_date_time
     csvField: Collection_Date
 
-  - name: standard.Specimen_type_free_text
+  - name: standard.specimen_type_text
     csvField: Specimen_Type
 
-  - name: standard.Specimen_source_site_description
+  - name: standard.specimen_source_site_description
     csvField: Specimen_Site
 
-  - name: standard.Test_performed_code
+  - name: standard.test_performed_code
     csvField: Test_Code
 
-  - name: standard.Test_performed_description
+  - name: standard.test_performed_description
     csvField: Test_Name
 
-  - name: standard.Test_result_free_text
+  - name: standard.test_result_text
     csvField: Result
 
-  - name: standard.Test_result_date
+  - name: standard.test_result_date
     csvField: Result_Date
 
-  - name: standard.Comment
+  - name: standard.comment
     csvField: Notes
 

@@ -4,62 +4,62 @@ description: PA COVID-19 flat file
 topic: covid-19
 trackingElement: standard.Testing_lab_specimen_ID
 elements:
-  - name: standard.Patient_first_name
+  - name: standard.patient_first_name
     csvField: PatientFirstName
 
-  - name: standard.Patient_middle_initial
+  - name: standard.patient_middle_initial
     csvField: PatientMiddleInitial
 
-  - name: standard.Patient_last_name
+  - name: standard.patient_last_name
     csvField: PatientLastName
 
-  - name: standard.Patient_suffix
+  - name: standard.patient_suffix
     csvField: PatientSuffix
 
-  - name: standard.Patient_DOB
+  - name: standard.patient_DOB
     csvField: PatientDOB
 
-  - name: standard.Patient_street
+  - name: standard.patient_street
     csvField: PatientAddress1
 
-  - name: standard.Patient_city
+  - name: standard.patient_city
     csvField: PatientCity
 
-  - name: standard.Patient_state
+  - name: standard.patient_state
     csvField: PatientState
 
-  - name: standard.Patient_zip_code
+  - name: standard.patient_zip_code
     csvField: PatientZipCode
 
-  - name: standard.Patient_phone_number
+  - name: standard.patient_phone_number
     csvField: PatientPhoneNumber
 
-  - name: standard.Patient_gender
+  - name: standard.patient_gender
     csvField: PatientGender
 
-  - name: standard.Patient_race
+  - name: standard.patient_race
     csvField: PatientRace
 
-  - name: standard.Patient_ethnicity
+  - name: standard.patient_ethnicity
     csvField: PatientEthnicity
 
-  - name: standard.Testing_lab_specimen_ID
+  - name: standard.testing_lab_specimen_ID
     csvField: TestID
 
-  - name: standard.Specimen_collection_date_time
+  - name: standard.specimen_collection_date_time
     csvField: SpecimenCollectedDate
 
-  - name: standard.Specimen_source_site_description
+  - name: standard.specimen_source_site_description
     csvField: SpecimenSource
 
-  - name: standard.Specimen_type_free_text
+  - name: standard.specimen_type_text
     csvField: TestName
 
-  - name: standard.Test_result_free_text
+  - name: standard.test_result_text
     csvField: TestQualitativeResult
 
-  - name: standard.Comment
+  - name: standard.comment
     csvField: Notes
 
-  - name: standard.Ordering_facility_name
+  - name: standard.ordering_facility_name
     csvField: PerformingFacilityName

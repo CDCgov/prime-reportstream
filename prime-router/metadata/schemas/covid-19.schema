@@ -1,35 +1,42 @@
 ---
 # This is set of standard data elements for covid-19 topic
 #
+# Conventions:
+# - Sort by element name
+# - Use the HL7 message name with _ instead of space and lower cased
+# - Extended with _text or _coded or _system for the various parts of the HL7 field
+# - Use ID instead of Identifier
+# - Avoid abbreviations. Use street1, phone_number, zip_code, ...
+#
 name: standard
 topic: covid-19
 description: collection of standard elements, not an actual schema
 elements:
-  - name: Abnormal_flag
+  - name: abnormal_flag
     type: CODED
     natFlatFileField: Abnormal_flag
     hhsGuidanceField:
     hl7Field: OBX-8
 
-  - name: Comment
+  - name: comment
     type: TEXT
     natFlatFileField: Comments
     hhsGuidanceField:
     hl7Field: NTE-3
 
-  - name: Date_result_released
+  - name: date_result_released
     type: DATE
     natFlatFileField: Date_result_released
     hhsGuidanceField: Test report date
     hl7Field: OBR-22
 
-  - name: Disease_symptoms
+  - name: disease_symptoms
     type: CODED
     natFlatFileField: Disease_symptoms
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP_MULTIPLE
 
-  - name: Employed_in_healthcare
+  - name: employed_in_healthcare
     type: CODED_HL7
     valueSet:
       - YES
@@ -39,7 +46,7 @@ elements:
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
-  - name: Employed_in_high_risk_setting
+  - name: employed_in_high_risk_setting
     type: CODED_HL7
     valueSet:
       - YES
@@ -49,31 +56,31 @@ elements:
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
-  - name: Equipment_instance_ID
+  - name: equipment_instance_ID
     type: ID
     natFlatFileField: Instrument_instance_ID
     hhsGuidanceField:
     hl7Field: OBX-18
 
-  - name: Equipment_model_ID
+  - name: equipment_model_ID
     type: TEXT
     natFlatFileField: Instrument_model_ID
     hhsGuidanceField:
     hl7Field: OBX-17
 
-  - name: Equipment_model_name
+  - name: equipment_model_name
     type: TEXT
     natFlatFileField: Instrument_model_name
     hhsGuidanceField:
     hl7Field: OBX-17
 
-  - name: File_created_date
+  - name: file_created_date
     type: DATE
     natFlatFileField: File_created_date
     hhsGuidanceField:
     hl7Field: MSH-7
 
-  - name: First_test
+  - name: first_test
     type: CODED_HL7
     valueSet:
       - YES
@@ -89,7 +96,7 @@ elements:
     hhsGuidanceField:
     hl7Field: IGNORE
 
-  - name: Hospitalized
+  - name: hospitalized
     type: CODED_HL7
     valueSet:
       - YES
@@ -99,7 +106,7 @@ elements:
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
-  - name: ICU
+  - name: iCU
     type: CODED_HL7
     valueSet:
       - YES
@@ -109,169 +116,169 @@ elements:
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
-  - name: Illness_onset_date
+  - name: illness_onset_date
     type: DATE
     natFlatFileField: Illness_onset_date
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_DT
 
-  - name: Link_test_to_parent_accession
+  - name: link_test_to_parent_accession
     type: TEXT
     natFlatFileField: Link_test_to_parent_accession
     hhsGuidanceField:
     hl7Field: OBR-29
 
-  - name: Link_test_to_parent_result
+  - name: link_test_to_parent_result
     type: TEXT
     natFlatFileField: Link_test_to_parent_result
     hhsGuidanceField:
     hl7Field: OBR-26
 
-  - name: Order_result_status
+  - name: order_result_status
     type: CODED_SNOMED
     natFlatFileField: Order_result_status
     hhsGuidanceField:
     hl7Field: OBR-25
 
-  - name: Order_test_date
+  - name: order_test_date
     type: DATE
     natFlatFileField: Order_test_date
     hhsGuidanceField:
     hl7Field: ORC-15
 
-  - name: Ordered_test_code
+  - name: ordered_test_code
     type: TEXT
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: 'Test ordered '
     hl7Field: OBR-4.1
 
-  - name: Ordered_test_code_system
+  - name: ordered_test_code_system
     type: TEXT
     natFlatFileField: Ordered_test_code_system
     hhsGuidanceField:
     hl7Field: OBR-4.3
 
-  - name: Ordered_test_description
+  - name: ordered_test_description
     type: TEXT
     natFlatFileField: Ordered_test_description
     hhsGuidanceField:
     hl7Field: OBR-4.2
 
-  - name: Ordering_facility_city
+  - name: ordering_facility_city
     type: CITY
     natFlatFileField: Ordering_facility_city
     hhsGuidanceField:
     hl7Field: ORC-22.3
 
-  - name: Ordering_facility_county
+  - name: ordering_facility_county
     type: COUNTY
     natFlatFileField: Ordering_facility_county
     hhsGuidanceField:
     hl7Field: ORC-22.9
 
-  - name: Ordering_facility_name
+  - name: ordering_facility_name
     type: TEXT
     natFlatFileField: Ordering_facility_name
     hhsGuidanceField:
     hl7Field: ORC-21.1
 
-  - name: Ordering_facility_phone_number
+  - name: ordering_facility_phone_number
     type: TELEPHONE
     natFlatFileField: Ordering_facility_phone_number
     hhsGuidanceField:
     hl7Field: ORC-23
 
-  - name: Ordering_facility_state
+  - name: ordering_facility_state
     type: STATE
     natFlatFileField: Ordering_facility_state
     hhsGuidanceField:
     hl7Field: ORC-22.4
 
-  - name: Ordering_facility_street
+  - name: ordering_facility_street
     type: STREET
     natFlatFileField: Ordering_facility_street
     hhsGuidanceField:
     hl7Field: ORC-22.1
 
-  - name: Ordering_facility_street_2
+  - name: ordering_facility_street_2
     type: STREET
     natFlatFileField: Ordering_facility_street_2
     hhsGuidanceField:
     hl7Field: ORC-22.2
 
-  - name: Ordering_facility_zip_code
+  - name: ordering_facility_zip_code
     type: POSTAL_CODE
     natFlatFileField: Ordering_facility_zip_code
     hhsGuidanceField:
     hl7Field: ORC-22.5
 
-  - name: Ordering_provider_city
+  - name: ordering_provider_city
     type: CITY
     natFlatFileField: Ordering_provider_city
     hhsGuidanceField:
     hl7Field: ORC-24.3
 
-  - name: Ordering_provider_county
+  - name: ordering_provider_county
     type: COUNTY
     natFlatFileField: Ordering_provider_county
     hhsGuidanceField:
     hl7Field: ORC-24.9
 
-  - name: Ordering_provider_first_name
+  - name: ordering_provider_first_name
     type: PERSON_NAME
     natFlatFileField: Ordering_provider_first_name
     hhsGuidanceField:
     hl7Field: ORC-12.3/OBR-16.3
 
-  - name: Ordering_provider_ID
+  - name: ordering_provider_ID
     type: ID
     natFlatFileField: Ordering_provider_ID
     hhsGuidanceField: Ordering provider name; NPI
     hl7Field: ORC-12.1/OBR-16.1
 
-  - name: Ordering_provider_last_name
+  - name: ordering_provider_last_name
     type: PERSON_NAME
     natFlatFileField: Ordering_provider_last_name
     hhsGuidanceField:
     hl7Field: ORC-12.2/OBR-16.2
 
-  - name: Ordering_provider_phone_number
+  - name: ordering_provider_phone_number
     type: TELEPHONE
     natFlatFileField: Ordering_provider_phone
     hhsGuidanceField: Ordering provider phone number
     hl7Field: ORC-14/OBR-17
 
-  - name: Ordering_provider_state
+  - name: ordering_provider_state
     type: STATE
     natFlatFileField: Ordering_provider_state
     hhsGuidanceField:
     hl7Field: ORC-24.4
 
-  - name: Ordering_provider_street
+  - name: ordering_provider_street
     type: STREET
     natFlatFileField: Ordering_provider_street
     hhsGuidanceField: Ordering provider address
     hl7Field: ORC-24.1
 
-  - name: Ordering_provider_street2
+  - name: ordering_provider_street2
     type: STREET
     natFlatFileField: Ordering_provider_street2
     hhsGuidanceField:
     hl7Field: ORC-24.2
 
-  - name: Ordering_provider_zip_code
+  - name: ordering_provider_zip_code
     type: POSTAL_CODE
     natFlatFileField: Ordering_provider_zip_code
     hhsGuidanceField: Ordering provider zip code
     hl7Field: ORC-24.5
 
-  - name: Patient_age
+  - name: patient_age
     type: NUMBER
     natFlatFileField: Patient_age
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_NM
 
-  - name: Patient_age_units
+  - name: patient_age_units
     type: CODED
     valueSet:
       - months
@@ -280,37 +287,37 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-6
 
-  - name: Patient_city
+  - name: patient_city
     type: CITY
     natFlatFileField: Patient_city
     hhsGuidanceField:
     hl7Field: PID-11.3
 
-  - name: Patient_county
+  - name: patient_county
     type: COUNTY
     natFlatFileField: Patient_county
     hhsGuidanceField: Patient residence county
     hl7Field: PID-11.9
 
-  - name: Patient_death_date
+  - name: patient_death_date
     type: DATE
     natFlatFileField: Patient_death_date
     hhsGuidanceField:
     hl7Field: PID-29
 
-  - name: Patient_died
+  - name: patient_died
     type: CODED
     natFlatFileField: Patient_died
     hhsGuidanceField:
     hl7Field: PID-30
 
-  - name: Patient_DOB
+  - name: patient_DOB
     type: DATE
     natFlatFileField: Patient_DOB
     hhsGuidanceField: Patient date of birth
     hl7Field: PID-7
 
-  - name: Patient_ethnicity
+  - name: patient_ethnicity
     type: CODED
     valueSet:
       - Hispanic or Latino # 2135-2
@@ -321,13 +328,13 @@ elements:
     hhsGuidanceField: Patient ethnicity
     hl7Field: PID-22.2
 
-  - name: Patient_first_name
+  - name: patient_first_name
     type: PERSON_NAME
     natFlatFileField: Patient_first_name
     hhsGuidanceField: 'Patient name '
     hl7Field: PID-5.2
 
-  - name: Patient_gender
+  - name: patient_gender
     type: CODED
     valueSet:
       - Male
@@ -339,79 +346,79 @@ elements:
     hhsGuidanceField: Patient sex
     hl7Field: PID-8
 
-  - name: Patient_ID
+  - name: patient_ID
     type: ID
     natFlatFileField: Patient_ID
     hhsGuidanceField:
     hl7Field: PID-3.1-1
 
-  - name: Patient_ID_2
+  - name: patient_ID_2
     type: ID
     natFlatFileField: Patient_ID_2
     hhsGuidanceField:
     hl7Field: PID-3.1-2
 
-  - name: Patient_ID_2_assigner
+  - name: patient_ID_2_assigner
     type: TEXT
     natFlatFileField: Patient_ID_2_assigner
     hhsGuidanceField:
     hl7Field: PID-3.4.1-2
 
-  - name: Patient_ID_2_type
+  - name: patient_ID_2_type
     type: TEXT
     natFlatFileField: Patient_ID_2_type
     hhsGuidanceField:
     hl7Field: PID-3.5-2
 
-  - name: Patient_ID_assigner
+  - name: patient_ID_assigner
     type: TEXT
     natFlatFileField: Patient_ID_assigner
     hhsGuidanceField:
     hl7Field: PID-3.4.1-1
 
-  - name: Patient_ID_type
+  - name: patient_ID_type
     type: CODED
     natFlatFileField: Patient_ID_type
     hhsGuidanceField:
     hl7Field: PID-3.5-1
 
-  - name: Patient_last_name
+  - name: patient_last_name
     type: PERSON_NAME
     natFlatFileField: Patient_last_name
     hhsGuidanceField: 'Patient name '
     hl7Field: PID-5.1
 
-  - name: Patient_location
+  - name: patient_location
     type: CODED
     natFlatFileField: Patient_location
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP_OTHER
 
-  - name: Patient_middle_initial
+  - name: patient_middle_initial
     type: PERSON_NAME
     natFlatFileField: Patient_middle_name
-    hhsGuidanceField: 'Patient name '
+    hhsGuidanceField: Patient name
     hl7Field: PID-5.3
 
-  - name: Patient_middle_name
+  - name: patient_middle_name
     type: PERSON_NAME
     natFlatFileField: Patient_middle_name
-    hhsGuidanceField: 'Patient name '
+    hhsGuidanceField: Patient name
     hl7Field: PID-5.3
 
-  - name: Patient_occupation
+  - name: patient_occupation
     type: CODED
     natFlatFileField: Patient_occupation
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP_OTHER
 
-  - name: Patient_phone_number
+  - name: patient_phone_number
     type: TELEPHONE
     natFlatFileField: Patient_phone_number
     hhsGuidanceField: Patient phone number
     hl7Field: PID-13
 
-  - name: Patient_race
+  - name: patient_race
     type: CODED
     valueSet:
       - American Indian or Alaska Native #1002-5
@@ -425,43 +432,55 @@ elements:
     hhsGuidanceField: 'Patient race '
     hl7Field: PID-10
 
-  - name: Patient_residency_type
+  - name: patient_residency_type
     type: CODED
     natFlatFileField: Patient_residency_type
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
-  - name: Patient_state
+  - name: patient_state
     type: STATE
     natFlatFileField: Patient_state
     hhsGuidanceField:
     hl7Field: PID-11.4
 
-  - name: Patient_street
+  - name: patient_street
     type: STREET
     natFlatFileField: Patient_street
     hhsGuidanceField: Patient street address
     hl7Field: PID-11.1
 
-  - name: Patient_street2
+  - name: patient_street2
     type: STREET
     natFlatFileField: Patient_street2
     hhsGuidanceField:
     hl7Field: PID-11.2
 
-  - name: Patient_suffix
+  - name: patient_suffix
     type: PERSON_NAME
     natFlatFileField: Patient_suffix
     hhsGuidanceField:
     hl7Field: PID-5.4
 
-  - name: Patient_zip_code
+  - name: patient_tribal_citizenship_coded
+    type: CODED_HL7
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: PID-39
+
+  - name: patient_tribal_citizenship_text
+    type: TEXT
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: PID-39
+
+  - name: patient_zip_code
     type: POSTAL_CODE
     natFlatFileField: Patient_zip_code
     hhsGuidanceField: Patient residence zip code
     hl7Field: PID-11.5
 
-  - name: Pregnant_code
+  - name: pregnant_code
     type: CODED_SNOMED
     valueSet:
       - 77386006 # Pregnant
@@ -472,7 +491,7 @@ elements:
     hhsGuidanceField: Pregnant
     hl7Field: OBX-5
 
-  - name: Pregnant
+  - name: pregnant
     type: CODED
     valueSet:
       - Pregnant
@@ -483,69 +502,69 @@ elements:
     hhsGuidanceField: Pregnant
     hl7Field: OBX-5
 
-  - name: Public_health_case_ID
+  - name: public_health_case_ID
     type: ID
     natFlatFileField: Public_health_case_ID
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_ST
 
-  - name: Reference_range
+  - name: reference_range
     type: TEXT
     natFlatFileField: Reference_range
     hhsGuidanceField:
     hl7Field: OBX-7
 
-  - name: Reporting_facility_ID
+  - name: reporting_facility_ID
     type: ID
     natFlatFileField: Reporting_facility_ID
     hhsGuidanceField:
     hl7Field: MSH-4.2
 
-  - name: Reporting_facility_name
+  - name: reporting_facility_name
     type: TEXT
     natFlatFileField: Reporting_facility_name
     hhsGuidanceField:
     hl7Field: MSH-4.1
 
-  - name: Resident_congregate_setting
+  - name: resident_congregate_setting
     type: TEXT
     natFlatFileField: Resident_congregate_setting
     hhsGuidanceField: Resident in congregate care/living setting
     hl7Field: REPEAT_OBX_MAP
 
-  - name: Result_format
+  - name: result_format
     type: TEXT
     natFlatFileField: Result_format
     hhsGuidanceField:
     hl7Field: OBX-2
 
-  - name: Sending_application
+  - name: sending_application
     type: TEXT
     natFlatFileField:
     hl7Field: MSH-3
 
-  - name: Sending_application_id
+  - name: sending_application_id
     type: HD
     natFlatFileField:
     hl7Field: MSH-3.1
 
-  - name: Specimen_collection_site # collection location
+  - name: specimen_collection_site # collection location
     type: TEXT # CWE without a defined table
     hl7Field: SPM-10
 
-  - name: Specimen_collection_date_time
+  - name: specimen_collection_date_time
     type: DATETIME
     natFlatFileField: Specimen_collection_date_time
     hhsGuidanceField: Test result date
     hl7Field: OBR-7/SPM-17.1
 
-  - name: Specimen_received_date_time
+  - name: specimen_received_date_time
     type: DATETIME
     natFlatFileField: Specimen_received_date_time
     hhsGuidanceField:
     hl7Field: SPM-18
 
-  - name: Specimen_role
+  - name: specimen_role
     type: CODED_HL7
     valueSet:
       - B # Blind sample
@@ -562,26 +581,26 @@ elements:
     hhsGuidanceField:
     hl7Field: SPM-11
 
-  - name: Specimen_source_site_code
+  - name: specimen_source_site_code
     type: CODED_SNOMED
     natFlatFileField: Specimen_source_site_code
     hhsGuidanceField: Specimen source
     hl7Field: SPM-8.1
 
-  - name: Specimen_source_site_code_sys
+  - name: specimen_source_site_code_sys
     type: CODED
     valueSet: [SCT,L]
     natFlatFileField: Specimen_source_site_code_sys
     hhsGuidanceField:
     hl7Field: SPM-8.3
 
-  - name: Specimen_source_site_description
+  - name: specimen_source_site_description
     type: TEXT
     natFlatFileField: Specimen_source_site_descrip
     hhsGuidanceField:
     hl7Field: SPM-8.2
 
-  - name: Specimen_type_code
+  - name: specimen_type_code
     type: CODED_SNOMED
     valueSet:
       - 258500001 # Nasopharyngeal swab
@@ -602,38 +621,38 @@ elements:
     hhsGuidanceField: Specimen source
     hl7Field: SPM-4.1
 
-  - name: Specimen_type_code_system
+  - name: specimen_type_code_system
     type: CODED
     valueSet: [SCT]
     natFlatFileField: Specimen_type_code_system
     hhsGuidanceField:
     hl7Field: SPM-4.3
 
-  - name: Specimen_type_description
+  - name: specimen_type_description
     type: TEXT
     natFlatFileField: Specimen_type_description
     hhsGuidanceField:
     hl7Field: SPM-4.2
 
-  - name: Specimen_type_free_text
+  - name: specimen_type_text
     type: TEXT
-    natFlatFileField: Specimen_type_free_text
+    natFlatFileField: Specimen_type_text
     hhsGuidanceField:
     hl7Field: SPM-4.9
 
-  - name: Submitter_sample_ID_assigner
+  - name: submitter_sample_ID_assigner
     type: TEXT
     natFlatFileField: Submitter_sample_ID_assigner
     hhsGuidanceField:
     hl7Field: SPM-2.1.2
 
-  - name: Submitter_unique_sample_ID
+  - name: submitter_unique_sample_ID
     type: ID
     natFlatFileField: Submitter_unique_sample_ID
     hhsGuidanceField:
     hl7Field: SPM-2.1.1
 
-  - name: Symptomatic_for_disease
+  - name: symptomatic_for_disease
     type: CODED_HL7
     valueSet:
       - YES
@@ -643,68 +662,68 @@ elements:
     hhsGuidanceField: Symptomatic per CDC
     hl7Field: OBX-5
 
-  - name: Test_kit_EUA_ID
+  - name: test_kit_EUA_ID
     type: ID
     natFlatFileField: Test_kit_EUA_ID
     hhsGuidanceField:
     hl7Field: OBX-17.1
 
-  - name: Test_kit_instance_ID
+  - name: test_kit_instance_ID
     type: ID
     natFlatFileField: Test_kit_instance_ID
     hhsGuidanceField:
     hl7Field: OBX-18
 
-  - name: Test_kit_model_ID
+  - name: test_kit_model_ID
     type: ID
     natFlatFileField: Test_kit_model_ID
     hhsGuidanceField:
     hl7Field: OBX-17.1
 
-  - name: Test_kit_model_name
+  - name: test_kit_model_name
     type: TEXT
     natFlatFileField: Test_kit_model_name
     hhsGuidanceField:
     hl7Field: OBX-17.1
 
-  - name: Test_method_description
+  - name: test_method_description
     type: TEXT
     natFlatFileField: Test_method_description
     hhsGuidanceField:
     hl7Field: OBX-17.9
 
-  - name: Test_performed_code
+  - name: test_performed_code
     type: CODED
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3.1
 
-  - name: Test_performed_code_system
+  - name: test_performed_code_system
     type: TEXT
     natFlatFileField: Test_performed_code_system
     hhsGuidanceField:
     hl7Field: OBX-3.3
 
-  - name: Test_performed_description
+  - name: test_performed_description
     type: TEXT
     natFlatFileField: Test_performed_description
     hhsGuidanceField:
     hl7Field: OBX-3.2
 
-  - name: Test_performed_number
+  - name: test_performed_number
     type: NUMBER
     natFlatFileField: Test_performed_number
     hhsGuidanceField:
     hl7Field: OBX-1
 
-  - name: Test_result_code_system
+  - name: test_result_code_system
     type: CODED_HL7
     valueSet: ["L", "SCT"]
     natFlatFileField: Test_result_code_system
     hhsGuidanceField:
     hl7Field: OBX-5.3
 
-  - name: Test_result_coded
+  - name: test_result_coded
     type: CODED_SNOMED
     valueSet:
       - 260373001 #Detected
@@ -713,142 +732,142 @@ elements:
       - 462371000124108 #Detected in pooled specimen
       - 419984006 #Inconclusive
     natFlatFileField: Test_result_coded
-    hhsGuidanceField: 'Test result '
+    hhsGuidanceField: Test result
     hl7Field: OBX-5.1
 
-  - name: Test_result_comparator
+  - name: test_result_comparator
     type: TEXT
     natFlatFileField: Test_result_comparator
     hhsGuidanceField:
     hl7Field: OBX-5.1
 
-  - name: Test_result_date
+  - name: test_result_date
     type: DATETIME
     natFlatFileField: Test_date
     hhsGuidanceField: Test result date
     hl7Field: OBX-19
 
-  - name: Test_result_report_date
+  - name: test_result_report_date
     type: DATETIME
     natFlatFileField:
     hhsGuidanceField: Test report date
     hl7Field: OBX-22
 
-  - name: Test_result_description
+  - name: test_result_description
     type: TEXT
     natFlatFileField: Test_result_description
     hhsGuidanceField:
     hl7Field: OBX-5.2
 
-  - name: Test_result_free_text
+  - name: test_result_text
     type: TEXT
-    natFlatFileField: Test_Result_free_text
+    natFlatFileField: Test_Result_text
     hhsGuidanceField:
     hl7Field: OBX-5.1
 
-  - name: Test_result_number
+  - name: test_result_number
     type: TEXT
     natFlatFileField: Test_result_number
     hhsGuidanceField:
     hl7Field: OBX-5.1
 
-  - name: Test_result_number_separator
+  - name: test_result_number_separator
     type: TEXT
     natFlatFileField: Test_result_number_separator
     hhsGuidanceField:
     hl7Field: OBX-5.3
 
-  - name: Test_result_number2
+  - name: test_result_number2
     type: TEXT
     natFlatFileField: Test_result_number2
     hhsGuidanceField:
     hl7Field: OBX-5.4
 
-  - name: Test_result_status
+  - name: test_result_status
     type: TEXT
     natFlatFileField: Test_result_status
     hhsGuidanceField:
     hl7Field: OBX-11
 
-  - name: Test_result_sub_ID
+  - name: test_result_sub_ID
     type: ID
     natFlatFileField: Test_result_sub_ID
     hhsGuidanceField:
     hl7Field: OBX-4
 
-  - name: Test_result_units
+  - name: test_result_units
     type: TEXT
     natFlatFileField: Test_result_units
     hhsGuidanceField:
     hl7Field: OBX-6
 
-  - name: Testing_lab_accession_number
+  - name: testing_lab_accession_number
     type: ID
     natFlatFileField: Testing_lab_accession_number
     hhsGuidanceField:
     hl7Field: ORC-3.1/OBR-3.1
 
-  - name: Testing_lab_city
+  - name: testing_lab_city
     type: CITY
     natFlatFileField: Testing_lab_city
     hhsGuidanceField:
     hl7Field: OBX-24.3
 
-  - name: Testing_lab_county
+  - name: testing_lab_county
     type: COUNTY
     natFlatFileField: Testing_lab_county
     hhsGuidanceField:
     hl7Field: OBX-24.9
 
-  - name: Testing_lab_ID
+  - name: testing_lab_ID
     type: ID
     natFlatFileField: Testing_lab_ID
     hhsGuidanceField:
     hl7Field: OBX-23.10/OBX-15.1
 
-  - name: Testing_lab_name
+  - name: testing_lab_name
     type: TEXT
     natFlatFileField: Testing_lab_name
     hhsGuidanceField:
     hl7Field: OBX-23.1/OBX-15.2
 
-  - name: Testing_lab_specimen_ID
+  - name: testing_lab_specimen_ID
     type: ID
     natFlatFileField: Testing_lab_specimen_ID
     hhsGuidanceField:
     hl7Field: SPM-2.2.1
 
-  - name: Testing_lab_state
+  - name: testing_lab_state
     type: STATE
     natFlatFileField: Testing_lab_state
     hhsGuidanceField:
     hl7Field: OBX-24.4
 
-  - name: Testing_lab_street
+  - name: testing_lab_street
     type: STREET
     natFlatFileField: Testing_lab_street
     hhsGuidanceField:
     hl7Field: OBX-24.1
 
-  - name: Testing_lab_street2
+  - name: testing_lab_street2
     type: STREET
     natFlatFileField: Testing_lab_street2
     hhsGuidanceField:
     hl7Field: OBX-24.2
 
-  - name: Testing_lab_zip_code
+  - name: testing_lab_zip_code
     type: POSTAL_CODE
     natFlatFileField: Testing_lab_zip_code
     hhsGuidanceField:
     hl7Field: OBX-24.5
 
-  - name: Testing_lab_phone_number
+  - name: testing_lab_phone_number
     type: TELEPHONE
     natFlatFileField:
     hhsGuidanceField:
     hl7Field:
 
-  - name: Travel_history
+  - name: travel_history
     type: TEXT
     natFlatFileField: Travel_history
     hhsGuidanceField:
