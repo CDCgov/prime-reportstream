@@ -7,7 +7,7 @@ elements:
   - name: standard.Patient_first_name
     csvField: PatientFirstName
 
-  - name: standard.Patient_middle_name
+  - name: standard.Patient_middle_initial
     csvField: PatientMiddleInitial
 
   - name: standard.Patient_last_name
@@ -58,7 +58,7 @@ elements:
   - name: standard.Test_result_free_text
     csvField: TestQualitativeResult
 
-  - name: standard.Comments
+  - name: standard.Comment
     csvField: Notes
 
   - name: standard.Ordering_facility_name

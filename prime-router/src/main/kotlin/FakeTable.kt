@@ -7,15 +7,15 @@ import java.util.Random
 
 class FakeTable {
     companion object {
-        fun randomChoice(vararg choices: String): String {
+        private fun randomChoice(vararg choices: String): String {
             val random = Random()
             return choices[random.nextInt(choices.size)]
         }
 
-        fun buildColumn(element: Element): String {
+        private fun buildColumn(element: Element): String {
             val faker = Faker()
             val address = faker.address()
-            val patient_name = faker.name()
+            val patientName = faker.name()
 
             return when (element.type) {
                 Element.Type.CITY -> address.cityName()
@@ -47,28 +47,34 @@ class FakeTable {
                 Element.Type.CODED_SNOMED -> randomChoice(
                     *(element.valueSet?.toTypedArray() ?: arrayOf("random SNOMED"))
                 )
+                Element.Type.HD -> {
+                    when {
+                        element.nameContains("sending_application") -> "fake app"
+                        else -> "fake description"
+                    }
+                }
                 Element.Type.ID -> faker.idNumber().valid()
                 Element.Type.ID_DLN -> faker.idNumber().valid()
                 Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
                 Element.Type.STREET -> if (element.name.contains("2")) "" else address.streetAddress()
-                Element.Type.STATE -> address.stateAbbr()
+                Element.Type.STATE -> randomChoice("AZ", "FL", "PA")
                 Element.Type.COUNTY -> "Any County"
                 Element.Type.PERSON_NAME -> {
                     when {
-                        element.nameContains("first") -> patient_name.firstName()
-                        element.nameContains("last") -> patient_name.lastName()
-                        element.nameContains("middle") -> patient_name.firstName()
-                        element.nameContains("suffix") -> patient_name.suffix()
+                        element.nameContains("first") -> patientName.firstName()
+                        element.nameContains("last") -> patientName.lastName()
+                        element.nameContains("middle") -> patientName.firstName()
+                        element.nameContains("suffix") -> randomChoice(patientName.suffix(), "")
                         else -> TODO()
                     }
                 }
-                Element.Type.TELEPHONE -> faker.phoneNumber().phoneNumber()
-                Element.Type.EMAIL -> "${patient_name.username()}@email.com"
+                Element.Type.TELEPHONE -> faker.phoneNumber().cellPhone()
+                Element.Type.EMAIL -> "${patientName.username()}@email.com"
                 null -> error("Invalid element type for ${element.name}")
             }
         }
 
-        fun buildRow(schema: Schema): List<String> {
+        private fun buildRow(schema: Schema): List<String> {
             return schema.elements.map { buildColumn(it) }
         }
 

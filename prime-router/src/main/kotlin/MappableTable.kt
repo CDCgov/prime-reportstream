@@ -160,8 +160,11 @@ class MappableTable {
 
     private fun buildColumn(mapping: Schema.Mapping, toElement: Element): StringColumn {
         return when (toElement.name) {
-            in mapping.useFromName -> {
-                table.stringColumn(mapping.useFromName[toElement.name]).copy().setName(toElement.name)
+            in mapping.useDirectly -> {
+                table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
+            }
+            in mapping.useTranslator -> {
+                createTranslatedColumn(toElement, mapping.useTranslator.getValue(toElement.name))
             }
             in mapping.useDefault -> {
                 createDefaultColumn(toElement)
@@ -171,8 +174,18 @@ class MappableTable {
     }
 
     private fun createDefaultColumn(element: Element): StringColumn {
-        val defaultValues = Array(table.rowCount()) { (element.default ?: "") }
+        val defaultValues = Array(table.rowCount()) { element.default ?: "" }
         return StringColumn.create(element.name, defaultValues.asList())
+    }
+
+    private fun createTranslatedColumn(toElement: Element, translator: Translator): StringColumn {
+        val values = Array(table.rowCount()) { row ->
+            val inputValues = translator.fromElements.map { columnName ->
+                table.getString(row, columnName)
+            }
+            translator.apply(inputValues) ?: toElement.default ?: ""
+        }
+        return StringColumn.create(toElement.name, values.asList())
     }
 
 }

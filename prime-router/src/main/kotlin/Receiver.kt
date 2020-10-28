@@ -25,7 +25,7 @@ data class Receiver(
     }
 
     companion object {
-        const val defaultReceivers = "metadata/recievers.yml"
+        private const val defaultReceivers = "metadata/receivers.yml"
 
         val receivers: List<Receiver> get() = receiversStore
         private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
@@ -44,8 +44,10 @@ data class Receiver(
             receiversStore = receivers
         }
 
-        fun get(name: String): Receiver? {
-            return receiversStore.first { it.name == name }
+        fun get(name: String, topic: String): Receiver? {
+            return receiversStore.first {
+                it.name.equals(name, ignoreCase = true) && it.topic.equals(topic, ignoreCase = true)
+            }
         }
 
         private var receiversStore: List<Receiver> = ArrayList()

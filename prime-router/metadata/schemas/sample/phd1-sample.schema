@@ -1,8 +1,12 @@
 ---
-name: fed1-covid-19
-topic: covid-19
+name: phd1-sample
+topic: sample
 elements:
   - name: lab
+  - name: first_name
+    pii: true
+  - name: last_name
+    pii: true
   - name: state
     type: TEXT
   - name: test_time

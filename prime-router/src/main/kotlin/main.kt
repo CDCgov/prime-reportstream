@@ -27,7 +27,7 @@ class RouterCli : CliktCommand(
     help = "Send health messages to their destinations",
     printHelpOnEmptyArgs = true,
 ) {
-    private val inputSource: InputSource? by mutuallyExclusiveOptions<InputSource>(
+    private val inputSource: InputSource? by mutuallyExclusiveOptions(
         option("--input", help = "<file1>").convert { InputSource.FileSource(it) },
         option("--input_fake", help = "fake the input").int().convert { InputSource.FakeSource(it) },
         option("--input_dir", help = "<dir>").convert { InputSource.DirSource(it) },
@@ -39,7 +39,7 @@ class RouterCli : CliktCommand(
     private val partitionBy by option("--partition_by", help = "<col> to partition")
     private val send by option("--send", help = "send to a receiver if specified").flag(default = false)
 
-    private val outputFile by option("--output", help = "<file> not compatible with route or partition")
+    private val outputFileName by option("--output", help = "<file> not compatible with route or partition")
     private val outputDir by option("--output_dir", help = "<directory>")
     private val outputSchema by option("--output_schema", help = "<schema_name> or use input schema if not specified")
 
@@ -47,21 +47,25 @@ class RouterCli : CliktCommand(
         fileName: String,
         readBlock: (name: String, schema: Schema, stream: InputStream) -> MappableTable
     ): MappableTable {
-        val schemaName = inputSchema ?: error("Schema is not specified. Use the --inputSchema option")
+        val schemaName = inputSchema.toLowerCase()
         val schema = Schema.schemas[schemaName] ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
-        return readBlock(file.name, schema, file.inputStream())
+        return readBlock(file.nameWithoutExtension, schema, file.inputStream())
     }
 
     private fun writeMappableTablesToFile(
         tables: List<MappableTable>,
         writeBlock: (table: MappableTable, stream: OutputStream) -> Unit
     ) {
-        if (outputDir == null && outputFile == null) return
+        if (outputDir == null && outputFileName == null) return
         tables.forEach { table ->
-            val outputFile = File(outputDir ?: ".", "${table.name}.csv")
+            val outputFile = if (outputFileName != null) {
+                File(outputFileName!!)
+            } else {
+                File(outputDir ?: ".", "${table.name}.csv")
+            }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
                 outputFile.createNewFile()
@@ -114,11 +118,10 @@ class RouterCli : CliktCommand(
                     MappableTable(name, schema, stream, MappableTable.StreamType.CSV)
                 }
             }
-            is InputSource.DirSource -> {
-                error("dir input is not implemented")
-            }
+            is InputSource.DirSource -> TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
-                val schema = Schema.schemas[inputSchema] ?: error("invalid schema")
+                val schema =
+                    Schema.schemas[inputSchema.toLowerCase()] ?: error("$inputSchema is an invalid schema name")
                 FakeTable.build("fake-${schema.name}", schema, (inputSource as InputSource.FakeSource).count)
             }
             else -> {
@@ -129,7 +132,7 @@ class RouterCli : CliktCommand(
         // Transform tables
         val outputMappableTables: List<MappableTable> = when {
             route -> routeByReceivers(listOf(inputMappableTable))
-            partitionBy != null -> error("Not implemented")
+            partitionBy != null -> TODO("PartitionBy is not implemented")
             else -> listOf(inputMappableTable)
         }
 

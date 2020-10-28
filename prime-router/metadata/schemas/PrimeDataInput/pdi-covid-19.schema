@@ -49,6 +49,9 @@ elements:
   - name: standard.Patient_phone_number
     csvField: Patient_phone_number
 
+  - name: standard.Patient_Id
+    csvField: Patient_ID
+
   - name: standard.Employed_in_healthcare
     csvField: Employed_in_healthcare
 
@@ -79,6 +82,48 @@ elements:
   - name: standard.Testing_lab_ID
     csvField: Testing_lab_ID
 
+  - name: standard.Testing_lab_city
+    csvField: Testing_lab_city
+
+  - name: standard.Testing_lab_state
+    csvField: Testing_lab_state
+
+  - name: standard.Testing_lab_street
+    csvField: Testing_lab_street
+
+  - name: standard.Testing_lab_street2
+    csvField: Testing_lab_street2
+
+  - name: standard.Testing_lab_zip_code
+    csvField: Testing_lab_zip_code
+
+  - name: standard.Testing_lab_phone_number
+    csvField: Testing_lab_zip_code
+
+  - name: standard.Ordering_facility_city
+    csvField: Ordering_facility_city
+
+  - name: standard.Ordering_facility_county
+    csvField: Odering_facility_county
+
+  - name: standard.Ordering_facility_name
+    csvField: Ordering_facility_name
+
+  - name: standard.Ordering_facility_phone_number
+    csvField: Ordering_facility_phone_number
+
+  - name: standard.Ordering_facility_state
+    csvField: Ordering_facility_state
+
+  - name: standard.Ordering_facility_street
+    csvField: Ordering_facility_street
+
+  - name: standard.Ordering_facility_street_2
+    csvField: Ordering_facility_street_2
+
+  - name: standard.Ordering_facility_zip_code
+    csvField: Ordering_facility_zip_code
+
   - name: standard.Ordering_provider_last_name
     csvField: Ordering_provider_last_name
 
@@ -100,8 +145,11 @@ elements:
   - name: standard.Specimen_source_site_code
     csvField: Specimen_source_site_code
 
-  - name: standard.Instrument_instance_ID
-    csvField: Device_type
+  - name: standard.Specimen_type_code
+    csvField: Specimen_type_code
+
+  - name: standard.Equipment_instance_ID
+    csvField: Instrument_ID
 
   - name: standard.Test_result_date
     csvField: Test_date
