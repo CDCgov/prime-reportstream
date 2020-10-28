@@ -19,20 +19,21 @@ class CsvFileTests {
     // There is no 'BeforeAll in kotlin.test (?).   Using BeforeEach, which should be OK as this is idempotent.
     @BeforeTest
     fun setup() {
-        val outputDirectory = File(outputPath)
+	val outputDirectory = File(outputPath)
         outputDirectory.mkdirs()
         println("Test Result File will be found in ${outputDirectory.absolutePath}")
+				    
+	val expectedDir = File(expectedResultsPath)
+	assertTrue(expectedDir.exists());
 
-        val expectedDir = File(expectedResultsPath)
-        assertTrue(expectedDir.exists())
-
-        loadTestSchemas()
+	loadTestSchemas()
         loadTestReceivers()
-    }
+    }	
 
     @Test
     fun `test the happy path`() {
-        transformFileAndTest(inputPath + "happy-path.csv")
+        val inputFileName = inputPath + "happy-path.csv";
+	transformFileAndTest(outputPath, inputFileName)
     }
 
     @Test
