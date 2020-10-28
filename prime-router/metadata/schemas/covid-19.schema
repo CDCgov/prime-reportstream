@@ -49,6 +49,24 @@ elements:
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
+  - name: Equipment_instance_ID
+    type: ID
+    natFlatFileField: Instrument_instance_ID
+    hhsGuidanceField:
+    hl7Field: OBX-18
+
+  - name: Equipment_model_ID
+    type: TEXT
+    natFlatFileField: Instrument_model_ID
+    hhsGuidanceField:
+    hl7Field: OBX-17
+
+  - name: Equipment_model_name
+    type: TEXT
+    natFlatFileField: Instrument_model_name
+    hhsGuidanceField:
+    hl7Field: OBX-17
+
   - name: File_created_date
     type: DATE
     natFlatFileField: File_created_date
@@ -96,24 +114,6 @@ elements:
     natFlatFileField: Illness_onset_date
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_DT
-
-  - name: Instrument_instance_ID
-    type: ID
-    natFlatFileField: Instrument_instance_ID
-    hhsGuidanceField:
-    hl7Field: OBX-18
-
-  - name: Instrument_model_ID
-    type: TEXT
-    natFlatFileField: Instrument_model_ID
-    hhsGuidanceField:
-    hl7Field: OBX-17
-
-  - name: Instrument_model_name
-    type: TEXT
-    natFlatFileField: Instrument_model_name
-    hhsGuidanceField:
-    hl7Field: OBX-17
 
   - name: Link_test_to_parent_accession
     type: TEXT

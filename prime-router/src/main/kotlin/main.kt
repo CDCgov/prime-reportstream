@@ -27,7 +27,7 @@ class RouterCli : CliktCommand(
     help = "Send health messages to their destinations",
     printHelpOnEmptyArgs = true,
 ) {
-    private val inputSource: InputSource? by mutuallyExclusiveOptions<InputSource>(
+    private val inputSource: InputSource? by mutuallyExclusiveOptions(
         option("--input", help = "<file1>").convert { InputSource.FileSource(it) },
         option("--input_fake", help = "fake the input").int().convert { InputSource.FakeSource(it) },
         option("--input_dir", help = "<dir>").convert { InputSource.DirSource(it) },
@@ -47,7 +47,7 @@ class RouterCli : CliktCommand(
         fileName: String,
         readBlock: (name: String, schema: Schema, stream: InputStream) -> MappableTable
     ): MappableTable {
-        val schemaName = inputSchema.toLowerCase() ?: error("Schema is not specified. Use the --inputSchema option")
+        val schemaName = inputSchema.toLowerCase()
         val schema = Schema.schemas[schemaName] ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
@@ -61,10 +61,10 @@ class RouterCli : CliktCommand(
     ) {
         if (outputDir == null && outputFileName == null) return
         tables.forEach { table ->
-            val outputFile = if (outputFileName == null) {
-                File(outputDir ?: ".", "${table.name}.csv")
+            val outputFile = if (outputFileName != null) {
+                File(outputFileName!!)
             } else {
-                File(outputFileName)
+                File(outputDir ?: ".", "${table.name}.csv")
             }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
@@ -120,7 +120,8 @@ class RouterCli : CliktCommand(
             }
             is InputSource.DirSource -> TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
-                val schema = Schema.schemas[inputSchema] ?: error("invalid schema")
+                val schema =
+                    Schema.schemas[inputSchema.toLowerCase()] ?: error("$inputSchema is an invalid schema name")
                 FakeTable.build("fake-${schema.name}", schema, (inputSource as InputSource.FakeSource).count)
             }
             else -> {
@@ -131,7 +132,7 @@ class RouterCli : CliktCommand(
         // Transform tables
         val outputMappableTables: List<MappableTable> = when {
             route -> routeByReceivers(listOf(inputMappableTable))
-            partitionBy != null -> TODO("Partition by not implemented")
+            partitionBy != null -> TODO("PartitionBy is not implemented")
             else -> listOf(inputMappableTable)
         }
 

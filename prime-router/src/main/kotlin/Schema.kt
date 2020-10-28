@@ -28,11 +28,7 @@ data class Schema(
     )
 
     fun findElement(name: String): Element? {
-        return elements.find { it.name.compareTo(name, ignoreCase = true) == 0 }
-    }
-
-    fun findUsingCsvField(name: String): Element? {
-        return elements.find { it.csvField.equals(name, ignoreCase = true) || it.name.equals(name, ignoreCase = true) }
+        return elements.find { it.name.equals(name, ignoreCase = true) }
     }
 
     fun buildMapping(toSchema: Schema): Mapping {
@@ -71,16 +67,21 @@ data class Schema(
     }
 
     private fun findMatchingTranslator(matchElement: Element): Translator? {
-        val candidates = translators[this.topic]?.get(matchElement.name) ?: return null
-        return candidates.find { translator ->
-            translator.fromElements.find { findElement(it) == null } == null
+        return translators.find { translator ->
+            translator.topic.equals(topic, ignoreCase = true)
+                    && translator.toElement.equals(matchElement.name, ignoreCase = true)
+                    && translator.fromElements.find { findElement(it) == null } == null
         }
     }
 
     companion object {
         var schemas = mapOf<String, Schema>()
-        var translators: Map<String, Map<String, List<Translator>>> = mapOf(
-            "covid-19" to mapOf("standard.Patient_middle_initial" to listOf(MITranslator()))
+        var translators = listOf(
+            MITranslator(),
+            SendingAppTranslator(),
+            SendingAppIdTranslator(),
+            SpecimenTypeFreeTranslator(),
+            LabTestResultTranslator(),
         )
 
         private const val defaultCatalog = "./metadata/schemas"
@@ -96,9 +97,10 @@ data class Schema(
 
         private fun readSchema(dirRelPath: String, file: File): Pair<String, Schema> {
             val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
-            val catalogName =
+            val schemaName = normalizeSchemaName(
                 if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
-            return Pair(catalogName.toLowerCase(), fromSchemaFile)
+            )
+            return Pair(schemaName, fromSchemaFile)
         }
 
         private fun readAllSchemas(catalogDir: File, dirRelPath: String): Map<String, Schema> {
