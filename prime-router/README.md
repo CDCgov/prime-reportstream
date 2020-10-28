@@ -33,5 +33,8 @@ First, setup Java11, Maven, ...
 Next, build
 1. `mvn clean package`
 
-Finally, run the router
-`prime --input_schema=sample/phd1-covid-19 --input=result_files/lab1-test_results-17-42-31.csv --route --output_dir=routed_files`
+Finally, run the router, in prime_router dir:
+```
+mkdir routed_files
+./prime --input_schema=sample/phd1-covid-19 --input=src/test/unit_test_files/lab1-test_results-17-42-31.csv --route --output_dir=routed_files
+```
