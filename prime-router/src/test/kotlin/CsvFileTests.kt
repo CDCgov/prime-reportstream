@@ -66,7 +66,7 @@ class CsvFileTests {
     private fun compareTestResultsToExpectedResults(testFile: String, expectedResultsName: String) {
         val expectedResultsFile = expectedResultsPath + expectedResultsName
         println("CsvFileTests: diff'ing actual vs expected: $testFile to $expectedResultsFile")
-        // A bit of a hack:  diff the two files.  
+        // A bit of a hack:  diff the two files.
         assertEquals(Files.mismatch(Path.of(testFile), Path.of(expectedResultsFile)), -1L)
     }
 
