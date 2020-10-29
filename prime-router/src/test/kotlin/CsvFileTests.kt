@@ -21,7 +21,6 @@ class CsvFileTests {
     fun setup() {
         val outputDirectory = File(outputPath)
         outputDirectory.mkdirs()
-        println("Test Result File will be found in ${outputDirectory.absolutePath}")
 
         val expectedDir = File(expectedResultsPath)
         assertTrue(expectedDir.exists())
@@ -53,7 +52,6 @@ class CsvFileTests {
         // 3) Write transformed objs to files, and check they are correct
         outputMappableTables.forEach { table ->
             val outputFile = File(outputPath, table.name)
-            println("Writing to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
                 outputFile.createNewFile()
             }
@@ -67,17 +65,16 @@ class CsvFileTests {
 
     private fun compareTestResultsToExpectedResults(testFile: String, expectedResultsName: String) {
         val expectedResultsFile = expectedResultsPath + expectedResultsName
-        println("Comparing $testFile to $expectedResultsFile")
-        // Hack:  diff the two files.   Not a very good way to test.
+        println("CsvFileTests: diff'ing actual vs expected: $testFile to $expectedResultsFile")
+        // A bit of a hack:  diff the two files.  
         assertEquals(Files.mismatch(Path.of(testFile), Path.of(expectedResultsFile)), -1L)
     }
-
 
     private fun loadTestReceivers() {
         val loadingStream = File(inputPath + "test-receivers.yml").inputStream()
         Receiver.loadReceiversList(loadingStream)
         assertEquals(2, Receiver.receivers.size)
-        assertEquals(2, Receiver.get("federal-test-receiver")?.patterns?.size)
+        assertEquals(2, Receiver.get("federal-test-receiver", "covid-19")?.patterns?.size)
     }
 
     private fun loadTestSchemas() {
