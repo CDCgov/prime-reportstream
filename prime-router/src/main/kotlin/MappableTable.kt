@@ -57,7 +57,7 @@ class MappableTable {
                     if (index >= header.size ||
                         (header[index] != element.csvField && header[index] != element.name)
                     ) {
-                        error("Element ${element.name} is not found in the input stream header")
+                        error("Element ${element.csvField} is not found in the input stream header")
                     }
                 }
 
@@ -163,6 +163,11 @@ class MappableTable {
             in mapping.useDirectly -> {
                 table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
             }
+            in mapping.useValueSet -> {
+                val valueSetName = mapping.useValueSet.getValue(toElement.name)
+                val valueSet = Schema.valueSets[valueSetName] ?: error("$valueSetName is not found")
+                createValueSetTranslatedColumn(toElement, valueSet)
+            }
             in mapping.useTranslator -> {
                 createTranslatedColumn(toElement, mapping.useTranslator.getValue(toElement.name))
             }
@@ -188,4 +193,22 @@ class MappableTable {
         return StringColumn.create(toElement.name, values.asList())
     }
 
+    private fun createValueSetTranslatedColumn(toElement: Element, valueSet: ValueSet): StringColumn {
+        val values = when {
+            toElement.isCodeText -> {
+                Array(table.rowCount()) { row ->
+                    val fromCode = table.getString(row, toElement.nameAsCode)
+                    valueSet.toDisplay(fromCode) ?: toElement.default ?: ""
+                }
+            }
+            toElement.isCode -> {
+                Array(table.rowCount()) { row ->
+                    val fromDisplay = table.getString(row, toElement.nameAsCodeText)
+                    valueSet.toCode(fromDisplay) ?: toElement.default ?: ""
+                }
+            }
+            else -> error("Cannot convert ${toElement.name} using value set")
+        }
+        return StringColumn.create(toElement.name, values.asList())
+    }
 }

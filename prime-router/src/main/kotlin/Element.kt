@@ -13,7 +13,8 @@ data class Element(
     // General information
     val type: Type? = null,
     val format: String? = null,
-    val valueSet: String? = null, // If unspecified, any value is valid
+    val valueSet: String? = null,
+    val pair: String? = null,
     val required: Boolean? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,
@@ -41,7 +42,7 @@ data class Element(
         DATE,
         DATETIME,
         DURATION,
-        CODED,
+        CODE,
         HD,
         ID,
         ID_DLN,
@@ -55,6 +56,12 @@ data class Element(
         TELEPHONE,
         EMAIL,
     }
+
+    val isCodeType get() = this.type == Type.CODE
+    val isCode get() = this.isCodeType && !name.contains('#')
+    val isCodeText get() = this.isCodeType && name.endsWith("#text")
+    val nameAsCode get() = if (name.contains('#')) name.split('#')[0] else name
+    val nameAsCodeText get() = if (isCodeType) "$nameAsCode#text" else name
 
     fun nameContains(substring: String): Boolean {
         return name.contains(substring, ignoreCase = true)

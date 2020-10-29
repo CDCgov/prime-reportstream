@@ -22,19 +22,21 @@ data class Schema(
         val toSchema: Schema,
         val fromSchema: Schema,
         val useDirectly: Map<String, String>,
+        val useValueSet: Map<String, String>,
         val useTranslator: Map<String, Translator>,
         val useDefault: Set<String>,
         val missing: Set<String>
     )
 
     fun findElement(name: String): Element? {
-        return elements.find { it.name.equals(name, ignoreCase = true) }
+        return elements.find { (it.name == name) || (it.isCode && (it.nameAsCode == name || it.nameAsCodeText == name)) }
     }
 
     fun buildMapping(toSchema: Schema): Mapping {
         if (toSchema.topic != this.topic) error("Trying to match schema with different topics")
 
         val useDirectly = mutableMapOf<String, String>()
+        val useValueSet: MutableMap<String, String> = mutableMapOf<String, String>()
         val useTranslator = mutableMapOf<String, Translator>()
         val useDefault = mutableSetOf<String>()
         val missing = mutableSetOf<String>()
@@ -43,6 +45,9 @@ data class Schema(
             findMatchingElement(toElement)?.let {
                 useDirectly[toElement.name] = it
                 return@forEach
+            }
+            findMatchingValueSet(toElement)?.let {
+                useValueSet[toElement.name] = it
             }
             findMatchingTranslator(toElement)?.let {
                 useTranslator[toElement.name] = it
@@ -54,7 +59,7 @@ data class Schema(
                 useDefault.add(toElement.name)
             }
         }
-        return Mapping(toSchema, this, useDirectly, useTranslator, useDefault, missing)
+        return Mapping(toSchema, this, useDirectly, useValueSet, useTranslator, useDefault, missing)
     }
 
     private fun findMatchingElement(matchElement: Element): String? {
@@ -74,14 +79,21 @@ data class Schema(
         }
     }
 
+    private fun findMatchingValueSet(matchElement: Element): String? {
+        return when (matchElement.type) {
+            Element.Type.CODE -> {
+                findElement(matchElement.name)?.valueSet
+            }
+            else -> null
+        }
+    }
+
     companion object {
         var schemas = mapOf<String, Schema>()
         var translators = listOf(
             MITranslator(),
             SendingAppTranslator(),
             SendingAppIdTranslator(),
-            SpecimenTypeFreeTranslator(),
-            LabTestResultTranslator(),
         )
         var valueSets = mapOf<String, ValueSet>()
 

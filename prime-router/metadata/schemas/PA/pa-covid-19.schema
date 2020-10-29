@@ -2,7 +2,7 @@
 name: pa-covid-19
 description: PA COVID-19 flat file
 topic: covid-19
-trackingElement: standard.Testing_lab_specimen_ID
+trackingElement: standard.testing_lab_specimen_id
 elements:
   - name: standard.patient_first_name
     csvField: PatientFirstName
@@ -16,7 +16,7 @@ elements:
   - name: standard.patient_suffix
     csvField: PatientSuffix
 
-  - name: standard.patient_DOB
+  - name: standard.patient_dob
     csvField: PatientDOB
 
   - name: standard.patient_street
@@ -43,19 +43,20 @@ elements:
   - name: standard.patient_ethnicity
     csvField: PatientEthnicity
 
-  - name: standard.testing_lab_specimen_ID
+  - name: standard.testing_lab_specimen_id
     csvField: TestID
 
   - name: standard.specimen_collection_date_time
     csvField: SpecimenCollectedDate
 
+  # TODO: Fix when specimen_source_site valueSet is defined
   - name: standard.specimen_source_site_text
     csvField: SpecimenSource
 
-  - name: standard.specimen_type_text
+  - name: standard.specimen_type#text
     csvField: TestName
 
-  - name: standard.test_result_text
+  - name: standard.test_result#text
     csvField: TestQualitativeResult
 
   - name: standard.comment

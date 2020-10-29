@@ -47,7 +47,7 @@ class FakeTable {
                     formatter.format(faker.date().past(10, TimeUnit.DAYS))
                 }
                 Element.Type.DURATION -> TODO()
-                Element.Type.CODED -> {
+                Element.Type.CODE -> {
                     val valueSet =
                         valueSets[element.valueSet] ?: error("ValueSet ${element.valueSet} is not available}")
                     val possibleValues = valueSet.values.map {
