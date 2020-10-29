@@ -83,14 +83,17 @@ data class Schema(
             SpecimenTypeFreeTranslator(),
             LabTestResultTranslator(),
         )
+        var valueSets = mapOf<String, ValueSet>()
 
-        private const val defaultCatalog = "./metadata/schemas"
+        private const val defaultSchemaCatalog = "./metadata/schemas"
         private const val schemaExtension = ".schema"
+        private const val defaultValueSetCatalog = "./metadata/valuesets"
+        private const val valueSetExtension = ".valuesets"
         private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
         // Load the schema catalog either from the default location or from the passed location
         fun loadSchemaCatalog(catalog: String? = null) {
-            val catalogDir = File(catalog ?: defaultCatalog)
+            val catalogDir = File(catalog ?: defaultSchemaCatalog)
             if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
             loadSchemas(readAllSchemas(catalogDir, ""))
         }
@@ -142,6 +145,27 @@ data class Schema(
                 }
                 schema.copy(elements = expandedElements)
             }
+        }
+
+        fun loadValueSetCatalog(catalog: String? = null) {
+            val catalogDir = File(catalog ?: defaultValueSetCatalog)
+            if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
+            loadValueSets(readAllValueSets(catalogDir))
+        }
+
+        fun loadValueSets(sets: List<ValueSet>) {
+            this.valueSets = sets.map { it.name to it }.toMap()
+        }
+
+        private fun readAllValueSets(catalogDir: File): List<ValueSet> {
+            // read the .valueset files in the director
+            val valueSetExtFilter = FilenameFilter { _, name -> name.endsWith(valueSetExtension) }
+            val files = File(catalogDir.absolutePath).listFiles(valueSetExtFilter) ?: emptyArray()
+            return files.flatMap { readValueSets(it) }
+        }
+
+        private fun readValueSets(file: File): List<ValueSet> {
+            return mapper.readValue(file.inputStream())
         }
 
         private fun normalizeElementName(name: String): String {

@@ -12,7 +12,7 @@ class FakeTable {
             return choices[random.nextInt(choices.size)]
         }
 
-        private fun buildColumn(element: Element): String {
+        internal fun buildColumn(element: Element, valueSets: Map<String, ValueSet>): String {
             val faker = Faker()
             val address = faker.address()
             val patientName = faker.name()
@@ -23,6 +23,14 @@ class FakeTable {
                 Element.Type.TEXT -> {
                     when {
                         element.nameContains("lab_name") -> "Any lab USA"
+                        element.valueSet != null -> {
+                            val valueSet = valueSets[element.valueSet]
+                                ?: error("ValueSet ${element.valueSet} is not available}")
+                            val possibleValues = valueSet.values.map {
+                                it.display ?: error("missing display in ${valueSet.name}")
+                            }.toTypedArray()
+                            randomChoice(*possibleValues)
+                        }
                         else -> faker.lorem().characters(5, 10)
                     }
                 }
@@ -39,14 +47,14 @@ class FakeTable {
                     formatter.format(faker.date().past(10, TimeUnit.DAYS))
                 }
                 Element.Type.DURATION -> TODO()
-                Element.Type.CODED -> randomChoice(*(element.valueSet?.toTypedArray() ?: arrayOf("random CODED")))
-                Element.Type.CODED_HL7 -> randomChoice(
-                    *(element.valueSet?.toTypedArray() ?: arrayOf("random HL7"))
-                )
-                Element.Type.CODED_LONIC -> faker.idNumber().valid()
-                Element.Type.CODED_SNOMED -> randomChoice(
-                    *(element.valueSet?.toTypedArray() ?: arrayOf("random SNOMED"))
-                )
+                Element.Type.CODED -> {
+                    val valueSet =
+                        valueSets[element.valueSet] ?: error("ValueSet ${element.valueSet} is not available}")
+                    val possibleValues = valueSet.values.map {
+                        it.code ?: it.display ?: error("missing code in ${valueSet.name}")
+                    }.toTypedArray()
+                    randomChoice(*possibleValues)
+                }
                 Element.Type.HD -> {
                     when {
                         element.nameContains("sending_application") -> "fake app"
@@ -75,7 +83,7 @@ class FakeTable {
         }
 
         private fun buildRow(schema: Schema): List<String> {
-            return schema.elements.map { buildColumn(it) }
+            return schema.elements.map { buildColumn(it, Schema.valueSets) }
         }
 
         fun build(name: String, schema: Schema, count: Int = 10): MappableTable {

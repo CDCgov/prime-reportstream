@@ -5,7 +5,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class ElementTests {
+internal class ElementTests {
 
     @Test
     fun `create element`() {

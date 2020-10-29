@@ -105,13 +105,13 @@ elements:
   - name: standard.specimen_type_text
     csvField: Specimen_Type
 
-  - name: standard.specimen_source_site_description
+  - name: standard.specimen_source_site_text
     csvField: Specimen_Site
 
   - name: standard.test_performed_code
     csvField: Test_Code
 
-  - name: standard.test_performed_description
+  - name: standard.test_performed_text
     csvField: Test_Name
 
   - name: standard.test_result_text

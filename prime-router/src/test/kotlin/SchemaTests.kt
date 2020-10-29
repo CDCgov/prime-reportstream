@@ -78,4 +78,21 @@ class SchemaTests {
         assertEquals(0, oneToThree.useDefault.size)
         assertEquals(1, oneToThree.missing.size)
     }
+
+    @Test
+    fun `load valueSets`() {
+        val one = ValueSet("one", ValueSet.SetSystem.HL7)
+        val two = ValueSet("two", ValueSet.SetSystem.LOCAL)
+        Schema.loadValueSets(listOf(one, two))
+        assertEquals(2, Schema.valueSets.size)
+        assertNotNull(Schema.valueSets["one"])
+    }
+
+    @Test
+    fun `load value set directory`() {
+        Schema.loadValueSetCatalog("./src/test/unit_test_files")
+        assertEquals(8, Schema.valueSets.size)
+        assertNotNull(Schema.valueSets["hl7_0136"])
+    }
+
 }

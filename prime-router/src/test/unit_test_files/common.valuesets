@@ -1,0 +1,112 @@
+# These ValueSets are not associated with specific topic.
+# ValueSets are used with CODED data elements and their display TEXT equivalents
+#
+# Name conventions
+#
+#  for SNOMED-CT use the standard element name
+#  for hl7 value sets use the HL7 name
+#  for LOINC value sets use TBD
+#  for LOCAL match the standard element
+#
+# sort alphabetically
+#
+---
+- name: hl7_0136
+  system: HL7
+  values:
+    - code: YES
+      alt_codes: [true]
+      display: Yes
+    - code: NO
+      alt_codes: [false]
+      display: No
+    - code: UNK
+      alt_codes: [Unknown]
+      display: Unknown
+
+- name: patient_age_units
+  reference: Per the HHS guidance
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  system: LOCAL
+  values:
+    - display: months
+      alt_codes: [mo]
+    - display: years
+      alt_codes: [yr, yrs]
+
+- name: patient_gender
+  system: LOCAL
+  reference: HHS guidance for sex at birth
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0001
+  values:
+    - display: Male
+      alt_codes: [M]
+    - display: Female
+      alt_codes: [F]
+    - display: Other
+      alt_codes: [O]
+    - display: Ambiguous
+      alt_codes: [A]
+    - display: Unknown
+      alt_codes: [U, UNK]
+    - display: Not applicable
+      alt_codes: [N]
+
+- name: omb_ethnicity
+  system: FHIR
+  reference: OMB 2020 Census values per the HHS guidance
+  referenceUrl: https://hl7.org/fhir/us/core/2017Jan/ValueSet-omb-ethnicity.html
+  values:
+    - code: Hispanic or Latino
+      display: 2135-2
+    - code: Non Hispanic or Latino
+      display: 2186-5
+    - code: Unknown
+      display: UNK
+    - code: Asked, but unknown
+      display: ASKU
+
+- name: omb_race
+  system: FHIR
+  reference: OMB 2020 Census specified by the HHS guidance
+  referenceUrl: http://hl7.org/fhir/us/core/2017Jan/ValueSet-omb-race.html
+  values:
+    - display: American Indian or Alaska Native
+      code: 1002-5
+    - display: Asian
+      code: 2028-9
+    - display: Black or African American
+      code: 2054-5
+    - display: Native Hawaiian or Other Pacific Islander
+      code: 2076-8
+    - display: White
+      code: 2106-3
+    - display: Unknown
+      code: UNK
+    - display: Asked, but unknown
+      code: ASKU
+
+- name: specimen_role
+  system: FHIR
+  referenceUrl: https://terminology.hl7.org/ValueSet-v3-SpecimenRoleType.html
+  values:
+    - code: B
+      display: Blind sample
+    - code: E
+      display: Electronic QC
+    - code: F
+      display: Filer
+    - code: G
+      display: Group
+    - code: L
+      display: Pool
+    - code: O
+      display: Operator proficiency
+    - code: P
+      display: Patient
+    - code: Q
+      display: Control specimen
+    - code: R
+      display: Replicate
+    - code: V
+      display: Verifying collaborator

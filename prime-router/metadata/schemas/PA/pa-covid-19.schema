@@ -49,7 +49,7 @@ elements:
   - name: standard.specimen_collection_date_time
     csvField: SpecimenCollectedDate
 
-  - name: standard.specimen_source_site_description
+  - name: standard.specimen_source_site_text
     csvField: SpecimenSource
 
   - name: standard.specimen_type_text

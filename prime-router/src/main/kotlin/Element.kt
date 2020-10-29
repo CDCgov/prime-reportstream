@@ -13,8 +13,7 @@ data class Element(
     // General information
     val type: Type? = null,
     val format: String? = null,
-    val valueSetId: String? = null,
-    val valueSet: List<String>? = null, // If unspecified, any value is valid
+    val valueSet: String? = null, // If unspecified, any value is valid
     val required: Boolean? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,
@@ -43,9 +42,6 @@ data class Element(
         DATETIME,
         DURATION,
         CODED,
-        CODED_LONIC,
-        CODED_SNOMED,
-        CODED_HL7,
         HD,
         ID,
         ID_DLN,
@@ -69,7 +65,6 @@ data class Element(
             name = this.name,
             type = this.type ?: baseElement.type,
             format = this.format ?: baseElement.format,
-            valueSetId = this.valueSetId ?: baseElement.valueSetId,
             valueSet = this.valueSet ?: baseElement.valueSet,
             required = this.required ?: baseElement.required,
             pii = this.pii ?: baseElement.pii,

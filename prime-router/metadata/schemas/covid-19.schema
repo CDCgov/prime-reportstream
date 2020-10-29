@@ -37,21 +37,15 @@ elements:
     hl7Field: REPEAT_OBX_MAP_MULTIPLE
 
   - name: employed_in_healthcare
-    type: CODED_HL7
-    valueSet:
-      - YES
-      - NO
-      - UNK # Unknown
+    type: CODED
+    valueSet: hl7_0136
     natFlatFileField: Employed_in_healthcare
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
   - name: employed_in_high_risk_setting
-    type: CODED_HL7
-    valueSet:
-      - YES
-      - NO
-      - UNK # Unknown
+    type: CODED
+    valueSet: hl7_0136
     natFlatFileField: Employed_in_high_risk_setting
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
@@ -81,11 +75,8 @@ elements:
     hl7Field: MSH-7
 
   - name: first_test
-    type: CODED_HL7
-    valueSet:
-      - YES
-      - NO
-      - UNK # Unknown
+    type: CODED
+    valueSet: hl7_0136
     natFlatFileField: First_test
     hhsGuidanceField: First Test
     hl7Field: REPEAT_OBX_MAP
@@ -97,21 +88,15 @@ elements:
     hl7Field: IGNORE
 
   - name: hospitalized
-    type: CODED_HL7
-    valueSet:
-      - YES
-      - NO
-      - UNK # Unknown
+    type: CODED
+    valueSet: hl7_0136
     natFlatFileField: Hospitalized
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
 
-  - name: iCU
-    type: CODED_HL7
-    valueSet:
-      - YES
-      - NO
-      - UNK # Unknown
+  - name: icu
+    type: CODED
+    valueSet: hl7_0136
     natFlatFileField: ICU
     hhsGuidanceField:
     hl7Field: REPEAT_OBX_MAP
@@ -135,7 +120,7 @@ elements:
     hl7Field: OBR-26
 
   - name: order_result_status
-    type: CODED_SNOMED
+    type: CODED
     natFlatFileField: Order_result_status
     hhsGuidanceField:
     hl7Field: OBR-25
@@ -149,7 +134,7 @@ elements:
   - name: ordered_test_code
     type: TEXT
     natFlatFileField: Ordered_test_code
-    hhsGuidanceField: 'Test ordered '
+    hhsGuidanceField: Test ordered
     hl7Field: OBR-4.1
 
   - name: ordered_test_code_system
@@ -280,9 +265,7 @@ elements:
 
   - name: patient_age_units
     type: CODED
-    valueSet:
-      - months
-      - years
+    valueSet: patient_age_units
     natFlatFileField: Patient_age_units
     hhsGuidanceField:
     hl7Field: OBX-6
@@ -319,11 +302,7 @@ elements:
 
   - name: patient_ethnicity
     type: CODED
-    valueSet:
-      - Hispanic or Latino # 2135-2
-      - Non Hispanic or Latino # 2186-5
-      - Unknown # UNK
-      - Asked, but unknown # ASKU
+    valueSet: omb_ethnicity
     natFlatFileField: Patient_ethnicity
     hhsGuidanceField: Patient ethnicity
     hl7Field: PID-22.2
@@ -331,17 +310,12 @@ elements:
   - name: patient_first_name
     type: PERSON_NAME
     natFlatFileField: Patient_first_name
-    hhsGuidanceField: 'Patient name '
+    hhsGuidanceField: Patient name
     hl7Field: PID-5.2
 
   - name: patient_gender
     type: CODED
-    valueSet:
-      - Male
-      - Female
-      - Other
-      - Ambiguous
-      - Unknown
+    valueSet: patient_gender
     natFlatFileField: Patient_gender
     hhsGuidanceField: Patient sex
     hl7Field: PID-8
@@ -420,16 +394,9 @@ elements:
 
   - name: patient_race
     type: CODED
-    valueSet:
-      - American Indian or Alaska Native #1002-5
-      - Asian #2028-9
-      - Black or African American #2054-5
-      - Native Hawaiian or Other Pacific Islander #2076-8
-      - White #2106-3
-      - Unknown #UNK
-      - Asked, but unknown #ASKU
+    valueSet: omb_race
     natFlatFileField: Patient_race
-    hhsGuidanceField: 'Patient race '
+    hhsGuidanceField: Patient race
     hl7Field: PID-10
 
   - name: patient_residency_type
@@ -463,13 +430,15 @@ elements:
     hl7Field: PID-5.4
 
   - name: patient_tribal_citizenship_coded
-    type: CODED_HL7
+    type: CODED
+    valueSet: tribal_citizenship
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: PID-39
 
   - name: patient_tribal_citizenship_text
     type: TEXT
+    valueSet: tribal_citizenship
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: PID-39
@@ -481,23 +450,15 @@ elements:
     hl7Field: PID-11.5
 
   - name: pregnant_code
-    type: CODED_SNOMED
-    valueSet:
-      - 77386006 # Pregnant
-      - 60001007 # Not Pregnant
-      - 261665006 # Unknown
-      - 276727009 # Null
+    type: CODED
+    valueSet: pregnant_aoe
     natFlatFileField: Pregnant
     hhsGuidanceField: Pregnant
     hl7Field: OBX-5
 
-  - name: pregnant
-    type: CODED
-    valueSet:
-      - Pregnant
-      - Not Pregnant
-      - Unknown
-      - Null
+  - name: pregnant_text
+    type: TEXT
+    valueSet: pregnant_aoe
     natFlatFileField: Pregnant
     hhsGuidanceField: Pregnant
     hl7Field: OBX-5
@@ -565,77 +526,34 @@ elements:
     hl7Field: SPM-18
 
   - name: specimen_role
-    type: CODED_HL7
-    valueSet:
-      - B # Blind sample
-      - E # Electronic QC
-      - F # Filer
-      - G # Group
-      - L # Pool
-      - O # Operator proficiency
-      - P # Patient
-      - Q # Control specimen
-      - R # Replicate
-      - V # Verifying collaborator
+    type: CODED
+    valueSet: covid-19/specimen_role
     natFlatFileField: Role
     hhsGuidanceField:
     hl7Field: SPM-11
 
   - name: specimen_source_site_code
-    type: CODED_SNOMED
+    type: TEXT
     natFlatFileField: Specimen_source_site_code
     hhsGuidanceField: Specimen source
     hl7Field: SPM-8.1
 
-  - name: specimen_source_site_code_sys
-    type: CODED
-    valueSet: [SCT,L]
-    natFlatFileField: Specimen_source_site_code_sys
-    hhsGuidanceField:
-    hl7Field: SPM-8.3
-
-  - name: specimen_source_site_description
+  - name: specimen_source_site_text
     type: TEXT
     natFlatFileField: Specimen_source_site_descrip
     hhsGuidanceField:
     hl7Field: SPM-8.2
 
   - name: specimen_type_code
-    type: CODED_SNOMED
-    valueSet:
-      - 258500001 # Nasopharyngeal swab
-      - 871810001 # Mid-turbinate nasal swab
-      - 697989009 # Anterior nares swab
-      - 258411007 # Nasopharyngeal aspirate
-      - 429931000124105 # Nasal aspirate
-      - 258529004 # Throat swab
-      - 119334006 # Sputum specimen
-      - 119342007 # Saliva specimen
-      - 258607008 # Bronchoalveolar lavage fluid sample
-      - 119364003 # Serum specimen
-      - 119361006 # Plasma specimen
-      - 440500007 # Dried blood spot specimen
-      - 258580003 # Whole blood sample
-      - 122555007 # Venous blood specimen
+    type: CODED
+    valueSet: covid-19/specimen_type
     natFlatFileField: Specimen_type_code
     hhsGuidanceField: Specimen source
     hl7Field: SPM-4.1
 
-  - name: specimen_type_code_system
-    type: CODED
-    valueSet: [SCT]
-    natFlatFileField: Specimen_type_code_system
-    hhsGuidanceField:
-    hl7Field: SPM-4.3
-
-  - name: specimen_type_description
-    type: TEXT
-    natFlatFileField: Specimen_type_description
-    hhsGuidanceField:
-    hl7Field: SPM-4.2
-
   - name: specimen_type_text
     type: TEXT
+    valueSet: covid-19/specimen_type
     natFlatFileField: Specimen_type_text
     hhsGuidanceField:
     hl7Field: SPM-4.9
@@ -653,11 +571,8 @@ elements:
     hl7Field: SPM-2.1.1
 
   - name: symptomatic_for_disease
-    type: CODED_HL7
-    valueSet:
-      - YES
-      - NO
-      - UNK # Unknown
+    type: CODED
+    valueSet: hl7_0136
     natFlatFileField: Symptomatic_for_disease
     hhsGuidanceField: Symptomatic per CDC
     hl7Field: OBX-5
@@ -694,18 +609,14 @@ elements:
 
   - name: test_performed_code
     type: CODED
+    valueSet: covid-19/order
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3.1
 
-  - name: test_performed_code_system
+  - name: test_performed_text
     type: TEXT
-    natFlatFileField: Test_performed_code_system
-    hhsGuidanceField:
-    hl7Field: OBX-3.3
-
-  - name: test_performed_description
-    type: TEXT
+    valueSet: covid-19/order
     natFlatFileField: Test_performed_description
     hhsGuidanceField:
     hl7Field: OBX-3.2
@@ -716,21 +627,9 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-1
 
-  - name: test_result_code_system
-    type: CODED_HL7
-    valueSet: ["L", "SCT"]
-    natFlatFileField: Test_result_code_system
-    hhsGuidanceField:
-    hl7Field: OBX-5.3
-
   - name: test_result_coded
-    type: CODED_SNOMED
-    valueSet:
-      - 260373001 #Detected
-      - 260415000 #Not detected
-      - 895231008 #Not detected in pooled specimen
-      - 462371000124108 #Detected in pooled specimen
-      - 419984006 #Inconclusive
+    type: CODED
+    valueSet: covid-19/test_result
     natFlatFileField: Test_result_coded
     hhsGuidanceField: Test result
     hl7Field: OBX-5.1
@@ -761,6 +660,7 @@ elements:
 
   - name: test_result_text
     type: TEXT
+    valueSet: covid-19/test_result
     natFlatFileField: Test_Result_text
     hhsGuidanceField:
     hl7Field: OBX-5.1

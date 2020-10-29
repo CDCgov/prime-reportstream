@@ -109,6 +109,7 @@ class RouterCli : CliktCommand(
         // Load the schema and receivers
         Schema.loadSchemaCatalog()
         Receiver.loadReceiversList()
+        Schema.loadValueSetCatalog()
         echo("Loaded schema and receivers")
 
         // Gather input source
