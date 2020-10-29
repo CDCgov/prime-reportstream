@@ -10,4 +10,8 @@ class TranslatorTests {
         assertEquals("R", MITranslator().apply(listOf("rick")))
     }
 
+    @Test
+    fun `test SendingAppTranslator`() {
+        assertEquals("PRIME", SendingAppTranslator().apply(listOf()))
+    }
 }
