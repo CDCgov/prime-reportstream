@@ -48,7 +48,7 @@ class RouterCli : CliktCommand(
         readBlock: (name: String, schema: Schema, stream: InputStream) -> MappableTable
     ): MappableTable {
         val schemaName = inputSchema.toLowerCase()
-        val schema = Schema.schemas[schemaName] ?: error("Schema $schemaName is not found")
+        val schema = Metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
@@ -95,9 +95,9 @@ class RouterCli : CliktCommand(
     private fun routeByReceivers(input: List<MappableTable>): List<MappableTable> {
         echo("partition by receiver")
         if (input.isEmpty()) return emptyList()
-        var outputTables = input[0].routeByReceiver(Receiver.receivers)
+        var outputTables = input[0].routeByReceiver(Metadata.receivers)
         for (i in 1 until input.size) {
-            val tablesForInput = input[i].routeByReceiver(Receiver.receivers)
+            val tablesForInput = input[i].routeByReceiver(Metadata.receivers)
             outputTables = outputTables.mapIndexed { index, mappableTable ->
                 mappableTable.concat(mappableTable.name, tablesForInput[index])
             }
@@ -107,9 +107,7 @@ class RouterCli : CliktCommand(
 
     override fun run() {
         // Load the schema and receivers
-        Schema.loadSchemaCatalog()
-        Receiver.loadReceiversList()
-        Schema.loadValueSetCatalog()
+        Metadata.loadAll()
         echo("Loaded schema and receivers")
 
         // Gather input source
@@ -121,9 +119,12 @@ class RouterCli : CliktCommand(
             }
             is InputSource.DirSource -> TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
-                val schema =
-                    Schema.schemas[inputSchema.toLowerCase()] ?: error("$inputSchema is an invalid schema name")
-                FakeTable.build("fake-${schema.name}", schema, (inputSource as InputSource.FakeSource).count)
+                val schema = Metadata.findSchema(inputSchema) ?: error("$inputSchema is an invalid schema name")
+                FakeTable.build(
+                    "fake-${schema.name.replaceRange(0, schema.name.lastIndexOf('/') + 1, "")}",
+                    schema,
+                    (inputSource as InputSource.FakeSource).count
+                )
             }
             else -> {
                 error("input source must be specified")

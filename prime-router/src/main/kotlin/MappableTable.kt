@@ -117,12 +117,13 @@ class MappableTable {
     }
 
     fun routeByReceiver(receivers: List<Receiver>): List<MappableTable> {
-        val onTopicReceivers = receivers.filter { it.topic == schema.topic }
-        return onTopicReceivers.map { receiver: Receiver ->
+        return receivers.filter {
+            it.topic == schema.topic
+        }.map { receiver: Receiver ->
             val outputName = "${receiver.name}-${name}"
             val input: MappableTable = if (receiver.schema != schema.name) {
                 val toSchema =
-                    Schema.schemas[receiver.schema] ?: error("${receiver.schema} schema is missing from catalog")
+                    Metadata.findSchema(receiver.schema) ?: error("${receiver.schema} schema is missing from catalog")
                 val mapping = schema.buildMapping(toSchema)
                 this.applyMapping(outputName, mapping)
             } else {
@@ -165,7 +166,7 @@ class MappableTable {
             }
             in mapping.useValueSet -> {
                 val valueSetName = mapping.useValueSet.getValue(toElement.name)
-                val valueSet = Schema.valueSets[valueSetName] ?: error("$valueSetName is not found")
+                val valueSet = Metadata.findValueSet(valueSetName) ?: error("$valueSetName is not found")
                 createValueSetTranslatedColumn(toElement, valueSet)
             }
             in mapping.useTranslator -> {

@@ -26,73 +26,37 @@ class SchemaTests {
     }
 
     @Test
-    fun `test loading schema catalog`() {
-        Schema.loadSchemaCatalog("./src/test/unit_test_files")
-        assertNotNull(Schema.schemas["lab_test_results_schema"])
-        assertEquals(9, Schema.schemas.getValue("lab_test_results_schema").elements.size)
-        assertEquals("lab", Schema.schemas.getValue("lab_test_results_schema").elements[0].name)
-        assertEquals("extra", Schema.schemas.getValue("lab_test_results_schema").elements[6].name)
-        assertEquals(Element.Type.POSTAL_CODE, Schema.schemas.getValue("lab_test_results_schema").elements[8].type)
-    }
-
-    @Test
-    fun `test loading two schemas`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
-        Schema.loadSchemas(mapOf("one" to one, "two" to two))
-        assertEquals(2, Schema.schemas.size)
-        assertNotNull(Schema.schemas["one"])
-    }
-
-    @Test
     fun `test buildMapping`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("A")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
 
         val oneToTwo = one.buildMapping(two)
         assertEquals(one, oneToTwo.fromSchema)
         assertEquals(two, oneToTwo.toSchema)
         assertEquals(1, oneToTwo.useDirectly.size)
-        assertEquals("A", oneToTwo.useDirectly["a"])
+        assertEquals("a", oneToTwo.useDirectly["a"])
         assertEquals(true, oneToTwo.useDefault.contains("b"))
         assertEquals(0, oneToTwo.missing.size)
 
         val twoToOne = two.buildMapping(toSchema = one)
         assertEquals(1, twoToOne.useDirectly.size)
-        assertEquals("a", twoToOne.useDirectly["A"])
+        assertEquals("a", twoToOne.useDirectly["a"])
         assertEquals(0, twoToOne.useDefault.size)
         assertEquals(0, twoToOne.missing.size)
     }
 
     @Test
     fun `test buildMapping with missing`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("A")))
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
         val three = Schema(
             name = "three",
             topic = "test",
-            elements = listOf(Element("a_"), Element("c", required = true))
+            elements = listOf(Element("a"), Element("c", required = true))
         )
         val oneToThree = one.buildMapping(toSchema = three)
         assertEquals(1, oneToThree.useDirectly.size)
-        assertEquals("A", oneToThree.useDirectly["a_"])
+        assertEquals("a", oneToThree.useDirectly["a"])
         assertEquals(0, oneToThree.useDefault.size)
         assertEquals(1, oneToThree.missing.size)
     }
-
-    @Test
-    fun `load valueSets`() {
-        val one = ValueSet("one", ValueSet.SetSystem.HL7)
-        val two = ValueSet("two", ValueSet.SetSystem.LOCAL)
-        Schema.loadValueSets(listOf(one, two))
-        assertEquals(2, Schema.valueSets.size)
-        assertNotNull(Schema.valueSets["one"])
-    }
-
-    @Test
-    fun `load value set directory`() {
-        Schema.loadValueSetCatalog("./src/test/unit_test_files")
-        assertEquals(8, Schema.valueSets.size)
-        assertNotNull(Schema.valueSets["hl7_0136"])
-    }
-
 }

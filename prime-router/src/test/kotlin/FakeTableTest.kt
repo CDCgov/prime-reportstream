@@ -11,7 +11,6 @@ internal class FakeTableTest {
             "fake" to
                     ValueSet("fake", ValueSet.SetSystem.LOCAL, values = listOf(ValueSet.Value(code = "AZ")))
         )
-        assertEquals("AZ", FakeTable.buildColumn(state, valueSets))
+        assertEquals("AZ", FakeTable.buildColumn(state) { valueSets[it] })
     }
-
 }

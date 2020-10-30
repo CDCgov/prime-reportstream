@@ -12,7 +12,7 @@ class FakeTable {
             return choices[random.nextInt(choices.size)]
         }
 
-        internal fun buildColumn(element: Element, valueSets: Map<String, ValueSet>): String {
+        internal fun buildColumn(element: Element, findValueSet: (name: String) -> ValueSet?): String {
             val faker = Faker()
             val address = faker.address()
             val patientName = faker.name()
@@ -23,14 +23,6 @@ class FakeTable {
                 Element.Type.TEXT -> {
                     when {
                         element.nameContains("lab_name") -> "Any lab USA"
-                        element.valueSet != null -> {
-                            val valueSet = valueSets[element.valueSet]
-                                ?: error("ValueSet ${element.valueSet} is not available}")
-                            val possibleValues = valueSet.values.map {
-                                it.display ?: error("missing display in ${valueSet.name}")
-                            }.toTypedArray()
-                            randomChoice(*possibleValues)
-                        }
                         else -> faker.lorem().characters(5, 10)
                     }
                 }
@@ -49,9 +41,13 @@ class FakeTable {
                 Element.Type.DURATION -> TODO()
                 Element.Type.CODE -> {
                     val valueSet =
-                        valueSets[element.valueSet] ?: error("ValueSet ${element.valueSet} is not available}")
+                        findValueSet(element.valueSet ?: "") ?: error("ValueSet ${element.valueSet} is not available}")
                     val possibleValues = valueSet.values.map {
-                        it.code ?: it.display ?: error("missing code in ${valueSet.name}")
+                        when {
+                            element.isCodeText -> it.display ?: "fake display"
+                            element.isCode -> it.code ?: "fake code"
+                            else -> error("element ${element.name} has is not a CODE type")
+                        }
                     }.toTypedArray()
                     randomChoice(*possibleValues)
                 }
@@ -83,7 +79,7 @@ class FakeTable {
         }
 
         private fun buildRow(schema: Schema): List<String> {
-            return schema.elements.map { buildColumn(it, Schema.valueSets) }
+            return schema.elements.map { buildColumn(it, Metadata::findValueSet) }
         }
 
         fun build(name: String, schema: Schema, count: Int = 10): MappableTable {
