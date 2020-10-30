@@ -13,8 +13,7 @@ data class Element(
     // General information
     val type: Type? = null,
     val format: String? = null,
-    val valueSetId: String? = null,
-    val valueSet: List<String>? = null, // If unspecified, any value is valid
+    val valueSet: String? = null,
     val required: Boolean? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,
@@ -42,10 +41,7 @@ data class Element(
         DATE,
         DATETIME,
         DURATION,
-        CODED,
-        CODED_LONIC,
-        CODED_SNOMED,
-        CODED_HL7,
+        CODE,
         HD,
         ID,
         ID_DLN,
@@ -60,6 +56,14 @@ data class Element(
         EMAIL,
     }
 
+    val isCodeType get() = this.type == Type.CODE
+    val isCode get() = this.isCodeType && !name.contains('#')
+    val isCodeText get() = this.isCodeType && name.endsWith("#text")
+    val isCodeSystem get() = this.isCodeType && name.endsWith("#system")
+    val nameAsCode get() = if (name.contains('#')) name.split('#')[0] else name
+    val nameAsCodeText get() = if (isCodeType) "$nameAsCode#text" else name
+    val nameAsCodeSystem get() = if (isCodeType) "$nameAsCode#system" else name
+
     fun nameContains(substring: String): Boolean {
         return name.contains(substring, ignoreCase = true)
     }
@@ -69,7 +73,6 @@ data class Element(
             name = this.name,
             type = this.type ?: baseElement.type,
             format = this.format ?: baseElement.format,
-            valueSetId = this.valueSetId ?: baseElement.valueSetId,
             valueSet = this.valueSet ?: baseElement.valueSet,
             required = this.required ?: baseElement.required,
             pii = this.pii ?: baseElement.pii,

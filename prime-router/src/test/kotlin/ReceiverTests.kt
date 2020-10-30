@@ -21,14 +21,13 @@ class ReceiverTests {
     @Test
     fun `test loading a receiver`() {
         val input = ByteArrayInputStream(receiversYaml.toByteArray())
-        Receiver.loadReceiversList(input)
-        assertEquals(1, Receiver.receivers.size)
-        assertEquals(2, Receiver.get("phd1", "covid-19")?.patterns?.size)
+        Metadata.loadReceiversList(input)
+        assertEquals(2, Metadata.findReceiver("phd1", "covid-19")?.patterns?.size)
     }
 
     @Test
     fun `test loading a single receiver`() {
-        Receiver.loadReceivers(listOf(Receiver("name", "topic", "schema")))
-        assertEquals(1, Receiver.receivers.size)
+        Metadata.loadReceivers(listOf(Receiver("name", "topic", "schema")))
+        assertNotNull(Metadata.findReceiver("name", "topic"))
     }
 }

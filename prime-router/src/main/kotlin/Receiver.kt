@@ -1,12 +1,5 @@
 package gov.cdc.prime.router
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import java.io.File
-import java.io.InputStream
-
 data class Receiver(
     val name: String,
     val topic: String,
@@ -22,34 +15,5 @@ data class Receiver(
         CSV,
         //HL7,
         //FHIR
-    }
-
-    companion object {
-        private const val defaultReceivers = "metadata/receivers.yml"
-
-        val receivers: List<Receiver> get() = receiversStore
-        private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
-
-        data class ReceiversList(
-            val receivers: List<Receiver>
-        )
-
-        fun loadReceiversList(receiversStream: InputStream? = null) {
-            val loadingStream = receiversStream ?: File(defaultReceivers).inputStream()
-            val receiversList = mapper.readValue<ReceiversList>(loadingStream)
-            loadReceivers(receiversList.receivers)
-        }
-
-        fun loadReceivers(receivers: List<Receiver>) {
-            receiversStore = receivers
-        }
-
-        fun get(name: String, topic: String): Receiver? {
-            return receiversStore.first {
-                it.name.equals(name, ignoreCase = true) && it.topic.equals(topic, ignoreCase = true)
-            }
-        }
-
-        private var receiversStore: List<Receiver> = ArrayList()
     }
 }

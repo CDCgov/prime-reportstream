@@ -156,7 +156,7 @@ class MappableTableTests {
     @Test
     fun `test applyMapping`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("B")))
+        val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
 
         val oneTable =
             MappableTable(name = "one", schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")))
@@ -176,7 +176,7 @@ class MappableTableTests {
             topic = "test",
             elements = listOf(Element("a", default = "~"), Element("b"))
         )
-        val two = Schema(name = "two", topic = "test", elements = listOf(Element("B")))
+        val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
 
         val twoTable =
             MappableTable(name = "one", schema = two, values = listOf(listOf("b1"), listOf("b2")))

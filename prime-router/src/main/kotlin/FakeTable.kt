@@ -12,7 +12,7 @@ class FakeTable {
             return choices[random.nextInt(choices.size)]
         }
 
-        private fun buildColumn(element: Element): String {
+        internal fun buildColumn(element: Element, findValueSet: (name: String) -> ValueSet?): String {
             val faker = Faker()
             val address = faker.address()
             val patientName = faker.name()
@@ -39,14 +39,19 @@ class FakeTable {
                     formatter.format(faker.date().past(10, TimeUnit.DAYS))
                 }
                 Element.Type.DURATION -> TODO()
-                Element.Type.CODED -> randomChoice(*(element.valueSet?.toTypedArray() ?: arrayOf("random CODED")))
-                Element.Type.CODED_HL7 -> randomChoice(
-                    *(element.valueSet?.toTypedArray() ?: arrayOf("random HL7"))
-                )
-                Element.Type.CODED_LONIC -> faker.idNumber().valid()
-                Element.Type.CODED_SNOMED -> randomChoice(
-                    *(element.valueSet?.toTypedArray() ?: arrayOf("random SNOMED"))
-                )
+                Element.Type.CODE -> {
+                    val valueSet =
+                        findValueSet(element.valueSet ?: "") ?: error("ValueSet ${element.valueSet} is not available}")
+                    val possibleValues = valueSet.values.map {
+                        when {
+                            element.isCodeText -> it.display ?: "fake display"
+                            element.isCode -> it.code ?: "fake code"
+                            element.isCodeSystem -> valueSet.systemCode
+                            else -> error("element ${element.name} has is not a CODE type")
+                        }
+                    }.toTypedArray()
+                    randomChoice(*possibleValues)
+                }
                 Element.Type.HD -> {
                     when {
                         element.nameContains("sending_application") -> "fake app"
@@ -63,7 +68,7 @@ class FakeTable {
                     when {
                         element.nameContains("first") -> patientName.firstName()
                         element.nameContains("last") -> patientName.lastName()
-                        element.nameContains("middle") -> patientName.firstName()
+                        element.nameContains("middle") -> patientName.firstName() // no middle name in faker
                         element.nameContains("suffix") -> randomChoice(patientName.suffix(), "")
                         else -> TODO()
                     }
@@ -75,7 +80,7 @@ class FakeTable {
         }
 
         private fun buildRow(schema: Schema): List<String> {
-            return schema.elements.map { buildColumn(it) }
+            return schema.elements.map { buildColumn(it, Metadata::findValueSet) }
         }
 
         fun build(name: String, schema: Schema, count: Int = 10): MappableTable {

@@ -57,7 +57,7 @@ class MappableTable {
                     if (index >= header.size ||
                         (header[index] != element.csvField && header[index] != element.name)
                     ) {
-                        error("Element ${element.name} is not found in the input stream header")
+                        error("Element ${element.csvField} is not found in the input stream header")
                     }
                 }
 
@@ -117,12 +117,13 @@ class MappableTable {
     }
 
     fun routeByReceiver(receivers: List<Receiver>): List<MappableTable> {
-        val onTopicReceivers = receivers.filter { it.topic == schema.topic }
-        return onTopicReceivers.map { receiver: Receiver ->
+        return receivers.filter {
+            it.topic == schema.topic
+        }.map { receiver: Receiver ->
             val outputName = "${receiver.name}-${name}"
             val input: MappableTable = if (receiver.schema != schema.name) {
                 val toSchema =
-                    Schema.schemas[receiver.schema] ?: error("${receiver.schema} schema is missing from catalog")
+                    Metadata.findSchema(receiver.schema) ?: error("${receiver.schema} schema is missing from catalog")
                 val mapping = schema.buildMapping(toSchema)
                 this.applyMapping(outputName, mapping)
             } else {
@@ -163,6 +164,11 @@ class MappableTable {
             in mapping.useDirectly -> {
                 table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
             }
+            in mapping.useValueSet -> {
+                val valueSetName = mapping.useValueSet.getValue(toElement.name)
+                val valueSet = Metadata.findValueSet(valueSetName) ?: error("$valueSetName is not found")
+                createValueSetTranslatedColumn(toElement, valueSet)
+            }
             in mapping.useTranslator -> {
                 createTranslatedColumn(toElement, mapping.useTranslator.getValue(toElement.name))
             }
@@ -188,4 +194,25 @@ class MappableTable {
         return StringColumn.create(toElement.name, values.asList())
     }
 
+    private fun createValueSetTranslatedColumn(toElement: Element, valueSet: ValueSet): StringColumn {
+        val values = when {
+            toElement.isCodeText -> {
+                Array(table.rowCount()) { row ->
+                    val fromCode = table.getString(row, toElement.nameAsCode)
+                    valueSet.toDisplay(fromCode) ?: toElement.default ?: ""
+                }
+            }
+            toElement.isCodeSystem -> {
+                Array(table.rowCount()) { valueSet.systemCode }
+            }
+            toElement.isCode -> {
+                Array(table.rowCount()) { row ->
+                    val fromDisplay = table.getString(row, toElement.nameAsCodeText)
+                    valueSet.toCode(fromDisplay) ?: toElement.default ?: ""
+                }
+            }
+            else -> error("Cannot convert ${toElement.name} using value set")
+        }
+        return StringColumn.create(toElement.name, values.asList())
+    }
 }
