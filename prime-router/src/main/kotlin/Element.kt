@@ -14,7 +14,6 @@ data class Element(
     val type: Type? = null,
     val format: String? = null,
     val valueSet: String? = null,
-    val pair: String? = null,
     val required: Boolean? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,
