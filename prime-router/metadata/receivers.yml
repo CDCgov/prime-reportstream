@@ -18,7 +18,7 @@ receivers:
     description: Florida PHD
     topic: sample
     schema: sample/phd2-sample
-    patterns: {observation: covid-19:.*, state: FL}
+    patterns: {observation: covid-19:pos, state: FL}
     transforms: {deidentify: false}
     address: http://localhost:1281/
     format: CSV
