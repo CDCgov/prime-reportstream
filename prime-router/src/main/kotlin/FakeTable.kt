@@ -46,6 +46,7 @@ class FakeTable {
                         when {
                             element.isCodeText -> it.display ?: "fake display"
                             element.isCode -> it.code ?: "fake code"
+                            element.isCodeSystem -> valueSet.systemCode
                             else -> error("element ${element.name} has is not a CODE type")
                         }
                     }.toTypedArray()
@@ -67,7 +68,7 @@ class FakeTable {
                     when {
                         element.nameContains("first") -> patientName.firstName()
                         element.nameContains("last") -> patientName.lastName()
-                        element.nameContains("middle") -> patientName.firstName()
+                        element.nameContains("middle") -> patientName.firstName() // no middle name in faker
                         element.nameContains("suffix") -> randomChoice(patientName.suffix(), "")
                         else -> TODO()
                     }

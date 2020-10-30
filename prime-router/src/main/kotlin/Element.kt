@@ -60,8 +60,10 @@ data class Element(
     val isCodeType get() = this.type == Type.CODE
     val isCode get() = this.isCodeType && !name.contains('#')
     val isCodeText get() = this.isCodeType && name.endsWith("#text")
+    val isCodeSystem get() = this.isCodeType && name.endsWith("#system")
     val nameAsCode get() = if (name.contains('#')) name.split('#')[0] else name
     val nameAsCodeText get() = if (isCodeType) "$nameAsCode#text" else name
+    val nameAsCodeSystem get() = if (isCodeType) "$nameAsCode#system" else name
 
     fun nameContains(substring: String): Boolean {
         return name.contains(substring, ignoreCase = true)

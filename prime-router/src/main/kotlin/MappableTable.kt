@@ -202,6 +202,9 @@ class MappableTable {
                     valueSet.toDisplay(fromCode) ?: toElement.default ?: ""
                 }
             }
+            toElement.isCodeSystem -> {
+                Array(table.rowCount()) { valueSet.systemCode }
+            }
             toElement.isCode -> {
                 Array(table.rowCount()) { row ->
                     val fromDisplay = table.getString(row, toElement.nameAsCodeText)

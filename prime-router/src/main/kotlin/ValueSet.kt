@@ -25,6 +25,15 @@ data class ValueSet(
         FHIR,
     }
 
+    val systemCode
+        get() = when (system) {
+            SetSystem.HL7 -> "HL7"
+            SetSystem.SNOMED_CT -> "SCT"
+            SetSystem.LOINC -> "L"
+            SetSystem.LOCAL -> "LOCAL"
+            SetSystem.FHIR -> "F"
+        }
+
     data class Value(
         val code: String? = null,
         val alt_codes: List<String> = emptyList(),
