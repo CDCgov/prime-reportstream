@@ -29,7 +29,11 @@ data class Schema(
     )
 
     fun findElement(name: String): Element? {
-        return elements.find { (it.name == name) || (it.isCode && (it.nameAsCode == name || it.nameAsCodeText == name)) }
+        return elements.find {
+            (it.name == name) ||
+                    // a CODE element can have 3 different names <name> or <name>#text or <name>#system depending
+                    (it.isCode && (it.nameAsCode == name || it.nameAsCodeText == name || it.nameAsCodeSystem == name))
+        }
     }
 
     fun buildMapping(toSchema: Schema): Mapping {
