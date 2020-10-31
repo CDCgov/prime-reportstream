@@ -114,7 +114,7 @@ class RouterCli : CliktCommand(
         val inputMappableTable: MappableTable = when (inputSource) {
             is InputSource.FileSource -> {
                 readMappableTableFromFile((inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
-                    MappableTable(name, schema, stream, MappableTable.StreamType.CSV)
+                    CsvConverter.read(name, schema, stream)
                 }
             }
             is InputSource.DirSource -> TODO("Dir source is not implemented")
@@ -140,7 +140,7 @@ class RouterCli : CliktCommand(
 
         // Output tables
         writeMappableTablesToFile(outputMappableTables) { table, stream ->
-            table.write(stream, MappableTable.StreamType.CSV)
+            CsvConverter.write(table, stream)
         }
     }
 }

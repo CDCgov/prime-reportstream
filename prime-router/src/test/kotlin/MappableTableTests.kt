@@ -93,67 +93,6 @@ class MappableTableTests {
     }
 
     @Test
-    fun `test create from csv`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val csv = """
-            a,b
-            1,2
-        """.trimIndent()
-
-        val table1 = MappableTable("test", one, ByteArrayInputStream(csv.toByteArray()), MappableTable.StreamType.CSV)
-        assertEquals(1, table1.rowCount)
-    }
-
-    @Test
-    fun `test create with csv_field`() {
-        val one = Schema(
-            name = "one",
-            topic = "test",
-            elements = listOf(Element("a", csvField = "A"), Element("b"))
-        )
-        val csv = """
-            A,b
-            1,2
-        """.trimIndent()
-
-        val table1 = MappableTable("test", one, ByteArrayInputStream(csv.toByteArray()), MappableTable.StreamType.CSV)
-        assertEquals(1, table1.rowCount)
-        assertEquals("1", table1.getString(0, "a"))
-    }
-
-    @Test
-    fun `test write as csv`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val table1 = MappableTable("test", one, listOf(listOf("1", "2")))
-        val expectedCsv = """
-            a,b
-            1,2
-            
-        """.trimIndent()
-        val output = ByteArrayOutputStream()
-        table1.write(output, MappableTable.StreamType.CSV)
-        assertEquals(expectedCsv, output.toString(StandardCharsets.UTF_8))
-    }
-
-    @Test
-    fun `test write as csv with csv_field`() {
-        val one = Schema(
-            name = "one",
-            topic = "test",
-            elements = listOf(Element("a", csvField = "A"), Element("b"))
-        )
-        val table1 = MappableTable("test", one, listOf(listOf("1", "2")))
-        val expectedCsv = """
-            A,b
-            1,2
-            
-        """.trimIndent()
-        val output = ByteArrayOutputStream()
-        table1.write(output, MappableTable.StreamType.CSV)
-        assertEquals(expectedCsv, output.toString(StandardCharsets.UTF_8))
-    }
-
-    @Test
     fun `test applyMapping`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
