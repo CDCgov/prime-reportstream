@@ -61,6 +61,14 @@ class MappableTable {
         return table.getString(row, colName)
     }
 
+    fun getStringWithDefault(row: Int, colName: String): String {
+        return if (table.columnNames().contains(colName)) {
+            table.getString(row, colName)
+        } else {
+            schema.findElement(colName)?.default ?: ""
+        }
+    }
+
     fun concat(name: String, appendTable: MappableTable): MappableTable {
         if (appendTable.schema != this.schema) error("concat a table with a different schema")
         val newTable = this.table.copy().append(appendTable.table)

@@ -29,9 +29,9 @@ data class ValueSet(
         get() = when (system) {
             SetSystem.HL7 -> "HL7"
             SetSystem.SNOMED_CT -> "SCT"
-            SetSystem.LOINC -> "L"
+            SetSystem.LOINC -> "LN"
             SetSystem.LOCAL -> "LOCAL"
-            SetSystem.FHIR -> "F"
+            SetSystem.FHIR -> "FHIR"
         }
 
     data class Value(

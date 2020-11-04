@@ -59,3 +59,26 @@
     - code: 419984006
       display: Inconclusive
 
+- name: covid-19/order
+  system: LOINC
+  reference: Incomplete - Supports BD Veritor, Quidell Sofia, and Abbott ID Now
+  referenceUrl: https://www.cdc.gov/csels/dls/documents/livd_test_code_mapping/LIVD-SARS-CoV-2-2020-10-21.xlsx
+  values:
+    - code: 94563-4
+      display: SARS coronavirus 2 IgG Ab [Presence] in Serum or Plasma by Immunoassay
+    - code: 94500-6
+      display: SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection
+    - code: 94558-4
+      display: SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay
+    - code: 94534-5
+      display: SARS coronavirus 2 RdRp gene [Presence] in Respiratory specimen by NAA with probe detection
+    - code: 94564-2
+      display: SARS-CoV-2 (COVID-19) IgM Ab [Presence] in Serum or Plasma by Immunoassay
+    - code: 94531-1
+      display: SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection
+    - code: 94559-2
+      display: SARS coronavirus 2 ORF1ab region [Presence] in Respiratory specimen by NAA with probe detection
+    - code: 95209-3
+      display: SARS coronavirus+SARS coronavirus 2 Ag [Presence] in Respiratory specimen by Rapid immunoassay
+
+
