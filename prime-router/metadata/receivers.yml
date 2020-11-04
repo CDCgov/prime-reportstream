@@ -43,7 +43,7 @@ receivers:
     patterns: { standard.patient_state: AZ }
     transforms: { deidentify: false }
     address: http://localhost:1181/
-    format: CSV
+    format: HL7
 
   - name: pa-phd
     description: Pennsylvennia PHD

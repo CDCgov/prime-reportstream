@@ -13,7 +13,7 @@ data class Receiver(
 
     enum class TopicFormat {
         CSV,
-        //HL7,
+        HL7,
         //FHIR
     }
 }

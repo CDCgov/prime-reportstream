@@ -39,32 +39,34 @@
   reference: HHS guidance for sex at birth
   referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0001
   values:
-    - display: Male
-      alt_codes: [M]
-    - display: Female
-      alt_codes: [F]
-    - display: Other
-      alt_codes: [O]
-    - display: Ambiguous
-      alt_codes: [A]
-    - display: Unknown
-      alt_codes: [U, UNK]
-    - display: Not applicable
+    - code: M
+      display: Male
+    - code: F
+      display: Female
+    - code: O
+      display: Other
+    - code: A
+      display: Ambiguous
+    - code: UNK
+      alt_codes: [U]
+      display: Unknown
+    - code: NA
       alt_codes: [N]
+      display: Not applicable
 
 - name: omb_ethnicity
   system: FHIR
   reference: OMB 2020 Census values per the HHS guidance
   referenceUrl: https://hl7.org/fhir/us/core/2017Jan/ValueSet-omb-ethnicity.html
   values:
-    - code: Hispanic or Latino
-      display: 2135-2
-    - code: Non Hispanic or Latino
-      display: 2186-5
-    - code: Unknown
-      display: UNK
-    - code: Asked, but unknown
-      display: ASKU
+    - code: 2135-2
+      display: Hispanic or Latino
+    - code: 2186-5
+      display: Non Hispanic or Latino
+    - code: UNK
+      display: Unknown
+    - code: ASKU
+      display: Asked, but unknown
 
 - name: omb_race
   system: FHIR

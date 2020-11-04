@@ -36,7 +36,6 @@ class RouterCli : CliktCommand(
 
     private val validate by option("--validate", help = "Validate stream").flag(default = true)
     private val route by option("--route", help = "route to receivers lists").flag(default = false)
-    private val partitionBy by option("--partition_by", help = "<col> to partition")
     private val send by option("--send", help = "send to a receiver if specified").flag(default = false)
 
     private val outputFileName by option("--output", help = "<file> not compatible with route or partition")
@@ -56,22 +55,26 @@ class RouterCli : CliktCommand(
     }
 
     private fun writeMappableTablesToFile(
-        tables: List<MappableTable>,
-        writeBlock: (table: MappableTable, stream: OutputStream) -> Unit
+        tables: List<Pair<MappableTable, Receiver.TopicFormat>>,
+        writeBlock: (table: MappableTable, format: Receiver.TopicFormat, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
-        tables.forEach { table ->
+        tables.forEach { pair ->
             val outputFile = if (outputFileName != null) {
                 File(outputFileName!!)
             } else {
-                File(outputDir ?: ".", "${table.name}.csv")
+                val ext = when(pair.second) {
+                    Receiver.TopicFormat.CSV -> ".csv"
+                    Receiver.TopicFormat.HL7 -> ".hl7"
+                }
+                File(outputDir ?: ".", "${pair.first.name}$ext")
             }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
                 outputFile.createNewFile()
             }
             outputFile.outputStream().use {
-                writeBlock(table, it)
+                writeBlock(pair.first, pair.second, it)
             }
         }
     }
@@ -92,17 +95,39 @@ class RouterCli : CliktCommand(
         }
     }
 
-    private fun routeByReceivers(input: List<MappableTable>): List<MappableTable> {
+    private fun routeByReceivers(input: MappableTable): List<Pair<MappableTable, Receiver.TopicFormat>> {
         echo("partition by receiver")
         if (input.isEmpty()) return emptyList()
-        var outputTables = input[0].routeByReceiver(Metadata.receivers)
-        for (i in 1 until input.size) {
-            val tablesForInput = input[i].routeByReceiver(Metadata.receivers)
-            outputTables = outputTables.mapIndexed { index, mappableTable ->
-                mappableTable.concat(mappableTable.name, tablesForInput[index])
+        return Metadata.receivers.filter {
+            it.topic == input.schema.topic
+        }.map { (name, _, schema, _, patterns, transforms, _, format) ->
+            val outputName = "${name}-${input.name}"
+
+            // Filter according to receiver patterns
+            val filtered = input.filter(name = outputName, patterns = patterns)
+
+            // Apply mapping to change schema
+            val toTable: MappableTable = if (schema != filtered.schema.name) {
+                val toSchema =
+                    Metadata.findSchema(schema) ?: error("${schema} schema is missing from catalog")
+                val mapping = filtered.schema.buildMapping(toSchema)
+                filtered.applyMapping(outputName, mapping)
+            } else {
+                filtered
             }
+
+            // Transform tables
+            var transformed = toTable
+            transforms.forEach { (transform, transformValue) ->
+                when (transform) {
+                    "deidentify" -> if (transformValue == "true") {
+                        transformed = transformed.deidentify()
+                    }
+                }
+            }
+
+            Pair(transformed, format)
         }
-        return outputTables
     }
 
     override fun run() {
@@ -132,15 +157,17 @@ class RouterCli : CliktCommand(
         }
 
         // Transform tables
-        val outputMappableTables: List<MappableTable> = when {
-            route -> routeByReceivers(listOf(inputMappableTable))
-            partitionBy != null -> TODO("PartitionBy is not implemented")
-            else -> listOf(inputMappableTable)
+        val outputMappableTables: List<Pair<MappableTable, Receiver.TopicFormat>> = when {
+            route -> routeByReceivers(inputMappableTable)
+            else -> listOf(Pair(inputMappableTable, Receiver.TopicFormat.CSV))
         }
 
         // Output tables
-        writeMappableTablesToFile(outputMappableTables) { table, stream ->
-            CsvConverter.write(table, stream)
+        writeMappableTablesToFile(outputMappableTables) { table, format, stream ->
+            when (format) {
+                Receiver.TopicFormat.CSV -> CsvConverter.write(table, stream)
+                Receiver.TopicFormat.HL7 -> Hl7Converter.write(table, stream)
+            }
         }
     }
 }

@@ -29,52 +29,6 @@ class MappableTableTests {
     }
 
     @Test
-    fun `test filterByReceiver with One Receiver`() {
-        val schema1 = Schema(name = "test", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val table1 = MappableTable("one", schema1, listOf(listOf("X", "1"), listOf("Y", "2"), listOf("Z", "3")))
-        val receiver1 = Receiver(
-            name = "rec1",
-            topic = "test",
-            schema = "test",
-            patterns = mapOf("a" to "Y|Z")
-        )
-        val tables = table1.routeByReceiver(listOf(receiver1))
-        assertEquals(1, tables.size)
-        assertEquals("rec1-one", tables[0].name)
-        assertEquals(2, tables[0].rowCount)
-    }
-
-    @Test
-    fun `test filterByReceiver with Multiple Receivers`() {
-        val schema1 = Schema(name = "test", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val table1 = MappableTable("one", schema1, listOf(listOf("X", "1"), listOf("Y", "2"), listOf("Z", "3")))
-        val receiver1 = Receiver(
-            name = "rec1",
-            topic = "test",
-            schema = "test",
-            patterns = mapOf("a" to "X")
-        )
-        val receiver2 = Receiver(
-            name = "rec2",
-            topic = "test",
-            schema = "test",
-            patterns = mapOf("a" to "Y|Z")
-        )
-        val receiver3 = Receiver(
-            name = "rec3",
-            topic = "test",
-            schema = "test",
-            patterns = mapOf("a" to "W")
-        )
-        val tables = table1.routeByReceiver(listOf(receiver1, receiver2, receiver3))
-        assertEquals(3, tables.size)
-        assertEquals("rec1-one", tables[0].name)
-        assertEquals("rec2-one", tables[1].name)
-        assertEquals(1, tables[0].rowCount)
-        assertEquals(2, tables[1].rowCount)
-    }
-
-    @Test
     fun `test isEmpty`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val emptyTable = MappableTable("test", one)

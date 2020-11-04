@@ -23,7 +23,7 @@ elements:
     type: TEXT
     natFlatFileField: Comments
     hhsGuidanceField:
-    hl7Field: NTE-3
+    hl7Field: # NTE-3
 
   - name: date_result_released
     type: DATE
@@ -362,7 +362,7 @@ elements:
   - name: patient_last_name
     type: PERSON_NAME
     natFlatFileField: Patient_last_name
-    hhsGuidanceField: 'Patient name '
+    hhsGuidanceField:  Patient name
     hl7Field: PID-5-1
 
   - name: patient_location

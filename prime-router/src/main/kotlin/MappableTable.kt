@@ -85,32 +85,6 @@ class MappableTable {
         return MappableTable(name, this.schema, filteredTable)
     }
 
-    fun routeByReceiver(receivers: List<Receiver>): List<MappableTable> {
-        return receivers.filter {
-            it.topic == schema.topic
-        }.map { receiver: Receiver ->
-            val outputName = "${receiver.name}-${name}"
-            val input: MappableTable = if (receiver.schema != schema.name) {
-                val toSchema =
-                    Metadata.findSchema(receiver.schema) ?: error("${receiver.schema} schema is missing from catalog")
-                val mapping = schema.buildMapping(toSchema)
-                this.applyMapping(outputName, mapping)
-            } else {
-                this
-            }
-            val filtered = input.filter(name = outputName, patterns = receiver.patterns)
-            var transformed = filtered
-            receiver.transforms.forEach { (transform, transformValue) ->
-                when (transform) {
-                    "deidentify" -> if (transformValue == "true") {
-                        transformed = transformed.deidentify()
-                    }
-                }
-            }
-            transformed
-        }
-    }
-
     fun deidentify(): MappableTable {
         val columns = schema.elements.map {
             if (it.pii == true) {

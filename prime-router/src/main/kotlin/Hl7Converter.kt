@@ -28,7 +28,7 @@ object Hl7Converter {
 
     internal fun createMessage(table: MappableTable, row: Int): String {
         val message = ORU_R01()
-        message.initQuickstart("ORU","R01", "D")
+        message.initQuickstart("ORU", "R01", "D")
         buildMessage(message, table, row)
         return context.pipeParser.encode(message)
     }
@@ -105,8 +105,8 @@ object Hl7Converter {
     }
 
     private fun nextSubcomponent(spec: String): String {
-        val pattern = Regex("-([0-9]+)$")
-        val sub = pattern.matchEntire(spec)?.groupValues?.get(0) ?: error("no match of pattern")
+        val pattern = Regex("([0-9]+)$")
+        val sub = pattern.find(spec)?.groupValues?.get(0) ?: error("no match of pattern")
         val nextComponent = sub.toInt() + 1
         return pattern.replace(spec, nextComponent.toString())
     }
