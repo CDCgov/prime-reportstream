@@ -46,8 +46,8 @@ class CsvFileTests {
         val schema = Metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
 
         // 1) Ingest the file
-        val inputMappableTable = MappableTable(file.name, schema, file.inputStream(), MappableTable.StreamType.CSV)
-        // 2) Create transformed objeccts, according to the receiver table rules
+        val inputMappableTable = CsvConverter.read(file.name, schema, file.inputStream())
+        // 2) Create transformed objects, according to the receiver table rules
         val outputMappableTables = inputMappableTable.routeByReceiver(Metadata.receivers)
         assertEquals(2, outputMappableTables.size)
         // 3) Write transformed objs to files, and check they are correct
@@ -57,7 +57,7 @@ class CsvFileTests {
                 outputFile.createNewFile()
             }
             outputFile.outputStream().use {
-                table.write(it, MappableTable.StreamType.CSV)
+                CsvConverter.write(table, it)
             }
             compareTestResultsToExpectedResults(outputFile.absolutePath, table.name)
         }
