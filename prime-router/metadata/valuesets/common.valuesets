@@ -56,6 +56,19 @@
       alt_codes: [NA]
       display: Not applicable
 
+- name: hl70189
+  system: HL7
+  id: 0189
+  reference: HL7 guidence
+  referenceUrl: https://www.hl7.org/fhir/v2/0189/index.html
+  values:
+    - code: H
+      display: Hispanic or Latino
+    - code: N
+      display: Non Hispanic or Latino
+    - code: U
+      display: Unknown
+
 - name: omb_ethnicity
   system: FHIR
   reference: OMB 2020 Census values per the HHS guidance

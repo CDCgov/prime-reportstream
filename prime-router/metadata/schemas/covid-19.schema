@@ -305,10 +305,10 @@ elements:
 
   - name: patient_ethnicity
     type: CODE
-    valueSet: omb_ethnicity
+    valueSet: hl70189
     natFlatFileField: Patient_ethnicity
     hhsGuidanceField: Patient ethnicity
-    hl7Field: PID-22-2
+    hl7Field: PID-22
 
   - name: patient_first_name
     type: PERSON_NAME
