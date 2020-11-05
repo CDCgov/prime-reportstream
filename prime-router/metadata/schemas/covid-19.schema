@@ -459,6 +459,22 @@ elements:
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_ST
 
+  - name: receiving_application
+    type: TEXT
+    hl7Field: MSH-5-1
+
+  - name: receiving_application_id
+    type: HD
+    hl7Field: MSH-5-2
+
+  - name: receiving_facility
+    type: TEXT
+    hl7Field: MSH-6-1
+
+  - name: receiving_facility_id
+    type: HD
+    hl7Field: MSH-6-2
+
   - name: reference_range
     type: TEXT
     natFlatFileField: Reference_range

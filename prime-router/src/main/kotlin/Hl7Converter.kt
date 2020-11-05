@@ -35,6 +35,7 @@ object Hl7Converter {
 
     private fun buildMessage(message: ORU_R01, table: MappableTable, row: Int) {
         val terser = Terser(message)
+        setLiterals(terser)
         table.schema.elements.forEach { element ->
             setElement(terser, table, row, element)
         }
@@ -59,17 +60,27 @@ object Hl7Converter {
         }
     }
 
+    private fun setLiterals(terser: Terser) {
+        terser.set("MSH-15", "NE")
+        terser.set("MSH-16", "NE")
+        terser.set("MSH-12", "2.5.1")
+    }
+
     private fun createFHS(table: MappableTable): String {
         val sendingApp = table.getStringWithDefault(0, "standard.sending_application")
         val sendingOid = table.getStringWithDefault(0, "standard.sending_application_id")
         val sendingFacilityName = table.getStringWithDefault(0, "standard.reporting_facility_name")
-        val sendingCLIA = table.getStringWithDefault(0, "standard.sending_application_id")
-        // TODO figure out the receiving facility
+        val sendingCLIA = table.getStringWithDefault(0, "standard.reporting_facility_id")
+        val receivingApplicationName = table.getStringWithDefault(0, "standard.receiving_application")
+        val receivingApplicationId = table.getStringWithDefault(0, "standard.receiving_application_id")
+        val receivingFacilityName = table.getStringWithDefault(0, "standard.receiving_facility")
+        val receivingFacilityId = table.getStringWithDefault(0, "standard.receiving_facility_id")
+
         return "FHS|^~\\&|" +
                 "$sendingApp^$sendingOid^ISO|" +
                 "$sendingFacilityName^$sendingCLIA^CLIA|" +
-                "AZ.DOH.ELR^2.16.840.1.114222.4.3.3.2.9.3^ISO|" +
-                "AZDOH^2.16.840.1.114222.4.1.142^ISO|" +
+                "$receivingApplicationName^$receivingApplicationId^ISO|" +
+                "$receivingFacilityName^$receivingFacilityId^ISO|" +
                 nowTimestamp() +
                 "\r"
     }
@@ -78,13 +89,17 @@ object Hl7Converter {
         val sendingApp = table.getStringWithDefault(0, "standard.sending_application")
         val sendingOid = table.getStringWithDefault(0, "standard.sending_application_id")
         val sendingFacilityName = table.getStringWithDefault(0, "standard.reporting_facility_name")
-        val sendingCLIA = table.getStringWithDefault(0, "standard.sending_application_id")
-        // TODO figure out the receiving facility
+        val sendingCLIA = table.getStringWithDefault(0, "standard.reporting_facility_id")
+        val receivingApplicationName = table.getStringWithDefault(0, "standard.receiving_application")
+        val receivingApplicationId = table.getStringWithDefault(0, "standard.receiving_application_id")
+        val receivingFacilityName = table.getStringWithDefault(0, "standard.receiving_facility")
+        val receivingFacilityId = table.getStringWithDefault(0, "standard.receiving_facility_id")
+
         return "BHS|^~\\&|" +
                 "$sendingApp^$sendingOid^ISO|" +
                 "$sendingFacilityName^$sendingCLIA^CLIA|" +
-                "AZ.DOH.ELR^2.16.840.1.114222.4.3.3.2.9.3^ISO|" +
-                "AZDOH^2.16.840.1.114222.4.1.142^ISO|" +
+                "$receivingApplicationName^$receivingApplicationId^ISO|" +
+                "$receivingFacilityName^$receivingFacilityId^ISO|" +
                 nowTimestamp() +
                 "\r"
     }
