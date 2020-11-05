@@ -40,11 +40,26 @@ elements:
 
   - name: standard.patient_last_name
 
+  - name: standard.patient_name_type_code
+
+  - name: standard.patient_middle_name
+
+  - name: standard.patient_suffix
+
   - name: standard.patient_dob
 
+  - name: standard.patient_died
+    hl7Field: PID-30-1
+    default: N
+
   - name: standard.patient_gender
+    hl7Field: PID-8-1 # only write the code subcomponent
 
   - name: standard.patient_race
+
+  - name: patient_race_system_version
+    default: 2.5.1
+    hl7Field: PID-10-7
 
   - name: standard.patient_ethnicity
 

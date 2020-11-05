@@ -11,13 +11,14 @@
 # sort alphabetically
 #
 ---
-- name: hl7_0136
+- name: hl70136
   system: HL7
+  id: 0136
   values:
-    - code: YES
+    - code: Y
       alt_codes: [true]
       display: Yes
-    - code: NO
+    - code: N
       alt_codes: [false]
       display: No
     - code: UNK
@@ -34,8 +35,9 @@
     - display: years
       alt_codes: [yr, yrs]
 
-- name: patient_gender
-  system: LOCAL
+- name: hl70001
+  system: HL7
+  id: 0001
   reference: HHS guidance for sex at birth
   referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0001
   values:
@@ -47,11 +49,11 @@
       display: Other
     - code: A
       display: Ambiguous
-    - code: UNK
-      alt_codes: [U]
+    - code: U
+      alt_codes: [UNK]
       display: Unknown
-    - code: NA
-      alt_codes: [N]
+    - code: N
+      alt_codes: [NA]
       display: Not applicable
 
 - name: omb_ethnicity
@@ -68,10 +70,11 @@
     - code: ASKU
       display: Asked, but unknown
 
-- name: omb_race
-  system: FHIR
-  reference: OMB 2020 Census specified by the HHS guidance
-  referenceUrl: http://hl7.org/fhir/us/core/2017Jan/ValueSet-omb-race.html
+- name: hl70005
+  system: HL7
+  id: 0005
+  reference: OMB 2020 Census specified by the HHS guidance which corresponds to hl70005
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=B246B692-6DF8-E111-B875-001A4BE7FA90
   values:
     - display: American Indian or Alaska Native
       code: 1002-5
@@ -83,6 +86,8 @@
       code: 2076-8
     - display: White
       code: 2106-3
+    - display: Other
+      code: 2131-1
     - display: Unknown
       code: UNK
     - display: Asked, but unknown
