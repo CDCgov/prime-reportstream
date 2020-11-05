@@ -33,7 +33,7 @@ class SendingAppIdTranslator : Translator {
     override val fromElements = emptyList<String>()
 
     override fun apply(values: List<String>): String? {
-        return "TODO PRIME OID"
+        return "1.0.0.1" // TODO: Real OID when we have it
     }
 }
 

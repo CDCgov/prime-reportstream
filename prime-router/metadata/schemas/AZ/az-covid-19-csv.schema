@@ -51,7 +51,7 @@ elements:
   - name: standard.patient_race
     csvField: Race
 
-  - name: standard.patient_ethnicity
+  - name: standard.patient_ethnicity#text
     csvField: Ethnicity
 
   - name: standard.patient_street

@@ -1,0 +1,160 @@
+---
+name: pdi-covid-19
+description: PRIME POC COVID-19 flat file
+topic: covid-19
+trackingElement: standard.testing_lab_specimen_id
+elements:
+  - name: standard.patient_last_name
+    csvField: Patient_last_name
+
+  - name: standard.patient_first_name
+    csvField: Patient_first_name
+
+  - name: standard.patient_middle_name
+    csvField: Patient_middle_name
+
+  - name: standard.patient_suffix
+    csvField: Patient_suffix
+
+  - name: standard.patient_race
+    csvField: Patient_race
+
+  - name: standard.patient_dob
+    csvField: Patient_DOB
+
+  - name: standard.patient_gender
+    csvField: Patient_gender
+
+  - name: standard.patient_ethnicity
+    csvField: Patient_ethnicity
+
+  - name: standard.patient_street
+    csvField: Patient_street
+
+  - name: standard.patient_street2
+    csvField: Patient_street2
+
+  - name: standard.patient_city
+    csvField: Patient_city
+
+  - name: standard.patient_county
+    csvField: Patient_county
+
+  - name: standard.patient_state
+    csvField: Patient_state
+
+  - name: standard.patient_zip_code
+    csvField: Patient_zip_code
+
+  - name: standard.patient_phone_number
+    csvField: Patient_phone_number
+
+  - name: standard.patient_id
+    csvField: Patient_ID
+
+  - name: standard.employed_in_healthcare
+    csvField: Employed_in_healthcare
+
+  - name: standard.resident_congregate_setting
+    csvField: Resident_congregate_setting
+
+  - name: standard.testing_lab_specimen_id
+    csvField: Testing_lab_specimen_ID
+
+  - name: standard.test_result
+    csvField: Test_result_coded
+
+  - name: standard.specimen_collection_date_time
+    csvField: Specimen_collection_date_time
+
+  - name: standard.ordering_provider_id
+    csvField: Ordering_provider_ID
+
+  - name: standard.first_test
+    csvField: First_test
+
+  - name: standard.symptomatic_for_disease
+    csvField: Symptomatic_for_disease
+
+  - name: standard.testing_lab_name
+    csvField: Testing_lab_name
+
+  - name: standard.testing_lab_id
+    csvField: Testing_lab_ID
+
+  - name: standard.testing_lab_city
+    csvField: Testing_lab_city
+
+  - name: standard.testing_lab_state
+    csvField: Testing_lab_state
+
+  - name: standard.testing_lab_street
+    csvField: Testing_lab_street
+
+  - name: standard.testing_lab_street2
+    csvField: Testing_lab_street2
+
+  - name: standard.testing_lab_zip_code
+    csvField: Testing_lab_zip_code
+
+  - name: standard.testing_lab_phone_number
+    csvField: Testing_lab_zip_code
+
+  - name: standard.ordering_facility_city
+    csvField: Ordering_facility_city
+
+  - name: standard.ordering_facility_county
+    csvField: Odering_facility_county
+
+  - name: standard.ordering_facility_name
+    csvField: Ordering_facility_name
+
+  - name: standard.ordering_facility_phone_number
+    csvField: Ordering_facility_phone_number
+
+  - name: standard.ordering_facility_state
+    csvField: Ordering_facility_state
+
+  - name: standard.ordering_facility_street
+    csvField: Ordering_facility_street
+
+  - name: standard.ordering_facility_street_2
+    csvField: Ordering_facility_street_2
+
+  - name: standard.ordering_facility_zip_code
+    csvField: Ordering_facility_zip_code
+
+  - name: standard.ordering_provider_last_name
+    csvField: Ordering_provider_last_name
+
+  - name: standard.ordering_provider_first_name
+    csvField: Ordering_provider_first_name
+
+  - name: standard.ordering_provider_street
+    csvField: Ordering_provider_street
+
+  - name: standard.ordering_provider_zip_code
+    csvField: Ordering_provider_zip_code
+
+  - name: standard.ordering_provider_phone_number
+    csvField: Ordering_provider_phone
+
+  - name: standard.ordered_test_code
+    csvField: Ordered_test_code
+
+  # TODO: change when specimen_source_site has a valueSet
+  - name: standard.specimen_source_site_code
+    csvField: Specimen_source_site_code
+
+  - name: standard.specimen_type
+    csvField: Specimen_type_code
+
+  - name: standard.equipment_instance_id
+    csvField: Instrument_ID
+
+  - name: standard.test_result_date
+    csvField: Test_date
+
+  - name: standard.date_result_released
+    csvField: Date_result_released
+

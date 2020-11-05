@@ -2,8 +2,6 @@
 
 package gov.cdc.prime.router
 
-import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
@@ -15,6 +13,7 @@ class MappableTable {
     val name: String
     val schema: Schema
     val rowCount: Int get() = this.table.rowCount()
+    val rowIndices: IntRange get() = 0 until this.table.rowCount()
 
     // The use of a TableSaw is an implementation detail hidden by this class
     // The TableSaw table is mutable, while this class is has immutable semantics
@@ -24,52 +23,26 @@ class MappableTable {
     //
     private val table: Table
 
-    enum class StreamType { CSV }
-
     constructor(name: String, schema: Schema, values: List<List<String>> = emptyList()) {
         this.name = name
         this.schema = schema
-        this.table = Table.create(name, valuesToColumns(schema, values))
+        this.table = createTable(name, schema, values)
     }
 
-    private fun valuesToColumns(schema: Schema, values: List<List<String>>): List<Column<*>> {
-        return schema.elements.mapIndexed { index, element ->
-            StringColumn.create(
-                element.name,
-                values.map { it[index] }
-            )
-        }
-    }
-
-    constructor(name: String, schema: Schema, csvInputStream: InputStream, streamType: StreamType) {
-        this.name = name
-        this.schema = schema
-
-        when (streamType) {
-            StreamType.CSV -> {
-                // Read in the file
-                val rows: List<List<String>> = csvReader().readAll(csvInputStream)
-                if (rows.isEmpty()) error("Empty input stream")
-
-                // Check column names
-                schema.elements.forEachIndexed { index, element ->
-                    val header = rows[0]
-                    if (index >= header.size ||
-                        (header[index] != element.csvField && header[index] != element.name)
-                    ) {
-                        error("Element ${element.csvField} is not found in the input stream header")
-                    }
-                }
-
-                this.table = Table.create(valuesToColumns(schema, rows.subList(1, rows.size)))
-            }
-        }
-    }
-
-    constructor(name: String, schema: Schema, table: Table) {
+    private constructor(name: String, schema: Schema, table: Table) {
         this.schema = schema
         this.name = name
         this.table = table
+    }
+
+    private fun createTable(name: String, schema: Schema, values: List<List<String>>): Table {
+        fun valuesToColumns(schema: Schema, values: List<List<String>>): List<Column<*>> {
+            return schema.elements.mapIndexed { index, element ->
+                StringColumn.create(element.name, values.map { it[index] })
+            }
+        }
+
+        return Table.create(name, valuesToColumns(schema, values))
     }
 
     fun copy(name: String = this.name): MappableTable {
@@ -80,23 +53,19 @@ class MappableTable {
         return table.rowCount() == 0
     }
 
+    fun getString(row: Int, column: Int): String? {
+        return table.getString(row, column)
+    }
+
     fun getString(row: Int, colName: String): String? {
         return table.getString(row, colName)
     }
 
-    fun write(outputStream: OutputStream, streamType: StreamType = StreamType.CSV) {
-        when (streamType) {
-            StreamType.CSV -> {
-                val allRows = mutableListOf(schema.elements.map { it.csvField ?: it.name })
-                allRows.addAll(
-                    table.map { row ->
-                        schema.elements.mapIndexed { index, _ -> row.getString(index) }
-                    })
-                csvWriter {
-                    lineTerminator = "\n"
-                    outputLastLineTerminator = true
-                }.writeAll(allRows, outputStream)
-            }
+    fun getStringWithDefault(row: Int, colName: String): String {
+        return if (table.columnNames().contains(colName)) {
+            table.getString(row, colName)
+        } else {
+            schema.findElement(colName)?.default ?: ""
         }
     }
 
@@ -116,6 +85,7 @@ class MappableTable {
         return MappableTable(name, this.schema, filteredTable)
     }
 
+    @Deprecated("I'd like to remove receivers from this class abstraction")
     fun routeByReceiver(receivers: List<Receiver>): List<MappableTable> {
         return receivers.filter {
             it.topic == schema.topic
@@ -158,6 +128,8 @@ class MappableTable {
         val newTable = Table.create(columns)
         return MappableTable(name, mapping.toSchema, newTable)
     }
+
+
 
     private fun buildColumn(mapping: Schema.Mapping, toElement: Element): StringColumn {
         return when (toElement.name) {

@@ -37,3 +37,5 @@ Test.csv
 .DS_Store
 
 prime-router/fake-pdi-covid-19.csv
+*.hl7
+prime-router/id_file

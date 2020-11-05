@@ -11,13 +11,14 @@
 # sort alphabetically
 #
 ---
-- name: hl7_0136
+- name: hl70136
   system: HL7
+  id: 0136
   values:
-    - code: YES
+    - code: Y
       alt_codes: [true]
       display: Yes
-    - code: NO
+    - code: N
       alt_codes: [false]
       display: No
     - code: UNK
@@ -34,42 +35,59 @@
     - display: years
       alt_codes: [yr, yrs]
 
-- name: patient_gender
-  system: LOCAL
+- name: hl70001
+  system: HL7
+  id: 0001
   reference: HHS guidance for sex at birth
   referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0001
   values:
-    - display: Male
-      alt_codes: [M]
-    - display: Female
-      alt_codes: [F]
-    - display: Other
-      alt_codes: [O]
-    - display: Ambiguous
-      alt_codes: [A]
-    - display: Unknown
-      alt_codes: [U, UNK]
-    - display: Not applicable
-      alt_codes: [N]
+    - code: M
+      display: Male
+    - code: F
+      display: Female
+    - code: O
+      display: Other
+    - code: A
+      display: Ambiguous
+    - code: U
+      alt_codes: [UNK]
+      display: Unknown
+    - code: N
+      alt_codes: [NA]
+      display: Not applicable
+
+- name: hl70189
+  system: HL7
+  id: 0189
+  reference: HL7 guidence
+  referenceUrl: https://www.hl7.org/fhir/v2/0189/index.html
+  values:
+    - code: H
+      display: Hispanic or Latino
+    - code: N
+      display: Non Hispanic or Latino
+    - code: U
+      display: Unknown
 
 - name: omb_ethnicity
   system: FHIR
   reference: OMB 2020 Census values per the HHS guidance
   referenceUrl: https://hl7.org/fhir/us/core/2017Jan/ValueSet-omb-ethnicity.html
   values:
-    - code: Hispanic or Latino
-      display: 2135-2
-    - code: Non Hispanic or Latino
-      display: 2186-5
-    - code: Unknown
-      display: UNK
-    - code: Asked, but unknown
-      display: ASKU
+    - code: 2135-2
+      display: Hispanic or Latino
+    - code: 2186-5
+      display: Non Hispanic or Latino
+    - code: UNK
+      display: Unknown
+    - code: ASKU
+      display: Asked, but unknown
 
-- name: omb_race
-  system: FHIR
-  reference: OMB 2020 Census specified by the HHS guidance
-  referenceUrl: http://hl7.org/fhir/us/core/2017Jan/ValueSet-omb-race.html
+- name: hl70005
+  system: HL7
+  id: 0005
+  reference: OMB 2020 Census specified by the HHS guidance which corresponds to hl70005
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=B246B692-6DF8-E111-B875-001A4BE7FA90
   values:
     - display: American Indian or Alaska Native
       code: 1002-5
@@ -81,6 +99,8 @@
       code: 2076-8
     - display: White
       code: 2106-3
+    - display: Other
+      code: 2131-1
     - display: Unknown
       code: UNK
     - display: Asked, but unknown

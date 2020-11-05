@@ -2,6 +2,8 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import java.util.Random
 
@@ -32,11 +34,13 @@ class FakeTable {
                         element.nameContains("DOB") -> faker.date().birthday(0, 100)
                         else -> faker.date().past(10, TimeUnit.DAYS)
                     }
-                    SimpleDateFormat("YYYYMMDD").format(date)
+                    val formatter = SimpleDateFormat("yyyyMMdd")
+                    formatter.format(date)
                 }
                 Element.Type.DATETIME -> {
-                    val formatter = SimpleDateFormat("YYYYMMDDhhmm")
-                    formatter.format(faker.date().past(10, TimeUnit.DAYS))
+                    val date = faker.date().past(10, TimeUnit.DAYS)
+                    val formatter = SimpleDateFormat("yyyyMMddhhmm")
+                    formatter.format(date)
                 }
                 Element.Type.DURATION -> TODO()
                 Element.Type.CODE -> {
@@ -53,12 +57,10 @@ class FakeTable {
                     randomChoice(*possibleValues)
                 }
                 Element.Type.HD -> {
-                    when {
-                        element.nameContains("sending_application") -> "fake app"
-                        else -> "fake description"
-                    }
+                    "fake.0.0.0.1"
                 }
                 Element.Type.ID -> faker.idNumber().valid()
+                Element.Type.ID_CLIA -> faker.numerify("###D######")
                 Element.Type.ID_DLN -> faker.idNumber().valid()
                 Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
                 Element.Type.STREET -> if (element.name.contains("2")) "" else address.streetAddress()

@@ -44,6 +44,7 @@ data class Element(
         CODE,
         HD,
         ID,
+        ID_CLIA,
         ID_DLN,
         ID_SSN,
         STREET,

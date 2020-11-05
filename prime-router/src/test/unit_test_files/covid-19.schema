@@ -14,7 +14,7 @@ description: collection of standard elements, not an actual schema
 elements:
   - name: abnormal_flag
     type: CODE
-    valueSet: hl70136
+    valueSet: hl7_0136
     natFlatFileField: Abnormal_flag
     hhsGuidanceField:
     hl7Field: #OBX-8
@@ -23,7 +23,7 @@ elements:
     type: TEXT
     natFlatFileField: Comments
     hhsGuidanceField:
-    hl7Field: # NTE-3
+    hl7Field: NTE-3
 
   - name: date_result_released
     type: DATE
@@ -39,14 +39,14 @@ elements:
 
   - name: employed_in_healthcare
     type: CODE
-    valueSet: hl70136
+    valueSet: hl7_0136
     natFlatFileField: Employed_in_healthcare
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_MAP
 
   - name: employed_in_high_risk_setting
     type: CODE
-    valueSet: hl70136
+    valueSet: hl7_0136
     natFlatFileField: Employed_in_high_risk_setting
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_MAP
@@ -77,7 +77,7 @@ elements:
 
   - name: first_test
     type: CODE
-    valueSet: hl70136
+    valueSet: hl7_0136
     natFlatFileField: First_test
     hhsGuidanceField: First Test
     hl7Field: #REPEAT_OBX_MAP
@@ -90,14 +90,14 @@ elements:
 
   - name: hospitalized
     type: CODE
-    valueSet: hl70136
+    valueSet: hl7_0136
     natFlatFileField: Hospitalized
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_MAP
 
   - name: icu
     type: CODE
-    valueSet: hl70136
+    valueSet: hl7_0136
     natFlatFileField: ICU
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_MAP
@@ -292,7 +292,7 @@ elements:
 
   - name: patient_died
     type: CODE
-    valueSet: hl70136
+    valueSet: hl7_0136
     natFlatFileField: Patient_died
     hhsGuidanceField:
     hl7Field: PID-30
@@ -305,10 +305,10 @@ elements:
 
   - name: patient_ethnicity
     type: CODE
-    valueSet: hl70189
+    valueSet: omb_ethnicity
     natFlatFileField: Patient_ethnicity
     hhsGuidanceField: Patient ethnicity
-    hl7Field: PID-22
+    hl7Field: PID-22-2
 
   - name: patient_first_name
     type: PERSON_NAME
@@ -318,20 +318,19 @@ elements:
 
   - name: patient_gender
     type: CODE
-    valueSet: hl70001
+    valueSet: patient_gender
     natFlatFileField: Patient_gender
     hhsGuidanceField: Patient sex
     hl7Field: PID-8
 
-  # TODO Figure out how to encode patient id (PID-3) like AZ and others want
   - name: patient_id
-    type: TEXT
+    type: ID
     natFlatFileField: Patient_id
     hhsGuidanceField:
     hl7Field: PID-3-1 # -1
 
   - name: patient_id_2
-    type: TEXT
+    type: ID
     natFlatFileField: Patient_id_2
     hhsGuidanceField:
     hl7Field: PID-3-1 #-2
@@ -363,7 +362,7 @@ elements:
   - name: patient_last_name
     type: PERSON_NAME
     natFlatFileField: Patient_last_name
-    hhsGuidanceField:  Patient name
+    hhsGuidanceField: 'Patient name '
     hl7Field: PID-5-1
 
   - name: patient_location
@@ -371,12 +370,6 @@ elements:
     natFlatFileField: Patient_location
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_MAP_OTHER
-
-  # AZ required this component of name
-  - name: patient_name_type_code
-    type: TEXT
-    hl7Field: PID-5-7
-    default: L # Legal
 
   - name: patient_middle_initial
     type: PERSON_NAME
@@ -405,7 +398,7 @@ elements:
 
   - name: patient_race
     type: CODE
-    valueSet: hl70005
+    valueSet: omb_race
     natFlatFileField: Patient_race
     hhsGuidanceField: Patient race
     hl7Field: PID-10
@@ -466,22 +459,6 @@ elements:
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_ST
 
-  - name: receiving_application
-    type: TEXT
-    hl7Field: MSH-5-1
-
-  - name: receiving_application_id
-    type: HD
-    hl7Field: MSH-5-2
-
-  - name: receiving_facility
-    type: TEXT
-    hl7Field: MSH-6-1
-
-  - name: receiving_facility_id
-    type: HD
-    hl7Field: MSH-6-2
-
   - name: reference_range
     type: TEXT
     natFlatFileField: Reference_range
@@ -501,8 +478,7 @@ elements:
     hl7Field: MSH-4-1
 
   - name: resident_congregate_setting
-    type: CODE
-    valueSet: hl70136
+    type: TEXT
     natFlatFileField: Resident_congregate_setting
     hhsGuidanceField: Resident in congregate care/living setting
     hl7Field: #REPEAT_OBX_MAP
@@ -583,7 +559,7 @@ elements:
 
   - name: symptomatic_for_disease
     type: CODE
-    valueSet: hl70136
+    valueSet: hl7_0136
     natFlatFileField: Symptomatic_for_disease
     hhsGuidanceField: Symptomatic per CDC
     hl7Field: #OBX-5

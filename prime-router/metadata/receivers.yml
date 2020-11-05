@@ -39,11 +39,11 @@ receivers:
   - name: az-phd
     description: Arizona PHD
     topic: covid-19
-    schema: az/az-covid-19
+    schema: az/az-covid-19-hl7
     patterns: { standard.patient_state: AZ }
     transforms: { deidentify: false }
     address: http://localhost:1181/
-    format: CSV
+    format: HL7
 
   - name: pa-phd
     description: Pennsylvennia PHD

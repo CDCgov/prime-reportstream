@@ -13,6 +13,7 @@ package gov.cdc.prime.router
 data class ValueSet(
     val name: String,
     val system: SetSystem,
+    val id: String? = null,
     val reference: String? = null,
     val referenceUrl: String? = null,
     val values: List<Value> = emptyList(),
@@ -27,11 +28,11 @@ data class ValueSet(
 
     val systemCode
         get() = when (system) {
-            SetSystem.HL7 -> "HL7"
+            SetSystem.HL7 -> "HL7${id}"
             SetSystem.SNOMED_CT -> "SCT"
-            SetSystem.LOINC -> "L"
+            SetSystem.LOINC -> "LN"
             SetSystem.LOCAL -> "LOCAL"
-            SetSystem.FHIR -> "F"
+            SetSystem.FHIR -> "FHIR"
         }
 
     data class Value(
