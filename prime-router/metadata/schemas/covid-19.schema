@@ -155,19 +155,19 @@ elements:
     type: CITY
     natFlatFileField: Ordering_facility_city
     hhsGuidanceField:
-    hl7Field: #ORC-22.3
+    hl7Field: ORC-22-3
 
   - name: ordering_facility_county
     type: COUNTY
     natFlatFileField: Ordering_facility_county
     hhsGuidanceField:
-    hl7Field: #ORC-22.9
+    hl7Field: ORC-22-9
 
   - name: ordering_facility_name
     type: TEXT
     natFlatFileField: Ordering_facility_name
     hhsGuidanceField:
-    hl7Field: #ORC-21.1
+    hl7Field: ORC-21-1
 
   - name: ordering_facility_phone_number
     type: TELEPHONE
@@ -179,85 +179,85 @@ elements:
     type: STATE
     natFlatFileField: Ordering_facility_state
     hhsGuidanceField:
-    hl7Field: #ORC-22.4
+    hl7Field: ORC-22-4
 
   - name: ordering_facility_street
     type: STREET
     natFlatFileField: Ordering_facility_street
     hhsGuidanceField:
-    hl7Field: #ORC-22.1
+    hl7Field: ORC-22-1
 
   - name: ordering_facility_street_2
     type: STREET
     natFlatFileField: Ordering_facility_street_2
     hhsGuidanceField:
-    hl7Field: #ORC-22.2
+    hl7Field: ORC-22-2
 
   - name: ordering_facility_zip_code
     type: POSTAL_CODE
     natFlatFileField: Ordering_facility_zip_code
     hhsGuidanceField:
-    hl7Field: #ORC-22.5
+    hl7Field: ORC-22-5
 
   - name: ordering_provider_city
     type: CITY
     natFlatFileField: Ordering_provider_city
     hhsGuidanceField:
-    hl7Field: #ORC-24.3
+    hl7Field: ORC-24-3
 
   - name: ordering_provider_county
     type: COUNTY
     natFlatFileField: Ordering_provider_county
     hhsGuidanceField:
-    hl7Field: #ORC-24.9
+    hl7Field: ORC-24-9
 
   - name: ordering_provider_first_name
     type: PERSON_NAME
     natFlatFileField: Ordering_provider_first_name
     hhsGuidanceField:
-    hl7Field: #ORC-12.3/#OBR-16.3
+    hl7Field: ORC-12-3 #OBR-16.3
 
   - name: ordering_provider_id
     type: ID
     natFlatFileField: Ordering_provider_id
     hhsGuidanceField: Ordering provider name; NPI
-    hl7Field: #ORC-12.1/#OBR-16.1
+    hl7Field: ORC-12.1 #OBR-16.1
 
   - name: ordering_provider_last_name
     type: PERSON_NAME
     natFlatFileField: Ordering_provider_last_name
     hhsGuidanceField:
-    hl7Field: #ORC-12.2/#OBR-16.2
+    hl7Field: ORC-12-2 #OBR-16.2
 
   - name: ordering_provider_phone_number
     type: TELEPHONE
     natFlatFileField: Ordering_provider_phone
     hhsGuidanceField: Ordering provider phone number
-    hl7Field: #ORC-14/#OBR-17
+    hl7Field: ORC-14 #OBR-17
 
   - name: ordering_provider_state
     type: STATE
     natFlatFileField: Ordering_provider_state
     hhsGuidanceField:
-    hl7Field: #ORC-24.4
+    hl7Field: ORC-24-4
 
   - name: ordering_provider_street
     type: STREET
     natFlatFileField: Ordering_provider_street
     hhsGuidanceField: Ordering provider address
-    hl7Field: #ORC-24.1
+    hl7Field: ORC-24-1
 
   - name: ordering_provider_street2
     type: STREET
     natFlatFileField: Ordering_provider_street2
     hhsGuidanceField:
-    hl7Field: #ORC-24.2
+    hl7Field: ORC-24-2
 
   - name: ordering_provider_zip_code
     type: POSTAL_CODE
     natFlatFileField: Ordering_provider_zip_code
     hhsGuidanceField: Ordering provider zip code
-    hl7Field: #ORC-24.5
+    hl7Field: ORC-24-5
 
   - name: patient_age
     type: NUMBER
