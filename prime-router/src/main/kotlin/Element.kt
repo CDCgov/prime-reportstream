@@ -18,6 +18,7 @@ data class Element(
     val pii: Boolean? = null,
     val phi: Boolean? = null,
     val default: String? = null,
+    val mapper: String? = null,
 
     // Correspondence to the national standards
     val hhsGuidanceField: String? = null,
@@ -78,6 +79,7 @@ data class Element(
             required = this.required ?: baseElement.required,
             pii = this.pii ?: baseElement.pii,
             phi = this.phi ?: baseElement.phi,
+            mapper = this.mapper ?: baseElement.mapper,
             default = this.default ?: baseElement.default,
             hhsGuidanceField = this.hhsGuidanceField ?: baseElement.hhsGuidanceField,
             uscdiField = this.uscdiField ?: baseElement.uscdiField,
