@@ -174,5 +174,10 @@
             <artifactId>hapi-structures-v251</artifactId>
             <version>${hapi.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>3.5</version>
+        </dependency>
     </dependencies>
 </project>

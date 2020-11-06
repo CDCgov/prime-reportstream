@@ -7,10 +7,13 @@ import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import java.text.DecimalFormat
 
 
 object Hl7Converter {
     val context = DefaultHapiContext()
+    val phoneNumberUtil = PhoneNumberUtil.getInstance()
 
     fun write(table: MappableTable, outputStream: OutputStream) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
@@ -55,6 +58,7 @@ object Hl7Converter {
                 terser.set(nextComponent(pathSpec), "ISO")
             }
             Element.Type.CODE -> setCodeElement(terser, value, pathSpec, element)
+            Element.Type.TELEPHONE -> setTelephoneElement(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
     }
@@ -79,12 +83,26 @@ object Hl7Converter {
         }
     }
 
+    private fun setTelephoneElement(terser: Terser, value: String, pathSpec: String, element: Element) {
+        val number = phoneNumberUtil.parse(value, "US")
+        val national = DecimalFormat("0000000000").format(number.nationalNumber)
+        val areaCode = national.substring(0, 3)
+        val local = national.toString().substring(3, 10)
+
+        terser.set(buildComponent(pathSpec, 2), "PH")
+        if (number.hasCountryCode()) terser.set(buildComponent(pathSpec, 5), number.countryCode.toString())
+        terser.set(buildComponent(pathSpec, 6), areaCode)
+        terser.set(buildComponent(pathSpec, 7), local)
+        if (number.hasExtension()) terser.set(buildComponent(pathSpec, 8), number.extension)
+    }
+
     private fun setLiterals(terser: Terser) {
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", "2.5.1")
 
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
     }
 
     private fun createFHS(table: MappableTable): String {
@@ -139,9 +157,9 @@ object Hl7Converter {
         return formatter.format(timestamp)
     }
 
-    private fun firstComponent(spec: String): String {
+    private fun buildComponent(spec: String, component: Int = 1): String {
         if (!isField(spec)) error("Not a component path spec")
-        return "$spec-1"
+        return "$spec-${component.toString()}"
     }
 
     private fun isField(spec: String): Boolean {
@@ -149,10 +167,10 @@ object Hl7Converter {
         return pattern.containsMatchIn(spec)
     }
 
-    private fun nextComponent(spec: String): String {
+    private fun nextComponent(spec: String, increment: Int = 1): String {
         val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+-([0-9]+)$")
         val match = pattern.find(spec)?.groups?.get(1) ?: error("Did not find a match")
-        val nextComponent = match.value.toInt() + 1
+        val nextComponent = match.value.toInt() + increment
         return spec.replaceRange(match.range, nextComponent.toString())
     }
 
@@ -160,6 +178,7 @@ object Hl7Converter {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
         return when (segment) {
+            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC$components"
             "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM$components"
             "PID" -> "/PATIENT_RESULT/PATIENT/PID$components"
             else -> spec
