@@ -98,7 +98,7 @@ elements:
     csvField: Testing_lab_zip_code
 
   - name: standard.testing_lab_phone_number
-    csvField: Testing_lab_zip_code
+    csvField: Testing_lab_phone_number
 
   - name: standard.ordering_facility_city
     csvField: Ordering_facility_city

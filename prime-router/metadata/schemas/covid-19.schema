@@ -78,14 +78,17 @@ elements:
   - name: filler_order_id
     type: ID
     hl7Field: ORC-3-1
+    hl7OutputFields: [OBR-3-1]
 
   - name: filler_name
     type: TEXT
     hl7Field: ORC-3-2
+    hl7OutputFields: [OBR-3-2]
 
   - name: filler_clia
     type: ID_CLIA
     hl7Field: ORC-3-3
+    hl7OutputFields: [OBR-3-3]
 
   - name: first_test
     type: CODE
@@ -226,26 +229,59 @@ elements:
     type: PERSON_NAME
     natFlatFileField: Ordering_provider_first_name
     hhsGuidanceField:
-    hl7Field: ORC-12-3 #OBR-16.3
+    hl7Field: ORC-12-3
+    hl7OutputFields: [OBR-16-3]
 
-  # TODO: Support NPI
   - name: ordering_provider_id
-    type: ID
+    type: ID_NPI
     natFlatFileField: Ordering_provider_id
     hhsGuidanceField: Ordering provider name; NPI
-    hl7Field: ORC-12-1 #OBR-16.1
+    hl7Field: ORC-12-1
+    hl7OutputFields: [OBR-16-1]
+
+  - name: ordering_provider_id_authority
+    type: TEXT
+    natFlatFileField:
+    hhsGuidanceField:
+    mapper: ifPresent(standard.ordering_provider_id, CMS)
+    hl7Field: ORC-12-9-1
+    hl7OutputFields: [OBR-16-9-1]
+
+  - name: ordering_provider_id_authority_oid
+    type: HD
+    natFlatFileField:
+    hhsGuidanceField:
+    mapper: ifPresent(standard.ordering_provider_id, 2.16.840.1.113883.3.249)
+    hl7Field: ORC-12-9-2
+    hl7OutputFields: [ OBR-16-9-2 ]
 
   - name: ordering_provider_last_name
     type: PERSON_NAME
     natFlatFileField: Ordering_provider_last_name
     hhsGuidanceField:
-    hl7Field: ORC-12-2 #OBR-16.2
+    hl7Field: ORC-12-2
+    hl7OutputFields: [OBR-16-2]
+
+  - name: ordering_provider_middle_name
+    type: PERSON_NAME
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: ORC-12-4
+    hl7OutputFields: [OBR-16-4]
+
+  - name: ordering_provider_middle_initial
+    type: PERSON_NAME
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: ORC-12-4
+    hl7OutputFields: [OBR-16-4]
 
   - name: ordering_provider_phone_number
     type: TELEPHONE
     natFlatFileField: Ordering_provider_phone
     hhsGuidanceField: Ordering provider phone number
-    hl7Field: ORC-14 #OBR-17
+    hl7Field: ORC-14
+    hl7OutputFields: [OBR-17]
 
   - name: ordering_provider_state
     type: STATE
@@ -469,24 +505,17 @@ elements:
   - name: placer_order_id
     type: ID
     hl7Field: ORC-2-1
+    hl7OutputFields: [OBR-2-1]
 
   - name: placer_name
     type: TEXT
     hl7Field: ORC-2-2
-
-  - name: placer_name_for_order_group
-    type: TEXT
-    hl7Field: ORC-4-2
-    mapper: use(standard.placer_name)
+    hl7OutputFields: [ORC-4-2, OBR-2-2]
 
   - name: placer_clia
     type: ID_CLIA
     hl7Field: ORC-2-3
-
-  - name: placer_clia_for_order_group
-    type: ID_CLIA
-    hl7Field: ORC-4-3
-    mapper: use(standard.placer_name)
+    hl7OutputFields: [ORC-4-3, OBR-2-3]
 
   - name: placer_order_group_id
     type: ID

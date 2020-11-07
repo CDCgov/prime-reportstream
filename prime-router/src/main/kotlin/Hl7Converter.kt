@@ -47,6 +47,13 @@ object Hl7Converter {
     private fun setElement(terser: Terser, table: MappableTable, row: Int, element: Element) {
         val value = table.getStringWithDefault(row, element.name)
         val hl7Field = element.hl7Field ?: return
+        setComponent(terser, element, hl7Field, value)
+        element.hl7OutputFields?.let { fields ->
+            fields.forEach { setComponent(terser, element, it, value) }
+        }
+    }
+
+    private fun setComponent(terser: Terser, element: Element, hl7Field: String, value: String) {
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
             Element.Type.ID_CLIA -> {
@@ -57,13 +64,13 @@ object Hl7Converter {
                 terser.set(pathSpec, value)
                 terser.set(nextComponent(pathSpec), "ISO")
             }
-            Element.Type.CODE -> setCodeElement(terser, value, pathSpec, element)
-            Element.Type.TELEPHONE -> setTelephoneElement(terser, value, pathSpec, element)
+            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element)
+            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
     }
 
-    private fun setCodeElement(terser: Terser, value: String, pathSpec: String, element: Element) {
+    private fun setCodeComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
         val valueSetName = element.valueSet ?: error("Expecting a valueSet for ${element.name}")
         val valueSet = Metadata.findValueSet(valueSetName) ?: error("Cannot find $valueSetName")
         when (valueSet.system) {
@@ -83,7 +90,7 @@ object Hl7Converter {
         }
     }
 
-    private fun setTelephoneElement(terser: Terser, value: String, pathSpec: String, element: Element) {
+    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
         val number = phoneNumberUtil.parse(value, "US")
         val national = DecimalFormat("0000000000").format(number.nationalNumber)
         val areaCode = national.substring(0, 3)
@@ -168,16 +175,24 @@ object Hl7Converter {
     }
 
     private fun nextComponent(spec: String, increment: Int = 1): String {
-        val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+-([0-9]+)$")
-        val match = pattern.find(spec)?.groups?.get(1) ?: error("Did not find a match")
-        val nextComponent = match.value.toInt() + increment
-        return spec.replaceRange(match.range, nextComponent.toString())
+        val componentPattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+-([0-9]+)$")
+        componentPattern.find(spec)?.groups?.get(1)?.let {
+            val nextComponent = it.value.toInt() + increment
+            return spec.replaceRange(it.range, nextComponent.toString())
+        }
+        val subComponentPattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+-[0-9]+-([0-9]+)$")
+        subComponentPattern.find(spec)?.groups?.get(1)?.let {
+            val nextComponent = it.value.toInt() + increment
+            return spec.replaceRange(it.range, nextComponent.toString())
+        }
+        error("Did match on component or subcomponent")
     }
 
     private fun formPathSpec(spec: String): String {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
         return when (segment) {
+            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR$components"
             "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC$components"
             "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM$components"
             "PID" -> "/PATIENT_RESULT/PATIENT/PID$components"

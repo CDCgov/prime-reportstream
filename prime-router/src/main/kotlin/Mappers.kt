@@ -45,6 +45,23 @@ class UseMapper() : Mapper {
     }
 }
 
+class IfPresentMapper() : Mapper {
+    override val name = "ifPresent"
+
+    override fun elementNames(args: List<String>): List<String> {
+        if (args.size != 2) error("Expect dependency and value parameters")
+        return args.subList(0, 1)
+    }
+
+    override fun apply(args: List<String>, values: Map<String, String>): String? {
+        return if (values.containsKey(args[0])) {
+            return args[1]
+        } else {
+            null
+        }
+    }
+}
+
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
         val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9]*)\\x29").find(field)

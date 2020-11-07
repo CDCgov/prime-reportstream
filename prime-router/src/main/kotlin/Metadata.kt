@@ -21,7 +21,8 @@ object Metadata {
     private var schemas = mapOf<String, Schema>()
     private var mappers = listOf(
         MiddleInitialMapper(),
-        UseMapper()
+        UseMapper(),
+        IfPresentMapper(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private var receiversStore: List<Receiver> = ArrayList()
