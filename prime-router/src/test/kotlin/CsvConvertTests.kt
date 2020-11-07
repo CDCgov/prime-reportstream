@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 
 class CsvConvertTests {
     @Test
@@ -50,5 +51,34 @@ class CsvConvertTests {
         CsvConverter.write(table1, output)
         assertEquals(expectedCsv, output.toString(StandardCharsets.UTF_8))
     }
+
+    @Test
+    fun `test missing column`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val csv = """
+            a
+            1,2
+        """.trimIndent()
+        assertFails { CsvConverter.read("test", one, ByteArrayInputStream(csv.toByteArray())) }
+    }
+
+    @Test
+    fun `test not matching column`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val csv = """
+            a,c
+            1,2
+        """.trimIndent()
+        assertFails { CsvConverter.read("test", one, ByteArrayInputStream(csv.toByteArray())) }
+    }
+
+    @Test
+    fun `test empty`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val csv = """
+        """.trimIndent()
+        assertFails { CsvConverter.read("test", one, ByteArrayInputStream(csv.toByteArray())) }
+    }
+
 
 }
