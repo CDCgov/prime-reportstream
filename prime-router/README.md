@@ -27,7 +27,7 @@ The full feature set is kept in the repositories project folder.
 ## Running a demo
 
 First, setup Java11, Maven, ...
-1. `brew install java11`
+1. `brew install openjdk`
 2. `brew install maven`
 
 Next, build
