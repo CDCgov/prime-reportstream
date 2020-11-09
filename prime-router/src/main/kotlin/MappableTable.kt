@@ -6,8 +6,6 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
-import java.io.InputStream
-import java.io.OutputStream
 
 class MappableTable {
     val name: String
@@ -129,8 +127,6 @@ class MappableTable {
         return MappableTable(name, mapping.toSchema, newTable)
     }
 
-
-
     private fun buildColumn(mapping: Schema.Mapping, toElement: Element): StringColumn {
         return when (toElement.name) {
             in mapping.useDirectly -> {
@@ -141,8 +137,8 @@ class MappableTable {
                 val valueSet = Metadata.findValueSet(valueSetName) ?: error("$valueSetName is not found")
                 createValueSetTranslatedColumn(toElement, valueSet)
             }
-            in mapping.useTranslator -> {
-                createTranslatedColumn(toElement, mapping.useTranslator.getValue(toElement.name))
+            in mapping.useMapper -> {
+                createMappedColumn(toElement, mapping.useMapper.getValue(toElement.name))
             }
             in mapping.useDefault -> {
                 createDefaultColumn(toElement)
@@ -156,12 +152,14 @@ class MappableTable {
         return StringColumn.create(element.name, defaultValues.asList())
     }
 
-    private fun createTranslatedColumn(toElement: Element, translator: Translator): StringColumn {
+    private fun createMappedColumn(toElement: Element, mapper: Mapper): StringColumn {
+        val args = Mappers.parseMapperField(toElement.mapper ?: error("mapper is missing")).second
         val values = Array(table.rowCount()) { row ->
-            val inputValues = translator.fromElements.map { columnName ->
-                table.getString(row, columnName)
-            }
-            translator.apply(inputValues) ?: toElement.default ?: ""
+            val inputValues = mapper.elementNames(args).mapNotNull { elementName ->
+                val value = table.getString(row, elementName)
+                if (value.isBlank()) null else elementName to value
+            }.toMap()
+            mapper.apply(args, inputValues) ?: toElement.default ?: ""
         }
         return StringColumn.create(toElement.name, values.asList())
     }

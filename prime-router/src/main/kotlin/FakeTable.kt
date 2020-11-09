@@ -25,6 +25,7 @@ class FakeTable {
                 Element.Type.TEXT -> {
                     when {
                         element.nameContains("lab_name") -> "Any lab USA"
+                        element.nameContains("facility_name") -> "Any facility USA"
                         else -> faker.lorem().characters(5, 10)
                     }
                 }
@@ -63,6 +64,7 @@ class FakeTable {
                 Element.Type.ID_CLIA -> faker.numerify("###D######")
                 Element.Type.ID_DLN -> faker.idNumber().valid()
                 Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
+                Element.Type.ID_NPI -> faker.numerify("##########")
                 Element.Type.STREET -> if (element.name.contains("2")) "" else address.streetAddress()
                 Element.Type.STATE -> randomChoice("AZ", "FL", "PA")
                 Element.Type.COUNTY -> "Any County"

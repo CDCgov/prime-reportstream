@@ -7,10 +7,13 @@ import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import java.text.DecimalFormat
 
 
 object Hl7Converter {
     val context = DefaultHapiContext()
+    val phoneNumberUtil = PhoneNumberUtil.getInstance()
 
     fun write(table: MappableTable, outputStream: OutputStream) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
@@ -44,6 +47,13 @@ object Hl7Converter {
     private fun setElement(terser: Terser, table: MappableTable, row: Int, element: Element) {
         val value = table.getStringWithDefault(row, element.name)
         val hl7Field = element.hl7Field ?: return
+        setComponent(terser, element, hl7Field, value)
+        element.hl7OutputFields?.let { fields ->
+            fields.forEach { setComponent(terser, element, it, value) }
+        }
+    }
+
+    private fun setComponent(terser: Terser, element: Element, hl7Field: String, value: String) {
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
             Element.Type.ID_CLIA -> {
@@ -54,12 +64,13 @@ object Hl7Converter {
                 terser.set(pathSpec, value)
                 terser.set(nextComponent(pathSpec), "ISO")
             }
-            Element.Type.CODE -> setCodeElement(terser, value, pathSpec, element)
+            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element)
+            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
     }
 
-    private fun setCodeElement(terser: Terser, value: String, pathSpec: String, element: Element) {
+    private fun setCodeComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
         val valueSetName = element.valueSet ?: error("Expecting a valueSet for ${element.name}")
         val valueSet = Metadata.findValueSet(valueSetName) ?: error("Cannot find $valueSetName")
         when (valueSet.system) {
@@ -79,12 +90,26 @@ object Hl7Converter {
         }
     }
 
+    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
+        val number = phoneNumberUtil.parse(value, "US")
+        val national = DecimalFormat("0000000000").format(number.nationalNumber)
+        val areaCode = national.substring(0, 3)
+        val local = national.toString().substring(3, 10)
+
+        terser.set(buildComponent(pathSpec, 2), "PH")
+        if (number.hasCountryCode()) terser.set(buildComponent(pathSpec, 5), number.countryCode.toString())
+        terser.set(buildComponent(pathSpec, 6), areaCode)
+        terser.set(buildComponent(pathSpec, 7), local)
+        if (number.hasExtension()) terser.set(buildComponent(pathSpec, 8), number.extension)
+    }
+
     private fun setLiterals(terser: Terser) {
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", "2.5.1")
 
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
     }
 
     private fun createFHS(table: MappableTable): String {
@@ -139,9 +164,9 @@ object Hl7Converter {
         return formatter.format(timestamp)
     }
 
-    private fun firstComponent(spec: String): String {
+    private fun buildComponent(spec: String, component: Int = 1): String {
         if (!isField(spec)) error("Not a component path spec")
-        return "$spec-1"
+        return "$spec-${component.toString()}"
     }
 
     private fun isField(spec: String): Boolean {
@@ -149,17 +174,26 @@ object Hl7Converter {
         return pattern.containsMatchIn(spec)
     }
 
-    private fun nextComponent(spec: String): String {
-        val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+-([0-9]+)$")
-        val match = pattern.find(spec)?.groups?.get(1) ?: error("Did not find a match")
-        val nextComponent = match.value.toInt() + 1
-        return spec.replaceRange(match.range, nextComponent.toString())
+    private fun nextComponent(spec: String, increment: Int = 1): String {
+        val componentPattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+-([0-9]+)$")
+        componentPattern.find(spec)?.groups?.get(1)?.let {
+            val nextComponent = it.value.toInt() + increment
+            return spec.replaceRange(it.range, nextComponent.toString())
+        }
+        val subComponentPattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+-[0-9]+-([0-9]+)$")
+        subComponentPattern.find(spec)?.groups?.get(1)?.let {
+            val nextComponent = it.value.toInt() + increment
+            return spec.replaceRange(it.range, nextComponent.toString())
+        }
+        error("Did match on component or subcomponent")
     }
 
     private fun formPathSpec(spec: String): String {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
         return when (segment) {
+            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR$components"
+            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC$components"
             "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM$components"
             "PID" -> "/PATIENT_RESULT/PATIENT/PID$components"
             else -> spec

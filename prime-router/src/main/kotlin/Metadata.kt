@@ -8,8 +8,9 @@ import java.io.File
 import java.io.FilenameFilter
 import java.io.InputStream
 
-// The metadata object is a singleton representing all metadata loaded for MappableTables
-//
+/**
+ * The metadata object is a singleton representing all metadata loaded for MappableTables
+ */
 object Metadata {
     private const val defaultSchemaCatalog = "./metadata/schemas"
     private const val schemaExtension = ".schema"
@@ -18,10 +19,10 @@ object Metadata {
     private const val defaultReceivers = "metadata/receivers.yml"
 
     private var schemas = mapOf<String, Schema>()
-    private var translators = listOf(
-        MITranslator(),
-        SendingAppTranslator(),
-        SendingAppIdTranslator(),
+    private var mappers = listOf(
+        MiddleInitialMapper(),
+        UseMapper(),
+        IfPresentMapper(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private var receiversStore: List<Receiver> = ArrayList()
@@ -102,11 +103,11 @@ object Metadata {
     }
 
     /*
-     * Translator
+     * Mappers
      */
 
-    fun findTranslator(predicate: (t: Translator) -> Boolean): Translator? {
-        return translators.find(predicate)
+    fun findMapper(name: String): Mapper? {
+        return mappers.find { it.name.equals(name, ignoreCase = true) }
     }
 
     /*

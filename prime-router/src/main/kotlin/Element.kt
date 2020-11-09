@@ -18,6 +18,7 @@ data class Element(
     val pii: Boolean? = null,
     val phi: Boolean? = null,
     val default: String? = null,
+    val mapper: String? = null,
 
     // Correspondence to the national standards
     val hhsGuidanceField: String? = null,
@@ -28,6 +29,7 @@ data class Element(
 
     // HL7 specific information
     val hl7Field: String? = null,
+    val hl7OutputFields: List<String>? = null,
 
     // CSV specific information
     val csvField: String? = null,
@@ -47,6 +49,7 @@ data class Element(
         ID_CLIA,
         ID_DLN,
         ID_SSN,
+        ID_NPI,
         STREET,
         CITY,
         STATE,
@@ -78,11 +81,13 @@ data class Element(
             required = this.required ?: baseElement.required,
             pii = this.pii ?: baseElement.pii,
             phi = this.phi ?: baseElement.phi,
+            mapper = this.mapper ?: baseElement.mapper,
             default = this.default ?: baseElement.default,
             hhsGuidanceField = this.hhsGuidanceField ?: baseElement.hhsGuidanceField,
             uscdiField = this.uscdiField ?: baseElement.uscdiField,
             natFlatFileField = this.natFlatFileField ?: baseElement.natFlatFileField,
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
+            hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
             csvField = this.csvField ?: this.csvField,
         )
     }

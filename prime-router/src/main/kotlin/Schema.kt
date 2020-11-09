@@ -1,12 +1,5 @@
 package gov.cdc.prime.router
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import java.io.File
-import java.io.FilenameFilter
-
 // A PRIME schema contains a collection of data elements, mappings, validations and standard algorithms
 // needed to translate data to the form that a public health authority needs
 //
@@ -23,7 +16,7 @@ data class Schema(
         val fromSchema: Schema,
         val useDirectly: Map<String, String>,
         val useValueSet: Map<String, String>,
-        val useTranslator: Map<String, Translator>,
+        val useMapper: Map<String, Mapper>,
         val useDefault: Set<String>,
         val missing: Set<String>
     )
@@ -41,7 +34,7 @@ data class Schema(
 
         val useDirectly = mutableMapOf<String, String>()
         val useValueSet: MutableMap<String, String> = mutableMapOf<String, String>()
-        val useTranslator = mutableMapOf<String, Translator>()
+        val useMapper = mutableMapOf<String, Mapper>()
         val useDefault = mutableSetOf<String>()
         val missing = mutableSetOf<String>()
 
@@ -52,9 +45,11 @@ data class Schema(
             }
             findMatchingValueSet(toElement)?.let {
                 useValueSet[toElement.name] = it
+                return@forEach
             }
-            findMatchingTranslator(toElement)?.let {
-                useTranslator[toElement.name] = it
+            toElement.mapper?.let {
+                val name = Mappers.parseMapperField(it).first
+                useMapper[toElement.name] = Metadata.findMapper(name) ?: error("Mapper $name is not found")
                 return@forEach
             }
             if (toElement.required == true) {
@@ -63,19 +58,11 @@ data class Schema(
                 useDefault.add(toElement.name)
             }
         }
-        return Mapping(toSchema, this, useDirectly, useValueSet, useTranslator, useDefault, missing)
+        return Mapping(toSchema, this, useDirectly, useValueSet, useMapper, useDefault, missing)
     }
 
     private fun findMatchingElement(matchElement: Element): String? {
         return findElement(matchElement.name)?.name
-    }
-
-    private fun findMatchingTranslator(matchElement: Element): Translator? {
-        return Metadata.findTranslator { translator ->
-            translator.topic.equals(topic, ignoreCase = true)
-                    && translator.toElement.equals(matchElement.name, ignoreCase = true)
-                    && translator.fromElements.find { findElement(it) == null } == null
-        }
     }
 
     private fun findMatchingValueSet(matchElement: Element): String? {

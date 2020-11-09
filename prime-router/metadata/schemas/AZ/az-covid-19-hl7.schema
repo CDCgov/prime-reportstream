@@ -32,8 +32,6 @@ elements:
 
   - name: standard.testing_lab_zip_code
 
-  - name: standard.testing_lab_phone_number
-
   - name: standard.patient_id
 
   - name: standard.patient_first_name
@@ -85,9 +83,19 @@ elements:
 
   - name: standard.ordering_facility_zip_code
 
+  - name: standard.ordering_facility_phone_number
+
+  - name: standard.ordering_provider_id
+
+  - name: standard.ordering_provider_id_authority
+
+  - name: standard.ordering_provider_id_authority_oid
+
   - name: standard.ordering_provider_first_name
 
   - name: standard.ordering_provider_last_name
+
+  - name: standard.ordering_provider_middle_name
 
   - name: standard.ordering_provider_phone_number
 
