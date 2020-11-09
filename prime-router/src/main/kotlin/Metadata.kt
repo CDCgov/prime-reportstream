@@ -12,11 +12,12 @@ import java.io.InputStream
  * The metadata object is a singleton representing all metadata loaded for MappableTables
  */
 object Metadata {
-    private const val defaultSchemaCatalog = "./metadata/schemas"
     private const val schemaExtension = ".schema"
-    private const val defaultValueSetCatalog = "./metadata/valuesets"
     private const val valueSetExtension = ".valuesets"
-    private const val defaultReceivers = "metadata/receivers.yml"
+    private const val defaultMetadataDirectory = "./metadata"
+    private const val schemasSubdirectory = "schemas"
+    private const val valuesetsSubdirectory = "valuesets"
+    private const val receiversList = "receivers.yml"
 
     private var schemas = mapOf<String, Schema>()
     private var mappers = listOf(
@@ -28,10 +29,12 @@ object Metadata {
     private var receiversStore: List<Receiver> = ArrayList()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
-    fun loadAll() {
-        loadSchemaCatalog()
-        loadValueSetCatalog()
-        loadReceiversList()
+    fun loadAll(metadataPath: String? = null) {
+        val metadataDir = File(metadataPath ?: defaultMetadataDirectory)
+        if (!metadataDir.isDirectory) error("Expected metadata directory")
+        loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
+        loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
+        loadReceiversList(metadataDir.toPath().resolve(receiversList).toString())
     }
 
     /*
@@ -39,8 +42,8 @@ object Metadata {
      */
 
     // Load the schema catalog either from the default location or from the passed location
-    fun loadSchemaCatalog(catalog: String? = null) {
-        val catalogDir = File(catalog ?: defaultSchemaCatalog)
+    fun loadSchemaCatalog(catalog: String) {
+        val catalogDir = File(catalog)
         if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
         loadSchemas(readAllSchemas(catalogDir, ""))
     }
@@ -114,8 +117,8 @@ object Metadata {
      * ValueSet
      */
 
-    fun loadValueSetCatalog(catalog: String? = null) {
-        val catalogDir = File(catalog ?: defaultValueSetCatalog)
+    fun loadValueSetCatalog(catalog: String) {
+        val catalogDir = File(catalog)
         if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
         loadValueSets(readAllValueSets(catalogDir))
     }
@@ -153,8 +156,12 @@ object Metadata {
 
     val receivers get() = receiversStore
 
-    fun loadReceiversList(receiversStream: InputStream? = null) {
-        val loadingStream = receiversStream ?: File(defaultReceivers).inputStream()
+    fun loadReceiversList(filePath: String) {
+        loadReceiversList(File(filePath).inputStream())
+    }
+
+    fun loadReceiversList(receiversStream: InputStream) {
+        val loadingStream = receiversStream
         val receiversList = mapper.readValue<ReceiversList>(loadingStream)
         loadReceivers(receiversList.receivers)
     }
