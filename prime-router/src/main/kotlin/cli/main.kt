@@ -12,10 +12,6 @@ import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 
-sealed class Fruit {
-    data class Oranges(val size: String) : Fruit()
-    data class Apples(val count: Int) : Fruit()
-}
 
 sealed class InputSource {
     data class FileSource(val fileName: String) : InputSource()
