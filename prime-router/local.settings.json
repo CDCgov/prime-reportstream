@@ -1,12 +1,10 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=0bad7deaecf5412aa898;AccountKey=7MvsJnzZddjnh0Na+VHKKMbYiDyw4HFYJ1vaGFbGDANt/mFmw7AODQ8Q31CK0a530dj3PlGW1R5WPfEjOgCRag==;EndpointSuffix=core.windows.net",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "java",
-    "FUNCTIONS_EXTENSION_VERSION": "~3",
-    "AzureWebJobsDashboard": "DefaultEndpointsProtocol=https;AccountName=0bad7deaecf5412aa898;AccountKey=7MvsJnzZddjnh0Na+VHKKMbYiDyw4HFYJ1vaGFbGDANt/mFmw7AODQ8Q31CK0a530dj3PlGW1R5WPfEjOgCRag==;EndpointSuffix=core.windows.net",
-    "WEBSITE_RUN_FROM_PACKAGE": "https://0bad7deaecf5412aa898.blob.core.windows.net/java-functions-run-from-packages/prime-data-hub-router.zip?sig=EmUp0%2B%2B27SU3l33n8cLempME2VuSOx13mo2HOebhH8M%3D&st=2020-11-10T18%3A13%3A38Z&se=2030-11-10T18%3A18%3A38Z&sv=2017-04-17&sp=r&sr=b",
-    "APPINSIGHTS_INSTRUMENTATIONKEY": "d88ffbb3-3adb-4ee6-afe5-56eb11cf96b7"
+    "FUNCTIONS_EXTENSION_VERSION": "~3"
   },
   "ConnectionStrings": {}
 }
