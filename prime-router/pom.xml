@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>prime-router</artifactId>
-    <groupId>rickhawes</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>gov.cdc.prime</groupId>
+    <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>prime-router</name>
@@ -26,6 +26,8 @@
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
         <jackson.version>2.11.3</jackson.version>
         <hapi.version>2.3</hapi.version>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
     </properties>
 
     <repositories>
@@ -45,6 +47,15 @@
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>com.microsoft.azure</groupId>

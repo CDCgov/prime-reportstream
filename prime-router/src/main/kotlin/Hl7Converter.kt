@@ -9,11 +9,28 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import java.text.DecimalFormat
+import java.util.Properties
 
 
 object Hl7Converter {
+    const val softwareVendorOrganization = "Centers for Disease Control and Prevention"
+    const val softwareProductName = "PRIME Data Hub"
+
     val context = DefaultHapiContext()
     val phoneNumberUtil = PhoneNumberUtil.getInstance()
+    val buildVersion: String
+    val buildDate: String
+
+    init {
+        val buildProperties = Properties()
+        val propFileStream = this::class.java.classLoader.getResourceAsStream("build.properties")
+            ?: error("Could not find the properties file")
+        propFileStream.use {
+            buildProperties.load(it)
+            buildVersion = buildProperties.getProperty("buildVersion", "0.0.0.0")
+            buildDate = buildProperties.getProperty("buildDate", "20200101")
+        }
+    }
 
     fun write(table: MappableTable, outputStream: OutputStream) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
@@ -108,7 +125,13 @@ object Hl7Converter {
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", "2.5.1")
 
+        terser.set("SFT-1", softwareVendorOrganization)
+        terser.set("SFT-2", buildVersion)
+        terser.set("SFT-3", softwareProductName)
+        terser.set("SFT-6", buildDate)
+
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
+        
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
     }
 
