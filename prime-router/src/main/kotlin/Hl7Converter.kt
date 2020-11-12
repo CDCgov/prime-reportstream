@@ -9,11 +9,28 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import java.text.DecimalFormat
+import java.util.Properties
 
 
 object Hl7Converter {
+    const val softwareVendorOrganization = "Centers for Disease Control and Prevention"
+    const val softwareProductName = "PRIME Data Hub"
+
     val context = DefaultHapiContext()
     val phoneNumberUtil = PhoneNumberUtil.getInstance()
+    val buildVersion: String
+    val buildDate: String
+
+    init {
+        val buildProperties = Properties()
+        val propFileStream = this::class.java.classLoader.getResourceAsStream("build.properties")
+            ?: error("Could not find the properties file")
+        propFileStream.use {
+            buildProperties.load(it)
+            buildVersion = buildProperties.getProperty("buildVersion", "0.0.0.0")
+            buildDate = buildProperties.getProperty("buildDate", "20200101")
+        }
+    }
 
     fun write(table: MappableTable, outputStream: OutputStream) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
@@ -57,12 +74,16 @@ object Hl7Converter {
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
             Element.Type.ID_CLIA -> {
-                terser.set(pathSpec, value)
-                terser.set(nextComponent(pathSpec), "CLIA")
+                if (value.isNotEmpty()) {
+                    terser.set(pathSpec, value)
+                    terser.set(nextComponent(pathSpec), "CLIA")
+                }
             }
             Element.Type.HD -> {
-                terser.set(pathSpec, value)
-                terser.set(nextComponent(pathSpec), "ISO")
+                if (value.isNotEmpty()) {
+                    terser.set(pathSpec, value)
+                    terser.set(nextComponent(pathSpec), "ISO")
+                }
             }
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element)
             Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element)
@@ -74,12 +95,14 @@ object Hl7Converter {
         val valueSetName = element.valueSet ?: error("Expecting a valueSet for ${element.name}")
         val valueSet = Metadata.findValueSet(valueSetName) ?: error("Cannot find $valueSetName")
         when (valueSet.system) {
-            ValueSet.SetSystem.HL7 -> {
+            ValueSet.SetSystem.HL7, ValueSet.SetSystem.LOINC -> {
                 // if it is a component spec then set all sub-components
                 if (isField(pathSpec)) {
-                    terser.set("$pathSpec-1", value)
-                    terser.set("$pathSpec-2", valueSet.toDisplay(value))
-                    terser.set("$pathSpec-3", valueSet.systemCode)
+                    if (value.isNotEmpty()) {
+                        terser.set("$pathSpec-1", value)
+                        terser.set("$pathSpec-2", valueSet.toDisplay(value))
+                        terser.set("$pathSpec-3", valueSet.systemCode)
+                    }
                 } else {
                     terser.set(pathSpec, value)
                 }
@@ -108,8 +131,16 @@ object Hl7Converter {
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", "2.5.1")
 
+        terser.set("SFT-1", softwareVendorOrganization)
+        terser.set("SFT-2", buildVersion)
+        terser.set("SFT-3", softwareProductName)
+        terser.set("SFT-6", buildDate)
+
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
+        
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
+
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-1", "1")
     }
 
     private fun createFHS(table: MappableTable): String {

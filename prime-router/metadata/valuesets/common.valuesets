@@ -131,3 +131,33 @@
     - code: V
       display: Verifying collaborator
 
+- name: hl70123
+  system: HL7
+  referenceUrl: https://www.hl7.org/fhir/v2/0123/index.html
+  values:
+    - code: A
+      display: Some, but not all, results available
+    - code: C
+      display: Corrected, final
+    - code: F
+      display: Final results
+    - code: I
+      display: No results available; specimen received, procedure incomplete
+    - code: M
+      display: Corrected, not final		added v2.9
+    - code: N
+      display: Procedure completed, results pending		added v2.9
+    - code: O
+      display: Order received; specimen not yet received
+    - code: P
+      display: Preliminary
+    - code: R
+      display: Results stored; not yet verified
+    - code: S
+      display: No results available; procedure scheduled, but not done
+    - code: X
+      display: No results available; Order canceled
+    - code: Y
+      display: No order on record for this test
+    - code: Z
+      display: No record of this patient

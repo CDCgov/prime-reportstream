@@ -20,6 +20,16 @@ elements:
   - name: standard.receiving_facility_id
     default: 2.16.840.1.114222.4.1.142
 
+  - name: standard.filler_name
+
+  - name: standard.filler_clia
+
+  - name: standard.placer_name
+
+  - name: standard.placer_clia
+
+  - name: standard.placer_order_group_id
+
   - name: standard.testing_lab_name
 
   - name: standard.testing_lab_id
@@ -73,6 +83,8 @@ elements:
 
   - name: standard.patient_phone_number
 
+  - name: standard.ordered_test_code
+
   - name: standard.ordering_facility_name
 
   - name: standard.ordering_facility_street
@@ -115,5 +127,11 @@ elements:
 
   - name: standard.test_result_date
 
+  - name: standard.date_result_released
+
   - name: standard.comment
+
+  - name: standard.link_test_to_parent_accession
+
+  - name: standard.link_test_to_parent_result
 
