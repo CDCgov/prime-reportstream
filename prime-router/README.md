@@ -24,10 +24,12 @@ Features of the prototype include:
 
 The full feature set is kept in the repositories project folder. 
 
-## Running a demo
+## Running a Demo
 
-First, setup Java11, Maven, ...
-1. `brew install openjdk`
+One a Mac with [Homebrew](https://brew.sh/) installed. 
+
+First, setup Java 11, Maven, ...
+1. `brew install openjdk@11`
 2. `brew install maven`
 
 Next, build
@@ -36,5 +38,21 @@ Next, build
 Finally, run the router, in prime_router dir:
 ```
 mkdir routed_files
-./prime --input_schema=sample/phd1-covid-19 --input=src/test/unit_test_files/lab1-test_results-17-42-31.csv --route --output_dir=routed_files
+./prime --input_schema=sample/phd1-sample --input=src/test/unit_test_files/lab1-test_results-17-42-31.csv --route --output_dir=routed_files
+```
+
+## Example Commands
+
+Create a set of 20 PrimeDataInput results with fake values
+
+ ```
+ mkdir result_files
+ ./prime --input_schema=primedatainput/pdi-covid-19 --input_fake 20 --output_dir=result_files
+ ```
+
+Route the results from a PDI CSV file to the files for specific public health departments
+
+```
+mkdir routed_files
+./prime --input_schema=PrimeDataInput/pdi-covid-19 --input=result_files/fake-pdi-covid-19.csv --route --output_dir=routed_files
 ```

@@ -7,7 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
-class CsvConvertTests {
+class CsvConverterTests {
     @Test
     fun `test create from csv`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))

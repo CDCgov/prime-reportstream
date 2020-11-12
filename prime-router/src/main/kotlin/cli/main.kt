@@ -1,20 +1,17 @@
 @file:Suppress("unused", "unused")
 
-package gov.cdc.prime.router
+package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.int
+import gov.cdc.prime.router.*
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 
-sealed class Fruit {
-    data class Oranges(val size: String) : Fruit()
-    data class Apples(val count: Int) : Fruit()
-}
 
 sealed class InputSource {
     data class FileSource(val fileName: String) : InputSource()
@@ -59,22 +56,18 @@ class RouterCli : CliktCommand(
         writeBlock: (table: MappableTable, format: Receiver.TopicFormat, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
-        tables.forEach { pair ->
+        tables.forEach { (table, format) ->
             val outputFile = if (outputFileName != null) {
                 File(outputFileName!!)
             } else {
-                val ext = when(pair.second) {
-                    Receiver.TopicFormat.CSV -> ".csv"
-                    Receiver.TopicFormat.HL7 -> ".hl7"
-                }
-                File(outputDir ?: ".", "${pair.first.name}$ext")
+                File(outputDir ?: ".", "${table.name}.${format.toExt()}")
             }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
                 outputFile.createNewFile()
             }
             outputFile.outputStream().use {
-                writeBlock(pair.first, pair.second, it)
+                writeBlock(table, format, it)
             }
         }
     }
@@ -92,41 +85,6 @@ class RouterCli : CliktCommand(
 
         if (connection.responseCode != HttpURLConnection.HTTP_OK) {
             echo("connection: ${connection.responseCode}")
-        }
-    }
-
-    private fun routeByReceivers(input: MappableTable): List<Pair<MappableTable, Receiver.TopicFormat>> {
-        echo("partition by receiver")
-        if (input.isEmpty()) return emptyList()
-        return Metadata.receivers.filter {
-            it.topic == input.schema.topic
-        }.map { (name, _, schema, _, patterns, transforms, _, format) ->
-            val outputName = "${name}-${input.name}"
-
-            // Filter according to receiver patterns
-            val filtered = input.filter(name = outputName, patterns = patterns)
-
-            // Apply mapping to change schema
-            val toTable: MappableTable = if (schema != filtered.schema.name) {
-                val toSchema =
-                    Metadata.findSchema(schema) ?: error("${schema} schema is missing from catalog")
-                val mapping = filtered.schema.buildMapping(toSchema)
-                filtered.applyMapping(outputName, mapping)
-            } else {
-                filtered
-            }
-
-            // Transform tables
-            var transformed = toTable
-            transforms.forEach { (transform, transformValue) ->
-                when (transform) {
-                    "deidentify" -> if (transformValue == "true") {
-                        transformed = transformed.deidentify()
-                    }
-                }
-            }
-
-            Pair(transformed, format)
         }
     }
 
@@ -158,7 +116,8 @@ class RouterCli : CliktCommand(
 
         // Transform tables
         val outputMappableTables: List<Pair<MappableTable, Receiver.TopicFormat>> = when {
-            route -> routeByReceivers(inputMappableTable)
+            route -> Receiver.filterAndMapByReceiver(inputMappableTable, Metadata.receivers)
+                .map { it.first to it.second.format }
             else -> listOf(Pair(inputMappableTable, Receiver.TopicFormat.CSV))
         }
 

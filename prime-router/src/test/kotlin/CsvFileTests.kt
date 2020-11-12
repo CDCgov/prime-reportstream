@@ -1,9 +1,6 @@
 package gov.cdc.prime.router
 
-import gov.cdc.prime.router.Metadata.receivers
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 import kotlin.test.*
 
 //
@@ -48,7 +45,7 @@ class CsvFileTests {
         // 1) Ingest the file
         val inputMappableTable = CsvConverter.read(file.name, schema, file.inputStream())
         // 2) Create transformed objects, according to the receiver table rules
-        val outputMappableTables = inputMappableTable.routeByReceiver(Metadata.receivers)
+        val outputMappableTables = Receiver.mapByReceivers(inputMappableTable, Metadata.receivers)
         assertEquals(2, outputMappableTables.size)
         // 3) Write transformed objs to files, and check they are correct
         outputMappableTables.forEach { table ->
@@ -68,7 +65,9 @@ class CsvFileTests {
         val expectedResultsFile = expectedResultsPath + expectedResultsName
         println("CsvFileTests: diff'ing actual vs expected: $testFile to $expectedResultsFile")
         // A bit of a hack:  diff the two files.  
-        assertEquals(Files.mismatch(Path.of(testFile), Path.of(expectedResultsFile)), -1L)
+        val testFileLines = File(testFile).readLines()
+        val expectedResultsLines = File(expectedResultsFile).readLines()
+        assertEquals(expectedResultsLines, testFileLines)
     }
 
     private fun loadTestReceivers() {
