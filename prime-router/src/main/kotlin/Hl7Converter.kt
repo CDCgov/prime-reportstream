@@ -74,12 +74,16 @@ object Hl7Converter {
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
             Element.Type.ID_CLIA -> {
-                terser.set(pathSpec, value)
-                terser.set(nextComponent(pathSpec), "CLIA")
+                if (value.isNotEmpty()) {
+                    terser.set(pathSpec, value)
+                    terser.set(nextComponent(pathSpec), "CLIA")
+                }
             }
             Element.Type.HD -> {
-                terser.set(pathSpec, value)
-                terser.set(nextComponent(pathSpec), "ISO")
+                if (value.isNotEmpty()) {
+                    terser.set(pathSpec, value)
+                    terser.set(nextComponent(pathSpec), "ISO")
+                }
             }
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element)
             Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element)
@@ -91,12 +95,14 @@ object Hl7Converter {
         val valueSetName = element.valueSet ?: error("Expecting a valueSet for ${element.name}")
         val valueSet = Metadata.findValueSet(valueSetName) ?: error("Cannot find $valueSetName")
         when (valueSet.system) {
-            ValueSet.SetSystem.HL7 -> {
+            ValueSet.SetSystem.HL7, ValueSet.SetSystem.LOINC -> {
                 // if it is a component spec then set all sub-components
                 if (isField(pathSpec)) {
-                    terser.set("$pathSpec-1", value)
-                    terser.set("$pathSpec-2", valueSet.toDisplay(value))
-                    terser.set("$pathSpec-3", valueSet.systemCode)
+                    if (value.isNotEmpty()) {
+                        terser.set("$pathSpec-1", value)
+                        terser.set("$pathSpec-2", valueSet.toDisplay(value))
+                        terser.set("$pathSpec-3", valueSet.systemCode)
+                    }
                 } else {
                     terser.set(pathSpec, value)
                 }
@@ -133,6 +139,8 @@ object Hl7Converter {
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
         
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
+
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-1", "1")
     }
 
     private fun createFHS(table: MappableTable): String {

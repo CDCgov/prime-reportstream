@@ -26,10 +26,10 @@ elements:
     hl7Field: # NTE-3
 
   - name: date_result_released
-    type: DATE
+    type: DATETIME
     natFlatFileField: Date_result_released
     hhsGuidanceField: Test report date
-    hl7Field: ##OBR-22
+    hl7Field: OBR-22
 
   - name: disease_symptoms
     type: TEXT
@@ -77,11 +77,13 @@ elements:
 
   - name: filler_name
     type: TEXT
+    natFlatFileField: Not Supported
     hl7Field: ORC-3-2
     hl7OutputFields: [OBR-3-2]
 
   - name: filler_clia
     type: ID_CLIA
+    natFlatFileField: Not Supported
     hl7Field: ORC-3-3
     hl7OutputFields: [OBR-3-3]
 
@@ -117,24 +119,26 @@ elements:
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_DT
 
+  # TODO OBR-29 should contain parent ORC-2^ORC-3
   - name: link_test_to_parent_accession
     type: TEXT
     natFlatFileField: Link_test_to_parent_accession
     hhsGuidanceField:
-    hl7Field: #OBR-29
+    hl7Field: OBR-29
 
+  # TODO OBR-26 should contain parent OBX-3^OBX-4^OBX-5
   - name: link_test_to_parent_result
     type: TEXT
     natFlatFileField: Link_test_to_parent_result
     hhsGuidanceField:
-    hl7Field: #OBR-26
+    hl7Field: OBR-26
 
-  # TODO: valueSet?
   - name: order_result_status
-    type: TEXT
+    type: CODE
+    valueSet: hl70123
     natFlatFileField: Order_result_status
     hhsGuidanceField:
-    hl7Field: #OBR-25
+    hl7Field: OBR-25
 
   - name: order_test_date
     type: DATE
@@ -143,22 +147,11 @@ elements:
     hl7Field: ORC-15
 
   - name: ordered_test_code
-    type: TEXT
+    type: CODE
+    valueSet: covid-19/order
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
-    hl7Field: #OBR-4.1
-
-  - name: ordered_test_code_system
-    type: TEXT
-    natFlatFileField: Ordered_test_code_system
-    hhsGuidanceField:
-    hl7Field: #OBR-4.3
-
-  - name: ordered_test_description
-    type: TEXT
-    natFlatFileField: Ordered_test_description
-    hhsGuidanceField:
-    hl7Field: #OBR-4.2
+    hl7Field: OBR-4
 
   - name: ordering_facility_city
     type: CITY
@@ -499,21 +492,25 @@ elements:
 
   - name: placer_order_id
     type: ID
+    natFlatFileField: Not Supported
     hl7Field: ORC-2-1
     hl7OutputFields: [OBR-2-1]
 
   - name: placer_name
     type: TEXT
+    natFlatFileField: Not Supported
     hl7Field: ORC-2-2
     hl7OutputFields: [ORC-4-2, OBR-2-2]
 
   - name: placer_clia
     type: ID_CLIA
+    natFlatFileField: Not Supported
     hl7Field: ORC-2-3
     hl7OutputFields: [ORC-4-3, OBR-2-3]
 
   - name: placer_order_group_id
     type: ID
+    natFlatFileField: Not Supported
     hl7Field: ORC-4-1
 
   - name: pregnant
@@ -528,6 +525,11 @@ elements:
     natFlatFileField: Public_health_case_id
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_ST
+
+  - name: reason_for_study
+    type: TEXT # Pretty complicated field that could use multiple coding systems
+    natFlatFileField: Not supported
+    hl7Field: OBR-31
 
   - name: receiving_application
     type: TEXT
@@ -596,7 +598,8 @@ elements:
     type: DATETIME
     natFlatFileField: Specimen_collection_date_time
     hhsGuidanceField: Test result date
-    hl7Field: SPM-17-1 #OBR
+    hl7Field: SPM-17-1
+    hl7OutputFields: [OBR-7]
 
   - name: specimen_received_date_time
     type: DATETIME
@@ -745,10 +748,12 @@ elements:
     hl7Field: #OBX-5.4
 
   - name: test_result_status
-    type: TEXT
+    type: CODE
+    valueSet: hl70123
     natFlatFileField: Test_result_status
     hhsGuidanceField:
-    hl7Field: #OBX-11
+    hl7Field: OBX-11
+    hl7OutputFields: [OBR-25]
 
   - name: test_result_sub_id
     type: ID
