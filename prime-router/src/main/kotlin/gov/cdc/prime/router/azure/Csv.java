@@ -2,6 +2,8 @@ package gov.cdc.prime.router.azure;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.queue.QueueClient;
+import com.azure.storage.queue.models.SendMessageResult;
+import com.azure.core.exception.HttpResponseException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -117,9 +119,19 @@ public class Csv {
         this.blobURL = blobClient.getBlobUrl();
 
         String metadataJson = this.toJson();
-        logger.info("sending this message: " + metadataJson);
-        queue.sendMessage(metadataJson);
-        logger.info("message sent.");
+	try {
+            logger.info("sending this message: " + metadataJson);
+	    SendMessageResult result = queue.sendMessage(metadataJson);
+	    logger.info("message Id " + result.getMessageId() + " sent.");
+	} catch (HttpResponseException e) {
+	    // I can't for the life of me figure out how to fix this, so I'm temporarily ignoring it.
+	    // The sendMessage *works*, its just when its constructing the return value, it gives this very weird exception
+	    /* Unexpected first character (char code 0xEF), not valid in xml document: could be mangled UTF-8 BOM marker. Make sure that the Reader uses correct encoding or pass an InputStream instead
+	    */
+	    logger.info("Caught this exception: " + e + e.getMessage());
+	    e.printStackTrace();
+	    // @todo FIX THIS - IGNORING this exception.
+	}
     }
 
     public String getFilename() {

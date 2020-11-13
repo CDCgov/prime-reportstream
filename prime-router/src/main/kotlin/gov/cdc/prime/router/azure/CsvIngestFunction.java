@@ -78,9 +78,6 @@ public class CsvIngestFunction {
         logger = context.getLogger();
         logger.info("csv ingest function received an upload request.");
 
-        String connectStr = System.getenv("AzureWebJobsStorage");
-	logger.info("Connection string is " + connectStr);
-
         // Create an object representing the incoming CVS file, and validate presence of required metadata.
         Csv csv;
         try {
@@ -101,8 +98,10 @@ public class CsvIngestFunction {
             logger.info("Successfully queued and stored blob for processing: " + csv.getBlobURL());
             return request.createResponseBuilder(HttpStatus.OK).body(csv.toJson() + "\n").build();
         } catch (Exception e) {
+            TextStringBuilder msgs = new TextStringBuilder();
+            Arrays.asList(e.getSuppressed()).forEach(ex -> msgs.appendln(ex.getMessage()));
             logger.severe("Error queuing/storing " + csv.getFilename() + ": " + e.getMessage());
-            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).body("This CVS failed to get queued for further work.\n").build();
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("This CVS failed to get queued for further work.\n").build();
         }
     }
 }
