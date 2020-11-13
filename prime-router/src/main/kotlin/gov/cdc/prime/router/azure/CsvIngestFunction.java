@@ -12,18 +12,11 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.azure.core.util.*;
 import com.azure.storage.queue.*;
 import com.azure.storage.queue.models.*;
 import com.azure.storage.blob.*;
-import com.azure.storage.blob.models.*;
 import com.microsoft.azure.functions.annotation.StorageAccount;
 import org.apache.commons.text.TextStringBuilder;
-
-import java.io.*;
-import java.util.UUID;
-import java.nio.charset.Charset;
 
 
 /**

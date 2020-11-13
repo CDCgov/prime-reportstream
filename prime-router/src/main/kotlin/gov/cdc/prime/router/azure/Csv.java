@@ -2,13 +2,11 @@ package gov.cdc.prime.router.azure;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.queue.QueueClient;
-import com.azure.storage.queue.models.QueueStorageException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpRequestMessage;
-import com.microsoft.azure.functions.HttpStatus;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
