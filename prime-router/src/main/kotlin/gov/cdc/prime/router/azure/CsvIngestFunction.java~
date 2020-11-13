@@ -41,7 +41,7 @@ public class CsvIngestFunction {
     // Connect to the ingest queue.
     public static QueueClient createQueueClient() throws QueueStorageException {
         String connectStr = System.getenv("AzureWebJobsStorage");
-        // String csvIngestQueueName = System.getenv("CsvIngestQueueName");
+        // String csvIngestQueueName = System.getenv("CsvIngestQueueName");  // how does local.settings.json work?
         return new QueueClientBuilder()
                 .connectionString(connectStr)
                 .queueName(csvIngestQueueName)
@@ -77,9 +77,6 @@ public class CsvIngestFunction {
 
         logger = context.getLogger();
         logger.info("csv ingest function received an upload request.");
-
-        String connectStr = System.getenv("AzureWebJobsStorage");
-	logger.info("Connection string is " + connectStr);
 
         // Create an object representing the incoming CVS file, and validate presence of required metadata.
         Csv csv;
