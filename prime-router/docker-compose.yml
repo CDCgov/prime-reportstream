@@ -1,0 +1,26 @@
+# This docker compose is intended to setup a developer 
+#
+
+version: "3.8"
+services:
+  # This container runs our Azure function code. 
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile_dev
+    volumes: 
+      - type: bind
+        source: ./target
+        target: /prime-data-hub-router
+    entrypoint: /bin/bash
+    depends_on: [azurite]   
+    ports:
+      - "7071:7071" # default function port
+      - "5005:5005" # Java debug port
+
+  # Azurite is the Azure storage emulator for local development
+  azurite: 
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:  
+      - 10000:10000 
+      - 10001:10001
