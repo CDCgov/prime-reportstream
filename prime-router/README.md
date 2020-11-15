@@ -59,27 +59,9 @@ Route the results from a PDI CSV file to the files for specific public health de
 mkdir routed_files
 ./prime --input_schema=PrimeDataInput/pdi-covid-19 --input=result_files/fake-pdi-covid-19.csv --route --output_dir=routed_files
 ```
-## Azure Function Development with Docker Compose
-An Azure Function can also contain the PRIME router. This configuration is how the POC app will use the PRIME router. When hosted in Azure, the PRIME router uses Docker containers. The `DockerFile` describes how to build this container. 
 
-Developers can also run the router locally with the same Azure runtime and libraries to help develop and debug Azure code. In this case, a developer can use a local Azure storage emulator, called Azurite.
-
-Install Azure tools on a Mac. 
-```
-brew update && brew install azure-cli
-brew tap azure/functions
-brew install azure-functions-core-tools@3
-
-```
-
-To orchestrate running the Azure function code and Azurite, Docker Compose is a useful tool. After installing [Docker Desktop](https://www.docker.com/get-started) or the equivalent, build the project using `Maven` and then run the project in Docker containers using `docker-compose.`
-```
-mvn clean package 
-docker-compose up
-```
-Docker-compose will build a `prime_dev` container with the output of the `mvn package` command as well as launch an Azurite container. The first time this command is run, it builds a whole new image, which may take a while. However, after the first time `docker-compse` is run, `docker-compose` should start up in few seconds. The output should look like.
-
-![Docker Compose](docs/assets/docker_compose_log.png)
-
-Looking at the log above, you may notice that container has a debug open at port `5005`. This configuration allows you to attach a Java debugger (IntelliJ, VSCode, or ...) to debug your code. 
+## Learn More 
+To continue the developer orientation, please read
+- [Contributing](../contributing.md) to see the contributions rules for the project
+- [Getting Started](docs/getting_started.md) to continue the developer machine setup
 
