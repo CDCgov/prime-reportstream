@@ -1,3 +1,11 @@
+# This docker file is used to build a development container with
+#
+#  - The Azure image, JVM and CLI tools
+#  - And a few development tools
+#
+# The intent is for the prime-router to be mounted into this container, 
+# allowing the content of this container to be stable
+#
 ARG JAVA_VERSION=11
 
 # This Debian image additionally contains function core tools – useful when using custom extensions

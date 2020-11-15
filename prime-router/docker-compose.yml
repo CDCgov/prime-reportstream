@@ -4,7 +4,7 @@
 version: "3.8"
 services:
   # This container runs our Azure function code. 
-  dev:
+  prime_dev:
     build:
       context: .
       dockerfile: Dockerfile_dev

@@ -168,7 +168,7 @@
                 <configuration>
                     <archive>
                         <!-- Dev Note: This step builds the base jar for both the Azure and the CLI packaging.
-                             We put the CLI entry in the manifest at this step as a convenience to allow this jar to be
+                             We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
                              run by the ./prime script. It will be overwritten by the Azure host or the CLI fat jar package.
                         -->
                         <manifest>
@@ -256,14 +256,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <configuration>
-                    <mainClass>gov.cdc.prime.router.cli.MainKt</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>
