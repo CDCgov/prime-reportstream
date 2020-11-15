@@ -10,11 +10,11 @@
 #
 # This script should work on both a Mac and the Dev Docker container
 
+set -e
 version=0.1-SNAPSHOT
 fat_jar_name=prime-router-$version-jar-with-dependencies.jar
 slim_jar_name=prime-router-$version.jar
 lib_name=azure-functions/prime-data-hub-router/lib
-set -e
 
 # find the jar
 if [ -f $fat_jar_name ]; then

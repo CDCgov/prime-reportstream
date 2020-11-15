@@ -247,6 +247,8 @@
                             <target>
                                 <copy file = "prime" tofile = "target/prime"/>
                                 <chmod file = "target/prime" perm = "+x"/>
+                                <copy file = "start_func.sh" tofile = "target/start_func.sh"/>
+                                <chmod file = "target/start_func.sh" perm = "+x"/>
                             </target>
                         </configuration>
                         <goals>

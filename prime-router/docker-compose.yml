@@ -12,11 +12,13 @@ services:
       - type: bind
         source: ./target
         target: /prime-data-hub-router
-    entrypoint: /bin/bash
+    entrypoint: [/prime-data-hub-router/start_func.sh]
+    environment: 
+      AzureWebJobsStorage: DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
     depends_on: [azurite]   
     ports:
-      - "7071:7071" # default function port
-      - "5005:5005" # Java debug port
+      - 7071:7071 # default function port
+      - 5005:5005 # Java debug port
 
   # Azurite is the Azure storage emulator for local development
   azurite: 
