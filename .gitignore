@@ -32,6 +32,9 @@ hs_err_pid*
 **/routed_files/*.csv
 Test.csv
 
+# Emacs
+*~
+
 # Mac files
 .DS_Store
 .DS_Store
