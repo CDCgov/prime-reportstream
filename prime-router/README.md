@@ -26,11 +26,16 @@ The full feature set is kept in the repositories project folder.
 
 ## Running a Demo
 
-One a Mac with [Homebrew](https://brew.sh/) installed. 
+On a Mac with [Homebrew](https://brew.sh/) installed. 
 
 First, setup Java 11, Maven, ...
 1. `brew install openjdk@11`
 2. `brew install maven`
+
+On a debian-based system with the `apt` package manager.
+First, setup Java 11, Maven, ...
+1. `apt install openjdk-11-jdk`
+2. `apt install maven`
 
 Next, build
 1. `mvn clean package`
