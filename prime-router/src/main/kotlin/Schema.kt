@@ -10,6 +10,8 @@ data class Schema(
     val trackingElement: String? = null, // the element to use for tracking this test
     val description: String? = null,
 ) {
+    val baseName: String get() = formBaseName()
+
     // A mapping maps from one schema to another
     data class Mapping(
         val toSchema: Schema,
@@ -72,5 +74,9 @@ data class Schema(
             }
             else -> null
         }
+    }
+
+    private fun formBaseName(): String {
+        return name.split("/").last()
     }
 }

@@ -1,8 +1,18 @@
 package gov.cdc.prime.router
 
-// The Element is the fundamental data element of the schema.
-// It overlays many different schemas
 
+/**
+ * An element is represents a data element (ie. a single logical value) that is contained in single row
+ * of a report. A set of Elements form the main content of a Schema.
+ *
+ * In some sense the element is like the data element in other data schemas that engineers are familiar with.
+ * For the data-hub, the data element contains information specific to public health. For a given topic,
+ * there is a "standard" schema with elements. The logically the mapping process is:
+ *
+ *    Schema 1 -> Standard Standard -> schema 2
+ *
+ * To describe the intent of a element there are references to the national standards.
+ */
 data class Element(
     // A element can either be a new element or one based on previously defined element
     // - A name of form [A-Za-z0-9_]+ is a new element

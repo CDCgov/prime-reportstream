@@ -39,10 +39,10 @@ class RouterCli : CliktCommand(
     private val outputDir by option("--output_dir", help = "<directory>")
     private val outputSchema by option("--output_schema", help = "<schema_name> or use input schema if not specified")
 
-    private fun readMappableTableFromFile(
+    private fun readReportFromFile(
         fileName: String,
-        readBlock: (name: String, schema: Schema, stream: InputStream) -> MappableTable
-    ): MappableTable {
+        readBlock: (name: String, schema: Schema, stream: InputStream) -> Report
+    ): Report {
         val schemaName = inputSchema.toLowerCase()
         val schema = Metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
         val file = File(fileName)
@@ -51,23 +51,23 @@ class RouterCli : CliktCommand(
         return readBlock(file.nameWithoutExtension, schema, file.inputStream())
     }
 
-    private fun writeMappableTablesToFile(
-        tables: List<Pair<MappableTable, Receiver.TopicFormat>>,
-        writeBlock: (table: MappableTable, format: Receiver.TopicFormat, outputStream: OutputStream) -> Unit
+    private fun writeReportsToFile(
+        reports: List<Pair<Report, OrganizationService.TopicFormat>>,
+        writeBlock: (report: Report, format: OrganizationService.TopicFormat, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
-        tables.forEach { (table, format) ->
+        reports.forEach { (report, format) ->
             val outputFile = if (outputFileName != null) {
-                File(outputFileName!!)
+                File(outputFileName)
             } else {
-                File(outputDir ?: ".", "${table.name}.${format.toExt()}")
+                File(outputDir ?: ".", "${report.name}.${format.toExt()}")
             }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
                 outputFile.createNewFile()
             }
             outputFile.outputStream().use {
-                writeBlock(table, format, it)
+                writeBlock(report, format, it)
             }
         }
     }
@@ -94,19 +94,19 @@ class RouterCli : CliktCommand(
         echo("Loaded schema and receivers")
 
         // Gather input source
-        val inputMappableTable: MappableTable = when (inputSource) {
+        val inputReport: Report = when (inputSource) {
             is InputSource.FileSource -> {
-                readMappableTableFromFile((inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
-                    CsvConverter.read(name, schema, stream)
+                readReportFromFile((inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
+                    CsvConverter.read(schema, stream, FileSource(name))
                 }
             }
             is InputSource.DirSource -> TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
                 val schema = Metadata.findSchema(inputSchema) ?: error("$inputSchema is an invalid schema name")
-                FakeTable.build(
-                    "fake-${schema.name.replaceRange(0, schema.name.lastIndexOf('/') + 1, "")}",
+                FakeReport.build(
                     schema,
-                    (inputSource as InputSource.FakeSource).count
+                    (inputSource as InputSource.FakeSource).count,
+                    FileSource("fake")
                 )
             }
             else -> {
@@ -114,18 +114,18 @@ class RouterCli : CliktCommand(
             }
         }
 
-        // Transform tables
-        val outputMappableTables: List<Pair<MappableTable, Receiver.TopicFormat>> = when {
-            route -> Receiver.filterAndMapByReceiver(inputMappableTable, Metadata.receivers)
+        // Transform reports
+        val outputReports: List<Pair<Report, OrganizationService.TopicFormat>> = when {
+            route -> OrganizationService.filterAndMapByService(inputReport, Metadata.organizationServices)
                 .map { it.first to it.second.format }
-            else -> listOf(Pair(inputMappableTable, Receiver.TopicFormat.CSV))
+            else -> listOf(Pair(inputReport, OrganizationService.TopicFormat.CSV))
         }
 
-        // Output tables
-        writeMappableTablesToFile(outputMappableTables) { table, format, stream ->
+        // Output reports
+        writeReportsToFile(outputReports) { report, format, stream ->
             when (format) {
-                Receiver.TopicFormat.CSV -> CsvConverter.write(table, stream)
-                Receiver.TopicFormat.HL7 -> Hl7Converter.write(table, stream)
+                OrganizationService.TopicFormat.CSV -> CsvConverter.write(report, stream)
+                OrganizationService.TopicFormat.HL7 -> Hl7Converter.write(report, stream)
             }
         }
     }

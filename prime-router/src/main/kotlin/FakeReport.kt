@@ -2,12 +2,10 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import java.text.SimpleDateFormat
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import java.util.Random
 
-class FakeTable {
+class FakeReport {
     companion object {
         private fun randomChoice(vararg choices: String): String {
             val random = Random()
@@ -87,9 +85,9 @@ class FakeTable {
             return schema.elements.map { buildColumn(it, Metadata::findValueSet) }
         }
 
-        fun build(name: String, schema: Schema, count: Int = 10): MappableTable {
+        fun build(schema: Schema, count: Int = 10, source: Source): Report {
             val rows = (0 until count).map { buildRow(schema) }.toList()
-            return MappableTable(name, schema, rows)
+            return Report(schema, rows, listOf(source))
         }
     }
 }

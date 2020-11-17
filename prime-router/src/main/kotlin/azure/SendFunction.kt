@@ -10,7 +10,7 @@ import com.microsoft.azure.functions.annotation.BlobTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.microsoft.azure.functions.annotation.BindingName
 import gov.cdc.prime.router.CsvConverter
-import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.OrganizationService
 import java.io.ByteArrayInputStream
 import java.net.http.HttpHeaders
 import java.net.http.HttpRequest
@@ -29,36 +29,36 @@ class SendFunction {
     @FunctionName("Send")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @BlobTrigger( name = "content", path="%PROCESSED_BLOB_CONTAINER%/{fileName}.csv", dataType = "binary") content: ByteArray,
+        @BlobTrigger(name = "content",
+            path = "%PROCESSED_BLOB_CONTAINER%/{fileName}.csv",
+            dataType = "binary") content: ByteArray,
         @BindingName("fileName") fileName: String,
-        context: ExecutionContext
+        context: ExecutionContext,
     ) {
         val baseDir = System.getenv("AzureWebJobsScriptRoot")
         Metadata.loadAll("$baseDir/metadata")
 
-        context.logger.info("Dispatch function processed a blob. Name: ${fileName} Size: ${content.size} bytes");
+        context.logger.info("Dispatch function processed a blob. Name: $fileName Size: ${content.size} bytes");
 
-        try { 
+        try {
             //val mockServer = MockSftpServer( 9022 )
             //context.logger.info( "Writing to ${mockServer.getBaseDirectory().toString()}" )
             //val session = initSshClient()
             //val sendKlass = Class.forName("gov.cdc.prime.router.SftpSend").kotlin
-            
-            val transportMetadata: Receiver.Transport = lookupTransportMetadata()
+
+            val transportMetadata: OrganizationService.Transport = lookupTransportMetadata()
             val transport = SftpTransport() // TODO:  look up the correct class to call based on the transport metadata
-            
+
 
             transport.send(transportMetadata, content, fileName)
-        }
-        catch( t: Throwable ){
-            error( "Unable to process blob ${fileName}\n ${t.message}" )
+        } catch (t: Throwable) {
+            error("Unable to process blob ${fileName}\n ${t.message}")
         }
 
     }
 
-
-    private fun lookupTransportMetadata( ): Receiver.Transport {
-        return Receiver.Transport();  // TODO: actually lookup the Transport here - for now use the default
+    private fun lookupTransportMetadata(): OrganizationService.Transport {
+        return OrganizationService.Transport();  // TODO: actually lookup the Transport here - for now use the default
     }
 
 }
