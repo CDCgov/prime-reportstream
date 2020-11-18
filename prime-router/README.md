@@ -15,22 +15,25 @@ Other PRIME repositories include
 
 ## Current Status
 
-Our current goal is building a prototype that takes fake data form the POC app and sends it to a public health department. 
-Features of the prototype include:
+Our current goal is to support data from the POC app and sends it to a public health department. 
+Features include:
 
-- Ability to route standard CSV from AZ and FL
-- Ability to convert CSV to HL7 message
+- Ability to route standard CSV from the POC app
+- Translate the POC CSV into CSV accepted by PHDs
+- Ability to convert to HL7 messages
 - Ability to send to an SFTP folder
 
 The full feature set is kept in the repositories project folder. 
 
-## Running a Demo
+## Running a Demo in a Command Line
 
 On a Mac with [Homebrew](https://brew.sh/) installed. 
 
-First, setup Java 11, Maven, ...
-1. `brew install openjdk@11`
-2. `brew install maven`
+First, setup Java 11 and Maven
+```
+brew install openjdk@11
+brew install maven
+```
 
 On a debian-based system with the `apt` package manager.
 First, setup Java 11, Maven, ...
@@ -39,14 +42,16 @@ First, setup Java 11, Maven, ...
 
 Next, build
 1. `mvn clean package`
+Next, build the project
+```
+mvn clean package
+```
 
-Finally, run the router, in prime_router dir:
+Run the router in the prime_router directory using the command-line interface.
 ```
 mkdir routed_files
 ./prime --input_schema=sample/phd1-sample --input=src/test/unit_test_files/lab1-test_results-17-42-31.csv --route --output_dir=routed_files
 ```
-
-## Example Commands
 
 Create a set of 20 PrimeDataInput results with fake values
 
@@ -55,9 +60,15 @@ Create a set of 20 PrimeDataInput results with fake values
  ./prime --input_schema=primedatainput/pdi-covid-19 --input_fake 20 --output_dir=result_files
  ```
 
-Route the results from a PDI CSV file to the files for specific public health departments
+Route the results from a PDI CSV file to the files for specific public health departments specified the `receivers.yml` file
 
 ```
 mkdir routed_files
 ./prime --input_schema=PrimeDataInput/pdi-covid-19 --input=result_files/fake-pdi-covid-19.csv --route --output_dir=routed_files
 ```
+
+## Learn More 
+To continue the developer orientation, please read
+- [Contributing](../contributing.md) to see the contributions rules for the project
+- [Getting Started](docs/getting_started.md) to continue the developer machine setup
+

@@ -19,15 +19,17 @@
         <kotlin.version>1.4.10</kotlin.version>
         <functions.version>1.4.0</functions.version>
         <azure.functions.maven.plugin.version>1.9.0</azure.functions.maven.plugin.version>
+        <com.azure.version>12.6.0</com.azure.version>
         <functionAppName>prime-data-hub-router</functionAppName>
-        <functionAppRegion>eastus</functionAppRegion>
-        <functionResourceGroup>prime-data-hub-test</functionResourceGroup>
         <maven.plugin>3.1.0</maven.plugin>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
         <jackson.version>2.11.3</jackson.version>
         <hapi.version>2.3</hapi.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+        <!-- Define skip flags with common defaults for developers. -->
+        <package.skip.azure>false</package.skip.azure>
+        <package.skip.cli>true</package.skip.cli>
     </properties>
 
     <repositories>
@@ -62,13 +64,8 @@
                 <artifactId>azure-functions-maven-plugin</artifactId>
                 <version>${azure.functions.maven.plugin.version}</version>
                 <configuration>
-                    <!-- function app name -->
+                    <skip>${package.skip.azure}</skip>
                     <appName>${functionAppName}</appName>
-                    <!-- function app resource group -->
-                    <resourceGroup>${functionResourceGroup}</resourceGroup>
-                    <!-- function app region-->
-                    <!-- refers https://github.com/microsoft/azure-maven-plugins/tree/develop/azure-functions-maven-plugin#supported-regions for all valid values -->
-                    <region>${functionAppRegion}</region>
                     <!-- function pricingTier, default to be consumption if not specified -->
                     <!-- refers https://github.com/microsoft/azure-maven-plugins/tree/develop/azure-functions-maven-plugin#supported-pricing-tiers for all valid values -->
                     <!-- <pricingTier></pricingTier> -->
@@ -76,10 +73,11 @@
                         <!-- runtime os, could be windows, linux or docker-->
                         <os>linux</os>
                         <javaVersion>11</javaVersion>
-                        <!-- for docker function, please set the following parameters -->
-                        <!-- <image>[hub-user/]repo-name[:tag]</image> -->
-                        <!-- <serverId></serverId> -->
-                        <!-- <registryUrl></registryUrl>  -->
+                        <!-- for docker function, please set the following parameters
+                             <image>[hub-user/]repo-name[:tag]</image>
+                             <serverId></serverId>
+                             <registryUrl></registryUrl>
+                        -->
                     </runtime>
                     <appSettings>
                         <!-- Run azure Function from package file by default -->
@@ -118,6 +116,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
+                            <skip>${package.skip.azure}</skip>
                             <overwrite>true</overwrite>
                             <outputDirectory>${stagingDirectory}</outputDirectory>
                             <resources>
@@ -148,6 +147,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
+                            <skip>${package.skip.azure}</skip>
                             <outputDirectory>${stagingDirectory}/lib</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
@@ -164,13 +164,42 @@
                 <version>${maven.plugin}</version>
                 <configuration>
                     <archive>
+                        <!-- Dev Note: This step builds the base jar for both the Azure and the CLI packaging.
+                             We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
+                             run by the ./prime script. It will be overwritten by the Azure host or the CLI fat jar package.
+                        -->
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <classpathPrefix>${stagingDirectory}/lib</classpathPrefix>
+                            <classpathPrefix>azure-functions/${functionAppName}/lib</classpathPrefix>
                             <mainClass>gov.cdc.prime.router.cli.MainKt</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.plugin}</version>
+                <executions>
+                    <execution>
+                        <id>make-fat-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>${package.skip.cli}</skipAssembly>
+                            <archive>
+                                <manifest>
+                                    <mainClass>gov.cdc.prime.router.cli.MainKt</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -206,12 +235,24 @@
                 </dependencies>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <configuration>
-                    <mainClass>gov.cdc.prime.router.cli.MainKt</mainClass>
-                </configuration>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <copy file = "prime" tofile = "target/prime"/>
+                                <chmod file = "target/prime" perm = "+x"/>
+                                <copy file = "start_func.sh" tofile = "target/start_func.sh"/>
+                                <chmod file = "target/start_func.sh" perm = "+x"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -248,7 +289,12 @@
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-storage-blob</artifactId>
-            <version>12.6.0</version>
+            <version>${com.azure.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-storage-queue</artifactId>
+            <version>${com.azure.version}</version>
         </dependency>
 
         <!-- Router Dependencies -->
@@ -280,6 +326,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
@@ -320,5 +371,22 @@
             <artifactId>sftp-utils</artifactId>
             <version>2.0.0</version>
         </dependency>        
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.9</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
     </dependencies>
 </project>
