@@ -166,7 +166,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
+                            <classpathPrefix>${stagingDirectory}/lib</classpathPrefix>
                             <mainClass>gov.cdc.prime.router.cli.MainKt</mainClass>
                         </manifest>
                     </archive>
