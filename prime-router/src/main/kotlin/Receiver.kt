@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+
+
 data class Receiver(
     val name: String,
     val topic: String,
@@ -8,7 +10,8 @@ data class Receiver(
     val patterns: Map<String, String> = emptyMap(),
     val transforms: Map<String, String> = emptyMap(),
     val address: String = "",
-    val format: TopicFormat = TopicFormat.CSV
+    val format: TopicFormat = TopicFormat.CSV,
+    val transport: Transport = Transport( Transport.TransportType.SFTP, "localhost", "22" )
 ) {
 
     enum class TopicFormat {
@@ -23,6 +26,20 @@ data class Receiver(
             }
         }
     }
+
+    data class Transport(
+        val type: TransportType = TransportType.SFTP,
+        val host: String = "localhost",
+        val port: String = "22" ){
+        enum class TransportType {
+            SFTP;
+            // EMAIL
+            // DROPBOX
+            // API
+        }
+    }
+
+
 
     companion object {
         fun mapByReceivers(input: MappableTable, receivers: List<Receiver>): List<MappableTable> {

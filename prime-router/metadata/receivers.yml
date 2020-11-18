@@ -12,7 +12,11 @@ receivers:
     transforms: {deidentify: false}
     address: http://localhost:1181/
     format: CSV
-
+    transport:
+        type: SFTP
+        host: localhost
+        port: 22
+        
   # Florida PHD
   - name: phd2
     description: Florida PHD
