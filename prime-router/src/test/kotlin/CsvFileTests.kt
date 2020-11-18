@@ -24,7 +24,7 @@ class CsvFileTests {
         assertTrue(expectedDir.exists())
 
         loadTestSchemas()
-        loadTestReceivers()
+        loadTestOrganizations()
     }
 
     @Test
@@ -39,30 +39,34 @@ class CsvFileTests {
 
     private fun transformFileAndTest(fileName: String) {
         val file = File(fileName)
+        val baseName = file.name
         assertTrue(file.exists())
         val schema = Metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
 
         // 1) Ingest the file
-        val inputMappableTable = CsvConverter.read(file.name, schema, file.inputStream())
+        val inputReport = CsvConverter.read(schema, file.inputStream(), TestSource)
         // 2) Create transformed objects, according to the receiver table rules
-        val outputMappableTables = Receiver.mapByReceivers(inputMappableTable, Metadata.receivers)
-        assertEquals(2, outputMappableTables.size)
+        val outputReports = OrganizationService.mapByServices(inputReport, Metadata.organizationServices)
+        assertEquals(2, outputReports.size)
         // 3) Write transformed objs to files, and check they are correct
-        outputMappableTables.forEach { table ->
-            val outputFile = File(outputPath, table.name)
-            if (!outputFile.exists()) {
-                outputFile.createNewFile()
+
+        outputReports
+            .zip(listOf("AZ-test-receiver-", "federal-test-receiver-"))
+            .forEach { (report, prefix) ->
+                val outputFile = File(outputPath, report.name)
+                if (!outputFile.exists()) {
+                    outputFile.createNewFile()
+                }
+                outputFile.outputStream().use {
+                    CsvConverter.write(report, it)
+                }
+
+                compareTestResultsToExpectedResults(outputFile.absolutePath, "$prefix$baseName")
             }
-            outputFile.outputStream().use {
-                CsvConverter.write(table, it)
-            }
-            compareTestResultsToExpectedResults(outputFile.absolutePath, table.name)
-        }
     }
 
-
     private fun compareTestResultsToExpectedResults(testFile: String, expectedResultsName: String) {
-        val expectedResultsFile = expectedResultsPath + expectedResultsName
+        val expectedResultsFile = "$expectedResultsPath$expectedResultsName"
         println("CsvFileTests: diff'ing actual vs expected: $testFile to $expectedResultsFile")
         // A bit of a hack:  diff the two files.  
         val testFileLines = File(testFile).readLines()
@@ -70,21 +74,19 @@ class CsvFileTests {
         assertEquals(expectedResultsLines, testFileLines)
     }
 
-    private fun loadTestReceivers() {
-        val loadingStream = File(inputPath + "test-receivers.yml").inputStream()
-        Metadata.loadReceiversList(loadingStream)
-        assertEquals(2, Metadata.receivers.size)
-        assertEquals(2, Metadata.findReceiver("federal-test-receiver", "covid-19")?.patterns?.size)
+    private fun loadTestOrganizations() {
+        val loadingStream = File(inputPath + "test-organizations.yml").inputStream()
+        Metadata.loadOrganizationList(loadingStream)
+        assertEquals(2, Metadata.organizationServices.size)
+        assertEquals(2, Metadata.findService("federal-test.receiver")?.jurisdictionalFilter?.size)
     }
 
     private fun loadTestSchemas() {
         Metadata.loadSchemaCatalog(inputPath)
         val schema = Metadata.findSchema(defaultSchema)
-        assertNotNull(schema);
+        assertNotNull(schema)
         assertEquals(7, schema.elements.size)
         assertEquals("lab", schema.elements[0].name)
     }
-
-
 }
 

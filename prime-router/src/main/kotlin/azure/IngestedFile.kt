@@ -45,7 +45,7 @@ class IngestedFile {
         action = params["action"] ?: ""
         // Note:  use of String will only work for text data
         // Does not handle multipart form data right now.
-        reportContent = request.body ?:  ""
+        reportContent = request.body ?: ""
 
         validate()
     }
@@ -115,18 +115,18 @@ class IngestedFile {
 
     companion object {
         /*
-     * Generate a filename that can be used to store a blob.  Filename must be guaranteed unique, hence the UUID.
-     * I thought that was better than a timestamp, since that's not guaranteed unique if we're running high thruput.
-     *
-     * Trying to cover all possibilities here.  Even a completely empty filename will create
-     * a filename that's just a UUID.
-     *
-     * @todo Rick will need a function that takes one of these filenames and generates one to represent a
-     *   transformed file.
-     *
-     * Normal use case:    foo.csv in schema 'pdi-covid-19' becomes
-     *     foo-pdi-covid-19-08ad635e-c801-43d0-8353-eb157193d065.csv
-     */
+         * Generate a filename that can be used to store a blob.  Filename must be guaranteed unique, hence the UUID.
+         * I thought that was better than a timestamp, since that's not guaranteed unique if we're running high thruput.
+         *
+         * Trying to cover all possibilities here.  Even a completely empty filename will create
+         * a filename that's just a UUID.
+         *
+         * @todo Rick will need a function that takes one of these filenames and generates one to represent a
+         *   transformed file.
+         *
+         * Normal use case:    foo.csv in schema 'pdi-covid-19' becomes
+         *     foo-pdi-covid-19-08ad635e-c801-43d0-8353-eb157193d065.csv
+         */
         fun createInternalFilename(externalFilename: String?, schemaName: String?): String {
             val baseName = FilenameUtils.getBaseName(externalFilename)
             val basePart = if (StringUtils.isEmpty(baseName)) "" else "$baseName-"

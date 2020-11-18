@@ -1,17 +1,40 @@
-@file:Suppress("Destructure")
-
 package gov.cdc.prime.router
 
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.*
 
-class MappableTable {
-    val name: String
+
+typealias ReportId = UUID
+
+/**
+ * A Source can either be a client, a test, or a local file or another report. It is useful for debugging and auditing"
+ */
+sealed class Source
+data class FileSource(val fileName: String) : Source()
+data class ReportSource(val id: ReportId, val action: String) : Source()
+data class ClientSource(val client: OrganizationClient) : Source()
+object TestSource : Source()
+
+/**
+ * The report represents the report from one agent-organization, and which is
+ * translated and sent to another agent-organization. Each report has a schema,
+ * unique id and name as well as list of sources for the creation of the report.
+ */
+class Report {
+    val id: ReportId
     val schema: Schema
+    val sources: List<Source>
+    val createdDateTime: OffsetDateTime
+
     val rowCount: Int get() = this.table.rowCount()
     val rowIndices: IntRange get() = 0 until this.table.rowCount()
+    val name: String get() = formName()
 
     // The use of a TableSaw is an implementation detail hidden by this class
     // The TableSaw table is mutable, while this class is has immutable semantics
@@ -21,30 +44,87 @@ class MappableTable {
     //
     private val table: Table
 
-    constructor(name: String, schema: Schema, values: List<List<String>> = emptyList()) {
-        this.name = name
+    // Generic
+    constructor(
+        schema: Schema,
+        values: List<List<String>>,
+        sources: List<Source>,
+    ) {
+        this.id = UUID.randomUUID()
         this.schema = schema
-        this.table = createTable(name, schema, values)
+        this.sources = sources
+        this.createdDateTime = OffsetDateTime.now()
+        this.table = createTable(schema, values)
     }
 
-    private constructor(name: String, schema: Schema, table: Table) {
+    // Test source
+    constructor(
+        schema: Schema,
+        values: List<List<String>>,
+        source: TestSource
+    ) {
+        this.id = UUID.randomUUID()
         this.schema = schema
-        this.name = name
+        this.sources = listOf(source)
+        this.createdDateTime = OffsetDateTime.now()
+        this.table = createTable(schema, values)
+    }
+
+    // Client source
+    constructor(
+        schema: Schema,
+        values: List<List<String>>,
+        source: OrganizationClient
+    ) {
+        this.id = UUID.randomUUID()
+        this.schema = schema
+        this.sources = listOf(ClientSource(source))
+        this.createdDateTime = OffsetDateTime.now()
+        this.table = createTable(schema, values)
+    }
+
+    private constructor(
+        schema: Schema,
+        table: Table,
+        sources: List<Source>
+    ) {
+        this.id = UUID.randomUUID()
+        this.schema = schema
         this.table = table
+        this.sources = sources
+        this.createdDateTime = OffsetDateTime.now()
     }
 
-    private fun createTable(name: String, schema: Schema, values: List<List<String>>): Table {
+    private fun createTable(schema: Schema, values: List<List<String>>): Table {
         fun valuesToColumns(schema: Schema, values: List<List<String>>): List<Column<*>> {
             return schema.elements.mapIndexed { index, element ->
                 StringColumn.create(element.name, values.map { it[index] })
             }
         }
 
-        return Table.create(name, valuesToColumns(schema, values))
+        return Table.create("prime", valuesToColumns(schema, values))
     }
 
-    fun copy(name: String = this.name): MappableTable {
-        return MappableTable(name, this.schema, this.table.copy())
+    private fun fromThisReport(action: String) = listOf(ReportSource(this.id, action))
+
+
+    private fun formName(): String {
+        val prefix = if (sources.size == 1) {
+            when (val source = sources[0]) {
+                is ClientSource -> "${source.client.organization.name}-${source.client.name}-"
+                is FileSource -> "${source.fileName}-".replace("/", "-")
+                else -> ""
+            }
+        } else {
+            ""
+        }
+        val formatter = DateTimeFormatter.ofPattern("YYYYMMDDhhmmss")
+        val schemaName = schema.baseName
+        return "$prefix$schemaName-${id}-${formatter.format(createdDateTime)}"
+    }
+
+    fun copy(): Report {
+        return Report(this.schema, this.table.copy(), fromThisReport("copy"))
     }
 
     fun isEmpty(): Boolean {
@@ -67,23 +147,17 @@ class MappableTable {
         }
     }
 
-    fun concat(name: String, appendTable: MappableTable): MappableTable {
-        if (appendTable.schema != this.schema) error("concat a table with a different schema")
-        val newTable = this.table.copy().append(appendTable.table)
-        return MappableTable(name, this.schema, newTable)
-    }
-
-    fun filter(name: String, patterns: Map<String, String>): MappableTable {
+    fun filter(patterns: Map<String, String>): Report {
         val combinedSelection = Selection.withRange(0, table.rowCount())
         patterns.forEach { (col, pattern) ->
             val columnSelection = table.stringColumn(col).matchesRegex(pattern)
             combinedSelection.and(columnSelection)
         }
         val filteredTable = table.where(combinedSelection)
-        return MappableTable(name, this.schema, filteredTable)
+        return Report(this.schema, filteredTable, fromThisReport("filter: $patterns"))
     }
 
-    fun deidentify(): MappableTable {
+    fun deidentify(): Report {
         val columns = schema.elements.map {
             if (it.pii == true) {
                 createDefaultColumn(it)
@@ -91,13 +165,13 @@ class MappableTable {
                 table.column(it.name).copy()
             }
         }
-        return MappableTable(name, schema, Table.create(columns))
+        return Report(schema, Table.create(columns), fromThisReport("deidentify"))
     }
 
-    fun applyMapping(name: String, mapping: Schema.Mapping): MappableTable {
+    fun applyMapping(mapping: Schema.Mapping): Report {
         val columns = mapping.toSchema.elements.map { buildColumn(mapping, it) }
         val newTable = Table.create(columns)
-        return MappableTable(name, mapping.toSchema, newTable)
+        return Report(mapping.toSchema, newTable, fromThisReport("mapping"))
     }
 
     private fun buildColumn(mapping: Schema.Mapping, toElement: Element): StringColumn {
@@ -157,5 +231,29 @@ class MappableTable {
             else -> error("Cannot convert ${toElement.name} using value set")
         }
         return StringColumn.create(toElement.name, values.asList())
+    }
+
+    companion object {
+        fun merge(inputs: List<Report>): Report {
+            if (inputs.isEmpty()) error("Cannot merge an empty report list")
+            if (inputs.size == 1) return inputs[0]
+            val head = inputs[0]
+            val tail = inputs.subList(1, inputs.size)
+
+            // Check schema
+            val schema = head.schema
+            tail.find { it.schema != schema }?.let { error("${it.schema.name} does not match the rest of the merge") }
+
+            // Build table
+            var newTable = head.table.copy()
+            tail.forEach {
+                newTable.append(it.table)
+            }
+
+            // Build sources
+            val sources = inputs.map { ReportSource(it.id, "merge") }
+
+            return Report(schema, newTable, sources)
+        }
     }
 }

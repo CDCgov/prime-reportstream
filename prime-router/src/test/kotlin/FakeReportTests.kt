@@ -3,7 +3,7 @@ package gov.cdc.prime.router
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class FakeTableTests {
+internal class FakeReportTests {
     @Test
     fun `test a coded fake`() {
         val state = Element("standard.patient_state", type = Element.Type.CODE, valueSet = "fake")
@@ -11,6 +11,6 @@ internal class FakeTableTests {
             "fake" to
                     ValueSet("fake", ValueSet.SetSystem.LOCAL, values = listOf(ValueSet.Value(code = "AZ")))
         )
-        assertEquals("AZ", FakeTable.buildColumn(state) { valueSets[it] })
+        assertEquals("AZ", FakeReport.buildColumn(state) { valueSets[it] })
     }
 }

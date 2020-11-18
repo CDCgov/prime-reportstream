@@ -45,4 +45,11 @@ class MetadataTests {
         Metadata.loadSchemas(listOf(one, two))
         assertNotNull(Metadata.findSchema("one"))
     }
+
+    @Test
+    fun `test find client`() {
+        Metadata.loadOrganizationList("./src/test/unit_test_files/organizations.yml")
+        val client = Metadata.findClient("simple_report")
+        assertNotNull(client)
+    }
 }

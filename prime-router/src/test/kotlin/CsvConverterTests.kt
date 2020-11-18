@@ -16,9 +16,9 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
 
-        val table = CsvConverter.read("test", one, ByteArrayInputStream(csv.toByteArray()))
-        assertEquals(1, table.rowCount)
-        assertEquals("2", table.getString(0, 1))
+        val report = CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertEquals(1, report.rowCount)
+        assertEquals("2", report.getString(0, 1))
     }
 
     @Test
@@ -33,22 +33,22 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
 
-        val table = CsvConverter.read("test", one, ByteArrayInputStream(csv.toByteArray()))
-        assertEquals(1, table.rowCount)
-        assertEquals("1", table.getString(0, 0))
+        val report = CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertEquals(1, report.rowCount)
+        assertEquals("1", report.getString(0, 0))
     }
 
     @Test
     fun `test write as csv`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val table1 = MappableTable("test", one, listOf(listOf("1", "2")))
+        val report1 = Report(one, listOf(listOf("1", "2")), TestSource)
         val expectedCsv = """
             a,b
             1,2
             
         """.trimIndent()
         val output = ByteArrayOutputStream()
-        CsvConverter.write(table1, output)
+        CsvConverter.write(report1, output)
         assertEquals(expectedCsv, output.toString(StandardCharsets.UTF_8))
     }
 
@@ -59,7 +59,7 @@ class CsvConverterTests {
             a
             1,2
         """.trimIndent()
-        assertFails { CsvConverter.read("test", one, ByteArrayInputStream(csv.toByteArray())) }
+        assertFails { CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource) }
     }
 
     @Test
@@ -69,7 +69,7 @@ class CsvConverterTests {
             a,c
             1,2
         """.trimIndent()
-        assertFails { CsvConverter.read("test", one, ByteArrayInputStream(csv.toByteArray())) }
+        assertFails { CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource) }
     }
 
     @Test
@@ -77,7 +77,7 @@ class CsvConverterTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val csv = """
         """.trimIndent()
-        assertFails { CsvConverter.read("test", one, ByteArrayInputStream(csv.toByteArray())) }
+        assertFails { CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource) }
     }
 
 
