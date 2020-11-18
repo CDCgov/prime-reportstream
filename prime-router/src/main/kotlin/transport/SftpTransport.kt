@@ -30,9 +30,9 @@ class SftpTransport {
 
     private fun initSshClient(
         host: String = "localhost",
-        port: String = "22",
-        user: String = "tester",
-        password: String = "testing"
+        port: String = "9022",
+        user: String = "foo",
+        password: String = "pass"
     ) : Session {
         val jsch = JSch()
         val session = jsch.getSession(user, host, port.toInt() )

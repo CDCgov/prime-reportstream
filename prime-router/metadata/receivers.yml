@@ -15,7 +15,7 @@ receivers:
     transport:
         type: SFTP
         host: localhost
-        port: 22
+        port: 9022
         
   # Florida PHD
   - name: phd2
