@@ -1,2 +1,41 @@
-#!/usr/bin/env bash
-java -jar target/prime-router-0.1-SNAPSHOT.jar "$@"
+#!/bin/bash
+#
+# This script runs the CLI of the project. 
+#
+# It handles four different configurations in this order of preference
+#  1. Where a fat jar (a jar with all dependencies) is present in the working directory
+#  2. Where a fat jar is present in a 'target' subdirectory
+#  3. Where a slim jar is present in the working directory and a 'azure-functions/prime-data-hub-router/lib' exists
+#  4. Where a slim jar is present in a 'target' subdirectory and the lib sub directory is also present
+#
+# This script should work on both a Mac and the Dev Docker container
+
+set -e
+version=0.1-SNAPSHOT
+fat_jar_name=prime-router-$version-jar-with-dependencies.jar
+slim_jar_name=prime-router-$version.jar
+lib_name=azure-functions/prime-data-hub-router/lib
+
+# find the jar
+if [ -f $fat_jar_name ]; then
+  jar=$fat_jar_name
+elif [ -f target/$fat_jar_name ]; then
+  jar=target/$fat_jar_name
+elif [ -f $slim_jar_name ]; then
+  jar=$slim_jar_name
+  if [ ! -d $lib_name ]; then
+    echo "Could not find a $lib_name directory"
+    exit 1
+  fi
+elif [ -f target/$slim_jar_name ]; then
+  jar=target/$slim_jar_name
+  if [ ! -d target/$lib_name ]; then
+    echo "Could not find a target/$lib_name directory"
+    exit 1
+  fi
+else
+  echo "Could not find a prime-data-hub-router*.jar file"
+  exit 1
+fi
+
+java -jar $jar "$@"

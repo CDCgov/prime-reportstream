@@ -1,0 +1,28 @@
+# This docker compose is intended to setup a developer 
+#
+
+version: "3.8"
+services:
+  # This container runs our Azure function code. 
+  prime_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile_dev
+    volumes: 
+      - type: bind
+        source: ./target
+        target: /prime-data-hub-router
+    entrypoint: [/prime-data-hub-router/start_func.sh]
+    environment: 
+      AzureWebJobsStorage: DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+    depends_on: [azurite]   
+    ports:
+      - 7071:7071 # default function port
+      - 5005:5005 # Java debug port
+
+  # Azurite is the Azure storage emulator for local development
+  azurite: 
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:  
+      - 10000:10000 
+      - 10001:10001
