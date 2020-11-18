@@ -2,9 +2,9 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "java",
-    "FUNCTIONS_EXTENSION_VERSION": "~3"
+    "FUNCTIONS_EXTENSION_VERSION": "~3",
+    "PROCESSED_BLOB_CONTAINER": "processed"
   },
   "ConnectionStrings": {}
 }

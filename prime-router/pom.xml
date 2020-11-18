@@ -166,7 +166,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <classpathPrefix>${stagingDirectory}/lib</classpathPrefix>
+                            <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>gov.cdc.prime.router.cli.MainKt</mainClass>
                         </manifest>
                     </archive>
@@ -302,5 +302,23 @@
             <artifactId>libphonenumber</artifactId>
             <version>3.5</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.54</version>
+        </dependency>
+        <dependency>
+            <groupId>software.sham</groupId>
+            <artifactId>sham-ssh</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.github.mhewedy/sftp-utils -->
+        <dependency>
+            <groupId>com.github.mhewedy</groupId>
+            <artifactId>sftp-utils</artifactId>
+            <version>2.0.0</version>
+        </dependency>        
     </dependencies>
 </project>
