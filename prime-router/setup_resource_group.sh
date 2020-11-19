@@ -104,4 +104,4 @@ az acr webhook create --actions push \
                       --scope "$app_name":latest
 
 echo All done
-
+echo Now try running test-ingest.sh
