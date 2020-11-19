@@ -84,6 +84,7 @@ bash setup_resource_group.sh
 ```
 Now you can develop, build and push your Docker containers to your resource group in Azure. 
 ```
+az acr login --name rhawesprimedevregistry
 docker build --tag rhawesprimedevregistry.azurecr.io/prime-data-hub . 
 docker push rhawesprimedevregistry.azurecr.io/prime-data-hub 
 ```

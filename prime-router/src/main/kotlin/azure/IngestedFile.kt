@@ -22,7 +22,7 @@ import java.util.*
 class IngestedFile {
     var filename: String // name of the file as passed in by the client.
     var topic: String // eg, covid-19
-    var schemaName: String // eg, pdi-covid-19
+    var schema: String // eg, pdi-covid-19
     var action: String // eg, "route" - what to do with this file.  Probably should be an array.
     lateinit var blobURL: String // URL of the blob in Azure storage.
 
@@ -39,35 +39,32 @@ class IngestedFile {
      */
     constructor(request: HttpRequestMessage<String?>, context: ExecutionContext?) {
         val params = request.queryParameters
-        filename = params["filename"] ?: ""
-        topic = params["topic"] ?: ""  // ex.  'covid-19'
-        schemaName = params["schema-name"] ?: ""// ex.  'pdi-covid-19'
-        action = params["action"] ?: ""
+        filename = params.getOrDefault("filename", "")
+        topic = params.getOrDefault("topic", "")  // ex.  'covid-19'
+        schema = params.getOrDefault("schema", "")  // ex.  'pdi-covid-19'
+        action = params.getOrDefault("action", "")
         // Note:  use of String will only work for text data
         // Does not handle multipart form data right now.
         reportContent = request.body ?: ""
-
         validate()
     }
 
     @Throws(Exception::class)
     fun validate() {
         val errors: MutableList<String> = ArrayList()
-        if (StringUtils.isEmpty(filename)) {
+        if (filename.isEmpty()) {
             errors.add("Error:  Missing filename parameter")
         }
-        if (StringUtils.isEmpty(schemaName)) {
-            errors.add("Error:  Missing schemaName parameter")
+         if (schema.isEmpty()) {
+            errors.add("Error:  Missing schema parameter")
         }
         // @todo Should we allow an empty report data file, or is that always an error?
-        if (StringUtils.isEmpty(reportContent)) {
+        if (reportContent.isEmpty()) {
             errors.add("Error:  incoming data file is empty or missing")
         }
         if (!errors.isEmpty()) {
             val e = Exception()
-            for (error in errors) {
-                e.addSuppressed(Exception(error))
-            }
+            errors.forEach { e.addSuppressed(Exception(it)) }
             throw e
         }
     }
@@ -80,7 +77,7 @@ class IngestedFile {
     @Throws(JsonProcessingException::class)
     fun queueForProcessing(queue: QueueClient, blobContainerClient: BlobContainerClient, context: ExecutionContext) {
         // Create the blob first.
-        val blobFilename = createInternalFilename(filename, schemaName)
+        val blobFilename = createInternalFilename(filename, schema)
         val blobClient = blobContainerClient.getBlobClient(blobFilename)
         val bytes = reportContent.toByteArray(Charset.forName("UTF-8"))
         val inputStream: InputStream = ByteArrayInputStream(bytes)
@@ -127,12 +124,12 @@ class IngestedFile {
          * Normal use case:    foo.csv in schema 'pdi-covid-19' becomes
          *     foo-pdi-covid-19-08ad635e-c801-43d0-8353-eb157193d065.csv
          */
-        fun createInternalFilename(externalFilename: String?, schemaName: String?): String {
+        fun createInternalFilename(externalFilename: String?, schema: String?): String {
             val baseName = FilenameUtils.getBaseName(externalFilename)
             val basePart = if (StringUtils.isEmpty(baseName)) "" else "$baseName-"
             val extension = FilenameUtils.getExtension(externalFilename)
             val extPart = if (StringUtils.isEmpty(extension)) "" else ".$extension"
-            val schemaPart = if (StringUtils.isEmpty(schemaName)) "" else "$schemaName-"
+            val schemaPart = if (StringUtils.isEmpty(schema)) "" else "$schema-"
             return basePart + schemaPart + UUID.randomUUID() + extPart
         }
     }

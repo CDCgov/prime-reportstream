@@ -29,11 +29,31 @@ if [ "$resource_group_exists" != "true" ]; then
   exit 1
 fi
 echo "Using the $resource_group resource group"
-
 # Create the storage account
 storage_account=${PRIME_DEV_NAME}primedev
 confirm "Create a $storage_account Azure storage account in your resource group?"
 az storage account create --name "$storage_account" --location eastus --resource-group "$resource_group" --sku Standard_LRS
+
+# Get the connection string and extract it from the json
+connection_string=$(az storage account show-connection-string -g $resource_group -n $storage_account |  python <( echo '
+import sys, json
+print json.loads(sys.stdin.read())["connectionString"]
+' ))
+
+printf "\nConnection string for storage account $storage_account:\n\n"
+printf "$connection_string\n\n"
+
+# Create blob containers
+confirm "Create blob containers for 'ingested' and 'processed' in $storage_account?"
+echo "(Note: these return false if it already exists, true if created now)"
+az storage container create --account-name "$storage_account" --name "ingested" --auth-mode "key" --connection-string "$connection_string"
+az storage container create --account-name "$storage_account" --name "processed" --auth-mode "key" --connection-string "$connection_string"
+
+# Create queues
+confirm "Create corresponding queues in $storage_account?"
+echo "(Note: this returns false if it already exists, true if created now)"
+az storage queue create --account-name "$storage_account" --name "ingested" --auth-mode "key" --connection-string "$connection_string"
+az storage queue create --account-name "$storage_account" --name "processed" --auth-mode "key" --connection-string "$connection_string"
 
 # Create a container registry
 registry=${PRIME_DEV_NAME}PrimeDevRegistry
@@ -84,4 +104,4 @@ az acr webhook create --actions push \
                       --scope "$app_name":latest
 
 echo All done
-
+echo Now try running test-ingest.sh

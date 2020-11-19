@@ -22,10 +22,9 @@ class IngestFunction {
 
     /**
      * This function listens at endpoint "/api/report".
-     * Ugly invocation that actually worked for me, run in prime-router/:
-     *    curl -X POST -H "Content-Type: text/csv" --data-binary "@./src/test/unit_test_files/lab1-test_results-17-42-31.csv" "http://localhost:7071/api/report?topic=covid-19&filename=lab1-test_results-17-42-31.csv&schema-name=pdi-covid-19.schema"
-     * Which returns the following upon success:
-     *    {"filename":"lab1-test_results-17-42-31.csv","topic":"covid-19","schemaName":"pdi-covid-19.schema","action":"","blobURL":"http://azurite:10000/devstoreaccount1/ingested/lab1-test_results-17-42-31-pdi-covid-19.schema-3ddef736-55e1-4a45-ac41-f74086aaa654.csv"}
+     * Run ./test-ingest.sh to get an example curl call that runs this function.
+     * That curl returns something like the following upon success:
+     *    {"filename":"lab1-test_results-17-42-31.csv","topic":"covid-19","schema":"pdi-covid-19.schema","action":"","blobURL":"http://azurite:10000/devstoreaccount1/ingested/lab1-test_results-17-42-31-pdi-covid-19.schema-3ddef736-55e1-4a45-ac41-f74086aaa654.csv"}
      */
     @FunctionName("report")
     @StorageAccount("AzureWebJobsStorage")
@@ -44,7 +43,7 @@ class IngestFunction {
             IngestedFile(request, context)
         } catch (e: Exception) {
             val msgs = TextStringBuilder()
-            Arrays.asList(*e.suppressed).forEach(Consumer { ex: Throwable -> msgs.appendln(ex.message) })
+            e.suppressedExceptions.forEach{ msgs.appendln(it.message) }
             context.logger.severe(msgs.toString())
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body(msgs.toString()).build()
         }
