@@ -32,37 +32,37 @@ object Hl7Converter {
         }
     }
 
-    fun write(table: MappableTable, outputStream: OutputStream) {
+    fun write(report: Report, outputStream: OutputStream) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
         //
-        outputStream.write(createFHS(table).toByteArray())
-        outputStream.write(createBHS(table).toByteArray())
-        table.rowIndices.map {
-            val message = createMessage(table, it)
+        outputStream.write(createFHS(report).toByteArray())
+        outputStream.write(createBHS(report).toByteArray())
+        report.rowIndices.map {
+            val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
         }
-        outputStream.write(createBTS(table).toByteArray())
-        outputStream.write(createFTS(table).toByteArray())
+        outputStream.write(createBTS(report).toByteArray())
+        outputStream.write(createFTS(report).toByteArray())
     }
 
-    internal fun createMessage(table: MappableTable, row: Int): String {
+    internal fun createMessage(report: Report, row: Int): String {
         val message = ORU_R01()
         message.initQuickstart("ORU", "R01", "D")
-        buildMessage(message, table, row)
+        buildMessage(message, report, row)
         return context.pipeParser.encode(message)
     }
 
-    private fun buildMessage(message: ORU_R01, table: MappableTable, row: Int) {
+    private fun buildMessage(message: ORU_R01, report: Report, row: Int) {
         val terser = Terser(message)
         setLiterals(terser)
-        table.schema.elements.forEach { element ->
-            setElement(terser, table, row, element)
+        report.schema.elements.forEach { element ->
+            setElement(terser, report, row, element)
         }
     }
 
-    private fun setElement(terser: Terser, table: MappableTable, row: Int, element: Element) {
-        val value = table.getStringWithDefault(row, element.name)
+    private fun setElement(terser: Terser, report: Report, row: Int, element: Element) {
+        val value = report.getStringWithDefault(row, element.name)
         val hl7Field = element.hl7Field ?: return
         setComponent(terser, element, hl7Field, value)
         element.hl7OutputFields?.let { fields ->
@@ -143,15 +143,15 @@ object Hl7Converter {
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-1", "1")
     }
 
-    private fun createFHS(table: MappableTable): String {
-        val sendingApp = table.getStringWithDefault(0, "standard.sending_application")
-        val sendingOid = table.getStringWithDefault(0, "standard.sending_application_id")
-        val sendingFacilityName = table.getStringWithDefault(0, "standard.reporting_facility_name")
-        val sendingCLIA = table.getStringWithDefault(0, "standard.reporting_facility_id")
-        val receivingApplicationName = table.getStringWithDefault(0, "standard.receiving_application")
-        val receivingApplicationId = table.getStringWithDefault(0, "standard.receiving_application_id")
-        val receivingFacilityName = table.getStringWithDefault(0, "standard.receiving_facility")
-        val receivingFacilityId = table.getStringWithDefault(0, "standard.receiving_facility_id")
+    private fun createFHS(report: Report): String {
+        val sendingApp = report.getStringWithDefault(0, "standard.sending_application")
+        val sendingOid = report.getStringWithDefault(0, "standard.sending_application_id")
+        val sendingFacilityName = report.getStringWithDefault(0, "standard.reporting_facility_name")
+        val sendingCLIA = report.getStringWithDefault(0, "standard.reporting_facility_id")
+        val receivingApplicationName = report.getStringWithDefault(0, "standard.receiving_application")
+        val receivingApplicationId = report.getStringWithDefault(0, "standard.receiving_application_id")
+        val receivingFacilityName = report.getStringWithDefault(0, "standard.receiving_facility")
+        val receivingFacilityId = report.getStringWithDefault(0, "standard.receiving_facility_id")
 
         return "FHS|^~\\&|" +
                 "$sendingApp^$sendingOid^ISO|" +
@@ -162,15 +162,15 @@ object Hl7Converter {
                 "\r"
     }
 
-    private fun createBHS(table: MappableTable): String {
-        val sendingApp = table.getStringWithDefault(0, "standard.sending_application")
-        val sendingOid = table.getStringWithDefault(0, "standard.sending_application_id")
-        val sendingFacilityName = table.getStringWithDefault(0, "standard.reporting_facility_name")
-        val sendingCLIA = table.getStringWithDefault(0, "standard.reporting_facility_id")
-        val receivingApplicationName = table.getStringWithDefault(0, "standard.receiving_application")
-        val receivingApplicationId = table.getStringWithDefault(0, "standard.receiving_application_id")
-        val receivingFacilityName = table.getStringWithDefault(0, "standard.receiving_facility")
-        val receivingFacilityId = table.getStringWithDefault(0, "standard.receiving_facility_id")
+    private fun createBHS(report: Report): String {
+        val sendingApp = report.getStringWithDefault(0, "standard.sending_application")
+        val sendingOid = report.getStringWithDefault(0, "standard.sending_application_id")
+        val sendingFacilityName = report.getStringWithDefault(0, "standard.reporting_facility_name")
+        val sendingCLIA = report.getStringWithDefault(0, "standard.reporting_facility_id")
+        val receivingApplicationName = report.getStringWithDefault(0, "standard.receiving_application")
+        val receivingApplicationId = report.getStringWithDefault(0, "standard.receiving_application_id")
+        val receivingFacilityName = report.getStringWithDefault(0, "standard.receiving_facility")
+        val receivingFacilityId = report.getStringWithDefault(0, "standard.receiving_facility_id")
 
         return "BHS|^~\\&|" +
                 "$sendingApp^$sendingOid^ISO|" +
@@ -181,11 +181,11 @@ object Hl7Converter {
                 "\r"
     }
 
-    private fun createBTS(table: MappableTable): String {
-        return "BTS|${table.rowCount}\r"
+    private fun createBTS(report: Report): String {
+        return "BTS|${report.rowCount}\r"
     }
 
-    private fun createFTS(table: MappableTable): String {
+    private fun createFTS(report: Report): String {
         return "FTS|1\r"
     }
 

@@ -17,7 +17,7 @@ object Metadata {
     private const val defaultMetadataDirectory = "./metadata"
     private const val schemasSubdirectory = "schemas"
     private const val valuesetsSubdirectory = "valuesets"
-    private const val receiversList = "receivers.yml"
+    private const val receiversList = "organizations.yml"
 
     private var schemas = mapOf<String, Schema>()
     private var mappers = listOf(
@@ -26,7 +26,9 @@ object Metadata {
         IfPresentMapper(),
     )
     private var valueSets = mapOf<String, ValueSet>()
-    private var receiversStore: List<Receiver> = ArrayList()
+    private var organizationStore: List<Organization> = ArrayList()
+    private var organizationServiceStore: List<OrganizationService> = ArrayList()
+    private var organizationClientStore: List<OrganizationClient> = ArrayList()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
     fun loadAll(metadataPath: String? = null) {
@@ -34,7 +36,7 @@ object Metadata {
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
-        loadReceiversList(metadataDir.toPath().resolve(receiversList).toString())
+        loadOrganizationList(metadataDir.toPath().resolve(receiversList).toString())
     }
 
     /*
@@ -85,19 +87,23 @@ object Metadata {
 
     private fun extendSchemas(schemas: List<Schema>): List<Schema> {
         return schemas.map { schema ->
-            val expandedElements: List<Element> = schema.elements.map { element ->
-                if (element.name.contains('.')) {
-                    val splitName = element.name.split('.')
-                    if (splitName.size != 2) error("${element.name} is not a valid base name")
-                    val baseSchemaName = normalizeSchemaName(splitName[0])
-                    val basedElement = schemas.find { it.name == baseSchemaName }?.findElement(splitName[1])
-                        ?: error("${element.name} does not exists in $baseSchemaName")
-                    element.extendFrom(basedElement)
-                } else {
-                    element
-                }
-            }
+            val expandedElements: List<Element> = schema.elements.map { expandElement(schemas, it) }
             schema.copy(elements = expandedElements)
+        }
+    }
+
+    private fun expandElement(schemas: List<Schema>, element: Element): Element {
+        return if (element.name.contains('.')) {
+            // names can have the form <schema>.<name> which means we should copy the values of the referenced element
+            val splitName = element.name.split('.')
+            if (splitName.size != 2) error("${element.name} is not a valid base name")
+            val baseSchemaName = normalizeSchemaName(splitName[0])
+            // Find the element in the schemas list
+            val basedElement = schemas.find { it.name == baseSchemaName }?.findElement(splitName[1])
+                ?: error("${element.name} does not exists in $baseSchemaName")
+            element.extendFrom(basedElement)
+        } else {
+            element
         }
     }
 
@@ -147,32 +153,54 @@ object Metadata {
     }
 
     /*
-     * Receiver
+     * Organizations
      */
 
-    private data class ReceiversList(
-        val receivers: List<Receiver>
-    )
+    val organizations get() = this.organizationStore
+    val organizationClients get() = this.organizationClientStore
+    val organizationServices get() = this.organizationServiceStore
 
-    val receivers get() = receiversStore
-
-    fun loadReceiversList(filePath: String) {
-        loadReceiversList(File(filePath).inputStream())
+    fun loadOrganizationList(filePath: String) {
+        loadOrganizationList(File(filePath).inputStream())
     }
 
-    fun loadReceiversList(receiversStream: InputStream) {
-        val loadingStream = receiversStream
-        val receiversList = mapper.readValue<ReceiversList>(loadingStream)
-        loadReceivers(receiversList.receivers)
+    fun loadOrganizationList(organizationStream: InputStream) {
+        val list = mapper.readValue<List<Organization>>(organizationStream)
+        loadOrganizations(list)
     }
 
-    fun loadReceivers(receivers: List<Receiver>) {
-        receiversStore = receivers
+    fun loadOrganizations(organizations: List<Organization>) {
+        this.organizationStore = organizations
+        this.organizationClientStore = organizations.flatMap { it.clients }
+        this.organizationServiceStore = organizations.flatMap { it.services }
     }
 
-    fun findReceiver(name: String, topic: String): Receiver? {
-        return receiversStore.first {
-            it.name.equals(name, ignoreCase = true) && it.topic.equals(topic, ignoreCase = true)
+    fun findOrganization(name: String): Organization? {
+        return this.organizations.first {
+            it.name.equals(name, ignoreCase = true)
+        }
+    }
+
+    fun findService(name: String): OrganizationService? {
+        val (orgName, clientName) = parseName(name)
+        return findOrganization(orgName)?.services?.first {
+            it.name.equals(clientName, ignoreCase = true)
+        }
+    }
+
+    fun findClient(name: String): OrganizationClient? {
+        val (orgName, clientName) = parseName(name)
+        return findOrganization(orgName)?.clients?.first {
+            it.name.equals(clientName, ignoreCase = true)
+        }
+    }
+
+    private fun parseName(name: String): Pair<String, String> {
+        val subNames = name.split('.')
+        return when (subNames.size) {
+            2 -> Pair(subNames[0], subNames[1])
+            1 -> Pair(subNames[0], "default")
+            else -> error("too many sub-names")
         }
     }
 }
