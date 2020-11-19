@@ -32,8 +32,8 @@ printf "       code=$default_function_key\n"
 # Generate a giant ugly curl call
 boilerplate_glop="curl -X POST -H \"Content-Type: text/csv\""
 localfile_glop="--data-binary \"@./src/test/unit_test_files/lab1-test_results-17-42-31.csv\""
-cloud_url="\"https://$hostname/api/report?code=$default_function_key&schema-name=pdi-covid-19.schema&filename=lab1-test_results-17-42-31.csv\""
-local_url="\"http:/localhost:7071/api/report?schema-name=pdi-covid-19.schema&filename=lab1-test_results-17-42-31.csv\""
+cloud_url="\"https://$hostname/api/report?code=$default_function_key&schema=pdi-covid-19.schema&filename=lab1-test_results-17-42-31.csv\""
+local_url="\"http:/localhost:7071/api/report?schema=pdi-covid-19.schema&filename=lab1-test_results-17-42-31.csv\""
 
 # Now put it all together:
 printf "\nRun this to submit a test report to your cloud:\n"

@@ -45,12 +45,7 @@ class IngestedFile {
         action = params.getOrDefault("action", "")
         // Note:  use of String will only work for text data
         // Does not handle multipart form data right now.
-<<<<<<< HEAD
-        reportContent = request.body ?:  ""
-=======
         reportContent = request.body ?: ""
-
->>>>>>> master
         validate()
     }
 
@@ -61,7 +56,7 @@ class IngestedFile {
             errors.add("Error:  Missing filename parameter")
         }
          if (schema.isEmpty()) {
-            errors.add("Error:  Missing schemaName parameter")
+            errors.add("Error:  Missing schema parameter")
         }
         // @todo Should we allow an empty report data file, or is that always an error?
         if (reportContent.isEmpty()) {
@@ -129,7 +124,7 @@ class IngestedFile {
          * Normal use case:    foo.csv in schema 'pdi-covid-19' becomes
          *     foo-pdi-covid-19-08ad635e-c801-43d0-8353-eb157193d065.csv
          */
-        fun createInternalFilename(externalFilename: String?, schemaName: String?): String {
+        fun createInternalFilename(externalFilename: String?, schema: String?): String {
             val baseName = FilenameUtils.getBaseName(externalFilename)
             val basePart = if (StringUtils.isEmpty(baseName)) "" else "$baseName-"
             val extension = FilenameUtils.getExtension(externalFilename)
