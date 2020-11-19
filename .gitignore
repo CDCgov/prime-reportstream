@@ -36,6 +36,9 @@ Test.csv
 .DS_Store
 .DS_Store
 
+# Emacs files
+*~
+
 prime-router/fake-pdi-covid-19.csv
 *.hl7
 prime-router/id_file
