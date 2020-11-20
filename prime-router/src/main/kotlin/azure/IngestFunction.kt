@@ -57,8 +57,8 @@ class IngestFunction {
         } catch (e: Exception) {
             val msgs = TextStringBuilder()
             e.suppressedExceptions.forEach { msgs.appendln(it.message) }
-
-            context.logger.log(Level.INFO, "Bad request from e.message", e)
+            msgs.appendln(e.message)
+            context.logger.log(Level.INFO, "Bad request.  $msgs", e)
             return request
                 .createResponseBuilder(HttpStatus.BAD_REQUEST)
                 .body(msgs.toString())
@@ -87,10 +87,14 @@ class IngestFunction {
 
         val name = request.headers.getOrDefault(clientName, "")
         var client: OrganizationClient? = null
-        if (!clientName.isBlank()) {
-            client = Metadata.findClient(name)
-            if (client == null)
-                errors.add("Error: did not recognize $name as a valid client")
+        if (!name.isBlank()) {
+            try {
+                client = Metadata.findClient(name)
+            } catch (e: Exception) {
+                val betterException = Exception("Error: unknown client '$name'")
+                betterException.addSuppressed(e)
+                throw betterException
+            }
         } else {
             errors.add("Error: missing 'client' header")
         }
@@ -99,7 +103,7 @@ class IngestFunction {
         if (contentType.isBlank()) {
             errors.add("Error: expecting a content-type header")
         } else if (client != null && client.format.mimeType != contentType) {
-            errors.add("Error: expecting a '${client.format.mimeType} content-type header")
+            errors.add("Error: expecting a '${client.format.mimeType}' content-type header")
         }
 
         val content = request.body ?: ""

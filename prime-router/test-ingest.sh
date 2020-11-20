@@ -33,7 +33,7 @@ printf "       code=$default_function_key\n"
 boilerplate_glop="curl -X POST -H \"client:simple_report\" -H \"Content-Type: text/csv\" "
 localfile_glop="--data-binary \"@./src/test/csv_test_files/input/example-simplereport-file-11-20-2020.csv\""
 cloud_url="\"https://$hostname/api/reports?code=$default_function_key\""
-local_url="\"http://localhost:7071/api/reports?code=$default_function_key\""
+local_url="\"http://localhost:7071/api/reports\""
 
 # Now put it all together:
 printf "\nRun this to submit a test report to your cloud:\n"
