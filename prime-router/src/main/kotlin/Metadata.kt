@@ -17,7 +17,7 @@ object Metadata {
     private const val defaultMetadataDirectory = "./metadata"
     private const val schemasSubdirectory = "schemas"
     private const val valuesetsSubdirectory = "valuesets"
-    private const val receiversList = "organizations.yml"
+    private const val organizationsList = "organizations.yml"
 
     private var schemas = mapOf<String, Schema>()
     private var mappers = listOf(
@@ -36,7 +36,7 @@ object Metadata {
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
-        loadOrganizationList(metadataDir.toPath().resolve(receiversList).toString())
+        loadOrganizationList(metadataDir.toPath().resolve(organizationsList).toString())
     }
 
     /*
@@ -47,7 +47,11 @@ object Metadata {
     fun loadSchemaCatalog(catalog: String) {
         val catalogDir = File(catalog)
         if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
-        loadSchemas(readAllSchemas(catalogDir, ""))
+        try {
+            loadSchemas(readAllSchemas(catalogDir, ""))
+        } catch (e: Exception) {
+            throw Exception("Error loading schema catalog: $catalog", e)
+        }
     }
 
     fun loadSchemas(schemas: List<Schema>) {
@@ -126,7 +130,11 @@ object Metadata {
     fun loadValueSetCatalog(catalog: String) {
         val catalogDir = File(catalog)
         if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
-        loadValueSets(readAllValueSets(catalogDir))
+        try {
+            loadValueSets(readAllValueSets(catalogDir))
+        } catch (e: Exception) {
+            throw Exception("Error loading $catalog", e)
+        }
     }
 
     fun loadValueSets(sets: List<ValueSet>) {
@@ -161,7 +169,11 @@ object Metadata {
     val organizationServices get() = this.organizationServiceStore
 
     fun loadOrganizationList(filePath: String) {
-        loadOrganizationList(File(filePath).inputStream())
+        try {
+            loadOrganizationList(File(filePath).inputStream())
+        } catch (e: Exception) {
+            throw Exception("Error loading: $filePath", e)
+        }
     }
 
     fun loadOrganizationList(organizationStream: InputStream) {
@@ -176,12 +188,14 @@ object Metadata {
     }
 
     fun findOrganization(name: String): Organization? {
+        if (name.isBlank()) return null
         return this.organizations.first {
             it.name.equals(name, ignoreCase = true)
         }
     }
 
     fun findService(name: String): OrganizationService? {
+        if (name.isBlank()) return null
         val (orgName, clientName) = parseName(name)
         return findOrganization(orgName)?.services?.first {
             it.name.equals(clientName, ignoreCase = true)
@@ -189,6 +203,7 @@ object Metadata {
     }
 
     fun findClient(name: String): OrganizationClient? {
+        if (name.isBlank()) return null
         val (orgName, clientName) = parseName(name)
         return findOrganization(orgName)?.clients?.first {
             it.name.equals(clientName, ignoreCase = true)

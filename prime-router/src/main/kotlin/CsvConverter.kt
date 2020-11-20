@@ -10,6 +10,15 @@ import java.io.OutputStream
  */
 object CsvConverter {
     fun read(schema: Schema, input: InputStream, source: Source): Report {
+        return read(schema, input, listOf(source))
+    }
+
+    fun read(
+        schema: Schema,
+        input: InputStream,
+        sources: List<Source>,
+        destination: OrganizationService? = null,
+    ): Report {
         // Read in the file
         val rows: List<List<String>> = csvReader().readAll(input)
         if (rows.isEmpty()) error("Empty input stream")
@@ -22,20 +31,20 @@ object CsvConverter {
             error("Element ${it.first.csvField} is not found in the input stream header")
         }
 
-        return Report(schema, rows.subList(1, rows.size), listOf(source))
+        return Report(schema, rows.subList(1, rows.size), sources, destination)
     }
 
     fun write(report: Report, output: OutputStream) {
         val schema = report.schema
-        
+
         fun buildHeader() = schema.elements.map { it.csvField ?: it.name }
-        
+
         fun buildRows() = report.rowIndices.map { row ->
             schema.elements.indices.map { column ->
                 report.getString(row, column) ?: ""
             }
         }
-        
+
         val allRows = listOf(buildHeader()).plus(buildRows())
         csvWriter {
             lineTerminator = "\n"

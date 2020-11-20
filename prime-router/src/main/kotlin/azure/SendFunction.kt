@@ -1,24 +1,14 @@
 package gov.cdc.prime.router.azure
 
-import com.azure.core.http.ContentType
-import com.google.common.net.MediaType
-import gov.cdc.prime.router.Metadata
-import com.microsoft.azure.functions.*
-import com.microsoft.azure.functions.annotation.AuthorizationLevel
+
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
-import com.microsoft.azure.functions.annotation.BlobTrigger
+import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import com.microsoft.azure.functions.annotation.BindingName
-import gov.cdc.prime.router.CsvConverter
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
-import java.io.ByteArrayInputStream
-import java.net.http.HttpHeaders
-import java.net.http.HttpRequest
-import java.util.*
+import gov.cdc.prime.router.transport.SftpTransport
 import java.util.logging.Level
-
-
-import gov.cdc.prime.router.transport.SftpTransport;
 
 
 /**
@@ -26,22 +16,24 @@ import gov.cdc.prime.router.transport.SftpTransport;
  */
 class SendFunction {
 
-    @FunctionName("Send")
+    @FunctionName("send")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @BlobTrigger(name = "content",
-            path = "%PROCESSED_BLOB_CONTAINER%/{fileName}.csv",
-            dataType = "binary") content: ByteArray,
-        @BindingName("fileName") fileName: String,
-        context: ExecutionContext,
+        @QueueTrigger(name = "msg", queueName = "merged")
+        message: String,
+        context: ExecutionContext
     ) {
-        val baseDir = System.getenv("AzureWebJobsScriptRoot")
-        Metadata.loadAll("$baseDir/metadata")
-
-        context.logger.info("Dispatch function processed a blob. Name: $fileName Size: ${content.size} bytes");
-
         try {
+            val baseDir = System.getenv("AzureWebJobsScriptRoot")
+            Metadata.loadAll("$baseDir/metadata")
+
+            val (header, content) = ReportQueue.receiveHeaderAndBody(ReportQueue.Name.INGESTED, message)
+            context.logger.info("Sending report: ${header.id}")
+
+            val service = Metadata.findService(header.destination)
+
             //val mockServer = MockSftpServer( 9022 )
+
             //context.logger.info( "Writing to ${mockServer.getBaseDirectory().toString()}" )
             //val session = initSshClient()
             //val sendKlass = Class.forName("gov.cdc.prime.router.SftpSend").kotlin
@@ -49,16 +41,18 @@ class SendFunction {
             val transportMetadata: OrganizationService.Transport = lookupTransportMetadata()
             val transport = SftpTransport() // TODO:  look up the correct class to call based on the transport metadata
 
+            // transport.send(transportMetadata, content, fileName)
 
-            transport.send(transportMetadata, content, fileName)
+            // For debugging and auditing purposes
+            ReportQueue.sendHeaderAndBody(ReportQueue.Name.SENT, header, content)
         } catch (t: Throwable) {
-            error("Unable to process blob ${fileName}\n ${t.message}")
+            context.logger.log(Level.SEVERE, "send exception", t)
         }
 
     }
 
     private fun lookupTransportMetadata(): OrganizationService.Transport {
-        return OrganizationService.Transport();  // TODO: actually lookup the Transport here - for now use the default
+        return OrganizationService.Transport()  // TODO: actually lookup the Transport here - for now use the default
     }
 
 }

@@ -5,21 +5,14 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
 import java.time.OffsetDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.*
-
-
-typealias ReportId = UUID
+import java.util.UUID
 
 /**
- * A Source can either be a client, a test, or a local file or another report. It is useful for debugging and auditing"
+ * Report id
  */
-sealed class Source
-data class FileSource(val fileName: String) : Source()
-data class ReportSource(val id: ReportId, val action: String) : Source()
-data class ClientSource(val client: OrganizationClient) : Source()
-object TestSource : Source()
+typealias ReportId = UUID
+
 
 /**
  * The report represents the report from one agent-organization, and which is
@@ -30,11 +23,12 @@ class Report {
     val id: ReportId
     val schema: Schema
     val sources: List<Source>
+    val destination: OrganizationService?
     val createdDateTime: OffsetDateTime
 
     val rowCount: Int get() = this.table.rowCount()
     val rowIndices: IntRange get() = 0 until this.table.rowCount()
-    val name: String get() = formName()
+    val name: String get() = formFileName(id, schema.baseName, createdDateTime)
 
     // The use of a TableSaw is an implementation detail hidden by this class
     // The TableSaw table is mutable, while this class is has immutable semantics
@@ -49,11 +43,13 @@ class Report {
         schema: Schema,
         values: List<List<String>>,
         sources: List<Source>,
+        destination: OrganizationService? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
+        this.destination = destination
         this.table = createTable(schema, values)
     }
 
@@ -61,11 +57,13 @@ class Report {
     constructor(
         schema: Schema,
         values: List<List<String>>,
-        source: TestSource
+        source: TestSource,
+        destination: OrganizationService? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(source)
+        this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
@@ -74,11 +72,13 @@ class Report {
     constructor(
         schema: Schema,
         values: List<List<String>>,
-        source: OrganizationClient
+        source: OrganizationClient,
+        destination: OrganizationService? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
-        this.sources = listOf(ClientSource(source))
+        this.sources = listOf(ClientSource(source.organization.name, source.name))
+        this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
@@ -86,15 +86,18 @@ class Report {
     private constructor(
         schema: Schema,
         table: Table,
-        sources: List<Source>
+        sources: List<Source>,
+        destination: OrganizationService? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.table = table
         this.sources = sources
+        this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
     }
 
+    @Suppress("Destructure")
     private fun createTable(schema: Schema, values: List<List<String>>): Table {
         fun valuesToColumns(schema: Schema, values: List<List<String>>): List<Column<*>> {
             return schema.elements.mapIndexed { index, element ->
@@ -108,23 +111,9 @@ class Report {
     private fun fromThisReport(action: String) = listOf(ReportSource(this.id, action))
 
 
-    private fun formName(): String {
-        val prefix = if (sources.size == 1) {
-            when (val source = sources[0]) {
-                is ClientSource -> "${source.client.organization.name}-${source.client.name}-"
-                is FileSource -> "${source.fileName}-".replace("/", "-")
-                else -> ""
-            }
-        } else {
-            ""
-        }
-        val formatter = DateTimeFormatter.ofPattern("YYYYMMDDhhmmss")
-        val schemaName = schema.baseName
-        return "$prefix$schemaName-${id}-${formatter.format(createdDateTime)}"
-    }
-
-    fun copy(): Report {
-        return Report(this.schema, this.table.copy(), fromThisReport("copy"))
+    fun copy(destination: OrganizationService? = null): Report {
+        // Dev Note: table is immutable, so no need to duplicate it
+        return Report(this.schema, this.table, fromThisReport("copy"), destination)
     }
 
     fun isEmpty(): Boolean {
@@ -245,7 +234,7 @@ class Report {
             tail.find { it.schema != schema }?.let { error("${it.schema.name} does not match the rest of the merge") }
 
             // Build table
-            var newTable = head.table.copy()
+            val newTable = head.table.copy()
             tail.forEach {
                 newTable.append(it.table)
             }
@@ -254,6 +243,11 @@ class Report {
             val sources = inputs.map { ReportSource(it.id, "merge") }
 
             return Report(schema, newTable, sources)
+        }
+
+        fun formFileName(id: ReportId, schemaName: String, createdDateTime: OffsetDateTime): String {
+            val formatter = DateTimeFormatter.ofPattern("YYYYMMDDhhmmss")
+            return "${Schema.formBaseName(schemaName)}-${id}-${formatter.format(createdDateTime)}"
         }
     }
 }

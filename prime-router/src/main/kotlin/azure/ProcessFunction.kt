@@ -1,64 +1,44 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.*
-import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
-import com.microsoft.azure.functions.annotation.HttpTrigger
+import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.*
-import java.io.ByteArrayInputStream
-import java.util.*
 import java.util.logging.Level
 
 
 /**
- * Azure Functions with HTTP Trigger. Write to blob.
+ * Process will take a report and filter and transform it to the appropriate services in our list
  */
 class ProcessFunction {
-    @FunctionName("Process")
+    @FunctionName("process")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @HttpTrigger(
-            name = "request",
-            methods = [HttpMethod.POST],
-            authLevel = AuthorizationLevel.ANONYMOUS
-        )
-        request: HttpRequestMessage<Optional<String>>,
-        context: ExecutionContext
-    ): HttpResponseMessage {
-        context.logger.info("HTTP trigger processed a ${request.httpMethod.name} request.")
-
-        val inputReport = try {
+        @QueueTrigger(name = "msg", queueName = "ingested")
+        message: String,
+        context: ExecutionContext,
+    ) {
+        try {
+            context.logger.info("Queue trigger processed a request.")
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
             Metadata.loadAll("$baseDir/metadata")
 
-            val clientName = request.queryParameters["client"] ?: error("Expected a client query parameter")
-            val client = Metadata.findClient(clientName) ?: error("Could not find $clientName")
-            val contentType = request.headers["content-type"] ?: error("Expected content type header")
-            if (!contentType.equals("text/csv", ignoreCase = true)) error("Expected csv content type")
-            val schema = Metadata.findSchema(client.schema ?: "") ?: error("Could not find ${client.schema}")
+            val report = ReportQueue.receiveReport(ReportQueue.Name.INGESTED, message)
+            context.logger.info("Processing report: ${report.id}")
 
-            val body = request.body.orElseThrow()
-            ByteArrayInputStream(body.toByteArray()).use {
-                CsvConverter.read(schema, it, ClientSource(client))
-            }
+            OrganizationService
+                .filterAndMapByService(report, Metadata.organizationServices)
+                .forEach { (report, service) ->
+                    //TODO send to processed queue when Merge function is written. Send to merged for now
+                    val header = ReportQueue.sendReport(
+                        ReportQueue.Name.MERGED,
+                        report.copy(destination = service)
+                    )
+                    context.logger.info("Queued: $header")
+                }
         } catch (e: Exception) {
-            context.logger.log(Level.INFO, "bad request parameters", e)
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body(e.message).build()
-        }
-
-        return try {
-            val outputReports = OrganizationService.filterAndMapByService(inputReport, Metadata.organizationServices)
-
-            val container = BlobStorage.getBlobContainer("processed")
-            outputReports.forEach { (report, service) ->
-                BlobStorage.uploadBlob(container, report, service)
-            }
-
-            request.createResponseBuilder(HttpStatus.OK).build()
-        } catch (e: Exception) {
-            context.logger.log(Level.SEVERE, "top-level catch", e)
-            request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).body(e.message).build()
+            context.logger.log(Level.SEVERE, "process exception", e)
         }
     }
 }

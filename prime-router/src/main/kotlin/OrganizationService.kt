@@ -12,20 +12,21 @@ data class OrganizationService(
     val jurisdictionalFilter: Map<String, String> = emptyMap(),
     val transforms: Map<String, String> = emptyMap(),
     val address: String = "",
-    val format: TopicFormat = TopicFormat.CSV,
+    val format: Format = Format.CSV,
     val transport: Transport = Transport(Transport.TransportType.SFTP, "localhost", "22"),
 ) {
     lateinit var organization: Organization
+    val fullName: String get() = "${organization.name}.${name}"
 
-    enum class TopicFormat {
+    enum class Format {
         CSV,
         HL7;
         //FHIR
 
         fun toExt(): String {
             return when (this) {
-                TopicFormat.CSV -> "csv"
-                TopicFormat.HL7 -> "hl7"
+                CSV -> "csv"
+                HL7 -> "hl7"
             }
         }
     }

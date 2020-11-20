@@ -17,12 +17,14 @@
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.version>1.4.10</kotlin.version>
+        <serialization.version>1.0.1</serialization.version>
+
         <functions.version>1.4.0</functions.version>
         <azure.functions.maven.plugin.version>1.9.0</azure.functions.maven.plugin.version>
-        <com.azure.version>12.6.0</com.azure.version>
         <functionAppName>prime-data-hub-router</functionAppName>
         <maven.plugin>3.1.0</maven.plugin>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
+
         <jackson.version>2.11.3</jackson.version>
         <hapi.version>2.3</hapi.version>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -222,17 +224,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <compilerPlugins>
-                        <plugin>kotlinx-serialization</plugin>
-                    </compilerPlugins>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jetbrains.kotlin</groupId>
-                        <artifactId>kotlin-maven-serialization</artifactId>
-                        <version>${kotlin.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -294,12 +286,12 @@
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-storage-blob</artifactId>
-            <version>${com.azure.version}</version>
+            <version>12.9.0</version>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-storage-queue</artifactId>
-            <version>${com.azure.version}</version>
+            <version>12.7.0</version>
         </dependency>
 
         <!-- Router Dependencies -->
@@ -336,6 +328,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
