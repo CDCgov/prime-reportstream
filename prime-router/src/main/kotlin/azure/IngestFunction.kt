@@ -23,10 +23,7 @@ class IngestFunction {
     private val csvMimeType = "text/csv"
 
     /**
-     * This function listens at endpoint "/api/report".
-     * Run ./test-ingest.sh to get an example curl call that runs this function.
-     * That curl returns something like the following upon success:
-     *    {"filename":"lab1-test_results-17-42-31.csv","topic":"covid-19","schema":"pdi-covid-19.schema","action":"","blobURL":"http://azurite:10000/devstoreaccount1/ingested/lab1-test_results-17-42-31-pdi-covid-19.schema-3ddef736-55e1-4a45-ac41-f74086aaa654.csv"}
+     * Run ./test-ingest.sh to get an example curl call that calls this function.
      */
     @FunctionName("reports")
     @StorageAccount("AzureWebJobsStorage")
@@ -68,7 +65,7 @@ class IngestFunction {
 
         // Queue the report for further processing.
         return try {
-            ReportQueue.sendReport(ReportQueue.Name.INGESTED, report)
+            ReportQueue.sendReport(ReportQueue.Name.VALIDATED, report)
             request
                 .createResponseBuilder(HttpStatus.CREATED)
                 .body(createResponseBody(report))

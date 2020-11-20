@@ -29,7 +29,7 @@ object ReportQueue {
      * The names of the logical queues
      */
     enum class Name {
-        INGESTED,
+        VALIDATED,
         PROCESSED,
         MERGED,
         SENT;
