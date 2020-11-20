@@ -15,11 +15,11 @@
     services:
       - name: elr
         topic: covid-19
-        schema: az/az-covid-19-hl7
+        schema: az/az-covid-19
         jurisdictionalFilter: { standard.patient_state: AZ }
         transforms: { deidentify: false }
         address: http://localhost:1181/
-        format: HL7
+        format: CSV
 
   - name: pa-phd
     description: Pennsylvennia PHD
