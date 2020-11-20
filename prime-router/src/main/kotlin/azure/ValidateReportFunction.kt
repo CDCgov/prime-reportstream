@@ -17,8 +17,9 @@ import java.util.logging.Level
 
 /**
  * Azure Functions with HTTP Trigger.
+ * This is basically the "front end" of the Hub.   Data comes in here.
  */
-class IngestFunction {
+class ValidateReportFunction {
     private val clientName = "client"
     private val csvMimeType = "text/csv"
 
