@@ -52,8 +52,8 @@ class RouterCli : CliktCommand(
     }
 
     private fun writeReportsToFile(
-        reports: List<Pair<Report, OrganizationService.TopicFormat>>,
-        writeBlock: (report: Report, format: OrganizationService.TopicFormat, outputStream: OutputStream) -> Unit
+        reports: List<Pair<Report, OrganizationService.Format>>,
+        writeBlock: (report: Report, format: OrganizationService.Format, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
         reports.forEach { (report, format) ->
@@ -115,17 +115,18 @@ class RouterCli : CliktCommand(
         }
 
         // Transform reports
-        val outputReports: List<Pair<Report, OrganizationService.TopicFormat>> = when {
-            route -> OrganizationService.filterAndMapByService(inputReport, Metadata.organizationServices)
+        val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
+            route -> OrganizationService
+                .filterAndMapByService(inputReport, Metadata.organizationServices)
                 .map { it.first to it.second.format }
-            else -> listOf(Pair(inputReport, OrganizationService.TopicFormat.CSV))
+            else -> listOf(Pair(inputReport, OrganizationService.Format.CSV))
         }
 
         // Output reports
         writeReportsToFile(outputReports) { report, format, stream ->
             when (format) {
-                OrganizationService.TopicFormat.CSV -> CsvConverter.write(report, stream)
-                OrganizationService.TopicFormat.HL7 -> Hl7Converter.write(report, stream)
+                OrganizationService.Format.CSV -> CsvConverter.write(report, stream)
+                OrganizationService.Format.HL7 -> Hl7Converter.write(report, stream)
             }
         }
     }

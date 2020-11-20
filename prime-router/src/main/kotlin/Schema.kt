@@ -10,7 +10,7 @@ data class Schema(
     val trackingElement: String? = null, // the element to use for tracking this test
     val description: String? = null,
 ) {
-    val baseName: String get() = formBaseName()
+    val baseName: String get() = formBaseName(name)
 
     // A mapping maps from one schema to another
     data class Mapping(
@@ -76,7 +76,10 @@ data class Schema(
         }
     }
 
-    private fun formBaseName(): String {
-        return name.split("/").last()
+    companion object {
+        fun formBaseName(name: String): String {
+            if (!name.contains("/")) return name
+            return name.split("/").last()
+        }
     }
 }

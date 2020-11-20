@@ -17,7 +17,7 @@ object Hl7Converter {
     const val softwareProductName = "PRIME Data Hub"
 
     val context = DefaultHapiContext()
-    val phoneNumberUtil = PhoneNumberUtil.getInstance()
+    val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
     val buildVersion: String
     val buildDate: String
 
@@ -197,7 +197,7 @@ object Hl7Converter {
 
     private fun buildComponent(spec: String, component: Int = 1): String {
         if (!isField(spec)) error("Not a component path spec")
-        return "$spec-${component.toString()}"
+        return "$spec-$component"
     }
 
     private fun isField(spec: String): Boolean {

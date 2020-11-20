@@ -17,7 +17,7 @@ interface Mapper {
     fun apply(args: List<String>, values: Map<String, String>): String?
 }
 
-class MiddleInitialMapper() : Mapper {
+class MiddleInitialMapper : Mapper {
     override val name = "middleInitial"
 
     override fun elementNames(args: List<String>): List<String> {
@@ -31,7 +31,7 @@ class MiddleInitialMapper() : Mapper {
     }
 }
 
-class UseMapper() : Mapper {
+class UseMapper : Mapper {
     override val name = "use"
 
     override fun elementNames(args: List<String>) = args
@@ -45,7 +45,7 @@ class UseMapper() : Mapper {
     }
 }
 
-class IfPresentMapper() : Mapper {
+class IfPresentMapper : Mapper {
     override val name = "ifPresent"
 
     override fun elementNames(args: List<String>): List<String> {

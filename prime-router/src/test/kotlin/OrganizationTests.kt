@@ -36,7 +36,7 @@ class OrganizationTests {
                   - name: sender
                     topic: topic
                     schema: one
-                    formats: [CSV]
+                    format: CSV
         """.trimIndent()
 
     @Test
@@ -61,7 +61,7 @@ class OrganizationTests {
 
     @Test
     fun `test loading a single organization`() {
-        var orgs = listOf(
+        val orgs = listOf(
             Organization(
                 name = "single",
                 description = "blah blah",

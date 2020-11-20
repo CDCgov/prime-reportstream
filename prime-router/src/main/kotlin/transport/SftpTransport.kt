@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.transport
 
-import com.jcraft.jsch.*
+import com.jcraft.jsch.ChannelSftp
+import com.jcraft.jsch.JSch
+import com.jcraft.jsch.Session
 import gov.cdc.prime.router.OrganizationService
-import sftputils.*
-import software.sham.sftp.*
-
+import sftputils.SftpUtils
 import java.util.*
 
 class SftpTransport {

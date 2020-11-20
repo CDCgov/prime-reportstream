@@ -7,11 +7,14 @@ package gov.cdc.prime.router
  */
 data class OrganizationClient(
     val name: String,
-    val formats: List<Format> = emptyList(),
-    val topic: String? = null,
-    val schema: String? = null,
+    val format: Format,
+    val topic: String,
+    val schema: String,
 ) {
     lateinit var organization: Organization
+    val fullName: String get() = "${organization.name}.${name}"
 
-    enum class Format { CSV }
+    enum class Format(val mimeType: String) {
+        CSV("text/csv")
+    }
 }
