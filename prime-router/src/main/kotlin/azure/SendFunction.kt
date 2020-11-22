@@ -32,19 +32,25 @@ class SendFunction {
 
             val service = Metadata.findService(header.destination)
 
-            //val mockServer = MockSftpServer( 9022 )
+            if( service == null )
+                error( "Unable to find a service handler for ${header.destination}")
 
-            //context.logger.info( "Writing to ${mockServer.getBaseDirectory().toString()}" )
-            //val session = initSshClient()
-            //val sendKlass = Class.forName("gov.cdc.prime.router.SftpSend").kotlin
+            context.logger.info( "Transport found for ${service.fullName} = ${service.transport.type}")
 
-            val transportMetadata: OrganizationService.Transport = lookupTransportMetadata()
-            val transport = SftpTransport() // TODO:  look up the correct class to call based on the transport metadata
+            var transportSuccessful: Boolean = false;
 
-            // transport.send(transportMetadata, content, fileName)
+            if( service.transport.type == OrganizationService.Transport.TransportType.SFTP ){
+                val transport = SftpTransport() // TODO:  look up the correct class to call based on the transport metadata
+                 transportSuccessful = transport.send( service, header, content)
+            }
+            else{
+                transportSuccessful = true;  // we'll just move the default to sent for now
+            }
 
-            // For debugging and auditing purposes
-            ReportQueue.sendHeaderAndBody(ReportQueue.Name.SENT, header, content)
+            if( transportSuccessful ){
+                ReportQueue.sendHeaderAndBody(ReportQueue.Name.SENT, header, content)
+            }
+
         } catch (t: Throwable) {
             context.logger.log(Level.SEVERE, "send exception", t)
         }

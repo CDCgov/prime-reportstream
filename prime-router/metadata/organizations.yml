@@ -20,6 +20,10 @@
         transforms: { deidentify: false }
         address: http://localhost:1181/
         format: CSV
+        transport:
+          type: SFTP
+          host: localhost
+          port: 2222
 
   - name: pa-phd
     description: Pennsylvennia PHD
@@ -45,10 +49,7 @@
         transforms: {deidentify: false}
         address: http://localhost:1181/
         format: CSV
-        transport:
-          type: SFTP
-          host: localhost
-          port: 22
+
 
     # Florida PHD
   - name: phd2

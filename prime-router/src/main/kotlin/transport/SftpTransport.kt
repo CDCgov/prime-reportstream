@@ -4,42 +4,44 @@ import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.azure.ReportQueue
 import sftputils.SftpUtils
 import java.util.*
 
-class SftpTransport {
+class SftpTransport : Transport{
 
-    fun send(transport: OrganizationService.Transport, contents: ByteArray, fileName: String) {
+    override fun send(service: OrganizationService, header: ReportQueue.Header, contents: ByteArray) : Boolean {
 
-        val session = initSshClient(transport.host, transport.port)
-        val fileDir = "/sftpout"
-        val path = "${fileDir}/${fileName}.csv"
+        val fileDir = "./upload"
+        val path = "${fileDir}/${service.fullName.replace( '.', '-')}-${header.id}.csv"
+        val host: String = service.transport.host 
+        val port: String = service.transport.port
+        val user: String = "foo"
+        val password: String = "pass"
 
-        val channel: ChannelSftp = session.openChannel("stfp") as ChannelSftp
-
-        try {
-            channel.connect()
-            SftpUtils.mkdirp(channel, fileDir)
-            channel.put(contents.inputStream(), path)
-        } finally {
-            channel.disconnect()
-            session.disconnect()
-        }
-    }
-
-    private fun initSshClient(
-        host: String = "localhost",
-        port: String = "22",
-        user: String = "tester",
-        password: String = "testing",
-    ): Session {
         val jsch = JSch()
-        val session = jsch.getSession(user, host, port.toInt())
-        val config = Properties()
-        config.setProperty("StrictHostKeyChecking", "no")
-        session.setConfig(config)
-        session.setPassword(password)
-        session.connect()
-        return session
+        val jschSession = jsch.getSession(user, host, port.toInt() )
+        val config = Properties(); 
+        config.put("StrictHostKeyChecking", "no")
+        config.put("PreferredAuthentications", "password");
+        jschSession.setConfig(config)
+        jschSession.setPassword(password)
+        
+        jschSession.connect(5000)
+        val channelSftp = jschSession.openChannel( "sftp" ) as ChannelSftp
+
+        var success = false; 
+
+        try{ 
+            channelSftp.connect()
+            channelSftp.put(contents.inputStream(), path, ChannelSftp.OVERWRITE )
+            success = true
+        }
+        finally {
+            channelSftp.disconnect()
+        }
+
+        return success;
     }
+
 }

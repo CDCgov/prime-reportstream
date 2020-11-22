@@ -13,7 +13,7 @@ data class OrganizationService(
     val transforms: Map<String, String> = emptyMap(),
     val address: String = "",
     val format: Format = Format.CSV,
-    val transport: Transport = Transport(Transport.TransportType.SFTP, "localhost", "22"),
+    val transport: Transport = Transport( Transport.TransportType.DEFAULT )
 ) {
     lateinit var organization: Organization
     val fullName: String get() = "${organization.name}.${name}"
@@ -32,12 +32,13 @@ data class OrganizationService(
     }
 
     data class Transport(
-        val type: TransportType = TransportType.SFTP,
+        val type: TransportType = TransportType.DEFAULT,
         val host: String = "localhost",
-        val port: String = "22",
+        val port: String = "2222",
     ) {
         enum class TransportType {
-            SFTP;
+            SFTP,
+            DEFAULT
             // EMAIL
             // DROPBOX
             // API
