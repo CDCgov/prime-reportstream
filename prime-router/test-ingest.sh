@@ -21,7 +21,7 @@ print json.loads(sys.stdin.read())["defaultHostName"]
 ' ))
 
 # Get the secret access key for the cloud function
-default_function_key=$(az functionapp function keys list -g $resource_group -n $full_app_name --function-name report | python <( echo '
+default_function_key=$(az functionapp function keys list -g $resource_group -n $full_app_name --function-name reports | python <( echo '
 import sys, json
 print json.loads(sys.stdin.read())["default"]
 ' ))
@@ -30,10 +30,10 @@ printf "Use this access key parameter in any URL that needs to send a file to th
 printf "       code=$default_function_key\n"
 
 # Generate a giant ugly curl call
-boilerplate_glop="curl -X POST -H \"Content-Type: text/csv\""
-localfile_glop="--data-binary \"@./src/test/unit_test_files/lab1-test_results-17-42-31.csv\""
-cloud_url="\"https://$hostname/api/report?code=$default_function_key&schema=pdi-covid-19.schema&filename=lab1-test_results-17-42-31.csv\""
-local_url="\"http:/localhost:7071/api/report?schema=pdi-covid-19.schema&filename=lab1-test_results-17-42-31.csv\""
+boilerplate_glop="curl -X POST -H \"client:simple_report\" -H \"Content-Type: text/csv\" "
+localfile_glop="--data-binary \"@./src/test/csv_test_files/input/example-simplereport-file-11-20-2020.csv\""
+cloud_url="\"https://$hostname/api/reports?code=$default_function_key\""
+local_url="\"http://localhost:7071/api/reports\""
 
 # Now put it all together:
 printf "\nRun this to submit a test report to your cloud:\n"

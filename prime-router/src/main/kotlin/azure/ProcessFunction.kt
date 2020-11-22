@@ -15,7 +15,7 @@ class ProcessFunction {
     @FunctionName("process")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @QueueTrigger(name = "msg", queueName = "ingested")
+        @QueueTrigger(name = "msg", queueName = "validated")
         message: String,
         context: ExecutionContext,
     ) {
@@ -24,7 +24,7 @@ class ProcessFunction {
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
             Metadata.loadAll("$baseDir/metadata")
 
-            val report = ReportQueue.receiveReport(ReportQueue.Name.INGESTED, message)
+            val report = ReportQueue.receiveReport(ReportQueue.Name.VALIDATED, message)
             context.logger.info("Processing report: ${report.id}")
 
             OrganizationService

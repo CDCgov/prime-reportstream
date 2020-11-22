@@ -24,7 +24,7 @@ object CsvConverter {
         if (rows.isEmpty()) error("Empty input stream")
 
         val header = rows[0]
-        if (header.size != schema.elements.size) error("Mismatch of elements and header size")
+        if (header.size != schema.elements.size) error("Column count mismatch: schema expects ${schema.elements.size} cols but data had ${header.size}.")
 
         fun isElementMissing(element: Element, value: String) = value != element.csvField && value != element.name
         schema.elements.zip(header).find { isElementMissing(it.first, it.second) }?.let {

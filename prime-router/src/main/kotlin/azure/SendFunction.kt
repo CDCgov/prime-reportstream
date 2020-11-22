@@ -27,7 +27,7 @@ class SendFunction {
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
             Metadata.loadAll("$baseDir/metadata")
 
-            val (header, content) = ReportQueue.receiveHeaderAndBody(ReportQueue.Name.INGESTED, message)
+            val (header, content) = ReportQueue.receiveHeaderAndBody(ReportQueue.Name.VALIDATED, message)
             context.logger.info("Sending report: ${header.id}")
 
             val service = Metadata.findService(header.destination)

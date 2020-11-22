@@ -17,16 +17,14 @@ import java.util.logging.Level
 
 /**
  * Azure Functions with HTTP Trigger.
+ * This is basically the "front end" of the Hub.   Data comes in here.
  */
-class IngestFunction {
+class ValidateReportFunction {
     private val clientName = "client"
     private val csvMimeType = "text/csv"
 
     /**
-     * This function listens at endpoint "/api/report".
-     * Run ./test-ingest.sh to get an example curl call that runs this function.
-     * That curl returns something like the following upon success:
-     *    {"filename":"lab1-test_results-17-42-31.csv","topic":"covid-19","schema":"pdi-covid-19.schema","action":"","blobURL":"http://azurite:10000/devstoreaccount1/ingested/lab1-test_results-17-42-31-pdi-covid-19.schema-3ddef736-55e1-4a45-ac41-f74086aaa654.csv"}
+     * Run ./test-ingest.sh to get an example curl call that calls this function.
      */
     @FunctionName("reports")
     @StorageAccount("AzureWebJobsStorage")
@@ -57,8 +55,8 @@ class IngestFunction {
         } catch (e: Exception) {
             val msgs = TextStringBuilder()
             e.suppressedExceptions.forEach { msgs.appendln(it.message) }
-
-            context.logger.log(Level.INFO, "Bad request from e.message", e)
+            msgs.appendln(e.message)
+            context.logger.log(Level.INFO, "Bad request.  $msgs", e)
             return request
                 .createResponseBuilder(HttpStatus.BAD_REQUEST)
                 .body(msgs.toString())
@@ -68,7 +66,7 @@ class IngestFunction {
 
         // Queue the report for further processing.
         return try {
-            ReportQueue.sendReport(ReportQueue.Name.INGESTED, report)
+            ReportQueue.sendReport(ReportQueue.Name.VALIDATED, report)
             request
                 .createResponseBuilder(HttpStatus.CREATED)
                 .body(createResponseBody(report))
@@ -87,10 +85,14 @@ class IngestFunction {
 
         val name = request.headers.getOrDefault(clientName, "")
         var client: OrganizationClient? = null
-        if (!clientName.isBlank()) {
-            client = Metadata.findClient(name)
-            if (client == null)
-                errors.add("Error: did not recognize $name as a valid client")
+        if (!name.isBlank()) {
+            try {
+                client = Metadata.findClient(name)
+            } catch (e: Exception) {
+                val betterException = Exception("Error: unknown client '$name'")
+                betterException.addSuppressed(e)
+                throw betterException
+            }
         } else {
             errors.add("Error: missing 'client' header")
         }
@@ -99,7 +101,7 @@ class IngestFunction {
         if (contentType.isBlank()) {
             errors.add("Error: expecting a content-type header")
         } else if (client != null && client.format.mimeType != contentType) {
-            errors.add("Error: expecting a '${client.format.mimeType} content-type header")
+            errors.add("Error: expecting a '${client.format.mimeType}' content-type header")
         }
 
         val content = request.body ?: ""
