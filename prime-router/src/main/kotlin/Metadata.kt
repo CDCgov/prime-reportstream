@@ -185,6 +185,13 @@ object Metadata {
         this.organizationStore = organizations
         this.organizationClientStore = organizations.flatMap { it.clients }
         this.organizationServiceStore = organizations.flatMap { it.services }
+        // Check values
+        this.organizationServiceStore.forEach { service ->
+            service.batch?.let {
+                if (!it.isValid())
+                    error("Internal Error: improper batch value for ${service.fullName}")
+            }
+        }
     }
 
     fun findOrganization(name: String): Organization? {

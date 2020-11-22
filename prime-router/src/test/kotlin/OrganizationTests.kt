@@ -1,6 +1,10 @@
 package gov.cdc.prime.router
 
 import java.io.ByteArrayInputStream
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import kotlin.test.*
 
 class OrganizationTests {
@@ -30,6 +34,11 @@ class OrganizationTests {
                     schema: one
                     jurisdictionalFilter: {a: 1}
                     transforms: {deidentify: false}
+                    batch:
+                      operation: MERGE
+                      numberPerDay: 24
+                      initialBatch: 00:00
+                      timeZone: ARIZONA
                     address: phd1
                     format: CSV
                 clients:
@@ -90,7 +99,28 @@ class OrganizationTests {
         assertEquals(1, result.size)
         val (mappedTable, forReceiver) = result[0]
         assertEquals(table1.schema, mappedTable.schema)
-        assertEquals(1, mappedTable.rowCount)
+        assertEquals(1, mappedTable.itemCount)
         assertEquals(Metadata.organizationServices[0], forReceiver)
+    }
+
+    @Test
+    fun `test nextBatchTime`() {
+        val batch = OrganizationService.Batch(OrganizationService.BatchOperation.NONE,
+            24,
+            "04:05",
+            OrganizationService.BatchTimeZone.ARIZONA) // AZ is -7:00 from UTC
+        assertTrue(batch.isValid())
+
+        // The result should be in the AZ timezone
+        val now1 = ZonedDateTime.of(2020, 10, 2, 0, 0, 0, 999, ZoneId.of("UTC")).toOffsetDateTime()
+        val expected1 = ZonedDateTime.of(2020, 10, 1, 17, 5, 0, 0, ZoneId.of("US/Arizona")).toOffsetDateTime()
+        val actual1 = batch.nextBatchTime(now1)
+        assertEquals(expected1, actual1)
+
+        // Test that the minDuration comes into play
+        val now2 = ZonedDateTime.of(2020, 10, 1, 0, 5, 0, 0, ZoneId.of("UTC")).toOffsetDateTime()
+        val actual2 = batch.nextBatchTime(now2)
+        val expected2 = ZonedDateTime.of(2020, 9, 30, 18, 5, 0, 0, ZoneId.of("US/Arizona")).toOffsetDateTime()
+        assertEquals(expected2, actual2)
     }
 }

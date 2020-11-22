@@ -182,7 +182,7 @@ object Hl7Converter {
     }
 
     private fun createBTS(report: Report): String {
-        return "BTS|${report.rowCount}\r"
+        return "BTS|${report.itemCount}\r"
     }
 
     private fun createFTS(report: Report): String {

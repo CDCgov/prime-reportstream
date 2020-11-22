@@ -16,6 +16,8 @@ brew tap azure/functions
 brew install azure-functions-core-tools@3
 ```
 
+Install the [Docker Desktop](https://www.docker.com/get-started) or the equivalent. 
+
 Clone the project 
 ```
 git clone https://github.com/CDCgov/prime-data-hub.git
@@ -26,7 +28,33 @@ Change the working directory to the `prime-router` directory.
 cd <your_path>/prime-router
 ```
 
-Install the [Docker Desktop](https://www.docker.com/get-started) or the equivalent. 
+You need a running local PostgreSQL database to compile the project. 
+One way is to use brew again to get this database. 
+```
+brew install postgresql@11
+brew install flyway
+brew brew services start postgresql@11
+
+# When prompted set the password as changeIT!
+createuser -P prime 
+createdb --owner=prime prime_data_hub
+```
+
+You should be able to compile the project now. Check if it works. 
+
+```
+mvn clean package
+```
+
+There are a few database commands that are helpful while developing.
+```
+# drop and recreate the local database
+dropdb prime_data_hub # to trash your local database
+createdb --owner=prime prime_data_hub
+
+# migrate the local database by hand
+flyway -user=prime -password=change1T! -url=jdbc:postgresql://localhost:5432/prime_data_hub -locations=filesystem:./src/main/resources/db/migrate migrate
+```
 
 Use any other tools that you want to develop the code. Be productive. Modify this document if you have a practice that will be useful. 
 
