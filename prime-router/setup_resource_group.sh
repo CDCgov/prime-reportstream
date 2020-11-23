@@ -26,17 +26,19 @@ if [[ $PRIME_DEV_NAME == prime-data-hub-* ]]
 then
   resource_group=${PRIME_DEV_NAME}
   storage_account=${PRIME_DEV_NAME//[-]/}
+  app_name=${PRIME_DEV_NAME}
+  full_app_name=${app_name}
 else
   resource_group=prime-dev-${PRIME_DEV_NAME}
   storage_account=${PRIME_DEV_NAME}primedev
+  app_name=prime-data-hub
+  full_app_name="${PRIME_DEV_NAME}"-"$app_name"
 fi
 
 registry=${PRIME_DEV_NAME//[-]/}PrimeDevRegistry
 plan=${PRIME_DEV_NAME//[-]/}PrimeDevPlan
 registry_lc=$(echo "$registry" | tr '[A-Z]' '[a-z]')
-app_name=prime-data-hub
 image="$registry_lc".azurecr.io/"$app_name"
-full_app_name="${PRIME_DEV_NAME}"-"$app_name"
 
 # Check the resource group
 resource_group_exists=$(az group exists --resource-group "$resource_group")
