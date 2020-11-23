@@ -36,6 +36,7 @@ brew install maven
 ```
 
 On a debian-based system with the `apt` package manager.
+
 First, setup Java 11, Maven, ...
 1. `apt install openjdk-11-jdk`
 2. `apt install maven`
