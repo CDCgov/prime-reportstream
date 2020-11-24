@@ -4,7 +4,7 @@ import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import gov.cdc.prime.router.OrganizationService
-import gov.cdc.prime.router.azure.ReportQueue
+        import gov.cdc.prime.router.azure.ReportQueue
 import java.util.*
 
 class SftpTransport : Transport{
@@ -16,7 +16,7 @@ class SftpTransport : Transport{
         val path = "${fileDir}/${service.fullName.replace( '.', '-')}-${header.id}.csv"
         val host: String = service.transport.host 
         val port: String = service.transport.port
-        val user: String = "foo"
+        val user: String = "foo"            // todo: replace with user/password from keystore for the service
         val password: String = "pass"
 
         val jsch = JSch()
@@ -27,7 +27,7 @@ class SftpTransport : Transport{
         jschSession.setConfig(config)
         jschSession.setPassword(password)
         
-        jschSession.connect(5000)
+        jschSession.connect()
         val channelSftp = jschSession.openChannel( "sftp" ) as ChannelSftp
 
         var success = false; 
