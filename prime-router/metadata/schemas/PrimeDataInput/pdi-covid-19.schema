@@ -49,8 +49,14 @@ elements:
   - name: standard.patient_phone_number
     csvField: Patient_phone_number
 
+  # Patient ID is generated internally by SimpleReport
   - name: standard.patient_id
     csvField: Patient_ID
+
+  # Per Tim, lookup_id is the ID the user entered into SimpleReport
+  - name: lookup_id
+    csvField: Lookup_ID
+    type: TEXT
 
   - name: standard.employed_in_healthcare
     csvField: Employed_in_healthcare
