@@ -22,8 +22,9 @@
         format: CSV
         transport:
           type: SFTP
-          host: sftp-myoung-prime-data-hub.eastus.azurecontainer.io
-          port: 22
+          host: localhost
+          port: 2222
+          filePath: ./upload
 
   - name: pa-phd
     description: Pennsylvennia PHD

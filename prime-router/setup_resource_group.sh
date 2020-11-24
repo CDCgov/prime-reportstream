@@ -97,7 +97,7 @@ az acr webhook create --actions push \
 
 storage_key=$(az storage account keys list --account-name "$storage_account" --output tsv --query [0].value)
 
-confirm "Create a test SFTP server?"
+confirm "Create a local testing SFTP server?"
 dns_label=sftp-"$full_app_name"
 
 az container create --resource-group "$resource_group" \

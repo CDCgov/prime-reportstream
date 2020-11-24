@@ -34,7 +34,8 @@ data class OrganizationService(
     data class Transport(
         val type: TransportType = TransportType.DEFAULT,
         val host: String = "localhost",
-        val port: String = "2222",
+        val port: String = "22",
+        val filePath: String = "."
     ) {
         enum class TransportType {
             SFTP,

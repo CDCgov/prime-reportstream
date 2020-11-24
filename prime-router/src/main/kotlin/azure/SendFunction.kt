@@ -39,6 +39,7 @@ class SendFunction {
 
             var transportSuccessful = when( service.transport.type ){
                     OrganizationService.Transport.TransportType.SFTP -> {
+                        context.logger.info( "trying to send to ${service.transport.host} ${service.transport.port} ${service.transport.filePath}")
                         val transport = SftpTransport() // TODO:  look up the correct class to call based on the transport metadata
                         transport.send( service, header, content)
                     }
