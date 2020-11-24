@@ -93,5 +93,24 @@ az acr webhook create --actions push \
                       --resource-group "$resource_group" \
                       --scope "$app_name":latest
 
+
+
+storage_key=$(az storage account keys list --account-name "$storage_account" --output tsv --query [0].value)
+
+confirm "Create a test SFTP server?"
+dns_label=sftp-"$full_app_name"
+
+az container create --resource-group "$resource_group" \
+                    --name sftpserver \
+                    --image atmoz/sftp:latest \
+                    --ports 22 \
+                    --dns-name-label "$dns_label" \
+                    --location eastus  \
+                    --environment-variables SFTP_USERS=foo:pass:::upload \
+                    --azure-file-volume-share-name myoung-prime-data-hub \
+                    --azure-file-volume-account-name "$storage_account" \
+                    --azure-file-volume-account-key "$storage_key" \
+                    --azure-file-volume-mount-path /home/foo/upload             
+
 echo All done
 echo Now try running test-ingest.sh

@@ -5,14 +5,14 @@ import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.azure.ReportQueue
-import sftputils.SftpUtils
 import java.util.*
 
 class SftpTransport : Transport{
 
     override fun send(service: OrganizationService, header: ReportQueue.Header, contents: ByteArray) : Boolean {
 
-        val fileDir = "./upload"
+        val fileDir = "./upload" // TODO: get a file directory from the transport
+
         val path = "${fileDir}/${service.fullName.replace( '.', '-')}-${header.id}.csv"
         val host: String = service.transport.host 
         val port: String = service.transport.port

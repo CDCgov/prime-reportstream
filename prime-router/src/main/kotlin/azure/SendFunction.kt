@@ -37,14 +37,12 @@ class SendFunction {
 
             context.logger.info( "Transport found for ${service.fullName} = ${service.transport.type}")
 
-            var transportSuccessful: Boolean = false;
-
-            if( service.transport.type == OrganizationService.Transport.TransportType.SFTP ){
-                val transport = SftpTransport() // TODO:  look up the correct class to call based on the transport metadata
-                 transportSuccessful = transport.send( service, header, content)
-            }
-            else{
-                transportSuccessful = true;  // we'll just move the default to sent for now
+            var transportSuccessful = when( service.transport.type ){
+                    OrganizationService.Transport.TransportType.SFTP -> {
+                        val transport = SftpTransport() // TODO:  look up the correct class to call based on the transport metadata
+                        transport.send( service, header, content)
+                    }
+                    OrganizationService.Transport.TransportType.DEFAULT -> true
             }
 
             if( transportSuccessful ){
