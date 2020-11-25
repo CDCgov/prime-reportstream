@@ -117,5 +117,7 @@ az network front-door create --backend-address $full_app_name.azurewebsites.net 
                              --resource-group $resource_group \
                              --accepted-protocols Https
 
+# For now - access restrictions will be set up MANUALLY until I can get Azure to respect the AzureFrontDoor.Backend service tag
+
 echo All done
 echo Now try running test-ingest.sh
