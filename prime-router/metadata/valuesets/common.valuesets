@@ -106,6 +106,31 @@
     - display: Asked, but unknown
       code: ASKU
 
+
+- name: race_alternative
+  system: LOCAL
+  id: 0005
+  reference: Alternative single letter codes used by AZ DHS, see Appendix 6 in the referenceURL
+  referenceUrl: https://www.azdhs.gov/documents/preparedness/epidemiology-disease-control/infectious-disease-epidemiology/novel-coronavirus/lab-resources/adhs-guidance-and-Spec-doc.pdf
+  values:
+    - display: N      # Native
+      code: 1002-5
+    - display: A      # Asian
+      code: 2028-9
+    - display: B      # Black
+      code: 2054-5
+    - display: P      # Pacific Islander
+      code: 2076-8
+    - display: W      # White
+      code: 2106-3
+    - display: O      # Other
+      code: 2131-1
+    - display: O
+      code: UNK
+    - display: O      #  Asked, but unknown
+      code: ASKU
+
+
 - name: specimen_role
   system: FHIR
   referenceUrl: https://terminology.hl7.org/ValueSet-v3-SpecimenRoleType.html

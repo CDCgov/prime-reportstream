@@ -442,7 +442,7 @@ elements:
 
   - name: patient_race
     type: CODE
-    valueSet: hl70005
+    valueSet: race_alternative       # This is a bad hack to send data to AZ.  Breaks HL7. Valueset was hl70005
     natFlatFileField: Patient_race
     hhsGuidanceField: Patient race
     hl7Field: PID-10
