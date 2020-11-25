@@ -213,8 +213,11 @@ class Report {
             }
             toElement.isCode -> {
                 Array(table.rowCount()) { row ->
-                    val fromDisplay = table.getString(row, toElement.nameAsCodeText)
-                    valueSet.toCode(fromDisplay) ?: toElement.default ?: ""
+                    // Value in the table is already a code.  Just return it; no display->code mapping needed.
+                    // BUG!! If value in the incoming table is a #text display, this breaks!
+                    table.getString(row, toElement.nameAsCode) ?: "BUG - incoming schema used #text?"
+// OLD                   val fromDisplay = table.getString(row, toElement.nameAsCodeText)
+// OLD                   valueSet.toCode(fromDisplay) ?: toElement.default ?: ""
                 }
             }
             else -> error("Cannot convert ${toElement.name} using value set")

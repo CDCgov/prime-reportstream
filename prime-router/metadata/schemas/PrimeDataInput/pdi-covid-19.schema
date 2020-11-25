@@ -145,7 +145,7 @@ elements:
   - name: standard.ordering_provider_phone_number
     csvField: Ordering_provider_phone
 
-  - name: standard.ordered_test_code
+  - name: standard.test_performed
     csvField: Ordered_test_code
 
   # TODO: change when specimen_source_site has a valueSet

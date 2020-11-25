@@ -41,16 +41,16 @@ data class Schema(
         val missing = mutableSetOf<String>()
 
         toSchema.elements.forEach { toElement ->
-            findMatchingElement(toElement)?.let {
-                useDirectly[toElement.name] = it
-                return@forEach
-            }
             findMatchingValueSet(toElement)?.let {
                 useValueSet[toElement.name] = it
                 return@forEach
             }
+            findMatchingElement(toElement)?.let {
+                useDirectly[toElement.name] = it
+                return@forEach
+            }
             toElement.mapper?.let {
-                val name = Mappers.parseMapperField(it).first
+                 val name = Mappers.parseMapperField(it).first
                 useMapper[toElement.name] = Metadata.findMapper(name) ?: error("Mapper $name is not found")
                 return@forEach
             }
