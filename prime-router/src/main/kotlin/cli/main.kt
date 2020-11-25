@@ -60,7 +60,7 @@ class RouterCli : CliktCommand(
             val outputFile = if (outputFileName != null) {
                 File(outputFileName)
             } else {
-                File(outputDir ?: ".", "${report.name}.${format.toExt()}")
+                File(outputDir ?: ".", "${report.name}")
             }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {

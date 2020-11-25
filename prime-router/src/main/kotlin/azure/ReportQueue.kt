@@ -91,7 +91,7 @@ object ReportQueue {
     }
 
     fun sendHeaderAndBody(queueName: Name, header: Header, body: ByteArray): String {
-        val blobFileName = Report.formFileName(header.id, header.schemaName, header.createdDateTime)
+        val blobFileName = Report.formFileName(header.id, header.schemaName, header.format, header.createdDateTime)
         val blobUrl = uploadBlob(queueName.blobContainer, blobFileName, body)
         val message = header.copy(blobUrl = blobUrl).encode()
         AzureStorage.uploadMessage(queueName.queueName, message)
@@ -127,7 +127,7 @@ object ReportQueue {
     }
 
     private fun uploadBlob(containerName: String, report: Report): String {
-        val blobFilename = createBlobFilename(report)
+        val blobFilename = Report.formFileName(report.id, report.schema.name, report.destination?.format, report.createdDateTime)
         val blobBytes = createBlobBytes(report)
         return uploadBlob(containerName, blobFilename, blobBytes)
     }
@@ -156,10 +156,6 @@ object ReportQueue {
             Format.CSV -> CsvConverter.write(report, outputStream)
         }
         return outputStream.toByteArray()
-    }
-
-    private fun createBlobFilename(report: Report): String {
-        return "${report.name}.${report.destination?.format?.toExt() ?: Format.CSV.toExt()}"
     }
 
     private fun getFormat(report: Report): Format {

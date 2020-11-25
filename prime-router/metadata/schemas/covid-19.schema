@@ -583,8 +583,8 @@ elements:
 
   - name: sending_application
     type: TEXT
-    # Official name from CDC PHIN. Matches the OID in sending_application_id.  Full name is 'CDC PRIME - Atlanta, Georgia (Dekalb)'
-    default: CDC PRIME   
+    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
+    default: CDC PRIME - Atlanta, Georgia (Dekalb)
     natFlatFileField:
     hl7Field: MSH-3-2
 
@@ -798,7 +798,8 @@ elements:
 
   - name: testing_lab_clia
     type: ID_CLIA
-    default:  JamesL to provide
+    # Dangerous Hack:  this default is the CLIA ID for Via Elegante, Tucson Mountains.  If another lab sends empty, it'll look like it came from Tucson Mountains!
+    default:  03D2159846
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: #OBX-23-10

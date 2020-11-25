@@ -54,8 +54,8 @@ elements:
     csvField: Patient_ID
 
   # Per Tim, lookup_id is the ID the user entered into SimpleReport
-  - name: lookup_id
-    csvField: Lookup_ID
+  - name: patient_lookup_id
+    csvField: Patient_lookup_ID
     type: TEXT
 
   - name: standard.employed_in_healthcare
@@ -85,8 +85,8 @@ elements:
   - name: standard.testing_lab_name
     csvField: Testing_lab_name
 
-  - name: standard.testing_lab_id
-    csvField: Testing_lab_ID
+  - name: standard.testing_lab_clia
+    csvField: Testing_lab_CLIA
 
   - name: standard.testing_lab_city
     csvField: Testing_lab_city
