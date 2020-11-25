@@ -117,8 +117,5 @@ az network front-door create --backend-address $full_app_name.azurewebsites.net 
                              --resource-group $resource_group \
                              --accepted-protocols Https
 
-az functionapp function keys list -g $resource_group -n $full_app_name --function-name reports | \
-  python <( echo 'import sys, json; print("Default Function Key:", json.loads(sys.stdin.read())["default"])' )
-
 echo All done
 echo Now try running test-ingest.sh
