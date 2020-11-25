@@ -4,42 +4,57 @@ import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import gov.cdc.prime.router.OrganizationService
-import sftputils.SftpUtils
+        import gov.cdc.prime.router.azure.ReportQueue
 import java.util.*
 
-class SftpTransport {
+class SftpTransport : Transport {
 
-    fun send(transport: OrganizationService.Transport, contents: ByteArray, fileName: String) {
+    override fun send(service: OrganizationService, header: ReportQueue.Header, contents: ByteArray): Boolean {
 
-        val session = initSshClient(transport.host, transport.port)
-        val fileDir = "/sftpout"
-        val path = "${fileDir}/${fileName}.csv"
+        val (user,pass) = lookupCredentials( service )
 
-        val channel: ChannelSftp = session.openChannel("stfp") as ChannelSftp
+        val fileDir = service.transport.filePath.removeSuffix("/");
 
-        try {
-            channel.connect()
-            SftpUtils.mkdirp(channel, fileDir)
-            channel.put(contents.inputStream(), path)
-        } finally {
-            channel.disconnect()
-            session.disconnect()
-        }
-    }
+        // TODO - determine what the filename should be
+        val path = "${fileDir}/${service.fullName.replace( '.', '-')}-${header.id}.csv"
+        val host: String = service.transport.host 
+        val port: String = service.transport.port
 
-    private fun initSshClient(
-        host: String = "localhost",
-        port: String = "22",
-        user: String = "tester",
-        password: String = "testing",
-    ): Session {
         val jsch = JSch()
-        val session = jsch.getSession(user, host, port.toInt())
-        val config = Properties()
-        config.setProperty("StrictHostKeyChecking", "no")
-        session.setConfig(config)
-        session.setPassword(password)
-        session.connect()
-        return session
+        val jschSession = jsch.getSession(user, host, port.toInt() )
+        val config = Properties(); 
+        config.put("StrictHostKeyChecking", "no")
+        config.put("PreferredAuthentications", "password");
+        jschSession.setConfig(config)
+        jschSession.setPassword(pass)
+        
+        jschSession.connect()
+        val channelSftp = jschSession.openChannel( "sftp" ) as ChannelSftp
+
+        var success = false; 
+
+        try{ 
+            channelSftp.connect()
+            channelSftp.put(contents.inputStream(), path, ChannelSftp.OVERWRITE )
+            success = true
+        }
+        finally {
+            channelSftp.disconnect()
+        }
+
+        return success;
+    }
+    
+    private fun lookupCredentials( service : OrganizationService ): Pair<String, String>{
+
+        val envVarLabel = service.fullName.replace( ".", "__").replace( '-', '_').toUpperCase()
+        
+        val user = System.getenv("${envVarLabel}__USER") ?: ""
+        val pass = System.getenv("${envVarLabel}__PASS") ?: ""
+
+        if( user.isNullOrBlank() || pass.isNullOrBlank() )
+            error( "Unable to find SFTP credentials for ${service.fullName}")
+
+        return Pair( user, pass )
     }
 }
