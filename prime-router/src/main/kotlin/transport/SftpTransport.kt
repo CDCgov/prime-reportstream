@@ -14,6 +14,8 @@ class SftpTransport : Transport {
         val (user,pass) = lookupCredentials( service )
 
         val fileDir = service.transport.filePath.removeSuffix("/");
+
+        // TODO - determine what the filename should be
         val path = "${fileDir}/${service.fullName.replace( '.', '-')}-${header.id}.csv"
         val host: String = service.transport.host 
         val port: String = service.transport.port
