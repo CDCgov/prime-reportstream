@@ -21,8 +21,26 @@ if [ -z "${PRIME_DEV_NAME}" ]; then
   exit 1
 fi
 
+# Set variable names
+if [[ $PRIME_DEV_NAME == prime-data-hub-* ]]
+then
+  resource_group=${PRIME_DEV_NAME}
+  storage_account=${PRIME_DEV_NAME//[-]/}
+  app_name=${PRIME_DEV_NAME}
+  full_app_name=${app_name}
+else
+  resource_group=prime-dev-${PRIME_DEV_NAME}
+  storage_account=${PRIME_DEV_NAME}primedev
+  app_name=prime-data-hub
+  full_app_name="${PRIME_DEV_NAME}"-"$app_name"
+fi
+
+registry=${PRIME_DEV_NAME//[-]/}PrimeDevRegistry
+plan=${PRIME_DEV_NAME//[-]/}PrimeDevPlan
+registry_lc=$(echo "$registry" | tr '[A-Z]' '[a-z]')
+image="$registry_lc".azurecr.io/"$app_name"
+
 # Check the resource group
-resource_group=prime-dev-${PRIME_DEV_NAME}
 resource_group_exists=$(az group exists --resource-group "$resource_group")
 if [ "$resource_group_exists" != "true" ]; then
   echo "$resource_group" does not exist or you are not logged into Azure
@@ -31,34 +49,18 @@ fi
 echo "Using the $resource_group resource group"
 
 # Create the storage account
-storage_account=${PRIME_DEV_NAME}primedev
 confirm "Create a $storage_account Azure storage account in your resource group?"
 az storage account create --name "$storage_account" --location eastus --resource-group "$resource_group" --sku Standard_LRS
 
-# NO LONGER NEEDED.  Previously, I needed the magic connection string to create containers. Creation is in the kt code now.
-# Get the connection string and extract it from the json
-#connection_string=$(az storage account show-connection-string -g $resource_group -n $storage_account |  python <( echo '
-#import sys, json
-#print json.loads(sys.stdin.read())["connectionString"]
-#' ))
-#
-#printf "\nConnection string for storage account $storage_account:\n\n"
-#printf "$connection_string\n\n"
-
 # Create a container registry
-registry=${PRIME_DEV_NAME}PrimeDevRegistry
-registry_lc=$(echo "$registry" | tr '[A-Z]' '[a-z]')
 confirm "Create an Azure container registry in your resource group?"
 az acr create --resource-group "$resource_group" --name "$registry" --sku Basic --admin-enabled true
 
 # Create a subscription plan
-plan=${PRIME_DEV_NAME}PrimeDevPlan
 confirm "Create an Azure an elastic plan for your function?"
-az functionapp plan create --resource-group "$resource_group" --name "$plan" --location eastus --number-of-workers 1 --sku EP1 --is-linux
+az functionapp plan create --resource-group "$resource_group" --name "$plan" --location eastus --number-of-workers 1 --sku B1 --is-linux
 
 # Build the a docker image
-app_name=prime-data-hub
-image="$registry_lc".azurecr.io/"$app_name"
 confirm "Build a Docker image with tag of $image? Warning: this will pull down a lot of stuff "
 docker build --tag "$image" .
 
@@ -71,7 +73,6 @@ confirm "Push the docker image to your container registry?"
 docker push "$image"
 
 # Create the function app
-full_app_name="${PRIME_DEV_NAME}"-"$app_name"
 confirm "Create a $full_app_name function app with the image you just pushed"
 az functionapp create \
    --name "$full_app_name" \
@@ -92,6 +93,25 @@ az acr webhook create --actions push \
                       --uri  "$webhook" \
                       --resource-group "$resource_group" \
                       --scope "$app_name":latest
+
+
+
+storage_key=$(az storage account keys list --account-name "$storage_account" --output tsv --query [0].value)
+
+confirm "Create a local testing SFTP server?"
+dns_label=sftp-"$full_app_name"
+
+az container create --resource-group "$resource_group" \
+                    --name sftpserver \
+                    --image atmoz/sftp:latest \
+                    --ports 22 \
+                    --dns-name-label "$dns_label" \
+                    --location eastus  \
+                    --environment-variables SFTP_USERS=foo:pass:::upload \
+                    --azure-file-volume-share-name myoung-prime-data-hub \
+                    --azure-file-volume-account-name "$storage_account" \
+                    --azure-file-volume-account-key "$storage_key" \
+                    --azure-file-volume-mount-path /home/foo/upload             
 
 echo All done
 echo Now try running test-ingest.sh
