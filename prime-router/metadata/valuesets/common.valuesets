@@ -59,7 +59,7 @@
 - name: hl70189
   system: HL7
   id: 0189
-  reference: HL7 guidence
+  reference: HL7 guidance for ethnicity
   referenceUrl: https://www.hl7.org/fhir/v2/0189/index.html
   values:
     - code: H
@@ -86,7 +86,7 @@
 - name: hl70005
   system: HL7
   id: 0005
-  reference: OMB 2020 Census specified by the HHS guidance which corresponds to hl70005
+  reference: Race, from OMB 2020 Census specified by the HHS guidance which corresponds to hl70005
   referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=B246B692-6DF8-E111-B875-001A4BE7FA90
   values:
     - display: American Indian or Alaska Native
@@ -105,6 +105,30 @@
       code: UNK
     - display: Asked, but unknown
       code: ASKU
+
+- name: race_alternative
+  system: LOCAL
+  id: 0005
+  reference: Hack Alternative single letter codes used by AZ DHS, see Appendix 6 in the referenceURL
+  referenceUrl: https://www.azdhs.gov/documents/preparedness/epidemiology-disease-control/infectious-disease-epidemiology/novel-coronavirus/lab-resources/adhs-guidance-and-Spec-doc.pdf
+  values:
+    - display: N      # Native
+      code: 1002-5
+    - display: A      # Asian
+      code: 2028-9
+    - display: B      # Black
+      code: 2054-5
+    - display: P      # Pacific Islander
+      code: 2076-8
+    - display: W      # White
+      code: 2106-3
+    - display: O      # Other
+      code: 2131-1
+    - display: O
+      code: UNK
+    - display: O      #  Asked, but unknown
+      code: ASKU
+
 
 - name: specimen_role
   system: FHIR

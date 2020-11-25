@@ -28,7 +28,7 @@ class Report {
 
     val rowCount: Int get() = this.table.rowCount()
     val rowIndices: IntRange get() = 0 until this.table.rowCount()
-    val name: String get() = formFileName(id, schema.baseName, createdDateTime)
+    val name: String get() = formFileName(id, schema.baseName, destination?.format, createdDateTime)
 
     // The use of a TableSaw is an implementation detail hidden by this class
     // The TableSaw table is mutable, while this class is has immutable semantics
@@ -213,8 +213,10 @@ class Report {
             }
             toElement.isCode -> {
                 Array(table.rowCount()) { row ->
-                    val fromDisplay = table.getString(row, toElement.nameAsCodeText)
-                    valueSet.toCode(fromDisplay) ?: toElement.default ?: ""
+                    // Value in the table is already a code.  Just return it; no display->code mapping needed.
+                    // BUG!! If value in the incoming table is a #text display, this breaks!
+                    // Need robust generic way to have many ways to display a single valueset.
+                    table.getString(row, toElement.nameAsCode) ?: "BUG - incoming schema used #text?"
                 }
             }
             else -> error("Cannot convert ${toElement.name} using value set")
@@ -245,9 +247,11 @@ class Report {
             return Report(schema, newTable, sources)
         }
 
-        fun formFileName(id: ReportId, schemaName: String, createdDateTime: OffsetDateTime): String {
+        fun formFileName(id: ReportId, schemaName: String, fileFormat: OrganizationService.Format?, createdDateTime: OffsetDateTime): String {
             val formatter = DateTimeFormatter.ofPattern("YYYYMMDDhhmmss")
-            return "${Schema.formBaseName(schemaName)}-${id}-${formatter.format(createdDateTime)}"
+            val namePrefix = "${Schema.formBaseName(schemaName)}-${id}-${formatter.format(createdDateTime)}"
+            val nameSuffix = fileFormat?.toExt() ?: OrganizationService.Format.CSV.toExt()
+            return "$namePrefix.$nameSuffix"
         }
     }
 }

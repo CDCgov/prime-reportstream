@@ -54,7 +54,7 @@ data class Element(
         DATETIME,
         DURATION,
         CODE,
-        HD,
+        HD,    // Hierarchic Designator
         ID,
         ID_CLIA,
         ID_DLN,
