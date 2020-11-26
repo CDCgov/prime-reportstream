@@ -111,13 +111,32 @@ az acr webhook create --actions push \
                       --scope "$app_name":latest
 
 # Create Azure Front Door
+# For now - access restrictions will be set up MANUALLY until I can get Azure to respect the AzureFrontDoor.Backend service tag
 confirm "Create an Azure Front Door for the Functions app?"
 az network front-door create --backend-address $full_app_name.azurewebsites.net \
                              --name $full_app_name \
                              --resource-group $resource_group \
                              --accepted-protocols Https
 
-# For now - access restrictions will be set up MANUALLY until I can get Azure to respect the AzureFrontDoor.Backend service tag
+storage_key=$(az storage account keys list --account-name "$storage_account" --output tsv --query [0].value)
+
+confirm "Create a local testing SFTP server?"
+dns_label=sftp-"$full_app_name"
+
+# Create file share for SFTP transfer
+az storage share-rm create --name "$full_app_name" --resource-group "$resource_group" --storage-account "$storage_account"
+
+az container create --resource-group "$resource_group" \
+                    --name sftpserver \
+                    --image atmoz/sftp:latest \
+                    --ports 22 \
+                    --dns-name-label "$dns_label" \
+                    --location eastus  \
+                    --environment-variables SFTP_USERS=foo:pass:::upload \
+                    --azure-file-volume-share-name "$full_app_name" \
+                    --azure-file-volume-account-name "$storage_account" \
+                    --azure-file-volume-account-key "$storage_key" \
+                    --azure-file-volume-mount-path /home/foo/upload             
 
 echo All done
 echo Now try running test-ingest.sh

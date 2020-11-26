@@ -26,3 +26,12 @@ services:
     ports:  
       - 10000:10000 
       - 10001:10001
+
+#local SFTP server as a receive point
+  sftp:
+    image: atmoz/sftp
+    volumes:
+        - ./target/sftp:/home/foo/upload
+    ports:
+        - "2222:22"
+    command: foo:pass:1001       
