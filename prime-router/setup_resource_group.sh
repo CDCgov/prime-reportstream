@@ -58,7 +58,23 @@ az acr create --resource-group "$resource_group" --name "$registry" --sku Basic 
 
 # Create a subscription plan
 confirm "Create an Azure an elastic plan for your function?"
-az functionapp plan create --resource-group "$resource_group" --name "$plan" --location eastus --number-of-workers 1 --sku B1 --is-linux
+if [[ $PRIME_DEV_NAME == prime-data-hub-prod ]]
+then
+  az functionapp plan create --resource-group "$resource_group" \
+                             --name "$plan" \
+                             --location eastus \
+                             --is-linux \
+                             --min-instances 1 \
+                             --max-burst 10 \
+                             --sku EP1
+else
+  az functionapp plan create --resource-group "$resource_group" \
+                             --name "$plan" \
+                             --location eastus \
+                             --is-linux \
+                             --number-of-workers 1 \
+                             --sku B1
+fi
 
 # Build the a docker image
 confirm "Build a Docker image with tag of $image? Warning: this will pull down a lot of stuff "
@@ -94,7 +110,13 @@ az acr webhook create --actions push \
                       --resource-group "$resource_group" \
                       --scope "$app_name":latest
 
-
+# Create Azure Front Door
+# For now - access restrictions will be set up MANUALLY until I can get Azure to respect the AzureFrontDoor.Backend service tag
+confirm "Create an Azure Front Door for the Functions app?"
+az network front-door create --backend-address $full_app_name.azurewebsites.net \
+                             --name $full_app_name \
+                             --resource-group $resource_group \
+                             --accepted-protocols Https
 
 storage_key=$(az storage account keys list --account-name "$storage_account" --output tsv --query [0].value)
 
@@ -111,7 +133,7 @@ az container create --resource-group "$resource_group" \
                     --azure-file-volume-share-name myoung-prime-data-hub \
                     --azure-file-volume-account-name "$storage_account" \
                     --azure-file-volume-account-key "$storage_key" \
-                    --azure-file-volume-mount-path /home/foo/upload             
+                    --azure-file-volume-mount-path /home/foo/upload
 
 echo All done
 echo Now try running test-ingest.sh
