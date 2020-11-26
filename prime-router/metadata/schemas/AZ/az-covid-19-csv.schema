@@ -15,7 +15,7 @@ elements:
   - name: standard.testing_lab_name
     csvField: Lab_Name
 
-  - name: standard.testing_lab_id
+  - name: standard.testing_lab_clia
     csvField: Lab_CLIA
 
   - name: standard.testing_lab_street
@@ -48,10 +48,10 @@ elements:
   - name: standard.patient_gender
     csvField: Patient_Sex
 
-  - name: standard.patient_race
+  - name: standard.patient_race#text
     csvField: Race
 
-  - name: standard.patient_ethnicity#text
+  - name: standard.patient_ethnicity
     csvField: Ethnicity
 
   - name: standard.patient_street

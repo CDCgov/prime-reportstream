@@ -38,7 +38,7 @@ class FakeReport {
                 }
                 Element.Type.DATETIME -> {
                     val date = faker.date().past(10, TimeUnit.DAYS)
-                    val formatter = SimpleDateFormat("yyyyMMddhhmm")
+                    val formatter = SimpleDateFormat("yyyyMMdd")
                     formatter.format(date)
                 }
                 Element.Type.DURATION -> TODO()
@@ -50,7 +50,7 @@ class FakeReport {
                             element.isCodeText -> it.display ?: "fake display"
                             element.isCode -> it.code ?: "fake code"
                             element.isCodeSystem -> valueSet.systemCode
-                            else -> error("element ${element.name} has is not a CODE type")
+                            else -> error("element ${element.name} is not a CODE type")
                         }
                     }.toTypedArray()
                     randomChoice(*possibleValues)
@@ -58,8 +58,8 @@ class FakeReport {
                 Element.Type.HD -> {
                     "fake.0.0.0.1"
                 }
-                Element.Type.ID -> faker.idNumber().valid()
-                Element.Type.ID_CLIA -> faker.numerify("###D######")
+                Element.Type.ID -> faker.numerify("######")
+                Element.Type.ID_CLIA -> faker.numerify("##D#######")  // Ex, 03D1021379
                 Element.Type.ID_DLN -> faker.idNumber().valid()
                 Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
                 Element.Type.ID_NPI -> faker.numerify("##########")
@@ -75,7 +75,7 @@ class FakeReport {
                         else -> TODO()
                     }
                 }
-                Element.Type.TELEPHONE -> faker.phoneNumber().cellPhone()
+                Element.Type.TELEPHONE -> faker.numerify("##########") // faker.phoneNumber().cellPhone()
                 Element.Type.EMAIL -> "${patientName.username()}@email.com"
                 null -> error("Invalid element type for ${element.name}")
             }

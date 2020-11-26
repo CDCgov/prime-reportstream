@@ -146,6 +146,7 @@ elements:
     hhsGuidanceField:
     hl7Field: ORC-15
 
+  # Redundant with test_performed.  Remove ordered_test_code
   - name: ordered_test_code
     type: CODE
     valueSet: covid-19/order
@@ -442,7 +443,9 @@ elements:
 
   - name: patient_race
     type: CODE
-    valueSet: hl70005
+    # 'race_alternative' is a bad hack to send data expected by AZ.  Breaks HL7. Valueset was 'hl70005'
+    # To fix: Need to change valuesets impl to allow for arbitrary mappings between values. Currently only have 'code' and 'display'
+    valueSet: race_alternative
     natFlatFileField: Patient_race
     hhsGuidanceField: Patient race
     hl7Field: PID-10
@@ -580,13 +583,14 @@ elements:
 
   - name: sending_application
     type: TEXT
-    default: PRIME
+    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
+    default: CDC PRIME - Atlanta, Georgia (Dekalb)
     natFlatFileField:
     hl7Field: MSH-3-2
 
   - name: sending_application_id
     type: HD
-    default: 1.0.0.0
+    default: 2.16.840.1.114222.4.1.237821
     natFlatFileField:
     hl7Field: MSH-3-1
 
@@ -794,6 +798,8 @@ elements:
 
   - name: testing_lab_clia
     type: ID_CLIA
+    # Dangerous Hack:  this default is the CLIA ID for Via Elegante, Tucson Mountains.  If another lab sends empty, it'll look like it came from Tucson Mountains!
+    default:  03D2159846
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: #OBX-23-10

@@ -49,8 +49,14 @@ elements:
   - name: standard.patient_phone_number
     csvField: Patient_phone_number
 
+  # Patient ID is generated internally by SimpleReport
   - name: standard.patient_id
     csvField: Patient_ID
+
+  # Per Tim, lookup_id is the ID the user entered into SimpleReport
+  - name: patient_lookup_id
+    csvField: Patient_lookup_ID
+    type: TEXT
 
   - name: standard.employed_in_healthcare
     csvField: Employed_in_healthcare
@@ -79,8 +85,8 @@ elements:
   - name: standard.testing_lab_name
     csvField: Testing_lab_name
 
-  - name: standard.testing_lab_id
-    csvField: Testing_lab_ID
+  - name: standard.testing_lab_clia
+    csvField: Testing_lab_CLIA
 
   - name: standard.testing_lab_city
     csvField: Testing_lab_city
@@ -139,7 +145,7 @@ elements:
   - name: standard.ordering_provider_phone_number
     csvField: Ordering_provider_phone
 
-  - name: standard.ordered_test_code
+  - name: standard.test_performed
     csvField: Ordered_test_code
 
   # TODO: change when specimen_source_site has a valueSet

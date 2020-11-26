@@ -136,7 +136,7 @@ az container create --resource-group "$resource_group" \
                     --azure-file-volume-share-name "$full_app_name" \
                     --azure-file-volume-account-name "$storage_account" \
                     --azure-file-volume-account-key "$storage_key" \
-                    --azure-file-volume-mount-path /home/foo/upload             
+                    --azure-file-volume-mount-path /home/foo/upload
 
 echo All done
 echo Now try running test-ingest.sh
