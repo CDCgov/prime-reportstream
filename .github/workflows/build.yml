@@ -13,9 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Change CWD
+      run: cd prime-router
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: cd prime-router
       run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
       
 #     - uses: Azure/docker-login@v1
