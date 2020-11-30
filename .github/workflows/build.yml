@@ -15,4 +15,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file prime-router/Dockerfile --tag prime-data-hub:$(date +%s)
+      
+#     - uses: Azure/docker-login@v1
+#     - name: Azure Container Registry Login
+#       with:
+#         # Container registry username
+#         username: # default is 
+#         # Container registry password
+#         password: # default is 
+#         # Container registry server url
+#         login-server: # default is https://index.docker.io/v1/
