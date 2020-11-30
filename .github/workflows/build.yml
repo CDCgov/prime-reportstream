@@ -15,7 +15,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file prime-router/Dockerfile --tag prime-data-hub:$(date +%s)
+      run: cd prime-router
+      run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
       
 #     - uses: Azure/docker-login@v1
 #     - name: Azure Container Registry Login
