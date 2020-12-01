@@ -1,7 +1,9 @@
 package gov.cdc.prime.router
 
 /**
- * A *Mapper* is defined as a property of a schema element. For example
+ * A *Mapper* is defined as a property of a schema element. It is used to create
+ * a value for the element when no value is present. For example, the middle_initial element has
+ * this mapper:
  *
  *  `mapper: middleInitial(standard.patient_middle_name)`
  *
@@ -12,8 +14,23 @@ package gov.cdc.prime.router
  * are then fetched and provided to the apply function.
  */
 interface Mapper {
+    /**
+     * Name of the mapper
+     */
     val name: String
+
+    /**
+     *
+     * The elements that the mapper requests for the apply function
+     *
+     * @args from the schema
+     */
     fun elementNames(args: List<String>): List<String>
+
+    /**
+     * @args from the schema
+     * @param values that where fetched based on elementNames
+     */
     fun apply(args: List<String>, values: Map<String, String>): String?
 }
 
@@ -41,6 +58,33 @@ class UseMapper : Mapper {
             null
         } else {
             values.values.first()
+        }
+    }
+}
+
+class LookupMapper : Mapper {
+    override val name = "lookup"
+
+    /**
+     * args for the lookup mapper are:
+     * - tableName
+     * - indexColumnName
+     * - lookupElementName
+     * - lookupColumnName
+     */
+    override fun elementNames(args: List<String>): List<String> {
+        if (args.size != 4)
+            error("Schema Error: lookup mapper expected tableName, indexColumnName, lookupElementName and lookupColumnName")
+        return listOf(args[2])
+    }
+
+    override fun apply(args: List<String>, values: Map<String, String>): String? {
+        return if (values.isEmpty()) {
+            null
+        } else {
+            val lookupValue = values.values.first()
+            val lookupTable = Metadata.lookupTables[args[0]]
+            return lookupTable?.lookupValue(indexColumn = args[1], indexValue = lookupValue, lookupColumn = args[3])
         }
     }
 }

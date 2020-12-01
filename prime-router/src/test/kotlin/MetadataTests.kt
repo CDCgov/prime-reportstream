@@ -34,7 +34,7 @@ class MetadataTests {
     @Test
     fun `load value set directory`() {
         Metadata.loadValueSetCatalog("./src/test/unit_test_files")
-        assertNotNull(Metadata.findValueSet("hl7_0136"))
+        assertNotNull(Metadata.findValueSet("hl70136"))
     }
 
 
