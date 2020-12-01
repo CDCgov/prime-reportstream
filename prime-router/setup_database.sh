@@ -31,8 +31,15 @@ if [ -z "${PRIME_POSTGRES_PASSWORD}" ]; then
   exit 1
 fi
 
-server_name="${PRIME_DEV_NAME}-prime-data-hub"
-resource_group="prime-dev-${PRIME_DEV_NAME}"
+if [[ $PRIME_DEV_NAME == prime-data-hub-* ]]
+then
+	server_name=${PRIME_DEV_NAME}
+	resource_group=${PRIME_DEV_NAME}
+else
+	server_name="${PRIME_DEV_NAME}-prime-data-hub"
+	resource_group="prime-dev-${PRIME_DEV_NAME}"
+fi
+
 if confirm "Create a database server ${server_name}. Will take 5 minutes"; then
 	az postgres server create \
 	--resource-group $resource_group \
@@ -48,7 +55,7 @@ if confirm "Create a database server ${server_name}. Will take 5 minutes"; then
 fi
 
 if confirm "Create firewall rules to allow your Function App to access the new DB (will take 10 minutes)"; then
-  addresses=$(az webapp show --resource-group $resource_group --name ${PRIME_DEV_NAME}-prime-data-hub --query possibleOutboundIpAddresses --output tsv) 
+  addresses=$(az webapp show --resource-group $resource_group --name $server_name --query possibleOutboundIpAddresses --output tsv) 
 	set -f 
   array=(${addresses//,/ })
   for ((i = 0; i < ${#array[@]}; i++));
