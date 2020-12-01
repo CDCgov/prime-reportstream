@@ -29,7 +29,7 @@ object CsvConverter {
         if (rows.isEmpty()) {
             return Report(schema, emptyList(), sources, destination)
         }
-        val mapping = buildMapping(schema, rows[0])
+        val mapping = buildMappingForReading(schema, rows[0])
         val mappedRows = rows.map { mapRow(schema, mapping, it) }
         return Report(schema, mappedRows, sources, destination)
     }
@@ -64,16 +64,17 @@ object CsvConverter {
         }.writeAll(allRows, output)
     }
 
-    private fun buildMapping(schema: Schema, row: Map<String, String>): Mapping {
+    private fun buildMappingForReading(schema: Schema, row: Map<String, String>): Mapping {
         val expectedHeaders = schema.csvFields.map { it.name }.toSet()
-        val missingHeaders = expectedHeaders.minus(row.keys)
+        val actualHeaders = row.keys.toSet()
+        val missingHeaders = expectedHeaders.minus(actualHeaders)
         if (missingHeaders.size > 0) {
             error("CSV is missing headers for: ${missingHeaders.joinToString(", ")}")
         }
         val useCsv = schema
             .elements
             .filter { it.csvFields != null }
-            .map { it.name to it.csvFields!!.first() }
+            .map { it.name to it.csvFields!!.first() } // TODO: be more flexible than first field
             .toMap()
         val useMapper = schema
             .elements

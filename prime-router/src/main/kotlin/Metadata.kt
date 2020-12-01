@@ -26,6 +26,7 @@ object Metadata {
         MiddleInitialMapper(),
         UseMapper(),
         IfPresentMapper(),
+        LookupMapper(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private var organizationStore: List<Organization> = ArrayList()

@@ -27,6 +27,7 @@ class FakeReport {
                         element.nameContains("equipment_model_id") ->
                             randomChoice("BinaxNOW COVID-19 Ag Card",
                                 "BD Veritor System for Rapid Detection of SARS-CoV-2*")
+                        element.nameContains("specimen_source_site_text") -> "Nasal"
                         else -> faker.lorem().characters(5, 10)
                     }
                 }

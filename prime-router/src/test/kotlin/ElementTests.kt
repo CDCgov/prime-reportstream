@@ -82,6 +82,13 @@ internal class ElementTests {
         assertEquals("199803301200+0000", result1)
         val result2 = one.toNormalized("199803300000+0000")
         assertEquals("199803300000+0000", result2)
+
+        val two = Element("a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("aDate", format = "yyyyMMdd"))
+
+        val result3 = two.toNormalized("19980330", two.csvFields?.get(0))
+        assertEquals("199803300000+0000", result3)
     }
 
     @Test

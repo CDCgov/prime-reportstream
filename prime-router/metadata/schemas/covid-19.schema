@@ -190,9 +190,9 @@ elements:
     hhsGuidanceField:
     hl7Field: ORC-22-1
 
-  - name: ordering_facility_street_2
+  - name: ordering_facility_street2
     type: STREET
-    natFlatFileField: Ordering_facility_street_2
+    natFlatFileField: Ordering_facility_street2
     hhsGuidanceField:
     hl7Field: ORC-22-2
 

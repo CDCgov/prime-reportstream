@@ -2,7 +2,9 @@ package gov.cdc.prime.router
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.*
@@ -182,6 +184,12 @@ data class Element(
                 } ?: try {
                     val formatter = DateTimeFormatter.ofPattern(field?.format ?: datetimePattern, Locale.ENGLISH)
                     OffsetDateTime.parse(formattedValue, formatter)
+                } catch (e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    // Finally, accept a date pattern assume it is in the UTC timezone
+                    val date = LocalDate.parse(formattedValue, dateFormatter)
+                    OffsetDateTime.of(date, LocalTime.of(0, 0), ZoneOffset.UTC)
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element '$name'")
                 }
