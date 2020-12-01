@@ -42,6 +42,17 @@ createuser -P prime
 createdb --owner=prime prime_data_hub
 ```
 
+Installing PostgreSQL and Flyway on Ubuntu
+```
+sudo apt install postgresql
+cd /usr/local/lib
+wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.0/flyway-commandline-7.3.0-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-7.3.0/flyway /usr/local/bin
+
+# Run createuser - when prompted set the password as changeIT!
+sudo -u postgres createuser -P prime
+sudo -u postgres createdb --owner=prime prime_data_hub
+```
+
 You should be able to compile the project now. Check if it works. 
 
 ```
