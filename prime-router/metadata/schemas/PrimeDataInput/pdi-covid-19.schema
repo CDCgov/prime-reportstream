@@ -31,8 +31,8 @@ elements:
   - name: standard.patient_street
     csvField: Patient_street
 
-  - name: standard.patient_street_2
-    csvField: Patient_street_2
+  - name: standard.patient_street2
+    csvField: Patient_street2
 
   - name: standard.patient_city
     csvField: Patient_city
@@ -97,8 +97,8 @@ elements:
   - name: standard.testing_lab_street
     csvField: Testing_lab_street
 
-  - name: standard.testing_lab_street_2
-    csvField: Testing_lab_street_2
+  - name: standard.testing_lab_street2
+    csvField: Testing_lab_street2
 
   - name: standard.testing_lab_zip_code
     csvField: Testing_lab_zip_code
@@ -124,8 +124,8 @@ elements:
   - name: standard.ordering_facility_street
     csvField: Ordering_facility_street
 
-  - name: standard.ordering_facility_street_2
-    csvField: Ordering_facility_street_2
+  - name: standard.ordering_facility_street2
+    csvField: Ordering_facility_street2
 
   - name: standard.ordering_facility_zip_code
     csvField: Ordering_facility_zip_code

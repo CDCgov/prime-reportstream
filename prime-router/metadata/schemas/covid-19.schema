@@ -190,9 +190,9 @@ elements:
     hhsGuidanceField:
     hl7Field: ORC-22-1
 
-  - name: ordering_facility_street_2
+  - name: ordering_facility_street2
     type: STREET
-    natFlatFileField: Ordering_facility_street_2
+    natFlatFileField: Ordering_facility_street2
     hhsGuidanceField:
     hl7Field: ORC-22-2
 
@@ -284,9 +284,9 @@ elements:
     hhsGuidanceField: Ordering provider address
     hl7Field: ORC-24-1
 
-  - name: ordering_provider_street_2
+  - name: ordering_provider_street2
     type: STREET
-    natFlatFileField: Ordering_provider_street_2
+    natFlatFileField: Ordering_provider_street2
     hhsGuidanceField:
     hl7Field: ORC-24-2
 
@@ -468,9 +468,9 @@ elements:
     hhsGuidanceField: Patient street address
     hl7Field: PID-11-1
 
-  - name: patient_street_2
+  - name: patient_street2
     type: STREET
-    natFlatFileField: Patient_street_2
+    natFlatFileField: Patient_street2
     hhsGuidanceField:
     hl7Field: PID-11-2
 
@@ -828,9 +828,9 @@ elements:
     hhsGuidanceField:
     hl7Field: #OBX-24.1
 
-  - name: testing_lab_street_2
+  - name: testing_lab_street2
     type: STREET
-    natFlatFileField: Testing_lab_street_2
+    natFlatFileField: Testing_lab_street2
     hhsGuidanceField:
     hl7Field: #OBX-24.2
 

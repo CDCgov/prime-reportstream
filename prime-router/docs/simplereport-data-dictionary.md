@@ -70,9 +70,9 @@ Expecting one of the `code` values:
       display: Unknown
 ```
 
-### csvField: Patient_street_2
+### csvField: Patient_street2
 
-I just added the _2
+The correct column name ends in "street2"
 
 ### csvField: Patient_state
 
@@ -133,9 +133,9 @@ Expecting Y, N, UNK
 
 Typically of the form "##D#######"
 
-### csvField: Testing_lab_street_2
+### csvField: Testing_lab_street2
 
-Note the _2.
+Note the street2.
 
 ### csvField: Ordered_test_code
 
