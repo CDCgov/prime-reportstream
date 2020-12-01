@@ -23,17 +23,9 @@ jobs:
         postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
 
-    - name: Download and Install Flyway
-      uses: wei/wget@ca0a6b7f0fdd7ffbe9d4cec0b9696f2dc658d3c9
-      with:
-        args: -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.0/flyway-commandline-7.3.0-linux-x64.tar.gz | tar xvz
-        
-    - name: Where Am I?
-      run: pwd
-    - name: What Is Here?
-      run: ls -lh
-    - name: Who Am I?
-      run: whoami
+    - name: Build Maven Package
+      uses: comchangs/action-maven@54db702e085ac767dad94c87e84499afb9d77162
+      args: clean package
 
     # - name: Build Package with Maven
     #   uses: comchangs/action-maven@54db702e085ac767dad94c87e84499afb9d77162
