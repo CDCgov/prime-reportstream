@@ -17,7 +17,7 @@ class CsvConverterTests {
         """.trimIndent()
 
         val report = CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
-        assertEquals(1, report.rowCount)
+        assertEquals(1, report.itemCount)
         assertEquals("2", report.getString(0, 1))
     }
 
@@ -34,7 +34,7 @@ class CsvConverterTests {
         """.trimIndent()
 
         val report = CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
-        assertEquals(1, report.rowCount)
+        assertEquals(1, report.itemCount)
         assertEquals("1", report.getString(0, 0))
     }
 

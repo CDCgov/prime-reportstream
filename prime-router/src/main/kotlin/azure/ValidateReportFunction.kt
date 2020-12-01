@@ -17,7 +17,7 @@ import java.util.logging.Level
 
 /**
  * Azure Functions with HTTP Trigger.
- * This is basically the "front end" of the Hub.   Data comes in here.
+ * This is basically the "front end" of the Hub. Reports come in here.
  */
 class ValidateReportFunction {
     private val clientName = "client"
@@ -66,7 +66,8 @@ class ValidateReportFunction {
 
         // Queue the report for further processing.
         return try {
-            ReportQueue.sendReport(ReportQueue.Name.VALIDATED, report)
+            val workflowEngine = WorkflowEngine()
+            workflowEngine.dispatchReport(ReportEvent(Event.Action.TRANSLATE, report.id), report)
             request
                 .createResponseBuilder(HttpStatus.CREATED)
                 .body(createResponseBody(report))
@@ -75,7 +76,7 @@ class ValidateReportFunction {
             context.logger.log(Level.SEVERE, e.message, e)
             request
                 .createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Failed to send to queue for further work.")
+                .body("Failed to ingest into database and queue for further work.")
                 .build()
         }
     }
@@ -128,7 +129,6 @@ class ValidateReportFunction {
                     ClientSource(organization = client.organization.name, client = client.name)
                 )
             }
-            else -> error("Content type is not supported")
         }
     }
 

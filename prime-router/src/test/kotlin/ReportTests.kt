@@ -9,8 +9,8 @@ class ReportTests {
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val report2 = Report(one, listOf(listOf("5", "6"), listOf("7", "8")), source = TestSource)
         val mergedReport = Report.merge(listOf(report1, report2))
-        assertEquals(4, mergedReport.rowCount)
-        assertEquals(2, report1.rowCount)
+        assertEquals(4, mergedReport.itemCount)
+        assertEquals(2, report1.itemCount)
         assertEquals("8", mergedReport.getString(3, "b"))
         assertEquals(2, mergedReport.sources.size)
         assertEquals(report1.id, (mergedReport.sources[0] as ReportSource).id)
@@ -20,10 +20,10 @@ class ReportTests {
     fun `test filter`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        assertEquals(2, report1.rowCount)
+        assertEquals(2, report1.itemCount)
         val filteredReport = report1.filter(mapOf("a" to "1"))
         assertEquals(one, filteredReport.schema)
-        assertEquals(1, filteredReport.rowCount)
+        assertEquals(1, filteredReport.itemCount)
         assertEquals("2", filteredReport.getString(0, "b"))
         assertEquals(1, filteredReport.sources.size)
     }
@@ -43,7 +43,7 @@ class ReportTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val report1 = Report(one, listOf(listOf("1", "2")), TestSource)
         assertEquals(one, report1.schema)
-        assertEquals(1, report1.rowCount)
+        assertEquals(1, report1.itemCount)
         assertEquals(TestSource, report1.sources[0] as TestSource)
     }
 
@@ -53,11 +53,11 @@ class ReportTests {
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
 
         val oneReport = Report(schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")), TestSource)
-        assertEquals(2, oneReport.rowCount)
+        assertEquals(2, oneReport.itemCount)
         val mappingOneToTwo = one.buildMapping(toSchema = two)
 
         val twoTable = oneReport.applyMapping(mappingOneToTwo)
-        assertEquals(2, twoTable.rowCount)
+        assertEquals(2, twoTable.itemCount)
         assertEquals("b2", twoTable.getString(1, "B"))
     }
 
@@ -71,11 +71,11 @@ class ReportTests {
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
 
         val twoReport = Report(schema = two, values = listOf(listOf("b1"), listOf("b2")), source = TestSource)
-        assertEquals(2, twoReport.rowCount)
+        assertEquals(2, twoReport.itemCount)
         val mappingTwoToOne = two.buildMapping(toSchema = one)
 
         val oneReport = twoReport.applyMapping(mappingTwoToOne)
-        assertEquals(2, oneReport.rowCount)
+        assertEquals(2, oneReport.itemCount)
         assertEquals("~", oneReport.getString(0, colName = "a"))
         assertEquals("b2", oneReport.getString(1, colName = "b"))
     }
@@ -95,7 +95,7 @@ class ReportTests {
         )
 
         val oneDeidentified = oneReport.deidentify()
-        assertEquals(2, oneDeidentified.rowCount)
+        assertEquals(2, oneDeidentified.itemCount)
         assertEquals("", oneDeidentified.getString(0, "a"))
         assertEquals("b1", oneDeidentified.getString(0, "b"))
     }

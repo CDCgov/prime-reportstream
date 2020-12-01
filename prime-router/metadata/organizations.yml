@@ -19,6 +19,11 @@
         jurisdictionalFilter: { standard.testing_lab_state: AZ }
 # OLD        jurisdictionalFilter: { standard.patient_state: AZ }
         transforms: { deidentify: false }
+        batch:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialBatch: 00:00
+          timeZone: ARIZONA
         address: http://localhost:1181/
         format: CSV
 
