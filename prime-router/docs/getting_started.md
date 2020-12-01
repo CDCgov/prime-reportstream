@@ -33,9 +33,11 @@ One way is to use brew again to get this database.
 ```
 brew install postgresql@11
 brew install flyway
-brew brew services start postgresql@11
+brew services start postgresql@11
 
-# When prompted set the password as changeIT!
+Add /usr/local/opt/postgresql@11/bin to your PATH 
+
+# Run createuser.  When prompted set the password as changeIT!
 createuser -P prime 
 createdb --owner=prime prime_data_hub
 ```
@@ -45,6 +47,13 @@ You should be able to compile the project now. Check if it works.
 ```
 mvn clean package
 ```
+
+Check out the database if you like:
+```
+psql prime_data_hub
+    select * from task;
+```
+
 
 There are a few database commands that are helpful while developing.
 ```
