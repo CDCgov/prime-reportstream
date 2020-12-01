@@ -1,8 +1,8 @@
 # Data Dictionary for data incoming from SimpleReport
 
-Official names of fields are in [pdi-covid-19.schema](./metadata/PrimeDataInput/pdi-covid-19.schema).
-Official types of fields are mostly in [covid-19.schema](./metadata/covid-19.schema).
-For types that are enumerations, the official values are mostly in [common.valuesets](./metadata/common.valuesets) for general enums (eg Yes, No, Unknown), and in [covid-19.valuesets](./metadata/covid-19.valuesets) for Covid specific items.
+Official names of fields are in [pdi-covid-19.schema](../metadata/schemas/PrimeDataInput/pdi-covid-19.schema).
+Official types of fields are mostly in [covid-19.schema](../metadata/schemas/covid-19.schema).
+For types that are enumerations, the official values are mostly in [common.valuesets](../metadata/valuesets/common.valuesets) for general enums (eg Yes, No, Unknown), and in [covid-19.valuesets](../metadata/valuesets/covid-19.valuesets) for Covid specific items.
 
 This doc is a summary of what's in those files.  At the moment, in the list below, I've only listed the more complex fields.
 
