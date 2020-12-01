@@ -25,15 +25,12 @@ jobs:
 
     - name: Build Maven Package
       uses: comchangs/action-maven@54db702e085ac767dad94c87e84499afb9d77162
-      args: clean package
+      with:
+        args: clean package
 
-    # - name: Build Package with Maven
-    #   uses: comchangs/action-maven@54db702e085ac767dad94c87e84499afb9d77162
-    #   run: mvn clean package
-
-    # - name: Build the Docker image
-    #   uses: actions/checkout@v2
-    #   run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
+#     - name: Build the Docker image
+#       uses: actions/checkout@v2
+#       run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
       
 #     - uses: Azure/docker-login@v1
 #     - name: Azure Container Registry Login
