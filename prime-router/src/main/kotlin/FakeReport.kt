@@ -24,6 +24,9 @@ class FakeReport {
                     when {
                         element.nameContains("lab_name") -> "Any lab USA"
                         element.nameContains("facility_name") -> "Any facility USA"
+                        element.nameContains("equipment_model_id") ->
+                            randomChoice("BinaxNOW COVID-19 Ag Card",
+                                "BD Veritor System for Rapid Detection of SARS-CoV-2*")
                         else -> faker.lorem().characters(5, 10)
                     }
                 }

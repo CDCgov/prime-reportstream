@@ -13,11 +13,9 @@ elements:
     csvFields:
     - name: Test_date
 
-  # TODO: this will be the deviceId field which is in the LVID table
-  - name: device
-    type: TEXT
+  - name: standard.equipment_model_id
     csvFields:
-    - name: Device
+    - name: Device_ID
 
   - name: standard.specimen_source_site_text
     csvFields:
@@ -207,9 +205,8 @@ elements:
   - name: standard.specimen_collection_date_time
     mapper: use(standard.test_result_date)
 
-  # TODO derive from device
-  # - name: standard.test_performed
-  #  mapper: Ordered_test_code
+  - name: standard.test_performed
+    mapper: lookup(
 
   # TODO: change when specimen_source_site has a valueSet
   # - name: standard.specimen_source_site_code

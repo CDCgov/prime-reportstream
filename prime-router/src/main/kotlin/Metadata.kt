@@ -7,7 +7,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
 import java.io.FilenameFilter
 import java.io.InputStream
-import kotlin.math.E
 
 /**
  * The metadata object is a singleton representing all metadata loaded for MappableTables
@@ -15,9 +14,11 @@ import kotlin.math.E
 object Metadata {
     private const val schemaExtension = ".schema"
     private const val valueSetExtension = ".valuesets"
+    private const val tableExtension = ".csv"
     private const val defaultMetadataDirectory = "./metadata"
     private const val schemasSubdirectory = "schemas"
     private const val valuesetsSubdirectory = "valuesets"
+    private const val tableSubdirectory = "tables"
     private const val organizationsList = "organizations.yml"
 
     private var schemas = mapOf<String, Schema>()
@@ -38,6 +39,7 @@ object Metadata {
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
         loadOrganizationList(metadataDir.toPath().resolve(organizationsList).toString())
+        loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
     }
 
     /*
@@ -227,4 +229,42 @@ object Metadata {
             else -> error("too many sub-names")
         }
     }
+
+    /*
+     * Lookup Tables
+     */
+    var lookupTableStore = mapOf<String, LookupTable>()
+    val lookupTables get() = lookupTableStore
+
+    fun loadLookupTables(filePath: String) {
+        val catalogDir = File(filePath)
+        if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
+        try {
+            readAllTables(catalogDir) { tableName: String, table: LookupTable ->
+                addLookupTable(tableName, table)
+            }
+        } catch (e: Exception) {
+            throw Exception("Error loading tables in '$filePath'", e)
+        }
+    }
+
+    fun addLookupTable(name: String, table: LookupTable) {
+        lookupTableStore = lookupTableStore.plus(name to table)
+    }
+
+    fun addLookupTable(name: String, tableStream: InputStream) {
+        val table = LookupTable.read(tableStream)
+        addLookupTable(name, table)
+    }
+
+    private fun readAllTables(catalogDir: File, block: (String, LookupTable) -> Unit) {
+        val extFilter = FilenameFilter { _, name -> name.endsWith(tableExtension) }
+        val files = File(catalogDir.absolutePath).listFiles(extFilter) ?: emptyArray()
+        files.forEach { file ->
+            val table = LookupTable.read(file.inputStream())
+            val name = file.nameWithoutExtension
+            block(name, table)
+        }
+    }
 }
+

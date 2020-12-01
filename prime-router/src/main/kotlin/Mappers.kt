@@ -62,6 +62,33 @@ class UseMapper : Mapper {
     }
 }
 
+class LookupMapper : Mapper {
+    override val name = "lookup"
+
+    /**
+     * args for the lookup mapper are:
+     * - tableName
+     * - indexColumnName
+     * - lookupElementName
+     * - lookupColumnName
+     */
+    override fun elementNames(args: List<String>): List<String> {
+        if (args.size != 4)
+            error("Schema Error: lookup mapper expected tableName, indexColumnName, lookupElementName and lookupColumnName")
+        return listOf(args[2])
+    }
+
+    override fun apply(args: List<String>, values: Map<String, String>): String? {
+        return if (values.isEmpty()) {
+            null
+        } else {
+            val lookupValue = values.values.first()
+            val lookupTable = Metadata.lookupTables[args[0]]
+            return lookupTable?.lookupValue(indexColumn = args[1], indexValue = lookupValue, lookupColumn = args[3])
+        }
+    }
+}
+
 class IfPresentMapper : Mapper {
     override val name = "ifPresent"
 
