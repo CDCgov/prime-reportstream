@@ -23,16 +23,16 @@ jobs:
         postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
 
-    - name: Install Flyway
-      run: wget -P /usr/local/lib -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.0/flyway-commandline-7.3.0-linux-x64.tar.gz | tar xvz && sudo ln -s /usr/local/lib/flyway-7.3.0/flyway /usr/local/bin
+    # - name: Install Flyway
+    #   run: wget -P /usr/local/lib -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.0/flyway-commandline-7.3.0-linux-x64.tar.gz | tar xvz && sudo ln -s /usr/local/lib/flyway-7.3.0/flyway /usr/local/bin
 
-    - name: Build Package with Maven
-      uses: comchangs/action-maven@54db702e085ac767dad94c87e84499afb9d77162
-      run: mvn clean package
+    # - name: Build Package with Maven
+    #   uses: comchangs/action-maven@54db702e085ac767dad94c87e84499afb9d77162
+    #   run: mvn clean package
 
-    - name: Build the Docker image
-      uses: actions/checkout@v2
-      run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
+    # - name: Build the Docker image
+    #   uses: actions/checkout@v2
+    #   run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
       
 #     - uses: Azure/docker-login@v1
 #     - name: Azure Container Registry Login
