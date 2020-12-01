@@ -26,7 +26,7 @@ jobs:
     - name: Github Action for wget
       uses: wei/wget@ca0a6b7f0fdd7ffbe9d4cec0b9696f2dc658d3c9
       with:
-        args: wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.0/flyway-commandline-7.3.0-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-7.3.0/flyway /usr/local/bin
+        args: -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.0/flyway-commandline-7.3.0-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-7.3.0/flyway /usr/local/bin
 
     # - name: Build Package with Maven
     #   uses: comchangs/action-maven@54db702e085ac767dad94c87e84499afb9d77162
