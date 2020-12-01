@@ -1,10 +1,10 @@
-name: Prime Data Hub Prod CI
+name: Prime Data Hub Test CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ test ]
   pull_request:
-    branches: [ master ]
+    branches: [ test ]
 
 defaults:
   run:
