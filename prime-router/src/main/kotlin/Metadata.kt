@@ -39,6 +39,13 @@ object Metadata {
         loadOrganizationList(metadataDir.toPath().resolve(organizationsList).toString())
     }
 
+    fun listAll() {
+        println("Loaded schemas: ")
+        schemas.forEach { (name, _) ->
+            println(name)
+        }
+    }
+
     /*
      * Schema
      */
