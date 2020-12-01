@@ -72,12 +72,12 @@ elements:
   - name: standard.specimen_type
     csvFields:
     - name: TestName
-      format: $text
+      format: $display
 
   - name: standard.test_result
     csvFields:
     - name: TestQualitativeResult
-      format: $text
+      format: $display
 
   - name: standard.comment
     csvFields:

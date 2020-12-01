@@ -26,7 +26,9 @@ object CsvConverter {
         destination: OrganizationService? = null,
     ): Report {
         val rows: List<Map<String, String>> = csvReader().readAllWithHeader(input)
-        if (rows.isEmpty()) error("Empty input stream")
+        if (rows.isEmpty()) {
+            return Report(schema, emptyList(), sources, destination)
+        }
         val mapping = buildMapping(schema, rows[0])
         val mappedRows = rows.map { mapRow(schema, mapping, it) }
         return Report(schema, mappedRows, sources, destination)
@@ -46,7 +48,7 @@ object CsvConverter {
                             element.csvFields.map { field ->
                                 val value = report.getString(row, element.name)
                                     ?: error("Internal Error: table is missing '${element.name} column")
-                                element.toFormatted(field, value)
+                                element.toFormatted(value, field)
                             }
                         } else {
                             emptyList()
@@ -111,7 +113,7 @@ object CsvConverter {
                 in mapping.useCsv -> {
                     val csvField = mapping.useCsv.getValue(element.name)
                     val value = inputRow.getValue(csvField.name)
-                    addToLookup(element.toNormalized(csvField, value))
+                    addToLookup(element.toNormalized(value, csvField))
                 }
                 in mapping.useMapper -> {
                     val (mapper, args) = mapping.useMapper.getValue(element.name)
@@ -126,7 +128,7 @@ object CsvConverter {
                     addToLookup(mapping.useDefault.getValue(element.name))
                 }
                 else -> {
-                    error("Schema Error: ${schema.name} element ${element.name} does not have a value")
+                    error("Schema Error: '${schema.name}' element '${element.name}' does not have a value")
                 }
             }
         }

@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.*
@@ -31,7 +32,7 @@ data class Element(
      */
     val type: Type? = null,
     val valueSet: String? = null,
-    val altValues: List<ValueSet.Value>? = null, 
+    val altValues: List<ValueSet.Value>? = null,
     val required: Boolean? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,
@@ -99,6 +100,7 @@ data class Element(
             name = this.name,
             type = this.type ?: baseElement.type,
             valueSet = this.valueSet ?: baseElement.valueSet,
+            altValues = this.altValues ?: baseElement.altValues,
             required = this.required ?: baseElement.required,
             pii = this.pii ?: baseElement.pii,
             phi = this.phi ?: baseElement.phi,
@@ -109,15 +111,18 @@ data class Element(
             natFlatFileField = this.natFlatFileField ?: baseElement.natFlatFileField,
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
-            csvFields = this.csvFields ?: this.csvFields,
+            csvFields = this.csvFields ?: baseElement.csvFields,
         )
     }
 
-    fun toFormatted(field: CsvField, normalizedValue: String): String {
+    /**
+     * A formatted string is the Element's value formatted for a specific csvField
+     */
+    fun toFormatted(normalizedValue: String, field: CsvField? = null): String {
         if (normalizedValue.isEmpty()) return ""
         return when (type) {
             Type.DATE -> {
-                if (field.format != null) {
+                if (field?.format != null) {
                     val formatter = DateTimeFormatter.ofPattern(field.format)
                     LocalDate.parse(normalizedValue, dateFormatter).format(formatter)
                 } else {
@@ -125,7 +130,7 @@ data class Element(
                 }
             }
             Type.DATETIME -> {
-                if (field.format != null) {
+                if (field?.format != null) {
                     val formatter = DateTimeFormatter.ofPattern(field.format)
                     LocalDateTime.parse(normalizedValue, datetimeFormatter).format(formatter)
                 } else {
@@ -136,11 +141,12 @@ data class Element(
                 if (valueSet == null) error("Schema Error: missing value set for '$name'")
                 val set = Metadata.findValueSet(valueSet)
                     ?: error("Schema Error: invalid valueSet name: $valueSet")
-                when (field.format) {
-                    displayFormat -> {
-                        set.toDisplay(normalizedValue)
-                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                    }
+                // TODO: A more flexible form of the format field for codes is possible and necessary
+                when (field?.format) {
+                    displayFormat -> set.toDisplayFromCode(normalizedValue)
+                        ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                    altDisplayFormat -> toAltDisplay(normalizedValue)
+                        ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
                     systemFormat -> set.systemCode
                     else -> normalizedValue
                 }
@@ -149,61 +155,75 @@ data class Element(
         }
     }
 
-    fun toNormalized(field: CsvField, formattedValue: String): String {
+    /**
+     * Take a formatted CsvField value and turn into a normalized value stored in an element
+     */
+    fun toNormalized(formattedValue: String, field: CsvField? = null): String {
         if (formattedValue.isEmpty()) return ""
         return when (type) {
             Type.DATE -> {
-                var normalDate = try {
+                val normalDate = try {
                     LocalDate.parse(formattedValue)
                 } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
-                    val formatter = DateTimeFormatter.ofPattern(field.format ?: datePattern, Locale.ENGLISH)
+                    val formatter = DateTimeFormatter.ofPattern(field?.format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
                 } catch (e: DateTimeParseException) {
-                    error("Invalid date: $formattedValue")
+                    error("Invalid date: '$formattedValue' for element '$name'")
                 }
                 normalDate.format(dateFormatter)
             }
             Type.DATETIME -> {
-                var normalDateTime = try {
-                    LocalDateTime.parse(formattedValue)
+                val normalDateTime = try {
+                    OffsetDateTime.parse(formattedValue)
                 } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
-                    val formatter = DateTimeFormatter.ofPattern(field.format ?: datetimePattern, Locale.ENGLISH)
-                    LocalDateTime.parse(formattedValue, formatter)
+                    val formatter = DateTimeFormatter.ofPattern(field?.format ?: datetimePattern, Locale.ENGLISH)
+                    OffsetDateTime.parse(formattedValue, formatter)
                 } catch (e: DateTimeParseException) {
-                    error("Invalid date: $formattedValue for element $name")
+                    error("Invalid date: '$formattedValue' for element '$name'")
                 }
-                normalDateTime.format(dateFormatter)
+                normalDateTime.format(datetimeFormatter)
             }
             Type.CODE -> {
                 if (valueSet == null) error("Schema Error: missing value set for $name")
-                val set = Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
-                when (field.format) {
-                    displayFormat -> set.toCode(formattedValue)
+                val values = Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
+                when (field?.format) {
+                    displayFormat -> values.toCodeFromDisplay(formattedValue)
                         ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
-                    else -> {
-                        val display = set.toDisplay(formattedValue)
-                            ?: error("Invalid code: '$formattedValue' not a code for element '$name'")
-                        set.toCode(display)
-                            ?: error("Internal Error: valueSet code error")
-                    }
+                    altDisplayFormat -> toAltCode(formattedValue)
+                        ?: error("Invalid code: '$formattedValue' not a alt display value for element '$name'")
+                    else -> values.toNormalizedCode(formattedValue)
+                        ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
                 }
             }
             else -> formattedValue
         }
     }
 
+    fun toAltDisplay(code: String): String? {
+        if (!isCodeType) return error("Internal Error: asking for an altDisplay for a non-code type")
+        if (altValues == null) error("Schema Error: missing alt values for '${name}'")
+        return altValues.find { code.equals(it.code, ignoreCase = true) }?.display
+    }
+
+    fun toAltCode(altDisplay: String): String? {
+        if (!isCodeType) return error("Internal Error: asking for an altDisplay for a non-code type")
+        if (altValues == null) error("Schema Error: missing alt values for '${name}'")
+        return altValues.find { altDisplay.equals(it.display, ignoreCase = true) }?.code
+    }
+
     companion object {
         const val datePattern = "yyyyMMdd"
-        const val datetimePattern = "yyyyMMddHHmm"
+        const val datetimePattern = "yyyyMMddHHmmZZZ"
         val dateFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
-        const val displayFormat = "\$text"
-        const val codeFormat = "\$text"
+        const val displayFormat = "\$display"
+        const val codeFormat = "\$code"
         const val systemFormat = "\$system"
+        const val altDisplayFormat = "\$alt"
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))

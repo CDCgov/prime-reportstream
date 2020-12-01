@@ -40,11 +40,15 @@ data class ValueSet(
         val display: String? = null,
     )
 
-    fun toDisplay(code: String): String? {
+    fun toDisplayFromCode(code: String): String? {
         return values.find { code.equals(it.code, ignoreCase = true) }?.display
     }
 
-    fun toCode(display: String): String? {
+    fun toCodeFromDisplay(display: String): String? {
         return values.find { display.equals(it.display, ignoreCase = true) }?.code
+    }
+
+    fun toNormalizedCode(code: String): String? {
+        return values.find { code.equals(it.code, ignoreCase = true) }?.code
     }
 }

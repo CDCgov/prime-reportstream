@@ -9,7 +9,7 @@ import kotlin.test.assertFails
 
 class CsvConverterTests {
     @Test
-    fun `test create from csv`() {
+    fun `test read from csv`() {
         val one = Schema(
             name = "one",
             topic = "test",
@@ -28,7 +28,7 @@ class CsvConverterTests {
     }
 
     @Test
-    fun `test create with different csvField name`() {
+    fun `test read with different csvField name`() {
         val one = Schema(
             name = "one",
             topic = "test",
@@ -47,7 +47,7 @@ class CsvConverterTests {
     }
 
     @Test
-    fun `test create with different csv header order`() {
+    fun `test read with different csv header order`() {
         val one = Schema(
             name = "one",
             topic = "test",
@@ -66,7 +66,7 @@ class CsvConverterTests {
     }
 
     @Test
-    fun `test create with missing csv_field`() {
+    fun `test read with missing csv_field`() {
         val one = Schema(
             name = "one",
             topic = "test",
@@ -86,7 +86,7 @@ class CsvConverterTests {
     }
 
     @Test
-    fun `test create using mapper`() {
+    fun `test read using default`() {
         val one = Schema(
             name = "one",
             topic = "test",
@@ -102,7 +102,11 @@ class CsvConverterTests {
 
         val report = CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertEquals(1, report.rowCount)
-        assertEquals("1", report.getString(0, 2))
+        assertEquals("3", report.getString(0, 2))
+    }
+
+    @Test
+    fun `test read using altDisplay`() {
     }
 
     @Test
@@ -111,7 +115,7 @@ class CsvConverterTests {
             name = "one",
             topic = "test",
             elements = listOf(
-                Element("a", csvFields = Element.csvFields("b")),
+                Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
             ))
         val report1 = Report(one, listOf(listOf("1", "2")), TestSource)
@@ -189,7 +193,8 @@ class CsvConverterTests {
             ))
         val csv = """
         """.trimIndent()
-        assertFails { CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource) }
+        val report = CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertEquals(0, report.rowCount)
     }
 
 

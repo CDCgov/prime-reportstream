@@ -100,7 +100,7 @@ object Hl7Converter {
                 if (isField(pathSpec)) {
                     if (value.isNotEmpty()) {
                         terser.set("$pathSpec-1", value)
-                        terser.set("$pathSpec-2", valueSet.toDisplay(value))
+                        terser.set("$pathSpec-2", valueSet.toDisplayFromCode(value))
                         terser.set("$pathSpec-3", valueSet.systemCode)
                     }
                 } else {

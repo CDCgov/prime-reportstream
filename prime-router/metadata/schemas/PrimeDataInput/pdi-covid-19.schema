@@ -7,7 +7,7 @@ elements:
   - name: standard.test_result
     csvFields:
     - name: Result
-      format: $text
+      format: $display
 
   - name: standard.test_result_date
     csvFields:
@@ -68,12 +68,12 @@ elements:
   - name: standard.patient_race
     csvFields:
     - name: Race
-      format: $text
+      format: $display
 
   - name: standard.patient_ethnicity
     csvFields:
     - name: Ethnicity
-      format: $text
+      format: $display
 
   - name: standard.first_test
     csvFields:
@@ -95,7 +95,7 @@ elements:
   - name: standard.pregnant
     csvFields:
     - name: Pregnant
-      format: $text
+      format: $display
 
   - name: standard.employed_in_healthcare
     csvFields:

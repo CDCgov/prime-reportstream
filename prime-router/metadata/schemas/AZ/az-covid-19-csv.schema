@@ -63,9 +63,26 @@ elements:
     - name: Patient_Sex
 
   - name: standard.patient_race
+    altValues:
+      - display: N      # Native
+        code: 1002-5
+      - display: A      # Asian
+        code: 2028-9
+      - display: B      # Black
+        code: 2054-5
+      - display: P      # Pacific Islander
+        code: 2076-8
+      - display: W      # White
+        code: 2106-3
+      - display: O      # Other
+        code: 2131-1
+      - display: O
+        code: UNK
+      - display: O      #  Asked, but unknown
+        code: ASKU
     csvFields:
     - name: Race
-      format: $text
+      format: $alt
 
   - name: standard.patient_ethnicity
     csvFields:
@@ -138,7 +155,7 @@ elements:
   - name: standard.specimen_type
     csvFields:
     - name: Specimen_Type
-      format: $text
+      format: $display
 
   - name: standard.specimen_source_site_text
     csvFields:
@@ -148,12 +165,12 @@ elements:
     csvFields:
     - name: Test_Code
     - name: Test_Name
-      format: $text
+      format: $display
 
   - name: standard.test_result
     csvFields:
     - name: Result
-      format: $text
+      format: $display
 
   - name: standard.test_result_date
     csvFields:
