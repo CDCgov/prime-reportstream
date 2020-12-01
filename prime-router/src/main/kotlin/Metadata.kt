@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
 import java.io.FilenameFilter
 import java.io.InputStream
+import kotlin.math.E
 
 /**
  * The metadata object is a singleton representing all metadata loaded for MappableTables
@@ -63,11 +64,15 @@ object Metadata {
     }
 
     private fun readSchema(dirRelPath: String, file: File): Schema {
-        val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
-        val schemaName = normalizeSchemaName(
-            if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
-        )
-        return fromSchemaFile.copy(name = schemaName)
+        try {
+            val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
+            val schemaName = normalizeSchemaName(
+                if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
+            )
+            return fromSchemaFile.copy(name = schemaName)
+        } catch (e: Exception) {
+            throw Exception("Error parsing '${file.name}'", e)
+        }
     }
 
     private fun readAllSchemas(catalogDir: File, dirRelPath: String): List<Schema> {
@@ -153,7 +158,11 @@ object Metadata {
     }
 
     private fun readValueSets(file: File): List<ValueSet> {
-        return mapper.readValue(file.inputStream())
+        try {
+            return mapper.readValue(file.inputStream())
+        } catch (e: Exception) {
+            throw Exception("Error reading '${file.name}'", e)
+        }
     }
 
     private fun normalizeValueSetName(name: String): String {

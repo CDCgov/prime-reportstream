@@ -36,9 +36,14 @@ internal class ElementTests {
     @Test
     fun `test extendFrom`() {
         val elem1 = Element(name = "first")
-        val elem2 = Element(name = "first", type = Element.Type.NUMBER, format = "test")
+        val elem2 = Element(name = "first", type = Element.Type.NUMBER, csvFields = Element.csvFields("test"))
         val elem1ExtendedFrom2 = elem1.extendFrom(elem2)
         assertEquals("first", elem1ExtendedFrom2.name)
-        assertEquals("test", elem1ExtendedFrom2.format)
+        assertEquals("test", elem1ExtendedFrom2.csvFields?.first()?.name)
+    }
+
+    @Test
+    fun `test toNormalize`() {
+
     }
 }

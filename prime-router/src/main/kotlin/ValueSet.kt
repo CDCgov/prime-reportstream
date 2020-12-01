@@ -36,13 +36,12 @@ data class ValueSet(
         }
 
     data class Value(
-        val code: String? = null,
-        val alt_codes: List<String> = emptyList(),
+        val code: String,
         val display: String? = null,
     )
 
     fun toDisplay(code: String): String? {
-        return values.find { code.equals(it.code, ignoreCase = true) || it.alt_codes.contains(code) }?.display
+        return values.find { code.equals(it.code, ignoreCase = true) }?.display
     }
 
     fun toCode(display: String): String? {

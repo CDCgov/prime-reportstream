@@ -59,3 +59,4 @@ prime-router/__azurite_db_queue__.json
 prime-router/__azurite_db_queue_extent__.json
 prime-router/__blobstorage__/*
 prime-router/__queuestorage__/*
+prime-router/.factorypath

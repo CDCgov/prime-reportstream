@@ -1,5 +1,11 @@
 package gov.cdc.prime.router
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import java.util.*
+
 
 /**
  * An element is represents a data element (ie. a single logical value) that is contained in single row
@@ -16,21 +22,23 @@ package gov.cdc.prime.router
 data class Element(
     // A element can either be a new element or one based on previously defined element
     // - A name of form [A-Za-z0-9_]+ is a new element
-    // - A name with a . in it is new element based on an previously defined element
+    // - A name of form [A-Za-z0-9_]+.[A-Za-z0-9_]+ is an element based on an previously defined element
     //
     val name: String,
 
-    // General information
+    /**
+     * Type of the
+     */
     val type: Type? = null,
-    val format: String? = null,
     val valueSet: String? = null,
+    val altValues: List<ValueSet.Value>? = null, 
     val required: Boolean? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,
     val default: String? = null,
     val mapper: String? = null,
 
-    // Correspondence to the national standards
+    // Information about the elements definition
     val hhsGuidanceField: String? = null,
     val uscdiField: String? = null,
     val natFlatFileField: String? = null,
@@ -41,8 +49,13 @@ data class Element(
     val hl7Field: String? = null,
     val hl7OutputFields: List<String>? = null,
 
-    // CSV specific information
-    val csvField: String? = null,
+    /**
+     * The header fields that correspond to an element.
+     * A element can output to multiple CSV fields.
+     * The first field is considered the primary field. It is used
+     * on input define the element
+     */
+    val csvFields: List<CsvField>? = null,
 
     // FHIR specific information
     val fhirField: String? = null,
@@ -70,13 +83,12 @@ data class Element(
         EMAIL,
     }
 
+    data class CsvField(
+        val name: String,
+        val format: String?,
+    )
+
     val isCodeType get() = this.type == Type.CODE
-    val isCode get() = this.isCodeType && !name.contains('#')
-    val isCodeText get() = this.isCodeType && name.endsWith("#text")
-    val isCodeSystem get() = this.isCodeType && name.endsWith("#system")
-    val nameAsCode get() = if (name.contains('#')) name.split('#')[0] else name
-    val nameAsCodeText get() = if (isCodeType) "$nameAsCode#text" else name
-    val nameAsCodeSystem get() = if (isCodeType) "$nameAsCode#system" else name
 
     fun nameContains(substring: String): Boolean {
         return name.contains(substring, ignoreCase = true)
@@ -86,7 +98,6 @@ data class Element(
         return Element(
             name = this.name,
             type = this.type ?: baseElement.type,
-            format = this.format ?: baseElement.format,
             valueSet = this.valueSet ?: baseElement.valueSet,
             required = this.required ?: baseElement.required,
             pii = this.pii ?: baseElement.pii,
@@ -98,7 +109,104 @@ data class Element(
             natFlatFileField = this.natFlatFileField ?: baseElement.natFlatFileField,
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
-            csvField = this.csvField ?: this.csvField,
+            csvFields = this.csvFields ?: this.csvFields,
         )
+    }
+
+    fun toFormatted(field: CsvField, normalizedValue: String): String {
+        if (normalizedValue.isEmpty()) return ""
+        return when (type) {
+            Type.DATE -> {
+                if (field.format != null) {
+                    val formatter = DateTimeFormatter.ofPattern(field.format)
+                    LocalDate.parse(normalizedValue, dateFormatter).format(formatter)
+                } else {
+                    normalizedValue
+                }
+            }
+            Type.DATETIME -> {
+                if (field.format != null) {
+                    val formatter = DateTimeFormatter.ofPattern(field.format)
+                    LocalDateTime.parse(normalizedValue, datetimeFormatter).format(formatter)
+                } else {
+                    normalizedValue
+                }
+            }
+            Type.CODE -> {
+                if (valueSet == null) error("Schema Error: missing value set for '$name'")
+                val set = Metadata.findValueSet(valueSet)
+                    ?: error("Schema Error: invalid valueSet name: $valueSet")
+                when (field.format) {
+                    displayFormat -> {
+                        set.toDisplay(normalizedValue)
+                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                    }
+                    systemFormat -> set.systemCode
+                    else -> normalizedValue
+                }
+            }
+            else -> normalizedValue
+        }
+    }
+
+    fun toNormalized(field: CsvField, formattedValue: String): String {
+        if (formattedValue.isEmpty()) return ""
+        return when (type) {
+            Type.DATE -> {
+                var normalDate = try {
+                    LocalDate.parse(formattedValue)
+                } catch (e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    val formatter = DateTimeFormatter.ofPattern(field.format ?: datePattern, Locale.ENGLISH)
+                    LocalDate.parse(formattedValue, formatter)
+                } catch (e: DateTimeParseException) {
+                    error("Invalid date: $formattedValue")
+                }
+                normalDate.format(dateFormatter)
+            }
+            Type.DATETIME -> {
+                var normalDateTime = try {
+                    LocalDateTime.parse(formattedValue)
+                } catch (e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    val formatter = DateTimeFormatter.ofPattern(field.format ?: datetimePattern, Locale.ENGLISH)
+                    LocalDateTime.parse(formattedValue, formatter)
+                } catch (e: DateTimeParseException) {
+                    error("Invalid date: $formattedValue for element $name")
+                }
+                normalDateTime.format(dateFormatter)
+            }
+            Type.CODE -> {
+                if (valueSet == null) error("Schema Error: missing value set for $name")
+                val set = Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
+                when (field.format) {
+                    displayFormat -> set.toCode(formattedValue)
+                        ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                    else -> {
+                        val display = set.toDisplay(formattedValue)
+                            ?: error("Invalid code: '$formattedValue' not a code for element '$name'")
+                        set.toCode(display)
+                            ?: error("Internal Error: valueSet code error")
+                    }
+                }
+            }
+            else -> formattedValue
+        }
+    }
+
+    companion object {
+        const val datePattern = "yyyyMMdd"
+        const val datetimePattern = "yyyyMMddHHmm"
+        val dateFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
+        val datetimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
+        const val displayFormat = "\$text"
+        const val codeFormat = "\$text"
+        const val systemFormat = "\$system"
+
+        fun csvFields(name: String, format: String? = null): List<CsvField> {
+            return listOf(CsvField(name, format))
+        }
     }
 }

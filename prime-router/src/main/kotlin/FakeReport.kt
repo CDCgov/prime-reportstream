@@ -33,30 +33,23 @@ class FakeReport {
                         element.nameContains("DOB") -> faker.date().birthday(0, 100)
                         else -> faker.date().past(10, TimeUnit.DAYS)
                     }
-                    val formatter = SimpleDateFormat("yyyyMMdd")
+                    val formatter = SimpleDateFormat(Element.datePattern)
                     formatter.format(date)
                 }
                 Element.Type.DATETIME -> {
                     val date = faker.date().past(10, TimeUnit.DAYS)
-                    val formatter = SimpleDateFormat("yyyyMMdd")
+                    val formatter = SimpleDateFormat(Element.datetimePattern)
                     formatter.format(date)
                 }
                 Element.Type.DURATION -> TODO()
                 Element.Type.CODE -> {
-                    val valueSet =
-                        findValueSet(element.valueSet ?: "") ?: error("ValueSet ${element.valueSet} is not available}")
-                    val possibleValues = valueSet.values.map {
-                        when {
-                            element.isCodeText -> it.display ?: "fake display"
-                            element.isCode -> it.code ?: "fake code"
-                            element.isCodeSystem -> valueSet.systemCode
-                            else -> error("element ${element.name} is not a CODE type")
-                        }
-                    }.toTypedArray()
+                    val valueSet = findValueSet(element.valueSet ?: "")
+                        ?: error("ValueSet ${element.valueSet} is not available}")
+                    val possibleValues = valueSet.values.map { it.code }.toTypedArray()
                     randomChoice(*possibleValues)
                 }
                 Element.Type.HD -> {
-                    "fake.0.0.0.1"
+                    "0.0.0.0.1"
                 }
                 Element.Type.ID -> faker.numerify("######")
                 Element.Type.ID_CLIA -> faker.numerify("##D#######")  // Ex, 03D1021379
