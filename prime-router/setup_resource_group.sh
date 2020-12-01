@@ -121,16 +121,19 @@ az network front-door create --backend-address $full_app_name.azurewebsites.net 
 storage_key=$(az storage account keys list --account-name "$storage_account" --output tsv --query [0].value)
 
 confirm "Create a local testing SFTP server?"
-dns_label=sftp-"$full_app_name"
+dns_label="$full_app_name"
+
+# Create file share for SFTP transfer
+az storage share-rm create --name "$full_app_name" --resource-group "$resource_group" --storage-account "$storage_account"
 
 az container create --resource-group "$resource_group" \
-                    --name sftpserver \
+                    --name "$full_app_name" \
                     --image atmoz/sftp:latest \
                     --ports 22 \
                     --dns-name-label "$dns_label" \
                     --location eastus  \
                     --environment-variables SFTP_USERS=foo:pass:::upload \
-                    --azure-file-volume-share-name myoung-prime-data-hub \
+                    --azure-file-volume-share-name "$full_app_name" \
                     --azure-file-volume-account-name "$storage_account" \
                     --azure-file-volume-account-key "$storage_key" \
                     --azure-file-volume-mount-path /home/foo/upload
