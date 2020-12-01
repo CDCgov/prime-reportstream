@@ -14,44 +14,50 @@ import java.util.logging.Level
 /**
  * Azure Functions with HTTP Trigger. Write to blob.
  */
+const val dataRetentionDays = 7L
+const val send = "send"
+
 class SendFunction {
 
-    @FunctionName("send")
+    @FunctionName(send)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @QueueTrigger(name = "msg", queueName = "merged")
+        @QueueTrigger(name = "msg", queueName = send)
         message: String,
-        context: ExecutionContext
+        context: ExecutionContext,
     ) {
         try {
+            context.logger.info("Started Send Function: $message")
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
             Metadata.loadAll("$baseDir/metadata")
+            val workflowEngine = WorkflowEngine()
 
-            val (header, content) = ReportQueue.receiveHeaderAndBody(ReportQueue.Name.VALIDATED, message)
-            context.logger.info("Sending report: ${header.id}")
+            val event = Event.parse(message) as ReportEvent
+            workflowEngine.handleReportEvent(event) { header, _ ->
+                val service = Metadata.findService(header.task.receiverName)
+                    ?: error("Internal Error: could not find ${header.task.receiverName}")
 
-            val service = Metadata.findService(header.destination)
+                context.logger.info("Transport found for ${service.fullName} = ${service.transport.type}")
 
-            if( service == null )
-                error( "Unable to find a service handler for ${header.destination}")
-
-            context.logger.info( "Transport found for ${service.fullName} = ${service.transport.type}")
-
-            var transportSuccessful = when( service.transport.type ){
+                var transportSuccessful = when (service.transport.type) {
                     OrganizationService.Transport.TransportType.SFTP -> {
-                        context.logger.info( "trying to send to ${service.transport.host} ${service.transport.port} ${service.transport.filePath}")
-                        val transport = SftpTransport() // TODO:  look up the correct class to call based on the transport metadata
-                        transport.send( service, header, content)
+                        context.logger.info("trying to send to ${service.transport.host} ${service.transport.port} ${service.transport.filePath}")
+                        val content = workflowEngine.readBody(header)
+                        // TODO:  look up the correct class to call based on the transport metadata
+                        val transport = SftpTransport()
+                        transport.send(service, header, content)
                     }
-                    OrganizationService.Transport.TransportType.DEFAULT -> true
+                    OrganizationService.Transport.TransportType.DEFAULT -> false
+                }
+                if (transportSuccessful) {
+                    context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
+                }
+                // TODO: Next action should be WIPE when implemented
+                ReportEvent(Event.Action.NONE, header.task.reportId)
             }
-
-            if( transportSuccessful ){
-                ReportQueue.sendHeaderAndBody(ReportQueue.Name.SENT, header, content)
-            }
-
+            // For debugging and auditing purposes
         } catch (t: Throwable) {
-            context.logger.log(Level.SEVERE, "send exception", t)
+            context.logger.log(Level.SEVERE, "Send exception", t)
         }
 
     }

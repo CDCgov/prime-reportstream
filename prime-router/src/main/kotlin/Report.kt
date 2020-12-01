@@ -26,7 +26,7 @@ class Report {
     val destination: OrganizationService?
     val createdDateTime: OffsetDateTime
 
-    val rowCount: Int get() = this.table.rowCount()
+    val itemCount: Int get() = this.table.rowCount()
     val rowIndices: IntRange get() = 0 until this.table.rowCount()
     val name: String get() = formFileName(id, schema.baseName, destination?.format, createdDateTime)
 
@@ -111,6 +111,9 @@ class Report {
     private fun fromThisReport(action: String) = listOf(ReportSource(this.id, action))
 
 
+    /**
+     * Does a shallow copy of this report. Will have a new id and create date.
+     */
     fun copy(destination: OrganizationService? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
         return Report(this.schema, this.table, fromThisReport("copy"), destination)
