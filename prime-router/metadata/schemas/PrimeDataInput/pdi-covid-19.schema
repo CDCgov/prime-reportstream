@@ -31,8 +31,8 @@ elements:
   - name: standard.patient_street
     csvField: Patient_street
 
-  - name: standard.patient_street2
-    csvField: Patient_street2
+  - name: standard.patient_street_2
+    csvField: Patient_street_2
 
   - name: standard.patient_city
     csvField: Patient_city
@@ -97,8 +97,8 @@ elements:
   - name: standard.testing_lab_street
     csvField: Testing_lab_street
 
-  - name: standard.testing_lab_street2
-    csvField: Testing_lab_street2
+  - name: standard.testing_lab_street_2
+    csvField: Testing_lab_street_2
 
   - name: standard.testing_lab_zip_code
     csvField: Testing_lab_zip_code
@@ -155,6 +155,11 @@ elements:
   - name: standard.specimen_type
     csvField: Specimen_type_code
 
+  # The type of device used for the test.  eg, BinaxNOW COVID-19 Ag Card
+  - name: standard.equipment_model_id
+    csvField: Device_ID
+
+  # Identifier for the specific piece of equipment used.
   - name: standard.equipment_instance_id
     csvField: Instrument_ID
 
