@@ -1,4 +1,4 @@
-name: Prime Data Hub CI Pipeline
+name: Prime Data Hub Test CI
 
 on:
   push:
