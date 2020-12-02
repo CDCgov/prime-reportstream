@@ -34,9 +34,8 @@ jobs:
       - name: Build Maven Package
         run: mvn -B clean package --file pom.xml
 
-#     - name: Build the Docker image
-#       uses: actions/checkout@v2
-#       run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
       
 #     - uses: Azure/docker-login@v1
 #     - name: Azure Container Registry Login
