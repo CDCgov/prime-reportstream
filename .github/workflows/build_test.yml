@@ -36,12 +36,9 @@ jobs:
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
       
-#     - name: Azure Container Registry Login
-#       uses: Azure/docker-login@v1
-#       with:
-#         # Container registry username
-#         username: # default is 
-#         # Container registry password
-#         password: # default is 
-#         # Container registry server url
-#         login-server: # default is https://index.docker.io/v1/
+      - name: Azure Container Registry Login
+        uses: Azure/docker-login@v1
+        with:
+          username: ${{ secrets.ACR_TEST_USER }}
+          password: ${{ secrets.ACR_TEST_PWD }}
+          login-server: https://index.docker.io/v1/
