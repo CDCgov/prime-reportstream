@@ -46,6 +46,11 @@ data class Element(
 
     // FHIR specific information
     val fhirField: String? = null,
+
+    // a field to let us incorporate documentation data (markdown)
+    // in the schema files so we can generate documentation off of
+    // the file
+    val documentation: String? = null,
 ) {
     enum class Type {
         TEXT,
@@ -99,6 +104,7 @@ data class Element(
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
             csvField = this.csvField ?: this.csvField,
+            documentation = this.documentation ?: baseElement.documentation,
         )
     }
 }
