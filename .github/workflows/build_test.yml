@@ -25,10 +25,13 @@ jobs:
           postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
           postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
        
-      - name: Build Maven Package
-        uses: xlui/action-maven-cli@249896efd56e7c2dba0cb51d120422f2ec85c5b7
+      - name: Setup JDK
+        uses: actions/setup-java@v1.4.3
         with:
-          lifecycle: clean package
+          java-version: 1.8
+      
+      - name: Build Maven Package
+        run: mvn -B clean package --file pom.xml
 
 #     - name: Build the Docker image
 #       uses: actions/checkout@v2
