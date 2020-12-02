@@ -28,17 +28,16 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v1.4.3
         with:
-          #java-version: 1.8
            java-version: 11
       
       - name: Build Maven Package
         run: mvn -B clean package --file pom.xml
 
-      - name: Build the Docker image
+      - name: Build Docker image
         run: docker build . --file Dockerfile --tag prime-data-hub:$(date +%s)
       
-#     - uses: Azure/docker-login@v1
 #     - name: Azure Container Registry Login
+#       uses: Azure/docker-login@v1
 #       with:
 #         # Container registry username
 #         username: # default is 
