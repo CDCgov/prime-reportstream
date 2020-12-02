@@ -24,11 +24,9 @@ jobs:
 #         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
         
     - name: List Dir
-      run: ls -lh /home
+      run: ls -lh /home/runner/work/prime-data-hub
     - name: List Dir
-      run: ls -lh /home/runner
-    - name: List Dir
-      run: ls -lh /home/runner/work
+      run: ls -lh /home/runner/work/prime-data-hub/prime-router
        
 #     - name: Build Maven Package
 #       uses: ZhilinS/action-maven-cli@52918214e79b7336f5776a12720e31b893598bf4
