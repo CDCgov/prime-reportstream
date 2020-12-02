@@ -41,17 +41,32 @@ else
 fi
 
 if confirm "Create a database server ${server_name}. Will take 5 minutes"; then
-	az postgres server create \
-	--resource-group $resource_group \
-	--name $server_name  \
-	--auto-grow Disabled \
-	--minimal-tls-version TLS1_2 \
-	--location eastus \
-	--admin-user prime \
-	--admin-password "${PRIME_POSTGRES_PASSWORD}" \
-	--sku-name B_Gen5_1 \
-	--storage-size=5120 \
-	--version 11
+	if [[ $PRIME_DEV_NAME == prime-data-hub-prod ]]
+	then
+		az postgres server create \
+		--resource-group $resource_group \
+		--name $server_name  \
+		--auto-grow Enabled \
+		--minimal-tls-version TLS1_2 \
+		--location eastus \
+		--admin-user prime \
+		--admin-password "${PRIME_POSTGRES_PASSWORD}" \
+		--sku-name GP_Gen5_4 \
+		--storage-size=5120 \
+		--version 11
+	else
+		az postgres server create \
+		--resource-group $resource_group \
+		--name $server_name  \
+		--auto-grow Disabled \
+		--minimal-tls-version TLS1_2 \
+		--location eastus \
+		--admin-user prime \
+		--admin-password "${PRIME_POSTGRES_PASSWORD}" \
+		--sku-name B_Gen5_1 \
+		--storage-size=5120 \
+		--version 11
+	fi
 fi
 
 if confirm "Create firewall rules to allow your Function App to access the new DB (will take 10 minutes)"; then
