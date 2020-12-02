@@ -22,13 +22,8 @@ jobs:
         postgresql db: prime_data_hub
         postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
-
-    - name: Maven CLI For GitHub Actions
-      uses: xlui/action-maven-cli@249896efd56e7c2dba0cb51d120422f2ec85c5b7
-      with:
-       lifecycle: clean package
        
-    - name: Maven & JDK8+ for monorepo projects
+    - name: Build Maven Package
       uses: ZhilinS/action-maven-cli@52918214e79b7336f5776a12720e31b893598bf4
       env:
         APP_DIR: prime-router 
