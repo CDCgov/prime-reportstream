@@ -19,7 +19,12 @@ object Metadata {
     private const val schemasSubdirectory = "schemas"
     private const val valuesetsSubdirectory = "valuesets"
     private const val tableSubdirectory = "tables"
-    private const val organizationsList = "organizations.yml"
+
+    private val PRIME_ENVIRONMENT = System.getenv("PRIME_ENVIRONMENT") ?: ""
+
+    private val ext = if (PRIME_ENVIRONMENT.isNotEmpty() ) "-" + PRIME_ENVIRONMENT else  PRIME_ENVIRONMENT;
+
+    private val organizationsList = "organizations${ext}.yml"
 
     private var schemas = mapOf<String, Schema>()
     private var mappers = listOf(
