@@ -22,7 +22,7 @@ jobs:
 #         postgresql db: prime_data_hub
 #         postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
 #         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
-        
+    - uses: action/checkout@v2
     - name: List Dir
       run: ls -lh /home/runner/work/prime-data-hub/prime-data-hub
     - name: List Dir
