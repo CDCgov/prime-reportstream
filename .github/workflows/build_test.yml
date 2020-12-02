@@ -33,7 +33,7 @@ jobs:
       env:
         APP_DIR: prime-router 
       with:
-        lifecycle: clean package
+        lifecycle: -X clean package
 
 #     - name: Build the Docker image
 #       uses: actions/checkout@v2
