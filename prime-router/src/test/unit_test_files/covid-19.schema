@@ -14,7 +14,7 @@ description: collection of standard elements, not an actual schema
 elements:
   - name: abnormal_flag
     type: CODE
-    valueSet: hl7_0136
+    valueSet: hl70136
     natFlatFileField: Abnormal_flag
     hhsGuidanceField:
     hl7Field: #OBX-8
@@ -39,14 +39,14 @@ elements:
 
   - name: employed_in_healthcare
     type: CODE
-    valueSet: hl7_0136
+    valueSet: hl70136
     natFlatFileField: Employed_in_healthcare
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_MAP
 
   - name: employed_in_high_risk_setting
     type: CODE
-    valueSet: hl7_0136
+    valueSet: hl70136
     natFlatFileField: Employed_in_high_risk_setting
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_MAP
@@ -77,7 +77,7 @@ elements:
 
   - name: first_test
     type: CODE
-    valueSet: hl7_0136
+    valueSet: hl70136
     natFlatFileField: First_test
     hhsGuidanceField: First Test
     hl7Field: #REPEAT_OBX_MAP
@@ -90,14 +90,14 @@ elements:
 
   - name: hospitalized
     type: CODE
-    valueSet: hl7_0136
+    valueSet: hl70136
     natFlatFileField: Hospitalized
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_MAP
 
   - name: icu
     type: CODE
-    valueSet: hl7_0136
+    valueSet: hl70136
     natFlatFileField: ICU
     hhsGuidanceField:
     hl7Field: #REPEAT_OBX_MAP
@@ -292,7 +292,7 @@ elements:
 
   - name: patient_died
     type: CODE
-    valueSet: hl7_0136
+    valueSet: hl70136
     natFlatFileField: Patient_died
     hhsGuidanceField:
     hl7Field: PID-30
@@ -559,7 +559,7 @@ elements:
 
   - name: symptomatic_for_disease
     type: CODE
-    valueSet: hl7_0136
+    valueSet: hl70136
     natFlatFileField: Symptomatic_for_disease
     hhsGuidanceField: Symptomatic per CDC
     hl7Field: #OBX-5

@@ -81,4 +81,14 @@
     - code: 95209-3
       display: SARS coronavirus+SARS coronavirus 2 Ag [Presence] in Respiratory specimen by Rapid immunoassay
 
-
+- name: covid-19/pregnant_aoe
+  system: SNOMED_CT
+  reference: HHS guidence and LONIC
+  referenceUrl: https://loinc.org/82810-3/
+  values:
+    - code: 77386006
+      display: Pregnant
+    - code: 60001007
+      display: Not Pregnant
+    - code: 261665006
+      display: Unknown

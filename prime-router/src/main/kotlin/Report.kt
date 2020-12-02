@@ -171,11 +171,6 @@ class Report {
             in mapping.useDirectly -> {
                 table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
             }
-            in mapping.useValueSet -> {
-                val valueSetName = mapping.useValueSet.getValue(toElement.name)
-                val valueSet = Metadata.findValueSet(valueSetName) ?: error("$valueSetName is not found")
-                createValueSetTranslatedColumn(toElement, valueSet)
-            }
             in mapping.useMapper -> {
                 createMappedColumn(toElement, mapping.useMapper.getValue(toElement.name))
             }
@@ -199,30 +194,6 @@ class Report {
                 if (value.isBlank()) null else elementName to value
             }.toMap()
             mapper.apply(args, inputValues) ?: toElement.default ?: ""
-        }
-        return StringColumn.create(toElement.name, values.asList())
-    }
-
-    private fun createValueSetTranslatedColumn(toElement: Element, valueSet: ValueSet): StringColumn {
-        val values = when {
-            toElement.isCodeText -> {
-                Array(table.rowCount()) { row ->
-                    val fromCode = table.getString(row, toElement.nameAsCode)
-                    valueSet.toDisplay(fromCode) ?: toElement.default ?: ""
-                }
-            }
-            toElement.isCodeSystem -> {
-                Array(table.rowCount()) { valueSet.systemCode }
-            }
-            toElement.isCode -> {
-                Array(table.rowCount()) { row ->
-                    // Value in the table is already a code.  Just return it; no display->code mapping needed.
-                    // BUG!! If value in the incoming table is a #text display, this breaks!
-                    // Need robust generic way to have many ways to display a single valueset.
-                    table.getString(row, toElement.nameAsCode) ?: "BUG - incoming schema used #text?"
-                }
-            }
-            else -> error("Cannot convert ${toElement.name} using value set")
         }
         return StringColumn.create(toElement.name, values.asList())
     }
