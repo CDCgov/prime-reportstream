@@ -138,6 +138,7 @@
                                         <include>metadata/**/*.yml</include>
                                         <include>metadata/**/*.schema</include>
                                         <include>metadata/**/*.valuesets</include>
+                                        <include>metadata/**/*.csv</include>
                                     </includes>
                                 </resource>
                             </resources>
