@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+        
 #     - name: Setup PostgreSQL
 #       uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
 #       with:
@@ -22,11 +24,12 @@ jobs:
 #         postgresql db: prime_data_hub
 #         postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
 #         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
-    - uses: action/checkout@v2
-    - name: List Dir
-      run: ls -lh /home/runner/work/prime-data-hub/prime-data-hub
-    - name: List Dir
-      run: ls -lh /home/runner/work/prime-data-hub/prime-data-hub/prime-router
+
+      - name: List Dir
+        run: ls -lh /home/runner/work/prime-data-hub/prime-data-hub
+        
+      - name: List Dir
+        run: ls -lh /home/runner/work/prime-data-hub/prime-data-hub/prime-router
        
 #     - name: Build Maven Package
 #       uses: ZhilinS/action-maven-cli@52918214e79b7336f5776a12720e31b893598bf4
