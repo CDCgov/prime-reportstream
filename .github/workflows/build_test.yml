@@ -37,6 +37,7 @@ jobs:
         run: docker build . --file Dockerfile --tag primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
         
   push:
+    needs: build
     runs-on: ubuntu-latest
     
     steps:
@@ -51,6 +52,7 @@ jobs:
         run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
 
   deploy:
+    needs: push
     runs-on: ubunt-latest
     
     steps:
