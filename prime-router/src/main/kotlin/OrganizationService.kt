@@ -29,6 +29,7 @@ data class OrganizationService(
     val batch: Batch? = null,
     val address: String = "",
     val format: Format = Format.CSV,
+
     val transports: List<Transport> = emptyList()
 ) {
     lateinit var organization: Organization
@@ -109,17 +110,9 @@ data class OrganizationService(
         MICHIGAN("US/Michigan"),
     }
 
-    sealed class Transport(){
-        data class SFTP( val host: String, val port: String, val filePath: String ) : Transport( "SFTP")
-        data class Email( val addresses: List<String> ): Transport("Email")
-
-        companion object {
-            @JsonCreator
-            @JvmStatic
-            fun findBySimpleClassName(host: String, port: String, filePath: String): Transport? {
-                return SFTP(host,port,filePath)
-            }
-        }        
+    sealed class Transport{
+        data class SFTP( val host: String, val port: String, val filePath: String ) : Transport()
+        data class Email( val addresses: List<String> ): Transport()
     }
 
     companion object {
