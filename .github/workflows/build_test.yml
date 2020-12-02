@@ -6,9 +6,9 @@ on:
   pull_request:
     branches: [ test ]
 
-defaults:
-  run:
-    working-directory: prime-router
+# defaults:
+#   run:
+#     working-directory: prime-router
 
 jobs:
   build:
