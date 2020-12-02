@@ -25,10 +25,10 @@ jobs:
        
     - name: Build Maven Package
       uses: ZhilinS/action-maven-cli@52918214e79b7336f5776a12720e31b893598bf4
-      env:
-        APP_DIR: prime-router 
+#       env:
+#         APP_DIR: prime-router 
       with:
-        lifecycle: -X clean package
+        lifecycle: clean package
 
 #     - name: Build the Docker image
 #       uses: actions/checkout@v2
