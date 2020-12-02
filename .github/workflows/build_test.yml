@@ -22,13 +22,20 @@ jobs:
         postgresql db: prime_data_hub
         postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
+        
+    - name: List Dir
+      run: ls -lh
+    - name: Whoami
+      run: whoami
+    - name: Working Dir
+      run: pwd
        
-    - name: Build Maven Package
-      uses: ZhilinS/action-maven-cli@52918214e79b7336f5776a12720e31b893598bf4
+#     - name: Build Maven Package
+#       uses: ZhilinS/action-maven-cli@52918214e79b7336f5776a12720e31b893598bf4
 #       env:
 #         APP_DIR: prime-router 
-      with:
-        lifecycle: clean package
+#       with:
+#         lifecycle: clean package
 
 #     - name: Build the Docker image
 #       uses: actions/checkout@v2
