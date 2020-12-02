@@ -1,0 +1,7 @@
+export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+export POSTGRES_USER=prime
+export POSTGRES_PASSWORD=changeIT!
+export AZ_PHD__ELR__USER=foo
+export AZ_PHD__ELR__PASS=bar
+export PRIME_ENVIRONMENT=mry
+export SENDGRID_API_KEY='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'

@@ -27,7 +27,7 @@ data class OrganizationService(
     val batch: Batch? = null,
     val address: String = "",
     val format: Format = Format.CSV,
-    val transport: Transport = Transport(Transport.TransportType.DEFAULT)
+    val transports: List<Transport> = emptyList()
 ) {
     lateinit var organization: Organization
     val fullName: String get() = "${organization.name}.$name"
@@ -107,19 +107,9 @@ data class OrganizationService(
         MICHIGAN("US/Michigan"),
     }
 
-    data class Transport(
-        val type: TransportType = TransportType.DEFAULT,
-        val host: String = "localhost",
-        val port: String = "22",
-        val filePath: String = "."
-    ) {
-        enum class TransportType {
-            SFTP,
-            DEFAULT
-            // EMAIL
-            // DROPBOX
-            // API
-        }
+    sealed class Transport{
+        data class SFTP( val host: String, val port: String, val filePath: String ) : Transport()
+        data class Email( val addresses: List<String> ): Transport()
     }
 
     companion object {
