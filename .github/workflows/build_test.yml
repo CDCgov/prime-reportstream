@@ -23,10 +23,10 @@ jobs:
         postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
 
-    - name: Build Maven Package
-      uses: comchangs/action-maven@54db702e085ac767dad94c87e84499afb9d77162
+    - name: Maven CLI For GitHub Actions
+      uses: xlui/action-maven-cli@249896efd56e7c2dba0cb51d120422f2ec85c5b7
       with:
-        args: clean package
+       lifecycle: clean package
 
 #     - name: Build the Docker image
 #       uses: actions/checkout@v2
