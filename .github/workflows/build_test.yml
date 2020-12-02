@@ -27,6 +27,13 @@ jobs:
       uses: xlui/action-maven-cli@249896efd56e7c2dba0cb51d120422f2ec85c5b7
       with:
        lifecycle: clean package
+       
+    - name: Maven & JDK8+ for monorepo projects
+      uses: ZhilinS/action-maven-cli@52918214e79b7336f5776a12720e31b893598bf4
+      env:
+        APP_DIR: prime-router 
+      with:
+        lifecycle: clean package
 
 #     - name: Build the Docker image
 #       uses: actions/checkout@v2
