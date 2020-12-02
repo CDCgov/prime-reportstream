@@ -6,9 +6,9 @@ on:
   pull_request:
     branches: [ test ]
 
-# defaults:
-#   run:
-#     working-directory: prime-router
+defaults:
+  run:
+    working-directory: prime-data-hub/prime-data-hub/prime-router
 
 jobs:
   build:
@@ -24,6 +24,9 @@ jobs:
 #         postgresql db: prime_data_hub
 #         postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
 #         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
+
+      - name: List Dir
+        run: ls -lh
 
       - name: List Dir
         run: ls -lh /home/runner/work/prime-data-hub/prime-data-hub
