@@ -34,7 +34,7 @@ jobs:
         run: mvn -B clean package --file pom.xml
 
       - name: Build Docker image
-        run: docker build . --file Dockerfile --tag primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:$(date +%s)
+        run: docker build . --file Dockerfile --tag primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:${{ github.sha }}
       
       - name: Azure Container Registry Login
         uses: Azure/docker-login@v1
@@ -44,4 +44,4 @@ jobs:
           login-server: https://index.docker.io/v1/
           
       - name : Push Docker Image
-        run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:$(date +%s)
+        run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:${{ github.sha }}
