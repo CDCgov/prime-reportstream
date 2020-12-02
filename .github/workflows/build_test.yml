@@ -24,11 +24,11 @@ jobs:
         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
         
     - name: List Dir
-      run: ls -lh
-    - name: Whoami
-      run: whoami
-    - name: Working Dir
-      run: pwd
+      run: ls -lh /home
+    - name: List Dir
+      run: ls -lh /home/runner
+    - name: List Dir
+      run: /home/runner/work
        
 #     - name: Build Maven Package
 #       uses: ZhilinS/action-maven-cli@52918214e79b7336f5776a12720e31b893598bf4
