@@ -8,7 +8,7 @@ on:
 
 defaults:
   run:
-    working-directory: prime-data-hub/prime-router
+    working-directory: prime-router
 
 jobs:
   build:
@@ -24,15 +24,12 @@ jobs:
 #         postgresql db: prime_data_hub
 #         postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
 #         postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
-
-      - name: List Dir
-        run: ls -lh /home/runner/work/prime-data-hub/prime-data-hub
-        
-      - name: List Dir
-        run: ls -lh /home/runner/work/prime-data-hub/prime-data-hub/prime-router
         
       - name: List Dir
         run: ls -lh
+        
+      - name: Working Dir
+        run: pwd
        
 #     - name: Build Maven Package
 #       uses: ZhilinS/action-maven-cli@52918214e79b7336f5776a12720e31b893598bf4
