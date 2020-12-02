@@ -35,7 +35,11 @@ jobs:
 
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
-      
+        
+  push:
+    runs-on: ubuntu-latest
+    
+    steps:
       - name: Azure Container Registry Login
         uses: Azure/docker-login@v1
         with:
@@ -45,3 +49,10 @@ jobs:
           
       - name : Push Docker Image
         run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
+
+  deploy:
+    runs-on: ubunt-latest
+    
+    steps:
+      - name: Test
+        run: echo "TEST"
