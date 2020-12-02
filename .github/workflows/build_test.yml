@@ -41,7 +41,7 @@ jobs:
         with:
           username: ${{ secrets.ACR_TEST_USER }}
           password: ${{ secrets.ACR_TEST_PWD }}
-          login-server: https://index.docker.io/v1/
+          login-server: primedatahubtestprimedevregistry.azurecr.io
           
       - name : Push Docker Image
         run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:${{ github.sha }}
