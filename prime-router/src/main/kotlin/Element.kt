@@ -140,17 +140,21 @@ data class Element(
                 }
             }
             Type.CODE -> {
-                if (valueSet == null) error("Schema Error: missing value set for '$name'")
-                val set = Metadata.findValueSet(valueSet)
-                    ?: error("Schema Error: invalid valueSet name: $valueSet")
-                // TODO: A more flexible form of the format field for codes is possible and necessary
-                when (field?.format) {
-                    displayFormat -> set.toDisplayFromCode(normalizedValue)
-                        ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                    altDisplayFormat -> toAltDisplay(normalizedValue)
+                // First, prioritize use of a local $alt format, even if no value set exists.
+                if (field?.format == altDisplayFormat) {
+                    toAltDisplay(normalizedValue)
                         ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
-                    systemFormat -> set.systemCode
-                    else -> normalizedValue
+                } else {
+                    if (valueSet == null) error("Schema Error: missing value set for '$name'")
+                    val set = Metadata.findValueSet(valueSet)
+                        ?: error("Schema Error: invalid valueSet name: $valueSet")
+                    // TODO: A more flexible form of the format field for codes is possible and necessary
+                    when (field?.format) {
+                        displayFormat -> set.toDisplayFromCode(normalizedValue)
+                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                        systemFormat -> set.systemCode
+                        else -> normalizedValue
+                    }
                 }
             }
             else -> normalizedValue
