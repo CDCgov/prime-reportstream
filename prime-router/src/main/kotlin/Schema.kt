@@ -11,6 +11,7 @@ data class Schema(
     val description: String? = null,
 ) {
     val baseName: String get() = formBaseName(name)
+    val csvFields: List<Element.CsvField> get() = elements.flatMap { it.csvFields ?: emptyList() }
 
     // A mapping maps from one schema to another
     data class Mapping(
@@ -20,15 +21,11 @@ data class Schema(
         val useValueSet: Map<String, String>,
         val useMapper: Map<String, Mapper>,
         val useDefault: Set<String>,
-        val missing: Set<String>
+        val missing: Set<String>,
     )
 
     fun findElement(name: String): Element? {
-        return elements.find {
-            (it.name == name) ||
-                    // a CODE element can have 3 different names <name> or <name>#text or <name>#system depending
-                    (it.isCode && (it.nameAsCode == name || it.nameAsCodeText == name || it.nameAsCodeSystem == name))
-        }
+        return elements.find { it.name == name }
     }
 
     fun buildMapping(toSchema: Schema): Mapping {
@@ -41,16 +38,12 @@ data class Schema(
         val missing = mutableSetOf<String>()
 
         toSchema.elements.forEach { toElement ->
-            findMatchingValueSet(toElement)?.let {
-                useValueSet[toElement.name] = it
-                return@forEach
-            }
             findMatchingElement(toElement)?.let {
                 useDirectly[toElement.name] = it
                 return@forEach
             }
             toElement.mapper?.let {
-                 val name = Mappers.parseMapperField(it).first
+                val name = Mappers.parseMapperField(it).first
                 useMapper[toElement.name] = Metadata.findMapper(name) ?: error("Mapper $name is not found")
                 return@forEach
             }
@@ -65,15 +58,6 @@ data class Schema(
 
     private fun findMatchingElement(matchElement: Element): String? {
         return findElement(matchElement.name)?.name
-    }
-
-    private fun findMatchingValueSet(matchElement: Element): String? {
-        return when (matchElement.type) {
-            Element.Type.CODE -> {
-                findElement(matchElement.name)?.valueSet
-            }
-            else -> null
-        }
     }
 
     companion object {

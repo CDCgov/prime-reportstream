@@ -115,15 +115,15 @@ elements:
 
   - name: standard.specimen_collection_date_time
 
-  - name: standard.specimen_type#text
+  - name: standard.specimen_type
 
   - name: standard.specimen_source_site_text
 
   - name: standard.test_performed
 
-  - name: standard.test_performed#text
+  - name: standard.test_performed
 
-  - name: standard.test_result#text
+  - name: standard.test_result
 
   - name: standard.test_result_date
 

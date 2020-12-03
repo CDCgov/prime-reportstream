@@ -42,6 +42,17 @@ createuser -P prime
 createdb --owner=prime prime_data_hub
 ```
 
+Installing PostgreSQL and Flyway on Ubuntu
+```
+sudo apt install postgresql
+cd /usr/local/lib
+wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.0/flyway-commandline-7.3.0-linux-x64.tar.gz | tar xvz && sudo ln -s `pwd`/flyway-7.3.0/flyway /usr/local/bin
+
+# Run createuser - when prompted set the password as changeIT!
+sudo -u postgres createuser -P prime
+sudo -u postgres createdb --owner=prime prime_data_hub
+```
+
 You should be able to compile the project now. Check if it works. 
 
 ```
@@ -125,3 +136,7 @@ az acr login --name rhawesprimedevregistry
 docker build --tag rhawesprimedevregistry.azurecr.io/prime-data-hub . 
 docker push rhawesprimedevregistry.azurecr.io/prime-data-hub 
 ```
+
+## Using local configuration for organizations.yml
+
+By default, the functions will pull their configuration for organizations from the `organizations.yml` file.  You can override this locally or in test by declaring an environment variable `PRIME_ENVIRONMENT`.  If you declare something like, `export PRIME_ENVIRONMENT=mylocal` then the system will look for a configuration file `organizations-mylocal.yml` and will use that, even if the `organizations.yml` file exists.  In this way, you can set up local SFTP routing, etc. without impacting the production (`organizations.yml`) config.  Note that depending on the OS - case matters.
