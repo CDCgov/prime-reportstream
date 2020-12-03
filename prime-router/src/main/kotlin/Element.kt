@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -153,6 +155,17 @@ data class Element(
                     else -> normalizedValue
                 }
             }
+            Type.TELEPHONE -> {
+                // normalized telephone always has 3 values national:country:extension
+                val parts = normalizedValue.split(phoneDelimiter)
+                val format = field?.format ?: defaultPhoneFormat
+                format
+                    .replace(countryCodeToken, parts[1])
+                    .replace(areaCodeToken, parts[0].substring(0, 3))
+                    .replace(exchangeToken, parts[0].substring(3, 6))
+                    .replace(subscriberToken, parts[0].substring(6))
+                    .replace(extensionToken, parts[2])
+            }
             else -> normalizedValue
         }
     }
@@ -207,6 +220,13 @@ data class Element(
                         ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
                 }
             }
+            Type.TELEPHONE -> {
+                val number = phoneNumberUtil.parse(formattedValue, "US")
+                if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                    error("Invalid phone number '$formattedValue' for '$name'")
+                val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
+                "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
+            }
             else -> formattedValue
         }
     }
@@ -232,6 +252,14 @@ data class Element(
         const val codeFormat = "\$code"
         const val systemFormat = "\$system"
         const val altDisplayFormat = "\$alt"
+        const val areaCodeToken = "\$area"
+        const val exchangeToken = "\$exchange"
+        const val subscriberToken = "\$subscriber"
+        const val countryCodeToken = "\$country"
+        const val extensionToken = "\$extension"
+        const val defaultPhoneFormat = "\$area\$exchange\$subscriber"
+        const val phoneDelimiter = ":"
+        val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))

@@ -114,16 +114,17 @@ object Hl7Converter {
     }
 
     private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
-        val number = phoneNumberUtil.parse(value, "US")
-        val national = DecimalFormat("0000000000").format(number.nationalNumber)
-        val areaCode = national.substring(0, 3)
-        val local = national.toString().substring(3, 10)
+        val parts = value.split(Element.phoneDelimiter)
+        val areaCode = parts[0].substring(0, 3)
+        val local = parts[0].substring(3)
+        val country = parts[1]
+        val extension = parts[2]
 
         terser.set(buildComponent(pathSpec, 2), "PH")
-        if (number.hasCountryCode()) terser.set(buildComponent(pathSpec, 5), number.countryCode.toString())
+        terser.set(buildComponent(pathSpec, 5), country)
         terser.set(buildComponent(pathSpec, 6), areaCode)
         terser.set(buildComponent(pathSpec, 7), local)
-        if (number.hasExtension()) terser.set(buildComponent(pathSpec, 8), number.extension)
+        if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
     }
 
     private fun setLiterals(terser: Terser) {
