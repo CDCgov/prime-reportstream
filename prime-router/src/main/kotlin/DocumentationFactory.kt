@@ -16,21 +16,25 @@ object DocumentationFactory {
         val csvField = element.csvFields?.get(0)
 
         return """
-            **Name**: ${element.name}
-            **Type**: ${element.type?.name}
-            **Format**: ${csvField?.format ?: ""}
-        """.trimIndent()
+**Name**:           ${element.name}
+
+**Type**:           ${element.type?.name}
+
+**Format**:         ${csvField?.format ?: ""}
+
+---"""
     }
 
+    // gets the documentation
     fun getSchemaDocumentation(schema: Schema) : String {
         val sb = StringBuilder()
 
         sb.appendLine("""
-            ###Schema: ${schema.name}
-            ####Description: ${schema.description}
-        """.trimIndent())
-        sb.appendLine("---")
-        sb.appendLine("")
+### Schema:         ${schema.name}
+#### Description:   ${schema.description}
+
+---"""
+        )
 
         schema.elements.forEach { element ->
             sb.appendLine(getElementDocumentation(element))
@@ -39,6 +43,7 @@ object DocumentationFactory {
         return sb.toString()
     }
 
+    // write all the documentation for a schema
     fun writeDocumentationForSchema(schema: Schema, outputDir: String? = null, outputFileName: String? = null) {
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         val createDate = LocalDate.now().format(formatter)

@@ -23,10 +23,13 @@ class DocumentationTests {
     @Test
     fun `test building documentation string from element`() {
         val expected = """
-            **Name**: a
-            **Type**: TEXT
-            **Format**: 
-        """.trimIndent()
+**Name**:           a
+
+**Type**:           TEXT
+
+**Format**:         
+
+---"""
 
         val docString = DocumentationFactory.getElementDocumentation(elem)
         assertEquals(expected, docString, "The messages do not match")
@@ -35,15 +38,19 @@ class DocumentationTests {
     @Test
     fun `test building documentation string from a schema`() {
         val expected = """
-            ###Schema: Test Schema
-            ####Description: This is a test schema
-            ---
+### Schema:         Test Schema
+#### Description:   This is a test schema
 
-            **Name**: a
-            **Type**: TEXT
-            **Format**: 
-            
-        """.trimIndent()
+---
+
+**Name**:           a
+
+**Type**:           TEXT
+
+**Format**:         
+
+---
+"""
 
         val actual = DocumentationFactory.getSchemaDocumentation(schema)
         assertEquals(expected, actual)
