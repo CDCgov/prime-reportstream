@@ -33,7 +33,7 @@
       - name: elr
         topic: covid-19
         schema: az/pima-az-covid-19
-        jurisdictionalFilter: { standard.testing_lab_state: AZ, standard.patient_county: Pima }
+        jurisdictionalFilter: { standard.testing_lab_state: AZ, standard.ordering_facility_county: "(?i).*Pima.*" }
         transforms: { deidentify: false }
         batch:
           operation: MERGE
