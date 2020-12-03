@@ -26,6 +26,15 @@
           timeZone: ARIZONA
         address: http://localhost:1181/
         format: CSV
+        transports:
+          - SFTP:
+            host: localhost
+            port: 22
+            filePath: ./upload
+          - Email:
+              addresses:
+                - matthew.young@bisonworks.com
+                - qtv1@cdc.gov
 
   - name: pima-az-phd
     description: Pima County, Arizona PHD
