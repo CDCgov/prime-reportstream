@@ -17,7 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         
-        # Still having authentication issues for service principal
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
