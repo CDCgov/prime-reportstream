@@ -169,6 +169,11 @@ data class Element(
                     .replace(exchangeToken, parts[0].substring(3, 6))
                     .replace(subscriberToken, parts[0].substring(6))
                     .replace(extensionToken, parts[2])
+            Type.POSTAL_CODE -> {
+                when (field?.format) {
+                    zipPlus4Token -> normalizedValue
+                    else -> normalizedValue.substring(0, 5)
+                }
             }
             else -> normalizedValue
         }
@@ -235,6 +240,10 @@ data class Element(
                     error("Invalid phone number '$formattedValue' for '$name'")
                 val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
+            Type.POSTAL_CODE -> {
+                if (!Regex("^\\d{5}(-\\d{4})?\$").matches(formattedValue))
+                    error("Input Error: invalid postal code '$formattedValue'")
+                formattedValue
             }
             else -> formattedValue
         }
@@ -269,6 +278,9 @@ data class Element(
         const val defaultPhoneFormat = "\$area\$exchange\$subscriber"
         const val phoneDelimiter = ":"
         val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
+        const val zipToken = "\$zip"
+        const val zipPlus4Token = "\$zipPlus4"
+        const val zipDefaultFormat = zipToken
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))
