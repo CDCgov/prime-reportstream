@@ -37,18 +37,25 @@ class SendFunction {
                 val service = Metadata.findService(header.task.receiverName)
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
 
-                context.logger.info("Transport found for ${service.fullName} = ${service.transport.type}")
+                val content = workflowEngine.readBody(header)
+                service.transports.forEach {
+                    when( it ) {
+                        is OrganizationService.Transport.SFTP -> SftpTransport().send(service.fullName, it, header, content)
+                        is OrganizationService.Transport.Email -> EmailTransport().send( service.fullName, it, header, content) 
+                    }
+                }
 
+                val transportSuccessful = true;
+                /*
                 var transportSuccessful = when (service.transport.type) {
                     OrganizationService.Transport.TransportType.SFTP -> {
-                        context.logger.info("trying to send to ${service.transport.host} ${service.transport.port} ${service.transport.filePath}")
                         val content = workflowEngine.readBody(header)
                         // TODO:  look up the correct class to call based on the transport metadata
                         val transport = SftpTransport()
                         transport.send(service, header, content)
                     }
                     OrganizationService.Transport.TransportType.DEFAULT -> false
-                }
+                } */
                 if (transportSuccessful) {
                     context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
                 }
@@ -60,10 +67,6 @@ class SendFunction {
             context.logger.log(Level.SEVERE, "Send exception", t)
         }
 
-    }
-
-    private fun lookupTransportMetadata(): OrganizationService.Transport {
-        return OrganizationService.Transport()  // TODO: actually lookup the Transport here - for now use the default
     }
 
 }

@@ -8,16 +8,18 @@ import java.util.*
 
 class SftpTransport : Transport {
 
-    override fun send(service: OrganizationService, header: DatabaseAccess.Header, contents: ByteArray): Boolean {
+    override fun send(orgName: String, transport: OrganizationService.Transport, header: DatabaseAccess.Header, contents: ByteArray): Boolean {
 
-        val (user, pass) = lookupCredentials(service)
+        val sftpTransport = transport as OrganizationService.Transport.SFTP
 
-        val fileDir = service.transport.filePath.removeSuffix("/");
+        val (user, pass) = lookupCredentials(orgName)
+
+        val fileDir = transport.filePath.removeSuffix("/");
 
         // TODO - determine what the filename should be
-        val path = "${fileDir}/${service.fullName.replace('.', '-')}-${header.task.reportId}.csv"
-        val host: String = service.transport.host
-        val port: String = service.transport.port
+        val path = "${fileDir}/${orgName.replace('.', '-')}-${header.task.reportId}.csv"
+        val host: String = sftpTransport.host
+        val port: String = sftpTransport.port
 
         val jsch = JSch()
         val jschSession = jsch.getSession(user, host, port.toInt())
@@ -43,15 +45,15 @@ class SftpTransport : Transport {
         return success;
     }
 
-    private fun lookupCredentials(service: OrganizationService): Pair<String, String> {
+    private fun lookupCredentials(orgName:String): Pair<String, String> {
 
-        val envVarLabel = service.fullName.replace(".", "__").replace('-', '_').toUpperCase()
+        val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
 
         val user = System.getenv("${envVarLabel}__USER") ?: ""
         val pass = System.getenv("${envVarLabel}__PASS") ?: ""
 
         if (user.isNullOrBlank() || pass.isNullOrBlank())
-            error("Unable to find SFTP credentials for ${service.fullName}")
+            error("Unable to find SFTP credentials for ${orgName}")
 
         return Pair(user, pass)
     }
