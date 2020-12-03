@@ -213,15 +213,20 @@ data class Element(
                 normalDateTime.format(datetimeFormatter)
             }
             Type.CODE -> {
-                if (valueSet == null) error("Schema Error: missing value set for $name")
-                val values = Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
-                when (field?.format) {
-                    displayFormat -> values.toCodeFromDisplay(formattedValue)
-                        ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
-                    altDisplayFormat -> toAltCode(formattedValue)
-                        ?: error("Invalid code: '$formattedValue' not a alt display value for element '$name'")
-                    else -> values.toNormalizedCode(formattedValue)
-                        ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
+                // First, prioritize use of a local $alt format, even if no value set exists.
+                if (field?.format == altDisplayFormat) {
+                    toAltCode(formattedValue)
+                        ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
+                } else {
+                    if (valueSet == null) error("Schema Error: missing value set for $name")
+                    val values =
+                        Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
+                    when (field?.format) {
+                        displayFormat -> values.toCodeFromDisplay(formattedValue)
+                            ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                         else -> values.toNormalizedCode(formattedValue)
+                            ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
+                    }
                 }
             }
             Type.TELEPHONE -> {
