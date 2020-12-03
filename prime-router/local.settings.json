@@ -6,8 +6,11 @@
     "FUNCTIONS_EXTENSION_VERSION": "~3",
     "PROCESSED_BLOB_CONTAINER": "processed",
 
+    "PRIME_ENVIRONMENT": "local",
     "AZ_PHD__ELR__USER": "foo",
-    "AZ_PHD__ELR__PASS": "pass"
+    "AZ_PHD__ELR__PASS": "pass",
+    "PA_PHD__ELR__USER": "foo",
+    "PA_PHD__ELR__PASS": "pass"
   },
   "ConnectionStrings": {}
 }
