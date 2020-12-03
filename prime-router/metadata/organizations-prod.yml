@@ -1,0 +1,84 @@
+---
+  #
+  # Organizations
+  #
+  - name: simple_report
+    description: PRIME's POC testing app
+    clients:
+      - name: default
+        topic: covid-19
+        schema: primedatainput/pdi-covid-19
+        format: CSV
+
+  - name: az-phd
+    description: Arizona PHD
+    services:
+      - name: elr
+        topic: covid-19
+        schema: az/az-covid-19
+        jurisdictionalFilter: { standard.testing_lab_state: AZ }
+# OLD        jurisdictionalFilter: { standard.patient_state: AZ }
+        transforms: { deidentify: false }
+        batch:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialBatch: 00:00
+          timeZone: ARIZONA
+        address: http://localhost:1181/
+        format: CSV
+        transport:
+          type: SFTP
+          host: hssftp.azdhs.gov
+          port: 22
+          filePath: ./TEST/IN
+
+# Temporarily removing PA until we're ready to send there.
+#  - name: pa-phd
+#    description: Pennsylvennia PHD
+#    services:
+#      - name: elr
+#        topic: covid-19
+#        schema: pa/pa-covid-19
+#        jurisdictionalFilter: { standard.patient_state: PA }
+#        transforms: { deidentify: false }
+#        address: http://localhost:1181/
+#        format: CSV
+
+  #
+  # Developer test organizations
+  #
+  - name: phd1
+    description: Arizona PHD
+    services:
+      - name: elr
+        topic: sample
+        schema: sample/phd1-sample
+        jurisdictionalFilter: {observation: covid-19:pos, state: FL}
+        transforms: {deidentify: false}
+        address: http://localhost:1181/
+        format: CSV
+
+
+    # Florida PHD
+  - name: phd2
+    description: Florida PHD
+    services:
+      - name: elr
+        topic: sample
+        schema: sample/phd2-sample
+        jurisdictionalFilter: {observation: covid-19:pos, state: FL}
+        transforms: {deidentify: false}
+        address: http://localhost:1281/
+        format: CSV
+
+  # HHS
+  - name: fed1
+    description: Federal feed
+    services:
+      - name: elr
+        topic: sample
+        schema: sample/fed1-sample
+        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
+        transforms: {deidentify: true}
+        address: http://localhost:1381/
+        format: CSV
