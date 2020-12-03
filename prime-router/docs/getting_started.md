@@ -136,3 +136,7 @@ az acr login --name rhawesprimedevregistry
 docker build --tag rhawesprimedevregistry.azurecr.io/prime-data-hub . 
 docker push rhawesprimedevregistry.azurecr.io/prime-data-hub 
 ```
+
+## Using local configuration for organizations.yml
+
+By default, the functions will pull their configuration for organizations from the `organizations.yml` file.  You can override this locally or in test by declaring an environment variable `PRIME_ENVIRONMENT`.  If you declare something like, `export PRIME_ENVIRONMENT=mylocal` then the system will look for a configuration file `organizations-mylocal.yml` and will use that, even if the `organizations.yml` file exists.  In this way, you can set up local SFTP routing, etc. without impacting the production (`organizations.yml`) config.  Note that depending on the OS - case matters.

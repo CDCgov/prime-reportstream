@@ -443,9 +443,7 @@ elements:
 
   - name: patient_race
     type: CODE
-    # 'race_alternative' is a bad hack to send data expected by AZ.  Breaks HL7. Valueset was 'hl70005'
-    # To fix: Need to change valuesets impl to allow for arbitrary mappings between values. Currently only have 'code' and 'display'
-    valueSet: race_alternative
+    valueSet: hl70005
     natFlatFileField: Patient_race
     hhsGuidanceField: Patient race
     hl7Field: PID-10
@@ -518,7 +516,7 @@ elements:
 
   - name: pregnant
     type: CODE
-    valueSet: pregnant_aoe
+    valueSet: covid-19/pregnant_aoe
     natFlatFileField: Pregnant
     hhsGuidanceField: Pregnant
     hl7Field: #OBX-5

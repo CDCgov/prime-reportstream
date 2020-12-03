@@ -3,11 +3,16 @@ name: federal-test-schema
 topic: covid-19
 elements:
   - name: lab
+    csvFields: [{name: lab}]
   - name: state
     type: TEXT
+    csvFields: [{name: state}]
   - name: test_time
     type: DATE
+    csvFields: [{name: test_time}]
   - name: specimen_id
     type: ID
+    csvFields: [{name: specimen_id}]
   - name: observation
     type: TEXT
+    csvFields: [{name: observation}]

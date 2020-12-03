@@ -14,16 +14,24 @@ import java.io.InputStream
 object Metadata {
     private const val schemaExtension = ".schema"
     private const val valueSetExtension = ".valuesets"
+    private const val tableExtension = ".csv"
     private const val defaultMetadataDirectory = "./metadata"
     private const val schemasSubdirectory = "schemas"
     private const val valuesetsSubdirectory = "valuesets"
-    private const val organizationsList = "organizations.yml"
+    private const val tableSubdirectory = "tables"
+
+    private val PRIME_ENVIRONMENT = System.getenv("PRIME_ENVIRONMENT") ?: ""
+
+    private val ext = if (PRIME_ENVIRONMENT.isNotEmpty() ) "-" + PRIME_ENVIRONMENT else  PRIME_ENVIRONMENT;
+
+    private val organizationsList = "organizations${ext}.yml"
 
     private var schemas = mapOf<String, Schema>()
     private var mappers = listOf(
         MiddleInitialMapper(),
         UseMapper(),
         IfPresentMapper(),
+        LookupMapper(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private var organizationStore: List<Organization> = ArrayList()
@@ -37,6 +45,7 @@ object Metadata {
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
         loadOrganizationList(metadataDir.toPath().resolve(organizationsList).toString())
+        loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
     }
 
     /*
@@ -63,11 +72,15 @@ object Metadata {
     }
 
     private fun readSchema(dirRelPath: String, file: File): Schema {
-        val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
-        val schemaName = normalizeSchemaName(
-            if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
-        )
-        return fromSchemaFile.copy(name = schemaName)
+        try {
+            val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
+            val schemaName = normalizeSchemaName(
+                if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
+            )
+            return fromSchemaFile.copy(name = schemaName)
+        } catch (e: Exception) {
+            throw Exception("Error parsing '${file.name}'", e)
+        }
     }
 
     private fun readAllSchemas(catalogDir: File, dirRelPath: String): List<Schema> {
@@ -153,7 +166,11 @@ object Metadata {
     }
 
     private fun readValueSets(file: File): List<ValueSet> {
-        return mapper.readValue(file.inputStream())
+        try {
+            return mapper.readValue(file.inputStream())
+        } catch (e: Exception) {
+            throw Exception("Error reading '${file.name}'", e)
+        }
     }
 
     private fun normalizeValueSetName(name: String): String {
@@ -225,4 +242,42 @@ object Metadata {
             else -> error("too many sub-names")
         }
     }
+
+    /*
+     * Lookup Tables
+     */
+    var lookupTableStore = mapOf<String, LookupTable>()
+    val lookupTables get() = lookupTableStore
+
+    fun loadLookupTables(filePath: String) {
+        val catalogDir = File(filePath)
+        if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
+        try {
+            readAllTables(catalogDir) { tableName: String, table: LookupTable ->
+                addLookupTable(tableName, table)
+            }
+        } catch (e: Exception) {
+            throw Exception("Error loading tables in '$filePath'", e)
+        }
+    }
+
+    fun addLookupTable(name: String, table: LookupTable) {
+        lookupTableStore = lookupTableStore.plus(name to table)
+    }
+
+    fun addLookupTable(name: String, tableStream: InputStream) {
+        val table = LookupTable.read(tableStream)
+        addLookupTable(name, table)
+    }
+
+    private fun readAllTables(catalogDir: File, block: (String, LookupTable) -> Unit) {
+        val extFilter = FilenameFilter { _, name -> name.endsWith(tableExtension) }
+        val files = File(catalogDir.absolutePath).listFiles(extFilter) ?: emptyArray()
+        files.forEach { file ->
+            val table = LookupTable.read(file.inputStream())
+            val name = file.nameWithoutExtension
+            block(name, table)
+        }
+    }
 }
+
