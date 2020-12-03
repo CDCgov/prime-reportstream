@@ -12,6 +12,7 @@ class SftpTransport : ITransport {
 
         val sftpTransport = transport as OrganizationService.Transport.SFTP
 
+
         val (user, pass) = lookupCredentials(orgName)
 
         val fileDir = transport.filePath.removeSuffix("/");
