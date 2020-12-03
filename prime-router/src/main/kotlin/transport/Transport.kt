@@ -4,5 +4,5 @@ import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.azure.DatabaseAccess
 
 interface Transport {
-    fun send(service: OrganizationService, header: DatabaseAccess.Header, contents: ByteArray): Boolean
+    fun send(orgName: String, transport: OrganizationService.Transport, header: DatabaseAccess.Header, contents: ByteArray): Boolean
 }
