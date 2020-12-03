@@ -109,7 +109,8 @@ class RouterCli : CliktCommand(
             }
 
             // start generating documentation
-            echo("You want to generate documentation for $schemaName, is that right?")
+            echo("Generating documentation for $schemaName")
+            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName)
         } else {
 
             // Gather input source
