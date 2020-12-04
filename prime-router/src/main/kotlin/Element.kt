@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -146,18 +148,33 @@ data class Element(
                 }
             }
             Type.CODE -> {
-                if (valueSet == null) error("Schema Error: missing value set for '$name'")
-                val set = Metadata.findValueSet(valueSet)
-                    ?: error("Schema Error: invalid valueSet name: $valueSet")
-                // TODO: A more flexible form of the format field for codes is possible and necessary
-                when (field?.format) {
-                    displayFormat -> set.toDisplayFromCode(normalizedValue)
-                        ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                    altDisplayFormat -> toAltDisplay(normalizedValue)
+                // First, prioritize use of a local $alt format, even if no value set exists.
+                if (field?.format == altDisplayFormat) {
+                    toAltDisplay(normalizedValue)
                         ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
-                    systemFormat -> set.systemCode
-                    else -> normalizedValue
+                } else {
+                    if (valueSet == null) error("Schema Error: missing value set for '$name'")
+                    val set = Metadata.findValueSet(valueSet)
+                        ?: error("Schema Error: invalid valueSet name: $valueSet")
+                    // TODO: A more flexible form of the format field for codes is possible and necessary
+                    when (field?.format) {
+                        displayFormat -> set.toDisplayFromCode(normalizedValue)
+                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                        systemFormat -> set.systemCode
+                        else -> normalizedValue
+                    }
                 }
+            }
+            Type.TELEPHONE -> {
+                // normalized telephone always has 3 values national:country:extension
+                val parts = normalizedValue.split(phoneDelimiter)
+                val format = field?.format ?: defaultPhoneFormat
+                format
+                    .replace(countryCodeToken, parts[1])
+                    .replace(areaCodeToken, parts[0].substring(0, 3))
+                    .replace(exchangeToken, parts[0].substring(3, 6))
+                    .replace(subscriberToken, parts[0].substring(6))
+                    .replace(extensionToken, parts[2])
             }
             else -> normalizedValue
         }
@@ -202,16 +219,28 @@ data class Element(
                 normalDateTime.format(datetimeFormatter)
             }
             Type.CODE -> {
-                if (valueSet == null) error("Schema Error: missing value set for $name")
-                val values = Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
-                when (field?.format) {
-                    displayFormat -> values.toCodeFromDisplay(formattedValue)
-                        ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
-                    altDisplayFormat -> toAltCode(formattedValue)
-                        ?: error("Invalid code: '$formattedValue' not a alt display value for element '$name'")
-                    else -> values.toNormalizedCode(formattedValue)
-                        ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
+                // First, prioritize use of a local $alt format, even if no value set exists.
+                if (field?.format == altDisplayFormat) {
+                    toAltCode(formattedValue)
+                        ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
+                } else {
+                    if (valueSet == null) error("Schema Error: missing value set for $name")
+                    val values =
+                        Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
+                    when (field?.format) {
+                        displayFormat -> values.toCodeFromDisplay(formattedValue)
+                            ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                         else -> values.toNormalizedCode(formattedValue)
+                            ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
+                    }
                 }
+            }
+            Type.TELEPHONE -> {
+                val number = phoneNumberUtil.parse(formattedValue, "US")
+                if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                    error("Invalid phone number '$formattedValue' for '$name'")
+                val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
+                "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
             }
             else -> formattedValue
         }
@@ -238,6 +267,14 @@ data class Element(
         const val codeFormat = "\$code"
         const val systemFormat = "\$system"
         const val altDisplayFormat = "\$alt"
+        const val areaCodeToken = "\$area"
+        const val exchangeToken = "\$exchange"
+        const val subscriberToken = "\$subscriber"
+        const val countryCodeToken = "\$country"
+        const val extensionToken = "\$extension"
+        const val defaultPhoneFormat = "\$area\$exchange\$subscriber"
+        const val phoneDelimiter = ":"
+        val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))

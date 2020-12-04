@@ -103,4 +103,38 @@ internal class ElementTests {
         assertEquals("199803300000", result2)
     }
 
+    @Test
+    fun `test toNormalized phone`() {
+        val one = Element("a",
+            type = Element.Type.TELEPHONE,
+            csvFields = Element.csvFields("phone"))
+        val result1 = one.toNormalized("5559938322")
+        assertEquals("5559938322:1:", result1)
+        val result2 = one.toNormalized("1(555)-968-5052")
+        assertEquals("5559685052:1:", result2)
+        val result3 = one.toNormalized("555-968-5052")
+        assertEquals("5559685052:1:", result3)
+        val result4 = one.toNormalized("+1(555)-968-5052")
+        assertEquals("5559685052:1:", result4)
+        val result5 = one.toNormalized("968-5052")
+        assertEquals("0009685052:1:", result5)
+        val result6 = one.toNormalized("+1(555)-968-5052 x5555")
+        assertEquals("5559685052:1:5555", result6)
+        // MX phone number
+        val result7 = one.toNormalized("+52-65-8888-8888")
+        assertEquals("6588888888:52:", result7)
+    }
+
+    @Test
+    fun `test toFormatted phone`() {
+        val one = Element("a",
+            type = Element.Type.TELEPHONE,
+            csvFields = Element.csvFields("phone"))
+        val result1 = one.toFormatted("5559938322:1:")
+        assertEquals("5559938322", result1)
+        val result2 = one.toFormatted("5559938322:1:", Element.CsvField("test", "\$country-\$area-\$exchange-\$subscriber"))
+        assertEquals("1-555-993-8322", result2)
+        val result3 = one.toFormatted("5559938322:1:", Element.CsvField("test", "(\$area)\$exchange-\$subscriber"))
+        assertEquals("(555)993-8322", result3)
+    }
 }

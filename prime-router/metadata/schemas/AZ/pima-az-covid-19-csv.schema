@@ -1,6 +1,6 @@
 ---
-name: pdi-covid-19
-description: PRIME POC COVID-19 flat file
+name: pima-az-covid-19
+description: Pima County, AZ COVID-19 flat file
 topic: covid-19
 trackingElement: standard.testing_lab_specimen_id
 elements:
@@ -38,6 +38,21 @@ elements:
   # The type of device used for the test.  eg, BinaxNOW COVID-19 Ag Card
   - name: standard.equipment_model_id
     csvFields: [{name: Device_ID}]
+
+  # Add'l field per request from the County
+  - name: device_type
+    type: CODE
+    mapper: use(standard.equipment_model_id)
+    altValues:
+      - display: Antigen
+        code: BinaxNOW COVID-19 Ag Card
+      - display: Antigen
+        code: LumiraDx SARS-CoV-2 Ag Test*
+      - display: Antigen
+        code: Sofia 2 SARS Antigen FIA
+    csvFields:
+    - name: Device_type
+      format: $alt
 
   # Identifier for the specific piece of equipment used.
   - name: standard.equipment_instance_id
