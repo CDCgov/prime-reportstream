@@ -14,15 +14,27 @@ object DocumentationFactory {
     // to end users or be converted into HTML if we want to be fancy
     fun getElementDocumentation(element: Element) : String {
         val csvField = element.csvFields?.get(0)
+        val sb = StringBuilder()
 
-        return """
+        sb.appendLine("""
 **Name**:           ${element.name}
 
 **Type**:           ${element.type?.name}
 
 **Format**:         ${csvField?.format ?: ""}
+""")
 
----"""
+        if (element.documentation?.isNotEmpty() == true) {
+            sb.appendLine("""**Documentation**:
+
+${element.documentation}
+""")
+        }
+
+        // output a horizontal line
+        sb.appendLine("---")
+
+        return sb.toString()
     }
 
     // gets the documentation
@@ -37,7 +49,7 @@ object DocumentationFactory {
         )
 
         schema.elements.forEach { element ->
-            sb.appendLine(getElementDocumentation(element))
+            sb.append(getElementDocumentation(element))
         }
 
         return sb.toString()

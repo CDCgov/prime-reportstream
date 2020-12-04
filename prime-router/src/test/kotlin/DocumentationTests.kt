@@ -6,7 +6,13 @@ import kotlin.test.assertTrue
 import kotlin.test.assertEquals
 
 class DocumentationTests {
+    private val documentation = """
+        ##### This is a test documentation field
+        `I am a code example`
+        > This is preformatted text
+    """.trimIndent()
     private val elem = Element(name = "a", type = Element.Type.TEXT)
+    private val elemWithDocumentation = Element(name = "a", type = Element.Type.TEXT, documentation = documentation)
     private val schema = Schema(name = "Test Schema", topic = "", elements = listOf(elem), description = "This is a test schema")
 
     @Test
@@ -29,7 +35,8 @@ class DocumentationTests {
 
 **Format**:         
 
----"""
+---
+"""
 
         val docString = DocumentationFactory.getElementDocumentation(elem)
         assertEquals(expected, docString, "The messages do not match")
@@ -53,6 +60,25 @@ class DocumentationTests {
 """
 
         val actual = DocumentationFactory.getSchemaDocumentation(schema)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `test building documentation for element with documentation value`() {
+        val expected = """
+**Name**:           a
+
+**Type**:           TEXT
+
+**Format**:         
+
+**Documentation**:
+
+$documentation
+
+---
+"""
+        val actual = DocumentationFactory.getElementDocumentation(elemWithDocumentation)
         assertEquals(expected, actual)
     }
 }
