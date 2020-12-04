@@ -169,10 +169,27 @@ data class Element(
                     .replace(exchangeToken, parts[0].substring(3, 6))
                     .replace(subscriberToken, parts[0].substring(6))
                     .replace(extensionToken, parts[2])
+            }
             Type.POSTAL_CODE -> {
                 when (field?.format) {
-                    zipPlus4Token -> normalizedValue
-                    else -> normalizedValue.substring(0, 5)
+                    zipFiveToken -> {
+                        // If this is US zip, return the first 5 digits
+                        val matchResult = Regex(usZipFormat).matchEntire(normalizedValue)
+                        matchResult?.groupValues?.get(1)
+                            ?: normalizedValue
+                    }
+                    zipFivePlusFourToken -> {
+                        // If this a US zip, either 5 or 9 digits depending on the value
+                        val matchResult = Regex(usZipFormat).matchEntire(normalizedValue)
+                        if (matchResult != null && matchResult.groups[2] == null) {
+                            matchResult.groups[1]?.value ?: ""
+                        } else if (matchResult != null && matchResult.groups[2] != null) {
+                            "${matchResult.groups[1]?.value}-${matchResult.groups[2]?.value}"
+                        } else {
+                            normalizedValue
+                        }
+                    }
+                    else -> normalizedValue
                 }
             }
             else -> normalizedValue
@@ -240,10 +257,12 @@ data class Element(
                     error("Invalid phone number '$formattedValue' for '$name'")
                 val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
+            }
             Type.POSTAL_CODE -> {
-                if (!Regex("^\\d{5}(-\\d{4})?\$").matches(formattedValue))
+                // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
+                if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
                     error("Input Error: invalid postal code '$formattedValue'")
-                formattedValue
+                formattedValue.replace(" ", "")
             }
             else -> formattedValue
         }
@@ -278,9 +297,10 @@ data class Element(
         const val defaultPhoneFormat = "\$area\$exchange\$subscriber"
         const val phoneDelimiter = ":"
         val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
-        const val zipToken = "\$zip"
-        const val zipPlus4Token = "\$zipPlus4"
-        const val zipDefaultFormat = zipToken
+        const val zipFiveToken = "\$zipFive"
+        const val zipFivePlusFourToken = "\$zipFivePlusFour"
+        const val usZipFormat = """^(\d{5})[- ]?(\d{4})?$"""
+        const val zipDefaultFormat = zipFiveToken
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))

@@ -114,10 +114,13 @@ internal class ElementTests {
         val result2 = one.toNormalized("99999-9999")
         assertEquals("99999-9999", result2)
         // format should not affect normalization
-        val result4 = one.toNormalized("99999-9999", Element.CsvField("zip", "\$zip"))
-        assertEquals("99999-9999", result4)
+        val result4 = one.toNormalized("999999999", Element.CsvField("zip", "\$zipFive"))
+        assertEquals("999999999", result4)
+        val result5 = one.toNormalized("KY1-6666") // Cayman zipcode
+        assertEquals("KY1-6666", result5)
+        val result6 = one.toNormalized("KX33-77777") // Letters and numbers, but a made up zipcode
         assertFails {
-            val result5 = one.toNormalized("999999")
+            one.toNormalized("%%%%XXXX") // Unreasonable
         }
     }
 
@@ -150,20 +153,36 @@ internal class ElementTests {
             csvFields = Element.csvFields("phone"))
         val result1 = one.toFormatted("5559938322:1:")
         assertEquals("5559938322", result1)
-        val result2 = one.toFormatted("5559938322:1:", Element.CsvField("test", "\$country-\$area-\$exchange-\$subscriber"))
+        val result2 = one.toFormatted("5559938322:1:",
+            Element.CsvField("test", "\$country-\$area-\$exchange-\$subscriber"))
         assertEquals("1-555-993-8322", result2)
-        val result3 = one.toFormatted("5559938322:1:", Element.CsvField("test", "(\$area)\$exchange-\$subscriber"))
+        val result3 = one.toFormatted("5559938322:1:",
+            Element.CsvField("test", "(\$area)\$exchange-\$subscriber"))
         assertEquals("(555)993-8322", result3)
+    }
 
+    @Test
     fun `test toFormatted zip`() {
         val one = Element("a",
             type = Element.Type.POSTAL_CODE,
             csvFields = Element.csvFields("zip"))
         val result1 = one.toFormatted("99999")
         assertEquals("99999", result1)
-        val result2 = one.toFormatted("99999-9999", Element.CsvField("zip", "\$zipPlus4"))
+        val result1a = one.toFormatted("99999-9999")
+        assertEquals("99999-9999", result1a)
+        val result2 = one.toFormatted("99999-9999", Element.CsvField("zip", "\$zipFivePlusFour"))
         assertEquals("99999-9999", result2)
-        val result3 = one.toFormatted("99999-9999", Element.CsvField("zip", "\$zip"))
+        val result3 = one.toFormatted("99999-9999", Element.CsvField("zip", "\$zipFive"))
         assertEquals("99999", result3)
+        val result4 = one.toFormatted("999999999", Element.CsvField("zip", "\$zipFive"))
+        assertEquals("99999", result4)
+        val result5 = one.toFormatted("999999999", Element.CsvField("zip", "\$zipFivePlusFour"))
+        assertEquals("99999-9999", result5)
+        val result6 = one.toFormatted("99999", Element.CsvField("zip", "\$zipFivePlusFour"))
+        assertEquals("99999", result6)
+        val result7 = one.toFormatted("KY1-5555", Element.CsvField("zip", "\$zipFivePlusFour"))
+        assertEquals("KY1-5555", result7)
+        val result8 = one.toFormatted("XZ5555", Element.CsvField("zip", "\$zipFivePlusFour"))
+        assertEquals("XZ5555", result8)
     }
 }
