@@ -21,43 +21,54 @@ interface Mapper {
 
     /**
      *
-     * The elements that the mapper requests for the apply function
+     * The names of the values that should be requested. Called first.
      *
-     * @args from the schema
+     * @param element that contains the mapper definition
+     * @param args from the schema
      */
-    fun elementNames(args: List<String>): List<String>
+    fun valueNames(element: Element, args: List<String>): List<String>
 
     /**
-     * @args from the schema
-     * @param values that where fetched based on elementNames
+     * Apply the mapper using the values from the current report. Called after valueNames().
+     * @param args from the schema
+     * @param values that where fetched based on valueNames
      */
-    fun apply(args: List<String>, values: Map<String, String>): String?
+    fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String?
 }
+
+data class ElementAndValue(
+    val element: Element,
+    val value: String
+)
 
 class MiddleInitialMapper : Mapper {
     override val name = "middleInitial"
 
-    override fun elementNames(args: List<String>): List<String> {
-        if (args.size != 1) error("Invalid number of arguments")
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size != 1) error("Schema Error: Invalid number of arguments")
         return args
     }
 
-    override fun apply(args: List<String>, values: Map<String, String>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
         if (values.size != 1) error("Didn't find the right number of values")
-        return values.values.first().substring(0..0).toUpperCase()
+        return values.first().value.substring(0..0).toUpperCase()
     }
 }
 
+/**
+ * The args for the use mapper is a list of element names in order of priority.
+ * The mapper will use the first with a value
+ */
 class UseMapper : Mapper {
     override val name = "use"
 
-    override fun elementNames(args: List<String>) = args
+    override fun valueNames(element: Element, args: List<String>) = args
 
-    override fun apply(args: List<String>, values: Map<String, String>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
         return if (values.isEmpty()) {
             null
         } else {
-            values.values.first()
+            values.first().value
         }
     }
 }
@@ -72,7 +83,7 @@ class UseMapper : Mapper {
 class ConcatenateMapper : Mapper {
     override val name = "concat"
 
-    override fun elementNames(args: List<String>): List<String> {
+    override fun valueNames(element: Element, args: List<String>): List<String> {
         if (args.size < 2)
             error(
                 "Schema Error: concat mapper expects to concat two or more column names"
@@ -80,58 +91,127 @@ class ConcatenateMapper : Mapper {
         return args
     }
 
-    override fun apply(args: List<String>, values: Map<String, String>): String? {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
         return if (values.isEmpty()) {
             null
         } else {
-            values.values.joinToString() // default ", " separator for now.
+            values.joinToString { it.value } // default ", " separator for now.
         }
     }
 }
 
-class LookupMapper : Mapper {
-    override val name = "lookup"
-
-    /**
-     * args for the lookup mapper are:
-     * - tableName
-     * - indexColumnName
-     * - lookupElementName
-     * - lookupColumnName
-     */
-    override fun elementNames(args: List<String>): List<String> {
-        if (args.size != 4)
-            error(
-                "Schema Error: lookup mapper expected tableName, " +
-                    "indexColumnName, lookupElementName and lookupColumnName"
-            )
-        return listOf(args[2])
-    }
-
-    override fun apply(args: List<String>, values: Map<String, String>): String? {
-        return if (values.isEmpty()) {
-            null
-        } else {
-            val lookupValue = values.values.first()
-            val lookupTable = Metadata.lookupTables[args[0]]
-            return lookupTable?.lookupValue(indexColumn = args[1], indexValue = lookupValue, lookupColumn = args[3])
-        }
-    }
-}
-
+/**
+ * The args for the ifPresent mapper are an element name and a value.
+ * If the elementName is present, the value is used
+ */
 class IfPresentMapper : Mapper {
     override val name = "ifPresent"
 
-    override fun elementNames(args: List<String>): List<String> {
+    override fun valueNames(element: Element, args: List<String>): List<String> {
         if (args.size != 2) error("Expect dependency and value parameters")
-        return args.subList(0, 1)
+        return args.subList(0, 1) // The element name
     }
 
-    override fun apply(args: List<String>, values: Map<String, String>): String? {
-        return if (values.containsKey(args[0])) {
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return if (values.size == 1) {
             return args[1]
         } else {
             null
+        }
+    }
+}
+
+/**
+ * The LookupMapper is used to lookup values from a lookup table
+ * The args for the lookup mapper is the name of the element with the index value
+ * The table involved is the element.table field
+ * The lookupColumn is the element.tableColumn field
+ */
+class LookupMapper : Mapper {
+    override val name = "lookup"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size !in 1..2)
+            error("Schema Error: lookup mapper expected one or two args")
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return if (values.size != args.size) {
+            null
+        } else {
+            val lookupTable = Metadata.findLookupTable(element.table ?: "")
+                ?: error("Schema Error: could not find table ${element.table}")
+            val indexValues = values.map {
+                val indexColumn = it.element.tableColumn
+                    ?: error("Schema Error: no tableColumn for element ${it.element.name}")
+                Pair(indexColumn, it.value)
+            }
+            val lookupColumn = element.tableColumn
+                ?: error("Schema Error: no tableColumn for element ${element.name}")
+            lookupTable.lookupValues(indexValues, lookupColumn)
+        }
+    }
+}
+
+/**
+ * The obx17 mapper is specific to the LIVD table and the DeviceID field. Do not use in other places.
+ *
+ * @See <a href=https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification>HHS Submission Guidence</a>Do not use it for other fields and tables.
+ */
+class Obx17Mapper : Mapper {
+    override val name = "obx17"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isNotEmpty())
+            error("Schema Error: obx17 mapper does not expect args")
+        return listOf("standard.equipment_model_name")
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return if (values.isEmpty()) {
+            null
+        } else {
+            val (indexElement, indexValue) = values.first()
+            val lookupTable = Metadata.findLookupTable(element.table ?: "")
+                ?: error("Schema Error: could not find table '${element.table}'")
+            val indexColumn = indexElement.tableColumn
+                ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
+            val testKitNameId = lookupTable.lookupValue(indexColumn, indexValue, "Testkit Name ID")
+            val testKitNameIdType = lookupTable.lookupValue(indexColumn, indexValue, "Testkit Name ID Type")
+            if (testKitNameId != null && testKitNameIdType != null) {
+                "${testKitNameId}_$testKitNameIdType"
+            } else {
+                null
+            }
+        }
+    }
+}
+
+/**
+ * The obx17Type mapper is specific to the LIVD table and the DeviceID field. Do not use in other places.
+ *
+ * @See <a href=https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification>HHS Submission Guidence</a>Do not use it for other fields and tables.
+ */
+class Obx17TypeMapper : Mapper {
+    override val name = "obx17Type"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isNotEmpty())
+            error("Schema Error: obx17Type mapper does not expect args")
+        return listOf("standard.equipment_model_name")
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return if (values.isEmpty()) {
+            null
+        } else {
+            val (indexElement, indexValue) = values.first()
+            val lookupTable = Metadata.findLookupTable(element.table ?: "")
+                ?: error("Schema Error: could not find table '${element.table}'")
+            val indexColumn = indexElement.tableColumn
+                ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
+            if (lookupTable.lookupValue(indexColumn, indexValue, "Testkit Name ID") != null) "99ELR" else null
         }
     }
 }
@@ -140,6 +220,11 @@ object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
         val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
-        return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
+        val args = if (match.groupValues[2].isEmpty())
+            emptyList()
+        else
+            match.groupValues[2].split(',').map { it.trim() }
+        val mapperName = match.groupValues[1]
+        return Pair(mapperName, args)
     }
 }

@@ -17,15 +17,15 @@ elements:
     csvFields: [{name: Patient_suffix}]
 
   # Patient ID is generated internally by SimpleReport
-  - name: standard.patient_id
+  - name: simple_report_patient_id
+    type: TEXT
     csvFields: [{name: Patient_ID}]
 
   # In SimpleReport, lookup_id is the ID the user entered into the app.
-  - name: patient_lookup_id
+  - name: standard.patient_id
     csvFields: [{name: Patient_lookup_ID}]
-    type: TEXT
 
-  - name: standard.test_performed
+  - name: standard.test_performed_code
     csvFields: [{name: Ordered_test_code}]
 
   # TODO: change when specimen_source_site has a valueSet
@@ -36,7 +36,7 @@ elements:
     csvFields: [{name: Specimen_type_code}]
 
   # The type of device used for the test.  eg, BinaxNOW COVID-19 Ag Card
-  - name: standard.equipment_model_id
+  - name: standard.equipment_model_name
     csvFields: [{name: Device_ID}]
 
   # Identifier for the specific piece of equipment used.

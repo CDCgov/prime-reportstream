@@ -16,6 +16,54 @@ elements:
   - name: standard.patient_suffix
     csvFields: [{name: Patient_suffix}]
 
+  # Patient ID is generated internally by SimpleReport
+  - name: simple_report_patient_id
+    type: TEXT
+    csvFields: [{name: Patient_ID}]
+
+  # In SimpleReport, lookup_id is the ID the user entered into the app.
+  - name: standard.patient_id
+    csvFields: [{name: Patient_lookup_ID}]
+
+  - name: standard.test_performed_code
+    csvFields: [{name: Ordered_test_code}]
+
+  # TODO: change when specimen_source_site has a valueSet
+  - name: standard.specimen_source_site_text
+    csvFields: [{name: Specimen_source_site_code}]
+
+  - name: standard.specimen_type
+    csvFields: [{name: Specimen_type_code}]
+
+  # The type of device used for the test.  eg, BinaxNOW COVID-19 Ag Card
+  - name: standard.equipment_model_name
+    csvFields: [{name: Device_ID}]
+
+  # Identifier for the specific piece of equipment used.
+  - name: standard.equipment_instance_id
+    csvFields: [{name: Instrument_ID}]
+
+  - name: standard.testing_lab_specimen_id
+    csvFields: [{name: Testing_lab_specimen_ID}]
+
+  - name: standard.test_result
+    csvFields: [{name: Test_result_code}]
+
+  - name: standard.illness_onset_date
+    csvFields: [{name: Illness_onset_date}]
+
+  - name: standard.specimen_collection_date_time
+    csvFields: [{name: Specimen_collection_date_time}]
+
+  - name: standard.order_test_date
+    csvFields: [{name: Order_test_date}]
+
+  - name: standard.test_result_date
+    csvFields: [{name: Test_date, format: yyyyMMdd}]
+
+  - name: standard.date_result_released
+    csvFields: [{name: Date_result_released, format: yyyyMMdd}]
+
   - name: standard.patient_race
     csvFields: [{name: Patient_race}]
 
@@ -32,13 +80,10 @@ elements:
     csvFields: [{name: Patient_street}]
 
   - name: standard.patient_street2
-    csvFields: [{name: Patient_street2}]
+    csvFields: [{name: Patient_street_2}]
 
   - name: standard.patient_city
     csvFields: [{name: Patient_city}]
-
-  - name: standard.patient_county
-    csvFields: [{name: Patient_county}]
 
   - name: standard.patient_state
     csvFields: [{name: Patient_state}]
@@ -49,26 +94,19 @@ elements:
   - name: standard.patient_phone_number
     csvFields: [{name: Patient_phone_number}]
 
-  - name: standard.patient_id
-    csvFields: [{name: Patient_ID}]
+  - name: standard.patient_county
+    csvFields: [{name: Patient_county}]
+
+    # Eg, Staff, Resident, Visitor, Student
+  - name: patient_role
+    type: TEXT
+    csvFields: [{name: Patient_role}]
 
   - name: standard.employed_in_healthcare
     csvFields: [{name: Employed_in_healthcare}]
 
   - name: standard.resident_congregate_setting
     csvFields: [{name: Resident_congregate_setting}]
-
-  - name: standard.testing_lab_specimen_id
-    csvFields: [{name: Testing_lab_specimen_ID}]
-
-  - name: standard.test_result
-    csvFields: [{name: Test_result_coded}]
-
-  - name: standard.specimen_collection_date_time
-    csvFields: [{name: Specimen_collection_date_time}]
-
-  - name: standard.ordering_provider_id
-    csvFields: [{name: Ordering_provider_ID}]
 
   - name: standard.first_test
     csvFields: [{name: First_test}]
@@ -79,8 +117,14 @@ elements:
   - name: standard.testing_lab_name
     csvFields: [{name: Testing_lab_name}]
 
-  - name: standard.testing_lab_id
-    csvFields: [{name: Testing_lab_ID}]
+  - name: standard.testing_lab_clia
+    csvFields: [{name: Testing_lab_CLIA}]
+
+  - name: standard.testing_lab_street
+    csvFields: [{name: Testing_lab_street}]
+
+  - name: standard.testing_lab_street2
+    csvFields: [{name: Testing_lab_street_2}]
 
   - name: standard.testing_lab_city
     csvFields: [{name: Testing_lab_city}]
@@ -88,41 +132,41 @@ elements:
   - name: standard.testing_lab_state
     csvFields: [{name: Testing_lab_state}]
 
-  - name: standard.testing_lab_street
-    csvFields: [{name: Testing_lab_street}]
-
-  - name: standard.testing_lab_street2
-    csvFields: [{name: Testing_lab_street2}]
-
   - name: standard.testing_lab_zip_code
     csvFields: [{name: Testing_lab_zip_code}]
 
   - name: standard.testing_lab_phone_number
-    csvFields: [{name: Testing_lab_zip_code}]
+    csvFields: [{name: Testing_lab_phone_number}]
 
-  - name: standard.ordering_facility_city
-    csvFields: [{name: Ordering_facility_city}]
-
-  - name: standard.ordering_facility_county
-    csvFields: [{name: Odering_facility_county}]
+  - name: standard.testing_lab_county
+    csvFields: [{name: Testing_lab_county}]
 
   - name: standard.ordering_facility_name
     csvFields: [{name: Ordering_facility_name}]
 
-  - name: standard.ordering_facility_phone_number
-    csvFields: [{name: Ordering_facility_phone_number}]
+  - name: standard.ordering_facility_street
+    csvFields: [{name: Ordering_facility_street}]
+
+  - name: standard.ordering_facility_street2
+    csvFields: [{name: Ordering_facility_street_2}]
+
+  - name: standard.ordering_facility_city
+    csvFields: [{name: Ordering_facility_city}]
 
   - name: standard.ordering_facility_state
     csvFields: [{name: Ordering_facility_state}]
 
-  - name: standard.ordering_facility_street
-    csvFields: [{name: Ordering_facility_street}]
-
-  - name: standard.ordering_facility_street_2
-    csvFields: [{name: Ordering_facility_street_2}]
-
   - name: standard.ordering_facility_zip_code
     csvFields: [{name: Ordering_facility_zip_code}]
+
+  - name: standard.ordering_facility_phone_number
+    csvFields: [{name: Ordering_facility_phone_number}]
+
+  - name: standard.ordering_facility_county
+    csvFields: [{name: Ordering_facility_county}]
+
+  - name: standard.ordering_provider_id
+    csvFields: [{name: Ordering_provider_ID}]
 
   - name: standard.ordering_provider_last_name
     csvFields: [{name: Ordering_provider_last_name}]
@@ -133,28 +177,21 @@ elements:
   - name: standard.ordering_provider_street
     csvFields: [{name: Ordering_provider_street}]
 
+  - name: standard.ordering_provider_street2
+    csvFields: [{name: Ordering_provider_street_2}]
+
+  - name: standard.ordering_provider_city
+    csvFields: [{name: Ordering_provider_city}]
+
+  - name: standard.ordering_provider_state
+    csvFields: [{name: Ordering_provider_state}]
+
   - name: standard.ordering_provider_zip_code
     csvFields: [{name: Ordering_provider_zip_code}]
 
   - name: standard.ordering_provider_phone_number
-    csvFields: [{name: Ordering_provider_phone}]
+    csvFields: [{name: Ordering_provider_phone_number}]
 
-  - name: standard.ordered_test_code
-    csvFields: [{name: Ordered_test_code}]
-
-  # TODO: change when specimen_source_site has a valueSet
-  - name: standard.specimen_source_site_code
-    csvFields: [{name: Specimen_source_site_code}]
-
-  - name: standard.specimen_type
-    csvFields: [{name: Specimen_type_code}]
-
-  - name: standard.equipment_instance_id
-    csvFields: [{name: Instrument_ID}]
-
-  - name: standard.test_result_date
-    csvFields: [{name: Test_date}]
-
-  - name: standard.date_result_released
-    csvFields: [{name: Date_result_released}]
+  - name: standard.ordering_provider_county
+    csvFields: [{name: Ordering_provider_county}]
 
