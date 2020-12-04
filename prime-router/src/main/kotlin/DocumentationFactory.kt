@@ -2,7 +2,6 @@ package gov.cdc.prime.router
 
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -23,6 +22,31 @@ object DocumentationFactory {
 
 **Format**:         ${csvField?.format ?: ""}
 """)
+
+        // build the valuesets
+        if (element.valueSet?.isNotEmpty() == true) {
+            val valueset = Metadata.findValueSet(element.valueSet)
+
+            sb.appendLine("**Valuesets**\n")
+            sb.appendLine("Code | Display")
+            sb.appendLine("---- | -------")
+
+            valueset?.values?.forEach{ vs ->
+                sb.appendLine("${vs.code}|${vs.display}")
+            }
+            sb.appendLine("")
+        }
+
+        if (element.altValues?.isNotEmpty() == true) {
+            sb.appendLine("**Alt Valuesets**")
+            sb.appendLine("Code | Display")
+            sb.appendLine("---- | -------")
+
+            element.altValues.forEach{ vs ->
+                sb.appendLine("${vs.code}|${vs.display}")
+            }
+            sb.appendLine("")
+        }
 
         if (element.documentation?.isNotEmpty() == true) {
             sb.appendLine("""**Documentation**:
@@ -59,8 +83,10 @@ ${element.documentation}
     fun writeDocumentationForSchema(schema: Schema, outputDir: String? = null, outputFileName: String? = null) {
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         val createDate = LocalDate.now().format(formatter)
+        // change any slashes to dashes for the file name
+        val schemaName = schema.name.replace("/", "-")
 
-        val oName = (outputFileName ?: "$schema.name") + "-$createDate.md"
+        val oName = (outputFileName ?: schemaName) + "-$createDate.md"
         val oDir = (outputDir ?: "documentation")
         val path = Paths.get(oDir)
         if (!Files.exists(path)) {
