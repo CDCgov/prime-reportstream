@@ -222,7 +222,7 @@ class Report {
         }
 
         fun formFileName(id: ReportId, schemaName: String, fileFormat: OrganizationService.Format?, createdDateTime: OffsetDateTime): String {
-            val formatter = DateTimeFormatter.ofPattern("YYYYMMDDhhmmss")
+            val formatter = DateTimeFormatter.ofPattern("YYYYMMddHHmmss")
             val namePrefix = "${Schema.formBaseName(schemaName)}-${id}-${formatter.format(createdDateTime)}"
             val nameSuffix = fileFormat?.toExt() ?: OrganizationService.Format.CSV.toExt()
             return "$namePrefix.$nameSuffix"

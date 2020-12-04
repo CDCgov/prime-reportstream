@@ -40,14 +40,20 @@ elements:
     csvFields: [{name: Device_ID}]
 
   # Add'l field per request from the County
+  # TODO Badness: As items are added in prime-data-input-client/backend/src/main/resources/application.yaml,
+  #  we need to add them here.
   - name: device_type
     type: CODE
     mapper: use(standard.equipment_model_id)
     altValues:
       - display: Antigen
+        code: "BD Veritor System for Rapid Detection of SARS-CoV-2*"
+      - display: Molecular
+        code: ID Now
+      - display: Antigen
         code: BinaxNOW COVID-19 Ag Card
       - display: Antigen
-        code: LumiraDx SARS-CoV-2 Ag Test*
+        code: "LumiraDx SARS-CoV-2 Ag Test*"
       - display: Antigen
         code: Sofia 2 SARS Antigen FIA
     csvFields:
