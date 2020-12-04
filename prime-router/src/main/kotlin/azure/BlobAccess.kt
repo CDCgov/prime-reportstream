@@ -15,9 +15,8 @@ const val blobContainerName = "reports"
 
 class BlobAccess {
     fun uploadBody(report: Report): Pair<String, String> {
-        val blobFilename = createBodyFilename(report)
         val (bodyFormat, blobBytes) = createBodyBytes(report)
-        val blobUrl = uploadBlob(blobFilename, blobBytes)
+        val blobUrl = uploadBlob(report.name, blobBytes)
         return Pair(bodyFormat, blobUrl)
     }
 
@@ -28,10 +27,6 @@ class BlobAccess {
             OrganizationService.Format.CSV -> CsvConverter.write(report, outputStream)
         }
         return Pair(getBodyFormat(report).toString(), outputStream.toByteArray())
-    }
-
-    private fun createBodyFilename(report: Report): String {
-        return "${report.name}.${report.destination?.format?.toExt() ?: OrganizationService.Format.CSV.toExt()}"
     }
 
     private fun getBodyFormat(report: Report): OrganizationService.Format {
