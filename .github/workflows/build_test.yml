@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        
+        # Test Azure CLI login
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
