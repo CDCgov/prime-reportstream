@@ -1,6 +1,23 @@
-@import '../../uswds/css/uswds.min.css';
+// Import USWDS 2.9.0
 
-.test {
-  color: #412a3c;
-  background: #1c1c1c;
+@import '../../uswds/scss/theme/styles';
+
+// Custom styles
+
+.dh-table {
+  width: 100%;
+
+  thead {
+
+    th {
+    border-bottom: 2px solid;
+    }
+  }
+
+  tbody {
+
+    td, th {
+      border-color: color('base-lighter');
+    }
+  }
 }

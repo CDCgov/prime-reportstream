@@ -28,7 +28,7 @@
       <div class="usa-banner__content usa-accordion__content" id="gov-banner">
         <div class="grid-row grid-gap-lg">
           <div class="usa-banner__guidance tablet:grid-col-6">
-            <img class="usa-banner__icon usa-media-block__img" src="/assets/img/icon-dot-gov.svg" role="img" alt="Dot gov">
+            <img class="usa-banner__icon usa-media-block__img" src="uswds/img/icon-dot-gov.svg" role="img" alt="Dot gov">
             <div class="usa-media-block__body">
               <p>
                 <strong>
@@ -41,7 +41,7 @@
             </div>
           </div>
           <div class="usa-banner__guidance tablet:grid-col-6">
-            <img class="usa-banner__icon usa-media-block__img" src="/assets/img/icon-https.svg" role="img" alt="Https">
+            <img class="usa-banner__icon usa-media-block__img" src="uswds/img/icon-https.svg" role="img" alt="Https">
             <div class="usa-media-block__body">
               <p>
                 <strong>
@@ -63,27 +63,159 @@
   <header class="usa-header usa-header--basic">
     <div class="usa-nav-container">
       <div class="usa-navbar">
-    <div class="usa-logo" id="basic-logo">
-      <em class="usa-logo__text"><a href="/" title="Home" aria-label="Home">PRIME Data Hub</a></em>
-    </div>
-    <button class="usa-menu-btn">Menu</button>
-  </div>
-  <nav aria-label="Primary navigation" class="usa-nav">
-    <button class="usa-nav__close"><img src="/assets/img/close.svg" role="img" alt="close"></button>
-
-  </form>
-  </nav>
+        <div class="usa-logo" id="basic-logo">
+          <em class="usa-logo__text"><a href="/" title="Home" aria-label="Home">PRIME Data Hub</a></em>
+        </div>
+        <button class="usa-menu-btn">Menu</button>
+      </div>
+      <nav aria-label="Primary navigation" class="usa-nav">
+        <button class="usa-nav__close"><img src="uswds/img/close.svg" role="img" alt="close"></button>
+      </nav>
     </div>
   </header>
 
   <div class="grid-container">
     <div class="grid-row">
-      <h1>This is a Heading</h1>
-      <p>This is a paragraph.</p>
+
+      <div class="grid-col-12">
+        <h1>Pima county, AZ</h1>
+        <h2>COVID-19 test results for {{today's date}}</h2>
+
+        <table class="usa-table usa-table--borderless dh-table">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Total tests</th>
+              <th scope="col">Tests positive</th>
+              <th scope="col">File</th>
+              <th scope="col">Expires</th>
+            </tr>
+          </thead>
+          <tbody class="font-mono-2xs">
+            <tr>
+              <th data-title="date" scope="row">
+                  {{12-04-2020}}
+              </th>
+              <td data-title="Total tests">
+                <span>
+                  {{001}}
+                </span>
+              </td>
+              <td data-title="Tests positive">
+                <span>
+                  {{002}}
+                </span>
+              </td>
+              <td data-title="File">
+                <span>
+                  <a href="">{{filename.csv}}</a>
+                </span>
+              </td>
+              <td data-title="expires">
+                <span>
+                  {{n}} day{{s}}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-col-12">
+        <h2>COVID-19 test results for last seven days</h2>
+
+        <table class="usa-table usa-table--borderless dh-table">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Total tests</th>
+              <th scope="col">Tests positive</th>
+              <th scope="col">File</th>
+              <th scope="col">Expires</th>
+            </tr>
+          </thead>
+          <tbody class="font-mono-2xs">
+            <tr>
+              <th data-title="date" scope="row">
+                  {{12-04-2020}}
+              </th>
+              <td data-title="Total tests">
+                <span>
+                  {{001}}
+                </span>
+              </td>
+              <td data-title="Tests positive">
+                <span>
+                  {{002}}
+                </span>
+              </td>
+              <td data-title="File">
+                <span>
+                  <a href="">{{filename.csv}}</a>
+                </span>
+              </td>
+              <td data-title="expires">
+                <span>
+                  {{n}} day{{s}}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th data-title="date" scope="row">
+                  {{12-04-2020}}
+              </th>
+              <td data-title="Total tests">
+                <span>
+                  {{001}}
+                </span>
+              </td>
+              <td data-title="Tests positive">
+                <span>
+                  {{002}}
+                </span>
+              </td>
+              <td data-title="File">
+                <span>
+                  <a href="">{{filename.csv}}</a>
+                </span>
+              </td>
+              <td data-title="expires">
+                <span>
+                  {{n}} day{{s}}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th data-title="date" scope="row">
+                  {{12-04-2020}}
+              </th>
+              <td data-title="Total tests">
+                <span>
+                  {{001}}
+                </span>
+              </td>
+              <td data-title="Tests positive">
+                <span>
+                  {{002}}
+                </span>
+              </td>
+              <td data-title="File">
+                <span>
+                  <a href="">{{filename.csv}}</a>
+                </span>
+              </td>
+              <td data-title="expires">
+                <span>
+                  {{n}} day{{s}}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
-
-
 
   <footer class="usa-footer usa-footer--slim">
     <div class="grid-container usa-footer__return-to-top">
@@ -92,7 +224,7 @@
     <div class="usa-footer__primary-section">
       <div class="usa-footer__primary-container grid-row">
         <div class="mobile-lg:grid-col-8">
-          <h3 class="">Name of Agency</h3>
+          <p><strong>PRIME Data Hub</strong></p>
         </div>
         <div class="mobile-lg:grid-col-4">
           <address class="usa-footer__address">
@@ -113,6 +245,7 @@
       </div>
     </div>
   </footer>
+
   <script src="uswds/js/uswds.min.js"></script>
 </body>
 </html>
