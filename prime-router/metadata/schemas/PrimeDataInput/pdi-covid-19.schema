@@ -49,8 +49,14 @@ elements:
   - name: standard.test_result
     csvFields: [{name: Test_result_code}]
 
+  - name: standard.illness_onset_date
+    csvFields: [{name: Illness_onset_date}]
+
   - name: standard.specimen_collection_date_time
     csvFields: [{name: Specimen_collection_date_time}]
+
+  - name: standard.order_test_date
+    csvFields: [{name: Order_test_date}]
 
   - name: standard.test_result_date
     csvFields: [{name: Test_date, format: yyyyMMdd}]
@@ -90,6 +96,11 @@ elements:
 
   - name: standard.patient_county
     csvFields: [{name: Patient_county}]
+
+    # Eg, Staff, Resident, Visitor, Student
+  - name: patient_role
+    type: TEXT
+    csvFields: [{name: Patient_role}]
 
   - name: standard.employed_in_healthcare
     csvFields: [{name: Employed_in_healthcare}]

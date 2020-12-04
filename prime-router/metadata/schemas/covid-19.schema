@@ -611,7 +611,7 @@ elements:
 
   - name: specimen_role
     type: CODE
-    valueSet: covid-19/specimen_role
+    valueSet: common/specimen_role
     natFlatFileField: Role
     hhsGuidanceField:
     hl7Field: SPM-11
@@ -796,8 +796,7 @@ elements:
 
   - name: testing_lab_clia
     type: ID_CLIA
-    # Dangerous Hack:  this default is the CLIA ID for Via Elegante, Tucson Mountains.  If another lab sends empty, it'll look like it came from Tucson Mountains!
-    default:  03D2159846
+    # Example: 03D2159846
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: #OBX-23-10
