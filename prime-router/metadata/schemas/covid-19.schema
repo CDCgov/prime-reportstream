@@ -611,7 +611,7 @@ elements:
 
   - name: specimen_role
     type: CODE
-    valueSet: covid-19/specimen_role
+    valueSet: common/specimen_role
     natFlatFileField: Role
     hhsGuidanceField:
     hl7Field: SPM-11
