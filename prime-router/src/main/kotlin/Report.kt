@@ -142,8 +142,16 @@ class Report {
     fun filter(patterns: Map<String, String>): Report {
         val combinedSelection = Selection.withRange(0, table.rowCount())
         patterns.forEach { (col, pattern) ->
-            val columnSelection = table.stringColumn(col).matchesRegex(pattern)
-            combinedSelection.and(columnSelection)
+            // @todo change to a 'when'
+           if (col == "filter_function") {
+               val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(pattern)
+               val filterFn = Metadata.findJurisdictionalFilter(fnName) ?: error("JurisdictionalFilter $fnName is not found")
+               val filterFnSelection = filterFn.getSelection(fnArgs, table)
+               combinedSelection.and(filterFnSelection)
+            } else {
+               val columnSelection = table.stringColumn(col).matchesRegex(pattern)
+               combinedSelection.and(columnSelection)
+           }
         }
         val filteredTable = table.where(combinedSelection)
         return Report(this.schema, filteredTable, fromThisReport("filter: $patterns"))

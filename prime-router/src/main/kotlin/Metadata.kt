@@ -33,6 +33,11 @@ object Metadata {
         IfPresentMapper(),
         LookupMapper(),
     )
+
+    private var jurisdictionalFilters = listOf(
+        FilterByCounty(),
+        FilterByZip(),
+    )
     private var valueSets = mapOf<String, ValueSet>()
     private var organizationStore: List<Organization> = ArrayList()
     private var organizationServiceStore: List<OrganizationService> = ArrayList()
@@ -137,8 +142,16 @@ object Metadata {
     }
 
     /*
-     * ValueSet
-     */
+    * JurisdictionalFilters
+    */
+
+    fun findJurisdictionalFilter(name: String): JurisdictionalFilter? {
+        return jurisdictionalFilters.find { it.name.equals(name, ignoreCase = true) }
+    }
+
+    /*
+      * ValueSet
+      */
 
     fun loadValueSetCatalog(catalog: String) {
         val catalogDir = File(catalog)
