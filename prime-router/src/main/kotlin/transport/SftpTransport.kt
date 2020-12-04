@@ -6,7 +6,7 @@ import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.azure.DatabaseAccess
 import java.util.Properties
 
-class SftpTransport : Transport {
+class SftpTransport : ITransport {
 
     override fun send(orgName: String, transport: OrganizationService.Transport, header: DatabaseAccess.Header, contents: ByteArray): Boolean {
 
