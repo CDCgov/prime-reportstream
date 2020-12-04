@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.transport.SftpTransport
+import gov.cdc.prime.router.transport.EmailTransport
 import java.util.logging.Level
 
 
