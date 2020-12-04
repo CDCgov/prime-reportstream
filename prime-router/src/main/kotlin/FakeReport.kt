@@ -72,7 +72,7 @@ class FakeReport {
                         else -> TODO()
                     }
                 }
-                Element.Type.TELEPHONE -> faker.numerify("##########") // faker.phoneNumber().cellPhone()
+                Element.Type.TELEPHONE -> faker.numerify("##########:1:") // faker.phoneNumber().cellPhone()
                 Element.Type.EMAIL -> "${patientName.username()}@email.com"
                 null -> error("Invalid element type for ${element.name}")
             }
