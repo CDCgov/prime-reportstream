@@ -103,6 +103,7 @@ elements:
   - name: standard.patient_zip_code
     csvFields:
     - name: Patient_Zip
+      format: $zip # Only a 5 digit zipcode
 
   - name: standard.patient_county
     csvFields:
