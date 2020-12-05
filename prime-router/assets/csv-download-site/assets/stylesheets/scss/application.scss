@@ -44,5 +44,22 @@ main {
 
 .prime-identifier {
   background-color: color('base-lightest');
-  color: color('base');
+  color: color('base-darkest');
+
+  .prime-identifier__domain {
+    color: color('base-dark');
+  }
+
+  .prime-identifier__disclaimer {
+
+    a {
+
+      &:link, &:visited, &:active {
+        color: color('base-darkest');
+      }
+      &:hover {
+        color: color('base');
+      }
+    }
+  }
 }
