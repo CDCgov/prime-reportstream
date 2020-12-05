@@ -3,14 +3,12 @@ package gov.cdc.prime.router
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import com.google.i18n.phonenumbers.PhoneNumberUtil
-import java.text.DecimalFormat
 import java.util.Properties
-
 
 object Hl7Converter {
     const val softwareVendorOrganization = "Centers for Disease Control and Prevention"
@@ -138,7 +136,7 @@ object Hl7Converter {
         terser.set("SFT-6", buildDate)
 
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
-        
+
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-1", "1")
@@ -155,12 +153,12 @@ object Hl7Converter {
         val receivingFacilityId = report.getStringWithDefault(0, "standard.receiving_facility_id")
 
         return "FHS|^~\\&|" +
-                "$sendingApp^$sendingOid^ISO|" +
-                "$sendingFacilityName^$sendingCLIA^CLIA|" +
-                "$receivingApplicationName^$receivingApplicationId^ISO|" +
-                "$receivingFacilityName^$receivingFacilityId^ISO|" +
-                nowTimestamp() +
-                "\r"
+            "$sendingApp^$sendingOid^ISO|" +
+            "$sendingFacilityName^$sendingCLIA^CLIA|" +
+            "$receivingApplicationName^$receivingApplicationId^ISO|" +
+            "$receivingFacilityName^$receivingFacilityId^ISO|" +
+            nowTimestamp() +
+            "\r"
     }
 
     private fun createBHS(report: Report): String {
@@ -174,12 +172,12 @@ object Hl7Converter {
         val receivingFacilityId = report.getStringWithDefault(0, "standard.receiving_facility_id")
 
         return "BHS|^~\\&|" +
-                "$sendingApp^$sendingOid^ISO|" +
-                "$sendingFacilityName^$sendingCLIA^CLIA|" +
-                "$receivingApplicationName^$receivingApplicationId^ISO|" +
-                "$receivingFacilityName^$receivingFacilityId^ISO|" +
-                nowTimestamp() +
-                "\r"
+            "$sendingApp^$sendingOid^ISO|" +
+            "$sendingFacilityName^$sendingCLIA^CLIA|" +
+            "$receivingApplicationName^$receivingApplicationId^ISO|" +
+            "$receivingFacilityName^$receivingFacilityId^ISO|" +
+            nowTimestamp() +
+            "\r"
     }
 
     private fun createBTS(report: Report): String {

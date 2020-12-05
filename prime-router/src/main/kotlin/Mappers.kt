@@ -74,7 +74,10 @@ class LookupMapper : Mapper {
      */
     override fun elementNames(args: List<String>): List<String> {
         if (args.size != 4)
-            error("Schema Error: lookup mapper expected tableName, indexColumnName, lookupElementName and lookupColumnName")
+            error(
+                "Schema Error: lookup mapper expected tableName, " +
+                    "indexColumnName, lookupElementName and lookupColumnName"
+            )
         return listOf(args[2])
     }
 
@@ -113,4 +116,3 @@ object Mappers {
         return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
     }
 }
-

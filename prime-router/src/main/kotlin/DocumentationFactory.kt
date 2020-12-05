@@ -11,17 +11,19 @@ import kotlin.text.StringBuilder
 object DocumentationFactory {
     // will generate a documentation string based on markdown that can then be presented
     // to end users or be converted into HTML if we want to be fancy
-    fun getElementDocumentation(element: Element) : String {
+    fun getElementDocumentation(element: Element): String {
         val csvField = element.csvFields?.get(0)
         val sb = StringBuilder()
 
-        sb.appendLine("""
+        sb.appendLine(
+            """
 **Name**:           ${element.name}
 
 **Type**:           ${element.type?.name}
 
 **Format**:         ${csvField?.format ?: ""}
-""")
+"""
+        )
 
         // build the valuesets
         if (element.valueSet?.isNotEmpty() == true) {
@@ -31,7 +33,7 @@ object DocumentationFactory {
             sb.appendLine("Code | Display")
             sb.appendLine("---- | -------")
 
-            valueset?.values?.forEach{ vs ->
+            valueset?.values?.forEach { vs ->
                 sb.appendLine("${vs.code}|${vs.display}")
             }
             sb.appendLine("")
@@ -42,17 +44,19 @@ object DocumentationFactory {
             sb.appendLine("Code | Display")
             sb.appendLine("---- | -------")
 
-            element.altValues.forEach{ vs ->
+            element.altValues.forEach { vs ->
                 sb.appendLine("${vs.code}|${vs.display}")
             }
             sb.appendLine("")
         }
 
         if (element.documentation?.isNotEmpty() == true) {
-            sb.appendLine("""**Documentation**:
+            sb.appendLine(
+                """**Documentation**:
 
 ${element.documentation}
-""")
+"""
+            )
         }
 
         // output a horizontal line
@@ -62,10 +66,11 @@ ${element.documentation}
     }
 
     // gets the documentation
-    fun getSchemaDocumentation(schema: Schema) : String {
+    fun getSchemaDocumentation(schema: Schema): String {
         val sb = StringBuilder()
 
-        sb.appendLine("""
+        sb.appendLine(
+            """
 ### Schema:         ${schema.name}
 #### Description:   ${schema.description}
 

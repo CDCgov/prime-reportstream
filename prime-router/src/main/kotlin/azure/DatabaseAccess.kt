@@ -24,8 +24,6 @@ import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.OffsetDateTime
-import java.util.logging.Logger
-
 
 const val databaseVariable = "POSTGRES_URL"
 const val userVariable = "POSTGRES_USER"
@@ -305,4 +303,3 @@ class DatabaseAccess(private val connection: Connection = getConnection()) {
         }
     }
 }
-
