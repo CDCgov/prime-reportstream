@@ -1,0 +1,48 @@
+// Import USWDS 2.9.0
+
+@import '../../uswds/scss/theme/styles';
+
+// Custom styles
+
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+}
+
+.prime-user-account {
+
+  margin-bottom: units(1.5);
+  font-size: size('sans', '2xs');
+  vertical-align: u-text('vertical-align');
+  line-height: units(2.5);
+  text-align: right;
+}
+
+.prime-table {
+  width: 100%;
+
+  thead {
+
+    th {
+    border-bottom: 2px solid;
+    }
+  }
+
+  tbody {
+
+    td, th {
+      border-color: color('base-lighter');
+    }
+  }
+}
+
+.prime-identifier {
+  background-color: color('base-lightest');
+  color: color('base');
+}
