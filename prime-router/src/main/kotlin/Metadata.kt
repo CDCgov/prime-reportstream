@@ -36,7 +36,7 @@ object Metadata {
 
     private var jurisdictionalFilters = listOf(
         FilterByCounty(),
-        FilterByZip(),
+        Matches(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private var organizationStore: List<Organization> = ArrayList()

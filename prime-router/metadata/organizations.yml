@@ -16,8 +16,8 @@
       - name: elr
         topic: covid-19
         schema: az/az-covid-19
-        jurisdictionalFilter: { standard.testing_lab_state: AZ }
-# OLD        jurisdictionalFilter: { standard.patient_state: AZ }
+        jurisdictionalFilter:
+          - matches(standard.ordering_facility_state,AZ)
         transforms: { deidentify: false }
         batch:
           operation: MERGE
@@ -33,8 +33,8 @@
       - name: elr
         topic: covid-19
         schema: az/pima-az-covid-19
-# OLD        jurisdictionalFilter: { standard.testing_lab_state: AZ, standard.ordering_facility_county: "(?i).*Pima.*" }
-        jurisdictionalFilter: { filter_function: "filterByCounty(AZ, Pima)" }
+        jurisdictionalFilter:
+          - filterByCounty(AZ, Pima)
         transforms: { deidentify: false }
         batch:
           operation: MERGE
@@ -43,18 +43,6 @@
           timeZone: ARIZONA
         address: http://localhost:1181/
         format: CSV
-
-# Temporarily removing PA until we're ready to send there.
-#  - name: pa-phd
-#    description: Pennsylvennia PHD
-#    services:
-#      - name: elr
-#        topic: covid-19
-#        schema: pa/pa-covid-19
-#        jurisdictionalFilter: { standard.patient_state: PA }
-#        transforms: { deidentify: false }
-#        address: http://localhost:1181/
-#        format: CSV
 
   #
   # Developer test organizations
@@ -65,7 +53,7 @@
       - name: elr
         topic: sample
         schema: sample/phd1-sample
-        jurisdictionalFilter: {observation: covid-19:pos, state: FL}
+        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, AZ)"]
         transforms: {deidentify: false}
         address: http://localhost:1181/
         format: CSV
@@ -78,7 +66,8 @@
       - name: elr
         topic: sample
         schema: sample/phd2-sample
-        jurisdictionalFilter: {observation: covid-19:pos, state: FL}
+        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, FL)"]
+#OLD        jurisdictionalFilter: {observation: covid-19:pos, state: FL}
         transforms: {deidentify: false}
         address: http://localhost:1281/
         format: CSV
@@ -90,7 +79,8 @@
       - name: elr
         topic: sample
         schema: sample/fed1-sample
-        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
+        jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)"]
+#OLD        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
         transforms: {deidentify: true}
         address: http://localhost:1381/
         format: CSV

@@ -25,7 +25,7 @@ data class OrganizationService(
     val name: String,
     val topic: String,
     val schema: String,
-    val jurisdictionalFilter: Map<String, String> = emptyMap(),
+    val jurisdictionalFilter: List<String> = emptyList(),
     val transforms: Map<String, String> = emptyMap(),
     val batch: Batch? = null,
     val address: String = "",
