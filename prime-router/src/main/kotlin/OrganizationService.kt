@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -107,9 +109,17 @@ data class OrganizationService(
         MICHIGAN("US/Michigan"),
     }
 
-    sealed class Transport{
-        data class SFTP( val host: String, val port: String, val filePath: String ) : Transport()
-        data class Email( val addresses: List<String> ): Transport()
+    sealed class Transport(){
+        data class SFTP( val host: String, val port: String, val filePath: String ) : Transport( "SFTP")
+        data class Email( val addresses: List<String> ): Transport("Email")
+
+        companion object {
+            @JsonCreator
+            @JvmStatic
+            fun findBySimpleClassName(host: String, port: String, filePath: String): Transport? {
+                return SFTP(host,port,filePath)
+            }
+        }        
     }
 
     companion object {
