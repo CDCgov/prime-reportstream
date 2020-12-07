@@ -801,8 +801,7 @@ elements:
     hhsGuidanceField:
     hl7Field: #OBX-23-10
     documentation: |
-        Currently set to default to the CLIA ID for Via Elegante, Tucson Mountains. If another lab sends an empty ID,
-        it will look like it came from Tucson mountains
+        An example of the ID is 03D2159846
 
   - name: testing_lab_name
     type: TEXT

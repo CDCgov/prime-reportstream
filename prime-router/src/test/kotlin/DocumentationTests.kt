@@ -16,17 +16,6 @@ class DocumentationTests {
     private val schema = Schema(name = "Test Schema", topic = "", elements = listOf(elem), description = "This is a test schema")
 
     @Test
-    fun `test this getting loaded`() {
-        assertTrue(true, "I always pass")
-    }
-
-    @Test
-    @Ignore
-    fun `ignore me for now I do nothing`() {
-        // I'm empty
-    }
-
-    @Test
     fun `test building documentation string from element`() {
         val expected = """
 **Name**:           a
