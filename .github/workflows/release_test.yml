@@ -18,7 +18,7 @@ jobs:
       - name: Download Docker Image Artifact
         uses: ishworkh/docker-image-artifact-download@2587a4982f53fa961b96103feb4d5b064cb258eb
         with:
-          image: primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
+          image: prime-data-hub-test:latest
       
       - name: Login to Azure CLI
         uses: azure/login@v1
