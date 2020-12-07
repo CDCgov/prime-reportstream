@@ -9,16 +9,11 @@ defaults:
     working-directory: prime-router
 
 jobs:
-  build_and_push:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      
-      - name: Login to Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
         
       - name: Setup PostgreSQL
         uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
@@ -39,23 +34,3 @@ jobs:
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
         
-      - name: ACR Login
-        run: az acr login --name primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test
-          
-      - name : Push Docker Image
-        run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
-      
-      - name: Set PostgreSQL Environment Variables
-        run: | 
-              az functionapp config appsettings set \
-              --resource-group prime-data-hub-test \
-              --name prime-data-hub-test \
-              --settings POSTGRES_USER=prime@${{ secrets.POSTGRESQL_TEST_USER }} POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }} \
-                         POSTGRES_URL=jdbc:postgresql://prime-data-hub-test.postgres.database.azure.com:5432/prime_data_hub?sslmode=require
-
-      - name: Set SFTP Environment Variables
-        run: |
-              az functionapp config appsettings set \
-              --resource-group prime-data-hub-test \
-              --name prime-data-hub-test \
-              --settings ${{ secrets.SFTP_TEST_AZ_CREDS }}
