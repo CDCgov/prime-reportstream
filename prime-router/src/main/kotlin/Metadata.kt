@@ -48,6 +48,14 @@ object Metadata {
         loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
     }
 
+    // lets us print out the list of loaded modules that are available to generate documentation for
+    fun listAll() {
+        println("Loaded schemas: ")
+        schemas.forEach { (name, _) ->
+            println(name)
+        }
+    }
+
     /*
      * Schema
      */

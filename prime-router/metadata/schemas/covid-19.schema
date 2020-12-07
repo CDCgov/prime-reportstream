@@ -800,6 +800,8 @@ elements:
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: #OBX-23-10
+    documentation: |
+        An example of the ID is 03D2159846
 
   - name: testing_lab_name
     type: TEXT
