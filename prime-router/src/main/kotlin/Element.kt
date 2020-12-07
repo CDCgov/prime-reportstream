@@ -64,6 +64,11 @@ data class Element(
 
     // FHIR specific information
     val fhirField: String? = null,
+
+    // a field to let us incorporate documentation data (markdown)
+    // in the schema files so we can generate documentation off of
+    // the file
+    val documentation: String? = null,
 ) {
     enum class Type {
         TEXT,
@@ -115,6 +120,7 @@ data class Element(
             natFlatFileField = this.natFlatFileField ?: baseElement.natFlatFileField,
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
+            documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
         )
     }
@@ -170,6 +176,28 @@ data class Element(
                     .replace(subscriberToken, parts[0].substring(6))
                     .replace(extensionToken, parts[2])
             }
+            Type.POSTAL_CODE -> {
+                when (field?.format) {
+                    zipFiveToken -> {
+                        // If this is US zip, return the first 5 digits
+                        val matchResult = Regex(usZipFormat).matchEntire(normalizedValue)
+                        matchResult?.groupValues?.get(1)
+                            ?: normalizedValue
+                    }
+                    zipFivePlusFourToken -> {
+                        // If this a US zip, either 5 or 9 digits depending on the value
+                        val matchResult = Regex(usZipFormat).matchEntire(normalizedValue)
+                        if (matchResult != null && matchResult.groups[2] == null) {
+                            matchResult.groups[1]?.value ?: ""
+                        } else if (matchResult != null && matchResult.groups[2] != null) {
+                            "${matchResult.groups[1]?.value}-${matchResult.groups[2]?.value}"
+                        } else {
+                            normalizedValue
+                        }
+                    }
+                    else -> normalizedValue
+                }
+            }
             else -> normalizedValue
         }
     }
@@ -213,15 +241,20 @@ data class Element(
                 normalDateTime.format(datetimeFormatter)
             }
             Type.CODE -> {
-                if (valueSet == null) error("Schema Error: missing value set for $name")
-                val values = Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
-                when (field?.format) {
-                    displayFormat -> values.toCodeFromDisplay(formattedValue)
-                        ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
-                    altDisplayFormat -> toAltCode(formattedValue)
-                        ?: error("Invalid code: '$formattedValue' not a alt display value for element '$name'")
-                    else -> values.toNormalizedCode(formattedValue)
-                        ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
+                // First, prioritize use of a local $alt format, even if no value set exists.
+                if (field?.format == altDisplayFormat) {
+                    toAltCode(formattedValue)
+                        ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
+                } else {
+                    if (valueSet == null) error("Schema Error: missing value set for $name")
+                    val values =
+                        Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
+                    when (field?.format) {
+                        displayFormat -> values.toCodeFromDisplay(formattedValue)
+                            ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                         else -> values.toNormalizedCode(formattedValue)
+                            ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
+                    }
                 }
             }
             Type.TELEPHONE -> {
@@ -230,6 +263,12 @@ data class Element(
                     error("Invalid phone number '$formattedValue' for '$name'")
                 val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
+            }
+            Type.POSTAL_CODE -> {
+                // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
+                if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
+                    error("Input Error: invalid postal code '$formattedValue'")
+                formattedValue.replace(" ", "")
             }
             else -> formattedValue
         }
@@ -264,6 +303,10 @@ data class Element(
         const val defaultPhoneFormat = "\$area\$exchange\$subscriber"
         const val phoneDelimiter = ":"
         val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
+        const val zipFiveToken = "\$zipFive"
+        const val zipFivePlusFourToken = "\$zipFivePlusFour"
+        const val usZipFormat = """^(\d{5})[- ]?(\d{4})?$"""
+        const val zipDefaultFormat = zipFiveToken
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))

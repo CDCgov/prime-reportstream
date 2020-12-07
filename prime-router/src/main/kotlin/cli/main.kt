@@ -39,6 +39,9 @@ class RouterCli : CliktCommand(
     private val outputDir by option("--output_dir", help = "<directory>")
     private val outputSchema by option("--output_schema", help = "<schema_name> or use input schema if not specified")
 
+    private val generateDocumentation by option("--generate-docs", help = "generate documentation from the provided schema")
+        .flag(default = false)
+
     private fun readReportFromFile(
         fileName: String,
         readBlock: (name: String, schema: Schema, stream: InputStream) -> Report
@@ -93,40 +96,58 @@ class RouterCli : CliktCommand(
         Metadata.loadAll()
         echo("Loaded schema and receivers")
 
-        // Gather input source
-        val inputReport: Report = when (inputSource) {
-            is InputSource.FileSource -> {
-                readReportFromFile((inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
-                    CsvConverter.read(schema, stream, FileSource(name))
+        // if we are generating the documentation from the schema, we don't want
+        // to generate the reports below
+        if (generateDocumentation) {
+            val schemaName = inputSchema.toLowerCase()
+            val schema = Metadata.findSchema(schemaName)
+
+            if (schema == null) {
+                echo("$schemaName not found. Did you mean one of these?")
+                Metadata.listAll()
+                return
+            }
+
+            // start generating documentation
+            echo("Generating documentation for $schemaName")
+            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName)
+        } else {
+
+            // Gather input source
+            val inputReport: Report = when (inputSource) {
+                is InputSource.FileSource -> {
+                    readReportFromFile((inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
+                        CsvConverter.read(schema, stream, FileSource(name))
+                    }
+                }
+                is InputSource.DirSource -> TODO("Dir source is not implemented")
+                is InputSource.FakeSource -> {
+                    val schema = Metadata.findSchema(inputSchema) ?: error("$inputSchema is an invalid schema name")
+                    FakeReport.build(
+                        schema,
+                        (inputSource as InputSource.FakeSource).count,
+                        FileSource("fake")
+                    )
+                }
+                else -> {
+                    error("input source must be specified")
                 }
             }
-            is InputSource.DirSource -> TODO("Dir source is not implemented")
-            is InputSource.FakeSource -> {
-                val schema = Metadata.findSchema(inputSchema) ?: error("$inputSchema is an invalid schema name")
-                FakeReport.build(
-                    schema,
-                    (inputSource as InputSource.FakeSource).count,
-                    FileSource("fake")
-                )
-            }
-            else -> {
-                error("input source must be specified")
-            }
-        }
 
-        // Transform reports
-        val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
-            route -> OrganizationService
-                .filterAndMapByService(inputReport, Metadata.organizationServices)
-                .map { it.first to it.second.format }
-            else -> listOf(Pair(inputReport, OrganizationService.Format.CSV))
-        }
+            // Transform reports
+            val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
+                route -> OrganizationService
+                    .filterAndMapByService(inputReport, Metadata.organizationServices)
+                    .map { it.first to it.second.format }
+                else -> listOf(Pair(inputReport, OrganizationService.Format.CSV))
+            }
 
-        // Output reports
-        writeReportsToFile(outputReports) { report, format, stream ->
-            when (format) {
-                OrganizationService.Format.CSV -> CsvConverter.write(report, stream)
-                OrganizationService.Format.HL7 -> Hl7Converter.write(report, stream)
+            // Output reports
+            writeReportsToFile(outputReports) { report, format, stream ->
+                when (format) {
+                    OrganizationService.Format.CSV -> CsvConverter.write(report, stream)
+                    OrganizationService.Format.HL7 -> Hl7Converter.write(report, stream)
+                }
             }
         }
     }
