@@ -40,6 +40,9 @@ jobs:
 
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
+        
+      - name: ACR Login
+        run: az acr login --name primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test
           
       - name : Push Docker Image
         run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
