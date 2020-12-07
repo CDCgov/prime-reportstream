@@ -47,5 +47,19 @@ jobs:
       - name : Push Docker Image
         run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
       
-      - name: List Azure Account
-        run: az account list
+      - name: Set PostgreSQL Environment Variables
+        run: | 
+                az functionapp config appsettings set 
+                -g prime-data-hub-test 
+                -n prime-data-hub-test 
+                --settings POSTGRES_USER=prime@${{ secrets.POSTGRESQL_TEST_USER }} POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
+                           POSTGRES_URL=jdbc:postgresql://prime-data-hub-test.postgres.database.azure.com:5432/prime_data_hub?sslmode=require
+
+      - name: Set SFTP Environment Variables
+        run: |
+                az functionapp config appsettings set 
+                -g prime-data-hub-test 
+                -n prime-data-hub-test 
+                --settings ${{ secrets.SFTP_TEST_AZ_CREDS }}
+
+
