@@ -140,9 +140,9 @@
     - code: I
       display: No results available; specimen received, procedure incomplete
     - code: M
-      display: Corrected, not final		added v2.9
+      display: Corrected, not final
     - code: N
-      display: Procedure completed, results pending		added v2.9
+      display: Procedure completed, results pending
     - code: O
       display: Order received; specimen not yet received
     - code: P
