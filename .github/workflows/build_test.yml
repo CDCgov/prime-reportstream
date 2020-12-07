@@ -40,16 +40,9 @@ jobs:
 
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
-        
-      - name: Azure Container Registry Login
-        uses: Azure/docker-login@v1
-        with:
-          username: ${{ secrets.ACR_TEST_USER }}
-          password: ${{ secrets.ACR_TEST_PWD }}
-          login-server: primedatahubtestprimedevregistry.azurecr.io
           
       - name : Push Docker Image
         run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
       
-      - name: List Azure Coount
+      - name: List Azure Account
         run: az account list
