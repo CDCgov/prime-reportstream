@@ -7,23 +7,28 @@
   <link rel="stylesheet" href="css/foundation-emails.css" />
   <link rel="stylesheet" href="css/custom.css" />
 </head>
-
 <body>
   <!-- <style> -->
-  <table class="body" data-made-with-foundation>
+  <table class="body">
     <tr>
       <td class="float-center" align="center" valign="top">
         <center>
+
           <table class="container">
             <tr>
               <td>
                 <table class="spacer">
                   <tbody>
                     <tr>
-                      <td height="15" style="font-size:15px;line-height:15px;">&nbsp;</td>
+                      <td height="20" style="font-size:20px;line-height:20px;">&nbsp;</td>
                     </tr>
                   </tbody>
                 </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+
                 <table class="row hub-header">
                   <tr>
                     <th class="small-12 first columns">
@@ -32,65 +37,77 @@
                     <th class="expander"></th>
                   </tr>
                 </table>
-                <table class="spacer">
-                  <tbody>
-                    <tr>
-                      <td height="15" style="font-size:15px;line-height:15px;">&nbsp;</td>
-                    </tr>
-                  </tbody>
-                </table>
                 <table class="row hub-body">
                   <tr>
                     <th class="small-12 first columns">
-                      <small>Pima county, AZ</small><br />
+                      <table class="spacer">
+                        <tbody>
+                          <tr>
+                            <td height=30 style="font-size:30px;line-height:30px;">&nbsp;</td>
+                          </tr>
+                        </tbody>
+                      </table>
                       <h1>COVID-19 test data is ready for download</h1>
                       <table class="spacer">
                         <tbody>
                           <tr>
-                            <td height=30 style="font-size:30px;line-height:30px;">&nbsp;</td>
+                            <td height=10 style="font-size:10px;line-height:10px;">&nbsp;</td>
                           </tr>
                         </tbody>
                       </table>
-                      <small>
-                        Via Elegante Tucson Mountain<br />
-                        Submitted 12/01/20 06:45 PM MT
-                      </small>
+                      <p><strong>{{ County name }} county, {{ ST }}</strong></p>
                       <p>
-                        <a href="">Download test results for Wednesday December 1, 2020 (CSV)</a>
+                        <a href="{{ link }}">Download daily test results for {{ Day name }} {{ Month name }} {{ Day }}, {{ YYYY }} (CSV)</a>
                       </p>
                       <table class="spacer">
                         <tbody>
                           <tr>
-                            <td height=30 style="font-size:30px;line-height:30px;">&nbsp;</td>
+                            <td height=10 style="font-size:10px;line-height:10px;">&nbsp;</td>
                           </tr>
                         </tbody>
                       </table>
-                      <p>Test results are available to download for [n] days after submission. After [n] days data is removed per the PRIME Data Hub <a href="">retention policy</a>.</p>
-                      <p>Failure to download data may result in the loss of COVID-19 test results. More information about downloading these data.</p>
+                      <p>Facilities reporting data today:</p>
+                      <ul>
+                        <!-- {{ for location in locations }} -->
+                        <li>Oz</li>
+                        <li>Narnia</li>
+                        <li>Goblin City</li>
+                        <li>Dinotopia</li>
+                        <li> ... </li>
+                        <!-- {{ endfor }} -->
+                      </ul>
                     </th>
                     <th class="expander"></th>
                   </tr>
                 </table>
-                <table class="spacer hub-spacer-footer">
-                  <tbody>
-                    <tr>
-                      <td height="15" style="font-size:15px;line-height:15px;">&nbsp;</td>
-                    </tr>
-                  </tbody>
-                </table>
                 <table class="row hub-footer">
+                  <tr>
+                    <td>
+                    <table class="spacer hub-spacer-footer">
+                      <tbody>
+                        <tr>
+                          <td height="20" style="font-size:20px;line-height:20px;">&nbsp;</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                  </tr>
                   <tr>
                     <th class="small-12 first columns">
                       <p>
-                        <strong>PRIME Data Hub</strong> is a joint project with the Centers for Disease Control and Prevention and the U.S. Digital Service. Other helpful boilerplate text here.
+                        <strong>PRIME Data Hub</strong> is a joint project of the Centers for Disease Control and Prevention and the U.S. Digital Service.
+                      </p>
+                      <p>Per the PRIME Data Hub retention policy, test results are available to download for seven days after receipt of this email. Failure to download data within the alotted time frame may result in the loss of COVID-19 test results.<br /><br /></p>
+                      <p>
+                        <strong>For support, contact:</strong>
                       </p>
                       <p>
-                        email@email.com<br />
-                        (555) 867-5309
+                        {{ email@email.com }}<br />
+                        {{ (555) 867-5309 }}
                       </p>
                       <p>
-                        1234 CDC ln<br />
-                        Atlanta, GA 90210
+                        {{ Street address line 1 }}<br />
+                        {{ Street address line 2 }}
                       </p>
                     </th>
                     <th class="expander"></th>
