@@ -5,13 +5,25 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
-import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.*
-import java.io.*
+import gov.cdc.prime.router.CsvConverter
+import gov.cdc.prime.router.DocumentationFactory
+import gov.cdc.prime.router.FakeReport
+import gov.cdc.prime.router.FileSource
+import gov.cdc.prime.router.Hl7Converter
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-
 
 sealed class InputSource {
     data class FileSource(val fileName: String) : InputSource()
@@ -61,9 +73,9 @@ class RouterCli : CliktCommand(
         if (outputDir == null && outputFileName == null) return
         reports.forEach { (report, format) ->
             val outputFile = if (outputFileName != null) {
-                File(outputFileName)
+                File(outputFileName!!)
             } else {
-                File(outputDir ?: ".", "${report.name}")
+                File(outputDir ?: ".", report.name)
             }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
@@ -136,9 +148,10 @@ class RouterCli : CliktCommand(
 
             // Transform reports
             val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
-                route -> OrganizationService
-                    .filterAndMapByService(inputReport, Metadata.organizationServices)
-                    .map { it.first to it.second.format }
+                route ->
+                    OrganizationService
+                        .filterAndMapByService(inputReport, Metadata.organizationServices)
+                        .map { it.first to it.second.format }
                 else -> listOf(Pair(inputReport, OrganizationService.Format.CSV))
             }
 
@@ -154,4 +167,3 @@ class RouterCli : CliktCommand(
 }
 
 fun main(args: Array<String>) = RouterCli().main(args)
-

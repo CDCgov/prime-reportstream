@@ -1,8 +1,6 @@
 package gov.cdc.prime.router
 
 import kotlin.test.Test
-import kotlin.test.Ignore
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
 
 class DocumentationTests {

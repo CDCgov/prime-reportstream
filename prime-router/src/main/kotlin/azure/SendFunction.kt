@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
@@ -9,7 +8,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.transport.SftpTransport
 import java.util.logging.Level
-
 
 /**
  * Azure Functions with HTTP Trigger. Write to blob.
@@ -41,7 +39,10 @@ class SendFunction {
 
                 var transportSuccessful = when (service.transport.type) {
                     OrganizationService.Transport.TransportType.SFTP -> {
-                        context.logger.info("trying to send to ${service.transport.host} ${service.transport.port} ${service.transport.filePath}")
+                        context.logger.info(
+                            "trying to send to ${service.transport.host} " +
+                                "${service.transport.port} ${service.transport.filePath}"
+                        )
                         val content = workflowEngine.readBody(header)
                         // TODO:  look up the correct class to call based on the transport metadata
                         val transport = SftpTransport()
@@ -59,11 +60,9 @@ class SendFunction {
         } catch (t: Throwable) {
             context.logger.log(Level.SEVERE, "Send exception", t)
         }
-
     }
 
     private fun lookupTransportMetadata(): OrganizationService.Transport {
-        return OrganizationService.Transport()  // TODO: actually lookup the Transport here - for now use the default
+        return OrganizationService.Transport() // TODO: actually lookup the Transport here - for now use the default
     }
-
 }

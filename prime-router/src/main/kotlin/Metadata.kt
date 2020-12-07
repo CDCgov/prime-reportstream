@@ -22,9 +22,9 @@ object Metadata {
 
     private val PRIME_ENVIRONMENT = System.getenv("PRIME_ENVIRONMENT") ?: ""
 
-    private val ext = if (PRIME_ENVIRONMENT.isNotEmpty() ) "-" + PRIME_ENVIRONMENT else  PRIME_ENVIRONMENT;
+    private val ext = if (PRIME_ENVIRONMENT.isNotEmpty()) "-" + PRIME_ENVIRONMENT else PRIME_ENVIRONMENT
 
-    private val organizationsList = "organizations${ext}.yml"
+    private val organizationsList = "organizations$ext.yml"
 
     private var schemas = mapOf<String, Schema>()
     private var mappers = listOf(
@@ -288,4 +288,3 @@ object Metadata {
         }
     }
 }
-

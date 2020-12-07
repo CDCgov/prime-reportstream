@@ -12,7 +12,7 @@ data class OrganizationClient(
     val schema: String,
 ) {
     lateinit var organization: Organization
-    val fullName: String get() = "${organization.name}.${name}"
+    val fullName: String get() = "${organization.name}.$name"
 
     enum class Format(val mimeType: String) {
         CSV("text/csv")

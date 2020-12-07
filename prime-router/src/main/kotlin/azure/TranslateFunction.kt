@@ -1,16 +1,14 @@
 package gov.cdc.prime.router.azure
 
-import com.microsoft.azure.functions.*
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Report
 import org.jooq.Configuration
-import java.time.LocalTime
-import java.time.OffsetDateTime
-import java.time.OffsetTime
 import java.util.logging.Level
-
 
 /**
  * Translate will take a report and filter and transform it to the appropriate services in our list
@@ -37,7 +35,10 @@ class TranslateFunction {
                 val sendingCount = routeReport(parentReport, workflowEngine, txn, context)
                 // TODO: Do we need tracking for reports that are not delivered? 
                 if (sendingCount < parentReport.itemCount) {
-                    context.logger.warning("Translated report ${parentReport.id} but dropped ${parentReport.itemCount - sendingCount} items")
+                    context.logger.warning(
+                        "Translated report ${parentReport.id} but dropped " +
+                            "${parentReport.itemCount - sendingCount} items"
+                    )
                 } else {
                     context.logger.info("Translated report: ${parentReport.id} with ${parentReport.itemCount} items")
                 }

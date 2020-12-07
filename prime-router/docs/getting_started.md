@@ -1,6 +1,6 @@
 # Developers Getting Started
 
-## Setting up your Mac developer machine
+## Setting up your Mac or Linux developer machine
 
 First, set up Java 11 and Maven by opening up a Terminal session and
 entering:
@@ -65,7 +65,6 @@ psql prime_data_hub
     select * from task;
 ```
 
-
 There are a few database commands that are helpful while developing.
 ```
 # drop and recreate the local database
@@ -79,8 +78,17 @@ flyway -user=prime -password=change1T! -url=jdbc:postgresql://localhost:5432/pri
 Use any other tools that you want to develop the code. Be productive. Modify this document if you have a practice that will be useful. 
 
 Some useful tools for Kotlin/Java development include:
-- [Microsoft VSCode](https://code.visualstudio.com/Download)
+- [KTLint](https://ktlint.github.io/) the Kotlin linter that we use to format our KT code
+- [Microsoft VSCode](https://code.visualstudio.com/Download) 
 - [JetBrains IntelliJ](https://www.jetbrains.com/idea/download/#section=mac) 
+
+If you are using IntelliJ, you can configure it to follow standard Kotlin conventions by
+```
+cd prime_router
+brew install ktlint
+ktlint applyToIDEAProject
+```
+
 
 A useful Azure tool to examine Azurite and Azure storage is (Storage Explorer)[https://azure.microsoft.com/en-us/features/storage-explorer/] from Microsoft. 
 

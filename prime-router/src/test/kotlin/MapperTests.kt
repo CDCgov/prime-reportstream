@@ -3,7 +3,6 @@ package gov.cdc.prime.router
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class MapperTests {
     @Test

@@ -54,7 +54,7 @@ There are a couple engineering overview documents that to be written. Please rea
 
 We want to emphasize some tried and true coding principles. A piece of code is read much more than times than it is written. Hence, we want readable code. Keep code functions short and at a single level of abstractions. Choose meaningful names and labels. Comments are welcomed, but only if the information provided cannot be expressed in code. Consider if refactoring with understandable names would be a better approach. 
 
-Our codebase is based on Kotlin because it is a multiplatform language with seamless JVM compatibility. We also like that Kotlin promotes type safety and nullability checks. Accordingly, we try to follow the [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html). We reformat files to follow the style guide formatting rules. We emphasize the preferred [Idioms of Kotlin](https://kotlinlang.org/docs/reference/idioms.html) which are based on the ideas of functional programming with immutable data. 
+Our codebase is based on Kotlin because it is a multiplatform language with seamless JVM compatibility. We also like that Kotlin promotes type safety and nullability checks. Accordingly, we try to follow the [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html). We reformat files to follow the style guide formatting rules as implemented by the `ktlint` tool. We emphasize the preferred [Idioms of Kotlin](https://kotlinlang.org/docs/reference/idioms.html) which are based on the ideas of functional programming with immutable data. 
 
 
 ### Submitting your changes

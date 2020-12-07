@@ -2,8 +2,8 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import java.text.SimpleDateFormat
-import java.util.concurrent.TimeUnit
 import java.util.Random
+import java.util.concurrent.TimeUnit
 
 class FakeReport {
     companion object {
@@ -25,8 +25,10 @@ class FakeReport {
                         element.nameContains("lab_name") -> "Any lab USA"
                         element.nameContains("facility_name") -> "Any facility USA"
                         element.nameContains("equipment_model_id") ->
-                            randomChoice("BinaxNOW COVID-19 Ag Card",
-                                "BD Veritor System for Rapid Detection of SARS-CoV-2*")
+                            randomChoice(
+                                "BinaxNOW COVID-19 Ag Card",
+                                "BD Veritor System for Rapid Detection of SARS-CoV-2*"
+                            )
                         element.nameContains("specimen_source_site_text") -> "Nasal"
                         else -> faker.lorem().characters(5, 10)
                     }
@@ -56,7 +58,7 @@ class FakeReport {
                     "0.0.0.0.1"
                 }
                 Element.Type.ID -> faker.numerify("######")
-                Element.Type.ID_CLIA -> faker.numerify("##D#######")  // Ex, 03D1021379
+                Element.Type.ID_CLIA -> faker.numerify("##D#######") // Ex, 03D1021379
                 Element.Type.ID_DLN -> faker.idNumber().valid()
                 Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
                 Element.Type.ID_NPI -> faker.numerify("##########")
