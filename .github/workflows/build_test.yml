@@ -1,11 +1,9 @@
 name: Prime Data Hub Test
 
 on:
-  push:
-    branches: [ test ]
   pull_request:
     branches: [ test ]
-# Random testing comment
+
 defaults:
   run:
     working-directory: prime-router
