@@ -31,6 +31,11 @@ jobs:
       - name: Build Maven Package
         run: mvn -B clean package --file pom.xml
 
-      - name: Build Docker image
+      - name: Build Docker Image
         run: docker build . --file Dockerfile --tag primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
+        
+      - name: Upload Docker Image Artifact
+        uses: ishworkh/docker-image-artifact-upload@c284cce135b63a504267a975f26ecada45554867
+        with:
+          image: primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
         
