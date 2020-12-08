@@ -27,10 +27,14 @@
         address: http://localhost:1181/
         format: CSV
         transports:
-            - SFTP:
-              host: localhost
-              port: 2222
-              filePath: ./upload
+          - type: SFTP
+            host: localhost
+            port: 22
+            filePath: ./upload
+          - type: EMAIL
+            addresses:
+              - matthew.young@bisonworks.com
+              - qtv1@cdc.gov
 
 # Temporarily removing PA until we're ready to send there.
 #  - name: pa-phd

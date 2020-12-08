@@ -39,8 +39,8 @@ class SendFunction {
                 val content = workflowEngine.readBody(header)
                 service.transports.forEach {
                     when( it ) {
-                        is OrganizationService.Transport.SFTP -> SftpTransport().send(service.fullName, it, header, content)
-                        is OrganizationService.Transport.Email -> EmailTransport().send( service.fullName, it, header, content) 
+                        is OrganizationService.SFTP -> SftpTransport().send(service.fullName, it, header, content)
+                        is OrganizationService.Email -> EmailTransport().send( service.fullName, it, header, content) 
                     }
                 }
 

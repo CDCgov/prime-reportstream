@@ -10,7 +10,7 @@ class SftpTransport : ITransport {
 
     override fun send(orgName: String, transport: OrganizationService.Transport, header: DatabaseAccess.Header, contents: ByteArray): Boolean {
 
-        val sftpTransport = transport as OrganizationService.Transport.SFTP
+        val sftpTransport = transport as OrganizationService.SFTP
 
 <<<<<<< HEAD
         val fileDir = service.transport.filePath.removeSuffix("/")
@@ -22,7 +22,7 @@ class SftpTransport : ITransport {
 =======
         val (user, pass) = lookupCredentials(orgName)
 
-        val fileDir = transport.filePath.removeSuffix("/");
+        val fileDir = sftpTransport.filePath.removeSuffix("/");
 
         // TODO - determine what the filename should be
         val path = "${fileDir}/${orgName.replace('.', '-')}-${header.task.reportId}.csv"
