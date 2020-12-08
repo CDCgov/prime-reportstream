@@ -46,8 +46,9 @@ elements:
   - name: standard.testing_lab_specimen_id
     csvFields: [{name: Testing_lab_specimen_ID}]
 
-  - name: standard.test_result_status
-    csvFields: [{name: Test_result_status}]
+# Removed until SimpleReport sends this column
+#  - name: standard.test_result_status
+#    csvFields: [{name: Test_result_status}]
 
   - name: standard.test_result
     csvFields: [{name: Test_result_code}]

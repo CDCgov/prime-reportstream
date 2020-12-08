@@ -27,4 +27,12 @@ class MapperTests {
         assertEquals(listOf("standard.patient_age"), mapper.elementNames(args))
         assertEquals("y", mapper.apply(args, mapOf("standard.patient_age" to "3")))
     }
+
+    @Test
+    fun `test ConcatenateMapper`() {
+        val mapper = ConcatenateMapper()
+        val args = listOf("col1", "col2", "col3")
+        val map = mapOf("col1" to "string1", "col2" to "string2", "col3" to "string3")
+        assertEquals("string1, string2, string3", mapper.apply(args, map))
+    }
 }

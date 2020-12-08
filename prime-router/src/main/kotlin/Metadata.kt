@@ -32,6 +32,7 @@ object Metadata {
         UseMapper(),
         IfPresentMapper(),
         LookupMapper(),
+        ConcatenateMapper(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private var organizationStore: List<Organization> = ArrayList()
