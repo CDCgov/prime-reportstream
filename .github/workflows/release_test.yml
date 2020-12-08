@@ -14,34 +14,41 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Download Docker Image Artifact
-        uses: ishworkh/docker-image-artifact-download@2587a4982f53fa961b96103feb4d5b064cb258eb
-        with:
-          image: prime-data-hub-test:latest
       
-      - name: Login to Azure CLI
-        uses: azure/login@v1
+      - uses: actions/download-artifact@v2
         with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          name: action_image_artifact_prime-data-hub-test_latest
+    
+      - name: Display structure of downloaded files
+        run: ls -R
+
+#       - name: Download Docker Image Artifact
+#         uses: ishworkh/docker-image-artifact-download@2587a4982f53fa961b96103feb4d5b064cb258eb
+#         with:
+#           image: prime-data-hub-test:latest
+      
+#       - name: Login to Azure CLI
+#         uses: azure/login@v1
+#         with:
+#           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
         
-      - name: ACR Login
-        run: az acr login --name primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test
+#       - name: ACR Login
+#         run: az acr login --name primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test
           
-      - name : Push Docker Image
-        run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
+#       - name : Push Docker Image
+#         run: docker push primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
       
-      - name: Set PostgreSQL Environment Variables
-        run: | 
-              az functionapp config appsettings set \
-              --resource-group prime-data-hub-test \
-              --name prime-data-hub-test \
-              --settings POSTGRES_USER=prime@${{ secrets.POSTGRESQL_TEST_USER }} POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }} \
-                         POSTGRES_URL=jdbc:postgresql://prime-data-hub-test.postgres.database.azure.com:5432/prime_data_hub?sslmode=require
+#       - name: Set PostgreSQL Environment Variables
+#         run: | 
+#               az functionapp config appsettings set \
+#               --resource-group prime-data-hub-test \
+#               --name prime-data-hub-test \
+#               --settings POSTGRES_USER=prime@${{ secrets.POSTGRESQL_TEST_USER }} POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }} \
+#                          POSTGRES_URL=jdbc:postgresql://prime-data-hub-test.postgres.database.azure.com:5432/prime_data_hub?sslmode=require
 
-      - name: Set SFTP Environment Variables
-        run: |
-              az functionapp config appsettings set \
-              --resource-group prime-data-hub-test \
-              --name prime-data-hub-test \
-              --settings ${{ secrets.SFTP_TEST_AZ_CREDS }}
+#       - name: Set SFTP Environment Variables
+#         run: |
+#               az functionapp config appsettings set \
+#               --resource-group prime-data-hub-test \
+#               --name prime-data-hub-test \
+#               --settings ${{ secrets.SFTP_TEST_AZ_CREDS }}
