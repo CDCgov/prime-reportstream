@@ -319,8 +319,6 @@
                     </generator>
                 </configuration>
             </plugin>
-            
-            <!--
             <plugin>            
                 <groupId>com.github.gantsign.maven</groupId>
                 <artifactId>ktlint-maven-plugin</artifactId>
@@ -329,12 +327,11 @@
                     <execution>
                         <id>format</id>
                         <goals>
-                            <goal>check</goal>
+                            <goal>format</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
-            -->
         </plugins>
     </build>
     <dependencies>

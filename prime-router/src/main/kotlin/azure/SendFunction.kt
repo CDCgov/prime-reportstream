@@ -6,8 +6,8 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
-import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.EmailTransport
+import gov.cdc.prime.router.transport.SftpTransport
 import java.util.logging.Level
 
 /**
@@ -38,9 +38,9 @@ class SendFunction {
 
                 val content = workflowEngine.readBody(header)
                 service.transports.forEach {
-                    when( it ) {
+                    when (it) {
                         is OrganizationService.SFTP -> SftpTransport().send(service.fullName, it, header, content)
-                        is OrganizationService.Email -> EmailTransport().send( service.fullName, it, header, content) 
+                        is OrganizationService.Email -> EmailTransport().send(service.fullName, it, header, content)
                     }
                 }
 
@@ -77,6 +77,7 @@ class SendFunction {
             context.logger.log(Level.SEVERE, "Send exception", t)
         }
     }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -88,3 +89,6 @@ class SendFunction {
 =======
 >>>>>>> pom fix
 }
+=======
+}
+>>>>>>> updates
