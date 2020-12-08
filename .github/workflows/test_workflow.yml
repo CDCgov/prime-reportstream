@@ -40,6 +40,8 @@ jobs:
           image: primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
 
   release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/test'
+
     runs-on: ubuntu-latest
 
     steps:
