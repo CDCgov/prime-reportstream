@@ -62,6 +62,33 @@ class UseMapper : Mapper {
     }
 }
 
+/**
+ * The mapper concatenates a list of column values together.
+ * Call this like this:
+ * concat(standard.organization_name, standard.ordering_facility_name)
+ * @todo add a separator arg.
+ * @todo generalize this to call any kotlin string function?
+ */
+class ConcatenateMapper : Mapper {
+    override val name = "concat"
+
+    override fun elementNames(args: List<String>): List<String> {
+        if (args.size < 2)
+            error(
+                "Schema Error: concat mapper expects to concat two or more column names"
+            )
+        return args
+    }
+
+    override fun apply(args: List<String>, values: Map<String, String>): String? {
+        return if (values.isEmpty()) {
+            null
+        } else {
+            values.values.joinToString() // default ", " separator for now.
+        }
+    }
+}
+
 class LookupMapper : Mapper {
     override val name = "lookup"
 
@@ -74,7 +101,10 @@ class LookupMapper : Mapper {
      */
     override fun elementNames(args: List<String>): List<String> {
         if (args.size != 4)
-            error("Schema Error: lookup mapper expected tableName, indexColumnName, lookupElementName and lookupColumnName")
+            error(
+                "Schema Error: lookup mapper expected tableName, " +
+                    "indexColumnName, lookupElementName and lookupColumnName"
+            )
         return listOf(args[2])
     }
 
@@ -113,4 +143,3 @@ object Mappers {
         return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
     }
 }
-

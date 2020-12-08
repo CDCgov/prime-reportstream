@@ -1,7 +1,11 @@
 package gov.cdc.prime.router
 
 import java.io.File
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 //
 // Using JUnit here, but this is not a unit test.  This tests end-to-end:  ingesting a csv file,
@@ -89,4 +93,3 @@ class CsvFileTests {
         assertEquals("lab", schema.elements[0].name)
     }
 }
-

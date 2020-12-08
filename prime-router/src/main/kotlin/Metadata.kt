@@ -22,9 +22,9 @@ object Metadata {
 
     private val PRIME_ENVIRONMENT = System.getenv("PRIME_ENVIRONMENT") ?: ""
 
-    private val ext = if (PRIME_ENVIRONMENT.isNotEmpty() ) "-" + PRIME_ENVIRONMENT else  PRIME_ENVIRONMENT;
+    private val ext = if (PRIME_ENVIRONMENT.isNotEmpty()) "-" + PRIME_ENVIRONMENT else PRIME_ENVIRONMENT
 
-    private val organizationsList = "organizations${ext}.yml"
+    private val organizationsList = "organizations$ext.yml"
 
     private var schemas = mapOf<String, Schema>()
     private var mappers = listOf(
@@ -32,6 +32,7 @@ object Metadata {
         UseMapper(),
         IfPresentMapper(),
         LookupMapper(),
+        ConcatenateMapper(),
     )
 
     private var jurisdictionalFilters = listOf(
@@ -51,6 +52,14 @@ object Metadata {
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
         loadOrganizationList(metadataDir.toPath().resolve(organizationsList).toString())
         loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
+    }
+
+    // lets us print out the list of loaded modules that are available to generate documentation for
+    fun listAll() {
+        println("Loaded schemas: ")
+        schemas.forEach { (name, _) ->
+            println(name)
+        }
     }
 
     /*
@@ -293,4 +302,3 @@ object Metadata {
         }
     }
 }
-

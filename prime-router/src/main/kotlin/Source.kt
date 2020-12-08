@@ -1,16 +1,10 @@
 package gov.cdc.prime.router
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.jsontype.NamedType
-
 /**
  * A Source can either be a client, a test, or a local file or another report.
  * It is useful for debugging and auditing
  */
-sealed class Source {
-}
+sealed class Source
 
 data class FileSource(val fileName: String) : Source()
 
@@ -19,4 +13,3 @@ data class ReportSource(val id: ReportId, val action: String) : Source()
 data class ClientSource(val organization: String, val client: String) : Source()
 
 object TestSource : Source()
-

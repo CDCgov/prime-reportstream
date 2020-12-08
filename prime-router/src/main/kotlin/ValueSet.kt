@@ -28,7 +28,7 @@ data class ValueSet(
 
     val systemCode
         get() = when (system) {
-            SetSystem.HL7 -> "HL7${id}"
+            SetSystem.HL7 -> "HL7$id"
             SetSystem.SNOMED_CT -> "SCT"
             SetSystem.LOINC -> "LN"
             SetSystem.LOCAL -> "LOCAL"

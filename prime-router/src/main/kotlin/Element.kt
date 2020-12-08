@@ -9,8 +9,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import java.util.*
-
+import java.util.Locale
 
 /**
  * An element is represents a data element (ie. a single logical value) that is contained in single row
@@ -64,6 +63,11 @@ data class Element(
 
     // FHIR specific information
     val fhirField: String? = null,
+
+    // a field to let us incorporate documentation data (markdown)
+    // in the schema files so we can generate documentation off of
+    // the file
+    val documentation: String? = null,
 ) {
     enum class Type {
         TEXT,
@@ -72,7 +76,7 @@ data class Element(
         DATETIME,
         DURATION,
         CODE,
-        HD,    // Hierarchic Designator
+        HD, // Hierarchic Designator
         ID,
         ID_CLIA,
         ID_DLN,
@@ -115,6 +119,7 @@ data class Element(
             natFlatFileField = this.natFlatFileField ?: baseElement.natFlatFileField,
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
+            documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
         )
     }
@@ -152,8 +157,9 @@ data class Element(
                         ?: error("Schema Error: invalid valueSet name: $valueSet")
                     // TODO: A more flexible form of the format field for codes is possible and necessary
                     when (field?.format) {
-                        displayFormat -> set.toDisplayFromCode(normalizedValue)
-                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                        displayFormat ->
+                            set.toDisplayFromCode(normalizedValue)
+                                ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
                         systemFormat -> set.systemCode
                         else -> normalizedValue
                     }
@@ -244,10 +250,12 @@ data class Element(
                     val values =
                         Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
                     when (field?.format) {
-                        displayFormat -> values.toCodeFromDisplay(formattedValue)
-                            ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
-                         else -> values.toNormalizedCode(formattedValue)
-                            ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
+                        displayFormat ->
+                            values.toCodeFromDisplay(formattedValue)
+                                ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                        else ->
+                            values.toNormalizedCode(formattedValue)
+                                ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
                     }
                 }
             }
@@ -269,14 +277,14 @@ data class Element(
     }
 
     fun toAltDisplay(code: String): String? {
-        if (!isCodeType) return error("Internal Error: asking for an altDisplay for a non-code type")
-        if (altValues == null) error("Schema Error: missing alt values for '${name}'")
+        if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
+        if (altValues == null) error("Schema Error: missing alt values for '$name'")
         return altValues.find { code.equals(it.code, ignoreCase = true) }?.display
     }
 
     fun toAltCode(altDisplay: String): String? {
-        if (!isCodeType) return error("Internal Error: asking for an altDisplay for a non-code type")
-        if (altValues == null) error("Schema Error: missing alt values for '${name}'")
+        if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
+        if (altValues == null) error("Schema Error: missing alt values for '$name'")
         return altValues.find { altDisplay.equals(it.display, ignoreCase = true) }?.code
     }
 

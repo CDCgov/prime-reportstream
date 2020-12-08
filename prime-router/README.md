@@ -23,50 +23,7 @@ Features include:
 - Ability to convert to HL7 messages
 - Ability to send to an SFTP folder
 
-The full feature set is kept in the repositories project folder. 
-
-## Running a Demo in a Command Line
-
-On a Mac with [Homebrew](https://brew.sh/) installed. 
-
-First, setup Java 11 and Maven
-```
-brew install openjdk@11
-brew install maven
-```
-
-On a debian-based system with the `apt` package manager.
-
-First, setup Java 11, Maven, ...
-1. `apt install openjdk-11-jdk`
-2. `apt install maven`
-
-Next, build
-1. `mvn clean package`
-Next, build the project
-```
-mvn clean package
-```
-
-Run the router in the prime_router directory using the command-line interface.
-```
-mkdir routed_files
-./prime --input_schema=sample/phd1-sample --input=src/test/unit_test_files/lab1-test_results-17-42-31.csv --route --output_dir=routed_files
-```
-
-Create a set of 20 PrimeDataInput results with fake values
-
- ```
- mkdir result_files
- ./prime --input_schema=primedatainput/pdi-covid-19 --input_fake 20 --output_dir=result_files
- ```
-
-Route the results from a PDI CSV file to the files for specific public health departments specified the `receivers.yml` file
-
-```
-mkdir routed_files
-./prime --input_schema=PrimeDataInput/pdi-covid-19 --input=result_files/fake-pdi-covid-19.csv --route --output_dir=routed_files
-```
+The full feature set is kept in the repositories project folder.
 
 ## Learn More 
 To continue the developer orientation, please read

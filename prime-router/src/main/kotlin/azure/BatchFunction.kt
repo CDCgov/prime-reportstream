@@ -1,20 +1,20 @@
 package gov.cdc.prime.router.azure
 
-import com.microsoft.azure.functions.*
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Report
 import java.util.logging.Level
-
-
 
 const val batch = "batch"
 const val defaultBatchSize = 100
 
 /**
  * Batch will find all the reports waiting to with a next "batch" action for a receiver name.
- * It will either send the reports directly or merge them together. 
+ * It will either send the reports directly or merge them together.
  */
 class BatchFunction {
     @FunctionName(batch)

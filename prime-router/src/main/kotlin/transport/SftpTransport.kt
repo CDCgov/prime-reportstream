@@ -4,7 +4,7 @@ import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.azure.DatabaseAccess
-import java.util.*
+import java.util.Properties
 
 class SftpTransport : Transport {
 
@@ -12,18 +12,18 @@ class SftpTransport : Transport {
 
         val (user, pass) = lookupCredentials(service)
 
-        val fileDir = service.transport.filePath.removeSuffix("/");
+        val fileDir = service.transport.filePath.removeSuffix("/")
 
         // TODO - determine what the filename should be
-        val path = "${fileDir}/${service.fullName.replace('.', '-')}-${header.task.reportId}.csv"
+        val path = "$fileDir/${service.fullName.replace('.', '-')}-${header.task.reportId}.csv"
         val host: String = service.transport.host
         val port: String = service.transport.port
 
         val jsch = JSch()
         val jschSession = jsch.getSession(user, host, port.toInt())
-        val config = Properties();
+        val config = Properties()
         config.put("StrictHostKeyChecking", "no")
-        config.put("PreferredAuthentications", "password");
+        config.put("PreferredAuthentications", "password")
         jschSession.setConfig(config)
         jschSession.setPassword(pass)
 
@@ -40,7 +40,7 @@ class SftpTransport : Transport {
             channelSftp.disconnect()
         }
 
-        return success;
+        return success
     }
 
     private fun lookupCredentials(service: OrganizationService): Pair<String, String> {

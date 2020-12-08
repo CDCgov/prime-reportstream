@@ -120,8 +120,10 @@ object CsvConverter {
                     val (mapper, args) = mapping.useMapper.getValue(element.name)
                     val elementNames = mapper.elementNames(args)
                     val mapperValues = elementNames.map {
-                        it to (lookupValues[it]
-                            ?: error("Internal Error: no lookup values for '$it'"))
+                        it to (
+                            lookupValues[it]
+                                ?: error("Internal Error: no lookup values for '$it'")
+                            )
                     }.toMap()
                     addToLookup(mapper.apply(args, mapperValues) ?: element.default ?: "")
                 }

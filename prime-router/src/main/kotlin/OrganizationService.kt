@@ -3,9 +3,6 @@ package gov.cdc.prime.router
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.*
-
 
 /**
  * An `OrganizationService` represents the agent that the data hub sends reports
@@ -30,15 +27,15 @@ data class OrganizationService(
     val batch: Batch? = null,
     val address: String = "",
     val format: Format = Format.CSV,
-    val transport: Transport = Transport( Transport.TransportType.DEFAULT )
+    val transport: Transport = Transport(Transport.TransportType.DEFAULT)
 ) {
     lateinit var organization: Organization
-    val fullName: String get() = "${organization.name}.${name}"
+    val fullName: String get() = "${organization.name}.$name"
 
     enum class Format {
         CSV,
         HL7;
-        //FHIR
+        // FHIR
 
         fun toExt(): String {
             return when (this) {

@@ -46,6 +46,10 @@ elements:
   - name: standard.testing_lab_specimen_id
     csvFields: [{name: Testing_lab_specimen_ID}]
 
+# Removed until SimpleReport sends this column
+#  - name: standard.test_result_status
+#    csvFields: [{name: Test_result_status}]
+
   - name: standard.test_result
     csvFields: [{name: Test_result_code}]
 
@@ -99,8 +103,8 @@ elements:
 
     # Eg, Staff, Resident, Visitor, Student
   - name: patient_role
-    type: TEXT
     csvFields: [{name: Patient_role}]
+    type: TEXT
 
   - name: standard.employed_in_healthcare
     csvFields: [{name: Employed_in_healthcare}]
@@ -140,6 +144,11 @@ elements:
 
   - name: standard.testing_lab_county
     csvFields: [{name: Testing_lab_county}]
+
+  - name: organization_name
+    documentation: For cases where organization owns many facilities (eg, a large hospital system)
+    csvFields: [{name: Organization_name}]
+    type: TEXT
 
   - name: standard.ordering_facility_name
     csvFields: [{name: Ordering_facility_name}]

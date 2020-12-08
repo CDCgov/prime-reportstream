@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ReportTests {
     @Test
@@ -36,7 +37,6 @@ class ReportTests {
         val report1 = Report(one, listOf(listOf("1", "2")), source = TestSource)
         assertEquals(false, report1.isEmpty())
     }
-
 
     @Test
     fun `test create with list`() {
