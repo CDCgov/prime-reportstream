@@ -25,11 +25,11 @@
           timeZone: ARIZONA
         address: http://localhost:1181/
         format: CSV
-        transport:
-          type: SFTP
-          host: prime-data-hub-test.eastus.azurecontainer.io
-          port: 22
-          filePath: ./upload
+        transports:
+          - type: SFTP
+            host: prime-data-hub-test.eastus.azurecontainer.io
+            port: 22
+            filePath: ./upload
 
   - name: pima-az-phd
     description: Pima County, Arizona PHD
