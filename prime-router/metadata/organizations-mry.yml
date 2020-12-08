@@ -58,6 +58,10 @@
         schema: sample/phd1-sample
         jurisdictionalFilter: {observation: covid-19:pos, state: FL}
         transforms: {deidentify: false}
+<<<<<<< HEAD
+=======
+        address: http://localhost:1181/
+>>>>>>> 8227830cabd3fad670cd9f0298012fbb787d7500
         format: CSV
 
 
@@ -70,6 +74,10 @@
         schema: sample/phd2-sample
         jurisdictionalFilter: {observation: covid-19:pos, state: FL}
         transforms: {deidentify: false}
+<<<<<<< HEAD
+=======
+        address: http://localhost:1281/
+>>>>>>> 8227830cabd3fad670cd9f0298012fbb787d7500
         format: CSV
 
   # HHS
@@ -81,4 +89,8 @@
         schema: sample/fed1-sample
         jurisdictionalFilter: {observation: covid-19:.*, state: .*}
         transforms: {deidentify: true}
+<<<<<<< HEAD
+=======
+        address: http://localhost:1381/
+>>>>>>> 8227830cabd3fad670cd9f0298012fbb787d7500
         format: CSV
