@@ -8,17 +8,21 @@ import java.util.Properties
 
 class SftpTransport : ITransport {
 
-    override fun send(orgName: String, transport: OrganizationService.Transport, header: DatabaseAccess.Header, contents: ByteArray): Boolean {
+    override fun send(
+        orgName: String,
+        transport: OrganizationService.Transport,
+        header: DatabaseAccess.Header,
+        contents: ByteArray
+    ): Boolean {
 
         val sftpTransport = transport as OrganizationService.SFTP
 
-
         val (user, pass) = lookupCredentials(orgName)
 
-        val fileDir = sftpTransport.filePath.removeSuffix("/");
+        val fileDir = sftpTransport.filePath.removeSuffix("/")
 
         // TODO - determine what the filename should be
-        val path = "${fileDir}/${orgName.replace('.', '-')}-${header.task.reportId}.csv"
+        val path = "$fileDir/${orgName.replace('.', '-')}-${header.task.reportId}.csv"
         val host: String = sftpTransport.host
         val port: String = sftpTransport.port
 
@@ -46,7 +50,7 @@ class SftpTransport : ITransport {
         return success
     }
 
-    private fun lookupCredentials(orgName:String): Pair<String, String> {
+    private fun lookupCredentials(orgName: String): Pair<String, String> {
 
         val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
 
@@ -54,7 +58,7 @@ class SftpTransport : ITransport {
         val pass = System.getenv("${envVarLabel}__PASS") ?: ""
 
         if (user.isNullOrBlank() || pass.isNullOrBlank())
-            error("Unable to find SFTP credentials for ${orgName}")
+            error("Unable to find SFTP credentials for $orgName")
 
         return Pair(user, pass)
     }
