@@ -26,25 +26,26 @@ elements:
     type: TEXT
 
   - name: standard.test_performed
-    csvFields: [{name: Ordered_test_code}]
+    csvFields: [{name: Ordered_test_code, format: $display}]
 
   # TODO: change when specimen_source_site has a valueSet
   - name: standard.specimen_source_site_text
     csvFields: [{name: Specimen_source_site_code}]
 
   - name: standard.specimen_type
-    csvFields: [{name: Specimen_type_code}]
+    csvFields: [{name: Specimen_type_code, format: $display}]
 
   # The type of device used for the test.  eg, BinaxNOW COVID-19 Ag Card
   - name: standard.equipment_model_id
     csvFields: [{name: Device_ID}]
 
-  # Add'l field per request from the County
+
   # TODO Badness: As items are added in prime-data-input-client/backend/src/main/resources/application.yaml,
   #  we need to add them here.
   - name: device_type
     type: CODE
     mapper: use(standard.equipment_model_id)
+    documentation:   "Additional field per request from the County.  HHS lists 4 codes for 'Prior test' question that may match whats desired here:  Molecular, Antigen, Antibody/Serology, and UNK."
     altValues:
       - display: Antigen
         code: "BD Veritor System for Rapid Detection of SARS-CoV-2*"
@@ -67,35 +68,39 @@ elements:
   - name: standard.testing_lab_specimen_id
     csvFields: [{name: Testing_lab_specimen_ID}]
 
+# Removed until SimpleReport sends this column
+#  - name: standard.test_result_status
+#    csvFields: [{name: Test_result_status, format: $display}]
+
   - name: standard.test_result
-    csvFields: [{name: Test_result_code}]
+    csvFields: [{name: Test_result_code, format: $display}]
 
   - name: standard.illness_onset_date
-    csvFields: [{name: Illness_onset_date}]
+    csvFields: [{name: Illness_onset_date, format: "yyyy-MM-dd"}]
 
   - name: standard.specimen_collection_date_time
-    csvFields: [{name: Specimen_collection_date_time}]
+    csvFields: [{name: Specimen_collection_date_time, format: "yyyy-MM-dd"}]
 
   - name: standard.order_test_date
-    csvFields: [{name: Order_test_date}]
+    csvFields: [{name: Order_test_date, format: "yyyy-MM-dd"}]
 
   - name: standard.test_result_date
-    csvFields: [{name: Test_date, format: yyyyMMdd}]
+    csvFields: [{name: Test_date, format: "yyyy-MM-dd"}]
 
   - name: standard.date_result_released
-    csvFields: [{name: Date_result_released, format: yyyyMMdd}]
+    csvFields: [{name: Date_result_released, format: "yyyy-MM-dd"}]
 
   - name: standard.patient_race
-    csvFields: [{name: Patient_race}]
+    csvFields: [{name: Patient_race, format: $display}]
 
   - name: standard.patient_dob
-    csvFields: [{name: Patient_DOB}]
+    csvFields: [{name: Patient_DOB, format: "yyyy-MM-dd"}]
 
   - name: standard.patient_gender
     csvFields: [{name: Patient_gender}]
 
   - name: standard.patient_ethnicity
-    csvFields: [{name: Patient_ethnicity}]
+    csvFields: [{name: Patient_ethnicity, format: $display}]
 
   - name: standard.patient_street
     csvFields: [{name: Patient_street}]
@@ -162,7 +167,9 @@ elements:
   - name: standard.testing_lab_county
     csvFields: [{name: Testing_lab_county}]
 
-  - name: standard.ordering_facility_name
+  # Nonstandard
+  - name: organization_and_facility
+    mapper: 'concat(organization_name, standard.ordering_facility_name)'
     csvFields: [{name: Ordering_facility_name}]
 
   - name: standard.ordering_facility_street
