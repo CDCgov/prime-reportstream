@@ -51,18 +51,6 @@ jobs:
         with:
           image: primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
       
-      - uses: actions/download-artifact@v2
-        with:
-          name: action_image_artifact_prime-data-hub-test_latest
-    
-      - name: Display structure of downloaded files
-        run: ls -R
-
-      - name: Download Docker Image Artifact
-        uses: ishworkh/docker-image-artifact-download@2587a4982f53fa961b96103feb4d5b064cb258eb
-        with:
-          image: primedatahubtestprimedevregistry.azurecr.io/prime-data-hub-test:latest
-      
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
