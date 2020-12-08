@@ -44,30 +44,7 @@ class SendFunction {
                     }
                 }
 
-                val transportSuccessful = true;
-                /*
-                var transportSuccessful = when (service.transport.type) {
-                    OrganizationService.Transport.TransportType.SFTP -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
-                        context.logger.info(
-                            "trying to send to ${service.transport.host} " +
-                                "${service.transport.port} ${service.transport.filePath}"
-                        )
-=======
->>>>>>> allow for multiple transports
-=======
->>>>>>> 8227830cabd3fad670cd9f0298012fbb787d7500
-                        val content = workflowEngine.readBody(header)
-                        // TODO:  look up the correct class to call based on the transport metadata
-                        val transport = SftpTransport()
-                        transport.send(service, header, content)
-                    }
-                    OrganizationService.Transport.TransportType.DEFAULT -> false
-                } */
-                if (transportSuccessful) {
-                    context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
-                }
+                context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
                 // TODO: Next action should be WIPE when implemented
                 ReportEvent(Event.Action.NONE, header.task.reportId)
             }
@@ -77,14 +54,4 @@ class SendFunction {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    private fun lookupTransportMetadata(): OrganizationService.Transport {
-        return OrganizationService.Transport() // TODO: actually lookup the Transport here - for now use the default
-    }
-=======
->>>>>>> 8227830cabd3fad670cd9f0298012fbb787d7500
 }
-=======
-}
->>>>>>> allow for multiple transports

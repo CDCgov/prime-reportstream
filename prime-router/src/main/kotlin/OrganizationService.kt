@@ -1,13 +1,8 @@
 package gov.cdc.prime.router
 
-<<<<<<< HEAD
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-=======
-import com.fasterxml.jackson.annotation.JsonCreator;
-
->>>>>>> 8227830cabd3fad670cd9f0298012fbb787d7500
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId

@@ -319,19 +319,22 @@
                     </generator>
                 </configuration>
             </plugin>
-            <plugin>
+            
+            <!--
+            <plugin>            
                 <groupId>com.github.gantsign.maven</groupId>
                 <artifactId>ktlint-maven-plugin</artifactId>
                 <version>1.7.0</version>
                 <executions>
                     <execution>
-                        <id>klint-format</id>
+                        <id>format</id>
                         <goals>
-                            <goal>format</goal>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+            -->
         </plugins>
     </build>
     <dependencies>
