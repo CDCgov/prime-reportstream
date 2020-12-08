@@ -44,6 +44,7 @@ class SendFunction {
                     }
                 }
 
+<<<<<<< HEAD
                 val transportSuccessful = true;
                 /*
                 var transportSuccessful = when (service.transport.type) {
@@ -65,6 +66,9 @@ class SendFunction {
                 if (transportSuccessful) {
                     context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
                 }
+=======
+                context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
+>>>>>>> pom fix
                 // TODO: Next action should be WIPE when implemented
                 ReportEvent(Event.Action.NONE, header.task.reportId)
             }
@@ -75,10 +79,12 @@ class SendFunction {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     private fun lookupTransportMetadata(): OrganizationService.Transport {
         return OrganizationService.Transport() // TODO: actually lookup the Transport here - for now use the default
     }
 }
 =======
+=======
+>>>>>>> pom fix
 }
->>>>>>> allow for multiple transports
