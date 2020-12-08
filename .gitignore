@@ -60,7 +60,15 @@ prime-router/__azurite_db_queue_extent__.json
 prime-router/__blobstorage__/*
 prime-router/__queuestorage__/*
 prime-router/.factorypath
+__azurite_db_blob__.json
+__azurite_db_blob_extent__.json
+__azurite_db_queue__.json
+__azurite_db_queue_extent__.json
+__blobstorage__/*
+__queuestorage__/*
+.factorypath
 
 prime-router/metadata/organizations-*.yml
 !prime-router/metadata/organizations-prod.yml
 !prime-router/metadata/organizations-test.yml
+!prime-router/metadata/organizations-local.yml

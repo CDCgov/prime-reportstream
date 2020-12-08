@@ -23,7 +23,6 @@
           numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
-        address: http://localhost:1181/
         format: CSV
         transports:
           - type: SFTP
@@ -44,7 +43,6 @@
           numberPerDay: 1440 # Every minute.  NOTE:  In production, they want deliveries once a day at 8am MST.
           initialBatch: 00:00
           timeZone: ARIZONA
-        address: http://localhost:1181/
         format: CSV
 
   #
@@ -58,7 +56,6 @@
         schema: sample/phd1-sample
         jurisdictionalFilter: {observation: covid-19:pos, state: FL}
         transforms: {deidentify: false}
-        address: http://localhost:1181/
         format: CSV
 
 
@@ -71,7 +68,6 @@
         schema: sample/phd2-sample
         jurisdictionalFilter: {observation: covid-19:pos, state: FL}
         transforms: {deidentify: false}
-        address: http://localhost:1281/
         format: CSV
 
   # HHS
@@ -83,5 +79,4 @@
         schema: sample/fed1-sample
         jurisdictionalFilter: {observation: covid-19:.*, state: .*}
         transforms: {deidentify: true}
-        address: http://localhost:1381/
         format: CSV

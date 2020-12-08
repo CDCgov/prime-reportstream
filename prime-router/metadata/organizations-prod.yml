@@ -43,7 +43,6 @@
           numberPerDay: 1440 # Every minute.  NOTE:  In production, they want deliveries once a day at 8am MST.
           initialBatch: 00:00
           timeZone: ARIZONA
-        address: http://localhost:1181/
         format: CSV
 
   #

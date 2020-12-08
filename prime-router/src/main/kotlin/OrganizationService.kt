@@ -1,9 +1,8 @@
 package gov.cdc.prime.router
 
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -30,11 +29,7 @@ data class OrganizationService(
     val transforms: Map<String, String> = emptyMap(),
     val batch: Batch? = null,
     val format: Format = Format.CSV,
-<<<<<<< HEAD
-    val transport: Transport = Transport(Transport.TransportType.DEFAULT)
-=======
     val transports: List<Transport> = emptyList()
->>>>>>> init changes
 ) {
     lateinit var organization: Organization
     val fullName: String get() = "${organization.name}.$name"
@@ -114,15 +109,14 @@ data class OrganizationService(
         MICHIGAN("US/Michigan"),
     }
 
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
     @JsonSubTypes(
         JsonSubTypes.Type(SFTP::class, name = "SFTP"),
         JsonSubTypes.Type(Email::class, name = "EMAIL")
     )
-    abstract class Transport( val type: String );
-    data class SFTP @JsonCreator constructor( val host: String, val port: String, val filePath: String ) : Transport( "SFTP" );
-    data class Email @JsonCreator constructor( val addresses: List<String> ): Transport( "EMAIL")
+    abstract class Transport(val type: String)
+    data class SFTP @JsonCreator constructor(val host: String, val port: String, val filePath: String) : Transport("SFTP")
+    data class Email @JsonCreator constructor(val addresses: List<String>) : Transport("EMAIL")
 
     companion object {
         fun mapByServices(input: Report, organizationServices: List<OrganizationService>): List<Report> {
