@@ -1,8 +1,11 @@
 package gov.cdc.prime.router.transport
 
+<<<<<<< HEAD
 import com.sendgrid.*
 import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.*
+=======
+>>>>>>> 714c9675eaeaa2acab01e8495c93a41cf601c373
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.azure.DatabaseAccess
 
@@ -14,6 +17,7 @@ class EmailTransport : ITransport {
         header: DatabaseAccess.Header,
         contents: ByteArray
     ): Boolean {
+<<<<<<< HEAD
 
         val emailTransport = transport as OrganizationService.Email
 
@@ -159,6 +163,8 @@ class EmailTransport : ITransport {
         System.out.println(response.getBody())
         System.out.println(response.getHeaders())
 
+=======
+>>>>>>> 714c9675eaeaa2acab01e8495c93a41cf601c373
         return true
     }
 }
