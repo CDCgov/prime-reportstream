@@ -21,7 +21,16 @@ interface Mapper {
 
     /**
      *
-     * The names of the values that should be requested. Called first.
+     * The element names of the values that should be requested. Called before apply.
+     *
+     * For example, if the schema had a mapper field defined for a `minus` mapper
+     *
+     * - name: some_element
+     *   mapper: minus(standard.x, 1)
+     *
+     * `valueNames` would be called with an args list of ["standard.x", "1"].
+     * The minus mapper would return ["standard.x"]. The minus mapper is treating
+     * the second argument as a parameter, not as an element name.
      *
      * @param element that contains the mapper definition
      * @param args from the schema
@@ -29,7 +38,18 @@ interface Mapper {
     fun valueNames(element: Element, args: List<String>): List<String>
 
     /**
-     * Apply the mapper using the values from the current report. Called after valueNames().
+     * Apply the mapper using the values from the current report item. Called after valueNames().
+     *
+     * For example, if the schema had a mapper field defined for a `minus` mapper
+     *
+     * - name: some_element
+     *   mapper: minus(standard.x, 1)
+     *
+     * `apply` would be called with an `args` list of ["standard.x", "1"] and a
+     * `values` list of [ElementAndValue(Element(standard.x, ...), "9")] where "9" is
+     * the value of the standard.x element for the current item. The `apply` method
+     * would return "8", thus mapping the `some_element` value to the `standard.x` value minus 1.
+     *
      * @param args from the schema
      * @param values that where fetched based on valueNames
      */

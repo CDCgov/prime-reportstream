@@ -64,7 +64,7 @@ class FakeReport {
                 }
                 Element.Type.DURATION -> TODO()
                 Element.Type.CODE -> {
-                    when(element.name) {
+                    when (element.name) {
                         "standard.specimen_source_site_code" -> "71836000"
                         else -> {
                             val valueSet = findValueSet(element.valueSet ?: "")
@@ -73,7 +73,6 @@ class FakeReport {
                             randomChoice(*possibleValues)
                         }
                     }
-
                 }
                 Element.Type.TABLE -> {
                     val lookupTable = findTable(element.table ?: "")
