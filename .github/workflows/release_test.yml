@@ -1,0 +1,33 @@
+name: RELEASE - Prime Data Hub Test
+
+on:
+  push:
+    branches: [ test ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Update Azure Functions App
+        run: az functionapp update --resource-group prime-data-hub-test --name prime-data-hub-test
+
+      - name: Set PostgreSQL Environment Variables
+        run: | 
+              az functionapp config appsettings set \
+              --resource-group prime-data-hub-test \
+              --name prime-data-hub-test \
+              --settings POSTGRES_USER=prime@${{ secrets.POSTGRESQL_TEST_USER }} POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }} \
+                         POSTGRES_URL=jdbc:postgresql://prime-data-hub-test.postgres.database.azure.com:5432/prime_data_hub?sslmode=require
+
+      - name: Set SFTP Environment Variables
+        run: |
+              az functionapp config appsettings set \
+              --resource-group prime-data-hub-test \
+              --name prime-data-hub-test \
+              --settings PRIME_ENVIRONMENT=test ${{ secrets.SFTP_TEST_AZ_CREDS }} DUMMY_TEST=DUMMY
