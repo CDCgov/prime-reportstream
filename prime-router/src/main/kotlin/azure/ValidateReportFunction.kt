@@ -1,7 +1,11 @@
 package gov.cdc.prime.router.azure
 
 import com.google.common.net.HttpHeaders
-import com.microsoft.azure.functions.*
+import com.microsoft.azure.functions.ExecutionContext
+import com.microsoft.azure.functions.HttpMethod
+import com.microsoft.azure.functions.HttpRequestMessage
+import com.microsoft.azure.functions.HttpResponseMessage
+import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
@@ -137,8 +141,6 @@ class ValidateReportFunction {
             {
               "id": "${report.id}"
             }
-            """.trimIndent()
+        """.trimIndent()
     }
-
-
 }

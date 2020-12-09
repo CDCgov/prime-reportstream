@@ -1,9 +1,9 @@
 package gov.cdc.prime.router
 
 import kotlin.test.Test
-import kotlin.test.assertNotEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
 internal class ElementTests {
@@ -46,79 +46,92 @@ internal class ElementTests {
     @Test
     fun `test toNormalize altValues`() {
         Metadata.loadValueSetCatalog("./src/test/unit_test_files")
-        val one = Element("b",
+        val one = Element(
+            "b",
             type = Element.Type.CODE,
             valueSet = "hl70136",
             altValues = listOf(
                 // Use french as an alternative display for these code
                 ValueSet.Value("Y", "Oui"),
                 ValueSet.Value("N", "Non"),
-                ValueSet.Value("UNK", "?")),
-            csvFields = Element.csvFields("b", format = "\$alt"))
-        val noResult = one.toNormalized("Non", one.csvFields?.get(0)!!)
+                ValueSet.Value("UNK", "?")
+            ),
+            csvFields = Element.csvFields("b", format = "\$alt")
+        )
+        val noResult = one.toNormalized("Non", "\$alt")
         assertEquals("N", noResult)
-        val yesResult = one.toNormalized("Oui", one.csvFields?.get(0)!!)
+        val yesResult = one.toNormalized("Oui", "\$alt")
         assertEquals("Y", yesResult)
     }
 
     @Test
     fun `test toNormalize date`() {
-        val one = Element("a",
+        val one = Element(
+            "a",
             type = Element.Type.DATE,
-            csvFields = Element.csvFields("aDate", format = "yyyy-dd-MM"))
+            csvFields = Element.csvFields("aDate", format = "yyyy-dd-MM")
+        )
         // Iso formatted should work
         val result1 = one.toNormalized("1998-03-30")
         assertEquals("19980330", result1)
-        val result2 = one.toNormalized("1998-30-03", one.csvFields?.get(0)!!)
+        val result2 = one.toNormalized("1998-30-03", "yyyy-dd-MM")
         assertEquals("19980330", result2)
     }
 
     @Test
     fun `test toNormalize dateTime`() {
-        val one = Element("a",
+        val one = Element(
+            "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate"))
+            csvFields = Element.csvFields("aDate")
+        )
         // Iso formatted should work
         val result1 = one.toNormalized("1998-03-30T12:00Z")
         assertEquals("199803301200+0000", result1)
         val result2 = one.toNormalized("199803300000+0000")
         assertEquals("199803300000+0000", result2)
 
-        val two = Element("a",
+        val two = Element(
+            "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate", format = "yyyyMMdd"))
+            csvFields = Element.csvFields("aDate", format = "yyyyMMdd")
+        )
 
-        val result3 = two.toNormalized("19980330", two.csvFields?.get(0))
-        assertEquals("199803300000+0000", result3)
+        val result3 = two.toNormalized("19980330", "yyyyMMdd")
+        assertEquals("199803300000-0600", result3)
     }
 
     @Test
     fun `test toFormatted dateTime`() {
-        val one = Element("a",
+        val one = Element(
+            "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate"))
+            csvFields = Element.csvFields("aDate")
+        )
         // Iso formatted should work
         val result1 = one.toFormatted("199803301200")
         assertEquals("199803301200", result1)
         val result2 = one.toFormatted("199803300000")
         assertEquals("199803300000", result2)
     }
-    
+
     @Test
     fun `test toNormalized zip`() {
-        val one = Element("a",
+        val one = Element(
+            "a",
             type = Element.Type.POSTAL_CODE,
-            csvFields = Element.csvFields("zip"))
+            csvFields = Element.csvFields("zip")
+        )
         val result1 = one.toNormalized("99999")
         assertEquals("99999", result1)
         val result2 = one.toNormalized("99999-9999")
         assertEquals("99999-9999", result2)
         // format should not affect normalization
-        val result4 = one.toNormalized("999999999", Element.CsvField("zip", "\$zipFive"))
+        val result4 = one.toNormalized("999999999", "\$zipFive")
         assertEquals("999999999", result4)
         val result5 = one.toNormalized("KY1-6666") // Cayman zipcode
         assertEquals("KY1-6666", result5)
-        val result6 = one.toNormalized("KX33-77777") // Letters and numbers, but a made up zipcode
+        one.toNormalized("KX33-77777") // Letters and numbers, but a made up zipcode
         assertFails {
             one.toNormalized("%%%%XXXX") // Unreasonable
         }
@@ -126,9 +139,11 @@ internal class ElementTests {
 
     @Test
     fun `test toNormalized phone`() {
-        val one = Element("a",
+        val one = Element(
+            "a",
             type = Element.Type.TELEPHONE,
-            csvFields = Element.csvFields("phone"))
+            csvFields = Element.csvFields("phone")
+        )
         val result1 = one.toNormalized("5559938322")
         assertEquals("5559938322:1:", result1)
         val result2 = one.toNormalized("1(555)-968-5052")
@@ -148,41 +163,43 @@ internal class ElementTests {
 
     @Test
     fun `test toFormatted phone`() {
-        val one = Element("a",
+        val one = Element(
+            "a",
             type = Element.Type.TELEPHONE,
-            csvFields = Element.csvFields("phone"))
+            csvFields = Element.csvFields("phone")
+        )
         val result1 = one.toFormatted("5559938322:1:")
         assertEquals("5559938322", result1)
-        val result2 = one.toFormatted("5559938322:1:",
-            Element.CsvField("test", "\$country-\$area-\$exchange-\$subscriber"))
+        val result2 = one.toFormatted("5559938322:1:", "\$country-\$area-\$exchange-\$subscriber")
         assertEquals("1-555-993-8322", result2)
-        val result3 = one.toFormatted("5559938322:1:",
-            Element.CsvField("test", "(\$area)\$exchange-\$subscriber"))
+        val result3 = one.toFormatted("5559938322:1:", "(\$area)\$exchange-\$subscriber")
         assertEquals("(555)993-8322", result3)
     }
 
     @Test
     fun `test toFormatted zip`() {
-        val one = Element("a",
+        val one = Element(
+            "a",
             type = Element.Type.POSTAL_CODE,
-            csvFields = Element.csvFields("zip"))
+            csvFields = Element.csvFields("zip")
+        )
         val result1 = one.toFormatted("99999")
         assertEquals("99999", result1)
         val result1a = one.toFormatted("99999-9999")
         assertEquals("99999-9999", result1a)
-        val result2 = one.toFormatted("99999-9999", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result2 = one.toFormatted("99999-9999", "\$zipFivePlusFour")
         assertEquals("99999-9999", result2)
-        val result3 = one.toFormatted("99999-9999", Element.CsvField("zip", "\$zipFive"))
+        val result3 = one.toFormatted("99999-9999", "\$zipFive")
         assertEquals("99999", result3)
-        val result4 = one.toFormatted("999999999", Element.CsvField("zip", "\$zipFive"))
+        val result4 = one.toFormatted("999999999", "\$zipFive")
         assertEquals("99999", result4)
-        val result5 = one.toFormatted("999999999", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result5 = one.toFormatted("999999999", "\$zipFivePlusFour")
         assertEquals("99999-9999", result5)
-        val result6 = one.toFormatted("99999", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result6 = one.toFormatted("99999", "\$zipFivePlusFour")
         assertEquals("99999", result6)
-        val result7 = one.toFormatted("KY1-5555", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result7 = one.toFormatted("KY1-5555", "\$zipFivePlusFour")
         assertEquals("KY1-5555", result7)
-        val result8 = one.toFormatted("XZ5555", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result8 = one.toFormatted("XZ5555", "\$zipFivePlusFour")
         assertEquals("XZ5555", result8)
     }
 }

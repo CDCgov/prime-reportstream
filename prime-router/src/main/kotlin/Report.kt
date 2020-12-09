@@ -13,7 +13,6 @@ import java.util.UUID
  */
 typealias ReportId = UUID
 
-
 /**
  * The report represents the report from one agent-organization, and which is
  * translated and sent to another agent-organization. Each report has a schema,
@@ -110,7 +109,6 @@ class Report {
 
     private fun fromThisReport(action: String) = listOf(ReportSource(this.id, action))
 
-
     /**
      * Does a shallow copy of this report. Will have a new id and create date.
      */
@@ -189,11 +187,13 @@ class Report {
     private fun createMappedColumn(toElement: Element, mapper: Mapper): StringColumn {
         val args = Mappers.parseMapperField(toElement.mapper ?: error("mapper is missing")).second
         val values = Array(table.rowCount()) { row ->
-            val inputValues = mapper.elementNames(args).mapNotNull { elementName ->
+            val inputValues = mapper.valueNames(toElement, args).mapNotNull { elementName ->
                 val value = table.getString(row, elementName)
-                if (value.isBlank()) null else elementName to value
-            }.toMap()
-            mapper.apply(args, inputValues) ?: toElement.default ?: ""
+                if (value.isBlank()) return@mapNotNull null
+                val element = schema.findElement(elementName) ?: return@mapNotNull null
+                ElementAndValue(element, value)
+            }
+            mapper.apply(toElement, args, inputValues) ?: toElement.default ?: ""
         }
         return StringColumn.create(toElement.name, values.asList())
     }
@@ -221,9 +221,14 @@ class Report {
             return Report(schema, newTable, sources)
         }
 
-        fun formFileName(id: ReportId, schemaName: String, fileFormat: OrganizationService.Format?, createdDateTime: OffsetDateTime): String {
+        fun formFileName(
+            id: ReportId,
+            schemaName: String,
+            fileFormat: OrganizationService.Format?,
+            createdDateTime: OffsetDateTime
+        ): String {
             val formatter = DateTimeFormatter.ofPattern("YYYYMMddHHmmss")
-            val namePrefix = "${Schema.formBaseName(schemaName)}-${id}-${formatter.format(createdDateTime)}"
+            val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
             val nameSuffix = fileFormat?.toExt() ?: OrganizationService.Format.CSV.toExt()
             return "$namePrefix.$nameSuffix"
         }

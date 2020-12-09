@@ -37,7 +37,6 @@ class MetadataTests {
         assertNotNull(Metadata.findValueSet("hl70136"))
     }
 
-
     @Test
     fun `test find schemas`() {
         val one = Schema(name = "One", topic = "test", elements = listOf(Element("a")))

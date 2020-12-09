@@ -1,6 +1,10 @@
 package gov.cdc.prime.router
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class SchemaTests {
     @Test

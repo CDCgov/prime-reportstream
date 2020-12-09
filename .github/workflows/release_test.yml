@@ -17,6 +17,15 @@ jobs:
       - name: Update Azure Functions App
         run: az functionapp update --resource-group prime-data-hub-test --name prime-data-hub-test
 
+      - name: Set Azure Function Default Key
+        run: |
+              az functionapp function keys set \
+              --resource-group prime-data-hub-test \
+              --name prime-data-hub-test \
+              --function-name reports \
+              --key-name default \
+              --key-value ${{ secrets.AZ_FXNS_TEST_DEFAULT_KEY }}
+
       - name: Set PostgreSQL Environment Variables
         run: | 
               az functionapp config appsettings set \
@@ -31,4 +40,3 @@ jobs:
               --resource-group prime-data-hub-test \
               --name prime-data-hub-test \
               --settings PRIME_ENVIRONMENT=test ${{ secrets.SFTP_TEST_AZ_CREDS }}
-              

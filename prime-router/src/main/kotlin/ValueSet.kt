@@ -13,7 +13,6 @@ package gov.cdc.prime.router
 data class ValueSet(
     val name: String,
     val system: SetSystem,
-    val id: String? = null,
     val reference: String? = null,
     val referenceUrl: String? = null,
     val values: List<Value> = emptyList(),
@@ -24,13 +23,15 @@ data class ValueSet(
         LOINC,
         LOCAL,
         FHIR,
+        UCUM,
     }
 
     val systemCode
         get() = when (system) {
-            SetSystem.HL7 -> "HL7${id}"
+            SetSystem.HL7 -> name.toUpperCase()
             SetSystem.SNOMED_CT -> "SCT"
             SetSystem.LOINC -> "LN"
+            SetSystem.UCUM -> "UCUM"
             SetSystem.LOCAL -> "LOCAL"
             SetSystem.FHIR -> "FHIR"
         }
@@ -38,10 +39,15 @@ data class ValueSet(
     data class Value(
         val code: String,
         val display: String? = null,
+        val version: String? = null,
     )
 
     fun toDisplayFromCode(code: String): String? {
         return values.find { code.equals(it.code, ignoreCase = true) }?.display
+    }
+
+    fun toVersionFromCode(code: String): String? {
+        return values.find { code.equals(it.code, ignoreCase = true) }?.version
     }
 
     fun toCodeFromDisplay(display: String): String? {

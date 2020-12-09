@@ -18,11 +18,10 @@ import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
-import java.util.*
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
-
 
 class WorkflowEngineTests {
 
@@ -48,10 +47,12 @@ class WorkflowEngineTests {
         engine.dispatchReport(event, report1)
 
         verify(exactly = 1) {
-            accessSpy.insertHeader(report = any(),
+            accessSpy.insertHeader(
+                report = any(),
                 bodyFormat = any(),
                 bodyUrl = any(),
-                nextAction = any())
+                nextAction = any()
+            )
             blobMock.uploadBody(report = any())
             queueMock.sendMessage(event = any())
         }
@@ -83,10 +84,12 @@ class WorkflowEngineTests {
         }
 
         verify(exactly = 1) {
-            accessSpy.insertHeader(report = any(),
+            accessSpy.insertHeader(
+                report = any(),
                 bodyFormat = any(),
                 bodyUrl = any(),
-                nextAction = any())
+                nextAction = any()
+            )
             blobMock.uploadBody(report = any())
             queueMock.sendMessage(event = any())
             blobMock.deleteBlob(blobUrl = any())
@@ -114,11 +117,13 @@ class WorkflowEngineTests {
         every { accessSpy.fetchAndLockHeader(reportId = eq(report1.id), any()) }
             .returns(DatabaseAccess.Header(task, emptyList()))
         every {
-            accessSpy.updateHeader(reportId = eq(report1.id),
+            accessSpy.updateHeader(
+                reportId = eq(report1.id),
                 eq(event.action),
                 eq(nextAction.action),
                 any(),
-                any())
+                any()
+            )
         }.returns(Unit)
         every { queueMock.sendMessage(eq(nextAction)) }
             .returns(Unit)

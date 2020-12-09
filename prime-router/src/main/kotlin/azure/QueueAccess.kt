@@ -4,7 +4,7 @@ import com.azure.storage.queue.QueueClient
 import com.azure.storage.queue.QueueServiceClientBuilder
 import java.time.Duration
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.Base64
 
 /**
  * Responsible for storing blobs in Azure containers and messages into Azure queues
@@ -31,7 +31,6 @@ class QueueAccess {
         val message = createQueueClient(queueName).receiveMessage().messageText
         return Event.parse(message)
     }
-
 
     private fun createQueueClient(name: String): QueueClient {
         val connectionString = System.getenv("AzureWebJobsStorage")

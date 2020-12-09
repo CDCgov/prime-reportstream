@@ -22,4 +22,16 @@ elif [ -d $base_name ]; then
 fi
 
 cd $function_folder
+if [[ ! -f local.settings.json ]]; then
+cat <<EOT >> local.settings.json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "java",
+    "FUNCTIONS_EXTENSION_VERSION": "~3",
+  },
+  "ConnectionStrings": {}
+}
+EOT
+fi
 func host start --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
