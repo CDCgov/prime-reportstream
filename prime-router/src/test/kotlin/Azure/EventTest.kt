@@ -5,7 +5,7 @@ import gov.cdc.prime.router.azure.ReceiverEvent
 import gov.cdc.prime.router.azure.ReportEvent
 import org.junit.Test
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 import kotlin.test.assertEquals
 
 class EventTest {

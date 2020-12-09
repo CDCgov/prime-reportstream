@@ -9,7 +9,7 @@ elements:
   - name: last_name
     type: PERSON_NAME
   - name: state
-    type: STATE
+    type: TABLE
   - name: test_time
     type: DATE
   - name: observation

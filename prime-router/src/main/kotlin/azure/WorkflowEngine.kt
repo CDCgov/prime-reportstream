@@ -1,11 +1,10 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.CsvConverter
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Report
 import org.jooq.Configuration
 import java.io.ByteArrayInputStream
-
 
 /**
  * Methods to add a new report to the workflow pipeline and to handle a step in the pipeline.
@@ -75,7 +74,8 @@ class WorkflowEngine(
                     currentAction,
                     Event.Action.NONE,
                     nextActionAt = null,
-                    txn)
+                    txn
+                )
             }
         }
     }
