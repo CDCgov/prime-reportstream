@@ -13,7 +13,6 @@
 ---
 - name: hl70136
   system: HL7
-  id: 0136
   values:
     - code: Y
       display: Yes
@@ -25,16 +24,23 @@
 - name: patient_age_units
   reference: Per the HHS guidance
   referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
-  system: LOCAL
+  system: UCUM
   values:
-    - display: months
-      code: mo
-    - display: years
-      code: yr
+    - code: min
+      display: minutes
+    - code: h
+      display: hours
+    - code: d
+      display: days
+    - code: wk
+      display: weeks
+    - code: mo
+      display: months
+    - code: a
+      display: years
 
 - name: hl70001
   system: HL7
-  id: 0001
   reference: HHS guidance for sex at birth
   referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0001
   values:
@@ -53,7 +59,6 @@
 
 - name: hl70189
   system: HL7
-  id: 0189
   reference: HL7 guidance for ethnicity
   referenceUrl: https://www.hl7.org/fhir/v2/0189/index.html
   values:
@@ -80,7 +85,6 @@
 
 - name: hl70005
   system: HL7
-  id: 0005
   reference: Race, from OMB 2020 Census specified by the HHS guidance which corresponds to hl70005
   referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=B246B692-6DF8-E111-B875-001A4BE7FA90
   values:
@@ -157,3 +161,66 @@
       display: No order on record for this test
     - code: Z
       display: No record of this patient
+
+- name: hl70087
+  system: HL7
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=E2DB0027-57A7-DF11-9BDD-0015173D1785
+  values:
+    - code: A
+      display: Abnormal (applies to non-numeric results)
+    - code: >
+      display: Above absolute high-off instrument scale
+    - code: H
+      display: Above high normal
+    - code: HH
+      display: Above upper panic limits
+    - code: AC
+      display: Anti-complementary substances present
+    - code: <
+      display: Below absolute low-off instrument scale
+    - code: L
+      display: Below low normal
+    - code: LL
+      display: Below lower panic limits
+    - code: B
+      display: Better--use when direction not relevant
+    - code: TOX
+      display: Cytotoxic substance present
+    - code: DET
+      display: Detected
+    - code: IND
+      display: Indeterminate
+    - code: I
+      display: Intermediate. Indicates for microbiology susceptibilities only.
+    - code: MS
+      display: Moderately susceptible. Indicates for microbiology susceptibilities only.
+    - code: NEG
+      display: Negative
+    - code: NR
+      display: Non-reactive
+    - code: N
+      display: Normal (applies to non-numeric results)
+    - code: ND
+      display: Not Detected
+    - code: POS
+      display: Positive
+    - code: QCF
+      display: Quality Control Failure
+    - code: RR
+      display: Reactive
+    - code: R
+      display: Resistant. Indicates for microbiology susceptibilities only.
+    - code: D
+      display: Significant change down
+    - code: U
+      display: Significant change up
+    - code: S
+      display: Susceptible. Indicates for microbiology susceptibilities only.
+    - code: AA
+      display: "Very abnormal (applies to non-numeric units, analogous to panic limits for display: numeric units)"
+    - code: VS
+      display: Very susceptible. Indicates for microbiology susceptibilities only.
+    - code: WR
+      display: Weakly reactive
+    - code: W
+      display: Worse--use when direction not relevant

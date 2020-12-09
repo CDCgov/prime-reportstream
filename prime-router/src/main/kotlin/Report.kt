@@ -187,11 +187,13 @@ class Report {
     private fun createMappedColumn(toElement: Element, mapper: Mapper): StringColumn {
         val args = Mappers.parseMapperField(toElement.mapper ?: error("mapper is missing")).second
         val values = Array(table.rowCount()) { row ->
-            val inputValues = mapper.elementNames(args).mapNotNull { elementName ->
+            val inputValues = mapper.valueNames(toElement, args).mapNotNull { elementName ->
                 val value = table.getString(row, elementName)
-                if (value.isBlank()) null else elementName to value
-            }.toMap()
-            mapper.apply(args, inputValues) ?: toElement.default ?: ""
+                if (value.isBlank()) return@mapNotNull null
+                val element = schema.findElement(elementName) ?: return@mapNotNull null
+                ElementAndValue(element, value)
+            }
+            mapper.apply(toElement, args, inputValues) ?: toElement.default ?: ""
         }
         return StringColumn.create(toElement.name, values.asList())
     }
