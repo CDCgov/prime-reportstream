@@ -45,7 +45,6 @@ class FakeReport {
                     when {
                         element.nameContains("lab_name") -> "Any lab USA"
                         element.nameContains("facility_name") -> "Any facility USA"
-                        element.nameContains("specimen_source_site_text") -> "Nasal"
                         else -> faker.lorem().characters(5, 10)
                     }
                 }
@@ -65,10 +64,16 @@ class FakeReport {
                 }
                 Element.Type.DURATION -> TODO()
                 Element.Type.CODE -> {
-                    val valueSet = findValueSet(element.valueSet ?: "")
-                        ?: error("ValueSet ${element.valueSet} is not available}")
-                    val possibleValues = valueSet.values.map { it.code }.toTypedArray()
-                    randomChoice(*possibleValues)
+                    when(element.name) {
+                        "standard.specimen_source_site_code" -> "71836000"
+                        else -> {
+                            val valueSet = findValueSet(element.valueSet ?: "")
+                                ?: error("ValueSet ${element.valueSet} is not available}")
+                            val possibleValues = valueSet.values.map { it.code }.toTypedArray()
+                            randomChoice(*possibleValues)
+                        }
+                    }
+
                 }
                 Element.Type.TABLE -> {
                     val lookupTable = findTable(element.table ?: "")

@@ -28,9 +28,8 @@ elements:
   - name: standard.test_performed_code
     csvFields: [{name: Ordered_test_code}]
 
-  # TODO: change when specimen_source_site has a valueSet
-  - name: standard.specimen_source_site_text
-    csvFields: [{name: Specimen_source_site_code}]
+  - name: standard.specimen_source_site_code
+    csvFields: [{name: Specimen_source_site_code, format: $code}]
 
   - name: standard.specimen_type
     csvFields: [{name: Specimen_type_code}]

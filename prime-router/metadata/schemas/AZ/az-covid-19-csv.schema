@@ -159,9 +159,10 @@ elements:
     - name: Specimen_Type
       format: $display
 
-  - name: standard.specimen_source_site_text
+  - name: standard.specimen_source_site_code
     csvFields:
     - name: Specimen_Site
+      format: $display
 
   - name: standard.test_performed_code
     csvFields:

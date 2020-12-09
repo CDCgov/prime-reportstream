@@ -688,19 +688,12 @@ elements:
     hhsGuidanceField:
     hl7Field: SPM-11
 
-  # TODO: ValueSet
   - name: specimen_source_site_code
-    type: TEXT
+    type: CODE
+    valueSet: covid-19/specimen_source_site
     natFlatFileField: Specimen_source_site_code
     hhsGuidanceField: Specimen source
-    hl7Field: SPM-8-1
-
-  # TODO: ValueSet
-  - name: specimen_source_site_text
-    type: TEXT
-    natFlatFileField: Specimen_source_site_descrip
-    hhsGuidanceField:
-    hl7Field: SPM-8-2
+    hl7Field: SPM-8
 
   - name: specimen_type
     type: CODE
