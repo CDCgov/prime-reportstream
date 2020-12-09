@@ -1,0 +1,34 @@
+---
+name: fl-covid-19
+description: Florida COVID-19 flat file
+topic: covid-19
+trackingElement: standard.testing_lab_specimen_id
+elements:
+    -   name: standard.testing_lab_clia
+        csvFields:
+            -   name: Sending Facility CLIA Number
+
+    - name: standard.testing_lab_name
+      csvFields:
+          - name: Sending Facility Name
+
+    # TODO: confirm specimen id is what they expect here
+    - name: standard.testing_lab_specimen_id
+      csvFields:
+          - name: Medical Record Number
+
+    - name: patient_ssn
+      type: TEXT
+      hl7Field: PID-19
+
+    - name: standard.patient_last_name
+      csvFields:
+          - name: Patient Last Name
+
+    - name: standard.patient_first_name
+      csvFields:
+          - name: Patient First Name
+
+    - name: standard.patient_dob
+      csvFields:
+          - name: Patient Date of Birth
