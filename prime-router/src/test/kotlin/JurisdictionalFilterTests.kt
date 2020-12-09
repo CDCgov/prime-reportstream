@@ -4,6 +4,7 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 
 class JurisdictionalFilterTests {
     @Test
@@ -59,5 +60,19 @@ class JurisdictionalFilterTests {
         assertEquals(2, filteredTable3.rowCount())
         assertEquals("Baltimore City", filteredTable3.getString(0, "standard.patient_county"))
         assertEquals("Pima", filteredTable3.getString(1, "standard.patient_county"))
+
+        val args4 = listOf("MD") // wrong num args
+        assertFails { filter.getSelection(args4, table) }
+    }
+
+    @Test
+    fun `test filterByCountyFails`() {
+        val filter = FilterByCounty()
+        val table = Table.create(
+            StringColumn.create("BOGUS"),
+        )
+
+        val args1 = listOf("a", "b") // correct # args.
+        assertFails { filter.getSelection(args1, table) } // However, table doesn't have the expected columns
     }
 }
