@@ -31,3 +31,4 @@ jobs:
               --resource-group prime-data-hub-test \
               --name prime-data-hub-test \
               --settings PRIME_ENVIRONMENT=test ${{ secrets.SFTP_TEST_AZ_CREDS }}
+              
