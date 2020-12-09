@@ -1,4 +1,4 @@
-name: BUILD - Prime Data Hub Test
+name: Prime Data Hub Test
 
 on:
   pull_request:

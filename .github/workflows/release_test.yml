@@ -1,4 +1,4 @@
-name: RELEASE - Prime Data Hub Test
+name: Prime Data Hub Test
 
 on:
   push:
@@ -30,4 +30,5 @@ jobs:
               az functionapp config appsettings set \
               --resource-group prime-data-hub-test \
               --name prime-data-hub-test \
-              --settings PRIME_ENVIRONMENT=test ${{ secrets.SFTP_TEST_AZ_CREDS }} DUMMY_TEST=DUMMY
+              --settings PRIME_ENVIRONMENT=test ${{ secrets.SFTP_TEST_AZ_CREDS }}
+              
