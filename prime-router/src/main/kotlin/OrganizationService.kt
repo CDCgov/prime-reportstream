@@ -58,7 +58,7 @@ data class OrganizationService(
         val operation: BatchOperation = BatchOperation.NONE,
         val numberPerDay: Int = 1,
         val initialBatch: String = "00:00",
-        val timeZone: BatchTimeZone = BatchTimeZone.EASTERN,
+        val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxBatchSize: Int = 100,
     ) {
         /**
@@ -92,19 +92,6 @@ data class OrganizationService(
     enum class BatchOperation {
         NONE,
         MERGE
-    }
-
-    enum class BatchTimeZone(val zoneId: String) {
-        PACIFIC("US/Pacific"),
-        MOUNTAIN("US/Mountain"),
-        ARIZONA("US/Arizona"),
-        CENTRAL("US/Central"),
-        EASTERN("US/Eastern"),
-        SOMOA("US/Somoa"),
-        HAWAII("US/Hawaii"),
-        EAST_INDIANA("US/East-Indiana"),
-        INDIANA_STARKE("US/Indiana-Starke"),
-        MICHIGAN("US/Michigan"),
     }
 
     data class Transport(

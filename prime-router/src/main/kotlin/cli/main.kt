@@ -50,8 +50,10 @@ class RouterCli : CliktCommand(
     private val outputFileName by option("--output", help = "<file> not compatible with route or partition")
     private val outputDir by option("--output_dir", help = "<directory>")
     private val outputSchema by option("--output_schema", help = "<schema_name> or use input schema if not specified")
+    private val outputHl7 by option("--output_hl7", help = "True for HL7 output").flag(default = false)
 
-    private val generateDocumentation by option("--generate-docs", help = "generate documentation from the provided schema")
+    private val generateDocumentation by
+    option("--generate-docs", help = "generate documentation from the provided schema")
         .flag(default = false)
 
     private fun readReportFromFile(
@@ -75,7 +77,8 @@ class RouterCli : CliktCommand(
             val outputFile = if (outputFileName != null) {
                 File(outputFileName!!)
             } else {
-                File(outputDir ?: ".", report.name)
+                val fileName = Report.formFileName(report.id, report.schema.baseName, format, report.createdDateTime)
+                File(outputDir ?: ".", "$fileName")
             }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
@@ -147,12 +150,19 @@ class RouterCli : CliktCommand(
             }
 
             // Transform reports
+            val outputFormat = if (outputHl7) OrganizationService.Format.HL7 else OrganizationService.Format.CSV
             val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
                 route ->
                     OrganizationService
                         .filterAndMapByService(inputReport, Metadata.organizationServices)
                         .map { it.first to it.second.format }
-                else -> listOf(Pair(inputReport, OrganizationService.Format.CSV))
+                outputSchema != null -> {
+                    val toSchema = Metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
+                    val mapping = inputReport.schema.buildMapping(toSchema)
+                    val toReport = inputReport.applyMapping(mapping)
+                    listOf(Pair(toReport, outputFormat))
+                }
+                else -> listOf(Pair(inputReport, outputFormat))
             }
 
             // Output reports

@@ -58,9 +58,9 @@ internal class ElementTests {
             ),
             csvFields = Element.csvFields("b", format = "\$alt")
         )
-        val noResult = one.toNormalized("Non", one.csvFields?.get(0)!!)
+        val noResult = one.toNormalized("Non", "\$alt")
         assertEquals("N", noResult)
-        val yesResult = one.toNormalized("Oui", one.csvFields?.get(0)!!)
+        val yesResult = one.toNormalized("Oui", "\$alt")
         assertEquals("Y", yesResult)
     }
 
@@ -69,12 +69,11 @@ internal class ElementTests {
         val one = Element(
             "a",
             type = Element.Type.DATE,
-            csvFields = Element.csvFields("aDate", format = "yyyy-dd-MM")
         )
         // Iso formatted should work
         val result1 = one.toNormalized("1998-03-30")
         assertEquals("19980330", result1)
-        val result2 = one.toNormalized("1998-30-03", one.csvFields?.get(0)!!)
+        val result2 = one.toNormalized("1998-30-03", "yyyy-dd-MM")
         assertEquals("19980330", result2)
     }
 
@@ -83,7 +82,6 @@ internal class ElementTests {
         val one = Element(
             "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate")
         )
         // Iso formatted should work
         val result1 = one.toNormalized("1998-03-30T12:00Z")
@@ -94,20 +92,18 @@ internal class ElementTests {
         val two = Element(
             "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate", format = "yyyyMMdd")
         )
 
-        val result3 = two.toNormalized("19980330", two.csvFields?.get(0))
-        assertEquals("199803300000+0000", result3)
+        val result3 = two.toNormalized("19980330", "yyyyMMdd")
+        assertEquals("199803300000-0600", result3)
 
         val three = Element(
             "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate", format = "yyyy-MM-dd")
         )
 
-        val result4 = three.toNormalized("2020-12-09", three.csvFields?.get(0))
-        assertEquals("202012090000+0000", result4)
+        val result4 = three.toNormalized("2020-12-09", "yyyy-MM-dd")
+        assertEquals("202012090000-0600", result4)
     }
 
     @Test
@@ -115,7 +111,6 @@ internal class ElementTests {
         val one = Element(
             "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate")
         )
         // Iso formatted should work
         val result1 = one.toFormatted("199803301200")
@@ -126,10 +121,9 @@ internal class ElementTests {
         val two = Element(
             "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate", format = "yyyy-MM-dd")
         )
         // Other formats should work too, including sans the time.
-        val result3 = two.toFormatted("202012090000+0000", two.csvFields?.get(0))
+        val result3 = two.toFormatted("202012090000+0000", "yyyy-MM-dd")
         assertEquals("2020-12-09", result3)
     }
 
@@ -145,7 +139,7 @@ internal class ElementTests {
         val result2 = one.toNormalized("99999-9999")
         assertEquals("99999-9999", result2)
         // format should not affect normalization
-        val result4 = one.toNormalized("999999999", Element.CsvField("zip", "\$zipFive"))
+        val result4 = one.toNormalized("999999999", "\$zipFive")
         assertEquals("999999999", result4)
         val result5 = one.toNormalized("KY1-6666") // Cayman zipcode
         assertEquals("KY1-6666", result5)
@@ -188,15 +182,9 @@ internal class ElementTests {
         )
         val result1 = one.toFormatted("5559938322:1:")
         assertEquals("5559938322", result1)
-        val result2 = one.toFormatted(
-            "5559938322:1:",
-            Element.CsvField("test", "\$country-\$area-\$exchange-\$subscriber")
-        )
+        val result2 = one.toFormatted("5559938322:1:", "\$country-\$area-\$exchange-\$subscriber")
         assertEquals("1-555-993-8322", result2)
-        val result3 = one.toFormatted(
-            "5559938322:1:",
-            Element.CsvField("test", "(\$area)\$exchange-\$subscriber")
-        )
+        val result3 = one.toFormatted("5559938322:1:", "(\$area)\$exchange-\$subscriber")
         assertEquals("(555)993-8322", result3)
     }
 
@@ -211,19 +199,19 @@ internal class ElementTests {
         assertEquals("99999", result1)
         val result1a = one.toFormatted("99999-9999")
         assertEquals("99999-9999", result1a)
-        val result2 = one.toFormatted("99999-9999", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result2 = one.toFormatted("99999-9999", "\$zipFivePlusFour")
         assertEquals("99999-9999", result2)
-        val result3 = one.toFormatted("99999-9999", Element.CsvField("zip", "\$zipFive"))
+        val result3 = one.toFormatted("99999-9999", "\$zipFive")
         assertEquals("99999", result3)
-        val result4 = one.toFormatted("999999999", Element.CsvField("zip", "\$zipFive"))
+        val result4 = one.toFormatted("999999999", "\$zipFive")
         assertEquals("99999", result4)
-        val result5 = one.toFormatted("999999999", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result5 = one.toFormatted("999999999", "\$zipFivePlusFour")
         assertEquals("99999-9999", result5)
-        val result6 = one.toFormatted("99999", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result6 = one.toFormatted("99999", "\$zipFivePlusFour")
         assertEquals("99999", result6)
-        val result7 = one.toFormatted("KY1-5555", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result7 = one.toFormatted("KY1-5555", "\$zipFivePlusFour")
         assertEquals("KY1-5555", result7)
-        val result8 = one.toFormatted("XZ5555", Element.CsvField("zip", "\$zipFivePlusFour"))
+        val result8 = one.toFormatted("XZ5555", "\$zipFivePlusFour")
         assertEquals("XZ5555", result8)
     }
 }

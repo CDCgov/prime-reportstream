@@ -110,7 +110,7 @@ class OrganizationTests {
             OrganizationService.BatchOperation.NONE,
             24,
             "04:05",
-            OrganizationService.BatchTimeZone.ARIZONA
+            USTimeZone.ARIZONA
         ) // AZ is -7:00 from UTC
         assertTrue(batch.isValid())
 
