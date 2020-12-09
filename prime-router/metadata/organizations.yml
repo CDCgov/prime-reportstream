@@ -25,6 +25,17 @@
           initialBatch: 00:00
           timeZone: ARIZONA
         format: CSV
+<<<<<<< HEAD
+=======
+        transports:
+          - type: SFTP
+            host: localhost
+            port: 22
+            filePath: ./upload
+          - type: EMAIL
+            addresses:
+              - matthew.young@bisonworks.com
+>>>>>>> changes
 
   - name: pima-az-phd
     description: Pima County, Arizona PHD
