@@ -24,7 +24,11 @@
           numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
-        address: http://localhost:1181/
+        transport:
+            type: SFTP
+            host: sftp
+            port: 22
+            filePath: ./upload
         format: CSV
 
   - name: pima-az-phd
@@ -67,7 +71,6 @@
         topic: sample
         schema: sample/phd2-sample
         jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, FL)"]
-#OLD        jurisdictionalFilter: {observation: covid-19:pos, state: FL}
         transforms: {deidentify: false}
         address: http://localhost:1281/
         format: CSV
@@ -80,7 +83,6 @@
         topic: sample
         schema: sample/fed1-sample
         jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)"]
-#OLD        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
         transforms: {deidentify: true}
         address: http://localhost:1381/
         format: CSV

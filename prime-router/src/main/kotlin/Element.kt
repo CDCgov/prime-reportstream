@@ -227,13 +227,22 @@ data class Element(
                 } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
+                    // Try to parse using the display format value, as defined in the schema
                     val formatter = DateTimeFormatter.ofPattern(field?.format ?: datetimePattern, Locale.ENGLISH)
                     OffsetDateTime.parse(formattedValue, formatter)
                 } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
-                    // Finally, accept a date pattern assume it is in the UTC timezone
+                    // Try to parse using a Date (no Time) pattern assuming it is in our canonical format, UTC timezone.
                     val date = LocalDate.parse(formattedValue, dateFormatter)
+                    OffsetDateTime.of(date, LocalTime.of(0, 0), ZoneOffset.UTC)
+                } catch (e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    // Lastly, try to parse using the display format value, but as a Date, not a Datetime.
+                    // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
+                    val formatter = DateTimeFormatter.ofPattern(field?.format ?: datetimePattern, Locale.ENGLISH)
+                    val date = LocalDate.parse(formattedValue, formatter)
                     OffsetDateTime.of(date, LocalTime.of(0, 0), ZoneOffset.UTC)
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element '$name'")
