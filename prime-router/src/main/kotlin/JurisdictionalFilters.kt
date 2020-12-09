@@ -52,6 +52,9 @@ class Matches : JurisdictionalFilter {
     }
 }
 
+/**
+ * This may or may not be a unicorn.
+ */
 class FilterByCounty : JurisdictionalFilter {
     override val name = "filterByCounty"
 
