@@ -3,7 +3,7 @@ package gov.cdc.prime.router.Azure
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ReceiverEvent
 import gov.cdc.prime.router.azure.ReportEvent
-import org.junit.Test
+import kotlin.test.Test
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.assertEquals

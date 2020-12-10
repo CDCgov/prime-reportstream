@@ -20,7 +20,6 @@ class OrganizationTests {
                   schema: one
                   jurisdictionalFilter: {a: 1}
                   transforms: {deidentify: false}
-                  address: phd1
                   format: CSV
     """.trimIndent()
 
@@ -40,7 +39,6 @@ class OrganizationTests {
                       numberPerDay: 24
                       initialBatch: 00:00
                       timeZone: ARIZONA
-                    address: phd1
                     format: CSV
                 clients:
                   - name: sender

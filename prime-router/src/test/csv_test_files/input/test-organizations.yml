@@ -8,7 +8,6 @@
         schema: test-schema
         jurisdictionalFilter: {observation: covid-19:pos, state: AZ}
         transforms: {deidentify: false}
-        address: http://localhost:1181/
         format: CSV
 
   # Output to a deidentified schema
@@ -20,5 +19,4 @@
         schema: federal-test-schema
         jurisdictionalFilter: {observation: covid-19:.*, state: .*}
         transforms: {deidentify: true}
-        address: http://localhost:1381/
         format: CSV
