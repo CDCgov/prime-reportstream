@@ -12,24 +12,39 @@ class FakeReport {
             return choices[random.nextInt(choices.size)]
         }
 
-        internal fun buildColumn(element: Element, findValueSet: (name: String) -> ValueSet?): String {
-            val faker = Faker()
-            val address = faker.address()
-            val patientName = faker.name()
+        private fun randomChoice(choices: List<String>): String {
+            if (choices.isEmpty()) return ""
+            val random = Random()
+            return choices[random.nextInt(choices.size)]
+        }
 
+        class RowContext(findLookupTable: (String) -> LookupTable? = Metadata::findLookupTable) {
+            val faker = Faker()
+            val patientName = faker.name()
+            val equipmentModel = randomChoice(
+                "BinaxNOW COVID-19 Ag Card",
+                "BD Veritor System for Rapid Detection of SARS-CoV-2*"
+            )
+            val state = randomChoice("FL", "PA", "TX", "AZ")
+            val county = findLookupTable("fips-county")?.let {
+                randomChoice(it.filter("State", state, "County"))
+            }
+        }
+
+        internal fun buildColumn(
+            element: Element,
+            context: RowContext,
+            findValueSet: (name: String) -> ValueSet?,
+            findTable: (name: String) -> LookupTable?,
+        ): String {
+            val faker = context.faker
             return when (element.type) {
-                Element.Type.CITY -> address.cityName()
-                Element.Type.POSTAL_CODE -> address.zipCode().toString()
+                Element.Type.CITY -> faker.address().city()
+                Element.Type.POSTAL_CODE -> faker.address().zipCode().toString()
                 Element.Type.TEXT -> {
                     when {
                         element.nameContains("lab_name") -> "Any lab USA"
                         element.nameContains("facility_name") -> "Any facility USA"
-                        element.nameContains("equipment_model_id") ->
-                            randomChoice(
-                                "BinaxNOW COVID-19 Ag Card",
-                                "BD Veritor System for Rapid Detection of SARS-CoV-2*"
-                            )
-                        element.nameContains("specimen_source_site_text") -> "Nasal"
                         else -> faker.lorem().characters(5, 10)
                     }
                 }
@@ -49,10 +64,35 @@ class FakeReport {
                 }
                 Element.Type.DURATION -> TODO()
                 Element.Type.CODE -> {
-                    val valueSet = findValueSet(element.valueSet ?: "")
-                        ?: error("ValueSet ${element.valueSet} is not available}")
-                    val possibleValues = valueSet.values.map { it.code }.toTypedArray()
-                    randomChoice(*possibleValues)
+                    when (element.name) {
+                        "standard.specimen_source_site_code" -> "71836000"
+                        else -> {
+                            val valueSet = findValueSet(element.valueSet ?: "")
+                                ?: error("ValueSet ${element.valueSet} is not available}")
+                            val possibleValues = valueSet.values.map { it.code }.toTypedArray()
+                            randomChoice(*possibleValues)
+                        }
+                    }
+                }
+                Element.Type.TABLE -> {
+                    val lookupTable = findTable(element.table ?: "")
+                        ?: error("LookupTable ${element.table} is not available")
+                    when (element.table) {
+                        "LIVD-2020-11-18" ->
+                            lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn ?: "")
+                                ?: error(
+                                    "Schema Error: Could not lookup ${context.equipmentModel} " +
+                                        "to ${element.tableColumn}"
+                                )
+                        "fips-county" -> {
+                            when {
+                                element.nameContains("state") -> context.state
+                                element.nameContains("county") -> context.county ?: ""
+                                else -> TODO("Add this column in a table")
+                            }
+                        }
+                        else -> TODO("Add this table")
+                    }
                 }
                 Element.Type.HD -> {
                     "0.0.0.0.1"
@@ -62,26 +102,28 @@ class FakeReport {
                 Element.Type.ID_DLN -> faker.idNumber().valid()
                 Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
                 Element.Type.ID_NPI -> faker.numerify("##########")
-                Element.Type.STREET -> if (element.name.contains("2")) "" else address.streetAddress()
-                Element.Type.STATE -> randomChoice("AZ", "FL", "PA")
-                Element.Type.COUNTY -> "Any County"
+                Element.Type.STREET -> if (element.name.contains("2")) "" else faker.address().streetAddress()
                 Element.Type.PERSON_NAME -> {
                     when {
-                        element.nameContains("first") -> patientName.firstName()
-                        element.nameContains("last") -> patientName.lastName()
-                        element.nameContains("middle") -> patientName.firstName() // no middle name in faker
-                        element.nameContains("suffix") -> randomChoice(patientName.suffix(), "")
+                        element.nameContains("first") -> context.patientName.firstName()
+                        element.nameContains("last") -> context.patientName.lastName()
+                        element.nameContains("middle") -> context.patientName.firstName() // no middle name in faker
+                        element.nameContains("suffix") -> randomChoice(context.patientName.suffix(), "")
                         else -> TODO()
                     }
                 }
                 Element.Type.TELEPHONE -> faker.numerify("##########:1:") // faker.phoneNumber().cellPhone()
-                Element.Type.EMAIL -> "${patientName.username()}@email.com"
+                Element.Type.EMAIL -> "${context.patientName.username()}@email.com"
                 null -> error("Invalid element type for ${element.name}")
             }
         }
 
+        private fun fakeLvidColumn(element: Element) {
+        }
+
         private fun buildRow(schema: Schema): List<String> {
-            return schema.elements.map { buildColumn(it, Metadata::findValueSet) }
+            val context = RowContext()
+            return schema.elements.map { buildColumn(it, context, Metadata::findValueSet, Metadata::findLookupTable) }
         }
 
         fun build(schema: Schema, count: Int = 10, source: Source): Report {

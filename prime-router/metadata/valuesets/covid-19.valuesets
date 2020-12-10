@@ -83,7 +83,7 @@
 
 - name: covid-19/pregnant_aoe
   system: SNOMED_CT
-  reference: HHS guidence and LONIC
+  reference: HHS guidence and LOINC
   referenceUrl: https://loinc.org/82810-3/
   values:
     - code: 77386006
@@ -92,3 +92,63 @@
       display: Not Pregnant
     - code: 261665006
       display: Unknown
+
+- name: covid-19/aoe
+  system: LOINC
+  reference: HHS guidence on the LOINC codes to use for ask-on-entry questions
+  referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages
+  values:
+    - code: 95417-2
+      display: First test for condition of interest
+      version: 2.69-pre
+    - code: 95418-0
+      display: Whether patient is employed in a healthcare setting
+      version: 2.69-pre
+    - code: 85658-3
+      display: Occupation [Type]
+      version: 2.68
+    - code: 95419-8
+      display: Has symptoms related to condition of interest
+      version: 2.69-pre
+    - code: 65222-2
+      display: Date and time of symptom onset
+      version: 2.68
+    - code: 75325-1
+      display: Symptom
+      version: 2.68
+    - code: 77974-4
+      display: Patient was hospitalized because of this condition
+    - code: 95420-6
+      display: Admitted to intensive care unit for condition of interest
+      version: 2.69-pre
+    - code: 95421-4
+      display: Resides in a congregate care setting
+      version: 2.68-pre
+    - code: 75617-1
+      display: Residence type
+      version: 2.68
+    - code: 82810-3
+      display: Pregnancy status
+      version: 2.68
+    - code: 30525-0
+      display: Age
+      version: 2.68
+
+- name: covid-19/specimen_source_site
+  system: SNOMED_CT
+  reference: Subset of the all body structure codes
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=9A2D4051-3AA6-42EB-AE88-541C9094B0FB
+  values:
+    - code: 119297000
+      display: Blood specimen (specimen)
+      version: 2020-09-01
+    - code: 71836000
+      display: Nasopharyngeal structure (body structure)
+      version: 2020-09-01
+    - code: 45206002
+      display: Nasal structure (body structure)
+      version: 2020-09-01
+
+
+
+
