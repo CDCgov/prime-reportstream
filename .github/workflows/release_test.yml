@@ -31,7 +31,7 @@ jobs:
               az functionapp config appsettings set \
               --resource-group prime-data-hub-test \
               --name prime-data-hub-test \
-              --settings POSTGRES_USER=prime@${{ secrets.POSTGRESQL_TEST_USER }} POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }} \
+              --settings POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}@prime-data-hub-test POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }} \
                          POSTGRES_URL=jdbc:postgresql://prime-data-hub-test.postgres.database.azure.com:5432/prime_data_hub?sslmode=require
 
       - name: Set SFTP Environment Variables
