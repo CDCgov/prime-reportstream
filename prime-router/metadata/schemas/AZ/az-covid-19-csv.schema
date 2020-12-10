@@ -14,7 +14,9 @@ elements:
     csvFields:
     - name: Sending_Application_ID
 
-  - name: standard.testing_lab_name
+  # Nonstandard
+  - name: organization_and_lab
+    mapper: 'concat(organization_name, standard.testing_lab_name)'
     csvFields:
     - name: Lab_Name
 
