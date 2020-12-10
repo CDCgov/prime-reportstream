@@ -137,14 +137,17 @@ class Report {
         }
     }
 
-    fun filter(patterns: Map<String, String>): Report {
+    fun filter(filterFunctions: List<String>): Report {
         val combinedSelection = Selection.withRange(0, table.rowCount())
-        patterns.forEach { (col, pattern) ->
-            val columnSelection = table.stringColumn(col).matchesRegex(pattern)
-            combinedSelection.and(columnSelection)
+        filterFunctions.forEach { function ->
+            val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(function)
+            val filterFn =
+                Metadata.findJurisdictionalFilter(fnName) ?: error("JurisdictionalFilter $fnName is not found")
+            val filterFnSelection = filterFn.getSelection(fnArgs, table)
+            combinedSelection.and(filterFnSelection)
         }
         val filteredTable = table.where(combinedSelection)
-        return Report(this.schema, filteredTable, fromThisReport("filter: $patterns"))
+        return Report(this.schema, filteredTable, fromThisReport("filter: $filterFunctions"))
     }
 
     fun deidentify(): Report {
