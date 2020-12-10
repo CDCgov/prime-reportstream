@@ -11,7 +11,12 @@ class DocumentationTests {
     """.trimIndent()
     private val elem = Element(name = "a", type = Element.Type.TEXT)
     private val elemWithDocumentation = Element(name = "a", type = Element.Type.TEXT, documentation = documentation)
-    private val schema = Schema(name = "Test Schema", topic = "", elements = listOf(elem), description = "This is a test schema")
+    private val schema = Schema(
+        name = "Test Schema",
+        topic = "",
+        elements = listOf(elem),
+        description = "This is a test schema"
+    )
 
     @Test
     fun `test building documentation string from element`() {

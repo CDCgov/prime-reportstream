@@ -64,10 +64,10 @@ elements:
     csvFields:
     - name: SpecimenCollectedDate
 
-  # TODO: Fix when specimen_source_site valueSet is defined
-  - name: standard.specimen_source_site_text
+  - name: standard.specimen_source_site_code
     csvFields:
     - name: SpecimenSource
+      format: $display
 
   - name: standard.specimen_type
     csvFields:

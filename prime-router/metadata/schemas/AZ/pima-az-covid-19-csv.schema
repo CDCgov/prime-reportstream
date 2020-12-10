@@ -25,26 +25,25 @@ elements:
     csvFields: [{name: Patient_lookup_ID}]
     type: TEXT
 
-  - name: standard.test_performed
+  # LOINC code for the test performed
+  - name: standard.test_performed_code
     csvFields: [{name: Ordered_test_code, format: $display}]
 
-  # TODO: change when specimen_source_site has a valueSet
-  - name: standard.specimen_source_site_text
-    csvFields: [{name: Specimen_source_site_code}]
+  - name: standard.specimen_source_site_code
+    csvFields: [{name: Specimen_source_site, format: $display}]
 
   - name: standard.specimen_type
     csvFields: [{name: Specimen_type_code, format: $display}]
 
   # The type of device used for the test.  eg, BinaxNOW COVID-19 Ag Card
-  - name: standard.equipment_model_id
+  - name: standard.equipment_model_name
     csvFields: [{name: Device_ID}]
-
 
   # TODO Badness: As items are added in prime-data-input-client/backend/src/main/resources/application.yaml,
   #  we need to add them here.
   - name: device_type
     type: CODE
-    mapper: use(standard.equipment_model_id)
+    mapper: use(standard.equipment_model_name)
     documentation:   "Additional field per request from the County.  HHS lists 4 codes for 'Prior test' question that may match whats desired here:  Molecular, Antigen, Antibody/Serology, and UNK."
     altValues:
       - display: Antigen

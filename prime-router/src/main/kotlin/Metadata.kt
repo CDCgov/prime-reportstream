@@ -33,6 +33,8 @@ object Metadata {
         IfPresentMapper(),
         LookupMapper(),
         ConcatenateMapper(),
+        Obx17Mapper(),
+        Obx17TypeMapper(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private var organizationStore: List<Organization> = ArrayList()
@@ -126,7 +128,7 @@ object Metadata {
             val baseSchemaName = normalizeSchemaName(splitName[0])
             // Find the element in the schemas list
             val basedElement = schemas.find { it.name == baseSchemaName }?.findElement(splitName[1])
-                ?: error("${element.name} does not exists in $baseSchemaName")
+                ?: error("'${element.name}' does not exists in base '$baseSchemaName'")
             element.extendFrom(basedElement)
         } else {
             element
@@ -270,8 +272,12 @@ object Metadata {
         }
     }
 
+    fun findLookupTable(name: String): LookupTable? {
+        return lookupTableStore[name.toLowerCase()]
+    }
+
     fun addLookupTable(name: String, table: LookupTable) {
-        lookupTableStore = lookupTableStore.plus(name to table)
+        lookupTableStore = lookupTableStore.plus(name.toLowerCase() to table)
     }
 
     fun addLookupTable(name: String, tableStream: InputStream) {

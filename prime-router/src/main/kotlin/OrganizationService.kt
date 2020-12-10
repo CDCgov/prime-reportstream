@@ -60,7 +60,7 @@ data class OrganizationService(
         val operation: BatchOperation = BatchOperation.NONE,
         val numberPerDay: Int = 1,
         val initialBatch: String = "00:00",
-        val timeZone: BatchTimeZone = BatchTimeZone.EASTERN,
+        val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxBatchSize: Int = 100,
     ) {
         /**

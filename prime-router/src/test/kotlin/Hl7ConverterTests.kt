@@ -12,8 +12,6 @@ import kotlin.test.assertNotNull
 class Hl7ConverterTests {
     private val testReport: Report
     private val context = DefaultHapiContext()
-    private val modelClassFactory = context.modelClassFactory
-    private val pipeParser = context.pipeParser
 
     init {
         Metadata.loadSchemaCatalog("./src/test/unit_test_files")
