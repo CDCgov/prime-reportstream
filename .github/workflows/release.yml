@@ -1,14 +1,28 @@
-name: Prime Data Hub Test
+name: Prime Data Hub
 
 on:
   push:
-    branches: [ test ]
+    branches: [ test, production ]
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Set Environment Variables
+        run: |
+               if [ "$GITHUB_BASE_REF" == "production" ]
+               then
+                   echo "Building for the production environment."
+                   export RESOURCE_GROUP=prime-data-hub
+                   export ACR_REPO=primedatahubregistry
+               else
+                   echo "Building for the test environment."
+                   export RESOURCE_GROUP=prime-data-hub-test
+                   export ACR_REPO=primedatahubtestprimedevregistry.azurecr.io
+               fi
+               env
+
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
