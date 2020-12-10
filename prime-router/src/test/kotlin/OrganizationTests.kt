@@ -18,7 +18,7 @@ class OrganizationTests {
                 - name: elr
                   topic: test
                   schema: one
-                  jurisdictionalFilter: {a: 1}
+                  jurisdictionalFilter: [ "matches(a, 1)"]
                   transforms: {deidentify: false}
                   format: CSV
     """.trimIndent()
@@ -32,7 +32,7 @@ class OrganizationTests {
                   - name: elr
                     topic: test
                     schema: one
-                    jurisdictionalFilter: {a: 1}
+                    jurisdictionalFilter: [ "matches(a, 1)"]
                     transforms: {deidentify: false}
                     batch:
                       operation: MERGE

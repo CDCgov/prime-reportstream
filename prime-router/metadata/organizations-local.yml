@@ -16,7 +16,8 @@
       - name: elr
         topic: covid-19
         schema: az/az-covid-19
-        jurisdictionalFilter: { standard.testing_lab_state: AZ }
+        jurisdictionalFilter:
+          - matches(standard.ordering_facility_state,AZ)
         transforms: { deidentify: false }
         batch:
           operation: MERGE
@@ -36,7 +37,8 @@
       - name: elr
         topic: covid-19
         schema: az/pima-az-covid-19
-        jurisdictionalFilter: { standard.testing_lab_state: AZ, standard.ordering_facility_county: "(?i).*Pima.*" }
+        jurisdictionalFilter:
+          - filterByCounty(AZ, Pima)
         transforms: { deidentify: false }
         batch:
           operation: MERGE
@@ -54,7 +56,7 @@
       - name: elr
         topic: sample
         schema: sample/phd1-sample
-        jurisdictionalFilter: {observation: covid-19:pos, state: FL}
+        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, AZ)"]
         transforms: {deidentify: false}
         format: CSV
 
@@ -66,7 +68,7 @@
       - name: elr
         topic: sample
         schema: sample/phd2-sample
-        jurisdictionalFilter: {observation: covid-19:pos, state: FL}
+        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, FL)"]
         transforms: {deidentify: false}
         format: CSV
 
@@ -77,6 +79,6 @@
       - name: elr
         topic: sample
         schema: sample/fed1-sample
-        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
+        jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)"]
         transforms: {deidentify: true}
         format: CSV

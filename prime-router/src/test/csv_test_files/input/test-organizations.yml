@@ -6,7 +6,8 @@
       - name: receiver
         topic: covid-19
         schema: test-schema
-        jurisdictionalFilter: {observation: covid-19:pos, state: AZ}
+        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state,AZ)" ]
+#OLD        jurisdictionalFilter: {observation: covid-19:pos, state: AZ}
         transforms: {deidentify: false}
         format: CSV
 
@@ -17,6 +18,7 @@
       - name: receiver
         topic: covid-19
         schema: federal-test-schema
-        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
+        jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)" ]
+#OLD        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
         transforms: {deidentify: true}
         format: CSV
