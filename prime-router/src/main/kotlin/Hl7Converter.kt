@@ -95,7 +95,7 @@ object Hl7Converter {
                 }
             }
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
-            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec)
+            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element)
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
@@ -130,14 +130,14 @@ object Hl7Converter {
         }
     }
 
-    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String) {
+    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
         val parts = value.split(Element.phoneDelimiter)
         val areaCode = parts[0].substring(0, 3)
         val local = parts[0].substring(3)
         val country = parts[1]
         val extension = parts[2]
 
-        terser.set(buildComponent(pathSpec, 2), "WPN")
+        terser.set(buildComponent(pathSpec, 2), if(element.nameContains("patient")) "PRN" else "WPN")
         terser.set(buildComponent(pathSpec, 5), country)
         terser.set(buildComponent(pathSpec, 6), areaCode)
         terser.set(buildComponent(pathSpec, 7), local)
@@ -219,20 +219,20 @@ object Hl7Converter {
     }
 
     private fun createHeaders(report: Report): String {
-        val sendingApp = Element.parseHD(report.getStringWithDefault(0, "sending_application"))
-        val receivingApp = Element.parseHD(report.getStringWithDefault(0, "receiving_application"))
-        val receivingFacility = Element.parseHD(report.getStringWithDefault(0, "receiving_facility"))
+        val sendingApp = formatHD(Element.parseHD(report.getStringWithDefault(0, "sending_application")))
+        val receivingApp = formatHD(Element.parseHD(report.getStringWithDefault(0, "receiving_application")))
+        val receivingFacility = formatHD(Element.parseHD(report.getStringWithDefault(0, "receiving_facility")))
 
         return "FHS|^~\\&|" +
-            "${sendingApp.name}^${sendingApp.universalId}^${sendingApp.universalIdSystem}|" +
-            "${receivingApp.name}^${receivingApp.universalId}^${receivingApp.universalIdSystem}|" +
-            "${receivingFacility.name}^${receivingFacility.universalId}^${receivingFacility.universalIdSystem}|" +
+            "$sendingApp|" +
+            "$receivingApp|" +
+            "$receivingFacility|" +
             nowTimestamp() +
             "\r" +
             "BHS|^~\\&|" +
-            "${sendingApp.name}^${sendingApp.universalId}^${sendingApp.universalIdSystem}|" +
-            "${receivingApp.name}^${receivingApp.universalId}^${receivingApp.universalIdSystem}|" +
-            "${receivingFacility.name}^${receivingFacility.universalId}^${receivingFacility.universalIdSystem}|" +
+            "$sendingApp|" +
+            "$receivingApp|" +
+            "$receivingFacility|" +
             nowTimestamp() +
             "\r"
     }
@@ -244,7 +244,7 @@ object Hl7Converter {
 
     private fun nowTimestamp(): String {
         val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
-        return Element.datetimePattern.format(timestamp)
+        return Element.datetimeFormatter.format(timestamp)
     }
 
     private fun buildComponent(spec: String, component: Int = 1): String {
@@ -283,6 +283,14 @@ object Hl7Converter {
             "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX$components"
             "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$components"
             else -> spec
+        }
+    }
+
+    private fun formatHD(hdFields: Element.HDFields, seperator: String = "^"): String {
+        return if (hdFields.universalId != null && hdFields.universalIdSystem != null) {
+            "${hdFields.name}$seperator${hdFields.universalId}$seperator${hdFields.universalIdSystem}"
+        } else {
+            hdFields.name
         }
     }
 }
