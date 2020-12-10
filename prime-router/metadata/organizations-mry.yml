@@ -17,28 +17,14 @@
         topic: covid-19
         schema: az/az-covid-19
         jurisdictionalFilter: { standard.testing_lab_state: AZ }
-# OLD        jurisdictionalFilter: { standard.patient_state: AZ }
         transforms: { deidentify: false }
-<<<<<<< HEAD
         format: CSV
         transports:
-=======
-        batch:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialBatch: 00:00
-          timeZone: ARIZONA
-        format: CSV
-        transports:
-          - type: SFTP
-            host: localhost
-            port: 22
-            filePath: ./upload
->>>>>>> 714c9675eaeaa2acab01e8495c93a41cf601c373
           - type: EMAIL
             addresses:
-              - matthew.young@bisonworks.com
               - qtv1@cdc.gov
+#              - qop4@cdc.gov
+#              - qpu0@cdc.gov
 
 # Temporarily removing PA until we're ready to send there.
 #  - name: pa-phd

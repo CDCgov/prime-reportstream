@@ -42,17 +42,12 @@ class SendFunction {
                         is OrganizationService.SFTP -> SftpTransport().send(service.fullName, it, header, content)
                         is OrganizationService.Email -> EmailTransport().send(service.fullName, it, header, content)
                     }
-<<<<<<< HEAD
                 }
 
                 val transportSuccessful = true
                 if (transportSuccessful) {
                     context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
                 }
-=======
-                }
-
->>>>>>> 714c9675eaeaa2acab01e8495c93a41cf601c373
                 context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
                 // TODO: Next action should be WIPE when implemented
                 ReportEvent(Event.Action.NONE, header.task.reportId)
