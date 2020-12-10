@@ -95,7 +95,7 @@ object Hl7Converter {
                 }
             }
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
-            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element)
+            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec)
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
@@ -130,7 +130,7 @@ object Hl7Converter {
         }
     }
 
-    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
+    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String) {
         val parts = value.split(Element.phoneDelimiter)
         val areaCode = parts[0].substring(0, 3)
         val local = parts[0].substring(3)
