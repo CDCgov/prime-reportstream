@@ -90,20 +90,28 @@
   values:
     - display: American Indian or Alaska Native
       code: 1002-5
+      version: 2.5.1
     - display: Asian
       code: 2028-9
+      version: 2.5.1
     - display: Black or African American
       code: 2054-5
+      version: 2.5.1
     - display: Native Hawaiian or Other Pacific Islander
       code: 2076-8
+      version: 2.5.1
     - display: White
       code: 2106-3
+      version: 2.5.1
     - display: Other
       code: 2131-1
+      version: 2.5.1
     - display: Unknown
       code: UNK
+      version: 2.5.1
     - display: Asked, but unknown
       code: ASKU
+      version: 2.5.1
 
 
 - name: specimen_role
@@ -224,3 +232,13 @@
       display: Weakly reactive
     - code: W
       display: Worse--use when direction not relevant
+
+- name: hl70103
+  system: HL7
+  values:
+    - code: D
+      display: Debugging
+    - code: P
+      display: Production
+    - code: T
+      display: Training

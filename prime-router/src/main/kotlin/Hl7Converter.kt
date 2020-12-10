@@ -3,21 +3,18 @@ package gov.cdc.prime.router
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
-import com.google.i18n.phonenumbers.PhoneNumberUtil
 import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 object Hl7Converter {
-    const val softwareVendorOrganization = "Centers for Disease Control and Prevention"
-    const val softwareProductName = "PRIME Data Hub"
+    private const val softwareVendorOrganization = "Centers for Disease Control and Prevention"
+    private const val softwareProductName = "PRIME Data Hub"
 
-    val context = DefaultHapiContext()
-    val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
-    val buildVersion: String
-    val buildDate: String
+    private val context = DefaultHapiContext()
+    private val buildVersion: String
+    private val buildDate: String
 
     init {
         val buildProperties = Properties()
@@ -34,14 +31,12 @@ object Hl7Converter {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
         //
-        outputStream.write(createFHS(report).toByteArray())
-        outputStream.write(createBHS(report).toByteArray())
+        outputStream.write(createHeaders(report).toByteArray())
         report.rowIndices.map {
             val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
         }
-        outputStream.write(createBTS(report).toByteArray())
-        outputStream.write(createFTS(report).toByteArray())
+        outputStream.write(createFooters(report).toByteArray())
     }
 
     internal fun createMessage(report: Report, row: Int): String {
@@ -71,14 +66,14 @@ object Hl7Converter {
                 val date = report.getStringWithDefault(row, "standard.specimen_collection_date_time")
                 setAOE(terser, element, aoeSequence++, date, value)
             } else if (element.hl7Field == "NTE-3") {
-                setNote(terser, element, value)
+                setNote(terser, value)
             } else if (element.hl7Field != null) {
                 setComponent(terser, element, element.hl7Field, value)
             }
         }
     }
 
-    internal fun setComponent(terser: Terser, element: Element, hl7Field: String, value: String) {
+    private fun setComponent(terser: Terser, element: Element, hl7Field: String, value: String) {
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
             Element.Type.ID_CLIA -> {
@@ -89,12 +84,18 @@ object Hl7Converter {
             }
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
-                    terser.set(pathSpec, value)
-                    terser.set(nextComponent(pathSpec), "ISO")
+                    val hd = Element.parseHD(value)
+                    if (hd.universalId != null && hd.universalIdSystem != null) {
+                        terser.set("$pathSpec-1", hd.name)
+                        terser.set("$pathSpec-2", hd.universalId)
+                        terser.set("$pathSpec-3", hd.universalIdSystem)
+                    } else {
+                        terser.set(pathSpec, hd.name)
+                    }
                 }
             }
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
-            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element)
+            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec)
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
@@ -129,7 +130,7 @@ object Hl7Converter {
         }
     }
 
-    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
+    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String) {
         val parts = value.split(Element.phoneDelimiter)
         val areaCode = parts[0].substring(0, 3)
         val local = parts[0].substring(3)
@@ -148,7 +149,7 @@ object Hl7Converter {
         terser.set(pathSpec, zipFive)
     }
 
-    internal fun setAOE(
+    private fun setAOE(
         terser: Terser,
         element: Element,
         aoeRep: Int,
@@ -179,7 +180,7 @@ object Hl7Converter {
         terser.set(formPathSpec("OBX-29", aoeRep), "QST")
     }
 
-    internal fun setNote(terser: Terser, element: Element, value: String) {
+    private fun setNote(terser: Terser, value: String) {
         terser.set(formPathSpec("NTE-3"), value)
         terser.set(formPathSpec("NTE-4-1"), "RE")
         terser.set(formPathSpec("NTE-4-2"), "Remark")
@@ -192,8 +193,10 @@ object Hl7Converter {
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", "2.5.1")
+        terser.set("MSH-17", "USA")
         // Values that NIST requires (although they are not part 2.5.1)
-        terser.set("MSH-21-1", "PHLabReport-Batch")
+        terser.set("MSH-21-1", "PHLabReportNoAck")
+        terser.set("MSH-21-2", "ELR_Receiver")
         terser.set("MSH-21-3", "2.16.840.1.113883.9.11")
         terser.set("MSH-21-4", "ISO")
 
@@ -215,50 +218,33 @@ object Hl7Converter {
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
     }
 
-    private fun createFHS(report: Report): String {
-        val sendingApp = report.getStringWithDefault(0, "standard.sending_application")
-        val sendingOid = report.getStringWithDefault(0, "standard.sending_application_id")
-        val receivingApplicationName = report.getStringWithDefault(0, "standard.receiving_application")
-        val receivingApplicationId = report.getStringWithDefault(0, "standard.receiving_application_id")
-        val receivingFacilityName = report.getStringWithDefault(0, "standard.receiving_facility")
-        val receivingFacilityId = report.getStringWithDefault(0, "standard.receiving_facility_id")
+    private fun createHeaders(report: Report): String {
+        val sendingApp = Element.parseHD(report.getStringWithDefault(0, "standard.sending_application"))
+        val receivingApp = Element.parseHD(report.getStringWithDefault(0, "standard.receiving_application"))
+        val receivingFacility = Element.parseHD(report.getStringWithDefault(0, "standard.receiving_facility"))
 
         return "FHS|^~\\&|" +
-            "$sendingApp^$sendingOid^ISO|" +
-            "$receivingApplicationName^$receivingApplicationId^ISO|" +
-            "$receivingFacilityName^$receivingFacilityId^ISO|" +
+            "${sendingApp.name}^${sendingApp.universalId}^${sendingApp.universalIdSystem}|" +
+            "${receivingApp.name}^${receivingApp.universalId}^${receivingApp.universalIdSystem}|" +
+            "${receivingFacility.name}^${receivingFacility.universalId}^${receivingFacility.universalIdSystem}|" +
+            nowTimestamp() +
+            "\r" +
+            "BHS|^~\\&|" +
+            "${sendingApp.name}^${sendingApp.universalId}^${sendingApp.universalIdSystem}|" +
+            "${receivingApp.name}^${receivingApp.universalId}^${receivingApp.universalIdSystem}|" +
+            "${receivingFacility.name}^${receivingFacility.universalId}^${receivingFacility.universalIdSystem}|" +
             nowTimestamp() +
             "\r"
     }
 
-    private fun createBHS(report: Report): String {
-        val sendingApp = report.getStringWithDefault(0, "standard.sending_application")
-        val sendingOid = report.getStringWithDefault(0, "standard.sending_application_id")
-        val receivingApplicationName = report.getStringWithDefault(0, "standard.receiving_application")
-        val receivingApplicationId = report.getStringWithDefault(0, "standard.receiving_application_id")
-        val receivingFacilityName = report.getStringWithDefault(0, "standard.receiving_facility")
-        val receivingFacilityId = report.getStringWithDefault(0, "standard.receiving_facility_id")
-
-        return "BHS|^~\\&|" +
-            "$sendingApp^$sendingOid^ISO|" +
-            "$receivingApplicationName^$receivingApplicationId^ISO|" +
-            "$receivingFacilityName^$receivingFacilityId^ISO|" +
-            nowTimestamp() +
-            "\r"
-    }
-
-    private fun createBTS(report: Report): String {
-        return "BTS|${report.itemCount}\r"
-    }
-
-    private fun createFTS(report: Report): String {
-        return "FTS|1\r"
+    private fun createFooters(report: Report): String {
+        return "BTS|${report.itemCount}\r" +
+            "FTS|1\r"
     }
 
     private fun nowTimestamp(): String {
         val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
-        val formatter = DateTimeFormatter.ofPattern("YYYYMMDDhhmmssZZZ")
-        return formatter.format(timestamp)
+        return Element.datetimePattern.format(timestamp)
     }
 
     private fun buildComponent(spec: String, component: Int = 1): String {

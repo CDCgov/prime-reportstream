@@ -300,20 +300,12 @@ elements:
     hl7OutputFields: [ORC-12-1, OBR-16-1]
 
   - name: ordering_provider_id_authority
-    type: TEXT
-    natFlatFileField:
-    hhsGuidanceField:
-    mapper: ifPresent(standard.ordering_provider_id, CMS)
-    hl7Field: ORC-12-9-1
-    hl7OutputFields: [ORC-12-9-1, OBR-16-9-1]
-
-  - name: ordering_provider_id_authority_oid
     type: HD
     natFlatFileField:
     hhsGuidanceField:
-    mapper: ifPresent(standard.ordering_provider_id, 2.16.840.1.113883.3.249)
-    hl7Field: ORC-12-9-2
-    hl7OutputFields: [ORC-12-9-2, OBR-16-9-2]
+    mapper: ifPresent(standard.ordering_provider_id, CMS&2.16.840.1.113883.3.249&ISO)
+    hl7Field: ORC-12-9
+    hl7OutputFields: [ORC-12-9, OBR-16-9]
 
   - name: ordering_provider_id_authority_type
     type: TEXT
@@ -449,7 +441,7 @@ elements:
     valueSet: hl70001
     natFlatFileField: Patient_gender
     hhsGuidanceField: Patient sex
-    hl7Field: PID-8
+    hl7Field: PID-8-1
 
   # TODO Figure out how to encode patient id (PID-3) like AZ and others want
   - name: patient_id
@@ -460,6 +452,7 @@ elements:
 
   - name: patient_id_assigner
     type: HD
+    mapper: use(standard.ordering_facility_name)
     natFlatFileField: Patient_id_assigner
     hhsGuidanceField:
     hl7Field: PID-3-4
@@ -591,6 +584,18 @@ elements:
     hl7Field: AOE
     hl7AOEQuestion: 82810-3
 
+  - name: processing_mode_code
+    type: CODE
+    valueSet: hl70103
+    default: P
+    hl7Field: MSH-11-1
+    documentation: P, D, or T for Production, Debugging, or Training
+
+  - name: message_id
+    type: ID
+    hl7Field: MSH-10
+    documentation: unique id to track the usage of the message
+
   # name: public_health_case_id
   # type: ID
   # natFlatFileField: Public_health_case_id
@@ -603,20 +608,12 @@ elements:
     hl7Field: OBR-31
 
   - name: receiving_application
-    type: TEXT
-    hl7Field: MSH-5-1
-
-  - name: receiving_application_id
     type: HD
-    hl7Field: MSH-5-2
+    hl7Field: MSH-5
 
   - name: receiving_facility
-    type: TEXT
-    hl7Field: MSH-6-1
-
-  - name: receiving_facility_id
     type: HD
-    hl7Field: MSH-6-2
+    hl7Field: MSH-6
 
   - name: reference_range
     type: TEXT
@@ -624,17 +621,17 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-7
 
-  - name: reporting_facility_id
-    type: ID_CLIA
-    natFlatFileField: Reporting_facility_id
-    hhsGuidanceField:
-    hl7Field: MSH-4-2
-
   - name: reporting_facility_name
     type: TEXT
     natFlatFileField: Reporting_facility_name
     hhsGuidanceField:
     hl7Field: MSH-4-1
+
+  - name: reporting_facility_clia
+    type: ID_CLIA
+    natFlatFileField: Reporting_facility_id
+    hhsGuidanceField:
+    hl7Field: MSH-4-2
 
   - name: resident_congregate_setting
     type: CODE
@@ -652,17 +649,11 @@ elements:
     hl7Field: OBX-2
 
   - name: sending_application
-    type: TEXT
-    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
-    default: CDC PRIME - Atlanta, Georgia (Dekalb)
-    natFlatFileField:
-    hl7Field: MSH-3-1
-
-  - name: sending_application_id
     type: HD
-    default: 2.16.840.1.114222.4.1.237821
+    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
+    default: CDC PRIME - Atlanta, Georgia (Dekalb)&2.16.840.1.114222.4.1.237821&ISO
     natFlatFileField:
-    hl7Field: MSH-3-2
+    hl7Field: MSH-3
 
   - name: specimen_collection_site # collection location
     type: TEXT # CWE without a defined table
@@ -837,10 +828,15 @@ elements:
     hl7Field: OBX-24-9
 
   - name: testing_lab_id
-    type: HD
+    type: ID
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
+
+  - name: testing_lab_id_assigner
+    type: HD
+    mapper: ifPresent(standard.testing_lab_clia, CLIA&2.16.840.1.113883.19.4.6&ISO)
+    hl7Field: OBX-23-6
 
   - name: testing_lab_clia
     type: ID_CLIA

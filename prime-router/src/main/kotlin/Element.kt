@@ -107,6 +107,12 @@ data class Element(
         val format: String?,
     )
 
+    data class HDFields(
+        val name: String,
+        val universalId: String?,
+        val universalIdSystem: String?
+    )
+
     val isCodeType get() = this.type == Type.CODE
 
     fun nameContains(substring: String): Boolean {
@@ -341,6 +347,7 @@ data class Element(
         const val extensionToken = "\$extension"
         const val defaultPhoneFormat = "\$area\$exchange\$subscriber"
         const val phoneDelimiter = ":"
+        const val hdDelimiter = "&"
         val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
         const val zipFiveToken = "\$zipFive"
         const val zipFivePlusFourToken = "\$zipFivePlusFour"
@@ -349,6 +356,15 @@ data class Element(
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))
+        }
+
+        fun parseHD(value: String): HDFields {
+            val parts = value.split(hdDelimiter)
+            return when (parts.size) {
+                3 -> HDFields(parts[0], parts[1], parts[2])
+                1 -> HDFields(parts[0], universalId = null, universalIdSystem = null)
+                else -> error("Internal Error: Invalid HD value '$value'")
+            }
         }
     }
 }

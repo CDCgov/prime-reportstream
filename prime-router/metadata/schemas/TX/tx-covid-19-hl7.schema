@@ -1,16 +1,19 @@
 ---
-name: az-covid-19-hl7
-description: AZ COVID-19
+name: tx-covid-19-hl7
+description: TX NEDSS ELR for HL7 messages
+referenceUrl: https://www.dshs.state.tx.us/IDCU/investigation/ELR/Texas-HL7-2_5_1-ELR_Specification_-2016_Final-Draft-4-29-16.pdf
 topic: covid-19
 trackingElement: standard.testing_lab_specimen_id
 elements:
   - name: standard.sending_application
 
   - name: standard.receiving_application
-    default: AZ.DOH.ELR&2.16.840.1.114222.4.3.3.2.9.3&ISO
+    default: NEDSS
 
   - name: standard.receiving_facility
-    default: AZDOH&2.16.840.1.114222.4.1.142&ISO
+    default: TX-ELR
+
+  - name: standard.receiving_facility_id
 
   - name: standard.device_id
 
@@ -40,11 +43,15 @@ elements:
 
   - name: standard.illness_onset_date
 
+  - name: standard.message_id
+
   - name: standard.placer_name
 
   - name: standard.placer_clia
 
   - name: standard.placer_order_group_id
+
+  - name: standard.processing_mode_code
 
   - name: standard.testing_lab_name
 
@@ -135,10 +142,6 @@ elements:
   - name: standard.ordering_provider_middle_name
 
   - name: standard.ordering_provider_phone_number
-
-  - name: standard.message_id
-
-  - name: standard.processing_mode_code
 
   - name: standard.testing_lab_specimen_id
 

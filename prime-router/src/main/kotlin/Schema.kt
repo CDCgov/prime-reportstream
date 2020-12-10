@@ -9,6 +9,7 @@ data class Schema(
     val elements: List<Element> = emptyList(),
     val trackingElement: String? = null, // the element to use for tracking this test
     val description: String? = null,
+    val referenceUrl: String? = null,
 ) {
     val baseName: String get() = formBaseName(name)
     val csvFields: List<Element.CsvField> get() = elements.flatMap { it.csvFields ?: emptyList() }

@@ -305,14 +305,6 @@ elements:
     hl7Field: ORC-12-9-1
     hl7OutputFields: [ORC-12-9-1, OBR-16-9-1]
 
-  - name: ordering_provider_id_authority_oid
-    type: HD
-    natFlatFileField:
-    hhsGuidanceField:
-    mapper: ifPresent(standard.ordering_provider_id, 2.16.840.1.113883.3.249)
-    hl7Field: ORC-12-9-2
-    hl7OutputFields: [ORC-12-9-2, OBR-16-9-2]
-
   - name: ordering_provider_id_authority_type
     type: TEXT
     natFlatFileField:
@@ -622,7 +614,7 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-7
 
-  - name: reporting_facility_id
+  - name: reporting_facility_clia
     type: ID_CLIA
     natFlatFileField: Reporting_facility_id
     hhsGuidanceField:
