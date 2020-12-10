@@ -12,11 +12,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: Set Environment Variables
-        run: |
+    - name: Set Environment Variables
+      run: |
                if [ "$GITHUB_BASE_REF" == "production" ]
                then
                    echo "Building for the production environment."
@@ -29,7 +26,10 @@ jobs:
                    export ACR_REPO=primedatahubtestprimedevregistry.azurecr.io
                    echo $RESOURCE_GROUP $ACR_REPO
                fi
-               
+
+    steps:
+      - uses: actions/checkout@v2
+      
       - name: Echo Variables
         run: env
 
