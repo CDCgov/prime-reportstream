@@ -32,7 +32,7 @@ jobs:
                env
                
       - name: Echo Variables
-        run: echo ${{ $RESOURCE_GROUP }} ${{ $ACR_REPO }}
+        run: echo ${{ RESOURCE_GROUP }} ${{ ACR_REPO }}
 
       # - name: Setup PostgreSQL
       #   uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
