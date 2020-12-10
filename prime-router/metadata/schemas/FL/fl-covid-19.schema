@@ -4,113 +4,171 @@ description: Florida COVID-19 flat file
 topic: covid-19
 trackingElement: standard.testing_lab_specimen_id
 elements:
-    -   name: standard.testing_lab_clia
-        csvFields: [{ name: Sending Facility CLIA Number }]
+    # column A
+    - name: standard.testing_lab_clia
+      csvFields: [{ name: Sending Facility CLIA }]
+      documentation: CLIA Number from the laboratory that sends the message to DOH
 
+    # column B
     - name: standard.testing_lab_name
       csvFields: [{ name: Sending Facility Name }]
+      documentation: Name of the facility that sends the message to DOH
 
+    # column C
     # TODO: confirm specimen id is what they expect here
     - name: standard.testing_lab_specimen_id
-      csvFields: [{ name: Medical Record Number
+      csvFields: [{ name: Medical Record Number }]
+      documentation: Medical Record number for the patient
 
-    - name: patient_ssn
-      type: TEXT
-      hl7Field: PID-19
-      csvFields: [{ name: Patient Social Security Number }]
-
+    # column D
     - name: standard.patient_last_name
       csvFields: [{ name: Patient Last Name }]
+      documentation: The patient's last name
 
+    # column E
     - name: standard.patient_first_name
       csvFields: [{ name: Patient First Name }]
+      documentation: The patient's first name
 
+    # column F
     - name: standard.patient_dob
-      csvFields: [{ name: Patient Date of Birth }]
+      csvFields: [{ name: Patient Date of Birth, format: "MM/dd/yyyy" }]
+      documentation: The patient's date of birth in this format "MM/dd/yyyy"
 
+    # column G
+    # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
     - name: standard.patient_race
       csvFields: [{ name: Patient Race }]
+      documentation: The patient's race
 
+    # column H
+    # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
     - name: standard.patient_ethnicity
       csvFields: [{ name: Patient Ethnicity }]
+      documentation: The patient's ethnicity
 
+    # column I
+    # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
     - name: standard.patient_gender
       csvFields: [{ name: Patient Gender }]
+      documentation: The patient's gender
 
+    # column J
     - name: standard.patient_street
       csvFields: [{ name: Patient Street Address }]
 
+    # column K
     - name: standard.patient_street2
-      csvFields: [{ name: Patient Street Address 2 }]
+      csvFields: [{ name: Patient Street Address2 }]
 
+    # column L
     - name: standard.patient_city
       csvFields: [{ name: Patient City }]
 
+    # column M
     - name: standard.patient_state
       csvFields: [{ name: Patient State }]
 
+    # column N
     - name: standard.patient_zip_code
       csvFields: [{ name: Patient Zip }]
 
+    # column O
     - name: standard.patient_phone_number
       csvFields: [{ name: Patient Phone Number }]
 
+    # column C part 2
+    # nonstandard
+    - name: patient_ssn
+      type: TEXT
+      hl7Field: PID-19
+      csvFields: [ { name: Patient Social Security Number } ]
+      documentation: The patient's SSN formatted without dashes
+
+    # column Q
     - name: standard.ordering_provider_id
-      csvFields: [{ name: Provider NPI Number }]
+      csvFields: [{ name: Ordering Provider NPI Number }]
 
+    # column R
     - name: standard.ordering_provider_last_name
-      csvFields: [{ name: Provider Last Name }]
+      csvFields: [{ name: Ordering Provider Last Name }]
 
+    # column S
     - name: standard.ordering_provider_first_name
-      csvFields: [{ name: Provider First Name }]
+      csvFields: [{ name: Ordering Provider First Name }]
 
+    # column T
     - name: standard.ordering_provider_street
-      csvFields: [{ name: Provider Street Address }]
+      csvFields: [{ name: Ordering Provider Street Address }]
 
+    # column U
     - name: standard.ordering_provider_street2
-      csvFields: [{ name: Provider Street Address 2 }]
+      csvFields: [{ name: Ordering Provider Street Address2 }]
 
+    # column V
     - name: standard.ordering_provider_city
-      csvFields: [{ name: Provider City }]
+      csvFields: [{ name: Ordering Provider City }]
 
+    # column W
     - name: standard.ordering_provider_state
-      csvFields: [{ name: Provider State }]
+      csvFields: [{ name: Ordering Provider State }]
 
+    # column X
     - name: standard.ordering_provider_zip_code
-      csvFields: [{ name: Provider Zip }]
+      csvFields: [{ name: Ordering Provider Zip }]
 
+    # column Y
     - name: standard.ordering_provider_phone_number
-      csvFields: [{ name: Provider Phone Number }]
+      csvFields: [{ name: Ordering Provider Phone Number }]
 
+    # column Z
     - name: standard.ordering_facility_name
       csvFields: [{ name: Ordering Facility Name }]
 
+    # column AA
     - name: standard.ordering_facility_street
-      csvFields: [{ name: Ordering Facility Address }]
+      csvFields: [{ name: Ordering Facility Address1 }]
 
+    # column AB
     - name: standard.ordering_facility_street2
-      csvFields: [{ name: Ordering Facility Address }]
+      csvFields: [ { name: Ordering Facility Address2 } ]
 
+    # column AC
     - name: standard.ordering_facility_city
       csvFields: [{ name: Ordering Facility City }]
 
+    # column AD
     - name: standard.ordering_facility_state
       csvFields: [{ name: Ordering Facility State }]
 
+    # column AE
     - name: standard.ordering_facility_zip_code
       csvFields: [{ name: Ordering Facility Zip }]
 
+    # column AF
     - name: standard.ordering_facility_phone_number
-      csvFields: [{ name: Ordering Facility Phone }]
+      csvFields: [{ name: Ordering Facility Phone Number }]
 
+    # column AG
     - name: standard.testing_lab_accession_number
       csvFields: [{ name: Accession Number }]
 
+    # column AH
     - name: standard.specimen_collection_date_time
       csvFields: [{ name: Specimen Collected Date }]
 
+    # column AI
+    - name: standard.specimen_type
+      csvFields: [ { name: Specimen Source } ]
+
+    # column AJ
     - name: standard.specimen_received_date_time
       csvFields: [{ name: Specimen Received Date }]
+
+    # column AK
+    # nonstandard
+    - name: result_finalized_date
+      csvField: [{ name: Finalized Date }]
 
     - name: standard.specimen_type
       csvFields: [{ name: Specimen Source }]
@@ -121,12 +179,15 @@ elements:
     - name: standard.test_performed_name
       csvFields: [{ name: Observation Description }]
 
+    # column AP
     - name: standard.test_result
       csvFields: [{ name: Test Result }]
 
+    # column AQ
     - name: standard.reference_range
       csvFields: [{ name: Reference Range }]
 
+    # column AR
     - name: standard.abnormal_flag
       csvFields: [{ name: Abnormal Flag }]
 
@@ -147,20 +208,23 @@ elements:
     - name: standard.device_id_type
       csvFields: [{ name: Device Abbreviation }]
 
+    # column AT
     - name: standard.testing_lab_name
       csvFields: [{ name: Performing Lab Name }]
 
+    # column AU
     - name: standard.testing_lab_clia
-      csvFields: [{ name: Performing Lab CLIA Number }]
+      csvFields: [{ name: Performing Lab CLIA }]
 
+    # column BH
     - name: standard.pregnant
       csvFields: [{ name: Pregnancy Status }]
 
-    - name: standard.patient_age
-      csvFields: [{ name: Age }]
-
-    - name: standard.patient_age_units
-      csvFields: [{ name: Age }]
+    # column AV
+    # nonstandard
+    - name: patient_age_and_units
+      mapper: 'concat(standard.patient_age, standard.patient_age_units)'
+      csvFields: [{ name: Age at time of collection }]
 
     - name: standard.result_format
       csvFields: [{ name : CT value }]
