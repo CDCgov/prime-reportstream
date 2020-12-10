@@ -10,8 +10,10 @@ class MetadataTests {
         Metadata.loadSchemaCatalog("./src/test/unit_test_files")
         assertNotNull(Metadata.findSchema("lab_test_results_schema"))
         val elements = Metadata.findSchema("lab_test_results_schema")?.elements
+        assertEquals(9, elements?.size)
         assertEquals("lab", elements?.get(0)?.name)
         assertEquals("extra", elements?.get(6)?.name)
+        assertEquals(Element.Type.STREET, elements?.get(7)?.type)
         assertEquals(Element.Type.POSTAL_CODE, elements?.get(8)?.type)
     }
 

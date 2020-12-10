@@ -60,10 +60,10 @@ object Hl7Converter {
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER) {
                 val units = report.getStringWithDefault(row, "${element.name}_units")
-                val date = report.getStringWithDefault(row, "standard.specimen_collection_date_time")
+                val date = report.getStringWithDefault(row, "specimen_collection_date_time")
                 setAOE(terser, element, aoeSequence++, date, value, units)
             } else if (element.hl7Field == "AOE") {
-                val date = report.getStringWithDefault(row, "standard.specimen_collection_date_time")
+                val date = report.getStringWithDefault(row, "specimen_collection_date_time")
                 setAOE(terser, element, aoeSequence++, date, value)
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
@@ -167,7 +167,7 @@ object Hl7Converter {
         when (element.type) {
             Element.Type.CODE -> setCodeComponent(terser, value, formPathSpec("OBX-5", aoeRep), element.valueSet)
             Element.Type.NUMBER -> {
-                if (element.name != "standard.patient_age") TODO("support other types of AOE numbers")
+                if (element.name != "patient_age") TODO("support other types of AOE numbers")
                 if (units == null) error("Schema Error: expected age units")
                 setComponent(terser, element, formPathSpec("OBX-5", aoeRep), value)
                 setCodeComponent(terser, units, formPathSpec("OBX-6", aoeRep), "patient_age_units")
@@ -219,9 +219,9 @@ object Hl7Converter {
     }
 
     private fun createHeaders(report: Report): String {
-        val sendingApp = Element.parseHD(report.getStringWithDefault(0, "standard.sending_application"))
-        val receivingApp = Element.parseHD(report.getStringWithDefault(0, "standard.receiving_application"))
-        val receivingFacility = Element.parseHD(report.getStringWithDefault(0, "standard.receiving_facility"))
+        val sendingApp = Element.parseHD(report.getStringWithDefault(0, "sending_application"))
+        val receivingApp = Element.parseHD(report.getStringWithDefault(0, "receiving_application"))
+        val receivingFacility = Element.parseHD(report.getStringWithDefault(0, "receiving_facility"))
 
         return "FHS|^~\\&|" +
             "${sendingApp.name}^${sendingApp.universalId}^${sendingApp.universalIdSystem}|" +

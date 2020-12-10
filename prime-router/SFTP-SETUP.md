@@ -26,7 +26,7 @@ Steps
         - name: elr
           topic: covid-19
           schema: az/az-covid-19
-          jurisdictionalFilter: { standard.patient_state: AZ }
+          jurisdictionalFilter: { patient_state: AZ }
           transforms: { deidentify: false }
           address: http://localhost:1181/
           format: CSV

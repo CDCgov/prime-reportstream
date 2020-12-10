@@ -65,7 +65,7 @@ class FakeReport {
                 Element.Type.DURATION -> TODO()
                 Element.Type.CODE -> {
                     when (element.name) {
-                        "standard.specimen_source_site_code" -> "71836000"
+                        "specimen_source_site_code" -> "71836000"
                         else -> {
                             val valueSet = findValueSet(element.valueSet ?: "")
                                 ?: error("ValueSet ${element.valueSet} is not available}")
@@ -78,12 +78,14 @@ class FakeReport {
                     val lookupTable = findTable(element.table ?: "")
                         ?: error("LookupTable ${element.table} is not available")
                     when (element.table) {
-                        "LIVD-2020-11-18" ->
+                        "LIVD-2020-11-18" -> {
+                            if (element.tableColumn == null) return ""
                             lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn ?: "")
                                 ?: error(
                                     "Schema Error: Could not lookup ${context.equipmentModel} " +
                                         "to ${element.tableColumn}"
                                 )
+                        }
                         "fips-county" -> {
                             when {
                                 element.nameContains("state") -> context.state
