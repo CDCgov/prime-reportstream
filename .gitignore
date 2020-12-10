@@ -68,12 +68,10 @@ __blobstorage__/*
 __queuestorage__/*
 .factorypath
 
-prime-router/metadata/organizations-*.yml
+prime-router/metadata/*
 !prime-router/metadata/organizations-prod.yml
 !prime-router/metadata/organizations-test.yml
 !prime-router/metadata/organizations-local.yml
+!prime-router/metadata/organizations.yml
 
-<<<<<<< HEAD
 prime-router/metadata/source-mry
-=======
->>>>>>> 714c9675eaeaa2acab01e8495c93a41cf601c373
