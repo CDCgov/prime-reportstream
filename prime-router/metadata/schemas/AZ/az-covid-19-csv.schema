@@ -113,9 +113,14 @@ elements:
     csvFields:
     - name: Patient_Phone_Number
 
-  - name: standard.ordering_facility_name
-    csvFields:
-    - name: Ordering_Facility
+  # Nonstandard
+  - name: organization_and_facility
+    mapper: 'concat(organization_name, standard.ordering_facility_name)'
+    csvFields: [{name: Ordering_facility_name}]
+
+#  - name: standard.ordering_facility_name
+#    csvFields:
+#    - name: Ordering_Facility
 
   - name: standard.ordering_facility_street
     csvFields:

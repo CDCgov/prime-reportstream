@@ -26,8 +26,8 @@ elements:
     type: TEXT
 
   # LOINC code for the test performed
-  - name: standard.test_performed_code
-    csvFields: [{name: Ordered_test_code, format: $display}]
+  - name: standard.test_performed_name
+    csvFields: [{name: Ordered_test_name}]
 
   - name: standard.specimen_source_site_code
     csvFields: [{name: Specimen_source_site, format: $display}]
