@@ -33,7 +33,8 @@ fi
 
 if [[ $PRIME_DEV_NAME == prime-data-hub-prod ]] 
 then
-	server_name=${PRIME_DEV_NAME//-prod/}
+	# Changing server_name until prime-data-hub naming can be used
+	server_name=${PRIME_DEV_NAME}
 	resource_group=${PRIME_DEV_NAME}
 elif [[ $PRIME_DEV_NAME == prime-data-hub-test ]]
 then

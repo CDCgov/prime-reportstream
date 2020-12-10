@@ -24,8 +24,9 @@ fi
 # Set variable names
 if [[ $PRIME_DEV_NAME == prime-data-hub-prod ]] # Production
 then
+  # Errors creating storage account and function app as prime-data-hub name is already used?!
   resource_group=${PRIME_DEV_NAME}
-  app_name=${PRIME_DEV_NAME//-prod/}
+  app_name=${PRIME_DEV_NAME}
   full_app_name=${app_name}
   storage_account=${app_name//[-]/}
   plan=${app_name}
