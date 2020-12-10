@@ -20,46 +20,40 @@ jobs:
                if [ "$GITHUB_BASE_REF" == "production" ]
                then
                    echo "Building for the production environment."
-                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub
-                   echo >> $GITHUB_ENV ACR_REPO=primedatahubregistry
+                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-prod
+                   echo >> $GITHUB_ENV ACR_REPO=primedatahubprodprimedevregistry.azurecr.io
                else
                    echo "Building for the test environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
                    echo >> $GITHUB_ENV ACR_REPO=primedatahubtestprimedevregistry.azurecr.io
                fi
 
-      - name: Reference Directly
-        run: echo $RESOURCE_GROUP
-
-      - name: Reference Through Template
-        run: echo ${{ env.RESOURCE_GROUP }}
-
-      # - name: Setup PostgreSQL
-      #   uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
-      #   with:
-      #     postgresql version: 11
-      #     postgresql db: prime_data_hub
-      #     postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
-      #     postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
+      - name: Setup PostgreSQL
+        uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
+        with:
+          postgresql version: 11
+          postgresql db: prime_data_hub
+          postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
+          postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
        
-      # - name: Setup JDK
-      #   uses: actions/setup-java@v1.4.3
-      #   with:
-      #      java-version: 11
+      - name: Setup JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+           java-version: 11
       
-      # - name: Build Maven Package
-      #   run: mvn -B clean package --file pom.xml
+      - name: Build Maven Package
+        run: mvn -B clean package --file pom.xml
 
-      # - name: Build Docker Image
-      #   run: docker build . --file Dockerfile --tag $ACR_REPO/$RESOURCE_GROUP:latest
+      - name: Build Docker Image
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}:latest
       
-      # - name: Login to Azure CLI
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
         
-      # - name: ACR Login
-      #   run: az acr login --name $ACR_REPO/$RESOURCE_GROUP
+      - name: ACR Login
+        run: az acr login --name ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}
           
-      # - name : Push Docker Image
-      #   run: docker push $ACR_REPO/$RESOURCE_GROUP:latest
+      - name : Push Docker Image
+        run: docker push ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}:latest

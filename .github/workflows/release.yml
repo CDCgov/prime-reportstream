@@ -13,13 +13,11 @@ jobs:
         run: |
                if [ "$GITHUB_BASE_REF" == "production" ]
                then
-                   echo "Building for the production environment."
-                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub
-                   echo >> $GITHUB_ENV ACR_REPO=primedatahubregistry.azurecr.io
+                   echo "Deploying to the production environment."
+                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-prod
                else
-                   echo "Building for the test environment."
+                   echo "Deploying to the test environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
-                   echo >> $GITHUB_ENV ACR_REPO=primedatahubtestprimedevregistry.azurecr.io
                fi
                env
 
@@ -29,13 +27,13 @@ jobs:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Update Azure Functions App
-        run: az functionapp update --resource-group prime-data-hub-test --name prime-data-hub-test
+        run: az functionapp update --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.RESOURCE_GROUP }}
 
       - name: Set Azure Function Default Key
         run: |
               az functionapp function keys set \
-              --resource-group prime-data-hub-test \
-              --name prime-data-hub-test \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.RESOURCE_GROUP }} \
               --function-name reports \
               --key-name default \
               --key-value ${{ secrets.AZ_FXNS_TEST_DEFAULT_KEY }}
@@ -43,14 +41,15 @@ jobs:
       - name: Set PostgreSQL Environment Variables
         run: | 
               az functionapp config appsettings set \
-              --resource-group prime-data-hub-test \
-              --name prime-data-hub-test \
-              --settings POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}@prime-data-hub-test POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }} \
-                         POSTGRES_URL=jdbc:postgresql://prime-data-hub-test.postgres.database.azure.com:5432/prime_data_hub?sslmode=require
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.RESOURCE_GROUP }} \
+              --settings POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}@${{ env.RESOURCE_GROUP }} \
+                         POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }} \
+                         POSTGRES_URL=jdbc:postgresql://${{ env.RESOURCE_GROUP }}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require
 
       - name: Set SFTP Environment Variables
         run: |
               az functionapp config appsettings set \
-              --resource-group prime-data-hub-test \
-              --name prime-data-hub-test \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.RESOURCE_GROUP }} \
               --settings PRIME_ENVIRONMENT=test ${{ secrets.SFTP_TEST_AZ_CREDS }}
