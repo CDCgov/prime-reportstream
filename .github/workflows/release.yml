@@ -14,12 +14,12 @@ jobs:
                if [ "$GITHUB_BASE_REF" == "production" ]
                then
                    echo "Building for the production environment."
-                   export RESOURCE_GROUP=prime-data-hub
-                   export ACR_REPO=primedatahubregistry
+                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub
+                   echo >> $GITHUB_ENV ACR_REPO=primedatahubregistry.azurecr.io
                else
                    echo "Building for the test environment."
-                   export RESOURCE_GROUP=prime-data-hub-test
-                   export ACR_REPO=primedatahubtestprimedevregistry.azurecr.io
+                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
+                   echo >> $GITHUB_ENV ACR_REPO=primedatahubtestprimedevregistry.azurecr.io
                fi
                env
 
