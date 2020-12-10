@@ -32,3 +32,186 @@ elements:
     - name: standard.patient_dob
       csvFields:
           - name: Patient Date of Birth
+
+    - name: standard.patient_race
+      csvFields:
+          - name: Patient Race
+
+    - name: standard.patient_ethnicity
+      csvFields:
+          - name: Patient Ethnicity
+
+    - name: standard.patient_gender
+      csvFields:
+          - name: Patient Gender
+
+    - name: standard.patient_street
+      csvFields:
+          - name: Patient Street Address
+
+    - name: standard.patient_street2
+      csvFields:
+          - name: Patient Street Address 2
+
+    - name: standard.patient_city
+      csvFields:
+          - name: Patient City
+
+    - name: standard.patient_state
+      csvFields:
+          - name: Patient State
+
+    - name: standard.patient_zip_code
+      csvFields:
+          - name: Patient Zip
+
+    - name: standard.patient_phone_number
+      csvFields:
+          - name: Patient Phone Number
+
+    - name: standard.ordering_provider_id
+      csvFields:
+          - name: Provider NPI Number
+
+    - name: standard.ordering_provider_last_name
+      csvFields:
+          - name: Provider Last Name
+
+    - name: standard.ordering_provider_first_name
+      csvFields:
+          - name: Provider First Name
+
+    - name: standard.ordering_provider_street
+      csvFields:
+          - name: Provider Street Address
+
+    - name: standard.ordering_provider_street2
+      csvFields:
+          - name: Provider Street Address 2
+
+    - name: standard.ordering_provider_city
+      csvFields:
+          - name: Provider City
+
+    - name: standard.ordering_provider_state
+      csvFields:
+          - name: Provider State
+
+    - name: standard.ordering_provider_zip_code
+      csvFields:
+          - name: Provider Zip
+
+    - name: standard.ordering_provider_phone_number
+      csvFields:
+          - name: Provider Phone Number
+
+    - name: standard.ordering_facility_name
+      csvFields:
+          - name: Ordering Facility Name
+
+    - name: standard.ordering_facility_street
+      csvFields:
+          - name: Ordering Facility Address
+
+    - name: standard.ordering_facility_street2
+      csvFields:
+          - name: Ordering Facility Address
+
+    - name: standard.ordering_facility_city
+      csvFields:
+          - name: Ordering Facility City
+
+    - name: standard.ordering_facility_state
+      csvFields:
+          - name: Ordering Facility State
+
+    - name: standard.ordering_facility_zip_code
+      csvFields:
+          - name: Ordering Facility Zip
+
+    - name: standard.ordering_facility_phone_number
+      csvFields:
+          - name: Ordering Facility Phone
+
+    - name: standard.testing_lab_accession_number
+      csvFields:
+          - name: Accession Number
+
+    - name: standard.specimen_collection_date_time
+      csvFields:
+          - name: Specimen Collected Date
+
+    - name: standard.specimen_received_date_time
+      csvFields:
+          - name: Specimen Received Date
+
+    - name: standard.specimen_type
+      csvFields:
+          - name: Specimen Source
+
+    - name: standard.test_performed_code
+      csvFields:
+          - name: Observation Code
+
+    - name: standard.test_performed_name
+      csvFields:
+          - name: Observation Description
+
+    - name: standard.test_result
+      csvFields:
+          - name: Test Result
+
+    - name: standard.reference_range
+      csvFields:
+          - name: Reference Range
+
+    - name: standard.abnormal_flag
+      csvFields:
+          - name: Abnormal Flag
+
+    # TODO: duplication of data here. is this intended or should OBX-14 maybe refer elsewhere?
+    - name: standard.observation_date
+      csvFields:
+          - name: Observation Date
+
+    - name: standard.device_id
+      csvFields:
+          - name: Device Identifier
+
+    # TODO: verify we can't pull this from elsewhere
+    - name: device_manufacturer_name
+      type: TEXT
+      documentation: The name of the device manufacturer.
+      hl7Field: OBX-17-2
+      csvFields:
+          - name: Device Manufacturer Name
+
+    - name: standard.device_id_type
+      csvFields:
+          - name: Device Abbreviation
+
+    - name: standard.testing_lab_name
+      csvFields:
+          - name: Performing Lab Name
+
+    - name: standard.testing_lab_clia
+      csvFields:
+          - name: Performing Lab CLIA Number
+
+    - name: standard.pregnant
+      csvFields:
+          - name: Pregnancy Status
+
+    - name: standard.patient_age
+      csvFields:
+          - name: Age
+
+    - name: standard.patient_age_units
+      csvFields:
+          - name: Age
+
+    - name: standard.result_format
+      csvFields:
+          - name : CT value
+
+
