@@ -31,12 +31,16 @@ if [ -z "${PRIME_POSTGRES_PASSWORD}" ]; then
   exit 1
 fi
 
-if [[ $PRIME_DEV_NAME == prime-data-hub-* ]]
+if [[ $PRIME_DEV_NAME == prime-data-hub-prod ]] 
+then
+	server_name=${PRIME_DEV_NAME//-prod/}
+	resource_group=${PRIME_DEV_NAME}
+elif [[ $PRIME_DEV_NAME == prime-data-hub-test ]]
 then
 	server_name=${PRIME_DEV_NAME}
 	resource_group=${PRIME_DEV_NAME}
 else
-	server_name="${PRIME_DEV_NAME}-prime-data-hub"
+	server_name="prime-data-hub-${PRIME_DEV_NAME}"
 	resource_group="prime-dev-${PRIME_DEV_NAME}"
 fi
 
