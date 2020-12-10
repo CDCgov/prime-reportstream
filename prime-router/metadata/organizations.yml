@@ -24,14 +24,11 @@
           numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
-<<<<<<< HEAD
-=======
-        transport:
-            type: SFTP
-            host: sftp
-            port: 22
-            filePath: ./upload
->>>>>>> master
+        transports:
+            - type: SFTP
+              host: sftp
+              port: 22
+              filePath: ./upload
         format: CSV
 
   - name: pima-az-phd
