@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Set Environment Variables
+      - name: Set Environment Variables
         run: |
                if [ "$GITHUB_BASE_REF" == "production" ]
                then
