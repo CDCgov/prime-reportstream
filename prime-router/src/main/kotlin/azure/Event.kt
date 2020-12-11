@@ -3,7 +3,7 @@ package gov.cdc.prime.router.azure
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.UUID
 
 /**
  * A event represents a function call, either one that has just happened or on that will happen in the future.
@@ -73,9 +73,9 @@ class ReportEvent(action: Action, val reportId: UUID, at: OffsetDateTime? = null
 
     override fun equals(other: Any?): Boolean {
         return other is ReportEvent &&
-                action == other.action &&
-                reportId == other.reportId &&
-                at == other.at
+            action == other.action &&
+            reportId == other.reportId &&
+            at == other.at
     }
 
     companion object {
@@ -91,14 +91,12 @@ class ReceiverEvent(action: Action, val receiverName: String, at: OffsetDateTime
 
     override fun equals(other: Any?): Boolean {
         return other is ReceiverEvent &&
-                action == other.action &&
-                receiverName == other.receiverName &&
-                at == other.at
+            action == other.action &&
+            receiverName == other.receiverName &&
+            at == other.at
     }
 
     companion object {
         const val eventType = "receiver"
     }
 }
-
-

@@ -2,15 +2,15 @@ package gov.cdc.prime.router
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import java.text.DecimalFormat
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import java.util.*
-
+import java.util.Locale
 
 /**
  * An element is represents a data element (ie. a single logical value) that is contained in single row
@@ -32,18 +32,27 @@ data class Element(
     val name: String,
 
     /**
-     * Type of the
+     * Type of the element
      */
     val type: Type? = null,
+
+    // Either valueSet or altValues must be defined for a CODE type
     val valueSet: String? = null,
     val altValues: List<ValueSet.Value>? = null,
+
+    // table and tableColumn must be defined for a TABLE type
+    val table: String? = null,
+    val tableColumn: String? = null,
+
     val required: Boolean? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,
     val default: String? = null,
     val mapper: String? = null,
 
-    // Information about the elements definition
+    // Information about the elements definition.
+    val reference: String? = null,
+    val referenceUrl: String? = null,
     val hhsGuidanceField: String? = null,
     val uscdiField: String? = null,
     val natFlatFileField: String? = null,
@@ -53,6 +62,7 @@ data class Element(
     // HL7 specific information
     val hl7Field: String? = null,
     val hl7OutputFields: List<String>? = null,
+    val hl7AOEQuestion: String? = null,
 
     /**
      * The header fields that correspond to an element.
@@ -76,17 +86,16 @@ data class Element(
         DATE,
         DATETIME,
         DURATION,
-        CODE,
-        HD,    // Hierarchic Designator
-        ID,
+        CODE, // CODED with a HL7, SNOMED-CT, LONIC valueSet
+        TABLE, // A table column value
+        HD, // ISO Hierarchic Designator
+        ID, // Generic ID
         ID_CLIA,
         ID_DLN,
         ID_SSN,
         ID_NPI,
         STREET,
         CITY,
-        STATE,
-        COUNTY,
         POSTAL_CODE,
         PERSON_NAME,
         TELEPHONE,
@@ -110,38 +119,47 @@ data class Element(
             type = this.type ?: baseElement.type,
             valueSet = this.valueSet ?: baseElement.valueSet,
             altValues = this.altValues ?: baseElement.altValues,
+            table = this.table ?: baseElement.table,
+            tableColumn = this.tableColumn ?: baseElement.tableColumn,
             required = this.required ?: baseElement.required,
             pii = this.pii ?: baseElement.pii,
             phi = this.phi ?: baseElement.phi,
             mapper = this.mapper ?: baseElement.mapper,
             default = this.default ?: baseElement.default,
+            reference = this.reference ?: baseElement.reference,
+            referenceUrl = this.referenceUrl ?: baseElement.referenceUrl,
             hhsGuidanceField = this.hhsGuidanceField ?: baseElement.hhsGuidanceField,
             uscdiField = this.uscdiField ?: baseElement.uscdiField,
             natFlatFileField = this.natFlatFileField ?: baseElement.natFlatFileField,
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
+            hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
             documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
         )
     }
 
     /**
-     * A formatted string is the Element's value formatted for a specific csvField
+     * A formatted string is the Element's normalized value formatted using the format string passed in
+     * The format string's value is specific to the type of the element.
      */
-    fun toFormatted(normalizedValue: String, field: CsvField? = null): String {
+    fun toFormatted(
+        normalizedValue: String,
+        format: String? = null
+    ): String {
         if (normalizedValue.isEmpty()) return ""
         return when (type) {
             Type.DATE -> {
-                if (field?.format != null) {
-                    val formatter = DateTimeFormatter.ofPattern(field.format)
+                if (format != null) {
+                    val formatter = DateTimeFormatter.ofPattern(format)
                     LocalDate.parse(normalizedValue, dateFormatter).format(formatter)
                 } else {
                     normalizedValue
                 }
             }
             Type.DATETIME -> {
-                if (field?.format != null) {
-                    val formatter = DateTimeFormatter.ofPattern(field.format)
+                if (format != null) {
+                    val formatter = DateTimeFormatter.ofPattern(format)
                     LocalDateTime.parse(normalizedValue, datetimeFormatter).format(formatter)
                 } else {
                     normalizedValue
@@ -149,27 +167,34 @@ data class Element(
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
-                if (field?.format == altDisplayFormat) {
+                if (format == altDisplayFormat) {
                     toAltDisplay(normalizedValue)
+                        // TODO Revisit: there may be times that normalizedValue is not an altValue
                         ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
                 } else {
-                    if (valueSet == null) error("Schema Error: missing value set for '$name'")
+                    if (valueSet == null)
+                        error("Schema Error: missing value set for '$name'")
                     val set = Metadata.findValueSet(valueSet)
                         ?: error("Schema Error: invalid valueSet name: $valueSet")
-                    // TODO: A more flexible form of the format field for codes is possible and necessary
-                    when (field?.format) {
-                        displayFormat -> set.toDisplayFromCode(normalizedValue)
-                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                        systemFormat -> set.systemCode
-                        else -> normalizedValue
+                    when (format) {
+                        displayFormat ->
+                            set.toDisplayFromCode(normalizedValue)
+                                ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                        systemFormat ->
+                            // Very confusing, but this special case is in the HHS Guidance Confluence page
+                            if (set.name == "hl70136" && normalizedValue == "UNK")
+                                "NULLFL"
+                            else
+                                set.systemCode
+                        else ->
+                            normalizedValue
                     }
                 }
             }
             Type.TELEPHONE -> {
                 // normalized telephone always has 3 values national:country:extension
                 val parts = normalizedValue.split(phoneDelimiter)
-                val format = field?.format ?: defaultPhoneFormat
-                format
+                (format ?: defaultPhoneFormat)
                     .replace(countryCodeToken, parts[1])
                     .replace(areaCodeToken, parts[0].substring(0, 3))
                     .replace(exchangeToken, parts[0].substring(3, 6))
@@ -177,7 +202,7 @@ data class Element(
                     .replace(extensionToken, parts[2])
             }
             Type.POSTAL_CODE -> {
-                when (field?.format) {
+                when (format) {
                     zipFiveToken -> {
                         // If this is US zip, return the first 5 digits
                         val matchResult = Regex(usZipFormat).matchEntire(normalizedValue)
@@ -205,7 +230,7 @@ data class Element(
     /**
      * Take a formatted CsvField value and turn into a normalized value stored in an element
      */
-    fun toNormalized(formattedValue: String, field: CsvField? = null): String {
+    fun toNormalized(formattedValue: String, format: String? = null): String {
         if (formattedValue.isEmpty()) return ""
         return when (type) {
             Type.DATE -> {
@@ -214,7 +239,7 @@ data class Element(
                 } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
-                    val formatter = DateTimeFormatter.ofPattern(field?.format ?: datePattern, Locale.ENGLISH)
+                    val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element '$name'")
@@ -223,18 +248,30 @@ data class Element(
             }
             Type.DATETIME -> {
                 val normalDateTime = try {
+                    // Try an ISO pattern
                     OffsetDateTime.parse(formattedValue)
                 } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
-                    val formatter = DateTimeFormatter.ofPattern(field?.format ?: datetimePattern, Locale.ENGLISH)
+                    // Try a HL7 pattern
+                    val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
                     OffsetDateTime.parse(formattedValue, formatter)
                 } catch (e: DateTimeParseException) {
                     null
                 } ?: try {
-                    // Finally, accept a date pattern assume it is in the UTC timezone
+                    // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
                     val date = LocalDate.parse(formattedValue, dateFormatter)
-                    OffsetDateTime.of(date, LocalTime.of(0, 0), ZoneOffset.UTC)
+                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+                } catch (e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
+                    // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
+                    val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
+                    val date = LocalDate.parse(formattedValue, formatter)
+                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {
                     error("Invalid date: '$formattedValue' for element '$name'")
                 }
@@ -242,18 +279,20 @@ data class Element(
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
-                if (field?.format == altDisplayFormat) {
+                if (format == altDisplayFormat) {
                     toAltCode(formattedValue)
                         ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
                 } else {
                     if (valueSet == null) error("Schema Error: missing value set for $name")
                     val values =
                         Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
-                    when (field?.format) {
-                        displayFormat -> values.toCodeFromDisplay(formattedValue)
-                            ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
-                         else -> values.toNormalizedCode(formattedValue)
-                            ?: error("Invalid Code: '$formattedValue' does not match any codes for '${name}'")
+                    when (format) {
+                        displayFormat ->
+                            values.toCodeFromDisplay(formattedValue)
+                                ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                        else ->
+                            values.toNormalizedCode(formattedValue)
+                                ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
                     }
                 }
             }
@@ -275,14 +314,14 @@ data class Element(
     }
 
     fun toAltDisplay(code: String): String? {
-        if (!isCodeType) return error("Internal Error: asking for an altDisplay for a non-code type")
-        if (altValues == null) error("Schema Error: missing alt values for '${name}'")
+        if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
+        if (altValues == null) error("Schema Error: missing alt values for '$name'")
         return altValues.find { code.equals(it.code, ignoreCase = true) }?.display
     }
 
     fun toAltCode(altDisplay: String): String? {
-        if (!isCodeType) return error("Internal Error: asking for an altDisplay for a non-code type")
-        if (altValues == null) error("Schema Error: missing alt values for '${name}'")
+        if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
+        if (altValues == null) error("Schema Error: missing alt values for '$name'")
         return altValues.find { altDisplay.equals(it.display, ignoreCase = true) }?.code
     }
 

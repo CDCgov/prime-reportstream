@@ -1,0 +1,53 @@
+body {
+  font-family: helvetica, arial, verdana, sans-serif;
+  color: #1b1b1b;
+}
+
+h1, h2, h3, h4, h5, h6, p, small, ul, li {
+  color: #1b1b1b;
+}
+
+h1{
+  font-size: 22px;
+  font-weight: bold;
+}
+
+small{
+  font-size: 14px;
+}
+
+p{
+  font-size: 16px;
+}
+
+a {
+  text-decoration: underline;
+}
+
+.hub-header{
+  border-bottom: 1px solid #dfe1e2;
+}
+
+.hub-header tr th {
+  font-weight: bold;
+}
+
+.hub-body{
+
+}
+
+.hub-footer {
+
+}
+
+.hub-footer p{
+  font-size: 14px;
+}
+
+.hub-spacer-footer{
+  border-top:1px solid #dfe1e2;
+}
+
+.spacer, .spacer tr, .spacer tr td {
+  color: #ffffff;
+}

@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ReportTests {
     @Test
@@ -21,7 +22,7 @@ class ReportTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         assertEquals(2, report1.itemCount)
-        val filteredReport = report1.filter(mapOf("a" to "1"))
+        val filteredReport = report1.filter(listOf("matches(a, 1)"))
         assertEquals(one, filteredReport.schema)
         assertEquals(1, filteredReport.itemCount)
         assertEquals("2", filteredReport.getString(0, "b"))
@@ -36,7 +37,6 @@ class ReportTests {
         val report1 = Report(one, listOf(listOf("1", "2")), source = TestSource)
         assertEquals(false, report1.isEmpty())
     }
-
 
     @Test
     fun `test create with list`() {

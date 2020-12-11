@@ -1,11 +1,12 @@
 package gov.cdc.prime.router
 
 import java.io.ByteArrayInputStream
-import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class OrganizationTests {
     private val servicesYaml = """
@@ -17,11 +18,11 @@ class OrganizationTests {
                 - name: elr
                   topic: test
                   schema: one
-                  jurisdictionalFilter: {a: 1}
+                  jurisdictionalFilter: [ "matches(a, 1)"]
                   transforms: {deidentify: false}
                   address: phd1
                   format: CSV
-        """.trimIndent()
+    """.trimIndent()
 
     private val clientsAndServicesYaml = """
             ---
@@ -32,7 +33,7 @@ class OrganizationTests {
                   - name: elr
                     topic: test
                     schema: one
-                    jurisdictionalFilter: {a: 1}
+                    jurisdictionalFilter: [ "matches(a, 1)"]
                     transforms: {deidentify: false}
                     batch:
                       operation: MERGE
@@ -46,7 +47,7 @@ class OrganizationTests {
                     topic: topic
                     schema: one
                     format: CSV
-        """.trimIndent()
+    """.trimIndent()
 
     @Test
     fun `test loading a service`() {
@@ -105,10 +106,12 @@ class OrganizationTests {
 
     @Test
     fun `test nextBatchTime`() {
-        val batch = OrganizationService.Batch(OrganizationService.BatchOperation.NONE,
+        val batch = OrganizationService.Batch(
+            OrganizationService.BatchOperation.NONE,
             24,
             "04:05",
-            OrganizationService.BatchTimeZone.ARIZONA) // AZ is -7:00 from UTC
+            USTimeZone.ARIZONA
+        ) // AZ is -7:00 from UTC
         assertTrue(batch.isValid())
 
         // The result should be in the AZ timezone

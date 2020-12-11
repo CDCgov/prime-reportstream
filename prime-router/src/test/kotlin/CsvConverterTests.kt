@@ -16,7 +16,8 @@ class CsvConverterTests {
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
-            ))
+            )
+        )
         val csv = """
             a,b
             1,2
@@ -35,7 +36,8 @@ class CsvConverterTests {
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("A")),
                 Element("b", csvFields = Element.csvFields("b"))
-            ))
+            )
+        )
         val csv = """
             A,b
             1,2
@@ -54,7 +56,8 @@ class CsvConverterTests {
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("A")),
                 Element("b", csvFields = Element.csvFields("b"))
-            ))
+            )
+        )
         val csv = """
             b,A
             2,1
@@ -74,7 +77,8 @@ class CsvConverterTests {
                 Element("a", csvFields = Element.csvFields("A")),
                 Element("b", csvFields = Element.csvFields("b")),
                 Element("c", default = "3")
-            ))
+            )
+        )
         val csv = """
             A,b
             1,2
@@ -94,7 +98,8 @@ class CsvConverterTests {
                 Element("a", csvFields = Element.csvFields("A")),
                 Element("b", csvFields = Element.csvFields("b")),
                 Element("c", default = "3")
-            ))
+            )
+        )
         val csv = """
             A,b
             1,2
@@ -117,7 +122,8 @@ class CsvConverterTests {
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
-            ))
+            )
+        )
         val report1 = Report(one, listOf(listOf("1", "2")), TestSource)
         val expectedCsv = """
             a,b
@@ -137,7 +143,8 @@ class CsvConverterTests {
             elements = listOf(
                 Element("a", type = Element.Type.DATE, csvFields = Element.csvFields("_A", format = "MM-dd-yyyy")),
                 Element("b", csvFields = Element.csvFields("b"))
-            ))
+            )
+        )
         val report1 = Report(one, listOf(listOf("20201001", "2")), TestSource)
         val expectedCsv = """
             _A,b
@@ -158,7 +165,8 @@ class CsvConverterTests {
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
-            ))
+            )
+        )
         val csv = """
             a
             1,2
@@ -174,7 +182,8 @@ class CsvConverterTests {
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
-            ))
+            )
+        )
         val csv = """
             a,c
             1,2
@@ -190,12 +199,11 @@ class CsvConverterTests {
             elements = listOf(
                 Element("a", csvFields = Element.csvFields("a")),
                 Element("b", csvFields = Element.csvFields("b"))
-            ))
+            )
+        )
         val csv = """
         """.trimIndent()
         val report = CsvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertEquals(0, report.itemCount)
     }
-
-
 }

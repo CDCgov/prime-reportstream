@@ -22,23 +22,34 @@ if [ -z "${PRIME_DEV_NAME}" ]; then
 fi
 
 # Set variable names
-if [[ $PRIME_DEV_NAME == prime-data-hub-* ]]
+if [[ $PRIME_DEV_NAME == prime-data-hub-prod ]] # Production
 then
+  # Errors creating storage account and function app as prime-data-hub name is already used?!
   resource_group=${PRIME_DEV_NAME}
-  storage_account=${PRIME_DEV_NAME//[-]/}
   app_name=${PRIME_DEV_NAME}
   full_app_name=${app_name}
-else
+  storage_account=${app_name//[-]/}
+  plan=${app_name}
+  registry=${app_name//[-]/}
+  image=$registry.azurecr.io/$app_name
+elif [[ $PRIME_DEV_NAME == prime-data-hub-test ]] # Test
+then
+  resource_group=${PRIME_DEV_NAME}
+  app_name=${PRIME_DEV_NAME}
+  full_app_name=${app_name}
+  storage_account=${app_name//[-]/}
+  plan=${app_name}
+  registry=${app_name//[-]/}
+  image=$registry.azurecr.io/$app_name
+else # Dev
   resource_group=prime-dev-${PRIME_DEV_NAME}
-  storage_account=${PRIME_DEV_NAME}primedev
   app_name=prime-data-hub
-  full_app_name="${PRIME_DEV_NAME}"-"$app_name"
+  full_app_name=$app_name-${PRIME_DEV_NAME}
+  storage_account=${full_app_name//[-]/}
+  plan=${full_app_name}
+  registry=${app_name//[-]/}${PRIME_DEV_NAME}
+  image=$registry.azurecr.io/$app_name
 fi
-
-registry=${PRIME_DEV_NAME//[-]/}PrimeDevRegistry
-plan=${PRIME_DEV_NAME//[-]/}PrimeDevPlan
-registry_lc=$(echo "$registry" | tr '[A-Z]' '[a-z]')
-image="$registry_lc".azurecr.io/"$app_name"
 
 # Check the resource group
 resource_group_exists=$(az group exists --resource-group "$resource_group")
@@ -82,7 +93,7 @@ docker build --tag "$image" .
 
 # Login to your registry
 confirm "Login to your container registry?"
-az acr login --name "$registry_lc"
+az acr login --name "$registry"
 
 # Push the docker image to you
 confirm "Push the docker image to your container registry?"
@@ -100,15 +111,24 @@ az functionapp create \
    --runtime-version 11 \
    --deployment-container-image-name "$image":latest
 
+# Enable logging
+az webapp log config --resource-group $resource_group \
+                     --name $full_app_name \
+                     --web-server-logging filesystem
+
 # Setup a web hook to between the function and the registry
-confirm "Create a web hook to automatically deploy your containers when you push new containers?"
-webhook=$(az functionapp deployment container config --enable-cd --query CI_CD_URL --output tsv --name "$full_app_name" --resource-group "$resource_group")
-az acr webhook create --actions push \
-                      --name primeDataHub \
-                      --registry "$registry" \
-                      --uri  "$webhook" \
-                      --resource-group "$resource_group" \
-                      --scope "$app_name":latest
+# For test and prod environments CI/CD will take over for the webhook
+if [[ $PRIME_DEV_NAME != prime-data-hub-* ]]
+then
+  confirm "Create a web hook to automatically deploy your containers when you push new containers?"
+  webhook=$(az functionapp deployment container config --enable-cd --query CI_CD_URL --output tsv --name "$full_app_name" --resource-group "$resource_group")
+  az acr webhook create --actions push \
+                        --name primedatahub \
+                        --registry "$registry" \
+                        --uri  "$webhook" \
+                        --resource-group "$resource_group" \
+                        --scope "$app_name":latest
+fi
 
 # Create Azure Front Door
 # For now - access restrictions will be set up MANUALLY until I can get Azure to respect the AzureFrontDoor.Backend service tag

@@ -22,9 +22,9 @@ object Metadata {
 
     private val PRIME_ENVIRONMENT = System.getenv("PRIME_ENVIRONMENT") ?: ""
 
-    private val ext = if (PRIME_ENVIRONMENT.isNotEmpty() ) "-" + PRIME_ENVIRONMENT else  PRIME_ENVIRONMENT;
+    private val ext = if (PRIME_ENVIRONMENT.isNotEmpty()) "-" + PRIME_ENVIRONMENT else PRIME_ENVIRONMENT
 
-    private val organizationsList = "organizations${ext}.yml"
+    private val organizationsList = "organizations$ext.yml"
 
     private var schemas = mapOf<String, Schema>()
     private var mappers = listOf(
@@ -32,6 +32,14 @@ object Metadata {
         UseMapper(),
         IfPresentMapper(),
         LookupMapper(),
+        ConcatenateMapper(),
+        Obx17Mapper(),
+        Obx17TypeMapper(),
+    )
+
+    private var jurisdictionalFilters = listOf(
+        FilterByCounty(),
+        Matches(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private var organizationStore: List<Organization> = ArrayList()
@@ -125,7 +133,7 @@ object Metadata {
             val baseSchemaName = normalizeSchemaName(splitName[0])
             // Find the element in the schemas list
             val basedElement = schemas.find { it.name == baseSchemaName }?.findElement(splitName[1])
-                ?: error("${element.name} does not exists in $baseSchemaName")
+                ?: error("'${element.name}' does not exists in base '$baseSchemaName'")
             element.extendFrom(basedElement)
         } else {
             element
@@ -145,8 +153,16 @@ object Metadata {
     }
 
     /*
-     * ValueSet
-     */
+    * JurisdictionalFilters
+    */
+
+    fun findJurisdictionalFilter(name: String): JurisdictionalFilter? {
+        return jurisdictionalFilters.find { it.name.equals(name, ignoreCase = true) }
+    }
+
+    /*
+      * ValueSet
+      */
 
     fun loadValueSetCatalog(catalog: String) {
         val catalogDir = File(catalog)
@@ -269,8 +285,12 @@ object Metadata {
         }
     }
 
+    fun findLookupTable(name: String): LookupTable? {
+        return lookupTableStore[name.toLowerCase()]
+    }
+
     fun addLookupTable(name: String, table: LookupTable) {
-        lookupTableStore = lookupTableStore.plus(name to table)
+        lookupTableStore = lookupTableStore.plus(name.toLowerCase() to table)
     }
 
     fun addLookupTable(name: String, tableStream: InputStream) {
@@ -288,4 +308,3 @@ object Metadata {
         }
     }
 }
-

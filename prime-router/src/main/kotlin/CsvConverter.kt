@@ -48,7 +48,7 @@ object CsvConverter {
                             element.csvFields.map { field ->
                                 val value = report.getString(row, element.name)
                                     ?: error("Internal Error: table is missing '${element.name} column")
-                                element.toFormatted(value, field)
+                                element.toFormatted(value, field.format)
                             }
                         } else {
                             emptyList()
@@ -114,16 +114,19 @@ object CsvConverter {
                 in mapping.useCsv -> {
                     val csvField = mapping.useCsv.getValue(element.name)
                     val value = inputRow.getValue(csvField.name)
-                    addToLookup(element.toNormalized(value, csvField))
+                    addToLookup(element.toNormalized(value, csvField.format))
                 }
                 in mapping.useMapper -> {
                     val (mapper, args) = mapping.useMapper.getValue(element.name)
-                    val elementNames = mapper.elementNames(args)
-                    val mapperValues = elementNames.map {
-                        it to (lookupValues[it]
-                            ?: error("Internal Error: no lookup values for '$it'"))
-                    }.toMap()
-                    addToLookup(mapper.apply(args, mapperValues) ?: element.default ?: "")
+                    val valueNames = mapper.valueNames(element, args)
+                    val mapperValues = valueNames.map { elementName ->
+                        val valueElement = schema.findElement(elementName)
+                            ?: error("Schema Error: Could not find element '$elementName' for mapper '${mapper.name}'")
+                        val value = lookupValues[elementName]
+                            ?: error("Internal Error: no lookup values for '$elementName' for mapper '${mapper.name}'")
+                        ElementAndValue(valueElement, value)
+                    }
+                    addToLookup(mapper.apply(element, args, mapperValues) ?: element.default ?: "")
                 }
                 in mapping.useDefault -> {
                     addToLookup(mapping.useDefault.getValue(element.name))

@@ -3,9 +3,6 @@ package gov.cdc.prime.router
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.*
-
 
 /**
  * An `OrganizationService` represents the agent that the data hub sends reports
@@ -25,20 +22,20 @@ data class OrganizationService(
     val name: String,
     val topic: String,
     val schema: String,
-    val jurisdictionalFilter: Map<String, String> = emptyMap(),
+    val jurisdictionalFilter: List<String> = emptyList(),
     val transforms: Map<String, String> = emptyMap(),
     val batch: Batch? = null,
     val address: String = "",
     val format: Format = Format.CSV,
-    val transport: Transport = Transport( Transport.TransportType.DEFAULT )
+    val transport: Transport = Transport(Transport.TransportType.DEFAULT)
 ) {
     lateinit var organization: Organization
-    val fullName: String get() = "${organization.name}.${name}"
+    val fullName: String get() = "${organization.name}.$name"
 
     enum class Format {
         CSV,
         HL7;
-        //FHIR
+        // FHIR
 
         fun toExt(): String {
             return when (this) {
@@ -61,7 +58,7 @@ data class OrganizationService(
         val operation: BatchOperation = BatchOperation.NONE,
         val numberPerDay: Int = 1,
         val initialBatch: String = "00:00",
-        val timeZone: BatchTimeZone = BatchTimeZone.EASTERN,
+        val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxBatchSize: Int = 100,
     ) {
         /**
@@ -95,19 +92,6 @@ data class OrganizationService(
     enum class BatchOperation {
         NONE,
         MERGE
-    }
-
-    enum class BatchTimeZone(val zoneId: String) {
-        PACIFIC("US/Pacific"),
-        MOUNTAIN("US/Mountain"),
-        ARIZONA("US/Arizona"),
-        CENTRAL("US/Central"),
-        EASTERN("US/Eastern"),
-        SOMOA("US/Somoa"),
-        HAWAII("US/Hawaii"),
-        EAST_INDIANA("US/East-Indiana"),
-        INDIANA_STARKE("US/Indiana-Starke"),
-        MICHIGAN("US/Michigan"),
     }
 
     data class Transport(

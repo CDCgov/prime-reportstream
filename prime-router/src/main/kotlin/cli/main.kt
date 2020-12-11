@@ -5,13 +5,25 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
-import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.*
-import java.io.*
+import gov.cdc.prime.router.CsvConverter
+import gov.cdc.prime.router.DocumentationFactory
+import gov.cdc.prime.router.FakeReport
+import gov.cdc.prime.router.FileSource
+import gov.cdc.prime.router.Hl7Converter
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-
 
 sealed class InputSource {
     data class FileSource(val fileName: String) : InputSource()
@@ -38,8 +50,10 @@ class RouterCli : CliktCommand(
     private val outputFileName by option("--output", help = "<file> not compatible with route or partition")
     private val outputDir by option("--output_dir", help = "<directory>")
     private val outputSchema by option("--output_schema", help = "<schema_name> or use input schema if not specified")
+    private val outputHl7 by option("--output_hl7", help = "True for HL7 output").flag(default = false)
 
-    private val generateDocumentation by option("--generate-docs", help = "generate documentation from the provided schema")
+    private val generateDocumentation by
+    option("--generate-docs", help = "generate documentation from the provided schema")
         .flag(default = false)
 
     private fun readReportFromFile(
@@ -61,9 +75,10 @@ class RouterCli : CliktCommand(
         if (outputDir == null && outputFileName == null) return
         reports.forEach { (report, format) ->
             val outputFile = if (outputFileName != null) {
-                File(outputFileName)
+                File(outputFileName!!)
             } else {
-                File(outputDir ?: ".", "${report.name}")
+                val fileName = Report.formFileName(report.id, report.schema.baseName, format, report.createdDateTime)
+                File(outputDir ?: ".", "$fileName")
             }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
@@ -135,11 +150,19 @@ class RouterCli : CliktCommand(
             }
 
             // Transform reports
+            val outputFormat = if (outputHl7) OrganizationService.Format.HL7 else OrganizationService.Format.CSV
             val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
-                route -> OrganizationService
-                    .filterAndMapByService(inputReport, Metadata.organizationServices)
-                    .map { it.first to it.second.format }
-                else -> listOf(Pair(inputReport, OrganizationService.Format.CSV))
+                route ->
+                    OrganizationService
+                        .filterAndMapByService(inputReport, Metadata.organizationServices)
+                        .map { it.first to it.second.format }
+                outputSchema != null -> {
+                    val toSchema = Metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
+                    val mapping = inputReport.schema.buildMapping(toSchema)
+                    val toReport = inputReport.applyMapping(mapping)
+                    listOf(Pair(toReport, outputFormat))
+                }
+                else -> listOf(Pair(inputReport, outputFormat))
             }
 
             // Output reports
@@ -154,4 +177,3 @@ class RouterCli : CliktCommand(
 }
 
 fun main(args: Array<String>) = RouterCli().main(args)
-
