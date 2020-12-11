@@ -17,12 +17,12 @@ elements:
     csvFields: [{name: Patient_suffix}]
 
   # Patient ID is generated internally by SimpleReport
-  - name: simple_report_patient_id
+  - name: standard.patient_id
     type: TEXT
     csvFields: [{name: Patient_ID}]
 
   # In SimpleReport, lookup_id is the ID the user entered into the app.
-  - name: standard.patient_id
+  - name: patient_lookup_id
     csvFields: [{name: Patient_lookup_ID}]
 
   - name: standard.test_performed_code
