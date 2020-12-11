@@ -2,7 +2,7 @@ name: Prime Data Hub
 
 on:
   pull_request:
-    branches: [ test, production ]
+    branches: [ master, production ]
 
 defaults:
   run:
@@ -22,10 +22,14 @@ jobs:
                    echo "Building for the production environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-prod
                    echo >> $GITHUB_ENV ACR_REPO=primedatahubprodprimedevregistry.azurecr.io
+                   echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_PROD_USER }}
+                   echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_PROD_PWD }}
                else
                    echo "Building for the test environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
                    echo >> $GITHUB_ENV ACR_REPO=primedatahubtestprimedevregistry.azurecr.io
+                   echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_TEST_USER }}
+                   echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
 
       - name: Setup PostgreSQL
@@ -33,8 +37,8 @@ jobs:
         with:
           postgresql version: 11
           postgresql db: prime_data_hub
-          postgresql user: ${{ secrets.POSTGRESQL_TEST_USER }}
-          postgresql password: ${{ secrets.POSTGRESQL_TEST_PWD }}
+          postgresql user: ${{ env.POSTGRESQL_USER }}
+          postgresql password: ${{ env.POSTGRESQL_PWD }}
        
       - name: Setup JDK
         uses: actions/setup-java@v1.4.3
