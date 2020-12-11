@@ -48,9 +48,13 @@ class DownloadFunction {
     }
 
     private fun responseFile( request: HttpRequestMessage<String?>, fileName: String ) : HttpResponseMessage {
+
+        val body = Files.readString(Path.of("./metadata/pdi-covid-19.csv"))
+
         var response = request.createResponseBuilder(HttpStatus.OK)
-        .body("aaa,aaaa")
+        .body(body)
         .header("Content-Type", "text/csv")
+        .header("Content-Disposition", "attachment; filename=test-results.csv")
         .build();
 
         return response;    
@@ -64,13 +68,13 @@ class DownloadFunction {
         );
 
         val previousTestResults = listOf<TestResult>(
-            TestResult( GregorianCalendar(2020,12,9), 7, 8, 2, "123111111"),
-            TestResult( GregorianCalendar(2020,12,8), 7, 11, 2, "123111111"),
-            TestResult( GregorianCalendar(2020,12,7), 7, 12, 3, "123111111"),
-            TestResult( GregorianCalendar(2020,12,6), 7, 9, 1, "123111111"),
-            TestResult( GregorianCalendar(2020,12,5), 7, 9, 1, "123111111"),
-            TestResult( GregorianCalendar(2020,12,4), 7, 10, 3, "123111111"),
-            TestResult( GregorianCalendar(2020,12,3), 7, 12, 4, "123111111")            
+            TestResult( GregorianCalendar(2020,11,10), 7, 8, 2, "123111111"),
+            TestResult( GregorianCalendar(2020,11,9), 6, 11, 2, "123111111"),
+            TestResult( GregorianCalendar(2020,11,8), 5, 12, 3, "123111111"),
+            TestResult( GregorianCalendar(2020,11,7), 4, 9, 1, "123111111"),
+            TestResult( GregorianCalendar(2020,11,6), 3, 9, 1, "123111111"),
+            TestResult( GregorianCalendar(2020,11,5), 2, 10, 3, "123111111"),
+            TestResult( GregorianCalendar(2020,11,4), 1, 12, 4, "123111111")            
         )
         
         val attr = mapOf( 

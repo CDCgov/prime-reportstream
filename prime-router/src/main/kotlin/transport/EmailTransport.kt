@@ -33,7 +33,8 @@ class EmailTransport : ITransport {
         val attr = mapOf( 
             "countyName" to "Pima",
             "stateName" to "AZ",
-            "today" to Calendar.getInstance()
+            "today" to Calendar.getInstance(),
+            "file" to "123"
         )
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)

@@ -76,3 +76,4 @@ prime-router/metadata/*
 !prime-router/metadata/organizations.yml
 
 prime-router/metadata/source-mry
+prime-router/pdi-covid-19.csv

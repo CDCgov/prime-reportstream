@@ -140,6 +140,7 @@
                                         <include>metadata/**/*.valuesets</include>
                                         <include>metadata/**/*.csv</include>
                                         <include>assets/**/*__inline.html</include>
+                                        <include>metadata/pdi-covid-19.csv</include>
                                     </includes>
                                 </resource>
                             </resources>

@@ -326,9 +326,15 @@
                                 </tr>
                               </tbody>
                             </table>
-                            <p style="Margin: 0; Margin-bottom: 10px; color: #1b1b1b; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: normal; line-height: 1.3; margin: 0; margin-bottom: 10px; padding: 0; text-align: left;"><strong> <span th:text="${countyName}"> county, </span ><span th:text="${stateName}">state</span></strong></p>
                             <p style="Margin: 0; Margin-bottom: 10px; color: #1b1b1b; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: normal; line-height: 1.3; margin: 0; margin-bottom: 10px; padding: 0; text-align: left;">
-                              <a href="{{ link }}" style="Margin: 0; color: #2199e8; font-family: Helvetica, Arial, sans-serif; font-weight: normal; line-height: 1.3; margin: 0; padding: 0; text-align: left; text-decoration: underline;">Download daily test results for <span th:text="${#calendars.format(today,'dd MMMM yyyy')}">13 May 2011</span> (CSV)</a>
+                                <strong> 
+                                    <span th:text="${countyName}"></span> county, <span th:text="${stateName}"></span>
+                                </strong>
+                            </p>
+                            <p style="Margin: 0; Margin-bottom: 10px; color: #1b1b1b; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: normal; line-height: 1.3; margin: 0; margin-bottom: 10px; padding: 0; text-align: left;">
+                              <a href="{{ link }}" 
+                                 th:href="@{http://localhost:7071/api/download(file=${file})}"
+                                 style="Margin: 0; color: #2199e8; font-family: Helvetica, Arial, sans-serif; font-weight: normal; line-height: 1.3; margin: 0; padding: 0; text-align: left; text-decoration: underline;">Download daily test results for <span th:text="${#calendars.format(today,'dd MMMM yyyy')}">13 May 2011</span> (CSV)</a>
                             </p>
                             <table class="spacer" style="border-collapse: collapse; border-spacing: 0; color: #ffffff; padding: 0; text-align: left; vertical-align: top; width: 100%;">
                               <tbody>
