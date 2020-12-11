@@ -23,11 +23,9 @@ class DocumentationTests {
     @Ignore
     fun `test building documentation string from element`() {
         val expected = """
-**Name**:           a
+**Name**: a
 
-**Type**:           TEXT
-
-**Format**:         
+**Type**: TEXT    
 
 ---
 """
@@ -37,7 +35,6 @@ class DocumentationTests {
     }
 
     @Test
-    @Ignore
     fun `test building documentation string from a schema`() {
         val expected = """
 ### Schema:         Test Schema
@@ -45,11 +42,9 @@ class DocumentationTests {
 
 ---
 
-**Name**:           a
+**Name**: a
 
-**Type**:           TEXT
-
-**Format**:         
+**Type**: TEXT
 
 ---
 """
@@ -59,14 +54,11 @@ class DocumentationTests {
     }
 
     @Test
-    @Ignore
     fun `test building documentation for element with documentation value`() {
         val expected = """
-**Name**:           a
+**Name**: a
 
-**Type**:           TEXT
-
-**Format**:         
+**Type**: TEXT
 
 **Documentation**:
 
