@@ -168,7 +168,7 @@ elements:
     # column AK
     # nonstandard
     - name: result_finalized_date
-      csvField: [{ name: Finalized Date }]
+      csvFields: [{ name: Finalized Date }]
 
     - name: standard.specimen_type
       csvFields: [{ name: Specimen Source }]
@@ -191,12 +191,12 @@ elements:
     - name: standard.abnormal_flag
       csvFields: [{ name: Abnormal Flag }]
 
+    # column AS
+    # nonstandard
     # TODO: duplication of data here. is this intended or should OBX-14 maybe refer elsewhere?
-    - name: standard.observation_date
-      csvFields: [{ name: Observation Date }]
-
-    - name: standard.device_id
-      csvFields: [{ name: Device Identifier }]
+    - name: snomed_code_for_result
+      type: TEXT
+      csvFields: [{ name: SNOMED Code for Result }]
 
     # column AT
     - name: standard.testing_lab_name
@@ -219,7 +219,7 @@ elements:
       type: TEXT
       documentation: The name of the device manufacturer.
       hl7Field: OBX-17-2
-      mapper: "concat(standard.test_kit_name_id, standard.test_kit_name_id_type)"
+      mapper: "concat(standard.test_kit_name_id, standard.device_id, standard.test_kit_name_id_type)"
       csvFields: [{ name: "Kit^Device^IDType" }]
 
     # column AX
@@ -246,24 +246,24 @@ elements:
 
     # column BC
     - name: standard.illness_onset_date
-      csvFields: [{ Date of Symptom Onset }]
+      csvFields: [{ name: Date of Symptom Onset }]
 
     # column BD
     - name: standard.hospitalized
-      csvFields: [{ Hospitalized for this condition }]
+      csvFields: [{ name: Hospitalized for this condition }]
 
     # column BE
     - name: standard.icu
-      csvFields: [{ In ICU }]
+      csvFields: [{ name: In ICU }]
 
     # column BF
     - name: standard.resident_congregate_setting
-      csvFields: [{ Resides in Congregate Care setting }]
+      csvFields: [{ name: Resides in Congregate Care setting }]
 
     # column BG
     # nonstandard
     - name: specify_congregate_care_setting
-      csvFields: [{ Specify Congregate Care Setting }]
+      csvFields: [{ name: Specify Congregate Care Setting }]
 
     # column BH
     - name: standard.pregnant
@@ -273,7 +273,7 @@ elements:
     # nonstandard
     - name: student_teacher_other
       type: TEXT
-      csvFields: [{ "Is the patient a student, teacher, or other faculty member" }]
+      csvFields: [{ name: "Is the patient a student, teacher, or other faculty member" }]
       documentation: |
         AOE question for Florida. Expects one of the following values:
             - Student
