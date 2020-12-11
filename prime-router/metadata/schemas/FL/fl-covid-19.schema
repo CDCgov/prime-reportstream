@@ -198,16 +198,6 @@ elements:
     - name: standard.device_id
       csvFields: [{ name: Device Identifier }]
 
-    # TODO: verify we can't pull this from elsewhere
-    - name: device_manufacturer_name
-      type: TEXT
-      documentation: The name of the device manufacturer.
-      hl7Field: OBX-17-2
-      csvFields: [{ name: Device Manufacturer Name }]
-
-    - name: standard.device_id_type
-      csvFields: [{ name: Device Abbreviation }]
-
     # column AT
     - name: standard.testing_lab_name
       csvFields: [{ name: Performing Lab Name }]
@@ -216,17 +206,87 @@ elements:
     - name: standard.testing_lab_clia
       csvFields: [{ name: Performing Lab CLIA }]
 
-    # column BH
-    - name: standard.pregnant
-      csvFields: [{ name: Pregnancy Status }]
-
     # column AV
     # nonstandard
     - name: patient_age_and_units
       mapper: 'concat(standard.patient_age, standard.patient_age_units)'
       csvFields: [{ name: Age at time of collection }]
 
-    - name: standard.result_format
-      csvFields: [{ name : CT value }]
+    # column AW
+    # nonstandard
+    # TODO: how do we pull the device unique identifier
+    - name: kit_device_id_type
+      type: TEXT
+      documentation: The name of the device manufacturer.
+      hl7Field: OBX-17-2
+      mapper: "concat(standard.test_kit_name_id, standard.test_kit_name_id_type)"
+      csvFields: [{ name: "Kit^Device^IDType" }]
+
+    # column AX
+    - name: standard.first_test
+      csvFields: [{ name: First Test for Condition }]
+
+    # column AY
+    - name: standard.employed_in_healthcare
+      csvFields: [{ name: Employment in Health Care }]
+
+    # column AZ
+    - name: occupation
+      csvFields: [{ name: Occupation }]
+
+    # column BA
+    - name: standard.symptomatic_for_disease
+      csvFields: [ { name: Symptomatic } ]
+
+    # column BB
+    # non-standard
+    # TODO: implement symptoms value set
+    - name: disease_symptoms
+      csvFields: [{ name: Symptom }]
+
+    # column BC
+    - name: standard.illness_onset_date
+      csvFields: [{ Date of Symptom Onset }]
+
+    # column BD
+    - name: standard.hospitalized
+      csvFields: [{ Hospitalized for this condition }]
+
+    # column BE
+    - name: standard.icu
+      csvFields: [{ In ICU }]
+
+    # column BF
+    - name: standard.resident_congregate_setting
+      csvFields: [{ Resides in Congregate Care setting }]
+
+    # column BG
+    # nonstandard
+    - name: specify_congregate_care_setting
+      csvFields: [{ Specify Congregate Care Setting }]
+
+    # column BH
+    - name: standard.pregnant
+      csvFields: [ { name: Pregnancy Status } ]
+
+    # column BI
+    # nonstandard
+    - name: student_teacher_other
+      type: TEXT
+      csvFields: [{ "Is the patient a student, teacher, or other faculty member" }]
+      documentation: |
+        AOE question for Florida. Expects one of the following values:
+            - Student
+            - Teacher
+            - Other (Faculty Member)
+            - N
+            - U
+
+    # column BJ
+    # nonstandard
+    - name: name_of_school
+      type: TEXT
+      csvFields: [{ name: "What is the name of the school" }]
+      documentation: AOE question for Florida.
 
 
