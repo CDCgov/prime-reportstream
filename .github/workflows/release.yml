@@ -18,6 +18,7 @@ jobs:
                    echo >> $GITHUB_ENV AZ_FXNS_DEFAULT_KEY=${{ secrets.AZ_FXNS_PROD_DEFAULT_KEY }}
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_PROD_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_PROD_PWD }}
+                   echo >> $GITHUB_ENV PRIME_ENVIRONMENT=prod
                    echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_PROD_CREDS }}
                else
                    echo "Deploying to the test environment."
@@ -25,6 +26,7 @@ jobs:
                    echo >> $GITHUB_ENV AZ_FXNS_DEFAULT_KEY=${{ secrets.AZ_FXNS_TEST_DEFAULT_KEY }}
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_TEST_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_TEST_PWD }}
+                   echo >> $GITHUB_ENV PRIME_ENVIRONMENT=test
                    echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_TEST_CREDS }}
                fi
                env
@@ -60,4 +62,4 @@ jobs:
               az functionapp config appsettings set \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.RESOURCE_GROUP }} \
-              --settings PRIME_ENVIRONMENT=test ${{ env.SFTP_CREDS }}
+              --settings PRIME_ENVIRONMENT=${{ env.PRIME_ENVIRONMENT }} ${{ env.SFTP_CREDS }}
