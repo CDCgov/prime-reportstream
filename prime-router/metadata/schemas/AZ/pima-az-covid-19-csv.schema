@@ -139,7 +139,9 @@ elements:
   - name: standard.symptomatic_for_disease
     csvFields: [{name: Symptomatic_for_disease}]
 
-  - name: standard.testing_lab_name
+  # Nonstandard
+  - name: organization_and_lab
+    mapper: 'concat(organization_name, standard.testing_lab_name)'
     csvFields: [{name: Testing_lab_name}]
 
   - name: standard.testing_lab_clia
