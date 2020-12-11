@@ -137,7 +137,7 @@ object Hl7Converter {
         val country = parts[1]
         val extension = parts[2]
 
-        terser.set(buildComponent(pathSpec, 2), if(element.nameContains("patient")) "PRN" else "WPN")
+        terser.set(buildComponent(pathSpec, 2), if (element.nameContains("patient")) "PRN" else "WPN")
         terser.set(buildComponent(pathSpec, 5), country)
         terser.set(buildComponent(pathSpec, 6), areaCode)
         terser.set(buildComponent(pathSpec, 7), local)
