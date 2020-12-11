@@ -247,20 +247,29 @@ data class Element(
                 normalDate.format(dateFormatter)
             }
             Type.DATETIME -> {
-                // Try an ISO pattern
                 val normalDateTime = try {
+                    // Try an ISO pattern
                     OffsetDateTime.parse(formattedValue)
                 } catch (e: DateTimeParseException) {
                     null
-                    // Try a HL7 pattern
                 } ?: try {
+                    // Try a HL7 pattern
                     val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
                     OffsetDateTime.parse(formattedValue, formatter)
                 } catch (e: DateTimeParseException) {
                     null
-                    // Finally, accept a local date pattern and assume it is in the central timezone (small amount of error)
                 } ?: try {
+                    // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
                     val date = LocalDate.parse(formattedValue, dateFormatter)
+                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+                } catch (e: DateTimeParseException) {
+                    null
+                } ?: try {
+                    // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
+                    // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
+                    val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
+                    val date = LocalDate.parse(formattedValue, formatter)
                     val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {

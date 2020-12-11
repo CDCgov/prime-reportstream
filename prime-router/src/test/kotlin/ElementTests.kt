@@ -69,7 +69,6 @@ internal class ElementTests {
         val one = Element(
             "a",
             type = Element.Type.DATE,
-            csvFields = Element.csvFields("aDate", format = "yyyy-dd-MM")
         )
         // Iso formatted should work
         val result1 = one.toNormalized("1998-03-30")
@@ -83,7 +82,6 @@ internal class ElementTests {
         val one = Element(
             "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate")
         )
         // Iso formatted should work
         val result1 = one.toNormalized("1998-03-30T12:00Z")
@@ -94,11 +92,18 @@ internal class ElementTests {
         val two = Element(
             "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate", format = "yyyyMMdd")
         )
 
         val result3 = two.toNormalized("19980330", "yyyyMMdd")
         assertEquals("199803300000-0600", result3)
+
+        val three = Element(
+            "a",
+            type = Element.Type.DATETIME,
+        )
+
+        val result4 = three.toNormalized("2020-12-09", "yyyy-MM-dd")
+        assertEquals("202012090000-0600", result4)
     }
 
     @Test
@@ -106,13 +111,20 @@ internal class ElementTests {
         val one = Element(
             "a",
             type = Element.Type.DATETIME,
-            csvFields = Element.csvFields("aDate")
         )
         // Iso formatted should work
         val result1 = one.toFormatted("199803301200")
         assertEquals("199803301200", result1)
         val result2 = one.toFormatted("199803300000")
         assertEquals("199803300000", result2)
+
+        val two = Element(
+            "a",
+            type = Element.Type.DATETIME,
+        )
+        // Other formats should work too, including sans the time.
+        val result3 = two.toFormatted("202012090000+0000", "yyyy-MM-dd")
+        assertEquals("2020-12-09", result3)
     }
 
     @Test
