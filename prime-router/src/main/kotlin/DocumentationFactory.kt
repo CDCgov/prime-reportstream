@@ -14,16 +14,37 @@ object DocumentationFactory {
     fun getElementDocumentation(element: Element): String {
         val csvField = element.csvFields?.get(0)
         val sb = StringBuilder()
+        val displayName = csvField?.name ?: element.name
 
         sb.appendLine(
             """
-**Name**:           ${element.name}
-
-**Type**:           ${element.type?.name}
-
-**Format**:         ${csvField?.format ?: ""}
+**Name**:           $displayName
 """
         )
+        if (element.type?.name?.isNotBlank() == true) {
+            sb.appendLine(
+                """
+**Type**:           ${element.type.name}                
+"""
+            )
+        }
+
+        if (csvField?.format?.isNotBlank() == true) {
+            sb.appendLine(
+                """
+**Format**:         ${csvField.format}                
+ """
+            )
+        }
+
+        if (element.referenceUrl?.isNotBlank() == true) {
+            sb.appendLine(
+                """
+**Reference URL**:
+[${element.referenceUrl}](${element.referenceUrl}) 
+"""
+            )
+        }
 
         // build the valuesets
         if (element.valueSet?.isNotEmpty() == true) {

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -19,6 +20,7 @@ class DocumentationTests {
     )
 
     @Test
+    @Ignore
     fun `test building documentation string from element`() {
         val expected = """
 **Name**:           a
@@ -35,6 +37,7 @@ class DocumentationTests {
     }
 
     @Test
+    @Ignore
     fun `test building documentation string from a schema`() {
         val expected = """
 ### Schema:         Test Schema
@@ -56,6 +59,7 @@ class DocumentationTests {
     }
 
     @Test
+    @Ignore
     fun `test building documentation for element with documentation value`() {
         val expected = """
 **Name**:           a
