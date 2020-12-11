@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Set Environment Variables
         run: |
-               if [ "$GITHUB_BASE_REF" == "production" ]
+               if [ "$GITHUB_REF" == "refs/heads/production" ]
                then
                    echo "Deploying to the production environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-prod
