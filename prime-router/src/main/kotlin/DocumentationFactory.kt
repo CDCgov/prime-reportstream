@@ -27,13 +27,12 @@ object DocumentationFactory {
 
         // build the valuesets
         if (element.valueSet?.isNotEmpty() == true) {
-            val valueset = Metadata.findValueSet(element.valueSet)
 
             sb.appendLine("**Valuesets**\n")
             sb.appendLine("Code | Display")
             sb.appendLine("---- | -------")
 
-            valueset?.values?.forEach { vs ->
+            element.valueSetRef?.values?.forEach { vs ->
                 sb.appendLine("${vs.code}|${vs.display}")
             }
             sb.appendLine("")

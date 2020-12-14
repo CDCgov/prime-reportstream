@@ -1,15 +1,10 @@
-package gov.cdc.prime.router.Azure
+package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.azure.ReportEvent
-import gov.cdc.prime.router.azure.WorkflowEngine
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockkClass
@@ -27,13 +22,14 @@ class WorkflowEngineTests {
 
     @Test
     fun `test dispatchReport`() {
-        val dataProvider = MockDataProvider() { emptyArray<MockResult>() }
+        val dataProvider = MockDataProvider { emptyArray<MockResult>() }
         val connection = MockConnection(dataProvider)
         val accessSpy = spyk(DatabaseAccess(connection))
         val blobMock = mockkClass(BlobAccess::class)
         val queueMock = mockkClass(QueueAccess::class)
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.Action.NONE, UUID.randomUUID())
         val bodyFormat = "CSV"
@@ -43,7 +39,7 @@ class WorkflowEngineTests {
         every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
         every { queueMock.sendMessage(eq(event)) }.returns(Unit)
 
-        val engine = WorkflowEngine(accessSpy, blobMock, queueMock)
+        val engine = WorkflowEngine(metadata, db = accessSpy, blob = blobMock, queue = queueMock)
         engine.dispatchReport(event, report1)
 
         verify(exactly = 1) {
@@ -61,13 +57,14 @@ class WorkflowEngineTests {
 
     @Test
     fun `test dispatchReport with Error`() {
-        val dataProvider = MockDataProvider() { emptyArray<MockResult>() }
+        val dataProvider = MockDataProvider { emptyArray<MockResult>() }
         val connection = MockConnection(dataProvider)
         val accessSpy = spyk(DatabaseAccess(connection))
         val blobMock = mockkClass(BlobAccess::class)
         val queueMock = mockkClass(QueueAccess::class)
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.Action.NONE, report1.id)
         val bodyFormat = "CSV"
@@ -78,7 +75,7 @@ class WorkflowEngineTests {
         every { queueMock.sendMessage(eq(event)) }.answers { throw Exception("problem") }
         every { blobMock.deleteBlob(eq(bodyUrl)) }.returns(Unit)
 
-        val engine = WorkflowEngine(accessSpy, blobMock, queueMock)
+        val engine = WorkflowEngine(metadata, db = accessSpy, blob = blobMock, queue = queueMock)
         assertFails {
             engine.dispatchReport(event, report1)
         }
@@ -100,6 +97,7 @@ class WorkflowEngineTests {
     @Test
     fun `test handleReportEvent`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
@@ -108,7 +106,7 @@ class WorkflowEngineTests {
         val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
 
         // The data provider is jooq mock that allows dev to mock the DB
-        val provider = MockDataProvider() { emptyArray<MockResult>() }
+        val provider = MockDataProvider { emptyArray<MockResult>() }
         val connection = MockConnection(provider)
         val accessSpy = spyk(DatabaseAccess(connection))
         val blobMock = mockkClass(BlobAccess::class)
@@ -128,7 +126,7 @@ class WorkflowEngineTests {
         every { queueMock.sendMessage(eq(nextAction)) }
             .returns(Unit)
 
-        val engine = WorkflowEngine(accessSpy, blobMock, queueMock)
+        val engine = WorkflowEngine(metadata, db = accessSpy, blob = blobMock, queue = queueMock)
         engine.handleReportEvent(event) { header, _ ->
             assertEquals(task, header.task)
             assertEquals(0, header.sources.size)

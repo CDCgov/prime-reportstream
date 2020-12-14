@@ -4,7 +4,6 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.transport.SftpTransport
 import java.util.logging.Level
@@ -26,13 +25,11 @@ class SendFunction {
     ) {
         try {
             context.logger.info("Started Send Function: $message")
-            val baseDir = System.getenv("AzureWebJobsScriptRoot")
-            Metadata.loadAll("$baseDir/metadata")
             val workflowEngine = WorkflowEngine()
 
             val event = Event.parse(message) as ReportEvent
             workflowEngine.handleReportEvent(event) { header, _ ->
-                val service = Metadata.findService(header.task.receiverName)
+                val service = workflowEngine.metadata.findService(header.task.receiverName)
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
 
                 context.logger.info("Transport found for ${service.fullName} = ${service.transport.type}")

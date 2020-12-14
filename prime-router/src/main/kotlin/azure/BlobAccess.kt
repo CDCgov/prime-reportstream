@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream
 
 const val blobContainerName = "reports"
 
-class BlobAccess {
+class BlobAccess(private val csvConverter: CsvConverter, private val hl7Converter: Hl7Converter) {
     fun uploadBody(report: Report): Pair<String, String> {
         val (bodyFormat, blobBytes) = createBodyBytes(report)
         val blobUrl = uploadBlob(report.name, blobBytes)
@@ -23,8 +23,8 @@ class BlobAccess {
     private fun createBodyBytes(report: Report): Pair<String, ByteArray> {
         val outputStream = ByteArrayOutputStream()
         when (getBodyFormat(report)) {
-            OrganizationService.Format.HL7 -> Hl7Converter.write(report, outputStream)
-            OrganizationService.Format.CSV -> CsvConverter.write(report, outputStream)
+            OrganizationService.Format.HL7 -> hl7Converter.write(report, outputStream)
+            OrganizationService.Format.CSV -> csvConverter.write(report, outputStream)
         }
         return Pair(getBodyFormat(report).toString(), outputStream.toByteArray())
     }

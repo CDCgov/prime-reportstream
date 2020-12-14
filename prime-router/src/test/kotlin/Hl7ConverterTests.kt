@@ -12,26 +12,29 @@ import kotlin.test.assertNotNull
 class Hl7ConverterTests {
     private val testReport: Report
     private val context = DefaultHapiContext()
+    private val converter: Hl7Converter
+    private val csvConverter: CsvConverter
 
     init {
-        Metadata.loadSchemaCatalog("./src/test/unit_test_files")
-        Metadata.loadValueSetCatalog("./src/test/unit_test_files")
+        val metadata = Metadata("./metadata")
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
-        val schema = Metadata.findSchema("pdi-covid-19") ?: error("Cannot find pdi-covid-19")
-        testReport = CsvConverter.read(schema, inputStream, TestSource)
+        val schema = metadata.findSchema("primedatainput/pdi-covid-19") ?: error("Cannot find pdi-covid-19")
+        csvConverter = CsvConverter(metadata)
+        converter = Hl7Converter(metadata)
+        testReport = csvConverter.read(schema, inputStream, TestSource)
     }
 
     @Test
     fun `Test write batch`() {
         val outputStream = ByteArrayOutputStream()
-        Hl7Converter.write(testReport, outputStream)
+        converter.write(testReport, outputStream)
         val output = outputStream.toString(StandardCharsets.UTF_8)
         assertNotNull(output)
     }
 
     @Test
     fun `test write a message`() {
-        val output = Hl7Converter.createMessage(testReport, 0)
+        val output = converter.createMessage(testReport, 0)
         assertNotNull(output)
     }
 }

@@ -11,8 +11,6 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.CsvConverter
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationClient
 import gov.cdc.prime.router.Report
 import org.apache.commons.text.TextStringBuilder
@@ -40,22 +38,11 @@ class ValidateReportFunction {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        // First load metadata
-        try {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot")
-            Metadata.loadAll("$baseDir/metadata")
-        } catch (e: Exception) {
-            context.logger.log(Level.SEVERE, e.message, e)
-            request
-                .createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Failed to load metadata")
-                .build()
-        }
-
         // Validate the incoming CSV by converting it to a report.
+        val workflowEngine = WorkflowEngine()
         val report = try {
             val (client, content) = getAndValidate(request)
-            createReport(client, content)
+            createReport(workflowEngine, client, content)
         } catch (e: Exception) {
             val msgs = TextStringBuilder()
             e.suppressedExceptions.forEach { msgs.appendln(it.message) }
@@ -70,7 +57,6 @@ class ValidateReportFunction {
 
         // Queue the report for further processing.
         return try {
-            val workflowEngine = WorkflowEngine()
             workflowEngine.dispatchReport(ReportEvent(Event.Action.TRANSLATE, report.id), report)
             request
                 .createResponseBuilder(HttpStatus.CREATED)
@@ -90,9 +76,9 @@ class ValidateReportFunction {
 
         val name = request.headers.getOrDefault(clientName, "")
         var client: OrganizationClient? = null
-        if (!name.isBlank()) {
+        if (name.isNotBlank()) {
             try {
-                client = Metadata.findClient(name)
+                client = WorkflowEngine.metadata.findClient(name)
             } catch (e: Exception) {
                 val betterException = Exception("Error: unknown client '$name'")
                 betterException.addSuppressed(e)
@@ -123,11 +109,11 @@ class ValidateReportFunction {
         return Pair(client!!, content)
     }
 
-    fun createReport(client: OrganizationClient, content: String): Report {
-        val schema = Metadata.findSchema(client.schema) ?: error("missing schema for $clientName")
+    private fun createReport(engine: WorkflowEngine, client: OrganizationClient, content: String): Report {
+        val schema = engine.metadata.findSchema(client.schema) ?: error("missing schema for $clientName")
         return when (client.format) {
             OrganizationClient.Format.CSV -> {
-                CsvConverter.read(
+                engine.csvConverter.read(
                     schema,
                     ByteArrayInputStream(content.toByteArray()),
                     ClientSource(organization = client.organization.name, client = client.name)
@@ -136,7 +122,7 @@ class ValidateReportFunction {
         }
     }
 
-    fun createResponseBody(report: Report): String {
+    private fun createResponseBody(report: Report): String {
         return """
             {
               "id": "${report.id}"

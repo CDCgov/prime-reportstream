@@ -38,10 +38,12 @@ data class Element(
 
     // Either valueSet or altValues must be defined for a CODE type
     val valueSet: String? = null,
+    val valueSetRef: ValueSet? = null,
     val altValues: List<ValueSet.Value>? = null,
 
     // table and tableColumn must be defined for a TABLE type
     val table: String? = null,
+    val tableRef: LookupTable? = null,
     val tableColumn: String? = null,
 
     val required: Boolean? = null,
@@ -49,6 +51,8 @@ data class Element(
     val phi: Boolean? = null,
     val default: String? = null,
     val mapper: String? = null,
+    val mapperRef: Mapper? = null,
+    val mapperArgs: List<String>? = null,
 
     // Information about the elements definition.
     val reference: String? = null,
@@ -119,32 +123,6 @@ data class Element(
         return name.contains(substring, ignoreCase = true)
     }
 
-    fun inheritFrom(baseElement: Element): Element {
-        return Element(
-            name = this.name,
-            type = this.type ?: baseElement.type,
-            valueSet = this.valueSet ?: baseElement.valueSet,
-            altValues = this.altValues ?: baseElement.altValues,
-            table = this.table ?: baseElement.table,
-            tableColumn = this.tableColumn ?: baseElement.tableColumn,
-            required = this.required ?: baseElement.required,
-            pii = this.pii ?: baseElement.pii,
-            phi = this.phi ?: baseElement.phi,
-            mapper = this.mapper ?: baseElement.mapper,
-            default = this.default ?: baseElement.default,
-            reference = this.reference ?: baseElement.reference,
-            referenceUrl = this.referenceUrl ?: baseElement.referenceUrl,
-            hhsGuidanceField = this.hhsGuidanceField ?: baseElement.hhsGuidanceField,
-            uscdiField = this.uscdiField ?: baseElement.uscdiField,
-            natFlatFileField = this.natFlatFileField ?: baseElement.natFlatFileField,
-            hl7Field = this.hl7Field ?: baseElement.hl7Field,
-            hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
-            hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
-            documentation = this.documentation ?: baseElement.documentation,
-            csvFields = this.csvFields ?: baseElement.csvFields,
-        )
-    }
-
     /**
      * A formatted string is the Element's normalized value formatted using the format string passed in
      * The format string's value is specific to the type of the element.
@@ -178,20 +156,18 @@ data class Element(
                         // TODO Revisit: there may be times that normalizedValue is not an altValue
                         ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
                 } else {
-                    if (valueSet == null)
+                    if (valueSetRef == null)
                         error("Schema Error: missing value set for '$name'")
-                    val set = Metadata.findValueSet(valueSet)
-                        ?: error("Schema Error: invalid valueSet name: $valueSet")
                     when (format) {
                         displayFormat ->
-                            set.toDisplayFromCode(normalizedValue)
+                            valueSetRef.toDisplayFromCode(normalizedValue)
                                 ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
                         systemFormat ->
                             // Very confusing, but this special case is in the HHS Guidance Confluence page
-                            if (set.name == "hl70136" && normalizedValue == "UNK")
+                            if (valueSetRef.name == "hl70136" && normalizedValue == "UNK")
                                 "NULLFL"
                             else
-                                set.systemCode
+                                valueSetRef.systemCode
                         else ->
                             normalizedValue
                     }
@@ -299,15 +275,13 @@ data class Element(
                     toAltCode(formattedValue)
                         ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
                 } else {
-                    if (valueSet == null) error("Schema Error: missing value set for $name")
-                    val values =
-                        Metadata.findValueSet(valueSet) ?: error("Schema Error: invalid valueSet name: $valueSet")
+                    if (valueSetRef == null) error("Schema Error: missing value set for $name")
                     when (format) {
                         displayFormat ->
-                            values.toCodeFromDisplay(formattedValue)
+                            valueSetRef.toCodeFromDisplay(formattedValue)
                                 ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
                         else ->
-                            values.toNormalizedCode(formattedValue)
+                            valueSetRef.toNormalizedCode(formattedValue)
                                 ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
                     }
                 }

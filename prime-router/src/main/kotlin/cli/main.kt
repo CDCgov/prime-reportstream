@@ -57,11 +57,12 @@ class RouterCli : CliktCommand(
         .flag(default = false)
 
     private fun readReportFromFile(
+        metadata: Metadata,
         fileName: String,
         readBlock: (name: String, schema: Schema, stream: InputStream) -> Report
     ): Report {
         val schemaName = inputSchema.toLowerCase()
-        val schema = Metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
+        val schema = metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
@@ -78,7 +79,7 @@ class RouterCli : CliktCommand(
                 File(outputFileName!!)
             } else {
                 val fileName = Report.formFileName(report.id, report.schema.baseName, format, report.createdDateTime)
-                File(outputDir ?: ".", "$fileName")
+                File(outputDir ?: ".", fileName)
             }
             echo("Write to: ${outputFile.absolutePath}")
             if (!outputFile.exists()) {
@@ -108,18 +109,23 @@ class RouterCli : CliktCommand(
 
     override fun run() {
         // Load the schema and receivers
-        Metadata.loadAll()
+        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val csvConverter = CsvConverter(metadata)
+        val hl7Converter = Hl7Converter(metadata)
         echo("Loaded schema and receivers")
 
         // if we are generating the documentation from the schema, we don't want
         // to generate the reports below
         if (generateDocumentation) {
             val schemaName = inputSchema.toLowerCase()
-            val schema = Metadata.findSchema(schemaName)
-
+            val schema = metadata.findSchema(schemaName)
             if (schema == null) {
                 echo("$schemaName not found. Did you mean one of these?")
-                Metadata.listAll()
+                // lets us print out the list of loaded modules that are available to generate documentation for
+                println("Loaded schemas: ")
+                metadata.schemas.forEach { (name, _) ->
+                    println(name)
+                }
                 return
             }
 
@@ -131,14 +137,14 @@ class RouterCli : CliktCommand(
             // Gather input source
             val inputReport: Report = when (inputSource) {
                 is InputSource.FileSource -> {
-                    readReportFromFile((inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
-                        CsvConverter.read(schema, stream, FileSource(name))
+                    readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
+                        CsvConverter(metadata).read(schema, stream, FileSource(name))
                     }
                 }
                 is InputSource.DirSource -> TODO("Dir source is not implemented")
                 is InputSource.FakeSource -> {
-                    val schema = Metadata.findSchema(inputSchema) ?: error("$inputSchema is an invalid schema name")
-                    FakeReport.build(
+                    val schema = metadata.findSchema(inputSchema) ?: error("$inputSchema is an invalid schema name")
+                    FakeReport(metadata).build(
                         schema,
                         (inputSource as InputSource.FakeSource).count,
                         FileSource("fake")
@@ -153,12 +159,12 @@ class RouterCli : CliktCommand(
             val outputFormat = if (outputHl7) OrganizationService.Format.HL7 else OrganizationService.Format.CSV
             val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
                 route ->
-                    OrganizationService
-                        .filterAndMapByService(inputReport, Metadata.organizationServices)
+                    metadata
+                        .filterAndMapByService(inputReport)
                         .map { it.first to it.second.format }
                 outputSchema != null -> {
-                    val toSchema = Metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
-                    val mapping = inputReport.schema.buildMapping(toSchema)
+                    val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
+                    val mapping = metadata.buildMapping(toSchema, inputReport.schema)
                     val toReport = inputReport.applyMapping(mapping)
                     listOf(Pair(toReport, outputFormat))
                 }
@@ -168,8 +174,8 @@ class RouterCli : CliktCommand(
             // Output reports
             writeReportsToFile(outputReports) { report, format, stream ->
                 when (format) {
-                    OrganizationService.Format.CSV -> CsvConverter.write(report, stream)
-                    OrganizationService.Format.HL7 -> Hl7Converter.write(report, stream)
+                    OrganizationService.Format.CSV -> csvConverter.write(report, stream)
+                    OrganizationService.Format.HL7 -> hl7Converter.write(report, stream)
                 }
             }
         }

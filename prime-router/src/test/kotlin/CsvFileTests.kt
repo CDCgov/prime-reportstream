@@ -1,7 +1,7 @@
 package gov.cdc.prime.router
 
+import org.junit.jupiter.api.TestInstance
 import java.io.File
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -12,23 +12,26 @@ import kotlin.test.assertTrue
 // creating transformed objects, writing them to output csv files, then doing a simple 'diff'
 // to see if they match expected output files.
 //
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CsvFileTests {
     private val defaultSchema = "test-schema"
     private val inputPath = "./src/test/csv_test_files/input/"
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./target/csv_test_files/"
+    private val metadata: Metadata
+    private val csvConverter: CsvConverter
 
-    // There is no 'BeforeAll in kotlin.test (?).   Using BeforeEach, which should be OK as this is idempotent.
-    @BeforeTest
-    fun setup() {
+    init {
         val outputDirectory = File(outputPath)
         outputDirectory.mkdirs()
 
         val expectedDir = File(expectedResultsPath)
         assertTrue(expectedDir.exists())
 
-        loadTestSchemas()
-        loadTestOrganizations()
+        metadata = Metadata()
+        loadTestSchemas(metadata)
+        loadTestOrganizations(metadata)
+        csvConverter = CsvConverter(metadata)
     }
 
     @Test
@@ -45,12 +48,12 @@ class CsvFileTests {
         val file = File(fileName)
         val baseName = file.name
         assertTrue(file.exists())
-        val schema = Metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
+        val schema = metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
 
         // 1) Ingest the file
-        val inputReport = CsvConverter.read(schema, file.inputStream(), TestSource)
+        val inputReport = csvConverter.read(schema, file.inputStream(), TestSource)
         // 2) Create transformed objects, according to the receiver table rules
-        val outputReports = OrganizationService.mapByServices(inputReport, Metadata.organizationServices)
+        val outputReports = metadata.mapByServices(inputReport)
         assertEquals(2, outputReports.size)
         // 3) Write transformed objs to files, and check they are correct
 
@@ -62,7 +65,7 @@ class CsvFileTests {
                     outputFile.createNewFile()
                 }
                 outputFile.outputStream().use {
-                    CsvConverter.write(report, it)
+                    csvConverter.write(report, it)
                 }
 
                 compareTestResultsToExpectedResults(outputFile.absolutePath, "$prefix$baseName")
@@ -78,16 +81,16 @@ class CsvFileTests {
         assertEquals(expectedResultsLines, testFileLines)
     }
 
-    private fun loadTestOrganizations() {
+    private fun loadTestOrganizations(metadata: Metadata) {
         val loadingStream = File(inputPath + "test-organizations.yml").inputStream()
-        Metadata.loadOrganizationList(loadingStream)
-        assertEquals(2, Metadata.organizationServices.size)
-        assertEquals(2, Metadata.findService("federal-test.receiver")?.jurisdictionalFilter?.size)
+        metadata.loadOrganizations(loadingStream)
+        assertEquals(2, metadata.organizationServices.size)
+        assertEquals(2, metadata.findService("federal-test.receiver")?.jurisdictionalFilter?.size)
     }
 
-    private fun loadTestSchemas() {
-        Metadata.loadSchemaCatalog(inputPath)
-        val schema = Metadata.findSchema(defaultSchema)
+    private fun loadTestSchemas(metadata: Metadata) {
+        metadata.loadSchemaCatalog(inputPath)
+        val schema = metadata.findSchema(defaultSchema)
         assertNotNull(schema)
         assertEquals(7, schema.elements.size)
         assertEquals("lab", schema.elements[0].name)

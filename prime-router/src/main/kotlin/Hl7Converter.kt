@@ -8,13 +8,13 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.util.Properties
 
-object Hl7Converter {
-    private const val softwareVendorOrganization = "Centers for Disease Control and Prevention"
-    private const val softwareProductName = "PRIME Data Hub"
+class Hl7Converter(val metadata: Metadata) {
+    val softwareVendorOrganization = "Centers for Disease Control and Prevention"
+    val softwareProductName = "PRIME Data Hub"
 
-    private val context = DefaultHapiContext()
-    private val buildVersion: String
-    private val buildDate: String
+    val hapiContext = DefaultHapiContext()
+    val buildVersion: String
+    val buildDate: String
 
     init {
         val buildProperties = Properties()
@@ -43,7 +43,7 @@ object Hl7Converter {
         val message = ORU_R01()
         message.initQuickstart("ORU", "R01", "D")
         buildMessage(message, report, row)
-        return context.pipeParser.encode(message)
+        return hapiContext.pipeParser.encode(message)
     }
 
     private fun buildMessage(message: ORU_R01, report: Report, row: Int) {
@@ -103,7 +103,7 @@ object Hl7Converter {
 
     private fun setCodeComponent(terser: Terser, value: String, pathSpec: String, valueSetName: String?) {
         if (valueSetName == null) error("Schema Error: Missing valueSet for '$pathSpec'")
-        val valueSet = Metadata.findValueSet(valueSetName)
+        val valueSet = metadata.findValueSet(valueSetName)
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
