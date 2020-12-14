@@ -2,102 +2,103 @@
 name: pdi-covid-19
 description: PRIME POC COVID-19 flat file
 topic: covid-19
-trackingElement: standard.testing_lab_specimen_id
+trackingElement: testing_lab_specimen_id
+basedOn: covid-19
 elements:
-  - name: standard.patient_last_name
+  - name: patient_last_name
     csvFields: [{name: Patient_last_name}]
 
-  - name: standard.patient_first_name
+  - name: patient_first_name
     csvFields: [{name: Patient_first_name}]
 
-  - name: standard.patient_middle_name
+  - name: patient_middle_name
     csvFields: [{name: Patient_middle_name}]
 
-  - name: standard.patient_suffix
+  - name: patient_suffix
     csvFields: [{name: Patient_suffix}]
 
   # Patient ID is generated internally by SimpleReport
-  - name: standard.patient_id
+  - name: message_id # internal software id
     type: TEXT
     csvFields: [{name: Patient_ID}]
 
   # In SimpleReport, lookup_id is the ID the user entered into the app.
-  - name: patient_lookup_id
+  - name: patient_id # patient id 
     csvFields: [{name: Patient_lookup_ID}]
 
-  - name: standard.test_performed_code
+  - name: test_performed_code
     csvFields: [{name: Ordered_test_code}]
 
-  - name: standard.specimen_source_site_code
+  - name: specimen_source_site_code
     csvFields: [{name: Specimen_source_site_code, format: $code}]
 
-  - name: standard.specimen_type
+  - name: specimen_type
     csvFields: [{name: Specimen_type_code}]
 
   # The type of device used for the test.  eg, BinaxNOW COVID-19 Ag Card
-  - name: standard.equipment_model_name
+  - name: equipment_model_name
     csvFields: [{name: Device_ID}]
 
   # Identifier for the specific piece of equipment used.
-  - name: standard.equipment_instance_id
+  - name: equipment_instance_id
     csvFields: [{name: Instrument_ID}]
 
-  - name: standard.testing_lab_specimen_id
+  - name: testing_lab_specimen_id
     csvFields: [{name: Testing_lab_specimen_ID}]
 
 # Removed until SimpleReport sends this column
-#  - name: standard.test_result_status
+#  - name: test_result_status
 #    csvFields: [{name: Test_result_status}]
 
-  - name: standard.test_result
+  - name: test_result
     csvFields: [{name: Test_result_code}]
 
-  - name: standard.illness_onset_date
+  - name: illness_onset_date
     csvFields: [{name: Illness_onset_date}]
 
-  - name: standard.specimen_collection_date_time
+  - name: specimen_collection_date_time
     csvFields: [{name: Specimen_collection_date_time}]
 
-  - name: standard.order_test_date
+  - name: order_test_date
     csvFields: [{name: Order_test_date}]
 
-  - name: standard.test_result_date
+  - name: test_result_date
     csvFields: [{name: Test_date, format: yyyyMMdd}]
 
-  - name: standard.date_result_released
+  - name: date_result_released
     csvFields: [{name: Date_result_released, format: yyyyMMdd}]
 
-  - name: standard.patient_race
+  - name: patient_race
     csvFields: [{name: Patient_race}]
 
-  - name: standard.patient_dob
+  - name: patient_dob
     csvFields: [{name: Patient_DOB}]
 
-  - name: standard.patient_gender
+  - name: patient_gender
     csvFields: [{name: Patient_gender}]
 
-  - name: standard.patient_ethnicity
+  - name: patient_ethnicity
     csvFields: [{name: Patient_ethnicity}]
 
-  - name: standard.patient_street
+  - name: patient_street
     csvFields: [{name: Patient_street}]
 
-  - name: standard.patient_street2
+  - name: patient_street2
     csvFields: [{name: Patient_street_2}]
 
-  - name: standard.patient_city
+  - name: patient_city
     csvFields: [{name: Patient_city}]
 
-  - name: standard.patient_state
+  - name: patient_state
     csvFields: [{name: Patient_state}]
 
-  - name: standard.patient_zip_code
+  - name: patient_zip_code
     csvFields: [{name: Patient_zip_code}]
 
-  - name: standard.patient_phone_number
+  - name: patient_phone_number
     csvFields: [{name: Patient_phone_number}]
 
-  - name: standard.patient_county
+  - name: patient_county
     csvFields: [{name: Patient_county}]
 
     # Eg, Staff, Resident, Visitor, Student
@@ -105,43 +106,43 @@ elements:
     csvFields: [{name: Patient_role}]
     type: TEXT
 
-  - name: standard.employed_in_healthcare
+  - name: employed_in_healthcare
     csvFields: [{name: Employed_in_healthcare}]
 
-  - name: standard.resident_congregate_setting
+  - name: resident_congregate_setting
     csvFields: [{name: Resident_congregate_setting}]
 
-  - name: standard.first_test
+  - name: first_test
     csvFields: [{name: First_test}]
 
-  - name: standard.symptomatic_for_disease
+  - name: symptomatic_for_disease
     csvFields: [{name: Symptomatic_for_disease}]
 
-  - name: standard.testing_lab_name
+  - name: testing_lab_name
     csvFields: [{name: Testing_lab_name}]
 
-  - name: standard.testing_lab_clia
+  - name: testing_lab_clia
     csvFields: [{name: Testing_lab_CLIA}]
 
-  - name: standard.testing_lab_street
+  - name: testing_lab_street
     csvFields: [{name: Testing_lab_street}]
 
-  - name: standard.testing_lab_street2
+  - name: testing_lab_street2
     csvFields: [{name: Testing_lab_street_2}]
 
-  - name: standard.testing_lab_city
+  - name: testing_lab_city
     csvFields: [{name: Testing_lab_city}]
 
-  - name: standard.testing_lab_state
+  - name: testing_lab_state
     csvFields: [{name: Testing_lab_state}]
 
-  - name: standard.testing_lab_zip_code
+  - name: testing_lab_zip_code
     csvFields: [{name: Testing_lab_zip_code}]
 
-  - name: standard.testing_lab_phone_number
+  - name: testing_lab_phone_number
     csvFields: [{name: Testing_lab_phone_number}]
 
-  - name: standard.testing_lab_county
+  - name: testing_lab_county
     csvFields: [{name: Testing_lab_county}]
 
   - name: organization_name
@@ -149,57 +150,62 @@ elements:
     csvFields: [{name: Organization_name}]
     type: TEXT
 
-  - name: standard.ordering_facility_name
+  - name: ordering_facility_name
     csvFields: [{name: Ordering_facility_name}]
 
-  - name: standard.ordering_facility_street
+  - name: ordering_facility_street
     csvFields: [{name: Ordering_facility_street}]
 
-  - name: standard.ordering_facility_street2
+  - name: ordering_facility_street2
     csvFields: [{name: Ordering_facility_street_2}]
 
-  - name: standard.ordering_facility_city
+  - name: ordering_facility_city
     csvFields: [{name: Ordering_facility_city}]
 
-  - name: standard.ordering_facility_state
+  - name: ordering_facility_state
     csvFields: [{name: Ordering_facility_state}]
 
-  - name: standard.ordering_facility_zip_code
+  - name: ordering_facility_zip_code
     csvFields: [{name: Ordering_facility_zip_code}]
 
-  - name: standard.ordering_facility_phone_number
+  - name: ordering_facility_phone_number
     csvFields: [{name: Ordering_facility_phone_number}]
 
-  - name: standard.ordering_facility_county
+  - name: ordering_facility_county
     csvFields: [{name: Ordering_facility_county}]
 
-  - name: standard.ordering_provider_id
+  - name: ordering_provider_id
     csvFields: [{name: Ordering_provider_ID}]
 
-  - name: standard.ordering_provider_last_name
+  - name: ordering_provider_last_name
     csvFields: [{name: Ordering_provider_last_name}]
 
-  - name: standard.ordering_provider_first_name
+  - name: ordering_provider_first_name
     csvFields: [{name: Ordering_provider_first_name}]
 
-  - name: standard.ordering_provider_street
+  - name: ordering_provider_street
     csvFields: [{name: Ordering_provider_street}]
 
-  - name: standard.ordering_provider_street2
+  - name: ordering_provider_street2
     csvFields: [{name: Ordering_provider_street_2}]
 
-  - name: standard.ordering_provider_city
+  - name: ordering_provider_city
     csvFields: [{name: Ordering_provider_city}]
 
-  - name: standard.ordering_provider_state
+  - name: ordering_provider_state
     csvFields: [{name: Ordering_provider_state}]
 
-  - name: standard.ordering_provider_zip_code
+  - name: ordering_provider_zip_code
     csvFields: [{name: Ordering_provider_zip_code}]
 
-  - name: standard.ordering_provider_phone_number
+  - name: ordering_provider_phone_number
     csvFields: [{name: Ordering_provider_phone_number}]
 
-  - name: standard.ordering_provider_county
+  - name: ordering_provider_county
     csvFields: [{name: Ordering_provider_county}]
 
+  - name: reporting_facility_name
+    mapper: use(testing_lab_name)
+
+  - name: reporting_facility_clia
+    mapper: use(testing_lab_clia)

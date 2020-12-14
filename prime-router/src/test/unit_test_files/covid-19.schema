@@ -83,7 +83,7 @@ elements:
     tableColumn: Equipment UID
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Instrument_model_id
     hhsGuidanceField:
     hl7Field: OBX-18-1
@@ -94,7 +94,7 @@ elements:
     tableColumn: Equipment UID Type
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: OBX-18-3
@@ -114,7 +114,7 @@ elements:
     tableColumn: Manufacturer
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Instrument_model_name
     hhsGuidanceField:
 
@@ -186,7 +186,7 @@ elements:
     type: TABLE
     table: LIVD-2020-11-18
     tableColumn: LOINC Order Code
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
     hl7Field: OBR-4-1
@@ -195,7 +195,7 @@ elements:
     type: TABLE
     table: LIVD-2020-11-18
     tableColumn: LOINC Order Code Long Name
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
     hl7Field: OBR-4-2
@@ -222,7 +222,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(standard.ordering_facility_state, standard.ordering_facility_county)
+    mapper: lookup(ordering_facility_state, ordering_facility_county)
     hl7Field: ORC-22-9
 
   - name: ordering_facility_name
@@ -280,7 +280,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: County
-    mapper: lookup(standard.ordering_provider_state, standard.ordering_provider_county)
+    mapper: lookup(ordering_provider_state, ordering_provider_county)
     hl7Field: ORC-24-9
 
   - name: ordering_provider_first_name
@@ -301,23 +301,15 @@ elements:
     type: TEXT
     natFlatFileField:
     hhsGuidanceField:
-    mapper: ifPresent(standard.ordering_provider_id, CMS)
+    mapper: ifPresent(ordering_provider_id, CMS)
     hl7Field: ORC-12-9-1
     hl7OutputFields: [ORC-12-9-1, OBR-16-9-1]
-
-  - name: ordering_provider_id_authority_oid
-    type: HD
-    natFlatFileField:
-    hhsGuidanceField:
-    mapper: ifPresent(standard.ordering_provider_id, 2.16.840.1.113883.3.249)
-    hl7Field: ORC-12-9-2
-    hl7OutputFields: [ORC-12-9-2, OBR-16-9-2]
 
   - name: ordering_provider_id_authority_type
     type: TEXT
     natFlatFileField:
     hhsGuidanceField:
-    mapper: ifPresent(standard.ordering_provider_id, NPI)
+    mapper: ifPresent(ordering_provider_id, NPI)
     hl7Field: ORC-12-13
     hl7OutputFields: [ORC-12-13, OBR-16-13]
 
@@ -405,7 +397,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(standard.patient_state, standard.patient_county)
+    mapper: lookup(patient_state, patient_county)
     natFlatFileField: Patient_county
     hl7Field: PID-11-9
 
@@ -482,7 +474,7 @@ elements:
 
   - name: patient_middle_initial
     type: PERSON_NAME
-    mapper: middleInitial(standard.patient_middle_name)
+    mapper: middleInitial(patient_middle_name)
     natFlatFileField: Patient_middle_name
     hhsGuidanceField: Patient name
     hl7Field: PID-5-3
@@ -622,7 +614,7 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-7
 
-  - name: reporting_facility_id
+  - name: reporting_facility_clia
     type: ID_CLIA
     natFlatFileField: Reporting_facility_id
     hhsGuidanceField:
@@ -681,7 +673,7 @@ elements:
 
   - name: specimen_role
     type: CODE
-    valueSet: common/specimen_role
+    valueSet: specimen_role
     natFlatFileField: Role
     hhsGuidanceField:
     hl7Field: SPM-11
@@ -709,7 +701,7 @@ elements:
 
   - name: specimen_recieved_date_time
     type: DATETIME
-    mapper: use(standard.specimen_collection_date_time)
+    mapper: use(specimen_collection_date_time)
     hl7Field: SPM-18
 
   - name: symptomatic_for_disease
@@ -726,7 +718,7 @@ elements:
     tableColumn: Testkit Name ID
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Test_kit_model_name
 
   - name: test_kit_name_id_type
@@ -735,7 +727,7 @@ elements:
     tableColumn: Testkit Name ID Type
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
 
   - name: test_method_description
     type: TEXT
@@ -747,7 +739,7 @@ elements:
     type: TABLE
     table: LIVD-2020-11-18
     tableColumn: LOINC Code
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3-1
@@ -756,7 +748,7 @@ elements:
     type: TABLE
     table: LIVD-2020-11-18
     tableColumn: LOINC Long Name
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3-2
@@ -836,7 +828,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(standard.testing_lab_state, standard.testing_lab_county)
+    mapper: lookup(testing_lab_state, testing_lab_county)
     natFlatFileField: Testing_lab_county
     hhsGuidanceField:
     hl7Field: OBX-24-9

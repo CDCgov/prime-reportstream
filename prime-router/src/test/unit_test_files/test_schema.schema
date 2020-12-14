@@ -1,6 +1,7 @@
 ---
 name: lab_test_results_schema
 topic: test
+extends: base
 elements:
   - name: lab
     type: TEXT
@@ -16,8 +17,7 @@ elements:
     type: TEXT
   - name: extra
     type: TEXT
-  - name: base.address
-  - name: base.zip_code
+  - name: address
 
 
 
