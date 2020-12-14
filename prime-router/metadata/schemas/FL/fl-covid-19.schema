@@ -154,7 +154,7 @@ elements:
     # column AC
     - name: standard.ordering_facility_city
       csvFields: [{ name: Ordering Facility City }]
-      documnentation: The city of the facility which the test was ordered from
+      documentation: The city of the facility which the test was ordered from
 
     # column AD
     - name: standard.ordering_facility_state
