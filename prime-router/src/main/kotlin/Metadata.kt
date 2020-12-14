@@ -161,6 +161,9 @@ class Metadata {
         return name.toLowerCase()
     }
 
+    /**
+     * The fixup process fills in references and inherited attributes.
+     */
     private fun fixupElement(element: Element, baseElement: Element? = null): Element {
         val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
@@ -181,11 +184,11 @@ class Metadata {
         }
         val fullElement = if (baseElement != null) element.inheritFrom(baseElement) else element
         return fullElement.copy(
-                valueSetRef = valueSetRef,
-                tableRef = tableRef,
-                mapperRef = refAndArgs?.first,
-                mapperArgs = refAndArgs?.second,
-            )
+            valueSetRef = valueSetRef,
+            tableRef = tableRef,
+            mapperRef = refAndArgs?.first,
+            mapperArgs = refAndArgs?.second,
+        )
     }
 
     /*
