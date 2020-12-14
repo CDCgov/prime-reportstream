@@ -17,7 +17,7 @@
         topic: covid-19
         schema: az/az-covid-19
         jurisdictionalFilter:
-          - matches(standard.ordering_facility_state,AZ)
+          - matches(ordering_facility_state,AZ)
         transforms: { deidentify: false }
         batch:
           operation: MERGE
