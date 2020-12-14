@@ -119,6 +119,32 @@ data class Element(
 
     val isCodeType get() = this.type == Type.CODE
 
+    fun inheritFrom(baseElement: Element): Element {
+        return Element(
+            name = this.name,
+            type = this.type ?: baseElement.type,
+            valueSet = this.valueSet ?: baseElement.valueSet,
+            altValues = this.altValues ?: baseElement.altValues,
+            table = this.table ?: baseElement.table,
+            tableColumn = this.tableColumn ?: baseElement.tableColumn,
+            required = this.required ?: baseElement.required,
+            pii = this.pii ?: baseElement.pii,
+            phi = this.phi ?: baseElement.phi,
+            mapper = this.mapper ?: baseElement.mapper,
+            default = this.default ?: baseElement.default,
+            reference = this.reference ?: baseElement.reference,
+            referenceUrl = this.referenceUrl ?: baseElement.referenceUrl,
+            hhsGuidanceField = this.hhsGuidanceField ?: baseElement.hhsGuidanceField,
+            uscdiField = this.uscdiField ?: baseElement.uscdiField,
+            natFlatFileField = this.natFlatFileField ?: baseElement.natFlatFileField,
+            hl7Field = this.hl7Field ?: baseElement.hl7Field,
+            hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
+            hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
+            documentation = this.documentation ?: baseElement.documentation,
+            csvFields = this.csvFields ?: baseElement.csvFields,
+        )
+    }
+
     fun nameContains(substring: String): Boolean {
         return name.contains(substring, ignoreCase = true)
     }
