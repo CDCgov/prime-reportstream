@@ -51,31 +51,37 @@ elements:
     # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
     - name: standard.patient_gender
       csvFields: [{ name: Patient Gender }]
-      documentation: The patient's gender
+      documentation: The patient's gender. Expects M, F, or U
 
     # column J
     - name: standard.patient_street
       csvFields: [{ name: Patient Street Address }]
+      documentation: The patient's street address
 
     # column K
     - name: standard.patient_street2
       csvFields: [{ name: Patient Street Address2 }]
+      documentation: The patient's second address
 
     # column L
     - name: standard.patient_city
       csvFields: [{ name: Patient City }]
+      documentation: The patient's city
 
     # column M
     - name: standard.patient_state
       csvFields: [{ name: Patient State }]
+      documentation: The patient's state
 
     # column N
     - name: standard.patient_zip_code
       csvFields: [{ name: Patient Zip }]
+      documentation: The patient's zip
 
     # column O
     - name: standard.patient_phone_number
       csvFields: [{ name: Patient Phone Number }]
+      documentation: The patient's phone number with area code
 
     # column C part 2
     # nonstandard
@@ -88,108 +94,146 @@ elements:
     # column Q
     - name: standard.ordering_provider_id
       csvFields: [{ name: Ordering Provider NPI Number }]
+      documentation: The ordering provider’s National Provider Identifier
 
     # column R
     - name: standard.ordering_provider_last_name
       csvFields: [{ name: Ordering Provider Last Name }]
+      documentation: The last name of provider who ordered the test
 
     # column S
     - name: standard.ordering_provider_first_name
       csvFields: [{ name: Ordering Provider First Name }]
+      documentation: The first name of the provider who ordered the test
 
     # column T
     - name: standard.ordering_provider_street
       csvFields: [{ name: Ordering Provider Street Address }]
+      documentation: The street address of the provider
 
     # column U
     - name: standard.ordering_provider_street2
       csvFields: [{ name: Ordering Provider Street Address2 }]
+      documentation: The street second address of the provider
 
     # column V
     - name: standard.ordering_provider_city
       csvFields: [{ name: Ordering Provider City }]
+      documentation: The city of the provider
 
     # column W
     - name: standard.ordering_provider_state
       csvFields: [{ name: Ordering Provider State }]
+      documentation: The state of the provider
 
     # column X
     - name: standard.ordering_provider_zip_code
       csvFields: [{ name: Ordering Provider Zip }]
+      documentation: The zip code of the provider
 
     # column Y
     - name: standard.ordering_provider_phone_number
       csvFields: [{ name: Ordering Provider Phone Number }]
+      documentation: The phone number of the provider
 
     # column Z
     - name: standard.ordering_facility_name
       csvFields: [{ name: Ordering Facility Name }]
+      documentation: The name of the facility which the test was ordered from
 
     # column AA
     - name: standard.ordering_facility_street
       csvFields: [{ name: Ordering Facility Address1 }]
+      documentation: The address of the facility which the test was ordered from
 
     # column AB
     - name: standard.ordering_facility_street2
       csvFields: [ { name: Ordering Facility Address2 } ]
+      documentation: The secondary address of the facility which the test was ordered from
 
     # column AC
     - name: standard.ordering_facility_city
       csvFields: [{ name: Ordering Facility City }]
+      documnentation: The city of the facility which the test was ordered from
 
     # column AD
     - name: standard.ordering_facility_state
       csvFields: [{ name: Ordering Facility State }]
+      documentation: The state of the facility which the test was ordered from
 
     # column AE
     - name: standard.ordering_facility_zip_code
       csvFields: [{ name: Ordering Facility Zip }]
+      documentation: The zip code of the facility which the test was ordered from
 
     # column AF
     - name: standard.ordering_facility_phone_number
       csvFields: [{ name: Ordering Facility Phone Number }]
+      documentation: The phone number of the facility which the test was ordered from
 
     # column AG
     - name: standard.testing_lab_accession_number
       csvFields: [{ name: Accession Number }]
+      documentation: The accession number of the specimen collected
 
     # column AH
     - name: standard.specimen_collection_date_time
       csvFields: [{ name: Specimen Collected Date }]
+      documentation: The date which the specimen was collected
 
     # column AI
     - name: standard.specimen_type
       csvFields: [ { name: Specimen Source } ]
+      documentation: The specimen source, such as Blood or Serum
 
     # column AJ
     - name: standard.specimen_received_date_time
       csvFields: [{ name: Specimen Received Date }]
+      documentation: Date the specimen was received
 
     # column AK
     # nonstandard
     - name: result_finalized_date
-      csvFields: [{ name: Finalized Date }]
+      type: DATE
+      csvFields: [{ name: Finalized Date, format: "MM/dd/yyyy" }]
+      documentation: The date which the result was finalized
 
-    - name: standard.specimen_type
-      csvFields: [{ name: Specimen Source }]
-
+    # column AL
     - name: standard.test_performed_code
       csvFields: [{ name: Observation Code }]
+      documentation: The LOINC code of the test performed. This is a standardized coded value describing the test
 
+    # column AM
     - name: standard.test_performed_name
       csvFields: [{ name: Observation Description }]
+      documentation: The LOINC description of the test performed as related to the LOINC code.
+
+    # column AN
+    # nonstandard
+    - name: local_code
+      type: TEXT
+      documentation: This is a localized coded value that the facility may use for this test (Optional- Local Code is equal to LOINC code, so if you are providing LOINC Code, you may leave this field blank and vice versa)
+
+    # column AO
+    # nonstandard
+    - name: local_code_description
+      type: TEXT
+      documentation: This is a localized description of the localized coded value that the facility may use for this test (Optional unless LOINC Code and Description are not provided)
 
     # column AP
     - name: standard.test_result
       csvFields: [{ name: Test Result }]
+      documentation: The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
 
     # column AQ
     - name: standard.reference_range
       csvFields: [{ name: Reference Range }]
+      documentation: The reference range of the lab result, such as “Negative” or “Normal”. For IgG, IgM and CT results that provide a value you MUST fill out this filed.
 
     # column AR
     - name: standard.abnormal_flag
       csvFields: [{ name: Abnormal Flag }]
+      documentation: This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
 
     # column AS
     # nonstandard
@@ -197,73 +241,105 @@ elements:
     - name: snomed_code_for_result
       type: TEXT
       csvFields: [{ name: SNOMED Code for Result }]
+      documentation: This is the coded value that describes the result. For IgG, IgM and CT results that provide a value leave this field blank.
 
     # column AT
     - name: standard.testing_lab_name
       csvFields: [{ name: Performing Lab Name }]
+      documentation: The name of the laboratory which performed the test, can be the same as the sending facility name
 
     # column AU
     - name: standard.testing_lab_clia
       csvFields: [{ name: Performing Lab CLIA }]
+      documentation: The CLIA code for the laboratory which performed the test, can be the same as the sending facility name
 
     # column AV
     # nonstandard
     - name: patient_age_and_units
+      type: TEXT
       mapper: 'concat(standard.patient_age, standard.patient_age_units)'
       csvFields: [{ name: Age at time of collection }]
+      documentation: |
+        The patient's age as a numeric value and a unit value, for example, "3 months", "25 years", etc
 
     # column AW
     # nonstandard
     # TODO: how do we pull the device unique identifier
     - name: kit_device_id_type
       type: TEXT
-      documentation: The name of the device manufacturer.
+      documentation: |
+        A concatenation of three values: Manufacturer Name, Device's unique ID, Device Type
       hl7Field: OBX-17-2
       mapper: "concat(standard.test_kit_name_id, standard.device_id, standard.test_kit_name_id_type)"
       csvFields: [{ name: "Kit^Device^IDType" }]
 
     # column AX
+    # todo: convert UNK to U for FL
     - name: standard.first_test
       csvFields: [{ name: First Test for Condition }]
+      documentation: Expects Y, N, or U
 
     # column AY
+    # todo: convert UNK to U for FL
     - name: standard.employed_in_healthcare
       csvFields: [{ name: Employment in Health Care }]
+      documentation: Expects Y, N, or U
 
     # column AZ
+    # nonstandard
     - name: occupation
+      type: TEXT
+      referenceUrl: https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html
       csvFields: [{ name: Occupation }]
+      documentation: |
+        FL expects the SNOMED code that maps to one of the values outlined at [https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html](https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html)
 
     # column BA
+    # todo: convert UNK to U for FL
     - name: standard.symptomatic_for_disease
       csvFields: [ { name: Symptomatic } ]
+      documentation: Expects Y, N, or U
 
     # column BB
     # non-standard
     # TODO: implement symptoms value set
     - name: disease_symptoms
+      type: TEXT
       csvFields: [{ name: Symptom }]
+      documentation: Expects a list of the symptoms the patient is experiencing as as a set of SNOMED codes
 
     # column BC
     - name: standard.illness_onset_date
-      csvFields: [{ name: Date of Symptom Onset }]
+      csvFields: [{ name: Date of Symptom Onset, format: "MM/dd/yyyy" }]
 
     # column BD
+    # todo: convert UNK to U for FL
     - name: standard.hospitalized
       csvFields: [{ name: Hospitalized for this condition }]
+      documentation: Expects Y, N, or U
 
     # column BE
+    # todo: convert UNK to U for FL
     - name: standard.icu
       csvFields: [{ name: In ICU }]
+      documentation: Expects Y, N, or U
 
     # column BF
+    # todo: convert UNK to U for FL
     - name: standard.resident_congregate_setting
       csvFields: [{ name: Resides in Congregate Care setting }]
+      documentation: Expects Y, N, or U
 
     # column BG
     # nonstandard
+    # todo: create a value set for this based on SNOMED codes
     - name: specify_congregate_care_setting
+      type: TEXT
       csvFields: [{ name: Specify Congregate Care Setting }]
+      referenceUrl: https://confluence.hl7.org/pages/viewpage.action?pageId=86967947
+      documentation: |
+        The type of congregate care setting.
+        Based on the value set specified at [https://confluence.hl7.org/pages/viewpage.action?pageId=86967947](https://confluence.hl7.org/pages/viewpage.action?pageId=86967947) item 7a.
 
     # column BH
     - name: standard.pregnant
