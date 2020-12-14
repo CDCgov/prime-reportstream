@@ -84,8 +84,6 @@ class OrganizationTests {
         assertEquals("elr", result.name)
     }
 
-
-
     @Test
     fun `test nextBatchTime`() {
         val batch = OrganizationService.Batch(

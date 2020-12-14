@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.azure
 
+import gov.cdc.prime.router.CsvConverter
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Hl7Converter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -39,7 +41,14 @@ class WorkflowEngineTests {
         every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
         every { queueMock.sendMessage(eq(event)) }.returns(Unit)
 
-        val engine = WorkflowEngine(metadata, db = accessSpy, blob = blobMock, queue = queueMock)
+        val engine = WorkflowEngine(
+            metadata,
+            csvConverter = CsvConverter(metadata),
+            hl7Converter = Hl7Converter(metadata),
+            db = accessSpy,
+            blob = blobMock,
+            queue = queueMock
+        )
         engine.dispatchReport(event, report1)
 
         verify(exactly = 1) {
@@ -75,7 +84,14 @@ class WorkflowEngineTests {
         every { queueMock.sendMessage(eq(event)) }.answers { throw Exception("problem") }
         every { blobMock.deleteBlob(eq(bodyUrl)) }.returns(Unit)
 
-        val engine = WorkflowEngine(metadata, db = accessSpy, blob = blobMock, queue = queueMock)
+        val engine = WorkflowEngine(
+            metadata,
+            csvConverter = CsvConverter(metadata),
+            hl7Converter = Hl7Converter(metadata),
+            db = accessSpy,
+            blob = blobMock,
+            queue = queueMock
+        )
         assertFails {
             engine.dispatchReport(event, report1)
         }
@@ -126,7 +142,14 @@ class WorkflowEngineTests {
         every { queueMock.sendMessage(eq(nextAction)) }
             .returns(Unit)
 
-        val engine = WorkflowEngine(metadata, db = accessSpy, blob = blobMock, queue = queueMock)
+        val engine = WorkflowEngine(
+            metadata,
+            csvConverter = CsvConverter(metadata),
+            hl7Converter = Hl7Converter(metadata),
+            db = accessSpy,
+            blob = blobMock,
+            queue = queueMock
+        )
         engine.handleReportEvent(event) { header, _ ->
             assertEquals(task, header.task)
             assertEquals(0, header.sources.size)
