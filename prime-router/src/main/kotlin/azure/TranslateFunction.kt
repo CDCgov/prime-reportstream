@@ -53,8 +53,8 @@ class TranslateFunction {
         context: ExecutionContext,
     ): Int {
         return workflowEngine
-            .metadata
-            .filterAndMapByService(parentReport)
+            .translator
+            .filterAndTranslateByService(parentReport)
             .map { (report, service) ->
                 val event = if (service.batch == null) {
                     ReportEvent(Event.Action.SEND, report.id)

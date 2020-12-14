@@ -84,21 +84,7 @@ class OrganizationTests {
         assertEquals("elr", result.name)
     }
 
-    @Test
-    fun `test filterAndMapByService`() {
-        val metadata = Metadata()
-        metadata.loadOrganizations(ByteArrayInputStream(servicesYaml.toByteArray()))
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource)
 
-        val result = metadata.filterAndMapByService(table1)
-
-        assertEquals(1, result.size)
-        val (mappedTable, forReceiver) = result[0]
-        assertEquals(table1.schema, mappedTable.schema)
-        assertEquals(1, mappedTable.itemCount)
-        assertEquals(metadata.organizationServices[0], forReceiver)
-    }
 
     @Test
     fun `test nextBatchTime`() {

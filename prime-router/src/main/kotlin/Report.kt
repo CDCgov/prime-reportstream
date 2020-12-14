@@ -158,13 +158,13 @@ class Report {
         return Report(schema, Table.create(columns), fromThisReport("deidentify"))
     }
 
-    fun applyMapping(mapping: Schema.Mapping): Report {
+    fun applyMapping(mapping: Translator.Mapping): Report {
         val columns = mapping.toSchema.elements.map { buildColumn(mapping, it) }
         val newTable = Table.create(columns)
         return Report(mapping.toSchema, newTable, fromThisReport("mapping"))
     }
 
-    private fun buildColumn(mapping: Schema.Mapping, toElement: Element): StringColumn {
+    private fun buildColumn(mapping: Translator.Mapping, toElement: Element): StringColumn {
         return when (toElement.name) {
             in mapping.useDirectly -> {
                 table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)

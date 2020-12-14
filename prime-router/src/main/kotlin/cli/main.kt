@@ -19,6 +19,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Translator
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -162,15 +163,16 @@ class RouterCli : CliktCommand(
             }
 
             // Transform reports
+            val translator = Translator(metadata)
             val outputFormat = if (outputHl7) OrganizationService.Format.HL7 else OrganizationService.Format.CSV
             val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
                 route ->
-                    metadata
-                        .filterAndMapByService(inputReport)
+                    translator
+                        .filterAndTranslateByService(inputReport)
                         .map { it.first to it.second.format }
                 outputSchema != null -> {
                     val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
-                    val mapping = metadata.buildMapping(toSchema, inputReport.schema)
+                    val mapping = translator.buildMapping(toSchema, inputReport.schema)
                     val toReport = inputReport.applyMapping(mapping)
                     listOf(Pair(toReport, outputFormat))
                 }
