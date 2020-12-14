@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.CsvConverter
+import gov.cdc.prime.router.Hl7Converter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import org.jooq.Configuration
@@ -14,9 +15,12 @@ import java.io.ByteArrayInputStream
  * @see DatabaseAccess.Header
  */
 class WorkflowEngine(
-    private val db: DatabaseAccess = DatabaseAccess(),
-    private val blob: BlobAccess = BlobAccess(),
-    private val queue: QueueAccess = QueueAccess(),
+    val metadata: Metadata = WorkflowEngine.metadata,
+    val hl7Converter: Hl7Converter = Hl7Converter(metadata),
+    val csvConverter: CsvConverter = CsvConverter(metadata),
+    val db: DatabaseAccess = DatabaseAccess(),
+    val blob: BlobAccess = BlobAccess(csvConverter, hl7Converter),
+    val queue: QueueAccess = QueueAccess(),
 ) {
     /**
      * Place a report into the workflow
@@ -84,13 +88,13 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: DatabaseAccess.Header): Report {
-        val schema = Metadata.findSchema(header.task.schemaName)
+        val schema = metadata.findSchema(header.task.schemaName)
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
-        val destination = Metadata.findService(header.task.receiverName)
+        val destination = metadata.findService(header.task.receiverName)
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         val sources = header.sources.map { DatabaseAccess.toSource(it) }
         return when (header.task.bodyFormat) {
-            "CSV" -> CsvConverter.read(schema, ByteArrayInputStream(bytes), sources, destination)
+            "CSV" -> csvConverter.read(schema, ByteArrayInputStream(bytes), sources, destination)
             else -> error("Unsupported read format")
         }
     }
@@ -100,5 +104,17 @@ class WorkflowEngine(
      */
     fun readBody(header: DatabaseAccess.Header): ByteArray {
         return blob.downloadBlob(header.task.bodyUrl)
+    }
+
+    companion object {
+        /**
+         * The metadata a singleton that contains the metadata catalog that is only read in once
+         */
+        val metadata: Metadata by lazy {
+            val baseDir = System.getenv("AzureWebJobsScriptRoot")
+            val primeEnv = System.getenv("PRIME_ENVIRONMENT")
+            val ext = primeEnv?.let { "-$it" } ?: ""
+            Metadata("$baseDir/metadata", orgExt = ext)
+        }
     }
 }

@@ -51,27 +51,26 @@ class OrganizationTests {
 
     @Test
     fun `test loading a service`() {
-        val input = ByteArrayInputStream(servicesYaml.toByteArray())
-        Metadata.loadOrganizationList(input)
-
-        val result = Metadata.findService("phd1.elr")
+        val metadata = Metadata()
+        metadata.loadOrganizations(ByteArrayInputStream(servicesYaml.toByteArray()))
+        val result = metadata.findService("phd1.elr")
 
         assertEquals(1, result?.jurisdictionalFilter?.size)
     }
 
     @Test
     fun `test loading a client and service`() {
-        val input = ByteArrayInputStream(clientsAndServicesYaml.toByteArray())
-        Metadata.loadOrganizationList(input)
+        val metadata = Metadata()
+        metadata.loadOrganizations(ByteArrayInputStream(clientsAndServicesYaml.toByteArray()))
 
-        val result = Metadata.findClient("phd1.sender")
+        val result = metadata.findClient("phd1.sender")
 
         assertEquals("sender", result?.name)
     }
 
     @Test
     fun `test loading a single organization`() {
-        val orgs = listOf(
+        val metadata = Metadata().loadOrganizations(
             Organization(
                 name = "single",
                 description = "blah blah",
@@ -81,27 +80,24 @@ class OrganizationTests {
                 )
             )
         )
-        Metadata.loadOrganizations(orgs)
-
-        val result = Metadata.findService("single.elr") ?: fail("Expected to find service")
-
+        val result = metadata.findService("single.elr") ?: fail("Expected to find service")
         assertEquals("elr", result.name)
     }
 
     @Test
     fun `test filterAndMapByService`() {
-        val input = ByteArrayInputStream(servicesYaml.toByteArray())
-        Metadata.loadOrganizationList(input)
+        val metadata = Metadata()
+        metadata.loadOrganizations(ByteArrayInputStream(servicesYaml.toByteArray()))
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource)
 
-        val result = OrganizationService.filterAndMapByService(table1, Metadata.organizationServices)
+        val result = metadata.filterAndMapByService(table1)
 
         assertEquals(1, result.size)
         val (mappedTable, forReceiver) = result[0]
         assertEquals(table1.schema, mappedTable.schema)
         assertEquals(1, mappedTable.itemCount)
-        assertEquals(Metadata.organizationServices[0], forReceiver)
+        assertEquals(metadata.organizationServices[0], forReceiver)
     }
 
     @Test

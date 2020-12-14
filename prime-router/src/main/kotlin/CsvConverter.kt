@@ -8,8 +8,8 @@ import java.io.OutputStream
 /**
  * A converter differs from a serialization in that
  */
-object CsvConverter {
-    private data class Mapping(
+class CsvConverter(val metadata: Metadata) {
+    private data class CsvMapping(
         val useCsv: Map<String, Element.CsvField>,
         val useMapper: Map<String, Pair<Mapper, List<String>>>,
         val useDefault: Map<String, String>,
@@ -29,7 +29,7 @@ object CsvConverter {
         if (rows.isEmpty()) {
             return Report(schema, emptyList(), sources, destination)
         }
-        val mapping = buildMappingForReading(schema, rows[0])
+        val mapping = buildMappingForReading(metadata, schema, rows[0])
         val mappedRows = rows.map { mapRow(schema, mapping, it) }
         return Report(schema, mappedRows, sources, destination)
     }
@@ -64,11 +64,11 @@ object CsvConverter {
         }.writeAll(allRows, output)
     }
 
-    private fun buildMappingForReading(schema: Schema, row: Map<String, String>): Mapping {
+    private fun buildMappingForReading(metadata: Metadata, schema: Schema, row: Map<String, String>): CsvMapping {
         val expectedHeaders = schema.csvFields.map { it.name }.toSet()
         val actualHeaders = row.keys.toSet()
         val missingHeaders = expectedHeaders.minus(actualHeaders)
-        if (missingHeaders.size > 0) {
+        if (missingHeaders.isNotEmpty()) {
             error("CSV is missing headers for: ${missingHeaders.joinToString(", ")}")
         }
         val useCsv = schema
@@ -79,18 +79,14 @@ object CsvConverter {
         val useMapper = schema
             .elements
             .filter { it.mapper?.isNotBlank() == true }
-            .map {
-                val (name, args) = Mappers.parseMapperField(it.mapper!!)
-                val mapper = Metadata.findMapper(name)
-                    ?: error("Schema Error: ${schema.name} mapper $name is not found")
-                it.name to Pair(mapper, args)
-            }.toMap()
+            .map { it.name to Pair(it.mapperRef!!, it.mapperArgs!!) }
+            .toMap()
         val useDefault = schema
             .elements
             .filter { it.default?.isNotBlank() == true }
             .map { it.name to it.default!! }
             .toMap()
-        return Mapping(useCsv, useMapper, useDefault)
+        return CsvMapping(useCsv, useMapper, useDefault)
     }
 
     /**
@@ -101,7 +97,7 @@ object CsvConverter {
      *
      * Also, format values into the normalized format for the type
      */
-    private fun mapRow(schema: Schema, mapping: Mapping, inputRow: Map<String, String>): List<String> {
+    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>): List<String> {
         val lookupValues = mutableMapOf<String, String>()
 
         return schema.elements.map { element ->
@@ -111,13 +107,13 @@ object CsvConverter {
             }
 
             when (element.name) {
-                in mapping.useCsv -> {
-                    val csvField = mapping.useCsv.getValue(element.name)
+                in csvMapping.useCsv -> {
+                    val csvField = csvMapping.useCsv.getValue(element.name)
                     val value = inputRow.getValue(csvField.name)
                     addToLookup(element.toNormalized(value, csvField.format))
                 }
-                in mapping.useMapper -> {
-                    val (mapper, args) = mapping.useMapper.getValue(element.name)
+                in csvMapping.useMapper -> {
+                    val (mapper, args) = csvMapping.useMapper.getValue(element.name)
                     val valueNames = mapper.valueNames(element, args)
                     val mapperValues = valueNames.map { elementName ->
                         val valueElement = schema.findElement(elementName)
@@ -128,11 +124,11 @@ object CsvConverter {
                     }
                     addToLookup(mapper.apply(element, args, mapperValues) ?: element.default ?: "")
                 }
-                in mapping.useDefault -> {
-                    addToLookup(mapping.useDefault.getValue(element.name))
+                in csvMapping.useDefault -> {
+                    addToLookup(csvMapping.useDefault.getValue(element.name))
                 }
                 else -> {
-                    error("Schema Error: '${schema.name}' element '${element.name}' does not have a value")
+                    error("Translate Error: '${schema.name}' element '${element.name}' does not have a value")
                 }
             }
         }

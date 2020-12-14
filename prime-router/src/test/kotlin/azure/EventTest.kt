@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.Azure
+package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ReceiverEvent

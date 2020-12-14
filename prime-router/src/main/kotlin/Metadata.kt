@@ -9,24 +9,10 @@ import java.io.FilenameFilter
 import java.io.InputStream
 
 /**
- * The metadata object is a singleton representing all metadata loaded for MappableTables
+ * A metadata object contains all the metadata including schemas, tables, valuesets, and organizations.
  */
-object Metadata {
-    private const val schemaExtension = ".schema"
-    private const val valueSetExtension = ".valuesets"
-    private const val tableExtension = ".csv"
-    private const val defaultMetadataDirectory = "./metadata"
-    private const val schemasSubdirectory = "schemas"
-    private const val valuesetsSubdirectory = "valuesets"
-    private const val tableSubdirectory = "tables"
-
-    private val PRIME_ENVIRONMENT = System.getenv("PRIME_ENVIRONMENT") ?: ""
-
-    private val ext = if (PRIME_ENVIRONMENT.isNotEmpty()) "-" + PRIME_ENVIRONMENT else PRIME_ENVIRONMENT
-
-    private val organizationsList = "organizations$ext.yml"
-
-    private var schemas = mapOf<String, Schema>()
+class Metadata {
+    private var schemaStore = mapOf<String, Schema>()
     private var mappers = listOf(
         MiddleInitialMapper(),
         UseMapper(),
@@ -48,36 +34,64 @@ object Metadata {
     private var organizationClientStore: List<OrganizationClient> = ArrayList()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
-    fun loadAll(metadataPath: String? = null) {
-        val metadataDir = File(metadataPath ?: defaultMetadataDirectory)
+    /**
+     * Load all parts of the metadata catalog from a directory and its sub-directories
+     */
+    constructor(metadataPath: String, orgExt: String? = null) {
+        val organizationsFilename = "$organizationsBaseName${orgExt ?: ""}.yml"
+        val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
-        loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
-        loadOrganizationList(metadataDir.toPath().resolve(organizationsList).toString())
+        loadOrganizations(metadataDir.toPath().resolve(organizationsFilename).toString())
         loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
+        loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
     }
 
-    // lets us print out the list of loaded modules that are available to generate documentation for
-    fun listAll() {
-        println("Loaded schemas: ")
-        schemas.forEach { (name, _) ->
-            println(name)
-        }
+    /**
+     * Useful for test versions of the metadata catalog
+     */
+    constructor(
+        schema: Schema? = null,
+        valueSet: ValueSet? = null,
+        tableName: String? = null,
+        table: LookupTable? = null,
+        organization: Organization? = null,
+    ) {
+        valueSet?.let { loadValueSets(it) }
+        table?.let { loadLookupTable(tableName ?: "", it) }
+        organization?.let { loadOrganizations(it) }
+        schema?.let { loadSchemas(it) }
     }
 
     /*
      * Schema
      */
+    val schemas: Collection<Schema> get() = schemaStore.values
 
     // Load the schema catalog either from the default location or from the passed location
-    fun loadSchemaCatalog(catalog: String) {
+    fun loadSchemaCatalog(catalog: String): Metadata {
         val catalogDir = File(catalog)
         if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
         try {
-            loadSchemas(readAllSchemas(catalogDir, ""))
+            return loadSchemaList(readAllSchemas(catalogDir, ""))
         } catch (e: Exception) {
             throw Exception("Error loading schema catalog: $catalog", e)
         }
+    }
+
+    fun loadSchemas(vararg schemas: Schema): Metadata {
+        return loadSchemaList(schemas.toList())
+    }
+
+    fun loadSchemaList(schemas: List<Schema>): Metadata {
+        this.schemaStore = fixupSchemas(schemas)
+            .map { normalizeSchemaName(it.name) to it }
+            .toMap()
+        return this
+    }
+
+    fun findSchema(name: String): Schema? {
+        return schemaStore[normalizeSchemaName(name)]
     }
 
     private fun readAllSchemas(catalogDir: File, dirRelPath: String): List<Schema> {
@@ -111,44 +125,112 @@ object Metadata {
         }
     }
 
-    fun loadSchemas(schemas: List<Schema>) {
-        this.schemas = fixupSchemas(schemas).map { normalizeSchemaName(it.name) to it }.toMap()
-    }
-
     private fun fixupSchemas(schemas: List<Schema>): List<Schema> {
         return schemas.map { schema ->
-            if (schema.extends == null && schema.basedOn == null) return@map schema
-
             // find the base schema
-            val baseSchema = schemas.find {
-                val basedOnSchema = schema.extends ?: schema.basedOn ?: ""
-                normalizeSchemaName(it.name) == normalizeSchemaName(basedOnSchema)
-            } ?: error("'basedOn/extends schema does not exist for '${schema.name}'")
+            val extendsSchema = schema.extends?.let { extendSchemaName ->
+                schemas.find {
+                    normalizeSchemaName(it.name) == normalizeSchemaName(extendSchemaName)
+                } ?: error("extends schema does not exist for '${schema.name}'")
+            }
+            val basedOnSchema = schema.basedOn?.let { basedOnSchemaName ->
+                schemas.find {
+                    normalizeSchemaName(it.name) == normalizeSchemaName(basedOnSchemaName)
+                } ?: error("basedOn schema does not exist for '${schema.name}'")
+            }
+            val baseSchema = extendsSchema ?: basedOnSchema
 
             // Inherit properties from the base schema
             var schemaElements = schema.elements.map { element ->
-                baseSchema.findElement(element.name)
-                    ?.let { element.inheritFrom(it) }
-                    ?: element
+                baseSchema?.findElement(element.name)
+                    ?.let { fixupElement(element, it) }
+                    ?: fixupElement(element)
             }
 
             // Extend the schema if there is a extend element
-            schema.extends?.let {
-                val baseElements = baseSchema.elements.mapNotNull { element ->
-                    if (schema.containsElement(element.name)) null else element
+            extendsSchema?.let {
+                val extendElements = it.elements.mapNotNull { element ->
+                    if (schema.containsElement(element.name)) null else fixupElement(element)
                 }
-                schemaElements = schemaElements.plus(baseElements)
+                schemaElements = schemaElements.plus(extendElements)
             }
-            schema.copy(elements = schemaElements)
+            schema.copy(elements = schemaElements, basedOnRef = basedOnSchema, extendsRef = extendsSchema)
         }
-    }
-
-    fun findSchema(name: String): Schema? {
-        return schemas[normalizeSchemaName(name)]
     }
 
     private fun normalizeSchemaName(name: String): String {
         return name.toLowerCase()
+    }
+
+    private fun fixupElement(element: Element, baseElement: Element): Element {
+        val valueSet = element.valueSet ?: baseElement.valueSet
+        val valueSetRef = valueSet?.let {
+            findValueSet(it)
+                ?: error("Schema Error: '$valueSet' is missing in element '{$element.name}'")
+        }
+        val table = element.table ?: baseElement.table
+        val tableRef = table?.let {
+            findLookupTable(it)
+                ?: error("Schema Error: '$table' is missing in element '{$element.name}'")
+        }
+        val mapper = element.mapper ?: baseElement.mapper
+        val refAndArgs: Pair<Mapper, List<String>>? = mapper?.let {
+            val (name, args) = Mappers.parseMapperField(it)
+            val ref: Mapper = findMapper(name)
+                ?: error("Schema Error: Could not find mapper '$name' in element '{$element.name}'")
+            Pair(ref, args)
+        }
+        return Element(
+            name = element.name,
+            type = element.type ?: baseElement.type,
+            valueSet = valueSet,
+            valueSetRef = valueSetRef,
+            altValues = element.altValues ?: baseElement.altValues,
+            table = table,
+            tableRef = tableRef,
+            tableColumn = element.tableColumn ?: baseElement.tableColumn,
+            required = element.required ?: baseElement.required,
+            pii = element.pii ?: baseElement.pii,
+            phi = element.phi ?: baseElement.phi,
+            mapper = mapper,
+            mapperRef = refAndArgs?.first,
+            mapperArgs = refAndArgs?.second,
+            default = element.default ?: baseElement.default,
+            reference = element.reference ?: baseElement.reference,
+            referenceUrl = element.referenceUrl ?: baseElement.referenceUrl,
+            hhsGuidanceField = element.hhsGuidanceField ?: baseElement.hhsGuidanceField,
+            uscdiField = element.uscdiField ?: baseElement.uscdiField,
+            natFlatFileField = element.natFlatFileField ?: baseElement.natFlatFileField,
+            hl7Field = element.hl7Field ?: baseElement.hl7Field,
+            hl7OutputFields = element.hl7OutputFields ?: baseElement.hl7OutputFields,
+            hl7AOEQuestion = element.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
+            documentation = element.documentation ?: baseElement.documentation,
+            csvFields = element.csvFields ?: baseElement.csvFields,
+        )
+    }
+
+    private fun fixupElement(element: Element): Element {
+        val valueSetRef = element.valueSet?.let {
+            findValueSet(it)
+                ?: error("Schema Error: ValueSet '$it' is missing in element '{$element.name}'")
+        }
+        val tableRef = element.table?.let {
+            findLookupTable(it)
+                ?: error("Schema Error: Table '$it' is missing in element '{$element.name}'")
+        }
+        val refAndArgs: Pair<Mapper, List<String>>? = element.mapper?.let {
+            val (name, args) = Mappers.parseMapperField(it)
+            val ref: Mapper = findMapper(name)
+                ?: error("Schema Error: Could not find mapper '$name' in element '{$element.name}'")
+            Pair(ref, args)
+        }
+
+        return element.copy(
+            valueSetRef = valueSetRef,
+            tableRef = tableRef,
+            mapperRef = refAndArgs?.first,
+            mapperArgs = refAndArgs?.second,
+        )
     }
 
     /*
@@ -171,18 +253,23 @@ object Metadata {
       * ValueSet
       */
 
-    fun loadValueSetCatalog(catalog: String) {
+    fun loadValueSetCatalog(catalog: String): Metadata {
         val catalogDir = File(catalog)
         if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
         try {
-            loadValueSets(readAllValueSets(catalogDir))
+            return loadValueSetList(readAllValueSets(catalogDir))
         } catch (e: Exception) {
             throw Exception("Error loading $catalog", e)
         }
     }
 
-    fun loadValueSets(sets: List<ValueSet>) {
+    fun loadValueSets(vararg sets: ValueSet): Metadata {
+        return loadValueSetList(sets.toList())
+    }
+
+    fun loadValueSetList(sets: List<ValueSet>): Metadata {
         this.valueSets = sets.map { normalizeValueSetName(it.name) to it }.toMap()
+        return this
     }
 
     fun findValueSet(name: String): ValueSet? {
@@ -216,20 +303,24 @@ object Metadata {
     val organizationClients get() = this.organizationClientStore
     val organizationServices get() = this.organizationServiceStore
 
-    fun loadOrganizationList(filePath: String) {
+    fun loadOrganizations(filePath: String): Metadata {
         try {
-            loadOrganizationList(File(filePath).inputStream())
+            return loadOrganizations(File(filePath).inputStream())
         } catch (e: Exception) {
             throw Exception("Error loading: $filePath", e)
         }
     }
 
-    fun loadOrganizationList(organizationStream: InputStream) {
+    fun loadOrganizations(organizationStream: InputStream): Metadata {
         val list = mapper.readValue<List<Organization>>(organizationStream)
-        loadOrganizations(list)
+        return loadOrganizationList(list)
     }
 
-    fun loadOrganizations(organizations: List<Organization>) {
+    fun loadOrganizations(vararg organizations: Organization): Metadata {
+        return loadOrganizationList(organizations.toList())
+    }
+
+    fun loadOrganizationList(organizations: List<Organization>): Metadata {
         this.organizationStore = organizations
         this.organizationClientStore = organizations.flatMap { it.clients }
         this.organizationServiceStore = organizations.flatMap { it.services }
@@ -240,6 +331,7 @@ object Metadata {
                     error("Internal Error: improper batch value for ${service.fullName}")
             }
         }
+        return this
     }
 
     fun findOrganization(name: String): Organization? {
@@ -280,29 +372,31 @@ object Metadata {
     var lookupTableStore = mapOf<String, LookupTable>()
     val lookupTables get() = lookupTableStore
 
-    fun loadLookupTables(filePath: String) {
+    fun loadLookupTables(filePath: String): Metadata {
         val catalogDir = File(filePath)
         if (!catalogDir.isDirectory) error("Expected ${catalogDir.absolutePath} to be a directory")
         try {
             readAllTables(catalogDir) { tableName: String, table: LookupTable ->
-                addLookupTable(tableName, table)
+                loadLookupTable(tableName, table)
             }
+            return this
         } catch (e: Exception) {
             throw Exception("Error loading tables in '$filePath'", e)
         }
     }
 
+    fun loadLookupTable(name: String, table: LookupTable): Metadata {
+        lookupTableStore = lookupTableStore.plus(name.toLowerCase() to table)
+        return this
+    }
+
+    fun loadLookupTable(name: String, tableStream: InputStream): Metadata {
+        val table = LookupTable.read(tableStream)
+        return loadLookupTable(name, table)
+    }
+
     fun findLookupTable(name: String): LookupTable? {
         return lookupTableStore[name.toLowerCase()]
-    }
-
-    fun addLookupTable(name: String, table: LookupTable) {
-        lookupTableStore = lookupTableStore.plus(name.toLowerCase() to table)
-    }
-
-    fun addLookupTable(name: String, tableStream: InputStream) {
-        val table = LookupTable.read(tableStream)
-        addLookupTable(name, table)
     }
 
     private fun readAllTables(catalogDir: File, block: (String, LookupTable) -> Unit) {
@@ -313,5 +407,94 @@ object Metadata {
             val name = file.nameWithoutExtension
             block(name, table)
         }
+    }
+
+    /*
+     * Mapping operations
+     */
+    fun mapByServices(input: Report): List<Report> {
+        return organizationServices.map { service -> mapByService(input, service) }
+    }
+
+    fun filterAndMapByService(input: Report): List<Pair<Report, OrganizationService>> {
+        if (input.isEmpty()) return emptyList()
+        return organizationServices.filter { service ->
+            service.topic == input.schema.topic
+        }.mapNotNull { service ->
+            val mappedReport = mapByService(input, service)
+            if (mappedReport.itemCount == 0) return@mapNotNull null
+            Pair(mappedReport, service)
+        }
+    }
+
+    private fun mapByService(input: Report, receiver: OrganizationService): Report {
+        // Filter according to receiver patterns
+        val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
+            val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
+            val filterFn = findJurisdictionalFilter(fnName)
+                ?: error("JurisdictionalFilter $fnName is not found")
+            Pair(filterFn, fnArgs)
+        }
+        val filteredReport = input.filter(filterAndArgs)
+
+        // Apply mapping to change schema
+        val toReport: Report = if (receiver.schema != filteredReport.schema.name) {
+            val toSchema = findSchema(receiver.schema)
+                ?: error("${receiver.schema} schema is missing from catalog")
+            val mapping = buildMapping(toSchema, filteredReport.schema)
+            filteredReport.applyMapping(mapping)
+        } else {
+            filteredReport
+        }
+
+        // Transform reports
+        var transformed = toReport
+        receiver.transforms.forEach { (transform, transformValue) ->
+            when (transform) {
+                "deidentify" -> if (transformValue == "true") {
+                    transformed = transformed.deidentify()
+                }
+            }
+        }
+        return transformed.copy(destination = receiver)
+    }
+
+    fun buildMapping(toSchema: Schema, fromSchema: Schema): Schema.Mapping {
+        if (toSchema.topic != fromSchema.topic) error("Trying to match schema with different topics")
+
+        val useDirectly = mutableMapOf<String, String>()
+        val useValueSet: MutableMap<String, String> = mutableMapOf()
+        val useMapper = mutableMapOf<String, Mapper>()
+        val useDefault = mutableSetOf<String>()
+        val missing = mutableSetOf<String>()
+
+        toSchema.elements.forEach { toElement ->
+            fromSchema.findElement(toElement.name)?.let { matchedElement ->
+                useDirectly[toElement.name] = matchedElement.name
+                return@forEach
+            }
+            toElement.mapper?.let {
+                val name = Mappers.parseMapperField(it).first
+                useMapper[toElement.name] = findMapper(name) ?: error("Mapper $name is not found")
+                return@forEach
+            }
+            if (toElement.required == true) {
+                missing.add(toElement.name)
+            } else {
+                useDefault.add(toElement.name)
+            }
+        }
+        return Schema.Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)
+    }
+
+    companion object {
+        const val schemaExtension = ".schema"
+        const val valueSetExtension = ".valuesets"
+        const val tableExtension = ".csv"
+        const val defaultMetadataDirectory = "./metadata"
+        const val schemasSubdirectory = "schemas"
+        const val valuesetsSubdirectory = "valuesets"
+        const val tableSubdirectory = "tables"
+        const val organizationsBaseName = "organizations"
     }
 }

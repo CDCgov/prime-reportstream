@@ -40,7 +40,9 @@ data class Schema(
     val description: String? = null,
     val referenceUrl: String? = null,
     val extends: String? = null,
+    val extendsRef: Schema? = null,
     val basedOn: String? = null,
+    val basedOnRef: Schema? = null,
 ) {
     val baseName: String get() = formBaseName(name)
     val csvFields: List<Element.CsvField> get() = elements.flatMap { it.csvFields ?: emptyList() }
@@ -63,38 +65,6 @@ data class Schema(
 
     fun containsElement(name: String): Boolean {
         return elementIndex[name] != null
-    }
-
-    fun buildMapping(toSchema: Schema): Mapping {
-        if (toSchema.topic != this.topic) error("Trying to match schema with different topics")
-
-        val useDirectly = mutableMapOf<String, String>()
-        val useValueSet: MutableMap<String, String> = mutableMapOf<String, String>()
-        val useMapper = mutableMapOf<String, Mapper>()
-        val useDefault = mutableSetOf<String>()
-        val missing = mutableSetOf<String>()
-
-        toSchema.elements.forEach { toElement ->
-            findMatchingElement(toElement)?.let {
-                useDirectly[toElement.name] = it
-                return@forEach
-            }
-            toElement.mapper?.let {
-                val name = Mappers.parseMapperField(it).first
-                useMapper[toElement.name] = Metadata.findMapper(name) ?: error("Mapper $name is not found")
-                return@forEach
-            }
-            if (toElement.required == true) {
-                missing.add(toElement.name)
-            } else {
-                useDefault.add(toElement.name)
-            }
-        }
-        return Mapping(toSchema, this, useDirectly, useValueSet, useMapper, useDefault, missing)
-    }
-
-    private fun findMatchingElement(matchElement: Element): String? {
-        return findElement(matchElement.name)?.name
     }
 
     companion object {

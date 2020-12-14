@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 class ReportTests {
     @Test
@@ -20,9 +21,11 @@ class ReportTests {
     @Test
     fun `test filter`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         assertEquals(2, report1.itemCount)
-        val filteredReport = report1.filter(listOf("matches(a, 1)"))
+        val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "1"))))
         assertEquals(one, filteredReport.schema)
         assertEquals(1, filteredReport.itemCount)
         assertEquals("2", filteredReport.getString(0, "b"))
@@ -51,10 +54,12 @@ class ReportTests {
     fun `test applyMapping`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
+        val metadata = Metadata()
+        metadata.loadSchemas(one, two)
 
         val oneReport = Report(schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")), TestSource)
         assertEquals(2, oneReport.itemCount)
-        val mappingOneToTwo = one.buildMapping(toSchema = two)
+        val mappingOneToTwo = metadata.buildMapping(fromSchema = one, toSchema = two)
 
         val twoTable = oneReport.applyMapping(mappingOneToTwo)
         assertEquals(2, twoTable.itemCount)
@@ -69,10 +74,12 @@ class ReportTests {
             elements = listOf(Element("a", default = "~"), Element("b"))
         )
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("b")))
+        val metadata = Metadata()
+        metadata.loadSchemas(one, two)
 
         val twoReport = Report(schema = two, values = listOf(listOf("b1"), listOf("b2")), source = TestSource)
         assertEquals(2, twoReport.itemCount)
-        val mappingTwoToOne = two.buildMapping(toSchema = one)
+        val mappingTwoToOne = metadata.buildMapping(fromSchema = two, toSchema = one)
 
         val oneReport = twoReport.applyMapping(mappingTwoToOne)
         assertEquals(2, oneReport.itemCount)

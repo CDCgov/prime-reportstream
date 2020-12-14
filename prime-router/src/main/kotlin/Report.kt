@@ -137,12 +137,9 @@ class Report {
         }
     }
 
-    fun filter(filterFunctions: List<String>): Report {
+    fun filter(filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>): Report {
         val combinedSelection = Selection.withRange(0, table.rowCount())
-        filterFunctions.forEach { function ->
-            val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(function)
-            val filterFn =
-                Metadata.findJurisdictionalFilter(fnName) ?: error("JurisdictionalFilter $fnName is not found")
+        filterFunctions.forEach { (filterFn, fnArgs) ->
             val filterFnSelection = filterFn.getSelection(fnArgs, table)
             combinedSelection.and(filterFnSelection)
         }

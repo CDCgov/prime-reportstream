@@ -26,13 +26,11 @@ class SendFunction {
     ) {
         try {
             context.logger.info("Started Send Function: $message")
-            val baseDir = System.getenv("AzureWebJobsScriptRoot")
-            Metadata.loadAll("$baseDir/metadata")
             val workflowEngine = WorkflowEngine()
 
             val event = Event.parse(message) as ReportEvent
             workflowEngine.handleReportEvent(event) { header, _ ->
-                val service = Metadata.findService(header.task.receiverName)
+                val service = workflowEngine.metadata.findService(header.task.receiverName)
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
 
                 val content = workflowEngine.readBody(header)

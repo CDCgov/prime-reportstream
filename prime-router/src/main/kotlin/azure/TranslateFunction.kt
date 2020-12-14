@@ -4,8 +4,6 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import org.jooq.Configuration
 import java.util.logging.Level
@@ -25,8 +23,6 @@ class TranslateFunction {
     ) {
         try {
             context.logger.info("Translate message: $message")
-            val baseDir = System.getenv("AzureWebJobsScriptRoot")
-            Metadata.loadAll("$baseDir/metadata")
             val workflowEngine = WorkflowEngine()
 
             val event = Event.parse(message) as ReportEvent
@@ -56,8 +52,9 @@ class TranslateFunction {
         txn: Configuration,
         context: ExecutionContext,
     ): Int {
-        return OrganizationService
-            .filterAndMapByService(parentReport, Metadata.organizationServices)
+        return workflowEngine
+            .metadata
+            .filterAndMapByService(parentReport)
             .map { (report, service) ->
                 val event = if (service.batch == null) {
                     ReportEvent(Event.Action.SEND, report.id)
