@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class MetadataTests {

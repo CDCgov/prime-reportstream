@@ -162,70 +162,29 @@ class Metadata {
         return name.toLowerCase()
     }
 
-    private fun fixupElement(element: Element, baseElement: Element): Element {
-        val valueSet = element.valueSet ?: baseElement.valueSet
+    /**
+     * The fixup process fills in references and inherited attributes.
+     */
+    private fun fixupElement(element: Element, baseElement: Element? = null): Element {
+        val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
             findValueSet(it)
                 ?: error("Schema Error: '$valueSet' is missing in element '{$element.name}'")
         }
-        val table = element.table ?: baseElement.table
+        val table = element.table ?: baseElement?.table
         val tableRef = table?.let {
             findLookupTable(it)
                 ?: error("Schema Error: '$table' is missing in element '{$element.name}'")
         }
-        val mapper = element.mapper ?: baseElement.mapper
+        val mapper = element.mapper ?: baseElement?.mapper
         val refAndArgs: Pair<Mapper, List<String>>? = mapper?.let {
             val (name, args) = Mappers.parseMapperField(it)
             val ref: Mapper = findMapper(name)
                 ?: error("Schema Error: Could not find mapper '$name' in element '{$element.name}'")
             Pair(ref, args)
         }
-        return Element(
-            name = element.name,
-            type = element.type ?: baseElement.type,
-            valueSet = valueSet,
-            valueSetRef = valueSetRef,
-            altValues = element.altValues ?: baseElement.altValues,
-            table = table,
-            tableRef = tableRef,
-            tableColumn = element.tableColumn ?: baseElement.tableColumn,
-            required = element.required ?: baseElement.required,
-            pii = element.pii ?: baseElement.pii,
-            phi = element.phi ?: baseElement.phi,
-            mapper = mapper,
-            mapperRef = refAndArgs?.first,
-            mapperArgs = refAndArgs?.second,
-            default = element.default ?: baseElement.default,
-            reference = element.reference ?: baseElement.reference,
-            referenceUrl = element.referenceUrl ?: baseElement.referenceUrl,
-            hhsGuidanceField = element.hhsGuidanceField ?: baseElement.hhsGuidanceField,
-            uscdiField = element.uscdiField ?: baseElement.uscdiField,
-            natFlatFileField = element.natFlatFileField ?: baseElement.natFlatFileField,
-            hl7Field = element.hl7Field ?: baseElement.hl7Field,
-            hl7OutputFields = element.hl7OutputFields ?: baseElement.hl7OutputFields,
-            hl7AOEQuestion = element.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
-            documentation = element.documentation ?: baseElement.documentation,
-            csvFields = element.csvFields ?: baseElement.csvFields,
-        )
-    }
-
-    private fun fixupElement(element: Element): Element {
-        val valueSetRef = element.valueSet?.let {
-            findValueSet(it)
-                ?: error("Schema Error: ValueSet '$it' is missing in element '{$element.name}'")
-        }
-        val tableRef = element.table?.let {
-            findLookupTable(it)
-                ?: error("Schema Error: Table '$it' is missing in element '{$element.name}'")
-        }
-        val refAndArgs: Pair<Mapper, List<String>>? = element.mapper?.let {
-            val (name, args) = Mappers.parseMapperField(it)
-            val ref: Mapper = findMapper(name)
-                ?: error("Schema Error: Could not find mapper '$name' in element '{$element.name}'")
-            Pair(ref, args)
-        }
-
-        return element.copy(
+        val fullElement = if (baseElement != null) element.inheritFrom(baseElement) else element
+        return fullElement.copy(
             valueSetRef = valueSetRef,
             tableRef = tableRef,
             mapperRef = refAndArgs?.first,

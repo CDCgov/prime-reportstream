@@ -10,17 +10,20 @@ import java.io.ByteArrayInputStream
 
 /**
  * Methods to add a new report to the workflow pipeline and to handle a step in the pipeline.
+ * A new WorkflowEngine object should be created for every function call.
  *
  * @see gov.cdc.prime.router.Report
  * @see QueueAccess
  * @see DatabaseAccess.Header
  */
 class WorkflowEngine(
+    // Immutable objects can be shared between every function call
     val metadata: Metadata = WorkflowEngine.metadata,
-    val hl7Converter: Hl7Converter = Hl7Converter(metadata),
-    val csvConverter: CsvConverter = CsvConverter(metadata),
+    val hl7Converter: Hl7Converter = WorkflowEngine.hl7Converter,
+    val csvConverter: CsvConverter = WorkflowEngine.csvConverter,
     val translator: Translator = Translator(metadata),
-    val db: DatabaseAccess = DatabaseAccess(),
+    // New connection for every function
+    val db: DatabaseAccess = DatabaseAccess(connection = DatabaseAccess.getConnection()),
     val blob: BlobAccess = BlobAccess(csvConverter, hl7Converter),
     val queue: QueueAccess = QueueAccess(),
 ) {
@@ -110,13 +113,22 @@ class WorkflowEngine(
 
     companion object {
         /**
-         * The metadata a singleton that contains the metadata catalog that is only read in once
+         * These are all potentially heavy weight objects that
+         * should only be created once.
          */
         val metadata: Metadata by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
             val ext = primeEnv?.let { "-$it" } ?: ""
             Metadata("$baseDir/metadata", orgExt = ext)
+        }
+
+        val csvConverter: CsvConverter by lazy {
+            CsvConverter(metadata)
+        }
+
+        val hl7Converter: Hl7Converter by lazy {
+            Hl7Converter(metadata)
         }
     }
 }

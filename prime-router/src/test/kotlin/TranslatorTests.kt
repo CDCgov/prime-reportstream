@@ -1,8 +1,8 @@
 package gov.cdc.prime.router
 
 import java.io.ByteArrayInputStream
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class TranslatorTests {
     private val servicesYaml = """
