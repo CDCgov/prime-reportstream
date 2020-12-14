@@ -4,6 +4,7 @@ import gov.cdc.prime.router.CsvConverter
 import gov.cdc.prime.router.Hl7Converter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Translator
 import org.jooq.Configuration
 import java.io.ByteArrayInputStream
 
@@ -18,6 +19,7 @@ class WorkflowEngine(
     val metadata: Metadata = WorkflowEngine.metadata,
     val hl7Converter: Hl7Converter = Hl7Converter(metadata),
     val csvConverter: CsvConverter = CsvConverter(metadata),
+    val translator: Translator = Translator(metadata),
     val db: DatabaseAccess = DatabaseAccess(),
     val blob: BlobAccess = BlobAccess(csvConverter, hl7Converter),
     val queue: QueueAccess = QueueAccess(),

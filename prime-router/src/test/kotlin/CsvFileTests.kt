@@ -53,7 +53,7 @@ class CsvFileTests {
         // 1) Ingest the file
         val inputReport = csvConverter.read(schema, file.inputStream(), TestSource)
         // 2) Create transformed objects, according to the receiver table rules
-        val outputReports = metadata.mapByServices(inputReport)
+        val outputReports = Translator(metadata).translateByService(inputReport)
         assertEquals(2, outputReports.size)
         // 3) Write transformed objs to files, and check they are correct
 

@@ -48,17 +48,6 @@ data class Schema(
     val csvFields: List<Element.CsvField> get() = elements.flatMap { it.csvFields ?: emptyList() }
     private val elementIndex: Map<String, Int> = elements.mapIndexed { index, element -> element.name to index }.toMap()
 
-    // A mapping maps from one schema to another
-    data class Mapping(
-        val toSchema: Schema,
-        val fromSchema: Schema,
-        val useDirectly: Map<String, String>,
-        val useValueSet: Map<String, String>,
-        val useMapper: Map<String, Mapper>,
-        val useDefault: Set<String>,
-        val missing: Set<String>,
-    )
-
     fun findElement(name: String): Element? {
         return elementIndex[name]?.let { elements[it] }
     }
