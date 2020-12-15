@@ -24,12 +24,13 @@ class CsvConverter(val metadata: Metadata) {
         input: InputStream,
         sources: List<Source>,
         destination: OrganizationService? = null,
+        defaultValues: Map<String, String> = emptyMap(),
     ): Report {
         val rows: List<Map<String, String>> = csvReader().readAllWithHeader(input)
         if (rows.isEmpty()) {
             return Report(schema, emptyList(), sources, destination)
         }
-        val mapping = buildMappingForReading(metadata, schema, rows[0])
+        val mapping = buildMappingForReading(metadata, schema, defaultValues, rows[0])
         val mappedRows = rows.map { mapRow(schema, mapping, it) }
         return Report(schema, mappedRows, sources, destination)
     }
@@ -40,7 +41,7 @@ class CsvConverter(val metadata: Metadata) {
         fun buildHeader(): List<String> = schema.csvFields.map { it.name }
 
         fun buildRows(): List<List<String>> {
-            return report.rowIndices.map { row ->
+            return report.itemIndices.map { row ->
                 schema
                     .elements
                     .flatMap { element ->
@@ -64,7 +65,12 @@ class CsvConverter(val metadata: Metadata) {
         }.writeAll(allRows, output)
     }
 
-    private fun buildMappingForReading(metadata: Metadata, schema: Schema, row: Map<String, String>): CsvMapping {
+    private fun buildMappingForReading(
+        metadata: Metadata,
+        schema: Schema,
+        defaultValues: Map<String, String>,
+        row: Map<String, String>
+    ): CsvMapping {
         val expectedHeaders = schema.csvFields.map { it.name }.toSet()
         val actualHeaders = row.keys.toSet()
         val missingHeaders = expectedHeaders.minus(actualHeaders)
@@ -83,8 +89,8 @@ class CsvConverter(val metadata: Metadata) {
             .toMap()
         val useDefault = schema
             .elements
-            .filter { it.default?.isNotBlank() == true }
-            .map { it.name to it.default!! }
+            .filter { it.hasDefaultValue(defaultValues) }
+            .map { it.name to it.defaultValue(defaultValues) }
             .toMap()
         return CsvMapping(useCsv, useMapper, useDefault)
     }
@@ -110,7 +116,8 @@ class CsvConverter(val metadata: Metadata) {
                 in csvMapping.useCsv -> {
                     val csvField = csvMapping.useCsv.getValue(element.name)
                     val value = inputRow.getValue(csvField.name)
-                    addToLookup(element.toNormalized(value, csvField.format))
+                    val normalizedValue = element.toNormalized(value, csvField.format)
+                    addToLookup(normalizedValue)
                 }
                 in csvMapping.useMapper -> {
                     val (mapper, args) = csvMapping.useMapper.getValue(element.name)
@@ -122,10 +129,13 @@ class CsvConverter(val metadata: Metadata) {
                             ?: error("Internal Error: no lookup values for '$elementName' for mapper '${mapper.name}'")
                         ElementAndValue(valueElement, value)
                     }
-                    addToLookup(mapper.apply(element, args, mapperValues) ?: element.default ?: "")
+                    val value = mapper.apply(element, args, mapperValues)
+                        ?: csvMapping.useDefault.getOrDefault(element.name, "")
+                    addToLookup(value)
                 }
                 in csvMapping.useDefault -> {
-                    addToLookup(csvMapping.useDefault.getValue(element.name))
+                    val value = csvMapping.useDefault.getValue(element.name)
+                    addToLookup(value)
                 }
                 else -> {
                     error("Translate Error: '${schema.name}' element '${element.name}' does not have a value")

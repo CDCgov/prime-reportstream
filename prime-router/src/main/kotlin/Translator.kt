@@ -17,7 +17,7 @@ class Translator(private val metadata: Metadata) {
         val useDirectly: Map<String, String>,
         val useValueSet: Map<String, String>,
         val useMapper: Map<String, Mapper>,
-        val useDefault: Set<String>,
+        val useDefault: Map<String, String>,
         val missing: Set<String>,
     )
 
@@ -25,25 +25,25 @@ class Translator(private val metadata: Metadata) {
      * Translate this report by the list of services in metadata. One report for every service, reports
      * may be empty.
      */
-    fun translateByService(input: Report): List<Report> {
-        return metadata.organizationServices.map { service -> translateByService(input, service) }
+    fun translateByService(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
+        return metadata.organizationServices.map { service -> translateByService(input, service, defaultValues) }
     }
 
     /**
      * Translate and filter by the list of services in metadata. Only return reports that have items.
      */
-    fun filterAndTranslateByService(input: Report): List<Pair<Report, OrganizationService>> {
+    fun filterAndTranslateByService(input: Report, defaultValues: DefaultValues = emptyMap()): List<Pair<Report, OrganizationService>> {
         if (input.isEmpty()) return emptyList()
         return metadata.organizationServices.filter { service ->
             service.topic == input.schema.topic
         }.mapNotNull { service ->
-            val mappedReport = translateByService(input, service)
+            val mappedReport = translateByService(input, service, defaultValues)
             if (mappedReport.itemCount == 0) return@mapNotNull null
             Pair(mappedReport, service)
         }
     }
 
-    private fun translateByService(input: Report, receiver: OrganizationService): Report {
+    private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
             val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
@@ -57,7 +57,7 @@ class Translator(private val metadata: Metadata) {
         val toReport: Report = if (receiver.schema != filteredReport.schema.name) {
             val toSchema = metadata.findSchema(receiver.schema)
                 ?: error("${receiver.schema} schema is missing from catalog")
-            val mapping = buildMapping(toSchema, filteredReport.schema)
+            val mapping = buildMapping(toSchema, filteredReport.schema, defaultValues)
             filteredReport.applyMapping(mapping)
         } else {
             filteredReport
@@ -78,8 +78,8 @@ class Translator(private val metadata: Metadata) {
     /**
      * Translate one report to another schema. Translate all items.
      */
-    fun translate(input: Report, toSchema: Schema): Report {
-        val mapping = buildMapping(toSchema = toSchema, fromSchema = input.schema)
+    fun translate(input: Report, toSchema: Schema, defaultValues: DefaultValues): Report {
+        val mapping = buildMapping(toSchema = toSchema, fromSchema = input.schema, defaultValues)
         return input.applyMapping(mapping = mapping)
     }
 
@@ -87,13 +87,13 @@ class Translator(private val metadata: Metadata) {
      * Build the mapping that will translate a one schema to another. The mapping
      * can be used for multiple translations.
      */
-    fun buildMapping(toSchema: Schema, fromSchema: Schema): Mapping {
+    fun buildMapping(toSchema: Schema, fromSchema: Schema, defaultValues: DefaultValues): Mapping {
         if (toSchema.topic != fromSchema.topic) error("Trying to match schema with different topics")
 
         val useDirectly = mutableMapOf<String, String>()
         val useValueSet: MutableMap<String, String> = mutableMapOf()
         val useMapper = mutableMapOf<String, Mapper>()
-        val useDefault = mutableSetOf<String>()
+        val useDefault = mutableMapOf<String, String>()
         val missing = mutableSetOf<String>()
 
         toSchema.elements.forEach { toElement ->
@@ -109,7 +109,7 @@ class Translator(private val metadata: Metadata) {
             if (toElement.required == true) {
                 missing.add(toElement.name)
             } else {
-                useDefault.add(toElement.name)
+                useDefault[toElement.name] = toElement.defaultValue(defaultValues)
             }
         }
         return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)

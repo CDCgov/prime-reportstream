@@ -27,7 +27,7 @@ class TranslatorTests {
         val metadata = Metadata().loadSchemas(one, two)
         val translator = Translator(metadata)
 
-        val oneToTwo = translator.buildMapping(fromSchema = one, toSchema = two)
+        val oneToTwo = translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
         assertEquals(one, oneToTwo.fromSchema)
         assertEquals(two, oneToTwo.toSchema)
         assertEquals(1, oneToTwo.useDirectly.size)
@@ -35,11 +35,23 @@ class TranslatorTests {
         assertEquals(true, oneToTwo.useDefault.contains("b"))
         assertEquals(0, oneToTwo.missing.size)
 
-        val twoToOne = translator.buildMapping(fromSchema = two, toSchema = one)
+        val twoToOne = translator.buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap())
         assertEquals(1, twoToOne.useDirectly.size)
         assertEquals("a", twoToOne.useDirectly["a"])
         assertEquals(0, twoToOne.useDefault.size)
         assertEquals(0, twoToOne.missing.size)
+    }
+
+    @Test
+    fun `test buildMapping with default`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
+        val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b", default = "x")))
+        val metadata = Metadata().loadSchemas(one, two)
+        val translator = Translator(metadata)
+
+        val oneToTwo = translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = mapOf("b" to "foo"))
+        assertEquals(true, oneToTwo.useDefault.contains("b"))
+        assertEquals("foo", oneToTwo.useDefault["b"])
     }
 
     @Test
@@ -53,7 +65,7 @@ class TranslatorTests {
         val metadata = Metadata().loadSchemas(one, three)
         val translator = Translator(metadata)
 
-        val oneToThree = translator.buildMapping(fromSchema = one, toSchema = three)
+        val oneToThree = translator.buildMapping(fromSchema = one, toSchema = three, defaultValues = emptyMap())
         assertEquals(1, oneToThree.useDirectly.size)
         assertEquals("a", oneToThree.useDirectly["a"])
         assertEquals(0, oneToThree.useDefault.size)

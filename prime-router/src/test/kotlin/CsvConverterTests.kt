@@ -30,6 +30,55 @@ class CsvConverterTests {
     }
 
     @Test
+    fun `test read from csv with defaults`() {
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a")),
+                Element("b", csvFields = Element.csvFields("b")),
+                Element("c", default = "elementDefault")
+            )
+        )
+        val csv = """
+            a,b
+            1,2
+        """.trimIndent()
+
+        val csvConverter = CsvConverter(Metadata(schema = one))
+        val report = csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertEquals(1, report.itemCount)
+        assertEquals("elementDefault", report.getString(0, "c"))
+    }
+
+    @Test
+    fun `test read from csv with dynamic defaults`() {
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a")),
+                Element("b", csvFields = Element.csvFields("b")),
+                Element("c", default = "elementDefault")
+            )
+        )
+        val csv = """
+            a,b
+            1,2
+        """.trimIndent()
+
+        val csvConverter = CsvConverter(Metadata(schema = one))
+        val report = csvConverter.read(
+            one,
+            ByteArrayInputStream(csv.toByteArray()),
+            listOf(TestSource),
+            defaultValues = mapOf("c" to "dynamicDefault")
+        )
+        assertEquals(1, report.itemCount)
+        assertEquals("dynamicDefault", report.getString(0, "c"))
+    }
+
+    @Test
     fun `test read with different csvField name`() {
         val one = Schema(
             name = "one",

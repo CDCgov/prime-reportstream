@@ -14,19 +14,54 @@ import java.util.UUID
 typealias ReportId = UUID
 
 /**
+ * Default values for elements to use when creating reports
+ */
+typealias DefaultValues = Map<String, String>
+
+/**
  * The report represents the report from one agent-organization, and which is
  * translated and sent to another agent-organization. Each report has a schema,
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report {
+    /**
+     * the UUID for the report
+     */
     val id: ReportId
+
+    /**
+     * The schema of the data in the resport
+     */
     val schema: Schema
+
+    /**
+     * The sources that generated this service
+     */
     val sources: List<Source>
+
+    /**
+     * The intended destination service for this report
+     */
     val destination: OrganizationService?
+
+    /**
+     * The time when the report was created
+     */
     val createdDateTime: OffsetDateTime
 
+    /**
+     * The number of items in the report
+     */
     val itemCount: Int get() = this.table.rowCount()
-    val rowIndices: IntRange get() = 0 until this.table.rowCount()
+
+    /**
+     * A range of item index for this report
+     */
+    val itemIndices: IntRange get() = 0 until this.table.rowCount()
+
+    /**
+     * A standard name for this report that take schema, id, and destination into account
+     */
     val name: String get() = formFileName(id, schema.baseName, destination?.format, createdDateTime)
 
     // The use of a TableSaw is an implementation detail hidden by this class
@@ -150,7 +185,7 @@ class Report {
     fun deidentify(): Report {
         val columns = schema.elements.map {
             if (it.pii == true) {
-                createDefaultColumn(it)
+                createDefaultColumn(it, "")
             } else {
                 table.column(it.name).copy()
             }
@@ -173,14 +208,14 @@ class Report {
                 createMappedColumn(toElement, mapping.useMapper.getValue(toElement.name))
             }
             in mapping.useDefault -> {
-                createDefaultColumn(toElement)
+                createDefaultColumn(toElement, mapping.useDefault.getValue(toElement.name))
             }
             else -> error("missing mapping for element: ${toElement.name}")
         }
     }
 
-    private fun createDefaultColumn(element: Element): StringColumn {
-        val defaultValues = Array(table.rowCount()) { element.default ?: "" }
+    private fun createDefaultColumn(element: Element, defaultValue: String): StringColumn {
+        val defaultValues = Array(table.rowCount()) { defaultValue }
         return StringColumn.create(element.name, defaultValues.asList())
     }
 

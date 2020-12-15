@@ -172,7 +172,7 @@ class RouterCli : CliktCommand(
                         .map { it.first to it.second.format }
                 outputSchema != null -> {
                     val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
-                    val mapping = translator.buildMapping(toSchema, inputReport.schema)
+                    val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())
                     val toReport = inputReport.applyMapping(mapping)
                     listOf(Pair(toReport, outputFormat))
                 }

@@ -150,6 +150,19 @@ data class Element(
     }
 
     /**
+     * Is there a default value for this element?
+     *
+     * @param defaultValues a dynamic set of default values to use
+     */
+    fun hasDefaultValue(defaultValues: DefaultValues): Boolean {
+        return defaultValues.containsKey(name) || default?.isNotBlank() == true
+    }
+
+    fun defaultValue(defaultValues: DefaultValues): String {
+        return defaultValues.getOrDefault(name, default ?: "")
+    }
+
+    /**
      * A formatted string is the Element's normalized value formatted using the format string passed in
      * The format string's value is specific to the type of the element.
      */

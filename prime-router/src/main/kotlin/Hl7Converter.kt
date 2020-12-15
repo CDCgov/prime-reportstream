@@ -32,7 +32,7 @@ class Hl7Converter(val metadata: Metadata) {
         // these segments by hand
         //
         outputStream.write(createHeaders(report).toByteArray())
-        report.rowIndices.map {
+        report.itemIndices.map {
             val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
         }
