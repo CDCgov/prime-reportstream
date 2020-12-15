@@ -107,13 +107,19 @@ data class Element(
         val format: String?,
     )
 
+    data class HDFields(
+        val name: String,
+        val universalId: String?,
+        val universalIdSystem: String?
+    )
+
     val isCodeType get() = this.type == Type.CODE
 
     fun nameContains(substring: String): Boolean {
         return name.contains(substring, ignoreCase = true)
     }
 
-    fun extendFrom(baseElement: Element): Element {
+    fun inheritFrom(baseElement: Element): Element {
         return Element(
             name = this.name,
             type = this.type ?: baseElement.type,
@@ -223,6 +229,16 @@ data class Element(
                     else -> normalizedValue
                 }
             }
+            Type.HD -> {
+                val hdFields = parseHD(normalizedValue)
+                when (format) {
+                    null,
+                    hdNameToken -> hdFields.name
+                    hdUniversalIdToken -> hdFields.universalId ?: ""
+                    hdSystemToken -> hdFields.universalIdSystem ?: ""
+                    else -> error("Schema Error: unsupported format for output: '$format' in '$name'")
+                }
+            }
             else -> normalizedValue
         }
     }
@@ -309,6 +325,13 @@ data class Element(
                     error("Input Error: invalid postal code '$formattedValue'")
                 formattedValue.replace(" ", "")
             }
+            Type.HD -> {
+                when (format) {
+                    null,
+                    hdNameToken -> formattedValue
+                    else -> error("Schema Error: unsupported format for input: '$format' in '$name'")
+                }
+            }
             else -> formattedValue
         }
     }
@@ -341,6 +364,10 @@ data class Element(
         const val extensionToken = "\$extension"
         const val defaultPhoneFormat = "\$area\$exchange\$subscriber"
         const val phoneDelimiter = ":"
+        const val hdDelimiter = "&"
+        const val hdNameToken = "\$name"
+        const val hdUniversalIdToken = "\$universalId"
+        const val hdSystemToken = "\$system"
         val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
         const val zipFiveToken = "\$zipFive"
         const val zipFivePlusFourToken = "\$zipFivePlusFour"
@@ -349,6 +376,15 @@ data class Element(
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))
+        }
+
+        fun parseHD(value: String): HDFields {
+            val parts = value.split(hdDelimiter)
+            return when (parts.size) {
+                3 -> HDFields(parts[0], parts[1], parts[2])
+                1 -> HDFields(parts[0], universalId = null, universalIdSystem = null)
+                else -> error("Internal Error: Invalid HD value '$value'")
+            }
         }
     }
 }

@@ -4,11 +4,10 @@
 # Conventions:
 # - Sort by element name
 # - Use the HL7 message name with _ instead of space and lower cased
-# - Extended with #text or #system for the various parts of the HL7 field
 # - Use ID instead of Identifier
 # - Avoid abbreviations. Use street1, phone_number, zip_code, ...
 #
-name: standard
+name: covid-19
 topic: covid-19
 description: collection of standard elements, not an actual schema
 elements:
@@ -85,7 +84,7 @@ elements:
     tableColumn: Equipment UID
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Instrument_model_id
     hhsGuidanceField:
     hl7Field: OBX-18-1
@@ -96,7 +95,7 @@ elements:
     tableColumn: Equipment UID Type
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: OBX-18-3
@@ -116,7 +115,7 @@ elements:
     tableColumn: Manufacturer
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Instrument_model_name
     hhsGuidanceField:
 
@@ -188,7 +187,7 @@ elements:
     type: TABLE
     table: LIVD-2020-11-18
     tableColumn: LOINC Order Code
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
     hl7Field: OBR-4-1
@@ -197,7 +196,7 @@ elements:
     type: TABLE
     table: LIVD-2020-11-18
     tableColumn: LOINC Order Code Long Name
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
     hl7Field: OBR-4-2
@@ -224,8 +223,12 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(standard.ordering_facility_state, standard.ordering_facility_county)
+    mapper: lookup(ordering_facility_state, ordering_facility_county)
     hl7Field: ORC-22-9
+
+  - name: ordering_facility_email
+    type: EMAIL
+    hl7Field: ORC-23-4
 
   - name: ordering_facility_name
     type: TEXT
@@ -282,8 +285,10 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: County
-    mapper: lookup(standard.ordering_provider_state, standard.ordering_provider_county)
+    mapper: lookup(ordering_provider_state, ordering_provider_county)
     hl7Field: ORC-24-9
+
+
 
   - name: ordering_provider_first_name
     type: PERSON_NAME
@@ -300,26 +305,18 @@ elements:
     hl7OutputFields: [ORC-12-1, OBR-16-1]
 
   - name: ordering_provider_id_authority
-    type: TEXT
-    natFlatFileField:
-    hhsGuidanceField:
-    mapper: ifPresent(standard.ordering_provider_id, CMS)
-    hl7Field: ORC-12-9-1
-    hl7OutputFields: [ORC-12-9-1, OBR-16-9-1]
-
-  - name: ordering_provider_id_authority_oid
     type: HD
     natFlatFileField:
     hhsGuidanceField:
-    mapper: ifPresent(standard.ordering_provider_id, 2.16.840.1.113883.3.249)
-    hl7Field: ORC-12-9-2
-    hl7OutputFields: [ORC-12-9-2, OBR-16-9-2]
+    mapper: ifPresent(ordering_provider_id, CMS&2.16.840.1.113883.3.249&ISO)
+    hl7Field: ORC-12-9
+    hl7OutputFields: [ORC-12-9, OBR-16-9]
 
   - name: ordering_provider_id_authority_type
     type: TEXT
     natFlatFileField:
     hhsGuidanceField:
-    mapper: ifPresent(standard.ordering_provider_id, NPI)
+    mapper: ifPresent(ordering_provider_id, NPI)
     hl7Field: ORC-12-13
     hl7OutputFields: [ORC-12-13, OBR-16-13]
 
@@ -407,7 +404,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(standard.patient_state, standard.patient_county)
+    mapper: lookup(patient_state, patient_county)
     natFlatFileField: Patient_county
     hl7Field: PID-11-9
 
@@ -449,7 +446,7 @@ elements:
     valueSet: hl70001
     natFlatFileField: Patient_gender
     hhsGuidanceField: Patient sex
-    hl7Field: PID-8
+    hl7Field: PID-8-1
 
   # TODO Figure out how to encode patient id (PID-3) like AZ and others want
   - name: patient_id
@@ -460,6 +457,7 @@ elements:
 
   - name: patient_id_assigner
     type: HD
+    mapper: use(ordering_facility_name)
     natFlatFileField: Patient_id_assigner
     hhsGuidanceField:
     hl7Field: PID-3-4
@@ -484,7 +482,7 @@ elements:
 
   - name: patient_middle_initial
     type: PERSON_NAME
-    mapper: middleInitial(standard.patient_middle_name)
+    mapper: middleInitial(patient_middle_name)
     natFlatFileField: Patient_middle_name
     hhsGuidanceField: Patient name
     hl7Field: PID-5-3
@@ -591,6 +589,25 @@ elements:
     hl7Field: AOE
     hl7AOEQuestion: 82810-3
 
+  - name: prime_patient_id
+    type: ID
+  
+  - name: prime_patient_id_assigner
+    type: HD
+    default: 
+
+  - name: processing_mode_code
+    type: CODE
+    valueSet: hl70103
+    default: P
+    hl7Field: MSH-11-1
+    documentation: P, D, or T for Production, Debugging, or Training
+
+  - name: message_id
+    type: ID
+    hl7Field: MSH-10
+    documentation: unique id to track the usage of the message
+
   # name: public_health_case_id
   # type: ID
   # natFlatFileField: Public_health_case_id
@@ -603,20 +620,12 @@ elements:
     hl7Field: OBR-31
 
   - name: receiving_application
-    type: TEXT
-    hl7Field: MSH-5-1
-
-  - name: receiving_application_id
     type: HD
-    hl7Field: MSH-5-2
+    hl7Field: MSH-5
 
   - name: receiving_facility
-    type: TEXT
-    hl7Field: MSH-6-1
-
-  - name: receiving_facility_id
     type: HD
-    hl7Field: MSH-6-2
+    hl7Field: MSH-6
 
   - name: reference_range
     type: TEXT
@@ -624,17 +633,17 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-7
 
-  - name: reporting_facility_id
-    type: ID_CLIA
-    natFlatFileField: Reporting_facility_id
-    hhsGuidanceField:
-    hl7Field: MSH-4-2
-
   - name: reporting_facility_name
     type: TEXT
     natFlatFileField: Reporting_facility_name
     hhsGuidanceField:
     hl7Field: MSH-4-1
+
+  - name: reporting_facility_clia
+    type: ID_CLIA
+    natFlatFileField: Reporting_facility_id
+    hhsGuidanceField:
+    hl7Field: MSH-4-2
 
   - name: resident_congregate_setting
     type: CODE
@@ -652,17 +661,11 @@ elements:
     hl7Field: OBX-2
 
   - name: sending_application
-    type: TEXT
-    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
-    default: CDC PRIME - Atlanta, Georgia (Dekalb)
-    natFlatFileField:
-    hl7Field: MSH-3-1
-
-  - name: sending_application_id
     type: HD
-    default: 2.16.840.1.114222.4.1.237821
+    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
+    default: CDC PRIME - Atlanta, Georgia (Dekalb)&2.16.840.1.114222.4.1.237821&ISO
     natFlatFileField:
-    hl7Field: MSH-3-2
+    hl7Field: MSH-3
 
   - name: specimen_collection_site # collection location
     type: TEXT # CWE without a defined table
@@ -683,7 +686,7 @@ elements:
 
   - name: specimen_role
     type: CODE
-    valueSet: common/specimen_role
+    valueSet: specimen_role
     natFlatFileField: Role
     hhsGuidanceField:
     hl7Field: SPM-11
@@ -704,7 +707,7 @@ elements:
 
   - name: specimen_recieved_date_time
     type: DATETIME
-    mapper: use(standard.specimen_collection_date_time)
+    mapper: use(specimen_collection_date_time)
     hl7Field: SPM-18
 
   - name: symptomatic_for_disease
@@ -721,7 +724,7 @@ elements:
     tableColumn: Testkit Name ID
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Test_kit_model_name
 
   - name: test_kit_name_id_type
@@ -730,7 +733,7 @@ elements:
     tableColumn: Testkit Name ID Type
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
 
   - name: test_method_description
     type: TEXT
@@ -742,7 +745,7 @@ elements:
     type: TABLE
     table: LIVD-2020-11-18
     tableColumn: LOINC Code
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3-1
@@ -751,7 +754,7 @@ elements:
     type: TABLE
     table: LIVD-2020-11-18
     tableColumn: LOINC Long Name
-    mapper: lookup(standard.equipment_model_name)
+    mapper: lookup(equipment_model_name)
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3-2
@@ -831,16 +834,21 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(standard.testing_lab_state, standard.testing_lab_county)
+    mapper: lookup(testing_lab_state, testing_lab_county)
     natFlatFileField: Testing_lab_county
     hhsGuidanceField:
     hl7Field: OBX-24-9
 
   - name: testing_lab_id
-    type: HD
+    type: ID
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
+
+  - name: testing_lab_id_assigner
+    type: HD
+    mapper: ifPresent(testing_lab_clia, CLIA&2.16.840.1.113883.19.4.6&ISO)
+    hl7Field: OBX-23-6
 
   - name: testing_lab_clia
     type: ID_CLIA

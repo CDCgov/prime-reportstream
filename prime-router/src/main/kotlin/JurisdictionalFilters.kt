@@ -61,14 +61,14 @@ class FilterByCounty : JurisdictionalFilter {
     // @todo need tons of error checking.
     override fun getSelection(args: List<String>, table: Table): Selection {
         if (args.size != 2) error("Expecting two args to filter $name:  (TwoLetterState, County)")
-        val patientState = table.stringColumn("standard.patient_state")
-            ?: error("Unable to filterByCounty:  column standard.patient_state not found.")
-        val patientCounty = table.stringColumn("standard.patient_county")
-            ?: error("Unable to filterByCounty:  column standard.patient_county not found.")
-        val facilityState = table.stringColumn("standard.ordering_facility_state")
-            ?: error("Unable to filterByCounty:  column standard.ordering_facility_state not found.")
-        val facilityCounty = table.stringColumn("standard.ordering_facility_county")
-            ?: error("Unable to filterByCounty:  column standard.ordering_facility_county not found.")
+        val patientState = table.stringColumn("patient_state")
+            ?: error("Unable to filterByCounty:  column patient_state not found.")
+        val patientCounty = table.stringColumn("patient_county")
+            ?: error("Unable to filterByCounty:  column patient_county not found.")
+        val facilityState = table.stringColumn("ordering_facility_state")
+            ?: error("Unable to filterByCounty:  column ordering_facility_state not found.")
+        val facilityCounty = table.stringColumn("ordering_facility_county")
+            ?: error("Unable to filterByCounty:  column ordering_facility_county not found.")
 
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.
         val countyRegex = "(?i).*${args[1]}.*"

@@ -2,69 +2,67 @@
 name: az-covid-19
 description: AZ COVID-19 flat file
 topic: covid-19
-trackingElement: standard.testing_lab_specimen_id
+trackingElement: testing_lab_specimen_id
+basedOn: covid-19
 elements:
-  - name: standard.sending_application
-    type: TEXT
+  - name: sending_application
     csvFields: 
       - name: Sending_Application
-
-  - name: standard.sending_application_id
-    type: HD
-    csvFields:
-    - name: Sending_Application_ID
+        format: $name
+      - name: Sending_Application_ID
+        format: $universalId
 
   # Nonstandard
   - name: organization_and_lab
-    mapper: 'concat(organization_name, standard.testing_lab_name)'
+    mapper: 'concat(organization_name, testing_lab_name)'
     csvFields:
     - name: Lab_Name
 
-  - name: standard.testing_lab_clia
+  - name: testing_lab_clia
     csvFields:
     - name: Lab_CLIA
 
-  - name: standard.testing_lab_street
+  - name: testing_lab_street
     csvFields:
     - name: Lab_Address
 
-  - name: standard.testing_lab_city
+  - name: testing_lab_city
     csvFields:
     - name: Lab_City
 
-  - name: standard.testing_lab_state
+  - name: testing_lab_state
     csvFields:
     - name: Lab_State
 
-  - name: standard.testing_lab_zip_code
+  - name: testing_lab_zip_code
     csvFields:
     - name: Lab_Zip
 
-  - name: standard.testing_lab_phone_number
+  - name: testing_lab_phone_number
     csvFields:
     - name: Lab_Phone
 
-  - name: standard.patient_id
+  - name: patient_id
     csvFields:
     - name: Patient_ID
 
-  - name: standard.patient_first_name
+  - name: patient_first_name
     csvFields:
     - name: Patient_First_Name
 
-  - name: standard.patient_last_name
+  - name: patient_last_name
     csvFields:
     - name: Patient_Last_Name
 
-  - name: standard.patient_dob
+  - name: patient_dob
     csvFields:
     - name: Patient_Date_of_Birth
 
-  - name: standard.patient_gender
+  - name: patient_gender
     csvFields:
     - name: Patient_Sex
 
-  - name: standard.patient_race
+  - name: patient_race
     altValues:
       - display: N      # Native
         code: 1002-5
@@ -86,110 +84,106 @@ elements:
     - name: Race
       format: $alt
 
-  - name: standard.patient_ethnicity
+  - name: patient_ethnicity
     csvFields:
     - name: Ethnicity
 
-  - name: standard.patient_street
+  - name: patient_street
     csvFields:
     - name: Patient_Street_Address
 
-  - name: standard.patient_city
+  - name: patient_city
     csvFields:
     - name: Patient_City
 
-  - name: standard.patient_state
+  - name: patient_state
     csvFields:
     - name: Patient_State
 
-  - name: standard.patient_zip_code
+  - name: patient_zip_code
     csvFields:
     - name: Patient_Zip
       format: $zip # Only a 5 digit zipcode
 
-  - name: standard.patient_county
+  - name: patient_county
     csvFields:
     - name: Patient_County
 
-  - name: standard.patient_phone_number
+  - name: patient_phone_number
     csvFields:
     - name: Patient_Phone_Number
 
   # Nonstandard
   - name: organization_and_facility
-    mapper: 'concat(organization_name, standard.ordering_facility_name)'
+    mapper: 'concat(organization_name, ordering_facility_name)'
     csvFields: [{name: Ordering_facility_name}]
 
-#  - name: standard.ordering_facility_name
-#    csvFields:
-#    - name: Ordering_Facility
-
-  - name: standard.ordering_facility_street
+  - name: ordering_facility_street
     csvFields:
     - name: Ordering_Facility_Address
 
-  - name: standard.ordering_facility_city
+  - name: ordering_facility_city
     csvFields:
     - name: Ordering_Facility_City
 
-  - name: standard.ordering_facility_state
+  - name: ordering_facility_state
     csvFields:
     - name: Ordering_Facility_State
 
-  - name: standard.ordering_facility_zip_code
+  - name: ordering_facility_zip_code
     csvFields:
     - name: Ordering_Facility_Zip
 
-  - name: standard.ordering_provider_first_name
+  - name: ordering_provider_first_name
     csvFields:
     - name: Provider_First_Name
 
-  - name: standard.ordering_provider_last_name
+  - name: ordering_provider_last_name
     csvFields:
     - name: Provider_Last_Name
 
-  - name: standard.ordering_provider_phone_number
+  - name: ordering_provider_phone_number
     csvFields:
     - name: Provider_Phone_Number
 
-  - name: standard.testing_lab_specimen_id
+  - name: testing_lab_specimen_id
     csvFields:
     - name: Specimen_ID
 
-  - name: standard.specimen_collection_date_time
+  - name: specimen_collection_date_time
     csvFields:
     - name: Collection_Date
       format: yyyyMMdd
 
-  - name: standard.specimen_type
+  - name: specimen_type
     csvFields:
     - name: Specimen_Type
       format: $display
 
-  - name: standard.specimen_source_site_code
+  - name: specimen_source_site_code
     csvFields:
     - name: Specimen_Site
       format: $display
 
-  - name: standard.test_performed_code
+  - name: test_performed_code
     csvFields:
     - name: Test_Code
 
-  - name: standard.test_performed_name
+  - name: test_performed_name
     csvFields:
     - name: Test_Name
 
-  - name: standard.test_result
+  - name: test_result
     csvFields:
     - name: Result
       format: $display
 
-  - name: standard.test_result_date
+  - name: test_result_date
     csvFields:
     - name: Result_Date
       format: yyyyMMdd
 
-  - name: standard.comment
+  - name: comment
     csvFields:
     - name: Notes
 
