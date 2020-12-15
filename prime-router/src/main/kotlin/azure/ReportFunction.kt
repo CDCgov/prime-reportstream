@@ -21,9 +21,8 @@ import java.util.logging.Level
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
  */
-class ValidateReportFunction {
+class ReportFunction {
     private val clientName = "client"
-    private val csvMimeType = "text/csv"
 
     /**
      * Run ./test-ingest.sh to get an example curl call that calls this function.
@@ -57,7 +56,7 @@ class ValidateReportFunction {
 
         // Queue the report for further processing.
         return try {
-            workflowEngine.dispatchReport(ReportEvent(Event.Action.TRANSLATE, report.id), report)
+            routeReport(report, workflowEngine, context)
             request
                 .createResponseBuilder(HttpStatus.CREATED)
                 .body(createResponseBody(report))
@@ -119,6 +118,27 @@ class ValidateReportFunction {
                     ClientSource(organization = client.organization.name, client = client.name)
                 )
             }
+        }
+    }
+
+    private fun routeReport(
+        parentReport: Report,
+        workflowEngine: WorkflowEngine,
+        context: ExecutionContext,
+    ) {
+        workflowEngine.db.transact { txn ->
+            workflowEngine
+                .translator
+                .filterAndTranslateByService(parentReport)
+                .forEach { (report, service) ->
+                    val event = if (service.batch == null) {
+                        ReportEvent(Event.Action.SEND, report.id)
+                    } else {
+                        ReceiverEvent(Event.Action.BATCH, service.fullName, service.batch.nextBatchTime())
+                    }
+                    workflowEngine.dispatchReport(event, report, txn)
+                    context.logger.info("Queued: ${event.toMessage()}")
+                }
         }
     }
 

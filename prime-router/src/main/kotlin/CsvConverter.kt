@@ -30,7 +30,7 @@ class CsvConverter(val metadata: Metadata) {
         if (rows.isEmpty()) {
             return Report(schema, emptyList(), sources, destination)
         }
-        val mapping = buildMappingForReading(metadata, schema, defaultValues, rows[0])
+        val mapping = buildMappingForReading(schema, defaultValues, rows[0])
         val mappedRows = rows.map { mapRow(schema, mapping, it) }
         return Report(schema, mappedRows, sources, destination)
     }
@@ -66,7 +66,6 @@ class CsvConverter(val metadata: Metadata) {
     }
 
     private fun buildMappingForReading(
-        metadata: Metadata,
         schema: Schema,
         defaultValues: Map<String, String>,
         row: Map<String, String>
