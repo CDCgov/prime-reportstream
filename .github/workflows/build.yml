@@ -61,3 +61,4 @@ jobs:
           
       - name : Push Docker Image
         run: docker push ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}:latest
+
