@@ -1,0 +1,70 @@
+openapi: 3.0.0
+info:
+  title: Prime Data Hub
+  description: A router of public health data from multiple senders and receivers
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+  version: 0.1.0-oas3
+paths:
+  /reports:
+    post:
+      summary: Post a report to the data hub
+      parameters:
+        - in: query
+          name: client
+          description: The client's name (eg. `simple_report`)
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: options
+          description: Optional processing modes
+          required: false
+          schema:
+            type: string
+            enum:
+              - validatePayload
+              - checkConnections
+              - skipSend
+              - trainingSend
+              - debugSend
+        - in: header
+          name: x-functions-key
+          description: The Azure function for the end-point
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: The public health information being routed
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+            example:
+              header1, header2
+
+              value1, value2
+      responses:
+        '200':
+          description: OK
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Invalid request
+        '500':
+          description: Internal Server Error
+components:
+  schemas:
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+          description: the id for report assigned by the Hub
