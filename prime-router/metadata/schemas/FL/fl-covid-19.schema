@@ -7,12 +7,10 @@ elements:
     # column A
     - name: standard.testing_lab_clia
       csvFields: [{ name: Sending Facility CLIA }]
-      documentation: CLIA Number from the laboratory that sends the message to DOH
 
     # column B
     - name: standard.testing_lab_name
       csvFields: [{ name: Sending Facility Name }]
-      documentation: Name of the facility that sends the message to DOH
 
     # column C
     # TODO: confirm specimen id is what they expect here
@@ -23,12 +21,10 @@ elements:
     # column D
     - name: standard.patient_last_name
       csvFields: [{ name: Patient Last Name }]
-      documentation: The patient's last name
 
     # column E
     - name: standard.patient_first_name
       csvFields: [{ name: Patient First Name }]
-      documentation: The patient's first name
 
     # column F
     - name: standard.patient_dob
@@ -39,13 +35,11 @@ elements:
     # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
     - name: standard.patient_race
       csvFields: [{ name: Patient Race }]
-      documentation: The patient's race
 
     # column H
     # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
     - name: standard.patient_ethnicity
       csvFields: [{ name: Patient Ethnicity }]
-      documentation: The patient's ethnicity
 
     # column I
     # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
@@ -56,32 +50,26 @@ elements:
     # column J
     - name: standard.patient_street
       csvFields: [{ name: Patient Street Address }]
-      documentation: The patient's street address
 
     # column K
     - name: standard.patient_street2
       csvFields: [{ name: Patient Street Address2 }]
-      documentation: The patient's second address
 
     # column L
     - name: standard.patient_city
       csvFields: [{ name: Patient City }]
-      documentation: The patient's city
 
     # column M
     - name: standard.patient_state
       csvFields: [{ name: Patient State }]
-      documentation: The patient's state
 
     # column N
     - name: standard.patient_zip_code
       csvFields: [{ name: Patient Zip }]
-      documentation: The patient's zip
 
     # column O
     - name: standard.patient_phone_number
       csvFields: [{ name: Patient Phone Number }]
-      documentation: The patient's phone number with area code
 
     # column C part 2
     # nonstandard
@@ -94,102 +82,82 @@ elements:
     # column Q
     - name: standard.ordering_provider_id
       csvFields: [{ name: Ordering Provider NPI Number }]
-      documentation: The ordering provider’s National Provider Identifier
 
     # column R
     - name: standard.ordering_provider_last_name
       csvFields: [{ name: Ordering Provider Last Name }]
-      documentation: The last name of provider who ordered the test
 
     # column S
     - name: standard.ordering_provider_first_name
       csvFields: [{ name: Ordering Provider First Name }]
-      documentation: The first name of the provider who ordered the test
 
     # column T
     - name: standard.ordering_provider_street
       csvFields: [{ name: Ordering Provider Street Address }]
-      documentation: The street address of the provider
 
     # column U
     - name: standard.ordering_provider_street2
       csvFields: [{ name: Ordering Provider Street Address2 }]
-      documentation: The street second address of the provider
 
     # column V
     - name: standard.ordering_provider_city
       csvFields: [{ name: Ordering Provider City }]
-      documentation: The city of the provider
 
     # column W
     - name: standard.ordering_provider_state
       csvFields: [{ name: Ordering Provider State }]
-      documentation: The state of the provider
 
     # column X
     - name: standard.ordering_provider_zip_code
       csvFields: [{ name: Ordering Provider Zip }]
-      documentation: The zip code of the provider
 
     # column Y
     - name: standard.ordering_provider_phone_number
       csvFields: [{ name: Ordering Provider Phone Number }]
-      documentation: The phone number of the provider
 
     # column Z
     - name: standard.ordering_facility_name
       csvFields: [{ name: Ordering Facility Name }]
-      documentation: The name of the facility which the test was ordered from
 
     # column AA
     - name: standard.ordering_facility_street
       csvFields: [{ name: Ordering Facility Address1 }]
-      documentation: The address of the facility which the test was ordered from
 
     # column AB
     - name: standard.ordering_facility_street2
       csvFields: [ { name: Ordering Facility Address2 } ]
-      documentation: The secondary address of the facility which the test was ordered from
 
     # column AC
     - name: standard.ordering_facility_city
       csvFields: [{ name: Ordering Facility City }]
-      documentation: The city of the facility which the test was ordered from
 
     # column AD
     - name: standard.ordering_facility_state
       csvFields: [{ name: Ordering Facility State }]
-      documentation: The state of the facility which the test was ordered from
 
     # column AE
     - name: standard.ordering_facility_zip_code
       csvFields: [{ name: Ordering Facility Zip }]
-      documentation: The zip code of the facility which the test was ordered from
 
     # column AF
     - name: standard.ordering_facility_phone_number
       csvFields: [{ name: Ordering Facility Phone Number }]
-      documentation: The phone number of the facility which the test was ordered from
 
     # column AG
     - name: standard.testing_lab_accession_number
       csvFields: [{ name: Accession Number }]
-      documentation: The accession number of the specimen collected
 
     # column AH
     - name: standard.specimen_collection_date_time
       csvFields: [{ name: Specimen Collected Date }]
-      documentation: The date which the specimen was collected
 
     # column AI
     - name: standard.specimen_type
       csvFields: [ { name: Specimen Source } ]
-      documentation: The specimen source, such as Blood or Serum
 
     # column AJ
     - name: standard.specimen_received_date_time
       csvFields: [{ name: Specimen Received Date }]
-      documentation: Date the specimen was received
 
     # column AK
     # nonstandard
@@ -201,12 +169,10 @@ elements:
     # column AL
     - name: standard.test_performed_code
       csvFields: [{ name: Observation Code }]
-      documentation: The LOINC code of the test performed. This is a standardized coded value describing the test
 
     # column AM
     - name: standard.test_performed_name
       csvFields: [{ name: Observation Description }]
-      documentation: The LOINC description of the test performed as related to the LOINC code.
 
     # column AN
     # nonstandard
@@ -223,17 +189,14 @@ elements:
     # column AP
     - name: standard.test_result
       csvFields: [{ name: Test Result }]
-      documentation: The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
 
     # column AQ
     - name: standard.reference_range
       csvFields: [{ name: Reference Range }]
-      documentation: The reference range of the lab result, such as “Negative” or “Normal”. For IgG, IgM and CT results that provide a value you MUST fill out this filed.
 
     # column AR
     - name: standard.abnormal_flag
       csvFields: [{ name: Abnormal Flag }]
-      documentation: This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
 
     # column AS
     # nonstandard
@@ -246,12 +209,10 @@ elements:
     # column AT
     - name: standard.testing_lab_name
       csvFields: [{ name: Performing Lab Name }]
-      documentation: The name of the laboratory which performed the test, can be the same as the sending facility name
 
     # column AU
     - name: standard.testing_lab_clia
       csvFields: [{ name: Performing Lab CLIA }]
-      documentation: The CLIA code for the laboratory which performed the test, can be the same as the sending facility name
 
     # column AV
     # nonstandard
