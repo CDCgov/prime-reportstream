@@ -52,6 +52,11 @@ class BlobAccess(private val csvConverter: CsvConverter, private val hl7Converte
         getBlobClient(blobUrl).delete()
     }
 
+    fun checkConnection() {
+        val blobConnection = System.getenv("AzureWebJobsStorage")
+        val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
+    }
+
     private fun getBlobContainer(name: String): BlobContainerClient {
         val blobConnection = System.getenv("AzureWebJobsStorage")
         val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()

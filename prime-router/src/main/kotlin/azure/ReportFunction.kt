@@ -13,8 +13,8 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.OrganizationClient
 import gov.cdc.prime.router.Report
-import org.apache.commons.text.TextStringBuilder
 import java.io.ByteArrayInputStream
+import java.time.OffsetDateTime
 import java.util.logging.Level
 
 /**
@@ -23,6 +23,21 @@ import java.util.logging.Level
  */
 class ReportFunction {
     private val clientName = "client"
+    private val requestOption = "option"
+    enum class Options {
+        None,
+        ValidatePayload,
+        CheckConnections,
+        SkipSend,
+        SendTrainingFlag,
+        SendDebugFlag,
+    }
+
+    data class ValidatedRequest(
+        val options: Options,
+        val errors: List<String>,
+        val report: Report?
+    )
 
     /**
      * Run ./test-ingest.sh to get an example curl call that calls this function.
@@ -37,54 +52,53 @@ class ReportFunction {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        // Validate the incoming CSV by converting it to a report.
-        val workflowEngine = WorkflowEngine()
-        val report = try {
-            val (client, content) = getAndValidate(request)
-            createReport(workflowEngine, client, content)
-        } catch (e: Exception) {
-            val msgs = TextStringBuilder()
-            e.suppressedExceptions.forEach { msgs.appendln(it.message) }
-            msgs.appendln(e.message)
-            context.logger.log(Level.INFO, "Bad request.  $msgs", e)
-            return request
-                .createResponseBuilder(HttpStatus.BAD_REQUEST)
-                .body(msgs.toString())
-                .build()
-        }
-        context.logger.info("Successfully read ${report.id}. Preparing to queue it for processing.")
-
-        // Queue the report for further processing.
-        return try {
-            routeReport(report, workflowEngine, context)
-            request
-                .createResponseBuilder(HttpStatus.CREATED)
-                .body(createResponseBody(report))
-                .build()
+        try {
+            val workflowEngine = WorkflowEngine()
+            val validatedRequest = validateRequest(workflowEngine, request)
+            when {
+                validatedRequest.options == Options.CheckConnections -> {
+                    workflowEngine.checkConnections()
+                    return okResponse(request)
+                }
+                validatedRequest.report == null || validatedRequest.errors.isNotEmpty() -> {
+                    return badRequestResponse(request, validatedRequest.errors)
+                }
+                validatedRequest.options == Options.ValidatePayload -> {
+                    return okResponse(request)
+                }
+            }
+            context.logger.info("Successfully reported: ${validatedRequest.report!!.id}.")
+            routeReport(validatedRequest, workflowEngine, context)
+            return createdResponse(request, validatedRequest)
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
-            request
-                .createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Failed to ingest into database and queue for further work.")
-                .build()
+            return internalErrorResponse(request)
         }
     }
 
-    private fun getAndValidate(request: HttpRequestMessage<String?>): Pair<OrganizationClient, String> {
+    private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors: MutableList<String> = mutableListOf()
 
-        val name = request.headers.getOrDefault(clientName, "")
-        var client: OrganizationClient? = null
-        if (name.isNotBlank()) {
+        val optionsText = request.queryParameters.getOrDefault(requestOption, "")
+        val options = if (optionsText.isNotBlank()) {
             try {
-                client = WorkflowEngine.metadata.findClient(name)
-            } catch (e: Exception) {
-                val betterException = Exception("Error: unknown client '$name'")
-                betterException.addSuppressed(e)
-                throw betterException
+                Options.valueOf(optionsText)
+            } catch (e: IllegalArgumentException) {
+                errors.add("Error: '$optionsText' is not a valid '$requestOption' query parameter")
+                Options.None
             }
         } else {
-            errors.add("Error: missing 'client' header")
+            Options.None
+        }
+        if (options == Options.CheckConnections) {
+            return ValidatedRequest(options, errors, null)
+        }
+
+        val name = request.headers[clientName] ?: request.queryParameters.getOrDefault(clientName, "")
+        if (name.isBlank()) errors.add("Error: Expected a '$clientName' query parameter")
+        val client = WorkflowEngine.metadata.findClient(name)
+        if (client == null) {
+            errors.add("Error: '$name' is not a valid client name")
         }
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
@@ -99,13 +113,17 @@ class ReportFunction {
             errors.add("Error: expecting a post message with content")
         }
 
-        if (errors.isNotEmpty()) {
-            val e = Exception()
-            errors.forEach { e.addSuppressed(Exception(it)) }
-            throw e
+        if (client == null || content.isEmpty() || errors.isNotEmpty()) {
+            return ValidatedRequest(options, errors, null)
         }
 
-        return Pair(client!!, content)
+        return try {
+            val report = createReport(engine, client, content)
+            ValidatedRequest(options, errors, report)
+        } catch (e: Exception) {
+            errors.add("Error: ${e.message}")
+            ValidatedRequest(options, errors, null)
+        }
     }
 
     private fun createReport(engine: WorkflowEngine, client: OrganizationClient, content: String): Report {
@@ -122,19 +140,30 @@ class ReportFunction {
     }
 
     private fun routeReport(
-        parentReport: Report,
+        validatedRequest: ValidatedRequest,
         workflowEngine: WorkflowEngine,
         context: ExecutionContext,
     ) {
+        if (validatedRequest.options == Options.ValidatePayload ||
+            validatedRequest.options == Options.CheckConnections
+        ) return
+        val defaultValues = when (validatedRequest.options) {
+            Options.SendDebugFlag -> mapOf("processing_mode_code" to "D")
+            Options.SendTrainingFlag -> mapOf("processing_mode_code" to "T")
+            else -> emptyMap()
+        }
         workflowEngine.db.transact { txn ->
             workflowEngine
                 .translator
-                .filterAndTranslateByService(parentReport)
+                .filterAndTranslateByService(validatedRequest.report!!, defaultValues)
                 .forEach { (report, service) ->
-                    val event = if (service.batch == null) {
-                        ReportEvent(Event.Action.SEND, report.id)
-                    } else {
-                        ReceiverEvent(Event.Action.BATCH, service.fullName, service.batch.nextBatchTime())
+                    val event = when {
+                        validatedRequest.options == Options.SkipSend ->
+                            ReportEvent(Event.Action.NONE, report.id)
+                        service.batch != null ->
+                            ReceiverEvent(Event.Action.BATCH, service.fullName, service.batch.nextBatchTime())
+                        else ->
+                            ReportEvent(Event.Action.SEND, report.id)
                     }
                     workflowEngine.dispatchReport(event, report, txn)
                     context.logger.info("Queued: ${event.toMessage()}")
@@ -148,5 +177,40 @@ class ReportFunction {
               "id": "${report.id}"
             }
         """.trimIndent()
+    }
+
+    private fun okResponse(request: HttpRequestMessage<String?>): HttpResponseMessage {
+        return request
+            .createResponseBuilder(HttpStatus.OK)
+            .build()
+    }
+
+    private fun badRequestResponse(
+        request: HttpRequestMessage<String?>,
+        errors: List<String>
+    ): HttpResponseMessage {
+        return request
+            .createResponseBuilder(HttpStatus.BAD_REQUEST)
+            .body(errors.joinToString("\n"))
+            .build()
+    }
+
+    private fun createdResponse(
+        request: HttpRequestMessage<String?>,
+        validatedRequest: ValidatedRequest
+    ): HttpResponseMessage {
+        return request
+            .createResponseBuilder(HttpStatus.CREATED)
+            .body(createResponseBody(validatedRequest.report!!))
+            .build()
+    }
+
+    private fun internalErrorResponse(
+        request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        return request
+            .createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Internal error at ${OffsetDateTime.now()}")
+            .build()
     }
 }

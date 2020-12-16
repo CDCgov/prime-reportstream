@@ -19,17 +19,18 @@ paths:
             type: string
           required: true
         - in: query
-          name: options
+          name: option
           description: Optional processing modes
           required: false
           schema:
             type: string
             enum:
-              - validatePayload
-              - checkConnections
-              - skipSend
-              - trainingSend
-              - debugSend
+              - None
+              - ValidatePayload
+              - CheckConnections
+              - SkipSend
+              - SendTrainingFlag
+              - SendDebugFlag
         - in: header
           name: x-functions-key
           description: The Azure function for the end-point

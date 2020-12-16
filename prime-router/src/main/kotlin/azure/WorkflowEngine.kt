@@ -28,6 +28,14 @@ class WorkflowEngine(
     val queue: QueueAccess = QueueAccess(),
 ) {
     /**
+     * Check the connections to Azure Storage and DB
+     */
+    fun checkConnections() {
+        db.checkConnection()
+        blob.checkConnection()
+    }
+
+    /**
      * Place a report into the workflow
      */
     fun dispatchReport(nextAction: Event, report: Report, txn: Configuration? = null) {
