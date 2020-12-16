@@ -13,10 +13,12 @@
   - name: az-phd
     description: Arizona PHD
     services:
-      - name: elr
+      - name: elr-test
         topic: covid-19
         schema: az/az-covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state,AZ)" ]
+        jurisdictionalFilter:
+          - matches(ordering_facility_state,AZ)
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains)"
         transforms: { deidentify: false }
         batch:
           operation: MERGE
@@ -29,7 +31,26 @@
           type: SFTP
           host: prime-data-hub-test.eastus.azurecontainer.io
           port: 22
-          filePath: ./upload
+          filePath: ./upload_test
+      - name: elr-prod
+        topic: covid-19
+        schema: az/az-covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state,AZ)
+          - "matches(ordering_facility_name,Tucson Mountains)"
+        transforms: { deidentify: false }
+        batch:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialBatch: 00:00
+          timeZone: ARIZONA
+        address: http://localhost:1181/
+        format: CSV
+        transport:
+          type: SFTP
+          host: prime-data-hub-test.eastus.azurecontainer.io
+          port: 22
+          filePath: ./upload_prod
 
   - name: pima-az-phd
     description: Pima County, Arizona PHD
