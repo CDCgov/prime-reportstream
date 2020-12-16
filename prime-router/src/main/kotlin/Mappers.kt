@@ -69,9 +69,13 @@ class MiddleInitialMapper : Mapper {
         return args
     }
 
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String {
-        if (values.size != 1) error("Didn't find the right number of values")
-        return values.first().value.substring(0..0).toUpperCase()
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) {
+            return null
+        } else {
+            if (values.size != 1) error("Found ${values.size} values.  Expecting 1 value. Args: $args, Values: $values")
+            return values.first().value.substring(0..0).toUpperCase()
+        }
     }
 }
 

@@ -159,4 +159,4 @@ az container create --resource-group "$resource_group" \
                     --azure-file-volume-mount-path /home/foo/upload
 
 echo All done
-echo Now try running test-ingest.sh
+echo Now try running test-ingest.sh and setup_database.sh
