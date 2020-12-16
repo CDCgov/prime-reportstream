@@ -55,6 +55,9 @@ class RouterCli : CliktCommand(
     private val generateDocumentation by
     option("--generate-docs", help = "generate documentation from the provided schema")
         .flag(default = false)
+    private val includeTimestamps by
+    option("--include-timestamps", help = "includes creation time stamps when generating documentation")
+        .flag(default = false)
 
     private fun readReportFromFile(
         fileName: String,
@@ -125,7 +128,7 @@ class RouterCli : CliktCommand(
 
             // start generating documentation
             echo("Generating documentation for $schemaName")
-            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName)
+            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps)
         } else {
 
             // Gather input source

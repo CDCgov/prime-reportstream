@@ -75,13 +75,23 @@ ${element.documentation}
     }
 
     // write all the documentation for a schema
-    fun writeDocumentationForSchema(schema: Schema, outputDir: String? = null, outputFileName: String? = null) {
+    fun writeDocumentationForSchema(
+        schema: Schema,
+        outputDir: String? = null,
+        outputFileName: String? = null,
+        includeTimestamps: Boolean = false
+    ) {
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         val createDate = LocalDate.now().format(formatter)
         // change any slashes to dashes for the file name
         val schemaName = schema.name.replace("/", "-")
 
-        val oName = (outputFileName ?: schemaName) + "-$createDate.md"
+        val oName = (outputFileName ?: schemaName) + if (includeTimestamps) {
+            "-$createDate.md"
+        } else {
+            ".md"
+        }
+
         val oDir = (outputDir ?: "documentation")
         val path = Paths.get(oDir)
         if (!Files.exists(path)) {
