@@ -31,7 +31,7 @@
           type: SFTP
           host: prime-data-hub-test.eastus.azurecontainer.io
           port: 22
-          filePath: ./upload_test
+          filePath: ./upload
       - name: elr-prod
         topic: covid-19
         schema: az/az-covid-19
@@ -50,7 +50,7 @@
           type: SFTP
           host: prime-data-hub-test.eastus.azurecontainer.io
           port: 22
-          filePath: ./upload_prod
+          filePath: ./upload
 
   - name: pima-az-phd
     description: Pima County, Arizona PHD

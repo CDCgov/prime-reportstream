@@ -29,7 +29,7 @@
             type: SFTP
             host: sftp
             port: 22
-            filePath: ./upload_test
+            filePath: ./upload
         format: CSV
       - name: elr-prod
         topic: covid-19
@@ -47,7 +47,7 @@
             type: SFTP
             host: sftp
             port: 22
-            filePath: ./upload_prod
+            filePath: ./upload
         format: CSV
 
   - name: pima-az-phd
