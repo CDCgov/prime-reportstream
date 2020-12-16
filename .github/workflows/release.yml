@@ -37,7 +37,7 @@ jobs:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Update Azure Functions App
-        run: az functionapp update --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.RESOURCE_GROUP }}
+        run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.RESOURCE_GROUP }}
 
       - name: Set Azure Function Default Key
         run: |
