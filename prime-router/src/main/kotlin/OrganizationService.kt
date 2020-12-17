@@ -27,7 +27,7 @@ data class OrganizationService(
     val batch: Batch? = null,
     val address: String = "",
     val format: Format = Format.CSV,
-    val transport: Transport = Transport(Transport.TransportType.DEFAULT)
+    val transports: List<TransportType> = emptyList()
 ) {
     lateinit var organization: Organization
     val fullName: String get() = "${organization.name}.$name"
@@ -92,21 +92,6 @@ data class OrganizationService(
     enum class BatchOperation {
         NONE,
         MERGE
-    }
-
-    data class Transport(
-        val type: TransportType = TransportType.DEFAULT,
-        val host: String = "localhost",
-        val port: String = "22",
-        val filePath: String = "."
-    ) {
-        enum class TransportType {
-            SFTP,
-            DEFAULT
-            // EMAIL
-            // DROPBOX
-            // API
-        }
     }
 
     companion object {

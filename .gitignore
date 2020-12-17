@@ -61,3 +61,12 @@ prime-router/__azurite_db_queue_extent__.json
 prime-router/__blobstorage__/*
 prime-router/__queuestorage__/*
 prime-router/.factorypath
+__blobstorage__/*
+prime-router/metadata/organizations-mry.yml
+prime-router/pdi-covid-19.csv
+__queuestorage__/*
+__azurite_db_queue_extent__.json
+__azurite_db_queue__.json
+__azurite_db_blob_extent__.json
+__azurite_db_blob__.json
+prime-router/source.mry

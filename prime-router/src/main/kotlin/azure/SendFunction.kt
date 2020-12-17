@@ -5,7 +5,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.transport.SftpTransport
 import java.util.logging.Level
 
@@ -35,24 +35,19 @@ class SendFunction {
                 val service = Metadata.findService(header.task.receiverName)
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
 
-                context.logger.info("Transport found for ${service.fullName} = ${service.transport.type}")
+                val content = workflowEngine.readBody(header)
 
-                var transportSuccessful = when (service.transport.type) {
-                    OrganizationService.Transport.TransportType.SFTP -> {
-                        context.logger.info(
-                            "trying to send to ${service.transport.host} " +
-                                "${service.transport.port} ${service.transport.filePath}"
-                        )
-                        val content = workflowEngine.readBody(header)
-                        // TODO:  look up the correct class to call based on the transport metadata
-                        val transport = SftpTransport()
-                        transport.send(service, header, content)
+                val success: Boolean = service.transports.map {
+                    when (it) {
+                        is SFTPTransportType -> SftpTransport().send(service.fullName, it, header, content)
+                        else -> true
                     }
-                    OrganizationService.Transport.TransportType.DEFAULT -> false
-                }
-                if (transportSuccessful) {
+                }.reduce{ acc, s -> acc && s };
+
+                if( success ) {
                     context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
                 }
+                
                 // TODO: Next action should be WIPE when implemented
                 ReportEvent(Event.Action.NONE, header.task.reportId)
             }
@@ -62,7 +57,4 @@ class SendFunction {
         }
     }
 
-    private fun lookupTransportMetadata(): OrganizationService.Transport {
-        return OrganizationService.Transport() // TODO: actually lookup the Transport here - for now use the default
-    }
 }
