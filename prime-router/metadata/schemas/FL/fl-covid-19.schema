@@ -2,73 +2,74 @@
 name: fl-covid-19
 description: Florida COVID-19 flat file
 topic: covid-19
-trackingElement: standard.testing_lab_specimen_id
+trackingElement: testing_lab_specimen_id
+basedOn: covid-19
 elements:
     # column A
-    - name: standard.testing_lab_clia
+    - name: testing_lab_clia
       csvFields: [{ name: Sending Facility CLIA }]
 
     # column B
-    - name: standard.testing_lab_name
+    - name: testing_lab_name
       csvFields: [{ name: Sending Facility Name }]
 
     # column C
     # TODO: confirm specimen id is what they expect here
-    - name: standard.testing_lab_specimen_id
+    - name: testing_lab_specimen_id
       csvFields: [{ name: Medical Record Number }]
       documentation: Medical Record number for the patient
 
     # column D
-    - name: standard.patient_last_name
+    - name: patient_last_name
       csvFields: [{ name: Patient Last Name }]
 
     # column E
-    - name: standard.patient_first_name
+    - name: patient_first_name
       csvFields: [{ name: Patient First Name }]
 
     # column F
-    - name: standard.patient_dob
+    - name: patient_dob
       csvFields: [{ name: Patient Date of Birth, format: "MM/dd/yyyy" }]
       documentation: The patient's date of birth in this format "MM/dd/yyyy"
 
     # column G
     # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
-    - name: standard.patient_race
+    - name: patient_race
       csvFields: [{ name: Patient Race }]
 
     # column H
     # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
-    - name: standard.patient_ethnicity
+    - name: patient_ethnicity
       csvFields: [{ name: Patient Ethnicity }]
 
     # column I
     # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
-    - name: standard.patient_gender
+    - name: patient_gender
       csvFields: [{ name: Patient Gender }]
       documentation: The patient's gender. Expects M, F, or U
 
     # column J
-    - name: standard.patient_street
+    - name: patient_street
       csvFields: [{ name: Patient Street Address }]
 
     # column K
-    - name: standard.patient_street2
+    - name: patient_street2
       csvFields: [{ name: Patient Street Address2 }]
 
     # column L
-    - name: standard.patient_city
+    - name: patient_city
       csvFields: [{ name: Patient City }]
 
     # column M
-    - name: standard.patient_state
+    - name: patient_state
       csvFields: [{ name: Patient State }]
 
     # column N
-    - name: standard.patient_zip_code
+    - name: patient_zip_code
       csvFields: [{ name: Patient Zip }]
 
     # column O
-    - name: standard.patient_phone_number
+    - name: patient_phone_number
       csvFields: [{ name: Patient Phone Number }]
 
     # column C part 2
@@ -80,83 +81,83 @@ elements:
       documentation: The patient's SSN formatted without dashes
 
     # column Q
-    - name: standard.ordering_provider_id
+    - name: ordering_provider_id
       csvFields: [{ name: Ordering Provider NPI Number }]
 
     # column R
-    - name: standard.ordering_provider_last_name
+    - name: ordering_provider_last_name
       csvFields: [{ name: Ordering Provider Last Name }]
 
     # column S
-    - name: standard.ordering_provider_first_name
+    - name: ordering_provider_first_name
       csvFields: [{ name: Ordering Provider First Name }]
 
     # column T
-    - name: standard.ordering_provider_street
+    - name: ordering_provider_street
       csvFields: [{ name: Ordering Provider Street Address }]
 
     # column U
-    - name: standard.ordering_provider_street2
+    - name: ordering_provider_street2
       csvFields: [{ name: Ordering Provider Street Address2 }]
 
     # column V
-    - name: standard.ordering_provider_city
+    - name: ordering_provider_city
       csvFields: [{ name: Ordering Provider City }]
 
     # column W
-    - name: standard.ordering_provider_state
+    - name: ordering_provider_state
       csvFields: [{ name: Ordering Provider State }]
 
     # column X
-    - name: standard.ordering_provider_zip_code
+    - name: ordering_provider_zip_code
       csvFields: [{ name: Ordering Provider Zip }]
 
     # column Y
-    - name: standard.ordering_provider_phone_number
+    - name: ordering_provider_phone_number
       csvFields: [{ name: Ordering Provider Phone Number }]
 
     # column Z
-    - name: standard.ordering_facility_name
+    - name: ordering_facility_name
       csvFields: [{ name: Ordering Facility Name }]
 
     # column AA
-    - name: standard.ordering_facility_street
+    - name: ordering_facility_street
       csvFields: [{ name: Ordering Facility Address1 }]
 
     # column AB
-    - name: standard.ordering_facility_street2
+    - name: ordering_facility_street2
       csvFields: [ { name: Ordering Facility Address2 } ]
 
     # column AC
-    - name: standard.ordering_facility_city
+    - name: ordering_facility_city
       csvFields: [{ name: Ordering Facility City }]
 
     # column AD
-    - name: standard.ordering_facility_state
+    - name: ordering_facility_state
       csvFields: [{ name: Ordering Facility State }]
 
     # column AE
-    - name: standard.ordering_facility_zip_code
+    - name: ordering_facility_zip_code
       csvFields: [{ name: Ordering Facility Zip }]
 
     # column AF
-    - name: standard.ordering_facility_phone_number
+    - name: ordering_facility_phone_number
       csvFields: [{ name: Ordering Facility Phone Number }]
 
     # column AG
-    - name: standard.testing_lab_accession_number
+    - name: testing_lab_accession_number
       csvFields: [{ name: Accession Number }]
 
     # column AH
-    - name: standard.specimen_collection_date_time
+    - name: specimen_collection_date_time
       csvFields: [{ name: Specimen Collected Date }]
 
     # column AI
-    - name: standard.specimen_type
+    - name: specimen_type
       csvFields: [ { name: Specimen Source } ]
 
     # column AJ
-    - name: standard.specimen_received_date_time
+    - name: specimen_received_date_time
       csvFields: [{ name: Specimen Received Date }]
 
     # column AK
@@ -167,11 +168,11 @@ elements:
       documentation: The date which the result was finalized
 
     # column AL
-    - name: standard.test_performed_code
+    - name: test_performed_code
       csvFields: [{ name: Observation Code }]
 
     # column AM
-    - name: standard.test_performed_name
+    - name: test_performed_name
       csvFields: [{ name: Observation Description }]
 
     # column AN
@@ -187,15 +188,15 @@ elements:
       documentation: This is a localized description of the localized coded value that the facility may use for this test (Optional unless LOINC Code and Description are not provided)
 
     # column AP
-    - name: standard.test_result
+    - name: test_result
       csvFields: [{ name: Test Result }]
 
     # column AQ
-    - name: standard.reference_range
+    - name: reference_range
       csvFields: [{ name: Reference Range }]
 
     # column AR
-    - name: standard.abnormal_flag
+    - name: abnormal_flag
       csvFields: [{ name: Abnormal Flag }]
 
     # column AS
@@ -207,18 +208,18 @@ elements:
       documentation: This is the coded value that describes the result. For IgG, IgM and CT results that provide a value leave this field blank.
 
     # column AT
-    - name: standard.testing_lab_name
+    - name: testing_lab_name
       csvFields: [{ name: Performing Lab Name }]
 
     # column AU
-    - name: standard.testing_lab_clia
+    - name: testing_lab_clia
       csvFields: [{ name: Performing Lab CLIA }]
 
     # column AV
     # nonstandard
     - name: patient_age_and_units
       type: TEXT
-      mapper: 'concat(standard.patient_age, standard.patient_age_units)'
+      mapper: 'concat(patient_age, patient_age_units)'
       csvFields: [{ name: Age at time of collection }]
       documentation: |
         The patient's age as a numeric value and a unit value, for example, "3 months", "25 years", etc
@@ -231,7 +232,7 @@ elements:
       documentation: |
         A concatenation of three values: Manufacturer Name, Device's unique ID, Device Type
       hl7Field: OBX-17-2
-      mapper: "concat(standard.test_kit_name_id, standard.device_id, standard.test_kit_name_id_type)"
+      mapper: "concat(test_kit_name_id, device_id, test_kit_name_id_type)"
       csvFields: [{ name: "Kit^Device^IDType" }]
 
     # column AX
@@ -270,7 +271,7 @@ elements:
         FL expects the SNOMED code that maps to one of the values outlined at [https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html](https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html)
 
     # column BA
-    - name: standard.symptomatic_for_disease
+    - name: symptomatic_for_disease
       csvFields: [ { name: Symptomatic } ]
       altValues:
           - display: Yes
@@ -290,7 +291,7 @@ elements:
       documentation: Expects a list of the symptoms the patient is experiencing as as a set of SNOMED codes
 
     # column BC
-    - name: standard.illness_onset_date
+    - name: illness_onset_date
       csvFields: [{ name: Date of Symptom Onset, format: "MM/dd/yyyy" }]
 
     # column BD
@@ -344,7 +345,7 @@ elements:
         Based on the value set specified at [https://confluence.hl7.org/pages/viewpage.action?pageId=86967947](https://confluence.hl7.org/pages/viewpage.action?pageId=86967947) item 7a.
 
     # column BH
-    - name: standard.pregnant
+    - name: pregnant
       csvFields: [ { name: Pregnancy Status } ]
 
     # column BI
@@ -365,6 +366,7 @@ elements:
             code: U
       documentation: |
         AOE question for Florida. Expects one of the following values:
+
             - Student
             - Teacher
             - Other (Faculty Member)
