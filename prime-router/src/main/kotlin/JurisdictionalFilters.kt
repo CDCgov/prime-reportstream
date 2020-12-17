@@ -53,6 +53,26 @@ class Matches : JurisdictionalFilter {
 }
 
 /**
+ * Implements the opposite of the matches filter.
+ * Regexes have a hard time with "not", and this just seemed clearner
+ * and more obvious to the user what's going on.
+ * does_not_match(columnName, val, val, ...)
+ *
+ * A row of data is "allowed" if it does not match any of the values.
+ */
+class DoesNotMatch : JurisdictionalFilter {
+    override val name = "doesNotMatch"
+
+    override fun getSelection(args: List<String>, table: Table): Selection {
+        if (args.size < 2) error("Expecting two or more args to filter $name:  (columnName, value, value, ...)")
+        val columnName = args[0]
+        val pattern = args[1]
+        val values = args.subList(1, args.size)
+        return table.stringColumn(columnName).isNotIn(values)
+    }
+}
+
+/**
  * This may or may not be a unicorn.
  */
 class FilterByCounty : JurisdictionalFilter {
