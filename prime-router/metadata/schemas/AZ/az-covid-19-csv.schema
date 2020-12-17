@@ -14,6 +14,7 @@ elements:
 
   # Nonstandard
   - name: organization_and_lab
+    type: TEXT
     mapper: 'concat(organization_name, testing_lab_name)'
     csvFields:
     - name: Lab_Name
@@ -115,6 +116,7 @@ elements:
 
   # Nonstandard
   - name: organization_and_facility
+    type: TEXT
     mapper: 'concat(organization_name, ordering_facility_name)'
     csvFields: [{name: Ordering_facility_name}]
 
@@ -147,6 +149,7 @@ elements:
     - name: Provider_Phone_Number
 
   - name: testing_lab_specimen_id
+    mapper: use(placer_order_id)
     csvFields:
     - name: Specimen_ID
 

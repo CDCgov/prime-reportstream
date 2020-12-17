@@ -408,6 +408,10 @@ elements:
     natFlatFileField: Patient_county
     hl7Field: PID-11-9
 
+  - name: patient_email
+    type: EMAIL
+    hl7Field: ORC-23-4
+
   - name: patient_death_date
     type: DATE
     natFlatFileField: Patient_death_date
