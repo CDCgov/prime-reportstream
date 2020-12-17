@@ -22,13 +22,13 @@ do
 
     # if the schema name has the parent dir and slash in it, remove it
     if echo "$DOC_NAME" | grep -Eq $SCHEMA_REG; then
-        DOC_NAME=$(echo "$DOC_NAME" | sed -e 's|[a-z]*/||g')
+        DOC_NAME="${DOC_NAME//[a-z]*\//}"
     fi
 
     # some schemas include a -csv in the file name but that's
     # not present in the actual schema name when generating docs
     if echo "$SCHEMA_NAME" | grep -Eq -- "$CSV_REG"; then
-        SCHEMA_NAME=$(echo "$SCHEMA_NAME" | sed -e 's|-csv$||g')
+        SCHEMA_NAME="${SCHEMA_NAME//-csv/}"
     fi
 
     # generate docs using prime
