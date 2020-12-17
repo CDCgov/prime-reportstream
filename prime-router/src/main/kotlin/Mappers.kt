@@ -5,7 +5,7 @@ package gov.cdc.prime.router
  * a value for the element when no value is present. For example, the middle_initial element has
  * this mapper:
  *
- *  `mapper: middleInitial(standard.patient_middle_name)`
+ *  `mapper: middleInitial(patient_middle_name)`
  *
  * A mapper object is stateless. It has a name which corresponds to
  * the function name in the property. It has a set of arguments, which
@@ -26,10 +26,10 @@ interface Mapper {
      * For example, if the schema had a mapper field defined for a `minus` mapper
      *
      * - name: some_element
-     *   mapper: minus(standard.x, 1)
+     *   mapper: minus(x, 1)
      *
-     * `valueNames` would be called with an args list of ["standard.x", "1"].
-     * The minus mapper would return ["standard.x"]. The minus mapper is treating
+     * `valueNames` would be called with an args list of ["x", "1"].
+     * The minus mapper would return ["x"]. The minus mapper is treating
      * the second argument as a parameter, not as an element name.
      *
      * @param element that contains the mapper definition
@@ -43,12 +43,12 @@ interface Mapper {
      * For example, if the schema had a mapper field defined for a `minus` mapper
      *
      * - name: some_element
-     *   mapper: minus(standard.x, 1)
+     *   mapper: minus(x, 1)
      *
-     * `apply` would be called with an `args` list of ["standard.x", "1"] and a
-     * `values` list of [ElementAndValue(Element(standard.x, ...), "9")] where "9" is
-     * the value of the standard.x element for the current item. The `apply` method
-     * would return "8", thus mapping the `some_element` value to the `standard.x` value minus 1.
+     * `apply` would be called with an `args` list of ["x", "1"] and a
+     * `values` list of [ElementAndValue(Element(x, ...), "9")] where "9" is
+     * the value of the x element for the current item. The `apply` method
+     * would return "8", thus mapping the `some_element` value to the `x` value minus 1.
      *
      * @param args from the schema
      * @param values that where fetched based on valueNames
@@ -70,8 +70,12 @@ class MiddleInitialMapper : Mapper {
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        if (values.size != 1) error("Didn't find the right number of values")
-        return values.first().value.substring(0..0).toUpperCase()
+        if (values.isEmpty()) {
+            return null
+        } else {
+            if (values.size != 1) error("Found ${values.size} values.  Expecting 1 value. Args: $args, Values: $values")
+            return values.first().value.substring(0..0).toUpperCase()
+        }
     }
 }
 
@@ -96,7 +100,7 @@ class UseMapper : Mapper {
 /**
  * The mapper concatenates a list of column values together.
  * Call this like this:
- * concat(standard.organization_name, standard.ordering_facility_name)
+ * concat(organization_name, ordering_facility_name)
  * @todo add a separator arg.
  * @todo generalize this to call any kotlin string function?
  */
@@ -177,7 +181,7 @@ class LookupMapper : Mapper {
 /**
  * The obx17 mapper is specific to the LIVD table and the DeviceID field. Do not use in other places.
  *
- * @See <a href=https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification>HHS Submission Guidence</a>Do not use it for other fields and tables.
+ * @See <a href=https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification>HHS Submission Guidance</a>Do not use it for other fields and tables.
  */
 class Obx17Mapper : Mapper {
     override val name = "obx17"
@@ -185,7 +189,7 @@ class Obx17Mapper : Mapper {
     override fun valueNames(element: Element, args: List<String>): List<String> {
         if (args.isNotEmpty())
             error("Schema Error: obx17 mapper does not expect args")
-        return listOf("standard.equipment_model_name")
+        return listOf("equipment_model_name")
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
@@ -211,7 +215,7 @@ class Obx17Mapper : Mapper {
 /**
  * The obx17Type mapper is specific to the LIVD table and the DeviceID field. Do not use in other places.
  *
- * @See <a href=https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification>HHS Submission Guidence</a>Do not use it for other fields and tables.
+ * @See <a href=https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification>HHS Submission Guidance</a>Do not use it for other fields and tables.
  */
 class Obx17TypeMapper : Mapper {
     override val name = "obx17Type"
@@ -219,7 +223,7 @@ class Obx17TypeMapper : Mapper {
     override fun valueNames(element: Element, args: List<String>): List<String> {
         if (args.isNotEmpty())
             error("Schema Error: obx17Type mapper does not expect args")
-        return listOf("standard.equipment_model_name")
+        return listOf("equipment_model_name")
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
@@ -238,7 +242,7 @@ class Obx17TypeMapper : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9&]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

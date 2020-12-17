@@ -53,6 +53,26 @@ class Matches : JurisdictionalFilter {
 }
 
 /**
+ * Implements the opposite of the matches filter.
+ * Regexes have a hard time with "not", and this just seemed clearner
+ * and more obvious to the user what's going on.
+ * does_not_match(columnName, val, val, ...)
+ *
+ * A row of data is "allowed" if it does not match any of the values.
+ */
+class DoesNotMatch : JurisdictionalFilter {
+    override val name = "doesNotMatch"
+
+    override fun getSelection(args: List<String>, table: Table): Selection {
+        if (args.size < 2) error("Expecting two or more args to filter $name:  (columnName, value, value, ...)")
+        val columnName = args[0]
+        val pattern = args[1]
+        val values = args.subList(1, args.size)
+        return table.stringColumn(columnName).isNotIn(values)
+    }
+}
+
+/**
  * This may or may not be a unicorn.
  */
 class FilterByCounty : JurisdictionalFilter {
@@ -61,14 +81,14 @@ class FilterByCounty : JurisdictionalFilter {
     // @todo need tons of error checking.
     override fun getSelection(args: List<String>, table: Table): Selection {
         if (args.size != 2) error("Expecting two args to filter $name:  (TwoLetterState, County)")
-        val patientState = table.stringColumn("standard.patient_state")
-            ?: error("Unable to filterByCounty:  column standard.patient_state not found.")
-        val patientCounty = table.stringColumn("standard.patient_county")
-            ?: error("Unable to filterByCounty:  column standard.patient_county not found.")
-        val facilityState = table.stringColumn("standard.ordering_facility_state")
-            ?: error("Unable to filterByCounty:  column standard.ordering_facility_state not found.")
-        val facilityCounty = table.stringColumn("standard.ordering_facility_county")
-            ?: error("Unable to filterByCounty:  column standard.ordering_facility_county not found.")
+        val patientState = table.stringColumn("patient_state")
+            ?: error("Unable to filterByCounty:  column patient_state not found.")
+        val patientCounty = table.stringColumn("patient_county")
+            ?: error("Unable to filterByCounty:  column patient_county not found.")
+        val facilityState = table.stringColumn("ordering_facility_state")
+            ?: error("Unable to filterByCounty:  column ordering_facility_state not found.")
+        val facilityCounty = table.stringColumn("ordering_facility_county")
+            ?: error("Unable to filterByCounty:  column ordering_facility_county not found.")
 
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.
         val countyRegex = "(?i).*${args[1]}.*"

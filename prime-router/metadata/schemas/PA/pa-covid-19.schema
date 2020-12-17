@@ -2,87 +2,88 @@
 name: pa-covid-19
 description: PA COVID-19 flat file
 topic: covid-19
-trackingElement: standard.testing_lab_specimen_id
+trackingElement: testing_lab_specimen_id
+basedOn: covid-19
 elements:
-  - name: standard.patient_first_name
+  - name: patient_first_name
     csvFields:
     - name: PatientFirstName
 
-  - name: standard.patient_middle_initial
+  - name: patient_middle_initial
     csvFields:
     - name: PatientMiddleInitial
 
-  - name: standard.patient_last_name
+  - name: patient_last_name
     csvFields:
     - name: PatientLastName
 
-  - name: standard.patient_suffix
+  - name: patient_suffix
     csvFields:
     - name: PatientSuffix
 
-  - name: standard.patient_dob
+  - name: patient_dob
     csvFields:
     - name: PatientDOB
 
-  - name: standard.patient_street
+  - name: patient_street
     csvFields:
     - name: PatientAddress1
 
-  - name: standard.patient_city
+  - name: patient_city
     csvFields:
     - name: PatientCity
 
-  - name: standard.patient_state
+  - name: patient_state
     csvFields:
     - name: PatientState
 
-  - name: standard.patient_zip_code
+  - name: patient_zip_code
     csvFields:
     - name: PatientZipCode
 
-  - name: standard.patient_phone_number
+  - name: patient_phone_number
     csvFields:
     - name: PatientPhoneNumber
 
-  - name: standard.patient_gender
+  - name: patient_gender
     csvFields:
     - name: PatientGender
 
-  - name: standard.patient_race
+  - name: patient_race
     csvFields:
     - name: PatientRace
 
-  - name: standard.patient_ethnicity
+  - name: patient_ethnicity
     csvFields:
     - name: PatientEthnicity
 
-  - name: standard.testing_lab_specimen_id
+  - name: testing_lab_specimen_id
     csvFields:
     - name: TestID
 
-  - name: standard.specimen_collection_date_time
+  - name: specimen_collection_date_time
     csvFields:
     - name: SpecimenCollectedDate
 
-  - name: standard.specimen_source_site_code
+  - name: specimen_source_site_code
     csvFields:
     - name: SpecimenSource
       format: $display
 
-  - name: standard.specimen_type
+  - name: specimen_type
     csvFields:
     - name: TestName
       format: $display
 
-  - name: standard.test_result
+  - name: test_result
     csvFields:
     - name: TestQualitativeResult
       format: $display
 
-  - name: standard.comment
+  - name: comment
     csvFields:
     - name: Notes
 
-  - name: standard.ordering_facility_name
+  - name: ordering_facility_name
     csvFields:
     - name: PerformingFacilityName

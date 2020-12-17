@@ -13,22 +13,31 @@
   - name: az-phd
     description: Arizona PHD
     services:
-      - name: elr
+      - name: elr-test
         topic: covid-19
         schema: az/az-covid-19
         jurisdictionalFilter:
-          - matches(standard.ordering_facility_state,AZ)
+          - matches(ordering_facility_state,AZ)
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains)"
         transforms: { deidentify: false }
         batch:
           operation: MERGE
           numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
-        transport:
-            type: SFTP
-            host: sftp
-            port: 22
-            filePath: ./upload
+        format: CSV
+      - name: elr-prod
+        topic: covid-19
+        schema: az/az-covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state,AZ)
+          - "matches(ordering_facility_name,Tucson Mountains)"
+        transforms: { deidentify: false }
+        batch:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialBatch: 00:00
+          timeZone: ARIZONA
         format: CSV
 
   - name: pima-az-phd
@@ -47,6 +56,28 @@
           timeZone: ARIZONA
         address: http://localhost:1181/
         format: CSV
+
+  - name: tx-phd
+    description: Texas DSHS
+    services:
+      - name: elr
+        topic: covid-19
+        schema: tx/tx-covid-19-hl7
+        jurisdictionalFilter: [ "matches(patient_state, TX)"]
+        transforms: { deidentify: false }
+        format: HL7
+
+# Temporarily removing PA until we're ready to send there.
+#  - name: pa-phd
+#    description: Pennsylvennia PHD
+#    services:
+#      - name: elr
+#        topic: covid-19
+#        schema: pa/pa-covid-19
+#        jurisdictionalFilter: { patient_state: PA }
+#        transforms: { deidentify: false }
+#        address: http://localhost:1181/
+#        format: CSV
 
   #
   # Developer test organizations

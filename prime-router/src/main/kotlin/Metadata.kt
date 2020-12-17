@@ -40,6 +40,7 @@ object Metadata {
     private var jurisdictionalFilters = listOf(
         FilterByCounty(),
         Matches(),
+        DoesNotMatch(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private var organizationStore: List<Organization> = ArrayList()
@@ -79,26 +80,6 @@ object Metadata {
         }
     }
 
-    fun loadSchemas(schemas: List<Schema>) {
-        this.schemas = extendSchemas(schemas).map { normalizeSchemaName(it.name) to it }.toMap()
-    }
-
-    fun findSchema(name: String): Schema? {
-        return schemas[normalizeSchemaName(name)]
-    }
-
-    private fun readSchema(dirRelPath: String, file: File): Schema {
-        try {
-            val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
-            val schemaName = normalizeSchemaName(
-                if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
-            )
-            return fromSchemaFile.copy(name = schemaName)
-        } catch (e: Exception) {
-            throw Exception("Error parsing '${file.name}'", e)
-        }
-    }
-
     private fun readAllSchemas(catalogDir: File, dirRelPath: String): List<Schema> {
         val outputSchemas = mutableListOf<Schema>()
 
@@ -118,26 +99,52 @@ object Metadata {
         return outputSchemas
     }
 
-    private fun extendSchemas(schemas: List<Schema>): List<Schema> {
-        return schemas.map { schema ->
-            val expandedElements: List<Element> = schema.elements.map { expandElement(schemas, it) }
-            schema.copy(elements = expandedElements)
+    private fun readSchema(dirRelPath: String, file: File): Schema {
+        try {
+            val fromSchemaFile = mapper.readValue<Schema>(file.inputStream())
+            val schemaName = normalizeSchemaName(
+                if (dirRelPath.isEmpty()) fromSchemaFile.name else dirRelPath + "/" + fromSchemaFile.name
+            )
+            return fromSchemaFile.copy(name = schemaName)
+        } catch (e: Exception) {
+            throw Exception("Error parsing '${file.name}'", e)
         }
     }
 
-    private fun expandElement(schemas: List<Schema>, element: Element): Element {
-        return if (element.name.contains('.')) {
-            // names can have the form <schema>.<name> which means we should copy the values of the referenced element
-            val splitName = element.name.split('.')
-            if (splitName.size != 2) error("${element.name} is not a valid base name")
-            val baseSchemaName = normalizeSchemaName(splitName[0])
-            // Find the element in the schemas list
-            val basedElement = schemas.find { it.name == baseSchemaName }?.findElement(splitName[1])
-                ?: error("'${element.name}' does not exists in base '$baseSchemaName'")
-            element.extendFrom(basedElement)
-        } else {
-            element
+    fun loadSchemas(schemas: List<Schema>) {
+        this.schemas = fixupSchemas(schemas).map { normalizeSchemaName(it.name) to it }.toMap()
+    }
+
+    private fun fixupSchemas(schemas: List<Schema>): List<Schema> {
+        return schemas.map { schema ->
+            if (schema.extends == null && schema.basedOn == null) return@map schema
+
+            // find the base schema
+            val baseSchema = schemas.find {
+                val basedOnSchema = schema.extends ?: schema.basedOn ?: ""
+                normalizeSchemaName(it.name) == normalizeSchemaName(basedOnSchema)
+            } ?: error("'basedOn/extends schema does not exist for '${schema.name}'")
+
+            // Inherit properties from the base schema
+            var schemaElements = schema.elements.map { element ->
+                baseSchema.findElement(element.name)
+                    ?.let { element.inheritFrom(it) }
+                    ?: element
+            }
+
+            // Extend the schema if there is a extend element
+            schema.extends?.let {
+                val baseElements = baseSchema.elements.mapNotNull { element ->
+                    if (schema.containsElement(element.name)) null else element
+                }
+                schemaElements = schemaElements.plus(baseElements)
+            }
+            schema.copy(elements = schemaElements)
         }
+    }
+
+    fun findSchema(name: String): Schema? {
+        return schemas[normalizeSchemaName(name)]
     }
 
     private fun normalizeSchemaName(name: String): String {
