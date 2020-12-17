@@ -76,6 +76,9 @@ class RouterCli : CliktCommand(
         writeBlock: (report: Report, format: OrganizationService.Format, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
+        if (reports.size > 0) {
+            echo("Creating these files:")
+        }
         reports.forEach { (report, format) ->
             val outputFile = if (outputFileName != null) {
                 File(outputFileName!!)
@@ -83,7 +86,7 @@ class RouterCli : CliktCommand(
                 val fileName = Report.formFileName(report.id, report.schema.baseName, format, report.createdDateTime)
                 File(outputDir ?: ".", "$fileName")
             }
-            echo("Write to: ${outputFile.absolutePath}")
+            echo(outputFile.absolutePath)
             if (!outputFile.exists()) {
                 outputFile.createNewFile()
             }

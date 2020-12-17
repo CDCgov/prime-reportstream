@@ -326,11 +326,14 @@ data class Element(
                 formattedValue.replace(" ", "")
             }
             Type.HD -> {
-                when (format) {
-                    null,
-                    hdNameToken -> formattedValue
-                    else -> error("Schema Error: unsupported format for input: '$format' in '$name'")
-                }
+                // No matter what data value is, overwrite with our hardcoded default.
+                // By definition, we're the sending_application!
+                //
+                // Note:  This hack 'fixes' a bug in the Send function where data is read back in, and the
+                // incoming value is split between two fields: sending_application and sending_application_id
+                // There's currently no function to combine these in toNormalized(),
+                // so that it gets properly split apart again later in toFormatted.
+                this.default ?: ""
             }
             else -> formattedValue
         }
