@@ -107,7 +107,13 @@ class WorkflowEngine(
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         val sources = header.sources.map { DatabaseAccess.toSource(it) }
         return when (header.task.bodyFormat) {
-            "CSV" -> csvConverter.read(schema, ByteArrayInputStream(bytes), sources, destination)
+            "CSV" -> {
+                val result = csvConverter.read(schema.name, ByteArrayInputStream(bytes), sources, destination)
+                if (result.errors.isNotEmpty()) {
+                    error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
+                }
+                result.report
+            }
             else -> error("Unsupported read format")
         }
     }

@@ -51,7 +51,9 @@ class CsvFileTests {
         val schema = metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
 
         // 1) Ingest the file
-        val inputReport = csvConverter.read(schema, file.inputStream(), TestSource)
+        val result = csvConverter.read(schema.name, file.inputStream(), TestSource)
+        assertTrue(result.warnings.isEmpty() && result.errors.isEmpty())
+        val inputReport = result.report
         // 2) Create transformed objects, according to the receiver table rules
         val outputReports = Translator(metadata).translateByService(inputReport)
         assertEquals(2, outputReports.size)

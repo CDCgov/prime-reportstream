@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
+import kotlin.test.assertTrue
 
 class CsvConverterTests {
     @Test
@@ -24,9 +24,11 @@ class CsvConverterTests {
         """.trimIndent()
 
         val csvConverter = CsvConverter(Metadata(schema = one))
-        val report = csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
-        assertEquals(1, report.itemCount)
-        assertEquals("2", report.getString(0, 1))
+        val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertTrue(result.errors.isEmpty())
+        assertTrue(result.warnings.isEmpty())
+        assertEquals(1, result.report.itemCount)
+        assertEquals("2", result.report.getString(0, 1))
     }
 
     @Test
@@ -46,7 +48,7 @@ class CsvConverterTests {
         """.trimIndent()
 
         val csvConverter = CsvConverter(Metadata(schema = one))
-        val report = csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
+        val report = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertEquals(1, report.itemCount)
         assertEquals("elementDefault", report.getString(0, "c"))
     }
@@ -69,11 +71,11 @@ class CsvConverterTests {
 
         val csvConverter = CsvConverter(Metadata(schema = one))
         val report = csvConverter.read(
-            one,
+            "one",
             ByteArrayInputStream(csv.toByteArray()),
             listOf(TestSource),
             defaultValues = mapOf("c" to "dynamicDefault")
-        )
+        ).report
         assertEquals(1, report.itemCount)
         assertEquals("dynamicDefault", report.getString(0, "c"))
     }
@@ -94,7 +96,7 @@ class CsvConverterTests {
         """.trimIndent()
 
         val csvConverter = CsvConverter(Metadata(schema = one))
-        val report = csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
+        val report = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertEquals(1, report.itemCount)
         assertEquals("1", report.getString(0, 0))
     }
@@ -115,7 +117,7 @@ class CsvConverterTests {
         """.trimIndent()
 
         val csvConverter = CsvConverter(Metadata(schema = one))
-        val report = csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
+        val report = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertEquals(1, report.itemCount)
         assertEquals("1", report.getString(0, 0))
     }
@@ -137,7 +139,7 @@ class CsvConverterTests {
         """.trimIndent()
 
         val csvConverter = CsvConverter(Metadata(schema = one))
-        val report = csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
+        val report = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertEquals(1, report.itemCount)
         assertEquals("3", report.getString(0, 2))
     }
@@ -159,7 +161,7 @@ class CsvConverterTests {
         """.trimIndent()
 
         val csvConverter = CsvConverter(Metadata(schema = one))
-        val report = csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
+        val report = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertEquals(1, report.itemCount)
         assertEquals("3", report.getString(0, 2))
     }
@@ -228,7 +230,11 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
         val csvConverter = CsvConverter(Metadata(schema = one))
-        assertFails { csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource) }
+        val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertEquals(0, result.errors.size)
+        assertEquals(0, result.warnings.size)
+        assertEquals("", result.report.getString(0, "b"))
+        assertEquals("1", result.report.getString(0, "a"))
     }
 
     @Test
@@ -246,7 +252,8 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
         val csvConverter = CsvConverter(Metadata(schema = one))
-        assertFails { csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource) }
+        val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertEquals(1, result.warnings.size)
     }
 
     @Test
@@ -262,7 +269,42 @@ class CsvConverterTests {
         val csv = """
         """.trimIndent()
         val csvConverter = CsvConverter(Metadata(schema = one))
-        val report = csvConverter.read(one, ByteArrayInputStream(csv.toByteArray()), TestSource)
-        assertEquals(0, report.itemCount)
+        val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertTrue(result.warnings.isEmpty())
+        assertTrue(result.errors.isEmpty())
+        assertEquals(0, result.report.itemCount)
+    }
+
+    @Test
+    fun `test usage`() {
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", usage = "required", csvFields = Element.csvFields("a")),
+                Element("b", usage = "optional", csvFields = Element.csvFields("b")),
+                Element("c", usage = "requested", csvFields = Element.csvFields("c"))
+            )
+        )
+        val csvConverter = CsvConverter(Metadata(schema = one))
+
+        val csv1 = """
+            a,b,c
+            1,2,3
+        """.trimIndent()
+        val result1 = csvConverter.read("one", ByteArrayInputStream(csv1.toByteArray()), TestSource)
+        assertTrue(result1.warnings.isEmpty())
+        assertTrue(result1.errors.isEmpty())
+        assertEquals(1, result1.report.itemCount)
+
+        val csv2 = """
+            a,b
+            1,2
+        """.trimIndent()
+        val result2 = csvConverter.read("one", ByteArrayInputStream(csv2.toByteArray()), TestSource)
+        assertEquals(1, result2.warnings.size)
+        assertTrue(result2.errors.isEmpty())
+        assertEquals(1, result2.report.itemCount)
+        assertEquals("", result2.report.getString(0, "c"))
     }
 }

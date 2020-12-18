@@ -145,7 +145,14 @@ class RouterCli : CliktCommand(
             val inputReport: Report = when (inputSource) {
                 is InputSource.FileSource -> {
                     readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
-                        CsvConverter(metadata).read(schema, stream, FileSource(name))
+                        val result = CsvConverter(metadata).read(schema.name, stream, FileSource(name))
+                        if (result.errors.isNotEmpty()) {
+                            error(result.errors.joinToString("\n"))
+                        }
+                        if (result.warnings.isNotEmpty()) {
+                            echo(result.warnings.joinToString("\n"))
+                        }
+                        result.report
                     }
                 }
                 is InputSource.DirSource -> TODO("Dir source is not implemented")

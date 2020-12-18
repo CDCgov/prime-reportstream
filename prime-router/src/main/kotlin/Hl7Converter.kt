@@ -9,12 +9,12 @@ import java.time.ZoneId
 import java.util.Properties
 
 class Hl7Converter(val metadata: Metadata) {
-    val softwareVendorOrganization = "Centers for Disease Control and Prevention"
-    val softwareProductName = "PRIME Data Hub"
+    private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
+    private val softwareProductName = "PRIME Data Hub"
 
-    val hapiContext = DefaultHapiContext()
-    val buildVersion: String
-    val buildDate: String
+    private val hapiContext = DefaultHapiContext()
+    private val buildVersion: String
+    private val buildDate: String
 
     init {
         val buildProperties = Properties()
@@ -51,19 +51,18 @@ class Hl7Converter(val metadata: Metadata) {
         val terser = Terser(message)
         setLiterals(terser)
         report.schema.elements.forEach { element ->
-            val value = report.getStringWithDefault(row, element.name)
-            if (value.isEmpty()) return@forEach
+            val value = report.getString(row, element.name) ?: return@forEach
 
             if (element.hl7OutputFields != null) {
                 element.hl7OutputFields.forEach { hl7Field ->
                     setComponent(terser, element, hl7Field, value)
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER) {
-                val units = report.getStringWithDefault(row, "${element.name}_units")
-                val date = report.getStringWithDefault(row, "specimen_collection_date_time")
+                val units = report.getString(row, "${element.name}_units")
+                val date = report.getString(row, "specimen_collection_date_time") ?: ""
                 setAOE(terser, element, aoeSequence++, date, value, units)
             } else if (element.hl7Field == "AOE") {
-                val date = report.getStringWithDefault(row, "specimen_collection_date_time")
+                val date = report.getString(row, "specimen_collection_date_time") ?: ""
                 setAOE(terser, element, aoeSequence++, date, value)
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
@@ -219,9 +218,9 @@ class Hl7Converter(val metadata: Metadata) {
     }
 
     private fun createHeaders(report: Report): String {
-        val sendingApp = formatHD(Element.parseHD(report.getStringWithDefault(0, "sending_application")))
-        val receivingApp = formatHD(Element.parseHD(report.getStringWithDefault(0, "receiving_application")))
-        val receivingFacility = formatHD(Element.parseHD(report.getStringWithDefault(0, "receiving_facility")))
+        val sendingApp = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
+        val receivingApp = formatHD(Element.parseHD(report.getString(0, "receiving_application") ?: ""))
+        val receivingFacility = formatHD(Element.parseHD(report.getString(0, "receiving_facility") ?: ""))
 
         return "FHS|^~\\&|" +
             "$sendingApp|" +
@@ -286,9 +285,9 @@ class Hl7Converter(val metadata: Metadata) {
         }
     }
 
-    private fun formatHD(hdFields: Element.HDFields, seperator: String = "^"): String {
+    private fun formatHD(hdFields: Element.HDFields, separator: String = "^"): String {
         return if (hdFields.universalId != null && hdFields.universalIdSystem != null) {
-            "${hdFields.name}$seperator${hdFields.universalId}$seperator${hdFields.universalIdSystem}"
+            "${hdFields.name}$separator${hdFields.universalId}$separator${hdFields.universalIdSystem}"
         } else {
             hdFields.name
         }

@@ -46,14 +46,30 @@ data class Schema(
 ) {
     val baseName: String get() = formBaseName(name)
     val csvFields: List<Element.CsvField> get() = elements.flatMap { it.csvFields ?: emptyList() }
+
     private val elementIndex: Map<String, Int> = elements.mapIndexed { index, element -> element.name to index }.toMap()
 
     fun findElement(name: String): Element? {
         return elementIndex[name]?.let { elements[it] }
     }
 
+    fun findElementColumn(name: String): Int? {
+        return elementIndex[name]
+    }
+
     fun containsElement(name: String): Boolean {
         return elementIndex[name] != null
+    }
+
+    fun filterCsvFields(usage: Element.Usage): List<Element.CsvField> {
+        return elements
+            .filter {
+                if (usage == Element.Usage.OPTIONAL) {
+                    it.usageRequirement == null || it.usageRequirement.usage == Element.Usage.OPTIONAL
+                } else {
+                    it.usageRequirement?.usage == usage
+                }
+            }.flatMap { it.csvFields ?: emptyList() }
     }
 
     companion object {

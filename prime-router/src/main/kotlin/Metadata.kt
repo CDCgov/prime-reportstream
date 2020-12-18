@@ -184,11 +184,27 @@ class Metadata {
             Pair(ref, args)
         }
         val fullElement = if (baseElement != null) element.inheritFrom(baseElement) else element
+        val usageRequirement = fullElement.usage?.let {
+            when {
+                it == "required" -> Element.UsageRequirement(Element.Usage.REQUIRED)
+                it == "requested" -> Element.UsageRequirement(Element.Usage.REQUESTED)
+                it.startsWith("requiredIfPresent") -> {
+                    TODO()
+                }
+                it.startsWith("requiredIfNotPresent") -> {
+                    TODO()
+                }
+                it == "optional" -> Element.UsageRequirement(Element.Usage.OPTIONAL)
+                else -> error("Schema Error: Invalid usage field '$it' on '${element.name}'")
+            }
+        } ?: Element.UsageRequirement(Element.Usage.OPTIONAL)
+
         return fullElement.copy(
             valueSetRef = valueSetRef,
             tableRef = tableRef,
             mapperRef = refAndArgs?.first,
             mapperArgs = refAndArgs?.second,
+            usageRequirement = usageRequirement
         )
     }
 

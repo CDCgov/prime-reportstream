@@ -38,21 +38,25 @@ data class Element(
 
     // Either valueSet or altValues must be defined for a CODE type
     val valueSet: String? = null,
-    val valueSetRef: ValueSet? = null,
+    val valueSetRef: ValueSet? = null, // set during fixup
     val altValues: List<ValueSet.Value>? = null,
 
     // table and tableColumn must be defined for a TABLE type
     val table: String? = null,
-    val tableRef: LookupTable? = null,
-    val tableColumn: String? = null,
+    val tableRef: LookupTable? = null, // set during fixup
+    val tableColumn: String? = null, // set during fixup
 
-    val required: Boolean? = null,
+    /**
+     * Usage can either be required, requested, requiredIfPresent, requiredIfNotPresent, optional (default)
+     */
+    val usage: String? = null,
+    val usageRequirement: UsageRequirement? = null, // set during fixup
     val pii: Boolean? = null,
     val phi: Boolean? = null,
     val default: String? = null,
     val mapper: String? = null,
-    val mapperRef: Mapper? = null,
-    val mapperArgs: List<String>? = null,
+    val mapperRef: Mapper? = null, // set during fixup
+    val mapperArgs: List<String>? = null, // set during fixup
 
     // Information about the elements definition.
     val reference: String? = null,
@@ -117,6 +121,16 @@ data class Element(
         val universalIdSystem: String?
     )
 
+    enum class Usage {
+        REQUIRED,
+        REQUESTED,
+        REQUIRED_IF_PRESENT,
+        REQUIRED_IF_NOT_PRESENT,
+        OPTIONAL,
+    }
+
+    data class UsageRequirement(val usage: Usage, val elementName: String? = null)
+
     val isCodeType get() = this.type == Type.CODE
 
     fun inheritFrom(baseElement: Element): Element {
@@ -127,7 +141,7 @@ data class Element(
             altValues = this.altValues ?: baseElement.altValues,
             table = this.table ?: baseElement.table,
             tableColumn = this.tableColumn ?: baseElement.tableColumn,
-            required = this.required ?: baseElement.required,
+            usage = this.usage ?: baseElement.usage,
             pii = this.pii ?: baseElement.pii,
             phi = this.phi ?: baseElement.phi,
             mapper = this.mapper ?: baseElement.mapper,
@@ -259,7 +273,101 @@ data class Element(
     }
 
     /**
-     * Take a formatted CsvField value and turn into a normalized value stored in an element
+     * Take a formatted value and check to see if can be stored in a report.
+     */
+    fun checkForError(formattedValue: String, format: String? = null): String? {
+        if (formattedValue.isBlank()) return "Blank value for element '$name'"
+        return when (type) {
+            Type.DATE -> {
+                try {
+                    LocalDate.parse(formattedValue)
+                    return null
+                } catch (e: DateTimeParseException) {
+                }
+                return try {
+                    val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
+                    LocalDate.parse(formattedValue, formatter)
+                    null
+                } catch (e: DateTimeParseException) {
+                    "Invalid date: '$formattedValue' for element '$name'"
+                }
+            }
+            Type.DATETIME -> {
+                try {
+                    // Try an ISO pattern
+                    OffsetDateTime.parse(formattedValue)
+                    return null
+                } catch (e: DateTimeParseException) {
+                }
+                try {
+                    // Try a HL7 pattern
+                    val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
+                    OffsetDateTime.parse(formattedValue, formatter)
+                    return null
+                } catch (e: DateTimeParseException) {
+                }
+                try {
+                    // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
+                    val date = LocalDate.parse(formattedValue, dateFormatter)
+                    val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
+                    OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+                    return null
+                } catch (e: DateTimeParseException) {
+                }
+                return try {
+                    // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
+                    // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
+                    val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
+                    LocalDate.parse(formattedValue, formatter)
+                    null
+                } catch (e: DateTimeParseException) {
+                    "Invalid date: '$formattedValue' for element '$name'"
+                }
+            }
+            Type.CODE -> {
+                // First, prioritize use of a local $alt format, even if no value set exists.
+                return if (format == altDisplayFormat) {
+                    if (toAltCode(formattedValue) != null) null else
+                        "Invalid code: '$formattedValue' is not a display value in altValues set for '$name'"
+                } else {
+                    if (valueSetRef == null) error("Schema Error: missing value set for $name")
+                    when (format) {
+                        displayFormat ->
+                            if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
+                                "Invalid code: '$formattedValue' not a display value for element '$name'"
+                        else ->
+                            if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
+                                "Invalid Code: '$formattedValue' does not match any codes for '$name'"
+                    }
+                }
+            }
+            Type.TELEPHONE -> {
+                val number = phoneNumberUtil.parse(formattedValue, "US")
+                return if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                    "Invalid phone number '$formattedValue' for '$name'"
+                else
+                    null
+            }
+            Type.POSTAL_CODE -> {
+                // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
+                return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
+                    "Input Error: invalid postal code '$formattedValue'"
+                else
+                    null
+            }
+            Type.HD -> {
+                when (format) {
+                    null,
+                    hdNameToken -> null
+                    else -> "Schema Error: unsupported format for input: '$format' in '$name'"
+                }
+            }
+            else -> null
+        }
+    }
+
+    /**
+     * Take a formatted value and turn into a normalized value stored in a report
      */
     fun toNormalized(formattedValue: String, format: String? = null): String {
         if (formattedValue.isEmpty()) return ""

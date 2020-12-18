@@ -60,7 +60,7 @@ class TranslatorTests {
         val three = Schema(
             name = "three",
             topic = "test",
-            elements = listOf(Element("a"), Element("c", required = true))
+            elements = listOf(Element("a"), Element("c", usageRequirement = Element.UsageRequirement(Element.Usage.REQUIRED)))
         )
         val metadata = Metadata().loadSchemas(one, three)
         val translator = Translator(metadata)

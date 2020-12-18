@@ -18,10 +18,9 @@ class Hl7ConverterTests {
     init {
         val metadata = Metadata("./metadata")
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
-        val schema = metadata.findSchema("primedatainput/pdi-covid-19") ?: error("Cannot find pdi-covid-19")
         csvConverter = CsvConverter(metadata)
         converter = Hl7Converter(metadata)
-        testReport = csvConverter.read(schema, inputStream, TestSource)
+        testReport = csvConverter.read("primedatainput/pdi-covid-19", inputStream, TestSource).report
     }
 
     @Test

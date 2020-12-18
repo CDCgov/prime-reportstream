@@ -51,7 +51,7 @@ data class OrganizationService(
      *
      * @param operation MERGE will combine all reports in the batch into a single batch
      * @param numberPerDay Number of batches per day must be 1 to 3600
-     * @param initialTime The time of the day to send the first batch. Must be format of hh:mm.
+     * @param initialBatch The time of the day to send the first batch. Must be format of hh:mm.
      * @param timeZone the time zone of the initial sending
      */
     data class Batch(
@@ -70,7 +70,7 @@ data class OrganizationService(
         fun nextBatchTime(now: OffsetDateTime = OffsetDateTime.now(), minDurationInSeconds: Int = 10): OffsetDateTime {
             if (minDurationInSeconds < 1) error("MinDuration must be at least 1 second")
             val zoneId = ZoneId.of(timeZone.zoneId)
-            var zonedNow = now
+            val zonedNow = now
                 .atZoneSameInstant(zoneId)
                 .plusSeconds(minDurationInSeconds.toLong())
                 .withNano(0)

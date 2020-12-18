@@ -36,6 +36,7 @@ class ReportFunction {
     data class ValidatedRequest(
         val options: Options,
         val errors: List<String>,
+        val warnings: List<String>,
         val report: Report?
     )
 
@@ -77,7 +78,8 @@ class ReportFunction {
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
-        val errors: MutableList<String> = mutableListOf()
+        val errors = mutableListOf<String>()
+        val warnings = mutableListOf<String>()
 
         val optionsText = request.queryParameters.getOrDefault(requestOption, "")
         val options = if (optionsText.isNotBlank()) {
@@ -91,7 +93,7 @@ class ReportFunction {
             Options.None
         }
         if (options == Options.CheckConnections) {
-            return ValidatedRequest(options, errors, null)
+            return ValidatedRequest(options, errors, warnings, null)
         }
 
         val name = request.headers[clientName] ?: request.queryParameters.getOrDefault(clientName, "")
@@ -114,27 +116,36 @@ class ReportFunction {
         }
 
         if (client == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, errors, null)
+            return ValidatedRequest(options, errors, warnings, null)
         }
 
-        return try {
-            val report = createReport(engine, client, content)
-            ValidatedRequest(options, errors, report)
-        } catch (e: Exception) {
-            errors.add("Error: ${e.message}")
-            ValidatedRequest(options, errors, null)
-        }
+        val report = createReport(engine, client, content, errors, warnings)
+        return ValidatedRequest(options, errors, warnings, report)
     }
 
-    private fun createReport(engine: WorkflowEngine, client: OrganizationClient, content: String): Report {
-        val schema = engine.metadata.findSchema(client.schema) ?: error("missing schema for $clientName")
+    private fun createReport(
+        engine: WorkflowEngine,
+        client: OrganizationClient,
+        content: String,
+        errors: MutableList<String>,
+        warnings: MutableList<String>
+    ): Report? {
+        engine.metadata.findSchema(client.schema) ?: error("missing schema for $clientName")
         return when (client.format) {
             OrganizationClient.Format.CSV -> {
-                engine.csvConverter.read(
-                    schema,
-                    ByteArrayInputStream(content.toByteArray()),
-                    ClientSource(organization = client.organization.name, client = client.name)
-                )
+                try {
+                    val readResult = engine.csvConverter.read(
+                        client.schema,
+                        ByteArrayInputStream(content.toByteArray()),
+                        ClientSource(organization = client.organization.name, client = client.name)
+                    )
+                    errors += readResult.errors
+                    warnings += readResult.warnings
+                    readResult.report
+                } catch (e: Exception) {
+                    errors.add("Error: ${e.message}")
+                    null
+                }
             }
         }
     }

@@ -161,15 +161,8 @@ class Report {
     }
 
     fun getString(row: Int, colName: String): String? {
-        return table.getString(row, colName)
-    }
-
-    fun getStringWithDefault(row: Int, colName: String): String {
-        return if (table.columnNames().contains(colName)) {
-            table.getString(row, colName)
-        } else {
-            schema.findElement(colName)?.default ?: ""
-        }
+        val column = schema.findElementColumn(colName) ?: return null
+        return table.getString(row, column)
     }
 
     fun filter(filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>): Report {

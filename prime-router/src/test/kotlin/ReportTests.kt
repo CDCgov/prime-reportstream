@@ -63,7 +63,7 @@ class ReportTests {
 
         val twoTable = oneReport.applyMapping(mappingOneToTwo)
         assertEquals(2, twoTable.itemCount)
-        assertEquals("b2", twoTable.getString(1, "B"))
+        assertEquals("b2", twoTable.getString(1, "b"))
     }
 
     @Test
