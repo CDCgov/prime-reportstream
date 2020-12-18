@@ -4,6 +4,10 @@ on:
   push:
     branches: [ master, production ]
 
+defaults:
+  run:
+    working-directory: prime-router
+
 jobs:
   release:
     runs-on: ubuntu-latest
