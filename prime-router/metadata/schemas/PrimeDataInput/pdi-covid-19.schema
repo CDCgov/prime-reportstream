@@ -19,13 +19,7 @@ elements:
 
   # Patient ID is generated internally by SimpleReport
   - name: patient_id
-    type: TEXT
     csvFields: [{name: Patient_ID}]
-
-  # In SimpleReport, lookup_id is the ID the user entered into the app.
-  # Soon to be Deprecated
-  - name: patient_lookup_id 
-    csvFields: [{name: Patient_lookup_ID}]
 
   - name: test_performed_code
     csvFields: [{name: Ordered_test_code}]
@@ -44,8 +38,8 @@ elements:
   - name: equipment_instance_id
     csvFields: [{name: Instrument_ID}]
 
-  - name: testing_lab_specimen_id
-    csvFields: [{name: Testing_lab_specimen_ID}]
+  - name: placer_order_id
+    csvFields: [{name: Result_ID}]
 
 # Removed until SimpleReport sends this column
 #  - name: test_result_status
@@ -101,6 +95,9 @@ elements:
 
   - name: patient_county
     csvFields: [{name: Patient_county}]
+
+  - name: patient_email
+    csvFields: [{name: Patient_email}]
 
     # Eg, Staff, Resident, Visitor, Student
   - name: patient_role
@@ -174,6 +171,9 @@ elements:
 
   - name: ordering_facility_county
     csvFields: [{name: Ordering_facility_county}]
+
+  - name: ordering_facility_email
+    csvFields: [{name: Ordering_facility_email}]
 
   - name: ordering_provider_id
     csvFields: [{name: Ordering_provider_ID}]

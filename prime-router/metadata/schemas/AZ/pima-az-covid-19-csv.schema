@@ -21,11 +21,6 @@ elements:
   - name: patient_id
     csvFields: [{name: Patient_ID}]
 
-  # In SimpleReport, lookup_id is the ID the user entered into the app.
-  - name: patient_lookup_id
-    csvFields: [{name: Patient_lookup_ID}]
-    type: TEXT
-
   # LOINC code for the test performed
   - name: test_performed_name
     csvFields: [{name: Ordered_test_name}]
@@ -66,6 +61,7 @@ elements:
     csvFields: [{name: Instrument_ID}]
 
   - name: testing_lab_specimen_id
+    mapper: use(placer_order_id)
     csvFields: [{name: Testing_lab_specimen_ID}]
 
 # Removed until SimpleReport sends this column
