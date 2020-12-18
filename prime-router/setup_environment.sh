@@ -186,24 +186,24 @@ fi
 #                                     --only-show-errors
 
 # # Create container registry
-# echo "--- Creating container registry..."
-# az acr create --resource-group $resource_group \
-#               --name $container_registry \
-#               --sku Basic \
-#               --admin-enabled false \
-#               --default-action Deny \
-#               --public-network-enabled false \
-#               --sku Premium \
-#               --output none \
-#               --only-show-errors
+echo "--- Creating container registry..."
+az acr create --resource-group $resource_group \
+              --name $container_registry \
+              --sku Basic \
+              --admin-enabled true \
+              --default-action Deny \
+              --public-network-enabled false \
+              --sku Premium \
+              --output none \
+              --only-show-errors
 
-# echo -e "\tApplying network rules..."
-# az acr network-rule add --resource-group $resource_group \
-#                         --name $container_registry \
-#                         --vnet-name $vnet_name \
-#                         --subnet public \
-#                         --output none \
-#                         --only-show-errors
+echo -e "\tApplying network rules..."
+az acr network-rule add --resource-group $resource_group \
+                        --name $container_registry \
+                        --vnet-name $vnet_name \
+                        --subnet public \
+                        --output none \
+                        --only-show-errors
 
 # echo "--- Creating elastic plan for functions app..."
 # if [[ $prime_dev_name == prod ]]
@@ -245,8 +245,9 @@ fi
 #                                     --subnet private \
 #                                     --output none \
 #                                     --only-show-errors
-echo "--- Creating front door..."
-az network front-door create --resource-group $resource_group \
-                             --name $front_door \
-                             --backend-address $function_app.azurewebsites.net \
-                             --accepted-protocols Https 
+
+# echo "--- Creating front door..."
+# az network front-door create --resource-group $resource_group \
+#                              --name $front_door \
+#                              --backend-address $function_app.azurewebsites.net \
+#                              --accepted-protocols Https 
