@@ -39,6 +39,7 @@ elements:
     csvFields: [{name: Instrument_ID}]
 
   - name: placer_order_id
+    usage: required
     csvFields: [{name: Result_ID}]
 
 # Removed until SimpleReport sends this column
@@ -103,6 +104,9 @@ elements:
   - name: patient_role
     csvFields: [{name: Patient_role}]
     type: TEXT
+
+  - name: processing_mode_code
+    csvFields: [{name: Processing_mode_code}]
 
   - name: employed_in_healthcare
     csvFields: [{name: Employed_in_healthcare}]

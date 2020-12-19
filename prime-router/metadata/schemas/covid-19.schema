@@ -235,6 +235,7 @@ elements:
 
   - name: ordering_facility_email
     type: EMAIL
+    canBeBlank: true
     hl7Field: ORC-23-4
 
   - name: ordering_facility_name
@@ -271,6 +272,7 @@ elements:
 
   - name: ordering_facility_street2
     type: STREET
+    canBeBlank: true
     natFlatFileField: Ordering_facility_street2
     hhsGuidanceField:
     hl7Field: ORC-22-2
@@ -386,6 +388,7 @@ elements:
 
   - name: ordering_provider_street2
     type: STREET
+    canBeBlank: true
     natFlatFileField: Ordering_provider_street2
     hhsGuidanceField:
     hl7Field: ORC-24-2
@@ -534,6 +537,7 @@ elements:
 
   - name: patient_middle_name
     type: PERSON_NAME
+    canBeBlank: true
     natFlatFileField: Patient_middle_name
     hhsGuidanceField: Patient name
     hl7Field: PID-5-3
@@ -589,6 +593,7 @@ elements:
 
   - name: patient_street2
     type: STREET
+    canBeBlank: true
     natFlatFileField: Patient_street2
     hhsGuidanceField:
     hl7Field: PID-11-2
@@ -962,6 +967,7 @@ elements:
 
   - name: testing_lab_street2
     type: STREET
+    canBeBlank: true
     natFlatFileField: Testing_lab_street2
     hhsGuidanceField:
     hl7Field: OBX-24-2

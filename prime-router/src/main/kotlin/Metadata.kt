@@ -166,6 +166,10 @@ class Metadata {
      * The fixup process fills in references and inherited attributes.
      */
     private fun fixupElement(element: Element, baseElement: Element? = null): Element {
+        if (element.canBeBlank == true && element.default != null)
+            error("Schema Error: '${element.name}' has both a default and a canBeBlank field")
+        if (element.canBeBlank == true && element.mapper != null)
+            error("Schema Error: '${element.name}' has both a mapper and a canBeBlank field")
         val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
             findValueSet(it)

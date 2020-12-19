@@ -57,6 +57,7 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.CODE -> {
                 when (element.name) {
                     "specimen_source_site_code" -> "71836000"
+                    "processing_mode_code" -> ""
                     else -> {
                         val valueSet = element.valueSetRef
                             ?: error("ValueSet ${element.valueSet} is not available}")

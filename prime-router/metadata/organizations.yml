@@ -57,7 +57,7 @@
         format: CSV
 
   - name: tx-phd
-    description: Texas DSHS
+    description: Texas Texas Department of State Health Services
     services:
       - name: elr
         topic: covid-19

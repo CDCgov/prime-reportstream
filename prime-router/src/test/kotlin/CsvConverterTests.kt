@@ -344,7 +344,32 @@ class CsvConverterTests {
         assertEquals(0, result4.warnings.size)
         assertEquals(1, result4.errors.size)
         assertEquals(1, result4.report?.itemCount)
-        assertEquals("", result4.report?.getString(0, "b"))
+        assertEquals("B", result4.report?.getString(0, "b"))
         assertEquals("D", result4.report?.getString(0, "d"))
+    }
+
+    @Test
+    fun `test usage and canBeBlank`() {
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", usage = "required", csvFields = Element.csvFields("a"), default = "x", canBeBlank = false),
+                Element("b", usage = "optional", csvFields = Element.csvFields("b"), canBeBlank = true),
+                Element("c", usage = "requested", csvFields = Element.csvFields("c")),
+            )
+        )
+        val csvConverter = CsvConverter(Metadata(schema = one))
+
+        val csv4 = """
+            a,b,c
+            ,2,3
+            1,,3
+        """.trimIndent()
+        val result4 = csvConverter.read("one", ByteArrayInputStream(csv4.toByteArray()), TestSource)
+        assertEquals("x", result4.report?.getString(0, "a"))
+        assertEquals("1", result4.report?.getString(1, "a"))
+        assertEquals("2", result4.report?.getString(0, "b"))
+        assertEquals("", result4.report?.getString(1, "b"))
     }
 }

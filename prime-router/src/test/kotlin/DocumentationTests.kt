@@ -25,7 +25,11 @@ class DocumentationTests {
         val expected = """
 **Name**: a
 
-**Type**: TEXT    
+**Usage**:          optional
+
+**Type**:           TEXT
+
+**Format**:         
 
 ---
 """

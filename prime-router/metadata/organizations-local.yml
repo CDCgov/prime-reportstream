@@ -66,6 +66,31 @@
           timeZone: ARIZONA
         format: CSV
 
+  - name: tx-phd
+    description: Texas Department of State Health Services
+    services:
+      - name: elr-test
+        topic: covid-19
+        schema: tx/tx-covid-19-hl7
+        jurisdictionalFilter:
+         - "matches(ordering_facility_state, TX)"
+         - "matches(processing_mode_code, T)"
+        transforms: { deidentify: false }
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        format: HL7
+      - name: elr-debug
+        topic: covid-19
+        schema: tx/tx-covid-19-hl7
+        jurisdictionalFilter:
+          - "matches(ordering_facility_state, TX)"
+          - "matches(processing_mode_code, D)"
+        transforms: { deidentify: false }
+        format: HL7
+
   #
   # Developer test organizations
   #

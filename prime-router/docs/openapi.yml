@@ -14,29 +14,43 @@ paths:
       parameters:
         - in: query
           name: client
-          description: The client's name (eg. `simple_report`)
+          description: The client's name that matches the client name in metadata
           schema:
             type: string
           required: true
+          example: simple_report
+
         - in: query
           name: option
-          description: Optional processing modes
+          description: Optional ways to process the request
           required: false
           schema:
             type: string
             enum:
-              - None
               - ValidatePayload
               - CheckConnections
               - SkipSend
-              - SendTrainingFlag
-              - SendDebugFlag
+          example: ValidatePayload
+
+        - in: query
+          name: default
+          description: Dynamic default values for an element. ':' or %3A is used to seperate element name and value
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+          example: processing_mode_code%3AD
+
         - in: header
           name: x-functions-key
           description: The Azure function key for the end-point
           schema:
             type: string
           required: true
+
       requestBody:
         description: The public health information being routed
         required: true
@@ -48,6 +62,7 @@ paths:
               header1, header2
 
               value1, value2
+
       responses:
         '200':
           description: OK
@@ -69,13 +84,13 @@ paths:
                 $ref: '#/components/schemas/Report'
         '500':
           description: Internal Server Error
+
 components:
   schemas:
     Report:
       type: object
       required:
-        - "errors"
-        - "warnings"
+        - "details"
       properties:
         id:
           description: the id for the report assigned by the Hub
@@ -95,13 +110,8 @@ components:
           items:
             type: integer
             format: int32
-        errors:
-          description: a list of error descriptions that caused the entire report to fail or an item in the report to fail
-          type: array
-          items:
-            type: string
-        warnings:
-          description: a list of warnings about the newly created report
+        details:
+          description: a list of error and warning descriptions
           type: array
           items:
             type: string

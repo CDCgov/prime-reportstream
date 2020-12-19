@@ -152,9 +152,12 @@ class CsvConverter(val metadata: Metadata) {
 
     /**
      * For a input row from the CSV file map to a schema defined row by
+     *
      *  1. Using values from the csv file
      *  2. Using a mapper defined by the schema
      *  3. Using the default defined by the schema
+     *
+     * If the element `canBeBlank` then only step 1 is used.
      *
      * Also, format values into the normalized format for the type
      */
@@ -169,75 +172,56 @@ class CsvConverter(val metadata: Metadata) {
                 return normalized
             }
 
-            fun addDefaultValue(): String {
-                val value = if (csvMapping.useDefault.containsKey(element.name))
-                    csvMapping.useDefault.getValue(element.name)
-                else
-                    ""
-                return addToLookup(value)
-            }
-
             fun recordError(error: String) {
                 return when (element.usageRequirement?.usage) {
-                    Element.Usage.REQUIRED -> { errors += "Error: Invalid required value on row $index: $error" }
-                    Element.Usage.REQUESTED -> { warnings += "Warning: Invalid requested value on row $index: $error" }
+                    Element.Usage.REQUIRED -> { errors += "Error: Invalid required value on item $index: $error" }
+                    Element.Usage.REQUESTED -> { warnings += "Warning: Invalid requested value on item ${index + 1}: $error" }
                     Element.Usage.REQUIRED_IF_PRESENT -> TODO()
                     Element.Usage.REQUIRED_IF_NOT_PRESENT -> TODO()
                     Element.Usage.OPTIONAL,
-                    null -> { warnings += "Warning: Invalid optional value on row $index: $error" }
+                    null -> { warnings += "Warning: Invalid optional value on item ${index + 1}: $error" }
                 }
             }
 
-            fun checkValue(format: String?, value: String): Boolean {
-                return element.checkForError(value, format)?.let {
-                    recordError(it)
-                    false
-                } ?: true
+            fun useCsv(): String? {
+                val csvField = csvMapping.useCsv[element.name] ?: return null
+                val value = inputRow.getValue(csvField.name)
+                if (value.isBlank()) return if (element.canBeBlank == true) "" else null
+                val error = element.checkForError(value, csvField.format)
+                if (error != null) {
+                    recordError(error)
+                    return ""
+                }
+                return element.toNormalized(value, csvField.format)
             }
 
-            when (element.name) {
-                in csvMapping.useCsv -> {
-                    val csvField = csvMapping.useCsv.getValue(element.name)
-                    val value = inputRow.getValue(csvField.name)
-                    if (checkValue(csvField.format, value)) {
-                        val normalizedValue = element.toNormalized(value, csvField.format)
-                        addToLookup(normalizedValue)
-                    } else {
-                        addToLookup("")
-                    }
+            fun useMapper(): String? {
+                val (mapper, args) = csvMapping.useMapper[element.name] ?: return null
+                val valueNames = mapper.valueNames(element, args)
+                val valuesForMapper = valueNames.map { elementName ->
+                    val valueElement = schema.findElement(elementName)
+                        ?: error("Schema Error: Could not find element '$elementName' for mapper '${mapper.name}'")
+                    val value = lookupValues[elementName]
+                        ?: error("Schema Error: No mapper input for $elementName")
+                    ElementAndValue(valueElement, value)
                 }
-
-                in csvMapping.useMapper -> {
-                    val (mapper, args) = csvMapping.useMapper.getValue(element.name)
-                    val valueNames = mapper.valueNames(element, args)
-                    val valuesForMapper = valueNames.map { elementName ->
-                        val valueElement = schema.findElement(elementName)
-                            ?: error("Schema Error: Could not find element '$elementName' for mapper '${mapper.name}'")
-                        val value = if (lookupValues.containsKey(elementName)) {
-                            lookupValues.getValue(elementName)
-                        } else {
-                            recordError("Empty mapper input for $elementName")
-                            ""
-                        }
-                        ElementAndValue(valueElement, value)
-                    }
-                    val value = mapper.apply(element, args, valuesForMapper)
-                    if (value != null)
-                        addToLookup(value)
-                    else {
-                        recordError("Empty mapper result for $element.name")
-                        ""
-                    }
-                }
-
-                in csvMapping.useDefault -> {
-                    addDefaultValue()
-                }
-
-                else -> {
-                    error("Internal Error: '${element.name}' does not have a CSV mapping. Should of been caught earlier.")
-                }
+                return mapper.apply(element, args, valuesForMapper)
             }
+
+            fun useDefault(): String {
+                return csvMapping.useDefault[element.name] ?: ""
+            }
+
+            val value = useCsv() ?: useMapper() ?: useDefault()
+            addToLookup(value)
+            if (value.isBlank() &&
+                element.canBeBlank != true &&
+                element.usageRequirement?.usage != Element.Usage.OPTIONAL &&
+                element.name in csvMapping.useCsv // Don't warn again if the header already has warned about this
+            ) {
+                recordError("Blank value for element '${element.name}'")
+            }
+            value
         }
         return RowResult(row, errors, warnings)
     }

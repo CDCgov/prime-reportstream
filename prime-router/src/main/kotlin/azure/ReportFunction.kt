@@ -23,19 +23,22 @@ import java.util.logging.Level
  * This is basically the "front end" of the Hub. Reports come in here.
  */
 class ReportFunction {
-    private val clientName = "client"
-    private val requestOption = "option"
+    private val clientParameter = "client"
+    private val optionParameter = "option"
+    private val defaultParameter = "default"
+    private val defaultSeparator = ":"
+    private val jsonMediaType = "application/json" // TODO: find a good media library
+
     enum class Options {
         None,
         ValidatePayload,
         CheckConnections,
-        SkipSend,
-        SendTrainingFlag,
-        SendDebugFlag,
+        SkipSend
     }
 
     data class ValidatedRequest(
         val options: Options,
+        val defaults: Map<String, String>,
         val rejected: List<Int>,
         val errors: List<String>,
         val warnings: List<String>,
@@ -43,7 +46,7 @@ class ReportFunction {
     )
 
     /**
-     * Run ./test-ingest.sh to get an example curl call that calls this function.
+     * @see docs/openapi.yml
      */
     @FunctionName("reports")
     @StorageAccount("AzureWebJobsStorage")
@@ -63,7 +66,7 @@ class ReportFunction {
                     workflowEngine.checkConnections()
                     return okResponse(request, validatedRequest)
                 }
-                validatedRequest.report == null || validatedRequest.errors.isNotEmpty() -> {
+                validatedRequest.report == null -> {
                     return badRequestResponse(request, validatedRequest)
                 }
                 validatedRequest.options == Options.ValidatePayload -> {
@@ -85,26 +88,52 @@ class ReportFunction {
         val warnings = mutableListOf<String>()
         val rejected = mutableListOf<Int>()
 
-        val optionsText = request.queryParameters.getOrDefault(requestOption, "")
+        val optionsText = request.queryParameters.getOrDefault(optionParameter, "")
         val options = if (optionsText.isNotBlank()) {
             try {
                 Options.valueOf(optionsText)
             } catch (e: IllegalArgumentException) {
-                errors.add("Error: '$optionsText' is not a valid '$requestOption' query parameter")
+                errors.add("Error: '$optionsText' is not a valid '$optionParameter' query parameter")
                 Options.None
             }
         } else {
             Options.None
         }
         if (options == Options.CheckConnections) {
-            return ValidatedRequest(options, rejected, errors, warnings, null)
+            return ValidatedRequest(options, emptyMap(), rejected, errors, warnings, null)
         }
 
-        val name = request.headers[clientName] ?: request.queryParameters.getOrDefault(clientName, "")
-        if (name.isBlank()) errors.add("Error: Expected a '$clientName' query parameter")
-        val client = WorkflowEngine.metadata.findClient(name)
+        val clientName = request.headers[clientParameter] ?: request.queryParameters.getOrDefault(clientParameter, "")
+        if (clientName.isBlank()) errors.add("Error: Expected a '$clientParameter' query parameter")
+        val client = engine.metadata.findClient(clientName)
         if (client == null) {
-            errors.add("Error: '$name' is not a valid client name")
+            errors.add("Error: '$clientName' is not a valid client name")
+        }
+        val schema = engine.metadata.findSchema(client?.schema ?: "")
+            ?: error("Internal Error: '${client?.name}' has an invalid schema")
+
+        val defaultValues = if (request.queryParameters.containsKey(defaultParameter)) {
+            val values = request.queryParameters.getOrDefault(defaultParameter, "").split(",")
+            values.mapNotNull {
+                val parts = it.split(defaultSeparator)
+                if (parts.size != 2) {
+                    errors.add("Error: '$it' is not a valid default")
+                    return@mapNotNull null
+                }
+                val element = schema.findElement(parts[0])
+                if (element == null) {
+                    errors.add("Error: '${parts[0]}' is not a valid element name")
+                    return@mapNotNull null
+                }
+                val error = element.checkForError(parts[1])
+                if (error != null) {
+                    errors.add(error)
+                    return@mapNotNull null
+                }
+                Pair(parts[0], parts[1])
+            }.toMap()
+        } else {
+            emptyMap<String, String>()
         }
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
@@ -120,29 +149,30 @@ class ReportFunction {
         }
 
         if (client == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, rejected, errors, warnings, null)
+            return ValidatedRequest(options, defaultValues, rejected, errors, warnings, null)
         }
 
-        val report = createReport(engine, client, content, rejected, errors, warnings)
-        return ValidatedRequest(options, rejected, errors, warnings, report)
+        val report = createReport(engine, client, content, defaultValues, rejected, errors, warnings)
+        return ValidatedRequest(options, defaultValues, rejected, errors, warnings, report)
     }
 
     private fun createReport(
         engine: WorkflowEngine,
         client: OrganizationClient,
         content: String,
+        defaults: Map<String, String>,
         rejected: MutableList<Int>,
         errors: MutableList<String>,
         warnings: MutableList<String>
     ): Report? {
-        engine.metadata.findSchema(client.schema) ?: error("missing schema for $clientName")
         return when (client.format) {
             OrganizationClient.Format.CSV -> {
                 try {
                     val readResult = engine.csvConverter.read(
-                        client.schema,
-                        ByteArrayInputStream(content.toByteArray()),
-                        ClientSource(organization = client.organization.name, client = client.name)
+                        schemaName = client.schema,
+                        input = ByteArrayInputStream(content.toByteArray()),
+                        sources = listOf(ClientSource(organization = client.organization.name, client = client.name)),
+                        defaultValues = defaults
                     )
                     errors += readResult.errors
                     warnings += readResult.warnings
@@ -165,15 +195,10 @@ class ReportFunction {
         if (validatedRequest.options == Options.ValidatePayload ||
             validatedRequest.options == Options.CheckConnections
         ) return
-        val defaultValues = when (validatedRequest.options) {
-            Options.SendDebugFlag -> mapOf("processing_mode_code" to "D")
-            Options.SendTrainingFlag -> mapOf("processing_mode_code" to "T")
-            else -> emptyMap()
-        }
         workflowEngine.db.transact { txn ->
             workflowEngine
                 .translator
-                .filterAndTranslateByService(validatedRequest.report!!, defaultValues)
+                .filterAndTranslateByService(validatedRequest.report!!, validatedRequest.defaults)
                 .forEach { (report, service) ->
                     sendToDestination(report, service, context, workflowEngine, validatedRequest, destinations, txn)
                 }
@@ -189,18 +214,22 @@ class ReportFunction {
         destinations: MutableList<String>,
         txn: DataAccessTransaction
     ) {
+        val serviceDescription = if (service.organization.services.size > 1)
+            "${service.organization.description} (${service.name})"
+        else
+            service.organization.description
         val event = when {
             validatedRequest.options == Options.SkipSend -> {
                 ReportEvent(Event.Action.NONE, report.id)
             }
             service.batch != null -> {
                 val time = service.batch.nextBatchTime()
-                val destination = "Sending ${report.itemCount} items to ${service.organization.description} at $time"
+                val destination = "Sending ${report.itemCount} items to $serviceDescription at $time"
                 destinations += destination
                 ReceiverEvent(Event.Action.BATCH, service.fullName, time)
             }
             else -> {
-                val destination = "Sending ${report.itemCount} items to ${service.organization.description} immediately"
+                val destination = "Sending ${report.itemCount} items to $serviceDescription immediately"
                 destinations += destination
                 ReportEvent(Event.Action.SEND, report.id)
             }
@@ -211,10 +240,9 @@ class ReportFunction {
 
     private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {
         val indentSeparator = ",\n    "
-        val rejectedList = result.rejected.joinToString(indentSeparator) { "\"$it\"" }
+        val rejectedList = result.rejected.joinToString(indentSeparator) { "$it" }
         val destList = destinations.joinToString(indentSeparator) { "\"$it\"" }
-        val errorsList = result.errors.joinToString(indentSeparator) { "\"$it\"" }
-        val warningsList = result.warnings.joinToString(indentSeparator) { "\"$it\"" }
+        val detailsList = (result.errors + result.warnings).joinToString(indentSeparator) { "\"$it\"" }
         val start = if (result.report != null)
 """
 {
@@ -223,7 +251,7 @@ class ReportFunction {
   "destinations": [
     $destList
   ],
-  "rejected": [
+  "rejectedItems": [
     $rejectedList
   ],"""
         else
@@ -231,12 +259,9 @@ class ReportFunction {
 {"""
         val end =
 """
-  "errors": [
-    $errorsList
-  ],
-  "warnings": [
-    $warningsList
-  ] 
+  "details": [
+    $detailsList
+  ]
 }                 
 """
         return start + end
@@ -246,6 +271,7 @@ class ReportFunction {
         return request
             .createResponseBuilder(HttpStatus.OK)
             .body(createResponseBody(validatedRequest))
+            .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
             .build()
     }
 
@@ -256,6 +282,7 @@ class ReportFunction {
         return request
             .createResponseBuilder(HttpStatus.BAD_REQUEST)
             .body(createResponseBody(validatedRequest))
+            .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
             .build()
     }
 
@@ -267,6 +294,7 @@ class ReportFunction {
         return request
             .createResponseBuilder(HttpStatus.CREATED)
             .body(createResponseBody(validatedRequest, destinations))
+            .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
             .build()
     }
 

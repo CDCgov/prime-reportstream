@@ -53,6 +53,7 @@ data class Element(
     val usageRequirement: UsageRequirement? = null, // set during fixup
     val pii: Boolean? = null,
     val phi: Boolean? = null,
+    val canBeBlank: Boolean? = null,
     val default: String? = null,
     val mapper: String? = null,
     val mapperRef: Mapper? = null, // set during fixup
@@ -146,6 +147,7 @@ data class Element(
             usage = this.usage ?: baseElement.usage,
             pii = this.pii ?: baseElement.pii,
             phi = this.phi ?: baseElement.phi,
+            canBeBlank = this.canBeBlank ?: baseElement.canBeBlank,
             mapper = this.mapper ?: baseElement.mapper,
             default = this.default ?: baseElement.default,
             reference = this.reference ?: baseElement.reference,
@@ -278,7 +280,7 @@ data class Element(
      * Take a formatted value and check to see if can be stored in a report.
      */
     fun checkForError(formattedValue: String, format: String? = null): String? {
-        if (formattedValue.isBlank() && !isOptional) return "Blank value for element '$name'"
+        if (formattedValue.isBlank() && !isOptional && canBeBlank != true) return "Blank value for element '$name'"
         return when (type) {
             Type.DATE -> {
                 try {
