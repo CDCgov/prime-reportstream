@@ -12,6 +12,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.OrganizationClient
+import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
@@ -35,6 +36,7 @@ class ReportFunction {
 
     data class ValidatedRequest(
         val options: Options,
+        val rejected: List<Int>,
         val errors: List<String>,
         val warnings: List<String>,
         val report: Report?
@@ -59,18 +61,19 @@ class ReportFunction {
             when {
                 validatedRequest.options == Options.CheckConnections -> {
                     workflowEngine.checkConnections()
-                    return okResponse(request)
+                    return okResponse(request, validatedRequest)
                 }
                 validatedRequest.report == null || validatedRequest.errors.isNotEmpty() -> {
-                    return badRequestResponse(request, validatedRequest.errors)
+                    return badRequestResponse(request, validatedRequest)
                 }
                 validatedRequest.options == Options.ValidatePayload -> {
-                    return okResponse(request)
+                    return okResponse(request, validatedRequest)
                 }
             }
             context.logger.info("Successfully reported: ${validatedRequest.report!!.id}.")
-            routeReport(validatedRequest, workflowEngine, context)
-            return createdResponse(request, validatedRequest)
+            val destinations = mutableListOf<String>()
+            routeReport(context, workflowEngine, validatedRequest, destinations)
+            return createdResponse(request, validatedRequest, destinations)
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
             return internalErrorResponse(request)
@@ -80,6 +83,7 @@ class ReportFunction {
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
+        val rejected = mutableListOf<Int>()
 
         val optionsText = request.queryParameters.getOrDefault(requestOption, "")
         val options = if (optionsText.isNotBlank()) {
@@ -93,7 +97,7 @@ class ReportFunction {
             Options.None
         }
         if (options == Options.CheckConnections) {
-            return ValidatedRequest(options, errors, warnings, null)
+            return ValidatedRequest(options, rejected, errors, warnings, null)
         }
 
         val name = request.headers[clientName] ?: request.queryParameters.getOrDefault(clientName, "")
@@ -116,17 +120,18 @@ class ReportFunction {
         }
 
         if (client == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, errors, warnings, null)
+            return ValidatedRequest(options, rejected, errors, warnings, null)
         }
 
-        val report = createReport(engine, client, content, errors, warnings)
-        return ValidatedRequest(options, errors, warnings, report)
+        val report = createReport(engine, client, content, rejected, errors, warnings)
+        return ValidatedRequest(options, rejected, errors, warnings, report)
     }
 
     private fun createReport(
         engine: WorkflowEngine,
         client: OrganizationClient,
         content: String,
+        rejected: MutableList<Int>,
         errors: MutableList<String>,
         warnings: MutableList<String>
     ): Report? {
@@ -141,6 +146,7 @@ class ReportFunction {
                     )
                     errors += readResult.errors
                     warnings += readResult.warnings
+                    rejected += readResult.rejected
                     readResult.report
                 } catch (e: Exception) {
                     errors.add("Error: ${e.message}")
@@ -151,9 +157,10 @@ class ReportFunction {
     }
 
     private fun routeReport(
-        validatedRequest: ValidatedRequest,
-        workflowEngine: WorkflowEngine,
         context: ExecutionContext,
+        workflowEngine: WorkflowEngine,
+        validatedRequest: ValidatedRequest,
+        destinations: MutableList<String>,
     ) {
         if (validatedRequest.options == Options.ValidatePayload ||
             validatedRequest.options == Options.CheckConnections
@@ -168,51 +175,98 @@ class ReportFunction {
                 .translator
                 .filterAndTranslateByService(validatedRequest.report!!, defaultValues)
                 .forEach { (report, service) ->
-                    val event = when {
-                        validatedRequest.options == Options.SkipSend ->
-                            ReportEvent(Event.Action.NONE, report.id)
-                        service.batch != null ->
-                            ReceiverEvent(Event.Action.BATCH, service.fullName, service.batch.nextBatchTime())
-                        else ->
-                            ReportEvent(Event.Action.SEND, report.id)
-                    }
-                    workflowEngine.dispatchReport(event, report, txn)
-                    context.logger.info("Queued: ${event.toMessage()}")
+                    sendToDestination(report, service, context, workflowEngine, validatedRequest, destinations, txn)
                 }
         }
     }
 
-    private fun createResponseBody(report: Report): String {
-        return """
-            {
-              "id": "${report.id}"
+    private fun sendToDestination(
+        report: Report,
+        service: OrganizationService,
+        context: ExecutionContext,
+        workflowEngine: WorkflowEngine,
+        validatedRequest: ValidatedRequest,
+        destinations: MutableList<String>,
+        txn: DataAccessTransaction
+    ) {
+        val event = when {
+            validatedRequest.options == Options.SkipSend -> {
+                ReportEvent(Event.Action.NONE, report.id)
             }
-        """.trimIndent()
+            service.batch != null -> {
+                val time = service.batch.nextBatchTime()
+                val destination = "Sending ${report.itemCount} items to ${service.organization.description} at $time"
+                destinations += destination
+                ReceiverEvent(Event.Action.BATCH, service.fullName, time)
+            }
+            else -> {
+                val destination = "Sending ${report.itemCount} items to ${service.organization.description} immediately"
+                destinations += destination
+                ReportEvent(Event.Action.SEND, report.id)
+            }
+        }
+        workflowEngine.dispatchReport(event, report, txn)
+        context.logger.info("Queue: ${event.toMessage()}")
     }
 
-    private fun okResponse(request: HttpRequestMessage<String?>): HttpResponseMessage {
+    private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {
+        val indentSeparator = ",\n    "
+        val rejectedList = result.rejected.joinToString(indentSeparator) { "\"$it\"" }
+        val destList = destinations.joinToString(indentSeparator) { "\"$it\"" }
+        val errorsList = result.errors.joinToString(indentSeparator) { "\"$it\"" }
+        val warningsList = result.warnings.joinToString(indentSeparator) { "\"$it\"" }
+        val start = if (result.report != null)
+"""
+{
+  "id": "${result.report.id}",
+  "itemCount": ${result.report.itemCount}, 
+  "destinations": [
+    $destList
+  ],
+  "rejected": [
+    $rejectedList
+  ],"""
+        else
+"""
+{"""
+        val end =
+"""
+  "errors": [
+    $errorsList
+  ],
+  "warnings": [
+    $warningsList
+  ] 
+}                 
+"""
+        return start + end
+    }
+
+    private fun okResponse(request: HttpRequestMessage<String?>, validatedRequest: ValidatedRequest): HttpResponseMessage {
         return request
             .createResponseBuilder(HttpStatus.OK)
+            .body(createResponseBody(validatedRequest))
             .build()
     }
 
     private fun badRequestResponse(
         request: HttpRequestMessage<String?>,
-        errors: List<String>
+        validatedRequest: ValidatedRequest,
     ): HttpResponseMessage {
         return request
             .createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(errors.joinToString("\n"))
+            .body(createResponseBody(validatedRequest))
             .build()
     }
 
     private fun createdResponse(
         request: HttpRequestMessage<String?>,
-        validatedRequest: ValidatedRequest
+        validatedRequest: ValidatedRequest,
+        destinations: List<String>
     ): HttpResponseMessage {
         return request
             .createResponseBuilder(HttpStatus.CREATED)
-            .body(createResponseBody(validatedRequest.report!!))
+            .body(createResponseBody(validatedRequest, destinations))
             .build()
     }
 

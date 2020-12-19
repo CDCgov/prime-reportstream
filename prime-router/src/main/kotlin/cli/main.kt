@@ -146,8 +146,11 @@ class RouterCli : CliktCommand(
                 is InputSource.FileSource -> {
                     readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
                         val result = CsvConverter(metadata).read(schema.name, stream, FileSource(name))
-                        if (result.errors.isNotEmpty()) {
+                        if (result.report == null) {
                             error(result.errors.joinToString("\n"))
+                        }
+                        if (result.errors.isNotEmpty()) {
+                            echo(result.errors.joinToString("\n"))
                         }
                         if (result.warnings.isNotEmpty()) {
                             echo(result.warnings.joinToString("\n"))

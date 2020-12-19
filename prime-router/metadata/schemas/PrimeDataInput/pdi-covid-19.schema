@@ -210,3 +210,6 @@ elements:
 
   - name: reporting_facility_clia
     mapper: use(testing_lab_clia)
+
+  - name: message_id
+    mapper: use(placer_order_id)

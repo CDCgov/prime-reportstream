@@ -133,6 +133,8 @@ data class Element(
 
     val isCodeType get() = this.type == Type.CODE
 
+    val isOptional get() = usageRequirement == null || usageRequirement.usage == Usage.OPTIONAL
+
     fun inheritFrom(baseElement: Element): Element {
         return Element(
             name = this.name,
@@ -276,7 +278,7 @@ data class Element(
      * Take a formatted value and check to see if can be stored in a report.
      */
     fun checkForError(formattedValue: String, format: String? = null): String? {
-        if (formattedValue.isBlank()) return "Blank value for element '$name'"
+        if (formattedValue.isBlank() && !isOptional) return "Blank value for element '$name'"
         return when (type) {
             Type.DATE -> {
                 try {

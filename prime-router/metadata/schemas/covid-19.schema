@@ -222,6 +222,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: County
+    usage: required
     natFlatFileField: Ordering_facility_county
     hhsGuidanceField:
 
@@ -245,6 +246,7 @@ elements:
 
   - name: ordering_facility_phone_number
     type: TELEPHONE
+    usage: required
     natFlatFileField: Ordering_facility_phone_number
     hhsGuidanceField:
     hl7Field: ORC-23
@@ -254,6 +256,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: State
+    usage: required
     natFlatFileField: Ordering_facility_state
     hhsGuidanceField:
     hl7Field: ORC-22-4
@@ -411,6 +414,7 @@ elements:
 
   - name: patient_city
     type: CITY
+    usage: requested
     natFlatFileField: Patient_city
     hhsGuidanceField:
     hl7Field: PID-11-3
@@ -420,6 +424,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: County
+    usage: required
     natFlatFileField: Patient_county
 
   - name: patient_county_code
@@ -469,6 +474,7 @@ elements:
 
   - name: patient_first_name
     type: PERSON_NAME
+    usage: requested
     natFlatFileField: Patient_first_name
     hhsGuidanceField: Patient name
     hl7Field: PID-5-2
@@ -476,6 +482,7 @@ elements:
 
   - name: patient_gender
     type: CODE
+    usage: requested
     valueSet: hl70001
     natFlatFileField: Patient_gender
     hhsGuidanceField: Patient sex
@@ -486,6 +493,7 @@ elements:
   # TODO Figure out how to encode patient id (PID-3) like AZ and others want
   - name: patient_id
     type: TEXT
+    usage: requested
     natFlatFileField: Patient_id
     hhsGuidanceField:
     hl7Field: PID-3-1
@@ -506,6 +514,7 @@ elements:
 
   - name: patient_last_name
     type: PERSON_NAME
+    usage: requested
     natFlatFileField: Patient_last_name
     hhsGuidanceField:  Patient name
     hl7Field: PID-5-1
@@ -538,6 +547,7 @@ elements:
 
   - name: patient_phone_number
     type: TELEPHONE
+    usage: required
     natFlatFileField: Patient_phone_number
     hhsGuidanceField: Patient phone number
     hl7Field: PID-13
@@ -546,6 +556,7 @@ elements:
   - name: patient_race
     type: CODE
     valueSet: hl70005
+    usage: requested
     natFlatFileField: Patient_race
     hhsGuidanceField: Patient race
     hl7Field: PID-10
@@ -562,6 +573,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: State
+    usage: required
     natFlatFileField: Patient_state
     hhsGuidanceField:
     hl7Field: PID-11-4
@@ -569,6 +581,7 @@ elements:
 
   - name: patient_street
     type: STREET
+    usage: requested
     natFlatFileField: Patient_street
     hhsGuidanceField: Patient street address
     hl7Field: PID-11-1
@@ -596,6 +609,7 @@ elements:
 
   - name: patient_zip_code
     type: POSTAL_CODE
+    usage: required
     natFlatFileField: Patient_zip_code
     hhsGuidanceField: Patient residence zip code
     hl7Field: PID-11-5
@@ -649,7 +663,9 @@ elements:
 
   - name: message_id
     type: ID
+    mapper: use(placer_order_id, filler_order_id)
     hl7Field: MSH-10
+    usage: required
     documentation: unique id to track the usage of the message
 
   # name: public_health_case_id
@@ -908,6 +924,7 @@ elements:
 
   - name: testing_lab_clia
     type: ID_CLIA
+    usage: requested
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10

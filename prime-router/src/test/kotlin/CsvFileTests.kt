@@ -6,6 +6,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 //
 // Using JUnit here, but this is not a unit test.  This tests end-to-end:  ingesting a csv file,
@@ -53,7 +54,7 @@ class CsvFileTests {
         // 1) Ingest the file
         val result = csvConverter.read(schema.name, file.inputStream(), TestSource)
         assertTrue(result.warnings.isEmpty() && result.errors.isEmpty())
-        val inputReport = result.report
+        val inputReport = result.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
         val outputReports = Translator(metadata).translateByService(inputReport)
         assertEquals(2, outputReports.size)

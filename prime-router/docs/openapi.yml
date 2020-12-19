@@ -33,7 +33,7 @@ paths:
               - SendDebugFlag
         - in: header
           name: x-functions-key
-          description: The Azure function for the end-point
+          description: The Azure function key for the end-point
           schema:
             type: string
           required: true
@@ -51,21 +51,57 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
         '201':
-          description: Created
+          description: Created. A report was created, but items may have been rejected.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Report'
         '400':
-          description: Invalid request
+          description: Invalid request. No report created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
         '500':
           description: Internal Server Error
 components:
   schemas:
     Report:
       type: object
+      required:
+        - "errors"
+        - "warnings"
       properties:
         id:
+          description: the id for the report assigned by the Hub
           type: string
-          description: the id for report assigned by the Hub
+        itemCount:
+          description: the number of items in the report that have been accepted
+          type: integer
+          format: int32
+        destinations:
+          description: a description of where the report is being sent to
+          type: array
+          items:
+            type: string
+        rejected:
+          description: a list of item row indexes that were rejected in the report
+          type: array
+          items:
+            type: integer
+            format: int32
+        errors:
+          description: a list of error descriptions that caused the entire report to fail or an item in the report to fail
+          type: array
+          items:
+            type: string
+        warnings:
+          description: a list of warnings about the newly created report
+          type: array
+          items:
+            type: string

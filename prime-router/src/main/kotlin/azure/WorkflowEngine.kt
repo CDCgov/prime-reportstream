@@ -109,7 +109,7 @@ class WorkflowEngine(
         return when (header.task.bodyFormat) {
             "CSV" -> {
                 val result = csvConverter.read(schema.name, ByteArrayInputStream(bytes), sources, destination)
-                if (result.errors.isNotEmpty()) {
+                if (result.report == null || result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
                 result.report

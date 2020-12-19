@@ -7,6 +7,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import kotlin.test.Test
 import kotlin.test.assertNotNull
+import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7ConverterTests {
@@ -20,7 +21,7 @@ class Hl7ConverterTests {
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         csvConverter = CsvConverter(metadata)
         converter = Hl7Converter(metadata)
-        testReport = csvConverter.read("primedatainput/pdi-covid-19", inputStream, TestSource).report
+        testReport = csvConverter.read("primedatainput/pdi-covid-19", inputStream, TestSource).report ?: fail()
     }
 
     @Test
