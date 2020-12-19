@@ -42,12 +42,12 @@ class SendFunction {
                         is SFTPTransportType -> SftpTransport().send(service.fullName, it, header, content)
                         else -> true
                     }
-                }.reduce{ acc, s -> acc && s };
+                }.reduce { acc, s -> acc && s }
 
-                if( success ) {
+                if (success) {
                     context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
                 }
-                
+
                 // TODO: Next action should be WIPE when implemented
                 ReportEvent(Event.Action.NONE, header.task.reportId)
             }
@@ -56,5 +56,4 @@ class SendFunction {
             context.logger.log(Level.SEVERE, "Send exception", t)
         }
     }
-
 }

@@ -3,13 +3,10 @@ package gov.cdc.prime.router.transport
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.DatabaseAccess
-import java.io.InputStream
-import java.util.Properties
-
 import net.schmizz.sshj.SSHClient
-import net.schmizz.sshj.sftp.SFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
+import java.io.InputStream
 
 class SftpTransport : ITransport {
 
@@ -32,8 +29,8 @@ class SftpTransport : ITransport {
 
         var success: Boolean
 
-            uploadFile(host, port, user, pass, path, contents )
-            success = true
+        uploadFile(host, port, user, pass, path, contents)
+        success = true
 
         return success
     }
@@ -51,20 +48,6 @@ class SftpTransport : ITransport {
         return Pair(user, pass)
     }
 
-    private fun setupSshj(
-        host: String,
-        port: String,
-        user: String,
-        pass: String
-    ): SSHClient {
-
-        val client:SSHClient = SSHClient();
-        client.addHostKeyVerifier(PromiscuousVerifier());
-        client.connect(host,port.toInt());
-        client.authPassword(user, pass);
-        return client;
-    }
-
     private fun uploadFile(
         host: String,
         port: String,
@@ -73,18 +56,22 @@ class SftpTransport : ITransport {
         path: String,
         contents: ByteArray
     ) {
-        val sshClient: SSHClient = setupSshj(host, port, user, pass);
-        val sftpClient:SFTPClient = sshClient.newSFTPClient();
+        SSHClient().use {
 
-        val inMemoryFile = object : InMemorySourceFile() {
-            override fun getName(): String { return "test.csv" }
-            override fun getLength() : Long { return contents.size.toLong() }
-            override fun getInputStream() : InputStream {return contents.inputStream()}
+            it.addHostKeyVerifier(PromiscuousVerifier())
+            it.connect(host, port.toInt())
+            it.authPassword(user, pass)
+
+            it.newSFTPClient().use {
+                it.put(
+                    object : InMemorySourceFile() {
+                        override fun getName(): String { return "test.csv" }
+                        override fun getLength(): Long { return contents.size.toLong() }
+                        override fun getInputStream(): InputStream { return contents.inputStream() }
+                    },
+                    path
+                )
+            }
         }
- 
-        sftpClient.put(inMemoryFile, path);
- 
-         sftpClient.close();
-        sshClient.disconnect();
     }
 }
