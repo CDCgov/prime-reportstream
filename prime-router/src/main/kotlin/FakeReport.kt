@@ -118,7 +118,11 @@ class FakeReport {
                         else -> TODO()
                     }
                 }
-                Element.Type.TELEPHONE -> faker.numerify("##########:1:") // faker.phoneNumber().cellPhone()
+                Element.Type.TELEPHONE -> {
+                    // schema fields can define their own special format
+                    val formatString = element.csvFields?.get(0)?.format ?: "##########:1:"
+                    faker.numerify(formatString)
+                } // faker.phoneNumber().cellPhone()
                 Element.Type.EMAIL -> "${context.patientName.username()}@email.com"
                 null -> error("Invalid element type for ${element.name}")
             }

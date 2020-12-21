@@ -18,13 +18,29 @@ internal class FakeReportTests {
     }
 
     @Test
-    fun `test phone matches pattern`() {
+    fun `test phone matches default pattern`() {
         val phoneNumber = Element("patient_phone", type = Element.Type.TELEPHONE)
         val fakedNumber = FakeReport.buildColumn(phoneNumber, rowContext)
         // default format for phones in FakeReport is "##########:1:". checking for that here
         // todo: update for different formats as we expand the offerings for other consumers
         val phoneRegex = "\\d{10}:1:".toRegex()
-        assertTrue("Generated phone number doesn't match expected pattern. Was $fakedNumber") {
+        assertTrue("Generated phone number doesn't match expected default pattern. Was $fakedNumber") {
+            phoneRegex.matches(fakedNumber)
+        }
+    }
+
+    @Test
+    fun `test phone matches specified pattern`() {
+        val phoneNumber = Element(
+            "patient_phone",
+            type = Element.Type.TELEPHONE,
+            csvFields = listOf(Element.CsvField("Patient Phone", "##########"))
+        )
+        val fakedNumber = FakeReport.buildColumn(phoneNumber, rowContext)
+        // default format for phones in FakeReport is "##########:1:". checking for that here
+        // todo: update for different formats as we expand the offerings for other consumers
+        val phoneRegex = "\\d{10}".toRegex()
+        assertTrue("Generated phone number doesn't match specified pattern. Was $fakedNumber") {
             phoneRegex.matches(fakedNumber)
         }
     }
