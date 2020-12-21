@@ -214,4 +214,20 @@ internal class ElementTests {
         val result8 = one.toFormatted("XZ5555", "\$zipFivePlusFour")
         assertEquals("XZ5555", result8)
     }
+
+    @Test
+    fun `test inherit from`() {
+        val parent = Element(
+            "parent",
+            type = Element.Type.TEXT,
+            csvFields = Element.csvFields("sampleField"),
+            documentation = "I am the parent element"
+        )
+
+        var child = Element("child")
+        child = child.inheritFrom(parent)
+
+        assertEquals(parent.documentation, child.documentation, "Documentation value didn't carry over from parent")
+        assertEquals(parent.type, child.type, "Element type didn't carry over from parent")
+    }
 }
