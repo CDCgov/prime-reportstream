@@ -1,58 +1,77 @@
 package gov.cdc.prime.router.transport
 
-import com.jcraft.jsch.ChannelSftp
-import com.jcraft.jsch.JSch
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.SFTPTransportType
+import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.DatabaseAccess
-import java.util.Properties
+import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier
+import net.schmizz.sshj.xfer.InMemorySourceFile
+import java.io.InputStream
 
-class SftpTransport : Transport {
+class SftpTransport : ITransport {
 
-    override fun send(service: OrganizationService, header: DatabaseAccess.Header, contents: ByteArray): Boolean {
+    override fun send(
+        orgName: String,
+        transportType: TransportType,
+        header: DatabaseAccess.Header,
+        contents: ByteArray
+    ): Boolean {
 
-        val (user, pass) = lookupCredentials(service)
+        val sftpTransportType = transportType as SFTPTransportType
 
-        val fileDir = service.transport.filePath.removeSuffix("/")
+        val (user, pass) = lookupCredentials(orgName)
 
-        // TODO - determine what the filename should be
-        val path = "$fileDir/${service.fullName.replace('.', '-')}-${header.task.reportId}.csv"
-        val host: String = service.transport.host
-        val port: String = service.transport.port
+        val fileDir = sftpTransportType.filePath.removeSuffix("/")
 
-        val jsch = JSch()
-        val jschSession = jsch.getSession(user, host, port.toInt())
-        val config = Properties()
-        config.put("StrictHostKeyChecking", "no")
-        config.put("PreferredAuthentications", "password")
-        jschSession.setConfig(config)
-        jschSession.setPassword(pass)
+        val path = "$fileDir/${orgName.replace('.', '-')}-${header.task.reportId}.csv"
+        val host: String = sftpTransportType.host
+        val port: String = sftpTransportType.port
 
-        jschSession.connect()
-        val channelSftp = jschSession.openChannel("sftp") as ChannelSftp
+        var success: Boolean
 
-        var success = false
-
-        try {
-            channelSftp.connect()
-            channelSftp.put(contents.inputStream(), path, ChannelSftp.OVERWRITE)
-            success = true
-        } finally {
-            channelSftp.disconnect()
-        }
+        uploadFile(host, port, user, pass, path, contents)
+        success = true
 
         return success
     }
 
-    private fun lookupCredentials(service: OrganizationService): Pair<String, String> {
+    private fun lookupCredentials(orgName: String): Pair<String, String> {
 
-        val envVarLabel = service.fullName.replace(".", "__").replace('-', '_').toUpperCase()
+        val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
 
         val user = System.getenv("${envVarLabel}__USER") ?: ""
         val pass = System.getenv("${envVarLabel}__PASS") ?: ""
 
         if (user.isNullOrBlank() || pass.isNullOrBlank())
-            error("Unable to find SFTP credentials for ${service.fullName}")
+            error("Unable to find SFTP credentials for $orgName")
 
         return Pair(user, pass)
+    }
+
+    private fun uploadFile(
+        host: String,
+        port: String,
+        user: String,
+        pass: String,
+        path: String,
+        contents: ByteArray
+    ) {
+        SSHClient().use {
+
+            it.addHostKeyVerifier(PromiscuousVerifier())
+            it.connect(host, port.toInt())
+            it.authPassword(user, pass)
+
+            it.newSFTPClient().use {
+                it.put(
+                    object : InMemorySourceFile() {
+                        override fun getName(): String { return "test.csv" }
+                        override fun getLength(): Long { return contents.size.toLong() }
+                        override fun getInputStream(): InputStream { return contents.inputStream() }
+                    },
+                    path
+                )
+            }
+        }
     }
 }
