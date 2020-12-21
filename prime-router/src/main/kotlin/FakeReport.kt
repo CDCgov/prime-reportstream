@@ -38,8 +38,8 @@ class FakeReport {
         internal fun buildColumn(
             element: Element,
             context: RowContext,
-            findValueSet: (name: String) -> ValueSet?,
-            findTable: (name: String) -> LookupTable?,
+            findValueSet: (name: String) -> ValueSet? = { null },
+            findTable: (name: String) -> LookupTable? = { null },
         ): String {
             val faker = context.faker
             return when (element.type) {
@@ -106,7 +106,7 @@ class FakeReport {
                 Element.Type.ID -> faker.numerify("######")
                 Element.Type.ID_CLIA -> faker.numerify("##D#######") // Ex, 03D1021379
                 Element.Type.ID_DLN -> faker.idNumber().valid()
-                Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
+                Element.Type.ID_SSN -> faker.idNumber().ssnValid()
                 Element.Type.ID_NPI -> faker.numerify("##########")
                 Element.Type.STREET -> if (element.name.contains("2")) "" else faker.address().streetAddress()
                 Element.Type.PERSON_NAME -> {
