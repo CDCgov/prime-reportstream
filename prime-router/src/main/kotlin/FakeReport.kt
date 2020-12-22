@@ -49,6 +49,17 @@ class FakeReport {
                     when {
                         element.nameContains("lab_name") -> "Any lab USA"
                         element.nameContains("facility_name") -> "Any facility USA"
+                        element.nameContains("patient_age_and_units") -> {
+                            val unit = randomChoice("months", "years", "days")
+                            val value = when (unit) {
+                                "months" -> faker.number().numberBetween(1, 18)
+                                "days" -> faker.number().numberBetween(0, 364)
+                                "years" -> faker.number().numberBetween(1, 120)
+                                else -> TODO()
+                            }
+
+                            "$value $unit"
+                        }
                         else -> faker.lorem().characters(5, 10)
                     }
                 }
@@ -58,12 +69,16 @@ class FakeReport {
                         element.nameContains("DOB") -> faker.date().birthday(0, 100)
                         else -> faker.date().past(10, TimeUnit.DAYS)
                     }
-                    val formatter = SimpleDateFormat(Element.datePattern)
+                    // schemas can define their own formats for dates. we need to match that
+                    val dateFormat = element.csvFields?.get(0)?.format ?: Element.datePattern
+                    val formatter = SimpleDateFormat(dateFormat)
                     formatter.format(date)
                 }
                 Element.Type.DATETIME -> {
                     val date = faker.date().past(10, TimeUnit.DAYS)
-                    val formatter = SimpleDateFormat(Element.datetimePattern)
+                    // schemas can define their own formats for dates. we need to match that
+                    val dateTimeFormat = element.csvFields?.get(0)?.format ?: Element.datetimePattern
+                    val formatter = SimpleDateFormat(dateTimeFormat)
                     formatter.format(date)
                 }
                 Element.Type.DURATION -> TODO()
@@ -122,7 +137,7 @@ class FakeReport {
                     // schema fields can define their own special format
                     val formatString = element.csvFields?.get(0)?.format ?: "##########:1:"
                     faker.numerify(formatString)
-                } // faker.phoneNumber().cellPhone()
+                }
                 Element.Type.EMAIL -> "${context.patientName.username()}@email.com"
                 null -> error("Invalid element type for ${element.name}")
             }
