@@ -69,16 +69,12 @@ class FakeReport {
                         element.nameContains("DOB") -> faker.date().birthday(0, 100)
                         else -> faker.date().past(10, TimeUnit.DAYS)
                     }
-                    // schemas can define their own formats for dates. we need to match that
-                    val dateFormat = element.csvFields?.get(0)?.format ?: Element.datePattern
-                    val formatter = SimpleDateFormat(dateFormat)
+                    val formatter = SimpleDateFormat(Element.datePattern)
                     formatter.format(date)
                 }
                 Element.Type.DATETIME -> {
                     val date = faker.date().past(10, TimeUnit.DAYS)
-                    // schemas can define their own formats for dates. we need to match that
-                    val dateTimeFormat = element.csvFields?.get(0)?.format ?: Element.datetimePattern
-                    val formatter = SimpleDateFormat(dateTimeFormat)
+                    val formatter = SimpleDateFormat(Element.datetimePattern)
                     formatter.format(date)
                 }
                 Element.Type.DURATION -> TODO()

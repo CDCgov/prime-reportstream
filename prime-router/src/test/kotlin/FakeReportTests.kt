@@ -77,18 +77,4 @@ internal class FakeReportTests {
             defaultDateFormatRegex.matches(fakedDate)
         }
     }
-
-    @Test
-    fun `test alternate date format matches`() {
-        val defaultDateElement = Element(
-            "alternate date",
-            type = Element.Type.DATE,
-            csvFields = listOf(Element.CsvField(name = "alternate_date", format = "MM-dd-yyyy"))
-        )
-        val fakedDate = FakeReport.buildColumn(defaultDateElement, rowContext)
-        val defaultDateFormatRegex = "^\\d{2}-\\d{2}-\\d{4}$".toRegex()
-        assertTrue("Date does not match expected format. Received: $fakedDate") {
-            defaultDateFormatRegex.matches(fakedDate)
-        }
-    }
 }

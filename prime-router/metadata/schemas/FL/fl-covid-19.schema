@@ -208,11 +208,19 @@ elements:
       documentation: This is the coded value that describes the result. For IgG, IgM and CT results that provide a value leave this field blank.
 
     # column AT
-    - name: testing_lab_name
+    # nonstandard. need to concat because we currently can't add the same column twice to a table
+    # TODO: fix this
+    - name: name_of_testing_lab
+      type: TEXT
+      mapper: 'concat(testing_lab_name)'
       csvFields: [{ name: Performing Lab Name }]
 
     # column AU
-    - name: testing_lab_clia
+    # nonstandard. need to concat because we currently can't add the same column twice to a table
+    # TODO: fix this
+    - name: clia_of_testing_lab
+      type: TEXT
+      mapper: 'concat(testing_lab_clia)'
       csvFields: [{ name: Performing Lab CLIA }]
 
     # column AV
@@ -237,7 +245,6 @@ elements:
 
     # column AX
     - name: first_test
-      type: CODE
       csvFields: [{ name: First Test for Condition }]
       altValues:
           - display: Yes
@@ -250,7 +257,6 @@ elements:
 
     # column AY
     - name: employed_in_healthcare
-      type: CODE
       csvFields: [{ name: Employment in Health Care }]
       altValues:
           - display: Yes
@@ -296,7 +302,6 @@ elements:
 
     # column BD
     - name: hospitalized
-      type: CODE
       csvFields: [{ name: Hospitalized for this condition }]
       altValues:
           - display: Yes
@@ -309,7 +314,6 @@ elements:
 
     # column BE
     - name: icu
-      type: CODE
       csvFields: [{ name: In ICU }]
       altValues:
           - display: Yes
@@ -322,7 +326,6 @@ elements:
 
     # column BF
     - name: resident_congregate_setting
-      type: CODE
       csvFields: [{ name: Resides in Congregate Care setting }]
       altValues:
           - display: Yes
@@ -352,18 +355,8 @@ elements:
     # nonstandard
     - name: student_teacher_other
       type: CODE
+      valueSet: fl/student_teacher_other
       csvFields: [{ name: "Is the patient a student, teacher, or other faculty member" }]
-      altValues:
-          - display: Student
-            code: Student
-          - display: Teacher
-            code: Teacher
-          - display: Other (Faculty Member)
-            code: Other (Faculty Member)
-          - display: No
-            code: N
-          - display: Unknown
-            code: U
       documentation: |
         AOE question for Florida. Expects one of the following values:
 
