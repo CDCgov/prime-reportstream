@@ -75,7 +75,7 @@ elements:
     # column C part 2
     # nonstandard
     - name: patient_ssn
-      type: TEXT
+      type: ID_SSN
       hl7Field: PID-19
       csvFields: [ { name: Patient Social Security Number } ]
       documentation: The patient's SSN formatted without dashes
