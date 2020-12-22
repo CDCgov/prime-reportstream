@@ -82,9 +82,17 @@ class FakeReport {
                     when (element.name) {
                         "specimen_source_site_code" -> "71836000"
                         else -> {
+                            val altValues = element.altValues
                             val valueSet = findValueSet(element.valueSet ?: "")
                                 ?: error("ValueSet ${element.valueSet} is not available}")
-                            val possibleValues = valueSet.values.map { it.code }.toTypedArray()
+                            // if the code defines alternate values in the schema we need to
+                            // output them here
+                            val possibleValues = if (altValues?.isNotEmpty() == true) {
+                                altValues.map { it.code }.toTypedArray()
+                            } else {
+                                valueSet.values.map { it.code }.toTypedArray()
+                            }
+
                             randomChoice(*possibleValues)
                         }
                     }

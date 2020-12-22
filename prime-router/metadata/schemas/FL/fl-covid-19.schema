@@ -43,9 +43,15 @@ elements:
       csvFields: [{ name: Patient Ethnicity }]
 
     # column I
-    # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
     - name: patient_gender
       csvFields: [{ name: Patient Gender }]
+      altValues:
+          - display: Male
+            code: M
+          - display: Female
+            code: F
+          - display: Unknown
+            code: U
       documentation: The patient's gender. Expects M, F, or U
 
     # column J
@@ -196,7 +202,10 @@ elements:
       csvFields: [{ name: Reference Range }]
 
     # column AR
+    # nonstandard
     - name: abnormal_flag
+      type: CODE
+      valueSet: fl/abnormal_flag
       csvFields: [{ name: Abnormal Flag }]
 
     # column AS
@@ -338,9 +347,9 @@ elements:
 
     # column BG
     # nonstandard
-    # todo: create a value set for this based on SNOMED codes
     - name: specify_congregate_care_setting
-      type: TEXT
+      type: CODE
+      valueSet: fl/congregate_care_setting
       csvFields: [{ name: Specify Congregate Care Setting }]
       referenceUrl: https://confluence.hl7.org/pages/viewpage.action?pageId=86967947
       documentation: |
@@ -350,6 +359,13 @@ elements:
     # column BH
     - name: pregnant
       csvFields: [ { name: Pregnancy Status } ]
+      altValues:
+          - display: Pregnant
+            code: Y
+          - display: Not Pregnant
+            code: N
+          - display: Unknown
+            code: U
 
     # column BI
     # nonstandard
