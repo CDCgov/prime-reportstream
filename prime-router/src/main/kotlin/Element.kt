@@ -46,14 +46,9 @@ data class Element(
     val tableRef: LookupTable? = null, // set during fixup
     val tableColumn: String? = null, // set during fixup
 
-    /**
-     * Usage can either be required, requested, requiredIfPresent, requiredIfNotPresent, optional (default)
-     */
-    val usage: String? = null,
-    val usageRequirement: UsageRequirement? = null, // set during fixup
+    val cardinality: Cardinality? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,
-    val canBeBlank: Boolean? = null,
     val default: String? = null,
     val mapper: String? = null,
     val mapperRef: Mapper? = null, // set during fixup
@@ -89,8 +84,12 @@ data class Element(
     // the file
     val documentation: String? = null,
 ) {
+    /**
+     * Types of elements. Types imply a specific format and fake generator.
+     */
     enum class Type {
         TEXT,
+        TEXT_OR_BLANK, // Blank values are valid (not null)
         NUMBER,
         DATE,
         DATETIME,
@@ -99,11 +98,12 @@ data class Element(
         TABLE, // A table column value
         HD, // ISO Hierarchic Designator
         ID, // Generic ID
-        ID_CLIA,
+        ID_CLIA, // CMS CLIA number (must follow CLIA format rules)
         ID_DLN,
         ID_SSN,
         ID_NPI,
         STREET,
+        STREET_OR_BLANK,
         CITY,
         POSTAL_CODE,
         PERSON_NAME,
@@ -122,19 +122,29 @@ data class Element(
         val universalIdSystem: String?
     )
 
-    enum class Usage {
-        REQUIRED,
-        REQUESTED,
-        REQUIRED_IF_PRESENT,
-        REQUIRED_IF_NOT_PRESENT,
-        OPTIONAL,
-    }
+    /**
+     * @property ZERO_OR_ONE Can be null or present (default)
+     * @property ONE Must be present, error if not present
+     */
+    enum class Cardinality {
+        ZERO_OR_ONE,
+        ONE;
+        // ZERO is not a value, just remove the element to represent this concept
+        // Other values including conditionals in the future.
 
-    data class UsageRequirement(val usage: Usage, val elementName: String? = null)
+        fun toFormatted(): String {
+            return when (this) {
+                ZERO_OR_ONE -> "[0..1]"
+                ONE -> "[1..1]"
+            }
+        }
+    }
 
     val isCodeType get() = this.type == Type.CODE
 
-    val isOptional get() = usageRequirement == null || usageRequirement.usage == Usage.OPTIONAL
+    val isOptional get() = this.cardinality == Cardinality.ZERO_OR_ONE
+
+    val canBeBlank get() = type == Type.TEXT_OR_BLANK || type == Type.STREET_OR_BLANK
 
     fun inheritFrom(baseElement: Element): Element {
         return Element(
@@ -144,10 +154,9 @@ data class Element(
             altValues = this.altValues ?: baseElement.altValues,
             table = this.table ?: baseElement.table,
             tableColumn = this.tableColumn ?: baseElement.tableColumn,
-            usage = this.usage ?: baseElement.usage,
+            cardinality = this.cardinality ?: baseElement.cardinality,
             pii = this.pii ?: baseElement.pii,
             phi = this.phi ?: baseElement.phi,
-            canBeBlank = this.canBeBlank ?: baseElement.canBeBlank,
             mapper = this.mapper ?: baseElement.mapper,
             default = this.default ?: baseElement.default,
             reference = this.reference ?: baseElement.reference,

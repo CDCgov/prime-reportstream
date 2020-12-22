@@ -188,27 +188,12 @@ class Metadata {
             Pair(ref, args)
         }
         val fullElement = if (baseElement != null) element.inheritFrom(baseElement) else element
-        val usageRequirement = fullElement.usage?.let {
-            when {
-                it == "required" -> Element.UsageRequirement(Element.Usage.REQUIRED)
-                it == "requested" -> Element.UsageRequirement(Element.Usage.REQUESTED)
-                it.startsWith("requiredIfPresent") -> {
-                    TODO()
-                }
-                it.startsWith("requiredIfNotPresent") -> {
-                    TODO()
-                }
-                it == "optional" -> Element.UsageRequirement(Element.Usage.OPTIONAL)
-                else -> error("Schema Error: Invalid usage field '$it' on '${element.name}'")
-            }
-        } ?: Element.UsageRequirement(Element.Usage.OPTIONAL)
 
         return fullElement.copy(
             valueSetRef = valueSetRef,
             tableRef = tableRef,
             mapperRef = refAndArgs?.first,
-            mapperArgs = refAndArgs?.second,
-            usageRequirement = usageRequirement
+            mapperArgs = refAndArgs?.second
         )
     }
 
@@ -315,7 +300,7 @@ class Metadata {
 
     fun findOrganization(name: String): Organization? {
         if (name.isBlank()) return null
-        return this.organizations.first {
+        return this.organizations.find {
             it.name.equals(name, ignoreCase = true)
         }
     }
@@ -323,7 +308,7 @@ class Metadata {
     fun findService(name: String): OrganizationService? {
         if (name.isBlank()) return null
         val (orgName, clientName) = parseName(name)
-        return findOrganization(orgName)?.services?.first {
+        return findOrganization(orgName)?.services?.find {
             it.name.equals(clientName, ignoreCase = true)
         }
     }
@@ -331,7 +316,7 @@ class Metadata {
     fun findClient(name: String): OrganizationClient? {
         if (name.isBlank()) return null
         val (orgName, clientName) = parseName(name)
-        return findOrganization(orgName)?.clients?.first {
+        return findOrganization(orgName)?.clients?.find {
             it.name.equals(clientName, ignoreCase = true)
         }
     }

@@ -2,7 +2,7 @@
 name: pdi-covid-19
 description: PRIME POC COVID-19 flat file
 topic: covid-19
-trackingElement: testing_lab_specimen_id
+trackingElement: message_id
 basedOn: covid-19
 elements:
   - name: patient_last_name
@@ -38,9 +38,15 @@ elements:
   - name: equipment_instance_id
     csvFields: [{name: Instrument_ID}]
 
-  - name: placer_order_id
-    usage: required
+  - name: message_id
+    cardinality: ONE
     csvFields: [{name: Result_ID}]
+
+  - name: placer_order_id
+    mapper: use(message_id)
+
+  - name: filler_order_id
+    mapper: use(message_id)
 
 # Removed until SimpleReport sends this column
 #  - name: test_result_status
@@ -215,5 +221,4 @@ elements:
   - name: reporting_facility_clia
     mapper: use(testing_lab_clia)
 
-  - name: message_id
-    mapper: use(placer_order_id)
+

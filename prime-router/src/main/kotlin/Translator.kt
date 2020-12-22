@@ -106,7 +106,7 @@ class Translator(private val metadata: Metadata) {
                 useMapper[toElement.name] = metadata.findMapper(name) ?: error("Mapper $name is not found")
                 return@forEach
             }
-            if (toElement.usageRequirement?.usage == Element.Usage.REQUIRED) {
+            if (toElement.cardinality == Element.Cardinality.ONE) {
                 missing.add(toElement.name)
             } else {
                 useDefault[toElement.name] = toElement.defaultValue(defaultValues)

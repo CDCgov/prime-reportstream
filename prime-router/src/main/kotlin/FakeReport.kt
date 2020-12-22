@@ -39,6 +39,7 @@ class FakeReport(val metadata: Metadata) {
                     else -> faker.lorem().characters(5, 10)
                 }
             }
+            Element.Type.TEXT_OR_BLANK -> randomChoice("", faker.lorem().characters(5, 10))
             Element.Type.NUMBER -> faker.number().numberBetween(1, 10).toString()
             Element.Type.DATE -> {
                 val date = when {
@@ -96,7 +97,8 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.ID_DLN -> faker.idNumber().valid()
             Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
             Element.Type.ID_NPI -> faker.numerify("##########")
-            Element.Type.STREET -> if (element.name.contains("2")) "" else faker.address().streetAddress()
+            Element.Type.STREET -> faker.address().streetAddress()
+            Element.Type.STREET_OR_BLANK -> ""
             Element.Type.PERSON_NAME -> {
                 when {
                     element.nameContains("first") -> context.patientName.firstName()

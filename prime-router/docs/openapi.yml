@@ -27,9 +27,10 @@ paths:
           schema:
             type: string
             enum:
-              - ValidatePayload
-              - CheckConnections
-              - SkipSend
+              - ValidatePayload # Validate the payload, but do not process. return 200 on OK or 400 on fail
+              - CheckConnections # Health check
+              - SkipSend # Validate and route but do not send reports. Data is kept in the hub.
+              - SkipInvalidItems # Send valid ones
           example: ValidatePayload
 
         - in: query
@@ -90,28 +91,39 @@ components:
     Report:
       type: object
       required:
-        - "details"
       properties:
         id:
           description: the id for the report assigned by the Hub
           type: string
-        itemCount:
-          description: the number of items in the report that have been accepted
-          type: integer
-          format: int32
         destinations:
-          description: a description of where the report is being sent to
+          description: where the report is being sent to
           type: array
           items:
             type: string
-        rejected:
-          description: a list of item row indexes that were rejected in the report
+        errors:
+          description: a list of errors in the report
           type: array
           items:
-            type: integer
-            format: int32
-        details:
-          description: a list of error and warning descriptions
+            $ref: '#/components/schemas/Detail'
+        warnings:
+          description: a list of warnings in the report
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/Detail'
+
+    Detail:
+      type: object
+      properties:
+        scope:
+          type: string
+          description: Does the error apply to one item
+          enum:
+            - Parameter
+            - Report
+            - Item
+        id:
+          type: string
+          description: Depends on scope, either the item's id (message_id) or the report's id
+        detail:
+          type: string
+          description: The details of the error

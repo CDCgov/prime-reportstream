@@ -12,6 +12,7 @@ import kotlin.text.StringBuilder
 object DocumentationFactory {
     // will generate a documentation string based on markdown that can then be presented
     // to end users or be converted into HTML if we want to be fancy
+
     fun getElementDocumentation(element: Element): String {
         val csvField = element.csvFields?.get(0)
         val sb = StringBuilder()

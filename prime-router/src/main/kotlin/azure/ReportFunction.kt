@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.core.JsonFactory
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
@@ -14,7 +15,9 @@ import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.OrganizationClient
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 import java.util.logging.Level
 
@@ -33,15 +36,15 @@ class ReportFunction {
         None,
         ValidatePayload,
         CheckConnections,
-        SkipSend
+        SkipSend,
+        SkipInvalidItems,
     }
 
     data class ValidatedRequest(
         val options: Options,
         val defaults: Map<String, String>,
-        val rejected: List<Int>,
-        val errors: List<String>,
-        val warnings: List<String>,
+        val errors: List<ResultDetail>,
+        val warnings: List<ResultDetail>,
         val report: Report?
     )
 
@@ -84,50 +87,64 @@ class ReportFunction {
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
-        val errors = mutableListOf<String>()
-        val warnings = mutableListOf<String>()
-        val rejected = mutableListOf<Int>()
+        val errors = mutableListOf<ResultDetail>()
+        val warnings = mutableListOf<ResultDetail>()
 
         val optionsText = request.queryParameters.getOrDefault(optionParameter, "")
         val options = if (optionsText.isNotBlank()) {
             try {
                 Options.valueOf(optionsText)
             } catch (e: IllegalArgumentException) {
-                errors.add("Error: '$optionsText' is not a valid '$optionParameter' query parameter")
+                errors.add(ResultDetail.param(optionParameter, "'$optionsText' is not valid"))
                 Options.None
             }
         } else {
             Options.None
         }
         if (options == Options.CheckConnections) {
-            return ValidatedRequest(options, emptyMap(), rejected, errors, warnings, null)
+            return ValidatedRequest(options, emptyMap(), errors, warnings, null)
         }
 
         val clientName = request.headers[clientParameter] ?: request.queryParameters.getOrDefault(clientParameter, "")
-        if (clientName.isBlank()) errors.add("Error: Expected a '$clientParameter' query parameter")
+        if (clientName.isBlank())
+            errors.add(ResultDetail.param(clientParameter, "Expected a '$clientParameter' query parameter"))
         val client = engine.metadata.findClient(clientName)
-        if (client == null) {
-            errors.add("Error: '$clientName' is not a valid client name")
-        }
+        if (client == null)
+            errors.add(ResultDetail.param(clientParameter, "'$clientName' is not a valid"))
         val schema = engine.metadata.findSchema(client?.schema ?: "")
-            ?: error("Internal Error: '${client?.name}' has an invalid schema")
+
+        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
+        if (contentType.isBlank()) {
+            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
+        } else if (client != null && client.format.mimeType != contentType) {
+            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "expecting '${client.format.mimeType}'"))
+        }
+
+        val content = request.body ?: ""
+        if (content.isEmpty()) {
+            errors.add(ResultDetail.param("Content", "expecting a post message with content"))
+        }
+
+        if (client == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
+            return ValidatedRequest(options, emptyMap(), errors, warnings, null)
+        }
 
         val defaultValues = if (request.queryParameters.containsKey(defaultParameter)) {
             val values = request.queryParameters.getOrDefault(defaultParameter, "").split(",")
             values.mapNotNull {
                 val parts = it.split(defaultSeparator)
                 if (parts.size != 2) {
-                    errors.add("Error: '$it' is not a valid default")
+                    errors.add(ResultDetail.report("'$it' is not a valid default"))
                     return@mapNotNull null
                 }
                 val element = schema.findElement(parts[0])
                 if (element == null) {
-                    errors.add("Error: '${parts[0]}' is not a valid element name")
+                    errors.add(ResultDetail.report("'${parts[0]}' is not a valid element name"))
                     return@mapNotNull null
                 }
                 val error = element.checkForError(parts[1])
                 if (error != null) {
-                    errors.add(error)
+                    errors.add(ResultDetail.param(defaultParameter, error))
                     return@mapNotNull null
                 }
                 Pair(parts[0], parts[1])
@@ -136,24 +153,15 @@ class ReportFunction {
             emptyMap<String, String>()
         }
 
-        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
-        if (contentType.isBlank()) {
-            errors.add("Error: expecting a content-type header")
-        } else if (client != null && client.format.mimeType != contentType) {
-            errors.add("Error: expecting a '${client.format.mimeType}' content-type header")
+        if (content.isEmpty() || errors.isNotEmpty()) {
+            return ValidatedRequest(options, defaultValues, errors, warnings, null)
         }
 
-        val content = request.body ?: ""
-        if (content.isEmpty()) {
-            errors.add("Error: expecting a post message with content")
+        var report = createReport(engine, client, content, defaultValues, errors, warnings)
+        if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
+            report = null
         }
-
-        if (client == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, defaultValues, rejected, errors, warnings, null)
-        }
-
-        val report = createReport(engine, client, content, defaultValues, rejected, errors, warnings)
-        return ValidatedRequest(options, defaultValues, rejected, errors, warnings, report)
+        return ValidatedRequest(options, defaultValues, errors, warnings, report)
     }
 
     private fun createReport(
@@ -161,9 +169,8 @@ class ReportFunction {
         client: OrganizationClient,
         content: String,
         defaults: Map<String, String>,
-        rejected: MutableList<Int>,
-        errors: MutableList<String>,
-        warnings: MutableList<String>
+        errors: MutableList<ResultDetail>,
+        warnings: MutableList<ResultDetail>
     ): Report? {
         return when (client.format) {
             OrganizationClient.Format.CSV -> {
@@ -176,10 +183,9 @@ class ReportFunction {
                     )
                     errors += readResult.errors
                     warnings += readResult.warnings
-                    rejected += readResult.rejected
                     readResult.report
                 } catch (e: Exception) {
-                    errors.add("Error: ${e.message}")
+                    errors.add(ResultDetail.report(e.message ?: ""))
                     null
                 }
             }
@@ -239,32 +245,36 @@ class ReportFunction {
     }
 
     private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {
-        val indentSeparator = ",\n    "
-        val rejectedList = result.rejected.joinToString(indentSeparator) { "$it" }
-        val destList = destinations.joinToString(indentSeparator) { "\"$it\"" }
-        val detailsList = (result.errors + result.warnings).joinToString(indentSeparator) { "\"$it\"" }
-        val start = if (result.report != null)
-"""
-{
-  "id": "${result.report.id}",
-  "itemCount": ${result.report.itemCount}, 
-  "destinations": [
-    $destList
-  ],
-  "rejectedItems": [
-    $rejectedList
-  ],"""
-        else
-"""
-{"""
-        val end =
-"""
-  "details": [
-    $detailsList
-  ]
-}                 
-"""
-        return start + end
+        val factory = JsonFactory()
+        val outStream = ByteArrayOutputStream()
+        factory.createGenerator(outStream).use {
+            it.useDefaultPrettyPrinter()
+            it.writeStartObject()
+            if (result.report != null)
+                it.writeStringField("id", result.report.id.toString())
+            else
+                it.writeNullField("id")
+            it.writeArrayFieldStart("destinations")
+            destinations.forEach { destination -> it.writeString(destination) }
+            it.writeEndArray()
+
+            fun writeDetailsArray(field: String, array: List<ResultDetail>) {
+                it.writeArrayFieldStart(field)
+                array.forEach { error ->
+                    it.writeStartObject()
+                    it.writeStringField("scope", error.scope.toString())
+                    it.writeStringField("id", error.id)
+                    it.writeStringField("details", error.details)
+                    it.writeEndObject()
+                }
+                it.writeEndArray()
+            }
+
+            writeDetailsArray("errors", result.errors)
+            writeDetailsArray("warnings", result.warnings)
+            it.writeEndObject()
+        }
+        return outStream.toString()
     }
 
     private fun okResponse(request: HttpRequestMessage<String?>, validatedRequest: ValidatedRequest): HttpResponseMessage {

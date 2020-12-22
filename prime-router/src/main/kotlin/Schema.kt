@@ -61,15 +61,8 @@ data class Schema(
         return elementIndex[name] != null
     }
 
-    fun filterCsvFields(usage: Element.Usage): List<Element.CsvField> {
-        return elements
-            .filter {
-                if (usage == Element.Usage.OPTIONAL) {
-                    it.usageRequirement == null || it.usageRequirement.usage == Element.Usage.OPTIONAL
-                } else {
-                    it.usageRequirement?.usage == usage
-                }
-            }.flatMap { it.csvFields ?: emptyList() }
+    fun filterCsvFields(block: (Element) -> Boolean): List<Element.CsvField> {
+        return elements.filter(block).flatMap { it.csvFields ?: emptyList() }
     }
 
     companion object {

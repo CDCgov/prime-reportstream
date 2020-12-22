@@ -25,7 +25,7 @@ class DocumentationTests {
         val expected = """
 **Name**: a
 
-**Usage**:          optional
+**Cardinality**:    [0..1]
 
 **Type**:           TEXT
 
@@ -48,7 +48,11 @@ class DocumentationTests {
 
 **Name**: a
 
-**Type**: TEXT
+**Cardinality**:    [0..1]
+
+**Type**:           TEXT
+
+**Format**:         
 
 ---
 """
@@ -62,7 +66,11 @@ class DocumentationTests {
         val expected = """
 **Name**: a
 
-**Type**: TEXT
+**Cardinality**:    [0..1]
+
+**Type**:           TEXT
+
+**Format**:         
 
 **Documentation**:
 
