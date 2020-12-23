@@ -1,0 +1,249 @@
+---
+name: pa-covid-19-redox
+description: Pennsylvania Department of Health REDOX messages
+referenceUrl:
+topic: covid-19
+basedOn: covid-19
+elements:
+  - name: receiving_application
+    default: PA-ELR
+
+  - name: receiving_facility
+    default: PADOH
+
+  - name: message_id
+    redoxOutputFields: ["Meta.Message.ID"]
+
+  - name: patient_id
+    redoxOutputFields: ["Patient.Identifiers[0].ID"]
+
+  - name: patient_id_type
+    redoxOutputFields: ["Patient.Identifiers[0].IDType"]
+
+  - name: patient_last_name
+    redoxOutputFields: ["Patient.Demographics.LastName"]
+
+  - name: patient_first_name
+    redoxOutputFields: [ "Patient.Demographics.FirstName" ]
+
+  - name: patient_middle_name
+    redoxOutputFields: ["Patient.Demographics.MiddleName"]
+
+  - name: patient_dob
+    redoxOutputFields: ["Patient.Demographics.DOB"]
+
+  - name: patient_ethnicity
+    redoxOutputFields: ["Patient.Demographics.IsHispanic"]
+    altValues:
+    - code: H
+      display: true
+    - code: N
+      display: false
+
+  - name: patient_gender
+    altValues:
+    - code: M
+      display: Male
+    - code: F
+      display: Female
+    - code: O
+      display: Other
+    - code: A
+      display: Nonbinary
+    - code: U
+      display: Unknown
+    - code: N
+      display: Unknown
+    redoxOutputFields: ["Patient.Demographics.Sex"]
+
+  - name: patient_race
+    redoxOutputFields: ["Patient.Demographics.Race"]
+    altValues:
+    - display: American Indian or Alaska Native
+      code: 1002-5
+    - display: Asian
+      code: 2028-9
+    - display: Black or African American
+      code: 2054-5
+    - display: Native Hawaiian or Other Pacific Islander
+      code: 2076-8
+    - display: White
+      code: 2106-3
+    - code: 2131-1
+      display: Other Race
+    - code: ASKU
+      display: Unknown
+
+  - name: patient_phone_number
+    redoxOutputFields: ["Patient.Demographics.PhoneNumber.Home"]
+
+  - name: patient_street
+    redoxOutputFields: ["Patient.Demographics.Address.StreetAddress"]
+
+  - name: patient_city
+    redoxOutputFields: ["Patient.Demographics.Address.City"]
+
+  - name: patient_state
+    redoxOutputFields: ["Patient.Demographics.Address.State"]
+
+  - name: patient_zip_code
+    redoxOutputFields: ["Patient.Demographics.Address.ZIP"]
+
+  - name: patient_county
+    redoxOutputFields: ["Patient.Demographics.Address.County"]
+
+  - name: patient_country
+    redoxOutputFields: ["Patient.Demographics.Address.Country"]
+
+  - name: patient_email
+    redoxOutputFields: ["Patient.Demographics.EmailAddresses"]
+
+  - name: ordering_facility_name
+    redoxOutputFields: ["Orders[0].Extensions.ordering-facility-name.string"]
+
+  - name: ordering_facility_street
+    redoxOutputFields: ["Orders[0].Extensions.ordering-facility-address.address.line"]
+
+  - name: ordering_facility_city
+    redoxOutputFields: ["Orders[0].Extensions.ordering-facility-address.address.city"]
+
+  - name: ordering_facility_state
+    redoxOutputFields: ["Orders[0].Extensions.ordering-facility-address.address.state"]
+
+  - name: ordering_facility_zip_code
+    redoxOutputFields: ["Orders[0].Extensions.ordering-facility-address.address.postalCode"]
+
+  - name: ordering_facility_county
+    redoxOutputFields: ["Orders[0].Extensions.ordering-facility-address.address.county"]
+
+  - name: ordering_facility_country
+    redoxOutputFields: ["Orders[0].Extensions.ordering-facility-address.address.country"]
+
+  - name: ordering_facility_phone_number
+
+  - name: ordering_facility_email
+
+  - name: order_test_date
+    redoxOutputFields: ["Orders[0].Extensions.ordered-date-time.dateTime"]
+
+  - name: testing_lab_specimen_id
+    redoxOutputFields: ["Orders[0].ApplicationOrderID"]
+
+  - name: specimen_received_date_time
+    redoxOutputFields: ["Orders[0].TransactionDateTime"]
+
+  - name: specimen_collection_date_time
+    redoxOutputFields: ["Orders[0].CollectionDateTime"]
+
+  - name: test_result_date
+    redoxOutputFields: ["Orders[0].CompletionDateTime"]
+
+  - name: test_result_status
+    altValues:
+      - code: F
+        display: Final
+    redoxOutputFields: ["Orders[0].ResultStatus", "Orders[0].Results[0].Status"]
+
+  - name: ordered_test_code
+    redoxOutputFields: ["Orders[0].Procedure.Code"]
+
+  - name: ordered_test_system
+    redoxOutputFields: ["Orders[0].Procedure.Codeset"]
+
+  - name: ordered_test_name
+    redoxOutputFields: ["Orders[0].Procedure.Description"]
+
+  - name: ordering_provider_id
+    redoxOutputFields: ["Orders[0].Provider.NPI"]
+
+  - name: ordering_provider_first_name
+    redoxOutputFields: ["Orders[0].Provider.FirstName"]
+
+  - name: ordering_provider_last_name
+    redoxOutputFields: ["Orders[0].Provider.LastName"]
+
+  - name: ordering_provider_street
+    redoxOutputFields: ["Orders[0].Provider.Address.StreetAddress"]
+
+  - name: ordering_provider_city
+    redoxOutputFields: ["Orders[0].Provider.Address.City"]
+
+  - name: ordering_provider_state
+    redoxOutputFields: ["Orders[0].Provider.Address.State"]
+
+  - name: ordering_provider_zip_code
+    redoxOutputFields: ["Orders[0].Provider.Address.ZIP"]
+
+  - name: ordering_provider_county
+    redoxOutputFields: ["Orders[0].Provider.Address.County"]
+
+  - name: ordering_provider_country
+    redoxOutputFields: ["Orders[0].Provider.Address.Country"]
+
+  - name: ordering_provider_phone_number
+    redoxOutputFields: ["Orders[0].Provider.PhoneNumber.Office"]
+
+  - name: ordering_provider_email
+    redoxOutputFields: [ "Orders[0].Provider.EmailAddresses" ]
+
+  - name: redox_resulted
+    default: "Resulted"
+    redoxOutputFields: ["Orders[0].Status"]
+
+  - name: device_id
+    redoxOutputFields: ["Orders[0].Results[0].Extensions.device-id.string"]
+
+  - name: test_performed_code
+    redoxOutputFields: ["Orders[0].Results[0].Code"]
+
+  - name: test_performed_system
+    redoxOutputFields: ["Orders[0].Results[0].Codeset"]
+
+  - name: test_performed_name
+    redoxOutputFields: ["Orders[0].Results[0].Description"]
+
+  - name: specimen_type
+    redoxOutputFields: ["Orders[0].Results[0].Specimen.Source"]
+
+  - name: specimen_source_site_code
+    redoxOutputFields: ["Orders[0].Results[0].Specimen.BodySite"]
+
+  - name: test_result
+    redoxOutputFields: ["Orders[0].Results[0].Value"]
+
+  - name: date_result_released
+    redoxOutputFields: ["Orders[0].Results[0].CompletionDateTime" ]
+
+  - name: testing_lab_clia
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.ID" ]
+
+  - name: redox_test_lab_id_type
+    default: "CLIA"
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.IDType" ]
+
+  - name: testing_lab_name
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.Name" ]
+
+  - name: testing_lab_street
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.Address.StreetAddress" ]
+
+  - name: testing_lab_city
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.Address.City" ]
+
+  - name: testing_lab_state
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.Address.State" ]
+
+  - name: testing_lab_zip_code
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.Address.ZIP" ]
+
+  - name: testing_lab_county
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.Address.County" ]
+
+  - name: testing_lab_country
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.Address.Country" ]
+
+  - name: testing_lab_phone_number
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.PhoneNumber.Office" ]
+
+  - name: testing_lab_email
+    redoxOutputFields: [ "Orders[0].Results[0].Producer.EmailAddresses" ]

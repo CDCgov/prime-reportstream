@@ -17,6 +17,7 @@ import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Converter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.RedoxConverter
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Translator
@@ -119,6 +120,7 @@ class RouterCli : CliktCommand(
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
         val csvConverter = CsvConverter(metadata)
         val hl7Converter = Hl7Converter(metadata)
+        val redoxConverter = RedoxConverter(metadata)
         echo("Loaded schema and receivers")
 
         // if we are generating the documentation from the schema, we don't want
@@ -183,6 +185,9 @@ class RouterCli : CliktCommand(
                 outputSchema != null -> {
                     val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
                     val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())
+                    if (mapping.missing.isNotEmpty()) {
+                        error("Error: When translating to $'${toSchema.name} missing fields for ${mapping.missing.joinToString(", ")}")
+                    }
                     val toReport = inputReport.applyMapping(mapping)
                     listOf(Pair(toReport, outputFormat))
                 }
@@ -194,6 +199,8 @@ class RouterCli : CliktCommand(
                 when (format) {
                     OrganizationService.Format.CSV -> csvConverter.write(report, stream)
                     OrganizationService.Format.HL7 -> hl7Converter.write(report, stream)
+                    OrganizationService.Format.REDOX -> redoxConverter.write(report, RedoxConverter.AOEOptions.Normal, stream)
+                    OrganizationService.Format.REDOX_AOE -> TODO()
                 }
             }
         }

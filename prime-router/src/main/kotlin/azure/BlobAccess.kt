@@ -25,6 +25,8 @@ class BlobAccess(private val csvConverter: CsvConverter, private val hl7Converte
         when (getBodyFormat(report)) {
             OrganizationService.Format.HL7 -> hl7Converter.write(report, outputStream)
             OrganizationService.Format.CSV -> csvConverter.write(report, outputStream)
+            OrganizationService.Format.REDOX -> TODO()
+            OrganizationService.Format.REDOX_AOE -> TODO()
         }
         return Pair(getBodyFormat(report).toString(), outputStream.toByteArray())
     }

@@ -58,6 +58,9 @@ class Translator(private val metadata: Metadata) {
             val toSchema = metadata.findSchema(receiver.schema)
                 ?: error("${receiver.schema} schema is missing from catalog")
             val mapping = buildMapping(toSchema, filteredReport.schema, defaultValues)
+            if (mapping.missing.isNotEmpty()) {
+                error("Error: To translate to ${toSchema.name}, these elements are missing: ${mapping.missing.joinToString(", ")}")
+            }
             filteredReport.applyMapping(mapping)
         } else {
             filteredReport

@@ -70,3 +70,5 @@ __azurite_db_queue__.json
 __azurite_db_blob_extent__.json
 __azurite_db_blob__.json
 prime-router/source.mry
+*.redox
+prime-router/result_files/redox.json

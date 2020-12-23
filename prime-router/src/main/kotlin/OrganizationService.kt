@@ -34,13 +34,17 @@ data class OrganizationService(
 
     enum class Format {
         CSV,
-        HL7;
+        HL7,
+        REDOX, // Without AOE
+        REDOX_AOE; // With AOE
         // FHIR
 
         fun toExt(): String {
             return when (this) {
                 CSV -> "csv"
                 HL7 -> "hl7"
+                REDOX -> "redox"
+                REDOX_AOE -> "redox"
             }
         }
     }

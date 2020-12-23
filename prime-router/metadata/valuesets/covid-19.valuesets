@@ -100,16 +100,16 @@
   values:
     - code: 95417-2
       display: First test for condition of interest
-      version: 2.69-pre
+      version: 2.69
     - code: 95418-0
       display: Whether patient is employed in a healthcare setting
-      version: 2.69-pre
+      version: 2.69
     - code: 85658-3
       display: Occupation [Type]
       version: 2.68
     - code: 95419-8
       display: Has symptoms related to condition of interest
-      version: 2.69-pre
+      version: 2.69
     - code: 65222-2
       display: Date and time of symptom onset
       version: 2.68
@@ -120,10 +120,10 @@
       display: Patient was hospitalized because of this condition
     - code: 95420-6
       display: Admitted to intensive care unit for condition of interest
-      version: 2.69-pre
+      version: 2.69
     - code: 95421-4
       display: Resides in a congregate care setting
-      version: 2.68-pre
+      version: 2.69
     - code: 75617-1
       display: Residence type
       version: 2.68
