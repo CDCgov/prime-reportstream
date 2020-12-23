@@ -29,7 +29,7 @@ object DocumentationFactory {
             appendLabelAndUrl(sb, "Reference URL", element.referenceUrl)
         }
 
-        // build the value sets tables
+        // build the valuesets
         if (element.valueSet?.isNotEmpty() == true) {
             val valueSet = Metadata.findValueSet(element.valueSet)
             appendValueSetTable(sb, "Value Sets", valueSet?.values)
@@ -39,7 +39,11 @@ object DocumentationFactory {
             appendValueSetTable(sb, "Alt Value Sets", element.altValues)
         }
 
-        // write out the documentation string
+        if (element.table?.isNotEmpty() == true) {
+            appendLabelAndData(sb, "Table", element.table)
+            appendLabelAndData(sb, "Table Column", element.tableColumn)
+        }
+
         if (element.documentation?.isNotEmpty() == true) {
             sb.appendLine(
                 """**Documentation**:
