@@ -24,6 +24,10 @@ object DocumentationFactory {
         appendLabelAndData(sb, "Type", element.type?.name)
         appendLabelAndData(sb, "Format", csvField?.format)
         appendLabelAndData(sb, "HL7 Field", element.hl7Field)
+        appendLabelAndData(
+            sb, "Cardinality",
+            element.cardinality?.toFormatted() ?: Element.Cardinality.ZERO_OR_ONE.toFormatted()
+        )
 
         // output the reference url
         if (element.referenceUrl?.isNotBlank() == true) {
@@ -31,9 +35,8 @@ object DocumentationFactory {
         }
 
         // build the valuesets
-        if (element.valueSet?.isNotEmpty() == true) {
-            val valueSet = Metadata.findValueSet(element.valueSet)
-            appendValueSetTable(sb, "Value Sets", valueSet?.values)
+        if (element.valueSetRef != null) {
+            appendValueSetTable(sb, "Value Sets", element.valueSetRef.values)
         }
 
         if (element.altValues?.isNotEmpty() == true) {

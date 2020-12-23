@@ -4,7 +4,6 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.transport.SftpTransport
 import java.util.logging.Level
