@@ -186,12 +186,14 @@ elements:
     - name: local_code
       type: TEXT
       documentation: This is a localized coded value that the facility may use for this test (Optional- Local Code is equal to LOINC code, so if you are providing LOINC Code, you may leave this field blank and vice versa)
+      csvFields: [{ name: Local Code }]
 
     # column AO
     # nonstandard
     - name: local_code_description
       type: TEXT
       documentation: This is a localized description of the localized coded value that the facility may use for this test (Optional unless LOINC Code and Description are not provided)
+      csvFields: [{ name: Local Code Description }]
 
     # column AP
     - name: test_result
