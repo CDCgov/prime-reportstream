@@ -279,7 +279,6 @@ az container create --resource-group $resource_group \
                     --vnet $vnet_name \
                     --subnet container \
                     --ports 22 \
-                    --dns-name-label $sftp_server_name \
                     --environment-variables SFTP_USERS=foo:pass:::upload \
                     --azure-file-volume-share-name $sftp_server_name \
                     --azure-file-volume-account-name $storage_account \
@@ -287,13 +286,6 @@ az container create --resource-group $resource_group \
                     --azure-file-volume-mount-path /home/foo/upload \
                     --output none \
                     --only-show-errors
-
-# IMPORTANT - NEED TO SET SFTP CONTAINER ENVIRONMENT VARIABLES!!
-# PRIME_ENVIRONMENT=
-# AZ_PHD__ELR_PROD__USER=**** 
-# AZ_PHD__ELR_PROD__PASS=**** 
-# AZ_PHD__ELR_TEST__USER=****
-# AZ_PHD__ELR_TEST__PASS=****
 
 echo "--- Creating front door..."
 az network front-door create --resource-group $resource_group \
@@ -324,3 +316,10 @@ az functionapp config access-restriction add --resource-group $resource_group \
                                              --subnet public \
                                              --output none \
                                              --only-show-errors
+
+# IMPORTANT - NEED TO SET SFTP CONTAINER ENVIRONMENT VARIABLES!!
+# PRIME_ENVIRONMENT=
+# AZ_PHD__ELR_PROD__USER=**** 
+# AZ_PHD__ELR_PROD__PASS=**** 
+# AZ_PHD__ELR_TEST__USER=****
+# AZ_PHD__ELR_TEST__PASS=****
