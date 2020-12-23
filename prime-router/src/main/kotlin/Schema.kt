@@ -43,6 +43,7 @@ data class Schema(
     val extendsRef: Schema? = null,
     val basedOn: String? = null,
     val basedOnRef: Schema? = null,
+
 ) {
     val baseName: String get() = formBaseName(name)
     val csvFields: List<Element.CsvField> get() = elements.flatMap { it.csvFields ?: emptyList() }

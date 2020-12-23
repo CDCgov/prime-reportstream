@@ -260,11 +260,11 @@ class Obx8Mapper : Mapper {
                 "260373001" -> "A" // Detected
                 "260415000" -> "N" // Not Detected
                 "720735008" -> "A" // Presumptive positive
-                "42425007" -> null // Equivocal
+                "42425007" -> "N" // Equivocal
                 "260385009" -> "N" // Negative
                 "895231008" -> "N" // Not detected in pooled specimen
                 "462371000124108" -> "A" // Detected in pooled specimen
-                "419984006" -> null // Inconclusive
+                "419984006" -> "N" // Inconclusive
                 else -> null
             }
         }

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.serializers.CsvSerializer
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -16,7 +17,7 @@ class SimpleReportTests {
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./target/csv_test_files/"
     private val metadata: Metadata
-    private val csvConverter: CsvConverter
+    private val csvSerializer: CsvSerializer
 
     init {
         val outputDirectory = File(outputPath)
@@ -26,7 +27,7 @@ class SimpleReportTests {
         assertTrue(expectedDir.exists())
 
         metadata = Metadata(Metadata.defaultMetadataDirectory)
-        csvConverter = CsvConverter(metadata)
+        csvSerializer = CsvSerializer(metadata)
     }
 
     /**
@@ -41,7 +42,7 @@ class SimpleReportTests {
 
         // 1) Ingest the file
         val fileSource = FileSource(filePath)
-        val readResult = csvConverter.read(schema.name, file.inputStream(), fileSource)
+        val readResult = csvSerializer.read(schema.name, file.inputStream(), fileSource)
         assertTrue(readResult.errors.isEmpty())
         // I removed this test- at this time, the SimpleReport parsing does return an empty column warning.
         //        assertTrue(readResult.warnings.isEmpty())
@@ -59,7 +60,7 @@ class SimpleReportTests {
                 report.createdDateTime
             )
             val reportFile = File(outputPath, fileName)
-            csvConverter.write(report, reportFile.outputStream())
+            csvSerializer.write(report, reportFile.outputStream())
             outputFiles.add(Pair(reportFile, orgSvc))
         }
         return outputFiles
@@ -80,7 +81,7 @@ class SimpleReportTests {
             fakeReport.createdDateTime
         )
         val fakeReportFile = File(outputPath, fakeReportFileName)
-        csvConverter.write(fakeReport, fakeReportFile.outputStream())
+        csvSerializer.write(fakeReport, fakeReportFile.outputStream())
         assertTrue(fakeReportFile.exists())
         return fakeReportFile
     }
@@ -96,13 +97,13 @@ class SimpleReportTests {
 
         // 1) Ingest the file
         val inputFileSource = FileSource(inputFilePath)
-        val readResult = csvConverter.read(schema.name, inputFile.inputStream(), inputFileSource)
+        val readResult = csvSerializer.read(schema.name, inputFile.inputStream(), inputFileSource)
         assertTrue(readResult.warnings.isEmpty() && readResult.errors.isEmpty())
         val inputReport = readResult.report ?: fail()
 
         // 2) Write the input report back out to a new file
         val outputFile = File(outputPath, inputReport.name)
-        csvConverter.write(inputReport, outputFile.outputStream())
+        csvSerializer.write(inputReport, outputFile.outputStream())
         assertTrue(outputFile.exists())
         return outputFile
     }

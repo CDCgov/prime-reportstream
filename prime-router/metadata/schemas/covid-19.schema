@@ -213,6 +213,10 @@ elements:
 
   - name: ordered_test_system
     type: TEXT
+    default: LOINC
+
+  - name: ordered_test_system_abbr
+    type: TEXT
     default: LN
     hl7Field: OBR-4-3
 
@@ -237,6 +241,10 @@ elements:
     tableColumn: FIPS
     mapper: lookup(ordering_facility_state, ordering_facility_county)
     hl7Field: ORC-22-9
+
+  - name: ordering_facility_country
+    type: TEXT
+    default: USA
 
   - name: ordering_facility_email
     type: EMAIL
@@ -309,7 +317,9 @@ elements:
     mapper: lookup(ordering_provider_state, ordering_provider_county)
     hl7Field: ORC-24-9
 
-
+  - name: ordering_provider_country
+    type: TEXT
+    default: USA
 
   - name: ordering_provider_first_name
     type: PERSON_NAME
@@ -442,6 +452,10 @@ elements:
     mapper: lookup(patient_state, patient_county)
     natFlatFileField: Patient_county
     hl7Field: PID-11-9
+
+  - name: patient_country
+    type: TEXT
+    default: USA
 
   - name: patient_email
     type: EMAIL
@@ -851,10 +865,14 @@ elements:
     hl7Field: OBX-3-2
     documentation: The LOINC description of the test performed as related to the LOINC code.
 
-  - name: test_performed_system
+  - name: test_performed_system_abbr
     type: TEXT
     default: LN
     hl7Field: OBX-3-3
+
+  - name: test_performed_system
+    type: TEXT
+    default: LOINC
 
   #- name: test_performed_number
   #  type: NUMBER
@@ -934,6 +952,10 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-24-9
 
+  - name: testing_lab_country
+    type: TEXT
+    default: USA
+
   - name: testing_lab_id
     type: ID
     natFlatFileField: Testing_lab_id
@@ -965,6 +987,12 @@ elements:
 
   - name: testing_lab_specimen_id
     type: ID
+    natFlatFileField: Testing_lab_specimen_id
+    hhsGuidanceField:
+    hl7Field: SPM-2-1
+
+  - name: testing_lab_specimen_recieved_datetime
+    type: DATETIME
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
     hl7Field: SPM-2-1

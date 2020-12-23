@@ -165,6 +165,14 @@ class Report {
         return table.getString(row, column)
     }
 
+    fun getRow(row: Int): List<String> {
+        return schema.elements.map {
+            val column = schema.findElementColumn(it.name)
+                ?: error("Internal Error: column for '${it.name}' is not found")
+            table.getString(row, column) ?: ""
+        }
+    }
+
     fun filter(filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>): Report {
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->

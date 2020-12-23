@@ -1,14 +1,18 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ValueSet
 import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.util.Properties
 
-class Hl7Converter(val metadata: Metadata) {
+class Hl7Serializer(val metadata: Metadata) {
     private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
     private val softwareProductName = "PRIME Data Hub"
 

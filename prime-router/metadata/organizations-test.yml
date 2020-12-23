@@ -74,39 +74,3 @@
         jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
         transforms: { deidentify: false }
         format: CSV
-
-  #
-  # Developer test organizations
-  #
-  - name: phd1
-    description: Arizona PHD
-    services:
-      - name: elr
-        topic: sample
-        schema: sample/phd1-sample
-        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, AZ)"]
-        transforms: {deidentify: false}
-        format: CSV
-
-
-    # Florida PHD
-  - name: phd2
-    description: Florida PHD
-    services:
-      - name: elr
-        topic: sample
-        schema: sample/phd2-sample
-        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, FL)"]
-        transforms: {deidentify: false}
-        format: CSV
-
-  # HHS
-  - name: fed1
-    description: Federal feed
-    services:
-      - name: elr
-        topic: sample
-        schema: sample/fed1-sample
-        jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)"]
-        transforms: {deidentify: true}
-        format: CSV

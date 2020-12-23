@@ -1,12 +1,12 @@
 ---
-name: pdi-covid-19
-description: PRIME POC COVID-19 flat file
+name: strac-covid-19
+description: STRAC POC COVID-19 flat file
 topic: covid-19
 trackingElement: message_id
 basedOn: covid-19
 elements:
   - name: patient_last_name
-    csvFields: [{name: Patient_last_name}]
+    csvFields: [{name: patient_last_name}]
 
   - name: patient_first_name
     csvFields: [{name: Patient_first_name}]
@@ -48,9 +48,9 @@ elements:
   - name: filler_order_id
     mapper: use(message_id)
 
-  # Optional until SimpleReport team provides this.
-  - name: test_result_status
-    csvFields: [{name: Test_result_status}]
+# Removed until SimpleReport sends this column
+#  - name: test_result_status
+#    csvFields: [{name: Test_result_status}]
 
   - name: test_result
     csvFields: [{name: Test_result_code}]
