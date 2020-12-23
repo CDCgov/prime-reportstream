@@ -41,7 +41,7 @@ object DocumentationFactory {
 
         if (element.table?.isNotEmpty() == true) {
             appendLabelAndData(sb, "Table", element.table)
-            appendLabelAndData(sb, "Table Column")
+            appendLabelAndData(sb, "Table Column", element.tableColumn)
         }
 
         if (element.documentation?.isNotEmpty() == true) {
