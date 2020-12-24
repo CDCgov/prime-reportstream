@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.fail
 
 class MapperTests {
     @Test
@@ -23,13 +24,21 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        Metadata.addLookupTable("test", ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val schema = Schema(
+            "test", topic = "test",
+            elements = listOf(
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
+                Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
+        val lookupElement = metadata.findSchema("test")?.findElement("c") ?: fail("")
         val mapper = LookupMapper()
         val args = listOf("a")
-        val elementIndex = Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a")
-        val elementLookup = Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
-        assertEquals(listOf("a"), mapper.valueNames(elementLookup, args))
-        assertEquals("y", mapper.apply(elementLookup, args, listOf(ElementAndValue(elementIndex, "3"))))
+        assertEquals(listOf("a"), mapper.valueNames(lookupElement, args))
+        assertEquals("y", mapper.apply(lookupElement, args, listOf(ElementAndValue(indexElement, "3"))))
     }
 
     @Test
@@ -40,15 +49,24 @@ class MapperTests {
             3,4,y
             5,6,z
         """.trimIndent()
-        Metadata.addLookupTable("test", ByteArrayInputStream(csv.toByteArray()))
+        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val schema = Schema(
+            "test", topic = "test",
+            elements = listOf(
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
+                Element("b", type = Element.Type.TABLE, table = "test", tableColumn = "b"),
+                Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val lookupElement = metadata.findSchema("test")?.findElement("c") ?: fail("")
+        val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
+        val index2Element = metadata.findSchema("test")?.findElement("b") ?: fail("")
         val mapper = LookupMapper()
         val args = listOf("a", "b")
-        val elementIndex = Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a")
-        val elementIndex2 = Element("b", type = Element.Type.TABLE, table = "test", tableColumn = "b")
-        val elementLookup = Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
-        val elementAndValues = listOf(ElementAndValue(elementIndex, "3"), ElementAndValue(elementIndex2, "4"))
-        assertEquals(listOf("a", "b"), mapper.valueNames(elementLookup, args))
-        assertEquals("y", mapper.apply(elementLookup, args, elementAndValues))
+        val elementAndValues = listOf(ElementAndValue(indexElement, "3"), ElementAndValue(index2Element, "4"))
+        assertEquals(listOf("a", "b"), mapper.valueNames(lookupElement, args))
+        assertEquals("y", mapper.apply(lookupElement, args, elementAndValues))
     }
 
     @Test

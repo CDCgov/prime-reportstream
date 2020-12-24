@@ -164,7 +164,7 @@ class LookupMapper : Mapper {
         return if (values.size != args.size) {
             null
         } else {
-            val lookupTable = Metadata.findLookupTable(element.table ?: "")
+            val lookupTable = element.tableRef
                 ?: error("Schema Error: could not find table ${element.table}")
             val indexValues = values.map {
                 val indexColumn = it.element.tableColumn
@@ -197,7 +197,7 @@ class Obx17Mapper : Mapper {
             null
         } else {
             val (indexElement, indexValue) = values.first()
-            val lookupTable = Metadata.findLookupTable(element.table ?: "")
+            val lookupTable = element.tableRef
                 ?: error("Schema Error: could not find table '${element.table}'")
             val indexColumn = indexElement.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
@@ -231,7 +231,7 @@ class Obx17TypeMapper : Mapper {
             null
         } else {
             val (indexElement, indexValue) = values.first()
-            val lookupTable = Metadata.findLookupTable(element.table ?: "")
+            val lookupTable = element.tableRef
                 ?: error("Schema Error: could not find table '${element.table}'")
             val indexColumn = indexElement.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")

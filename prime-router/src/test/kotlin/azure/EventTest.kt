@@ -1,8 +1,5 @@
-package gov.cdc.prime.router.Azure
+package gov.cdc.prime.router.azure
 
-import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.ReceiverEvent
-import gov.cdc.prime.router.azure.ReportEvent
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test

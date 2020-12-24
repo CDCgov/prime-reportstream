@@ -6,6 +6,7 @@ import tech.tablesaw.selection.Selection
 /**
  * A *JurisdictionalFilter* can be used in the jurisdictionalFilter property in an OrganizationService.
  * It allowed you to create arbitrarily complex filters on data.
+ * Each filter in the list does a "and" boolean operation with the other filters in the list.
  * Here is an example use:
  *  `jurisdictionalFilter: { FilterByPatientOrFacilityLoc(AZ, Pima) }`
  *
