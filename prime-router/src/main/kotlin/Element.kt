@@ -96,6 +96,7 @@ data class Element(
         DURATION,
         CODE, // CODED with a HL7, SNOMED-CT, LONIC valueSet
         TABLE, // A table column value
+        EI, // A HL7 Entity Identifier (4 parts)
         HD, // ISO Hierarchic Designator
         ID, // Generic ID
         ID_CLIA, // CMS CLIA number (must follow CLIA format rules)
@@ -118,6 +119,13 @@ data class Element(
 
     data class HDFields(
         val name: String,
+        val universalId: String?,
+        val universalIdSystem: String?
+    )
+
+    data class EIFields(
+        val name: String,
+        val namespace: String?,
         val universalId: String?,
         val universalIdSystem: String?
     )
@@ -278,7 +286,18 @@ data class Element(
                     hdNameToken -> hdFields.name
                     hdUniversalIdToken -> hdFields.universalId ?: ""
                     hdSystemToken -> hdFields.universalIdSystem ?: ""
-                    else -> error("Schema Error: unsupported format for output: '$format' in '$name'")
+                    else -> error("Schema Error: unsupported HD format for output: '$format' in '$name'")
+                }
+            }
+            Type.EI -> {
+                val eiFields = parseEI(normalizedValue)
+                when (format) {
+                    null,
+                    eiNameToken -> eiFields.name
+                    eiNamespaceIdToken -> eiFields.namespace ?: ""
+                    eiUniversalIdToken -> eiFields.universalId ?: ""
+                    eiSystemToken -> eiFields.universalIdSystem ?: ""
+                    else -> error("Schema Error: unsupported EI format for output: '$format' in '$name'")
                 }
             }
             else -> normalizedValue
@@ -289,7 +308,7 @@ data class Element(
      * Take a formatted value and check to see if can be stored in a report.
      */
     fun checkForError(formattedValue: String, format: String? = null): String? {
-        if (formattedValue.isBlank() && !isOptional && canBeBlank != true) return "Blank value for element '$name'"
+        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return "Blank value for element '$name'"
         return when (type) {
             Type.DATE -> {
                 try {
@@ -364,7 +383,7 @@ data class Element(
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    "Input Error: invalid postal code '$formattedValue'"
+                    "Invalid postal code '$formattedValue'"
                 else
                     null
             }
@@ -372,9 +391,25 @@ data class Element(
                 when (format) {
                     null,
                     hdNameToken -> null
-                    else -> "Schema Error: unsupported format for input: '$format' in '$name'"
+                    hdCompleteFormat -> {
+                        val parts = formattedValue.split(hdDelimiter)
+                        if (parts.size == 1 || parts.size == 3) null else "Invalid HD format"
+                    }
+                    else -> "Unsupported HD format for input: '$format' in '$name'"
                 }
             }
+            Type.EI -> {
+                when (format) {
+                    null,
+                    eiNameToken -> null
+                    eiCompleteFormat -> {
+                        val parts = formattedValue.split(eiDelimiter)
+                        if (parts.size == 1 || parts.size == 4) null else "Invalid EI format"
+                    }
+                    else -> "Unsupported EI format for input: '$format' in '$name'"
+                }
+            }
+
             else -> null
         }
     }
@@ -460,14 +495,32 @@ data class Element(
                 formattedValue.replace(" ", "")
             }
             Type.HD -> {
-                // No matter what data value is, overwrite with our hardcoded default.
-                // By definition, we're the sending_application!
-                //
-                // Note:  This hack 'fixes' a bug in the Send function where data is read back in, and the
-                // incoming value is split between two fields: sending_application and sending_application_id
-                // There's currently no function to combine these in toNormalized(),
-                // so that it gets properly split apart again later in toFormatted.
-                this.default ?: ""
+                when (format) {
+                    null,
+                    hdCompleteFormat -> {
+                        parseHD(formattedValue) // to check
+                        formattedValue
+                    }
+                    hdNameToken -> {
+                        val hd = parseHD(formattedValue)
+                        hd.name
+                    }
+                    else -> error("Schema Error: invalid format value")
+                }
+            }
+            Type.EI -> {
+                when (format) {
+                    null,
+                    hdCompleteFormat -> {
+                        parseEI(formattedValue) // to check
+                        formattedValue
+                    }
+                    hdNameToken -> {
+                        val ei = parseEI(formattedValue)
+                        ei.name
+                    }
+                    else -> error("Schema Error: invalid format value")
+                }
             }
             else -> formattedValue
         }
@@ -501,10 +554,17 @@ data class Element(
         const val extensionToken = "\$extension"
         const val defaultPhoneFormat = "\$area\$exchange\$subscriber"
         const val phoneDelimiter = ":"
-        const val hdDelimiter = "&"
+        const val hdDelimiter = "^"
         const val hdNameToken = "\$name"
         const val hdUniversalIdToken = "\$universalId"
         const val hdSystemToken = "\$system"
+        const val hdCompleteFormat = "\$complete"
+        const val eiDelimiter = "^"
+        const val eiNameToken = "\$name"
+        const val eiNamespaceIdToken = "\$namespaceId"
+        const val eiUniversalIdToken = "\$universalId"
+        const val eiSystemToken = "\$system"
+        const val eiCompleteFormat = "\$complete"
         val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
         const val zipFiveToken = "\$zipFive"
         const val zipFivePlusFourToken = "\$zipFivePlusFour"
@@ -521,6 +581,15 @@ data class Element(
                 3 -> HDFields(parts[0], parts[1], parts[2])
                 1 -> HDFields(parts[0], universalId = null, universalIdSystem = null)
                 else -> error("Internal Error: Invalid HD value '$value'")
+            }
+        }
+
+        fun parseEI(value: String): EIFields {
+            val parts = value.split(eiDelimiter)
+            return when (parts.size) {
+                4 -> EIFields(parts[0], parts[1], parts[2], parts[3])
+                1 -> EIFields(parts[0], namespace = null, universalId = null, universalIdSystem = null)
+                else -> error("Internal Error: Invalid EI value '$value'")
             }
         }
     }

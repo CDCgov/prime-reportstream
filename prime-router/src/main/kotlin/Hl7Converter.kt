@@ -93,6 +93,20 @@ class Hl7Converter(val metadata: Metadata) {
                     }
                 }
             }
+            Element.Type.EI -> {
+                if (value.isNotEmpty()) {
+                    val ei = Element.parseEI(value)
+                    if (ei.universalId != null && ei.universalIdSystem != null) {
+                        terser.set("$pathSpec-1", ei.name)
+                        terser.set("$pathSpec-2", ei.namespace)
+                        terser.set("$pathSpec-3", ei.universalId)
+                        terser.set("$pathSpec-4", ei.universalIdSystem)
+                    } else {
+                        terser.set(pathSpec, ei.name)
+                    }
+                }
+            }
+
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
             Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element)
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
@@ -180,6 +194,7 @@ class Hl7Converter(val metadata: Metadata) {
     }
 
     private fun setNote(terser: Terser, value: String) {
+        if (value.isBlank()) return
         terser.set(formPathSpec("NTE-3"), value)
         terser.set(formPathSpec("NTE-4-1"), "RE")
         terser.set(formPathSpec("NTE-4-2"), "Remark")
@@ -193,11 +208,6 @@ class Hl7Converter(val metadata: Metadata) {
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", "2.5.1")
         terser.set("MSH-17", "USA")
-        // Values that NIST requires (although they are not part 2.5.1)
-        terser.set("MSH-21-1", "PHLabReportNoAck")
-        terser.set("MSH-21-2", "ELR_Receiver")
-        terser.set("MSH-21-3", "2.16.840.1.113883.9.11")
-        terser.set("MSH-21-4", "ISO")
 
         terser.set("SFT-1", softwareVendorOrganization)
         terser.set("SFT-2", buildVersion)
@@ -290,6 +300,15 @@ class Hl7Converter(val metadata: Metadata) {
             "${hdFields.name}$separator${hdFields.universalId}$separator${hdFields.universalIdSystem}"
         } else {
             hdFields.name
+        }
+    }
+
+    private fun formatEI(eiFields: Element.EIFields, separator: String = "^"): String {
+        return if (eiFields.namespace != null && eiFields.universalId != null && eiFields.universalIdSystem != null) {
+            "${eiFields.name}$separator${eiFields.namespace}" +
+                "$separator${eiFields.universalId}$separator${eiFields.universalIdSystem}"
+        } else {
+            eiFields.name
         }
     }
 }

@@ -219,4 +219,99 @@ internal class ElementTests {
         assertEquals(parent.documentation, child.documentation, "Documentation value didn't carry over from parent")
         assertEquals(parent.type, child.type, "Element type didn't carry over from parent")
     }
+
+    @Test
+    fun `test normalize and formatted round-trips`() {
+        val postal = Element(
+            "a",
+            type = Element.Type.POSTAL_CODE,
+            csvFields = Element.csvFields("zip")
+        )
+        assertEquals(
+            "94040",
+            postal.toFormatted(postal.toNormalized("94040"))
+        )
+        assertEquals(
+            "94040-6000",
+            postal.toFormatted(postal.toNormalized("94040-6000"))
+        )
+        assertEquals(
+            "94040",
+            postal.toFormatted(postal.toNormalized("94040-3600", Element.zipFiveToken), Element.zipFiveToken)
+        )
+        assertEquals(
+            "94040-3600",
+            postal.toFormatted(postal.toNormalized("94040-3600", Element.zipFivePlusFourToken), Element.zipFivePlusFourToken)
+        )
+
+        val telephone = Element(
+            "a",
+            type = Element.Type.TELEPHONE,
+            csvFields = Element.csvFields("phone")
+        )
+        assertEquals(
+            "6509999999",
+            telephone.toFormatted(telephone.toNormalized("6509999999"))
+        )
+        assertEquals(
+            "6509999999",
+            telephone.toFormatted(telephone.toNormalized("+16509999999"))
+        )
+
+        val date = Element(
+            "a",
+            type = Element.Type.DATE,
+            csvFields = Element.csvFields("date")
+        )
+        assertEquals(
+            "20201220",
+            date.toFormatted(date.toNormalized("20201220"))
+        )
+        assertEquals(
+            "20201220",
+            date.toFormatted(date.toNormalized("2020-12-20"))
+        )
+
+        val datetime = Element(
+            "a",
+            type = Element.Type.DATETIME,
+            csvFields = Element.csvFields("datetime")
+        )
+        assertEquals(
+            "202012200000+0000",
+            datetime.toFormatted(datetime.toNormalized("202012200000+0000"))
+        )
+        assertEquals(
+            "202012200000+0000",
+            datetime.toFormatted(datetime.toNormalized("2020-12-20T00:00Z"))
+        )
+
+        val hd = Element(
+            "a",
+            type = Element.Type.HD,
+            csvFields = Element.csvFields("hd")
+        )
+        assertEquals(
+            "HDName",
+            hd.toFormatted(hd.toNormalized("HDName"))
+        )
+        assertEquals(
+            "HDName^0.0.0.0.0.1^ISO",
+            postal.toFormatted(hd.toNormalized("HDName^0.0.0.0.0.1^ISO"))
+        )
+
+        val ei = Element(
+            "a",
+            type = Element.Type.EI,
+            csvFields = Element.csvFields("ei")
+        )
+        assertEquals(
+            "EIName",
+            ei.toFormatted(ei.toNormalized("EIName"))
+        )
+        assertEquals(
+            "EIName^EINamespace^0.0.0.0.0.1^ISO",
+            postal.toFormatted(ei.toNormalized("EIName^EINamespace^0.0.0.0.0.1^ISO"))
+        )
+    }
 }
