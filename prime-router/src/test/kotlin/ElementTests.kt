@@ -241,7 +241,10 @@ internal class ElementTests {
         )
         assertEquals(
             "94040-3600",
-            postal.toFormatted(postal.toNormalized("94040-3600", Element.zipFivePlusFourToken), Element.zipFivePlusFourToken)
+            postal.toFormatted(
+                postal.toNormalized("94040-3600", Element.zipFivePlusFourToken),
+                Element.zipFivePlusFourToken
+            )
         )
 
         val telephone = Element(
@@ -313,5 +316,29 @@ internal class ElementTests {
             "EIName^EINamespace^0.0.0.0.0.1^ISO",
             postal.toFormatted(ei.toNormalized("EIName^EINamespace^0.0.0.0.0.1^ISO"))
         )
+    }
+
+    @Test
+    fun `test normalize with multiple csvFields`() {
+        val sendingApp = Element(
+            "a",
+            type = Element.Type.HD,
+            csvFields = listOf(
+                Element.CsvField("sending_app", format = "\$name"),
+                Element.CsvField("sending_oid", format = "\$universalId")
+            )
+        )
+        val normalized = sendingApp.toNormalized(
+            listOf(
+                Element.SubValue("sending_app", "happy", "\$name"),
+                Element.SubValue("sending_oid", "0.0.0.011", "\$universalId")
+            )
+        )
+        assertEquals("happy^0.0.0.011^ISO", normalized)
+
+        val sendingAppName = sendingApp.toFormatted(normalized, Element.hdNameToken)
+        assertEquals("happy", sendingAppName)
+        val sendingOid = sendingApp.toFormatted(normalized, Element.hdUniversalIdToken)
+        assertEquals("0.0.0.011", sendingOid)
     }
 }

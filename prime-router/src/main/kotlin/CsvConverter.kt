@@ -18,7 +18,7 @@ import java.io.OutputStream
  */
 class CsvConverter(val metadata: Metadata) {
     private data class CsvMapping(
-        val useCsv: Map<String, Element.CsvField>,
+        val useCsv: Map<String, List<Element.CsvField>>,
         val useMapper: Map<String, Pair<Mapper, List<String>>>,
         val useDefault: Map<String, String>,
         val errors: List<String>,
@@ -110,10 +110,14 @@ class CsvConverter(val metadata: Metadata) {
         defaultValues: Map<String, String>,
         row: Map<String, String>
     ): CsvMapping {
+        fun rowContainsAll(fields: List<Element.CsvField>): Boolean {
+            return fields.find { !row.containsKey(it.name) } == null
+        }
+
         val useCsv = schema
             .elements
-            .filter { it.csvFields != null && row.containsKey(it.csvFields.first().name) }
-            .map { it.name to it.csvFields!!.first() } // TODO: be more flexible than first field
+            .filter { it.csvFields != null && rowContainsAll(it.csvFields) }
+            .map { it.name to it.csvFields!! }
             .toMap()
         val useMapper = schema
             .elements
@@ -169,20 +173,29 @@ class CsvConverter(val metadata: Metadata) {
         val failureValue = "**^^validationFail**"
 
         fun useCsv(element: Element): String? {
-            val csvField = csvMapping.useCsv[element.name] ?: return null
-            val value = inputRow.getValue(csvField.name)
-            if (value.isBlank()) {
-                return if (element.canBeBlank) value else null
+            val csvFields = csvMapping.useCsv[element.name] ?: return null
+            val subValues = csvFields.map {
+                val value = inputRow.getValue(it.name)
+                Element.SubValue(it.name, value, it.format)
             }
-            val error = element.checkForError(value, csvField.format)
-            if (error != null) {
-                when (element.cardinality) {
-                    Element.Cardinality.ONE -> errors += error
-                    Element.Cardinality.ZERO_OR_ONE -> warnings += error
+            for (subValue in subValues) {
+                if (subValue.value.isBlank()) {
+                    return if (element.canBeBlank) "" else null
                 }
-                return failureValue
+                val error = element.checkForError(subValue.value, subValue.format)
+                if (error != null) {
+                    when (element.cardinality) {
+                        Element.Cardinality.ONE -> errors += error
+                        Element.Cardinality.ZERO_OR_ONE -> warnings += error
+                    }
+                    return failureValue
+                }
             }
-            return element.toNormalized(value, csvField.format)
+            return if (subValues.size == 1) {
+                element.toNormalized(subValues[0].value, subValues[0].format)
+            } else {
+                element.toNormalized(subValues)
+            }
         }
 
         fun useMapperPlaceholder(element: Element): String? {

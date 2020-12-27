@@ -130,6 +130,12 @@ data class Element(
         val universalIdSystem: String?
     )
 
+    data class SubValue(
+        val name: String,
+        val value: String,
+        val format: String?
+    )
+
     /**
      * @property ZERO_OR_ONE Can be null or present (default)
      * @property ONE Must be present, error if not present
@@ -511,11 +517,11 @@ data class Element(
             Type.EI -> {
                 when (format) {
                     null,
-                    hdCompleteFormat -> {
+                    eiCompleteFormat -> {
                         parseEI(formattedValue) // to check
                         formattedValue
                     }
-                    hdNameToken -> {
+                    eiNameToken -> {
                         val ei = parseEI(formattedValue)
                         ei.name
                     }
@@ -523,6 +529,70 @@ data class Element(
                 }
             }
             else -> formattedValue
+        }
+    }
+
+    fun toNormalized(subValues: List<SubValue>): String {
+        if (subValues.isEmpty()) return ""
+        return when (type) {
+            Type.HD -> {
+                var name = ""
+                var universalId = ""
+                var universalIdSystem = "ISO"
+                for (subValue in subValues) {
+                    when (subValue.format) {
+                        null,
+                        hdCompleteFormat -> {
+                            val hdFields = parseHD(subValue.value)
+                            name = hdFields.name
+                            if (hdFields.universalId != null) universalId = hdFields.universalId
+                            if (hdFields.universalIdSystem != null) universalIdSystem = hdFields.universalIdSystem
+                        }
+                        hdNameToken -> {
+                            name = subValue.value
+                        }
+                        hdUniversalIdToken -> {
+                            universalId = subValue.value
+                        }
+                        hdSystemToken -> {
+                            universalIdSystem = subValue.value
+                        }
+                    }
+                }
+                "$name$hdDelimiter$universalId$hdDelimiter$universalIdSystem"
+            }
+            Type.EI -> {
+                var name = ""
+                var namespace = ""
+                var universalId = ""
+                var universalIdSystem = "ISO"
+                for (subValue in subValues) {
+                    when (subValue.format) {
+                        null,
+                        eiCompleteFormat -> {
+                            val eiFields = parseEI(subValue.value)
+                            name = eiFields.name
+                            if (eiFields.namespace != null) namespace = eiFields.namespace
+                            if (eiFields.universalId != null) universalId = eiFields.universalId
+                            if (eiFields.universalIdSystem != null) universalIdSystem = eiFields.universalIdSystem
+                        }
+                        eiNameToken -> {
+                            name = subValue.value
+                        }
+                        eiNamespaceIdToken -> {
+                            namespace = subValue.value
+                        }
+                        eiUniversalIdToken -> {
+                            universalId = subValue.value
+                        }
+                        eiSystemToken -> {
+                            universalIdSystem = subValue.value
+                        }
+                    }
+                }
+                "$name$eiDelimiter$namespace$eiDelimiter$universalId$eiDelimiter$universalIdSystem"
+            }
+            else -> TODO("unsupported type")
         }
     }
 
