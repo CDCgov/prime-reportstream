@@ -23,6 +23,7 @@ jobs:
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-prod
                    echo >> $GITHUB_ENV ACR_REPO=primedatahubprod.azurecr.io
                    echo >> $GITHUB_ENV AZ_FXNS_DEFAULT_KEY=${{ secrets.AZ_FXNS_PROD_DEFAULT_KEY }}
+                   echo >> $GITHUB_ENV AZ_FXNS_SIMPLEREPORT_KEY=${{ secrets.AZ_FXNS_PROD_SIMPLEREPORT_KEY }}
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_PROD_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_PROD_PWD }}
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=prod
@@ -32,6 +33,7 @@ jobs:
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
                    echo >> $GITHUB_ENV ACR_REPO=primedatahubtest.azurecr.io
                    echo >> $GITHUB_ENV AZ_FXNS_DEFAULT_KEY=${{ secrets.AZ_FXNS_TEST_DEFAULT_KEY }}
+                   echo >> $GITHUB_ENV AZ_FXNS_SIMPLEREPORT_KEY=${{ secrets.AZ_FXNS_TEST_SIMPLEREPORT_KEY }}
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_TEST_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_TEST_PWD }}
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=test
@@ -80,6 +82,15 @@ jobs:
               --function-name reports \
               --key-name default \
               --key-value ${{ env.AZ_FXNS_DEFAULT_KEY }}
+
+      - name: Set Azure Function SimpleReport Key
+        run: |
+              az functionapp function keys set \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.RESOURCE_GROUP }} \
+              --function-name reports \
+              --key-name SimpleReport \
+              --key-value ${{ env.AZ_FXNS_SIMPLEREPORT_KEY }}
 
       - name: Set PostgreSQL Environment Variables
         run: | 
