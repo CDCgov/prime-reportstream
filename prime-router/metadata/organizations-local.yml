@@ -25,8 +25,8 @@
           numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
-        transport:
-            type: SFTP
+        transports:
+          - type: SFTP
             host: sftp
             port: 22
             filePath: ./upload
@@ -76,8 +76,8 @@
          - "matches(ordering_facility_state, TX)"
          - "matches(processing_mode_code, T)"
         transforms: { deidentify: false }
-        transport:
-          type: SFTP
+        transports:
+        - type: SFTP
           host: sftp
           port: 22
           filePath: ./upload
