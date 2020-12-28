@@ -1,23 +1,40 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.CsvConverter
+import gov.cdc.prime.router.Hl7Converter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Translator
 import org.jooq.Configuration
 import java.io.ByteArrayInputStream
 
 /**
  * Methods to add a new report to the workflow pipeline and to handle a step in the pipeline.
+ * A new WorkflowEngine object should be created for every function call.
  *
  * @see gov.cdc.prime.router.Report
  * @see QueueAccess
  * @see DatabaseAccess.Header
  */
 class WorkflowEngine(
-    private val db: DatabaseAccess = DatabaseAccess(),
-    private val blob: BlobAccess = BlobAccess(),
-    private val queue: QueueAccess = QueueAccess(),
+    // Immutable objects can be shared between every function call
+    val metadata: Metadata = WorkflowEngine.metadata,
+    val hl7Converter: Hl7Converter = WorkflowEngine.hl7Converter,
+    val csvConverter: CsvConverter = WorkflowEngine.csvConverter,
+    val translator: Translator = Translator(metadata),
+    // New connection for every function
+    val db: DatabaseAccess = DatabaseAccess(connection = DatabaseAccess.getConnection()),
+    val blob: BlobAccess = BlobAccess(csvConverter, hl7Converter),
+    val queue: QueueAccess = QueueAccess(),
 ) {
+    /**
+     * Check the connections to Azure Storage and DB
+     */
+    fun checkConnections() {
+        db.checkConnection()
+        blob.checkConnection()
+    }
+
     /**
      * Place a report into the workflow
      */
@@ -84,13 +101,19 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: DatabaseAccess.Header): Report {
-        val schema = Metadata.findSchema(header.task.schemaName)
+        val schema = metadata.findSchema(header.task.schemaName)
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
-        val destination = Metadata.findService(header.task.receiverName)
+        val destination = metadata.findService(header.task.receiverName)
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         val sources = header.sources.map { DatabaseAccess.toSource(it) }
         return when (header.task.bodyFormat) {
-            "CSV" -> CsvConverter.read(schema, ByteArrayInputStream(bytes), sources, destination)
+            "CSV" -> {
+                val result = csvConverter.read(schema.name, ByteArrayInputStream(bytes), sources, destination)
+                if (result.report == null || result.errors.isNotEmpty()) {
+                    error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
+                }
+                result.report
+            }
             else -> error("Unsupported read format")
         }
     }
@@ -100,5 +123,26 @@ class WorkflowEngine(
      */
     fun readBody(header: DatabaseAccess.Header): ByteArray {
         return blob.downloadBlob(header.task.bodyUrl)
+    }
+
+    companion object {
+        /**
+         * These are all potentially heavy weight objects that
+         * should only be created once.
+         */
+        val metadata: Metadata by lazy {
+            val baseDir = System.getenv("AzureWebJobsScriptRoot")
+            val primeEnv = System.getenv("PRIME_ENVIRONMENT")
+            val ext = primeEnv?.let { "-$it" } ?: ""
+            Metadata("$baseDir/metadata", orgExt = ext)
+        }
+
+        val csvConverter: CsvConverter by lazy {
+            CsvConverter(metadata)
+        }
+
+        val hl7Converter: Hl7Converter by lazy {
+            Hl7Converter(metadata)
+        }
     }
 }

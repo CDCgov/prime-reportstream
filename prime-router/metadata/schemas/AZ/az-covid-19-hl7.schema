@@ -2,6 +2,7 @@
 name: az-covid-19-hl7
 description: AZ COVID-19
 referenceUrl: https://www.azdhs.gov/documents/preparedness/epidemiology-disease-control/meaningful-use/az-emr-implementation-guide.pdf
+trackingElement: message_id
 topic: covid-19
 extends: covid-19
 elements:
