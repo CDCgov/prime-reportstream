@@ -110,7 +110,7 @@ class FakeReport(val metadata: Metadata) {
                     else -> TODO()
                 }
             }
-            Element.Type.TELEPHONE -> faker.numerify("##########:1:") // faker.phoneNumber().cellPhone()
+            Element.Type.TELEPHONE -> faker.numerify("2#########:1:") // faker.phoneNumber().cellPhone()
             Element.Type.EMAIL -> "${context.patientName.username()}@email.com"
             null -> error("Invalid element type for ${element.name}")
         }

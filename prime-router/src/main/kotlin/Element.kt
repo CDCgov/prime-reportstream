@@ -397,6 +397,8 @@ data class Element(
                 when (format) {
                     null,
                     hdNameToken -> null
+                    hdUniversalIdToken -> null
+                    hdSystemToken -> null
                     hdCompleteFormat -> {
                         val parts = formattedValue.split(hdDelimiter)
                         if (parts.size == 1 || parts.size == 3) null else "Invalid HD format"
@@ -408,6 +410,8 @@ data class Element(
                 when (format) {
                     null,
                     eiNameToken -> null
+                    eiNamespaceIdToken -> null
+                    eiSystemToken -> null
                     eiCompleteFormat -> {
                         val parts = formattedValue.split(eiDelimiter)
                         if (parts.size == 1 || parts.size == 4) null else "Invalid EI format"
