@@ -1,10 +1,10 @@
 package gov.cdc.prime.router
 
 import java.io.File
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 //
 // Using JUnit here, but this is not a unit test.  This tests end-to-end:  ingesting a csv file,
@@ -16,15 +16,18 @@ class SimpleReportTests {
     private val inputPath = "./src/test/csv_test_files/input/"
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./target/csv_test_files/"
+    private val metadata: Metadata
+    private val csvConverter: CsvConverter
 
-    // There is no 'BeforeAll in kotlin.test (?).   Using BeforeEach, which should be OK as this is idempotent.
-    @BeforeTest
-    fun setup() {
-        Metadata.loadAll()
+    init {
         val outputDirectory = File(outputPath)
         outputDirectory.mkdirs()
+
         val expectedDir = File(expectedResultsPath)
         assertTrue(expectedDir.exists())
+
+        metadata = Metadata(Metadata.defaultMetadataDirectory)
+        csvConverter = CsvConverter(metadata)
     }
 
     /**
@@ -35,13 +38,15 @@ class SimpleReportTests {
     fun readAndRoute(filePath: String, schemaName: String): MutableList<Pair<File, OrganizationService>> {
         val file = File(filePath)
         assertTrue(file.exists())
-        val schema = Metadata.findSchema(schemaName) ?: error("$schemaName not found.")
+        val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
 
         // 1) Ingest the file
         val fileSource = FileSource(filePath)
-        val inputReport = CsvConverter.read(schema, file.inputStream(), fileSource)
+        val readResult = csvConverter.read(schema.name, file.inputStream(), fileSource)
+        assertTrue(readResult.warnings.isEmpty() && readResult.errors.isEmpty())
+        val inputReport = readResult.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
-        val outputReports = OrganizationService.filterAndMapByService(inputReport, Metadata.organizationServices)
+        val outputReports = Translator(metadata).filterAndTranslateByService(inputReport)
 
         // 3) Write transformed objs to files
         val outputFiles = mutableListOf<Pair<File, OrganizationService>>()
@@ -53,7 +58,7 @@ class SimpleReportTests {
                 report.createdDateTime
             )
             val reportFile = File(outputPath, fileName)
-            CsvConverter.write(report, reportFile.outputStream())
+            csvConverter.write(report, reportFile.outputStream())
             outputFiles.add(Pair(reportFile, orgSvc))
         }
         return outputFiles
@@ -66,21 +71,17 @@ class SimpleReportTests {
     fun readAndWrite(inputFilePath: String, schemaName: String): File {
         val inputFile = File(inputFilePath)
         assertTrue(inputFile.exists())
-        val schema = Metadata.findSchema(schemaName) ?: error("$schemaName not found.")
+        val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
 
         // 1) Ingest the file
         val inputFileSource = FileSource(inputFilePath)
-        val inputReport = CsvConverter.read(schema, inputFile.inputStream(), inputFileSource)
+        val readResult = csvConverter.read(schema.name, inputFile.inputStream(), inputFileSource)
+        assertTrue(readResult.warnings.isEmpty() && readResult.errors.isEmpty())
+        val inputReport = readResult.report ?: fail()
 
         // 2) Write the input report back out to a new file
-        val outputFileName = Report.formFileName(
-            inputReport.id,
-            inputReport.schema.baseName,
-            OrganizationService.Format.CSV,
-            inputReport.createdDateTime
-        )
-        val outputFile = File(outputPath, outputFileName)
-        CsvConverter.write(inputReport, outputFile.outputStream())
+        val outputFile = File(outputPath, inputReport.name)
+        csvConverter.write(inputReport, outputFile.outputStream())
         assertTrue(outputFile.exists())
         return outputFile
     }
@@ -105,9 +106,9 @@ class SimpleReportTests {
     fun `test fake simplereport data`() {
         // 1) Create some fake data
         val schemaName = "primedatainput/pdi-covid-19"
-        val schema = Metadata.findSchema(schemaName) ?: error("$schemaName not found.")
+        val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
         // 1) Create the fake file
-        val fakeReport = FakeReport.build(
+        val fakeReport = FakeReport(metadata).build(
             schema,
             100,
             FileSource("fake") // not really used
@@ -119,7 +120,7 @@ class SimpleReportTests {
             fakeReport.createdDateTime
         )
         val fakeReportFile = File(outputPath, fakeReportFileName)
-        CsvConverter.write(fakeReport, fakeReportFile.outputStream())
+        csvConverter.write(fakeReport, fakeReportFile.outputStream())
         assertTrue(fakeReportFile.exists())
 
         // 2) Now read it back into its own schema
