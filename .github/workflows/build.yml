@@ -50,14 +50,4 @@ jobs:
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}:latest
-      
-      - name: Login to Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
         
-      - name: ACR Login
-        run: az acr login --name ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}
-          
-      - name : Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}:latest

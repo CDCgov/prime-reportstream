@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
-        <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
+        <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
         <kotlin.version>1.4.10</kotlin.version>
         <serialization.version>1.0.1</serialization.version>
         <maven.compiler.source>11</maven.compiler.source>
@@ -319,7 +319,7 @@
                     </generator>
                 </configuration>
             </plugin>
-            <plugin>
+          <plugin>
                 <groupId>com.github.gantsign.maven</groupId>
                 <artifactId>ktlint-maven-plugin</artifactId>
                 <version>1.7.0</version>
@@ -332,6 +332,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
     <dependencies>
@@ -447,23 +448,11 @@
             <version>3.5</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>0.1.54</version>
-        </dependency>
-        <dependency>
-            <groupId>software.sham</groupId>
-            <artifactId>sham-ssh</artifactId>
-            <version>0.1.0</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.github.mhewedy/sftp-utils -->
-        <dependency>
-            <groupId>com.github.mhewedy</groupId>
-            <artifactId>sftp-utils</artifactId>
-            <version>2.0.0</version>
-        </dependency>        
+<dependency>
+    <groupId>com.hierynomus</groupId>
+    <artifactId>sshj</artifactId>
+    <version>0.27.0</version>
+</dependency>     
 
         <dependency>
             <groupId>org.apache.commons</groupId>

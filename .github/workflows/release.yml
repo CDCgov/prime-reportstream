@@ -4,18 +4,26 @@ on:
   push:
     branches: [ master, production ]
 
+defaults:
+  run:
+    working-directory: prime-router
+
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+      
       - name: Set Environment Variables
         run: |
                if [ "$GITHUB_REF" == "refs/heads/production" ]
                then
                    echo "Deploying to the production environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-prod
+                   echo >> $GITHUB_ENV ACR_REPO=primedatahubprod.azurecr.io
                    echo >> $GITHUB_ENV AZ_FXNS_DEFAULT_KEY=${{ secrets.AZ_FXNS_PROD_DEFAULT_KEY }}
+                   echo >> $GITHUB_ENV AZ_FXNS_SIMPLEREPORT_KEY=${{ secrets.AZ_FXNS_PROD_SIMPLEREPORT_KEY }}
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_PROD_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_PROD_PWD }}
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=prod
@@ -23,7 +31,9 @@ jobs:
                else
                    echo "Deploying to the test environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
+                   echo >> $GITHUB_ENV ACR_REPO=primedatahubtest.azurecr.io
                    echo >> $GITHUB_ENV AZ_FXNS_DEFAULT_KEY=${{ secrets.AZ_FXNS_TEST_DEFAULT_KEY }}
+                   echo >> $GITHUB_ENV AZ_FXNS_SIMPLEREPORT_KEY=${{ secrets.AZ_FXNS_TEST_SIMPLEREPORT_KEY }}
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_TEST_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_TEST_PWD }}
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=test
@@ -31,10 +41,35 @@ jobs:
                fi
                env
 
+      - name: Setup PostgreSQL
+        uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
+        with:
+          postgresql version: 11
+          postgresql db: prime_data_hub
+          postgresql user: ${{ env.POSTGRESQL_USER }}
+          postgresql password: ${{ env.POSTGRESQL_PWD }}
+       
+      - name: Setup JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+           java-version: 11
+      
+      - name: Build Maven Package
+        run: mvn -B clean package --file pom.xml
+
+      - name: Build Docker Image
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}:latest
+      
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+        
+      - name: ACR Login
+        run: az acr login --name ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}
+          
+      - name : Push Docker Image
+        run: docker push ${{ env.ACR_REPO }}/${{ env.RESOURCE_GROUP }}:latest
 
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.RESOURCE_GROUP }}
@@ -47,6 +82,15 @@ jobs:
               --function-name reports \
               --key-name default \
               --key-value ${{ env.AZ_FXNS_DEFAULT_KEY }}
+
+      - name: Set Azure Function SimpleReport Key
+        run: |
+              az functionapp function keys set \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.RESOURCE_GROUP }} \
+              --function-name reports \
+              --key-name SimpleReport \
+              --key-value ${{ env.AZ_FXNS_SIMPLEREPORT_KEY }}
 
       - name: Set PostgreSQL Environment Variables
         run: | 

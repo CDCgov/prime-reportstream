@@ -2,7 +2,7 @@
 name: pa-covid-19
 description: PA COVID-19 flat file
 topic: covid-19
-trackingElement: testing_lab_specimen_id
+trackingElement: message_id
 basedOn: covid-19
 elements:
   - name: patient_first_name

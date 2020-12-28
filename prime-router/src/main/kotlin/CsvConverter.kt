@@ -6,32 +6,73 @@ import java.io.InputStream
 import java.io.OutputStream
 
 /**
- * A converter differs from a serialization in that
+ * The CSV serializer is crafted to handle poor data. The logic depends on the type of the element and it cardinality.
+ *
+ * | Type         | Cardinality | no column on input                   | empty input value                    | Invalid input value | valid input value |
+ * |--------------|-------------|--------------------------------------|--------------------------------------|---------------------|-------------------|
+ * | FOO          | 0..1        | mapper -> default -> empty + warning | mapper -> default -> empty + warning | empty + warning     | value             |
+ * | FOO          | 1..1        | mapper -> default -> error           | mapper -> default -> error           | error               | value             |
+ * | FOO_OR_BLANK | 0..1        | mapper -> default -> empty + warning | empty                                | empty + warning     | value             |
+ * | FOO_OR_BLANK | 1..1        | mapper -> default -> error           | empty                                | error               | value             |
+ *
  */
-object CsvConverter {
-    private data class Mapping(
+class CsvConverter(val metadata: Metadata) {
+    private data class CsvMapping(
         val useCsv: Map<String, Element.CsvField>,
         val useMapper: Map<String, Pair<Mapper, List<String>>>,
         val useDefault: Map<String, String>,
+        val errors: List<String>,
+        val warnings: List<String>,
     )
 
-    fun read(schema: Schema, input: InputStream, source: Source): Report {
-        return read(schema, input, listOf(source))
+    private data class RowResult(
+        val row: List<String>,
+        val errors: List<String>,
+        val warnings: List<String>,
+    )
+
+    fun read(schemaName: String, input: InputStream, source: Source): ReadResult {
+        return read(schemaName, input, listOf(source))
     }
 
     fun read(
-        schema: Schema,
+        schemaName: String,
         input: InputStream,
         sources: List<Source>,
         destination: OrganizationService? = null,
-    ): Report {
+        defaultValues: Map<String, String> = emptyMap(),
+    ): ReadResult {
+        val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
         val rows: List<Map<String, String>> = csvReader().readAllWithHeader(input)
+        val errors = mutableListOf<ResultDetail>()
+        val warnings = mutableListOf<ResultDetail>()
+
         if (rows.isEmpty()) {
-            return Report(schema, emptyList(), sources, destination)
+            return ReadResult(Report(schema, emptyList(), sources, destination), errors, warnings)
         }
-        val mapping = buildMappingForReading(schema, rows[0])
-        val mappedRows = rows.map { mapRow(schema, mapping, it) }
-        return Report(schema, mappedRows, sources, destination)
+
+        val csvMapping = buildMappingForReading(schema, defaultValues, rows[0])
+        errors.addAll(csvMapping.errors.map { ResultDetail.report(it) })
+        warnings.addAll(csvMapping.warnings.map { ResultDetail.report(it) })
+        if (csvMapping.errors.isNotEmpty()) {
+            return ReadResult(null, errors, warnings)
+        }
+
+        val mappedRows = rows.mapIndexedNotNull { index, row ->
+            val result = mapRow(schema, csvMapping, row)
+            val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
+            var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
+            if (trackingId.isEmpty())
+                trackingId = "row$index"
+            errors.addAll(result.errors.map { ResultDetail.item(trackingId, it) })
+            warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it) })
+            if (result.errors.isEmpty()) {
+                result.row
+            } else {
+                null
+            }
+        }
+        return ReadResult(Report(schema, mappedRows, sources, destination), errors, warnings)
     }
 
     fun write(report: Report, output: OutputStream) {
@@ -40,7 +81,7 @@ object CsvConverter {
         fun buildHeader(): List<String> = schema.csvFields.map { it.name }
 
         fun buildRows(): List<List<String>> {
-            return report.rowIndices.map { row ->
+            return report.itemIndices.map { row ->
                 schema
                     .elements
                     .flatMap { element ->
@@ -64,77 +105,130 @@ object CsvConverter {
         }.writeAll(allRows, output)
     }
 
-    private fun buildMappingForReading(schema: Schema, row: Map<String, String>): Mapping {
-        val expectedHeaders = schema.csvFields.map { it.name }.toSet()
-        val actualHeaders = row.keys.toSet()
-        val missingHeaders = expectedHeaders.minus(actualHeaders)
-        if (missingHeaders.size > 0) {
-            error("CSV is missing headers for: ${missingHeaders.joinToString(", ")}")
-        }
+    private fun buildMappingForReading(
+        schema: Schema,
+        defaultValues: Map<String, String>,
+        row: Map<String, String>
+    ): CsvMapping {
         val useCsv = schema
             .elements
-            .filter { it.csvFields != null }
+            .filter { it.csvFields != null && row.containsKey(it.csvFields.first().name) }
             .map { it.name to it.csvFields!!.first() } // TODO: be more flexible than first field
             .toMap()
         val useMapper = schema
             .elements
-            .filter { it.mapper?.isNotBlank() == true }
-            .map {
-                val (name, args) = Mappers.parseMapperField(it.mapper!!)
-                val mapper = Metadata.findMapper(name)
-                    ?: error("Schema Error: ${schema.name} mapper $name is not found")
-                it.name to Pair(mapper, args)
-            }.toMap()
+            .filter { it.mapper?.isNotBlank() == true } // TODO: check for the presence of fields
+            .map { it.name to Pair(it.mapperRef!!, it.mapperArgs!!) }
+            .toMap()
         val useDefault = schema
             .elements
-            .filter { it.default?.isNotBlank() == true }
-            .map { it.name to it.default!! }
+            .map { it.name to it.defaultValue(defaultValues) }
             .toMap()
-        return Mapping(useCsv, useMapper, useDefault)
+
+        // Figure out what is missing or ignored
+        val requiredHeaders = schema
+            .filterCsvFields { it.cardinality == Element.Cardinality.ONE && it.default == null && it.mapper == null }
+            .map { it.name }
+            .toSet()
+        val optionalHeaders = schema
+            .filterCsvFields {
+                (it.cardinality == null || it.cardinality == Element.Cardinality.ZERO_OR_ONE) &&
+                    it.default == null && it.mapper == null
+            }
+            .map { it.name }
+            .toSet()
+        val headersWithDefault = schema.filterCsvFields { it.default != null || it.mapper != null }
+            .map { it.name }
+        val actualHeaders = row.keys.toSet()
+        val missingRequiredHeaders = requiredHeaders - actualHeaders
+        val missingOptionalHeaders = optionalHeaders - actualHeaders
+        val ignoredHeaders = actualHeaders - requiredHeaders - optionalHeaders - headersWithDefault
+        val errors = missingRequiredHeaders.map { "Missing '$it' header" }
+        val warnings = missingOptionalHeaders.map { "Missing '$it' header" } +
+            ignoredHeaders.map { "Unexpected '$it' header is ignored" }
+
+        return CsvMapping(useCsv, useMapper, useDefault, errors, warnings)
     }
 
     /**
      * For a input row from the CSV file map to a schema defined row by
+     *
      *  1. Using values from the csv file
      *  2. Using a mapper defined by the schema
      *  3. Using the default defined by the schema
      *
+     * If the element `canBeBlank` then only step 1 is used.
+     *
      * Also, format values into the normalized format for the type
      */
-    private fun mapRow(schema: Schema, mapping: Mapping, inputRow: Map<String, String>): List<String> {
+    private fun mapRow(schema: Schema, csvMapping: CsvMapping, inputRow: Map<String, String>): RowResult {
         val lookupValues = mutableMapOf<String, String>()
+        val errors = mutableListOf<String>()
+        val warnings = mutableListOf<String>()
+        val placeholderValue = "**%%placeholder**"
+        val failureValue = "**^^validationFail**"
 
-        return schema.elements.map { element ->
-            fun addToLookup(normalized: String): String {
-                lookupValues[element.name] = normalized
-                return normalized
+        fun useCsv(element: Element): String? {
+            val csvField = csvMapping.useCsv[element.name] ?: return null
+            val value = inputRow.getValue(csvField.name)
+            if (value.isBlank()) {
+                return if (element.canBeBlank) value else null
             }
-
-            when (element.name) {
-                in mapping.useCsv -> {
-                    val csvField = mapping.useCsv.getValue(element.name)
-                    val value = inputRow.getValue(csvField.name)
-                    addToLookup(element.toNormalized(value, csvField.format))
+            val error = element.checkForError(value, csvField.format)
+            if (error != null) {
+                when (element.cardinality) {
+                    Element.Cardinality.ONE -> errors += error
+                    Element.Cardinality.ZERO_OR_ONE -> warnings += error
                 }
-                in mapping.useMapper -> {
-                    val (mapper, args) = mapping.useMapper.getValue(element.name)
-                    val valueNames = mapper.valueNames(element, args)
-                    val mapperValues = valueNames.map { elementName ->
-                        val valueElement = schema.findElement(elementName)
-                            ?: error("Schema Error: Could not find element '$elementName' for mapper '${mapper.name}'")
-                        val value = lookupValues[elementName]
-                            ?: error("Internal Error: no lookup values for '$elementName' for mapper '${mapper.name}'")
-                        ElementAndValue(valueElement, value)
-                    }
-                    addToLookup(mapper.apply(element, args, mapperValues) ?: element.default ?: "")
-                }
-                in mapping.useDefault -> {
-                    addToLookup(mapping.useDefault.getValue(element.name))
-                }
-                else -> {
-                    error("Schema Error: '${schema.name}' element '${element.name}' does not have a value")
-                }
+                return failureValue
             }
+            return element.toNormalized(value, csvField.format)
         }
+
+        fun useMapperPlaceholder(element: Element): String? {
+            return if (csvMapping.useMapper[element.name] != null) placeholderValue else null
+        }
+
+        fun useMapper(element: Element): String? {
+            val (mapper, args) = csvMapping.useMapper[element.name] ?: return null
+            val valueNames = mapper.valueNames(element, args)
+            val valuesForMapper = valueNames.map { elementName ->
+                val valueElement = schema.findElement(elementName)
+                    ?: error("Schema Error: Could not find element '$elementName' for mapper '${mapper.name}'")
+                val value = lookupValues[elementName]
+                    ?: error("Schema Error: No mapper input for $elementName")
+                ElementAndValue(valueElement, value)
+            }
+            return mapper.apply(element, args, valuesForMapper)
+        }
+
+        fun useDefault(element: Element): String {
+            return csvMapping.useDefault[element.name] ?: ""
+        }
+
+        // Build up lookup values
+        schema.elements.forEach { element ->
+            val value = useCsv(element) ?: useMapperPlaceholder(element) ?: useDefault(element)
+            lookupValues[element.name] = value
+        }
+
+        // Output with value
+        val outputRow = schema.elements.map { element ->
+            var value = lookupValues[element.name] ?: error("Internal Error: Second pass should have all values")
+            if (value == placeholderValue) {
+                value = useMapper(element) ?: useDefault(element)
+            }
+            if (value.isBlank() && !element.canBeBlank) {
+                when (element.cardinality) {
+                    Element.Cardinality.ONE -> errors += "Empty value for '${element.name}'"
+                    Element.Cardinality.ZERO_OR_ONE -> {}
+                }
+            }
+            if (value == failureValue) {
+                value = ""
+            }
+            value
+        }
+        return RowResult(outputRow, errors, warnings)
     }
 }

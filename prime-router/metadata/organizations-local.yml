@@ -43,11 +43,11 @@
           numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
-        transport:
-            type: SFTP
-            host: sftp
-            port: 22
-            filePath: ./upload
+        transports:
+            - type: SFTP
+              host: sftp
+              port: 22
+              filePath: ./upload
         format: CSV
 
   - name: pima-az-phd
@@ -64,8 +64,32 @@
           numberPerDay: 1440 # Every minute.  NOTE:  In production, they want deliveries once a day at 8am MST.
           initialBatch: 00:00
           timeZone: ARIZONA
-        address: http://localhost:1181/
         format: CSV
+
+  - name: tx-phd
+    description: Texas Department of State Health Services
+    services:
+      - name: elr-test
+        topic: covid-19
+        schema: tx/tx-covid-19-hl7
+        jurisdictionalFilter:
+         - "matches(ordering_facility_state, TX)"
+         - "matches(processing_mode_code, T)"
+        transforms: { deidentify: false }
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        format: HL7
+      - name: elr-debug
+        topic: covid-19
+        schema: tx/tx-covid-19-hl7
+        jurisdictionalFilter:
+          - "matches(ordering_facility_state, TX)"
+          - "matches(processing_mode_code, D)"
+        transforms: { deidentify: false }
+        format: HL7
 
   #
   # Developer test organizations
@@ -91,7 +115,6 @@
         schema: sample/phd2-sample
         jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, FL)"]
         transforms: {deidentify: false}
-        address: http://localhost:1281/
         format: CSV
 
   # HHS
@@ -103,5 +126,4 @@
         schema: sample/fed1-sample
         jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)"]
         transforms: {deidentify: true}
-        address: http://localhost:1381/
         format: CSV

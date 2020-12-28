@@ -27,7 +27,7 @@ data class OrganizationService(
     val batch: Batch? = null,
     val address: String = "",
     val format: Format = Format.CSV,
-    val transport: Transport = Transport(Transport.TransportType.DEFAULT)
+    val transports: List<TransportType> = emptyList()
 ) {
     lateinit var organization: Organization
     val fullName: String get() = "${organization.name}.$name"
@@ -51,7 +51,7 @@ data class OrganizationService(
      *
      * @param operation MERGE will combine all reports in the batch into a single batch
      * @param numberPerDay Number of batches per day must be 1 to 3600
-     * @param initialTime The time of the day to send the first batch. Must be format of hh:mm.
+     * @param initialBatch The time of the day to send the first batch. Must be format of hh:mm.
      * @param timeZone the time zone of the initial sending
      */
     data class Batch(
@@ -70,7 +70,7 @@ data class OrganizationService(
         fun nextBatchTime(now: OffsetDateTime = OffsetDateTime.now(), minDurationInSeconds: Int = 10): OffsetDateTime {
             if (minDurationInSeconds < 1) error("MinDuration must be at least 1 second")
             val zoneId = ZoneId.of(timeZone.zoneId)
-            var zonedNow = now
+            val zonedNow = now
                 .atZoneSameInstant(zoneId)
                 .plusSeconds(minDurationInSeconds.toLong())
                 .withNano(0)
@@ -106,53 +106,6 @@ data class OrganizationService(
             // EMAIL
             // DROPBOX
             // API
-        }
-    }
-
-    companion object {
-        fun mapByServices(input: Report, organizationServices: List<OrganizationService>): List<Report> {
-            return organizationServices.map { service -> mapByService(input, service) }
-        }
-
-        fun filterAndMapByService(
-            input: Report,
-            organizationServices: List<OrganizationService>,
-        ): List<Pair<Report, OrganizationService>> {
-            if (input.isEmpty()) return emptyList()
-            return organizationServices.filter { service ->
-                service.topic == input.schema.topic
-            }.mapNotNull { service ->
-                val mappedReport = mapByService(input, service)
-                if (mappedReport.itemCount == 0) return@mapNotNull null
-                Pair(mappedReport, service)
-            }
-        }
-
-        private fun mapByService(input: Report, organizationService: OrganizationService): Report {
-            // Filter according to receiver patterns
-            val filteredReport = input.filter(organizationService.jurisdictionalFilter)
-
-            // Apply mapping to change schema
-            val toReport: Report = if (organizationService.schema != filteredReport.schema.name) {
-                val toSchema = Metadata
-                    .findSchema(organizationService.schema)
-                    ?: error("${organizationService.schema} schema is missing from catalog")
-                val mapping = filteredReport.schema.buildMapping(toSchema)
-                filteredReport.applyMapping(mapping)
-            } else {
-                filteredReport
-            }
-
-            // Transform reports
-            var transformed = toReport
-            organizationService.transforms.forEach { (transform, transformValue) ->
-                when (transform) {
-                    "deidentify" -> if (transformValue == "true") {
-                        transformed = transformed.deidentify()
-                    }
-                }
-            }
-            return transformed.copy(destination = organizationService)
         }
     }
 }

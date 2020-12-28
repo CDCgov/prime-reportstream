@@ -25,13 +25,12 @@
           numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
-        address: http://localhost:1181/
         format: CSV
-        transport:
-          type: SFTP
-          host: hssftp.azdhs.gov
-          port: 22
-          filePath: ./TEST/IN
+        transports:
+          - type: SFTP
+            host: hssftp.azdhs.gov
+            port: 22
+            filePath: ./TEST/IN
       - name: elr-prod
         topic: covid-19
         schema: az/az-covid-19
@@ -46,11 +45,11 @@
           timeZone: ARIZONA
         address: http://localhost:1181/
         format: CSV
-        transport:
-          type: SFTP
-          host: hssftp.azdhs.gov
-          port: 22
-          filePath: ./PROD/IN
+        transports:
+          - type: SFTP
+            host: hssftp.azdhs.gov
+            port: 22
+            filePath: ./PROD/IN
 
   - name: pima-az-phd
     description: Pima County, Arizona PHD
@@ -65,7 +64,6 @@
           numberPerDay: 1440 # Every minute.  NOTE:  In production, they want deliveries once a day at 8am MST.
           initialBatch: 00:00
           timeZone: ARIZONA
-        address: http://localhost:1181/
         format: CSV
 
   #
@@ -79,7 +77,6 @@
         schema: sample/phd1-sample
         jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, AZ)"]
         transforms: {deidentify: false}
-        address: http://localhost:1181/
         format: CSV
 
 
@@ -92,7 +89,6 @@
         schema: sample/phd2-sample
         jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, FL)"]
         transforms: {deidentify: false}
-        address: http://localhost:1281/
         format: CSV
 
   # HHS
@@ -104,5 +100,4 @@
         schema: sample/fed1-sample
         jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)"]
         transforms: {deidentify: true}
-        address: http://localhost:1381/
         format: CSV

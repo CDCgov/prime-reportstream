@@ -35,21 +35,10 @@ internal class ElementTests {
     }
 
     @Test
-    fun `test extendFrom`() {
-        val elem1 = Element(name = "first")
-        val elem2 = Element(name = "first", type = Element.Type.NUMBER, csvFields = Element.csvFields("test"))
-        val elem1ExtendedFrom2 = elem1.inheritFrom(elem2)
-        assertEquals("first", elem1ExtendedFrom2.name)
-        assertEquals("test", elem1ExtendedFrom2.csvFields?.first()?.name)
-    }
-
-    @Test
     fun `test toNormalize altValues`() {
-        Metadata.loadValueSetCatalog("./src/test/unit_test_files")
         val one = Element(
             "b",
             type = Element.Type.CODE,
-            valueSet = "hl70136",
             altValues = listOf(
                 // Use french as an alternative display for these code
                 ValueSet.Value("Y", "Oui"),
@@ -213,5 +202,21 @@ internal class ElementTests {
         assertEquals("KY1-5555", result7)
         val result8 = one.toFormatted("XZ5555", "\$zipFivePlusFour")
         assertEquals("XZ5555", result8)
+    }
+
+    @Test
+    fun `test inherit from`() {
+        val parent = Element(
+            "parent",
+            type = Element.Type.TEXT,
+            csvFields = Element.csvFields("sampleField"),
+            documentation = "I am the parent element"
+        )
+
+        var child = Element("child")
+        child = child.inheritFrom(parent)
+
+        assertEquals(parent.documentation, child.documentation, "Documentation value didn't carry over from parent")
+        assertEquals(parent.type, child.type, "Element type didn't carry over from parent")
     }
 }

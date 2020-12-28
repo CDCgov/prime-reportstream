@@ -1,0 +1,383 @@
+---
+name: fl-covid-19
+description: Florida COVID-19 flat file
+topic: covid-19
+trackingElement: testing_lab_specimen_id
+basedOn: covid-19
+elements:
+    # column A
+    - name: testing_lab_clia
+      csvFields: [{ name: Sending Facility CLIA }]
+
+    # column B
+    - name: testing_lab_name
+      csvFields: [{ name: Sending Facility Name }]
+
+    # column C
+    # TODO: confirm specimen id is what they expect here
+    - name: testing_lab_specimen_id
+      csvFields: [{ name: Medical Record Number }]
+      documentation: Medical Record number for the patient
+
+    # column D
+    - name: patient_last_name
+      csvFields: [{ name: Patient Last Name }]
+
+    # column E
+    - name: patient_first_name
+      csvFields: [{ name: Patient First Name }]
+
+    # column F
+    - name: patient_dob
+      csvFields: [{ name: Patient Date of Birth, format: "MM/dd/yyyy" }]
+      documentation: The patient's date of birth in this format "MM/dd/yyyy"
+
+    # column G
+    # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
+    - name: patient_race
+      csvFields: [{ name: Patient Race }]
+
+    # column H
+    # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
+    - name: patient_ethnicity
+      csvFields: [{ name: Patient Ethnicity }]
+
+    # column I
+    # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
+    - name: patient_gender
+      csvFields: [{ name: Patient Gender }]
+      documentation: The patient's gender. Expects M, F, or U
+
+    # column J
+    - name: patient_street
+      csvFields: [{ name: Patient Street Address }]
+
+    # column K
+    - name: patient_street2
+      csvFields: [{ name: Patient Street Address2 }]
+
+    # column L
+    - name: patient_city
+      csvFields: [{ name: Patient City }]
+
+    # column M
+    - name: patient_state
+      csvFields: [{ name: Patient State }]
+
+    # column N
+    - name: patient_zip_code
+      csvFields: [{ name: Patient Zip }]
+
+    # column O
+    - name: patient_phone_number
+      csvFields: [{ name: Patient Phone Number }]
+
+    # column C part 2
+    # nonstandard
+    - name: patient_ssn
+      type: TEXT
+      hl7Field: PID-19
+      csvFields: [ { name: Patient Social Security Number } ]
+      documentation: The patient's SSN formatted without dashes
+
+    # column Q
+    - name: ordering_provider_id
+      csvFields: [{ name: Ordering Provider NPI Number }]
+
+    # column R
+    - name: ordering_provider_last_name
+      csvFields: [{ name: Ordering Provider Last Name }]
+
+    # column S
+    - name: ordering_provider_first_name
+      csvFields: [{ name: Ordering Provider First Name }]
+
+    # column T
+    - name: ordering_provider_street
+      csvFields: [{ name: Ordering Provider Street Address }]
+
+    # column U
+    - name: ordering_provider_street2
+      csvFields: [{ name: Ordering Provider Street Address2 }]
+
+    # column V
+    - name: ordering_provider_city
+      csvFields: [{ name: Ordering Provider City }]
+
+    # column W
+    - name: ordering_provider_state
+      csvFields: [{ name: Ordering Provider State }]
+
+    # column X
+    - name: ordering_provider_zip_code
+      csvFields: [{ name: Ordering Provider Zip }]
+
+    # column Y
+    - name: ordering_provider_phone_number
+      csvFields: [{ name: Ordering Provider Phone Number }]
+
+    # column Z
+    - name: ordering_facility_name
+      csvFields: [{ name: Ordering Facility Name }]
+
+    # column AA
+    - name: ordering_facility_street
+      csvFields: [{ name: Ordering Facility Address1 }]
+
+    # column AB
+    - name: ordering_facility_street2
+      csvFields: [ { name: Ordering Facility Address2 } ]
+
+    # column AC
+    - name: ordering_facility_city
+      csvFields: [{ name: Ordering Facility City }]
+
+    # column AD
+    - name: ordering_facility_state
+      csvFields: [{ name: Ordering Facility State }]
+
+    # column AE
+    - name: ordering_facility_zip_code
+      csvFields: [{ name: Ordering Facility Zip }]
+
+    # column AF
+    - name: ordering_facility_phone_number
+      csvFields: [{ name: Ordering Facility Phone Number }]
+
+    # column AG
+    - name: testing_lab_accession_number
+      csvFields: [{ name: Accession Number }]
+
+    # column AH
+    - name: specimen_collection_date_time
+      csvFields: [{ name: Specimen Collected Date }]
+
+    # column AI
+    - name: specimen_type
+      csvFields: [ { name: Specimen Source } ]
+
+    # column AJ
+    - name: specimen_received_date_time
+      csvFields: [{ name: Specimen Received Date }]
+
+    # column AK
+    # nonstandard
+    - name: result_finalized_date
+      type: DATE
+      csvFields: [{ name: Finalized Date, format: "MM/dd/yyyy" }]
+      documentation: The date which the result was finalized
+
+    # column AL
+    - name: test_performed_code
+      csvFields: [{ name: Observation Code }]
+
+    # column AM
+    - name: test_performed_name
+      csvFields: [{ name: Observation Description }]
+
+    # column AN
+    # nonstandard
+    - name: local_code
+      type: TEXT
+      documentation: This is a localized coded value that the facility may use for this test (Optional- Local Code is equal to LOINC code, so if you are providing LOINC Code, you may leave this field blank and vice versa)
+
+    # column AO
+    # nonstandard
+    - name: local_code_description
+      type: TEXT
+      documentation: This is a localized description of the localized coded value that the facility may use for this test (Optional unless LOINC Code and Description are not provided)
+
+    # column AP
+    - name: test_result
+      csvFields: [{ name: Test Result }]
+
+    # column AQ
+    - name: reference_range
+      csvFields: [{ name: Reference Range }]
+
+    # column AR
+    - name: abnormal_flag
+      csvFields: [{ name: Abnormal Flag }]
+
+    # column AS
+    # nonstandard
+    # TODO: duplication of data here. is this intended or should OBX-14 maybe refer elsewhere?
+    - name: snomed_code_for_result
+      type: TEXT
+      csvFields: [{ name: SNOMED Code for Result }]
+      documentation: This is the coded value that describes the result. For IgG, IgM and CT results that provide a value leave this field blank.
+
+    # column AT
+    - name: testing_lab_name
+      csvFields: [{ name: Performing Lab Name }]
+
+    # column AU
+    - name: testing_lab_clia
+      csvFields: [{ name: Performing Lab CLIA }]
+
+    # column AV
+    # nonstandard
+    - name: patient_age_and_units
+      type: TEXT
+      mapper: 'concat(patient_age, patient_age_units)'
+      csvFields: [{ name: Age at time of collection }]
+      documentation: |
+        The patient's age as a numeric value and a unit value, for example, "3 months", "25 years", etc
+
+    # column AW
+    # nonstandard
+    # TODO: how do we pull the device unique identifier
+    - name: kit_device_id_type
+      type: TEXT
+      documentation: |
+        A concatenation of three values: Manufacturer Name, Device's unique ID, Device Type
+      hl7Field: OBX-17-2
+      mapper: "concat(test_kit_name_id, device_id, test_kit_name_id_type)"
+      csvFields: [{ name: "Kit^Device^IDType" }]
+
+    # column AX
+    - name: first_test
+      type: CODE
+      csvFields: [{ name: First Test for Condition }]
+      altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
+          - display: Unknown
+            code: U
+      documentation: Expects Y, N, or U
+
+    # column AY
+    - name: employed_in_healthcare
+      type: CODE
+      csvFields: [{ name: Employment in Health Care }]
+      altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
+          - display: Unknown
+            code: U
+      documentation: Expects Y, N, or U
+
+    # column AZ
+    # nonstandard
+    - name: occupation
+      type: TEXT
+      referenceUrl: https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html
+      csvFields: [{ name: Occupation }]
+      documentation: |
+        FL expects the SNOMED code that maps to one of the values outlined at [https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html](https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html)
+
+    # column BA
+    - name: symptomatic_for_disease
+      csvFields: [ { name: Symptomatic } ]
+      altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
+          - display: Unknown
+            code: U
+      documentation: Expects Y, N, or U
+
+    # column BB
+    # non-standard
+    # TODO: implement symptoms value set
+    - name: disease_symptoms
+      type: TEXT
+      csvFields: [{ name: Symptom }]
+      documentation: Expects a list of the symptoms the patient is experiencing as as a set of SNOMED codes
+
+    # column BC
+    - name: illness_onset_date
+      csvFields: [{ name: Date of Symptom Onset, format: "MM/dd/yyyy" }]
+
+    # column BD
+    - name: hospitalized
+      type: CODE
+      csvFields: [{ name: Hospitalized for this condition }]
+      altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
+          - display: Unknown
+            code: U
+      documentation: Expects Y, N, or U
+
+    # column BE
+    - name: icu
+      type: CODE
+      csvFields: [{ name: In ICU }]
+      altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
+          - display: Unknown
+            code: U
+      documentation: Expects Y, N, or U
+
+    # column BF
+    - name: resident_congregate_setting
+      type: CODE
+      csvFields: [{ name: Resides in Congregate Care setting }]
+      altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
+          - display: Unknown
+            code: U
+      documentation: Expects Y, N, or U
+
+    # column BG
+    # nonstandard
+    # todo: create a value set for this based on SNOMED codes
+    - name: specify_congregate_care_setting
+      type: TEXT
+      csvFields: [{ name: Specify Congregate Care Setting }]
+      referenceUrl: https://confluence.hl7.org/pages/viewpage.action?pageId=86967947
+      documentation: |
+        The type of congregate care setting.
+        Based on the value set specified at [https://confluence.hl7.org/pages/viewpage.action?pageId=86967947](https://confluence.hl7.org/pages/viewpage.action?pageId=86967947) item 7a.
+
+    # column BH
+    - name: pregnant
+      csvFields: [ { name: Pregnancy Status } ]
+
+    # column BI
+    # nonstandard
+    - name: student_teacher_other
+      type: CODE
+      csvFields: [{ name: "Is the patient a student, teacher, or other faculty member" }]
+      altValues:
+          - display: Student
+            code: Student
+          - display: Teacher
+            code: Teacher
+          - display: Other (Faculty Member)
+            code: Other (Faculty Member)
+          - display: No
+            code: N
+          - display: Unknown
+            code: U
+      documentation: |
+        AOE question for Florida. Expects one of the following values:
+
+            - Student
+            - Teacher
+            - Other (Faculty Member)
+            - N
+            - U
+
+    # column BJ
+    # nonstandard
+    - name: name_of_school
+      type: TEXT
+      csvFields: [{ name: "What is the name of the school" }]
+      documentation: AOE question for Florida. Will likely be the same value as the ordering facility.
+
+

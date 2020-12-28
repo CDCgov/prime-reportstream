@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import java.io.File
+import java.lang.Appendable
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
@@ -11,43 +12,40 @@ import kotlin.text.StringBuilder
 object DocumentationFactory {
     // will generate a documentation string based on markdown that can then be presented
     // to end users or be converted into HTML if we want to be fancy
+
     fun getElementDocumentation(element: Element): String {
         val csvField = element.csvFields?.get(0)
         val sb = StringBuilder()
+        val displayName = csvField?.name ?: element.name
 
-        sb.appendLine(
-            """
-**Name**:           ${element.name}
-
-**Type**:           ${element.type?.name}
-
-**Format**:         ${csvField?.format ?: ""}
-"""
+        // our top-level element data points
+        sb.appendLine("") // start with a blank line at the top 
+        appendLabelAndData(sb, "Name", displayName)
+        appendLabelAndData(sb, "Type", element.type?.name)
+        appendLabelAndData(sb, "Format", csvField?.format)
+        appendLabelAndData(sb, "HL7 Field", element.hl7Field)
+        appendLabelAndData(
+            sb, "Cardinality",
+            element.cardinality?.toFormatted() ?: Element.Cardinality.ZERO_OR_ONE.toFormatted()
         )
 
+        // output the reference url
+        if (element.referenceUrl?.isNotBlank() == true) {
+            appendLabelAndUrl(sb, "Reference URL", element.referenceUrl)
+        }
+
         // build the valuesets
-        if (element.valueSet?.isNotEmpty() == true) {
-            val valueset = Metadata.findValueSet(element.valueSet)
-
-            sb.appendLine("**Valuesets**\n")
-            sb.appendLine("Code | Display")
-            sb.appendLine("---- | -------")
-
-            valueset?.values?.forEach { vs ->
-                sb.appendLine("${vs.code}|${vs.display}")
-            }
-            sb.appendLine("")
+        if (element.valueSetRef != null) {
+            appendValueSetTable(sb, "Value Sets", element.valueSetRef.values)
         }
 
         if (element.altValues?.isNotEmpty() == true) {
-            sb.appendLine("**Alt Valuesets**")
-            sb.appendLine("Code | Display")
-            sb.appendLine("---- | -------")
+            appendValueSetTable(sb, "Alt Value Sets", element.altValues)
+        }
 
-            element.altValues.forEach { vs ->
-                sb.appendLine("${vs.code}|${vs.display}")
-            }
-            sb.appendLine("")
+        if (element.table?.isNotEmpty() == true) {
+            appendLabelAndData(sb, "Table", element.table)
+            appendLabelAndData(sb, "Table Column", element.tableColumn)
         }
 
         if (element.documentation?.isNotEmpty() == true) {
@@ -85,13 +83,23 @@ ${element.documentation}
     }
 
     // write all the documentation for a schema
-    fun writeDocumentationForSchema(schema: Schema, outputDir: String? = null, outputFileName: String? = null) {
+    fun writeDocumentationForSchema(
+        schema: Schema,
+        outputDir: String? = null,
+        outputFileName: String? = null,
+        includeTimestamps: Boolean = false
+    ) {
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         val createDate = LocalDate.now().format(formatter)
         // change any slashes to dashes for the file name
         val schemaName = schema.name.replace("/", "-")
 
-        val oName = (outputFileName ?: schemaName) + "-$createDate.md"
+        val oName = (outputFileName ?: schemaName) + if (includeTimestamps) {
+            "-$createDate.md"
+        } else {
+            ".md"
+        }
+
         val oDir = (outputDir ?: "documentation")
         val path = Paths.get(oDir)
         if (!Files.exists(path)) {
@@ -100,5 +108,38 @@ ${element.documentation}
 
         val outputPath = "$oDir/$oName"
         File(outputPath).writeText(getSchemaDocumentation(schema))
+    }
+
+    private fun appendLabelAndData(appendable: Appendable, label: String, value: Any?) {
+        if (value != null) {
+            appendable.appendLine(
+                "**$label**: $value\n"
+            )
+        }
+    }
+
+    private fun appendLabelAndUrl(appendable: Appendable, label: String, url: String, linkText: String? = null) {
+        if (url.isNotBlank()) {
+            appendable.appendLine(
+                """
+**$label**:
+[${linkText ?: url}]($url) 
+"""
+            )
+        }
+    }
+
+    private fun appendValueSetTable(appendable: Appendable, label: String, values: Collection<ValueSet.Value>?) {
+        if (values?.isNotEmpty() == true) {
+
+            appendable.appendLine("**$label**\n")
+            appendable.appendLine("Code | Display")
+            appendable.appendLine("---- | -------")
+
+            values.forEach { vs ->
+                appendable.appendLine("${vs.code}|${vs.display}")
+            }
+            appendable.appendLine("")
+        }
     }
 }

@@ -1,8 +1,0 @@
----
-name: base
-topic: test
-elements:
-  - name: address
-    type: STREET
-  - name: zip_code
-    type: POSTAL_CODE

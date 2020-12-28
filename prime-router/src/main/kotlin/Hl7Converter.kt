@@ -8,11 +8,11 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.util.Properties
 
-object Hl7Converter {
-    private const val softwareVendorOrganization = "Centers for Disease Control and Prevention"
-    private const val softwareProductName = "PRIME Data Hub"
+class Hl7Converter(val metadata: Metadata) {
+    private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
+    private val softwareProductName = "PRIME Data Hub"
 
-    private val context = DefaultHapiContext()
+    private val hapiContext = DefaultHapiContext()
     private val buildVersion: String
     private val buildDate: String
 
@@ -32,7 +32,7 @@ object Hl7Converter {
         // these segments by hand
         //
         outputStream.write(createHeaders(report).toByteArray())
-        report.rowIndices.map {
+        report.itemIndices.map {
             val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
         }
@@ -43,7 +43,7 @@ object Hl7Converter {
         val message = ORU_R01()
         message.initQuickstart("ORU", "R01", "D")
         buildMessage(message, report, row)
-        return context.pipeParser.encode(message)
+        return hapiContext.pipeParser.encode(message)
     }
 
     private fun buildMessage(message: ORU_R01, report: Report, row: Int) {
@@ -51,19 +51,18 @@ object Hl7Converter {
         val terser = Terser(message)
         setLiterals(terser)
         report.schema.elements.forEach { element ->
-            val value = report.getStringWithDefault(row, element.name)
-            if (value.isEmpty()) return@forEach
+            val value = report.getString(row, element.name) ?: return@forEach
 
             if (element.hl7OutputFields != null) {
                 element.hl7OutputFields.forEach { hl7Field ->
                     setComponent(terser, element, hl7Field, value)
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER) {
-                val units = report.getStringWithDefault(row, "${element.name}_units")
-                val date = report.getStringWithDefault(row, "specimen_collection_date_time")
+                val units = report.getString(row, "${element.name}_units")
+                val date = report.getString(row, "specimen_collection_date_time") ?: ""
                 setAOE(terser, element, aoeSequence++, date, value, units)
             } else if (element.hl7Field == "AOE") {
-                val date = report.getStringWithDefault(row, "specimen_collection_date_time")
+                val date = report.getString(row, "specimen_collection_date_time") ?: ""
                 setAOE(terser, element, aoeSequence++, date, value)
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
@@ -103,7 +102,7 @@ object Hl7Converter {
 
     private fun setCodeComponent(terser: Terser, value: String, pathSpec: String, valueSetName: String?) {
         if (valueSetName == null) error("Schema Error: Missing valueSet for '$pathSpec'")
-        val valueSet = Metadata.findValueSet(valueSetName)
+        val valueSet = metadata.findValueSet(valueSetName)
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
@@ -219,9 +218,9 @@ object Hl7Converter {
     }
 
     private fun createHeaders(report: Report): String {
-        val sendingApp = formatHD(Element.parseHD(report.getStringWithDefault(0, "sending_application")))
-        val receivingApp = formatHD(Element.parseHD(report.getStringWithDefault(0, "receiving_application")))
-        val receivingFacility = formatHD(Element.parseHD(report.getStringWithDefault(0, "receiving_facility")))
+        val sendingApp = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
+        val receivingApp = formatHD(Element.parseHD(report.getString(0, "receiving_application") ?: ""))
+        val receivingFacility = formatHD(Element.parseHD(report.getString(0, "receiving_facility") ?: ""))
 
         return "FHS|^~\\&|" +
             "$sendingApp|" +
@@ -286,9 +285,9 @@ object Hl7Converter {
         }
     }
 
-    private fun formatHD(hdFields: Element.HDFields, seperator: String = "^"): String {
+    private fun formatHD(hdFields: Element.HDFields, separator: String = "^"): String {
         return if (hdFields.universalId != null && hdFields.universalIdSystem != null) {
-            "${hdFields.name}$seperator${hdFields.universalId}$seperator${hdFields.universalIdSystem}"
+            "${hdFields.name}$separator${hdFields.universalId}$separator${hdFields.universalIdSystem}"
         } else {
             hdFields.name
         }
