@@ -137,7 +137,6 @@ az storage account network-rule add --resource-group $resource_group \
 echo "--- Creating container registry..."
 az acr create --resource-group $resource_group \
               --name $container_registry \
-              --sku Basic \
               --admin-enabled true \
               --sku Premium \
               --output none \
