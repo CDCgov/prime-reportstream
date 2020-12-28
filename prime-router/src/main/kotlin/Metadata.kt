@@ -21,6 +21,7 @@ class Metadata {
         ConcatenateMapper(),
         Obx17Mapper(),
         Obx17TypeMapper(),
+        Obx8Mapper(),
     )
 
     private var jurisdictionalFilters = listOf(
