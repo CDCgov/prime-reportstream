@@ -220,18 +220,16 @@ elements:
 
     # column AT
     # nonstandard. need to concat because we currently can't add the same column twice to a table
-    # TODO: fix this
     - name: name_of_testing_lab
       type: TEXT
-      mapper: 'concat(testing_lab_name)'
+      mapper: 'use(testing_lab_name)'
       csvFields: [{ name: Performing Lab Name }]
 
     # column AU
     # nonstandard. need to concat because we currently can't add the same column twice to a table
-    # TODO: fix this
     - name: clia_of_testing_lab
       type: TEXT
-      mapper: 'concat(testing_lab_clia)'
+      mapper: 'use(testing_lab_clia)'
       csvFields: [{ name: Performing Lab CLIA }]
 
     # column AV
