@@ -24,6 +24,7 @@ import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.OffsetDateTime
+import java.util.UUID
 
 const val databaseVariable = "POSTGRES_URL"
 const val userVariable = "POSTGRES_USER"
@@ -38,6 +39,10 @@ class DatabaseAccess(private val connection: Connection = getConnection()) {
     private val create: DSLContext = DSL.using(connection, SQLDialect.POSTGRES)
 
     data class Header(val task: Task, val sources: List<TaskSource>)
+
+    fun checkConnection() {
+        create.selectFrom(TASK).where(TASK.REPORT_ID.eq(UUID.randomUUID()))
+    }
 
     /**
      * Make the other calls in the context of a SQL transaction

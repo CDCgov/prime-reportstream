@@ -40,61 +40,29 @@ data class Schema(
     val description: String? = null,
     val referenceUrl: String? = null,
     val extends: String? = null,
+    val extendsRef: Schema? = null,
     val basedOn: String? = null,
+    val basedOnRef: Schema? = null,
 ) {
     val baseName: String get() = formBaseName(name)
     val csvFields: List<Element.CsvField> get() = elements.flatMap { it.csvFields ?: emptyList() }
-    private val elementIndex: Map<String, Int> = elements.mapIndexed { index, element -> element.name to index }.toMap()
 
-    // A mapping maps from one schema to another
-    data class Mapping(
-        val toSchema: Schema,
-        val fromSchema: Schema,
-        val useDirectly: Map<String, String>,
-        val useValueSet: Map<String, String>,
-        val useMapper: Map<String, Mapper>,
-        val useDefault: Set<String>,
-        val missing: Set<String>,
-    )
+    private val elementIndex: Map<String, Int> = elements.mapIndexed { index, element -> element.name to index }.toMap()
 
     fun findElement(name: String): Element? {
         return elementIndex[name]?.let { elements[it] }
+    }
+
+    fun findElementColumn(name: String): Int? {
+        return elementIndex[name]
     }
 
     fun containsElement(name: String): Boolean {
         return elementIndex[name] != null
     }
 
-    fun buildMapping(toSchema: Schema): Mapping {
-        if (toSchema.topic != this.topic) error("Trying to match schema with different topics")
-
-        val useDirectly = mutableMapOf<String, String>()
-        val useValueSet: MutableMap<String, String> = mutableMapOf<String, String>()
-        val useMapper = mutableMapOf<String, Mapper>()
-        val useDefault = mutableSetOf<String>()
-        val missing = mutableSetOf<String>()
-
-        toSchema.elements.forEach { toElement ->
-            findMatchingElement(toElement)?.let {
-                useDirectly[toElement.name] = it
-                return@forEach
-            }
-            toElement.mapper?.let {
-                val name = Mappers.parseMapperField(it).first
-                useMapper[toElement.name] = Metadata.findMapper(name) ?: error("Mapper $name is not found")
-                return@forEach
-            }
-            if (toElement.required == true) {
-                missing.add(toElement.name)
-            } else {
-                useDefault.add(toElement.name)
-            }
-        }
-        return Mapping(toSchema, this, useDirectly, useValueSet, useMapper, useDefault, missing)
-    }
-
-    private fun findMatchingElement(matchElement: Element): String? {
-        return findElement(matchElement.name)?.name
+    fun filterCsvFields(block: (Element) -> Boolean): List<Element.CsvField> {
+        return elements.filter(block).flatMap { it.csvFields ?: emptyList() }
     }
 
     companion object {
