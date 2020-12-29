@@ -34,15 +34,17 @@ class SendFunction {
 
                 val content = workflowEngine.readBody(header)
 
-                val success: Boolean = service.transports.map {
-                    when (it) {
-                        is SFTPTransportType -> SftpTransport().send(service.fullName, it, header, content)
-                        else -> true
-                    }
-                }.reduce { acc, s -> acc && s }
+                if (service.transforms.size > 0) {
+                    val success: Boolean = service.transports.map {
+                        when (it) {
+                            is SFTPTransportType -> SftpTransport().send(service.fullName, it, header, content)
+                            else -> true
+                        }
+                    }.reduce { acc, s -> acc && s }
 
-                if (success) {
-                    context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
+                    if (success) {
+                        context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
+                    }
                 }
 
                 // TODO: Next action should be WIPE when implemented
