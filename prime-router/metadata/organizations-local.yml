@@ -27,8 +27,8 @@
           timeZone: ARIZONA
         transports:
           - type: SFTP
-            host: sftp
-            port: 22
+            host: localhost
+            port: 2222
             filePath: ./upload
         format: CSV
       - name: elr-prod
@@ -45,8 +45,8 @@
           timeZone: ARIZONA
         transports:
             - type: SFTP
-              host: sftp
-              port: 22
+              host: localhost
+              port: 2222
               filePath: ./upload
         format: CSV
 
@@ -78,8 +78,8 @@
         transforms: { deidentify: false }
         transports:
         - type: SFTP
-          host: sftp
-          port: 22
+          host: localhost
+          port: 2222
           filePath: ./upload
         format: HL7
       - name: elr-debug

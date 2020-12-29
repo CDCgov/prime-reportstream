@@ -96,6 +96,7 @@ data class Element(
         DURATION,
         CODE, // CODED with a HL7, SNOMED-CT, LONIC valueSet
         TABLE, // A table column value
+        TABLE_OR_BLANK,
         EI, // A HL7 Entity Identifier (4 parts)
         HD, // ISO Hierarchic Designator
         ID, // Generic ID
@@ -158,7 +159,7 @@ data class Element(
 
     val isOptional get() = this.cardinality == Cardinality.ZERO_OR_ONE
 
-    val canBeBlank get() = type == Type.TEXT_OR_BLANK || type == Type.STREET_OR_BLANK
+    val canBeBlank get() = type == Type.TEXT_OR_BLANK || type == Type.STREET_OR_BLANK || type == Type.TABLE_OR_BLANK
 
     fun inheritFrom(baseElement: Element): Element {
         return Element(

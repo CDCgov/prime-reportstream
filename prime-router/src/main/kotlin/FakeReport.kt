@@ -66,7 +66,7 @@ class FakeReport(val metadata: Metadata) {
                     }
                 }
             }
-            Element.Type.TABLE -> {
+            Element.Type.TABLE, Element.Type.TABLE_OR_BLANK -> {
                 val lookupTable = element.tableRef
                     ?: error("LookupTable ${element.table} is not available")
                 when (element.table) {

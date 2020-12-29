@@ -405,6 +405,7 @@ elements:
 
   - name: patient_age
     type: NUMBER
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_age
     hhsGuidanceField:
     hl7Field: AOE
@@ -412,6 +413,7 @@ elements:
 
   - name: patient_age_units
     type: CODE
+    cardinality: ZERO_OR_ONE
     valueSet: patient_age_units
     natFlatFileField: Patient_age_units
     hhsGuidanceField:
@@ -419,14 +421,14 @@ elements:
 
   - name: patient_city
     type: CITY
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_city
     hhsGuidanceField:
     hl7Field: PID-11-3
     documentation: The patient's city
 
   - name: patient_county
-    type: TABLE
+    type: TABLE_OR_BLANK
     table: fips-county
     tableColumn: County
     cardinality: ONE
@@ -434,6 +436,7 @@ elements:
 
   - name: patient_county_code
     type: TABLE
+    cardinality: ZERO_OR_ONE
     table: fips-county
     tableColumn: FIPS
     mapper: lookup(patient_state, patient_county)
@@ -442,6 +445,7 @@ elements:
 
   - name: patient_email
     type: EMAIL
+    cardinality: ZERO_OR_ONE
     hl7Field: ORC-23-4
 
   - name: patient_death_date
@@ -452,6 +456,7 @@ elements:
 
   - name: patient_died
     type: CODE
+    cardinality: ZERO_OR_ONE
     default: N
     valueSet: hl70136
     natFlatFileField: Patient_died
@@ -460,6 +465,7 @@ elements:
 
   - name: patient_dob
     type: DATE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_DOB
     hhsGuidanceField: Patient date of birth
     hl7Field: PID-7
@@ -470,6 +476,7 @@ elements:
 
   - name: patient_ethnicity
     type: CODE
+    cardinality: ZERO_OR_ONE
     valueSet: hl70189
     natFlatFileField: Patient_ethnicity
     hhsGuidanceField: Patient ethnicity
@@ -479,6 +486,7 @@ elements:
 
   - name: patient_first_name
     type: PERSON_NAME
+    cardinality: ZERO_OR_ONE
     cardinality: ONE
     natFlatFileField: Patient_first_name
     hhsGuidanceField: Patient name
@@ -487,7 +495,7 @@ elements:
 
   - name: patient_gender
     type: CODE
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     valueSet: hl70001
     natFlatFileField: Patient_gender
     hhsGuidanceField: Patient sex
@@ -527,11 +535,13 @@ elements:
 
   - name: patient_name_type_code
     type: TEXT
+    cardinality: ZERO_OR_ONE
     hl7Field: PID-5-7
     default: L # Legal
 
   - name: patient_middle_initial
     type: PERSON_NAME
+    cardinality: ZERO_OR_ONE
     mapper: middleInitial(patient_middle_name)
     natFlatFileField: Patient_middle_name
     hhsGuidanceField: Patient name
@@ -539,6 +549,7 @@ elements:
 
   - name: patient_middle_name
     type: PERSON_NAME
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_middle_name
     hhsGuidanceField: Patient name
     hl7Field: PID-5-3
@@ -552,7 +563,7 @@ elements:
 
   - name: patient_phone_number
     type: TELEPHONE
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_phone_number
     hhsGuidanceField: Patient phone number
     hl7Field: PID-13
@@ -561,7 +572,7 @@ elements:
   - name: patient_race
     type: CODE
     valueSet: hl70005
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_race
     hhsGuidanceField: Patient race
     hl7Field: PID-10
@@ -586,7 +597,7 @@ elements:
 
   - name: patient_street
     type: STREET
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_street
     hhsGuidanceField: Patient street address
     hl7Field: PID-11-1
@@ -601,12 +612,14 @@ elements:
 
   - name: patient_suffix
     type: PERSON_NAME
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_suffix
     hhsGuidanceField:
     hl7Field: PID-5-4
 
   - name: patient_tribal_citizenship
     type: CODE
+    cardinality: ZERO_OR_ONE
     valueSet: tribal_citizenship
     natFlatFileField:
     hhsGuidanceField:
@@ -614,7 +627,7 @@ elements:
 
   - name: patient_zip_code
     type: POSTAL_CODE
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_zip_code
     hhsGuidanceField: Patient residence zip code
     hl7Field: PID-11-5
