@@ -48,9 +48,9 @@ elements:
   - name: filler_order_id
     mapper: use(message_id)
 
-# Removed until SimpleReport sends this column
-#  - name: test_result_status
-#    csvFields: [{name: Test_result_status}]
+  # Optional until SimpleReport team provides this.
+  - name: test_result_status
+    csvFields: [{name: Test_result_status}]
 
   - name: test_result
     csvFields: [{name: Test_result_code}]

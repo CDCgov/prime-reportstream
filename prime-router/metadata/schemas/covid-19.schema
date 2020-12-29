@@ -872,7 +872,8 @@ elements:
 
   - name: test_result_status
     type: CODE
-    default: F
+    cardinality: ZERO_OR_ONE
+# Don't default.    default: F
     valueSet: hl70123
     natFlatFileField: Test_result_status
     hhsGuidanceField:
