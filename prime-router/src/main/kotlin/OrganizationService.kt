@@ -93,19 +93,4 @@ data class OrganizationService(
         NONE,
         MERGE
     }
-
-    data class Transport(
-        val type: TransportType = TransportType.DEFAULT,
-        val host: String = "localhost",
-        val port: String = "22",
-        val filePath: String = "."
-    ) {
-        enum class TransportType {
-            SFTP,
-            DEFAULT
-            // EMAIL
-            // DROPBOX
-            // API
-        }
-    }
 }
