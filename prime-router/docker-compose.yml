@@ -1,5 +1,4 @@
 # This docker compose is intended to setup a developer 
-#
 version: "3.3"
 services:
   # This container runs our Azure function code. 
