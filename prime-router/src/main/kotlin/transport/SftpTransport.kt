@@ -21,16 +21,19 @@ class SftpTransport : ITransport {
 
         val (user, pass) = lookupCredentials(orgName)
 
-        val fileDir = sftpTransportType.filePath.removeSuffix("/")
-
-        val path = "$fileDir/${orgName.replace('.', '-')}-${header.task.reportId}.csv"
+        val fileName = "${orgName.replace('.', '-')}-${header.task.reportId}.csv"
         val host: String = sftpTransportType.host
         val port: String = sftpTransportType.port
 
         var success: Boolean
+        try {
+            uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents)
+            success = true
+        } catch (e: Exception) {
 
-        uploadFile(host, port, user, pass, path, contents)
-        success = true
+            success = false
+            System.out.println(e)
+        }
 
         return success
     }
@@ -54,24 +57,31 @@ class SftpTransport : ITransport {
         user: String,
         pass: String,
         path: String,
+        fileName: String,
         contents: ByteArray
     ) {
-        SSHClient().use {
+        val sshClient = SSHClient()
+        try {
 
-            it.addHostKeyVerifier(PromiscuousVerifier())
-            it.connect(host, port.toInt())
-            it.authPassword(user, pass)
+            sshClient.addHostKeyVerifier(PromiscuousVerifier())
+            sshClient.connect(host, port.toInt())
+            sshClient.authPassword(user, pass)
 
-            it.newSFTPClient().use {
-                it.put(
+            var client = sshClient.newSFTPClient()
+            try {
+                client.put(
                     object : InMemorySourceFile() {
-                        override fun getName(): String { return "test.csv" }
+                        override fun getName(): String { return fileName }
                         override fun getLength(): Long { return contents.size.toLong() }
                         override fun getInputStream(): InputStream { return contents.inputStream() }
                     },
                     path
                 )
+            } finally {
+                client.close()
             }
+        } finally {
+            sshClient.disconnect()
         }
     }
 }
