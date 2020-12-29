@@ -5,10 +5,7 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
-import com.github.ajalt.clikt.parameters.options.convert
-import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.CsvConverter
 import gov.cdc.prime.router.DocumentationFactory
@@ -42,8 +39,8 @@ class RouterCli : CliktCommand(
         option("--input_fake", help = "fake the input").int().convert { InputSource.FakeSource(it) },
         option("--input_dir", help = "<dir>").convert { InputSource.DirSource(it) },
     ).single()
-    private val inputSchema by option("--input_schema", help = "<schema_name>").required()
 
+    private val inputSchema by option("--input_schema", help = "<schema_name>").required()
     private val validate by option("--validate", help = "Validate stream").flag(default = true)
     private val route by option("--route", help = "route to receivers lists").flag(default = false)
     private val send by option("--send", help = "send to a receiver if specified").flag(default = false)
@@ -59,6 +56,12 @@ class RouterCli : CliktCommand(
     private val includeTimestamps by
     option("--include-timestamps", help = "includes creation time stamps when generating documentation")
         .flag(default = false)
+    private val targetState: String? by
+    option(
+        "--target-state",
+        help = "specifies a state to generate test data for. " +
+            "This is only used when generating test data, and has no meaning in other contexts"
+    )
 
     private fun readReportFromFile(
         metadata: Metadata,
@@ -78,9 +81,11 @@ class RouterCli : CliktCommand(
         writeBlock: (report: Report, format: OrganizationService.Format, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
-        if (reports.size > 0) {
+
+        if (reports.isNotEmpty()) {
             echo("Creating these files:")
         }
+
         reports.forEach { (report, format) ->
             val outputFile = if (outputFileName != null) {
                 File(outputFileName!!)
@@ -140,7 +145,6 @@ class RouterCli : CliktCommand(
             echo("Generating documentation for $schemaName")
             DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps)
         } else {
-
             // Gather input source
             val inputReport: Report = when (inputSource) {
                 is InputSource.FileSource -> {
@@ -164,7 +168,8 @@ class RouterCli : CliktCommand(
                     FakeReport(metadata).build(
                         schema,
                         (inputSource as InputSource.FakeSource).count,
-                        FileSource("fake")
+                        FileSource("fake"),
+                        targetState?.toUpperCase()
                     )
                 }
                 else -> {

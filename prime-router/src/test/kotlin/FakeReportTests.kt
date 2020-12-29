@@ -1,15 +1,12 @@
 package gov.cdc.prime.router
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.fail
+import java.io.ByteArrayInputStream
+import kotlin.test.*
 
 internal class FakeReportTests {
-    private val rowContext = FakeReport.RowContext { null }
-
+    private val rowContext = FakeReport.RowContext()
     private val metadata = Metadata(
-        valueSet = ValueSet("fake", ValueSet.SetSystem.LOCAL, values = listOf(ValueSet.Value(code = "AZ")))
+        valueSet = ValueSet("fake", ValueSet.SetSystem.LOCAL, values = listOf(ValueSet.Value(code = "AZ"))),
     ).loadSchemas(
         Schema(
             "test", "topic",
@@ -31,7 +28,6 @@ internal class FakeReportTests {
 
     @Test
     fun `test a coded fake`() {
-        val rowContext = FakeReport.RowContext { null }
         val state = metadata.findSchema("test")?.findElement("patient_state") ?: fail("Lookup failure: patient_state")
         val fakeValue = FakeReport(metadata).buildColumn(state, rowContext)
         assertEquals("AZ", fakeValue)
@@ -87,5 +83,53 @@ internal class FakeReportTests {
         assertTrue("Date does not match expected format. Received: $fakedDate") {
             defaultDateFormatRegex.matches(fakedDate)
         }
+    }
+
+    @Test
+    fun `test passing state abbreviation into row context`() {
+        // arrange
+        val csv = """
+            FIPS,County,State
+            04017,Navajo,AZ
+            04019,Pima,AZ
+            04021,Pinal,AZ
+            04023,Santa Cruz,AZ
+            12077,Liberty,FL
+            12079,Madison,FL
+            12081,Manatee,FL
+            12083,Marion,FL
+            42005,Armstrong,PA
+            42007,Beaver,PA
+            42009,Bedford,PA
+            42011,Berks,PA
+            48117,Deaf Smith,TX
+            48119,Delta,TX
+            48121,Denton,TX
+            48123,De Witt,TX
+        """.trimIndent()
+
+        val fipsCountyTable = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val flRowContext = FakeReport.RowContext({ null }, "FL")
+        val orderingFacilityStateElement = Element(
+            "ordering_facility_state",
+            type = Element.Type.TABLE,
+            table = "fips-county",
+            cardinality = Element.Cardinality.ONE,
+            tableColumn = "State",
+            tableRef = fipsCountyTable
+        )
+        // add the look up table for fips county
+        val metadata = metadata.loadLookupTable("fips-county", fipsCountyTable)
+
+        // act
+        val states = (1..10).map { _ ->
+            FakeReport(metadata).buildColumn(orderingFacilityStateElement, flRowContext)
+        }
+
+        val setOfStates = states.toSet()
+
+        // assert
+        assertTrue(setOfStates.contains("FL"), "Set does not contain string expected")
+        assertTrue(setOfStates.count() == 1, "Set contains other values not expected: ${setOfStates.joinToString()}")
     }
 }

@@ -44,7 +44,7 @@ elements:
 
     # column I
     - name: patient_gender
-      csvFields: [{ name: Patient Gender }]
+      csvFields: [{ name: Patient Gender, format: $code }]
       altValues:
           - display: Male
             code: M
@@ -254,7 +254,7 @@ elements:
 
     # column AX
     - name: first_test
-      csvFields: [{ name: First Test for Condition }]
+      csvFields: [{ name: First Test for Condition, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -266,7 +266,7 @@ elements:
 
     # column AY
     - name: employed_in_healthcare
-      csvFields: [{ name: Employment in Health Care }]
+      csvFields: [{ name: Employment in Health Care, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -287,7 +287,7 @@ elements:
 
     # column BA
     - name: symptomatic_for_disease
-      csvFields: [ { name: Symptomatic } ]
+      csvFields: [ { name: Symptomatic, format: $code } ]
       altValues:
           - display: Yes
             code: Y
@@ -311,7 +311,7 @@ elements:
 
     # column BD
     - name: hospitalized
-      csvFields: [{ name: Hospitalized for this condition }]
+      csvFields: [{ name: Hospitalized for this condition, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -323,7 +323,7 @@ elements:
 
     # column BE
     - name: icu
-      csvFields: [{ name: In ICU }]
+      csvFields: [{ name: In ICU, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -335,7 +335,7 @@ elements:
 
     # column BF
     - name: resident_congregate_setting
-      csvFields: [{ name: Resides in Congregate Care setting }]
+      csvFields: [{ name: Resides in Congregate Care setting, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -349,7 +349,7 @@ elements:
     # nonstandard
     - name: specify_congregate_care_setting
       type: CODE
-      valueSet: fl/congregate_care_setting
+      valueSet: site_of_care
       csvFields: [{ name: Specify Congregate Care Setting }]
       referenceUrl: https://confluence.hl7.org/pages/viewpage.action?pageId=86967947
       documentation: |
@@ -358,7 +358,7 @@ elements:
 
     # column BH
     - name: pregnant
-      csvFields: [ { name: Pregnancy Status } ]
+      csvFields: [ { name: Pregnancy Status, format: $code } ]
       altValues:
           - display: Pregnant
             code: Y
@@ -372,7 +372,7 @@ elements:
     - name: student_teacher_other
       type: CODE
       valueSet: fl/student_teacher_other
-      csvFields: [{ name: "Is the patient a student, teacher, or other faculty member" }]
+      csvFields: [{ name: "Is the patient a student, teacher, or other faculty member", format: $code }]
       documentation: |
         AOE question for Florida. Expects one of the following values:
 

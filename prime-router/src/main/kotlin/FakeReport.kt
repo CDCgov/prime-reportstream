@@ -6,7 +6,7 @@ import java.util.Random
 import java.util.concurrent.TimeUnit
 
 class FakeReport(val metadata: Metadata) {
-    class RowContext(findLookupTable: (String) -> LookupTable?) {
+    class RowContext(findLookupTable: (String) -> LookupTable? = { null }, reportState: String? = null) {
         val faker = Faker()
         val patientName = faker.name()
         val equipmentModel = randomChoice(
@@ -14,7 +14,7 @@ class FakeReport(val metadata: Metadata) {
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
 
-        val state = randomChoice("FL", "PA", "TX", "AZ")
+        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ")
         val county = findLookupTable("fips-county")?.let {
             if (state == "AZ") {
                 randomChoice("Pima", "Yuma")
@@ -137,13 +137,13 @@ class FakeReport(val metadata: Metadata) {
         }
     }
 
-    private fun buildRow(schema: Schema): List<String> {
-        val context = RowContext(metadata::findLookupTable)
+    private fun buildRow(schema: Schema, targetState: String? = null): List<String> {
+        val context = RowContext(metadata::findLookupTable, targetState)
         return schema.elements.map { buildColumn(it, context) }
     }
 
-    fun build(schema: Schema, count: Int = 10, source: Source): Report {
-        val rows = (0 until count).map { buildRow(schema) }.toList()
+    fun build(schema: Schema, count: Int = 10, source: Source, targetState: String? = null): Report {
+        val rows = (0 until count).map { buildRow(schema, targetState) }.toList()
         return Report(schema, rows, listOf(source))
     }
 
