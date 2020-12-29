@@ -23,7 +23,7 @@ class WorkflowEngine(
     val csvConverter: CsvConverter = WorkflowEngine.csvConverter,
     val translator: Translator = Translator(metadata),
     // New connection for every function
-    val db: DatabaseAccess = DatabaseAccess(connection = DatabaseAccess.getConnection()),
+    val db: DatabaseAccess = DatabaseAccess(dataSource = DatabaseAccess.dataSource),
     val blob: BlobAccess = BlobAccess(csvConverter, hl7Converter),
     val queue: QueueAccess = QueueAccess(),
 ) {
@@ -33,6 +33,21 @@ class WorkflowEngine(
     fun checkConnections() {
         db.checkConnection()
         blob.checkConnection()
+    }
+
+    /**
+     * Receive a report.
+     */
+    fun receiveReport(report: Report, txn: Configuration? = null) {
+        val (bodyFormat, bodyUrl) = blob.uploadBody(report)
+        try {
+            val action = ReportEvent(Event.Action.NONE, report.id)
+            db.insertHeader(report, bodyFormat, bodyUrl, action, txn)
+        } catch (e: Exception) {
+            // Clean up
+            blob.deleteBlob(bodyUrl)
+            throw e
+        }
     }
 
     /**

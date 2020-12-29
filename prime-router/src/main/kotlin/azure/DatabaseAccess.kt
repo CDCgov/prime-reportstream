@@ -25,6 +25,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.time.OffsetDateTime
 import java.util.UUID
+import javax.sql.DataSource
 
 const val databaseVariable = "POSTGRES_URL"
 const val userVariable = "POSTGRES_USER"
@@ -35,8 +36,9 @@ typealias DataAccessTransaction = Configuration
 /**
  * A data access layer for the database. Hides JOOQ, Hikari, JDBC and other low-level abstractions.
  */
-class DatabaseAccess(private val connection: Connection = getConnection()) {
-    private val create: DSLContext = DSL.using(connection, SQLDialect.POSTGRES)
+class DatabaseAccess(private val create: DSLContext) {
+    constructor(dataSource: DataSource) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
+    constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
 
     data class Header(val task: Task, val sources: List<TaskSource>)
 
@@ -290,9 +292,7 @@ class DatabaseAccess(private val connection: Connection = getConnection()) {
             dataSource
         }
 
-        fun getConnection(): Connection {
-            return hikariDataSource.connection
-        }
+        public val dataSource: DataSource get() = hikariDataSource
 
         fun toSource(taskSource: TaskSource): Source {
             return when {

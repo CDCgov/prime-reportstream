@@ -90,7 +90,10 @@ class FakeReport(val metadata: Metadata) {
                 }
             }
             Element.Type.HD -> {
-                "0.0.0.0.1"
+                element.default ?: "0.0.0.0.1"
+            }
+            Element.Type.EI -> {
+                element.default ?: "SomeEntityID"
             }
             Element.Type.ID -> faker.numerify("######")
             Element.Type.ID_CLIA -> faker.numerify("##D#######") // Ex, 03D1021379
