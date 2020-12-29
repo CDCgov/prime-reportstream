@@ -34,14 +34,14 @@ class SendFunction {
 
                 val content = workflowEngine.readBody(header)
 
-                if (service.transforms.size > 0) {
-                    val success: Boolean = service.transports.map {
-                        when (it) {
+                if (service.transforms.isNotEmpty()) {
+                    var success: Boolean = true
+                    service.transports.forEach {
+                        success = success && when (it) {
                             is SFTPTransportType -> SftpTransport().send(service.fullName, it, header, content)
                             else -> true
                         }
-                    }.reduce { acc, s -> acc && s }
-
+                    }
                     if (success) {
                         context.logger.info("Sent report: ${header.task.reportId} to ${service.fullName}")
                     }

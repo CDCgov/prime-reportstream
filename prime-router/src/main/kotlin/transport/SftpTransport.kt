@@ -28,9 +28,14 @@ class SftpTransport : ITransport {
         val port: String = sftpTransportType.port
 
         var success: Boolean
+        try {
+            uploadFile(host, port, user, pass, path, contents)
+            success = true
+        } catch (e: Exception) {
 
-        uploadFile(host, port, user, pass, path, contents)
-        success = true
+            success = false
+            System.out.println(e)
+        }
 
         return success
     }
@@ -62,8 +67,11 @@ class SftpTransport : ITransport {
             it.connect(host, port.toInt())
             it.authPassword(user, pass)
 
-            it.newSFTPClient().use {
-                it.put(
+            System.out.println("contents: ${contents.size}")
+            var client = it.newSFTPClient();
+            {
+                client.mkdir(path)
+                client.put(
                     object : InMemorySourceFile() {
                         override fun getName(): String { return "test.csv" }
                         override fun getLength(): Long { return contents.size.toLong() }
