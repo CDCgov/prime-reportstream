@@ -74,24 +74,6 @@ jobs:
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.RESOURCE_GROUP }}
 
-      - name: Set Azure Function Default Key
-        run: |
-              az functionapp function keys set \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.RESOURCE_GROUP }} \
-              --function-name reports \
-              --key-name default \
-              --key-value ${{ env.AZ_FXNS_DEFAULT_KEY }}
-
-      - name: Set Azure Function SimpleReport Key
-        run: |
-              az functionapp function keys set \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.RESOURCE_GROUP }} \
-              --function-name reports \
-              --key-name SimpleReport \
-              --key-value ${{ env.AZ_FXNS_SIMPLEREPORT_KEY }}
-
       - name: Set PostgreSQL Environment Variables
         run: | 
               az functionapp config appsettings set \
