@@ -25,7 +25,6 @@
           numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
-        address: http://localhost:1181/
         format: CSV
         transport:
           type: SFTP
