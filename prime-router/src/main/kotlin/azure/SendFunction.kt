@@ -34,7 +34,7 @@ class SendFunction {
 
                 val content = workflowEngine.readBody(header)
 
-                if (service.transforms.isNotEmpty()) {
+                if (service.transports.isNotEmpty()) {
                     var success: Boolean = true
                     service.transports.forEach {
                         success = success && when (it) {
