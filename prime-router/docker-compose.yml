@@ -1,5 +1,4 @@
 # This docker compose is intended to setup a developer 
-#
 version: "3.3"
 services:
   # This container runs our Azure function code. 
@@ -27,6 +26,10 @@ services:
       - AZ_PHD__ELR_PROD__PASS=pass
       - PA_PHD__ELR__USER=foo
       - PA_PHD__ELR__PASS=pass
+      - TX_PHD__ELR_TEST__USER=foo
+      - TX_PHD__ELR_TEST__PASS=pass
+      - TX_PHD__ELR_DEBUG__USER=foo
+      - TX_PHD__ELR_DEBUG__PASS=pass
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port
@@ -42,9 +45,9 @@ services:
   #local SFTP server as a receive point
   sftp:
     image: atmoz/sftp
-    volumes:
-        - ./target/sftp:/home/foo/upload
     ports:
         - "2222:22"
-    command: foo:pass:1001      
+    volumes:
+      - ./target/sftp:/home/foo/upload        
+    command: foo:pass:::upload     
      
