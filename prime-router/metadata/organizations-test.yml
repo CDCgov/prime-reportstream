@@ -26,8 +26,8 @@
           initialBatch: 00:00
           timeZone: ARIZONA
         format: CSV
-        transport:
-          type: SFTP
+        transports:
+        - type: SFTP
           host: prime-data-hub-test.eastus.azurecontainer.io
           port: 22
           filePath: ./upload

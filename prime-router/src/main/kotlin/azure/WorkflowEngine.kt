@@ -23,7 +23,7 @@ class WorkflowEngine(
     val csvConverter: CsvConverter = WorkflowEngine.csvConverter,
     val translator: Translator = Translator(metadata),
     // New connection for every function
-    val db: DatabaseAccess = DatabaseAccess(connection = DatabaseAccess.getConnection()),
+    val db: DatabaseAccess = DatabaseAccess(dataSource = DatabaseAccess.dataSource),
     val blob: BlobAccess = BlobAccess(csvConverter, hl7Converter),
     val queue: QueueAccess = QueueAccess(),
 ) {
