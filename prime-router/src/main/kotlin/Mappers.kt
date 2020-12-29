@@ -240,9 +240,40 @@ class Obx17TypeMapper : Mapper {
     }
 }
 
+/**
+ * The obx8 mapper fills in OBX-8. This indicates the normalcy of OBX-5
+ *
+ * @See <a href=https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification>HHS Submission Guidance</a>Do not use it for other fields and tables.
+ */
+class Obx8Mapper : Mapper {
+    override val name = "obx8"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return listOf("test_result")
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return if (values.isEmpty() || values.size > 1) {
+            null
+        } else {
+            return when (values[0].value) {
+                "260373001" -> "A" // Detected
+                "260415000" -> "N" // Not Detected
+                "720735008" -> "A" // Presumptive positive
+                "42425007" -> null // Equivocal
+                "260385009" -> "N" // Negative
+                "895231008" -> "N" // Not detected in pooled specimen
+                "462371000124108" -> "A" // Detected in pooled specimen
+                "419984006" -> null // Inconclusive
+                else -> null
+            }
+        }
+    }
+}
+
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9&]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9&^]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

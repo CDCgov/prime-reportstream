@@ -11,6 +11,72 @@
 # sort alphabetically
 #
 ---
+# used for OBX-8
+- name: hl70078
+  system: HL7
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewCodeSystem.action?id=2.16.840.1.113883.12.78
+  values:
+  - code: A
+    display: Abnormal (applies to non-numeric results)
+  - code: ">"
+    display: Above absolute high-off instrument scale
+  - code: H
+    display: Above high normal
+  - code: HH
+    display: Above upper panic limits
+  - code: AC
+    display: Anti-complementary substances present
+  - code: "<"
+    display: Below absolute low-off instrument scale
+  - code: L
+    display: Below low normal
+  - code: LL
+    display: Below lower panic limits
+  - code: B
+    display: Better--use when direction not relevant
+  - code: TOX
+    display: Cytotoxic substance present
+  - code: DET
+    display: Detected
+  - code: IND
+    display: Indeterminate
+  - code: I
+    display: Intermediate. Indicates for microbiology susceptibilities only.
+  - code: MS
+    display: Moderately susceptible. Indicates for microbiology susceptibilities only.
+  - code: NEG
+    display: Negative
+  - code: "null"
+    display: No range defined, or normal ranges don't apply
+  - code: NR
+    display: Non-reactive
+  - code: N
+    display: Normal (applies to non-numeric results)
+  - code: ND
+    display: Not Detected
+  - code: POS
+    display: Positive
+  - code: QCF
+    display: Quality Control Failure
+  - code: RR
+    display: Reactive
+  - code: R
+    display: Resistant. Indicates for microbiology susceptibilities only.
+  - code: D
+    display: Significant change down
+  - code: U
+    display: Significant change up
+  - code: S
+    display: Susceptible. Indicates for microbiology susceptibilities only.
+  - code: AA
+    display: "Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)"
+  - code: VS
+    display: Very susceptible. Indicates for microbiology susceptibilities only.
+  - code: WR
+    display: Weakly reactive
+  - code: W
+    display: Worse--use when direction not relevant
+
 - name: hl70136
   system: HL7
   values:
