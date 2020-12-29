@@ -21,6 +21,10 @@ services:
       - PRIME_ENVIRONMENT=local
       - AZ_PHD__ELR__USER=foo
       - AZ_PHD__ELR__PASS=pass
+      - AZ_PHD__ELR_TEST__USER=foo
+      - AZ_PHD__ELR_TEST__PASS=pass
+      - AZ_PHD__ELR_PROD__USER=foo
+      - AZ_PHD__ELR_PROD__PASS=pass
       - PA_PHD__ELR__USER=foo
       - PA_PHD__ELR__PASS=pass
     depends_on: [azurite]
