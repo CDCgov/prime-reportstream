@@ -26,10 +26,10 @@
           initialBatch: 00:00
           timeZone: ARIZONA
         transports:
-            - type: SFTP
-              host: sftp
-              port: 22
-              filePath: ./upload
+          - type: SFTP
+            host: localhost
+            port: 2222
+            filePath: ./upload
         format: CSV
       - name: elr-prod
         topic: covid-19
@@ -44,10 +44,10 @@
           initialBatch: 00:00
           timeZone: ARIZONA
         transports:
-            - type: SFTP
-              host: sftp
-              port: 22
-              filePath: ./upload
+          - type: SFTP
+            host: localhost
+            port: 2222
+            filePath: ./upload
         format: CSV
 
   - name: pima-az-phd
@@ -78,8 +78,8 @@
         transforms: { deidentify: false }
         transports:
           - type: SFTP
-            host: sftp
-            port: 22
+            host: localhost
+            port: 2222
             filePath: ./upload
         format: HL7
       - name: elr-debug
