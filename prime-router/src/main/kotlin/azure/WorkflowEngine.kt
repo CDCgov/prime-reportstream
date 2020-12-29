@@ -36,6 +36,21 @@ class WorkflowEngine(
     }
 
     /**
+     * Receive a report.
+     */
+    fun receiveReport(report: Report, txn: Configuration? = null) {
+        val (bodyFormat, bodyUrl) = blob.uploadBody(report)
+        try {
+            val action = ReportEvent(Event.Action.NONE, report.id)
+            db.insertHeader(report, bodyFormat, bodyUrl, action, txn)
+        } catch (e: Exception) {
+            // Clean up
+            blob.deleteBlob(bodyUrl)
+            throw e
+        }
+    }
+
+    /**
      * Place a report into the workflow
      */
     fun dispatchReport(nextAction: Event, report: Report, txn: Configuration? = null) {

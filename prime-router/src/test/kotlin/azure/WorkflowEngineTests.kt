@@ -111,6 +111,50 @@ class WorkflowEngineTests {
     }
 
     @Test
+    fun `test receiveReport`() {
+        val dataProvider = MockDataProvider { emptyArray<MockResult>() }
+        val connection = MockConnection(dataProvider)
+        val accessSpy = spyk(DatabaseAccess(connection))
+        val blobMock = mockkClass(BlobAccess::class)
+        val queueMock = mockkClass(QueueAccess::class)
+
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
+        val event = ReportEvent(Event.Action.NONE, UUID.randomUUID())
+        val bodyFormat = "CSV"
+        val bodyUrl = "http://anyblob.com"
+
+        every { blobMock.uploadBody(report = eq(report1)) }.returns(Pair(bodyFormat, bodyUrl))
+        every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
+        every { queueMock.sendMessage(eq(event)) }.returns(Unit)
+
+        val engine = WorkflowEngine(
+            metadata,
+            csvConverter = CsvConverter(metadata),
+            hl7Converter = Hl7Converter(metadata),
+            db = accessSpy,
+            blob = blobMock,
+            queue = queueMock
+        )
+        engine.receiveReport(report1)
+
+        verify(exactly = 1) {
+            accessSpy.insertHeader(
+                report = any(),
+                bodyFormat = any(),
+                bodyUrl = any(),
+                nextAction = any()
+            )
+            blobMock.uploadBody(report = any())
+        }
+        verify(exactly = 0) {
+            queueMock.sendMessage(event = any())
+        }
+        confirmVerified(accessSpy, blobMock, queueMock)
+    }
+
+    @Test
     fun `test handleReportEvent`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
