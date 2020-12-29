@@ -44,9 +44,9 @@ services:
   #local SFTP server as a receive point
   sftp:
     image: atmoz/sftp
-    volumes:
-      - ./target/sftp:/home/foo/upload
     ports:
         - "2222:22"
-    command: foo:pass:1001      
+    volumes:
+      - ./target/sftp:/home/foo/upload        
+    command: foo:pass:::upload     
      
