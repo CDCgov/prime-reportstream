@@ -47,11 +47,20 @@
 - name: covid-19/test_result
   system: SNOMED_CT
   referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  # Note: if adding values here, please update the OBX-8 mapper
   values:
     - code: 260373001
       display: Detected
     - code: 260415000
       display: Not detected
+    - code: 720735008
+      display: Presumptive positive
+    - code: 10828004
+      display: Positive
+    - code: 42425007
+      display: Equivocal
+    - code: 260385009
+      display: Negative
     - code: 895231008
       display: Not detected in pooled specimen
     - code: 462371000124108

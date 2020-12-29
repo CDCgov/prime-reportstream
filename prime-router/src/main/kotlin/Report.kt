@@ -255,7 +255,7 @@ class Report {
             fileFormat: OrganizationService.Format?,
             createdDateTime: OffsetDateTime
         ): String {
-            val formatter = DateTimeFormatter.ofPattern("YYYYMMddHHmmss")
+            val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
             val nameSuffix = fileFormat?.toExt() ?: OrganizationService.Format.CSV.toExt()
             return "$namePrefix.$nameSuffix"
