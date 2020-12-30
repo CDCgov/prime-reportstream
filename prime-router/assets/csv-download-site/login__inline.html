@@ -1,28 +1,60 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="robots" content="none" />
 
-        <title>DataHub - Login</title>
-        <script src="https://global.oktacdn.com/okta-signin-widget/4.4.4/js/okta-sign-in.min.js" type="text/javascript"></script>
-        <link href="https://global.oktacdn.com/okta-signin-widget/4.4.4/css/okta-sign-in.min.css" type="text/css" rel="stylesheet"/>
-    </head>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="none" />
 
-    <body>
-        <div id="okta-login-container"></div>
-    </body>
-
-    <script type="text/javascript">
-        var oktaSignIn = new OktaSignIn(
-            {
-                el: '#okta-login-container',
-                baseUrl: 'https://dev-9304359.okta.com',
-                clientId: '0oa1f0vr3Zwvd7pAE5d6',
-                redirectUri: 'http://localhost:7071/api/download'
-            }
-        );
-        oktaSignIn.renderEl();
+    <title>DataHub - Login</title>
+    <script src="https://global.oktacdn.com/okta-signin-widget/4.4.4/js/okta-sign-in.min.js" type="text/javascript">
     </script>
+    <link href="https://global.oktacdn.com/okta-signin-widget/4.4.4/css/okta-sign-in.min.css" type="text/css"
+        rel="stylesheet" />
+</head>
+
+<body>
+    <div id="okta-login-container"></div>
+</body>
+
+<script type="text/javascript">
+    signInWidgetConfig = {
+        logo: '//logo.clearbit.com/cdc.gov',
+        language: 'en',
+        features: {
+            registration: false, // Enable self-service registration flow
+            rememberMe: false, // Setting to false will remove the checkbox to save username
+            router: true, // Leave this set to true for the API demo
+        },
+        baseUrl: 'https://dev-9304359.okta.com',
+        clientId: '0oa1f0vr3Zwvd7pAE5d6',
+        redirectUri: 'http://localhost:7071/api/download',
+        responseType: 'code'
+    };
+
+    function widgetSuccessCallback(res) {
+        var key = '';
+        if (res[0]) {
+            key = Object.keys(res[0])[0];
+            signInWidget.tokenManager.add(key, res[0]);
+        }
+        if (res[1]) {
+            key = Object.keys(res[1])[0];
+            signInWidget.tokenManager.add(key, res[1]);
+        }
+        if (res.status === 'SUCCESS') {
+            console.log("Logged in to Okta and issued token:");
+            console.log("Reload this page to start over.");
+            alert("Logged in! Check your developer console for details");
+        }
+    }
+
+    function widgetErrorCallback(err) {}
+
+    var signInWidget= new OktaSignIn(signInWidgetConfig);
+    signInWidget.renderEl({
+        el: '#okta-login-container'
+    }, widgetSuccessCallback, widgetErrorCallback);
+</script>
+
 </html>

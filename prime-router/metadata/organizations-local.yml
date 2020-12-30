@@ -44,10 +44,9 @@
           initialBatch: 00:00
           timeZone: ARIZONA
         transports:
-            - type: SFTP
-              host: sftp
-              port: 22
-              filePath: ./upload
+            - type: EMAIL
+              addresses:
+                - qtv1@cdc.gov
         format: CSV
 
   - name: pima-az-phd

@@ -41,11 +41,15 @@ class DownloadFunction {
             authLevel = AuthorizationLevel.FUNCTION
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-        val file: String = request.queryParameters["file"] ?: ""
-        if (file.isBlank())
-            return responsePage(request)
-        else
-            return responseFile(request, file)
+        if (checkAuthenticated(request)) {
+            val file: String = request.queryParameters["file"] ?: ""
+            if (file.isBlank())
+                return responsePage(request)
+            else
+                return responseFile(request, file)
+        } else {
+            return redirectToAuthenticate(request)
+        }
     }
 
     private fun redirectToAuthenticate(request: HttpRequestMessage<String?>): HttpResponseMessage {
@@ -100,7 +104,7 @@ class DownloadFunction {
 
     private fun responsePage(request: HttpRequestMessage<String?>): HttpResponseMessage {
         val htmlTemplate = Files.readString(Path.of(DOWNLOAD_PAGE))
-        val headers = DatabaseAccess().fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), getSessionVariables("receiver"))
+        val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), getSessionVariables("receiver"))
 
         val attr = mapOf(
             "description" to "Pima county, AZ",
@@ -122,7 +126,7 @@ class DownloadFunction {
     }
 
     private fun responseFile(request: HttpRequestMessage<String?>, fileName: String): HttpResponseMessage {
-        val header = DatabaseAccess().fetchHeader(ReportId.fromString(fileName))
+        val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(ReportId.fromString(fileName))
 
         val body = WorkflowEngine().readBody(header)
         var response = request

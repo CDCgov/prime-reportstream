@@ -28,6 +28,7 @@ services:
       - TX_PHD__ELR_TEST__PASS=pass
       - TX_PHD__ELR_DEBUG__USER=foo
       - TX_PHD__ELR_DEBUG__PASS=pass
+      - SENDGRID_API_KEY=SnBfxpPsQkmOh0SfU3X_ng
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port
