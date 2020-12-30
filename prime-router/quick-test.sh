@@ -15,6 +15,7 @@ expected_az=$expecteddir/simplereport-az.csv
 starter_schema=primedatainput/pdi-covid-19
 
 RED='\033[0;31m'
+GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 # let's make it possible for run for different states
@@ -63,7 +64,7 @@ function parse_prime_output_for_filename {
   done
 
   if [ -f $filename ] ; then
-    printf "Data generation TEST PASSED: successfully generated data file $filename\n\n"
+    printf "Data generation ${GREEN}TEST PASSED${NC}: successfully generated data file $filename\n"
   else 
     printf "${RED}*** ERROR ***: ./prime did not generate a file that matches $match_string${NC}\n"
     printf "Output of Prime run is: $prime_output\n"
@@ -81,9 +82,8 @@ function compare_files {
     printf "${RED}*** ERROR ***: DIFFERENCES FOUND for $schemaName.  Run this to see the diff:${NC}\n"
     printf "diff $expected $actual\n"
   else
-    printf "File comparison TEST PASSED: No differences found in $schemaName data. This is the $schemaName output file:\n\t$actual\n\n"
+    printf "File comparison ${GREEN}TEST PASSED${NC}: No differences found in $schemaName data. This is the $schemaName output file:\n\t$actual\n"
   fi
-  echo
 }
 
 # run the standard

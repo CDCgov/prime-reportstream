@@ -69,7 +69,6 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.CODE -> {
                 when (element.name) {
                     "specimen_source_site_code" -> "71836000"
-                    "processing_mode_code" -> ""
                     else -> {
                         val altValues = element.altValues
                         val valueSet = element.valueSetRef
@@ -86,7 +85,7 @@ class FakeReport(val metadata: Metadata) {
                     }
                 }
             }
-            Element.Type.TABLE -> {
+            Element.Type.TABLE, Element.Type.TABLE_OR_BLANK -> {
                 val lookupTable = element.tableRef
                     ?: error("LookupTable ${element.table} is not available")
                 when (element.table) {
@@ -109,7 +108,10 @@ class FakeReport(val metadata: Metadata) {
                 }
             }
             Element.Type.HD -> {
-                "0.0.0.0.1"
+                element.default ?: "0.0.0.0.1"
+            }
+            Element.Type.EI -> {
+                element.default ?: "SomeEntityID"
             }
             Element.Type.ID -> faker.numerify("######")
             Element.Type.ID_CLIA -> faker.numerify("##D#######") // Ex, 03D1021379

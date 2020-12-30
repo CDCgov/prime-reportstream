@@ -13,10 +13,11 @@ description: collection of standard elements, not an actual schema
 elements:
   - name: abnormal_flag
     type: CODE
-    valueSet: hl70136
+    valueSet: hl70078
     natFlatFileField: Abnormal_flag
     hhsGuidanceField:
     hl7Field: OBX-8
+    mapper: obx8(test_result)
     documentation: This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
 
   - name: comment
@@ -330,7 +331,7 @@ elements:
     type: HD
     natFlatFileField:
     hhsGuidanceField:
-    mapper: ifPresent(ordering_provider_id, CMS&2.16.840.1.113883.3.249&ISO)
+    mapper: ifPresent(ordering_provider_id, CMS^2.16.840.1.113883.3.249^ISO)
     hl7Field: ORC-12-9
     hl7OutputFields: [ORC-12-9, OBR-16-9]
 
@@ -404,6 +405,7 @@ elements:
 
   - name: patient_age
     type: NUMBER
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_age
     hhsGuidanceField:
     hl7Field: AOE
@@ -411,6 +413,7 @@ elements:
 
   - name: patient_age_units
     type: CODE
+    cardinality: ZERO_OR_ONE
     valueSet: patient_age_units
     natFlatFileField: Patient_age_units
     hhsGuidanceField:
@@ -418,14 +421,14 @@ elements:
 
   - name: patient_city
     type: CITY
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_city
     hhsGuidanceField:
     hl7Field: PID-11-3
     documentation: The patient's city
 
   - name: patient_county
-    type: TABLE
+    type: TABLE_OR_BLANK
     table: fips-county
     tableColumn: County
     cardinality: ONE
@@ -433,6 +436,7 @@ elements:
 
   - name: patient_county_code
     type: TABLE
+    cardinality: ZERO_OR_ONE
     table: fips-county
     tableColumn: FIPS
     mapper: lookup(patient_state, patient_county)
@@ -441,6 +445,7 @@ elements:
 
   - name: patient_email
     type: EMAIL
+    cardinality: ZERO_OR_ONE
     hl7Field: ORC-23-4
 
   - name: patient_death_date
@@ -451,6 +456,7 @@ elements:
 
   - name: patient_died
     type: CODE
+    cardinality: ZERO_OR_ONE
     default: N
     valueSet: hl70136
     natFlatFileField: Patient_died
@@ -459,6 +465,7 @@ elements:
 
   - name: patient_dob
     type: DATE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_DOB
     hhsGuidanceField: Patient date of birth
     hl7Field: PID-7
@@ -469,6 +476,7 @@ elements:
 
   - name: patient_ethnicity
     type: CODE
+    cardinality: ZERO_OR_ONE
     valueSet: hl70189
     natFlatFileField: Patient_ethnicity
     hhsGuidanceField: Patient ethnicity
@@ -478,6 +486,7 @@ elements:
 
   - name: patient_first_name
     type: PERSON_NAME
+    cardinality: ZERO_OR_ONE
     cardinality: ONE
     natFlatFileField: Patient_first_name
     hhsGuidanceField: Patient name
@@ -486,7 +495,7 @@ elements:
 
   - name: patient_gender
     type: CODE
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     valueSet: hl70001
     natFlatFileField: Patient_gender
     hhsGuidanceField: Patient sex
@@ -526,11 +535,13 @@ elements:
 
   - name: patient_name_type_code
     type: TEXT
+    cardinality: ZERO_OR_ONE
     hl7Field: PID-5-7
     default: L # Legal
 
   - name: patient_middle_initial
     type: PERSON_NAME
+    cardinality: ZERO_OR_ONE
     mapper: middleInitial(patient_middle_name)
     natFlatFileField: Patient_middle_name
     hhsGuidanceField: Patient name
@@ -538,6 +549,7 @@ elements:
 
   - name: patient_middle_name
     type: PERSON_NAME
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_middle_name
     hhsGuidanceField: Patient name
     hl7Field: PID-5-3
@@ -551,7 +563,7 @@ elements:
 
   - name: patient_phone_number
     type: TELEPHONE
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_phone_number
     hhsGuidanceField: Patient phone number
     hl7Field: PID-13
@@ -560,7 +572,7 @@ elements:
   - name: patient_race
     type: CODE
     valueSet: hl70005
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_race
     hhsGuidanceField: Patient race
     hl7Field: PID-10
@@ -584,8 +596,8 @@ elements:
     documentation: The patient's state
 
   - name: patient_street
-    type: TEXT
-    cardinality: ONE
+    type: STREET
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_street
     hhsGuidanceField: Patient street address
     hl7Field: PID-11-1
@@ -600,12 +612,14 @@ elements:
 
   - name: patient_suffix
     type: PERSON_NAME
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_suffix
     hhsGuidanceField:
     hl7Field: PID-5-4
 
   - name: patient_tribal_citizenship
     type: CODE
+    cardinality: ZERO_OR_ONE
     valueSet: tribal_citizenship
     natFlatFileField:
     hhsGuidanceField:
@@ -613,7 +627,7 @@ elements:
 
   - name: patient_zip_code
     type: POSTAL_CODE
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_zip_code
     hhsGuidanceField: Patient residence zip code
     hl7Field: PID-11-5
@@ -656,7 +670,6 @@ elements:
   
   - name: prime_patient_id_assigner
     type: HD
-    default: 
 
   - name: processing_mode_code
     type: CODE
@@ -670,6 +683,12 @@ elements:
     hl7Field: MSH-10
     cardinality: ONE
     documentation: unique id to track the usage of the message
+
+  - name: message_profile_id
+    type: EI
+    hl7Field: MSH-21
+    default: PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+    documentation: The message profile identifer
 
   # name: public_health_case_id
   # type: ID
@@ -728,7 +747,7 @@ elements:
   - name: sending_application
     type: HD
     # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
-    default: CDC PRIME - Atlanta, Georgia (Dekalb)&2.16.840.1.114222.4.1.237821&ISO
+    default: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
     natFlatFileField:
     hl7Field: MSH-3
 
@@ -866,7 +885,8 @@ elements:
 
   - name: test_result_status
     type: CODE
-    default: F
+    cardinality: ZERO_OR_ONE
+# Don't default.    default: F
     valueSet: hl70123
     natFlatFileField: Test_result_status
     hhsGuidanceField:
@@ -922,7 +942,7 @@ elements:
 
   - name: testing_lab_id_assigner
     type: HD
-    mapper: ifPresent(testing_lab_clia, CLIA&2.16.840.1.113883.19.4.6&ISO)
+    mapper: ifPresent(testing_lab_clia, CLIA^2.16.840.1.113883.19.4.6^ISO)
     hl7Field: OBX-23-6
 
   - name: testing_lab_clia
