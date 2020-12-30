@@ -2,7 +2,6 @@ package gov.cdc.prime.router
 
 import java.io.File
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -130,13 +129,107 @@ class SimpleReportTests {
         compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
     }
 
-    private fun compareTestResultsToExpectedResults(testFile: File, expectedResultsFile: File) {
+    private fun compareTestResultsToExpectedResults(
+        testFile: File,
+        expectedResultsFile: File,
+        compareKeys: Boolean = true,
+        compareLines: Boolean = true
+    ) {
         assertTrue(testFile.exists())
         assertTrue(expectedResultsFile.exists())
         println("SimpleReportTests: diff'ing actual vs expected: ${testFile.absolutePath}    ${expectedResultsFile.absolutePath}")
         // A bit of a hack:  diff the two files.
         val testFileLines = testFile.readLines()
         val expectedResultsLines = expectedResultsFile.readLines()
-        assertEquals(testFileLines, expectedResultsLines)
+
+        val testLines = convertFileToMap(testFileLines)
+        val expectedLines = convertFileToMap(expectedResultsLines)
+        val headerRow = expectedResultsLines[0].split(",")
+
+        if (compareKeys) {
+            // let's first compare the keys
+            compareKeysOfMaps(expectedLines, testLines)
+        }
+
+        if (compareLines) {
+            // let's compare our lines now
+            compareLinesOfMaps(expectedLines, testLines, headerRow)
+        }
+    }
+
+    private fun compareKeysOfMaps(expected: Map<String, Any?>, actual: Map<String, Any?>) {
+        val actualKeys = actual.keys.toSet()
+        val expectedKeys = expected.keys.toSet()
+
+        assertTrue(
+            actualKeys.minus(expectedKeys).count() == 0,
+            "There are keys in actual that are not in expected: ${actualKeys.minus(expectedKeys).joinToString { "," }}"
+        )
+        assertTrue(
+            expectedKeys.minus(actualKeys).count() == 0,
+            "There are keys in expected that are not present in actual: ${expectedKeys.minus(actualKeys).joinToString { "," }}"
+        )
+    }
+
+    private fun compareLinesOfMaps(
+        expected: Map<String, Any?>,
+        actual: Map<String, Any?>,
+        headerRow: List<String>? = null
+    ) {
+        val linesInError = mutableListOf<String>()
+
+        for (expectedKey in expected.keys) {
+            if (!actual.keys.contains(expectedKey)) fail("Key $expectedKey missing in actual dataset")
+
+            val actualLines: List<String>? = actual[expectedKey] as? List<String>
+            val expectedLines: List<String>? = expected[expectedKey] as? List<String>
+
+            if (actualLines == null) fail("Cast failed for actual values")
+            if (expectedLines == null) fail("Cast failed for expected values")
+
+            for ((i, v) in expectedLines.withIndex()) {
+                if (v != actualLines[i]) {
+                    val header = headerRow?.get(i) ?: "$i"
+                    val message = "Patient_ID $expectedKey differed at $header. Expected '$v' but found '${actualLines[i]}'."
+                    linesInError.add(message)
+                    println(message)
+                }
+            }
+        }
+
+        val errorMessages = linesInError.joinToString(",")
+        assertTrue(linesInError.count() == 0, "Errors found in comparison of CSV files: $errorMessages")
+    }
+
+    private fun convertFileToMap(
+        lines: List<String>,
+        recordId: String = "Patient_ID",
+        skipHeader: Boolean = true,
+        delimiter: String = ","
+    ): Map<String, Any?> {
+        val expectedLines = mutableMapOf<String, Any?>()
+        val headerLine = lines[0]
+        var recordIdIndex = 0
+        var skippedHeader = false
+
+        for (expectedResultsLine in lines) {
+            // if a header is passed in and we need to skip it, then check our control values
+            if (skipHeader && !skippedHeader) {
+                // while we're in the header, find our record id index, which will be our map key
+                val headerValues = headerLine.split(",")
+                recordIdIndex = headerValues.indexOf(recordId)
+                // reset our control variable
+                skippedHeader = true
+                continue
+            }
+
+            val splitLine = expectedResultsLine.split(delimiter)
+            if (!expectedLines.containsKey(splitLine[recordIdIndex])) {
+                expectedLines[splitLine[recordIdIndex]] = splitLine
+            } // TODO: should we throw an error if we are adding the same key twice?
+        }
+
+        // remove mutability and return
+        return expectedLines.toMap()
     }
 }
