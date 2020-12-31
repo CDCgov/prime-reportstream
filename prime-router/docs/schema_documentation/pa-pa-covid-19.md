@@ -10,6 +10,8 @@
 
 **HL7 Field**: PID-5-2
 
+**Cardinality**: [1..1]
+
 **Documentation**:
 
 The patient's first name
@@ -22,6 +24,8 @@ The patient's first name
 
 **HL7 Field**: PID-5-3
 
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: PatientLastName
@@ -29,6 +33,8 @@ The patient's first name
 **Type**: PERSON_NAME
 
 **HL7 Field**: PID-5-1
+
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -42,6 +48,8 @@ The patient's last name
 
 **HL7 Field**: PID-5-4
 
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: PatientDOB
@@ -49,6 +57,8 @@ The patient's last name
 **Type**: DATE
 
 **HL7 Field**: PID-7
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -65,6 +75,8 @@ Other states may choose to define their own formats.
 
 **HL7 Field**: PID-11-1
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The patient's street address
@@ -76,6 +88,8 @@ The patient's street address
 **Type**: CITY
 
 **HL7 Field**: PID-11-3
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -89,6 +103,12 @@ The patient's city
 
 **HL7 Field**: PID-11-4
 
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
 **Documentation**:
 
 The patient's state
@@ -100,6 +120,8 @@ The patient's state
 **Type**: POSTAL_CODE
 
 **HL7 Field**: PID-11-5
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -113,6 +135,8 @@ The patient's zip code
 
 **HL7 Field**: PID-13
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The patient's phone number with area code
@@ -124,6 +148,8 @@ The patient's phone number with area code
 **Type**: CODE
 
 **HL7 Field**: PID-8-1
+
+**Cardinality**: [0..1]
 
 **Value Sets**
 
@@ -148,6 +174,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Type**: CODE
 
 **HL7 Field**: PID-10
+
+**Cardinality**: [0..1]
 
 **Value Sets**
 
@@ -175,6 +203,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **HL7 Field**: PID-22
 
+**Cardinality**: [0..1]
+
 **Value Sets**
 
 Code | Display
@@ -196,6 +226,8 @@ The patient's ethnicity. There is a valueset defined based on the values in PID-
 
 **HL7 Field**: SPM-2-1
 
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: SpecimenCollectedDate
@@ -203,6 +235,8 @@ The patient's ethnicity. There is a valueset defined based on the values in PID-
 **Type**: DATETIME
 
 **HL7 Field**: SPM-17-1
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -218,6 +252,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **Format**: $display
 
 **HL7 Field**: SPM-8
+
+**Cardinality**: [0..1]
 
 **Value Sets**
 
@@ -236,6 +272,8 @@ Code | Display
 **Format**: $display
 
 **HL7 Field**: SPM-4
+
+**Cardinality**: [0..1]
 
 **Value Sets**
 
@@ -270,12 +308,18 @@ The specimen source, such as Blood or Serum
 
 **HL7 Field**: OBX-5
 
+**Cardinality**: [0..1]
+
 **Value Sets**
 
 Code | Display
 ---- | -------
 260373001|Detected
 260415000|Not detected
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
 895231008|Not detected in pooled specimen
 462371000124108|Detected in pooled specimen
 419984006|Inconclusive
@@ -292,6 +336,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **HL7 Field**: NTE-3
 
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: PerformingFacilityName
@@ -299,6 +345,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Type**: TEXT
 
 **HL7 Field**: ORC-21-1
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
