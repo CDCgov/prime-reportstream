@@ -1,0 +1,7 @@
+---
+name: nd-covid-19
+description: ND COVID-19
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+elements:
