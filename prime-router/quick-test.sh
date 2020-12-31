@@ -15,6 +15,7 @@ expected_az=$expecteddir/simplereport-az.csv
 starter_schema=primedatainput/pdi-covid-19
 
 RED='\033[0;31m'
+GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 # For testing the unhappy path
@@ -41,7 +42,7 @@ function parse_prime_output_for_filename {
   done
 
   if [ -f $filename ] ; then
-    printf "Data generation TEST PASSED: successfully generated data file $filename\n\n"
+    printf "Data generation ${GREEN}TEST PASSED${NC}: successfully generated data file $filename\n"
   else 
     printf "${RED}*** ERROR ***: ./prime did not generate a file that matches $match_string${NC}\n"
     printf "Output of Prime run is: $prime_output\n"
@@ -59,9 +60,8 @@ function compare_files {
     printf "${RED}*** ERROR ***: DIFFERENCES FOUND for $schemaName.  Run this to see the diff:${NC}\n"
     printf "diff $expected $actual\n"
   else
-    printf "File comparison TEST PASSED: No differences found in $schemaName data. This is the $schemaName output file:\n\t$actual\n\n"
+    printf "File comparison ${GREEN}TEST PASSED${NC}: No differences found in $schemaName data. This is the $schemaName output file:\n\t$actual\n"
   fi
-  echo
 }
 
 
@@ -123,8 +123,21 @@ parse_prime_output_for_filename "$text" "/pima"
 actual_pima4=$filename
 compare_files "PIMA->PIMA" $actual_pima3 $actual_pima4
 
-
-
-
-
-
+# Uncomment once the FL schemas are ready for prime time.
+# FLORIDA, MAN
+#echo Generate fake FL data
+#text=$(./prime --input_fake 50 --input_schema fl/fl-covid-19 --output_dir $outputdir)
+#parse_prime_output_for_filename "$text" "/fl"
+#fake_fl=$filename
+#
+#echo Now send that fake FL data thru the router.
+#text=$(./prime --input_schema fl/fl-covid-19 --input $fake_fl --output_dir $outputdir --route)
+#parse_prime_output_for_filename "$text" "/fl"
+#fake_fl2=$filename
+#compare_files "Fake FL Orig-> Fake FL2" $fake_fl $fake_fl2
+#
+#echo Now send _those_ FL results back in to their own schema and export again!
+#text=$(./prime --input_schema fl/fl-covid-19 --input $fake_fl2 --output_dir $outputdir)
+#parse_prime_output_for_filename "$text" "/fl"
+#fake_fl3=$filename
+#compare_files "FakeFL2 -> FakeFL3" $fake_fl2 $fake_fl3

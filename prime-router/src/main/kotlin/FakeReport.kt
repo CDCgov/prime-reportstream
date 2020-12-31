@@ -58,7 +58,6 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.CODE -> {
                 when (element.name) {
                     "specimen_source_site_code" -> "71836000"
-                    "processing_mode_code" -> ""
                     else -> {
                         val valueSet = element.valueSetRef
                             ?: error("ValueSet ${element.valueSet} is not available}")
@@ -67,7 +66,7 @@ class FakeReport(val metadata: Metadata) {
                     }
                 }
             }
-            Element.Type.TABLE -> {
+            Element.Type.TABLE, Element.Type.TABLE_OR_BLANK -> {
                 val lookupTable = element.tableRef
                     ?: error("LookupTable ${element.table} is not available")
                 when (element.table) {
@@ -111,7 +110,7 @@ class FakeReport(val metadata: Metadata) {
                     else -> TODO()
                 }
             }
-            Element.Type.TELEPHONE -> faker.numerify("##########:1:") // faker.phoneNumber().cellPhone()
+            Element.Type.TELEPHONE -> faker.numerify("2#########:1:") // faker.phoneNumber().cellPhone()
             Element.Type.EMAIL -> "${context.patientName.username()}@email.com"
             null -> error("Invalid element type for ${element.name}")
         }

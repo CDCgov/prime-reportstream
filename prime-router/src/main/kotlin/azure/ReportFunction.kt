@@ -77,6 +77,7 @@ class ReportFunction {
                 }
             }
             context.logger.info("Successfully reported: ${validatedRequest.report!!.id}.")
+            workflowEngine.receiveReport(validatedRequest.report)
             val destinations = mutableListOf<String>()
             routeReport(context, workflowEngine, validatedRequest, destinations)
             return createdResponse(request, validatedRequest, destinations)
