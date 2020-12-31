@@ -13,8 +13,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 class RedoxSerializer(val metadata: Metadata) {
-    enum class AOEOptions { None, Normal, Notes }
-
     private data class JsonField(
         val path: String,
         val column: Int? = null,
@@ -22,18 +20,9 @@ class RedoxSerializer(val metadata: Metadata) {
         val value: String? = null,
         val useCurrentTime: Boolean = false
     ) {
-        val base: String
-        val name: String
-        init {
-            val index = path.lastIndexOf('.')
-            if (index != -1) {
-                base = path.slice(0 until index)
-                name = path.slice(index + 1 until path.length)
-            } else {
-                base = ""
-                name = path
-            }
-        }
+        private val index = path.lastIndexOf('.')
+        val base: String = if (index != -1) path.slice(0 until index) else ""
+        val name: String = if (index != -1) path.slice(index + 1 until path.length) else ""
     }
 
     private enum class JsonGroupType { END_OBJECT, END_ARRAY, START_OBJECT, START_ARRAY }
@@ -51,7 +40,8 @@ class RedoxSerializer(val metadata: Metadata) {
             val row = report.getRow(it)
             createMessage(fields, transitions, row)
         }
-        val out = "[\n${messages.joinToString(", \n")}\n]"
+        // NDJSON format
+        val out = messages.joinToString("\n")
         outputStream.write(out.toByteArray())
     }
 
@@ -73,7 +63,7 @@ class RedoxSerializer(val metadata: Metadata) {
                         JsonField(it, column, element)
                     } ?: emptyList()
                 }.plus(constants)
-                .sortedBy { it.path }
+                .sortedBy { it.base }
             fields[lookupName] = newFields
             return newFields
         }

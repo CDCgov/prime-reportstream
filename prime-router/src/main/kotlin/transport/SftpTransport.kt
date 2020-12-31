@@ -40,7 +40,7 @@ class SftpTransport : ITransport {
         val user = System.getenv("${envVarLabel}__USER") ?: ""
         val pass = System.getenv("${envVarLabel}__PASS") ?: ""
 
-        if (user.isNullOrBlank() || pass.isNullOrBlank())
+        if (user.isBlank() || pass.isBlank())
             error("Unable to find SFTP credentials for $orgName")
 
         return Pair(user, pass)

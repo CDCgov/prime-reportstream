@@ -30,8 +30,7 @@ data class EmailTransportType
 
 data class RedoxTransportType
 @JsonCreator constructor(
-    val host: String,
-    val port: String,
-    val isHttp: Boolean? = false
+    val apiKey: String,
+    val baseUrl: String?,
 ) :
     TransportType("REDOX")

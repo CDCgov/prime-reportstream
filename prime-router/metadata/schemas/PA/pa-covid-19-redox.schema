@@ -23,9 +23,6 @@ elements:
   - name: local_destination_name
     redoxOutputFields: ["Meta.Destinations[0].Name"]
 
-  - name: message_id
-    redoxOutputFields: ["Meta.Message.ID"]
-
   - name: local_processing_mode_code
     redoxOutputFields: ["Meta.Test"]
     type: CODE
@@ -160,10 +157,9 @@ elements:
   - name: test_result_date
     redoxOutputFields: ["Orders[0].CompletionDateTime"]
 
-  - name: test_result_status
-    altValues:
-      - code: F
-        display: Final
+  # TODO: defaults are not being passed through translation (fix this bug instead of this)
+  - name: local_test_result_status
+    default: Final
     redoxOutputFields: ["Orders[0].ResultStatus", "Orders[0].Results[0].Status"]
 
   - name: ordered_test_code

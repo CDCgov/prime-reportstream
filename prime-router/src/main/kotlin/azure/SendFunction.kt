@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.transport.RetryToken
@@ -16,7 +17,7 @@ import java.util.logging.Level
  */
 const val dataRetentionDays = 7L
 const val send = "send"
-const val maxRetryCount = 4
+const val maxRetryCount = 10
 const val maxDurationValue = 120L
 // index is retryCount, value is in minutes
 val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 8L, 4 to 15L, 5 to 30L)
@@ -48,7 +49,14 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                         val retryItems = retryToken?.transports?.find { it.index == i }?.items
                         val nextRetryItems = when (transport) {
                             is SFTPTransportType -> {
-                                workflowEngine.sftpTransport.send(service.fullName, transport, content, reportId, retryItems)
+                                workflowEngine
+                                    .sftpTransport
+                                    .send(service.fullName, transport, content, reportId, retryItems)
+                            }
+                            is RedoxTransportType -> {
+                                workflowEngine
+                                    .redoxTransport
+                                    .send(service.fullName, transport, content, reportId, retryItems)
                             }
                             else -> null
                         }

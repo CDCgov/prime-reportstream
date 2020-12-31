@@ -241,7 +241,7 @@ class DatabaseAccess(private val create: DSLContext) {
             config.addDataSourceProperty("cachePrepStmts", "true")
             config.addDataSourceProperty("prepStmtCacheSize", "250")
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-            // See this info why this is good value
+            // See this info why these are a good value
             //  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
             config.minimumIdle = 2
             config.maximumPoolSize = 8
@@ -257,7 +257,7 @@ class DatabaseAccess(private val create: DSLContext) {
             dataSource
         }
 
-        public val dataSource: DataSource get() = hikariDataSource
+        val dataSource: DataSource get() = hikariDataSource
 
         fun toSource(taskSource: TaskSource): Source {
             return when {

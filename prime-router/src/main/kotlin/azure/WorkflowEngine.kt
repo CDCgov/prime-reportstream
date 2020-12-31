@@ -6,6 +6,7 @@ import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
+import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import org.jooq.Configuration
@@ -31,6 +32,7 @@ class WorkflowEngine(
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess(),
     val sftpTransport: SftpTransport = SftpTransport(),
+    val redoxTransport: RedoxTransport = RedoxTransport(),
 ) {
     /**
      * Check the connections to Azure Storage and DB

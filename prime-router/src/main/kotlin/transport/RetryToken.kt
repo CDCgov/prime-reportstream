@@ -26,6 +26,11 @@ data class RetryToken(
             return mapper.readValue(json, RetryToken::class.java)
         }
 
+        fun isAllItems(items: RetryItems?): Boolean {
+            if (items == null) return false
+            return items.size == 1 && items[0] == "*"
+        }
+
         val allItems: RetryItems = listOf("*")
     }
 }
