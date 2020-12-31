@@ -4,78 +4,78 @@
   referenceUrl: https://confluence.ihtsdotools.org/display/DOCCV19?preview=/106701475/113416696/doc_Covid19Guide_Current-en-US_INT_20200831.pdf
   values:
       - code: 21522001
-        value: Abdominal pain
+        display: Abdominal pain
       - code: 84387000
-        value: Asymptomatic
+        display: Asymptomatic
       - code: 131148009
-        value: Bleeding
+        display: Bleeding
       - code: 29857009
-        value: Chest pain
+        display: Chest pain
       - code: 43724002
-        value: Chill
+        display: Chill
       - code: 82272006
-        value: Common cold
+        display: Common cold
       - code: 9826008
-        value: Conjunctivitis
+        display: Conjunctivitis
       - code: 49727002
-        value: Cough
+        display: Cough
       - code: 3415004
-        value: Cyanosis
+        display: Cyanosis
       - code: 62315008
-        value: Diarrhea
+        display: Diarrhea
       - code: 3006004
-        value: Disturbance of consciousness
+        display: Disturbance of consciousness
       - code: 267036007
-        value: Dyspnea
+        display: Dyspnea
       - code: 271807003
-        value: Eruption
+        display: Eruption
       - code: 8422900
-        value: Fatigue
+        display: Fatigue
       - code: 103001002
-        value: Feeling feverish
+        display: Feeling feverish
       - code: 25064002
-        value: Headache
+        display: Headache
       - code: 66857006
-        value: Hemoptysis
+        display: Hemoptysis
       - code: 248567008
-        value: Indrawing of ribs during respiration
+        display: Indrawing of ribs during respiration
       - code: 57676002
-        value: Joint pain
+        display: Joint pain
       - code: 79890006
-        value: Loss of appetite
+        display: Loss of appetite
       - code: 44169009
-        value: Loss of sense of smell
+        display: Loss of sense of smell
       - code: 36955009
-        value: Loss of taste
+        display: Loss of taste
       - code: 30746006
-        value: Lymphadenopathy
+        display: Lymphadenopathy
       - code: 367391008
-        value: Malaise
+        display: Malaise
       - code: 68962001
-        value: Muscle pain
+        display: Muscle pain
       - code: 26544005
-        value: Muscle weakness
+        display: Muscle weakness
       - code: 68235000
-        value: Nasal congestion
+        display: Nasal congestion
       - code: 64531003
-        value: Nasal discharge
+        display: Nasal discharge
       - code: 422587007
-        value: Nausea
+        display: Nausea
       - code: 44077006
-        value: Numbness
+        display: Numbness
       - code: 162397003
-        value: Pain in throat
+        display: Pain in throat
       - code: 38880002
-        value: Rigor
+        display: Rigor
       - code: 91175000
-        value: Seizure
+        display: Seizure
       - code: 46742003
-        value: Skin ulcer
+        display: Skin ulcer
       - code: 23924001
-        value: Tight chest
+        display: Tight chest
       - code: 282145008
-        value: Unable to walk
+        display: Unable to walk
       - code: 422400008
-        value: Vomiting
+        display: Vomiting
       - code: 56018004
-        value: Wheezing
+        display: Wheezing
