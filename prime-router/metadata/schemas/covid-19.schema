@@ -673,8 +673,8 @@ elements:
 
   - name: processing_mode_code
     type: CODE
+    cardinality: ZERO_OR_ONE
     valueSet: hl70103
-    default: P
     hl7Field: MSH-11-1
     documentation: P, D, or T for Production, Debugging, or Training
 
