@@ -12,9 +12,15 @@
 
 **HL7 Field**: MSH-3
 
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: Lab_Name
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -23,6 +29,8 @@
 **Type**: ID_CLIA
 
 **HL7 Field**: OBX-23-10
+
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -39,6 +47,8 @@ An example of the ID is 03D2159846
 
 **HL7 Field**: OBX-24-1
 
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: Lab_City
@@ -46,6 +56,8 @@ An example of the ID is 03D2159846
 **Type**: CITY
 
 **HL7 Field**: OBX-24-3
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -55,6 +67,12 @@ An example of the ID is 03D2159846
 
 **HL7 Field**: OBX-24-4
 
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
 ---
 
 **Name**: Lab_Zip
@@ -63,11 +81,15 @@ An example of the ID is 03D2159846
 
 **HL7 Field**: OBX-24-5
 
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: Lab_Phone
 
 **Type**: TELEPHONE
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -77,6 +99,8 @@ An example of the ID is 03D2159846
 
 **HL7 Field**: PID-3-1
 
+**Cardinality**: [1..1]
+
 ---
 
 **Name**: Patient_First_Name
@@ -84,6 +108,8 @@ An example of the ID is 03D2159846
 **Type**: PERSON_NAME
 
 **HL7 Field**: PID-5-2
+
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -97,6 +123,8 @@ The patient's first name
 
 **HL7 Field**: PID-5-1
 
+**Cardinality**: [1..1]
+
 **Documentation**:
 
 The patient's last name
@@ -108,6 +136,8 @@ The patient's last name
 **Type**: DATE
 
 **HL7 Field**: PID-7
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -123,6 +153,8 @@ Other states may choose to define their own formats.
 **Type**: CODE
 
 **HL7 Field**: PID-8-1
+
+**Cardinality**: [0..1]
 
 **Value Sets**
 
@@ -149,6 +181,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Format**: $alt
 
 **HL7 Field**: PID-10
+
+**Cardinality**: [0..1]
 
 **Value Sets**
 
@@ -189,6 +223,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **HL7 Field**: PID-22
 
+**Cardinality**: [0..1]
+
 **Value Sets**
 
 Code | Display
@@ -210,6 +246,8 @@ The patient's ethnicity. There is a valueset defined based on the values in PID-
 
 **HL7 Field**: PID-11-1
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The patient's street address
@@ -222,6 +260,8 @@ The patient's street address
 
 **HL7 Field**: PID-11-3
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The patient's city
@@ -233,6 +273,12 @@ The patient's city
 **Type**: TABLE
 
 **HL7 Field**: PID-11-4
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
 
 **Documentation**:
 
@@ -248,6 +294,8 @@ The patient's state
 
 **HL7 Field**: PID-11-5
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The patient's zip code
@@ -256,7 +304,13 @@ The patient's zip code
 
 **Name**: Patient_County
 
-**Type**: TABLE
+**Type**: TABLE_OR_BLANK
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: County
 
 ---
 
@@ -266,6 +320,8 @@ The patient's zip code
 
 **HL7 Field**: PID-13
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The patient's phone number with area code
@@ -274,6 +330,10 @@ The patient's phone number with area code
 
 **Name**: Ordering_facility_name
 
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: Ordering_Facility_Address
@@ -281,6 +341,8 @@ The patient's phone number with area code
 **Type**: STREET
 
 **HL7 Field**: ORC-22-1
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -294,6 +356,8 @@ The address of the facility which the test was ordered from
 
 **HL7 Field**: ORC-22-3
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The city of the facility which the test was ordered from
@@ -305,6 +369,12 @@ The city of the facility which the test was ordered from
 **Type**: TABLE
 
 **HL7 Field**: ORC-22-4
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
 
 **Documentation**:
 
@@ -318,6 +388,8 @@ The state of the facility which the test was ordered from
 
 **HL7 Field**: ORC-22-5
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The zip code of the facility which the test was ordered from
@@ -330,6 +402,8 @@ The zip code of the facility which the test was ordered from
 
 **HL7 Field**: ORC-12-3
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The first name of the provider who ordered the test
@@ -339,6 +413,8 @@ The first name of the provider who ordered the test
 **Name**: Provider_Last_Name
 
 **Type**: PERSON_NAME
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -352,6 +428,8 @@ The last name of provider who ordered the test
 
 **HL7 Field**: ORC-14
 
+**Cardinality**: [0..1]
+
 **Documentation**:
 
 The phone number of the provider
@@ -364,6 +442,8 @@ The phone number of the provider
 
 **HL7 Field**: SPM-2-1
 
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: Collection_Date
@@ -373,6 +453,8 @@ The phone number of the provider
 **Format**: yyyyMMdd
 
 **HL7 Field**: SPM-17-1
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -388,6 +470,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **Format**: $display
 
 **HL7 Field**: SPM-4
+
+**Cardinality**: [0..1]
 
 **Value Sets**
 
@@ -422,6 +506,8 @@ The specimen source, such as Blood or Serum
 
 **HL7 Field**: SPM-8
 
+**Cardinality**: [0..1]
+
 **Value Sets**
 
 Code | Display
@@ -438,6 +524,12 @@ Code | Display
 
 **HL7 Field**: OBX-3-1
 
+**Cardinality**: [0..1]
+
+**Table**: LIVD-2020-11-18
+
+**Table Column**: LOINC Code
+
 **Documentation**:
 
 The LOINC code of the test performed. This is a standardized coded value describing the test
@@ -449,6 +541,12 @@ The LOINC code of the test performed. This is a standardized coded value describ
 **Type**: TABLE
 
 **HL7 Field**: OBX-3-2
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-2020-11-18
+
+**Table Column**: LOINC Long Name
 
 **Documentation**:
 
@@ -464,12 +562,18 @@ The LOINC description of the test performed as related to the LOINC code.
 
 **HL7 Field**: OBX-5
 
+**Cardinality**: [0..1]
+
 **Value Sets**
 
 Code | Display
 ---- | -------
 260373001|Detected
 260415000|Not detected
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
 895231008|Not detected in pooled specimen
 462371000124108|Detected in pooled specimen
 419984006|Inconclusive
@@ -488,6 +592,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **HL7 Field**: OBX-19
 
+**Cardinality**: [0..1]
+
 ---
 
 **Name**: Notes
@@ -495,5 +601,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Type**: TEXT
 
 **HL7 Field**: NTE-3
+
+**Cardinality**: [0..1]
 
 ---

@@ -251,13 +251,17 @@ class ReportFunction {
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
-            if (result.report != null)
+            if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
-            else
+                it.writeNumberField("reportItemCount", result.report.itemCount)
+            } else
                 it.writeNullField("id")
             it.writeArrayFieldStart("destinations")
             destinations.forEach { destination -> it.writeString(destination) }
             it.writeEndArray()
+
+            it.writeNumberField("warningCount", result.warnings.size)
+            it.writeNumberField("errorCount", result.errors.size)
 
             fun writeDetailsArray(field: String, array: List<ResultDetail>) {
                 it.writeArrayFieldStart(field)

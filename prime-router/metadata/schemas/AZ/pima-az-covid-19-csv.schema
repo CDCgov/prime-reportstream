@@ -168,7 +168,7 @@ elements:
 
   # Nonstandard
   - name: organization_and_facility
-    type: TEXT  
+    type: TEXT
     mapper: 'concat(organization_name, ordering_facility_name)'
     csvFields: [{name: Ordering_facility_name}]
 
