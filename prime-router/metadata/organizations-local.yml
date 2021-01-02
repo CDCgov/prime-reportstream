@@ -110,10 +110,10 @@
         jurisdictionalFilter: [ "matches(ordering_facility_state, PA)"]
         transforms: { deidentify: false }
         defaults:
-          local_destination_id: cd019512-8a58-40e5-a416-4e597404f9b8
-          local_destination_name: "CDC Pennsylvania Dept of Health Destination (s)"
-          local_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          local_source_name: "Prime Data Hub (Staging)"
+          redox_destination_id: cd019512-8a58-40e5-a416-4e597404f9b8
+          redox_destination_name: "CDC Pennsylvania Dept of Health Destination (s)"
+          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+          redox_source_name: "Prime Data Hub (Staging)"
         format: REDOX
         transports:
           - type: REDOX
