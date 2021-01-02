@@ -69,6 +69,8 @@
       display: Inconclusive
     - code: 125154007
       display: Specimen unsatisfactory for evaluation
+    - code: 455371000124106
+      display: Invalid result
 
 - name: covid-19/order
   system: LOINC

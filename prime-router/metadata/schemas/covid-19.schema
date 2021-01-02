@@ -231,7 +231,6 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: County
-    cardinality: ONE
     natFlatFileField: Ordering_facility_county
     hhsGuidanceField:
 
@@ -460,7 +459,7 @@ elements:
   - name: patient_email
     type: EMAIL
     cardinality: ZERO_OR_ONE
-    hl7Field: ORC-23-4
+    hl7Field: PID-13-4
 
   - name: patient_death_date
     type: DATE
@@ -488,6 +487,11 @@ elements:
 
       Other states may choose to define their own formats.
 
+  - name: patient_drivers_license
+    type: ID_DLN
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-20-1
+
   - name: patient_ethnicity
     type: CODE
     cardinality: ZERO_OR_ONE
@@ -501,7 +505,6 @@ elements:
   - name: patient_first_name
     type: PERSON_NAME
     cardinality: ZERO_OR_ONE
-    cardinality: ONE
     natFlatFileField: Patient_first_name
     hhsGuidanceField: Patient name
     hl7Field: PID-5-2
@@ -520,7 +523,7 @@ elements:
   # TODO Figure out how to encode patient id (PID-3) like AZ and others want
   - name: patient_id
     type: TEXT
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_id
     hhsGuidanceField:
     hl7Field: PID-3-1

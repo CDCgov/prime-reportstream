@@ -47,6 +47,7 @@ class RouterCli : CliktCommand(
     private val route by option("--route", help = "route to receivers lists").flag(default = false)
     private val list by option("--list", help = "list all schemas.  Ignores other parameters").flag(default = false)
     private val send by option("--send", help = "send to a receiver if specified").flag(default = false)
+    private val routeTo by option("--route_to", help = "route a receiver")
 
     private val outputFileName by option("--output", help = "<file> not compatible with route or partition")
     private val outputDir by option("--output_dir", help = "<directory>")
@@ -238,6 +239,10 @@ class RouterCli : CliktCommand(
                 translator
                     .filterAndTranslateByService(inputReport)
                     .map { it.first to it.second.format }
+            routeTo != null -> {
+                val pair = translator.translate(input = inputReport, toService = routeTo!!)
+                if (pair != null) listOf(Pair(pair.first, pair.second.format)) else emptyList()
+            }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
                 val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())

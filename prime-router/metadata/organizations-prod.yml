@@ -10,6 +10,14 @@
         schema: primedatainput/pdi-covid-19
         format: CSV
 
+  - name: strac
+    description: STRAC POC testing app
+    clients:
+      - name: default
+        topic: covid-19
+        schema: strac/strac-covid-19
+        format: CSV
+
   - name: az-phd
     description: Arizona PHD
     services:

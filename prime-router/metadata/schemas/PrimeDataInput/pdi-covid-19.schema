@@ -1,6 +1,6 @@
 ---
 name: pdi-covid-19
-description: PRIME POC COVID-19 flat file
+description: SimpleReport COVID-19 flat file
 topic: covid-19
 trackingElement: message_id
 basedOn: covid-19

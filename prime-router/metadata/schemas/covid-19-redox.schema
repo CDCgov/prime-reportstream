@@ -44,6 +44,13 @@ elements:
   - name: patient_dob
     redoxOutputFields: ["Patient.Demographics.DOB"]
 
+  - name: patient_drivers_license
+    redoxOutputFields: ["Patient.Identifiers[1].ID"]
+
+  - name: redox_patient_drivers_license_type
+    mapper: "ifPresent(patient_drivers_license, DL)"
+    redoxOutputFields: ["Patient.Identifiers[1].IDType"]
+
   - name: patient_ethnicity
     redoxOutputFields: ["Patient.Demographics.IsHispanic"]
     altValues:
@@ -219,6 +226,9 @@ elements:
 
   - name: specimen_source_site_code
     redoxOutputFields: ["Orders[0].Results[0].Specimen.BodySite"]
+
+  - name: reference_range
+    redoxOutputFields: ["Orders[0].Results[0].ReferenceRange.Text"]
 
   - name: test_result
     redoxOutputFields: ["Orders[0].Results[0].Value"]

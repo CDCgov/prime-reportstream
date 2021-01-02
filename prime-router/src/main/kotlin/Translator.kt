@@ -43,6 +43,14 @@ class Translator(private val metadata: Metadata) {
         }
     }
 
+    fun translate(input: Report, toService: String, defaultValues: DefaultValues = emptyMap()): Pair<Report, OrganizationService>? {
+        if (input.isEmpty()) return null
+        val service = metadata.findService(toService) ?: error("invalid service name $toService")
+        val mappedReport = translateByService(input, service, defaultValues)
+        if (mappedReport.itemCount == 0) return null
+        return Pair(mappedReport, service)
+    }
+
     private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
