@@ -75,6 +75,21 @@
         transforms: { deidentify: false }
         format: CSV
         
+  - name: co-phd
+    description: Colorado Department of Health
+    services:
+      - name: elr-redox-debug
+        topic: covid-19
+        schema: co/co-covid-19-redox
+        jurisdictionalFilter: [ "matches(ordering_facility_state, CO)" ]
+        transforms: { deidentify: false }
+        defaults:
+          redox_destination_id: 62d62d52-3771-4151-aff4-4a3d420a8b7a
+          redox_destination_name: "Colorado Dept of Public Health (CDPHE)"
+          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+          redox_source_name: "Prime Data Hub (Staging)"
+        format: REDOX
+
   - name: pa-phd
     description: Pennsylvania Department of Health
     services:

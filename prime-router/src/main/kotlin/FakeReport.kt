@@ -14,7 +14,7 @@ class FakeReport(val metadata: Metadata) {
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
 
-        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ")
+        val state = randomChoice("FL", "PA", "TX", "AZ", "CO")
         val county = findLookupTable("fips-county")?.let {
             if (state == "AZ") {
                 randomChoice("Pima", "Yuma")
