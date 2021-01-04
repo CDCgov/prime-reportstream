@@ -20543,6 +20543,8 @@
       } /*# sourceMappingURL=application.css.map */
     </style>
     <title>PRIME Data Hub CSV download</title>
+
+
   </head>
   <body>
     <section class="usa-banner" aria-label="Official government website">
@@ -20658,7 +20660,7 @@
           </button>
           <div class="prime-user-account">
             <span th:text="${user}">e.ripley@weyland-yutani.com</span><br />
-            <a class="" href="javascript:void(0)">Logout</a>
+            <a href="#" onclick="logout(); return false;">Logout</a>
           </div>
         </nav>
       </div>
@@ -20800,6 +20802,21 @@
         </div>
       </section>
     </div>
+
+    <script type="text/javascript">
+        function removeItem(sKey, sPath, sDomain) {
+            document.cookie = encodeURIComponent(sKey) + 
+                        "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + 
+                        (sDomain ? "; domain=" + sDomain : "") + 
+                        (sPath ? "; path=" + sPath : "");
+        }
+
+        function logout(){
+            removeItem("user")
+            removeItem("organization")
+            window.location.replace([[${OKTA_redirect}]]);
+        }
+    </script>
 
     <script>
       !(function o(i, c, s) {

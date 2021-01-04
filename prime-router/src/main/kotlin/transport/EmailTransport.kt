@@ -17,12 +17,12 @@ class EmailTransport : ITransport {
 
     override fun send(
         orgName: String,
-        transport: TransportType,
+        transportType: TransportType,
         header: DatabaseAccess.Header,
         contents: ByteArray
     ): Boolean {
 
-        val emailTransport = transport as EmailTransportType
+        val emailTransport = transportType as EmailTransportType
 
         val from = Email("qtv1@cdc.gov")
         val subject = "COVID-19 Reporting:  Your test results are ready"

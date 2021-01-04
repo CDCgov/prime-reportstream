@@ -32,6 +32,9 @@ class DownloadFunction {
         val file: String? = null
     )
 
+    var orgName = ""
+    var userName = ""
+
     @FunctionName("download")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -54,8 +57,16 @@ class DownloadFunction {
 
     private fun redirectToAuthenticate(request: HttpRequestMessage<String?>): HttpResponseMessage {
         val htmlTemplate = Files.readString(Path.of(LOGIN_PAGE))
+
+        val attr = mapOf(
+            "OKTA_baseUrl" to System.getenv("OKTA_baseUrl"),
+            "OKTA_clientId" to System.getenv("OKTA_clientId"),
+            "OKTA_redirect" to request.uri.toString()
+        );
+
+        val html = getTemplateFromAttributes(htmlTemplate, attr)
         var response = request.createResponseBuilder(HttpStatus.OK)
-            .body(htmlTemplate)
+            .body(html)
             .header("Content-Type", "text/html")
             .build()
 
@@ -96,23 +107,18 @@ class DownloadFunction {
             }
     }
 
-    private fun getSessionVariables(key: String): String {
-        if (key == "user") return "qtv1@cdc.gov"
-        else if (key == "receiver") return "az-phd.elr"
-        else return ""
-    }
-
     private fun responsePage(request: HttpRequestMessage<String?>): HttpResponseMessage {
         val htmlTemplate = Files.readString(Path.of(DOWNLOAD_PAGE))
-        val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), getSessionVariables("receiver"))
+        val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
 
         val attr = mapOf(
-            "description" to "Pima county, AZ",
-            "user" to getSessionVariables("user"),
+            "description" to orgName,
+            "user" to userName,
             "today" to Calendar.getInstance(),
             "todays" to generateTodaysTestResults(headers),
             "previous" to generatePreviousTestResults(headers),
-            "days_to_show" to DAYS_TO_SHOW
+            "days_to_show" to DAYS_TO_SHOW,
+            "OKTA_redirect" to request.uri.toString()
         )
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)
@@ -127,14 +133,19 @@ class DownloadFunction {
 
     private fun responseFile(request: HttpRequestMessage<String?>, fileName: String): HttpResponseMessage {
         val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(ReportId.fromString(fileName))
-
-        val body = WorkflowEngine().readBody(header)
-        var response = request
-            .createResponseBuilder(HttpStatus.OK)
-            .header("Content-Type", "text/csv")
-            .header("Content-Disposition", "attachment; filename=test-results.csv")
-            .body(body)
-            .build()
+        var response: HttpResponseMessage
+        try{
+            val body = WorkflowEngine().readBody(header)
+            response = request
+                .createResponseBuilder(HttpStatus.OK)
+                .header("Content-Type", "text/csv")
+                .header("Content-Disposition", "attachment; filename=test-results.csv")
+                .body(body)
+                .build()
+        }
+        catch( ex: Exception ){
+            response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
+        }
 
         return response
     }
@@ -155,7 +166,20 @@ class DownloadFunction {
     }
 
     private fun checkAuthenticated(request: HttpRequestMessage<String?>): Boolean {
-        val jwt: String = request.queryParameters["code"] ?: ""
-        return jwt.isNotBlank()
+        val cookies = request.headers["cookie"] ?: ""
+
+        cookies.replace(" ", "").split(";").forEach {
+            System.out.println("'$it'")
+            val cookie = it.split("=")
+            if (cookie[0] == "user") {
+                userName = cookie[1]
+            }
+            if (cookie[0] == "organization") orgName = cookie[1]
+        }
+
+        System.out.println("user = '$userName'")
+        System.out.println("org = '$orgName'")
+
+        return userName.isNotBlank() && orgName.isNotBlank()
     }
 }

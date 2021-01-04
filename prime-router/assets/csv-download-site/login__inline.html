@@ -7,18 +7,16 @@
     <meta name="robots" content="none" />
 
     <title>DataHub - Login</title>
-    <script src="https://global.oktacdn.com/okta-signin-widget/4.4.4/js/okta-sign-in.min.js" type="text/javascript">
-    </script>
-    <link href="https://global.oktacdn.com/okta-signin-widget/4.4.4/css/okta-sign-in.min.css" type="text/css"
-        rel="stylesheet" />
+    <script src="https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js" type="text/javascript"></script>
+    <link href="https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css" type="text/css" rel="stylesheet" />
 </head>
 
 <body>
     <div id="okta-login-container"></div>
 </body>
 
-<script type="text/javascript">
-    signInWidgetConfig = {
+<script type="text/javascript" th:inline="javascript">
+    config = {
         logo: '//logo.clearbit.com/cdc.gov',
         language: 'en',
         features: {
@@ -26,35 +24,32 @@
             rememberMe: false, // Setting to false will remove the checkbox to save username
             router: true, // Leave this set to true for the API demo
         },
-        baseUrl: 'https://dev-9304359.okta.com',
-        clientId: '0oa1f0vr3Zwvd7pAE5d6',
-        redirectUri: 'http://localhost:7071/api/download',
-        responseType: 'code'
+        el: "#okta-login-container",
+        baseUrl: 'https://'+ [[${OKTA_baseUrl}]],
+        clientId: [[${OKTA_clientId}]],
+        redirectUri: [[${OKTA_redirect}]],
+        authParams: {
+          issuer: "https://"+[[${OKTA_baseUrl}]]+"/oauth2/default"
+        }
     };
-
-    function widgetSuccessCallback(res) {
-        var key = '';
-        if (res[0]) {
-            key = Object.keys(res[0])[0];
-            signInWidget.tokenManager.add(key, res[0]);
-        }
-        if (res[1]) {
-            key = Object.keys(res[1])[0];
-            signInWidget.tokenManager.add(key, res[1]);
-        }
-        if (res.status === 'SUCCESS') {
-            console.log("Logged in to Okta and issued token:");
-            console.log("Reload this page to start over.");
-            alert("Logged in! Check your developer console for details");
-        }
+    
+    function createCookie(name,value,min) {
+        if (min) {
+            var date = new Date(); 
+            date.setTime(date.getTime()+(min*60*60*1000));   
+            var expires = ";expires="+date.toUTCString(); 
+        } else var expires = "";
+        document.cookie = name+"="+value+expires+";path=/"; 
     }
 
-    function widgetErrorCallback(err) {}
-
-    var signInWidget= new OktaSignIn(signInWidgetConfig);
-    signInWidget.renderEl({
-        el: '#okta-login-container'
-    }, widgetSuccessCallback, widgetErrorCallback);
+    var signInWidget= new OktaSignIn(config);
+    signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile'] } )
+        .then( function( tokens ){
+            var idToken = tokens.idToken; 
+            createCookie("user", idToken.claims.email,3)
+            createCookie("organization", idToken.claims.org,3)
+            window.location.replace([[${OKTA_redirect}]]);
+        })
 </script>
 
 </html>
