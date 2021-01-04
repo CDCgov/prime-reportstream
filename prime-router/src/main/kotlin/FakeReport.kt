@@ -70,6 +70,7 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.CODE -> {
                 when (element.name) {
                     "specimen_source_site_code" -> "71836000"
+                    "test_result_status" -> randomChoice("F", "C")
                     else -> {
                         val altValues = element.altValues
                         val valueSet = element.valueSetRef

@@ -1,5 +1,9 @@
 package gov.cdc.prime.router
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+
 /**
  * A *Mapper* is defined as a property of a schema element. It is used to create
  * a value for the element when no value is present. For example, the middle_initial element has
@@ -92,7 +96,15 @@ class UseMapper : Mapper {
         return if (values.isEmpty()) {
             null
         } else {
-            values.first().value
+            val (fromElement, fromValue) = values.first()
+            when {
+                element.type == fromElement.type -> fromValue
+                element.type == Element.Type.DATE && fromElement.type == Element.Type.DATETIME -> {
+                    LocalDateTime.parse(fromValue, Element.datetimeFormatter).format(Element.dateFormatter)
+                }
+                element.type == Element.Type.TEXT -> fromValue
+                else -> null
+            }
         }
     }
 }
@@ -132,7 +144,7 @@ class IfPresentMapper : Mapper {
     override val name = "ifPresent"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.size != 2) error("Expect dependency and value parameters")
+        if (args.size != 2) error("Schema Error: ifPresent expects dependency and value parameters")
         return args.subList(0, 1) // The element name
     }
 
@@ -273,7 +285,7 @@ class Obx8Mapper : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9&^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&^]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

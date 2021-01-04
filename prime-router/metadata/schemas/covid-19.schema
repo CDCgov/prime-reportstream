@@ -161,7 +161,7 @@ elements:
     natFlatFileField: Hospitalized
     hhsGuidanceField:
     hl7Field: AOE
-    hl7AOEQuestion: 7974-4
+    hl7AOEQuestion: 77974-4
     documentation: Is the patient hospitalized?
 
   - name: icu
@@ -178,7 +178,7 @@ elements:
     natFlatFileField: Illness_onset_date
     hhsGuidanceField:
     hl7Field: AOE
-    hl7AOEQuestion: 11368-8
+    hl7AOEQuestion: 65222-2
 
   - name: order_result_status
     type: CODE
@@ -537,7 +537,6 @@ elements:
 
   - name: patient_id_type
     type: TEXT
-    default: PI
     natFlatFileField: Patient_id_type
     hhsGuidanceField:
     hl7Field: PID-3-5

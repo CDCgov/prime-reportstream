@@ -11,6 +11,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
+import kotlin.math.atan
 
 /**
  * An element is represents a data element (ie. a single logical value) that is contained in single row
@@ -623,13 +624,17 @@ data class Element(
     fun toAltDisplay(code: String): String? {
         if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
         if (altValues == null) error("Schema Error: missing alt values for '$name'")
-        return altValues.find { code.equals(it.code, ignoreCase = true) }?.display
+        val altValue = altValues.find { code.equals(it.code, ignoreCase = true) }
+            ?: altValues.find { "*" == it.code }
+        return altValue?.display
     }
 
     fun toAltCode(altDisplay: String): String? {
         if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
         if (altValues == null) error("Schema Error: missing alt values for '$name'")
-        return altValues.find { altDisplay.equals(it.display, ignoreCase = true) }?.code
+        val altValue = altValues.find { altDisplay.equals(it.display, ignoreCase = true) }
+            ?: altValues.find { "*" == it.display }
+        return altValue?.code
     }
 
     companion object {

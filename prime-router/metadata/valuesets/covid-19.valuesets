@@ -146,6 +146,9 @@
     - code: 30525-0
       display: Age
       version: 2.68
+    - code: 77974-4
+      display: Whether patient was hospitalized because of this condition
+      version: 2.68
 
 - name: covid-19/specimen_source_site
   system: SNOMED_CT

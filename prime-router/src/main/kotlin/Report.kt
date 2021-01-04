@@ -186,7 +186,7 @@ class Report {
     fun deidentify(): Report {
         val columns = schema.elements.map {
             if (it.pii == true) {
-                createDefaultColumn(it, "")
+                buildEmptyColumn(it.name)
             } else {
                 table.column(it.name).copy()
             }
@@ -195,49 +195,60 @@ class Report {
     }
 
     fun applyMapping(mapping: Translator.Mapping): Report {
-        val columns = mapping.toSchema.elements.map { buildColumn(mapping, it) }
-        val newTable = Table.create(columns)
+        val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
+        val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
+        val newTable = Table.create(pass2Columns)
         return Report(mapping.toSchema, newTable, fromThisReport("mapping"))
     }
 
-    private fun buildColumn(mapping: Translator.Mapping, toElement: Element): StringColumn {
+    private fun buildColumnPass1(mapping: Translator.Mapping, toElement: Element): StringColumn? {
         return when (toElement.name) {
             in mapping.useDirectly -> {
                 table.stringColumn(mapping.useDirectly[toElement.name]).copy().setName(toElement.name)
             }
             in mapping.useMapper -> {
-                createMappedColumn(toElement, mapping.useMapper.getValue(toElement.name))
+                null
             }
             in mapping.useDefault -> {
-                createDefaultColumn(toElement, mapping.useDefault.getValue(toElement.name))
+                val defaultValue = mapping.useDefault[toElement.name]
+                val defaultValues = Array(table.rowCount()) { defaultValue }
+                StringColumn.create(toElement.name, defaultValues.asList())
             }
-            else -> error("missing mapping for element: ${toElement.name}")
+            else -> {
+                buildEmptyColumn(toElement.name)
+            }
         }
     }
 
-    private fun createDefaultColumn(element: Element, defaultValue: String): StringColumn {
-        val defaultValues = Array(table.rowCount()) { defaultValue }
-        return StringColumn.create(element.name, defaultValues.asList())
-    }
-
-    private fun createMappedColumn(toElement: Element, mapper: Mapper): StringColumn {
-        val args = Mappers.parseMapperField(toElement.mapper ?: error("mapper is missing")).second
-        val values = Array(table.rowCount()) { row ->
-            val inputValues = mapper.valueNames(toElement, args).mapNotNull { elementName ->
-                val element = schema.findElement(elementName) ?: return@mapNotNull null
-                val columnsNames = table.columnNames()
-                if (!columnsNames.contains(elementName)) {
-                    // return an empty string for the mapper
-                    ElementAndValue(element, "")
-                } else {
-                    val value = table.getString(row, elementName)
+    private fun buildColumnPass2(mapping: Translator.Mapping, toElement: Element, pass1Columns: List<StringColumn?>): StringColumn {
+        val toSchema = mapping.toSchema
+        return if (toElement.name in mapping.useMapper) {
+            val mapper = mapping.useMapper[toElement.name]!!
+            val (_, args) = Mappers.parseMapperField(toElement.mapper
+                ?: error("'${toElement.mapper}' mapper is missing"))
+            val values = Array(table.rowCount()) { row ->
+                val inputValues = mapper.valueNames(toElement, args).mapNotNull { argName ->
+                    val element = toSchema.findElement(argName) ?: return@mapNotNull null
+                    val argColumnIndex = toSchema.findElementColumn(argName)
+                        ?: error("'$argName' is missing from '${toSchema.name}'")
+                    val column = pass1Columns[argColumnIndex] ?: return@mapNotNull null
+                    val value = column.get(row)
                     if (value.isBlank()) return@mapNotNull null
                     ElementAndValue(element, value)
                 }
+                mapper.apply(toElement, args, inputValues) ?: mapping.useDefault[toElement.name] ?: ""
             }
-            mapper.apply(toElement, args, inputValues) ?: toElement.default ?: ""
+            return StringColumn.create(toElement.name, values.asList())
+        } else {
+            val index = mapping.toSchema.findElementColumn(toElement.name)
+                ?: error("Schema Error: buildColumnPass2")
+            pass1Columns[index]
+                ?: error("Schema Error: buildColumnPass2 missing pass1 value")
         }
-        return StringColumn.create(toElement.name, values.asList())
+    }
+
+    private fun buildEmptyColumn(name: String): StringColumn {
+        return StringColumn.create(name, List(itemCount) { "" })
     }
 
     companion object {

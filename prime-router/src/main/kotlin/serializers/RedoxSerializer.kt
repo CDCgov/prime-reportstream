@@ -34,11 +34,9 @@ class RedoxSerializer(val metadata: Metadata) {
 
     fun write(report: Report, outputStream: OutputStream) {
         val fields = getFields(report.schema)
-        val transitions = getTransitions(report.schema.name, fields)
-
         val messages = report.itemIndices.map {
             val row = report.getRow(it)
-            createMessage(fields, transitions, row)
+            createMessage(fields, row)
         }
         // NDJSON format
         val out = messages.joinToString("\n")
@@ -71,101 +69,70 @@ class RedoxSerializer(val metadata: Metadata) {
         return fields[lookupName] ?: buildFields()
     }
 
-    private fun getTransitions(name: String, fields: List<JsonField>): List<List<JsonGroup>> {
-        fun diff(previousBase: String, currentBase: String): Pair<List<String>, List<String>> {
-            val previousSegs = if (previousBase.isNotEmpty()) previousBase.split('.') else emptyList()
-            val currentSegs = if (currentBase.isNotEmpty()) currentBase.split('.') else emptyList()
-            var i = 0
-            while (i < previousSegs.size && i < currentSegs.size && previousSegs[i] == currentSegs[i])
-                i += 1
-            return Pair(previousSegs.takeLast(previousSegs.size - i), currentSegs.takeLast(currentSegs.size - i))
-        }
-
-        @Synchronized
-        fun buildTransitions(): List<List<JsonGroup>> {
-            val newTransitions = mutableListOf<List<JsonGroup>>()
-            var previous = JsonField("")
-            for (current in fields.plus(JsonField(""))) {
-                val transition = mutableListOf<JsonGroup>()
-                var (ending, starting) = diff(previous.base, current.base)
-                while (ending.isNotEmpty()) {
-                    val end = ending.last()
-                    ending = ending.dropLast(1)
-                    when {
-                        end.startsWith("[") -> transition += JsonGroup(JsonGroupType.END_OBJECT)
-                        end.endsWith("]") -> {
-                            transition += JsonGroup(JsonGroupType.END_OBJECT)
-                            transition += JsonGroup(JsonGroupType.END_ARRAY)
-                        }
-                        else -> transition += JsonGroup(JsonGroupType.END_OBJECT)
-                    }
-                }
-                while (starting.isNotEmpty()) {
-                    val start = starting.first()
-                    starting = starting.drop(1)
-                    when {
-                        start.startsWith("[") -> transition += JsonGroup(JsonGroupType.START_OBJECT)
-                        start.endsWith("]") -> {
-                            transition += JsonGroup(JsonGroupType.START_ARRAY, start.substringBefore('['))
-                            transition += JsonGroup(JsonGroupType.START_OBJECT)
-                        }
-                        else -> transition += JsonGroup(JsonGroupType.START_OBJECT, start)
-                    }
-                }
-                newTransitions += transition
-                previous = current
-            }
-            transitions[name] = newTransitions
-            return newTransitions
-        }
-
-        return transitions[name] ?: buildTransitions()
-    }
-
-    private fun createMessage(fields: List<JsonField>, transitions: List<List<JsonGroup>>, row: List<String>): String {
+    private fun createMessage(fields: List<JsonField>, row: List<String>): String {
         val out = ByteArrayOutputStream()
         out.use {
             val generator = factory.createGenerator(out)
             generator.use {
                 generator.writeStartObject()
+                var previousField = JsonField(path = "")
                 for (i in fields.indices) {
-                    writeTransition(generator, transitions[i])
-                    writeField(generator, fields[i], row)
+                    val value = getFieldValue(fields[i], row)
+                    if (value.isNotBlank()) {
+                        writeTransition(generator, fields[i], previousField)
+                        writeField(generator, fields[i], value)
+                        previousField = fields[i]
+                    }
                 }
-                writeTransition(generator, transitions.last())
+                writeTransition(generator, JsonField(path = ""), previousField)
             }
         }
         return out.toString()
     }
 
-    private fun writeTransition(to: JsonGenerator, transition: List<JsonGroup>) {
-        transition.forEach {
-            when (it.type) {
-                JsonGroupType.END_OBJECT -> to.writeEndObject()
-                JsonGroupType.END_ARRAY -> to.writeEndArray()
-                JsonGroupType.START_OBJECT ->
-                    if (it.name != null)
-                        to.writeObjectFieldStart(it.name)
-                    else
-                        to.writeStartObject()
-                JsonGroupType.START_ARRAY ->
-                    if (it.name != null)
-                        to.writeArrayFieldStart(it.name)
-                    else
-                        to.writeStartArray()
+    private fun getFieldValue(field: JsonField, row: List<String>): String {
+        return if (field.value != null)
+                field.value
+            else if (field.useCurrentTime)
+                OffsetDateTime.now().toString()
+            else
+                row[field.column!!]
+    }
+
+    private fun writeTransition(to: JsonGenerator, field: JsonField, previousField: JsonField) {
+        var (ending, starting) = diff(previousField.base, field.base)
+        val isArrayTransition = ending.isNotEmpty() && starting.isNotEmpty()
+            && ending[0].endsWith(']') && starting[0].endsWith(']')
+            && ending[0].substringBefore('[') == starting[0].substringBefore('[')
+        for (index in (ending.size-1) downTo 0) {
+            val end = ending[index]
+            to.writeEndObject()
+            if (end.endsWith(']') && (!isArrayTransition || index != 0))
+                to.writeEndArray()
+        }
+        for (index in starting.indices) {
+            val start = starting[index]
+            if (start.endsWith(']') && index == 0 && isArrayTransition) {
+                to.writeStartObject()
+            } else if (start.endsWith(']')) {
+                to.writeArrayFieldStart(start.substringBefore('['))
+                to.writeStartObject()
+            } else {
+                to.writeObjectFieldStart(start)
             }
         }
     }
 
-    private fun writeField(to: JsonGenerator, field: JsonField, row: List<String>) {
-        val value = field.value
-            ?: if (field.useCurrentTime)
-                OffsetDateTime.now().toString()
-            else
-                row[field.column!!]
+    private fun diff(previousBase: String, currentBase: String): Pair<List<String>, List<String>> {
+        val previousSegs = if (previousBase.isNotEmpty()) previousBase.split('.') else emptyList()
+        val currentSegs = if (currentBase.isNotEmpty()) currentBase.split('.') else emptyList()
+        var i = 0
+        while (i < previousSegs.size && i < currentSegs.size && previousSegs[i] == currentSegs[i])
+            i += 1
+        return Pair(previousSegs.takeLast(previousSegs.size - i), currentSegs.takeLast(currentSegs.size - i))
+    }
 
-        if (value.isBlank()) return
-
+    private fun writeField(to: JsonGenerator, field: JsonField, value:String) {
         to.writeFieldName(field.name)
         when (field.element?.type) {
             Element.Type.DATE -> {

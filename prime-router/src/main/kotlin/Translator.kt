@@ -109,19 +109,22 @@ class Translator(private val metadata: Metadata) {
         val missing = mutableSetOf<String>()
 
         toSchema.elements.forEach { toElement ->
+            var isMissing = toElement.cardinality == Element.Cardinality.ONE
             fromSchema.findElement(toElement.name)?.let { matchedElement ->
                 useDirectly[toElement.name] = matchedElement.name
-                return@forEach
+                isMissing = false
             }
             toElement.mapper?.let {
                 val name = Mappers.parseMapperField(it).first
                 useMapper[toElement.name] = metadata.findMapper(name) ?: error("Mapper $name is not found")
-                return@forEach
+                isMissing = false
             }
-            if (toElement.cardinality == Element.Cardinality.ONE) {
-                missing.add(toElement.name)
-            } else {
+            if (toElement.hasDefaultValue(defaultValues)) {
                 useDefault[toElement.name] = toElement.defaultValue(defaultValues)
+                isMissing = false
+            }
+            if (isMissing) {
+                missing.add(toElement.name)
             }
         }
         return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)

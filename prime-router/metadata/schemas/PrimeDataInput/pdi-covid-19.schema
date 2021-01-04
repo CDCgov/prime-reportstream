@@ -21,6 +21,9 @@ elements:
   - name: patient_id
     csvFields: [{name: Patient_ID}]
 
+  - name: patient_id_type
+    default: PI
+
   - name: test_performed_code
     csvFields: [{name: Ordered_test_code}]
 
@@ -50,6 +53,7 @@ elements:
 
   # Optional until SimpleReport team provides this.
   - name: test_result_status
+    default: F
     csvFields: [{name: Test_result_status}]
 
   - name: test_result

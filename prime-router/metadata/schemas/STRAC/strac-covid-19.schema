@@ -19,7 +19,7 @@ elements:
     csvFields: [{name: Ordering_Facility_Name}]
 
   - name: ordering_facility_phone_number
-    csvFields: [{name: Ordering_Facility_Phone Number}]
+    csvFields: [{name: Ordering_Facility_Phone_Number}]
 
   - name: ordering_facility_street
     csvFields: [{name: Ordering_Facility_Address}]
@@ -133,6 +133,9 @@ elements:
 
   - name: ordered_test_system
 
+  - name: order_test_date
+    mapper: use(strac_patient_appt_datetime)
+
   - name: reference_range
     default: Not Detected
 
@@ -152,3 +155,6 @@ elements:
     mapper: use(reporting_facility_name)
 
   - name: abnormal_flag
+
+  - name: test_result_status
+    default: F
