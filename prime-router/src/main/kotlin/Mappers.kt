@@ -1,8 +1,6 @@
 package gov.cdc.prime.router
 
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
 
 /**
  * A *Mapper* is defined as a property of a schema element. It is used to create
@@ -103,7 +101,8 @@ class UseMapper : Mapper {
                     LocalDateTime.parse(fromValue, Element.datetimeFormatter).format(Element.dateFormatter)
                 }
                 element.type == Element.Type.TEXT -> fromValue
-                else -> null
+                // TODO: Unchecked conversions should probably be removed, but the PIMA schema relies on this, right now.
+                else -> fromValue
             }
         }
     }

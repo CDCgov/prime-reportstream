@@ -92,19 +92,19 @@ class RedoxSerializer(val metadata: Metadata) {
 
     private fun getFieldValue(field: JsonField, row: List<String>): String {
         return if (field.value != null)
-                field.value
-            else if (field.useCurrentTime)
-                OffsetDateTime.now().toString()
-            else
-                row[field.column!!]
+            field.value
+        else if (field.useCurrentTime)
+            OffsetDateTime.now().toString()
+        else
+            row[field.column!!]
     }
 
     private fun writeTransition(to: JsonGenerator, field: JsonField, previousField: JsonField) {
         var (ending, starting) = diff(previousField.base, field.base)
-        val isArrayTransition = ending.isNotEmpty() && starting.isNotEmpty()
-            && ending[0].endsWith(']') && starting[0].endsWith(']')
-            && ending[0].substringBefore('[') == starting[0].substringBefore('[')
-        for (index in (ending.size-1) downTo 0) {
+        val isArrayTransition = ending.isNotEmpty() && starting.isNotEmpty() &&
+            ending[0].endsWith(']') && starting[0].endsWith(']') &&
+            ending[0].substringBefore('[') == starting[0].substringBefore('[')
+        for (index in (ending.size - 1) downTo 0) {
             val end = ending[index]
             to.writeEndObject()
             if (end.endsWith(']') && (!isArrayTransition || index != 0))
@@ -132,7 +132,7 @@ class RedoxSerializer(val metadata: Metadata) {
         return Pair(previousSegs.takeLast(previousSegs.size - i), currentSegs.takeLast(currentSegs.size - i))
     }
 
-    private fun writeField(to: JsonGenerator, field: JsonField, value:String) {
+    private fun writeField(to: JsonGenerator, field: JsonField, value: String) {
         to.writeFieldName(field.name)
         when (field.element?.type) {
             Element.Type.DATE -> {

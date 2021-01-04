@@ -297,6 +297,10 @@ elements:
   - name: pregnant
     redoxOutputFields: [ "Orders[0].Results[1].Value" ]
 
+  - name: redox_pregnant_value_type
+    redoxOutputFields: [ "Orders[0].Results[1].ValueType" ]
+    mapper: ifPresent(pregnant, Coded Entry)
+
   - name: redox_pregnant_code
     redoxOutputFields: [ "Orders[0].Results[1].Code" ]
     mapper: ifPresent(pregnant, 82810-3)
@@ -316,6 +320,10 @@ elements:
 
   - name: illness_onset_date
     redoxOutputFields: [ "Orders[0].Results[2].Value" ]
+
+  - name: redox_illness_onset_date_value_type
+    redoxOutputFields: [ "Orders[0].Results[2].ValueType" ]
+    mapper: ifPresent(illness_onset_date, Date)
 
   - name: redox_illness_onset_date_code
     redoxOutputFields: [ "Orders[0].Results[2].Code" ]
@@ -337,6 +345,10 @@ elements:
   - name: employed_in_healthcare
     redoxOutputFields: [ "Orders[0].Results[3].Value" ]
 
+  - name: redox_employed_in_healthcare_value_type
+    redoxOutputFields: [ "Orders[0].Results[3].ValueType" ]
+    mapper: ifPresent(employed_in_healthcare, Coded Entry)
+
   - name: redox_employed_in_healthcare_code
     redoxOutputFields: [ "Orders[0].Results[3].Code" ]
     mapper: ifPresent(employed_in_healthcare, 95418-0)
@@ -357,6 +369,10 @@ elements:
   - name: first_test
     redoxOutputFields: [ "Orders[0].Results[4].Value" ]
 
+  - name: redox_first_test_value_type
+    redoxOutputFields: [ "Orders[0].Results[4].ValueType" ]
+    mapper: ifPresent(first_test, Coded Entry)
+
   - name: redox_first_test_code
     redoxOutputFields: [ "Orders[0].Results[4].Code" ]
     mapper: ifPresent(first_test, 95417-2)
@@ -375,6 +391,10 @@ elements:
 
   - name: hospitalized
     redoxOutputFields: [ "Orders[0].Results[5].Value" ]
+
+  - name: redox_hospitalized_value_type
+    redoxOutputFields: [ "Orders[0].Results[5].ValueType" ]
+    mapper: ifPresent(hospitalized, Coded Entry)
 
   - name: redox_hospitalized_code
     redoxOutputFields: [ "Orders[0].Results[5].Code" ]
@@ -396,6 +416,10 @@ elements:
   - name: icu
     redoxOutputFields: [ "Orders[0].Results[6].Value" ]
 
+  - name: redox_icu_value_type
+    redoxOutputFields: [ "Orders[0].Results[6].ValueType" ]
+    mapper: ifPresent(icu, Coded Entry)
+
   - name: redox_icu_code
     redoxOutputFields: [ "Orders[0].Results[6].Code" ]
     mapper: ifPresent(icu, 95420-6)
@@ -416,6 +440,10 @@ elements:
   - name: resident_congregate_setting
     redoxOutputFields: [ "Orders[0].Results[7].Value" ]
 
+  - name: redox_resident_congregate_setting_value_type
+    redoxOutputFields: [ "Orders[0].Results[7].ValueType" ]
+    mapper: ifPresent(resident_congregate_setting, Coded Entry)
+
   - name: redox_resident_congregate_setting_code
     redoxOutputFields: [ "Orders[0].Results[7].Code" ]
     mapper: ifPresent(resident_congregate_setting, 95421-4)
@@ -435,6 +463,10 @@ elements:
 
   - name: symptomatic_for_disease
     redoxOutputFields: [ "Orders[0].Results[8].Value" ]
+
+  - name: redox_symptomatic_for_disease_value_type
+    redoxOutputFields: [ "Orders[0].Results[8].ValueType" ]
+    mapper: ifPresent(symptomatic_for_disease, Coded Entry)
 
   - name: redox_symptomatic_for_disease_code
     redoxOutputFields: [ "Orders[0].Results[8].Code" ]

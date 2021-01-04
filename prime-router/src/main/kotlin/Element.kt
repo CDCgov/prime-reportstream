@@ -11,7 +11,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
-import kotlin.math.atan
 
 /**
  * An element is represents a data element (ie. a single logical value) that is contained in single row
@@ -70,7 +69,6 @@ data class Element(
 
     // Redox specific information
     val redoxOutputFields: List<String>? = null,
-    val redoxAOEQuestion: String? = null,
 
     /**
      * The header fields that correspond to an element.
@@ -190,7 +188,6 @@ data class Element(
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
             hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
             redoxOutputFields = this.redoxOutputFields ?: baseElement.redoxOutputFields,
-            redoxAOEQuestion = this.redoxAOEQuestion ?: baseElement.redoxAOEQuestion,
             documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
         )

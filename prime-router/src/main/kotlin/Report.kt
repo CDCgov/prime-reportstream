@@ -222,28 +222,36 @@ class Report {
 
     private fun buildColumnPass2(mapping: Translator.Mapping, toElement: Element, pass1Columns: List<StringColumn?>): StringColumn {
         val toSchema = mapping.toSchema
-        return if (toElement.name in mapping.useMapper) {
+        val fromSchema = mapping.fromSchema
+        val index = mapping.toSchema.findElementColumn(toElement.name)
+            ?: error("Schema Error: buildColumnPass2")
+        // pass1 put a null column for columns that should use a mapper
+        return if (pass1Columns[index] != null) {
+            pass1Columns[index]!!
+        } else {
             val mapper = mapping.useMapper[toElement.name]!!
-            val (_, args) = Mappers.parseMapperField(toElement.mapper
-                ?: error("'${toElement.mapper}' mapper is missing"))
+            val (_, args) = Mappers.parseMapperField(
+                toElement.mapper
+                    ?: error("'${toElement.mapper}' mapper is missing")
+            )
             val values = Array(table.rowCount()) { row ->
                 val inputValues = mapper.valueNames(toElement, args).mapNotNull { argName ->
-                    val element = toSchema.findElement(argName) ?: return@mapNotNull null
-                    val argColumnIndex = toSchema.findElementColumn(argName)
-                        ?: error("'$argName' is missing from '${toSchema.name}'")
-                    val column = pass1Columns[argColumnIndex] ?: return@mapNotNull null
-                    val value = column.get(row)
-                    if (value.isBlank()) return@mapNotNull null
+                    val element = toSchema.findElement(argName)
+                        ?: fromSchema.findElement(argName)
+                        ?: return@mapNotNull null
+                    var value = toSchema.findElementColumn(argName)?.let {
+                        val column = pass1Columns[it] ?: return@let null
+                        column.get(row)
+                    }
+                    if (value == null && fromSchema.containsElement(argName)) {
+                        value = table.getString(row, argName)
+                    }
+                    if (value == null || value.isBlank()) return@mapNotNull null
                     ElementAndValue(element, value)
                 }
                 mapper.apply(toElement, args, inputValues) ?: mapping.useDefault[toElement.name] ?: ""
             }
             return StringColumn.create(toElement.name, values.asList())
-        } else {
-            val index = mapping.toSchema.findElementColumn(toElement.name)
-                ?: error("Schema Error: buildColumnPass2")
-            pass1Columns[index]
-                ?: error("Schema Error: buildColumnPass2 missing pass1 value")
         }
     }
 
