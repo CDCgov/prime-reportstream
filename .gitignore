@@ -33,6 +33,7 @@ hs_err_pid*
 **/routed_files/*.csv
 Test.csv
 **/Xperiment.kt
+**/junk
 
 # Mac files
 .DS_Store

@@ -59,10 +59,16 @@ class FakeReport(val metadata: Metadata) {
                 when (element.name) {
                     "specimen_source_site_code" -> "71836000"
                     else -> {
-                        val valueSet = element.valueSetRef
-                            ?: error("ValueSet ${element.valueSet} is not available}")
-                        val possibleValues = valueSet.values.map { it.code }.toTypedArray()
-                        randomChoice(*possibleValues)
+                        if (! element.altValues.isNullOrEmpty()) {
+                            val possibleValues = element.altValues.map { it.code }.toTypedArray()
+                            randomChoice(*possibleValues)
+                        } else {
+                            // Preferentially use the altValues, if they exist.
+                            val valueSet = element.valueSetRef
+                                ?: error("ValueSet ${element.valueSet} is not available}")
+                            val possibleValues = valueSet.values.map { it.code }.toTypedArray()
+                            randomChoice(*possibleValues)
+                        }
                     }
                 }
             }

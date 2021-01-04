@@ -123,6 +123,12 @@ parse_prime_output_for_filename "$text" "/pima"
 actual_pima4=$filename
 compare_files "PIMA->PIMA" $actual_pima3 $actual_pima4
 
+# Directly generate Fake Pima data.   I encountered errors just doing this, so I'm adding a test here.
+echo Generating fake Pima data
+text=$(./prime --input_fake 50 --input_schema az/pima-az-covid-19 --output_dir $outputdir)
+parse_prime_output_for_filename "$text" "/pima"
+fake_pima=$filename
+
 # Uncomment once the FL schemas are ready for prime time.
 # FLORIDA, MAN
 #echo Generate fake FL data
