@@ -50,6 +50,7 @@ class FakeReport(val metadata: Metadata) {
                     else -> faker.lorem().characters(5, 10)
                 }
             }
+            Element.Type.BLANK -> ""
             Element.Type.TEXT_OR_BLANK -> randomChoice("", faker.lorem().characters(5, 10))
             Element.Type.NUMBER -> faker.number().numberBetween(1, 10).toString()
             Element.Type.DATE -> {

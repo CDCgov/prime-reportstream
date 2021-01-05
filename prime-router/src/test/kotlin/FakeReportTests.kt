@@ -22,9 +22,20 @@ internal class FakeReportTests {
                 Element("postal_code", type = Element.Type.POSTAL_CODE),
                 Element("patient_ssn", type = Element.Type.ID_SSN),
                 Element("default_date", type = Element.Type.DATE),
+                Element("blank_column", type = Element.Type.BLANK)
             )
         )
     )
+
+    @Test
+    fun `test blank column is blank`() {
+        val blankColumn = metadata
+            .findSchema("test")
+            ?.findElement("blank_column")
+            ?: fail("Lookup failure: blank_column")
+        val fakeValue = FakeReport(metadata).buildColumn(blankColumn, rowContext)
+        assertEquals("", fakeValue, "Expected a blank column but received '$fakeValue' instead")
+    }
 
     @Test
     fun `test a coded fake`() {

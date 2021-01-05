@@ -111,6 +111,7 @@ data class Element(
         PERSON_NAME,
         TELEPHONE,
         EMAIL,
+        BLANK,
     }
 
     data class CsvField(
@@ -159,7 +160,10 @@ data class Element(
 
     val isOptional get() = this.cardinality == Cardinality.ZERO_OR_ONE
 
-    val canBeBlank get() = type == Type.TEXT_OR_BLANK || type == Type.STREET_OR_BLANK || type == Type.TABLE_OR_BLANK
+    val canBeBlank get() = type == Type.TEXT_OR_BLANK ||
+        type == Type.STREET_OR_BLANK ||
+        type == Type.TABLE_OR_BLANK ||
+        type == Type.BLANK
 
     fun inheritFrom(baseElement: Element): Element {
         return Element(
@@ -214,6 +218,8 @@ data class Element(
     ): String {
         if (normalizedValue.isEmpty()) return ""
         return when (type) {
+            // sometimes you just need to send through an empty column
+            Type.BLANK -> ""
             Type.DATE -> {
                 if (format != null) {
                     val formatter = DateTimeFormatter.ofPattern(format)
@@ -431,6 +437,7 @@ data class Element(
     fun toNormalized(formattedValue: String, format: String? = null): String {
         if (formattedValue.isEmpty()) return ""
         return when (type) {
+            Type.BLANK -> ""
             Type.DATE -> {
                 val normalDate = try {
                     LocalDate.parse(formattedValue)
