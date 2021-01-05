@@ -229,17 +229,20 @@ class Hl7Converter(val metadata: Metadata) {
 
     private fun createHeaders(report: Report): String {
         val sendingApp = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
+        val sendingFacility = formatHD(Element.parseHD(report.getString(0, "sending_facility") ?: ""))
         val receivingApp = formatHD(Element.parseHD(report.getString(0, "receiving_application") ?: ""))
         val receivingFacility = formatHD(Element.parseHD(report.getString(0, "receiving_facility") ?: ""))
 
         return "FHS|^~\\&|" +
             "$sendingApp|" +
+            "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
             nowTimestamp() +
             "\r" +
             "BHS|^~\\&|" +
             "$sendingApp|" +
+            "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
             nowTimestamp() +

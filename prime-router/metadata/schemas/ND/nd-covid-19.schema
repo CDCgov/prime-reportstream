@@ -9,7 +9,9 @@ elements:
     # msh section
     - name: sending_application
 
-    # todo: need sending facility
+    # todo: need sending facility, for now the same as the application
+    - name: sending_facility
+
     - name: reporting_facility_name
 
     - name: reporting_facility_clia

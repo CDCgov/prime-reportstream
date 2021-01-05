@@ -751,6 +751,13 @@ elements:
     natFlatFileField:
     hl7Field: MSH-3
 
+  - name: sending_facility
+    type: HD
+    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
+    default: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
+    natFlatFileField:
+    hl7Field: MSH-4
+
   - name: specimen_collection_site # collection location
     type: TEXT # CWE without a defined table
     hl7Field: SPM-10
