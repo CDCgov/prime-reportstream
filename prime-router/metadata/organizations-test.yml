@@ -65,6 +65,16 @@
           timeZone: ARIZONA
         format: CSV
 
+  - name: fl-phd
+    description: Florida Department of Health
+    services:
+      - name: elr
+        topic: covid-19
+        schema: fl/fl-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
+        transforms: { deidentify: false }
+        format: CSV
+
   #
   # Developer test organizations
   #
