@@ -30,7 +30,7 @@ class Report {
     val id: ReportId
 
     /**
-     * The schema of the data in the resport
+     * The schema of the data in the report
      */
     val schema: Schema
 
@@ -216,10 +216,16 @@ class Report {
         val args = Mappers.parseMapperField(toElement.mapper ?: error("mapper is missing")).second
         val values = Array(table.rowCount()) { row ->
             val inputValues = mapper.valueNames(toElement, args).mapNotNull { elementName ->
-                val value = table.getString(row, elementName)
-                if (value.isBlank()) return@mapNotNull null
                 val element = schema.findElement(elementName) ?: return@mapNotNull null
-                ElementAndValue(element, value)
+                val columnsNames = table.columnNames()
+                if (!columnsNames.contains(elementName)) {
+                    // return an empty string for the mapper
+                    ElementAndValue(element, "")
+                } else {
+                    val value = table.getString(row, elementName)
+                    if (value.isBlank()) return@mapNotNull null
+                    ElementAndValue(element, value)
+                }
             }
             mapper.apply(toElement, args, inputValues) ?: toElement.default ?: ""
         }

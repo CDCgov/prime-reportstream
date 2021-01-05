@@ -308,3 +308,38 @@
       display: Production
     - code: T
       display: Training
+
+- name: site_of_care
+  system: SNOMED_CT
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  values:
+      -   display: Hospital
+          code: 22232009
+      -   display: Long Term Care Hospital
+          code: 32074000
+      -   display: Secure Hospital
+          code: 224929004
+      -   display: Nursing Home
+          code: 42665001
+      -   display: Retirement Home
+          code: 30629002
+      -   display: Orphanage
+          code: 74056004
+      -   display: Prison-based care site
+          code: 722173008
+      -   display: Substance Abuse Treatment Center
+          code: 20078004
+      -   display: Boarding House
+          code: 257573002
+      -   display: Military Accommodation
+          code: 224683003
+      -   display: Hospice
+          code: 284546000
+      -   display: Hostel
+          code: 257628001
+      -   display: Sheltered Housing
+          code: 310207003
+      -   display: Penal Institution
+          code: 57656006
+      -   display: Homeless
+          code: 32911000
