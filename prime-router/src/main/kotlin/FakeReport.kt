@@ -132,7 +132,7 @@ class FakeReport(val metadata: Metadata) {
             }
             Element.Type.TELEPHONE -> {
                 val csvField = element.csvFields?.get(0)
-                val phoneNumberFormat = csvField?.format ?: "##########:1:"
+                val phoneNumberFormat = csvField?.format ?: "2#########:1:"
                 faker.numerify(phoneNumberFormat)
             }
             Element.Type.EMAIL -> "${context.patientName.username()}@email.com"
