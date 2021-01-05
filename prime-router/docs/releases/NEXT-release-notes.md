@@ -22,3 +22,6 @@ Hub is now ready to accept these fields, currently listed as optional:
 
 Note: the data dictionary for SimpleReport csv data sent to the hub is here: [Simple Report Schema](../schema_documentation/primedatainput-pdi-covid-19.md)
 
+## Outgoing Data
+
+Hub now sends HL7 data to AZ TEST site (only).   This data will be identical to the .csv data sent to TEST, but in HL7 instead of CSV format, so they can be compared.   Note:  currently this data is not 'batched', so there is no delay - it will be sent as soon as its sent by simplereport.

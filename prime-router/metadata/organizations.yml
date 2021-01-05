@@ -26,6 +26,14 @@
           initialBatch: 00:00
           timeZone: ARIZONA
         format: CSV
+      - name: elr-hl7-test
+        topic: covid-19
+        schema: az/az-covid-19-hl7
+        jurisdictionalFilter:
+          - matches(ordering_facility_state,AZ)
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains)"
+        transforms: { deidentify: false }
+        format: HL7
       - name: elr-prod
         topic: covid-19
         schema: az/az-covid-19
