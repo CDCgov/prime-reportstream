@@ -44,8 +44,8 @@ class SimpleReportTests {
         val fileSource = FileSource(filePath)
         val readResult = csvConverter.read(schema.name, file.inputStream(), fileSource)
         assertTrue(readResult.errors.isEmpty())
-// I removed this test, as the SimpleReport parsing does return an empty column warning.
-//        assertTrue(readResult.warnings.isEmpty())
+        // I removed this test- at this time, the SimpleReport parsing does return an empty column warning.
+        //        assertTrue(readResult.warnings.isEmpty())
         val inputReport = readResult.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
         val outputReports = Translator(metadata).filterAndTranslateByService(inputReport)
@@ -64,6 +64,26 @@ class SimpleReportTests {
             outputFiles.add(Pair(reportFile, orgSvc))
         }
         return outputFiles
+    }
+
+    fun createFakeFile(schemaName: String, numRows: Int): File {
+        val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
+        // 1) Create the fake file
+        val fakeReport = FakeReport(metadata).build(
+            schema,
+            numRows,
+            FileSource("fake") // not really used
+        )
+        val fakeReportFileName = Report.formFileName(
+            fakeReport.id,
+            fakeReport.schema.baseName,
+            OrganizationService.Format.CSV,
+            fakeReport.createdDateTime
+        )
+        val fakeReportFile = File(outputPath, fakeReportFileName)
+        csvConverter.write(fakeReport, fakeReportFile.outputStream())
+        assertTrue(fakeReportFile.exists())
+        return fakeReportFile
     }
 
     /**
@@ -106,34 +126,35 @@ class SimpleReportTests {
 
     @Test
     fun `test fake simplereport data`() {
-        // 1) Create some fake data
         val schemaName = "primedatainput/pdi-covid-19"
-        val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
-        // 1) Create the fake file
-        val fakeReport = FakeReport(metadata).build(
-            schema,
-            100,
-            FileSource("fake") // not really used
-        )
-        val fakeReportFileName = Report.formFileName(
-            fakeReport.id,
-            fakeReport.schema.baseName,
-            OrganizationService.Format.CSV,
-            fakeReport.createdDateTime
-        )
-        val fakeReportFile = File(outputPath, fakeReportFileName)
-        csvConverter.write(fakeReport, fakeReportFile.outputStream())
-        assertTrue(fakeReportFile.exists())
+        val fakeReportFile = createFakeFile(schemaName, 100)
+        // Run the data thru its own schema and back out again
+        val fakeReportFile2 = readAndWrite(fakeReportFile.absolutePath, schemaName)
+        compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
+    }
 
-        // 2) Now read it back into its own schema
-        val fakeReportFile2 = readAndWrite(fakeReportFile.absolutePath, "primedatainput/pdi-covid-19")
+    @Test
+    fun `test fake pima data`() {
+        val schemaName = "az/pima-az-covid-19"
+        val fakeReportFile = createFakeFile(schemaName, 100)
+        // Run the data thru its own schema and back out again
+        val fakeReportFile2 = readAndWrite(fakeReportFile.absolutePath, schemaName)
+        compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
+    }
+
+//    @Test
+    fun `test fake FL data`() {
+        val schemaName = "fl/fl-covid-19"
+        val fakeReportFile = createFakeFile(schemaName, 100)
+        // Run the data thru its own schema and back out again
+        val fakeReportFile2 = readAndWrite(fakeReportFile.absolutePath, schemaName)
         compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
     }
 
     private fun compareTestResultsToExpectedResults(testFile: File, expectedResultsFile: File) {
+        println("SimpleReportTests: diff'ing actual vs expected: ${testFile.absolutePath}    ${expectedResultsFile.absolutePath}")
         assertTrue(testFile.exists())
         assertTrue(expectedResultsFile.exists())
-        println("SimpleReportTests: diff'ing actual vs expected: ${testFile.absolutePath}    ${expectedResultsFile.absolutePath}")
         // A bit of a hack:  diff the two files.
         val testFileLines = testFile.readLines()
         val expectedResultsLines = expectedResultsFile.readLines()
