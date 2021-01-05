@@ -20704,7 +20704,7 @@
                   </td>
                   <td data-title="File">
                     <span>
-                      <a th:href="@{http://localhost:7071/api/download(file=${result.file})}">Download CSV</a>
+                      <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download CSV</a>
                     </span>
                   </td>
                 </tr>
@@ -20744,7 +20744,7 @@
                   </td>
                   <td data-title="File">
                     <span>
-                        <a th:href="@{http://localhost:7071/api/download(file=${result.file})}">Download CSV</a>
+                        <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download CSV</a>
                     </span>
                   </td>
                 </tr>
@@ -20796,8 +20796,6 @@
       >
         <div class="usa-identifier__container">
           <div class="usa-identifier__usagov-description">
-            <strong>PRIME Data Hub support</strong> &nbsp;(555) 867-5309 |
-            email@email.com
           </div>
         </div>
       </section>

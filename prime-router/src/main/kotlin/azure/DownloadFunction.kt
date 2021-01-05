@@ -41,7 +41,7 @@ class DownloadFunction {
         @HttpTrigger(
             name = "req",
             methods = [HttpMethod.GET],
-            authLevel = AuthorizationLevel.FUNCTION
+            authLevel = AuthorizationLevel.ANONYMOUS
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         if (checkAuthenticated(request)) {
@@ -62,7 +62,7 @@ class DownloadFunction {
             "OKTA_baseUrl" to System.getenv("OKTA_baseUrl"),
             "OKTA_clientId" to System.getenv("OKTA_clientId"),
             "OKTA_redirect" to request.uri.toString()
-        );
+        )
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)
         var response = request.createResponseBuilder(HttpStatus.OK)
@@ -134,7 +134,7 @@ class DownloadFunction {
     private fun responseFile(request: HttpRequestMessage<String?>, fileName: String): HttpResponseMessage {
         val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(ReportId.fromString(fileName))
         var response: HttpResponseMessage
-        try{
+        try {
             val body = WorkflowEngine().readBody(header)
             response = request
                 .createResponseBuilder(HttpStatus.OK)
@@ -142,9 +142,8 @@ class DownloadFunction {
                 .header("Content-Disposition", "attachment; filename=test-results.csv")
                 .body(body)
                 .build()
-        }
-        catch( ex: Exception ){
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
+        } catch (ex: Exception) {
+            response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
         }
 
         return response
