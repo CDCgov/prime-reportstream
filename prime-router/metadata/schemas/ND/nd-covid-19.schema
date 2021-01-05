@@ -1,7 +1,113 @@
 ---
 name: nd-covid-19
 description: ND COVID-19
+referenceUrl: https://www.health.nd.gov/sites/www/files/documents/Files/MSS/MU/ELR_CondensedSpec.pdf
 topic: covid-19
 trackingElement: message_id
 basedOn: covid-19
 elements:
+    # msh section
+    - name: sending_application
+
+    # todo: need sending facility
+    - name: reporting_facility_name
+
+    - name: reporting_facility_clia
+
+    - name: receiving_application
+
+    - name: receiving_facility
+
+    # pid section
+    - name: patient_last_name
+
+    - name: patient_first_name
+
+    - name: patient_middle_name
+
+    - name: patient_dob
+
+    - name: patient_gender
+
+    - name: patient_race
+
+    - name: patient_street
+
+    - name: patient_street2
+
+    - name: patient_city
+
+    - name: patient_state
+
+    - name: patient_zip_code
+
+    - name: patient_phone_number
+
+    # orc section
+    - name: ordering_facility_name
+
+    - name: ordering_facility_street
+
+    - name: ordering_facility_street2
+
+    - name: ordering_facility_city
+
+    - name: ordering_facility_state
+
+    - name: ordering_facility_zip_code
+
+    - name: ordering_provider_street
+
+    - name: ordering_provider_street2
+
+    - name: ordering_provider_city
+
+    - name: ordering_provider_state
+
+    - name: ordering_provider_zip_code
+
+    # obr section
+    - name: filler_order_id
+
+    # todo: universal service identifier
+
+    # todo: observation date time
+
+    # todo: specimen source
+
+    # todo: ordering provider
+
+    # todo: result status
+
+    # obx section
+    # todo: value type
+
+    # todo: observation identifier
+
+    # todo: observation sub id
+    # todo: observation value
+    # todo: observation result status
+    # todo: date time of the observation
+    # todo: producers reference
+
+    # spm section
+    # todo: need specimen id
+
+    - name: specimen_type
+
+    # todo: need specimen collection method
+
+    - name: specimen_source_site_code
+
+    # todo: need specimen description
+
+    - name: specimen_collection_date_time
+
+    - name: specimen_received_date_time
+
+    # nte section
+    # todo: need source of comment
+
+    - name: comment
+
+    # todo: need comment type
