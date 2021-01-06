@@ -28,7 +28,7 @@
         format: CSV
         transports:
         - type: SFTP
-          host: prime-data-hub-test.eastus.azurecontainer.io
+          host: 10.0.2.4
           port: 22
           filePath: ./upload
       - name: elr-prod
@@ -46,7 +46,7 @@
         format: CSV
         transports:
           - type: SFTP
-            host: prime-data-hub-test.eastus.azurecontainer.io
+            host: 10.0.2.4
             port: 22
             filePath: ./upload
 
