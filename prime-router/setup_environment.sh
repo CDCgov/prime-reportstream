@@ -18,16 +18,17 @@ then
     exit 1
 fi
 
-# Set resource group
+# Set resource group and resource prefix
 if [[ "$prime_dev_name" =~ (test|prod) ]]
 then
     resource_group="prime-data-hub-$prime_dev_name"
+    PREFIX="pdh"$prime_dev_name
 else
     resource_group="prime-dev-$prime_dev_name"
+    PREFIX="pdh"
 fi
 
 # Set variables
-PREFIX="pdh"$prime_dev_name
 vnet_name=$PREFIX"-vnet"
 nsg_public=$PREFIX"-nsg.public"
 nsg_private=$PREFIX"-nsg.private"
