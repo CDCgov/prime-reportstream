@@ -1,41 +1,36 @@
 package gov.cdc.prime.router.transport
 
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
-import gov.cdc.prime.router.azure.DatabaseAccess
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
+import java.io.IOException
 import java.io.InputStream
 
 class SftpTransport : ITransport {
-
     override fun send(
         orgName: String,
         transportType: TransportType,
-        header: DatabaseAccess.Header,
-        contents: ByteArray
-    ): Boolean {
+        contents: ByteArray,
+        reportId: ReportId,
+        retryItems: RetryItems?
+    ): RetryItems? {
+        return try {
+            val sftpTransportType = transportType as SFTPTransportType
 
-        val sftpTransportType = transportType as SFTPTransportType
+            val (user, pass) = lookupCredentials(orgName)
 
-        val (user, pass) = lookupCredentials(orgName)
+            val fileName = "${orgName.replace('.', '-')}-$reportId.csv"
+            val host: String = sftpTransportType.host
+            val port: String = sftpTransportType.port
 
-        val fileName = "${orgName.replace('.', '-')}-${header.task.reportId}.csv"
-        val host: String = sftpTransportType.host
-        val port: String = sftpTransportType.port
-
-        var success: Boolean
-        try {
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents)
-            success = true
-        } catch (e: Exception) {
-
-            success = false
-            System.out.println(e)
-        }
-
-        return success
+            null
+        } catch (ioException: IOException) {
+            RetryToken.allItems
+        } // let non-IO exceptions be caught by the caller
     }
 
     private fun lookupCredentials(orgName: String): Pair<String, String> {
@@ -45,7 +40,7 @@ class SftpTransport : ITransport {
         val user = System.getenv("${envVarLabel}__USER") ?: ""
         val pass = System.getenv("${envVarLabel}__PASS") ?: ""
 
-        if (user.isNullOrBlank() || pass.isNullOrBlank())
+        if (user.isBlank() || pass.isBlank())
             error("Unable to find SFTP credentials for $orgName")
 
         return Pair(user, pass)

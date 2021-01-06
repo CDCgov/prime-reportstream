@@ -1,14 +1,18 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ValueSet
 import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.util.Properties
 
-class Hl7Converter(val metadata: Metadata) {
+class Hl7Serializer(val metadata: Metadata) {
     private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
     private val softwareProductName = "PRIME Data Hub"
 
@@ -58,12 +62,16 @@ class Hl7Converter(val metadata: Metadata) {
                     setComponent(terser, element, hl7Field, value)
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER) {
-                val units = report.getString(row, "${element.name}_units")
-                val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                setAOE(terser, element, aoeSequence++, date, value, units)
+                if (value.isNotBlank()) {
+                    val units = report.getString(row, "${element.name}_units")
+                    val date = report.getString(row, "specimen_collection_date_time") ?: ""
+                    setAOE(terser, element, aoeSequence++, date, value, units)
+                }
             } else if (element.hl7Field == "AOE") {
-                val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                setAOE(terser, element, aoeSequence++, date, value)
+                if (value.isNotBlank()) {
+                    val date = report.getString(row, "specimen_collection_date_time") ?: ""
+                    setAOE(terser, element, aoeSequence++, date, value)
+                }
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field != null) {

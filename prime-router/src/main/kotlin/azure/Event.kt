@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -12,14 +13,17 @@ import java.util.UUID
 const val messageDelimiter = "&"
 
 abstract class Event(val action: Action, val at: OffsetDateTime?) {
-    abstract fun toMessage(): String
+    abstract fun toQueueMessage(): String
 
     enum class Action {
-        TRANSLATE,
+        TRANSLATE, // Deprecated
         BATCH,
         SEND,
         WIPE,
-        NONE;
+        NONE,
+        BATCH_ERROR,
+        SEND_ERROR,
+        WIPE_ERROR;
 
         fun toTaskAction(): TaskAction {
             return when (this) {
@@ -28,17 +32,33 @@ abstract class Event(val action: Action, val at: OffsetDateTime?) {
                 SEND -> TaskAction.send
                 WIPE -> TaskAction.wipe
                 NONE -> TaskAction.none
+                BATCH_ERROR -> TaskAction.batch_error
+                SEND_ERROR -> TaskAction.send_error
+                WIPE_ERROR -> TaskAction.wipe_error
+            }
+        }
+
+        fun toQueueName(): String? {
+            return when (this) {
+                TRANSLATE,
+                BATCH,
+                SEND,
+                WIPE -> this.toString().toLowerCase()
+                else -> null
             }
         }
 
         companion object {
-            fun parse(action: String): Action {
+            fun parseQueueMessage(action: String): Action {
                 return when (action.toLowerCase()) {
                     "translate" -> TRANSLATE
                     "batch" -> BATCH
                     "send" -> SEND
                     "wipe" -> WIPE
                     "none" -> NONE
+                    "batch_error" -> BATCH_ERROR
+                    "send_error" -> SEND_ERROR
+                    "wipe_error" -> WIPE_ERROR
                     else -> error("Internal Error: $action does not match known action names")
                 }
             }
@@ -46,10 +66,10 @@ abstract class Event(val action: Action, val at: OffsetDateTime?) {
     }
 
     companion object {
-        fun parse(event: String): Event {
+        fun parseQueueMessage(event: String): Event {
             val parts = event.split(messageDelimiter)
             if (parts.size < 3 || parts.size > 4) error("Internal Error: bad event format")
-            val action = Action.parse(parts[1])
+            val action = Action.parseQueueMessage(parts[1])
             val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
             return when (parts[0]) {
                 ReportEvent.eventType -> {
@@ -65,8 +85,14 @@ abstract class Event(val action: Action, val at: OffsetDateTime?) {
     }
 }
 
-class ReportEvent(action: Action, val reportId: UUID, at: OffsetDateTime? = null) : Event(action, at) {
-    override fun toMessage(): String {
+class ReportEvent(
+    action: Action,
+    val reportId: UUID,
+    at: OffsetDateTime? = null,
+    val retryToken: RetryToken? = null
+) : Event(action, at) {
+
+    override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
         return "$eventType$messageDelimiter$action$messageDelimiter$reportId$afterClause"
     }
@@ -75,7 +101,8 @@ class ReportEvent(action: Action, val reportId: UUID, at: OffsetDateTime? = null
         return other is ReportEvent &&
             action == other.action &&
             reportId == other.reportId &&
-            at == other.at
+            at == other.at &&
+            retryToken == other.retryToken
     }
 
     companion object {
@@ -84,7 +111,7 @@ class ReportEvent(action: Action, val reportId: UUID, at: OffsetDateTime? = null
 }
 
 class ReceiverEvent(action: Action, val receiverName: String, at: OffsetDateTime? = null) : Event(action, at) {
-    override fun toMessage(): String {
+    override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
         return "$eventType$messageDelimiter$action$messageDelimiter$receiverName$afterClause"
     }

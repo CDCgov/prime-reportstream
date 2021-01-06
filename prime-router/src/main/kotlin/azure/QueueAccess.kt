@@ -13,9 +13,8 @@ class QueueAccess {
     val timeToLiveDays = 7L
 
     fun sendMessage(event: Event) {
-        if (event.action == Event.Action.NONE) return
-        val queueName = event.action.toString().toLowerCase()
-        val base64Message = String(Base64.getEncoder().encode(event.toMessage().toByteArray()))
+        val queueName = event.action.toQueueName() ?: return
+        val base64Message = String(Base64.getEncoder().encode(event.toQueueMessage().toByteArray()))
         val invisibleDuration = Duration.between(OffsetDateTime.now(), event.at ?: OffsetDateTime.now())
         val timeToLive = invisibleDuration.plusDays(timeToLiveDays)
         createQueueClient(queueName).sendMessageWithResponse(
@@ -29,7 +28,7 @@ class QueueAccess {
 
     fun receiveMessage(queueName: String): Event {
         val message = createQueueClient(queueName).receiveMessage().messageText
-        return Event.parse(message)
+        return Event.parseQueueMessage(message)
     }
 
     private fun createQueueClient(name: String): QueueClient {

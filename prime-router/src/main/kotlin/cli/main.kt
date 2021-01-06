@@ -9,16 +9,17 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.CsvConverter
 import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Hl7Converter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -46,6 +47,7 @@ class RouterCli : CliktCommand(
     private val route by option("--route", help = "route to receivers lists").flag(default = false)
     private val list by option("--list", help = "list all schemas.  Ignores other parameters").flag(default = false)
     private val send by option("--send", help = "send to a receiver if specified").flag(default = false)
+    private val routeTo by option("--route_to", help = "route a receiver")
 
     private val outputFileName by option("--output", help = "<file> not compatible with route or partition")
     private val outputDir by option("--output_dir", help = "<directory>")
@@ -180,8 +182,9 @@ class RouterCli : CliktCommand(
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
-        val csvConverter = CsvConverter(metadata)
-        val hl7Converter = Hl7Converter(metadata)
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata)
+        val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
 
         if (list) {
@@ -201,7 +204,7 @@ class RouterCli : CliktCommand(
         val inputReport: Report = when (inputSource) {
             is InputSource.FileSource -> {
                 readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
-                    val result = CsvConverter(metadata).read(schema.name, stream, FileSource(name))
+                    val result = csvSerializer.read(schema.name, stream, FileSource(name))
                     if (result.report == null) {
                         error(result.errorsToString())
                     }
@@ -236,9 +239,16 @@ class RouterCli : CliktCommand(
                 translator
                     .filterAndTranslateByService(inputReport)
                     .map { it.first to it.second.format }
+            routeTo != null -> {
+                val pair = translator.translate(input = inputReport, toService = routeTo!!)
+                if (pair != null) listOf(Pair(pair.first, pair.second.format)) else emptyList()
+            }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
                 val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())
+                if (mapping.missing.isNotEmpty()) {
+                    error("Error: When translating to $'${toSchema.name} missing fields for ${mapping.missing.joinToString(", ")}")
+                }
                 val toReport = inputReport.applyMapping(mapping)
                 listOf(Pair(toReport, outputFormat))
             }
@@ -248,8 +258,9 @@ class RouterCli : CliktCommand(
         // Output reports
         writeReportsToFile(outputReports) { report, format, stream ->
             when (format) {
-                OrganizationService.Format.CSV -> csvConverter.write(report, stream)
-                OrganizationService.Format.HL7 -> hl7Converter.write(report, stream)
+                OrganizationService.Format.CSV -> csvSerializer.write(report, stream)
+                OrganizationService.Format.HL7 -> hl7Serializer.write(report, stream)
+                OrganizationService.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
     }

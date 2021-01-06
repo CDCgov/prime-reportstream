@@ -43,7 +43,30 @@ data class Schema(
     val extendsRef: Schema? = null,
     val basedOn: String? = null,
     val basedOnRef: Schema? = null,
+
 ) {
+    constructor(
+        vararg varElements: Element,
+        name: String,
+        topic: String,
+        trackingElement: String? = null, // the element to use for tracking this test
+        description: String? = null,
+        referenceUrl: String? = null,
+        extends: String? = null,
+        basedOn: String? = null,
+    ) : this(
+        name = name,
+        topic = topic,
+        elements = varElements.toList(),
+        trackingElement = trackingElement,
+        description = description,
+        referenceUrl = referenceUrl,
+        extends = extends,
+        extendsRef = null,
+        basedOn = basedOn,
+        basedOnRef = null,
+    )
+
     val baseName: String get() = formBaseName(name)
     val csvFields: List<Element.CsvField> get() = elements.flatMap { it.csvFields ?: emptyList() }
 

@@ -1,7 +1,16 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.serializers
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ElementAndValue
+import gov.cdc.prime.router.Mapper
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Source
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -16,7 +25,7 @@ import java.io.OutputStream
  * | FOO_OR_BLANK | 1..1        | mapper -> default -> error           | empty                                | error               | value             |
  *
  */
-class CsvConverter(val metadata: Metadata) {
+class CsvSerializer(val metadata: Metadata) {
     private data class CsvMapping(
         val useCsv: Map<String, List<Element.CsvField>>,
         val useMapper: Map<String, Pair<Mapper, List<String>>>,

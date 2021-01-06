@@ -32,7 +32,7 @@ class TranslatorTests {
         assertEquals(two, oneToTwo.toSchema)
         assertEquals(1, oneToTwo.useDirectly.size)
         assertEquals("a", oneToTwo.useDirectly["a"])
-        assertEquals(true, oneToTwo.useDefault.contains("b"))
+        assertEquals(false, oneToTwo.useDefault.contains("b"))
         assertEquals(0, oneToTwo.missing.size)
 
         val twoToOne = translator.buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap())

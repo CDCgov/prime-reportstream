@@ -176,7 +176,7 @@ class ReportFunction {
         return when (client.format) {
             OrganizationClient.Format.CSV -> {
                 try {
-                    val readResult = engine.csvConverter.read(
+                    val readResult = engine.csvSerializer.read(
                         schemaName = client.schema,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = client.organization.name, client = client.name)),
@@ -242,7 +242,7 @@ class ReportFunction {
             }
         }
         workflowEngine.dispatchReport(event, report, txn)
-        context.logger.info("Queue: ${event.toMessage()}")
+        context.logger.info("Queue: ${event.toQueueMessage()}")
     }
 
     private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {

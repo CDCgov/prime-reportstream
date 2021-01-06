@@ -26,10 +26,10 @@ class BatchFunction {
         try {
             context.logger.info("Batch message: $message")
             val workflowEngine = WorkflowEngine()
-            val event = Event.parse(message) as ReceiverEvent
+            val event = Event.parseQueueMessage(message) as ReceiverEvent
             val receiver = workflowEngine.metadata.findService(event.receiverName)
                 ?: error("Internal Error: receiver name ${event.receiverName}")
-            val maxBatchSize = receiver.batch?.maxBatchSize ?: defaultBatchSize
+            val maxBatchSize = receiver.batch?.maxReportCount ?: defaultBatchSize
 
             workflowEngine.handleReceiverEvent(event, maxBatchSize) { headers, txn ->
                 if (headers.isEmpty()) {
@@ -47,7 +47,7 @@ class BatchFunction {
                     val outReport = it.copy(destination = receiver)
                     val outEvent = ReportEvent(Event.Action.SEND, outReport.id)
                     workflowEngine.dispatchReport(outEvent, outReport, txn)
-                    context.logger.info("Batch: queued to send ${outEvent.toMessage()}")
+                    context.logger.info("Batch: queued to send ${outEvent.toQueueMessage()}")
                 }
             }
         } catch (e: Exception) {

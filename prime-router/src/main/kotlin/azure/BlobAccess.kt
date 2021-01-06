@@ -4,16 +4,21 @@ import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClientBuilder
-import gov.cdc.prime.router.CsvConverter
-import gov.cdc.prime.router.Hl7Converter
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 const val blobContainerName = "reports"
 
-class BlobAccess(private val csvConverter: CsvConverter, private val hl7Converter: Hl7Converter) {
+class BlobAccess(
+    private val csvSerializer: CsvSerializer,
+    private val hl7Serializer: Hl7Serializer,
+    private val redoxSerializer: RedoxSerializer
+) {
     fun uploadBody(report: Report): Pair<String, String> {
         val (bodyFormat, blobBytes) = createBodyBytes(report)
         val blobUrl = uploadBlob(report.name, blobBytes)
@@ -23,8 +28,9 @@ class BlobAccess(private val csvConverter: CsvConverter, private val hl7Converte
     private fun createBodyBytes(report: Report): Pair<String, ByteArray> {
         val outputStream = ByteArrayOutputStream()
         when (getBodyFormat(report)) {
-            OrganizationService.Format.HL7 -> hl7Converter.write(report, outputStream)
-            OrganizationService.Format.CSV -> csvConverter.write(report, outputStream)
+            OrganizationService.Format.HL7 -> hl7Serializer.write(report, outputStream)
+            OrganizationService.Format.CSV -> csvSerializer.write(report, outputStream)
+            OrganizationService.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }
         return Pair(getBodyFormat(report).toString(), outputStream.toByteArray())
     }

@@ -18,6 +18,7 @@ import org.flywaydb.core.Flyway
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.Field
+import org.jooq.JSON
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.postgresql.Driver
@@ -192,6 +193,7 @@ class DatabaseAccess(private val create: DSLContext) {
         currentAction: Event.Action,
         nextAction: Event.Action,
         nextActionAt: OffsetDateTime? = null,
+        retryToken: String? = null,
         txn: DataAccessTransaction,
     ) {
         fun finishedField(currentAction: Event.Action): Field<OffsetDateTime> {
@@ -200,6 +202,7 @@ class DatabaseAccess(private val create: DSLContext) {
                 Event.Action.BATCH -> TASK.BATCHED_AT
                 Event.Action.SEND -> TASK.SENT_AT
                 Event.Action.WIPE -> TASK.WIPED_AT
+                Event.Action.BATCH_ERROR, Event.Action.SEND_ERROR, Event.Action.WIPE_ERROR -> TASK.ERRORED_AT
                 Event.Action.NONE -> error("Internal Error: NONE currentAction")
             }
         }
@@ -209,6 +212,7 @@ class DatabaseAccess(private val create: DSLContext) {
             .update(TASK)
             .set(TASK.NEXT_ACTION, nextAction.toTaskAction())
             .set(TASK.NEXT_ACTION_AT, nextActionAt)
+            .set(TASK.RETRY_TOKEN, if (retryToken != null) JSON.valueOf(retryToken) else null)
             .set(finishedField(currentAction), OffsetDateTime.now())
             .where(TASK.REPORT_ID.eq(reportId))
             .execute()
@@ -237,6 +241,14 @@ class DatabaseAccess(private val create: DSLContext) {
             config.addDataSourceProperty("cachePrepStmts", "true")
             config.addDataSourceProperty("prepStmtCacheSize", "250")
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+            // See this info why these are a good value
+            //  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
+            config.minimumIdle = 2
+            config.maximumPoolSize = 8
+            // This strongly recommended to be set "be several seconds shorter than any database or infrastructure
+            // imposed connection time limit". Not sure what value is but have observed that connection are closed
+            // after about 10 minutes
+            config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
             val flyway = Flyway.configure().dataSource(dataSource).load()
@@ -245,7 +257,7 @@ class DatabaseAccess(private val create: DSLContext) {
             dataSource
         }
 
-        public val dataSource: DataSource get() = hikariDataSource
+        val dataSource: DataSource get() = hikariDataSource
 
         fun toSource(taskSource: TaskSource): Source {
             return when {
@@ -280,6 +292,8 @@ class DatabaseAccess(private val create: DSLContext) {
                 null,
                 null,
                 null,
+                null,
+                null,
                 null
             )
         }
@@ -303,7 +317,9 @@ class DatabaseAccess(private val create: DSLContext) {
                 null,
                 null,
                 null,
-                null
+                null,
+                null,
+                null,
             )
         }
     }

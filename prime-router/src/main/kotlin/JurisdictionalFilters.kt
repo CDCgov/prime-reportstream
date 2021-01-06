@@ -67,7 +67,7 @@ class DoesNotMatch : JurisdictionalFilter {
     override fun getSelection(args: List<String>, table: Table): Selection {
         if (args.size < 2) error("Expecting two or more args to filter $name:  (columnName, value, value, ...)")
         val columnName = args[0]
-        val pattern = args[1]
+        // val pattern = args[1]
         val values = args.subList(1, args.size)
         return table.stringColumn(columnName).isNotIn(values)
     }
