@@ -21,13 +21,13 @@ jobs:
                then
                    echo "Building for the production environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-prod
-                   echo >> $GITHUB_ENV ACR_REPO=primedatahubprod.azurecr.io
+                   echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_PROD_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_PROD_PWD }}
                else
                    echo "Building for the test environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
-                   echo >> $GITHUB_ENV ACR_REPO=primedatahubtest.azurecr.io
+                   echo >> $GITHUB_ENV ACR_REPO=pdhtestcontainerregistry.azurecr.io
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_TEST_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
