@@ -27,7 +27,7 @@ else
 fi
 
 # Set variables
-PREFIX="pdh"
+PREFIX="pdh"$prime_dev_name
 vnet_name=$PREFIX"-vnet"
 nsg_public=$PREFIX"-nsg.public"
 nsg_private=$PREFIX"-nsg.private"
