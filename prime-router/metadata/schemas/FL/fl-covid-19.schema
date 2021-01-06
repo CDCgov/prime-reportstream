@@ -43,9 +43,15 @@ elements:
       csvFields: [{ name: Patient Ethnicity }]
 
     # column I
-    # TODO: does this need a custom mapper? ELR FAQ v2.6 has CSV specific values for HL7 codes
     - name: patient_gender
-      csvFields: [{ name: Patient Gender }]
+      csvFields: [{ name: Patient Gender, format: $code }]
+      altValues:
+          - display: Male
+            code: M
+          - display: Female
+            code: F
+          - display: Unknown
+            code: U
       documentation: The patient's gender. Expects M, F, or U
 
     # column J
@@ -75,7 +81,7 @@ elements:
     # column C part 2
     # nonstandard
     - name: patient_ssn
-      type: TEXT
+      type: BLANK
       hl7Field: PID-19
       csvFields: [ { name: Patient Social Security Number } ]
       documentation: The patient's SSN formatted without dashes
@@ -180,12 +186,14 @@ elements:
     - name: local_code
       type: TEXT
       documentation: This is a localized coded value that the facility may use for this test (Optional- Local Code is equal to LOINC code, so if you are providing LOINC Code, you may leave this field blank and vice versa)
+      csvFields: [{ name: Local Code }]
 
     # column AO
     # nonstandard
     - name: local_code_description
       type: TEXT
       documentation: This is a localized description of the localized coded value that the facility may use for this test (Optional unless LOINC Code and Description are not provided)
+      csvFields: [{ name: Local Code Description }]
 
     # column AP
     - name: test_result
@@ -196,7 +204,10 @@ elements:
       csvFields: [{ name: Reference Range }]
 
     # column AR
+    # nonstandard
     - name: abnormal_flag
+      type: CODE
+      valueSet: fl/abnormal_flag
       csvFields: [{ name: Abnormal Flag }]
 
     # column AS
@@ -208,11 +219,17 @@ elements:
       documentation: This is the coded value that describes the result. For IgG, IgM and CT results that provide a value leave this field blank.
 
     # column AT
-    - name: testing_lab_name
+    # nonstandard. need to concat because we currently can't add the same column twice to a table
+    - name: name_of_testing_lab
+      type: TEXT
+      mapper: 'use(testing_lab_name)'
       csvFields: [{ name: Performing Lab Name }]
 
     # column AU
-    - name: testing_lab_clia
+    # nonstandard. need to concat because we currently can't add the same column twice to a table
+    - name: clia_of_testing_lab
+      type: TEXT
+      mapper: 'use(testing_lab_clia)'
       csvFields: [{ name: Performing Lab CLIA }]
 
     # column AV
@@ -237,8 +254,7 @@ elements:
 
     # column AX
     - name: first_test
-      type: CODE
-      csvFields: [{ name: First Test for Condition }]
+      csvFields: [{ name: First Test for Condition, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -250,8 +266,7 @@ elements:
 
     # column AY
     - name: employed_in_healthcare
-      type: CODE
-      csvFields: [{ name: Employment in Health Care }]
+      csvFields: [{ name: Employment in Health Care, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -272,7 +287,7 @@ elements:
 
     # column BA
     - name: symptomatic_for_disease
-      csvFields: [ { name: Symptomatic } ]
+      csvFields: [ { name: Symptomatic, format: $code } ]
       altValues:
           - display: Yes
             code: Y
@@ -296,8 +311,7 @@ elements:
 
     # column BD
     - name: hospitalized
-      type: CODE
-      csvFields: [{ name: Hospitalized for this condition }]
+      csvFields: [{ name: Hospitalized for this condition, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -309,8 +323,7 @@ elements:
 
     # column BE
     - name: icu
-      type: CODE
-      csvFields: [{ name: In ICU }]
+      csvFields: [{ name: In ICU, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -322,8 +335,7 @@ elements:
 
     # column BF
     - name: resident_congregate_setting
-      type: CODE
-      csvFields: [{ name: Resides in Congregate Care setting }]
+      csvFields: [{ name: Resides in Congregate Care setting, format: $code }]
       altValues:
           - display: Yes
             code: Y
@@ -335,9 +347,9 @@ elements:
 
     # column BG
     # nonstandard
-    # todo: create a value set for this based on SNOMED codes
     - name: specify_congregate_care_setting
-      type: TEXT
+      type: CODE
+      valueSet: site_of_care
       csvFields: [{ name: Specify Congregate Care Setting }]
       referenceUrl: https://confluence.hl7.org/pages/viewpage.action?pageId=86967947
       documentation: |
@@ -346,24 +358,21 @@ elements:
 
     # column BH
     - name: pregnant
-      csvFields: [ { name: Pregnancy Status } ]
+      csvFields: [ { name: Pregnancy Status, format: $code } ]
+      altValues:
+          - display: Pregnant
+            code: Y
+          - display: Not Pregnant
+            code: N
+          - display: Unknown
+            code: U
 
     # column BI
     # nonstandard
     - name: student_teacher_other
       type: CODE
-      csvFields: [{ name: "Is the patient a student, teacher, or other faculty member" }]
-      altValues:
-          - display: Student
-            code: Student
-          - display: Teacher
-            code: Teacher
-          - display: Other (Faculty Member)
-            code: Other (Faculty Member)
-          - display: No
-            code: N
-          - display: Unknown
-            code: U
+      valueSet: fl/student_teacher_other
+      csvFields: [{ name: "Is the patient a student, teacher, or other faculty member", format: $code }]
       documentation: |
         AOE question for Florida. Expects one of the following values:
 

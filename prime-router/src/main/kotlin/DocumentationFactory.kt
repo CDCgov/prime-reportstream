@@ -100,7 +100,7 @@ ${element.documentation}
             ".md"
         }
 
-        val oDir = (outputDir ?: "documentation")
+        val oDir = (outputDir ?: "docs/schema_documentation")
         val path = Paths.get(oDir)
         if (!Files.exists(path)) {
             Files.createDirectory(path)
