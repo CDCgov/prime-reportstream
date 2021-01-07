@@ -49,7 +49,11 @@ class Matches : JurisdictionalFilter {
         if (args.size != 2) error("Expecting two args to filter $name:  (columnName, regex)")
         val columnName = args[0]
         val pattern = args[1]
-        return table.stringColumn(columnName).matchesRegex(pattern)
+        val columnNames = table.columnNames()
+        return if (columnNames.contains(columnName))
+            table.stringColumn(columnName).matchesRegex(pattern)
+        else
+            Selection.withRange(0, 0)
     }
 }
 
@@ -69,7 +73,11 @@ class DoesNotMatch : JurisdictionalFilter {
         val columnName = args[0]
         // val pattern = args[1]
         val values = args.subList(1, args.size)
-        return table.stringColumn(columnName).isNotIn(values)
+        val columnNames = table.columnNames()
+        return if (columnNames.contains(columnName))
+            table.stringColumn(columnName).isNotIn(values)
+        else
+            Selection.withRange(0, table.rowCount())
     }
 }
 
@@ -82,22 +90,30 @@ class FilterByCounty : JurisdictionalFilter {
     // @todo need tons of error checking.
     override fun getSelection(args: List<String>, table: Table): Selection {
         if (args.size != 2) error("Expecting two args to filter $name:  (TwoLetterState, County)")
-        val patientState = table.stringColumn("patient_state")
-            ?: error("Unable to filterByCounty:  column patient_state not found.")
-        val patientCounty = table.stringColumn("patient_county")
-            ?: error("Unable to filterByCounty:  column patient_county not found.")
-        val facilityState = table.stringColumn("ordering_facility_state")
-            ?: error("Unable to filterByCounty:  column ordering_facility_state not found.")
-        val facilityCounty = table.stringColumn("ordering_facility_county")
-            ?: error("Unable to filterByCounty:  column ordering_facility_county not found.")
-
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.
         val countyRegex = "(?i).*${args[1]}.*"
+
+        // Dev Note: Assume that the patient_county has 1 and ordering_facility_county has 0 or 1 cardinality.
+        // If this assumption is no-longer true, then other places in the code will catch this
+        val columnNames = table.columnNames()
+        val patientSelection = if (columnNames.contains("patient_state") && columnNames.contains("patient_county")) {
+            val patientState = table.stringColumn("patient_state")
+            val patientCounty = table.stringColumn("patient_county")
+            patientState.isEqualTo(args[0]).and(patientCounty.matchesRegex(countyRegex))
+        } else error("Schema Error: missing patient_state or patient_county columns")
+
+        val facilitySelection = if (columnNames.contains("ordering_facility_state") && columnNames.contains("ordering_facility_county")) {
+            val facilityState = table.stringColumn("ordering_facility_state")
+            val facilityCounty = table.stringColumn("ordering_facility_county")
+            facilityState.isEqualTo(args[0]).and(facilityCounty.matchesRegex(countyRegex))
+        } else null
+
         // Overall, this is "true" if either the patient is in the county/state
         //   OR, if the facility is in the county/state.
-        val patientSelection = patientState.isEqualTo(args[0]).and(patientCounty.matchesRegex(countyRegex))
-        val facilitySelection = facilityState.isEqualTo(args[0]).and(facilityCounty.matchesRegex(countyRegex))
-        return patientSelection.or(facilitySelection)
+        return if (facilitySelection != null)
+            patientSelection.or(facilitySelection)
+        else
+            patientSelection
     }
 }
 

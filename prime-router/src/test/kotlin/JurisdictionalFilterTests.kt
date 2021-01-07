@@ -5,6 +5,7 @@ import tech.tablesaw.api.Table
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertTrue
 
 class JurisdictionalFilterTests {
     @Test
@@ -27,6 +28,18 @@ class JurisdictionalFilterTests {
         assertEquals(2, filteredTable2.rowCount())
         assertEquals("B1", filteredTable2.getString(0, "colB"))
         assertEquals("B2", filteredTable2.getString(1, "colB"))
+    }
+
+    @Test
+    fun `test empty Matches`() {
+        val filter = Matches()
+        val table = Table.create(
+            StringColumn.create("BOGUS"),
+        )
+
+        val args1 = listOf("a", "b") // correct # args.
+        // However, table doesn't have the expected columns, so an empty selection
+        assertTrue(filter.getSelection(args1, table).isEmpty)
     }
 
     @Test
