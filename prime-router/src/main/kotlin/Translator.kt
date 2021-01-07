@@ -61,6 +61,9 @@ class Translator(private val metadata: Metadata) {
         }
         val filteredReport = input.filter(filterAndArgs)
 
+        // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
+        if (filteredReport.isEmpty()) return buildEmptyReport(receiver, input)
+
         // Apply mapping to change schema
         val toReport: Report = if (receiver.schema != filteredReport.schema.name) {
             val toSchema = metadata.findSchema(receiver.schema)
@@ -128,5 +131,11 @@ class Translator(private val metadata: Metadata) {
             }
         }
         return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)
+    }
+
+    private fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
+        val toSchema = metadata.findSchema(receiver.schema)
+            ?: error("${receiver.schema} schema is missing from catalog")
+        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
     }
 }
