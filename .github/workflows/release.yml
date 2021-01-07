@@ -78,7 +78,7 @@ jobs:
         run: | 
               az functionapp config appsettings set \
               --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.PREFIX }}-pgsql \
+              --name ${{ env.PREFIX }}-functionapp \
               --settings POSTGRES_USER=${{ env.POSTGRESQL_USER }}@${{ env.PREFIX }}-pgsql \
                          POSTGRES_PASSWORD=${{ env.POSTGRESQL_PWD }} \
                          POSTGRES_URL=jdbc:postgresql://${{ env.PREFIX }}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require
