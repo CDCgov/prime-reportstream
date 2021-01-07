@@ -9,12 +9,13 @@ class FakeReport(val metadata: Metadata) {
     class RowContext(findLookupTable: (String) -> LookupTable? = { null }, reportState: String? = null) {
         val faker = Faker()
         val patientName = faker.name()
+        val schoolName: String = faker.university().name()
         val equipmentModel = randomChoice(
             "BinaxNOW COVID-19 Ag Card",
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
 
-        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ")
+        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND")
         val county = findLookupTable("fips-county")?.let {
             if (state == "AZ") {
                 randomChoice("Pima", "Yuma")
@@ -34,8 +35,10 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.POSTAL_CODE -> faker.address().zipCode().toString()
             Element.Type.TEXT -> {
                 when {
+                    element.nameContains("name_of_testing_lab") -> "Any lab USA"
                     element.nameContains("lab_name") -> "Any lab USA"
                     element.nameContains("facility_name") -> "Any facility USA"
+                    element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                     element.nameContains("patient_age_and_units") -> {
                         val unit = randomChoice("months", "years", "days")
                         val value = when (unit) {
@@ -82,7 +85,11 @@ class FakeReport(val metadata: Metadata) {
                             valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
                         }
 
-                        randomChoice(*possibleValues)
+                        // concatenate a list of symptoms
+                        if (element.name.contains("disease_symptoms"))
+                            randomChoices(*possibleValues).joinToString("^")
+                        else
+                            randomChoice(*possibleValues)
                     }
                 }
             }
@@ -160,6 +167,19 @@ class FakeReport(val metadata: Metadata) {
             if (choices.isEmpty()) return ""
             val random = Random()
             return choices[random.nextInt(choices.size)]
+        }
+
+        private fun randomChoices(vararg choices: String): List<String> {
+            val random = Random()
+            if (choices.isEmpty() || random.nextBoolean()) return emptyList()
+
+            val selectedValues = mutableListOf<String>()
+            val limit = random.nextInt(choices.size)
+            for (i in 0..limit) {
+                selectedValues.add(choices[random.nextInt(choices.size)])
+            }
+
+            return selectedValues.toList()
         }
     }
 }

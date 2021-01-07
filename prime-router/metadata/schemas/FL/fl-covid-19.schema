@@ -156,7 +156,7 @@ elements:
 
     # column AH
     - name: specimen_collection_date_time
-      csvFields: [{ name: Specimen Collected Date }]
+      csvFields: [{ name: Specimen Collected Date, format: "MM/dd/yyyy" }]
 
     # column AI
     - name: specimen_type
@@ -164,7 +164,7 @@ elements:
 
     # column AJ
     - name: specimen_received_date_time
-      csvFields: [{ name: Specimen Received Date }]
+      csvFields: [{ name: Specimen Received Date, format: "MM/dd/yyyy" }]
 
     # column AK
     # nonstandard
@@ -185,14 +185,20 @@ elements:
     # nonstandard
     - name: local_code
       type: TEXT
-      documentation: This is a localized coded value that the facility may use for this test (Optional- Local Code is equal to LOINC code, so if you are providing LOINC Code, you may leave this field blank and vice versa)
+      documentation: |
+        This is a localized coded value that the facility may use for this test
+
+        (Optional- Local Code is equal to LOINC code, so if you are providing LOINC Code, you may leave this field blank and vice versa)
       csvFields: [{ name: Local Code }]
 
     # column AO
     # nonstandard
     - name: local_code_description
       type: TEXT
-      documentation: This is a localized description of the localized coded value that the facility may use for this test (Optional unless LOINC Code and Description are not provided)
+      documentation: |
+        This is a localized description of the localized coded value that the facility may use for this test
+
+        (Optional unless LOINC Code and Description are not provided)
       csvFields: [{ name: Local Code Description }]
 
     # column AP
@@ -228,7 +234,7 @@ elements:
     # column AU
     # nonstandard. need to concat because we currently can't add the same column twice to a table
     - name: clia_of_testing_lab
-      type: TEXT
+      type: ID_CLIA
       mapper: 'use(testing_lab_clia)'
       csvFields: [{ name: Performing Lab CLIA }]
 
@@ -279,9 +285,10 @@ elements:
     # column AZ
     # nonstandard
     - name: occupation
-      type: TEXT
+      type: CODE
+      valueSet: occupations
       referenceUrl: https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html
-      csvFields: [{ name: Occupation }]
+      csvFields: [{ name: Occupation, format: $code }]
       documentation: |
         FL expects the SNOMED code that maps to one of the values outlined at [https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html](https://covid-19-ig.logicalhealth.org/ValueSet-healthcare-occupation-value-set.html)
 
@@ -301,8 +308,9 @@ elements:
     # non-standard
     # TODO: implement symptoms value set
     - name: disease_symptoms
-      type: TEXT
-      csvFields: [{ name: Symptom }]
+      type: CODE
+      valueSet: symptoms
+      csvFields: [{ name: Symptom, format: $code }]
       documentation: Expects a list of the symptoms the patient is experiencing as as a set of SNOMED codes
 
     # column BC
