@@ -50,7 +50,7 @@
         transports:
           - type: SFTP
             host: 10.0.2.4
-            port: 2222
+            port: 22
             filePath: ./upload
         format: HL7
       - name: elr-prod
