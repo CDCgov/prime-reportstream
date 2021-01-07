@@ -17,14 +17,18 @@ elements:
   - name: redox_destination_name
     redoxOutputFields: ["Meta.Destinations[0].Name"]
 
-  - name: redox_processing_mode_code
+  - name: processing_mode_code
     redoxOutputFields: ["Meta.Test"]
     type: CODE
     valueSet: hl70103
     default: T
     altValues:
+      - code: D
+        display: true
       - code: T
         display: true
+      - code: P
+        display: false
 
   - name: patient_id
     redoxOutputFields: ["Patient.Identifiers[0].ID"]
