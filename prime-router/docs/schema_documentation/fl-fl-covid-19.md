@@ -69,7 +69,7 @@ The patient's last name
 
 **HL7 Field**: PID-5-2
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -148,6 +148,8 @@ The patient's ethnicity. There is a valueset defined based on the values in PID-
 
 **Type**: CODE
 
+**Format**: $code
+
 **HL7 Field**: PID-8-1
 
 **Cardinality**: [0..1]
@@ -162,6 +164,14 @@ O|Other
 A|Ambiguous
 U|Unknown
 N|Not applicable
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+M|Male
+F|Female
+U|Unknown
 
 **Documentation**:
 
@@ -259,7 +269,7 @@ The patient's phone number with area code
 
 **Name**: Patient Social Security Number
 
-**Type**: TEXT
+**Type**: BLANK
 
 **HL7 Field**: PID-19
 
@@ -623,7 +633,7 @@ The LOINC description of the test performed as related to the LOINC code.
 
 ---
 
-**Name**: local_code
+**Name**: Local Code
 
 **Type**: TEXT
 
@@ -635,7 +645,7 @@ This is a localized coded value that the facility may use for this test (Optiona
 
 ---
 
-**Name**: local_code_description
+**Name**: Local Code Description
 
 **Type**: TEXT
 
@@ -668,6 +678,8 @@ Code | Display
 895231008|Not detected in pooled specimen
 462371000124108|Detected in pooled specimen
 419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+455371000124106|Invalid result
 
 **Documentation**:
 
@@ -701,36 +713,8 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 
 Code | Display
 ---- | -------
-A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
+A|Abnormal
+N|Normal
 
 **Documentation**:
 
@@ -754,30 +738,15 @@ This is the coded value that describes the result. For IgG, IgM and CT results t
 
 **Type**: TEXT
 
-**HL7 Field**: OBX-23-1
-
 **Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the laboratory which performed the test, can be the same as the sending facility name
 
 ---
 
 **Name**: Performing Lab CLIA
 
-**Type**: ID_CLIA
+**Type**: TEXT
 
-**HL7 Field**: OBX-23-10
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-CLIA Number from the laboratory that sends the message to DOH
-
-An example of the ID is 03D2159846
-
+**Cardinality**: [0..1]
 
 ---
 
@@ -813,6 +782,8 @@ A concatenation of three values: Manufacturer Name, Device's unique ID, Device T
 
 **Type**: CODE
 
+**Format**: $code
+
 **HL7 Field**: AOE
 
 **Cardinality**: [0..1]
@@ -842,6 +813,8 @@ Expects Y, N, or U
 **Name**: Employment in Health Care
 
 **Type**: CODE
+
+**Format**: $code
 
 **HL7 Field**: AOE
 
@@ -889,6 +862,8 @@ FL expects the SNOMED code that maps to one of the values outlined at [https://c
 **Name**: Symptomatic
 
 **Type**: CODE
+
+**Format**: $code
 
 **HL7 Field**: AOE
 
@@ -944,6 +919,8 @@ Expects a list of the symptoms the patient is experiencing as as a set of SNOMED
 
 **Type**: CODE
 
+**Format**: $code
+
 **HL7 Field**: AOE
 
 **Cardinality**: [0..1]
@@ -973,6 +950,8 @@ Expects Y, N, or U
 **Name**: In ICU
 
 **Type**: CODE
+
+**Format**: $code
 
 **HL7 Field**: AOE
 
@@ -1004,6 +983,8 @@ Expects Y, N, or U
 
 **Type**: CODE
 
+**Format**: $code
+
 **HL7 Field**: AOE
 
 **Cardinality**: [0..1]
@@ -1032,13 +1013,33 @@ Expects Y, N, or U
 
 **Name**: Specify Congregate Care Setting
 
-**Type**: TEXT
+**Type**: CODE
 
 **Cardinality**: [0..1]
 
 
 **Reference URL**:
 [https://confluence.hl7.org/pages/viewpage.action?pageId=86967947](https://confluence.hl7.org/pages/viewpage.action?pageId=86967947) 
+
+**Value Sets**
+
+Code | Display
+---- | -------
+22232009|Hospital
+32074000|Long Term Care Hospital
+224929004|Secure Hospital
+42665001|Nursing Home
+30629002|Retirement Home
+74056004|Orphanage
+722173008|Prison-based care site
+20078004|Substance Abuse Treatment Center
+257573002|Boarding House
+224683003|Military Accommodation
+284546000|Hospice
+257628001|Hostel
+310207003|Sheltered Housing
+57656006|Penal Institution
+32911000|Homeless
 
 **Documentation**:
 
@@ -1052,6 +1053,8 @@ Based on the value set specified at [https://confluence.hl7.org/pages/viewpage.a
 
 **Type**: CODE
 
+**Format**: $code
+
 **HL7 Field**: AOE
 
 **Cardinality**: [0..1]
@@ -1064,6 +1067,14 @@ Code | Display
 60001007|Not Pregnant
 261665006|Unknown
 
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+Y|Pregnant
+N|Not Pregnant
+U|Unknown
+
 **Documentation**:
 
 Is the patient pregnant?
@@ -1074,9 +1085,11 @@ Is the patient pregnant?
 
 **Type**: CODE
 
+**Format**: $code
+
 **Cardinality**: [0..1]
 
-**Alt Value Sets**
+**Value Sets**
 
 Code | Display
 ---- | -------

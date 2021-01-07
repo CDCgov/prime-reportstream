@@ -1,6 +1,26 @@
 
-### Schema:         covid-19
-#### Description:   collection of standard elements, not an actual schema
+### Schema:         pa/pa-covid-19-hl7
+#### Description:   Pennsylvania Department of Health HL7 messages
+
+---
+
+**Name**: receiving_application
+
+**Type**: HD
+
+**HL7 Field**: MSH-5
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: receiving_facility
+
+**Type**: HD
+
+**HL7 Field**: MSH-6
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -1888,26 +1908,6 @@ The message profile identifer
 **Type**: TEXT
 
 **HL7 Field**: OBR-31
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: receiving_application
-
-**Type**: HD
-
-**HL7 Field**: MSH-5
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: receiving_facility
-
-**Type**: HD
-
-**HL7 Field**: MSH-6
 
 **Cardinality**: [0..1]
 
