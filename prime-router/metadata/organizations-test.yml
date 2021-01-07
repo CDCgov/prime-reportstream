@@ -49,7 +49,7 @@
         # Note: No 'batch:' here, so that step is skipped.   No delay either. Send happens instantly after translate.
         transports:
           - type: SFTP
-            host: localhost
+            host: 10.0.2.4
             port: 2222
             filePath: ./upload
         format: HL7
