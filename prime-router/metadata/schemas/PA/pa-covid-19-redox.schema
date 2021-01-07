@@ -1,0 +1,6 @@
+---
+name: pa-covid-19-redox
+description: Pennsylvania Department of Health REDOX messages
+referenceUrl:
+topic: covid-19
+extends: covid-19-redox

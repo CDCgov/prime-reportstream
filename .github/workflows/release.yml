@@ -26,6 +26,7 @@ jobs:
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_PROD_PWD }}
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=prod
                    echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_PROD_CREDS }}
+                   echo >> $GITHUB_ENV REDOX_SECRET=${{ secrets.REDOX_PROD_SECRET }}
                else
                    echo "Deploying to the test environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
@@ -34,6 +35,7 @@ jobs:
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_TEST_PWD }}
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=test
                    echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_TEST_CREDS }}
+                   echo >> $GITHUB_ENV REDOX_SECRET=${{ secrets.REDOX_STAGING_SECRET }}
                fi
                env
 
@@ -85,3 +87,11 @@ jobs:
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --name ${{ env.RESOURCE_GROUP }} \
               --settings PRIME_ENVIRONMENT=${{ env.PRIME_ENVIRONMENT }} ${{ env.SFTP_CREDS }}
+
+      - name: Set Redox Environment Variables
+        run: |
+              az functionapp config appsettings set \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.RESOURCE_GROUP }} \
+              --settings REDOX_SECRET=${{ env.REDOX_SECRET }} 
+

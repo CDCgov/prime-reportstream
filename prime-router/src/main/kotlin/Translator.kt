@@ -43,6 +43,14 @@ class Translator(private val metadata: Metadata) {
         }
     }
 
+    fun translate(input: Report, toService: String, defaultValues: DefaultValues = emptyMap()): Pair<Report, OrganizationService>? {
+        if (input.isEmpty()) return null
+        val service = metadata.findService(toService) ?: error("invalid service name $toService")
+        val mappedReport = translateByService(input, service, defaultValues)
+        if (mappedReport.itemCount == 0) return null
+        return Pair(mappedReport, service)
+    }
+
     private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
@@ -57,7 +65,11 @@ class Translator(private val metadata: Metadata) {
         val toReport: Report = if (receiver.schema != filteredReport.schema.name) {
             val toSchema = metadata.findSchema(receiver.schema)
                 ?: error("${receiver.schema} schema is missing from catalog")
-            val mapping = buildMapping(toSchema, filteredReport.schema, defaultValues)
+            val defaults = if (receiver.defaults.isNotEmpty()) receiver.defaults.plus(defaultValues) else defaultValues
+            val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
+            if (mapping.missing.isNotEmpty()) {
+                error("Error: To translate to ${toSchema.name}, these elements are missing: ${mapping.missing.joinToString(", ")}")
+            }
             filteredReport.applyMapping(mapping)
         } else {
             filteredReport
@@ -97,19 +109,22 @@ class Translator(private val metadata: Metadata) {
         val missing = mutableSetOf<String>()
 
         toSchema.elements.forEach { toElement ->
+            var isMissing = toElement.cardinality == Element.Cardinality.ONE
             fromSchema.findElement(toElement.name)?.let { matchedElement ->
                 useDirectly[toElement.name] = matchedElement.name
-                return@forEach
+                isMissing = false
             }
             toElement.mapper?.let {
                 val name = Mappers.parseMapperField(it).first
                 useMapper[toElement.name] = metadata.findMapper(name) ?: error("Mapper $name is not found")
-                return@forEach
+                isMissing = false
             }
-            if (toElement.cardinality == Element.Cardinality.ONE) {
-                missing.add(toElement.name)
-            } else {
+            if (toElement.hasDefaultValue(defaultValues)) {
                 useDefault[toElement.name] = toElement.defaultValue(defaultValues)
+                isMissing = false
+            }
+            if (isMissing) {
+                missing.add(toElement.name)
             }
         }
         return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)

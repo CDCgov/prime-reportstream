@@ -1,4 +1,7 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.serializers
+
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
 
 /**
  * Used by converter/formatters to return results

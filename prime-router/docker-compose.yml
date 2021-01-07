@@ -18,6 +18,7 @@ services:
       - POSTGRES_PASSWORD=changeIT!
       - POSTGRES_URL=jdbc:postgresql://host.docker.internal:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
+      - REDOX_SECRET=some_secret
       - AZ_PHD__ELR__USER=foo
       - AZ_PHD__ELR__PASS=pass
       - AZ_PHD__ELR_TEST__USER=foo
@@ -52,4 +53,15 @@ services:
     volumes:
       - ./target/sftp:/home/foo/upload        
     command: foo:pass:::upload     
-     
+
+  redox:
+    image: mockserver/mockserver:mockserver-5.11.1
+    ports:
+      - 1080:1080
+    environment:
+      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/initializerJson.json
+    volumes:
+      - type: bind
+        source: ./src/test/redox
+        target: /config
