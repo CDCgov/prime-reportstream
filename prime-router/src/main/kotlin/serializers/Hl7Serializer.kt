@@ -116,7 +116,13 @@ class Hl7Serializer(val metadata: Metadata) {
             }
 
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
-            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element)
+            Element.Type.TELEPHONE -> {
+                if (value.isNotEmpty()) {
+                    setTelephoneComponent(terser, value, pathSpec, element)
+                } else {
+                    terser.set(pathSpec, "") // Not at all sure what to do here.
+                }
+            }
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }

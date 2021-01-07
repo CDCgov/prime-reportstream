@@ -23,6 +23,8 @@ services:
       - AZ_PHD__ELR__PASS=pass
       - AZ_PHD__ELR_TEST__USER=foo
       - AZ_PHD__ELR_TEST__PASS=pass
+      - AZ_PHD__ELR_HL7_TEST__USER=foo
+      - AZ_PHD__ELR_HL7_TEST__PASS=pass
       - AZ_PHD__ELR_PROD__USER=foo
       - AZ_PHD__ELR_PROD__PASS=pass
       - PA_PHD__ELR__USER=foo

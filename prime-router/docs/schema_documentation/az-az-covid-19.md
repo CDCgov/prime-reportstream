@@ -99,7 +99,7 @@ An example of the ID is 03D2159846
 
 **HL7 Field**: PID-3-1
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 ---
 
@@ -109,7 +109,7 @@ An example of the ID is 03D2159846
 
 **HL7 Field**: PID-5-2
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -577,6 +577,8 @@ Code | Display
 895231008|Not detected in pooled specimen
 462371000124108|Detected in pooled specimen
 419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+455371000124106|Invalid result
 
 **Documentation**:
 

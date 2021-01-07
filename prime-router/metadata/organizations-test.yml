@@ -39,6 +39,20 @@
           host: 10.0.2.4
           port: 22
           filePath: ./upload
+      - name: elr-hl7-test
+        topic: covid-19
+        schema: az/az-covid-19-hl7
+        jurisdictionalFilter:
+          - matches(ordering_facility_state,AZ)
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains)"
+        transforms: { deidentify: false }
+        # Note: No 'batch:' here, so that step is skipped.   No delay either. Send happens instantly after translate.
+        transports:
+          - type: SFTP
+            host: localhost
+            port: 2222
+            filePath: ./upload
+        format: HL7
       - name: elr-prod
         topic: covid-19
         schema: az/az-covid-19
