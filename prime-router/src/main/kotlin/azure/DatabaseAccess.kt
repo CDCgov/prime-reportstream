@@ -44,7 +44,7 @@ class DatabaseAccess(private val create: DSLContext) {
     data class Header(val task: Task, val sources: List<TaskSource>)
 
     fun checkConnection() {
-        create.selectFrom(TASK).where(TASK.REPORT_ID.eq(UUID.randomUUID()))
+        create.selectFrom(TASK).where(TASK.REPORT_ID.eq(UUID.randomUUID())).fetch()
     }
 
     /**
