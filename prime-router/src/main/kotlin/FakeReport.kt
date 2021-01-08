@@ -16,10 +16,10 @@ class FakeReport(val metadata: Metadata) {
 
         val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "CO")
         val county = findLookupTable("fips-county")?.let {
-            if (state == "AZ") {
-                randomChoice("Pima", "Yuma")
-            } else {
-                randomChoice(it.filter("State", state, "County"))
+            when (state) {
+                "AZ" -> randomChoice("Pima", "Yuma")
+                "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
+                else -> randomChoice(it.filter("State", state, "County"))
             }
         }
     }
