@@ -44,3 +44,6 @@ indent_size = 2
 
 [{*.yaml,*.yml}]
 indent_size = 2
+
+[{*.schema,*.valueset}]
+indent_size = 2

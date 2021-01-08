@@ -11,6 +11,7 @@ outputdir=target/csv_test_files
 expecteddir=./src/test/csv_test_files/expected
 expected_pima=$expecteddir/simplereport-pima.csv
 expected_az=$expecteddir/simplereport-az.csv
+# Uncomment to force failure
 #expected_az=$expecteddir/junk-az.csv
 starter_schema=primedatainput/pdi-covid-19
 
@@ -41,7 +42,6 @@ then
   RUN_STANDARD=1
 fi
 
-# For testing the unhappy path
 mkdir -p $outputdir
 
 # Call this after calling .prime ... to generate output data.  Use this to parse the text output to extract the filename
@@ -94,13 +94,15 @@ then
 fi
 
 # run arizona
+AZ_FILE_SEARCH_STR="/az.*\.csv"
+PIMA_FILE_SEARCH_STR="/pima.*\.csv"
 if [ $RUN_AZ -ne 0 ]
 then
-  parse_prime_output_for_filename "$text" "/az"
+  parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az=$filename
   compare_files "SimpleReport->AZ"   $expected_az   $actual_az
 
-  parse_prime_output_for_filename "$text" "/pima"
+  parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima=$filename
   compare_files "SimpleReport->PIMA" $expected_pima $actual_pima
 
@@ -110,14 +112,14 @@ then
   # AZ again
   echo Test sending AZ data into its own Schema:
   text=$(./prime --input_schema az/az-covid-19 --input $actual_az --output_dir $outputdir)
-  parse_prime_output_for_filename "$text" "/az"
+  parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az2=$filename
   compare_files "AZ->AZ" $expected_az $actual_az2
 
   # Pima again
   echo Test sending Pima data into its own Schema:
   text=$(./prime --input_schema az/pima-az-covid-19 --input $actual_pima --output_dir $outputdir)
-  parse_prime_output_for_filename "$text" "/pima"
+  parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima2=$filename
   compare_files "PIMA->PIMA" $expected_pima $actual_pima2
 
@@ -130,24 +132,24 @@ then
   # Note that there's no actuals to compare to here.
   text=$(./prime --input_schema $starter_schema --input $fake_data --output_dir $outputdir --route)
   # Find the AZ file
-  parse_prime_output_for_filename "$text" "/az"
+  parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az3=$filename
   # Find the Pima file
-  parse_prime_output_for_filename "$text" "/pima"
+  parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima3=$filename
 
   echo Now send _those_ results back in to their own schema and export again!
   # AZ again again.  This time we can compare the two actuals.
   echo Test sending AZ data generated from fake data into its own Schema:
   text=$(./prime --input_schema az/az-covid-19 --input $actual_az3 --output_dir $outputdir)
-  parse_prime_output_for_filename "$text" "/az"
+  parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az4=$filename
   compare_files "AZ->AZ" $actual_az3 $actual_az4
 
   # Pima again again.  Compare the two actuals
   echo Test sending Pima data generated from fake data into its own Schema:
   text=$(./prime --input_schema az/pima-az-covid-19 --input $actual_pima3 --output_dir $outputdir)
-  parse_prime_output_for_filename "$text" "/pima"
+  parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima4=$filename
   compare_files "PIMA->PIMA" $actual_pima3 $actual_pima4
 fi

@@ -437,6 +437,14 @@ Z|No record of this patient
 
 **Type**: TEXT
 
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordered_test_system_abbr
+
+**Type**: TEXT
+
 **HL7 Field**: OBR-4-3
 
 **Cardinality**: [0..1]
@@ -461,7 +469,7 @@ The city of the facility which the test was ordered from
 
 **Type**: TABLE
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -480,6 +488,14 @@ The city of the facility which the test was ordered from
 **Table**: fips-county
 
 **Table Column**: FIPS
+
+---
+
+**Name**: ordering_facility_country
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -618,6 +634,14 @@ The city of the provider
 **Table**: fips-county
 
 **Table Column**: County
+
+---
+
+**Name**: ordering_provider_country
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -848,11 +872,19 @@ The patient's city
 
 ---
 
+**Name**: patient_country
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patient_email
 
 **Type**: EMAIL
 
-**HL7 Field**: ORC-23-4
+**HL7 Field**: PID-13-4
 
 **Cardinality**: [0..1]
 
@@ -903,6 +935,16 @@ Other states may choose to define their own formats.
 
 ---
 
+**Name**: patient_drivers_license
+
+**Type**: ID_DLN
+
+**HL7 Field**: PID-20-1
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patient_ethnicity
 
 **Type**: CODE
@@ -932,7 +974,7 @@ The patient's ethnicity. There is a valueset defined based on the values in PID-
 
 **HL7 Field**: PID-5-2
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -972,7 +1014,7 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **HL7 Field**: PID-3-1
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 ---
 
@@ -2171,11 +2213,19 @@ The LOINC description of the test performed as related to the LOINC code.
 
 ---
 
-**Name**: test_performed_system
+**Name**: test_performed_system_abbr
 
 **Type**: TEXT
 
 **HL7 Field**: OBX-3-3
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_performed_system
+
+**Type**: TEXT
 
 **Cardinality**: [0..1]
 
@@ -2202,6 +2252,8 @@ Code | Display
 895231008|Not detected in pooled specimen
 462371000124108|Detected in pooled specimen
 419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+455371000124106|Invalid result
 
 **Documentation**:
 
@@ -2327,6 +2379,14 @@ The accession number of the specimen collected
 
 ---
 
+**Name**: testing_lab_country
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: testing_lab_id
 
 **Type**: ID
@@ -2381,6 +2441,16 @@ The name of the laboratory which performed the test, can be the same as the send
 **Name**: testing_lab_specimen_id
 
 **Type**: ID
+
+**HL7 Field**: SPM-2-1
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_specimen_recieved_datetime
+
+**Type**: DATETIME
 
 **HL7 Field**: SPM-2-1
 

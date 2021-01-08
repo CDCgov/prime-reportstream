@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.serializers.CsvSerializer
 import org.junit.jupiter.api.TestInstance
 import java.io.File
 import kotlin.test.Test
@@ -20,7 +21,7 @@ class CsvFileTests {
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./target/csv_test_files/"
     private val metadata: Metadata
-    private val csvConverter: CsvConverter
+    private val csvSerializer: CsvSerializer
 
     init {
         val outputDirectory = File(outputPath)
@@ -32,7 +33,7 @@ class CsvFileTests {
         metadata = Metadata()
         loadTestSchemas(metadata)
         loadTestOrganizations(metadata)
-        csvConverter = CsvConverter(metadata)
+        csvSerializer = CsvSerializer(metadata)
     }
 
     @Test
@@ -52,7 +53,7 @@ class CsvFileTests {
         val schema = metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
 
         // 1) Ingest the file
-        val result = csvConverter.read(schema.name, file.inputStream(), TestSource)
+        val result = csvSerializer.read(schema.name, file.inputStream(), TestSource)
         assertTrue(result.warnings.isEmpty() && result.errors.isEmpty())
         val inputReport = result.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
@@ -68,7 +69,7 @@ class CsvFileTests {
                     outputFile.createNewFile()
                 }
                 outputFile.outputStream().use {
-                    csvConverter.write(report, it)
+                    csvSerializer.write(report, it)
                 }
 
                 compareTestResultsToExpectedResults(outputFile.absolutePath, "$prefix$baseName")

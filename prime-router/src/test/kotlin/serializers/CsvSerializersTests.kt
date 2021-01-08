@@ -1,5 +1,10 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.serializers
 
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.TestSource
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
@@ -9,7 +14,7 @@ import kotlin.test.assertFails
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class CsvConverterTests {
+class CsvSerializerTests {
     @Test
     fun `test read from csv`() {
         val one = Schema(
@@ -25,7 +30,7 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertTrue(result.errors.isEmpty())
         assertTrue(result.warnings.isEmpty())
@@ -49,7 +54,7 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertEquals(0, result.warnings.size)
         assertEquals(1, result.report?.itemCount)
@@ -72,7 +77,7 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val report = csvConverter.read(
             "one",
             ByteArrayInputStream(csv.toByteArray()),
@@ -98,7 +103,7 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val report = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertEquals(1, report?.itemCount)
         assertEquals("1", report?.getString(0, 0))
@@ -119,7 +124,7 @@ class CsvConverterTests {
             2,1
         """.trimIndent()
 
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val report = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertEquals(1, report?.itemCount)
         assertEquals("1", report?.getString(0, 0))
@@ -141,7 +146,7 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertEquals(0, result.warnings.size)
         assertEquals(1, result.report?.itemCount)
@@ -164,7 +169,7 @@ class CsvConverterTests {
             1,2
         """.trimIndent()
 
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val report = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource).report
         assertEquals(1, report?.itemCount)
         assertEquals("3", report?.getString(0, 2))
@@ -191,7 +196,7 @@ class CsvConverterTests {
             
         """.trimIndent()
         val output = ByteArrayOutputStream()
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         csvConverter.write(report1, output)
         assertEquals(expectedCsv, output.toString(StandardCharsets.UTF_8))
     }
@@ -213,7 +218,7 @@ class CsvConverterTests {
             
         """.trimIndent()
         val output = ByteArrayOutputStream()
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         csvConverter.write(report1, output)
         val csv = output.toString(StandardCharsets.UTF_8)
         assertEquals(expectedCsv, csv)
@@ -233,7 +238,7 @@ class CsvConverterTests {
             a
             1,2
         """.trimIndent()
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertEquals(0, result.errors.size)
         assertEquals(1, result.warnings.size)
@@ -255,7 +260,7 @@ class CsvConverterTests {
             a,c
             1,2
         """.trimIndent()
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertEquals(2, result.warnings.size) // one for not present and one for ignored
     }
@@ -272,7 +277,7 @@ class CsvConverterTests {
         )
         val csv = """
         """.trimIndent()
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.read("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertTrue(result.warnings.isEmpty())
         assertTrue(result.errors.isEmpty())
@@ -309,7 +314,7 @@ class CsvConverterTests {
                 ),
             )
         )
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
 
         // Should just warn about column d, but convert because of cardinality and defaults
         val csv1 = """
@@ -360,7 +365,7 @@ class CsvConverterTests {
                 Element("d", cardinality = Element.Cardinality.ONE, default = "D"),
             )
         )
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
 
         val csv4 = """
             a,b,c
@@ -420,7 +425,7 @@ class CsvConverterTests {
                 ),
             )
         )
-        val csvConverter = CsvConverter(Metadata(schema = one))
+        val csvConverter = CsvSerializer(Metadata(schema = one))
 
         val csv4 = """
             a,b,c

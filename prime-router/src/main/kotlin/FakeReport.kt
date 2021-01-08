@@ -19,12 +19,12 @@ class FakeReport(val metadata: Metadata) {
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
 
-        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND")
+        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO")
         val county = findLookupTable("fips-county")?.let {
-            if (state == "AZ") {
-                randomChoice("Pima", "Yuma")
-            } else {
-                randomChoice(it.filter("State", state, "County"))
+            when (state) {
+                "AZ" -> randomChoice("Pima", "Yuma")
+                "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
+                else -> randomChoice(it.filter("State", state, "County"))
             }
         }
     }
@@ -77,6 +77,7 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.CODE -> {
                 when (element.name) {
                     "specimen_source_site_code" -> "71836000"
+                    "test_result_status" -> randomChoice("F", "C")
                     else -> {
                         val altValues = element.altValues
                         val valueSet = element.valueSetRef

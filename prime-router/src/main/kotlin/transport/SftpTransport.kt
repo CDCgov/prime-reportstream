@@ -1,41 +1,42 @@
 package gov.cdc.prime.router.transport
 
+import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
-import gov.cdc.prime.router.azure.DatabaseAccess
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
+import java.io.IOException
 import java.io.InputStream
+import java.util.logging.Level
 
 class SftpTransport : ITransport {
-
     override fun send(
-        orgName: String,
+        orgService: OrganizationService,
         transportType: TransportType,
-        header: DatabaseAccess.Header,
-        contents: ByteArray
-    ): Boolean {
-
+        contents: ByteArray,
+        reportId: ReportId,
+        retryItems: RetryItems?,
+        context: ExecutionContext
+    ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
-
-        val (user, pass) = lookupCredentials(orgName)
-
-        val fileName = "${orgName.replace('.', '-')}-${header.task.reportId}.csv"
         val host: String = sftpTransportType.host
         val port: String = sftpTransportType.port
+        return try {
+            val (user, pass) = lookupCredentials(orgService.fullName)
+            val extension = orgService.format.toExt()
+            val fileName = "${orgService.fullName.replace('.', '-')}-$reportId.$extension"
 
-        var success: Boolean
-        try {
+            context.logger.log(Level.INFO, "About to sftp upload $fileName to $user at $host:$port (orgService = ${orgService.fullName})")
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents)
-            success = true
-        } catch (e: Exception) {
-
-            success = false
-            System.out.println(e)
-        }
-
-        return success
+            context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
+            null
+        } catch (ioException: IOException) {
+            context.logger.log(Level.WARNING, "FAILED Sftp upload of reportId $reportId to $host:$port  (orgService = ${orgService.fullName})\"")
+            RetryToken.allItems
+        } // let non-IO exceptions be caught by the caller
     }
 
     private fun lookupCredentials(orgName: String): Pair<String, String> {
@@ -45,7 +46,7 @@ class SftpTransport : ITransport {
         val user = System.getenv("${envVarLabel}__USER") ?: ""
         val pass = System.getenv("${envVarLabel}__PASS") ?: ""
 
-        if (user.isNullOrBlank() || pass.isNullOrBlank())
+        if (user.isBlank() || pass.isBlank())
             error("Unable to find SFTP credentials for $orgName")
 
         return Pair(user, pass)
