@@ -34,7 +34,7 @@ class RedoxTransport() : ITransport {
         val redoxTransportType = transportType as RedoxTransportType
         val (key, secret) = getKeyAndSecret(redoxTransportType)
         val messages = String(contents).split("\n") // NDJSON content
-        val token = fetchToken(redoxTransportType, key, secret) ?: return RetryToken.allItems
+        val token = fetchToken(redoxTransportType, key, secret, context) ?: return RetryToken.allItems
         // DevNote: Redox access tokens live for many days
         val nextRetryItems = messages
             .mapIndexed { index, message -> Pair(index, message) }
@@ -42,7 +42,7 @@ class RedoxTransport() : ITransport {
                 retryItems == null || RetryToken.isAllItems(retryItems) || retryItems.contains(index.toString())
             }
             .mapNotNull { (index, message) ->
-                if (!sendItem(redoxTransportType, token, message, context)) {
+                if (!sendItem(redoxTransportType, token, message, "$reportId-$index", context)) {
                     index.toString()
                 } else {
                     null
@@ -62,7 +62,7 @@ class RedoxTransport() : ITransport {
         return Pair(redox.apiKey, secret)
     }
 
-    private fun fetchToken(redox: RedoxTransportType, key: String, secret: String): String? {
+    private fun fetchToken(redox: RedoxTransportType, key: String, secret: String, context: ExecutionContext): String? {
         val url = "${getBaseUrl(redox)}$redoxAuthPath"
         val (_, _, result) = Fuel
             .post(url)
@@ -75,15 +75,28 @@ class RedoxTransport() : ITransport {
                 if (result.value.obj().has(redoxAccessToken)) {
                     result.value.obj().getString(redoxAccessToken)
                 } else {
+                    context.logger.log(Level.SEVERE, "Redox Auth call succeeded but token parsing failed")
                     null
                 }
             }
-            is Result.Failure -> null
-            else -> null
+            is Result.Failure -> {
+                context.logger.log(Level.SEVERE, "Redox Auth call failed: ${result.error.message}")
+                null
+            }
+            else -> {
+                context.logger.log(Level.SEVERE, "Redox Auth called failed")
+                null
+            }
         }
     }
 
-    private fun sendItem(redox: RedoxTransportType, token: String, message: String, context: ExecutionContext): Boolean {
+    private fun sendItem(
+        redox: RedoxTransportType,
+        token: String,
+        message: String,
+        id: String,
+        context: ExecutionContext
+    ): Boolean {
         val url = "${getBaseUrl(redox)}$redoxEndpointPath"
         context.logger.log(Level.INFO, "About to post Redox msg to $url")
         val (_, _, result) = Fuel
@@ -95,11 +108,11 @@ class RedoxTransport() : ITransport {
         // TODO: store the result id when we get line level tracking
         return when (result) {
             is Result.Success -> {
-                context.logger.log(Level.INFO, "Successfully posted Redox msg to $url")
+                context.logger.log(Level.INFO, "Successfully posted Redox msg: $id")
                 true
             }
             is Result.Failure -> {
-                context.logger.log(Level.WARNING, "FAILED to post Redox msg to $url")
+                context.logger.log(Level.WARNING, "FAILED to post Redox msg: $id")
                 false
             }
             else -> false

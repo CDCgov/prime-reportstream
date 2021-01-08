@@ -18,7 +18,8 @@ elements:
   - name: ordering_facility_name
     csvFields: [{name: Ordering_Facility_Name}]
 
-  - name: ordering_facility_phone_number
+  # Yes, PA wants the facility phone number mapped to provider
+  - name: ordering_provider_phone_number
     csvFields: [{name: Ordering_Facility_Phone_Number}]
 
   - name: ordering_facility_street
@@ -42,11 +43,11 @@ elements:
   - name: ordering_provider_zip_code
     csvFields: [{name: Ordering_Provider_ZIP, format: $zipFive}]
 
-  - name: strac_id
+  - name: placer_order_id
     type: ID
     csvFields: [{name: id}]
 
-  - name: strac_kit_id
+  - name: filler_order_id
     type: ID
     csvFields: [{name: kit_id}]
 
@@ -148,13 +149,10 @@ elements:
   - name: specimen_received_date_time
     mapper: use(strac_patient_appt_datetime)
 
-  - name: testing_lab_clia
-    mapper: use(reporting_facility_clia)
-
-  - name: testing_lab_name
-    mapper: use(reporting_facility_name)
-
   - name: abnormal_flag
 
   - name: test_result_status
     default: F
+
+  - name: testing_lab_name
+    mapper: use(ordering_facility_name)

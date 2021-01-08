@@ -223,7 +223,8 @@ class RouterCli : CliktCommand(
                 FakeReport(metadata).build(
                     schema,
                     (inputSource as InputSource.FakeSource).count,
-                    FileSource("fake")
+                    FileSource("fake"),
+                    targetState
                 )
             }
             else -> {

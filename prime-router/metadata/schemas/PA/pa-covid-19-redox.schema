@@ -4,3 +4,7 @@ description: Pennsylvania Department of Health REDOX messages
 referenceUrl:
 topic: covid-19
 extends: covid-19-redox
+elements:
+  # override the default cardinality: The CLIA is held by the county.
+  - name: testing_lab_clia
+    cardinality: ZERO_OR_ONE

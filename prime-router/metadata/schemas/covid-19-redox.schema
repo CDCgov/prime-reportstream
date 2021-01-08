@@ -121,6 +121,11 @@ elements:
   - name: patient_email
     redoxOutputFields: ["Patient.Demographics.EmailAddresses"]
 
+
+  # The Placer is the person or service that requests or places the order for an observation. Examples of placers include the physician, the practice, clinic, or ward service, that orders a lab test, X-ray, vital signs.
+  - name: placer_order_id
+    redoxOutputFields: [ "Orders[0].ID" ]
+
   - name: ordering_facility_name
     redoxOutputFields: ["Orders[0].Extensions.ordering-facility-name.string"]
 
@@ -143,13 +148,16 @@ elements:
     redoxOutputFields: ["Orders[0].Extensions.ordering-facility-address.address.country"]
 
   - name: ordering_facility_phone_number
+    cardinality: ZERO_OR_ONE
 
   - name: ordering_facility_email
+    cardinality: ZERO_OR_ONE
 
   - name: order_test_date
     redoxOutputFields: ["Orders[0].Extensions.ordered-date-time.dateTime"]
 
-  - name: placer_order_id
+  # The Filler (aka Producer) is the person, or service, who produces the observations (fills the order) requested by the requestor.
+  - name: filler_order_id
     redoxOutputFields: ["Orders[0].ApplicationOrderID"]
 
   - name: specimen_received_date_time
@@ -260,7 +268,7 @@ elements:
     redoxOutputFields: [ "Orders[0].Results[0].Producer.ID" ]
 
   - name: redox_test_lab_id_type
-    default: "CLIA"
+    mapper: ifPresent(testing_lab_clia, CLIA)
     redoxOutputFields: [ "Orders[0].Results[0].Producer.IDType" ]
 
   - name: testing_lab_name
