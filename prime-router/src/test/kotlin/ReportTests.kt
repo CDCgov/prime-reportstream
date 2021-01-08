@@ -33,6 +33,32 @@ class ReportTests {
     }
 
     @Test
+    fun `test multiarg matches filter`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
+        // each sublist is a row.
+        val report1 = Report(one, listOf(listOf("row1_a", "row1_b"), listOf("row2_a", "row2_b")), source = TestSource)
+        assertEquals(2, report1.itemCount)
+        val filteredReportA = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "row1.*", "row2_a"))))
+        assertEquals(2, filteredReportA.itemCount)
+        assertEquals("row1_b", filteredReportA.getString(0, "b"))
+        assertEquals("row2_b", filteredReportA.getString(1, "b"))
+
+        val filteredReportB = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "row.*"))))
+        assertEquals(2, filteredReportA.itemCount)
+        assertEquals("row1_b", filteredReportB.getString(0, "b"))
+        assertEquals("row2_b", filteredReportB.getString(1, "b"))
+
+        val filteredReportC = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "row1_a", "foo", "bar", "baz"))))
+        assertEquals(1, filteredReportC.itemCount)
+        assertEquals("row1_b", filteredReportC.getString(0, "b"))
+
+        val filteredReportD = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "argle", "bargle"))))
+        assertEquals(0, filteredReportD.itemCount)
+    }
+
+    @Test
     fun `test isEmpty`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val emptyReport = Report(one, emptyList(), source = TestSource)

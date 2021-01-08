@@ -26,6 +26,12 @@ RUN_FL=0
 RUN_STANDARD=1
 RUN_ALL=0
 
+# If no args, run everything.
+if [ $# -eq 0 ] 
+then
+  RUN_ALL=1
+fi
+
 for arg in "$@"
 do
   case "$arg" in
