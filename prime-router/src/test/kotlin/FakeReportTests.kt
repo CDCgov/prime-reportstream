@@ -166,7 +166,7 @@ internal class FakeReportTests {
         val useField = metadata.findSchema(schemaName)
             ?.findElement(fieldName) ?: fail("Lookup failure: $fieldName")
 
-        val actual = FakeReport(metadata).buildColumn(useField, rowContext)
+        val actual = FakeReport(metadata).buildMappedColumn(useField, rowContext)
         val expected = "Any lab USA"
         assertEquals(expected, actual, "Expected $expected but received $actual")
     }
@@ -177,19 +177,19 @@ internal class FakeReportTests {
         val concatField = metadata.findSchema(schemaName)
             ?.findElement(fieldName) ?: fail("Lookup failure: $fieldName")
 
-        val actual = FakeReport(metadata).buildColumn(concatField, rowContext)
-        val expected = "Any lab USA^Any Facility USA"
+        val actual = FakeReport(metadata).buildMappedColumn(concatField, rowContext)
+        val expected = "Any lab USA^Any facility USA"
         assertEquals(expected, actual)
     }
 
     @Test
     fun `test concatenate mapper with default delimiter in fake data`() {
-        val fieldName = "testing_lab_and_facility"
+        val fieldName = "testing_lab_and_facility2"
         val concatField = metadata.findSchema(schemaName)
             ?.findElement(fieldName) ?: fail("Lookup failure: $fieldName")
 
-        val actual = FakeReport(metadata).buildColumn(concatField, rowContext)
-        val expected = "Any lab USA, Any Facility USA"
+        val actual = FakeReport(metadata).buildMappedColumn(concatField, rowContext)
+        val expected = "Any lab USA, Any facility USA"
         assertEquals(expected, actual)
     }
 }

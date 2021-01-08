@@ -151,7 +151,7 @@ class FakeReport(val metadata: Metadata) {
         }
     }
 
-    private fun buildMappedColumn(element: Element, rowContext: RowContext): String {
+    internal fun buildMappedColumn(element: Element, rowContext: RowContext): String {
         if (element.mapper.isNullOrEmpty()) error("Cannot build a mapped column without a mapper.")
         if (rowContext.schemaName.isNullOrEmpty()) error("Cannot fake a mapped column without the schema name")
 
