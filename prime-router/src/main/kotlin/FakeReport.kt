@@ -6,7 +6,11 @@ import java.util.Random
 import java.util.concurrent.TimeUnit
 
 class FakeReport(val metadata: Metadata) {
-    class RowContext(findLookupTable: (String) -> LookupTable? = { null }, reportState: String? = null) {
+    class RowContext(
+        findLookupTable: (String) -> LookupTable? = { null },
+        reportState: String? = null,
+        val schemaName: String? = null
+    ) {
         val faker = Faker()
         val patientName = faker.name()
         val schoolName: String = faker.university().name()
@@ -147,9 +151,48 @@ class FakeReport(val metadata: Metadata) {
         }
     }
 
+    private fun buildMappedColumn(element: Element, rowContext: RowContext): String {
+        if (element.mapper.isNullOrEmpty()) error("Cannot build a mapped column without a mapper.")
+        if (rowContext.schemaName.isNullOrEmpty()) error("Cannot fake a mapped column without the schema name")
+
+        val schema = metadata.findSchema(rowContext.schemaName)
+        val mapper = element.mapper
+        val refAndArgs: Pair<Mapper, List<String>> = mapper.let {
+            val (name, args) = Mappers.parseMapperField(it)
+            val ref: Mapper = metadata.findMapper(name)
+                ?: error("Schema Error: Could not find mapper '$name' in element '{$element.name}'")
+            Pair(ref, args)
+        }
+
+        return when (val mapperRef: Mapper = refAndArgs.first) {
+            is UseMapper, is ConcatenateMapper -> {
+                // find element
+                val elementNames = refAndArgs.second
+                val useElements = elementNames.map {
+                    schema?.findElement(it)
+                }
+
+                val evs = useElements.map {
+                    if (it == null) return ""
+
+                    ElementAndValue(it, buildColumn(it, rowContext))
+                }
+
+                // get fake data for element
+                mapperRef.apply(element, refAndArgs.second, evs) ?: ""
+            }
+            else -> buildColumn(element, rowContext)
+        }
+    }
+
     private fun buildRow(schema: Schema, targetState: String? = null): List<String> {
-        val context = RowContext(metadata::findLookupTable, targetState)
-        return schema.elements.map { buildColumn(it, context) }
+        val context = RowContext(metadata::findLookupTable, targetState, schemaName = schema.name)
+        return schema.elements.map {
+            if (it.mapper.isNullOrEmpty())
+                buildColumn(it, context)
+            else
+                buildMappedColumn(it, context)
+        }
     }
 
     fun build(schema: Schema, count: Int = 10, source: Source, targetState: String? = null): Report {

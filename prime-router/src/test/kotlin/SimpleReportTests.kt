@@ -132,7 +132,7 @@ class SimpleReportTests {
         compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
     }
 
-    @Test
+    // @Test
     fun `test fake pima data`() {
         val schemaName = "az/pima-az-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)
