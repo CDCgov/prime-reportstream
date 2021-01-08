@@ -5,9 +5,12 @@ import com.github.kittinunf.fuel.core.Headers.Companion.AUTHORIZATION
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
+import java.util.logging.Level
 
 class RedoxTransport() : ITransport {
     private val secretEnvName = "REDOX_SECRET"
@@ -21,11 +24,12 @@ class RedoxTransport() : ITransport {
     private val jsonMimeType = "application/json"
 
     override fun send(
-        orgName: String,
+        orgService: OrganizationService,
         transportType: TransportType,
         contents: ByteArray,
         reportId: ReportId,
-        retryItems: RetryItems?
+        retryItems: RetryItems?,
+        context: ExecutionContext
     ): RetryItems? {
         val redoxTransportType = transportType as RedoxTransportType
         val (key, secret) = getKeyAndSecret(redoxTransportType)
@@ -38,7 +42,7 @@ class RedoxTransport() : ITransport {
                 retryItems == null || RetryToken.isAllItems(retryItems) || retryItems.contains(index.toString())
             }
             .mapNotNull { (index, message) ->
-                if (!sendItem(redoxTransportType, token, message)) {
+                if (!sendItem(redoxTransportType, token, message, context)) {
                     index.toString()
                 } else {
                     null
@@ -79,8 +83,9 @@ class RedoxTransport() : ITransport {
         }
     }
 
-    private fun sendItem(redox: RedoxTransportType, token: String, message: String): Boolean {
+    private fun sendItem(redox: RedoxTransportType, token: String, message: String, context: ExecutionContext): Boolean {
         val url = "${getBaseUrl(redox)}$redoxEndpointPath"
+        context.logger.log(Level.INFO, "About to post Redox msg to $url")
         val (_, _, result) = Fuel
             .post(url)
             .header(CONTENT_TYPE to jsonMimeType, AUTHORIZATION to "Bearer $token")
@@ -89,8 +94,14 @@ class RedoxTransport() : ITransport {
             .responseJson()
         // TODO: store the result id when we get line level tracking
         return when (result) {
-            is Result.Success -> true
-            is Result.Failure -> false
+            is Result.Success -> {
+                context.logger.log(Level.INFO, "Successfully posted Redox msg to $url")
+                true
+            }
+            is Result.Failure -> {
+                context.logger.log(Level.WARNING, "FAILED to post Redox msg to $url")
+                false
+            }
             else -> false
         }
     }

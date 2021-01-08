@@ -51,12 +51,12 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                             is SFTPTransportType -> {
                                 workflowEngine
                                     .sftpTransport
-                                    .send(service.fullName, transport, content, reportId, retryItems)
+                                    .send(service, transport, content, reportId, retryItems, context)
                             }
                             is RedoxTransportType -> {
                                 workflowEngine
                                     .redoxTransport
-                                    .send(service.fullName, transport, content, reportId, retryItems)
+                                    .send(service, transport, content, reportId, retryItems, context)
                             }
                             else -> null
                         }
@@ -81,20 +81,21 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
     ): ReportEvent {
         return if (nextRetryTransports.isEmpty()) {
             // All OK
-            context.logger.info("Sent report: $reportId to $serviceName")
+            context.logger.info("Successfully sent report: $reportId to $serviceName")
             // TODO: Next action should be WIPE when implemented
             ReportEvent(Event.Action.NONE, reportId)
         } else {
             val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
             if (nextRetryCount >= maxRetryCount) {
                 // Stop retrying and just put the task into an error state
-                context.logger.info("Send Error report: $reportId to $serviceName")
+                context.logger.info("All retries failed.  Send Error report for: $reportId to $serviceName")
                 ReportEvent(Event.Action.SEND_ERROR, reportId)
             } else {
                 // retry using a back-off strategy
-                val nextRetryTime = OffsetDateTime.now().plusMinutes(retryDuration.getOrDefault(nextRetryCount, maxDurationValue))
+                val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)
+                val nextRetryTime = OffsetDateTime.now().plusMinutes(waitMinutes)
                 val nextRetryToken = RetryToken(nextRetryCount, nextRetryTransports)
-                context.logger.info("Retry Send report: $reportId to $serviceName} at $nextRetryTime")
+                context.logger.info("Send Failed.  Will retry sending report: $reportId to $serviceName} in $waitMinutes minutes, at $nextRetryTime")
                 ReportEvent(Event.Action.SEND, reportId, nextRetryTime, nextRetryToken)
             }
         }

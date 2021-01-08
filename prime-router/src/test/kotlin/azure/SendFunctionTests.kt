@@ -77,7 +77,7 @@ class SendFunctionTests {
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(null)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
 
         // Invoke
         val event = ReportEvent(Event.Action.SEND, reportId)
@@ -99,7 +99,7 @@ class SendFunctionTests {
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.Action.SEND, reportId)
@@ -124,7 +124,7 @@ class SendFunctionTests {
             nextEvent = block(header, RetryToken(2, listOf(RetryTransport(0, RetryToken.allItems))), null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.Action.SEND, reportId)
@@ -154,7 +154,7 @@ class SendFunctionTests {
             nextEvent = block(header, RetryToken(100, listOf(RetryTransport(0, RetryToken.allItems))), null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.Action.SEND, reportId)
