@@ -83,6 +83,11 @@ data class Element(
     // in the schema files so we can generate documentation off of
     // the file
     val documentation: String? = null,
+
+    // used for the concatenation mapper. the element carries this
+    // value around and into the mapper itself so the interface for the
+    // mapper remains as generic as possible
+    val delimiter: String? = null,
 ) {
     /**
      * Types of elements. Types imply a specific format and fake generator.
@@ -188,6 +193,7 @@ data class Element(
             hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
             documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
+            delimiter = this.delimiter ?: baseElement.delimiter,
         )
     }
 

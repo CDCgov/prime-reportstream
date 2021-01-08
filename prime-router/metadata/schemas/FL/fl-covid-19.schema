@@ -257,6 +257,7 @@ elements:
       hl7Field: OBX-17-2
       mapper: "concat(test_kit_name_id, device_id, test_kit_name_id_type)"
       csvFields: [{ name: "Kit^Device^IDType" }]
+      delimiter: ^
 
     # column AX
     - name: first_test

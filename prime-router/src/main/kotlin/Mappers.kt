@@ -119,7 +119,7 @@ class ConcatenateMapper : Mapper {
         return if (values.isEmpty()) {
             null
         } else {
-            values.joinToString { it.value } // default ", " separator for now.
+            values.joinToString(separator = element.delimiter ?: ", ") { it.value } // default ", " separator for now.
         }
     }
 }
