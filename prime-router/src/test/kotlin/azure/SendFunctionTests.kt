@@ -18,11 +18,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class SendFunctionTests {
     val context = mockkClass(ExecutionContext::class)
@@ -88,6 +84,8 @@ class SendFunctionTests {
         assertNull(nextEvent!!.retryToken)
     }
 
+    // TODO: Enable when retry is enabled
+    @Ignore
     @Test
     fun `Test with sftp error`() {
         // Setup
@@ -112,6 +110,7 @@ class SendFunctionTests {
         assertEquals(1, nextEvent!!.retryToken?.retryCount)
     }
 
+    @Ignore
     @Test
     fun `Test with third sftp error`() {
         // Setup
@@ -139,6 +138,7 @@ class SendFunctionTests {
         nextEvent!!.retryToken?.toJSON()?.let { assertTrue(it.contains("\"retryCount\":3")) }
     }
 
+    @Ignore
     @Test
     fun `Test with 100th sftp error`() {
         // Setup

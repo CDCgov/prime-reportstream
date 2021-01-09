@@ -49,8 +49,8 @@
         # Note: No 'batch:' here, so that step is skipped.   No delay either. Send happens instantly after translate.
         transports:
           - type: SFTP
-            host: localhost
-            port: 2222
+            host: sftp
+            port: 22
             filePath: ./upload
         format: HL7
       - name: elr-prod

@@ -30,11 +30,15 @@ class SftpTransport : ITransport {
             val fileName = "${orgService.fullName.replace('.', '-')}-$reportId.$extension"
 
             context.logger.log(Level.INFO, "About to sftp upload $fileName to $user at $host:$port (orgService = ${orgService.fullName})")
-            uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents)
+            uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
             context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
             null
         } catch (ioException: IOException) {
-            context.logger.log(Level.WARNING, "FAILED Sftp upload of reportId $reportId to $host:$port  (orgService = ${orgService.fullName})\"")
+            context.logger.log(
+                Level.WARNING,
+                "FAILED Sftp upload of reportId $reportId to $host:$port  (orgService = ${orgService.fullName})\"",
+                ioException
+            )
             RetryToken.allItems
         } // let non-IO exceptions be caught by the caller
     }
@@ -59,7 +63,8 @@ class SftpTransport : ITransport {
         pass: String,
         path: String,
         fileName: String,
-        contents: ByteArray
+        contents: ByteArray,
+        context: ExecutionContext // TODO: temp fix to add logging
     ) {
         val sshClient = SSHClient()
         try {
@@ -78,11 +83,15 @@ class SftpTransport : ITransport {
                     },
                     path
                 )
+                // TODO: remove this over logging when bug is fixed
+                context.logger.log(Level.INFO, "SFTP PUT succeeded: $fileName")
             } finally {
                 client.close()
+                context.logger.log(Level.INFO, "SFTP CLOSE succeeded: $fileName")
             }
         } finally {
             sshClient.disconnect()
+            context.logger.log(Level.INFO, "SFTP DISCONNECT succeeded: $fileName")
         }
     }
 }
