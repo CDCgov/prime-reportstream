@@ -60,9 +60,10 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                             }
                             else -> null
                         }
-                        if (nextRetryItems != null) {
-                            nextRetryTransports.add(RetryTransport(i, nextRetryItems))
-                        }
+                        // TODO: disable retry
+//                        if (nextRetryItems != null) {
+//                            nextRetryTransports.add(RetryTransport(i, nextRetryItems))
+//                        }
                     }
                 handleRetry(nextRetryTransports, reportId, serviceName, retryToken, context)
             }
