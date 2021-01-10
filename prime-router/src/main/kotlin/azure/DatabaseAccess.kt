@@ -212,15 +212,16 @@ class DatabaseAccess(private val create: DSLContext) {
     }
 
     fun fetchHeader(
-        reportId: ReportId
+        reportId: ReportId,
+        orgName: String
     ): Header {
 
         val task = create
             .selectFrom(TASK)
-            .where(TASK.REPORT_ID.eq(reportId))
+            .where(TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.likeRegex("^$orgName")))
             .fetchOne()
             ?.into(Task::class.java)
-            ?: error("Could not find $reportId that matches a task")
+            ?: error("Could not find $reportId/$orgName that matches a task")
 
         val taskSources = create
             .selectFrom(TASK_SOURCE)

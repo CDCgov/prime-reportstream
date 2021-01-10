@@ -46,8 +46,8 @@
     signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile'] } )
         .then( function( tokens ){
             var idToken = tokens.idToken; 
-            createCookie("user", idToken.claims.email,3)
-            createCookie("organization", idToken.claims.org,3)
+            createCookie("user", idToken.claims.email,3,5)
+            createCookie("organization", idToken.claims.org,3,5)
             window.location.replace([[${OKTA_redirect}]]);
         })
 </script>

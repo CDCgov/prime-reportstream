@@ -23,9 +23,11 @@ class DownloadFunction {
     val DAYS_TO_SHOW = 7L
     val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
     val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
+    val FILENOTFOUND_PAGE = "./assets/csv-download-site/nosuchfile__inline.html"
 
     data class TestResult(
         val date: String,
+        val receiver: String,
         val expires: Long,
         val total: Any? = null,
         val positive: Any? = null,
@@ -51,11 +53,11 @@ class DownloadFunction {
             else
                 return responseFile(request, file)
         } else {
-            return redirectToAuthenticate(request)
+            return serveAuthenticatePage(request)
         }
     }
 
-    private fun redirectToAuthenticate(request: HttpRequestMessage<String?>): HttpResponseMessage {
+    private fun serveAuthenticatePage(request: HttpRequestMessage<String?>): HttpResponseMessage {
         val htmlTemplate = Files.readString(Path.of(LOGIN_PAGE))
 
         val attr = mapOf(
@@ -77,15 +79,19 @@ class DownloadFunction {
         return headers.filter {
             val now = OffsetDateTime.now()
             it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
-        }.map {
-            TestResult(
-                it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
-                it.task.itemCount,
-                0,
-                it.task.reportId.toString()
-            )
         }
+            .sortedByDescending {
+                it.task.createdAt
+            }.map {
+                TestResult(
+                    it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                    it.task.receiverName,
+                    DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
+                    it.task.itemCount,
+                    0,
+                    it.task.reportId.toString()
+                )
+            }
     }
 
     private fun generatePreviousTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
@@ -98,7 +104,8 @@ class DownloadFunction {
             }
             .map {
                 TestResult(
-                    it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                    it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                    it.task.receiverName,
                     DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
                     it.task.itemCount,
                     0,
@@ -107,8 +114,8 @@ class DownloadFunction {
             }
     }
 
-    private fun responsePage(request: HttpRequestMessage<String?>): HttpResponseMessage {
-        val htmlTemplate = Files.readString(Path.of(DOWNLOAD_PAGE))
+    private fun responsePage(request: HttpRequestMessage<String?>, fileNotFound: Boolean = false): HttpResponseMessage {
+        val htmlTemplate = Files.readString( Path.of( FILENOTFOUND_PAGE ) )
         val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
 
         val attr = mapOf(
@@ -132,16 +139,20 @@ class DownloadFunction {
     }
 
     private fun responseFile(request: HttpRequestMessage<String?>, fileName: String): HttpResponseMessage {
-        val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(ReportId.fromString(fileName))
+        val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(ReportId.fromString(fileName), orgName)
         var response: HttpResponseMessage
         try {
             val body = WorkflowEngine().readBody(header)
+            if( body.size <= 0 )
+                response = responsePage( request, true );
+            else{
             response = request
                 .createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "text/csv")
                 .header("Content-Disposition", "attachment; filename=test-results.csv")
                 .body(body)
                 .build()
+            }
         } catch (ex: Exception) {
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
         }
@@ -165,7 +176,12 @@ class DownloadFunction {
     }
 
     private fun checkAuthenticated(request: HttpRequestMessage<String?>): Boolean {
+        userName = ""
+        orgName = ""
+
         val cookies = request.headers["cookie"] ?: ""
+
+        System.out.println("cookies = $cookies")
 
         cookies.replace(" ", "").split(";").forEach {
             System.out.println("'$it'")
@@ -175,10 +191,6 @@ class DownloadFunction {
             }
             if (cookie[0] == "organization") orgName = cookie[1]
         }
-
-        System.out.println("user = '$userName'")
-        System.out.println("org = '$orgName'")
-
         return userName.isNotBlank() && orgName.isNotBlank()
     }
 }

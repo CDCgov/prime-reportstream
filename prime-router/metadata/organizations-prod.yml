@@ -26,6 +26,22 @@
           initialBatch: 00:00
           timeZone: ARIZONA
         format: CSV
+
+      - name: elr-test-hl7
+        topic: covid-19
+        schema: az/az-covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state,AZ)
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains)"
+        transforms: { deidentify: false }
+        batch:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialBatch: 00:00
+          timeZone: ARIZONA
+        format: HL7
+
+
         transports:
           - type: SFTP
             host: hssftp.azdhs.gov

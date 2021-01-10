@@ -132,78 +132,7 @@
     </header>
 
     <main>
-      <div class="grid-container">
-        <div class="grid-row">
-          <div class="grid-col-12 margin-top-3 margin-bottom-2">
-            <h1 class="margin-bottom-6">
-              COVID-19 test results <br />
-              <span class="text-base-light" th:text="${description}"></span>
-            </h1>
-            <h2>Today's results</h2>
-
-            <span th:if="${todays.isEmpty()}"><i>No items found</i></span>
-            <table th:unless="${todays.isEmpty()}" class="usa-table usa-table--borderless prime-table">
-              <thead>
-                <tr>
-                  <th scope="col">Date</th>
-                  <th scope="col">Receiver</th>
-                  <th scope="col">Expires</th>
-                  <th scope="col">Total tests</th>
-                  <th scope="col">File</th>
-                </tr>
-              </thead>
-              <tbody class="font-mono-2xs">
-                <tr th:each="result : ${todays}">
-                  <th data-title="date" scope="row" th:text="${result.date}"></th>
-                  <th data-title="receiver" scope="row" th:text="${result.receiver}"></th>
-                  <td data-title="expires">
-                    <span th:text="${result.expires}"></span> day(s)
-                  </td>
-                  <td data-title="Total tests" th:text="${result.total}">-</td>
-                  <td data-title="File">
-                    <span>
-                      <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download CSV</a>
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="grid-col-12">
-            <h2>Previous <span th:text="${days_to_show}"></span> days</h2>
-            <span th:if="${previous.isEmpty()}"><i>No items found</i></span>
-            <table th:unless="${previous.isEmpty()}" class="usa-table usa-table--borderless prime-table">
-              <thead>
-                <tr>
-                  <th scope="col">Date</th>
-                  <th scope="col">Reciever</th>
-                  <th scope="col">Expires</th>
-                  <th scope="col">Total tests</th>
-                  <th scope="col">File</th>
-                </tr>
-              </thead>
-              <tbody class="font-mono-2xs">
-                <!-- {{ for result in results }} -->
-                <tr th:each="result : ${previous}">
-                  <th data-title="date" scope="row" th:text="${result.date}"></th>
-                  <th data-title="receiver" scope="row" th:text="${result.receiver}"></th>
-                  <td data-title="expires">
-                    <span th:text="${result.expires}"></span> day(s)
-                  </td>
-                  <td data-title="Total tests" th:text="${result.total}">-</td>
-                  <td data-title="File">
-                    <span>
-                        <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download CSV</a>
-                    </span>
-                  </td>
-                </tr>
-                <!-- {{ endfor }} -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+        <span>No file was found</span>
     </main>
 
     <footer class="usa-footer usa-footer--slim">

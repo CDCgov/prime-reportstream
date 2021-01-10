@@ -320,7 +320,7 @@
                     </generator>
                 </configuration>
             </plugin>
-            <plugin>
+<!--             <plugin>
                 <groupId>com.github.gantsign.maven</groupId>
                 <artifactId>ktlint-maven-plugin</artifactId>
                 <version>1.7.0</version>
@@ -332,7 +332,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
         </plugins>
     </build>
     <dependencies>
