@@ -10,7 +10,7 @@ defaults:
 
 jobs:
   build:
-    if: github.repository_owner == "CDCgov"
+    if: github.repository_owner == 'CDCgov'
     runs-on: ubuntu-latest
 
     steps:
