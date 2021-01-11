@@ -32,7 +32,6 @@ jobs:
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_TEST_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
-               env
 
       - name: Setup PostgreSQL
         uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
