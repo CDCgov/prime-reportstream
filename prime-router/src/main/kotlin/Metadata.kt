@@ -285,14 +285,28 @@ class Metadata {
     }
 
     fun loadOrganizationList(organizations: List<Organization>): Metadata {
-        this.organizationStore = organizations
-        this.organizationClientStore = organizations.flatMap { it.clients }
-        this.organizationServiceStore = organizations.flatMap { it.services }
+        organizationStore = organizations
+        organizationClientStore = organizations.flatMap { it.clients }
+        organizationServiceStore = organizations.flatMap { it.services }
         // Check values
-        this.organizationServiceStore.forEach { service ->
+        val clientNames = mutableSetOf<String>()
+        organizationClientStore.forEach {
+            if (clientNames.contains(it.fullName))
+                error("Metadata Error: Duplicate ${it.fullName} in organization clients")
+            else
+                clientNames.add(it.fullName)
+        }
+        val serviceNames = mutableSetOf<String>()
+        organizationServiceStore.forEach {
+            if (serviceNames.contains(it.fullName))
+                error("Metadata Error: Duplicate ${it.fullName} in organization services")
+            else
+                serviceNames.add(it.fullName)
+        }
+        organizationServiceStore.forEach { service ->
             service.batch?.let {
                 if (!it.isValid())
-                    error("Internal Error: improper batch value for ${service.fullName}")
+                    error("Metadata Error: improper batch value for ${service.fullName}")
             }
         }
         return this
