@@ -1,10 +1,14 @@
 ## Background
 
-TODO
+As the number of connections the Hub makes increases, the management of secrets is quickly becoming burdensome. All secrets are currently managed as environment variables per environment. This requires a redeploy to roll out a new connection, which is not scalable in the long term.
+
+We are looking for a new strategy to manage our secrets.
 
 ## Goals
 
-As a dev-ops engineer, I would like to have a vault for data-hub's secrets. As a security official, I would like this vault to be secure and auditable.
+Secrets management can viewed from the perspective of two different user archetypes. As a dev-ops engineer, I would like to have a vault for data-hub's secrets. As a security official, I would like this vault to be secure and auditable.
+
+Our current goals for secrets management fall under the following requirements:
 
 - Can hold 1000s of secrets including SFTP passwords
 - Has a master encryption key that is stored in a KeyVault (or CDCs equivalent)
@@ -34,7 +38,7 @@ Since these secrets are going to continue to grow as we make more an more connec
 To enable storage-agnostic secrets access, we should build a base service that can be extended depending on the storage mechanism. Method signatures for this class may look like the following:
 
 ```
-abstract class ConnectionCredentialStorageService {
+interface ConnectionCredentialStorageService {
     ConnectionCredential fetchConnectionCredential(UUID connectionId)
     void saveConnectionCredential(UUID connectionId, ConnectionCredential credential)
 }
@@ -75,7 +79,9 @@ The container should be configured to use local storage, which persists across D
 
 #### Storing Secrets in Higher Cloud Environments
 
-In the cloud, we should leverage Azure Key Vault for secrets management. Key Vault is highly available, scales, and is affordable for our needs. The underlying Key Vault service is managed by Microsoft, so there are no additional infrastructure management costs on our end. When making this decision a comparison was weighed against standing up a Hashicorp Vault Cluster in the cloud.
+In the cloud, we should leverage Azure Key Vault for secrets management. Key Vault is highly available, scales, and is affordable for our needs. The underlying Key Vault service is managed by Microsoft, so there are no additional infrastructure management costs on our end.
+
+When making this decision a comparison was weighed against standing up a Hashicorp Vault Cluster in the cloud.
 
 |                            | Azure Key Vault                                                                                                                                     | Hashicorp Vault                                                                                                                                                        |
 | -------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -86,18 +92,18 @@ In the cloud, we should leverage Azure Key Vault for secrets management. Key Vau
 | **Risk**                   | Low, main risk is on initial provisioning if misconfigured                                                                                          | Medium, with on-going maintenance, whenever anything changed, there is always a risk of misconfiguration, leading to an outage or security incident                    |
 | **Infrastructure Support** | High, [support provided by Azure](https://azure.microsoft.com/en-us/support/plans/), matching our Azure contract                                    | None, unless we acquire a [Vault enterprise license](https://www.hashicorp.com/products/vault/pricing)                                                                 |
 | **Dev Support**            | High, lots of client provided libraries                                                                                                             | High, lots of client provided libraries                                                                                                                                |
-| **Auditing**               | High, [full logging via storage account supported](https://docs.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault)                     | High, [support file, socket, and syslog](https://www.vaultproject.io/docs/audit)                                                                                       |
+| **Auditing**               | High, [full logging via storage account supported](https://docs.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault)                     | High, [supports file, socket, and syslog](https://www.vaultproject.io/docs/audit)                                                                                      |
 
 ##### Cloud Design
 
-In our cloud environment, we should create a separate vault for each tier of secrets (i.e. a separate vault for application secrets and a separate vault for client secrets). Each environment should have their own set of vaults that is not shared with any other environment.
+In our cloud environment, we should create a separate vault for each tier of secrets (i.e. a separate vault for application secrets and a separate vault for client secrets). Each environment should have their own set of vaults that are not shared with any other environment.
 
-ACL should be leverage so that there are separate access policies per vault. In high environments like production, developers should not be given access to read secrets from the vault. Long term, for client secrets, the application itself should handle creating and updating connection secrets and that should not be done through the Azure console. Reading secrets and writing secrets should use separate security groups and never assigned to the same application.
+ACL should be leverage so that there are separate access policies per vault. In high environments like production, developers should not be given access to read secrets from the vault. Long term, for client secrets, the application itself should handle creating and updating connection secrets. We should not be using the Azure console to administer connections. Reading secrets and writing secrets should use separate security groups and never assigned to the same application.
 
 Application secrets should continue to be injected as environment variables for the services that require them. Client secrets should be accessed through the `ConnectionCredentialStorageService` using the Azure secrets client libraries, which will allow us to rotate secrets without redeploying the application.
 
 For the initial design, secrets should leverage the base secrets management support in Azure under the premium tier. If access credentials are broken up by operation (read/write) and read access is never given to a developer or any other individual, this will limit the available sources credentials could be compromised or leaked.
 
-For the future, the client secrets could be encrypted using a HSM key prior to being stored in the secret manager, but if we're using Azure Key Vault to store the secrets in the first place, little additional security is gained by additionally encrypting using an HSM. The instances that need access to the decrypted credentials will have access to both the secrets and HSM decryption services (but not the keys), leaving the instance as possible attack vector for compromise.
+For the future, the client secrets could be encrypted using a HSM key prior to being stored in the secret manager, but if we're using Azure Key Vault to store the secrets in the first place, little additional security is gained by encrypting using an HSM.
 
 For secrets auditing, we will enable Key Vault auditing and store the results in an encrypted data container. This will enable traceability for every secrets action.
