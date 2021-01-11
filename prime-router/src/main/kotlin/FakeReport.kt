@@ -43,6 +43,7 @@ class FakeReport(val metadata: Metadata) {
                     element.nameContains("lab_name") -> "Any lab USA"
                     element.nameContains("facility_name") -> "Any facility USA"
                     element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
+                    element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
                     element.nameContains("patient_age_and_units") -> {
                         val unit = randomChoice("months", "years", "days")
                         val value = when (unit) {

@@ -175,16 +175,17 @@ elements:
 
     # column AL
     - name: test_performed_code
-      csvFields: [{ name: Observation Code }]
+      csvFields: [{ name: LOINC Code }]
 
     # column AM
     - name: test_performed_name
-      csvFields: [{ name: Observation Description }]
+      csvFields: [{ name: LOINC Description }]
 
     # column AN
     # nonstandard
     - name: local_code
       type: TEXT
+      mapper: 'use(test_performed_code)'
       documentation: |
         This is a localized coded value that the facility may use for this test
 
@@ -195,6 +196,7 @@ elements:
     # nonstandard
     - name: local_code_description
       type: TEXT
+      mapper: 'use(test_performed_name)'
       documentation: |
         This is a localized description of the localized coded value that the facility may use for this test
 
@@ -221,7 +223,8 @@ elements:
     # TODO: duplication of data here. is this intended or should OBX-14 maybe refer elsewhere?
     - name: snomed_code_for_result
       type: TEXT
-      csvFields: [{ name: SNOMED Code for Result }]
+      mapper: 'use(test_result)'
+      csvFields: [{ name: SNOMED Code for Result, format: $code }]
       documentation: This is the coded value that describes the result. For IgG, IgM and CT results that provide a value leave this field blank.
 
     # column AT
@@ -397,5 +400,13 @@ elements:
       type: TEXT
       csvFields: [{ name: "What is the name of the school" }]
       documentation: AOE question for Florida. Will likely be the same value as the ordering facility.
+
+    # these are included so they can be used by mappers, but are *NOT* mapped to a CSV field so they
+    # don't appear in the final CSV file
+    - name: test_kit_name_id
+
+    - name: device_id
+
+    - name: test_kit_name_id_type
 
 
