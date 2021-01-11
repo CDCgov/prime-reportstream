@@ -4,13 +4,13 @@ on:
   pull_request:
     branches: [ master, production ]
 
-if: github.repository_owner == CDCgov
-
 defaults:
   run:
     working-directory: prime-router
 
 jobs:
+  if: github.repository_owner == CDCgov
+  
   build:
     runs-on: ubuntu-latest
 
