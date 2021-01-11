@@ -409,4 +409,10 @@ elements:
 
     - name: test_kit_name_id_type
 
+    - name: equipment_model_name
+
+    - name: patient_age
+
+    - name: patient_age_units
+
 
