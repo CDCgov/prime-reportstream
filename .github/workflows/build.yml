@@ -9,9 +9,8 @@ defaults:
     working-directory: prime-router
 
 jobs:
-  if: github.repository_owner == CDCgov
-  
   build:
+    if: github.repository_owner == CDCgov
     runs-on: ubuntu-latest
 
     steps:
