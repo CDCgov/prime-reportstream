@@ -80,4 +80,10 @@ In the cloud, we should leverage Azure Key Vault for secrets management. Key Vau
 
 In our cloud environment, we should create a separate vault for each tier of secrets (i.e. a separate vault for application secrets and a separate vault for client secrets). Each environment should have their own set of vaults that is not shared with any other environment.
 
-ACL should be leverage so that there are separate access policies per vault. In high environments like production, developers should not be given access to read secrets from the vault. Long term, for client secrets, the application itself should handle creating an updating connection secrets and that should be be done through the Azure console.
+ACL should be leverage so that there are separate access policies per vault. In high environments like production, developers should not be given access to read secrets from the vault. Long term, for client secrets, the application itself should handle creating and updating connection secrets and that should be be done through the Azure console. Reading secrets and writing secrets should use separate security groups, and never assigned to the same application.
+
+Application secrets should continue to be injected as environment variables for the services that require. Client secrets should be accessed through the `ConnectionCredentialStorageService` using the Azure secrets client libraries, which will allow us to rotate secrets without redeploying the application.
+
+For the initial design, secrets should leverage the base secrets management support in Azure under the premium tier. If access credentials are broken up by operation (read/write) and read access is never given to a developer or any other individual, this will limit the available sources credentials could be compromised or leaked.
+
+For the future, the client secrets could be encrypted using a HSM key prior to being stored in the secret manager, but if we're using Azure Key Vault to store the secrets in the first place, little additional security is gained by encrypting using HSM. The instances that need access to the decrypted credentials will have access to both the secrets and HSM decryption services (but not the keys), leaving the instance as possible attack vector for compromise.
