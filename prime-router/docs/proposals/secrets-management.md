@@ -4,6 +4,17 @@ TODO
 
 ## Goals
 
+As a dev-ops engineer, I would like to have a vault for data-hub's secrets. As a security official, I would like this vault to be secure and auditable.
+
+- Can hold 1000s of secrets including SFTP passwords
+- Has a master encryption key that is stored in a KeyVault (or CDCs equivalent)
+- Works in Azure
+- Request rates and latency that match the need of the data hub
+- Simple to operate in Azure
+- No single failure points in Azure
+- Works locally in Docker on developer laptop
+
+
 ## Proposal
 
 ### Tiering Secret Storage
@@ -34,17 +45,15 @@ This assume that there will only ever be one set of credentials for each connect
 From there, the `ConnectionCredential` would be an interface that would be extended depending on the connection type. For example, a couple of different `ConnectionCredential` classes may look like:
 
 ```
-abstract class ConnectionCredential {
-    String host;
-    Integer port;
+interface ConnectionCredential {
 }
 
-class SFTPConnectionCredential extends ConnectionCredential {
+class UserPassConnectionCredential implements ConnectionCredential {
     String username;
     String password;
 }
 
-class HL7ConnectionCredential extends ConnectionCredential {
+class TokenConnectionCredential implements ConnectionCredential {
     String token;
 }
 ```
@@ -56,34 +65,39 @@ With a `ConnectionCredentialStorageService` in place, we can store secrets sligh
 
 #### Storing Secrets Locally
 
-Locally, we should store secrets in a way that leverages the same access methods as we will in th cloud.
+Locally, we should store secrets in a way that leverages the same access methods as we will in the cloud.
 
 For applications secrets, we should set local environment variables. Any application secrets that need to be shared between developers should be communicated via a secure method when setting up the developer's environment.
 
-For connection secrets, we should leverage Hashicorp Vault. Hashicorp Vault provides a Docker container we can configure to spin up with our existing Docker containers. The container should be configured to use local storage, which persists across Docker environment tear downs. The local storage file will be added to our `.gitignore` to ensure the secrets database remains unique per developer. The local storage database will be encrypted using a Vault secret, so in the event a developer's local secret database is compromised, the attacker would still require the Vault secret.
+For connection secrets, we should leverage Hashicorp Vault. Hashicorp Vault provides a Docker container we can configure to spin up with our existing Docker containers. By managing our local Vault instances through Docker, we can easily share configuration across developers, ensuring Vault is configured correctly locally.
+
+The container should be configured to use local storage, which persists across Docker environment tear downs. The local storage file will be added to our `.gitignore` to ensure the secrets database remains unique per developer. The local storage database will be encrypted using a Vault secret, so in the event a developer's local secret database is compromised, the attacker would still require the Vault secret.
 
 #### Storing Secrets in Higher Cloud Environments
 
-In the cloud, we should leverage Azure Key Vault for secrets management. Key Vault is highly available, scales, and is affordable for our needs. The underlying Key Vault service is managed by Microsoft, so there is no additional infrastructure management costs on our end. When making this decision a comparison was weighed against standing up a Hashicorp Vault Cluster in the cloud.
+In the cloud, we should leverage Azure Key Vault for secrets management. Key Vault is highly available, scales, and is affordable for our needs. The underlying Key Vault service is managed by Microsoft, so there are no additional infrastructure management costs on our end. When making this decision a comparison was weighed against standing up a Hashicorp Vault Cluster in the cloud.
 
-|                            | Azure Key Vault                                                                                    | Hashicorp Vault                                                                                                                                                        |
-| -------------------------- | :------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Infrastructure**         | None, managed by Azure                                                                             | For high availability tolerance, 2-3 instances per environment at a minimum                                                                                            |
-| **Security**               | High, supports complex ACLs, HSM keys, key and secret rotation                                     | High, supports complex ACLs, HSM keys, key and secret rotation                                                                                                         |
-| **Ongoing Management**     | None, outside of provisioning                                                                      | Medium, additional administration required to keep cluster up-to-date and scale the cluster as we grow                                                                 |
-| **Cost**                   | Medium, our secrets access model will generate lots of transactions, but costs will scale with use | Medium, costs won't directly be tied to transactions, but with growth, we might require a complex cluster that requires extra developer time to administer and upgrade |
-| **Risk**                   | Low, main risk is on initial provisioning if misconfigured                                         | Medium, with on-going maintenance, whenever anything changed, there is always a risk of misconfiguration, leading to an outage or security incident                    |
-| **Infrastructure Support** | High, support provided by Azure, matching our Azure contract                                       | None, unless we acquire a Vault enterprise license                                                                                                                     |
-| **Dev Support**            | High, lots of client provided libraries                                                            | High, lots of client provided libraries                                                                                                                                |
+|                            | Azure Key Vault                                                                                                                                     | Hashicorp Vault                                                                                                                                                        |
+| -------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Infrastructure**         | None, managed by Azure                                                                                                                              | For high availability, 2-3 instances per environment at a minimum                                                                                                      |
+| **Security**               | High, supports complex ACLs, HSM keys, key and secret rotation                                                                                      | High, supports complex ACLs, HSM keys, key and secret rotation                                                                                                         |
+| **Ongoing Management**     | None required, outside of provisioning                                                                                                              | Medium, additional administration required to keep cluster up-to-date and scale the cluster as we grow                                                                 |
+| **Cost**                   | Medium, our secrets access model will generate lots of transactions, but [costs will scale with use](../assets/cdc-secrets-cost-rough-estimate.pdf) | Medium, costs won't directly be tied to transactions, but with growth, we might require a complex cluster that requires extra developer time to administer and upgrade |
+| **Risk**                   | Low, main risk is on initial provisioning if misconfigured                                                                                          | Medium, with on-going maintenance, whenever anything changed, there is always a risk of misconfiguration, leading to an outage or security incident                    |
+| **Infrastructure Support** | High, [support provided by Azure](https://azure.microsoft.com/en-us/support/plans/), matching our Azure contract                                    | None, unless we acquire a [Vault enterprise license](https://www.hashicorp.com/products/vault/pricing)                                                                 |
+| **Dev Support**            | High, lots of client provided libraries                                                                                                             | High, lots of client provided libraries                                                                                                                                |
+| **Auditing**               | High, [full logging via storage account supported](https://docs.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault)                     | High, [support file, socket, and syslog](https://www.vaultproject.io/docs/audit)                                                                                       |
 
 ##### Cloud Design
 
 In our cloud environment, we should create a separate vault for each tier of secrets (i.e. a separate vault for application secrets and a separate vault for client secrets). Each environment should have their own set of vaults that is not shared with any other environment.
 
-ACL should be leverage so that there are separate access policies per vault. In high environments like production, developers should not be given access to read secrets from the vault. Long term, for client secrets, the application itself should handle creating and updating connection secrets and that should be be done through the Azure console. Reading secrets and writing secrets should use separate security groups, and never assigned to the same application.
+ACL should be leverage so that there are separate access policies per vault. In high environments like production, developers should not be given access to read secrets from the vault. Long term, for client secrets, the application itself should handle creating and updating connection secrets and that should not be done through the Azure console. Reading secrets and writing secrets should use separate security groups and never assigned to the same application.
 
-Application secrets should continue to be injected as environment variables for the services that require. Client secrets should be accessed through the `ConnectionCredentialStorageService` using the Azure secrets client libraries, which will allow us to rotate secrets without redeploying the application.
+Application secrets should continue to be injected as environment variables for the services that require them. Client secrets should be accessed through the `ConnectionCredentialStorageService` using the Azure secrets client libraries, which will allow us to rotate secrets without redeploying the application.
 
 For the initial design, secrets should leverage the base secrets management support in Azure under the premium tier. If access credentials are broken up by operation (read/write) and read access is never given to a developer or any other individual, this will limit the available sources credentials could be compromised or leaked.
 
-For the future, the client secrets could be encrypted using a HSM key prior to being stored in the secret manager, but if we're using Azure Key Vault to store the secrets in the first place, little additional security is gained by encrypting using HSM. The instances that need access to the decrypted credentials will have access to both the secrets and HSM decryption services (but not the keys), leaving the instance as possible attack vector for compromise.
+For the future, the client secrets could be encrypted using a HSM key prior to being stored in the secret manager, but if we're using Azure Key Vault to store the secrets in the first place, little additional security is gained by additionally encrypting using an HSM. The instances that need access to the decrypted credentials will have access to both the secrets and HSM decryption services (but not the keys), leaving the instance as possible attack vector for compromise.
+
+For secrets auditing, we will enable Key Vault auditing and store the results in an encrypted data container. This will enable traceability for every secrets action.
