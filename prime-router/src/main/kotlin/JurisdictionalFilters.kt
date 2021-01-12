@@ -39,20 +39,25 @@ interface JurisdictionalFilter {
 }
 
 /**
- * Implements the most basic filter.
- * matches(columnName, regex)
+ * Implements a regex match.  If any of the regexes matches, the row is selected.
+ * If the column name does not exist, nothing passes thru the filter.
+ * matches(columnName, regex, regex, regex)
  */
 class Matches : JurisdictionalFilter {
     override val name = "matches"
 
     override fun getSelection(args: List<String>, table: Table): Selection {
-        if (args.size != 2) error("Expecting two args to filter $name:  (columnName, regex)")
+        if (args.size < 2) error("Expecting two or more args to filter $name:  (columnName, regex [, regex, regex])")
         val columnName = args[0]
-        val pattern = args[1]
+        val values = args.subList(1, args.size)
         val columnNames = table.columnNames()
-        return if (columnNames.contains(columnName))
-            table.stringColumn(columnName).matchesRegex(pattern)
-        else
+        return if (columnNames.contains(columnName)) {
+            val selection = Selection.withRange(0, 0)
+            values.forEach { regex ->
+                selection.or(table.stringColumn(columnName).matchesRegex(regex))
+            }
+            selection
+        } else
             Selection.withRange(0, 0)
     }
 }
