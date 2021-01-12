@@ -102,7 +102,7 @@ ACLs should be leverage so that there are separate access policies per vault. Re
 
 Application secrets should continue to be injected as environment variables for the services that require them, but they should be stored and encrypted using Key Vault. Client secrets should be accessed through the `ConnectionCredentialStorageService` using the Azure Key Vault client libraries, which will abstract away the decryption and allow us to rotate secrets without redeploying the application.
 
-For the initial design, secrets should leverage the base secrets management support in Azure Key Vault under the premium tier. With unique access credentials given to each service and developer and appropriate ACLs configured, this will limit the available sources credentials could be compromised or leaked.
+For the initial design, secrets should leverage the base secrets management support in Azure Key Vault under the premium tier. With unique access credentials given to each service/developer and appropriate ACLs configured, this will limit the available sources credentials could be compromised or leaked.
 
 For the future, the client secrets could be encrypted using a HSM key prior to being stored in the secret manager, but care has to be taken to ensure that if Azure Key Vault is compromised, the HSM used to encrypt the secrets does not exist within the same security boundary.
 
