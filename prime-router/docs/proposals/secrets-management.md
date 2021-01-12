@@ -6,7 +6,7 @@ We are looking for a new strategy to manage our secrets.
 
 ## Goals
 
-Secrets management can viewed from the perspective of two different user archetypes. As a dev-ops engineer, I would like to have a vault for data-hub's secrets. As a security official, I would like this vault to be secure and auditable.
+Secrets management can be viewed from the perspective of two different user archetypes. As a dev-ops engineer, I would like to have a vault for data-hub's secrets. As a security official, I would like this vault to be secure and auditable.
 
 Our current goals for secrets management fall under the following requirements:
 
