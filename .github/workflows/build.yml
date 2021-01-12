@@ -32,7 +32,6 @@ jobs:
                    echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_TEST_USER }}
                    echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
-               echo $GITHUB_REPOSITORY_OWNER
                env
 
       - name: Setup PostgreSQL
