@@ -114,6 +114,7 @@ Code | Display
 
 Code | Display
 ---- | -------
+445297001|Swab of internal nose
 258500001|Nasopharyngeal swab
 871810001|Mid-turbinate nasal swab
 697989009|Anterior nares swab
