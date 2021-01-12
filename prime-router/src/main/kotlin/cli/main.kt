@@ -66,6 +66,12 @@ class RouterCli : CliktCommand(
         help = "specifies a state to generate test data for. " +
             "This is only used when generating test data, and has no meaning in other contexts"
     )
+    private val targetCounty: String? by
+    option(
+        "--target-county",
+        help = "specifies a county string to generate test data for. " +
+            "This is only used when generating test data, and has no meaning in other contexts"
+    )
 
     private fun readReportFromFile(
         metadata: Metadata,
@@ -224,7 +230,8 @@ class RouterCli : CliktCommand(
                     schema,
                     (inputSource as InputSource.FakeSource).count,
                     FileSource("fake"),
-                    targetState
+                    targetState,
+                    targetCounty
                 )
             }
             else -> {
