@@ -26,7 +26,7 @@
         schema: az/az-covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains)"
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills)"
         transforms: { deidentify: false }
         batch:
           operation: MERGE
@@ -39,7 +39,7 @@
         schema: az/az-covid-19-hl7
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains)"
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills)"
         transforms: { deidentify: false }
         format: HL7
       - name: elr-prod
@@ -47,7 +47,7 @@
         schema: az/az-covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "matches(ordering_facility_name,Tucson Mountains)"
+          - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills)"
         transforms: { deidentify: false }
         batch:
           operation: MERGE

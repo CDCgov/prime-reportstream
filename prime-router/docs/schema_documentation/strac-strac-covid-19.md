@@ -42,13 +42,13 @@ The name of the facility which the test was ordered from
 
 **Type**: TELEPHONE
 
-**HL7 Field**: ORC-23
+**HL7 Field**: ORC-14
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
-The phone number of the facility which the test was ordered from
+The phone number of the provider
 
 ---
 
@@ -165,6 +165,8 @@ The zip code of the provider
 **Name**: id
 
 **Type**: ID
+
+**HL7 Field**: ORC-2-1
 
 **Cardinality**: [0..1]
 
@@ -604,6 +606,7 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 
 Code | Display
 ---- | -------
+445297001|Swab of internal nose
 258500001|Nasopharyngeal swab
 871810001|Mid-turbinate nasal swab
 697989009|Anterior nares swab
@@ -647,37 +650,6 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **HL7 Field**: SPM-18
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_clia
-
-**Type**: ID_CLIA
-
-**HL7 Field**: OBX-23-10
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-CLIA Number from the laboratory that sends the message to DOH
-
-An example of the ID is 03D2159846
-
-
----
-
-**Name**: testing_lab_name
-
-**Type**: TEXT
-
-**HL7 Field**: OBX-23-1
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the laboratory which performed the test, can be the same as the sending facility name
 
 ---
 
@@ -755,5 +727,19 @@ S|No results available; procedure scheduled, but not done
 X|No results available; Order canceled
 Y|No order on record for this test
 Z|No record of this patient
+
+---
+
+**Name**: testing_lab_name
+
+**Type**: TEXT
+
+**HL7 Field**: OBX-23-1
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
 
 ---

@@ -26,7 +26,7 @@
         schema: az/az-covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains)"
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills)"
         transforms: { deidentify: false }
         batch:
           operation: MERGE
@@ -44,7 +44,7 @@
         schema: az/az-covid-19-hl7
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains)"
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills)"
         transforms: { deidentify: false }
         # Note: No 'batch:' here, so that step is skipped.   No delay either. Send happens instantly after translate.
         transports:
@@ -58,7 +58,7 @@
         schema: az/az-covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "matches(ordering_facility_name,Tucson Mountains)"
+          - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills)"
         transforms: { deidentify: false }
         batch:
           operation: MERGE
@@ -103,6 +103,10 @@
           redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
           redox_source_name: "Prime Data Hub (Staging)"
         format: REDOX
+        transports:
+          - type: REDOX
+            apiKey: some_key
+            baseUrl: http://redox:1080
 
   - name: tx-phd
     description: Texas Department of State Health Services
