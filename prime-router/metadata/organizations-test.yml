@@ -112,6 +112,9 @@
           redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
           redox_source_name: "Prime Data Hub (Staging)"
         format: REDOX
+        transports:
+          - type: REDOX
+            apiKey: e54eae82-c7e3-4969-913a-94abbed941a6
 
   - name: pa-phd
     description: Pennsylvania Department of Health
