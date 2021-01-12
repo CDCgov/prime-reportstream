@@ -31,9 +31,9 @@ These are secrets the core application needs to function: database connection st
 
 #### Tier 2: Client Secrets / Hub Connection Secrets
 
-The second tier of secrets are that scale with the number of connections the Hub makes: SFTP passwords, FIHR tokens, HL7 tokens, etc. These are secrets that are not essential to the application starting up, but they are essential for data to arrive successfully at health departments, etc.
+The second tier of secrets are secrets that scale with the number of connections the Hub makes: SFTP passwords, FIHR tokens, HL7 tokens, etc. These are secrets that are not essential to the application starting up, but they are essential for data to arrive successfully at health departments, etc.
 
-Since these secrets are going to continue to grow as we make more an more connections to the Hub, these secrets should not be stored in environment variables. Instead, the data hub application code itself should fetch any secrets needed to make a connection on demand when needed. We should build a connections secret service that is storage-agnostic and follow an inheritance strategy for the connection class, so multiple different connection types can be stored. This will allow us to separate the concerns and leverage different secrets storage strategies and security requirements evolve.
+Since these secrets are going to continue to grow as we make more an more connections to the Hub, these secrets should not be stored in environment variables. Instead, the data hub application code itself should fetch any secrets needed to make a connection on demand when needed. We should build a connections secret service that is storage-agnostic and follow an inheritance strategy for the connection class, so multiple different connection types can be stored. This will allow us to separate the concerns and leverage different secrets storage strategies as security requirements evolve.
 
 To enable storage-agnostic secrets access, we should build a base service that can be extended depending on the storage mechanism. Method signatures for this class may look like the following:
 
@@ -98,12 +98,12 @@ When making this decision a comparison was weighed against standing up a Hashico
 
 In our cloud environment, we should create a separate vault for each tier of secrets (i.e. a separate vault for application secrets and a separate vault for client secrets). Each environment should have their own set of vaults that are not shared with any other environment.
 
-ACL should be leverage so that there are separate access policies per vault. In high environments like production, developers should not be given access to read secrets from the vault. Long term, for client secrets, the application itself should handle creating and updating connection secrets. We should not be using the Azure console to administer connections. Reading secrets and writing secrets should use separate security groups and never assigned to the same application.
+ACLs should be leverage so that there are separate access policies per vault. Reading secrets and writing secrets should use separate security groups and never assigned to the same application. In high environments like production, developers should not be given access to read secrets from the vault. Long term, for client secrets, the application itself should handle creating and updating connection secrets. We should not be using the Azure console to administer client secrets.
 
-Application secrets should continue to be injected as environment variables for the services that require them. Client secrets should be accessed through the `ConnectionCredentialStorageService` using the Azure secrets client libraries, which will allow us to rotate secrets without redeploying the application.
+Application secrets should continue to be injected as environment variables for the services that require them, but they should be stored and encrypted using Key Vault. Client secrets should be accessed through the `ConnectionCredentialStorageService` using the Azure Key Vault client libraries, which will abstract away the decryption and allow us to rotate secrets without redeploying the application.
 
-For the initial design, secrets should leverage the base secrets management support in Azure under the premium tier. If access credentials are broken up by operation (read/write) and read access is never given to a developer or any other individual, this will limit the available sources credentials could be compromised or leaked.
+For the initial design, secrets should leverage the base secrets management support in Azure Key Vault under the premium tier. With unique access credentials given to each service and developer and appropriate ACLs configured, this will limit the available sources credentials could be compromised or leaked.
 
-For the future, the client secrets could be encrypted using a HSM key prior to being stored in the secret manager, but if we're using Azure Key Vault to store the secrets in the first place, little additional security is gained by encrypting using an HSM.
+For the future, the client secrets could be encrypted using a HSM key prior to being stored in the secret manager, but care has to be taken to ensure that if Azure Key Vault is compromised, the HSM used to encrypt the secrets does not exist within the same security boundary.
 
-For secrets auditing, we will enable Key Vault auditing and store the results in an encrypted data container. This will enable traceability for every secrets action.
+For secrets auditing, we will enable Key Vault auditing and store the results in an encrypted data container. Within Key Vault, client secrets should be stored using the `connectionId` in the name. When we access a secret in an application, we should logs the reason along with the `connectionId`. By combining the application logs and the Key Vault audit logs from our data container, this will enable traceability for every secrets action.
