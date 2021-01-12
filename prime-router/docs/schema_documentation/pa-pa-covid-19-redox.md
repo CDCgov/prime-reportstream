@@ -4,6 +4,23 @@
 
 ---
 
+**Name**: testing_lab_clia
+
+**Type**: ID_CLIA
+
+**HL7 Field**: OBX-23-10
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+CLIA Number from the laboratory that sends the message to DOH
+
+An example of the ID is 03D2159846
+
+
+---
+
 **Name**: redox_source_id
 
 **Cardinality**: [0..1]
@@ -360,6 +377,16 @@ The patient's zip code
 
 ---
 
+**Name**: placer_order_id
+
+**Type**: ID
+
+**HL7 Field**: ORC-2-1
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: ordering_facility_name
 
 **Type**: TEXT
@@ -460,7 +487,7 @@ The zip code of the facility which the test was ordered from
 
 **HL7 Field**: ORC-23
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -488,11 +515,9 @@ The phone number of the facility which the test was ordered from
 
 ---
 
-**Name**: placer_order_id
+**Name**: filler_order_id
 
 **Type**: ID
-
-**HL7 Field**: ORC-2-1
 
 **Cardinality**: [0..1]
 
@@ -826,6 +851,7 @@ The LOINC description of the test performed as related to the LOINC code.
 
 Code | Display
 ---- | -------
+445297001|Swab of internal nose
 258500001|Nasopharyngeal swab
 871810001|Mid-turbinate nasal swab
 697989009|Anterior nares swab
@@ -978,23 +1004,6 @@ This field contains a table lookup indicating the normalcy status of the result.
 **HL7 Field**: OBR-22
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_clia
-
-**Type**: ID_CLIA
-
-**HL7 Field**: OBX-23-10
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-CLIA Number from the laboratory that sends the message to DOH
-
-An example of the ID is 03D2159846
-
 
 ---
 

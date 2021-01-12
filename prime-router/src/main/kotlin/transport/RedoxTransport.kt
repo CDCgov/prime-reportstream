@@ -22,6 +22,7 @@ class RedoxTransport() : ITransport {
     private val redoxSecret = "secret"
     private val redoxAccessToken = "accessToken"
     private val jsonMimeType = "application/json"
+    private val redoxMessageId = "messageId"
 
     override fun send(
         orgService: OrganizationService,
@@ -108,11 +109,15 @@ class RedoxTransport() : ITransport {
         // TODO: store the result id when we get line level tracking
         return when (result) {
             is Result.Success -> {
-                context.logger.log(Level.INFO, "Successfully posted Redox msg: $id")
+                val messageId = result.value.obj()
+                    .getJSONObject("Meta")
+                    .getJSONObject("Message")
+                    .getInt("ID")
+                context.logger.log(Level.INFO, "Successfully posted $id to Redox msg $messageId")
                 true
             }
             is Result.Failure -> {
-                context.logger.log(Level.WARNING, "FAILED to post Redox msg: $id")
+                context.logger.log(Level.WARNING, "FAILED to post $id to Redox")
                 false
             }
             else -> false

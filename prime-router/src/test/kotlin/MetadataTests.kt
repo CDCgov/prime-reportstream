@@ -1,9 +1,6 @@
 package gov.cdc.prime.router
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.*
 
 class MetadataTests {
     @Test
@@ -86,5 +83,18 @@ class MetadataTests {
         metadata.loadOrganizations("./metadata/organizations.yml")
         val client = metadata.findClient("simple_report")
         assertNotNull(client)
+    }
+
+    @Test
+    fun `test duplicate service name`() {
+        val metadata = Metadata()
+        val org1 = Organization(
+            "test", "test",
+            services = listOf(
+                OrganizationService("service1", "topic1", "schema1"),
+                OrganizationService("service1", "topic1", "schema1")
+            )
+        )
+        assertFails { metadata.loadOrganizationList(listOf(org1)) }
     }
 }
