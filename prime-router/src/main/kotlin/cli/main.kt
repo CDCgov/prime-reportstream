@@ -178,11 +178,6 @@ class RouterCli : CliktCommand(
     }
 
     private fun compareCsvDocuments() {
-        echo("Comparing!")
-        csvCompareFile.forEach { fp ->
-            echo(fp)
-        }
-
         val fileOne = csvCompareFile[0]
         val fileTwo = csvCompareFile[1]
         val csvComparer = CsvComparer(fileOne, fileTwo, csvRecordId)

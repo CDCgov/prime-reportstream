@@ -2,13 +2,28 @@ package gov.cdc.prime.router
 
 import java.io.File
 
+data class HeaderComparison(val fileOneHeaders: Set<String>, val fileTwoHeaders: Set<String>) {
+    fun hasErrors(): Boolean {
+        return fileOneHeaders.isNotEmpty() || fileTwoHeaders.isNotEmpty()
+    }
+
+    override fun toString(): String {
+        return """
+            There are keys in fileOne that are not in fileTwo: ${ fileOneHeaders.joinToString { "," } }
+            There are keys in fileTwo that are not in fileOne: ${ fileTwoHeaders.joinToString { "," } }
+        """.trimIndent()
+    }
+}
+
 data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val recordId: String = "Patient_Id") {
     fun compareFiles(): Boolean {
+        println("Comparing\n$fileOnePath\nwith\n$fileTwoPath\n")
+
         val fileOne = File(fileOnePath)
         val fileTwo = File(fileTwoPath)
         if (!fileOne.exists()) error("File $fileOne does not exist")
         if (!fileTwo.exists()) error("File $fileTwo does not exist")
-        // A bit of a hack:  diff the two files.
+
         val fileOneLines = fileOne.readLines()
         val fileTwoLines = fileTwo.readLines()
 
@@ -23,24 +38,21 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
         val linesInError = compareLinesOfMaps(expectedLines, testLines, headerRow)
 
         if (linesInError.count() > 0) {
-            println(keyMessages.first)
-            println(keyMessages.second)
+            if (keyMessages.hasErrors()) println(keyMessages.toString())
+
+            println("The following errors were found:\n")
             linesInError.forEach { println(it) }
             return false
-        } else {
-            println("Files provided match! Well done!")
         }
 
+        println("Files provided match! Well done!")
         return true
     }
 
-    fun compareKeysOfMaps(expected: Map<String, Any?>, actual: Map<String, Any?>): Pair<String, String> {
-        val actualKeys = actual.keys.toSet()
-        val expectedKeys = expected.keys.toSet()
-        return Pair(
-            "There are keys in actual that are not in expected: ${actualKeys.minus(expectedKeys).joinToString { "," }}",
-            "There are keys in expected that are not present in actual: ${expectedKeys.minus(actualKeys).joinToString { "," }}"
-        )
+    fun compareKeysOfMaps(fileOne: Map<String, Any?>, fileTwo: Map<String, Any?>): HeaderComparison {
+        val fileOneKeys = fileOne.keys.toSet()
+        val fileTwoKeys = fileTwo.keys.toSet()
+        return HeaderComparison(fileOneKeys.minus(fileTwoKeys), fileTwoKeys.minus(fileOneKeys))
     }
 
     fun compareLinesOfMaps(
@@ -62,9 +74,9 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
             for ((i, v) in expectedLines.withIndex()) {
                 if (v != actualLines[i]) {
                     val header = headerRow?.get(i) ?: "$i"
-                    val message = "Patient_ID $expectedKey differed at $header. Expected '$v' but found '${actualLines[i]}'."
+                    val message = "Patient ${expectedKey.padStart(10)} differed at ${header.padStart(24)}. " +
+                        "'${v.padStart(23)}' <==> '${actualLines[i].padStart(23)}'."
                     linesInError.add(message)
-                    println(message)
                 }
             }
         }
@@ -87,7 +99,7 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
             // if a header is passed in and we need to skip it, then check our control values
             if (skipHeader && !skippedHeader) {
                 // while we're in the header, find our record id index, which will be our map key
-                val headerValues = headerLine.split(",")
+                val headerValues = headerLine.split(delimiter)
                 recordIdIndex = headerValues.indexOf(recordId)
                 // reset our control variable
                 skippedHeader = true
