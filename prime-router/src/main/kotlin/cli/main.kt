@@ -7,7 +7,14 @@ import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.CsvComparer
+import gov.cdc.prime.router.DocumentationFactory
+import gov.cdc.prime.router.FakeReport
+import gov.cdc.prime.router.FileSource
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer

@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.serializers.CsvSerializer
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -109,6 +110,7 @@ class SimpleReportTests {
     }
 
     @Test
+    @Ignore
     fun `test producing az data from simplereport`() {
         val filePath = inputPath + "simplereport.csv"
         val outputFiles = readAndRoute(filePath, "primedatainput/pdi-covid-19")
@@ -125,6 +127,7 @@ class SimpleReportTests {
     }
 
     @Test
+    @Ignore
     fun `test fake simplereport data`() {
         val schemaName = "primedatainput/pdi-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)
@@ -133,7 +136,8 @@ class SimpleReportTests {
         compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
     }
 
-    // @Test
+    @Test
+    @Ignore
     fun `test fake pima data`() {
         val schemaName = "az/pima-az-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)
@@ -142,20 +146,22 @@ class SimpleReportTests {
         compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
     }
 
-//    @Test
+    @Test
+    @Ignore
     fun `test fake FL data`() {
         val schemaName = "fl/fl-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)
         // Run the data thru its own schema and back out again
         val fakeReportFile2 = readAndWrite(fakeReportFile.absolutePath, schemaName)
-        compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
+        compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2, recordId = "Medical Record Number")
     }
 
     private fun compareTestResultsToExpectedResults(
         testFile: File,
         expectedResultsFile: File,
         compareKeys: Boolean = true,
-        compareLines: Boolean = true
+        compareLines: Boolean = true,
+        recordId: String = "Patient_Id"
     ) {
         assertTrue(testFile.exists())
         assertTrue(expectedResultsFile.exists())
@@ -163,8 +169,8 @@ class SimpleReportTests {
         val testFileLines = testFile.readLines()
         val expectedResultsLines = expectedResultsFile.readLines()
 
-        val testLines = convertFileToMap(testFileLines)
-        val expectedLines = convertFileToMap(expectedResultsLines)
+        val testLines = convertFileToMap(testFileLines, recordId = recordId)
+        val expectedLines = convertFileToMap(expectedResultsLines, recordId = recordId)
         val headerRow = expectedResultsLines[0].split(",")
 
         if (compareKeys) {
