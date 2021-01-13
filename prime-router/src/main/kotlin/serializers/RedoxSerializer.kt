@@ -26,11 +26,9 @@ class RedoxSerializer(val metadata: Metadata) {
     }
 
     private enum class JsonGroupType { END_OBJECT, END_ARRAY, START_OBJECT, START_ARRAY }
-    private data class JsonGroup(val type: JsonGroupType, val name: String? = null)
 
     private val factory = JsonFactory()
     private val fields = mutableMapOf<String, List<JsonField>>()
-    private val transitions = mutableMapOf<String, List<List<JsonGroup>>>()
 
     fun write(report: Report, outputStream: OutputStream) {
         val fields = getFields(report.schema)
@@ -100,7 +98,7 @@ class RedoxSerializer(val metadata: Metadata) {
     }
 
     private fun writeTransition(to: JsonGenerator, field: JsonField, previousField: JsonField) {
-        var (ending, starting) = diff(previousField.base, field.base)
+        val (ending, starting) = diff(previousField.base, field.base)
         val isArrayTransition = ending.isNotEmpty() && starting.isNotEmpty() &&
             ending[0].endsWith(']') && starting[0].endsWith(']') &&
             ending[0].substringBefore('[') == starting[0].substringBefore('[')
