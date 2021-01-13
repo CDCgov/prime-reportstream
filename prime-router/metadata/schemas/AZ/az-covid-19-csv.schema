@@ -187,6 +187,7 @@ elements:
       format: yyyyMMdd
 
   - name: comment
+    default: ""
     csvFields:
     - name: Notes
 

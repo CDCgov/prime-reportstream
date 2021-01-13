@@ -16,7 +16,7 @@ import java.time.ZoneId
  * @param transforms defines the number of transforms to apply to the report before sending
  * @param batch defines how to batch reports to the org. If null, then send immediatlely
  * @param format that the org wishes to receive
- * @param transport that the org wishes to recieve
+ * @param transports that the org wishes to recieve
  */
 data class OrganizationService(
     val name: String,
@@ -24,6 +24,7 @@ data class OrganizationService(
     val schema: String,
     val jurisdictionalFilter: List<String> = emptyList(),
     val transforms: Map<String, String> = emptyMap(),
+    val defaults: Map<String, String> = emptyMap(),
     val batch: Batch? = null,
     val address: String = "",
     val format: Format = Format.CSV,
@@ -34,13 +35,15 @@ data class OrganizationService(
 
     enum class Format {
         CSV,
-        HL7;
+        HL7,
+        REDOX;
         // FHIR
 
         fun toExt(): String {
             return when (this) {
                 CSV -> "csv"
                 HL7 -> "hl7"
+                REDOX -> "redox"
             }
         }
     }
@@ -59,7 +62,7 @@ data class OrganizationService(
         val numberPerDay: Int = 1,
         val initialBatch: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
-        val maxBatchSize: Int = 100,
+        val maxReportCount: Int = 100,
     ) {
         /**
          * Calculate the next batch time.

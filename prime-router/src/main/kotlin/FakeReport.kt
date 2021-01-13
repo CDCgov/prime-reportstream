@@ -6,7 +6,11 @@ import java.util.Random
 import java.util.concurrent.TimeUnit
 
 class FakeReport(val metadata: Metadata) {
-    class RowContext(findLookupTable: (String) -> LookupTable? = { null }, reportState: String? = null) {
+    class RowContext(
+        findLookupTable: (String) -> LookupTable? = { null },
+        reportState: String? = null,
+        reportCounty: String? = null
+    ) {
         val faker = Faker()
         val patientName = faker.name()
         val equipmentModel = randomChoice(
@@ -14,12 +18,12 @@ class FakeReport(val metadata: Metadata) {
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
 
-        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ")
-        val county = findLookupTable("fips-county")?.let {
-            if (state == "AZ") {
-                randomChoice("Pima", "Yuma")
-            } else {
-                randomChoice(it.filter("State", state, "County"))
+        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "CO")
+        val county = reportCounty ?: findLookupTable("fips-county")?.let {
+            when (state) {
+                "AZ" -> randomChoice("Pima", "Yuma")
+                "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
+                else -> randomChoice(it.filter("State", state, "County"))
             }
         }
     }
@@ -70,6 +74,7 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.CODE -> {
                 when (element.name) {
                     "specimen_source_site_code" -> "71836000"
+                    "test_result_status" -> randomChoice("F", "C")
                     else -> {
                         val altValues = element.altValues
                         val valueSet = element.valueSetRef
@@ -140,13 +145,19 @@ class FakeReport(val metadata: Metadata) {
         }
     }
 
-    private fun buildRow(schema: Schema, targetState: String? = null): List<String> {
-        val context = RowContext(metadata::findLookupTable, targetState)
+    private fun buildRow(schema: Schema, targetState: String? = null, targetCounty: String? = null): List<String> {
+        val context = RowContext(metadata::findLookupTable, targetState, targetCounty)
         return schema.elements.map { buildColumn(it, context) }
     }
 
-    fun build(schema: Schema, count: Int = 10, source: Source, targetState: String? = null): Report {
-        val rows = (0 until count).map { buildRow(schema, targetState) }.toList()
+    fun build(
+        schema: Schema,
+        count: Int = 10,
+        source: Source,
+        targetState: String? = null,
+        targetCounty: String? = null
+    ): Report {
+        val rows = (0 until count).map { buildRow(schema, targetState, targetCounty) }.toList()
         return Report(schema, rows, listOf(source))
     }
 

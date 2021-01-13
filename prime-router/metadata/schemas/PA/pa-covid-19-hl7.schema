@@ -1,0 +1,11 @@
+name: pa-covid-19-hl7
+description: Pennsylvania Department of Health HL7 messages
+referenceUrl:
+topic: covid-19
+extends: covid-19
+elements:
+    - name: receiving_application
+      default: PA-ELR
+
+    - name: receiving_facility
+      default: PADOH

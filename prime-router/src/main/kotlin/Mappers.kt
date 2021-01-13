@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import java.time.LocalDateTime
+
 /**
  * A *Mapper* is defined as a property of a schema element. It is used to create
  * a value for the element when no value is present. For example, the middle_initial element has
@@ -92,7 +94,16 @@ class UseMapper : Mapper {
         return if (values.isEmpty()) {
             null
         } else {
-            values.first().value
+            val (fromElement, fromValue) = values.first()
+            when {
+                element.type == fromElement.type -> fromValue
+                element.type == Element.Type.DATE && fromElement.type == Element.Type.DATETIME -> {
+                    LocalDateTime.parse(fromValue, Element.datetimeFormatter).format(Element.dateFormatter)
+                }
+                element.type == Element.Type.TEXT -> fromValue
+                // TODO: Unchecked conversions should probably be removed, but the PIMA schema relies on this, right now.
+                else -> fromValue
+            }
         }
     }
 }
@@ -132,7 +143,7 @@ class IfPresentMapper : Mapper {
     override val name = "ifPresent"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.size != 2) error("Expect dependency and value parameters")
+        if (args.size != 2) error("Schema Error: ifPresent expects dependency and value parameters")
         return args.subList(0, 1) // The element name
     }
 
@@ -260,11 +271,11 @@ class Obx8Mapper : Mapper {
                 "260373001" -> "A" // Detected
                 "260415000" -> "N" // Not Detected
                 "720735008" -> "A" // Presumptive positive
-                "42425007" -> null // Equivocal
+                "42425007" -> "N" // Equivocal
                 "260385009" -> "N" // Negative
                 "895231008" -> "N" // Not detected in pooled specimen
                 "462371000124108" -> "A" // Detected in pooled specimen
-                "419984006" -> null // Inconclusive
+                "419984006" -> "N" // Inconclusive
                 else -> null
             }
         }
@@ -273,7 +284,7 @@ class Obx8Mapper : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9&^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&^]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

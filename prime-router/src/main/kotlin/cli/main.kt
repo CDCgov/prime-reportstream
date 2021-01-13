@@ -9,18 +9,17 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.CsvConverter
 import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Hl7Converter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.File
-import java.io.InputStream
 import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -29,6 +28,7 @@ sealed class InputSource {
     data class FileSource(val fileName: String) : InputSource()
     data class FakeSource(val count: Int) : InputSource()
     data class DirSource(val dirName: String) : InputSource()
+    data class ListOfFilesSource(val commaSeparatedList: String) : InputSource() // supports merge.
 }
 
 class RouterCli : CliktCommand(
@@ -37,8 +37,9 @@ class RouterCli : CliktCommand(
     printHelpOnEmptyArgs = true,
 ) {
     private val inputSource: InputSource? by mutuallyExclusiveOptions(
+        option("--merge", help = "list of comma-separated files to merge").convert { InputSource.ListOfFilesSource(it) },
         option("--input", help = "<file1>").convert { InputSource.FileSource(it) },
-        option("--input_fake", help = "fake the input").int().convert { InputSource.FakeSource(it) },
+        option("--input_fake", help = "fake the input.  Pass a numeric arg - the number of rows/items to create").int().convert { InputSource.FakeSource(it) },
         option("--input_dir", help = "<dir>").convert { InputSource.DirSource(it) },
     ).single()
     private val inputSchema by option("--input_schema", help = "<schema_name>")
@@ -46,6 +47,7 @@ class RouterCli : CliktCommand(
     private val route by option("--route", help = "route to receivers lists").flag(default = false)
     private val list by option("--list", help = "list all schemas.  Ignores other parameters").flag(default = false)
     private val send by option("--send", help = "send to a receiver if specified").flag(default = false)
+    private val routeTo by option("--route_to", help = "route a receiver")
 
     private val outputFileName by option("--output", help = "<file> not compatible with route or partition")
     private val outputDir by option("--output_dir", help = "<directory>")
@@ -64,18 +66,47 @@ class RouterCli : CliktCommand(
         help = "specifies a state to generate test data for. " +
             "This is only used when generating test data, and has no meaning in other contexts"
     )
+    private val targetCounty: String? by
+    option(
+        "--target-county",
+        help = "specifies a county string to generate test data for. " +
+            "This is only used when generating test data, and has no meaning in other contexts"
+    )
+
+    private fun mergeReports(
+        metadata: Metadata,
+        listOfFiles: String
+    ): Report {
+        if (listOfFiles.isNullOrEmpty()) error("No files to merge.")
+        val files = listOfFiles.split(",", " ").filter { ! it.isNullOrBlank() }
+        if (files.isEmpty()) error("No files to merge found in comma separated list.  Need at least one file.")
+        val reports = files.map { readReportFromFile(metadata, it) }.filter { report -> report != null }
+        if (reports.isEmpty()) error("Unable to merge.  All reports failed validation")
+        echo("Merging ${reports.size} reports.")
+        return Report.merge(reports)
+    }
 
     private fun readReportFromFile(
         metadata: Metadata,
-        fileName: String,
-        readBlock: (name: String, schema: Schema, stream: InputStream) -> Report
+        fileName: String
     ): Report {
         val schemaName = inputSchema?.toLowerCase() ?: ""
         val schema = metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
-        return readBlock(file.nameWithoutExtension, schema, file.inputStream())
+        val csvSerializer = CsvSerializer(metadata)
+        val result = csvSerializer.read(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
+        if (result.report == null) {
+            error(result.errorsToString())
+        }
+        if (result.errors.isNotEmpty()) {
+            echo(result.errorsToString())
+        }
+        if (result.warnings.isNotEmpty()) {
+            echo(result.warningsToString())
+        }
+        return result.report
     }
 
     private fun writeReportsToFile(
@@ -180,8 +211,9 @@ class RouterCli : CliktCommand(
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
-        val csvConverter = CsvConverter(metadata)
-        val hl7Converter = Hl7Converter(metadata)
+        val csvSerializer = CsvSerializer(metadata)
+        val hl7Serializer = Hl7Serializer(metadata)
+        val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
 
         if (list) {
@@ -199,28 +231,17 @@ class RouterCli : CliktCommand(
 
         // Gather input source
         val inputReport: Report = when (inputSource) {
-            is InputSource.FileSource -> {
-                readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName) { name, schema, stream ->
-                    val result = CsvConverter(metadata).read(schema.name, stream, FileSource(name))
-                    if (result.report == null) {
-                        error(result.errorsToString())
-                    }
-                    if (result.errors.isNotEmpty()) {
-                        echo(result.errorsToString())
-                    }
-                    if (result.warnings.isNotEmpty()) {
-                        echo(result.warningsToString())
-                    }
-                    result.report
-                }
-            }
+            is InputSource.ListOfFilesSource -> mergeReports(metadata, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
+            is InputSource.FileSource -> readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName)
             is InputSource.DirSource -> TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
                 val schema = metadata.findSchema(inputSchema ?: "") ?: error("$inputSchema is an invalid schema name")
                 FakeReport(metadata).build(
                     schema,
                     (inputSource as InputSource.FakeSource).count,
-                    FileSource("fake")
+                    FileSource("fake"),
+                    targetState,
+                    targetCounty
                 )
             }
             else -> {
@@ -236,9 +257,16 @@ class RouterCli : CliktCommand(
                 translator
                     .filterAndTranslateByService(inputReport)
                     .map { it.first to it.second.format }
+            routeTo != null -> {
+                val pair = translator.translate(input = inputReport, toService = routeTo!!)
+                if (pair != null) listOf(Pair(pair.first, pair.second.format)) else emptyList()
+            }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
                 val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())
+                if (mapping.missing.isNotEmpty()) {
+                    error("Error: When translating to $'${toSchema.name} missing fields for ${mapping.missing.joinToString(", ")}")
+                }
                 val toReport = inputReport.applyMapping(mapping)
                 listOf(Pair(toReport, outputFormat))
             }
@@ -248,8 +276,9 @@ class RouterCli : CliktCommand(
         // Output reports
         writeReportsToFile(outputReports) { report, format, stream ->
             when (format) {
-                OrganizationService.Format.CSV -> csvConverter.write(report, stream)
-                OrganizationService.Format.HL7 -> hl7Converter.write(report, stream)
+                OrganizationService.Format.CSV -> csvSerializer.write(report, stream)
+                OrganizationService.Format.HL7 -> hl7Serializer.write(report, stream)
+                OrganizationService.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
     }

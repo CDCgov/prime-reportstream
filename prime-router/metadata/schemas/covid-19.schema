@@ -161,7 +161,7 @@ elements:
     natFlatFileField: Hospitalized
     hhsGuidanceField:
     hl7Field: AOE
-    hl7AOEQuestion: 7974-4
+    hl7AOEQuestion: 77974-4
     documentation: Is the patient hospitalized?
 
   - name: icu
@@ -178,7 +178,7 @@ elements:
     natFlatFileField: Illness_onset_date
     hhsGuidanceField:
     hl7Field: AOE
-    hl7AOEQuestion: 11368-8
+    hl7AOEQuestion: 65222-2
 
   - name: order_result_status
     type: CODE
@@ -213,6 +213,10 @@ elements:
 
   - name: ordered_test_system
     type: TEXT
+    default: LOINC
+
+  - name: ordered_test_system_abbr
+    type: TEXT
     default: LN
     hl7Field: OBR-4-3
 
@@ -227,7 +231,6 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: County
-    cardinality: ONE
     natFlatFileField: Ordering_facility_county
     hhsGuidanceField:
 
@@ -237,6 +240,10 @@ elements:
     tableColumn: FIPS
     mapper: lookup(ordering_facility_state, ordering_facility_county)
     hl7Field: ORC-22-9
+
+  - name: ordering_facility_country
+    type: TEXT
+    default: USA
 
   - name: ordering_facility_email
     type: EMAIL
@@ -309,7 +316,9 @@ elements:
     mapper: lookup(ordering_provider_state, ordering_provider_county)
     hl7Field: ORC-24-9
 
-
+  - name: ordering_provider_country
+    type: TEXT
+    default: USA
 
   - name: ordering_provider_first_name
     type: PERSON_NAME
@@ -443,10 +452,14 @@ elements:
     natFlatFileField: Patient_county
     hl7Field: PID-11-9
 
+  - name: patient_country
+    type: TEXT
+    default: USA
+
   - name: patient_email
     type: EMAIL
     cardinality: ZERO_OR_ONE
-    hl7Field: ORC-23-4
+    hl7Field: PID-13-4
 
   - name: patient_death_date
     type: DATE
@@ -474,6 +487,11 @@ elements:
 
       Other states may choose to define their own formats.
 
+  - name: patient_drivers_license
+    type: ID_DLN
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-20-1
+
   - name: patient_ethnicity
     type: CODE
     cardinality: ZERO_OR_ONE
@@ -487,7 +505,6 @@ elements:
   - name: patient_first_name
     type: PERSON_NAME
     cardinality: ZERO_OR_ONE
-    cardinality: ONE
     natFlatFileField: Patient_first_name
     hhsGuidanceField: Patient name
     hl7Field: PID-5-2
@@ -506,7 +523,7 @@ elements:
   # TODO Figure out how to encode patient id (PID-3) like AZ and others want
   - name: patient_id
     type: TEXT
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_id
     hhsGuidanceField:
     hl7Field: PID-3-1
@@ -520,7 +537,6 @@ elements:
 
   - name: patient_id_type
     type: TEXT
-    default: PI
     natFlatFileField: Patient_id_type
     hhsGuidanceField:
     hl7Field: PID-3-5
@@ -858,10 +874,14 @@ elements:
     hl7Field: OBX-3-2
     documentation: The LOINC description of the test performed as related to the LOINC code.
 
-  - name: test_performed_system
+  - name: test_performed_system_abbr
     type: TEXT
     default: LN
     hl7Field: OBX-3-3
+
+  - name: test_performed_system
+    type: TEXT
+    default: LOINC
 
   #- name: test_performed_number
   #  type: NUMBER
@@ -941,6 +961,10 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-24-9
 
+  - name: testing_lab_country
+    type: TEXT
+    default: USA
+
   - name: testing_lab_id
     type: ID
     natFlatFileField: Testing_lab_id
@@ -972,6 +996,12 @@ elements:
 
   - name: testing_lab_specimen_id
     type: ID
+    natFlatFileField: Testing_lab_specimen_id
+    hhsGuidanceField:
+    hl7Field: SPM-2-1
+
+  - name: testing_lab_specimen_recieved_datetime
+    type: DATETIME
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
     hl7Field: SPM-2-1

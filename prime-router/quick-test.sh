@@ -11,6 +11,7 @@ outputdir=target/csv_test_files
 expecteddir=./src/test/csv_test_files/expected
 expected_pima=$expecteddir/simplereport-pima.csv
 expected_az=$expecteddir/simplereport-az.csv
+# Uncomment to force failure
 #expected_az=$expecteddir/junk-az.csv
 starter_schema=primedatainput/pdi-covid-19
 
@@ -25,6 +26,13 @@ RUN_ND=0
 # always should run, but we'll leave this here for now in case that could change at some point
 RUN_STANDARD=1
 RUN_ALL=0
+RUN_MERGE=0
+
+# If no args, run everything.
+if [ $# -eq 0 ] 
+then
+  RUN_ALL=1
+fi
 
 for arg in "$@"
 do
@@ -33,6 +41,7 @@ do
     az | AZ) RUN_AZ=1;;
     nd | ND) RUN_ND=1;;
     all | ALL) RUN_ALL=1;;
+    merge | MERGE) RUN_MERGE=1;;
   esac
 done
 
@@ -42,9 +51,9 @@ then
   RUN_AZ=1
   RUN_ND=1
   RUN_STANDARD=1
+  RUN_MERGE=1
 fi
 
-# For testing the unhappy path
 mkdir -p $outputdir
 
 # Call this after calling .prime ... to generate output data.  Use this to parse the text output to extract the filename
@@ -89,6 +98,18 @@ function compare_files {
   fi
 }
 
+# Used in merge testing, below.
+function count_lines {
+  filename=$1
+  searchStr=$2
+  expectedNum=$3
+  numlines=$(grep -c $searchStr $filename)
+  if [ $numlines -ne $expectedNum ] ; then
+    printf "${RED}*** ERROR ***:Expecting $expectedNum lines of $searchStr data, but got $numlines${NC}\n"
+    printf "Problem found in $filename\n"
+  fi
+}
+
 # run the standard
 if [ $RUN_STANDARD -ne 0 ]
 then
@@ -96,14 +117,17 @@ then
   text=$(./prime --input_schema $starter_schema --input ./src/test/csv_test_files/input/simplereport.csv --output_dir $outputdir --route)
 fi
 
-# run arizona
+AZ_FILE_SEARCH_STR="/az.*\.csv"
+PIMA_FILE_SEARCH_STR="/pima.*\.csv"
+
+# run arizona and pima
 if [ $RUN_AZ -ne 0 ]
 then
-  parse_prime_output_for_filename "$text" "/az"
+  parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az=$filename
   compare_files "SimpleReport->AZ"   $expected_az   $actual_az
 
-  parse_prime_output_for_filename "$text" "/pima"
+  parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima=$filename
   compare_files "SimpleReport->PIMA" $expected_pima $actual_pima
 
@@ -113,14 +137,14 @@ then
   # AZ again
   echo Test sending AZ data into its own Schema:
   text=$(./prime --input_schema az/az-covid-19 --input $actual_az --output_dir $outputdir)
-  parse_prime_output_for_filename "$text" "/az"
+  parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az2=$filename
   compare_files "AZ->AZ" $expected_az $actual_az2
 
   # Pima again
   echo Test sending Pima data into its own Schema:
   text=$(./prime --input_schema az/pima-az-covid-19 --input $actual_pima --output_dir $outputdir)
-  parse_prime_output_for_filename "$text" "/pima"
+  parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima2=$filename
   compare_files "PIMA->PIMA" $expected_pima $actual_pima2
 
@@ -133,24 +157,24 @@ then
   # Note that there's no actuals to compare to here.
   text=$(./prime --input_schema $starter_schema --input $fake_data --output_dir $outputdir --route)
   # Find the AZ file
-  parse_prime_output_for_filename "$text" "/az"
+  parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az3=$filename
   # Find the Pima file
-  parse_prime_output_for_filename "$text" "/pima"
+  parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima3=$filename
 
   echo Now send _those_ results back in to their own schema and export again!
   # AZ again again.  This time we can compare the two actuals.
   echo Test sending AZ data generated from fake data into its own Schema:
   text=$(./prime --input_schema az/az-covid-19 --input $actual_az3 --output_dir $outputdir)
-  parse_prime_output_for_filename "$text" "/az"
+  parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az4=$filename
   compare_files "AZ->AZ" $actual_az3 $actual_az4
 
   # Pima again again.  Compare the two actuals
   echo Test sending Pima data generated from fake data into its own Schema:
   text=$(./prime --input_schema az/pima-az-covid-19 --input $actual_pima3 --output_dir $outputdir)
-  parse_prime_output_for_filename "$text" "/pima"
+  parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima4=$filename
   compare_files "PIMA->PIMA" $actual_pima3 $actual_pima4
 fi
@@ -158,15 +182,16 @@ fi
 # run florida
 if [ $RUN_FL -ne 0 ]
 then
+  FL_FILE_SEARCH_STR="/fl.*\.csv"
   # FLORIDA, MAN
   echo Generate fake FL data
   text=$(./prime --input_fake 50 --input_schema fl/fl-covid-19 --output_dir $outputdir --target-state FL)
-  parse_prime_output_for_filename "$text" "/fl"
+  parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
   fake_fl=$filename
 
   echo Now send that fake FL data through the router.
   text=$(./prime --input_schema fl/fl-covid-19 --input $fake_fl --output_dir $outputdir)
-  parse_prime_output_for_filename "$text" "/fl"
+  parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
   fake_fl2=$filename
   compare_files "Fake FL Orig -> Fake FL2" $fake_fl $fake_fl2
 
@@ -191,4 +216,38 @@ then
   # TODO: once we've imported HL7 we can finish this step
 fi
 
+if [ $RUN_MERGE -ne 0 ]
+then
+  STRAC_FILE_SEARCH_STR="/strac-covid-19.*\.csv"
+  numitems=5
+  echo Merge testing.  First, generate some fake STRAC data
+   # Hack: put some unique strings in each one, so we can count lines.
+  text=$(./prime --input_fake $numitems --input_schema strac/strac-covid-19 --output_dir $outputdir --target-county lilliput)
+  parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
+  fake1=$filename
+
+ echo More fake STRAC data
+  text=$(./prime --input_fake $numitems --input_schema strac/strac-covid-19 --output_dir $outputdir --target-county brobdingnag)
+  parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
+  fake2=$filename
+
+ echo 3rd file of fake STRAC data
+  text=$(./prime --input_fake $numitems --input_schema strac/strac-covid-19 --output_dir $outputdir --target-county houyhnhnm)
+  parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
+  fake3=$filename
+
+  echo Now testing merge:
+  text=$(./prime --merge $fake1,$fake2,$fake3 --input_schema strac/strac-covid-19 --output_dir $outputdir )
+  parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
+  merged_file=$filename
+
+  count_lines $merged_file brobdingnag $numitems
+  count_lines $merged_file lilliput $numitems
+  count_lines $merged_file houyhnhnm $numitems
+  let total=($numitems \* 3)+1 
+  # All the lines should have a comma
+  count_lines $merged_file , $total
+fi
+
 exit 0
+

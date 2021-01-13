@@ -85,9 +85,23 @@ class Metadata {
     }
 
     fun loadSchemaList(schemas: List<Schema>): Metadata {
-        this.schemaStore = fixupSchemas(schemas)
-            .map { normalizeSchemaName(it.name) to it }
-            .toMap()
+        val fixedUpSchemas = mutableMapOf<String, Schema>()
+
+        fun fixupSchema(name: String): Schema {
+            val normalName = normalizeSchemaName(name)
+            if (fixedUpSchemas.containsKey(normalName)) return fixedUpSchemas.getValue(normalName)
+
+            val schema = schemas.find { normalizeSchemaName(it.name) == normalName }
+                ?: error("extends schema does not exist for '$normalName'")
+            val extendsSchema = schema.extends?.let { fixupSchema(it) }
+            val basedOnSchema = schema.basedOn?.let { fixupSchema(it) }
+            val fixedUpSchema = fixupElements(schema, basedOnSchema, extendsSchema)
+            fixedUpSchemas[normalName] = fixedUpSchema
+            return fixedUpSchema
+        }
+
+        schemas.forEach { fixupSchema(it.name) }
+        schemaStore = fixedUpSchemas
         return this
     }
 
@@ -126,37 +140,22 @@ class Metadata {
         }
     }
 
-    private fun fixupSchemas(schemas: List<Schema>): List<Schema> {
-        return schemas.map { schema ->
-            // find the base schema
-            val extendsSchema = schema.extends?.let { extendSchemaName ->
-                schemas.find {
-                    normalizeSchemaName(it.name) == normalizeSchemaName(extendSchemaName)
-                } ?: error("extends schema does not exist for '${schema.name}'")
-            }
-            val basedOnSchema = schema.basedOn?.let { basedOnSchemaName ->
-                schemas.find {
-                    normalizeSchemaName(it.name) == normalizeSchemaName(basedOnSchemaName)
-                } ?: error("basedOn schema does not exist for '${schema.name}'")
-            }
-            val baseSchema = extendsSchema ?: basedOnSchema
-
-            // Inherit properties from the base schema
-            var schemaElements = schema.elements.map { element ->
-                baseSchema?.findElement(element.name)
-                    ?.let { fixupElement(element, it) }
-                    ?: fixupElement(element)
-            }
-
-            // Extend the schema if there is a extend element
-            extendsSchema?.let {
-                val extendElements = it.elements.mapNotNull { element ->
-                    if (schema.containsElement(element.name)) null else fixupElement(element)
-                }
-                schemaElements = schemaElements.plus(extendElements)
-            }
-            schema.copy(elements = schemaElements, basedOnRef = basedOnSchema, extendsRef = extendsSchema)
+    private fun fixupElements(schema: Schema, basedOnSchema: Schema?, extendsSchema: Schema?): Schema {
+        // Inherit properties from the base schema
+        val baseSchema = extendsSchema ?: basedOnSchema
+        var schemaElements = schema.elements.map { element ->
+            baseSchema?.findElement(element.name)
+                ?.let { fixupElement(element, it) }
+                ?: fixupElement(element)
         }
+        // Extend the schema if there is a extend element
+        extendsSchema?.let {
+            val extendElements = it.elements.mapNotNull { element ->
+                if (schema.containsElement(element.name)) null else fixupElement(element)
+            }
+            schemaElements = schemaElements.plus(extendElements)
+        }
+        return schema.copy(elements = schemaElements, basedOnRef = basedOnSchema, extendsRef = extendsSchema)
     }
 
     private fun normalizeSchemaName(name: String): String {
@@ -286,14 +285,28 @@ class Metadata {
     }
 
     fun loadOrganizationList(organizations: List<Organization>): Metadata {
-        this.organizationStore = organizations
-        this.organizationClientStore = organizations.flatMap { it.clients }
-        this.organizationServiceStore = organizations.flatMap { it.services }
+        organizationStore = organizations
+        organizationClientStore = organizations.flatMap { it.clients }
+        organizationServiceStore = organizations.flatMap { it.services }
         // Check values
-        this.organizationServiceStore.forEach { service ->
+        val clientNames = mutableSetOf<String>()
+        organizationClientStore.forEach {
+            if (clientNames.contains(it.fullName))
+                error("Metadata Error: Duplicate ${it.fullName} in organization clients")
+            else
+                clientNames.add(it.fullName)
+        }
+        val serviceNames = mutableSetOf<String>()
+        organizationServiceStore.forEach {
+            if (serviceNames.contains(it.fullName))
+                error("Metadata Error: Duplicate ${it.fullName} in organization services")
+            else
+                serviceNames.add(it.fullName)
+        }
+        organizationServiceStore.forEach { service ->
             service.batch?.let {
                 if (!it.isValid())
-                    error("Internal Error: improper batch value for ${service.fullName}")
+                    error("Metadata Error: improper batch value for ${service.fullName}")
             }
         }
         return this
