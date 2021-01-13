@@ -29,9 +29,9 @@ class SftpTransport : ITransport {
             val extension = orgService.format.toExt()
             val fileName = "${orgService.fullName.replace('.', '-')}-$reportId.$extension"
 
-            context.logger.log(Level.INFO, "About to sftp upload ${sftpTransportType.filePath}/$fileName to $user at $host:$port (orgService = ${orgService.fullName})")
+            //context.logger.log(Level.INFO, "About to sftp upload ${sftpTransportType.filePath}/$fileName to $user at $host:$port (orgService = ${orgService.fullName})")
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
-            context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
+            //context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
             null
         } catch (ioException: IOException) {
             context.logger.log(
@@ -90,13 +90,13 @@ class SftpTransport : ITransport {
                         path + "/" + fileName
                     )
                 // TODO: remove this over logging when bug is fixed
-                context.logger.log(Level.INFO, "SFTP PUT succeeded: $fileName")
+                // context.logger.log(Level.INFO, "SFTP PUT succeeded: $fileName")
             } finally {
                 client.close()
             }
         } finally {
             sshClient.disconnect()
-            context.logger.log(Level.INFO, "SFTP DISCONNECT succeeded: $fileName")
+            // context.logger.log(Level.INFO, "SFTP DISCONNECT succeeded: $fileName")
         }
     }
 }
