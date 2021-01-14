@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.serializers
 
+import ca.uhn.hl7v2.parser.DefaultEscaping
+import ca.uhn.hl7v2.parser.EncodingCharacters
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonGenerator
 import gov.cdc.prime.router.Element
@@ -29,6 +31,8 @@ class RedoxSerializer(val metadata: Metadata) {
 
     private val factory = JsonFactory()
     private val fields = mutableMapOf<String, List<JsonField>>()
+    private val hl7EncodingCharacters = EncodingCharacters('|', null)
+    private val hl7DefaultEscaping = DefaultEscaping()
 
     fun write(report: Report, outputStream: OutputStream) {
         val fields = getFields(report.schema)
@@ -172,7 +176,9 @@ class RedoxSerializer(val metadata: Metadata) {
                 to.writeString(e164)
             }
             else -> {
-                to.writeString(value)
+                // Escaping handles the case where the value contains an "|" or "&" which will mess up Redox's HL7 generation
+                val escaped = hl7DefaultEscaping.escape(value, hl7EncodingCharacters)
+                to.writeString(escaped)
             }
         }
     }
