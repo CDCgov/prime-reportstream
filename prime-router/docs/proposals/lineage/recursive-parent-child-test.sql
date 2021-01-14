@@ -1,3 +1,12 @@
+-- This file is an experiment on meeting the primary use cases for Lineage Tracking.
+-- You can run it locally like this:  psql prime_data_hub -f recursive-parent-child-test.sql 
+--
+-- It creates a couple simple lineage tracking tables, and populates them with a simple tree of lineage.
+--
+-- Then it creates a bunch of functions that are examples of our major use cases.
+--  
+-- Then it runs the functions on the tables, to prove that things are copacetic.
+
 DROP FUNCTION IF EXISTS descendants;
 DROP FUNCTION IF EXISTS ancestors;
 DROP FUNCTION IF EXISTS find_sent;
@@ -19,6 +28,8 @@ create table thing_lineage (
     child_thing_id INT references thing(thing_id) ON DELETE CASCADE
 );
 
+-- Populate a very simple tree of data, for experimentation and testing.
+
 insert into thing values ('received', 100); -- parent to 200, 300, 400, 500.  300 is a withered child leaf.
 insert into thing values ('intermediate', 200); -- parent to 400, 500
 insert into thing values ('intermediate', 300); -- no children.  Child of 100.  Withered and Died without sending.
@@ -34,7 +45,7 @@ insert into thing_lineage values (4, 400, 500);
 insert into thing_lineage values (5, 600, 500);  -- merge.  500 has two parents.
 
 
--- Find myself plus all children
+-- Find myself plus all my children
 CREATE OR REPLACE FUNCTION descendants(start_id INT)
 RETURNS SETOF INT
 AS $$
@@ -72,7 +83,7 @@ WHERE tmp.thing_id = thing.thing_id
 END;
 $$  LANGUAGE PLPGSQL;
 
--- Find all things that descended from me, but did not get sent.  That is, things that withered and died.
+-- Find all things that descended from me, but did not get sent.  That is, things that withered and dead-ended.
 -- Maybe these are errors that need to be addressed.
 -- If this return no rows, that means all the data was sent.
 -- Otherwise, this returns a list of the THINGs of the my descendants that withered and died.
