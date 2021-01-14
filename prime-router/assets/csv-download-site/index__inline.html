@@ -9,7 +9,21 @@
     <style>
         body{display:flex;min-height:100vh;flex-direction:column}main{flex:1;width:100%}.prime-user-account{margin-bottom:.75rem;font-size:.88rem;vertical-align:u-text("vertical-align");line-height:1.25rem;text-align:right}.prime-table{width:100%}.prime-table thead th{border-bottom:2px solid}.prime-table tbody td,.prime-table tbody th{border-color:#dfe1e2}.prime-identifier{background-color:#f0f0f0;color:#1b1b1b}.prime-identifier .prime-identifier__domain{color:#565c65}.prime-identifier .prime-identifier__disclaimer a:link,.prime-identifier .prime-identifier__disclaimer a:visited,.prime-identifier .prime-identifier__disclaimer a:active{color:#1b1b1b}.prime-identifier .prime-identifier__disclaimer a:hover{color:#71767a}
     </style>
-    <title>PRIME Data Hub CSV download</title>
+        <script type="text/javascript">
+            function removeItem(sKey, sPath, sDomain) {
+                document.cookie = encodeURIComponent(sKey) + 
+                            "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + 
+                            (sDomain ? "; domain=" + sDomain : "") + 
+                            (sPath ? "; path=" + sPath : "");
+            }
+    
+            function logout(){
+                removeItem("user")
+                removeItem("organization")
+                window.location.replace([[${OKTA_redirect}]]);
+            }
+        </script>
+    <title>CDC PRIME Data Hub - Download</title>
   </head>
   <body>
     <section class="usa-banner" aria-label="Official government website">
@@ -251,20 +265,7 @@
       </section>
     </div>
 
-    <script type="text/javascript">
-        function removeItem(sKey, sPath, sDomain) {
-            document.cookie = encodeURIComponent(sKey) + 
-                        "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + 
-                        (sDomain ? "; domain=" + sDomain : "") + 
-                        (sPath ? "; path=" + sPath : "");
-        }
 
-        function logout(){
-            removeItem("user")
-            removeItem("organization")
-            window.location.replace([[${OKTA_redirect}]]);
-        }
-    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds.min.js" integrity="sha512-ohEb4+2we68Bx+r0bzmujZwPVxjs+cD0lRykggDCj36aoqO9Tex8TaNO3gzBr8re+MVbbF5Av/d7VDQxUe+zlw==" crossorigin="anonymous"></script>
   </body>
 </html>

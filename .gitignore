@@ -33,6 +33,7 @@ hs_err_pid*
 **/routed_files/*.csv
 Test.csv
 **/Xperiment.kt
+**/junk
 
 # Mac files
 .DS_Store
@@ -71,3 +72,7 @@ __azurite_db_queue__.json
 __azurite_db_blob_extent__.json
 __azurite_db_blob__.json
 prime-router/source.mry
+
+# PRIME test files
+prime-router/result_files/*
+prime-router/routed_files/*

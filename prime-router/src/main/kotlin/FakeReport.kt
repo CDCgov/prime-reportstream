@@ -6,7 +6,11 @@ import java.util.Random
 import java.util.concurrent.TimeUnit
 
 class FakeReport(val metadata: Metadata) {
-    class RowContext(findLookupTable: (String) -> LookupTable?) {
+    class RowContext(
+        findLookupTable: (String) -> LookupTable? = { null },
+        reportState: String? = null,
+        reportCounty: String? = null
+    ) {
         val faker = Faker()
         val patientName = faker.name()
         val equipmentModel = randomChoice(
@@ -14,12 +18,12 @@ class FakeReport(val metadata: Metadata) {
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
 
-        val state = randomChoice("FL", "PA", "TX", "AZ")
-        val county = findLookupTable("fips-county")?.let {
-            if (state == "AZ") {
-                randomChoice("Pima", "Yuma")
-            } else {
-                randomChoice(it.filter("State", state, "County"))
+        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "CO")
+        val county = reportCounty ?: findLookupTable("fips-county")?.let {
+            when (state) {
+                "AZ" -> randomChoice("Pima", "Yuma")
+                "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
+                else -> randomChoice(it.filter("State", state, "County"))
             }
         }
     }
@@ -36,9 +40,21 @@ class FakeReport(val metadata: Metadata) {
                 when {
                     element.nameContains("lab_name") -> "Any lab USA"
                     element.nameContains("facility_name") -> "Any facility USA"
+                    element.nameContains("patient_age_and_units") -> {
+                        val unit = randomChoice("months", "years", "days")
+                        val value = when (unit) {
+                            "months" -> faker.number().numberBetween(1, 18)
+                            "days" -> faker.number().numberBetween(0, 364)
+                            "years" -> faker.number().numberBetween(1, 120)
+                            else -> TODO()
+                        }
+
+                        "$value $unit"
+                    }
                     else -> faker.lorem().characters(5, 10)
                 }
             }
+            Element.Type.BLANK -> ""
             Element.Type.TEXT_OR_BLANK -> randomChoice("", faker.lorem().characters(5, 10))
             Element.Type.NUMBER -> faker.number().numberBetween(1, 10).toString()
             Element.Type.DATE -> {
@@ -58,16 +74,24 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.CODE -> {
                 when (element.name) {
                     "specimen_source_site_code" -> "71836000"
-                    "processing_mode_code" -> ""
+                    "test_result_status" -> randomChoice("F", "C")
                     else -> {
+                        val altValues = element.altValues
                         val valueSet = element.valueSetRef
-                            ?: error("ValueSet ${element.valueSet} is not available}")
-                        val possibleValues = valueSet.values.map { it.code }.toTypedArray()
+                        // ?: error("ValueSet ${element.valueSet} mapped to ${element.name} is not available}")
+                        // if the code defines alternate values in the schema we need to
+                        // output them here
+                        val possibleValues = if (altValues?.isNotEmpty() == true) {
+                            altValues.map { it.code }.toTypedArray()
+                        } else {
+                            valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+                        }
+
                         randomChoice(*possibleValues)
                     }
                 }
             }
-            Element.Type.TABLE -> {
+            Element.Type.TABLE, Element.Type.TABLE_OR_BLANK -> {
                 val lookupTable = element.tableRef
                     ?: error("LookupTable ${element.table} is not available")
                 when (element.table) {
@@ -111,19 +135,29 @@ class FakeReport(val metadata: Metadata) {
                     else -> TODO()
                 }
             }
-            Element.Type.TELEPHONE -> faker.numerify("##########:1:") // faker.phoneNumber().cellPhone()
+            Element.Type.TELEPHONE -> {
+                val csvField = element.csvFields?.get(0)
+                val phoneNumberFormat = csvField?.format ?: "2#########:1:"
+                faker.numerify(phoneNumberFormat)
+            }
             Element.Type.EMAIL -> "${context.patientName.username()}@email.com"
             null -> error("Invalid element type for ${element.name}")
         }
     }
 
-    private fun buildRow(schema: Schema): List<String> {
-        val context = RowContext(metadata::findLookupTable)
+    private fun buildRow(schema: Schema, targetState: String? = null, targetCounty: String? = null): List<String> {
+        val context = RowContext(metadata::findLookupTable, targetState, targetCounty)
         return schema.elements.map { buildColumn(it, context) }
     }
 
-    fun build(schema: Schema, count: Int = 10, source: Source): Report {
-        val rows = (0 until count).map { buildRow(schema) }.toList()
+    fun build(
+        schema: Schema,
+        count: Int = 10,
+        source: Source,
+        targetState: String? = null,
+        targetCounty: String? = null
+    ): Report {
+        val rows = (0 until count).map { buildRow(schema, targetState, targetCounty) }.toList()
         return Report(schema, rows, listOf(source))
     }
 

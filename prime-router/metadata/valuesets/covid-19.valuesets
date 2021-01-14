@@ -15,6 +15,8 @@
   system: SNOMED_CT
   referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
   values:
+    - code: 445297001
+      display: Swab of internal nose
     - code: 258500001
       display: Nasopharyngeal swab
     - code: 871810001
@@ -67,6 +69,10 @@
       display: Detected in pooled specimen
     - code: 419984006
       display: Inconclusive
+    - code: 125154007
+      display: Specimen unsatisfactory for evaluation
+    - code: 455371000124106
+      display: Invalid result
 
 - name: covid-19/order
   system: LOINC
@@ -109,16 +115,16 @@
   values:
     - code: 95417-2
       display: First test for condition of interest
-      version: 2.69-pre
+      version: 2.69
     - code: 95418-0
       display: Whether patient is employed in a healthcare setting
-      version: 2.69-pre
+      version: 2.69
     - code: 85658-3
       display: Occupation [Type]
       version: 2.68
     - code: 95419-8
       display: Has symptoms related to condition of interest
-      version: 2.69-pre
+      version: 2.69
     - code: 65222-2
       display: Date and time of symptom onset
       version: 2.68
@@ -129,10 +135,10 @@
       display: Patient was hospitalized because of this condition
     - code: 95420-6
       display: Admitted to intensive care unit for condition of interest
-      version: 2.69-pre
+      version: 2.69
     - code: 95421-4
       display: Resides in a congregate care setting
-      version: 2.68-pre
+      version: 2.69
     - code: 75617-1
       display: Residence type
       version: 2.68
@@ -141,6 +147,9 @@
       version: 2.68
     - code: 30525-0
       display: Age
+      version: 2.68
+    - code: 77974-4
+      display: Whether patient was hospitalized because of this condition
       version: 2.68
 
 - name: covid-19/specimen_source_site

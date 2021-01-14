@@ -35,7 +35,8 @@ elements:
   - name: equipment_model_name
     csvFields: [{name: Device_ID}]
 
-  # TODO Badness: As items are added in prime-data-input-client/backend/src/main/resources/application.yaml,
+  # TODO Badness: equipment_model_name is not a CODE type. Really should use a table.
+  # TODO: As items are added in prime-data-input-client/backend/src/main/resources/application.yaml,
   #  we need to add them here.
   - name: device_type
     type: CODE
@@ -138,6 +139,7 @@ elements:
 
   # Nonstandard
   - name: organization_and_lab
+    type: TEXT
     mapper: 'concat(organization_name, testing_lab_name)'
     csvFields: [{name: Testing_lab_name}]
 
@@ -167,6 +169,7 @@ elements:
 
   # Nonstandard
   - name: organization_and_facility
+    type: TEXT
     mapper: 'concat(organization_name, ordering_facility_name)'
     csvFields: [{name: Ordering_facility_name}]
 

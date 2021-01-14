@@ -176,7 +176,7 @@ class ReportFunction {
         return when (client.format) {
             OrganizationClient.Format.CSV -> {
                 try {
-                    val readResult = engine.csvConverter.read(
+                    val readResult = engine.csvSerializer.read(
                         schemaName = client.schema,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = client.organization.name, client = client.name)),
@@ -242,7 +242,7 @@ class ReportFunction {
             }
         }
         workflowEngine.dispatchReport(event, report, txn)
-        context.logger.info("Queue: ${event.toMessage()}")
+        context.logger.info("Queue: ${event.toQueueMessage()}")
     }
 
     private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {
@@ -251,13 +251,17 @@ class ReportFunction {
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
-            if (result.report != null)
+            if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
-            else
+                it.writeNumberField("reportItemCount", result.report.itemCount)
+            } else
                 it.writeNullField("id")
             it.writeArrayFieldStart("destinations")
             destinations.forEach { destination -> it.writeString(destination) }
             it.writeEndArray()
+
+            it.writeNumberField("warningCount", result.warnings.size)
+            it.writeNumberField("errorCount", result.errors.size)
 
             fun writeDetailsArray(field: String, array: List<ResultDetail>) {
                 it.writeArrayFieldStart(field)

@@ -58,15 +58,17 @@ data class Element(
     val reference: String? = null,
     val referenceUrl: String? = null,
     val hhsGuidanceField: String? = null,
-    val uscdiField: String? = null,
     val natFlatFileField: String? = null,
 
-    // Format specific information used to format the table
+    // Format specific information used to format output
 
     // HL7 specific information
     val hl7Field: String? = null,
     val hl7OutputFields: List<String>? = null,
     val hl7AOEQuestion: String? = null,
+
+    // Redox specific information
+    val redoxOutputFields: List<String>? = null,
 
     /**
      * The header fields that correspond to an element.
@@ -96,6 +98,7 @@ data class Element(
         DURATION,
         CODE, // CODED with a HL7, SNOMED-CT, LONIC valueSet
         TABLE, // A table column value
+        TABLE_OR_BLANK,
         EI, // A HL7 Entity Identifier (4 parts)
         HD, // ISO Hierarchic Designator
         ID, // Generic ID
@@ -110,6 +113,7 @@ data class Element(
         PERSON_NAME,
         TELEPHONE,
         EMAIL,
+        BLANK,
     }
 
     data class CsvField(
@@ -158,7 +162,10 @@ data class Element(
 
     val isOptional get() = this.cardinality == Cardinality.ZERO_OR_ONE
 
-    val canBeBlank get() = type == Type.TEXT_OR_BLANK || type == Type.STREET_OR_BLANK
+    val canBeBlank get() = type == Type.TEXT_OR_BLANK ||
+        type == Type.STREET_OR_BLANK ||
+        type == Type.TABLE_OR_BLANK ||
+        type == Type.BLANK
 
     fun inheritFrom(baseElement: Element): Element {
         return Element(
@@ -176,11 +183,11 @@ data class Element(
             reference = this.reference ?: baseElement.reference,
             referenceUrl = this.referenceUrl ?: baseElement.referenceUrl,
             hhsGuidanceField = this.hhsGuidanceField ?: baseElement.hhsGuidanceField,
-            uscdiField = this.uscdiField ?: baseElement.uscdiField,
             natFlatFileField = this.natFlatFileField ?: baseElement.natFlatFileField,
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
             hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
+            redoxOutputFields = this.redoxOutputFields ?: baseElement.redoxOutputFields,
             documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
         )
@@ -213,6 +220,8 @@ data class Element(
     ): String {
         if (normalizedValue.isEmpty()) return ""
         return when (type) {
+            // sometimes you just need to send through an empty column
+            Type.BLANK -> ""
             Type.DATE -> {
                 if (format != null) {
                     val formatter = DateTimeFormatter.ofPattern(format)
@@ -231,7 +240,7 @@ data class Element(
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
-                if (format == altDisplayFormat) {
+                if (format == altDisplayToken) {
                     toAltDisplay(normalizedValue)
                         // TODO Revisit: there may be times that normalizedValue is not an altValue
                         ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
@@ -239,15 +248,22 @@ data class Element(
                     if (valueSetRef == null)
                         error("Schema Error: missing value set for '$name'")
                     when (format) {
-                        displayFormat ->
+                        caretToken -> {
+                            val display = valueSetRef.toDisplayFromCode(normalizedValue)
+                                ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                            "$normalizedValue^$display^${valueSetRef.systemCode}"
+                        }
+                        displayToken -> {
                             valueSetRef.toDisplayFromCode(normalizedValue)
                                 ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                        systemFormat ->
+                        }
+                        systemToken -> {
                             // Very confusing, but this special case is in the HHS Guidance Confluence page
                             if (valueSetRef.name == "hl70136" && normalizedValue == "UNK")
                                 "NULLFL"
                             else
                                 valueSetRef.systemCode
+                        }
                         else ->
                             normalizedValue
                     }
@@ -262,6 +278,7 @@ data class Element(
                     .replace(exchangeToken, parts[0].substring(3, 6))
                     .replace(subscriberToken, parts[0].substring(6))
                     .replace(extensionToken, parts[2])
+                    .replace(e164Token, "+${parts[1]}${parts[0]}")
             }
             Type.POSTAL_CODE -> {
                 when (format) {
@@ -364,13 +381,13 @@ data class Element(
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
-                return if (format == altDisplayFormat) {
+                return if (format == altDisplayToken) {
                     if (toAltCode(formattedValue) != null) null else
                         "Invalid code: '$formattedValue' is not a display value in altValues set for '$name'"
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $name")
                     when (format) {
-                        displayFormat ->
+                        displayToken ->
                             if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
                                 "Invalid code: '$formattedValue' not a display value for element '$name'"
                         else ->
@@ -397,6 +414,8 @@ data class Element(
                 when (format) {
                     null,
                     hdNameToken -> null
+                    hdUniversalIdToken -> null
+                    hdSystemToken -> null
                     hdCompleteFormat -> {
                         val parts = formattedValue.split(hdDelimiter)
                         if (parts.size == 1 || parts.size == 3) null else "Invalid HD format"
@@ -408,6 +427,8 @@ data class Element(
                 when (format) {
                     null,
                     eiNameToken -> null
+                    eiNamespaceIdToken -> null
+                    eiSystemToken -> null
                     eiCompleteFormat -> {
                         val parts = formattedValue.split(eiDelimiter)
                         if (parts.size == 1 || parts.size == 4) null else "Invalid EI format"
@@ -426,6 +447,7 @@ data class Element(
     fun toNormalized(formattedValue: String, format: String? = null): String {
         if (formattedValue.isEmpty()) return ""
         return when (type) {
+            Type.BLANK -> ""
             Type.DATE -> {
                 val normalDate = try {
                     LocalDate.parse(formattedValue)
@@ -472,13 +494,13 @@ data class Element(
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
-                if (format == altDisplayFormat) {
+                if (format == altDisplayToken) {
                     toAltCode(formattedValue)
                         ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $name")
                     when (format) {
-                        displayFormat ->
+                        displayToken ->
                             valueSetRef.toCodeFromDisplay(formattedValue)
                                 ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
                         else ->
@@ -599,13 +621,17 @@ data class Element(
     fun toAltDisplay(code: String): String? {
         if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
         if (altValues == null) error("Schema Error: missing alt values for '$name'")
-        return altValues.find { code.equals(it.code, ignoreCase = true) }?.display
+        val altValue = altValues.find { code.equals(it.code, ignoreCase = true) }
+            ?: altValues.find { "*" == it.code }
+        return altValue?.display
     }
 
     fun toAltCode(altDisplay: String): String? {
         if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
         if (altValues == null) error("Schema Error: missing alt values for '$name'")
-        return altValues.find { altDisplay.equals(it.display, ignoreCase = true) }?.code
+        val altValue = altValues.find { altDisplay.equals(it.display, ignoreCase = true) }
+            ?: altValues.find { "*" == it.display }
+        return altValue?.code
     }
 
     companion object {
@@ -613,15 +639,17 @@ data class Element(
         const val datetimePattern = "yyyyMMddHHmmZZZ"
         val dateFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
-        const val displayFormat = "\$display"
-        const val codeFormat = "\$code"
-        const val systemFormat = "\$system"
-        const val altDisplayFormat = "\$alt"
+        const val displayToken = "\$display"
+        const val caretToken = "\$code^\$display^\$system"
+        const val codeToken = "\$code"
+        const val systemToken = "\$system"
+        const val altDisplayToken = "\$alt"
         const val areaCodeToken = "\$area"
         const val exchangeToken = "\$exchange"
         const val subscriberToken = "\$subscriber"
         const val countryCodeToken = "\$country"
         const val extensionToken = "\$extension"
+        const val e164Token = "\$e164"
         const val defaultPhoneFormat = "\$area\$exchange\$subscriber"
         const val phoneDelimiter = ":"
         const val hdDelimiter = "^"

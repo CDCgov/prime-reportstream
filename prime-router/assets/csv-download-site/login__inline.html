@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="none" />
 
-    <title>DataHub - Login</title>
+    <title>CDC Prime Data Hub - Login</title>
     <script src="https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js" type="text/javascript"></script>
     <link href="https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css" type="text/css" rel="stylesheet" />
 </head>
@@ -36,7 +36,7 @@
     function createCookie(name,value,min) {
         if (min) {
             var date = new Date(); 
-            date.setTime(date.getTime()+(min*60*60*1000));   
+            date.setTime(date.getTime()+(min*60*1000));   
             var expires = ";expires="+date.toUTCString(); 
         } else var expires = "";
         document.cookie = name+"="+value+expires+";path=/"; 

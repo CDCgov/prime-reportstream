@@ -1,10 +1,14 @@
 package gov.cdc.prime.router.azure
 
-import gov.cdc.prime.router.CsvConverter
-import gov.cdc.prime.router.Hl7Converter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.RedoxSerializer
+import gov.cdc.prime.router.transport.RedoxTransport
+import gov.cdc.prime.router.transport.RetryToken
+import gov.cdc.prime.router.transport.SftpTransport
 import org.jooq.Configuration
 import java.io.ByteArrayInputStream
 
@@ -19,13 +23,16 @@ import java.io.ByteArrayInputStream
 class WorkflowEngine(
     // Immutable objects can be shared between every function call
     val metadata: Metadata = WorkflowEngine.metadata,
-    val hl7Converter: Hl7Converter = WorkflowEngine.hl7Converter,
-    val csvConverter: CsvConverter = WorkflowEngine.csvConverter,
+    val hl7Serializer: Hl7Serializer = WorkflowEngine.hl7Serializer,
+    val csvSerializer: CsvSerializer = WorkflowEngine.csvSerializer,
+    val redoxSerializer: RedoxSerializer = WorkflowEngine.redoxSerializer,
     val translator: Translator = Translator(metadata),
     // New connection for every function
     val db: DatabaseAccess = DatabaseAccess(dataSource = DatabaseAccess.dataSource),
-    val blob: BlobAccess = BlobAccess(csvConverter, hl7Converter),
+    val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess(),
+    val sftpTransport: SftpTransport = SftpTransport(),
+    val redoxTransport: RedoxTransport = RedoxTransport(),
 ) {
     /**
      * Check the connections to Azure Storage and DB
@@ -36,13 +43,13 @@ class WorkflowEngine(
     }
 
     /**
-     * Receive a report.
+     * Place a report into the workflow
      */
     fun receiveReport(report: Report, txn: Configuration? = null) {
         val (bodyFormat, bodyUrl) = blob.uploadBody(report)
         try {
-            val action = ReportEvent(Event.Action.NONE, report.id)
-            db.insertHeader(report, bodyFormat, bodyUrl, action, txn)
+            val receiveEvent = ReportEvent(Event.Action.NONE, report.id, null)
+            db.insertHeader(report, bodyFormat, bodyUrl, receiveEvent, txn)
         } catch (e: Exception) {
             // Clean up
             blob.deleteBlob(bodyUrl)
@@ -70,13 +77,15 @@ class WorkflowEngine(
      */
     fun handleReportEvent(
         event: ReportEvent,
-        updateBlock: (header: DatabaseAccess.Header, txn: Configuration) -> ReportEvent,
+        updateBlock: (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         db.transact { txn ->
             val header = db.fetchAndLockHeader(event.reportId, txn)
-            val currentAction = Event.Action.parse(header.task.nextAction.literal)
-            val nextAction = updateBlock(header, txn)
-            db.updateHeader(header.task.reportId, currentAction, nextAction.action, nextAction.at, txn)
+            val currentAction = Event.Action.parseQueueMessage(header.task.nextAction.literal)
+            val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
+            val nextAction = updateBlock(header, retryToken, txn)
+            val retryJson = nextAction.retryToken?.toJSON()
+            db.updateHeader(header.task.reportId, currentAction, nextAction.action, nextAction.at, retryJson, txn)
             queue.sendMessage(nextAction)
         }
     }
@@ -88,7 +97,7 @@ class WorkflowEngine(
     fun handleReceiverEvent(
         event: ReceiverEvent,
         maxCount: Int,
-        updateBlock: (headers: List<DatabaseAccess.Header>, txn: Configuration) -> Unit,
+        updateBlock: (headers: List<DatabaseAccess.Header>, txn: Configuration?) -> Unit,
     ) {
         db.transact { txn ->
             val headers = db.fetchAndLockHeaders(
@@ -100,12 +109,13 @@ class WorkflowEngine(
             )
             updateBlock(headers, txn)
             headers.forEach {
-                val currentAction = Event.Action.parse(it.task.nextAction.literal)
+                val currentAction = Event.Action.parseQueueMessage(it.task.nextAction.literal)
                 db.updateHeader(
                     it.task.reportId,
                     currentAction,
                     Event.Action.NONE,
                     nextActionAt = null,
+                    retryToken = null,
                     txn
                 )
             }
@@ -123,7 +133,7 @@ class WorkflowEngine(
         val sources = header.sources.map { DatabaseAccess.toSource(it) }
         return when (header.task.bodyFormat) {
             "CSV" -> {
-                val result = csvConverter.read(schema.name, ByteArrayInputStream(bytes), sources, destination)
+                val result = csvSerializer.read(schema.name, ByteArrayInputStream(bytes), sources, destination)
                 if (result.report == null || result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
@@ -152,12 +162,16 @@ class WorkflowEngine(
             Metadata("$baseDir/metadata", orgExt = ext)
         }
 
-        val csvConverter: CsvConverter by lazy {
-            CsvConverter(metadata)
+        val csvSerializer: CsvSerializer by lazy {
+            CsvSerializer(metadata)
         }
 
-        val hl7Converter: Hl7Converter by lazy {
-            Hl7Converter(metadata)
+        val hl7Serializer: Hl7Serializer by lazy {
+            Hl7Serializer(metadata)
+        }
+
+        val redoxSerializer: RedoxSerializer by lazy {
+            RedoxSerializer(metadata)
         }
     }
 }
