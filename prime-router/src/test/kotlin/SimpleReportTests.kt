@@ -2,7 +2,6 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.serializers.CsvSerializer
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -110,7 +109,6 @@ class SimpleReportTests {
     }
 
     @Test
-    @Ignore
     fun `test producing az data from simplereport`() {
         val filePath = inputPath + "simplereport.csv"
         val outputFiles = readAndRoute(filePath, "primedatainput/pdi-covid-19")
@@ -127,7 +125,6 @@ class SimpleReportTests {
     }
 
     @Test
-    @Ignore
     fun `test fake simplereport data`() {
         val schemaName = "primedatainput/pdi-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)
@@ -137,7 +134,6 @@ class SimpleReportTests {
     }
 
     @Test
-    @Ignore
     fun `test fake pima data`() {
         val schemaName = "az/pima-az-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)
@@ -147,7 +143,6 @@ class SimpleReportTests {
     }
 
     @Test
-    @Ignore
     fun `test fake FL data`() {
         val schemaName = "fl/fl-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)
@@ -161,7 +156,7 @@ class SimpleReportTests {
         expectedResultsFile: File,
         compareKeys: Boolean = true,
         compareLines: Boolean = true,
-        recordId: String = "Patient_Id"
+        recordId: String = "Patient_ID"
     ) {
         assertTrue(testFile.exists())
         assertTrue(expectedResultsFile.exists())

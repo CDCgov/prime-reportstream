@@ -44,7 +44,7 @@ elements:
 
     # column I
     - name: patient_gender
-      csvFields: [{ name: Patient Gender, format: $code }]
+      csvFields: [{ name: Patient Gender, format: $alt }]
       altValues:
           - display: Male
             code: M
@@ -264,7 +264,7 @@ elements:
 
     # column AX
     - name: first_test
-      csvFields: [{ name: First Test for Condition, format: $code }]
+      csvFields: [{ name: First Test for Condition, format: $alt }]
       altValues:
           - display: Yes
             code: Y
@@ -276,7 +276,7 @@ elements:
 
     # column AY
     - name: employed_in_healthcare
-      csvFields: [{ name: Employment in Health Care, format: $code }]
+      csvFields: [{ name: Employment in Health Care, format: $alt }]
       altValues:
           - display: Yes
             code: Y
@@ -298,7 +298,7 @@ elements:
 
     # column BA
     - name: symptomatic_for_disease
-      csvFields: [ { name: Symptomatic, format: $code } ]
+      csvFields: [ { name: Symptomatic, format: $alt } ]
       altValues:
           - display: Yes
             code: Y
@@ -323,7 +323,7 @@ elements:
 
     # column BD
     - name: hospitalized
-      csvFields: [{ name: Hospitalized for this condition, format: $code }]
+      csvFields: [{ name: Hospitalized for this condition, format: $alt }]
       altValues:
           - display: Yes
             code: Y
@@ -335,7 +335,7 @@ elements:
 
     # column BE
     - name: icu
-      csvFields: [{ name: In ICU, format: $code }]
+      csvFields: [{ name: In ICU, format: $alt }]
       altValues:
           - display: Yes
             code: Y
@@ -347,7 +347,7 @@ elements:
 
     # column BF
     - name: resident_congregate_setting
-      csvFields: [{ name: Resides in Congregate Care setting, format: $code }]
+      csvFields: [{ name: Resides in Congregate Care setting, format: $alt }]
       altValues:
           - display: Yes
             code: Y
@@ -370,7 +370,7 @@ elements:
 
     # column BH
     - name: pregnant
-      csvFields: [ { name: Pregnancy Status, format: $code } ]
+      csvFields: [ { name: Pregnancy Status, format: $alt } ]
       altValues:
           - display: Pregnant
             code: Y

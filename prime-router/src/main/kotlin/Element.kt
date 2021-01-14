@@ -246,32 +246,37 @@ data class Element(
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
-                if (format == altDisplayToken) {
-                    toAltDisplay(normalizedValue)
-                        // TODO Revisit: there may be times that normalizedValue is not an altValue
-                        ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
-                } else {
-                    if (valueSetRef == null)
-                        error("Schema Error: missing value set for '$name'")
-                    when (format) {
-                        caretToken -> {
-                            val display = valueSetRef.toDisplayFromCode(normalizedValue)
-                                ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                            "$normalizedValue^$display^${valueSetRef.systemCode}"
+                when (format) {
+                    // TODO Revisit: there may be times that normalizedValue is not an altValue
+                    altDisplayToken ->
+                        toAltDisplay(normalizedValue)
+                            ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
+                    codeToken ->
+                        toCode(normalizedValue)
+                            ?: error("Schema Error: '$normalizedValue' is not in valueSet for '$name'")
+                    else -> {
+                        if (valueSetRef == null)
+                            error("Schema Error: missing value set for '$name'")
+                        when (format) {
+                            caretToken -> {
+                                val display = valueSetRef.toDisplayFromCode(normalizedValue)
+                                    ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                                "$normalizedValue^$display^${valueSetRef.systemCode}"
+                            }
+                            displayToken -> {
+                                valueSetRef.toDisplayFromCode(normalizedValue)
+                                    ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                            }
+                            systemToken -> {
+                                // Very confusing, but this special case is in the HHS Guidance Confluence page
+                                if (valueSetRef.name == "hl70136" && normalizedValue == "UNK")
+                                    "NULLFL"
+                                else
+                                    valueSetRef.systemCode
+                            }
+                            else ->
+                                normalizedValue
                         }
-                        displayToken -> {
-                            valueSetRef.toDisplayFromCode(normalizedValue)
-                                ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                        }
-                        systemToken -> {
-                            // Very confusing, but this special case is in the HHS Guidance Confluence page
-                            if (valueSetRef.name == "hl70136" && normalizedValue == "UNK")
-                                "NULLFL"
-                            else
-                                valueSetRef.systemCode
-                        }
-                        else ->
-                            normalizedValue
                     }
                 }
             }
@@ -500,18 +505,23 @@ data class Element(
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
-                if (format == altDisplayToken) {
-                    toAltCode(formattedValue)
-                        ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
-                } else {
-                    if (valueSetRef == null) error("Schema Error: missing value set for $name")
-                    when (format) {
-                        displayToken ->
-                            valueSetRef.toCodeFromDisplay(formattedValue)
-                                ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
-                        else ->
-                            valueSetRef.toNormalizedCode(formattedValue)
-                                ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
+                when (format) {
+                    altDisplayToken ->
+                        toAltCode(formattedValue)
+                            ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
+                    codeToken ->
+                        toCode(formattedValue)
+                            ?: error("Invalid code '$formattedValue' is not a display value in valueSet for '$name")
+                    else -> {
+                        if (valueSetRef == null) error("Schema Error: missing value set for $name")
+                        when (format) {
+                            displayToken ->
+                                valueSetRef.toCodeFromDisplay(formattedValue)
+                                    ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                            else ->
+                                valueSetRef.toNormalizedCode(formattedValue)
+                                    ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
+                        }
                     }
                 }
             }
@@ -638,6 +648,14 @@ data class Element(
         val altValue = altValues.find { altDisplay.equals(it.display, ignoreCase = true) }
             ?: altValues.find { "*" == it.display }
         return altValue?.code
+    }
+
+    fun toCode(code: String): String? {
+        if (!isCodeType) error("Internal Error: asking for codeValue for a non-code type")
+        if (valueSetRef == null) error("Unable to find value set $valueSet.")
+        val codeValue = valueSetRef.values.find { code.equals(it.code, ignoreCase = true) }
+            ?: valueSetRef.values.find { "*" == it.code }
+        return codeValue?.code
     }
 
     companion object {

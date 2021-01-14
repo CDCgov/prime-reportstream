@@ -94,7 +94,7 @@ class FakeReport(val metadata: Metadata) {
 
                         // concatenate a list of symptoms
                         if (element.name.contains("disease_symptoms"))
-                            randomChoices(*possibleValues).joinToString("^")
+                            randomChoice(*possibleValues)
                         else
                             randomChoice(*possibleValues)
                     }
