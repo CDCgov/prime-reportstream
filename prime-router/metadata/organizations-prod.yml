@@ -106,6 +106,7 @@
         jurisdictionalFilter: [ "filterByCounty(PA, Bucks)" ]
         transforms: { deidentify: false }
         defaults:
+          processing_mode_code: P
           redox_destination_id: fcafe93a-9e04-4e3f-9aac-203518f6c4c9
           redox_destination_name: "CDC Bucks County PDH Destination (p)"
           redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
@@ -120,6 +121,7 @@
         jurisdictionalFilter: [ "filterByCounty(PA, Chester)" ]
         transforms: { deidentify: false }
         defaults:
+          processing_mode_code: P
           redox_destination_id: 5e841ef0-447b-46d0-8a60-49ca4defaf00
           redox_destination_name: "CDC Chester County PDH Destination (p)"
           redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
@@ -134,6 +136,7 @@
         jurisdictionalFilter: [ "filterByCounty(PA, Montgomery)" ]
         transforms: { deidentify: false }
         defaults:
+          processing_mode_code: P
           redox_destination_id: bb2947af-28dd-470d-9997-7445eb42252f
           redox_destination_name: "CDC Montgomery County PDH Destination (p)"
           redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
