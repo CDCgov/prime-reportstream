@@ -15,4 +15,4 @@ Added this value to `Specimen_type_code`
 
 ## Changes for AZ
 
-One additional facility is now sending to `TEST/IN`.
+One additional facility is now sending to `PROD/IN`.
