@@ -44,14 +44,7 @@ elements:
 
     # column I
     - name: patient_gender
-      csvFields: [{ name: Patient Gender, format: $alt }]
-      altValues:
-          - display: Male
-            code: M
-          - display: Female
-            code: F
-          - display: Unknown
-            code: U
+      csvFields: [{ name: Patient Gender }]
       documentation: The patient's gender. Expects M, F, or U
 
     # column J
@@ -265,26 +258,12 @@ elements:
 
     # column AX
     - name: first_test
-      csvFields: [{ name: First Test for Condition, format: $alt }]
-      altValues:
-          - display: Yes
-            code: Y
-          - display: No
-            code: N
-          - display: Unknown
-            code: U
+      csvFields: [{ name: First Test for Condition }]
       documentation: Expects Y, N, or U
 
     # column AY
     - name: employed_in_healthcare
-      csvFields: [{ name: Employment in Health Care, format: $alt }]
-      altValues:
-          - display: Yes
-            code: Y
-          - display: No
-            code: N
-          - display: Unknown
-            code: U
+      csvFields: [{ name: Employment in Health Care }]
       documentation: Expects Y, N, or U
 
     # column AZ
@@ -299,14 +278,7 @@ elements:
 
     # column BA
     - name: symptomatic_for_disease
-      csvFields: [ { name: Symptomatic, format: $alt } ]
-      altValues:
-          - display: Yes
-            code: Y
-          - display: No
-            code: N
-          - display: Unknown
-            code: U
+      csvFields: [ { name: Symptomatic } ]
       documentation: Expects Y, N, or U
 
     # column BB
@@ -324,38 +296,17 @@ elements:
 
     # column BD
     - name: hospitalized
-      csvFields: [{ name: Hospitalized for this condition, format: $alt }]
-      altValues:
-          - display: Yes
-            code: Y
-          - display: No
-            code: N
-          - display: Unknown
-            code: U
+      csvFields: [{ name: Hospitalized for this condition }]
       documentation: Expects Y, N, or U
 
     # column BE
     - name: icu
-      csvFields: [{ name: In ICU, format: $alt }]
-      altValues:
-          - display: Yes
-            code: Y
-          - display: No
-            code: N
-          - display: Unknown
-            code: U
+      csvFields: [{ name: In ICU }]
       documentation: Expects Y, N, or U
 
     # column BF
     - name: resident_congregate_setting
-      csvFields: [{ name: Resides in Congregate Care setting, format: $alt }]
-      altValues:
-          - display: Yes
-            code: Y
-          - display: No
-            code: N
-          - display: Unknown
-            code: U
+      csvFields: [{ name: Resides in Congregate Care setting }]
       documentation: Expects Y, N, or U
 
     # column BG
@@ -371,14 +322,7 @@ elements:
 
     # column BH
     - name: pregnant
-      csvFields: [ { name: Pregnancy Status, format: $alt } ]
-      altValues:
-          - display: Pregnant
-            code: Y
-          - display: Not Pregnant
-            code: N
-          - display: Unknown
-            code: U
+      csvFields: [ { name: Pregnancy Status } ]
 
     # column BI
     # nonstandard

@@ -91,11 +91,7 @@ class FakeReport(val metadata: Metadata) {
                             valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
                         }
 
-                        // concatenate a list of symptoms
-                        if (element.name.contains("disease_symptoms"))
-                            randomChoice(*possibleValues)
-                        else
-                            randomChoice(*possibleValues)
+                        randomChoice(*possibleValues)
                     }
                 }
             }
