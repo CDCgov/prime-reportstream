@@ -155,6 +155,22 @@ By default, the functions will pull their configuration for organizations from t
 
 If your agency's network intercepts SSL requests, you might have to disable SSL verifications to get around invalid certificate errors.
 
+### Maven Builds
+
+For Maven builds, you can add the parameter `-Dmaven.wagon.http.ssl.insecure=true` as follows:
+
+```bash
+mvn clean package -Dmaven.wagon.http.ssl.insecure=true
+```
+
+If you want to permanently set this, add the following to your `.bash_profile`:
+
+```bash
+export MAVEN_OPTS="-Dmaven.wagon.http.ssl.insecure=true $MAVEN_OPTS"
+```
+
+### Docker Builds
+
 This can be accomplished by setting an environment variable `PRIME_DATA_HUB_INSECURE_SSL=true`. You can pass this in as a one-off when you build a component, for example:
 
 ```bash
