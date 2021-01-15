@@ -111,6 +111,8 @@ Docker-compose will build a `prime_dev` container with the output of the `mvn pa
 
 Looking at the log above, you may notice that container has a debug open at port `5005`. This configuration allows you to attach a Java debugger to debug your code.
 
+If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
+
 ## Setup Azure to deploy your locally built container
 
 Each developer is given an Azure resource group in the project's Azure subscription. 
