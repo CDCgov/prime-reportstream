@@ -79,7 +79,9 @@ services:
       - .vault/env:/vault/env
       # Vault database persisted as a Docker volume
       - vault:/vault/file
+    # Override the command with our custom init script
     command: "/vault/config/init.sh"
 
 volumes:
+  # For storing a local encrypted secrets database
   vault:
