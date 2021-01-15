@@ -112,8 +112,7 @@ class ProcessData : CliktCommand(
         if (listOfFiles.isNullOrEmpty()) error("No files to merge.")
         val files = listOfFiles.split(",", " ").filter { ! it.isNullOrBlank() }
         if (files.isEmpty()) error("No files to merge found in comma separated list.  Need at least one file.")
-        val reports = files.map { readReportFromFile(metadata, it) }.filter { report -> report != null }
-        if (reports.isEmpty()) error("Unable to merge.  All reports failed validation")
+        val reports = files.map { readReportFromFile(metadata, it) }
         echo("Merging ${reports.size} reports.")
         return Report.merge(reports)
     }
@@ -279,7 +278,7 @@ class ListSchemas : CliktCommand(
             println(
                 formatTemplate.format(
                     it.organization.name, it.name, it.schema,
-                    it.jurisdictionalFilter.joinToString { it -> it }
+                    it.jurisdictionalFilter.joinToString()
                 )
             )
         }
