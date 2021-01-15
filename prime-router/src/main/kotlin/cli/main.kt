@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
 import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
@@ -307,7 +308,9 @@ class GenerateDocs : CliktCommand(
     option("--include-timestamps", help = "include creation time in file names")
         .flag(default = false)
     private val outputFileName by option("--output", metavar = "<path>", help = "write documentation to this file (should not include extension)")
-    private val outputDir by option("--output-dir", metavar = "<path>", help = "interpret `--output` relative to this directory")
+    private val defaultOutputDir = "docs/schema_documentation"
+    private val outputDir by option("--output-dir", metavar = "<path>", help = "interpret `--output` relative to this directory (default: \"$defaultOutputDir\")")
+        .default(defaultOutputDir)
 
     fun generateSchemaDocumentation(metadata: Metadata) {
         if (inputSchema.isNullOrBlank()) {
