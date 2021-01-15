@@ -59,6 +59,8 @@ You should be able to compile the project now. Check if it works.
 mvn clean package
 ```
 
+If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
+
 Check out the database if you like:
 ```
 psql prime_data_hub
@@ -103,7 +105,7 @@ To orchestrate running the Azure function code and Azurite, Docker Compose is a 
 mvn clean package  
 docker-compose up
 ```
-Docker-compose will build a `prime_dev` container with the output of the `mvn package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compse` is run, `docker-compose` should start up in a few seconds. The output should look like:
+Docker-compose will build a `prime_dev` container with the output of the `mvn package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
 
 ![Docker Compose](assets/docker_compose_log.png)
 
@@ -148,3 +150,19 @@ docker push rhawesprimedevregistry.azurecr.io/prime-data-hub
 ## Using local configuration for organizations.yml
 
 By default, the functions will pull their configuration for organizations from the `organizations.yml` file.  You can override this locally or in test by declaring an environment variable `PRIME_ENVIRONMENT`.  If you declare something like, `export PRIME_ENVIRONMENT=mylocal` then the system will look for a configuration file `organizations-mylocal.yml` and will use that, even if the `organizations.yml` file exists.  In this way, you can set up local SFTP routing, etc. without impacting the production (`organizations.yml`) config.  Note that depending on the OS - case matters.
+
+## Getting Around SSL Errors
+
+If your agency's network intercepts SSL requests, you might have to disable SSL verifications to get around invalid certificate errors.
+
+This can be accomplished by setting an environment variable `PRIME_DATA_HUB_INSECURE_SSL=true`. You can pass this in as a one-off when you build a component, for example:
+
+```bash
+PRIME_DATA_HUB_INSECURE_SSL=true docker-compose up
+```
+
+Or you can add this line in your `~/.bash_profile` to ensure your local builds will always disable SSL verification:
+
+```bash
+export PRIME_DATA_HUB_INSECURE_SSL=true
+```
