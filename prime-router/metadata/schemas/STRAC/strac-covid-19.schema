@@ -31,6 +31,9 @@ elements:
   - name: ordering_facility_state
     csvFields: [{name: Ordering_Facility_State}]
 
+  - name: ordering_facility_county
+    csvFields: [{name: Ordering_Facility_County}]
+
   - name: ordering_facility_zip_code
     csvFields: [{name: Ordering_Facility_ZIP, format: $zipFive}]
 
