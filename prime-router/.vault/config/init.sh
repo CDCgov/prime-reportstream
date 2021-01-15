@@ -25,7 +25,7 @@ else
   UNSEAL_KEY=`sed '1!d' /tmp/init.log | sed 's/Unseal Key 1: //g'`
   ROOT_TOKEN=`sed '3!d' /tmp/init.log | sed 's/Initial Root Token: //g'`
   echo "$UNSEAL_KEY" > /vault/env/key
-  echo "VAULT_ROOT_TOKEN=\"$ROOT_TOKEN\"" > /vault/env/.local.env
+  echo "VAULT_ROOT_TOKEN=\"$ROOT_TOKEN\"" > /vault/env/.env.local
 fi
 
 printf "\n"
