@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_dev
+      args:
+        INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL}"
     volumes: # Attach the PWD into the image
       - type: bind
         source: ./target
