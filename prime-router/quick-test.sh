@@ -99,7 +99,7 @@ function compare_files {
 if [ $RUN_STANDARD -ne 0 ]
 then
   echo First run our canned test file simplereport.csv thru the gauntlet
-  text=$(./prime --input_schema $starter_schema --input ./src/test/csv_test_files/input/simplereport.csv --output_dir $outputdir --route)
+  text=$(./prime data --input-schema $starter_schema --input ./src/test/csv_test_files/input/simplereport.csv --output-dir $outputdir --route)
 fi
 
 AZ_FILE_SEARCH_STR="/az.*\.csv"
@@ -121,26 +121,26 @@ then
   # Now read the data back in to their own schema and export again.
   # AZ again
   echo Test sending AZ data into its own Schema:
-  text=$(./prime --input_schema az/az-covid-19 --input $actual_az --output_dir $outputdir)
+  text=$(./prime data --input-schema az/az-covid-19 --input $actual_az --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az2=$filename
   compare_files "AZ->AZ" $expected_az $actual_az2
 
   # Pima again
   echo Test sending Pima data into its own Schema:
-  text=$(./prime --input_schema az/pima-az-covid-19 --input $actual_pima --output_dir $outputdir)
+  text=$(./prime data --input-schema az/pima-az-covid-19 --input $actual_pima --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima2=$filename
   compare_files "PIMA->PIMA" $expected_pima $actual_pima2
 
   echo And now generate some fake simplereport data
-  text=$(./prime --input_fake 50 --input_schema $starter_schema --output_dir $outputdir)
+  text=$(./prime data --input-fake 50 --input-schema $starter_schema --output-dir $outputdir)
   parse_prime_output_for_filename "$text" "/pdi-covid-19"
   fake_data=$filename
 
   echo Now send that fake data thru the router.
   # Note that there's no actuals to compare to here.
-  text=$(./prime --input_schema $starter_schema --input $fake_data --output_dir $outputdir --route)
+  text=$(./prime data --input-schema $starter_schema --input $fake_data --output-dir $outputdir --route)
   # Find the AZ file
   parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az3=$filename
@@ -151,14 +151,14 @@ then
   echo Now send _those_ results back in to their own schema and export again!
   # AZ again again.  This time we can compare the two actuals.
   echo Test sending AZ data generated from fake data into its own Schema:
-  text=$(./prime --input_schema az/az-covid-19 --input $actual_az3 --output_dir $outputdir)
+  text=$(./prime data --input-schema az/az-covid-19 --input $actual_az3 --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az4=$filename
   compare_files "AZ->AZ" $actual_az3 $actual_az4
 
   # Pima again again.  Compare the two actuals
   echo Test sending Pima data generated from fake data into its own Schema:
-  text=$(./prime --input_schema az/pima-az-covid-19 --input $actual_pima3 --output_dir $outputdir)
+  text=$(./prime data --input-schema az/pima-az-covid-19 --input $actual_pima3 --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima4=$filename
   compare_files "PIMA->PIMA" $actual_pima3 $actual_pima4
@@ -170,18 +170,18 @@ then
   FL_FILE_SEARCH_STR="/fl.*\.csv"
   # FLORIDA, MAN
   echo Generate fake FL data
-  text=$(./prime --input_fake 50 --input_schema fl/fl-covid-19 --output_dir $outputdir --target-state FL)
+  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-state FL)
   parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
   fake_fl=$filename
 
   echo Now send that fake FL data through the router.
-  text=$(./prime --input_schema fl/fl-covid-19 --input $fake_fl --output_dir $outputdir)
+  text=$(./prime data --input-schema fl/fl-covid-19 --input $fake_fl --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
   fake_fl2=$filename
   compare_files "Fake FL Orig -> Fake FL2" $fake_fl $fake_fl2
 
   echo Now send _those_ FL results back in to their own schema and export again!
-  text=$(./prime --input_schema fl/fl-covid-19 --input $fake_fl2 --output_dir $outputdir)
+  text=$(./prime data --input-schema fl/fl-covid-19 --input $fake_fl2 --output-dir $outputdir)
   fake_fl3=$filename
   compare_files "FakeFL2 -> FakeFL3" $fake_fl2 $fake_fl3
 fi
@@ -204,22 +204,22 @@ then
   numitems=5
   echo Merge testing.  First, generate some fake STRAC data
    # Hack: put some unique strings in each one, so we can count lines.
-  text=$(./prime --input_fake $numitems --input_schema strac/strac-covid-19 --output_dir $outputdir --target-county lilliput)
+  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-county lilliput)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake1=$filename
 
  echo More fake STRAC data
-  text=$(./prime --input_fake $numitems --input_schema strac/strac-covid-19 --output_dir $outputdir --target-county brobdingnag)
+  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-county brobdingnag)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake2=$filename
 
  echo 3rd file of fake STRAC data
-  text=$(./prime --input_fake $numitems --input_schema strac/strac-covid-19 --output_dir $outputdir --target-county houyhnhnm)
+  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-county houyhnhnm)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake3=$filename
 
   echo Now testing merge:
-  text=$(./prime --merge $fake1,$fake2,$fake3 --input_schema strac/strac-covid-19 --output_dir $outputdir )
+  text=$(./prime data --merge $fake1,$fake2,$fake3 --input-schema strac/strac-covid-19 --output-dir $outputdir )
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   merged_file=$filename
 
