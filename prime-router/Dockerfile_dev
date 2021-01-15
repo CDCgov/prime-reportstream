@@ -11,6 +11,13 @@ ARG JAVA_VERSION=11
 # This Debian image additionally contains function core tools – useful when using custom extensions
 FROM mcr.microsoft.com/azure-functions/java:3.0-java$JAVA_VERSION-core-tools 
 
+# Disable SSL verification for agencies that re-sign SSL connections
+ARG INSECURE_SSL=false
+RUN if [ -n "$INSECURE_SSL" ] && [ "$INSECURE_SSL" = "true" ]; then \
+        touch /etc/apt/apt.conf.d/99verify-peer.conf && \
+        echo >>/etc/apt/apt.conf.d/99verify-peer.conf "Acquire { https::Verify-Peer false }"; \
+    fi
+
 # Standard stuff needed for Azure setup
 RUN apt update && \
     apt upgrade -y && \
