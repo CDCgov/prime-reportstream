@@ -83,7 +83,6 @@ class FakeReport(val metadata: Metadata) {
                     else -> {
                         val altValues = element.altValues
                         val valueSet = element.valueSetRef
-                        // ?: error("ValueSet ${element.valueSet} mapped to ${element.name} is not available}")
                         // if the code defines alternate values in the schema we need to
                         // output them here
                         val possibleValues = if (altValues?.isNotEmpty() == true) {

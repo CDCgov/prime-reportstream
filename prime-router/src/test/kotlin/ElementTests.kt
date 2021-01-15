@@ -341,4 +341,32 @@ internal class ElementTests {
         val sendingOid = sendingApp.toFormatted(normalized, Element.hdUniversalIdToken)
         assertEquals("0.0.0.011", sendingOid)
     }
+
+    @Test
+    fun `test code format field`() {
+        val values = ValueSet(
+            "test",
+            system = ValueSet.SetSystem.LOCAL,
+            values = listOf(
+                ValueSet.Value(code = "Y", display = "Yes"),
+                ValueSet.Value(code = "N", display = "No"),
+                ValueSet.Value(code = "U", display = "Unk")
+            )
+        )
+        val one = Element(
+            "a",
+            valueSet = "test",
+            valueSetRef = values,
+            type = Element.Type.CODE,
+            altValues = listOf(
+                ValueSet.Value(code = "Y", display = "Yes"),
+                ValueSet.Value(code = "N", display = "No"),
+                ValueSet.Value(code = "U", display = "Unknown")
+            )
+        )
+        // because something is a
+        assertEquals(one.toFormatted("Y", "\$code"), "Y")
+        assertEquals(one.toNormalized("Y", "\$code"), "Y")
+        assertEquals(one.checkForError("Y", "\$code"), null)
+    }
 }

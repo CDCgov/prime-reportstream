@@ -253,7 +253,11 @@ data class Element(
                             ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
                     codeToken ->
                         toCode(normalizedValue)
-                            ?: error("Schema Error: '$normalizedValue' is not in valueSet for '$name'")
+                            ?: error(
+                                "Schema Error: '$normalizedValue' is not in valueSet '$valueSet' for '$name'/'$format'. " +
+                                    "\nAvailable values are ${valueSetRef?.values?.joinToString { "${it.code} -> ${it.display}" }}" +
+                                    "\nAlt values (${altValues?.count()}) are ${altValues?.joinToString { "${it.code} -> ${it.display}" }}"
+                            )
                     else -> {
                         if (valueSetRef == null)
                             error("Schema Error: missing value set for '$name'")
@@ -401,6 +405,11 @@ data class Element(
                         displayToken ->
                             if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
                                 "Invalid code: '$formattedValue' not a display value for element '$name'"
+                        codeToken -> {
+                            val values = altValues ?: valueSetRef.values
+                            if (values.find { it.code == formattedValue } != null) null else
+                                "Invalid code: '$formattedValue' is not a code value for element '$name'"
+                        }
                         else ->
                             if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
                                 "Invalid Code: '$formattedValue' does not match any codes for '$name'"
@@ -652,9 +661,9 @@ data class Element(
 
     fun toCode(code: String): String? {
         if (!isCodeType) error("Internal Error: asking for codeValue for a non-code type")
-        if (valueSetRef == null) error("Unable to find value set $valueSet.")
-        val codeValue = valueSetRef.values.find { code.equals(it.code, ignoreCase = true) }
-            ?: valueSetRef.values.find { "*" == it.code }
+        // if there are alt values, use those, otherwise, use the valueSet
+        val values = altValues ?: valueSetRef?.values ?: error("Unable to find a value set for $name.")
+        val codeValue = values.find { code.equals(it.code, ignoreCase = true) } ?: values.find { "*" == it.code }
         return codeValue?.code
     }
 

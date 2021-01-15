@@ -40,8 +40,13 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
         if (linesInError.count() > 0) {
             if (keyMessages.hasErrors()) println(keyMessages.toString())
 
-            println("The following errors were found:\n")
-            linesInError.forEach { println(it) }
+            println("${linesInError.keys.count()} records changed:\n")
+            linesInError.keys.forEach { k ->
+                println("  $recordId: $k")
+                linesInError[k]?.forEach { v -> println(v) }
+                println("")
+            }
+
             return false
         }
 
@@ -59,8 +64,8 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
         expected: Map<String, Any?>,
         actual: Map<String, Any?>,
         headerRow: List<String>? = null
-    ): List<String> {
-        val linesInError = mutableListOf<String>()
+    ): Map<String, List<String>> {
+        val differences = mutableMapOf<String, List<String>>()
 
         for (expectedKey in expected.keys) {
             if (!actual.keys.contains(expectedKey)) error("Key $expectedKey missing in actual dataset")
@@ -71,17 +76,23 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
             if (actualLines == null) error("Cast failed for actual values")
             if (expectedLines == null) error("Cast failed for expected values")
 
+            val differencesForRecords = mutableListOf<String>()
+
             for ((i, v) in expectedLines.withIndex()) {
                 if (v != actualLines[i]) {
                     val header = headerRow?.get(i) ?: "$i"
-                    val message = "Patient ${expectedKey.padStart(10)} differed at ${header.padStart(24)}. " +
-                        "'${v.padStart(23)}' <==> '${actualLines[i].padStart(23)}'."
-                    linesInError.add(message)
+                    differencesForRecords.add("     $header: \"$v\" => \"${actualLines[i]}\"")
                 }
+            }
+
+            if (differencesForRecords.isNotEmpty()) {
+                if (differences.containsKey(expectedKey)) error("Duplicate key $expectedKey found in CSV document")
+
+                differences[expectedKey] = differencesForRecords.toList()
             }
         }
 
-        return linesInError.toList()
+        return differences.toMap()
     }
 
     fun convertFileToMap(

@@ -249,6 +249,7 @@ elements:
       csvFields: [{ name: Age at time of collection }]
       documentation: |
         The patient's age as a numeric value and a unit value, for example, "3 months", "25 years", etc
+      delimiter: " "
 
     # column AW
     # nonstandard
