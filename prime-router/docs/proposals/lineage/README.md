@@ -86,10 +86,10 @@ Please [pull up the ER diagram](./lineage-er-diagram.jpeg) for the detailed prop
 
 ### Rollout plan:
 
-1.  Build out the new schema in parallel with the existing TASK, TASK_SOURCE tables.
+1.  Build out the new schema in parallel with the existing TASK, TASK_SOURCE tables.  Keep the old table alive and feed data to both old and new for a period of time.
 2.  Wire the REPORT_FILE and REPORT_LINEAGE tables first, then the ITEM and ITEM_LINEAGE.
 3.  Code into the validation step a requirement for uniqueness of tracking Ids within each Received report. 
-4.  Migrate existing data to the new tables, and retire or modify the old ones.
+4.  Migrate existing data to the new tables, and retire or modify the old ones.   Migrate all at once, as a one-off, with a brief downtime.  (Note:  I believe some of the data in the TASK_SOURCE table is not correct, so may only wwant to migrate correct data.)   Right now there are only a few hundred rows of data to move.
 
 
 #### Queries
