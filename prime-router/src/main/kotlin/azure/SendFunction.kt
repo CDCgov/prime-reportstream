@@ -32,8 +32,11 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
     ) {
         try {
             context.logger.info("Started Send Function: $message")
-
             val event = Event.parseQueueMessage(message) as ReportEvent
+            if (event.action != Event.Action.SEND) {
+                context.logger.warning("Send function received a $message")
+                return
+            }
             workflowEngine.handleReportEvent(event) { header, retryToken, _ ->
                 val service = workflowEngine.metadata.findService(header.task.receiverName)
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
