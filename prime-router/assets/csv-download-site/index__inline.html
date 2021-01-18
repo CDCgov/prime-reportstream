@@ -20,7 +20,7 @@
             function logout(){
                 removeItem("user")
                 removeItem("organization")
-                window.location.replace([[${OKTA_redirect}]]);
+                window.location.replace("http://www.cdc.gov");
             }
         </script>
     <title>CDC PRIME Data Hub - Download</title>
@@ -139,7 +139,7 @@
           </button>
           <div class="prime-user-account">
             <span th:text="${user}">e.ripley@weyland-yutani.com</span><br />
-            <a onclick="logout(); return false;">Logout</a>
+            <a href="#" onclick="logout(); return false;">Logout</a>
           </div>
         </nav>
       </div>

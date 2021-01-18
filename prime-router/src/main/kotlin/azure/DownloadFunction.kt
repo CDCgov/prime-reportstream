@@ -115,7 +115,7 @@ class DownloadFunction {
     }
 
     private fun responsePage(request: HttpRequestMessage<String?>, fileNotFound: Boolean = false): HttpResponseMessage {
-        val htmlTemplate = Files.readString( Path.of( FILENOTFOUND_PAGE ) )
+        val htmlTemplate: String = if( fileNotFound ) Files.readString( Path.of( FILENOTFOUND_PAGE ) ) else Files.readString( Path.of( DOWNLOAD_PAGE ) )
         val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
 
         val attr = mapOf(

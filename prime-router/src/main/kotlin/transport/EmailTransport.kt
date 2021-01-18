@@ -6,57 +6,45 @@ import com.sendgrid.helpers.mail.objects.*
 import gov.cdc.prime.router.EmailTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.DatabaseAccess
+import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.ReportId
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Calendar
+import java.util.logging.Level
 
 class EmailTransport : ITransport {
 
     override fun send(
-        orgName: String,
+        orgService: OrganizationService,
         transportType: TransportType,
-        header: DatabaseAccess.Header,
-        contents: ByteArray
-    ): Boolean {
+        contents: ByteArray,
+        reportId: ReportId,
+        retryItems: RetryItems?,
+        context: ExecutionContext,
+    ): RetryItems? {
 
         val emailTransport = transportType as EmailTransportType
+        val content = buildContent( reportId );
+        val mail = buildMail( content, emailTransport );
 
-        val from = Email("qtv1@cdc.gov")
-        val subject = "COVID-19 Reporting:  Your test results are ready"
-
-        val htmlTemplate = Files.readString(Path.of("./assets/email-templates/test-results-ready__inline.html"))
-
-        val attr = mapOf(
-            "countyName" to "Pima",
-            "stateName" to "AZ",
-            "today" to Calendar.getInstance(),
-            "file" to "123"
-        )
-
-        val html = getTemplateFromAttributes(htmlTemplate, attr)
-
-        val content = Content("text/html", html)
-        val mail = Mail()
-        mail.setFrom(from)
-        mail.setSubject(subject)
-        mail.addContent(content)
-        mail.setReplyTo(Email("noreply@cdc.gov"))
-        val personalization = Personalization()
-        emailTransport.addresses.forEach {
-            personalization.addTo(Email(it))
+        try{ 
+            val sg = SendGrid(System.getenv("SENDGRID_API_KEY"))
+            val request = Request()
+            request.setMethod(Method.POST)
+            request.setEndpoint("mail/send")
+            request.setBody(mail.build())
+            sg.api(request)
         }
-        mail.addPersonalization(personalization)
-
-        val sg = SendGrid(System.getenv("SENDGRID_API_KEY"))
-        val request = Request()
-        request.setMethod(Method.POST)
-        request.setEndpoint("mail/send")
-        request.setBody(mail.build())
-        val response = sg.api(request)
-        return response.statusCode == 202
+        catch( ex: Exception ){
+            context.logger.log( Level.SEVERE, "Email/SendGrid exception", ex )
+            return RetryToken.allItems;
+        }
+        return null;
     }
 
     fun getTemplateEngine(): TemplateEngine {
@@ -71,5 +59,34 @@ class EmailTransport : ITransport {
         val context = Context()
         attr.forEach { (k, v) -> context.setVariable(k, v) }
         return templateEngine.process(htmlContent, context)
+    }
+
+    fun buildContent( reportId: ReportId ): Content {
+        val htmlTemplate = Files.readString(Path.of("./assets/email-templates/test-results-ready__inline.html"))
+
+        val attr = mapOf(
+            "today" to Calendar.getInstance(),
+            "file" to reportId
+        )
+
+        val html = getTemplateFromAttributes(htmlTemplate, attr)
+        val content = Content("text/html", html)
+        return content;
+    }
+
+    fun buildMail( content: Content, emailTransport: EmailTransportType ): Mail {
+        val subject = "COVID-19 Reporting:  Your test results are ready"
+
+        val mail = Mail()
+        mail.setFrom(Email(emailTransport.from))
+        mail.setSubject(subject)
+        mail.addContent(content)
+        mail.setReplyTo(Email("noreply@cdc.gov"))
+        val personalization = Personalization()
+        emailTransport.addresses.forEach {
+            personalization.addTo(Email(it))
+        }
+        mail.addPersonalization(personalization)
+        return mail;
     }
 }

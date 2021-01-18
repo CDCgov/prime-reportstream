@@ -38,10 +38,10 @@
             host: sftp
             port: 22
             filePath: ./upload
+          - type: EMAIL
+            addresses: 
+              - qtv1@cdc.gov
         format: CSV
-<<<<<<< HEAD
-
-=======
       - name: elr-hl7-test
         topic: covid-19
         schema: az/az-covid-19-hl7
@@ -56,7 +56,6 @@
             port: 22
             filePath: ./upload
         format: HL7
->>>>>>> origin/master
       - name: elr-prod
         topic: covid-19
         schema: az/az-covid-19
