@@ -77,10 +77,14 @@ class ReportFunction {
                 }
             }
             context.logger.info("Successfully reported: ${validatedRequest.report!!.id}.")
-            workflowEngine.receiveReport(validatedRequest.report)
             val destinations = mutableListOf<String>()
             routeReport(context, workflowEngine, validatedRequest, destinations)
-            return createdResponse(request, validatedRequest, destinations)
+            val responseBody = createResponseBody(validatedRequest, destinations)
+            // Saving the received report history to DB *after* the routed reports, so that we can
+            // also record the complete json response text, including the destinations.
+            // TODO this means exceptions in route, etc prevent this from saving to db.
+            workflowEngine.receiveReport(validatedRequest.report, responseBody)
+            return createdResponse(request, validatedRequest, responseBody)
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
             return internalErrorResponse(request)
@@ -304,11 +308,11 @@ class ReportFunction {
     private fun createdResponse(
         request: HttpRequestMessage<String?>,
         validatedRequest: ValidatedRequest,
-        destinations: List<String>
+        responseBody: String,
     ): HttpResponseMessage {
         return request
             .createResponseBuilder(HttpStatus.CREATED)
-            .body(createResponseBody(validatedRequest, destinations))
+            .body(responseBody)
             .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
             .build()
     }

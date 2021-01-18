@@ -16,6 +16,7 @@ abstract class Event(val action: Action, val at: OffsetDateTime?) {
     abstract fun toQueueMessage(): String
 
     enum class Action {
+        RECEIVE,
         TRANSLATE, // Deprecated
         BATCH,
         SEND,
@@ -27,6 +28,7 @@ abstract class Event(val action: Action, val at: OffsetDateTime?) {
 
         fun toTaskAction(): TaskAction {
             return when (this) {
+                RECEIVE -> TaskAction.receive
                 TRANSLATE -> TaskAction.translate
                 BATCH -> TaskAction.batch
                 SEND -> TaskAction.send
@@ -51,6 +53,7 @@ abstract class Event(val action: Action, val at: OffsetDateTime?) {
         companion object {
             fun parseQueueMessage(action: String): Action {
                 return when (action.toLowerCase()) {
+                    "receive" -> RECEIVE
                     "translate" -> TRANSLATE
                     "batch" -> BATCH
                     "send" -> SEND

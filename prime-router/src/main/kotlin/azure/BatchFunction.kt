@@ -49,6 +49,7 @@ class BatchFunction {
                     workflowEngine.dispatchReport(outEvent, outReport, txn)
                     context.logger.info("Batch: queued to send ${outEvent.toQueueMessage()}")
                 }
+                workflowEngine.recordLineageHistory(event, null, null, outReports, null)
             }
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, "Batch exception", e)

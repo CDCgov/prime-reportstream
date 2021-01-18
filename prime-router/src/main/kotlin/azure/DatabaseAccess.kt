@@ -198,6 +198,7 @@ class DatabaseAccess(private val create: DSLContext) {
     ) {
         fun finishedField(currentAction: Event.Action): Field<OffsetDateTime> {
             return when (currentAction) {
+                Event.Action.RECEIVE -> TASK.TRANSLATED_AT
                 Event.Action.TRANSLATE -> TASK.TRANSLATED_AT
                 Event.Action.BATCH -> TASK.BATCHED_AT
                 Event.Action.SEND -> TASK.SENT_AT
@@ -227,7 +228,7 @@ class DatabaseAccess(private val create: DSLContext) {
          * That is functions amortize startup costs by reusing an existing process for a function invocation.
          * Hence, a connection pool is a win in latency after the first initialization.
          */
-        private val hikariDataSource: HikariDataSource by lazy {
+        val hikariDataSource: HikariDataSource by lazy {
             DriverManager.registerDriver(Driver())
 
             val password = System.getenv(passwordVariable)

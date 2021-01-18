@@ -30,23 +30,23 @@ CREATE TABLE action (
     action_id SERIAL PRIMARY KEY,
     action_name TASK_ACTION,
     action_result JSONB,
-    next_action TASK_ACTION,   -- what if there are multiple next actions?
-    next_action_at TIMESTAMP WITH TIME ZONE,
     -- Every table must have created_at timestamp
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
-CREATE INDEX action_next_action_idx ON action(next_action);
 
 -- Each row is a report, created by some action
 CREATE TABLE report_file (
     report_id UUID PRIMARY KEY,
     action_id INT NOT NULL REFERENCES action(action_id) ON DELETE CASCADE,
 
+    next_action TASK_ACTION,   -- what if there are multiple next actions?
+    next_action_at TIMESTAMP WITH TIME ZONE,
+
     -- These are non-null only for 'receive' actions
     sending_org VARCHAR(63),        -- should be a ref to an org table someday
     sending_params JSONB,           -- incoming API params (except secrets)
     sending_result_returned JSONB,  -- what we sent back to the sender
-    sending_org_client VARCHAR(63),
+    sending_org_client VARCHAR(63), -- OrganizationClient
 
     -- These are non-null only for 'send' actions:
     receiving_org VARCHAR(63),      -- should be a ref to an org table someday
@@ -58,5 +58,6 @@ CREATE TABLE report_file (
     body_format VARCHAR(63) NOT NULL,
     item_count INT NOT NULL,
     wiped_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+CREATE INDEX report_file_next_action_idx ON report_file(next_action);

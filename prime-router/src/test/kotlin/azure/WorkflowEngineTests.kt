@@ -29,6 +29,7 @@ class WorkflowEngineTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
+    val lineageSpy = spyk(LineageDAO(accessSpy))
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
 
@@ -75,7 +76,7 @@ class WorkflowEngineTests {
             blobMock.uploadBody(report = any())
             queueMock.sendMessage(event = any())
         }
-        confirmVerified(accessSpy, blobMock, queueMock)
+        confirmVerified(accessSpy, lineageSpy, blobMock, queueMock)
     }
 
     @Test
@@ -117,12 +118,14 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        val event = ReportEvent(Event.Action.NONE, UUID.randomUUID())
+        val event = ReportEvent(Event.Action.RECEIVE, UUID.randomUUID())
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
 
         every { blobMock.uploadBody(report = eq(report1)) }.returns(Pair(bodyFormat, bodyUrl))
         every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
+        every { accessSpy.transact {} }.returns(Unit)
+        every { lineageSpy.insertAction(any()) }.returns(Unit)
         every { queueMock.sendMessage(eq(event)) }.returns(Unit)
 
         val engine = makeEngine(metadata)
@@ -135,12 +138,14 @@ class WorkflowEngineTests {
                 bodyUrl = any(),
                 nextAction = any()
             )
+//            accessSpy.transact {  }
+//            lineageSpy.insertAction(any())
             blobMock.uploadBody(report = any())
         }
         verify(exactly = 0) {
             queueMock.sendMessage(event = any())
         }
-        confirmVerified(accessSpy, blobMock, queueMock)
+        confirmVerified(blobMock, /* accessSpy, */ queueMock)
     }
 
     @Test
