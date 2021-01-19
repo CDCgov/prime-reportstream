@@ -97,4 +97,61 @@ class MetadataTests {
         )
         assertFails { metadata.loadOrganizationList(listOf(org1)) }
     }
+
+    @Test
+    fun `test schema contamination`() {
+        // arrange
+        val valueSetA = ValueSet(
+            "a_values",
+            ValueSet.SetSystem.LOCAL,
+            values = listOf(ValueSet.Value("Y", "Yes"), ValueSet.Value("N", "No"))
+        )
+        val elementA = Element("a", Element.Type.CODE, valueSet = "a_values", valueSetRef = valueSetA)
+        val baseSchema = Schema(name = "base_schema", topic = "test", elements = listOf(elementA))
+        val childSchema = Schema(
+            name = "child_schema",
+            extends = "base_schema",
+            topic = "test",
+            elements = listOf(
+                Element(
+                    "a",
+                    altValues = listOf(ValueSet.Value("J", "Ja"), ValueSet.Value("N", "Nein")),
+                    csvFields = listOf(Element.CsvField("Ja Oder Nein", format = "\$code"))
+                ).inheritFrom(elementA)
+            )
+        )
+        val siblingSchema = Schema(
+            name = "sibling_schema",
+            extends = "base_schema",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = listOf(Element.CsvField("yes/no", format = null))).inheritFrom(elementA)
+            )
+        )
+
+        // act
+        val metadata = Metadata()
+        metadata.loadValueSets(valueSetA)
+        metadata.loadSchemas(
+            baseSchema,
+            childSchema,
+            siblingSchema,
+        )
+
+        metadata.loadValueSets(valueSetA)
+
+        // assert
+        val parent = metadata.findSchema("base_schema")
+        assertNotNull(parent)
+        val child = metadata.findSchema("child_schema")
+        assertNotNull(child)
+        val childElement = child.findElement("a")
+        assertNotNull(childElement)
+        assertEquals("\$code", childElement.csvFields?.first()?.format)
+        val sibling = metadata.findSchema("sibling_schema")
+        assertNotNull(sibling)
+        val siblingElement = sibling.findElement("a")
+        assertNotNull(siblingElement)
+        assertNull(siblingElement.csvFields?.first()?.format)
+    }
 }
