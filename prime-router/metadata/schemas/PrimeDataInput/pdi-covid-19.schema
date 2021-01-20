@@ -45,6 +45,9 @@ elements:
     cardinality: ONE
     csvFields: [{name: Result_ID}]
 
+  - name: previous_message_id
+    csvFields: [{name: Corrected_result_ID}]
+
   - name: placer_order_id
     mapper: use(message_id)
 
