@@ -21,6 +21,102 @@ An example of the ID is 03D2159846
 
 ---
 
+**Name**: testing_lab_county
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: testing_lab_county_code
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: FIPS
+
+---
+
+**Name**: ordering_provider_county
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: ordering_provider_county_code
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: FIPS
+
+---
+
+**Name**: ordering_facility_county
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: ordering_facility_county_code
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: FIPS
+
+---
+
+**Name**: patient_county
+
+**Type**: TABLE_OR_BLANK
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: patient_county_code
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: FIPS
+
+---
+
 **Name**: redox_source_id
 
 **Cardinality**: [0..1]
@@ -347,18 +443,6 @@ The patient's zip code
 
 ---
 
-**Name**: patient_county
-
-**Type**: TABLE_OR_BLANK
-
-**Cardinality**: [1..1]
-
-**Table**: fips-county
-
-**Table Column**: County
-
----
-
 **Name**: patient_country
 
 **Type**: TEXT
@@ -458,18 +542,6 @@ The state of the facility which the test was ordered from
 **Documentation**:
 
 The zip code of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_county
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
 
 ---
 
@@ -726,18 +798,6 @@ The state of the provider
 **Documentation**:
 
 The zip code of the provider
-
----
-
-**Name**: ordering_provider_county
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
 
 ---
 
@@ -1068,18 +1128,6 @@ The name of the laboratory which performed the test, can be the same as the send
 **HL7 Field**: OBX-24-5
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_county
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
 
 ---
 
