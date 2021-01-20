@@ -17,9 +17,6 @@ jobs:
       
       - name: Set Environment Variables
         run: |
-               echo >> $GITHUB_ENV POSTGRES_USER='prime'
-               echo >> $GITHUB_ENV POSTGRES_PASSWORD='changeIT!'
-
                if [ "$GITHUB_REF" == "refs/heads/production" ]
                then
                    echo "Deploying to the production environment."
@@ -29,6 +26,8 @@ jobs:
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=prod
                    echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_PROD_CREDS }}
                    echo >> $GITHUB_ENV REDOX_SECRET=${{ secrets.REDOX_PROD_SECRET }}
+                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
+                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
                else
                    echo "Deploying to the test environment."
                    echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
@@ -37,6 +36,8 @@ jobs:
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=test
                    echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_TEST_CREDS }}
                    echo >> $GITHUB_ENV REDOX_SECRET=${{ secrets.REDOX_STAGING_SECRET }}
+                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
+                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
                env
 

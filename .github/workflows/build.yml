@@ -10,6 +10,9 @@ defaults:
 
 jobs:
   build:
+    # Do not run on PRs from forks to prevent workflow abuse.
+    # NOTE: changing this condition *may* require adjusting secrets usage in
+    # the workflow steps below.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
 
@@ -18,18 +21,19 @@ jobs:
 
       - name: Set Environment Variables
         run: |
-               echo >> $GITHUB_ENV POSTGRES_USER='prime'
-               echo >> $GITHUB_ENV POSTGRES_PASSWORD='changeIT!'
-               
                if [ "$GITHUB_BASE_REF" == "production" ]
                then
                    echo "Building for the production environment."
                    echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
                    echo >> $GITHUB_ENV PREFIX=pdhprod
+                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
+                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
                else
                    echo "Building for the test environment."
                    echo >> $GITHUB_ENV ACR_REPO=pdhtestcontainerregistry.azurecr.io
                    echo >> $GITHUB_ENV PREFIX=pdhtest
+                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
+                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
 
       - name: Setup PostgreSQL
