@@ -90,14 +90,19 @@ class WorkflowEngine(
 
     /**
      * Handle a single report event. Callback returns the next action for the report.
+     *
+     * @param messageEvent received from the message queue
+     * @param updateBlock is wrapped in a DB transaction and called
      */
     fun handleReportEvent(
-        event: ReportEvent,
+        messageEvent: ReportEvent,
         updateBlock: (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         db.transact { txn ->
-            val header = db.fetchAndLockHeader(event.reportId, txn)
+            val header = db.fetchAndLockHeader(messageEvent.reportId, txn)
             val currentAction = Event.Action.parseQueueMessage(header.task.nextAction.literal)
+            // Ignore messages that are not consistent with the current header
+            if (currentAction != messageEvent.action) return@transact
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
             val nextAction = updateBlock(header, retryToken, txn)
             val retryJson = nextAction.retryToken?.toJSON()
@@ -107,19 +112,22 @@ class WorkflowEngine(
     }
 
     /**
-     * Handle a receiver specific event. Fetch all pending tasks for the specified receiver.
-     * The next action for the tasks are assumed to be NONE.
+     * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
+     *
+     * @param messageEvent that was received
+     * @param maxCount of headers to process
+     * @param updateBlock called with headers to process
      */
     fun handleReceiverEvent(
-        event: ReceiverEvent,
+        messageEvent: ReceiverEvent,
         maxCount: Int,
         updateBlock: (headers: List<DatabaseAccess.Header>, txn: Configuration?) -> Unit,
     ) {
         db.transact { txn ->
             val headers = db.fetchAndLockHeaders(
-                event.action.toTaskAction(),
-                event.at,
-                event.receiverName,
+                messageEvent.action.toTaskAction(),
+                messageEvent.at,
+                messageEvent.receiverName,
                 maxCount,
                 txn
             )
