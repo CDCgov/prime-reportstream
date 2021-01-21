@@ -67,3 +67,23 @@ services:
       - type: bind
         source: ./src/test/redox
         target: /config
+
+  # Secrets management
+  vault:
+    image: vault
+    cap_add:
+      # Allows protected memory
+      - IPC_LOCK
+    volumes:
+      # Contains script for bootstrapping the Docker container
+      - .vault/config:/vault/config
+      # Location to store the vault keys
+      - .vault/env:/vault/env
+      # Vault database persisted as a Docker volume
+      - vault:/vault/file
+    # Override the command with our custom init script
+    command: "/vault/config/init.sh"
+
+volumes:
+  # For storing a local encrypted secrets database
+  vault:
