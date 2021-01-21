@@ -104,10 +104,11 @@ class WorkflowEngine(
             // Ignore messages that are not consistent with the current header
             if (currentAction != messageEvent.action) return@transact
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
-            val nextAction = updateBlock(header, retryToken, txn)
-            val retryJson = nextAction.retryToken?.toJSON()
-            db.updateHeader(header.task.reportId, currentAction, nextAction.action, nextAction.at, retryJson, txn)
-            queue.sendMessage(nextAction)
+            val nextEvent = updateBlock(header, retryToken, txn)
+            val retryJson = nextEvent.retryToken?.toJSON()
+            db.updateHeader(header.task.reportId, currentAction, nextEvent.action, nextEvent.at, retryJson, txn)
+            recordLineageHistory(messageEvent, "{ \"report\": \"${messageEvent.reportId}\"}", nextEvent, null, txn)
+            queue.sendMessage(nextEvent)
         }
     }
 
