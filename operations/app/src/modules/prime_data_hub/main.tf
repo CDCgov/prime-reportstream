@@ -2,11 +2,6 @@ locals {
     location = "eastus"
 }
 
-resource "azurerm_resource_group" "resource_group" {
-  name = var.resource_group
-  location = local.location
-}
-
 module "storage" {
     source = "../storage"
     environment = var.environment
