@@ -662,8 +662,10 @@ data class Element(
     fun toCode(code: String): String? {
         if (!isCodeType) error("Internal Error: asking for codeValue for a non-code type")
         // if there are alt values, use those, otherwise, use the valueSet
-        val values = altValues ?: valueSetRef?.values ?: error("Unable to find a value set for $name.")
-        val codeValue = values.find { code.equals(it.code, ignoreCase = true) } ?: values.find { "*" == it.code }
+        val values = valueSetRef?.values ?: error("Unable to find a value set for $name.")
+        val codeValue = values.find {
+            code.equals(it.code, ignoreCase = true) || code.equals(it.replaces, ignoreCase = true)
+        } ?: values.find { "*" == it.code }
         return codeValue?.code
     }
 

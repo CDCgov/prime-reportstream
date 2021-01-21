@@ -172,8 +172,9 @@ class Metadata {
             error("Schema Error: '${element.name}' has both a mapper and a canBeBlank field")
         val valueSet = element.valueSet ?: baseElement?.valueSet
         val valueSetRef = valueSet?.let {
-            findValueSet(it)
+            val ref = findValueSet(it)
                 ?: error("Schema Error: '$valueSet' is missing in element '{$element.name}'")
+            ref.mergeAltValues(element.altValues)
         }
         val table = element.table ?: baseElement?.table
         val tableRef = table?.let {

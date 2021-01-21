@@ -173,4 +173,41 @@ class MetadataTests {
         assertTrue(twinElement.csvFields?.count() == 1)
         assertNull(twinElement.csvFields?.first()?.format)
     }
+
+    @Test
+    fun `test valueset merging`() {
+        // arrange
+        val valueSet = ValueSet(
+            "a", ValueSet.SetSystem.LOCAL,
+            values = listOf(
+                ValueSet.Value("Y", "Yes"),
+                ValueSet.Value("N", "No"),
+                ValueSet.Value("UNK", "Unknown"),
+            )
+        )
+
+        val emptyAltValues = listOf<ValueSet.Value>()
+        val replacementValues = listOf(
+            ValueSet.Value("U", "Unknown", replaces = "UNK")
+        )
+        val additionalValues = listOf(
+            ValueSet.Value("M", "Maybe")
+        )
+        // act
+        val shouldBeSame = valueSet.mergeAltValues(emptyAltValues)
+        val shouldBeDifferent = valueSet.mergeAltValues(replacementValues)
+        val shouldBeExtended = valueSet.mergeAltValues(additionalValues)
+
+        // assert
+        assertSame(valueSet, shouldBeSame)
+        assertNotSame(valueSet, shouldBeDifferent)
+
+        assertNotNull(shouldBeSame.values.find { it.code.equals("UNK", ignoreCase = true) })
+        assertNotNull(shouldBeDifferent.values.find { it.code.equals("U", ignoreCase = true) })
+        assertNotNull(shouldBeDifferent.values.find { it.replaces.equals("UNK", ignoreCase = true) })
+        assertNull(shouldBeDifferent.values.find { it.code.equals("UNK", ignoreCase = true) })
+
+        assertNotNull(shouldBeExtended.values.find { it.code.equals("M", ignoreCase = true) })
+        assertNotNull(shouldBeExtended.values.find { it.code.equals("UNK", ignoreCase = true) })
+    }
 }
