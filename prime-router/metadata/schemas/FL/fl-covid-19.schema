@@ -261,6 +261,10 @@ elements:
       csvFields: [{ name: First Test for Condition }]
       documentation: Expects Y, N, or U
       altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
           - display: Unknown
             code: U
             replaces: UNK
@@ -270,6 +274,10 @@ elements:
       csvFields: [{ name: Employment in Health Care }]
       documentation: Expects Y, N, or U
       altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
           - display: Unknown
             code: U
             replaces: UNK
@@ -289,6 +297,10 @@ elements:
       csvFields: [ { name: Symptomatic } ]
       documentation: Expects Y, N, or U
       altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
           - display: Unknown
             code: U
             replaces: UNK
@@ -311,6 +323,10 @@ elements:
       csvFields: [{ name: Hospitalized for this condition }]
       documentation: Expects Y, N, or U
       altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
           - display: Unknown
             code: U
             replaces: UNK
@@ -320,6 +336,10 @@ elements:
       csvFields: [{ name: In ICU }]
       documentation: Expects Y, N, or U
       altValues:
+        - display: Yes
+          code: Y
+        - display: No
+          code: N
         - display: Unknown
           code: U
           replaces: UNK
@@ -329,6 +349,10 @@ elements:
       csvFields: [{ name: Resides in Congregate Care setting }]
       documentation: Expects Y, N, or U
       altValues:
+          - display: Yes
+            code: Y
+          - display: No
+            code: N
           - display: Unknown
             code: U
             replaces: UNK
