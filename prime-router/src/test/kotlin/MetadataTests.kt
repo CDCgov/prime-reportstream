@@ -117,7 +117,7 @@ class MetadataTests {
                     "a",
                     altValues = listOf(ValueSet.Value("J", "Ja"), ValueSet.Value("N", "Nein")),
                     csvFields = listOf(Element.CsvField("Ja Oder Nein", format = "\$code"))
-                ).inheritFrom(elementA)
+                )
             )
         )
         val siblingSchema = Schema(
@@ -125,7 +125,15 @@ class MetadataTests {
             extends = "base_schema",
             topic = "test",
             elements = listOf(
-                Element("a", csvFields = listOf(Element.CsvField("yes/no", format = null))).inheritFrom(elementA)
+                Element("a", csvFields = listOf(Element.CsvField("yes/no", format = null)))
+            )
+        )
+        val twinSchema = Schema(
+            name = "twin_schema",
+            basedOn = "base_schema",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = listOf(Element.CsvField("yes/no", format = null)))
             )
         )
 
@@ -136,22 +144,33 @@ class MetadataTests {
             baseSchema,
             childSchema,
             siblingSchema,
+            twinSchema
         )
 
-        metadata.loadValueSets(valueSetA)
-
         // assert
+        val elementName = "a"
         val parent = metadata.findSchema("base_schema")
         assertNotNull(parent)
+        assertTrue(parent.findElement(elementName)?.csvFields.isNullOrEmpty())
+        // the first child element
         val child = metadata.findSchema("child_schema")
         assertNotNull(child)
-        val childElement = child.findElement("a")
+        val childElement = child.findElement(elementName)
         assertNotNull(childElement)
         assertEquals("\$code", childElement.csvFields?.first()?.format)
+        // sibling uses extends
         val sibling = metadata.findSchema("sibling_schema")
         assertNotNull(sibling)
-        val siblingElement = sibling.findElement("a")
+        val siblingElement = sibling.findElement(elementName)
         assertNotNull(siblingElement)
+        assertTrue(siblingElement.csvFields?.count() == 1)
         assertNull(siblingElement.csvFields?.first()?.format)
+        // twin uses basedOn instead of extends
+        val twin = metadata.findSchema("twin_schema")
+        assertNotNull(twin)
+        val twinElement = twin.findElement(elementName)
+        assertNotNull(twinElement)
+        assertTrue(twinElement.csvFields?.count() == 1)
+        assertNull(twinElement.csvFields?.first()?.format)
     }
 }
