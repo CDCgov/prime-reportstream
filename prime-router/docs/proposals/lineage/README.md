@@ -26,7 +26,7 @@ For the first rounds of work, I'm avoiding tracking any specific data *internal*
 
 ## Definitions
 
-In the Hub, an **Item** is a single record of data.  A typical **Item** might be a Covid test result for one patient.   If the data is in CVS format, an **Item** is a single row in the CSV file.
+In the Hub, an **Item** is a single record of data.  A typical **Item** might be a Covid test result for one patient.   If the data is in CSV format, an **Item** is a single row in the CSV file.
 
 A **Report** in the hub is simply a set of **Item**, with additional metadata.   For example, if the data is in CSV format, the Hub expects a single row of Column Header strings, followed by one or more rows of **Item** data.    It is acceptable for a Report to have just a single Item.  A Report with no Items is not processed.
 
