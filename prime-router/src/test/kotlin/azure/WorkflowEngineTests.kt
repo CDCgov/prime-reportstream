@@ -29,7 +29,6 @@ class WorkflowEngineTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
-    val lineageSpy = spyk(LineageDAO(accessSpy))
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
 
@@ -40,7 +39,6 @@ class WorkflowEngineTests {
             hl7Serializer = Hl7Serializer(metadata),
             redoxSerializer = RedoxSerializer(metadata),
             db = accessSpy,
-            lineageDAO = lineageSpy,
             blob = blobMock,
             queue = queueMock
         )
@@ -77,7 +75,7 @@ class WorkflowEngineTests {
             blobMock.uploadBody(report = any())
             queueMock.sendMessage(event = any())
         }
-        confirmVerified(accessSpy, lineageSpy, blobMock, queueMock)
+        confirmVerified(accessSpy, blobMock, queueMock)
     }
 
     @Test
@@ -125,7 +123,6 @@ class WorkflowEngineTests {
 
         every { blobMock.uploadBody(report = eq(report1)) }.returns(Pair(bodyFormat, bodyUrl))
         every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
-        every { lineageSpy.insertAction(any()) }.returns(Unit)
         every { queueMock.sendMessage(eq(event)) }.returns(Unit)
 
         val engine = makeEngine(metadata)
@@ -138,7 +135,6 @@ class WorkflowEngineTests {
                 bodyUrl = any(),
                 nextAction = any()
             )
-            lineageSpy.insertAction(any(), any(), any())
             blobMock.uploadBody(report = any())
         }
         verify(exactly = 0) {

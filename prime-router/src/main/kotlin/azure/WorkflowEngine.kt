@@ -29,7 +29,6 @@ class WorkflowEngine(
     val translator: Translator = Translator(metadata),
     // New connection for every function
     val db: DatabaseAccess = DatabaseAccess(dataSource = DatabaseAccess.dataSource),
-    val lineageDAO: LineageDAO = LineageDAO(db),
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess(),
     val sftpTransport: SftpTransport = SftpTransport(),
@@ -46,31 +45,16 @@ class WorkflowEngine(
     /**
      * Place a report into the workflow
      */
-    fun receiveReport(report: Report, resultJson: String? = null, txn: Configuration? = null) {
+    fun receiveReport(report: Report, txn: Configuration? = null) {
         val (bodyFormat, bodyUrl) = blob.uploadBody(report)
         try {
             val receiveEvent = ReportEvent(Event.Action.RECEIVE, report.id, null)
             db.insertHeader(report, bodyFormat, bodyUrl, receiveEvent, txn)
-            recordLineageHistory(receiveEvent, resultJson, null, null, txn)
         } catch (e: Exception) {
             // Clean up
             blob.deleteBlob(bodyUrl)
             throw e
         }
-    }
-
-    /*
-     * Store information about the Action that occurred, and the new reports created,
-     * and their lineage.
-     */
-    fun recordLineageHistory(
-        currentEvent: Event,
-        resultJson: String?,
-        nextEvent: Event? = null,
-        newReports: List<Report>? = null,
-        txn: Configuration? = null
-    ) {
-        lineageDAO.insertAction(currentEvent, resultJson, txn)
     }
 
     /**
@@ -107,7 +91,6 @@ class WorkflowEngine(
             val nextEvent = updateBlock(header, retryToken, txn)
             val retryJson = nextEvent.retryToken?.toJSON()
             db.updateHeader(header.task.reportId, currentAction, nextEvent.action, nextEvent.at, retryJson, txn)
-            recordLineageHistory(messageEvent, "{ \"report\": \"${messageEvent.reportId}\"}", nextEvent, null, txn)
             queue.sendMessage(nextEvent)
         }
     }
@@ -173,6 +156,10 @@ class WorkflowEngine(
      */
     fun readBody(header: DatabaseAccess.Header): ByteArray {
         return blob.downloadBlob(header.task.bodyUrl)
+    }
+
+    fun recordAction(actionHistory: ActionHistory) {
+        actionHistory.saveToDb(db)
     }
 
     companion object {

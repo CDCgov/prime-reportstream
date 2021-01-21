@@ -29,11 +29,12 @@ ALTER TABLE task ALTER COLUMN next_action TYPE task_action USING next_action::ta
 CREATE TABLE action (
     action_id SERIAL PRIMARY KEY,
     action_name TASK_ACTION,
-    action_result JSONB,
+    action_result VARCHAR(2048),
     -- Every table must have created_at timestamp
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
+/*
 -- Each row is a report, created by some action
 CREATE TABLE report_file (
     report_id UUID PRIMARY KEY,
@@ -61,3 +62,4 @@ CREATE TABLE report_file (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 CREATE INDEX report_file_next_action_idx ON report_file(next_action);
+*/

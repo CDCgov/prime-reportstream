@@ -63,28 +63,31 @@ class ReportFunction {
     ): HttpResponseMessage {
         try {
             val workflowEngine = WorkflowEngine()
+            var actionHistory = ActionHistory("receive")
             val validatedRequest = validateRequest(workflowEngine, request)
-            when {
+            val httpResponseMessage = when {
                 validatedRequest.options == Options.CheckConnections -> {
                     workflowEngine.checkConnections()
-                    return okResponse(request, validatedRequest)
+                    okResponse(request, validatedRequest)
                 }
                 validatedRequest.report == null -> {
-                    return badRequestResponse(request, validatedRequest)
+                    badRequestResponse(request, validatedRequest)
                 }
                 validatedRequest.options == Options.ValidatePayload -> {
-                    return okResponse(request, validatedRequest)
+                    okResponse(request, validatedRequest)
+                }
+                else -> {
+                    context.logger.info("Successfully reported: ${validatedRequest.report!!.id}.")
+                    val destinations = mutableListOf<String>()
+                    routeReport(context, workflowEngine, validatedRequest, destinations)
+                    val responseBody = createResponseBody(validatedRequest, destinations)
+                    workflowEngine.receiveReport(validatedRequest.report)
+                    createdResponse(request, validatedRequest, responseBody)
                 }
             }
-            context.logger.info("Successfully reported: ${validatedRequest.report!!.id}.")
-            val destinations = mutableListOf<String>()
-            routeReport(context, workflowEngine, validatedRequest, destinations)
-            val responseBody = createResponseBody(validatedRequest, destinations)
-            // Saving the received report history to DB *after* the routed reports, so that we can
-            // also record the complete json response text, including the destinations.
-            // TODO this means exceptions in route, etc prevent this from saving to db.
-            workflowEngine.receiveReport(validatedRequest.report, responseBody)
-            return createdResponse(request, validatedRequest, responseBody)
+            actionHistory.setActionResult(httpResponseMessage.body.toString())
+            workflowEngine.recordAction(actionHistory)
+            return httpResponseMessage
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
             return internalErrorResponse(request)

@@ -1,89 +1,59 @@
 package gov.cdc.prime.router.azure
 
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.transport.RetryToken
-import java.time.OffsetDateTime
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import org.jooq.Configuration
+import org.jooq.impl.DSL
+import java.lang.IllegalArgumentException
 
 /**
- * This is a container class that holds information to be stored, about an action
- * that has happened, the reports that went into that Action, and were created by that Action.
+ * This is a container class that holds information to be stored, about a single action,
+ * as well as the reports that went into that Action, and were created by that Action.
  */
-class ActionHistory(val actionName: ActionName, val at: OffsetDateTime?) {
+class ActionHistory {
 
-    var reportsInput: List<Report> = listOf()
-    var reportsOutput: List<Report> = listOf()
+    // Use mutable jooq POJOs as convenient storage places
+    var action = Action()
+//    var reportsIn = listOf<ReportFile>()
+//    var reportsOut = listOf<ReportFile>()
 
-    constructor(
-        actionName: ActionName,
-        at: OffsetDateTime? = null,
-        retryToken: RetryToken? = null
-    ) : this(actionName, at) {
+    constructor(actionStr: String, actionResult: String? = null) {
+        try {
+            action.actionName = TaskAction.valueOf(actionStr)
+        } catch (e: IllegalArgumentException) {
+            error("Unknown action $actionStr")
+        }
+        action.actionResult = actionResult
     }
 
-    enum class ActionName {
-        RECEIVE,
-        TRANSLATE, // Deprecated
-        BATCH,
-        SEND,
-        WIPE,
-        NONE,
-        BATCH_ERROR,
-        SEND_ERROR,
-        WIPE_ERROR;
-
-        fun toTaskAction(): TaskAction {
-            return when (this) {
-                RECEIVE -> TaskAction.receive
-                TRANSLATE -> TaskAction.translate
-                BATCH -> TaskAction.batch
-                SEND -> TaskAction.send
-                WIPE -> TaskAction.wipe
-                NONE -> TaskAction.none
-                BATCH_ERROR -> TaskAction.batch_error
-                SEND_ERROR -> TaskAction.send_error
-                WIPE_ERROR -> TaskAction.wipe_error
-            }
-        }
-
-        fun toQueueName(): String? {
-            return when (this) {
-                TRANSLATE,
-                BATCH,
-                SEND,
-                WIPE -> this.toString().toLowerCase()
-                else -> null
-            }
-        }
-
-        companion object {
-            fun parseQueueMessage(actionNameStr: String): ActionName {
-                return when (actionNameStr.toLowerCase()) {
-                    "receive" -> RECEIVE
-                    "translate" -> TRANSLATE
-                    "batch" -> BATCH
-                    "send" -> SEND
-                    "wipe" -> WIPE
-                    "none" -> NONE
-                    "batch_error" -> BATCH_ERROR
-                    "send_error" -> SEND_ERROR
-                    "wipe_error" -> WIPE_ERROR
-                    else -> error("Internal Error: $actionNameStr does not match known action names")
-                }
-            }
-        }
+    /*
+     * Kotlin does not allow overloading the assignment operator.  Hence the setter.
+     */
+    fun setActionResult(actionResult: String) {
+        // TODO should be able to get this max size from the jooq-generated code.
+        action.actionResult = actionResult.chunked(2048)[0]
     }
 
-    companion object {
-        const val messageDelimiter = "&"
-
-        fun parseQueueMessage(queueMsg: String): ActionHistory {
-            val parts = queueMsg.split(messageDelimiter)
-            if (parts.size < 3 || parts.size > 4) error("Internal Error: bad action format")
-            val action = ActionName.parseQueueMessage(parts[1])
-            val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
-            val actionName = ActionName.parseQueueMessage(parts[0])
-            return ActionHistory(actionName, after, null)
+    /**
+     * Put the history about this action into the database.
+     */
+    fun saveToDb(db: DatabaseAccess, txn: Configuration? = null) {
+        fun insertAction(txn: Configuration) {
+            DSL.using(txn)
+                .insertInto(
+                    Tables.ACTION,
+                    Tables.ACTION.ACTION_NAME,
+                    Tables.ACTION.ACTION_RESULT,
+                ).values(
+                    action.actionName,
+                    action.actionResult
+                ).execute()
+        }
+        if (txn != null) {
+            insertAction(txn)
+        } else {
+            db.transact { innerTxn -> insertAction(innerTxn) }
         }
     }
 }
