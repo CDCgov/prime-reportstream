@@ -76,3 +76,6 @@ prime-router/source.mry
 # PRIME test files
 prime-router/result_files/*
 prime-router/routed_files/*
+
+# Hashicorp Vault Secrets
+prime-router/.vault/env/**

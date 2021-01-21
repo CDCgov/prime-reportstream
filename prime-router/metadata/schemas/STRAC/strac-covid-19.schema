@@ -31,6 +31,9 @@ elements:
   - name: ordering_facility_state
     csvFields: [{name: Ordering_Facility_State}]
 
+  - name: ordering_facility_county
+    csvFields: [{name: Ordering_Facility_County}]
+
   - name: ordering_facility_zip_code
     csvFields: [{name: Ordering_Facility_ZIP, format: $zipFive}]
 
@@ -156,3 +159,11 @@ elements:
 
   - name: testing_lab_name
     mapper: use(ordering_facility_name)
+
+  # To be compatible with Redox we must have an patient_id
+  # After some discussion, the placer_order_id was the best choice until STRAC provides a true patient_id
+  - name: patient_id
+    mapper: use(placer_order_id)
+
+  - name: patient_id_type
+    mapper: ifPresent(patient_id, PI)

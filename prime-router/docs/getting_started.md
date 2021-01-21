@@ -59,6 +59,8 @@ You should be able to compile the project now. Check if it works.
 mvn clean package
 ```
 
+If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
+
 Check out the database if you like:
 ```
 psql prime_data_hub
@@ -103,11 +105,13 @@ To orchestrate running the Azure function code and Azurite, Docker Compose is a 
 mvn clean package  
 docker-compose up
 ```
-Docker-compose will build a `prime_dev` container with the output of the `mvn package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compse` is run, `docker-compose` should start up in a few seconds. The output should look like:
+Docker-compose will build a `prime_dev` container with the output of the `mvn package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
 
 ![Docker Compose](assets/docker_compose_log.png)
 
 Looking at the log above, you may notice that container has a debug open at port `5005`. This configuration allows you to attach a Java debugger to debug your code.
+
+If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
 ## Setup Azure to deploy your locally built container
 
@@ -148,3 +152,60 @@ docker push rhawesprimedevregistry.azurecr.io/prime-data-hub
 ## Using local configuration for organizations.yml
 
 By default, the functions will pull their configuration for organizations from the `organizations.yml` file.  You can override this locally or in test by declaring an environment variable `PRIME_ENVIRONMENT`.  If you declare something like, `export PRIME_ENVIRONMENT=mylocal` then the system will look for a configuration file `organizations-mylocal.yml` and will use that, even if the `organizations.yml` file exists.  In this way, you can set up local SFTP routing, etc. without impacting the production (`organizations.yml`) config.  Note that depending on the OS - case matters.
+
+## Getting Around SSL Errors
+
+If your agency's network intercepts SSL requests, you might have to disable SSL verifications to get around invalid certificate errors.
+
+### Maven Builds
+
+For Maven builds, you can add the parameter `-Dmaven.wagon.http.ssl.insecure=true` as follows:
+
+```bash
+mvn clean package -Dmaven.wagon.http.ssl.insecure=true
+```
+
+If you want to permanently set this, add the following to your `.bash_profile`:
+
+```bash
+export MAVEN_OPTS="-Dmaven.wagon.http.ssl.insecure=true $MAVEN_OPTS"
+```
+
+### Docker Builds
+
+This can be accomplished by setting an environment variable `PRIME_DATA_HUB_INSECURE_SSL=true`. You can pass this in as a one-off when you build a component, for example:
+
+```bash
+PRIME_DATA_HUB_INSECURE_SSL=true docker-compose up
+```
+
+Or you can add this line in your `~/.bash_profile` to ensure your local builds will always disable SSL verification:
+
+```bash
+export PRIME_DATA_HUB_INSECURE_SSL=true
+```
+
+## Managing the local Hashicorp Vault secrets database
+
+Our `docker-compose.yml` includes Hashicorp Vault alongside our other containers to enable local secrets storage. Under normal circumstances, developers will not have to interact directly with the Vault configuration, but some helpful guidance is provided below for troubleshooting.
+
+### Initialize the Vault
+
+When starting up our containers with `docker-compose up` on first-run, the container will create a new Vault database and store the following files in `.vault/env`:
+
+* `key` - unseal key for decrypting the database
+* `.env.local` - the root token in envfile format for using the Vault api / command line
+
+The database is stored in a docker-compose container `vault` that persists across up and down events. All files are excluded in `.gitignore` and should never be persisted to source control.
+
+## Re-initialize the Vault
+
+If you would like to start with a fresh Vault database, you can clear the Vault database with the following commands:
+
+```bash
+cd prime_router
+docker-compose down -v
+rm -rf .vault/env/{key,.env.local}
+```
+
+Note: The `docker-compose down -v` option deletes all volumes associated with our docker-compose file.

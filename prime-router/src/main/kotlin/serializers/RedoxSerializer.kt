@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.serializers
 
+import ca.uhn.hl7v2.parser.DefaultEscaping
+import ca.uhn.hl7v2.parser.EncodingCharacters
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonGenerator
 import gov.cdc.prime.router.Element
@@ -26,11 +28,11 @@ class RedoxSerializer(val metadata: Metadata) {
     }
 
     private enum class JsonGroupType { END_OBJECT, END_ARRAY, START_OBJECT, START_ARRAY }
-    private data class JsonGroup(val type: JsonGroupType, val name: String? = null)
 
     private val factory = JsonFactory()
     private val fields = mutableMapOf<String, List<JsonField>>()
-    private val transitions = mutableMapOf<String, List<List<JsonGroup>>>()
+    private val hl7EncodingCharacters = EncodingCharacters('|', null)
+    private val hl7DefaultEscaping = DefaultEscaping()
 
     fun write(report: Report, outputStream: OutputStream) {
         val fields = getFields(report.schema)
@@ -100,7 +102,7 @@ class RedoxSerializer(val metadata: Metadata) {
     }
 
     private fun writeTransition(to: JsonGenerator, field: JsonField, previousField: JsonField) {
-        var (ending, starting) = diff(previousField.base, field.base)
+        val (ending, starting) = diff(previousField.base, field.base)
         val isArrayTransition = ending.isNotEmpty() && starting.isNotEmpty() &&
             ending[0].endsWith(']') && starting[0].endsWith(']') &&
             ending[0].substringBefore('[') == starting[0].substringBefore('[')
@@ -174,7 +176,9 @@ class RedoxSerializer(val metadata: Metadata) {
                 to.writeString(e164)
             }
             else -> {
-                to.writeString(value)
+                // Escaping handles the case where the value contains an "|" or "&" which will mess up Redox's HL7 generation
+                val escaped = hl7DefaultEscaping.escape(value, hl7EncodingCharacters)
+                to.writeString(escaped)
             }
         }
     }
