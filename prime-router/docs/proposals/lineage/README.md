@@ -37,7 +37,7 @@ The Hub implements a simple workflow engine.   Each step in the engine is a **Ta
 | Receive   | Receive a new Report into the Hub
 | Transform | Validate a received report, and transform into desired output formats, according to configured data filter business rules
 | Batch     |  Merge one or more reports together.   Typically done to consolidate data per receiver requirements.
-| Send      | Reliably delivery data to an external receiver, eg, an API, sftp site, or provide for upload (and notify with an email)
+| Send      | Reliably deliver data to an external receiver, eg, an API, sftp site, or provide for upload (and notify with an email)
 | Wipe      | Remove data, per business rules
 
 An **Organization** can recieve and/or send data to the hub.  A typical Organization is a state or local Public Health Department.   Strac, Redox, and SimpleReport are all also Organizations in the hub.
