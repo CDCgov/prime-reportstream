@@ -61,7 +61,7 @@ Likewise, an **OrganizationClient** is an endpoint that sends data to the Hub AP
 
 ## Proposed Design
 
-Please [pull up the ER diagram](./lineage-er-diagram.jpeg) for the detailed proposed schema.
+![ER diagram](./lineage-er-diagram.jpeg)
 
 (Note: [Original lucid chart diagram is here](https://lucid.app/lucidchart/7b81cccb-91a0-44b3-b17f-90b9b0c8304e/edit?beaconFlowId=332110D5160D6847&page=0_0#))
 
