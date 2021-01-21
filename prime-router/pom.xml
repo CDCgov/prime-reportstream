@@ -36,9 +36,9 @@
         <!-- Define skip flags with common defaults for developers. -->
         <package.skip.azure>false</package.skip.azure>
         <package.skip.cli>true</package.skip.cli>
-        <flyway.user>prime</flyway.user>
-        <flyway.password>changeIT!</flyway.password>
-        <flyway.url>jdbc:postgresql://localhost:5432/prime_data_hub</flyway.url>
+        <pg.user>prime</pg.user>
+        <pg.password>changeIT!</pg.password>
+        <pg.url>jdbc:postgresql://localhost:5432/prime_data_hub</pg.url>
     </properties>
 
     <repositories>
@@ -273,9 +273,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <url>${flyway.url}</url>
-                    <user>${flyway.user}</user>
-                    <password>${flyway.password}</password>
+                    <url>${pg.url}</url>
+                    <user>${pg.user}</user>
+                    <password>${pg.password}</password>
                 </configuration>
             </plugin>
             <plugin>
@@ -295,9 +295,9 @@
                 <configuration>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
-                        <url>jdbc:postgresql://127.0.0.1:5432/prime_data_hub</url>
-                        <user>prime</user>
-                        <password>changeIT!</password>
+                        <url>${pg.url}</url>
+                        <user>${pg.user}</user>
+                        <password>${pg.password}</password>
                     </jdbc>
                     <generator>
                         <database>
