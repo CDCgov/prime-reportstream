@@ -26,6 +26,20 @@ elements:
     hhsGuidanceField:
     hl7Field: NTE-3
 
+  - name: comment_source
+    type: CODE
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: NTE-2
+    valueSet: hl70105
+
+  - name: comment_type
+    type: CODE
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: NTE-4
+    valueSet: hl70364
+
   - name: date_result_released
     type: DATETIME
     natFlatFileField: Date_result_released
@@ -179,6 +193,13 @@ elements:
     hhsGuidanceField:
     hl7Field: AOE
     hl7AOEQuestion: 65222-2
+
+  - name: observation_result_status
+    type: CODE
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: OBX-11
+    valueSet: hl70085
 
   - name: order_result_status
     type: CODE
@@ -1043,4 +1064,11 @@ elements:
   #  natFlatFileField: Travel_history
   #  hhsGuidanceField:
   #  hl7Field: AOE
+
+  - name: value_type
+    type: CODE
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: OBX-2
+    valueSet: hl70125
 

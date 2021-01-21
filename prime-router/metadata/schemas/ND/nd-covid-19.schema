@@ -17,8 +17,10 @@ elements:
     - name: reporting_facility_clia
 
     - name: receiving_application
+      default: Maven^2.16.840.1.114222.4.3.4.34.1.1^ISO
 
     - name: receiving_facility
+      default: NDDOH^2.16.840.1.113883.3.89.109.100.1.3^ISO
 
     # pid section
     - name: patient_last_name
@@ -72,23 +74,17 @@ elements:
     - name: filler_order_id
 
     # todo: universal service identifier
-
     # todo: observation date time
-
     # todo: specimen source
-
     # todo: ordering provider
-
     # todo: result status
 
     # obx section
-    # todo: value type
-
+    - name: value_type
     # todo: observation identifier
-
     # todo: observation sub id
     # todo: observation value
-    # todo: observation result status
+    - name: observation_result_status
     # todo: date time of the observation
     # todo: producers reference
 
@@ -108,8 +104,8 @@ elements:
     - name: specimen_received_date_time
 
     # nte section
-    # todo: need source of comment
+    - name: comment_source
 
     - name: comment
 
-    # todo: need comment type
+    - name: comment_type

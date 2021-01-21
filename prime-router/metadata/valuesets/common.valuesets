@@ -77,6 +77,34 @@
   - code: W
     display: Worse--use when direction not relevant
 
+- name: hl70085
+  system: HL7
+  values:
+      - code: C
+        display: Record coming over is a correction and thus replaces a final result
+      - code: D
+        display: Deletes the OBX record
+      - code: F
+        display: Final results; Can only be changed with a corrected result
+      - code: I
+        display: Specimen in lab; results pending
+      - code: N
+        display: Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.
+      - code: O
+        display: Order detail description only (no result)
+      - code: P
+        display: Preliminary results
+      - code: R
+        display: Results entered -- not verified
+      - code: S
+        display: Partial results
+      - code: U
+        display: Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final
+      - code: W
+        display: Post original as wrong, e.g., transmitted for wrong patient
+      - code: X
+        display: Results cannot be obtained for this observation
+
 - name: hl70136
   system: HL7
   values:
@@ -308,6 +336,93 @@
       display: Production
     - code: T
       display: Training
+
+- name: hl70105
+  system: HL7
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0105
+  values:
+      - code: L
+        display: Ancillary (filler) department is source of comment
+      - code: O
+        display: Other system is source of comment
+      - code: P
+        display: Orderer (placer) is source of comment
+
+- name: hl70364
+  system: HL7
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0364
+  values:
+      - code: 1R
+        display: Primary Reason
+      - code: 2R
+        display: Secondary Reason
+      - code: AI
+        display: Ancillary Instructions
+      - code: DR
+        display: Duplicate/Interaction Reason
+      - code: GI
+        display: General Instructions
+      - code: GR
+        display: General Reason
+      - code: PI
+        display: Patient Instructions
+      - code: RE
+        display: Remark
+
+- name: hl70125
+  system: HL7
+  referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0125
+  values:
+      - code: AD
+        display: Address
+      - code: CE
+        display: Coded Entry
+      - code: CF
+        display: Coded Element With Formatted Values
+      - code: CK
+        display: Composite ID With Check Digit
+      - code: CN
+        display: Composite ID And Name
+      - code: CP
+        display: Composite Price
+      - code: CX
+        display: Extended Composite ID With Check Digit
+      - code: DT
+        display: Date
+      - code: ED
+        display: Encapsulated Data
+      - code: FT
+        display: Formatted Text (Display)
+      - code: MO
+        display: Money
+      - code: NM
+        display: Numeric
+      - code: PN
+        display: Person Name
+      - code: RP
+        display: Reference Pointer
+      - code: SN
+        display: Structured Numeric
+      - code: ST
+        display: String Data
+      - code: TM
+        display: Time
+      - code: TN
+        display: Telephone Number
+      - code: TS
+        display: Time Stamp (Date & Time)
+      - code: TX
+        display: Text Data (Display)
+      - code: XAD
+        display: Extended Address
+      - code: XCN
+        display: Extended Composite Name and Number For Persons
+      - code: XON
+        display: Extended Composite Name and Number For Organizations
+      - code: XPN
+        display: Extended Person Name
+      - code: XTN
+        display: Extended Telecommunications Number
 
 - name: site_of_care
   system: SNOMED_CT
