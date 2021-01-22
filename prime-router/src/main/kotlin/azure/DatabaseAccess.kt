@@ -190,9 +190,9 @@ class DatabaseAccess(private val create: DSLContext) {
         receiverName: String,
     ): List<Header> {
         val cond = if (since == null) {
-            TASK.RECEIVER_NAME.eq(receiverName)
+            TASK.RECEIVER_NAME.like("$receiverName%")
         } else {
-            TASK.RECEIVER_NAME.eq(receiverName)
+            TASK.RECEIVER_NAME.like("$receiverName%")
                 .and(TASK.CREATED_AT.ge(since))
         }
 
