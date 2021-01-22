@@ -39,6 +39,7 @@
         <flyway.user>prime</flyway.user>
         <flyway.password>changeIT!</flyway.password>
         <flyway.url>jdbc:postgresql://localhost:5432/prime_data_hub</flyway.url>
+        <okta-jwt.version>0.5.0</okta-jwt.version>
     </properties>
 
     <repositories>
@@ -465,6 +466,19 @@
             <artifactId>sendgrid-java</artifactId>
             <version>4.7.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.okta.jwt</groupId>
+            <artifactId>okta-jwt-verifier</artifactId>
+            <version>${okta-jwt.version}</version>
+        </dependency>
+  
+        <dependency>
+            <groupId>com.okta.jwt</groupId>
+            <artifactId>okta-jwt-verifier-impl</artifactId>
+            <version>${okta-jwt.version}</version>
+            <scope>runtime</scope>
+    </dependency>
 
         <dependency>
             <groupId>com.github.kittinunf.fuel</groupId>

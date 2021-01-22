@@ -18,6 +18,9 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
+import com.okta.jwt.Jwt
+import com.okta.jwt.JwtVerifiers
+import java.time.Duration
 
 class DownloadFunction {
     val DAYS_TO_SHOW = 7L
@@ -180,16 +183,28 @@ class DownloadFunction {
         orgName = ""
 
         val cookies = request.headers["cookie"] ?: ""
-
-        System.out.println("cookies = $cookies")
+        var jwtString = "";
 
         cookies.replace(" ", "").split(";").forEach {
-            System.out.println("'$it'")
             val cookie = it.split("=")
-            if (cookie[0] == "user") {
-                userName = cookie[1]
+            jwtString = if (cookie[0] == "jwt") cookie[1] else "";
+            if( jwtString.isNotBlank() ){
+                try{
+                    val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
+                        .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
+                        .build();
+                    val jwt = jwtVerifier.decode(jwtString)
+                    userName = jwt.getClaims().get( "sub" ).toString()
+                    val orgs = jwt.getClaims().get( "organization")
+                    var org = if( orgs !== null ) (orgs as List<String>)[0] else ""
+
+                    orgName = if( org.length > 3 ) org.substring( 2 ) else "";     
+                }
+                catch( ex: Throwable ){
+                    System.out.println( ex );
+                }
             }
-            if (cookie[0] == "organization") orgName = cookie[1]
+
         }
         return userName.isNotBlank() && orgName.isNotBlank()
     }

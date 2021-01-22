@@ -43,11 +43,10 @@
     }
 
     var signInWidget= new OktaSignIn(config);
-    signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile'] } )
+    signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile', 'simple_report'] } )
         .then( function( tokens ){
-            var idToken = tokens.idToken; 
-            createCookie("user", idToken.claims.email,3,5)
-            createCookie("organization", idToken.claims.org,3,5)
+            var token = tokens.accessToken.value; 
+            createCookie("jwt", token,5)
             window.location.replace([[${OKTA_redirect}]]);
         })
 </script>

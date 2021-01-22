@@ -34,8 +34,8 @@ services:
       - TX_PHD__ELR_DEBUG__USER=foo
       - TX_PHD__ELR_DEBUG__PASS=pass
       - SENDGRID_API_KEY=SnBfxpPsQkmOh0SfU3X_ng
-      - OKTA_baseUrl=dev-9304359.okta.com
-      - OKTA_clientId=0oa1f0vr3Zwvd7pAE5d6
+      - OKTA_baseUrl=hhs-prime.okta.com
+      - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port
