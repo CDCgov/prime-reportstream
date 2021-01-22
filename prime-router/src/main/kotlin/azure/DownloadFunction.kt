@@ -119,6 +119,8 @@ class DownloadFunction {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
         val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
 
+        System.out.println("count of headers = ${headers.size}")
+
         val attr = mapOf(
             "description" to orgName,
             "user" to userName,
