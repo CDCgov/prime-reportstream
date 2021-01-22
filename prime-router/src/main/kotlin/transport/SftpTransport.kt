@@ -29,9 +29,9 @@ class SftpTransport : ITransport {
             val extension = orgService.format.toExt()
             val fileName = "${orgService.fullName.replace('.', '-')}-$reportId.$extension"
 
-            // context.logger.log(Level.INFO, "About to sftp upload ${sftpTransportType.filePath}/$fileName to $user at $host:$port (orgService = ${orgService.fullName})")
+            //context.logger.log(Level.INFO, "About to sftp upload ${sftpTransportType.filePath}/$fileName to $user at $host:$port (orgService = ${orgService.fullName})")
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
-            // context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
+            //context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
             null
         } catch (ioException: IOException) {
             context.logger.log(
