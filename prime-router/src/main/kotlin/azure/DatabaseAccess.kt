@@ -219,7 +219,7 @@ class DatabaseAccess(private val create: DSLContext) {
 
         val task = create
             .selectFrom(TASK)
-            .where(TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.likeRegex("^$orgName")))
+            .where(TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.like("$orgName%")))
             .fetchOne()
             ?.into(Task::class.java)
             ?: error("Could not find $reportId/$orgName that matches a task")
