@@ -1,8 +1,8 @@
-name: Prime Data Hub
+name: Prime Data Hub Test
 
 on:
   pull_request:
-    branches: [ master, production ]
+    branches: master
 
 defaults:
   run:
@@ -21,20 +21,11 @@ jobs:
 
       - name: Set Environment Variables
         run: |
-               if [ "$GITHUB_BASE_REF" == "production" ]
-               then
-                   echo "Building for the production environment."
-                   echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
-                   echo >> $GITHUB_ENV PREFIX=pdhprod
-                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
-                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
-               else
-                   echo "Building for the test environment."
-                   echo >> $GITHUB_ENV ACR_REPO=pdhtestcontainerregistry.azurecr.io
-                   echo >> $GITHUB_ENV PREFIX=pdhtest
-                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
-                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
-               fi
+              echo "Building for the test environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhtestcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV PREFIX=pdhtest
+              echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
+              echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
 
       - name: Setup PostgreSQL
         uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
