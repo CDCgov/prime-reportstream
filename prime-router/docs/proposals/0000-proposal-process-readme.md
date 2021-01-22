@@ -14,7 +14,7 @@ The proposal process involves a Markdown document for the proposal, and a GitHub
 
 **Steps**
 
-1. Put a proposal document in a single markdown document in the project's proposal directory. Please include sections for context and motivation behind the proposal, the goals of the proposal, and the details of the proposal itself. Put assets in a subdirectory or the assets directory.
+1. Put a proposal document in a single markdown document in the project's proposal directory or if multiple files are needed in a subdirectory of this directory. Prefix each proposal (file or directory) with a 4-digit number to keep the proposals sorted in order. Please include sections for context and motivation behind the proposal, the goals of the proposal, and the details of the proposal itself.
 
 2. Create a pull-request that contains instructions to the reviewers. Describe the aspects of the design that the reviewers should consider.
 
