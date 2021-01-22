@@ -64,7 +64,7 @@ class DownloadFunction {
         val attr = mapOf(
             "OKTA_baseUrl" to System.getenv("OKTA_baseUrl"),
             "OKTA_clientId" to System.getenv("OKTA_clientId"),
-            "OKTA_redirect" to request.uri.toString()
+            "OKTA_redirect" to System.getenv("OKTA_redirect")
         )
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)
@@ -126,7 +126,7 @@ class DownloadFunction {
             "todays" to generateTodaysTestResults(headers),
             "previous" to generatePreviousTestResults(headers),
             "days_to_show" to DAYS_TO_SHOW,
-            "OKTA_redirect" to request.uri.toString(),
+            "OKTA_redirect" to System.getenv("OKTA_redirect"),
             "showTables" to !fileNotFound
         )
 
