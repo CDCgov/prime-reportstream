@@ -185,6 +185,54 @@ class DatabaseAccess(private val create: DSLContext) {
         return tasks.map { Header(it, taskSources) }
     }
 
+    fun fetchHeaders(
+        since: OffsetDateTime?,
+        receiverName: String,
+    ): List<Header> {
+        val cond = if (since == null) {
+            TASK.RECEIVER_NAME.eq(receiverName)
+        } else {
+            TASK.RECEIVER_NAME.eq(receiverName)
+                .and(TASK.CREATED_AT.ge(since))
+        }
+
+        val tasks = create
+            .selectFrom(TASK)
+            .where(cond)
+            .fetch()
+            .into(Task::class.java)
+
+        val ids = tasks.map { it.reportId }
+        val taskSources = create
+            .selectFrom(TASK_SOURCE)
+            .where(TASK_SOURCE.REPORT_ID.`in`(ids))
+            .fetch()
+            .into(TaskSource::class.java)
+
+        return tasks.map { Header(it, taskSources) }
+    }
+
+    fun fetchHeader(
+        reportId: ReportId,
+        orgName: String
+    ): Header {
+
+        val task = create
+            .selectFrom(TASK)
+            .where(TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.likeRegex("^$orgName")))
+            .fetchOne()
+            ?.into(Task::class.java)
+            ?: error("Could not find $reportId/$orgName that matches a task")
+
+        val taskSources = create
+            .selectFrom(TASK_SOURCE)
+            .where(TASK_SOURCE.REPORT_ID.eq(reportId))
+            .fetch()
+            .into(TaskSource::class.java)
+
+        return Header(task, taskSources)
+    }
+
     /**
      * Update the header of a report with new values
      */
