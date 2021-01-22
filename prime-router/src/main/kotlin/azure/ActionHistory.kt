@@ -24,9 +24,10 @@ import java.util.UUID
  * This is a container class that holds information to be stored, about a single action,
  * as well as the reports that went into that Action, and were created by that Action.
  *
- * The idea is that, as an action progresses, call various track*(...) methods here to add additional information to this container.
+ * The idea is that, as an action progresses, call various track*(...) methods here to add additional information to
+ * this container, in-memory only.
  *
- * Then when the action is done, call saveToDb(...) to put all the tracked information into the database.
+ * Then when the action is done, call saveToDb(...) to plunk all the tracked information into the database.
  *
  */
 class ActionHistory {
@@ -116,9 +117,21 @@ class ActionHistory {
         trackActionResult(httpResponseMessage.status.toString() + ":\n" + httpResponseMessage.body.toString())
     }
 
+    /**
+     * No report can be tracked twice, either as an input or output.   Prevents loops and other shenanigans.
+     */
+    private fun reportAlreadyTracked(id: UUID): Boolean {
+        return reportsReceived.containsKey(id) ||
+            reportsIn.containsKey(id) ||
+            reportsOut.containsKey(id)
+    }
+
+    /**
+     * Use this to record history info about an externally submitted report.
+     */
     fun trackExternalIncomingReport(incomingReport: ReportFunction.ValidatedRequest) {
         val report = incomingReport.report ?: error("No report to track!")
-        if (reportsIn.containsKey(report.id)) {
+        if (reportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }
 
@@ -149,8 +162,6 @@ class ActionHistory {
             String         sendingOrgClient,
             String         receivingOrg,
             String         receivingOrgSvc,
-            String         transmissionParams,
-            String         transmissionResult,
             String         schemaName,
             String         schemaTopic,
             String         bodyUrl,
@@ -160,13 +171,16 @@ class ActionHistory {
             OffsetDateTime wipedAt,
             OffsetDateTime createdAt
         */
+    /**
+     * Use this to record history info about an internally created report.
+     */
     fun trackCreatedReport(
         event: Event,
         report: Report,
         service: OrganizationService,
         validatedRequest: ReportFunction.ValidatedRequest
     ) {
-        if (reportsIn.containsKey(report.id)) {
+        if (reportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }
 
@@ -188,20 +202,6 @@ class ActionHistory {
      * Save the history about this action and related reports
      */
     fun saveToDb(db: DatabaseAccess, txn: Configuration? = null) {
-        // prep work.  Right now we are redundantly storing the params and results in both the action and the report.
-        // I'm not happy with this.   Get rid of it.
-        if (action.actionName.equals(TaskAction.receive)) {
-            reportsReceived.values.forEach {
-                it.transmissionParams = action.actionParams
-                it.transmissionResult = action.actionResult
-            }
-        }
-        if (action.actionName.equals(TaskAction.send)) {
-            reportsOut.values.forEach {
-                it.transmissionParams = action.actionParams
-                it.transmissionResult = action.actionResult
-            }
-        }
         if (txn != null) {
             insertAll(txn)
         } else {
@@ -266,8 +266,6 @@ class ActionHistory {
                 REPORT_FILE.SENDING_ORG_CLIENT,
                 REPORT_FILE.RECEIVING_ORG,
                 REPORT_FILE.RECEIVING_ORG_SVC,
-                REPORT_FILE.TRANSMISSION_PARAMS,
-                REPORT_FILE.TRANSMISSION_RESULT,
                 REPORT_FILE.SCHEMA_NAME,
                 REPORT_FILE.SCHEMA_TOPIC,
                 REPORT_FILE.BODY_URL,
@@ -284,8 +282,6 @@ class ActionHistory {
                 reportFile.sendingOrgClient,
                 reportFile.receivingOrg,
                 reportFile.receivingOrgSvc,
-                reportFile.transmissionParams,
-                reportFile.transmissionResult,
                 reportFile.schemaName,
                 reportFile.schemaTopic,
                 reportFile.bodyUrl,

@@ -51,10 +51,6 @@ CREATE TABLE report_file (
     receiving_org VARCHAR(63),      -- should be a ref to an org table someday
     receiving_org_svc VARCHAR(63),  -- OrganizationService
 
-    -- These are non-null for 'send' and for 'receive' actions.
-    transmission_params VARCHAR(512),   -- params sent to us.  Or, params we sent.
-    transmission_result VARCHAR(2048), -- result of a 'send' or a 'recieve'
-
     schema_name VARCHAR(63) NOT NULL,   -- should be a fk someday
     schema_topic VARCHAR(63) NOT NULL,
     body_url VARCHAR(2048),
