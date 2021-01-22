@@ -8,12 +8,12 @@ variable "resource_group" {
     description = "Resource Group Name"
 }
 
-variable "name" {
+variable "resource_prefix" {
     type = string
-    description = "Storage Account Name"
+    description = "Resource Prefix"
 }
 
 variable "location" {
     type = string
-    description = "Storage Account Location"
+    description = "Network Location"
 }

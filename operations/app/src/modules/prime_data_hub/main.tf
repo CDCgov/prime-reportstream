@@ -14,6 +14,6 @@ module "network" {
     source = "../network"
     environment = var.environment
     resource_group = var.resource_group
-    name = "${var.resource_prefix}-vnet"
+    resource_prefix = var.resource_prefix
     location = local.location
 }

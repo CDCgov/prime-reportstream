@@ -3,19 +3,19 @@ terraform {
 }
 
 resource "azurerm_network_security_group" "nsg_public" {
-  name = "nsg_public"
+  name = "${var.resource_prefix}-nsg.public"
   location = var.location
   resource_group_name = var.resource_group
 }
 
 resource "azurerm_network_security_group" "nsg_private" {
-  name = "nsg_public"
+  name = "${var.resource_prefix}-nsg.private"
   location = var.location
   resource_group_name = var.resource_group
 }
 
 resource "azurerm_virtual_network" "virtual_network" {
-  name = var.name
+  name = "${var.resource_prefix}-vnet"
   location = var.location
   resource_group_name = var.resource_group
   address_space = ["10.0.0.0/16"]
