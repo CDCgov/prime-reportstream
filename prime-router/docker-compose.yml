@@ -35,6 +35,10 @@ services:
       - TX_PHD__ELR_TEST__PASS=pass
       - TX_PHD__ELR_DEBUG__USER=foo
       - TX_PHD__ELR_DEBUG__PASS=pass
+      - SENDGRID_API_KEY=SnBfxpPsQkmOh0SfU3X_ng
+      - OKTA_baseUrl=hhs-prime.okta.com
+      - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
+      - OKTA_redirect=http://localhost:7071/api/download
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port
