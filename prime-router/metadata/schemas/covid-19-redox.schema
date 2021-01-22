@@ -156,7 +156,7 @@ elements:
   - name: order_test_date
     redoxOutputFields: ["Orders[0].Extensions.ordered-date-time.dateTime"]
 
-  # The Filler (aka Producer) is the person, or service, who produces the observations (fills the order) requested by the requestor.
+  # The Filler (aka Producer) is the person, or service, who produces the observations (fills the order) requested by the requester.
   - name: filler_order_id
     redoxOutputFields: ["Orders[0].ApplicationOrderID"]
 

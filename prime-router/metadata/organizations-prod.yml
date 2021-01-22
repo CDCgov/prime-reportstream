@@ -119,7 +119,7 @@
       - name: elr-bucks-prod
         topic: covid-19
         schema: pa/pa-covid-19-redox
-        jurisdictionalFilter: [ "filterByCounty(PA, Bucks)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
         transforms: { deidentify: false }
         defaults:
           processing_mode_code: P
@@ -134,7 +134,7 @@
       - name: elr-chester-prod
         topic: covid-19
         schema: pa/pa-covid-19-redox
-        jurisdictionalFilter: [ "filterByCounty(PA, Chester)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester)" ]
         transforms: { deidentify: false }
         defaults:
           processing_mode_code: P
@@ -149,7 +149,7 @@
       - name: elr-montgomery-prod
         topic: covid-19
         schema: pa/pa-covid-19-redox
-        jurisdictionalFilter: [ "filterByCounty(PA, Montgomery)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
         transforms: { deidentify: false }
         defaults:
           processing_mode_code: P

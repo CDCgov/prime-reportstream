@@ -321,7 +321,7 @@
                     </generator>
                 </configuration>
             </plugin>
-<!--             <plugin>
+             <plugin>
                 <groupId>com.github.gantsign.maven</groupId>
                 <artifactId>ktlint-maven-plugin</artifactId>
                 <version>1.7.0</version>
@@ -333,7 +333,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin> -->
+            </plugin> 
         </plugins>
     </build>
     <dependencies>
@@ -501,7 +501,11 @@
             <artifactId>json</artifactId>
             <version>20201115</version>
         </dependency>
-
+       <dependency>
+            <groupId>com.hierynomus</groupId>
+            <artifactId>sshj</artifactId>
+            <version>0.30.0</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
