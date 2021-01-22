@@ -73,31 +73,48 @@ elements:
     # obr section
     - name: filler_order_id
 
-    # todo: universal service identifier
-    # todo: observation date time
-    # todo: specimen source
-    # todo: ordering provider
-    # todo: result status
+    # todo: universal service identifier - OBR.4
+
+    # observation date time - OBR.7 comes from specimen_collection_date_time
+
+    # todo: specimen source - OBR.15
+
+    # ordering provider - OBR.16 - comes from ordering provider fields
+    - name: ordering_provider_first_name
+
+    - name: ordering_provider_last_name
+
+    - name: ordering_provider_id
+
+    - name: ordering_provider_id_authority
+
+    - name: ordering_provider_id_authority_type
+
+    - name: ordering_provider_middle_name
+
+    - name: ordering_provider_middle_initial
+
+    - name: test_result_status
 
     # obx section
     - name: value_type
-    # todo: observation identifier
-    # todo: observation sub id
-    # todo: observation value
+    # todo: observation identifier - OBX.3
+    - name: test_result_sub_id
+    - name: test_result
     - name: observation_result_status
-    # todo: date time of the observation
-    # todo: producers reference
+    # date time of the observation - OBX-14 comes from specimen_collection_date_time
+    # todo: producers reference - OBX.15
 
     # spm section
-    # todo: need specimen id
+    - name: specimen_id
 
     - name: specimen_type
 
-    # todo: need specimen collection method
+    - name: specimen_collection_method
 
     - name: specimen_source_site_code
 
-    # todo: need specimen description
+    - name: specimen_description
 
     - name: specimen_collection_date_time
 

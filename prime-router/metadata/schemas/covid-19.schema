@@ -795,10 +795,6 @@ elements:
     natFlatFileField:
     hl7Field: MSH-4
 
-  - name: specimen_collection_site # collection location
-    type: TEXT # CWE without a defined table
-    hl7Field: SPM-10
-
   - name: specimen_collection_date_time
     type: DATETIME
     natFlatFileField: Specimen_collection_date_time
@@ -807,6 +803,28 @@ elements:
     hl7OutputFields: [SPM-17-1, SPM-17-2, OBR-7, OBR-8, OBX-14]
     documentation: |
       The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
+
+  - name: specimen_collection_method
+    type: CODE
+    hl7Field: SPM-7
+    natFlatFileField:
+    hhsGuidanceField:
+    valueSet: hl70048
+
+  - name: specimen_collection_site # collection location
+    type: TEXT # CWE without a defined table
+    hl7Field: SPM-10
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10
+
+  - name: specimen_description
+    type: TEXT
+    hl7Field: SPM-14
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14
+
+  - name: specimen_id
+    type: EI
+    hl7Field: SPM-2
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
 
   - name: specimen_received_date_time
     type: DATETIME
