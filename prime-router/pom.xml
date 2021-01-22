@@ -451,13 +451,7 @@
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
             <version>3.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.hierynomus</groupId>
-            <artifactId>sshj</artifactId>
-            <version>0.27.0</version>
-        </dependency>     
+        </dependency> 
 
         <dependency>
             <groupId>org.thymeleaf</groupId>
