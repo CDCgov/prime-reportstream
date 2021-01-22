@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.credentials
 
-class MemoryCredentialService : CredentialService() {
+object MemoryCredentialService : CredentialService() {
     val credentialList: HashMap<String, Credential>
 
     init {

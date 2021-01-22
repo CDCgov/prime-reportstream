@@ -3,12 +3,10 @@ package gov.cdc.prime.router.credentials
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class CredentialServiceTest {
+internal class CredentialServiceTest : CredentialManagement {
 
     @Test
     fun `test save and fetch`() {
-        val credentialService = MemoryCredentialService()
-
         val connectionId = "id1"
         val credential = UserPassCredential("user1", "pass1")
         credentialService.saveCredential(connectionId, credential, "CredentialServiceTest")
