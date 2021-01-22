@@ -8,6 +8,8 @@ interface CredentialManagement {
 
 internal fun credentialServiceForStorageMethod(): CredentialService {
     when (System.getProperty("CREDENTIAL_STORAGE_METHOD")) {
+        "AZURE" -> return AzureCredentialService
+        "HASHICORP_VAULT" -> return HashicorpVaultCredentialService
         else -> return MemoryCredentialService
     }
 }
