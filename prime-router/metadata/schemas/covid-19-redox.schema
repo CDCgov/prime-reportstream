@@ -172,7 +172,7 @@ elements:
 
   # Redox only handles corrected and final. Everything is
   - name: test_result_status
-    redoxOutputFields: ["Orders[0].ResultStatus", "Orders[0].Results[0].Status"]
+    redoxOutputFields: ["Orders[0].ResultsStatus", "Orders[0].Results[0].Status"]
     altValues:
       - display: Corrected
         code: C
