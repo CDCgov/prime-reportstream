@@ -1,14 +1,13 @@
 package gov.cdc.prime.router.transport
 
+import com.microsoft.azure.functions.ExecutionContext
 import com.sendgrid.*
 import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.*
 import gov.cdc.prime.router.EmailTransportType
-import gov.cdc.prime.router.TransportType
-import gov.cdc.prime.router.azure.DatabaseAccess
-import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.TransportType
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -29,22 +28,21 @@ class EmailTransport : ITransport {
     ): RetryItems? {
 
         val emailTransport = transportType as EmailTransportType
-        val content = buildContent( reportId );
-        val mail = buildMail( content, emailTransport );
+        val content = buildContent(reportId)
+        val mail = buildMail(content, emailTransport)
 
-        try{ 
+        try {
             val sg = SendGrid(System.getenv("SENDGRID_API_KEY"))
             val request = Request()
             request.setMethod(Method.POST)
             request.setEndpoint("mail/send")
             request.setBody(mail.build())
             sg.api(request)
+        } catch (ex: Exception) {
+            context.logger.log(Level.SEVERE, "Email/SendGrid exception", ex)
+            return RetryToken.allItems
         }
-        catch( ex: Exception ){
-            context.logger.log( Level.SEVERE, "Email/SendGrid exception", ex )
-            return RetryToken.allItems;
-        }
-        return null;
+        return null
     }
 
     fun getTemplateEngine(): TemplateEngine {
@@ -61,7 +59,7 @@ class EmailTransport : ITransport {
         return templateEngine.process(htmlContent, context)
     }
 
-    fun buildContent( reportId: ReportId ): Content {
+    fun buildContent(reportId: ReportId): Content {
         val htmlTemplate = Files.readString(Path.of("./assets/email-templates/test-results-ready__inline.html"))
 
         val attr = mapOf(
@@ -71,10 +69,10 @@ class EmailTransport : ITransport {
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)
         val content = Content("text/html", html)
-        return content;
+        return content
     }
 
-    fun buildMail( content: Content, emailTransport: EmailTransportType ): Mail {
+    fun buildMail(content: Content, emailTransport: EmailTransportType): Mail {
         val subject = "COVID-19 Reporting:  Your test results are ready"
 
         val mail = Mail()
@@ -87,6 +85,6 @@ class EmailTransport : ITransport {
             personalization.addTo(Email(it))
         }
         mail.addPersonalization(personalization)
-        return mail;
+        return mail
     }
 }
