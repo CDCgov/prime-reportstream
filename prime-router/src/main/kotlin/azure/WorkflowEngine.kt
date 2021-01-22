@@ -50,6 +50,7 @@ class WorkflowEngine(
         try {
             val receiveEvent = ReportEvent(Event.Action.RECEIVE, report.id, null)
             db.insertHeader(report, bodyFormat, bodyUrl, receiveEvent, txn)
+            report.bodyURL = bodyUrl
         } catch (e: Exception) {
             // Clean up
             blob.deleteBlob(bodyUrl)
@@ -65,6 +66,7 @@ class WorkflowEngine(
         try {
             db.insertHeader(report, bodyFormat, bodyUrl, nextAction, txn)
             queue.sendMessage(nextAction)
+            report.bodyURL = bodyUrl
         } catch (e: Exception) {
             // Clean up
             blob.deleteBlob(bodyUrl)

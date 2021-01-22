@@ -8,7 +8,7 @@ import kotlin.test.assertFails
 class ActionHistoryTests {
     @Test
     fun `test constructor`() {
-        val actionHistory = ActionHistory("batch", "any string is ok here")
+        val actionHistory = ActionHistory("batch")
         assertEquals(actionHistory.action.actionName, TaskAction.batch)
     }
 

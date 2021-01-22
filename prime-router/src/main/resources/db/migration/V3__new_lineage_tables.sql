@@ -29,12 +29,12 @@ ALTER TABLE task ALTER COLUMN next_action TYPE task_action USING next_action::ta
 CREATE TABLE action (
     action_id SERIAL PRIMARY KEY,
     action_name TASK_ACTION,
+    action_params VARCHAR(512),
     action_result VARCHAR(2048),
     -- Every table must have created_at timestamp
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-/*
 -- Each row is a report, created by some action
 CREATE TABLE report_file (
     report_id UUID PRIMARY KEY,
@@ -45,21 +45,33 @@ CREATE TABLE report_file (
 
     -- These are non-null only for 'receive' actions
     sending_org VARCHAR(63),        -- should be a ref to an org table someday
-    sending_params JSONB,           -- incoming API params (except secrets)
-    sending_result_returned JSONB,  -- what we sent back to the sender
     sending_org_client VARCHAR(63), -- OrganizationClient
 
     -- These are non-null only for 'send' actions:
     receiving_org VARCHAR(63),      -- should be a ref to an org table someday
     receiving_org_svc VARCHAR(63),  -- OrganizationService
 
+    -- These are non-null for 'send' and for 'receive' actions.
+    transmission_params VARCHAR(512),   -- params sent to us.  Or, params we sent.
+    transmission_result VARCHAR(2048), -- result of a 'send' or a 'recieve'
+
     schema_name VARCHAR(63) NOT NULL,   -- should be a fk someday
     schema_topic VARCHAR(63) NOT NULL,
     body_url VARCHAR(2048),
     body_format VARCHAR(63) NOT NULL,
+    blob_digest bytea,
     item_count INT NOT NULL,
     wiped_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 CREATE INDEX report_file_next_action_idx ON report_file(next_action);
-*/
+
+
+CREATE TABLE report_lineage (
+    report_lineage_id SERIAL PRIMARY KEY,
+    parent_report_id UUID NOT NULL REFERENCES report_file(report_id) ON DELETE CASCADE,
+    child_report_id UUID NOT NULL REFERENCES report_file(report_id) ON DELETE CASCADE,
+    created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+

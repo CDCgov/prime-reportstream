@@ -63,7 +63,8 @@ class ReportFunction {
     ): HttpResponseMessage {
         try {
             val workflowEngine = WorkflowEngine()
-            var actionHistory = ActionHistory("receive")
+            var actionHistory = ActionHistory("receive", context)
+            actionHistory.trackActionParams(request)
             val validatedRequest = validateRequest(workflowEngine, request)
             val httpResponseMessage = when {
                 validatedRequest.options == Options.CheckConnections -> {
@@ -79,13 +80,14 @@ class ReportFunction {
                 else -> {
                     context.logger.info("Successfully reported: ${validatedRequest.report!!.id}.")
                     val destinations = mutableListOf<String>()
-                    routeReport(context, workflowEngine, validatedRequest, destinations)
+                    routeReport(context, workflowEngine, validatedRequest, destinations, actionHistory)
                     val responseBody = createResponseBody(validatedRequest, destinations)
                     workflowEngine.receiveReport(validatedRequest.report)
+                    actionHistory.trackExternalIncomingReport(validatedRequest)
                     createdResponse(request, validatedRequest, responseBody)
                 }
             }
-            actionHistory.setActionResult(httpResponseMessage.body.toString())
+            actionHistory.trackActionResult(httpResponseMessage)
             workflowEngine.recordAction(actionHistory)
             return httpResponseMessage
         } catch (e: Exception) {
@@ -205,6 +207,7 @@ class ReportFunction {
         workflowEngine: WorkflowEngine,
         validatedRequest: ValidatedRequest,
         destinations: MutableList<String>,
+        actionHistory: ActionHistory,
     ) {
         if (validatedRequest.options == Options.ValidatePayload ||
             validatedRequest.options == Options.CheckConnections
@@ -214,7 +217,7 @@ class ReportFunction {
                 .translator
                 .filterAndTranslateByService(validatedRequest.report!!, validatedRequest.defaults)
                 .forEach { (report, service) ->
-                    sendToDestination(report, service, context, workflowEngine, validatedRequest, destinations, txn)
+                    sendToDestination(report, service, context, workflowEngine, validatedRequest, destinations, actionHistory, txn)
                 }
         }
     }
@@ -226,6 +229,7 @@ class ReportFunction {
         workflowEngine: WorkflowEngine,
         validatedRequest: ValidatedRequest,
         destinations: MutableList<String>,
+        actionHistory: ActionHistory,
         txn: DataAccessTransaction
     ) {
         val serviceDescription = if (service.organization.services.size > 1)
@@ -249,6 +253,7 @@ class ReportFunction {
             }
         }
         workflowEngine.dispatchReport(event, report, txn)
+        actionHistory.trackCreatedReport(event, report, service, validatedRequest)
         context.logger.info("Queue: ${event.toQueueMessage()}")
     }
 
