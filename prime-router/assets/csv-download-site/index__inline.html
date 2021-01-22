@@ -159,8 +159,8 @@
             </h1>
             <h2>Today's results</h2>
 
-            <span th:if="${todays.isEmpty()}"><i>No items found</i></span>
-            <table th:unless="${todays.isEmpty()}" class="usa-table usa-table--borderless prime-table">
+            <span th:if="${todays.isEmpty()}"><em>No items found</em></span>
+            <table th:unless="${todays.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Today's results">
               <thead>
                 <tr>
                   <th scope="col">Date</th>
@@ -190,8 +190,8 @@
 
           <div class="grid-col-12">
             <h2>Previous <span th:text="${days_to_show}"></span> days</h2>
-            <span th:if="${previous.isEmpty()}"><i>No items found</i></span>
-            <table th:unless="${previous.isEmpty()}" class="usa-table usa-table--borderless prime-table">
+            <span th:if="${previous.isEmpty()}"><em>No items found</em></span>
+            <table th:unless="${previous.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Previous results">
               <thead>
                 <tr>
                   <th scope="col">Date</th>
