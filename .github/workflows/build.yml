@@ -10,6 +10,9 @@ defaults:
 
 jobs:
   build:
+    # Do not run on PRs from forks to prevent workflow abuse.
+    # NOTE: changing this condition *may* require adjusting secrets usage in
+    # the workflow steps below.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
 
@@ -23,14 +26,14 @@ jobs:
                    echo "Building for the production environment."
                    echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
                    echo >> $GITHUB_ENV PREFIX=pdhprod
-                   echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_PROD_USER }}
-                   echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_PROD_PWD }}
+                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
+                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
                else
                    echo "Building for the test environment."
                    echo >> $GITHUB_ENV ACR_REPO=pdhtestcontainerregistry.azurecr.io
                    echo >> $GITHUB_ENV PREFIX=pdhtest
-                   echo >> $GITHUB_ENV POSTGRESQL_USER=${{ secrets.POSTGRESQL_TEST_USER }}
-                   echo >> $GITHUB_ENV POSTGRESQL_PWD=${{ secrets.POSTGRESQL_TEST_PWD }}
+                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
+                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
 
       - name: Setup PostgreSQL
@@ -38,8 +41,8 @@ jobs:
         with:
           postgresql version: 11
           postgresql db: prime_data_hub
-          postgresql user: ${{ env.POSTGRESQL_USER }}
-          postgresql password: ${{ env.POSTGRESQL_PWD }}
+          postgresql user: ${{ env.POSTGRES_USER }}
+          postgresql password: ${{ env.POSTGRES_PASSWORD }}
        
       - name: Setup JDK
         uses: actions/setup-java@v1.4.3
@@ -47,7 +50,7 @@ jobs:
            java-version: 11
       
       - name: Build Maven Package
-        run: mvn -B clean package --file pom.xml
+        run: mvn -B clean package --file pom.xml -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest

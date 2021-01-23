@@ -25,7 +25,10 @@ data class SFTPTransportType
     TransportType("SFTP")
 
 data class EmailTransportType
-@JsonCreator constructor(val addresses: List<String>) :
+@JsonCreator constructor(
+    val addresses: List<String>,
+    val from: String = "qtv1@cdc.gov" // TODO: default to a better choice
+) :
     TransportType("EMAIL")
 
 data class RedoxTransportType

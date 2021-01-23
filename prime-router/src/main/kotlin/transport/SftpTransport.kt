@@ -29,9 +29,9 @@ class SftpTransport : ITransport {
             val extension = orgService.format.toExt()
             val fileName = "${orgService.fullName.replace('.', '-')}-$reportId.$extension"
 
-            context.logger.log(Level.INFO, "About to sftp upload $fileName to $user at $host:$port (orgService = ${orgService.fullName})")
+            // context.logger.log(Level.INFO, "About to sftp upload ${sftpTransportType.filePath}/$fileName to $user at $host:$port (orgService = ${orgService.fullName})")
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
-            context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
+            // context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
             null
         } catch (ioException: IOException) {
             context.logger.log(
@@ -74,24 +74,29 @@ class SftpTransport : ITransport {
             sshClient.authPassword(user, pass)
 
             var client = sshClient.newSFTPClient()
+            client.getFileTransfer().setPreserveAttributes(false)
             try {
-                client.put(
-                    object : InMemorySourceFile() {
-                        override fun getName(): String { return fileName }
-                        override fun getLength(): Long { return contents.size.toLong() }
-                        override fun getInputStream(): InputStream { return contents.inputStream() }
-                    },
-                    path
-                )
+
+                client
+                    .put(
+                        object : InMemorySourceFile() {
+                            override fun getName(): String { return fileName }
+                            override fun getLength(): Long { return contents.size.toLong() }
+                            override fun getInputStream(): InputStream { return contents.inputStream() }
+                            override fun isDirectory(): Boolean { return false }
+                            override fun isFile(): Boolean { return true }
+                            override fun getPermissions(): Int { return 777 }
+                        },
+                        path + "/" + fileName
+                    )
                 // TODO: remove this over logging when bug is fixed
-                context.logger.log(Level.INFO, "SFTP PUT succeeded: $fileName")
+                // context.logger.log(Level.INFO, "SFTP PUT succeeded: $fileName")
             } finally {
                 client.close()
-                context.logger.log(Level.INFO, "SFTP CLOSE succeeded: $fileName")
             }
         } finally {
             sshClient.disconnect()
-            context.logger.log(Level.INFO, "SFTP DISCONNECT succeeded: $fileName")
+            // context.logger.log(Level.INFO, "SFTP DISCONNECT succeeded: $fileName")
         }
     }
 }
