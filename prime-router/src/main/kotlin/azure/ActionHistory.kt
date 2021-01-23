@@ -111,9 +111,10 @@ class ActionHistory {
     }
 
     fun trackActionResult(actionResult: String) {
-        // TODO should be able to get this max size from the jooq-generated code.
-        // chop the string down to 2048 if needed.
-        action.actionResult = actionResult.chunked(2048)[0]
+        // kluge to get the max size of the varchar.   2048 as of this writing.
+        val max = ACTION.ACTION_RESULT.getDataType().length()
+        // chop at max size
+        action.actionResult = actionResult.chunked(max)[0]
     }
 
     fun trackActionResult(httpResponseMessage: HttpResponseMessage) {
@@ -245,10 +246,10 @@ class ActionHistory {
     private fun insertReportFile(reportFile: ReportFile, txn: Configuration) {
         DSL.using(txn).newRecord(REPORT_FILE, reportFile).store()
         val fromInfo =
-            if (!reportFile.sendingOrg.isNullOrEmpty()) "${reportFile.sendingOrg}.${reportFile.sendingOrgClient} -->" else ""
+            if (!reportFile.sendingOrg.isNullOrEmpty()) "${reportFile.sendingOrg}.${reportFile.sendingOrgClient} --> " else ""
         val toInfo =
-            if (!reportFile.receivingOrg.isNullOrEmpty()) "--> ${reportFile.receivingOrg}.${reportFile.receivingOrgSvc})" else ""
-        context?.logger?.info("Saved to REPORT_FILE: ${reportFile.reportId} ($fromInfo action ${action.actionName} $toInfo)")
+            if (!reportFile.receivingOrg.isNullOrEmpty()) " --> ${reportFile.receivingOrg}.${reportFile.receivingOrgSvc}" else ""
+        context?.logger?.info("Saved to REPORT_FILE: ${reportFile.reportId} (${fromInfo}action ${action.actionName}$toInfo)")
     }
 
     /**
