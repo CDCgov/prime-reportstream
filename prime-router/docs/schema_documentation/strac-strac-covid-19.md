@@ -98,6 +98,18 @@ The state of the facility which the test was ordered from
 
 ---
 
+**Name**: Ordering_Facility_County
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
 **Name**: Ordering_Facility_ZIP
 
 **Type**: POSTAL_CODE
@@ -741,5 +753,25 @@ Z|No record of this patient
 **Documentation**:
 
 The name of the laboratory which performed the test, can be the same as the sending facility name
+
+---
+
+**Name**: patient_id
+
+**Type**: TEXT
+
+**HL7 Field**: PID-3-1
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_id_type
+
+**Type**: TEXT
+
+**HL7 Field**: PID-3-5
+
+**Cardinality**: [0..1]
 
 ---
