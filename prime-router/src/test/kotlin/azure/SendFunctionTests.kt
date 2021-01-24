@@ -76,11 +76,11 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
 
         // Invoke
-        val event = ReportEvent(Event.Action.SEND, reportId)
+        val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
         // Verify
         assertNotNull(nextEvent)
-        assertEquals(Event.Action.NONE, nextEvent!!.action)
+        assertEquals(Event.EventAction.NONE, nextEvent!!.eventAction)
         assertNull(nextEvent!!.retryToken)
     }
 
@@ -100,12 +100,12 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
-        val event = ReportEvent(Event.Action.SEND, reportId)
+        val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertNotNull(nextEvent)
-        assertEquals(Event.Action.SEND, nextEvent!!.action)
+        assertEquals(Event.EventAction.SEND, nextEvent!!.eventAction)
         assertNotNull(nextEvent!!.retryToken)
         assertEquals(1, nextEvent!!.retryToken?.retryCount)
     }
@@ -126,12 +126,12 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
-        val event = ReportEvent(Event.Action.SEND, reportId)
+        val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertNotNull(nextEvent)
-        assertEquals(Event.Action.SEND, nextEvent!!.action)
+        assertEquals(Event.EventAction.SEND, nextEvent!!.eventAction)
         assertNotNull(nextEvent!!.retryToken)
         assertEquals(3, nextEvent!!.retryToken?.retryCount)
         assertTrue(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2)))
@@ -157,12 +157,12 @@ class SendFunctionTests {
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
-        val event = ReportEvent(Event.Action.SEND, reportId)
+        val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertNotNull(nextEvent)
-        assertEquals(Event.Action.SEND_ERROR, nextEvent!!.action)
+        assertEquals(Event.EventAction.SEND_ERROR, nextEvent!!.eventAction)
         assertNull(nextEvent!!.retryToken)
     }
 

@@ -33,7 +33,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         try {
             context.logger.info("Started Send Function: $message")
             val event = Event.parseQueueMessage(message) as ReportEvent
-            if (event.action != Event.Action.SEND) {
+            if (event.eventAction != Event.EventAction.SEND) {
                 context.logger.warning("Send function received a $message")
                 return
             }
@@ -86,20 +86,20 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             // All OK
             context.logger.info("Successfully sent report: $reportId to $serviceName")
             // TODO: Next action should be WIPE when implemented
-            ReportEvent(Event.Action.NONE, reportId)
+            ReportEvent(Event.EventAction.NONE, reportId)
         } else {
             val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
             if (nextRetryCount >= maxRetryCount) {
                 // Stop retrying and just put the task into an error state
                 context.logger.info("All retries failed.  Send Error report for: $reportId to $serviceName")
-                ReportEvent(Event.Action.SEND_ERROR, reportId)
+                ReportEvent(Event.EventAction.SEND_ERROR, reportId)
             } else {
                 // retry using a back-off strategy
                 val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)
                 val nextRetryTime = OffsetDateTime.now().plusMinutes(waitMinutes)
                 val nextRetryToken = RetryToken(nextRetryCount, nextRetryTransports)
                 context.logger.info("Send Failed.  Will retry sending report: $reportId to $serviceName} in $waitMinutes minutes, at $nextRetryTime")
-                ReportEvent(Event.Action.SEND, reportId, nextRetryTime, nextRetryToken)
+                ReportEvent(Event.EventAction.SEND, reportId, nextRetryTime, nextRetryToken)
             }
         }
     }

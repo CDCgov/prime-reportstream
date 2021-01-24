@@ -238,31 +238,31 @@ class DatabaseAccess(private val create: DSLContext) {
      */
     fun updateHeader(
         reportId: ReportId,
-        currentAction: Event.Action,
-        nextAction: Event.Action,
+        currentEventAction: Event.EventAction,
+        nextEventAction: Event.EventAction,
         nextActionAt: OffsetDateTime? = null,
         retryToken: String? = null,
         txn: DataAccessTransaction,
     ) {
-        fun finishedField(currentAction: Event.Action): Field<OffsetDateTime> {
-            return when (currentAction) {
-                Event.Action.RECEIVE -> TASK.TRANSLATED_AT
-                Event.Action.TRANSLATE -> TASK.TRANSLATED_AT
-                Event.Action.BATCH -> TASK.BATCHED_AT
-                Event.Action.SEND -> TASK.SENT_AT
-                Event.Action.WIPE -> TASK.WIPED_AT
-                Event.Action.BATCH_ERROR, Event.Action.SEND_ERROR, Event.Action.WIPE_ERROR -> TASK.ERRORED_AT
-                Event.Action.NONE -> error("Internal Error: NONE currentAction")
+        fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> {
+            return when (currentEventAction) {
+                Event.EventAction.RECEIVE -> TASK.TRANSLATED_AT
+                Event.EventAction.TRANSLATE -> TASK.TRANSLATED_AT
+                Event.EventAction.BATCH -> TASK.BATCHED_AT
+                Event.EventAction.SEND -> TASK.SENT_AT
+                Event.EventAction.WIPE -> TASK.WIPED_AT
+                Event.EventAction.BATCH_ERROR, Event.EventAction.SEND_ERROR, Event.EventAction.WIPE_ERROR -> TASK.ERRORED_AT
+                Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
             }
         }
 
         DSL
             .using(txn)
             .update(TASK)
-            .set(TASK.NEXT_ACTION, nextAction.toTaskAction())
+            .set(TASK.NEXT_ACTION, nextEventAction.toTaskAction())
             .set(TASK.NEXT_ACTION_AT, nextActionAt)
             .set(TASK.RETRY_TOKEN, if (retryToken != null) JSON.valueOf(retryToken) else null)
-            .set(finishedField(currentAction), OffsetDateTime.now())
+            .set(finishedField(currentEventAction), OffsetDateTime.now())
             .where(TASK.REPORT_ID.eq(reportId))
             .execute()
     }
@@ -330,7 +330,7 @@ class DatabaseAccess(private val create: DSLContext) {
         ): TaskRecord {
             return TaskRecord(
                 report.id,
-                nextAction.action.toTaskAction(),
+                nextAction.eventAction.toTaskAction(),
                 nextAction.at,
                 report.schema.name,
                 report.destination?.fullName ?: "",
@@ -355,7 +355,7 @@ class DatabaseAccess(private val create: DSLContext) {
         ): Task {
             return Task(
                 report.id,
-                nextAction.action.toTaskAction(),
+                nextAction.eventAction.toTaskAction(),
                 nextAction.at,
                 report.schema.name,
                 report.destination?.fullName ?: "",

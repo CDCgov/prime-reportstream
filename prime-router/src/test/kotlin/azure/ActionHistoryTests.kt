@@ -83,7 +83,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackCreatedReport`() {
-        val event1 = ReportEvent(Event.Action.TRANSLATE, UUID.randomUUID(), OffsetDateTime.now())
+        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), OffsetDateTime.now())
         val schema1 = Schema(name = "schema1", topic = "topic1", elements = listOf())
         val report1 = Report(schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")))
         val valReq1 = ReportFunction.ValidatedRequest(

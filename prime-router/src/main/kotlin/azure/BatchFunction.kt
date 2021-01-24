@@ -27,7 +27,7 @@ class BatchFunction {
             context.logger.info("Batch message: $message")
             val workflowEngine = WorkflowEngine()
             val event = Event.parseQueueMessage(message) as ReceiverEvent
-            if (event.action != Event.Action.BATCH) {
+            if (event.eventAction != Event.EventAction.BATCH) {
                 context.logger.warning("Batch function received a $message")
                 return
             }
@@ -49,7 +49,7 @@ class BatchFunction {
                 }
                 outReports.forEach {
                     val outReport = it.copy(destination = receiver)
-                    val outEvent = ReportEvent(Event.Action.SEND, outReport.id)
+                    val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
                     workflowEngine.dispatchReport(outEvent, outReport, txn)
                     context.logger.info("Batch: queued to send ${outEvent.toQueueMessage()}")
                 }

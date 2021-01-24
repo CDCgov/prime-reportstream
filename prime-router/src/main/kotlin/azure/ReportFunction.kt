@@ -238,18 +238,18 @@ class ReportFunction {
             service.organization.description
         val event = when {
             validatedRequest.options == Options.SkipSend -> {
-                ReportEvent(Event.Action.NONE, report.id)
+                ReportEvent(Event.EventAction.NONE, report.id)
             }
             service.batch != null -> {
                 val time = service.batch.nextBatchTime()
                 val destination = "Sending ${report.itemCount} items to $serviceDescription at $time"
                 destinations += destination
-                ReceiverEvent(Event.Action.BATCH, service.fullName, time)
+                ReceiverEvent(Event.EventAction.BATCH, service.fullName, time)
             }
             else -> {
                 val destination = "Sending ${report.itemCount} items to $serviceDescription immediately"
                 destinations += destination
-                ReportEvent(Event.Action.SEND, report.id)
+                ReportEvent(Event.EventAction.SEND, report.id)
             }
         }
         workflowEngine.dispatchReport(event, report, txn)

@@ -107,14 +107,15 @@ class ActionHistory {
             it.writeEndObject()
         }
         // truncate if needed
-        action.actionParams = outStream.toString().chunked(512)[0]
+        val max = ACTION.ACTION_PARAMS.dataType.length()
+        action.actionParams = outStream.toString().chunked(size = max)[0]
     }
 
     fun trackActionResult(actionResult: String) {
         // kluge to get the max size of the varchar.   2048 as of this writing.
-        val max = ACTION.ACTION_RESULT.getDataType().length()
+        val max = ACTION.ACTION_RESULT.dataType.length()
         // chop at max size
-        action.actionResult = actionResult.chunked(max)[0]
+        action.actionResult = actionResult.chunked(size = max)[0]
     }
 
     fun trackActionResult(httpResponseMessage: HttpResponseMessage) {
@@ -191,7 +192,7 @@ class ActionHistory {
 
         val reportFile = ReportFile()
         reportFile.reportId = report.id
-        reportFile.nextAction = event.action.toTaskAction()
+        reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
         reportFile.receivingOrg = service.organization.name
         reportFile.receivingOrgSvc = service.name

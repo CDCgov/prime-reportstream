@@ -54,7 +54,7 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        val event = ReportEvent(Event.Action.NONE, UUID.randomUUID())
+        val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID())
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
 
@@ -84,7 +84,7 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        val event = ReportEvent(Event.Action.NONE, report1.id)
+        val event = ReportEvent(Event.EventAction.NONE, report1.id)
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
 
@@ -117,7 +117,7 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        val event = ReportEvent(Event.Action.RECEIVE, UUID.randomUUID())
+        val event = ReportEvent(Event.EventAction.RECEIVE, UUID.randomUUID())
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
 
@@ -150,8 +150,8 @@ class WorkflowEngineTests {
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
-        val event = ReportEvent(Event.Action.SEND, report1.id)
-        val nextAction = ReportEvent(Event.Action.NONE, report1.id)
+        val event = ReportEvent(Event.EventAction.SEND, report1.id)
+        val nextAction = ReportEvent(Event.EventAction.NONE, report1.id)
         val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
 
         every { accessSpy.fetchAndLockHeader(reportId = eq(report1.id), any()) }
@@ -159,8 +159,8 @@ class WorkflowEngineTests {
         every {
             accessSpy.updateHeader(
                 reportId = eq(report1.id),
-                eq(event.action),
-                eq(nextAction.action),
+                eq(event.eventAction),
+                eq(nextAction.eventAction),
                 any(),
                 any(),
                 any()

@@ -48,7 +48,7 @@ class WorkflowEngine(
     fun receiveReport(report: Report, txn: Configuration? = null) {
         val (bodyFormat, bodyUrl) = blob.uploadBody(report)
         try {
-            val receiveEvent = ReportEvent(Event.Action.RECEIVE, report.id, null)
+            val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, report.id, null)
             db.insertHeader(report, bodyFormat, bodyUrl, receiveEvent, txn)
             report.bodyURL = bodyUrl
         } catch (e: Exception) {
@@ -86,13 +86,13 @@ class WorkflowEngine(
     ) {
         db.transact { txn ->
             val header = db.fetchAndLockHeader(messageEvent.reportId, txn)
-            val currentAction = Event.Action.parseQueueMessage(header.task.nextAction.literal)
+            val currentAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
-            if (currentAction != messageEvent.action) return@transact
+            if (currentAction != messageEvent.eventAction) return@transact
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
             val nextEvent = updateBlock(header, retryToken, txn)
             val retryJson = nextEvent.retryToken?.toJSON()
-            db.updateHeader(header.task.reportId, currentAction, nextEvent.action, nextEvent.at, retryJson, txn)
+            db.updateHeader(header.task.reportId, currentAction, nextEvent.eventAction, nextEvent.at, retryJson, txn)
             queue.sendMessage(nextEvent)
         }
     }
@@ -111,7 +111,7 @@ class WorkflowEngine(
     ) {
         db.transact { txn ->
             val headers = db.fetchAndLockHeaders(
-                messageEvent.action.toTaskAction(),
+                messageEvent.eventAction.toTaskAction(),
                 messageEvent.at,
                 messageEvent.receiverName,
                 maxCount,
@@ -119,11 +119,11 @@ class WorkflowEngine(
             )
             updateBlock(headers, txn)
             headers.forEach {
-                val currentAction = Event.Action.parseQueueMessage(it.task.nextAction.literal)
+                val currentAction = Event.EventAction.parseQueueMessage(it.task.nextAction.literal)
                 db.updateHeader(
                     it.task.reportId,
                     currentAction,
-                    Event.Action.NONE,
+                    Event.EventAction.NONE,
                     nextActionAt = null,
                     retryToken = null,
                     txn
