@@ -171,6 +171,7 @@ class ActionHistory {
             String         schemaName,
             String         schemaTopic,
             String         bodyUrl,
+            String         external_name,
             String         bodyFormat,
             byte[]         blobDigest,
             Integer        itemCount,
@@ -220,14 +221,14 @@ class ActionHistory {
         reportsReceived.values.forEach { it.actionId = action.actionId }
         reportsOut.values.forEach { it.actionId = action.actionId }
         insertReports(txn)
-        generateReportLineages()
+        generateReportLineages(action.actionId)
         insertLineages(txn)
     }
 
     /**
      * Returns the action_id PK of the newly inserted ACTION.
      */
-    private fun insertAction(txn: Configuration): Int {
+    private fun insertAction(txn: Configuration): Long {
         val actionRecord = DSL.using(txn).newRecord(ACTION, action)
         actionRecord.store()
         val actionId = actionRecord.actionId
@@ -259,15 +260,15 @@ class ActionHistory {
      * This is a lovely simplification, because it means that the functions don't have to
      * worry about lineage tracking at all.
      */
-    private fun generateReportLineages() {
+    private fun generateReportLineages(actionId: Long) {
         reportsIn.keys.forEach { parentId ->
             reportsOut.keys.forEach { childId ->
-                reportLineages.add(ReportLineage(null, parentId, childId, null))
+                reportLineages.add(ReportLineage(null, actionId, parentId, childId, null))
             }
         }
         reportsReceived.keys.forEach { parentId ->
             reportsOut.keys.forEach { childId ->
-                reportLineages.add(ReportLineage(null, parentId, childId, null))
+                reportLineages.add(ReportLineage(null, actionId, parentId, childId, null))
             }
         }
     }
