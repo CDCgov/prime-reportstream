@@ -76,13 +76,9 @@ class ActionHistory {
      */
     private val reportLineages = mutableListOf<ReportLineage>()
 
-    constructor(actionStr: String, context: ExecutionContext? = null) {
-        try {
-            action.actionName = TaskAction.valueOf(actionStr)
-            this.context = context
-        } catch (e: IllegalArgumentException) {
-            error("Unknown action $actionStr")
-        }
+    constructor(taskAction: TaskAction, context: ExecutionContext? = null) {
+        action.actionName = taskAction
+        this.context = context
     }
 
     fun trackActionParams(request: HttpRequestMessage<String?>) {
@@ -106,9 +102,13 @@ class ActionHistory {
             it.writeEndObject()
             it.writeEndObject()
         }
-        // truncate if needed
+        trackActionParams(outStream.toString())
+    }
+
+    fun trackActionParams(actionParams: String) {
         val max = ACTION.ACTION_PARAMS.dataType.length()
-        action.actionParams = outStream.toString().chunked(size = max)[0]
+        // truncate if needed
+        action.actionParams = actionParams.chunked(size = max)[0]
     }
 
     fun trackActionResult(actionResult: String) {
@@ -124,7 +124,7 @@ class ActionHistory {
 
     /**
      * Sanity check: No report can be tracked twice, either as an input or output.
-     * Prevents loops and other shenanigans.
+     * Prevents at least tight loops, and other shenanigans.
      */
     private fun isReportAlreadyTracked(id: UUID): Boolean {
         return reportsReceived.containsKey(id) ||
@@ -133,9 +133,21 @@ class ActionHistory {
     }
 
     /**
-     * Use this to record history info about an externally submitted report.
+     * track that this report is used in this Action.
+     * Note: the report is already in the database.  Just need this for lineage purposes.
      */
-    fun trackExternalIncomingReport(incomingReport: ReportFunction.ValidatedRequest) {
+    fun trackExistingInputReport(reportId: UUID) {
+        if (isReportAlreadyTracked(reportId)) {
+            error("Bug:  attempt to track history of a report ($reportId) we've already associated with this action")
+        }
+        val reportFile = ReportFile()
+        reportFile.reportId = reportId
+        reportsIn[reportId] = reportFile
+    }
+    /**
+     * Use this to record history info about a new externally submitted report.
+     */
+    fun trackExternalInputReport(incomingReport: ReportFunction.ValidatedRequest) {
         val report = incomingReport.report ?: error("No report to track!")
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -184,8 +196,7 @@ class ActionHistory {
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        service: OrganizationService,
-        validatedRequest: ReportFunction.ValidatedRequest
+        service: OrganizationService
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -208,12 +219,8 @@ class ActionHistory {
     /**
      * Save the history about this action and related reports
      */
-    fun saveToDb(db: DatabaseAccess, txn: Configuration? = null) {
-        if (txn != null) {
-            insertAll(txn)
-        } else {
-            db.transact { innerTxn -> insertAll(innerTxn) }
-        }
+    fun saveToDb(txn: Configuration) {
+        insertAll(txn)
     }
 
     private fun insertAll(txn: Configuration) {

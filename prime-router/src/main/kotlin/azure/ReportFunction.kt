@@ -16,6 +16,7 @@ import gov.cdc.prime.router.OrganizationClient
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
@@ -63,7 +64,7 @@ class ReportFunction {
     ): HttpResponseMessage {
         try {
             val workflowEngine = WorkflowEngine()
-            var actionHistory = ActionHistory("receive", context)
+            var actionHistory = ActionHistory(TaskAction.receive, context)
             actionHistory.trackActionParams(request)
             val validatedRequest = validateRequest(workflowEngine, request)
             val httpResponseMessage = when {
@@ -83,7 +84,7 @@ class ReportFunction {
                     routeReport(context, workflowEngine, validatedRequest, destinations, actionHistory)
                     val responseBody = createResponseBody(validatedRequest, destinations)
                     workflowEngine.receiveReport(validatedRequest.report)
-                    actionHistory.trackExternalIncomingReport(validatedRequest)
+                    actionHistory.trackExternalInputReport(validatedRequest)
                     createdResponse(request, validatedRequest, responseBody)
                 }
             }
@@ -253,7 +254,7 @@ class ReportFunction {
             }
         }
         workflowEngine.dispatchReport(event, report, txn)
-        actionHistory.trackCreatedReport(event, report, service, validatedRequest)
+        actionHistory.trackCreatedReport(event, report, service)
         context.logger.info("Queue: ${event.toQueueMessage()}")
     }
 

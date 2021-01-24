@@ -160,8 +160,12 @@ class WorkflowEngine(
         return blob.downloadBlob(header.task.bodyUrl)
     }
 
-    fun recordAction(actionHistory: ActionHistory) {
-        actionHistory.saveToDb(db)
+    fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
+        if (txn != null) {
+            actionHistory.saveToDb(txn)
+        } else {
+            db.transact { innerTxn -> actionHistory.saveToDb(innerTxn) }
+        }
     }
 
     companion object {

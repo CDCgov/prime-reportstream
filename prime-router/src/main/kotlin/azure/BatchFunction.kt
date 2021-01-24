@@ -34,6 +34,8 @@ class BatchFunction {
             val receiver = workflowEngine.metadata.findService(event.receiverName)
                 ?: error("Internal Error: receiver name ${event.receiverName}")
             val maxBatchSize = receiver.batch?.maxReportCount ?: defaultBatchSize
+            val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
+            actionHistory.trackActionParams(message)
 
             workflowEngine.handleReceiverEvent(event, maxBatchSize) { headers, txn ->
                 if (headers.isEmpty()) {
@@ -42,7 +44,13 @@ class BatchFunction {
                 } else {
                     context.logger.info("Batch contains ${headers.size} reports")
                 }
-                val inReports = headers.map { workflowEngine.createReport(it) }
+                val inReports = headers.map {
+                    val report = workflowEngine.createReport(it)
+                    // todo replace the use of Event.Header.Task with info from ReportFile.
+                    // todo also I think we don't need `sources` any more.
+                    actionHistory.trackExistingInputReport(it.task.reportId)
+                    report
+                }
                 val outReports = when (receiver.batch?.operation) {
                     OrganizationService.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
@@ -51,8 +59,10 @@ class BatchFunction {
                     val outReport = it.copy(destination = receiver)
                     val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
                     workflowEngine.dispatchReport(outEvent, outReport, txn)
+                    actionHistory.trackCreatedReport(outEvent, outReport, receiver)
                     context.logger.info("Batch: queued to send ${outEvent.toQueueMessage()}")
                 }
+                workflowEngine.recordAction(actionHistory, txn)
             }
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, "Batch exception", e)
