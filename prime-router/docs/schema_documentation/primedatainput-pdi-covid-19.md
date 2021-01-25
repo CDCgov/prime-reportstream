@@ -182,6 +182,18 @@ unique id to track the usage of the message
 
 ---
 
+**Name**: Corrected_result_ID
+
+**Type**: ID
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
+
+---
+
 **Name**: placer_order_id
 
 **Type**: ID
