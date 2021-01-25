@@ -40,7 +40,7 @@ elements:
     csvFields: [{ name: SSN }]
 
   - name: patient_dob
-    csvFields: [{ name: Birth Date, format: "YYYYMMDD" }]
+    csvFields: [{ name: Birth Date }]
 
   - name: patient_gender
     csvFields: [{ name: Sex }]
@@ -49,10 +49,10 @@ elements:
     csvFields: [{ name: Ethnicity }]
 
   - name: specimen_collection_date_time
-    csvFields: [{ name: DateColl, format: "YYYYMMDD" }]
+    csvFields: [{ name: DateColl }]
 
   - name: test_result_report_date
-    csvFields: [{ name: ResultDate, format: "YYYYMMDD" }]
+    csvFields: [{ name: ResultDate }]
 
   - name: test_performed_code
     csvFields: [{ name: LOINC }]
