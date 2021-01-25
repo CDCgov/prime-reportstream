@@ -22,7 +22,7 @@ elements:
 
   - name: patient_address
     csvFields: [ { name: Patient Address } ]
-    mapper: 'concat(patient_street_address, patient_street_address2)'
+    mapper: 'concat(patient_street, patient_street2)'
 
   - name: patient_state
     csvFields:  [ { name: Patient State } ]
@@ -119,3 +119,11 @@ elements:
 
   - name: pregnant
     csvFields: [{ name: Pregnant }]
+
+  - name: patient_street
+
+  - name: patient_street2
+
+  - name: ordering_provider_last_name
+
+  - name: ordering_provider_first_name

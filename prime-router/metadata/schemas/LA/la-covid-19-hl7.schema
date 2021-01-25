@@ -9,7 +9,7 @@ elements:
 
   - name: sending_facility
 
-  - name: receving_application
+  - name: receiving_application
 
   - name: receiving_facility
 

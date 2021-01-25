@@ -268,18 +268,18 @@ then
   # TODO: once we've imported HL7 we can finish this step
 
   echo Now generate fake LA data in CSV
-  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19-csv --output-dir $outputdir --target-state LA)
+  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --target-state LA)
   parse_prime_output_for_filename "$text" $LA_FILE_SEARCH_STR
   fake_la=$filename
 
   echo Now send that fake LA data through the router.
-  text=$(./prime data --input-schema la/la-covid-19-csv --input $fake_la --output-dir $outputdir)
+  text=$(./prime data --input-schema la/la-covid-19 --input $fake_la --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $LA_FILE_SEARCH_STR
   fake_la2=$filename
   compare_files "Fake LA Orig -> Fake LA2" $fake_la $fake_la2
 
   echo Now send _those_ LA results back in to their own schema and export again!
-  text=$(./prime data --input-schema la/la-covid-19-csv --input $fake_la2 --output-dir $outputdir)
+  text=$(./prime data --input-schema la/la-covid-19 --input $fake_la2 --output-dir $outputdir)
   fake_la3=$filename
   compare_files "FakeLA2 -> FakeLA3" $fake_la2 $fake_la3
 fi
