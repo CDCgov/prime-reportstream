@@ -97,4 +97,117 @@ class MetadataTests {
         )
         assertFails { metadata.loadOrganizationList(listOf(org1)) }
     }
+
+    @Test
+    fun `test schema contamination`() {
+        // arrange
+        val valueSetA = ValueSet(
+            "a_values",
+            ValueSet.SetSystem.LOCAL,
+            values = listOf(ValueSet.Value("Y", "Yes"), ValueSet.Value("N", "No"))
+        )
+        val elementA = Element("a", Element.Type.CODE, valueSet = "a_values", valueSetRef = valueSetA)
+        val baseSchema = Schema(name = "base_schema", topic = "test", elements = listOf(elementA))
+        val childSchema = Schema(
+            name = "child_schema",
+            extends = "base_schema",
+            topic = "test",
+            elements = listOf(
+                Element(
+                    "a",
+                    altValues = listOf(ValueSet.Value("J", "Ja"), ValueSet.Value("N", "Nein")),
+                    csvFields = listOf(Element.CsvField("Ja Oder Nein", format = "\$code"))
+                )
+            )
+        )
+        val siblingSchema = Schema(
+            name = "sibling_schema",
+            extends = "base_schema",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = listOf(Element.CsvField("yes/no", format = null)))
+            )
+        )
+        val twinSchema = Schema(
+            name = "twin_schema",
+            basedOn = "base_schema",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = listOf(Element.CsvField("yes/no", format = null)))
+            )
+        )
+
+        // act
+        val metadata = Metadata()
+        metadata.loadValueSets(valueSetA)
+        metadata.loadSchemas(
+            baseSchema,
+            childSchema,
+            siblingSchema,
+            twinSchema
+        )
+
+        // assert
+        val elementName = "a"
+        val parent = metadata.findSchema("base_schema")
+        assertNotNull(parent)
+        assertTrue(parent.findElement(elementName)?.csvFields.isNullOrEmpty())
+        // the first child element
+        val child = metadata.findSchema("child_schema")
+        assertNotNull(child)
+        val childElement = child.findElement(elementName)
+        assertNotNull(childElement)
+        assertEquals("\$code", childElement.csvFields?.first()?.format)
+        // sibling uses extends
+        val sibling = metadata.findSchema("sibling_schema")
+        assertNotNull(sibling)
+        val siblingElement = sibling.findElement(elementName)
+        assertNotNull(siblingElement)
+        assertTrue(siblingElement.csvFields?.count() == 1)
+        assertNull(siblingElement.csvFields?.first()?.format)
+        // twin uses basedOn instead of extends
+        val twin = metadata.findSchema("twin_schema")
+        assertNotNull(twin)
+        val twinElement = twin.findElement(elementName)
+        assertNotNull(twinElement)
+        assertTrue(twinElement.csvFields?.count() == 1)
+        assertNull(twinElement.csvFields?.first()?.format)
+    }
+
+    @Test
+    fun `test valueset merging`() {
+        // arrange
+        val valueSet = ValueSet(
+            "a", ValueSet.SetSystem.LOCAL,
+            values = listOf(
+                ValueSet.Value("Y", "Yes"),
+                ValueSet.Value("N", "No"),
+                ValueSet.Value("UNK", "Unknown"),
+            )
+        )
+
+        val emptyAltValues = listOf<ValueSet.Value>()
+        val replacementValues = listOf(
+            ValueSet.Value("U", "Unknown", replaces = "UNK")
+        )
+        val additionalValues = listOf(
+            ValueSet.Value("M", "Maybe")
+        )
+        // act
+        val shouldBeSame = valueSet.mergeAltValues(emptyAltValues)
+        val shouldBeDifferent = valueSet.mergeAltValues(replacementValues)
+        val shouldBeExtended = valueSet.mergeAltValues(additionalValues)
+
+        // assert
+        assertSame(valueSet, shouldBeSame)
+        assertNotSame(valueSet, shouldBeDifferent)
+
+        assertNotNull(shouldBeSame.values.find { it.code.equals("UNK", ignoreCase = true) })
+        assertNotNull(shouldBeDifferent.values.find { it.code.equals("U", ignoreCase = true) })
+        assertNotNull(shouldBeDifferent.values.find { it.replaces.equals("UNK", ignoreCase = true) })
+        assertNull(shouldBeDifferent.values.find { it.code.equals("UNK", ignoreCase = true) })
+
+        assertNotNull(shouldBeExtended.values.find { it.code.equals("M", ignoreCase = true) })
+        assertNotNull(shouldBeExtended.values.find { it.code.equals("UNK", ignoreCase = true) })
+    }
 }

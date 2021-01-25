@@ -1,0 +1,128 @@
+---
+name: nd-covid-19
+description: ND COVID-19
+referenceUrl: https://www.health.nd.gov/sites/www/files/documents/Files/MSS/MU/ELR_CondensedSpec.pdf
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+elements:
+    # msh section
+    - name: sending_application
+
+    # todo: need sending facility, for now the same as the application
+    - name: sending_facility
+
+    - name: reporting_facility_name
+
+    - name: reporting_facility_clia
+
+    - name: receiving_application
+      default: Maven^2.16.840.1.114222.4.3.4.34.1.1^ISO
+
+    - name: receiving_facility
+      default: NDDOH^2.16.840.1.113883.3.89.109.100.1.3^ISO
+
+    # pid section
+    - name: patient_last_name
+
+    - name: patient_first_name
+
+    - name: patient_middle_name
+
+    - name: patient_dob
+
+    - name: patient_gender
+
+    - name: patient_race
+
+    - name: patient_street
+
+    - name: patient_street2
+
+    - name: patient_city
+
+    - name: patient_state
+
+    - name: patient_zip_code
+
+    - name: patient_phone_number
+
+    # orc section
+    - name: ordering_facility_name
+
+    - name: ordering_facility_street
+
+    - name: ordering_facility_street2
+
+    - name: ordering_facility_city
+
+    - name: ordering_facility_state
+
+    - name: ordering_facility_zip_code
+
+    - name: ordering_provider_street
+
+    - name: ordering_provider_street2
+
+    - name: ordering_provider_city
+
+    - name: ordering_provider_state
+
+    - name: ordering_provider_zip_code
+
+    # obr section
+    - name: filler_order_id
+
+    # todo: universal service identifier - OBR.4
+
+    # observation date time - OBR.7 comes from specimen_collection_date_time
+
+    # todo: specimen source - OBR.15
+
+    # ordering provider - OBR.16 - comes from ordering provider fields
+    - name: ordering_provider_first_name
+
+    - name: ordering_provider_last_name
+
+    - name: ordering_provider_id
+
+    - name: ordering_provider_id_authority
+
+    - name: ordering_provider_id_authority_type
+
+    - name: ordering_provider_middle_name
+
+    - name: ordering_provider_middle_initial
+
+    - name: test_result_status
+
+    # obx section
+    - name: value_type
+    # todo: observation identifier - OBX.3
+    - name: test_result_sub_id
+    - name: test_result
+    - name: observation_result_status
+    # date time of the observation - OBX-14 comes from specimen_collection_date_time
+    # todo: producers reference - OBX.15
+
+    # spm section
+    - name: specimen_id
+
+    - name: specimen_type
+
+    - name: specimen_collection_method
+
+    - name: specimen_source_site_code
+
+    - name: specimen_description
+
+    - name: specimen_collection_date_time
+
+    - name: specimen_received_date_time
+
+    # nte section
+    - name: comment_source
+
+    - name: comment
+
+    - name: comment_type

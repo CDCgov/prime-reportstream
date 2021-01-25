@@ -44,7 +44,7 @@ printf "\nRun this to submit a test report locally:\n"
 printf "     $boilerplate_glop $localfile_glop $local_url\n"
 
 printf "\nTo run the prime cli locally:\n"
-printf "     ./prime --input_schema primedatainput/pdi-covid-19 --input ./src/test/csv_test_files/input/simplereport.csv --route --output_dir . \n"
+printf "     ./prime data --input-schema primedatainput/pdi-covid-19 --input ./src/test/csv_test_files/input/simplereport.csv --route --output-dir . \n"
 
 
 
