@@ -85,6 +85,11 @@ data class Element(
     // in the schema files so we can generate documentation off of
     // the file
     val documentation: String? = null,
+
+    // used for the concatenation mapper. the element carries this
+    // value around and into the mapper itself so the interface for the
+    // mapper remains as generic as possible
+    val delimiter: String? = null,
 ) {
     /**
      * Types of elements. Types imply a specific format and fake generator.
@@ -190,6 +195,7 @@ data class Element(
             redoxOutputFields = this.redoxOutputFields ?: baseElement.redoxOutputFields,
             documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
+            delimiter = this.delimiter ?: baseElement.delimiter,
         )
     }
 
@@ -240,33 +246,35 @@ data class Element(
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
-                if (format == altDisplayToken) {
-                    toAltDisplay(normalizedValue)
-                        // TODO Revisit: there may be times that normalizedValue is not an altValue
-                        ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
-                } else {
-                    if (valueSetRef == null)
-                        error("Schema Error: missing value set for '$name'")
-                    when (format) {
-                        caretToken -> {
-                            val display = valueSetRef.toDisplayFromCode(normalizedValue)
-                                ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                            "$normalizedValue^$display^${valueSetRef.systemCode}"
-                        }
-                        displayToken -> {
-                            valueSetRef.toDisplayFromCode(normalizedValue)
-                                ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                        }
-                        systemToken -> {
-                            // Very confusing, but this special case is in the HHS Guidance Confluence page
-                            if (valueSetRef.name == "hl70136" && normalizedValue == "UNK")
-                                "NULLFL"
-                            else
-                                valueSetRef.systemCode
-                        }
-                        else ->
-                            normalizedValue
+                when (format) {
+                    // TODO Revisit: there may be times that normalizedValue is not an altValue
+                    altDisplayToken ->
+                        toAltDisplay(normalizedValue)
+                            ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
+                    codeToken ->
+                        toCode(normalizedValue)
+                            ?: error(
+                                "Schema Error: '$normalizedValue' is not in valueSet '$valueSet' for '$name'/'$format'. " +
+                                    "\nAvailable values are ${valueSetRef?.values?.joinToString { "${it.code} -> ${it.display}" }}" +
+                                    "\nAlt values (${altValues?.count()}) are ${altValues?.joinToString { "${it.code} -> ${it.display}" }}"
+                            )
+                    caretToken -> {
+                        val display = valueSetRef?.toDisplayFromCode(normalizedValue)
+                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                        "$normalizedValue^$display^${valueSetRef.systemCode}"
                     }
+                    displayToken -> {
+                        valueSetRef?.toDisplayFromCode(normalizedValue)
+                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                    }
+                    systemToken -> {
+                        // Very confusing, but this special case is in the HHS Guidance Confluence page
+                        if (valueSetRef?.name == "hl70136" && normalizedValue == "UNK")
+                            "NULLFL"
+                        else
+                            valueSetRef?.systemCode ?: error("valueSetRef for $valueSet is null!")
+                    }
+                    else -> normalizedValue
                 }
             }
             Type.TELEPHONE -> {
@@ -390,6 +398,11 @@ data class Element(
                         displayToken ->
                             if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
                                 "Invalid code: '$formattedValue' not a display value for element '$name'"
+                        codeToken -> {
+                            val values = altValues ?: valueSetRef.values
+                            if (values.find { it.code == formattedValue } != null) null else
+                                "Invalid code: '$formattedValue' is not a code value for element '$name'"
+                        }
                         else ->
                             if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
                                 "Invalid Code: '$formattedValue' does not match any codes for '$name'"
@@ -494,19 +507,19 @@ data class Element(
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
-                if (format == altDisplayToken) {
-                    toAltCode(formattedValue)
-                        ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
-                } else {
-                    if (valueSetRef == null) error("Schema Error: missing value set for $name")
-                    when (format) {
-                        displayToken ->
-                            valueSetRef.toCodeFromDisplay(formattedValue)
-                                ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
-                        else ->
-                            valueSetRef.toNormalizedCode(formattedValue)
-                                ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
-                    }
+                when (format) {
+                    altDisplayToken ->
+                        toAltCode(formattedValue)
+                            ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
+                    codeToken ->
+                        toCode(formattedValue)
+                            ?: error("Invalid code '$formattedValue' is not a display value in valueSet for '$name")
+                    displayToken ->
+                        valueSetRef?.toCodeFromDisplay(formattedValue)
+                            ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                    else ->
+                        valueSetRef?.toNormalizedCode(formattedValue)
+                            ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
                 }
             }
             Type.TELEPHONE -> {
@@ -632,6 +645,16 @@ data class Element(
         val altValue = altValues.find { altDisplay.equals(it.display, ignoreCase = true) }
             ?: altValues.find { "*" == it.display }
         return altValue?.code
+    }
+
+    fun toCode(code: String): String? {
+        if (!isCodeType) error("Internal Error: asking for codeValue for a non-code type")
+        // if there are alt values, use those, otherwise, use the valueSet
+        val values = valueSetRef?.values ?: error("Unable to find a value set for $name.")
+        val codeValue = values.find {
+            code.equals(it.code, ignoreCase = true) || code.equals(it.replaces, ignoreCase = true)
+        } ?: values.find { "*" == it.code }
+        return codeValue?.code
     }
 
     companion object {
