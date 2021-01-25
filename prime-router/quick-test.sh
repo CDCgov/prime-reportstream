@@ -205,7 +205,7 @@ fi
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
-  text=$(./prime --input_fake 50 --input_schema nd/nd-covid-19 --output_dir $outputdir --target-state ND --output_hl7)
+  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --output-hl7)
   parse_prime_output_for_filename "$text" "/nd"
 
   echo Now send that fake ND data through the router
