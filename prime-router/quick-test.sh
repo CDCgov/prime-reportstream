@@ -22,6 +22,7 @@ NC='\033[0m' # No Color
 # let's make it possible for run for different states
 RUN_AZ=0
 RUN_FL=0
+RUN_ND=0
 # always should run, but we'll leave this here for now in case that could change at some point
 RUN_STANDARD=1
 RUN_ALL=0
@@ -38,6 +39,7 @@ do
   case "$arg" in
     fl | FL) RUN_FL=1;;
     az | AZ) RUN_AZ=1;;
+    nd | ND) RUN_ND=1;;
     all | ALL) RUN_ALL=1;;
     merge | MERGE) RUN_MERGE=1;;
   esac
@@ -47,6 +49,7 @@ if [ $RUN_ALL -ne 0 ]
 then
   RUN_FL=1
   RUN_AZ=1
+  RUN_ND=1
   RUN_STANDARD=1
   RUN_MERGE=1
 fi
@@ -92,6 +95,18 @@ function compare_files {
     printf "diff $expected $actual\n"
   else
     printf "File comparison ${GREEN}TEST PASSED${NC}: No differences found in $schemaName data. This is the $schemaName output file:\n\t$actual\n"
+  fi
+}
+
+# Used in merge testing, below.
+function count_lines {
+  filename=$1
+  searchStr=$2
+  expectedNum=$3
+  numlines=$(grep -c $searchStr $filename)
+  if [ $numlines -ne $expectedNum ] ; then
+    printf "${RED}*** ERROR ***:Expecting $expectedNum lines of $searchStr data, but got $numlines${NC}\n"
+    printf "Problem found in $filename\n"
   fi
 }
 
@@ -186,17 +201,20 @@ then
   compare_files "FakeFL2 -> FakeFL3" $fake_fl2 $fake_fl3
 fi
 
-# Used in merge testing, below. 
-function count_lines {
-  filename=$1
-  searchStr=$2
-  expectedNum=$3
-  numlines=$(grep -c $searchStr $filename)
-  if [ $numlines -ne $expectedNum ] ; then
-    printf "${RED}*** ERROR ***:Expecting $expectedNum lines of $searchStr data, but got $numlines${NC}\n"
-    printf "Problem found in $filename\n"
-  fi
-}
+# run north dakota
+if [ $RUN_ND -ne 0 ]
+then
+  echo Generate fake ND data, HL7!
+  text=$(./prime --input_fake 50 --input_schema nd/nd-covid-19 --output_dir $outputdir --target-state ND --output_hl7)
+  parse_prime_output_for_filename "$text" "/nd"
+
+  echo Now send that fake ND data through the router
+  # TODO: can we import HL7?
+  # TODO: how do we compare HL7?
+
+  echo Now those _those_ ND results back in to their own schema and export again!
+  # TODO: once we've imported HL7 we can finish this step
+fi
 
 if [ $RUN_MERGE -ne 0 ]
 then
