@@ -258,30 +258,23 @@ data class Element(
                                     "\nAvailable values are ${valueSetRef?.values?.joinToString { "${it.code} -> ${it.display}" }}" +
                                     "\nAlt values (${altValues?.count()}) are ${altValues?.joinToString { "${it.code} -> ${it.display}" }}"
                             )
-                    else -> {
-                        if (valueSetRef == null)
-                            error("Schema Error: missing value set for '$name'")
-                        when (format) {
-                            caretToken -> {
-                                val display = valueSetRef.toDisplayFromCode(normalizedValue)
-                                    ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                                "$normalizedValue^$display^${valueSetRef.systemCode}"
-                            }
-                            displayToken -> {
-                                valueSetRef.toDisplayFromCode(normalizedValue)
-                                    ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
-                            }
-                            systemToken -> {
-                                // Very confusing, but this special case is in the HHS Guidance Confluence page
-                                if (valueSetRef.name == "hl70136" && normalizedValue == "UNK")
-                                    "NULLFL"
-                                else
-                                    valueSetRef.systemCode
-                            }
-                            else ->
-                                normalizedValue
-                        }
+                    caretToken -> {
+                        val display = valueSetRef?.toDisplayFromCode(normalizedValue)
+                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                        "$normalizedValue^$display^${valueSetRef.systemCode}"
                     }
+                    displayToken -> {
+                        valueSetRef?.toDisplayFromCode(normalizedValue)
+                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                    }
+                    systemToken -> {
+                        // Very confusing, but this special case is in the HHS Guidance Confluence page
+                        if (valueSetRef?.name == "hl70136" && normalizedValue == "UNK")
+                            "NULLFL"
+                        else
+                            valueSetRef?.systemCode ?: error("valueSetRef for $valueSet is null!")
+                    }
+                    else -> normalizedValue
                 }
             }
             Type.TELEPHONE -> {
@@ -521,17 +514,12 @@ data class Element(
                     codeToken ->
                         toCode(formattedValue)
                             ?: error("Invalid code '$formattedValue' is not a display value in valueSet for '$name")
-                    else -> {
-                        if (valueSetRef == null) error("Schema Error: missing value set for $name")
-                        when (format) {
-                            displayToken ->
-                                valueSetRef.toCodeFromDisplay(formattedValue)
-                                    ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
-                            else ->
-                                valueSetRef.toNormalizedCode(formattedValue)
-                                    ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
-                        }
-                    }
+                    displayToken ->
+                        valueSetRef?.toCodeFromDisplay(formattedValue)
+                            ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                    else ->
+                        valueSetRef?.toNormalizedCode(formattedValue)
+                            ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
                 }
             }
             Type.TELEPHONE -> {
