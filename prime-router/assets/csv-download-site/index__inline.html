@@ -9,7 +9,7 @@
     <style>
         body{display:flex;min-height:100vh;flex-direction:column}main{flex:1;width:100%}.prime-user-account{margin-bottom:.75rem;font-size:.88rem;vertical-align:u-text("vertical-align");line-height:1.25rem;text-align:right}.prime-table{width:100%}.prime-table thead th{border-bottom:2px solid}.prime-table tbody td,.prime-table tbody th{border-color:#dfe1e2}.prime-identifier{background-color:#f0f0f0;color:#1b1b1b}.prime-identifier .prime-identifier__domain{color:#565c65}.prime-identifier .prime-identifier__disclaimer a:link,.prime-identifier .prime-identifier__disclaimer a:visited,.prime-identifier .prime-identifier__disclaimer a:active{color:#1b1b1b}.prime-identifier .prime-identifier__disclaimer a:hover{color:#71767a}
     </style>
-        <script type="text/javascript">
+        <script type="text/javascript" th:inline="javascript">
             function removeItem(sKey, sPath, sDomain) {
                 document.cookie = encodeURIComponent(sKey) + 
                             "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + 
@@ -18,9 +18,15 @@
             }
     
             function logout(){
-                removeItem("user")
-                removeItem("organization")
+                removeItem("jwt")
                 window.location.replace("http://www.cdc.gov");
+            }
+
+            window.location.hash = "no-back-button";
+            window.location.hash = "Again-No-back-button"; 
+
+            window.onhashchange = function(){
+                window.location.hash = "no-back-button";
             }
         </script>
     <title>CDC PRIME Data Hub - Download</title>
@@ -124,7 +130,7 @@
         <div class="usa-navbar">
           <div class="usa-logo" id="basic-logo">
             <em class="usa-logo__text"
-              ><a href="/" title="Home" aria-label="Home">PRIME Data Hub</a></em
+              ><a th:href="@{${OKTA_redirect}}" title="Home" aria-label="Home">PRIME Data Hub</a></em
             >
           </div>
           <button class="usa-menu-btn">Menu</button>
@@ -159,7 +165,7 @@
             </h1>
             <h2>Today's results</h2>
 
-            <span th:if="${todays.isEmpty()}"><em>No items found</em></span>
+            <span th:if="${todays.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>`.</em></span>
             <table th:unless="${todays.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Today's results">
               <thead>
                 <tr>
@@ -172,15 +178,15 @@
               </thead>
               <tbody class="font-mono-2xs">
                 <tr th:each="result : ${todays}">
-                  <th data-title="date" scope="row" th:text="${result.date}"></th>
+                  <th data-title="date" scope="row"><span th:text="${result.date}"></span> GMT</th>
                   <th data-title="receiver" scope="row" th:text="${result.receiver}"></th>
                   <td data-title="expires">
-                    <span th:text="${result.expires}"></span> day(s)
+                    <span th:text="${result.expires}"></span> <span th:if="${result.expires > 1}"> days</span><span th:unless="${result.expires>1}"> day</span>
                   </td>
                   <td data-title="Total tests" th:text="${result.total}">-</td>
                   <td data-title="File">
                     <span>
-                      <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download CSV</a>
+                      <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download <span th:text="${result.format}"></span></a>
                     </span>
                   </td>
                 </tr>
@@ -190,7 +196,7 @@
 
           <div class="grid-col-12">
             <h2>Previous <span th:text="${days_to_show}"></span> days</h2>
-            <span th:if="${previous.isEmpty()}"><em>No items found</em></span>
+            <span th:if="${previous.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
             <table th:unless="${previous.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Previous results">
               <thead>
                 <tr>
@@ -204,15 +210,15 @@
               <tbody class="font-mono-2xs">
                 <!-- {{ for result in results }} -->
                 <tr th:each="result : ${previous}">
-                  <th data-title="date" scope="row" th:text="${result.date}"></th>
+                  <th data-title="date" scope="row"><span  th:text="${result.date}"></span> GMT</th>
                   <th data-title="receiver" scope="row" th:text="${result.receiver}"></th>
                   <td data-title="expires">
-                    <span th:text="${result.expires}"></span> day(s)
+                    <span th:text="${result.expires}"></span> <span th:if="${result.expires > 1}"> days</span><span th:unless="${result.expires>1}"> day</span>
                   </td>
                   <td data-title="Total tests" th:text="${result.total}">-</td>
                   <td data-title="File">
                     <span>
-                        <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download CSV</a>
+                        <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download <span th:text="${result.format}"></span></a>
                     </span>
                   </td>
                 </tr>
@@ -247,13 +253,11 @@
             <p class="usa-identifier__identity-domain prime-identifier__domain">
               cdc.gov
             </p>
-            <p
-              class="usa-identifier__identity-disclaimer prime-identifier__disclaimer"
-            >
-              An official website of the
-              <a href="https://cdc.gov"
-                >Centers for Disease Control and Prevention</a
-              >
+            <p class="usa-identifier__identity-disclaimer prime-identifier__disclaimer">
+              An official website of the <a href="https://cdc.gov" target="_blank">Centers for Disease Control and Prevention</a>
+            </p>
+            <p>
+                <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>
             </p>
           </div>
         </div>
