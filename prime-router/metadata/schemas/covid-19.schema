@@ -34,7 +34,7 @@ elements:
 
   - name: device_id
     type: TABLE
-    table: LIVD-2020-11-18
+    table: LIVD-SARS-CoV-2-2021-01-20
     mapper: obx17()
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
@@ -44,7 +44,7 @@ elements:
 
   - name: device_id_type
     type: TABLE
-    table: LIVD-2020-11-18
+    table: LIVD-SARS-CoV-2-2021-01-20
     mapper: obx17Type()
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
@@ -83,7 +83,7 @@ elements:
 
   - name: equipment_model_id
     type: TABLE
-    table: LIVD-2020-11-18
+    table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Equipment UID
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
@@ -94,7 +94,7 @@ elements:
 
   - name: equipment_model_id_type
     type: TABLE
-    table: LIVD-2020-11-18
+    table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Equipment UID Type
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
@@ -105,7 +105,7 @@ elements:
 
   - name: equipment_model_name
     type: TABLE
-    table: LIVD-2020-11-18
+    table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Model
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
@@ -114,7 +114,7 @@ elements:
 
   - name: equipment_manufacture
     type: TABLE
-    table: LIVD-2020-11-18
+    table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Manufacturer
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
@@ -195,8 +195,8 @@ elements:
 
   - name: ordered_test_code
     type: TABLE
-    table: LIVD-2020-11-18
-    tableColumn: LOINC Order Code
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: Test Ordered LOINC Code
     mapper: lookup(equipment_model_name)
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
@@ -204,8 +204,8 @@ elements:
 
   - name: ordered_test_name
     type: TABLE
-    table: LIVD-2020-11-18
-    tableColumn: LOINC Order Code Long Name
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: Test Ordered LOINC Long Name
     mapper: lookup(equipment_model_name)
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
@@ -831,7 +831,7 @@ elements:
 
   - name: test_kit_name_id
     type: TABLE
-    table: LIVD-2020-11-18
+    table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Testkit Name ID
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
@@ -840,7 +840,7 @@ elements:
 
   - name: test_kit_name_id_type
     type: TABLE
-    table: LIVD-2020-11-18
+    table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Testkit Name ID Type
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
@@ -854,8 +854,8 @@ elements:
 
   - name: test_performed_code
     type: TABLE
-    table: LIVD-2020-11-18
-    tableColumn: LOINC Code
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: Test Performed LOINC Code
     mapper: lookup(equipment_model_name)
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
@@ -864,8 +864,8 @@ elements:
 
   - name: test_performed_name
     type: TABLE
-    table: LIVD-2020-11-18
-    tableColumn: LOINC Long Name
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: Test Performed LOINC Long Name
     mapper: lookup(equipment_model_name)
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
