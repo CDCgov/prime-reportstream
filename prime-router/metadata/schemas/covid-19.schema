@@ -26,6 +26,20 @@ elements:
     hhsGuidanceField:
     hl7Field: NTE-3
 
+  - name: comment_source
+    type: CODE
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: NTE-2
+    valueSet: hl70105
+
+  - name: comment_type
+    type: CODE
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: NTE-4
+    valueSet: hl70364
+
   - name: date_result_released
     type: DATETIME
     natFlatFileField: Date_result_released
@@ -179,6 +193,13 @@ elements:
     hhsGuidanceField:
     hl7Field: AOE
     hl7AOEQuestion: 65222-2
+
+  - name: observation_result_status
+    type: CODE
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: OBX-11
+    valueSet: hl70085
 
   - name: order_result_status
     type: CODE
@@ -700,6 +721,11 @@ elements:
     cardinality: ONE
     documentation: unique id to track the usage of the message
 
+  - name: previous_message_id
+    type: ID
+    cardinality: ZERO_OR_ONE
+    documentation: pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
+
   - name: message_profile_id
     type: EI
     hl7Field: MSH-21
@@ -767,9 +793,12 @@ elements:
     natFlatFileField:
     hl7Field: MSH-3
 
-  - name: specimen_collection_site # collection location
-    type: TEXT # CWE without a defined table
-    hl7Field: SPM-10
+  - name: sending_facility
+    type: HD
+    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
+    default: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
+    natFlatFileField:
+    hl7Field: MSH-4
 
   - name: specimen_collection_date_time
     type: DATETIME
@@ -779,6 +808,28 @@ elements:
     hl7OutputFields: [SPM-17-1, SPM-17-2, OBR-7, OBR-8, OBX-14]
     documentation: |
       The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
+
+  - name: specimen_collection_method
+    type: CODE
+    hl7Field: SPM-7
+    natFlatFileField:
+    hhsGuidanceField:
+    valueSet: hl70048
+
+  - name: specimen_collection_site # collection location
+    type: TEXT # CWE without a defined table
+    hl7Field: SPM-10
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10
+
+  - name: specimen_description
+    type: TEXT
+    hl7Field: SPM-14
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14
+
+  - name: specimen_id
+    type: EI
+    hl7Field: SPM-2
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
 
   - name: specimen_received_date_time
     type: DATETIME
@@ -1036,4 +1087,11 @@ elements:
   #  natFlatFileField: Travel_history
   #  hhsGuidanceField:
   #  hl7Field: AOE
+
+  - name: value_type
+    type: CODE
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: OBX-2
+    valueSet: hl70125
 
