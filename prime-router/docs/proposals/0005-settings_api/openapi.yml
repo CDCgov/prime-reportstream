@@ -581,7 +581,7 @@ components:
           items:
             anyOf:
               - $ref: '#/components/schemas/CustomConfiguration'
-              - $ref: '#/components/schemas/HL7StandardConfiguration'
+              - $ref: '#/components/schemas/StandardHL7Configuration'
               - $ref: '#/components/schemas/RedoxConfiguration'
               # TODO: add the email configuration
             discriminator:
@@ -611,7 +611,7 @@ components:
           type: string
           readOnly: true
 
-    HL7StandardConfiguration:
+    StandardHL7Configuration:
       description: A standard HL7 configuration
       type: object
       properties:
@@ -619,6 +619,7 @@ components:
           description: The discrimenator
           type: string
           required: true
+          example: STANDARD_HL7
         includeAOE:
           description: Include the AOE
           type: boolean
@@ -665,6 +666,7 @@ components:
           description: the discrimenator
           type: string
           required: true
+          example: REDOX
         useTestProcessingMode:
           description: Set a test process mode flag
           type: boolean
@@ -703,6 +705,7 @@ components:
           description: The discrimenator
           type: string
           required: true
+          example: CUSTOM
         name:
           description: The name of the custom schema
           type: string
@@ -732,6 +735,7 @@ components:
           description: The discriminator
           type: string
           required: true
+          example: SFTP
         host:
           description: Host name and domain
           type: string
@@ -757,6 +761,7 @@ components:
           description: The discriminator
           type: string
           required: true
+          example: REDOX
         baseUrl:
           description: the base URL to send the Redox message. If missing, production Redox URL is used
           type: string
@@ -771,3 +776,4 @@ components:
           description: The discriminator
           type: string
           required: true
+          example: DOWNLOAD
