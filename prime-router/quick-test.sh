@@ -229,7 +229,6 @@ then
   let total=($numitems \* 3)+1 
   # All the lines should have a comma
   count_lines $merged_file , $total
-
 fi
 
 exit 0
