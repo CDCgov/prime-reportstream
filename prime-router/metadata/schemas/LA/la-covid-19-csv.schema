@@ -23,6 +23,7 @@ elements:
   - name: patient_address
     csvFields: [ { name: Patient Address } ]
     mapper: 'concat(patient_street, patient_street2)'
+    delimiter: " "
 
   - name: patient_state
     csvFields:  [ { name: Patient State } ]
