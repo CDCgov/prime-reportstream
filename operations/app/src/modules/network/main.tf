@@ -34,7 +34,7 @@ resource "azurerm_virtual_network" "virtual_network" {
   }
 
   subnet {
-    name = "privatge"
+    name = "private"
     address_prefix = "10.0.3.0/24"
     security_group = azurerm_network_security_group.nsg_private.id
   }
