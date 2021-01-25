@@ -82,10 +82,19 @@ ${element.documentation}
         return sb.toString()
     }
 
-    // write all the documentation for a schema
+    /**
+     * Write markdown documentation for a schema to a file.
+     *
+     * @param schema The schema to document.
+     * @param outputDir The directory to write the file to. If this directory
+     *        doesn't exist, it will be created.
+     * @param outputFileName Name of the file to write in `outputDir`. If not
+     *        set, the file will be named after the schema.
+     * @param includeTimestamps Append the current date to the filename.
+     */
     fun writeDocumentationForSchema(
         schema: Schema,
-        outputDir: String? = null,
+        outputDir: String = ".",
         outputFileName: String? = null,
         includeTimestamps: Boolean = false
     ) {
@@ -100,14 +109,12 @@ ${element.documentation}
             ".md"
         }
 
-        val oDir = (outputDir ?: "docs/schema_documentation")
-        val path = Paths.get(oDir)
+        val path = Paths.get(outputDir)
         if (!Files.exists(path)) {
             Files.createDirectory(path)
         }
 
-        val outputPath = "$oDir/$oName"
-        File(outputPath).writeText(getSchemaDocumentation(schema))
+        File(outputDir, oName).writeText(getSchemaDocumentation(schema))
     }
 
     private fun appendLabelAndData(appendable: Appendable, label: String, value: Any?) {
