@@ -24,6 +24,6 @@ The proposal process involves a Markdown document for the proposal, and a GitHub
 
 3. Conduct the review. Add all active contributors in the area of the proposal as reviewers. 
 
-4. Approve the PR. At least two reviewers should approve. 
+4. Approve the PR. The proposer should determine when enough approvals are obtained. 
 
 The proposer should lead the review process, either following the normal PR process, or calling specific meetings if needed.    
