@@ -14,6 +14,8 @@ paths:
   /reports:
     post:
       summary: Post a report to the data hub
+      security:
+        - ApiKeyAuth: []
       parameters:
         - in: query
           name: client
@@ -35,7 +37,6 @@ paths:
               - SkipSend # Validate and route but do not send reports. Data is kept in the hub.
               - SkipInvalidItems # Send valid ones
           example: ValidatePayload
-
         - in: query
           name: default
           description: Dynamic default values for an element. ':' or %3A is used to seperate element name and value
@@ -47,14 +48,6 @@ paths:
             items:
               type: string
           example: processing_mode_code%3AD
-
-        - in: header
-          name: x-functions-key
-          description: The Azure function key for the end-point
-          schema:
-            type: string
-          required: true
-
       requestBody:
         description: The public health information being routed
         required: true
@@ -66,7 +59,6 @@ paths:
               header1, header2
 
               value1, value2
-
       responses:
         '200':
           description: OK
@@ -94,12 +86,8 @@ paths:
   /settings:
     get:
       description: Get the all the current settings in the system. Must have admin access.
-      parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          required: true
+      security:
+        - OAuth2: [read]
       responses:
         '200':
           description: All the current settings for the system
@@ -128,12 +116,9 @@ paths:
   /settings/organizations:
     get:
       description: The settings for all organizations of the system. Must have admin access.
+      security:
+        - OAuth2: [ read ]
       parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          required: true
         - in: query
           name: isActive
           description: Fetch organization according to isActive
@@ -154,13 +139,12 @@ paths:
   /settings/organizations/{organizationName}:
     get:
       description: A single organization settings
+      security:
+        - OAuth2: [ read ]
       parameters:
-        - in: header
-          name: Authorization
+        - in: path
           schema:
             type: string
-          required: true
-        - in: path
           required: true
           name: organizationName
           description: The name of the organization
@@ -173,14 +157,13 @@ paths:
                 $ref: '#/components/schemas/Organization'
     put:
       description: Create or update the direct settings associated with an organization
+      security:
+        - OAuth2: [ write ]
       parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          required: true
         - in: path
           required: true
+          schema:
+            type: string
           name: organizationName
           description: The name of the organization
       requestBody:
@@ -209,12 +192,9 @@ paths:
   /settings/receivers:
     get:
       description: A list of receivers and their current settings
+      security:
+          - OAuth2: [ read ]
       parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          required: true
         - in: query
           name: organizationName
           description: Fetch receivers with this organization name
@@ -226,7 +206,7 @@ paths:
           name: isActive
           description: Fetch receivers with isActive set
           schema:
-            type: string
+            type: boolean
           required: false
           example: true
       responses:
@@ -246,12 +226,9 @@ paths:
   /settings/receivers/{receiverName}:
     get:
       description: The settings of a single of receiver
+      security:
+        - OAuth2: [ read ]
       parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          required: true
         - in: path
           name: receiverName
           description: The name of the receiver
@@ -273,12 +250,9 @@ paths:
 
     put:
       description: Update a single reciever
+      security:
+        - OAuth2: [ write ]
       parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          required: true
         - in: path
           name: receiverName
           description: The name of the receiver
@@ -313,12 +287,9 @@ paths:
   /settings/senders:
     get:
       description: A list of senders
+      security:
+        - OAuth2: [ read ]
       parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          required: true
         - in: query
           name: organizationName
           description: Fetch senders with this organization name
@@ -350,12 +321,9 @@ paths:
   /settings/senders/{senderName}:
     get:
       description: The settings of a single of sender
+      security:
+        - OAuth2: [ read ]
       parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          required: true
         - in: path
           name: senderName
           description: The name of a sender to the data hub
@@ -377,6 +345,16 @@ paths:
 
     put:
       description: Update a single sender
+      security:
+        - OAuth2: [ write ]
+      parameters:
+        - in: path
+          name: senderName
+          description: The name of a sender to the data hub
+          schema:
+            type: string
+          required: true
+          example: simple_report.default
       requestBody:
         content:
           application/json:
@@ -525,7 +503,8 @@ components:
         - topic
         - isActive
         - jurisdictionalFilter
-        - schema
+        - reportConfiguations
+        - batching
       properties:
         name:
           description: The unique name for the receiver. Should include the organization name as a prefix.
@@ -551,6 +530,9 @@ components:
         jurisdictionalFilters:
           description: What items to include in the report.
           type: array
+          required:
+            - state
+            - matchFields
           items:
             description: A single filter
             type: object
@@ -559,12 +541,10 @@ components:
                 description: The two-letter code for the state
                 type: string
                 example: AZ
-                required: true
               county:
                 description: The name of the county (must match FIPS county name)
                 type: string
                 example: Pima
-                required: false
               doesNotMatch:
                 description: Ensure that the result does not match
                 type: boolean
@@ -589,6 +569,7 @@ components:
         batching:
           description: When the report is sent
           type: object
+          required: [frequency]
           properties:
             frequency:
               description: How often send a report
@@ -600,7 +581,6 @@ components:
             dailyAt:
               description: The UTC hour to send a daily batch
               type: number
-              required: false
         updated_at:
           description: The time of update
           type: string
@@ -614,45 +594,42 @@ components:
     StandardHL7Configuration:
       description: A standard HL7 configuration
       type: object
+      required:
+        - type
+        - includeAOE
+        - useBatchHeaders
+        - transport
       properties:
         type:
           description: The discrimenator
           type: string
-          required: true
           example: STANDARD_HL7
         includeAOE:
           description: Include the AOE
           type: boolean
-          required: true
         useBatchHeaders:
           description: Use BHS and FHS header
           type: boolean
-          required: true
         useTestProcessingMode:
           description: Set a test process mode flag
           type: boolean
           default: false
-          required: false
         receivingApplicationName:
           description: The receiving application name (needed for HL7 formats)
           type: string
           default: null
-          required: false
         receivingApplicationOID:
           description: The receiving application OID
           type: string
           default: null
-          required: false
         receivingFacilityName:
           description: The receiving facility name
           type: string
           default: null
-          required: false
         receivingFacilityOID:
           description: The receiving facility name
           type: string
           default: null
-          required: false
         transport:
           oneOf:
             - $ref: '#/components/schemas/SFTPTransport'
@@ -661,37 +638,38 @@ components:
     RedoxConfiguration:
       description: A Redox configuration
       type: object
+      required:
+        - type
+        - destinationId
+        - destinationName
+        - sourceId
+        - sourceName
+        - transport
       properties:
         type:
           description: the discrimenator
           type: string
-          required: true
           example: REDOX
         useTestProcessingMode:
           description: Set a test process mode flag
           type: boolean
           default: false
-          required: false
         destinationId:
           description: the Redox destination id
           type: string
           example: fcafe93a-9e04-4e3f-9aac-203518f6c4c9
-          required: true
         destinationName:
           description: the Redox destination Name
           type: string
           example: CDC Bucks County PDH Destination (p)
-          required: true
         sourceId:
           description: The Redox source id
           type: string
           example: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
-          required: true
         sourceName:
           description: The Redox source name
           type: string
           example: Prime Data Hub (Prod)
-          required: true
         transport:
           description: The redox transport
           oneOf:
@@ -700,21 +678,23 @@ components:
     CustomConfiguration:
       description: A custom configuration for a custom schema
       type: object
+      required:
+        - type
+        - schemaName
+        - format
+        - transport
       properties:
         type:
           description: The discrimenator
           type: string
-          required: true
           example: CUSTOM
-        name:
+        schemaName:
           description: The name of the custom schema
           type: string
-          required: true
         useTestProcessingMode:
           description: Set a test process mode flag
           type: boolean
           default: false
-          required: false
         format:
           description: The format of the serializer
           type: string
@@ -730,50 +710,66 @@ components:
     SFTPTransport:
       description: Describes a single SFTP connection in all of it variations
       type: object
+      required:
+        - type
+        - host
+        - port
+        - filePath
       properties:
         type:
           description: The discriminator
           type: string
-          required: true
           example: SFTP
         host:
           description: Host name and domain
           type: string
           example: sftp.phd.gov
-          required: true
         port:
           description: The port to use
           type: number
           example: 22
-          required: true
         filePath:
           description: The file path to place the report
           type: string
           example: /in/test
-          required: true
   # TODO: Add userName and password when the secrets service is supported
 
     RedoxTransport:
       description: Describe the Redox transport
       type: object
+      required: [type]
       properties:
         type:
           description: The discriminator
           type: string
-          required: true
           example: REDOX
         baseUrl:
           description: the base URL to send the Redox message. If missing, production Redox URL is used
           type: string
           default: null
-          required: false
 
     DownloadTransport:
       description: Make the report available for download. A null transport.
       type: object
+      required: [type]
       properties:
         type:
           description: The discriminator
           type: string
-          required: true
           example: DOWNLOAD
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-functions-key
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://hhs-prime.okta.com/oauth/authorize
+          tokenUrl: https://hhs-prime.okta.com/oauth/token
+          scopes:
+            read: Grants read access
+            write: Grants write access
+            admin: Grants access to admin operations
