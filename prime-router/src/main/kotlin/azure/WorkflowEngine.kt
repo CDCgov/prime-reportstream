@@ -94,7 +94,6 @@ class WorkflowEngine(
             val nextEvent = updateBlock(header, retryToken, txn)
             val retryJson = nextEvent.retryToken?.toJSON()
             db.updateHeader(header.task.reportId, currentEventAction, nextEvent.eventAction, nextEvent.at, retryJson, txn)
-            actionHistory.trackActionResult(retryJson ?: "${messageEvent.eventAction}: SUCCESS")
             recordAction(actionHistory, txn)
             queue.sendMessage(nextEvent)
         }

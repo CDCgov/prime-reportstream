@@ -47,50 +47,52 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 val inputReportId = header.task.reportId
                 actionHistory.trackExistingInputReport(inputReportId)
                 val serviceName = service.fullName
-
                 val content = workflowEngine.readBody(header)
                 val nextRetryTransports = mutableListOf<RetryTransport>()
-                service
+                val transports = service
                     .transports
                     .filterIndexed { i, _ -> retryToken == null || retryToken.transports.find { it.index == i } != null }
-                    .forEachIndexed { i, transport ->
-                        val retryItems = retryToken?.transports?.find { it.index == i }?.items
-                        val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
-                        val nextRetryItems = when (transport) {
-                            is SFTPTransportType -> {
-                                workflowEngine
-                                    .sftpTransport
-                                    .send(
-                                        service,
-                                        transport,
-                                        content,
-                                        inputReportId,
-                                        sentReportId,
-                                        retryItems,
-                                        context,
-                                        actionHistory
-                                    )
-                            }
-                            is RedoxTransportType -> {
-                                workflowEngine
-                                    .redoxTransport
-                                    .send(
-                                        service,
-                                        transport,
-                                        content,
-                                        inputReportId,
-                                        sentReportId,
-                                        retryItems,
-                                        context,
-                                        actionHistory
-                                    )
-                            }
-                            else -> null
+                if (transports.isEmpty()) {
+                    actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
+                }
+                transports.forEachIndexed { i, transport ->
+                    val retryItems = retryToken?.transports?.find { it.index == i }?.items
+                    val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
+                    val nextRetryItems = when (transport) {
+                        is SFTPTransportType -> {
+                            workflowEngine
+                                .sftpTransport
+                                .send(
+                                    service,
+                                    transport,
+                                    content,
+                                    inputReportId,
+                                    sentReportId,
+                                    retryItems,
+                                    context,
+                                    actionHistory
+                                )
                         }
-                        if (nextRetryItems != null) {
-                            nextRetryTransports.add(RetryTransport(i, nextRetryItems))
+                        is RedoxTransportType -> {
+                            workflowEngine
+                                .redoxTransport
+                                .send(
+                                    service,
+                                    transport,
+                                    content,
+                                    inputReportId,
+                                    sentReportId,
+                                    retryItems,
+                                    context,
+                                    actionHistory
+                                )
                         }
+                        else -> null
                     }
+                    if (nextRetryItems != null) {
+                        nextRetryTransports.add(RetryTransport(i, nextRetryItems))
+                    }
+                }
                 handleRetry(nextRetryTransports, inputReportId, serviceName, retryToken, context)
             }
             // For debugging and auditing purposes

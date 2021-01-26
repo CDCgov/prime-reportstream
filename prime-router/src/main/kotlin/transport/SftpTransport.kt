@@ -30,19 +30,23 @@ class SftpTransport : ITransport {
         return try {
             val (user, pass) = lookupCredentials(orgService.fullName)
             val extension = orgService.format.toExt()
+            // Dev note:  db table requires fileName to be unique.
             val fileName = "${orgService.fullName.replace('.', '-')}-$sentReportId.$extension"
 
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
-            val msg = "Successful sftp upload of $fileName"
+            val msg = "Success: sftp upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)
-            actionHistory.trackSentReport(orgService, sentReportId, fileName, sftpTransportType.toString(), msg)
+            actionHistory.trackActionResult(msg)
+            // todo fix the itemCount == -1, when we refactor workflowEngine to read from new tables.
+            actionHistory.trackSentReport(orgService, sentReportId, fileName, sftpTransportType.toString(), msg, -1)
             null
         } catch (ioException: IOException) {
             val msg = "FAILED Sftp upload of inputReportId $inputReportId to $sftpTransportType (orgService = ${orgService.fullName})\""
             context.logger.log(
                 Level.WARNING, msg, ioException
             )
-            actionHistory.trackFailedSend(orgService, sentReportId, sftpTransportType.toString(), msg)
+            actionHistory.trackActionResult(msg)
+            actionHistory.trackFailedReport(orgService, sentReportId, sftpTransportType.toString(), msg)
             RetryToken.allItems
         } // let non-IO exceptions be caught by the caller
     }

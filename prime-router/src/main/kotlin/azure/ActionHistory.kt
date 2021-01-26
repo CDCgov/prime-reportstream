@@ -105,17 +105,24 @@ class ActionHistory {
         trackActionParams(outStream.toString())
     }
 
+    /**
+     * Always appends, to allow for actions that do a mix of work (eg, SEND)
+     */
     fun trackActionParams(actionParams: String) {
+        val tmp = if (action.actionParams.isNullOrBlank()) actionParams else "${action.actionParams}, $actionParams"
+        // kluge to get the max size of the varchar
         val max = ACTION.ACTION_PARAMS.dataType.length()
         // truncate if needed
-        action.actionParams = actionParams.chunked(size = max)[0]
+        action.actionParams = tmp.chunked(size = max)[0]
     }
 
+    /**
+     * Always appends
+     */
     fun trackActionResult(actionResult: String) {
-        // kluge to get the max size of the varchar.   2048 as of this writing.
+        val tmp = if (action.actionResult.isNullOrBlank()) actionResult else "${action.actionResult}, $actionResult"
         val max = ACTION.ACTION_RESULT.dataType.length()
-        // chop at max size
-        action.actionResult = actionResult.chunked(size = max)[0]
+        action.actionResult = tmp.chunked(size = max)[0]
     }
 
     fun trackActionResult(httpResponseMessage: HttpResponseMessage) {
@@ -222,7 +229,8 @@ class ActionHistory {
         sentReportId: ReportId,
         fileName: String?,
         params: String,
-        result: String
+        result: String,
+        itemCount: Int
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error("Bug:  attempt to track history of a report ($sentReportId) we've already associated with this action")
@@ -238,12 +246,12 @@ class ActionHistory {
         reportFile.transportResult = result
         reportFile.bodyUrl = null
         reportFile.bodyFormat = service.format.toString()
-        reportFile.itemCount = -1 // todo fix this, when we refactor workflowEngine to read from new tables.
+        reportFile.itemCount = itemCount
         reportsOut[reportFile.reportId] = reportFile
     }
 
-    fun trackFailedSend(service: OrganizationService, sentReportId: ReportId, params: String, msg: String) {
-        trackSentReport(service, sentReportId, null, params, msg)
+    fun trackFailedReport(service: OrganizationService, sentReportId: ReportId, params: String, msg: String) {
+        trackSentReport(service, sentReportId, null, params, msg, 0)
     }
 
     /**

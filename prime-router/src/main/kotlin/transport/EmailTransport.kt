@@ -27,7 +27,7 @@ class EmailTransport : ITransport {
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
-        actionHistory: ActionHistory,
+        actionHistory: ActionHistory, // not used by emailer
     ): RetryItems? {
 
         val emailTransport = transportType as EmailTransportType

@@ -38,20 +38,38 @@ class RedoxTransport() : ITransport {
         val redoxTransportType = transportType as RedoxTransportType
         val (key, secret) = getKeyAndSecret(redoxTransportType)
         val messages = String(contents).split("\n") // NDJSON content
-        val token = fetchToken(redoxTransportType, key, secret, context) ?: return RetryToken.allItems
+        val token = fetchToken(redoxTransportType, key, secret, context)
+        if (token == null) {
+            actionHistory.trackActionResult("Failure: fetch redox token failed.  Requesting retry of allItems")
+            return RetryToken.allItems
+        }
+        val sendUrl = "${getBaseUrl(redoxTransportType)}$redoxEndpointPath"
         // DevNote: Redox access tokens live for many days
+        var attemptedCount: Int = 0
+        var successCount: Int = 0
         val nextRetryItems = messages
             .mapIndexed { index, message -> Pair(index, message) }
             .filter { (index, _) ->
                 retryItems == null || RetryToken.isAllItems(retryItems) || retryItems.contains(index.toString())
             }
             .mapNotNull { (index, message) ->
-                if (!sendItem(redoxTransportType, token, message, "$inputReportId-$index", context)) {
+                attemptedCount++
+                if (!sendItem(sendUrl, token, message, "$inputReportId-$index", context)) {
                     index.toString()
                 } else {
+                    successCount++
                     null
                 }
             }
+        val statusStr = when {
+            attemptedCount == 0 -> "Weird"
+            successCount == attemptedCount -> "Success"
+            successCount == 0 -> "Failure"
+            else -> "Partial Failure"
+        }
+        val resultMsg = "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
+        actionHistory.trackActionResult(resultMsg)
+        actionHistory.trackSentReport(orgService, sentReportId, null, sendUrl, resultMsg, successCount)
         return if (nextRetryItems.isNotEmpty()) nextRetryItems else null
     }
 
@@ -95,16 +113,15 @@ class RedoxTransport() : ITransport {
     }
 
     private fun sendItem(
-        redox: RedoxTransportType,
+        sendUrl: String,
         token: String,
         message: String,
         id: String,
         context: ExecutionContext
     ): Boolean {
-        val url = "${getBaseUrl(redox)}$redoxEndpointPath"
-        context.logger.log(Level.INFO, "About to post Redox msg to $url")
+        context.logger.log(Level.INFO, "About to post Redox msg to $sendUrl")
         val (_, _, result) = Fuel
-            .post(url)
+            .post(sendUrl)
             .header(CONTENT_TYPE to jsonMimeType, AUTHORIZATION to "Bearer $token")
             .timeout(redoxTimeout)
             .body(message)
