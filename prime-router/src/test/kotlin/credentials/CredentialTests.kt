@@ -15,11 +15,10 @@ internal class CredentialTests {
 
     @Test
     fun `test polymorphic deserialization of UserPassCredential`() {
-        val json = "{\"@type\":\"UserPass\",\"user\":\"user\",\"pass\":\"pass\"}";
+        val json = "{\"@type\":\"UserPass\",\"user\":\"user\",\"pass\":\"pass\"}"
         val credential = Credential.fromJSON(json)
         assertTrue(credential is UserPassCredential, "Deserialized class is not UserPassCredential")
         assertEquals("user", credential.user, "User did not match")
         assertEquals("pass", credential.pass, "Pass did not match")
     }
-
 }

@@ -1,8 +1,5 @@
 package gov.cdc.prime.router.credentials
 
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
 import org.apache.logging.log4j.kotlin.Logging
 
 abstract class CredentialService : Logging {
@@ -11,12 +8,10 @@ abstract class CredentialService : Logging {
         private val URL_SAFE_KEY_PATTERN = Regex("^[a-zA-Z0-9_-]*$")
     }
 
-
     /* Methods to implement in subclasses */
 
     internal abstract fun fetchCredential(connectionId: String): Credential?
     internal abstract fun saveCredential(connectionId: String, credential: Credential)
-
 
     /* Base implementation for credentialService with validations */
 
@@ -31,7 +26,6 @@ abstract class CredentialService : Logging {
         logger.info { "CREDENTIAL UPDATE: $callerId updated connectionId($connectionId) credential" }
         return saveCredential(connectionId, credential)
     }
-
 }
 
 enum class CredentialRequestReason {

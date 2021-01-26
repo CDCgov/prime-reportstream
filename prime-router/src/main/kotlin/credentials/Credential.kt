@@ -30,5 +30,4 @@ sealed class Credential {
             return mapper.readValue(json, Credential::class.java)
         }
     }
-
 }
