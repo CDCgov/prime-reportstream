@@ -82,17 +82,20 @@ class WorkflowEngine(
      */
     fun handleReportEvent(
         messageEvent: ReportEvent,
+        actionHistory: ActionHistory,
         updateBlock: (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         db.transact { txn ->
             val header = db.fetchAndLockHeader(messageEvent.reportId, txn)
-            val currentAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
+            val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
-            if (currentAction != messageEvent.eventAction) return@transact
+            if (currentEventAction != messageEvent.eventAction) return@transact
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
             val nextEvent = updateBlock(header, retryToken, txn)
             val retryJson = nextEvent.retryToken?.toJSON()
-            db.updateHeader(header.task.reportId, currentAction, nextEvent.eventAction, nextEvent.at, retryJson, txn)
+            db.updateHeader(header.task.reportId, currentEventAction, nextEvent.eventAction, nextEvent.at, retryJson, txn)
+            actionHistory.trackActionResult(retryJson ?: "${messageEvent.eventAction}: SUCCESS")
+            recordAction(actionHistory, txn)
             queue.sendMessage(nextEvent)
         }
     }

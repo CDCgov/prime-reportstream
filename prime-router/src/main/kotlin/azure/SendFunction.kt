@@ -10,6 +10,7 @@ import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.RetryTransport
 import java.time.OffsetDateTime
+import java.util.UUID
 import java.util.logging.Level
 
 /**
@@ -19,6 +20,7 @@ const val dataRetentionDays = 7L
 const val send = "send"
 const val maxRetryCount = 10
 const val maxDurationValue = 120L
+
 // index is retryCount, value is in minutes
 val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 8L, 4 to 15L, 5 to 30L)
 
@@ -37,10 +39,13 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 context.logger.warning("Send function received a $message")
                 return
             }
-            workflowEngine.handleReportEvent(event) { header, retryToken, _ ->
+            val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
+            actionHistory.trackActionParams(message)
+            workflowEngine.handleReportEvent(event, actionHistory) { header, retryToken, _ ->
                 val service = workflowEngine.metadata.findService(header.task.receiverName)
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
-                val reportId = header.task.reportId
+                val inputReportId = header.task.reportId
+                actionHistory.trackExistingInputReport(inputReportId)
                 val serviceName = service.fullName
 
                 val content = workflowEngine.readBody(header)
@@ -50,16 +55,35 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     .filterIndexed { i, _ -> retryToken == null || retryToken.transports.find { it.index == i } != null }
                     .forEachIndexed { i, transport ->
                         val retryItems = retryToken?.transports?.find { it.index == i }?.items
+                        val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
                         val nextRetryItems = when (transport) {
                             is SFTPTransportType -> {
                                 workflowEngine
                                     .sftpTransport
-                                    .send(service, transport, content, reportId, retryItems, context)
+                                    .send(
+                                        service,
+                                        transport,
+                                        content,
+                                        inputReportId,
+                                        sentReportId,
+                                        retryItems,
+                                        context,
+                                        actionHistory
+                                    )
                             }
                             is RedoxTransportType -> {
                                 workflowEngine
                                     .redoxTransport
-                                    .send(service, transport, content, reportId, retryItems, context)
+                                    .send(
+                                        service,
+                                        transport,
+                                        content,
+                                        inputReportId,
+                                        sentReportId,
+                                        retryItems,
+                                        context,
+                                        actionHistory
+                                    )
                             }
                             else -> null
                         }
@@ -67,7 +91,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                             nextRetryTransports.add(RetryTransport(i, nextRetryItems))
                         }
                     }
-                handleRetry(nextRetryTransports, reportId, serviceName, retryToken, context)
+                handleRetry(nextRetryTransports, inputReportId, serviceName, retryToken, context)
             }
             // For debugging and auditing purposes
         } catch (t: Throwable) {

@@ -10,6 +10,7 @@ import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
+import gov.cdc.prime.router.azure.ActionHistory
 import java.util.logging.Level
 
 class RedoxTransport() : ITransport {
@@ -28,9 +29,11 @@ class RedoxTransport() : ITransport {
         orgService: OrganizationService,
         transportType: TransportType,
         contents: ByteArray,
-        reportId: ReportId,
+        inputReportId: ReportId,
+        sentReportId: ReportId,
         retryItems: RetryItems?,
-        context: ExecutionContext
+        context: ExecutionContext,
+        actionHistory: ActionHistory,
     ): RetryItems? {
         val redoxTransportType = transportType as RedoxTransportType
         val (key, secret) = getKeyAndSecret(redoxTransportType)
@@ -43,7 +46,7 @@ class RedoxTransport() : ITransport {
                 retryItems == null || RetryToken.isAllItems(retryItems) || retryItems.contains(index.toString())
             }
             .mapNotNull { (index, message) ->
-                if (!sendItem(redoxTransportType, token, message, "$reportId-$index", context)) {
+                if (!sendItem(redoxTransportType, token, message, "$inputReportId-$index", context)) {
                     index.toString()
                 } else {
                     null

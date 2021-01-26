@@ -18,11 +18,11 @@ metadata about the body of the report. Each report in the system has a task.
 */
 
 /*
-   Add a new action 'receive', and fix the current task table to use it.
+  Add new actions 'receive' and 'download', and fix the current task table to use it.
  */
 ALTER TABLE task ALTER COLUMN next_action TYPE VARCHAR(255);
 DROP TYPE IF EXISTS task_action;
-CREATE TYPE task_action AS ENUM ('receive', 'translate', 'batch', 'send', 'wipe', 'batch_error', 'send_error', 'wipe_error', 'none');
+CREATE TYPE task_action AS ENUM ('receive', 'translate', 'batch', 'send', 'download', 'wipe', 'batch_error', 'send_error', 'wipe_error', 'none');
 ALTER TABLE task ALTER COLUMN next_action TYPE task_action USING next_action::task_action;
 
 -- Each row is an action already taken.
@@ -36,7 +36,8 @@ CREATE TABLE action (
 );
 
 -- Each row is a report, representing actual data, either stored internally 
--- or sent to external receiver, created by one action
+-- or a file sent to an external receiver, per transport mechanism.
+-- A report_file is always created by an action.
 CREATE TABLE report_file (
     report_id UUID PRIMARY KEY,
     action_id BIGINT NOT NULL REFERENCES action(action_id) ON DELETE CASCADE,
@@ -51,6 +52,10 @@ CREATE TABLE report_file (
     -- These are non-null, once the report has been created for a specific receiver.
     receiving_org VARCHAR(63),      -- should be a ref to an org table someday
     receiving_org_svc VARCHAR(63),  -- OrganizationService
+    -- These are the params used to send, and results of a send.
+    -- Needed here because one action can send one file to multiple transports
+    transport_params VARCHAR(512),
+    transport_result VARCHAR(512),
     
     schema_name VARCHAR(63) NOT NULL,   -- should be a fk someday
     schema_topic VARCHAR(63) NOT NULL,

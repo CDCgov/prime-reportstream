@@ -11,6 +11,7 @@ import gov.cdc.prime.router.serializers.RedoxSerializer
 import io.mockk.clearAllMocks
 import io.mockk.confirmVerified
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
@@ -153,6 +154,7 @@ class WorkflowEngineTests {
         val event = ReportEvent(Event.EventAction.SEND, report1.id)
         val nextAction = ReportEvent(Event.EventAction.NONE, report1.id)
         val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
+        val actionHistoryMock = mockk<ActionHistory>()
 
         every { accessSpy.fetchAndLockHeader(reportId = eq(report1.id), any()) }
             .returns(DatabaseAccess.Header(task, emptyList()))
@@ -168,9 +170,11 @@ class WorkflowEngineTests {
         }.returns(Unit)
         every { queueMock.sendMessage(eq(nextAction)) }
             .returns(Unit)
+        every { actionHistoryMock.saveToDb(any()) }.returns(Unit)
+        every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
 
         val engine = makeEngine(metadata)
-        engine.handleReportEvent(event) { header, _, _ ->
+        engine.handleReportEvent(event, actionHistoryMock) { header, _, _ ->
             assertEquals(task, header.task)
             assertEquals(0, header.sources.size)
             nextAction
