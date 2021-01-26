@@ -63,6 +63,47 @@ This field contains a table lookup indicating the normalcy status of the result.
 
 ---
 
+**Name**: comment_source
+
+**Type**: CODE
+
+**HL7 Field**: NTE-2
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+L|Ancillary (filler) department is source of comment
+O|Other system is source of comment
+P|Orderer (placer) is source of comment
+
+---
+
+**Name**: comment_type
+
+**Type**: CODE
+
+**HL7 Field**: NTE-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+1R|Primary Reason
+2R|Secondary Reason
+AI|Ancillary Instructions
+DR|Duplicate/Interaction Reason
+GI|General Instructions
+GR|General Reason
+PI|Patient Instructions
+RE|Remark
+
+---
+
 **Name**: date_result_released
 
 **Type**: DATETIME
@@ -85,7 +126,7 @@ This field contains a table lookup indicating the normalcy status of the result.
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Documentation**:
 
@@ -105,7 +146,7 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Documentation**:
 
@@ -171,7 +212,7 @@ UNK|Unknown
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Equipment UID
 
@@ -189,7 +230,7 @@ UNK|Unknown
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Equipment UID Type
 
@@ -205,7 +246,7 @@ UNK|Unknown
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Model
 
@@ -221,7 +262,7 @@ UNK|Unknown
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Manufacturer
 
@@ -347,6 +388,33 @@ Is the patient in the ICU?
 
 ---
 
+**Name**: observation_result_status
+
+**Type**: CODE
+
+**HL7 Field**: OBX-11
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+C|Record coming over is a correction and thus replaces a final result
+D|Deletes the OBX record
+F|Final results; Can only be changed with a corrected result
+I|Specimen in lab; results pending
+N|Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.
+O|Order detail description only (no result)
+P|Preliminary results
+R|Results entered -- not verified
+S|Partial results
+U|Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final
+W|Post original as wrong, e.g., transmitted for wrong patient
+X|Results cannot be obtained for this observation
+
+---
+
 **Name**: order_result_status
 
 **Type**: CODE
@@ -393,9 +461,9 @@ Z|No record of this patient
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Order Code
+**Table Column**: Test Ordered LOINC Code
 
 ---
 
@@ -407,9 +475,9 @@ Z|No record of this patient
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Order Code Long Name
+**Table Column**: Test Ordered LOINC Long Name
 
 ---
 
@@ -1869,6 +1937,18 @@ unique id to track the usage of the message
 
 ---
 
+**Name**: previous_message_id
+
+**Type**: ID
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
+
+---
+
 **Name**: message_profile_id
 
 **Type**: EI
@@ -1989,11 +2069,11 @@ Does the patient reside in a congregate care setting?
 
 ---
 
-**Name**: specimen_collection_site
+**Name**: sending_facility
 
-**Type**: TEXT
+**Type**: HD
 
-**HL7 Field**: SPM-10
+**HL7 Field**: MSH-4
 
 **Cardinality**: [0..1]
 
@@ -2011,6 +2091,105 @@ Does the patient reside in a congregate care setting?
 
 The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
 
+
+---
+
+**Name**: specimen_collection_method
+
+**Type**: CODE
+
+**HL7 Field**: SPM-7
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+ANP|Plates, Anaerobic
+BAP|Plates, Blood Agar
+BCAE|Blood Culture, Aerobic Bottle
+BCAN|Blood Culture, Anaerobic Bottle
+BCPD|Blood Culture, Pediatric Bottle
+BIO|Biopsy
+CAP|Capillary Specimen
+CATH|Catheterized
+CVP|Line, CVP
+EPLA|Environmental, Plate
+ESWA|Environmental, Swab
+FNA|Aspiration, Fine Needle
+KOFFP|Plate, Cough
+LNA|Line, Arterial
+LNV|Line, Venous
+MARTL|Martin-Lewis Agar
+ML11|Mod. Martin-Lewis Agar
+MLP|Plate, Martin-Lewis
+NYP|Plate, New York City
+PACE|Pace, Gen-Probe
+PIN|Pinworm Prep
+PNA|Aterial puncture
+PRIME|Pump Prime
+PUMP|Pump Specimen
+QC5|Quality Control For Micro
+SCLP|Scalp, Fetal Vein
+SCRAPS|Scrapings
+SHA|Shaving
+SWA|Swab
+SWD|Swab, Dacron tipped
+TMAN|Transport Media, Anaerobic
+TMCH|Transport Media, Chalamydia
+TMM4|Transport Media, M4
+TMMY|Transport Media, Mycoplasma
+TMOT|Transport Media
+TMP|Plate, Thayer-Martin
+TMPV|Transport Media, PVA
+TMSC|Transport Media, Stool Culture
+TMUP|Transport Media, Ureaplasma
+TMVI|Transport Media, Viral
+VENIP|Venipuncture
+WOOD|Swab, Wooden Shaft
+
+---
+
+**Name**: specimen_collection_site
+
+**Type**: TEXT
+
+**HL7 Field**: SPM-10
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10) 
+
+---
+
+**Name**: specimen_description
+
+**Type**: TEXT
+
+**HL7 Field**: SPM-14
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14](https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14) 
+
+---
+
+**Name**: specimen_id
+
+**Type**: EI
+
+**HL7 Field**: SPM-2
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
 
 ---
 
@@ -2148,7 +2327,7 @@ Is the patient symptomatic?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Testkit Name ID
 
@@ -2164,7 +2343,7 @@ Is the patient symptomatic?
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Testkit Name ID Type
 
@@ -2186,9 +2365,9 @@ Is the patient symptomatic?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Code
+**Table Column**: Test Performed LOINC Code
 
 **Documentation**:
 
@@ -2204,9 +2383,9 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Long Name
+**Table Column**: Test Performed LOINC Long Name
 
 **Documentation**:
 
@@ -2508,5 +2687,45 @@ The name of the laboratory which performed the test, can be the same as the send
 **Type**: TELEPHONE
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: value_type
+
+**Type**: CODE
+
+**HL7 Field**: OBX-2
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+AD|Address
+CE|Coded Entry
+CF|Coded Element With Formatted Values
+CK|Composite ID With Check Digit
+CN|Composite ID And Name
+CP|Composite Price
+CX|Extended Composite ID With Check Digit
+DT|Date
+ED|Encapsulated Data
+FT|Formatted Text (Display)
+MO|Money
+NM|Numeric
+PN|Person Name
+RP|Reference Pointer
+SN|Structured Numeric
+ST|String Data
+TM|Time
+TN|Telephone Number
+TS|Time Stamp (Date & Time)
+TX|Text Data (Display)
+XAD|Extended Address
+XCN|Extended Composite Name and Number For Persons
+XON|Extended Composite Name and Number For Organizations
+XPN|Extended Person Name
+XTN|Extended Telecommunications Number
 
 ---

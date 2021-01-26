@@ -142,20 +142,21 @@ class SimpleReportTests {
         compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
     }
 
-//    @Test
+    @Test
     fun `test fake FL data`() {
         val schemaName = "fl/fl-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)
         // Run the data thru its own schema and back out again
         val fakeReportFile2 = readAndWrite(fakeReportFile.absolutePath, schemaName)
-        compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
+        compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2, recordId = "Medical Record Number")
     }
 
     private fun compareTestResultsToExpectedResults(
         testFile: File,
         expectedResultsFile: File,
         compareKeys: Boolean = true,
-        compareLines: Boolean = true
+        compareLines: Boolean = true,
+        recordId: String = "Patient_ID"
     ) {
         assertTrue(testFile.exists())
         assertTrue(expectedResultsFile.exists())
@@ -163,8 +164,8 @@ class SimpleReportTests {
         val testFileLines = testFile.readLines()
         val expectedResultsLines = expectedResultsFile.readLines()
 
-        val testLines = convertFileToMap(testFileLines)
-        val expectedLines = convertFileToMap(expectedResultsLines)
+        val testLines = convertFileToMap(testFileLines, recordId = recordId)
+        val expectedLines = convertFileToMap(expectedResultsLines, recordId = recordId)
         val headerRow = expectedResultsLines[0].split(",")
 
         if (compareKeys) {

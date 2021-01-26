@@ -28,8 +28,15 @@ Change the working directory to the `prime-router` directory.
 cd <your_path>/prime-router
 ```
 
-You need a running local PostgreSQL database to compile the project. 
-One way is to use brew again to get this database. 
+### Dependencies
+
+#### PostgreSQL
+
+You need a running local PostgreSQL database to **compile** the project.
+
+##### Option 1: PostgreSQL via Brew
+
+One way is to use [brew](https://brew.sh) again to get this database. (Mac or Linux)
 ```
 brew install postgresql@11
 brew install flyway
@@ -42,6 +49,8 @@ createuser -P prime
 createdb --owner=prime prime_data_hub
 ```
 
+##### Option 2: PostgreSQL via `apt` on Ubuntu/Debian
+
 Installing PostgreSQL and Flyway on Ubuntu
 ```
 sudo apt install postgresql
@@ -52,6 +61,19 @@ wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.0/f
 sudo -u postgres createuser -P prime
 sudo -u postgres createdb --owner=prime prime_data_hub
 ```
+
+##### Option 3: PostgreSQL via Docker
+
+In [`devenv-infrastructure.sh`](../devenv-infrastructure.sh)
+```sh
+docker-compose -f ./docker-prime-infra.yml up --detach
+```
+
+If you need need Flyway, you can install it via `apt` or `brew` as above.
+
+
+
+### Compiling
 
 You should be able to compile the project now. Check if it works. 
 
@@ -184,3 +206,28 @@ Or you can add this line in your `~/.bash_profile` to ensure your local builds w
 ```bash
 export PRIME_DATA_HUB_INSECURE_SSL=true
 ```
+
+## Managing the local Hashicorp Vault secrets database
+
+Our `docker-compose.yml` includes Hashicorp Vault alongside our other containers to enable local secrets storage. Under normal circumstances, developers will not have to interact directly with the Vault configuration, but some helpful guidance is provided below for troubleshooting.
+
+### Initialize the Vault
+
+When starting up our containers with `docker-compose up` on first-run, the container will create a new Vault database and store the following files in `.vault/env`:
+
+* `key` - unseal key for decrypting the database
+* `.env.local` - the root token in envfile format for using the Vault api / command line
+
+The database is stored in a docker-compose container `vault` that persists across up and down events. All files are excluded in `.gitignore` and should never be persisted to source control.
+
+## Re-initialize the Vault
+
+If you would like to start with a fresh Vault database, you can clear the Vault database with the following commands:
+
+```bash
+cd prime_router
+docker-compose down -v
+rm -rf .vault/env/{key,.env.local}
+```
+
+Note: The `docker-compose down -v` option deletes all volumes associated with our docker-compose file.

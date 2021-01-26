@@ -224,3 +224,14 @@ elements:
   - name: ordering_provider_county
     csvFields: [{name: Ordering_provider_county}]
 
+  # special fields used by mappers
+  - name: organization_name
+    type: TEXT
+    default: ''
+
+  - name: ordering_facility_name
+
+  - name: testing_lab_name
+
+  - name: placer_order_id
+

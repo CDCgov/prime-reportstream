@@ -9,16 +9,18 @@ class FakeReport(val metadata: Metadata) {
     class RowContext(
         findLookupTable: (String) -> LookupTable? = { null },
         reportState: String? = null,
+        val schemaName: String? = null,
         reportCounty: String? = null
     ) {
         val faker = Faker()
         val patientName = faker.name()
+        val schoolName: String = faker.university().name()
         val equipmentModel = randomChoice(
             "BinaxNOW COVID-19 Ag Card",
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
 
-        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "CO")
+        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO")
         val county = reportCounty ?: findLookupTable("fips-county")?.let {
             when (state) {
                 "AZ" -> randomChoice("Pima", "Yuma")
@@ -38,8 +40,11 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.POSTAL_CODE -> faker.address().zipCode().toString()
             Element.Type.TEXT -> {
                 when {
+                    element.nameContains("name_of_testing_lab") -> "Any lab USA"
                     element.nameContains("lab_name") -> "Any lab USA"
                     element.nameContains("facility_name") -> "Any facility USA"
+                    element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
+                    element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
                     element.nameContains("patient_age_and_units") -> {
                         val unit = randomChoice("months", "years", "days")
                         val value = when (unit) {
@@ -78,7 +83,6 @@ class FakeReport(val metadata: Metadata) {
                     else -> {
                         val altValues = element.altValues
                         val valueSet = element.valueSetRef
-                        // ?: error("ValueSet ${element.valueSet} mapped to ${element.name} is not available}")
                         // if the code defines alternate values in the schema we need to
                         // output them here
                         val possibleValues = if (altValues?.isNotEmpty() == true) {
@@ -95,7 +99,7 @@ class FakeReport(val metadata: Metadata) {
                 val lookupTable = element.tableRef
                     ?: error("LookupTable ${element.table} is not available")
                 when (element.table) {
-                    "LIVD-2020-11-18" -> {
+                    "LIVD-SARS-CoV-2-2021-01-20" -> {
                         if (element.tableColumn == null) return ""
                         lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn)
                             ?: error(
@@ -145,9 +149,48 @@ class FakeReport(val metadata: Metadata) {
         }
     }
 
+    internal fun buildMappedColumn(element: Element, rowContext: RowContext): String {
+        if (element.mapper.isNullOrEmpty()) error("Cannot build a mapped column without a mapper.")
+        if (rowContext.schemaName.isNullOrEmpty()) error("Cannot fake a mapped column without the schema name")
+
+        val schema = metadata.findSchema(rowContext.schemaName)
+        val mapper = element.mapper
+        val refAndArgs: Pair<Mapper, List<String>> = mapper.let {
+            val (name, args) = Mappers.parseMapperField(it)
+            val ref: Mapper = metadata.findMapper(name)
+                ?: error("Schema Error: Could not find mapper '$name' in element '{$element.name}'")
+            Pair(ref, args)
+        }
+
+        return when (val mapperRef: Mapper = refAndArgs.first) {
+            is UseMapper, is ConcatenateMapper -> {
+                // find element
+                val elementNames = refAndArgs.second
+                val useElements = elementNames.map {
+                    schema?.findElement(it)
+                }
+
+                val evs = useElements.map {
+                    if (it == null) return ""
+
+                    ElementAndValue(it, buildColumn(it, rowContext))
+                }
+
+                // get fake data for element
+                mapperRef.apply(element, refAndArgs.second, evs) ?: ""
+            }
+            else -> buildColumn(element, rowContext)
+        }
+    }
+
     private fun buildRow(schema: Schema, targetState: String? = null, targetCounty: String? = null): List<String> {
-        val context = RowContext(metadata::findLookupTable, targetState, targetCounty)
-        return schema.elements.map { buildColumn(it, context) }
+        val context = RowContext(metadata::findLookupTable, targetState, schemaName = schema.name, targetCounty)
+        return schema.elements.map {
+            if (it.mapper.isNullOrEmpty())
+                buildColumn(it, context)
+            else
+                buildMappedColumn(it, context)
+        }
     }
 
     fun build(
@@ -171,6 +214,19 @@ class FakeReport(val metadata: Metadata) {
             if (choices.isEmpty()) return ""
             val random = Random()
             return choices[random.nextInt(choices.size)]
+        }
+
+        private fun randomChoices(vararg choices: String): List<String> {
+            val random = Random()
+            if (choices.isEmpty() || random.nextBoolean()) return emptyList()
+
+            val selectedValues = mutableListOf<String>()
+            val limit = random.nextInt(choices.size)
+            for (i in 0..limit) {
+                selectedValues.add(choices[random.nextInt(choices.size)])
+            }
+
+            return selectedValues.toList()
         }
     }
 }
