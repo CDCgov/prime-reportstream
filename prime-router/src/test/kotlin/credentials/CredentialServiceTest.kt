@@ -33,7 +33,7 @@ internal class CredentialServiceTest : CredentialManagement {
             try {
                 credentialService.fetchCredential(it, "CredentialServiceTest", CredentialRequestReason.AUTOMATED_TEST)
                 fail("IllegalArgumentException not thrown for $it")
-            } catch ( e: IllegalArgumentException ) {
+            } catch (e: IllegalArgumentException) {
                 assertEquals("connectionId must match: ^[a-zA-Z0-9_-]*\$", e.message)
             }
         }
@@ -42,7 +42,7 @@ internal class CredentialServiceTest : CredentialManagement {
     @Test
     fun `test saveCredential handles valid connectionIds`() {
         VALID_CONNECTION_IDS.forEach {
-            credentialService.saveCredential(it, VALID_CREDENTIAL,"CredentialServiceTest")
+            credentialService.saveCredential(it, VALID_CREDENTIAL, "CredentialServiceTest")
         }
     }
 
@@ -52,7 +52,7 @@ internal class CredentialServiceTest : CredentialManagement {
             try {
                 credentialService.saveCredential(it, VALID_CREDENTIAL, "CredentialServiceTest")
                 fail("IllegalArgumentException not thrown for $it")
-            } catch ( e: IllegalArgumentException ) {
+            } catch (e: IllegalArgumentException) {
                 assertEquals("connectionId must match: ^[a-zA-Z0-9_-]*\$", e.message)
             }
         }
