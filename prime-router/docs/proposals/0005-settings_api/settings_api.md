@@ -13,7 +13,9 @@ We wish to allow our Public Health customers to access their current feed config
 ## Proposal
 
 - The Organization metadata moves out of the project's JAR into the projects' database in Azure and new JSON files for the CLI.
-- Extend the current Azure Functions App with a Settings function.
+- Extend the current Azure Functions App with a Settings function. 
+- For Azure functions, a `settings` database table. The table will be a hybrid of metadata about the setting as well
+  as a JSON structure with the actual setting. 
 - Add `/api/settings` path and sub-paths. The OpenAPI specification documents details [openapi.yml](openapi.yml) doc
 - The CLI will add a `--organizations-file` parameter to pass in the equivalent information. One benefit is that configuration changes will not require a recompile.
 
