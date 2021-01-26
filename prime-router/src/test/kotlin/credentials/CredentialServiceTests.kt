@@ -5,7 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
-internal class CredentialServiceTest : CredentialManagement {
+internal class CredentialServiceTests : CredentialManagement {
 
     val VALID_CONNECTION_IDS = listOf("valid1", "35wtfsdfe4t4wr4w4343", "with_underscores-and-dashes")
     val INVALID_CONNECTION_IDS = listOf("slashes/are/not/allowed", "no spaces", "?andotherthings")
