@@ -12,3 +12,6 @@
 
 Added optional field `Corrected_result_ID`, a pointer/link to the unique Result_ID of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the ResultID of the prior item.
 
+## LVID table updated
+
+Added support for the January 20, 2021 LVID table. New tests supported includes the Binax NOW Home test. 
