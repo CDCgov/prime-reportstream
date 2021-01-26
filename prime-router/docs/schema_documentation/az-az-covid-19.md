@@ -196,6 +196,14 @@ Code | Display
 2131-1|Other
 UNK|Unknown
 ASKU|Asked, but unknown
+1002-5|American Indian or Alaska Native
+2028-9|Asian
+2054-5|Black or African American
+2076-8|Native Hawaiian or Other Pacific Islander
+2106-3|White
+2131-1|Other
+UNK|Unknown
+ASKU|Asked, but unknown
 
 **Alt Value Sets**
 
@@ -527,9 +535,9 @@ Code | Display
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Code
+**Table Column**: Test Performed LOINC Code
 
 **Documentation**:
 
@@ -545,9 +553,9 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Long Name
+**Table Column**: Test Performed LOINC Long Name
 
 **Documentation**:
 

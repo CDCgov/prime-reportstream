@@ -1,16 +1,22 @@
 package gov.cdc.prime.router
 
 import java.io.ByteArrayInputStream
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.test.fail
 
 internal class FakeReportTests {
-    private val rowContext = FakeReport.RowContext()
+    private val schemaName = "test"
+    private val rowContext = FakeReport.RowContext(schemaName = schemaName)
     private val metadata = Metadata(
         valueSet = ValueSet("fake", ValueSet.SetSystem.LOCAL, values = listOf(ValueSet.Value(code = "AZ"))),
     ).loadSchemas(
         Schema(
-            "test", "topic",
+            schemaName, "topic",
             listOf(
+                Element("name_of_testing_lab", type = Element.Type.TEXT),
+                Element("facility_name", type = Element.Type.TEXT),
                 Element("patient_state", type = Element.Type.CODE, valueSet = "fake"),
                 Element("patient_phone", type = Element.Type.TELEPHONE),
                 Element(
@@ -22,7 +28,20 @@ internal class FakeReportTests {
                 Element("postal_code", type = Element.Type.POSTAL_CODE),
                 Element("patient_ssn", type = Element.Type.ID_SSN),
                 Element("default_date", type = Element.Type.DATE),
-                Element("blank_column", type = Element.Type.BLANK)
+                Element("blank_column", type = Element.Type.BLANK),
+                // a use mapper element
+                Element("testing_lab_name", type = Element.Type.TEXT, mapper = "use(name_of_testing_lab)"),
+                Element(
+                    "testing_lab_and_facility",
+                    type = Element.Type.TEXT,
+                    mapper = "concat(name_of_testing_lab, facility_name)",
+                    delimiter = "^"
+                ),
+                Element(
+                    "testing_lab_and_facility2",
+                    type = Element.Type.TEXT,
+                    mapper = "concat(name_of_testing_lab, facility_name)"
+                ),
             )
         )
     )
@@ -142,5 +161,38 @@ internal class FakeReportTests {
         // assert
         assertTrue(setOfStates.contains("FL"), "Set does not contain string expected")
         assertTrue(setOfStates.count() == 1, "Set contains other values not expected: ${setOfStates.joinToString()}")
+    }
+
+    @Test
+    fun `test use mapper in fake data`() {
+        val fieldName = "testing_lab_name"
+        val useField = metadata.findSchema(schemaName)
+            ?.findElement(fieldName) ?: fail("Lookup failure: $fieldName")
+
+        val actual = FakeReport(metadata).buildMappedColumn(useField, rowContext)
+        val expected = "Any lab USA"
+        assertEquals(expected, actual, "Expected $expected but received $actual")
+    }
+
+    @Test
+    fun `test concatenate mapper in fake data`() {
+        val fieldName = "testing_lab_and_facility"
+        val concatField = metadata.findSchema(schemaName)
+            ?.findElement(fieldName) ?: fail("Lookup failure: $fieldName")
+
+        val actual = FakeReport(metadata).buildMappedColumn(concatField, rowContext)
+        val expected = "Any lab USA^Any facility USA"
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `test concatenate mapper with default delimiter in fake data`() {
+        val fieldName = "testing_lab_and_facility2"
+        val concatField = metadata.findSchema(schemaName)
+            ?.findElement(fieldName) ?: fail("Lookup failure: $fieldName")
+
+        val actual = FakeReport(metadata).buildMappedColumn(concatField, rowContext)
+        val expected = "Any lab USA, Any facility USA"
+        assertEquals(expected, actual)
     }
 }

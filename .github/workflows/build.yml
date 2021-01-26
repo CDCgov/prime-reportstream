@@ -3,6 +3,8 @@ name: Prime Data Hub
 on:
   pull_request:
     branches: [ master, production ]
+    paths-ignore:
+      - 'prime-router/docs/**'
 
 defaults:
   run:
@@ -43,14 +45,98 @@ jobs:
           postgresql db: prime_data_hub
           postgresql user: ${{ env.POSTGRES_USER }}
           postgresql password: ${{ env.POSTGRES_PASSWORD }}
-       
+
       - name: Setup JDK
         uses: actions/setup-java@v1.4.3
         with:
            java-version: 11
-      
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('prime-router/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven
+
       - name: Build Maven Package
         run: mvn -B clean package --file pom.xml -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+
+      - name: Save Build Target
+        uses: actions/upload-artifact@v2
+        with:
+          name: build_target
+          path: prime-router/target
+
+  update_docs:
+    name: Update Docs
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Explicitly use the head_ref here (which is a branch name, rather
+          # than a commit hash) so we can commit and push back to it.
+          ref: ${{ github.head_ref }}
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+           java-version: 11
+
+      - name: Restore Build Target
+        uses: actions/download-artifact@v2
+        with:
+          name: build_target
+          path: prime-router/target
+
+      - name: Generate New Docs
+        run: |
+          # Clean the docs before regenerating
+          rm -rf docs/schema_documentation/*
+          ./prime generate-docs
+
+      - name: Check for Uncommited Docs
+        id: check_changes
+        continue-on-error: true
+        run: |
+          CHANGED_FILES=$(git status --short docs)
+          if [[ -n "$CHANGED_FILES" ]]; then
+            echo "Updated documentation:"
+            git diff docs
+
+            # Escape line breaks so they can be used in step output.
+            # See: https://github.community/t/set-output-truncates-multiline-strings/16852
+            FILES_ESCAPED="$CHANGED_FILES"
+            FILES_ESCAPED="${FILES_ESCAPED//'%'/'%25'}"
+            FILES_ESCAPED="${FILES_ESCAPED//$'\n'/'%0A'}"
+            FILES_ESCAPED="${FILES_ESCAPED//$'\r'/'%0D'}"
+            echo "::set-output name=files::$FILES_ESCAPED"
+
+            # End with an error
+            false
+          fi
+
+      - name: Add diff as PR comment
+        if: ${{ steps.check_changes.outcome == 'failure' }}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          body: |
+            The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
+
+            Please run `./prime generate-docs` to generate updated documentation, then commit the results.
+
+            Expected changes in files:
+
+            ```sh
+            ${{ steps.check_changes.outputs.files }}
+            ```
+
+      - name: Fail if there were changes
+        if: ${{ steps.check_changes.outcome == 'failure' }}
+        run: |
+          false

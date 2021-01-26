@@ -110,4 +110,26 @@ class MapperTests {
 
         assertEquals("string1, string2, string3", mapper.apply(elementA, args, values))
     }
+
+    @Test
+    fun `test concatenate mapper with custom delimiter`() {
+        // arrange
+        val mapper = ConcatenateMapper()
+        val args = listOf("a", "b", "c")
+        val elementA = Element("a", delimiter = "^")
+        val elementB = Element("b")
+        val elementC = Element("c")
+        val values = listOf(
+            ElementAndValue(elementA, "string1"),
+            ElementAndValue(elementB, "string2"),
+            ElementAndValue(elementC, "string3")
+        )
+
+        // act
+        val expected = "string1^string2^string3"
+        val actual = mapper.apply(elementA, args, values)
+
+        // assert
+        assertEquals(expected, actual, "Expected: $expected. Actual: $actual")
+    }
 }
