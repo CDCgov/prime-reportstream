@@ -19,3 +19,15 @@
         code: A
       - display: Normal
         code: N
+
+- name: fl/device_type
+  system: LOINC
+  values:
+      - display: Instrument Platform
+        code: DII
+      - display: Manual Kit
+        code: DIM
+      - display: Test kit/reagent
+        code: DIT
+      - display: In Vitro Diagnostic
+        code: EAU

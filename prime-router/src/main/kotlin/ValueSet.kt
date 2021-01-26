@@ -40,6 +40,10 @@ data class ValueSet(
         val code: String,
         val display: String? = null,
         val version: String? = null,
+        // replaces is used in the case of an altValue that needs to be used instead
+        // of what is normally used in the valueSet.
+        // for example, a DOH might want to use 'U' instead of 'UNK' for Y/N/UNK values
+        val replaces: String? = null
     )
 
     fun toDisplayFromCode(code: String): String? {
@@ -56,5 +60,27 @@ data class ValueSet(
 
     fun toNormalizedCode(code: String): String? {
         return values.find { code.equals(it.code, ignoreCase = true) }?.code
+    }
+
+    fun mergeAltValues(altValues: List<Value>?): ValueSet {
+        // if we have alt values then we need to merge them in
+        if (!altValues.isNullOrEmpty()) {
+            val mergedValues = this.values.map {
+                altValues.find { a -> it.code.equals(a.replaces, ignoreCase = true) } ?: it
+            } + altValues.filter { it.replaces.isNullOrEmpty() }.map {
+                values.find { v -> it.code.equals(v.code, ignoreCase = true) } ?: it
+            }
+
+            return this.copy(
+                name = this.name,
+                system = this.system,
+                reference = this.reference,
+                referenceUrl = this.referenceUrl,
+                values = mergedValues
+            )
+        }
+
+        // there's nothing to do, return self
+        return this
     }
 }

@@ -98,6 +98,18 @@ The state of the facility which the test was ordered from
 
 ---
 
+**Name**: Ordering_Facility_County
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
 **Name**: Ordering_Facility_ZIP
 
 **Type**: POSTAL_CODE
@@ -503,6 +515,9 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
+260373001|Detected
+260415000|Not detected
+455371000124106|Invalid result
 
 **Alt Value Sets**
 
@@ -528,7 +543,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Model
 
@@ -542,9 +557,9 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Order Code
+**Table Column**: Test Ordered LOINC Code
 
 ---
 
@@ -556,9 +571,9 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Order Code Long Name
+**Table Column**: Test Ordered LOINC Long Name
 
 ---
 
@@ -741,5 +756,25 @@ Z|No record of this patient
 **Documentation**:
 
 The name of the laboratory which performed the test, can be the same as the sending facility name
+
+---
+
+**Name**: patient_id
+
+**Type**: TEXT
+
+**HL7 Field**: PID-3-1
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_id_type
+
+**Type**: TEXT
+
+**HL7 Field**: PID-3-5
+
+**Cardinality**: [0..1]
 
 ---
