@@ -77,57 +77,47 @@ class DownloadFunction {
         return response
     }
 
-    private fun generateTodaysTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
-        return headers.filter {
-            val now = OffsetDateTime.now()
-            it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
+    private fun generateTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
+        return headers.sortedByDescending {
+            it.task.createdAt
+        }.map {
+            val org = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
+            val svc = WorkflowEngine().metadata.findService(it.task.receiverName)
+            val orgDesc = if (org !== null) org.description else "Unknown"
+            val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
+            System.out.println("org = $org")
+            TestResult(
+                it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                receiver,
+                DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
+                it.task.itemCount,
+                0,
+                it.task.reportId.toString(),
+                it.task.bodyFormat
+            )
         }
-            .sortedByDescending {
-                it.task.createdAt
-            }.map {
-                val org = WorkflowEngine().metadata.findOrganization(orgName.replace("_", "-"))
-                val svc = WorkflowEngine.metadata.findService(it.task.receiverName)
-                TestResult(
-                    it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                    if (svc !== null) svc.description else if (org !== null) org.description else "Unknown",
-                    DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
-                    it.task.itemCount,
-                    0,
-                    it.task.reportId.toString(),
-                    it.task.bodyFormat
-                )
-            }
+    }
+
+    private fun generateTodaysTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
+        var filtered = headers.filter { filter(it) }
+        return generateTestResults(filtered)
+    }
+
+    private fun filter(it: DatabaseAccess.Header): Boolean {
+        val now = OffsetDateTime.now()
+        return it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
     }
 
     private fun generatePreviousTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
-
-        return headers.filterNot {
-            val now = OffsetDateTime.now()
-            it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
-        }
-            .sortedByDescending {
-                it.task.createdAt
-            }
-            .map {
-                val org = WorkflowEngine().metadata.findOrganization(orgName.replace("_", "-"))
-                val svc = WorkflowEngine.metadata.findService(it.task.receiverName)
-                TestResult(
-                    it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                    if (svc !== null) svc.description else if (org !== null) org.description else "Unknown",
-                    DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
-                    it.task.itemCount,
-                    0,
-                    it.task.reportId.toString(),
-                    it.task.bodyFormat
-                )
-            }
+        var filtered = headers.filterNot { filter(it) }
+        return generateTestResults(filtered)
     }
 
     private fun responsePage(request: HttpRequestMessage<String?>, fileNotFound: Boolean = false): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
         val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
 
-        val org = WorkflowEngine.metadata.findOrganization(orgName.replace('_', '-'))
+        val org = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
 
         val attr = mapOf(
             "description" to if (org !== null) org.description else "",
@@ -192,6 +182,9 @@ class DownloadFunction {
         orgName = ""
 
         val cookies = request.headers["cookie"] ?: ""
+
+        System.out.println(cookies)
+
         var jwtString = ""
 
         cookies.replace(" ", "").split(";").forEach {
