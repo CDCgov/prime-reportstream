@@ -1,0 +1,62 @@
+# Background
+
+To date, the PRIME Data Hub has used the following flow for code undergoing development, testing, and production:
+
+> `feature_branch(es)` --> `master` --> `production`
+
+While this flow has served its purpose for the testing and validation of software changes before deployment to production, a simpler workflow that allows for the versioning of the software is a necessary next step in the maturation of the platform.
+
+# Goals
+
+The goal of this proposal is to 1) simplify the flow of code from development to production and 2) to employ versioning for a clear lineage and changelog throughout the platform's lifecycle.
+
+# Proposal
+
+## Git Flow
+
+To simplify the flow of code from development to the test and production environments, the proposed flow will be:
+
+> `feature_branch(es)` --> `master`
+
+The `master` branch will remain protected in that:
+  - It cannot be pushed to directly
+  - A pull request must be submitted from the feature branch
+  - The pull request must be approved by ≥ 1 reviewer prior to being merged into the `master` branch
+
+Upon the creation of a pull request, the `test_build` workflow will be triggered to build and test the changes that would result from the pull request being merged.
+
+Upon merge, the GitHub actions `test_release` workflow will be triggered to deploy to the `prime-data-hub-test` resource group within Azure.  The merged changes should then be thoroughly tested within the cloud environment.
+
+This proposed flow is based off of the `GitHub Flow`<sup>1</sup>.
+
+## Production Release
+
+When a collection of features is deemed ready for production deployment, a release should be published.  Upon publish, the `prod_release` workflow will be triggered to deploy to the `prime-data-hub-prod` resource group within Azure.
+
+To create a release navigate to the `Create a new release` link on the right-hand side of the main GitHub repository page.  Enter the appropriate version, title, and description (discussed below) and click `Publish release`.
+
+![GitHub Release](../assets/github_release.png "GitHub Release UI")
+
+## Versioning
+
+Versioning of the PRIME Data Hub platform can be discerned in two ways - this proposal will focus on the first point:
+  - The overall version of the platform
+  - The version of the platform's constituent components
+
+The overall platform should be versioned in a temporally distinct way, yet allowing for multiple production releases within a single calendar day.  The proposed format is as follows:
+
+> YYYY.0M.0D_MICRO
+
+|YYYY|0M|0D|MICRO
+|---|---|---|---|
+|Full year|Zero-padded month|Zero-padded day|Release number|
+|2019, 2020, ...|01, 10, ...|01, 30, ...|0, 1, 2, ...
+
+The proposed versioning scheme is based off of `Calendar Versioning`<sup>2</sup>.  A separate proposal may leverage `Semantic Versioning`<sup>3</sup> to add granularity to the individual components within the PRIME Data Hub platform.
+
+# References
+1. [GitHub Flow](https://guides.github.com/introduction/flow/)
+
+2. [Calendar Versioning](https://calver.org)
+
+3. [Semantic Versioning](https://semver.org)

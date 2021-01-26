@@ -77,5 +77,10 @@ prime-router/source.mry
 prime-router/result_files/*
 prime-router/routed_files/*
 
+# Terraform files
+operations/app/src/**/.terraform*
+operations/app/src/**/terraform.tfstate*
+
 # Hashicorp Vault Secrets
 prime-router/.vault/env/**
+
