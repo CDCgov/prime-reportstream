@@ -317,7 +317,7 @@
                             <pojos>true</pojos>
                             <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
                             <pojosToString>true</pojosToString>
-                            <immutablePojos>true</immutablePojos>
+                            <immutablePojos>false</immutablePojos>
                         </generate>
                         <target>
                             <packageName>gov.cdc.prime.router.azure.db</packageName>

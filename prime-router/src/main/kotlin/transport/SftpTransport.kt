@@ -5,6 +5,7 @@ import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
+import gov.cdc.prime.router.azure.ActionHistory
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
@@ -17,9 +18,11 @@ class SftpTransport : ITransport {
         orgService: OrganizationService,
         transportType: TransportType,
         contents: ByteArray,
-        reportId: ReportId,
+        inputReportId: ReportId,
+        sentReportId: ReportId,
         retryItems: RetryItems?,
-        context: ExecutionContext
+        context: ExecutionContext,
+        actionHistory: ActionHistory,
     ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
         val host: String = sftpTransportType.host
@@ -27,18 +30,23 @@ class SftpTransport : ITransport {
         return try {
             val (user, pass) = lookupCredentials(orgService.fullName)
             val extension = orgService.format.toExt()
-            val fileName = "${orgService.fullName.replace('.', '-')}-$reportId.$extension"
+            // Dev note:  db table requires fileName to be unique.
+            val fileName = "${orgService.fullName.replace('.', '-')}-$sentReportId.$extension"
 
-            // context.logger.log(Level.INFO, "About to sftp upload ${sftpTransportType.filePath}/$fileName to $user at $host:$port (orgService = ${orgService.fullName})")
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
-            // context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
+            val msg = "Success: sftp upload of $fileName to $sftpTransportType"
+            context.logger.log(Level.INFO, msg)
+            actionHistory.trackActionResult(msg)
+            // todo fix the itemCount == -1, when we refactor workflowEngine to read from new tables.
+            actionHistory.trackSentReport(orgService, sentReportId, fileName, sftpTransportType.toString(), msg, -1)
             null
         } catch (ioException: IOException) {
+            val msg = "FAILED Sftp upload of inputReportId $inputReportId to $sftpTransportType (orgService = ${orgService.fullName})\""
             context.logger.log(
-                Level.WARNING,
-                "FAILED Sftp upload of reportId $reportId to $host:$port  (orgService = ${orgService.fullName})\"",
-                ioException
+                Level.WARNING, msg, ioException
             )
+            actionHistory.trackActionResult(msg)
+            actionHistory.trackFailedReport(orgService, sentReportId, sftpTransportType.toString(), msg)
             RetryToken.allItems
         } // let non-IO exceptions be caught by the caller
     }
