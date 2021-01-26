@@ -81,11 +81,14 @@ class DownloadFunction {
         return headers.sortedByDescending {
             it.task.createdAt
         }.map {
-            val org = WorkflowEngine().metadata.findOrganization(orgName.replace("_", "-"))
-            val svc = WorkflowEngine.metadata.findService(it.task.receiverName)
+            val org = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
+            val svc = WorkflowEngine().metadata.findService(it.task.receiverName)
+            val orgDesc = if (org !== null) org.description else "Unknown"
+            val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
+            System.out.println("org = $org")
             TestResult(
                 it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                if (svc !== null) svc.description else if (org !== null) org.description else "Unknown",
+                receiver,
                 DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
                 it.task.itemCount,
                 0,
@@ -114,7 +117,7 @@ class DownloadFunction {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
         val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
 
-        val org = WorkflowEngine.metadata.findOrganization(orgName.replace('_', '-'))
+        val org = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
 
         val attr = mapOf(
             "description" to if (org !== null) org.description else "",
@@ -179,6 +182,9 @@ class DownloadFunction {
         orgName = ""
 
         val cookies = request.headers["cookie"] ?: ""
+
+        System.out.println(cookies)
+
         var jwtString = ""
 
         cookies.replace(" ", "").split(";").forEach {
