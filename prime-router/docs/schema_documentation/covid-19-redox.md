@@ -43,6 +43,9 @@ Code | Display
 D|Debugging
 P|Production
 T|Training
+D|Debugging
+T|Training
+P|Production
 
 **Alt Value Sets**
 
@@ -164,6 +167,8 @@ Code | Display
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Unknown
+H|Hispanic or Latino
+N|Non Hispanic or Latino
 
 **Alt Value Sets**
 
@@ -191,6 +196,12 @@ The patient's ethnicity. There is a valueset defined based on the values in PID-
 
 Code | Display
 ---- | -------
+M|Male
+F|Female
+O|Other
+A|Ambiguous
+U|Unknown
+N|Not applicable
 M|Male
 F|Female
 O|Other
@@ -235,6 +246,13 @@ Code | Display
 2106-3|White
 2131-1|Other
 UNK|Unknown
+ASKU|Asked, but unknown
+1002-5|American Indian or Alaska Native
+2028-9|Asian
+2054-5|Black or African American
+2076-8|Native Hawaiian or Other Pacific Islander
+2106-3|White
+2131-1|Other
 ASKU|Asked, but unknown
 
 **Alt Value Sets**
@@ -566,6 +584,8 @@ S|No results available; procedure scheduled, but not done
 X|No results available; Order canceled
 Y|No order on record for this test
 Z|No record of this patient
+C|Corrected, final
+F|Final results
 
 **Alt Value Sets**
 
@@ -584,9 +604,9 @@ F|Final
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Order Code
+**Table Column**: Test Ordered LOINC Code
 
 ---
 
@@ -606,9 +626,9 @@ F|Final
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Order Code Long Name
+**Table Column**: Test Ordered LOINC Long Name
 
 ---
 
@@ -770,7 +790,7 @@ The phone number of the provider
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Documentation**:
 
@@ -786,9 +806,9 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Code
+**Table Column**: Test Performed LOINC Code
 
 **Documentation**:
 
@@ -812,9 +832,9 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Long Name
+**Table Column**: Test Performed LOINC Long Name
 
 **Documentation**:
 
@@ -966,6 +986,8 @@ AA|Very abnormal (applies to non-numeric units, analogous to panic limits for nu
 VS|Very susceptible. Indicates for microbiology susceptibilities only.
 WR|Weakly reactive
 W|Worse--use when direction not relevant
+A|Abnormal (applies to non-numeric results)
+N|Normal (applies to non-numeric results)
 
 **Alt Value Sets**
 
@@ -1115,7 +1137,7 @@ The name of the laboratory which performed the test, can be the same as the send
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Model
 
