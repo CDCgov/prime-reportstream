@@ -6,7 +6,7 @@ import org.apache.logging.log4j.kotlin.Logging
 object HashicorpVaultCredentialService : CredentialService(), Logging {
 
     private val VAULT_API_ADDR: String by lazy { System.getenv("VAULT_API_ADDR") ?: "http://127.0.0.1:8200" }
-    private val VAULT_TOKEN: String by lazy { System.getenv("VAULT_ROOT_TOKEN") ?: "" }
+    private val VAULT_TOKEN: String by lazy { System.getenv("VAULT_TOKEN") ?: "" }
     private val manager: FuelManager by lazy { initVaultApi(FuelManager()) }
 
     internal fun initVaultApi(manager: FuelManager): FuelManager {
@@ -31,7 +31,8 @@ object HashicorpVaultCredentialService : CredentialService(), Logging {
             .body(credential.toJSON())
             .response()
         if (response.statusCode != 200) {
-            logger.error { "Failed to save credentials for: $connectionId" }
+            logger.error(response)
+            throw Exception("Failed to save credentials for: $connectionId")
         }
     }
 }

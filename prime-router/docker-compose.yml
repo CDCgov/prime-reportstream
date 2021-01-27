@@ -13,6 +13,8 @@ services:
         source: ./target
         target: /prime-data-hub-router
     entrypoint: [/prime-data-hub-router/start_func.sh]
+    env_file:
+      - ./.vault/env/.env.local
     environment:
       # this storage account key is not a secret. It just looks like one.
       - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
@@ -85,6 +87,9 @@ services:
       - .vault/env:/vault/env
       # Vault database persisted as a Docker volume
       - vault:/vault/file
+    ports:
+      # Vault API
+      - 8200:8200
     # Override the command with our custom init script
     command: "/vault/config/init.sh"
 

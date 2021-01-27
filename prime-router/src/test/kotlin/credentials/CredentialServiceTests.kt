@@ -7,9 +7,8 @@ import kotlin.test.fail
 
 internal class CredentialServiceTests : CredentialManagement {
 
-    val VALID_CONNECTION_IDS = listOf("valid1", "35wtfsdfe4t4wr4w4343", "with_underscores-and-dashes")
-    val INVALID_CONNECTION_IDS = listOf("slashes/are/not/allowed", "no spaces", "?andotherthings")
-    val VALID_CREDENTIAL = UserPassCredential("user1", "pass1")
+    override val credentialService: CredentialService
+        get() = MemoryCredentialService
 
     @Test
     fun `test save and fetch`() {
@@ -56,5 +55,11 @@ internal class CredentialServiceTests : CredentialManagement {
                 assertEquals("connectionId must match: ^[a-zA-Z0-9_-]*\$", e.message)
             }
         }
+    }
+
+    companion object {
+        private val VALID_CONNECTION_IDS = listOf("valid1", "35wtfsdfe4t4wr4w4343", "with_underscores-and-dashes")
+        private val INVALID_CONNECTION_IDS = listOf("slashes/are/not/allowed", "no spaces", "?andotherthings")
+        private val VALID_CREDENTIAL = UserPassCredential("user1", "pass1")
     }
 }

@@ -231,3 +231,21 @@ rm -rf .vault/env/{key,.env.local}
 ```
 
 Note: The `docker-compose down -v` option deletes all volumes associated with our docker-compose file.
+
+## Using the Vault locally
+
+Our `docker-compose.yml` will automatically load the environment variables needed for the Vault. If you need to use the Vault outside Docker, you can find the environment variables you need in:
+
+```
+.vault/env/.env.local
+```
+
+They can automatically be loaded in most IDEs:
+- IntelliJ: https://plugins.jetbrains.com/plugin/7861-envfile
+- VSCode: https://dev.to/andreasbergstrom/placeholder-post-1klo
+
+Alternatively, inject them in your terminal with (useful for using the CLI):
+
+```bash
+export $(cat ./.vault/env/.env.local | xargs)
+```
