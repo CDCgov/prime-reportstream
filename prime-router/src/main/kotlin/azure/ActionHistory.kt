@@ -81,6 +81,10 @@ class ActionHistory {
         this.context = context
     }
 
+    fun setActionType(taskAction: TaskAction) {
+        action.actionName = taskAction
+    }
+
     fun trackActionParams(request: HttpRequestMessage<String?>) {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
@@ -250,6 +254,7 @@ class ActionHistory {
         reportsOut[reportFile.reportId] = reportFile
     }
 
+    @Deprecated("Not sure we really need this")
     fun trackFailedReport(service: OrganizationService, sentReportId: ReportId, params: String, msg: String) {
         trackSentReport(service, sentReportId, null, params, msg, 0)
     }
