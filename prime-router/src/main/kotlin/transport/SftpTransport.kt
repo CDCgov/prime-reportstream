@@ -14,6 +14,8 @@ import java.io.InputStream
 import java.util.logging.Level
 
 class SftpTransport : ITransport {
+    private val hl7MessageDelimiter = "\r\r"
+
     override fun send(
         orgService: OrganizationService,
         transportType: TransportType,
@@ -32,7 +34,10 @@ class SftpTransport : ITransport {
             if (orgService.format == OrganizationService.Format.HL7) {
                 val extension = orgService.format.toExt()
                 val baseName = "${orgService.fullName.replace('.', '-')}-$reportId"
-                uploadMultipleFiles(host, port, user, pass, sftpTransportType.filePath, baseName, extension, String(contents), "/n/n")
+                uploadMultipleFiles(
+                    host, port, user, pass, sftpTransportType.filePath, baseName, extension,
+                    contents = String(contents), delimiter = hl7MessageDelimiter
+                )
             } else {
                 val extension = orgService.format.toExt()
                 val fileName = "${orgService.fullName.replace('.', '-')}-$reportId.$extension"
@@ -95,15 +100,16 @@ class SftpTransport : ITransport {
         baseName: String,
         extension: String,
         contents: String,
-        delimitter: String,
+        delimiter: String,
     ) {
         val sshClient = SSHClient()
         try {
             sshClient.addHostKeyVerifier(PromiscuousVerifier())
             sshClient.connect(host, port.toInt())
             sshClient.authPassword(user, pass)
-            val items = contents.split(delimitter)
+            val items = contents.split(delimiter)
             items.forEachIndexed { index, item ->
+                if (item.isBlank()) return@forEachIndexed
                 putOneFile(sshClient, item.toByteArray(), "$baseName-$index.$extension", path)
             }
         } finally {

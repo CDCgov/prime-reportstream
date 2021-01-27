@@ -15,6 +15,7 @@ import java.util.Properties
 class Hl7Serializer(val metadata: Metadata) {
     private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
     private val softwareProductName = "PRIME Data Hub"
+    private val hl7SegmentDelimiter: String = "\r"
 
     private val hapiContext = DefaultHapiContext()
     private val buildVersion: String
@@ -32,11 +33,11 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     /**
-     * Write a report as \n delimited messages
+     * Write a report as two \r delimited messages
      */
     fun write(report: Report, outputStream: OutputStream) {
         report.itemIndices.map {
-            val message = createMessage(report, it) + "\n"
+            val message = createMessage(report, it) + hl7SegmentDelimiter
             outputStream.write(message.toByteArray())
         }
     }
