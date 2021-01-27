@@ -2,6 +2,7 @@ package gov.cdc.prime.router.credentials
 
 import com.github.kittinunf.fuel.core.FuelManager
 import org.apache.logging.log4j.kotlin.Logging
+import org.json.JSONObject
 
 object HashicorpVaultCredentialService : CredentialService(), Logging {
 
@@ -23,14 +24,17 @@ object HashicorpVaultCredentialService : CredentialService(), Logging {
         val (request, response, result) = manager.get("/$connectionId")
             .responseString()
         val (data, error) = result
-        return Credential.fromJSON(data)
+        // Vault wraps the response in a data key
+        val credentialJson = JSONObject(data).getJSONObject("data").toString()
+        return Credential.fromJSON(credentialJson)
     }
 
     override fun saveCredential(connectionId: String, credential: Credential) {
         val (request, response, result) = manager.post("/$connectionId")
+            .header("Content-Type", "application/json")
             .body(credential.toJSON())
             .response()
-        if (response.statusCode != 200) {
+        if (response.statusCode != 204) {
             logger.error(response)
             throw Exception("Failed to save credentials for: $connectionId")
         }

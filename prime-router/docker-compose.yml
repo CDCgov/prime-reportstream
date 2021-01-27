@@ -14,6 +14,9 @@ services:
         target: /prime-data-hub-router
     entrypoint: [/prime-data-hub-router/start_func.sh]
     env_file:
+      # On first run of docker-compose, create this file, it will get populated, but docker-compose doesn't allow optional env_file
+      # Example: touch .vault/env/.env.local
+      # https://github.com/docker/compose/pull/3955
       - ./.vault/env/.env.local
     environment:
       # this storage account key is not a secret. It just looks like one.

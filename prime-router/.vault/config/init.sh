@@ -37,11 +37,11 @@ vault operator unseal "$(cat /vault/env/key)"
 printf "\n\n"
 
 # Enable kv secrets
-if vault secrets list | grep -q "kv-v2"; then
+if vault secrets list | grep -q "kv"; then
   printf "Key/Value store is already initialized."
 else
   printf "Initializing Key/Value store..."
-  vault secrets enable -path=secret kv-v2
+  vault secrets enable -path=secret -version=1 kv
 fi
 
 printf "\n"

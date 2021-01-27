@@ -228,6 +228,7 @@ If you would like to start with a fresh Vault database, you can clear the Vault 
 cd prime_router
 docker-compose down -v
 rm -rf .vault/env/{key,.env.local}
+touch .vault/env/.env.local
 ```
 
 Note: The `docker-compose down -v` option deletes all volumes associated with our docker-compose file.
