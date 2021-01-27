@@ -49,8 +49,9 @@ class WorkflowEngine(
     fun receiveReport(report: Report, txn: Configuration? = null) {
         val (bodyFormat, bodyUrl) = blob.uploadBody(report)
         try {
-            val receiveEvent = ReportEvent(Event.Action.NONE, report.id, null)
+            val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, report.id, null)
             db.insertHeader(report, bodyFormat, bodyUrl, receiveEvent, txn)
+            report.bodyURL = bodyUrl
         } catch (e: Exception) {
             // Clean up
             blob.deleteBlob(bodyUrl)
@@ -67,6 +68,7 @@ class WorkflowEngine(
         try {
             db.insertHeader(report, bodyFormat, bodyUrl, nextAction, txn)
             queue.sendMessage(nextAction)
+            report.bodyURL = bodyUrl
         } catch (e: Exception) {
             // Clean up
             blob.deleteBlob(bodyUrl)
@@ -82,18 +84,20 @@ class WorkflowEngine(
      */
     fun handleReportEvent(
         messageEvent: ReportEvent,
+        actionHistory: ActionHistory,
         updateBlock: (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         db.transact { txn ->
             val header = db.fetchAndLockHeader(messageEvent.reportId, txn)
-            val currentAction = Event.Action.parseQueueMessage(header.task.nextAction.literal)
+            val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
-            if (currentAction != messageEvent.action) return@transact
+            if (currentEventAction != messageEvent.eventAction) return@transact
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
-            val nextAction = updateBlock(header, retryToken, txn)
-            val retryJson = nextAction.retryToken?.toJSON()
-            db.updateHeader(header.task.reportId, currentAction, nextAction.action, nextAction.at, retryJson, txn)
-            queue.sendMessage(nextAction)
+            val nextEvent = updateBlock(header, retryToken, txn)
+            val retryJson = nextEvent.retryToken?.toJSON()
+            db.updateHeader(header.task.reportId, currentEventAction, nextEvent.eventAction, nextEvent.at, retryJson, txn)
+            recordAction(actionHistory, txn)
+            queue.sendMessage(nextEvent)
         }
     }
 
@@ -111,7 +115,7 @@ class WorkflowEngine(
     ) {
         db.transact { txn ->
             val headers = db.fetchAndLockHeaders(
-                messageEvent.action.toTaskAction(),
+                messageEvent.eventAction.toTaskAction(),
                 messageEvent.at,
                 messageEvent.receiverName,
                 maxCount,
@@ -119,11 +123,11 @@ class WorkflowEngine(
             )
             updateBlock(headers, txn)
             headers.forEach {
-                val currentAction = Event.Action.parseQueueMessage(it.task.nextAction.literal)
+                val currentAction = Event.EventAction.parseQueueMessage(it.task.nextAction.literal)
                 db.updateHeader(
                     it.task.reportId,
                     currentAction,
-                    Event.Action.NONE,
+                    Event.EventAction.NONE,
                     nextActionAt = null,
                     retryToken = null,
                     txn
@@ -158,6 +162,14 @@ class WorkflowEngine(
      */
     fun readBody(header: DatabaseAccess.Header): ByteArray {
         return blob.downloadBlob(header.task.bodyUrl)
+    }
+
+    fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
+        if (txn != null) {
+            actionHistory.saveToDb(txn)
+        } else {
+            db.transact { innerTxn -> actionHistory.saveToDb(innerTxn) }
+        }
     }
 
     companion object {

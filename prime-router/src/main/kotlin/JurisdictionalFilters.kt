@@ -92,7 +92,6 @@ class DoesNotMatch : JurisdictionalFilter {
 class FilterByCounty : JurisdictionalFilter {
     override val name = "filterByCounty"
 
-    // @todo need tons of error checking.
     override fun getSelection(args: List<String>, table: Table): Selection {
         if (args.size != 2) error("Expecting two args to filter $name:  (TwoLetterState, County)")
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.

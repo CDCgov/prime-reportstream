@@ -11,6 +11,7 @@ import gov.cdc.prime.router.serializers.RedoxSerializer
 import io.mockk.clearAllMocks
 import io.mockk.confirmVerified
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
@@ -54,7 +55,7 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        val event = ReportEvent(Event.Action.NONE, UUID.randomUUID())
+        val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID())
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
 
@@ -84,7 +85,7 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        val event = ReportEvent(Event.Action.NONE, report1.id)
+        val event = ReportEvent(Event.EventAction.NONE, report1.id)
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
 
@@ -117,7 +118,7 @@ class WorkflowEngineTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        val event = ReportEvent(Event.Action.NONE, UUID.randomUUID())
+        val event = ReportEvent(Event.EventAction.RECEIVE, UUID.randomUUID())
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
 
@@ -140,7 +141,7 @@ class WorkflowEngineTests {
         verify(exactly = 0) {
             queueMock.sendMessage(event = any())
         }
-        confirmVerified(accessSpy, blobMock, queueMock)
+        confirmVerified(blobMock, accessSpy, queueMock)
     }
 
     @Test
@@ -150,17 +151,18 @@ class WorkflowEngineTests {
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
-        val event = ReportEvent(Event.Action.SEND, report1.id)
-        val nextAction = ReportEvent(Event.Action.NONE, report1.id)
+        val event = ReportEvent(Event.EventAction.SEND, report1.id)
+        val nextAction = ReportEvent(Event.EventAction.NONE, report1.id)
         val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
+        val actionHistoryMock = mockk<ActionHistory>()
 
         every { accessSpy.fetchAndLockHeader(reportId = eq(report1.id), any()) }
             .returns(DatabaseAccess.Header(task, emptyList()))
         every {
             accessSpy.updateHeader(
                 reportId = eq(report1.id),
-                eq(event.action),
-                eq(nextAction.action),
+                eq(event.eventAction),
+                eq(nextAction.eventAction),
                 any(),
                 any(),
                 any()
@@ -168,9 +170,11 @@ class WorkflowEngineTests {
         }.returns(Unit)
         every { queueMock.sendMessage(eq(nextAction)) }
             .returns(Unit)
+        every { actionHistoryMock.saveToDb(any()) }.returns(Unit)
+        every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
 
         val engine = makeEngine(metadata)
-        engine.handleReportEvent(event) { header, _, _ ->
+        engine.handleReportEvent(event, actionHistoryMock) { header, _, _ ->
             assertEquals(task, header.task)
             assertEquals(0, header.sources.size)
             nextAction

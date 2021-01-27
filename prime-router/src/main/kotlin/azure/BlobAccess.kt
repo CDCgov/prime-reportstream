@@ -27,7 +27,7 @@ class BlobAccess(
 
     private fun createBodyBytes(report: Report, forceFormat: OrganizationService.Format?): Pair<String, ByteArray> {
         val outputStream = ByteArrayOutputStream()
-        val format = forceFormat ?: getBodyFormat(report)
+        val format = forceFormat ?: report.getBodyFormat(report)
         when (format) {
             OrganizationService.Format.HL7 -> hl7Serializer.write(report, outputStream)
             OrganizationService.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)

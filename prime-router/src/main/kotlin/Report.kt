@@ -36,6 +36,7 @@ class Report {
 
     /**
      * The sources that generated this service
+     * todo this is now redundant with ActionHistory.reportLineages.
      */
     val sources: List<Source>
 
@@ -63,6 +64,11 @@ class Report {
      * A standard name for this report that take schema, id, and destination into account
      */
     val name: String get() = formFileName(id, schema.baseName, destination?.format, createdDateTime)
+
+    /**
+     * A pointer to where the Report is stored.
+     */
+    var bodyURL: String = ""
 
     // The use of a TableSaw is an implementation detail hidden by this class
     // The TableSaw table is mutable, while this class is has immutable semantics
@@ -257,6 +263,10 @@ class Report {
 
     private fun buildEmptyColumn(name: String): StringColumn {
         return StringColumn.create(name, List(itemCount) { "" })
+    }
+
+    fun getBodyFormat(): OrganizationService.Format {
+        return this.destination?.format ?: OrganizationService.Format.CSV
     }
 
     companion object {
