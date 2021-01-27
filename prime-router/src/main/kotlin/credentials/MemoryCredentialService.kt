@@ -1,17 +1,13 @@
 package gov.cdc.prime.router.credentials
 
 object MemoryCredentialService : CredentialService() {
-    val credentialList: HashMap<String, Credential>
-
-    init {
-        credentialList = HashMap<String, Credential>()
-    }
+    private val credentialList: HashMap<String, Credential> = HashMap()
 
     override fun fetchCredential(connectionId: String): Credential? {
-        return credentialList.get(connectionId)
+        return credentialList[connectionId]
     }
 
     override fun saveCredential(connectionId: String, credential: Credential) {
-        credentialList.put(connectionId, credential)
+        credentialList[connectionId] = credential
     }
 }

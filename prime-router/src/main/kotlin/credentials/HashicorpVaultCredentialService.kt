@@ -30,8 +30,8 @@ object HashicorpVaultCredentialService : CredentialService(), Logging {
         val (request, response, result) = manager.post("/$connectionId")
             .body(credential.toJSON())
             .response()
-        if ( response.statusCode != 200 ) {
-            logger.error("Failed to save credentials for: $connectionId")
+        if (response.statusCode != 200) {
+            logger.error { "Failed to save credentials for: $connectionId" }
         }
     }
 }

@@ -10,8 +10,8 @@ abstract class CredentialService : Logging {
 
     /* Methods to implement in subclasses */
 
-    internal abstract fun fetchCredential(connectionId: String): Credential?
-    internal abstract fun saveCredential(connectionId: String, credential: Credential)
+    protected abstract fun fetchCredential(connectionId: String): Credential?
+    protected abstract fun saveCredential(connectionId: String, credential: Credential)
 
     /* Base implementation for credentialService with validations */
 
@@ -23,13 +23,15 @@ abstract class CredentialService : Logging {
 
     fun saveCredential(connectionId: String, credential: Credential, callerId: String) {
         require(URL_SAFE_KEY_PATTERN.matches(connectionId)) { "connectionId must match: ${URL_SAFE_KEY_PATTERN.pattern}" }
-        logger.info { "CREDENTIAL UPDATE: $callerId updated connectionId($connectionId) credential" }
-        return saveCredential(connectionId, credential)
+        logger.info { "CREDENTIAL UPDATE: $callerId updating connectionId($connectionId) credential..." }
+        saveCredential(connectionId, credential)
+        logger.info { "CREDENTIAL UPDATE: $callerId updated connectionId($connectionId) credential successfully." }
     }
 }
 
 enum class CredentialRequestReason {
     SEND_BATCH,
     SEND_SINGLE,
-    AUTOMATED_TEST
+    AUTOMATED_TEST,
+    PERSIST_VERIFY
 }

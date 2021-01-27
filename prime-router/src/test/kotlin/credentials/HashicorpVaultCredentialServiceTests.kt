@@ -17,9 +17,11 @@ internal class HashicorpVaultCredentialServiceTests {
     fun setUp() {
         every { credentialService getProperty "VAULT_API_ADDR" } returns VAULT_API_ADDR
         every { credentialService getProperty "VAULT_TOKEN" } returns VAULT_TOKEN
-        every { credentialService getProperty "manager" } returns credentialService.initVaultApi(FuelManager().apply {
-            client = MockFuelClient(mockFuelStore)
-        })
+        every { credentialService getProperty "manager" } returns credentialService.initVaultApi(
+            FuelManager().apply {
+                client = MockFuelClient(mockFuelStore)
+            }
+        )
     }
 
     @AfterTest
@@ -34,7 +36,7 @@ internal class HashicorpVaultCredentialServiceTests {
             MockResponse(200, """{"@type":"UserPass","user":"user","pass":"pass"}""".toByteArray())
         }
 
-        val credential = credentialService.fetchCredential(CONNECTION_ID)
+        val credential = credentialService.fetchCredential(CONNECTION_ID, "HashicorpVaultCredentialServiceTests", CredentialRequestReason.AUTOMATED_TEST)
 
         mockFuelStore.verifyRequest {
             assertMethod(Method.GET)
@@ -53,7 +55,7 @@ internal class HashicorpVaultCredentialServiceTests {
             MockResponse(200)
         }
 
-        credentialService.saveCredential(CONNECTION_ID, VALID_CREDENTIAL)
+        credentialService.saveCredential(CONNECTION_ID, VALID_CREDENTIAL, "HashicorpVaultCredentialServiceTests")
 
         mockFuelStore.verifyRequest {
             assertMethod(Method.POST)
@@ -64,7 +66,7 @@ internal class HashicorpVaultCredentialServiceTests {
     }
 
     companion object {
-        private const val VAULT_API_ADDR ="http://mock.vault.api"
+        private const val VAULT_API_ADDR = "http://mock.vault.api"
         private const val VAULT_TOKEN = "TESTING_VAULT_TOKEN"
         private const val CONNECTION_ID = "connection-id-1"
         private val VALID_CREDENTIAL = UserPassCredential("user1", "pass1")
