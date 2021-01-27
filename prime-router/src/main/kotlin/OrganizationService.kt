@@ -36,7 +36,8 @@ data class OrganizationService(
 
     enum class Format {
         CSV,
-        HL7,
+        HL7, // HL7 with one result per file
+        HL7_BATCH, // HL7 with BHS and FHS headers
         REDOX;
         // FHIR
 
@@ -44,6 +45,7 @@ data class OrganizationService(
             return when (this) {
                 CSV -> "csv"
                 HL7 -> "hl7"
+                HL7_BATCH -> "hl7"
                 REDOX -> "redox"
             }
         }

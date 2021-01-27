@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -61,7 +62,8 @@ class WorkflowEngine(
      * Place a report into the workflow
      */
     fun dispatchReport(nextAction: Event, report: Report, txn: Configuration? = null) {
-        val (bodyFormat, bodyUrl) = blob.uploadBody(report)
+        val forceFormat = if (nextAction.action == Event.Action.BATCH) OrganizationService.Format.CSV else null
+        val (bodyFormat, bodyUrl) = blob.uploadBody(report, forceFormat)
         try {
             db.insertHeader(report, bodyFormat, bodyUrl, nextAction, txn)
             queue.sendMessage(nextAction)

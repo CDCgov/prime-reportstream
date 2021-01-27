@@ -47,9 +47,7 @@
           numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
-        format: HL7
-
-
+        format: HL7_BATCH
         transports:
           - type: SFTP
             host: hssftp.azdhs.gov
@@ -68,7 +66,7 @@
             host: hssftp.azdhs.gov
             port: 22
             filePath: ./TEST/IN
-        format: HL7
+        format: HL7_BATCH
       - name: elr-prod
         topic: covid-19
         schema: az/az-covid-19

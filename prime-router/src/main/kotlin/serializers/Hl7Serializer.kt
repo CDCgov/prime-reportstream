@@ -31,7 +31,20 @@ class Hl7Serializer(val metadata: Metadata) {
         }
     }
 
+    /**
+     * Write a report as \n delimited messages
+     */
     fun write(report: Report, outputStream: OutputStream) {
+        report.itemIndices.map {
+            val message = createMessage(report, it) + "\n"
+            outputStream.write(message.toByteArray())
+        }
+    }
+
+    /**
+     * Write a report with BHS and FHS segments
+     */
+    fun writeBatch(report: Report, outputStream: OutputStream) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
         //

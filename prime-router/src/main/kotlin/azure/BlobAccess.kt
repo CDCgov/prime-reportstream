@@ -19,20 +19,22 @@ class BlobAccess(
     private val hl7Serializer: Hl7Serializer,
     private val redoxSerializer: RedoxSerializer
 ) {
-    fun uploadBody(report: Report): Pair<String, String> {
-        val (bodyFormat, blobBytes) = createBodyBytes(report)
+    fun uploadBody(report: Report, forceFormat: OrganizationService.Format? = null): Pair<String, String> {
+        val (bodyFormat, blobBytes) = createBodyBytes(report, forceFormat)
         val blobUrl = uploadBlob(report.name, blobBytes)
         return Pair(bodyFormat, blobUrl)
     }
 
-    private fun createBodyBytes(report: Report): Pair<String, ByteArray> {
+    private fun createBodyBytes(report: Report, forceFormat: OrganizationService.Format?): Pair<String, ByteArray> {
         val outputStream = ByteArrayOutputStream()
-        when (getBodyFormat(report)) {
+        val format = forceFormat ?: getBodyFormat(report)
+        when (format) {
             OrganizationService.Format.HL7 -> hl7Serializer.write(report, outputStream)
+            OrganizationService.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
             OrganizationService.Format.CSV -> csvSerializer.write(report, outputStream)
             OrganizationService.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }
-        return Pair(getBodyFormat(report).toString(), outputStream.toByteArray())
+        return Pair(format.toString(), outputStream.toByteArray())
     }
 
     private fun getBodyFormat(report: Report): OrganizationService.Format {

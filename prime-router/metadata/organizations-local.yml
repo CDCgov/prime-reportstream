@@ -55,7 +55,7 @@
             host: sftp
             port: 22
             filePath: ./upload
-        format: HL7
+        format: HL7_BATCH
       - name: elr-prod
         topic: covid-19
         schema: az/az-covid-19
