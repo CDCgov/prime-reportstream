@@ -72,6 +72,17 @@ class Report {
     //
     private val table: Table
 
+    /**
+     * Allows us to specify a synthesize strategy when converting a report from live data
+     * into synthetic data that cannot be tied back to any real persons
+     */
+    enum class SynthesizeStrategy {
+        BLANK,
+        SHUFFLE,
+        PASSTHROUGH,
+        FAKE
+    }
+
     // Generic
     constructor(
         schema: Schema,
@@ -194,6 +205,36 @@ class Report {
         return Report(schema, Table.create(columns), fromThisReport("deidentify"))
     }
 
+    // takes the data in the existing report and synthesizes different data from it
+    // the goal is to allow us to take real data in, move it around and scramble it so it's
+    // not able to point back to the actual records
+    fun synthesizeData(synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap()): Report {
+        val columns = schema.elements.map {
+            val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
+                // look in the mapping parameter passed in for the current element
+                when (strategy) {
+                    // examine the synthesizeStrategy for the field
+                    // can be one of three values right now:
+                    // empty column, shuffle column, pass through column untouched
+                    SynthesizeStrategy.SHUFFLE -> {
+                        val shuffledValues = table.column(it.name).asStringColumn().shuffled()
+                        StringColumn.create(it.name, shuffledValues)
+                    }
+                    SynthesizeStrategy.FAKE -> {
+                        // todo: generate random faked data for the column passed in
+                        buildFakedColumn(it.name)
+                    }
+                    SynthesizeStrategy.BLANK -> buildEmptyColumn(it.name)
+                    SynthesizeStrategy.PASSTHROUGH -> table.column(it.name).copy()
+                }
+            }
+            // if the element name is not mapping, it is handled as a pass through
+            synthesizedColumn ?: table.column(it.name).copy()
+        }
+        // return the new copy of the report here
+        return Report(schema, Table.create(columns), fromThisReport("synthesizeData"))
+    }
+
     fun applyMapping(mapping: Translator.Mapping): Report {
         val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
@@ -257,6 +298,10 @@ class Report {
 
     private fun buildEmptyColumn(name: String): StringColumn {
         return StringColumn.create(name, List(itemCount) { "" })
+    }
+
+    private fun buildFakedColumn(name: String): StringColumn {
+        return StringColumn.create(name, List(itemCount) { "FAKED DATA" })
     }
 
     companion object {
