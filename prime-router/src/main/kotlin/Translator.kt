@@ -29,29 +29,7 @@ class Translator(private val metadata: Metadata) {
         return metadata.organizationServices.map { service -> translateByService(input, service, defaultValues) }
     }
 
-    /**
-     * Translate and filter by the list of services in metadata. Only return reports that have items.
-     */
-    fun filterAndTranslateByService(input: Report, defaultValues: DefaultValues = emptyMap()): List<Pair<Report, OrganizationService>> {
-        if (input.isEmpty()) return emptyList()
-        return metadata.organizationServices.filter { service ->
-            service.topic == input.schema.topic
-        }.mapNotNull { service ->
-            val mappedReport = translateByService(input, service, defaultValues)
-            if (mappedReport.itemCount == 0) return@mapNotNull null
-            Pair(mappedReport, service)
-        }
-    }
-
-    fun translate(input: Report, toService: String, defaultValues: DefaultValues = emptyMap()): Pair<Report, OrganizationService>? {
-        if (input.isEmpty()) return null
-        val service = metadata.findService(toService) ?: error("invalid service name $toService")
-        val mappedReport = translateByService(input, service, defaultValues)
-        if (mappedReport.itemCount == 0) return null
-        return Pair(mappedReport, service)
-    }
-
-    private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
+    fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
             val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
@@ -90,12 +68,37 @@ class Translator(private val metadata: Metadata) {
         return transformed.copy(destination = receiver)
     }
 
+    fun translate(input: Report, toService: String, defaultValues: DefaultValues = emptyMap()): Pair<Report, OrganizationService>? {
+        if (input.isEmpty()) return null
+        val service = metadata.findService(toService) ?: error("invalid service name $toService")
+        val mappedReport = translateByService(input, service, defaultValues)
+        if (mappedReport.itemCount == 0) return null
+        return Pair(mappedReport, service)
+    }
+
+    fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
+        val toSchema = metadata.findSchema(receiver.schema)
+            ?: error("${receiver.schema} schema is missing from catalog")
+        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
+    }
+
     /**
      * Translate one report to another schema. Translate all items.
      */
     fun translate(input: Report, toSchema: Schema, defaultValues: DefaultValues): Report {
         val mapping = buildMapping(toSchema = toSchema, fromSchema = input.schema, defaultValues)
         return input.applyMapping(mapping = mapping)
+    }
+
+    fun filterAndTranslateByService(input: Report, defaultValues: DefaultValues = emptyMap()): List<Pair<Report, OrganizationService>> {
+        if (input.isEmpty()) return emptyList()
+        return metadata.organizationServices.filter { service ->
+            service.topic == input.schema.topic
+        }.mapNotNull { service ->
+            val mappedReport = translateByService(input, service, defaultValues)
+            if (mappedReport.itemCount == 0) return@mapNotNull null
+            Pair(mappedReport, service)
+        }
     }
 
     /**
@@ -131,11 +134,5 @@ class Translator(private val metadata: Metadata) {
             }
         }
         return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)
-    }
-
-    private fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
-        val toSchema = metadata.findSchema(receiver.schema)
-            ?: error("${receiver.schema} schema is missing from catalog")
-        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
     }
 }

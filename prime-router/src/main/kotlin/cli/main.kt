@@ -227,11 +227,13 @@ class ProcessData : CliktCommand(
             }
         }
 
+        // synthesize the data here
+
         if (!validate) TODO("validation cannot currently be disabled")
         if (send) TODO("--send is not implemented")
 
         // Transform reports
-        val translator = Translator(metadata)
+        val translator: Translator = Translator(metadata)
         val outputFormat = if (outputHl7) OrganizationService.Format.HL7 else OrganizationService.Format.CSV
         val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
             route ->
