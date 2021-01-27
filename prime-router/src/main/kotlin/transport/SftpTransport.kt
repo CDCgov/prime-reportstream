@@ -6,6 +6,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
@@ -41,12 +42,14 @@ class SftpTransport : ITransport {
             actionHistory.trackSentReport(orgService, sentReportId, fileName, sftpTransportType.toString(), msg, -1)
             null
         } catch (ioException: IOException) {
-            val msg = "FAILED Sftp upload of inputReportId $inputReportId to $sftpTransportType (orgService = ${orgService.fullName})\""
+            val msg = "FAILED Sftp upload of inputReportId $inputReportId to $sftpTransportType (orgService = ${orgService.fullName})"
             context.logger.log(
                 Level.WARNING, msg, ioException
             )
+            actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
-            actionHistory.trackFailedReport(orgService, sentReportId, sftpTransportType.toString(), msg)
+            // Ambivalent about this - seems not useful to track a file that does not exist.   Removing for now.
+// delete this            actionHistory.trackFailedReport(orgService, sentReportId, sftpTransportType.toString(), msg)
             RetryToken.allItems
         } // let non-IO exceptions be caught by the caller
     }
