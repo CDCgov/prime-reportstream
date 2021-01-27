@@ -2,6 +2,7 @@ package gov.cdc.prime.router.transport
 
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
@@ -32,8 +33,7 @@ class SftpTransport : ITransport {
             val (user, pass) = lookupCredentials(orgService.fullName)
             val extension = orgService.format.toExt()
             // Dev note:  db table requires fileName to be unique.
-            val fileName = "${orgService.fullName.replace('.', '-')}-$sentReportId.$extension"
-
+            val fileName = Report.formExternalFilename(orgService.fullName, sentReportId, extension)
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)

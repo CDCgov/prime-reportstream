@@ -303,5 +303,13 @@ class Report {
             val nameSuffix = fileFormat?.toExt() ?: OrganizationService.Format.CSV.toExt()
             return "$namePrefix.$nameSuffix"
         }
+
+        fun formExternalFilename(
+            orgServiceFullName: String,
+            reportId: ReportId,
+            extension: String
+        ): String {
+            return "${orgServiceFullName.replace('.', '-')}-$reportId.${extension.toLowerCase()}"
+        }
     }
 }

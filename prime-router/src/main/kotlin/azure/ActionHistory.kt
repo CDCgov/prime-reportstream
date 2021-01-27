@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -71,7 +72,7 @@ class ActionHistory {
      * that are error-prone to track.  Hiding the lineage data here helps ensure correctness and hide complexity.
      *
      * todo Note that this does not work for command line.   Is that a problem?
-     * todo this is redundant with `Report.sources`.   Merge these together; eliminate one of them.
+     * todo this is redundant with `Report.sources`.   Merge these together.  Eliminate one of them.
      *
      */
     private val reportLineages = mutableListOf<ReportLineage>()
@@ -131,6 +132,11 @@ class ActionHistory {
 
     fun trackActionResult(httpResponseMessage: HttpResponseMessage) {
         trackActionResult(httpResponseMessage.status.toString() + ":\n" + httpResponseMessage.body.toString())
+    }
+
+    fun trackActionRequestResponse(request: HttpRequestMessage<String?>, response: HttpResponseMessage) {
+        trackActionParams(request)
+        trackActionResult(response)
     }
 
     /**
@@ -251,6 +257,38 @@ class ActionHistory {
         reportFile.bodyUrl = null
         reportFile.bodyFormat = service.format.toString()
         reportFile.itemCount = itemCount
+        reportsOut[reportFile.reportId] = reportFile
+    }
+
+    /**
+     * Note that confusingly the downloadedReportId is NOT the UUID of the blob that got downloaded.
+     * Its a brand new UUID, that artificially represents the copy of the report that is now outside
+     * of our custody.
+     */
+    fun trackDownloadedReport(
+        header: DatabaseAccess.Header,
+        filename: String,
+        originalReportId: ReportId,
+        externalReportId: ReportId,
+        userName: String,
+        organization: Organization?
+    ) {
+        trackExistingInputReport(originalReportId)
+        if (isReportAlreadyTracked(externalReportId)) {
+            error("Bug:  attempt to track history of a report ($externalReportId) we've already associated with this action")
+        }
+        val reportFile = ReportFile()
+        reportFile.reportId = externalReportId
+        reportFile.receivingOrg = organization?.name ?: "unknown"
+        reportFile.receivingOrgSvc = header.task.receiverName
+        reportFile.schemaName = header.task.schemaName
+        reportFile.schemaTopic = "unavailable" // todo fix this
+        reportFile.externalName = filename
+        reportFile.transportParams = "Internal id of report requested: $originalReportId"
+        reportFile.transportResult = "Downloaded by user=$userName"
+        reportFile.bodyUrl = null // this entry represents an external file, not a blob.
+        reportFile.bodyFormat = header.task.bodyFormat
+        reportFile.itemCount = header.task.itemCount
         reportsOut[reportFile.reportId] = reportFile
     }
 

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -9,7 +10,10 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.okta.jwt.JwtVerifiers
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -19,6 +23,8 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
+import java.util.UUID
+import java.util.logging.Level
 
 class DownloadFunction {
     val DAYS_TO_SHOW = 7L
@@ -38,6 +44,7 @@ class DownloadFunction {
 
     var orgName = ""
     var userName = ""
+    var organization: Organization? = null
 
     @FunctionName("download")
     @StorageAccount("AzureWebJobsStorage")
@@ -46,14 +53,19 @@ class DownloadFunction {
             name = "req",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext,
     ): HttpResponseMessage {
         if (checkAuthenticated(request)) {
+            organization = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
+            if (organization == null) {
+                return serveAuthenticatePage(request)
+            }
             val file: String = request.queryParameters["file"] ?: ""
             if (file.isBlank())
                 return responsePage(request)
             else
-                return responseFile(request, file)
+                return responseFile(request, file, context)
         } else {
             return serveAuthenticatePage(request)
         }
@@ -116,11 +128,8 @@ class DownloadFunction {
     private fun responsePage(request: HttpRequestMessage<String?>, fileNotFound: Boolean = false): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
         val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
-
-        val org = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
-
         val attr = mapOf(
-            "description" to if (org !== null) org.description else "",
+            "description" to (organization?.description ?: ""),
             "user" to userName,
             "today" to Calendar.getInstance(),
             "todays" to generateTodaysTestResults(headers),
@@ -140,22 +149,33 @@ class DownloadFunction {
         return response
     }
 
-    private fun responseFile(request: HttpRequestMessage<String?>, fileName: String): HttpResponseMessage {
-        val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(ReportId.fromString(fileName), orgName)
+    private fun responseFile(request: HttpRequestMessage<String?>, requestedFile: String, context: ExecutionContext): HttpResponseMessage {
+        val reportId = ReportId.fromString(requestedFile)
+        val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(reportId, orgName)
         var response: HttpResponseMessage
         try {
             val body = WorkflowEngine().readBody(header)
             if (body.size <= 0)
                 response = responsePage(request, true)
             else {
+                // Give the external report a new UUID, so we can track its history distinct from the
+                // internal blob.
+                val externalReportId = UUID.randomUUID()
+                val filename = Report.formExternalFilename(header.task.receiverName, externalReportId, header.task.bodyFormat)
                 response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "text/csv")
-                    .header("Content-Disposition", "attachment; filename=test-results.csv")
+                    .header("Content-Disposition", "attachment; filename=$filename")
                     .body(body)
                     .build()
+                val actionHistory = ActionHistory(TaskAction.download, context)
+                actionHistory.trackActionRequestResponse(request, response)
+                actionHistory.trackDownloadedReport(header, filename, reportId, externalReportId, userName, organization)
+                WorkflowEngine().recordAction(actionHistory)
+                return response
             }
         } catch (ex: Exception) {
+            context.logger.log(Level.WARNING, "Exception during download of $requestedFile", ex)
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
         }
 
