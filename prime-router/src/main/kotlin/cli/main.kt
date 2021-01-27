@@ -359,5 +359,5 @@ class GenerateDocs : CliktCommand(
 }
 
 fun main(args: Array<String>) = RouterCli()
-    .subcommands(ProcessData(), ListSchemas(), GenerateDocs())
+    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CredentialsCli())
     .main(args)
