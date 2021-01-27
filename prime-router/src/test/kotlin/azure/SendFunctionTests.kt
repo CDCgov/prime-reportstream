@@ -18,7 +18,12 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.test.*
+import kotlin.test.Ignore
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class SendFunctionTests {
     val context = mockkClass(ExecutionContext::class)
@@ -68,7 +73,8 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         every { workflowEngine.handleReportEvent(any(), any()) }.answers {
-            val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val block = secondArg()
+                as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
             nextEvent = block(header, null, null)
         }
@@ -92,7 +98,8 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         every { workflowEngine.handleReportEvent(any(), any()) }.answers {
-            val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val block = secondArg()
+                as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
             nextEvent = block(header, null, null)
         }
@@ -117,8 +124,25 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         every { workflowEngine.handleReportEvent(any(), any()) }.answers {
-            val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val task = Task(reportId, TaskAction.send, null, null, "az-phd.elr-test", 0, "", "", null, null, null, null, null, null, null)
+            val block = secondArg()
+                as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val task = Task(
+                reportId,
+                TaskAction.send,
+                null,
+                null,
+                "az-phd.elr-test",
+                0,
+                "",
+                "",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
             nextEvent = block(header, RetryToken(2, listOf(RetryTransport(0, RetryToken.allItems))), null)
         }
@@ -146,8 +170,8 @@ class SendFunctionTests {
         setupLogger()
         val reportId = UUID.randomUUID()
         every { workflowEngine.handleReportEvent(any(), any()) }.answers {
-            val block =
-                secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val block = secondArg()
+                as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
 
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
             // Should be high enough retry count that the next action should have an error
