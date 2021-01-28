@@ -35,94 +35,117 @@ class FakeReport(val metadata: Metadata) {
         context: RowContext,
     ): String {
         val faker = context.faker
+
+        fun createFakeText(element: Element): String {
+            return when {
+                element.nameContains("name_of_testing_lab") -> "Any lab USA"
+                element.nameContains("lab_name") -> "Any lab USA"
+                element.nameContains("facility_name") -> "Any facility USA"
+                element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
+                element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
+                element.nameContains("patient_age_and_units") -> {
+                    val unit = randomChoice("months", "years", "days")
+                    val value = when (unit) {
+                        "months" -> faker.number().numberBetween(1, 18)
+                        "days" -> faker.number().numberBetween(0, 364)
+                        "years" -> faker.number().numberBetween(1, 120)
+                        else -> TODO()
+                    }
+
+                    "$value $unit"
+                }
+                else -> faker.lorem().characters(5, 10)
+            }
+        }
+
+        fun createFakeName(element: Element): String {
+            return when {
+                element.nameContains("first") -> context.patientName.firstName()
+                element.nameContains("last") -> context.patientName.lastName()
+                element.nameContains("middle") -> context.patientName.firstName() // no middle name in faker
+                element.nameContains("suffix") -> randomChoice(context.patientName.suffix(), "")
+                else -> TODO()
+            }
+        }
+
+        fun createFakeDate(element: Element): String {
+            val date = when {
+                element.nameContains("DOB") -> faker.date().birthday(0, 100)
+                else -> faker.date().past(10, TimeUnit.DAYS)
+            }
+            val formatter = SimpleDateFormat(Element.datePattern)
+            return formatter.format(date)
+        }
+
+        fun createFakeDateTime(element: Element): String {
+            val date = faker.date().past(10, TimeUnit.DAYS)
+            val formatter = SimpleDateFormat(Element.datetimePattern)
+            return formatter.format(date)
+        }
+
+        fun createFakePhoneNumber(element: Element): String {
+            val csvField = element.csvFields?.get(0)
+            val phoneNumberFormat = csvField?.format ?: "2#########:1:"
+            return faker.numerify(phoneNumberFormat)
+        }
+
+        fun createFakeCodeValue(element: Element): String {
+            return when (element.name) {
+                "specimen_source_site_code" -> "71836000"
+                "test_result_status" -> randomChoice("F", "C")
+                else -> {
+                    val altValues = element.altValues
+                    val valueSet = element.valueSetRef
+                    // if the code defines alternate values in the schema we need to
+                    // output them here
+                    val possibleValues = if (altValues?.isNotEmpty() == true) {
+                        altValues.map { it.code }.toTypedArray()
+                    } else {
+                        valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+                    }
+
+                    randomChoice(*possibleValues)
+                }
+            }
+        }
+
+        fun createFakeTableValue(element: Element): String {
+            val lookupTable = element.tableRef
+                ?: error("LookupTable ${element.table} is not available")
+            return when (element.table) {
+                "LIVD-2020-11-18" -> {
+                    if (element.tableColumn == null) return ""
+                    lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn)
+                        ?: error(
+                            "Schema Error: Could not lookup ${context.equipmentModel} " +
+                                "to ${element.tableColumn}"
+                        )
+                }
+                "fips-county" -> {
+                    when {
+                        element.nameContains("state") -> context.state
+                        element.nameContains("county") -> context.county ?: ""
+                        else -> TODO("Add this column in a table")
+                    }
+                }
+                else -> TODO("Add this table")
+            }
+        }
+
         return when (element.type) {
             Element.Type.CITY -> faker.address().city()
             Element.Type.POSTAL_CODE -> faker.address().zipCode().toString()
-            Element.Type.TEXT -> {
-                when {
-                    element.nameContains("name_of_testing_lab") -> "Any lab USA"
-                    element.nameContains("lab_name") -> "Any lab USA"
-                    element.nameContains("facility_name") -> "Any facility USA"
-                    element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
-                    element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
-                    element.nameContains("patient_age_and_units") -> {
-                        val unit = randomChoice("months", "years", "days")
-                        val value = when (unit) {
-                            "months" -> faker.number().numberBetween(1, 18)
-                            "days" -> faker.number().numberBetween(0, 364)
-                            "years" -> faker.number().numberBetween(1, 120)
-                            else -> TODO()
-                        }
-
-                        "$value $unit"
-                    }
-                    else -> faker.lorem().characters(5, 10)
-                }
-            }
+            Element.Type.TEXT -> createFakeText(element)
             Element.Type.BLANK -> ""
             Element.Type.TEXT_OR_BLANK -> randomChoice("", faker.lorem().characters(5, 10))
             Element.Type.NUMBER -> faker.number().numberBetween(1, 10).toString()
-            Element.Type.DATE -> {
-                val date = when {
-                    element.nameContains("DOB") -> faker.date().birthday(0, 100)
-                    else -> faker.date().past(10, TimeUnit.DAYS)
-                }
-                val formatter = SimpleDateFormat(Element.datePattern)
-                formatter.format(date)
-            }
-            Element.Type.DATETIME -> {
-                val date = faker.date().past(10, TimeUnit.DAYS)
-                val formatter = SimpleDateFormat(Element.datetimePattern)
-                formatter.format(date)
-            }
+            Element.Type.DATE -> createFakeDate(element)
+            Element.Type.DATETIME -> createFakeDateTime(element)
             Element.Type.DURATION -> TODO()
-            Element.Type.CODE -> {
-                when (element.name) {
-                    "specimen_source_site_code" -> "71836000"
-                    "test_result_status" -> randomChoice("F", "C")
-                    else -> {
-                        val altValues = element.altValues
-                        val valueSet = element.valueSetRef
-                        // if the code defines alternate values in the schema we need to
-                        // output them here
-                        val possibleValues = if (altValues?.isNotEmpty() == true) {
-                            altValues.map { it.code }.toTypedArray()
-                        } else {
-                            valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
-                        }
-
-                        randomChoice(*possibleValues)
-                    }
-                }
-            }
-            Element.Type.TABLE, Element.Type.TABLE_OR_BLANK -> {
-                val lookupTable = element.tableRef
-                    ?: error("LookupTable ${element.table} is not available")
-                when (element.table) {
-                    "LIVD-2020-11-18" -> {
-                        if (element.tableColumn == null) return ""
-                        lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn)
-                            ?: error(
-                                "Schema Error: Could not lookup ${context.equipmentModel} " +
-                                    "to ${element.tableColumn}"
-                            )
-                    }
-                    "fips-county" -> {
-                        when {
-                            element.nameContains("state") -> context.state
-                            element.nameContains("county") -> context.county ?: ""
-                            else -> TODO("Add this column in a table")
-                        }
-                    }
-                    else -> TODO("Add this table")
-                }
-            }
-            Element.Type.HD -> {
-                element.default ?: "0.0.0.0.1"
-            }
-            Element.Type.EI -> {
-                element.default ?: "SomeEntityID"
-            }
+            Element.Type.CODE -> createFakeCodeValue(element)
+            Element.Type.TABLE, Element.Type.TABLE_OR_BLANK -> createFakeTableValue(element)
+            Element.Type.HD -> element.default ?: "0.0.0.0.1"
+            Element.Type.EI -> element.default ?: "SomeEntityID"
             Element.Type.ID -> faker.numerify("######")
             Element.Type.ID_CLIA -> faker.numerify("##D#######") // Ex, 03D1021379
             Element.Type.ID_DLN -> faker.idNumber().valid()
@@ -130,20 +153,8 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.ID_NPI -> faker.numerify("##########")
             Element.Type.STREET -> faker.address().streetAddress()
             Element.Type.STREET_OR_BLANK -> ""
-            Element.Type.PERSON_NAME -> {
-                when {
-                    element.nameContains("first") -> context.patientName.firstName()
-                    element.nameContains("last") -> context.patientName.lastName()
-                    element.nameContains("middle") -> context.patientName.firstName() // no middle name in faker
-                    element.nameContains("suffix") -> randomChoice(context.patientName.suffix(), "")
-                    else -> TODO()
-                }
-            }
-            Element.Type.TELEPHONE -> {
-                val csvField = element.csvFields?.get(0)
-                val phoneNumberFormat = csvField?.format ?: "2#########:1:"
-                faker.numerify(phoneNumberFormat)
-            }
+            Element.Type.PERSON_NAME -> createFakeName(element)
+            Element.Type.TELEPHONE -> createFakePhoneNumber(element)
             Element.Type.EMAIL -> "${context.patientName.username()}@email.com"
             null -> error("Invalid element type for ${element.name}")
         }

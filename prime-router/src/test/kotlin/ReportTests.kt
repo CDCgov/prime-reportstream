@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.fail
 
 class ReportTests {
@@ -228,5 +229,42 @@ class ReportTests {
         assertEquals("", synthesizedReport.getString(0, "ssn"))
         assertEquals("", synthesizedReport.getString(1, "ssn"))
         assertEquals("", synthesizedReport.getString(2, "ssn"))
+    }
+
+    @Test
+    fun `test synthesize data with shuffle strategy`() {
+        // arrange
+        val schema = Schema(
+            name = "test",
+            topic = "test",
+            elements = listOf(
+                Element("last_name"), Element("first_name"),
+            )
+        )
+        val report = Report(
+            schema = schema,
+            values = listOf(
+                listOf("smith", "sarah"),
+                listOf("jones", "mary"),
+                listOf("white", "roberta"),
+                listOf("stock", "julie"),
+                listOf("chang", "emily"),
+                listOf("rodriguez", "anna"),
+            ),
+            source = TestSource
+        )
+        val strategies = mapOf(
+            "last_name" to Report.SynthesizeStrategy.SHUFFLE,
+            "first_name" to Report.SynthesizeStrategy.SHUFFLE,
+        )
+        // act
+        val synthesizedReport = report.synthesizeData(strategies)
+        // assert
+        assertNotEquals("smith", synthesizedReport.getString(0, "last_name"))
+        assertNotEquals("jones", synthesizedReport.getString(1, "last_name"))
+        assertNotEquals("white", synthesizedReport.getString(2, "last_name"))
+        assertNotEquals("sarah", synthesizedReport.getString(0, "first_name"))
+        assertNotEquals("mary", synthesizedReport.getString(1, "first_name"))
+        assertNotEquals("roberta", synthesizedReport.getString(2, "first_name"))
     }
 }
