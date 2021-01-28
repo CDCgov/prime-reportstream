@@ -79,6 +79,7 @@ class ProcessData : CliktCommand(
     // Actions
     private val validate by option("--validate", help = "Validate stream").flag(default = true)
     private val send by option("--send", help = "send output to receivers").flag(default = false)
+    private val synthesize by option("--synthesize", help = "converts live production data into synthesized data").flag(default = false)
 
     // Output schema
     private val route by option("--route", help = "transform output to the schemas for each receiver the input would be routed to").flag(default = false)
@@ -208,7 +209,7 @@ class ProcessData : CliktCommand(
         val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
         // Gather input source
-        val inputReport: Report = when (inputSource) {
+        var inputReport: Report = when (inputSource) {
             is InputSource.ListOfFilesSource -> mergeReports(metadata, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
             is InputSource.FileSource -> readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName)
             is InputSource.DirSource -> TODO("Dir source is not implemented")
@@ -228,12 +229,27 @@ class ProcessData : CliktCommand(
         }
 
         // synthesize the data here
+        // todo: put these strategies into metadata so we can load them from a file
+        val synthesizeStrategies = mapOf(
+            "patient_last_name" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_first_name" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_gender" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_race" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_ethnicity" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_dob" to Report.SynthesizeStrategy.FAKE,
+            "patient_phone_number" to Report.SynthesizeStrategy.FAKE,
+            "patient_street" to Report.SynthesizeStrategy.FAKE,
+            "patient_state" to Report.SynthesizeStrategy.FAKE,
+            "patient_county" to Report.SynthesizeStrategy.FAKE,
+            "message_id" to Report.SynthesizeStrategy.FAKE,
+        )
 
         if (!validate) TODO("validation cannot currently be disabled")
         if (send) TODO("--send is not implemented")
+        if (synthesize) inputReport = inputReport.synthesizeData(synthesizeStrategies, targetState, targetCounty)
 
         // Transform reports
-        val translator: Translator = Translator(metadata)
+        val translator = Translator(metadata)
         val outputFormat = if (outputHl7) OrganizationService.Format.HL7 else OrganizationService.Format.CSV
         val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
             route ->

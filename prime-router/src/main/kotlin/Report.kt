@@ -208,7 +208,11 @@ class Report {
     // takes the data in the existing report and synthesizes different data from it
     // the goal is to allow us to take real data in, move it around and scramble it so it's
     // not able to point back to the actual records
-    fun synthesizeData(synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap()): Report {
+    fun synthesizeData(
+        synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap(),
+        targetState: String? = null,
+        targetCounty: String? = null
+    ): Report {
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
                 // look in the mapping parameter passed in for the current element
@@ -221,8 +225,8 @@ class Report {
                         StringColumn.create(it.name, shuffledValues)
                     }
                     SynthesizeStrategy.FAKE -> {
-                        // todo: generate random faked data for the column passed in
-                        buildFakedColumn(it.name)
+                        // generate random faked data for the column passed in
+                        buildFakedColumn(it.name, it, targetState, targetCounty)
                     }
                     SynthesizeStrategy.BLANK -> buildEmptyColumn(it.name)
                     SynthesizeStrategy.PASSTHROUGH -> table.column(it.name).copy()
@@ -300,8 +304,15 @@ class Report {
         return StringColumn.create(name, List(itemCount) { "" })
     }
 
-    private fun buildFakedColumn(name: String): StringColumn {
-        return StringColumn.create(name, List(itemCount) { "FAKED DATA" })
+    private fun buildFakedColumn(
+        name: String,
+        element: Element,
+        targetState: String?,
+        targetCounty: String?
+    ): StringColumn {
+        val context = FakeReport.RowContext({ null }, targetState, schema.name, targetCounty)
+        val fakeDataService = FakeDataService()
+        return StringColumn.create(name, List(itemCount) { fakeDataService.getFakeValueForElement(element, context) })
     }
 
     companion object {

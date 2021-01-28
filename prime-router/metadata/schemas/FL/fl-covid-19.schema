@@ -408,4 +408,9 @@ elements:
 
     - name: patient_age_units
 
+    - name: patient_county
+
+    - name: message_id
+      default: 000000
+
 

@@ -1,38 +1,15 @@
 package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
+import com.github.javafaker.Name
 import java.text.SimpleDateFormat
 import java.util.Random
 import java.util.concurrent.TimeUnit
 
-class FakeReport(val metadata: Metadata) {
-    class RowContext(
-        findLookupTable: (String) -> LookupTable? = { null },
-        reportState: String? = null,
-        val schemaName: String? = null,
-        reportCounty: String? = null
-    ) {
-        val faker = Faker()
-        val patientName = faker.name()
-        val schoolName: String = faker.university().name()
-        val equipmentModel = randomChoice(
-            "BinaxNOW COVID-19 Ag Card",
-            "BD Veritor System for Rapid Detection of SARS-CoV-2*"
-        )
-
-        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO")
-        val county = reportCounty ?: findLookupTable("fips-county")?.let {
-            when (state) {
-                "AZ" -> randomChoice("Pima", "Yuma")
-                "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
-                else -> randomChoice(it.filter("State", state, "County"))
-            }
-        }
-    }
-
-    internal fun buildColumn(
+class FakeDataService {
+    fun getFakeValueForElement(
         element: Element,
-        context: RowContext,
+        context: FakeReport.RowContext,
     ): String {
         val faker = context.faker
 
@@ -77,7 +54,7 @@ class FakeReport(val metadata: Metadata) {
             return formatter.format(date)
         }
 
-        fun createFakeDateTime(element: Element): String {
+        fun createFakeDateTime(): String {
             val date = faker.date().past(10, TimeUnit.DAYS)
             val formatter = SimpleDateFormat(Element.datetimePattern)
             return formatter.format(date)
@@ -87,6 +64,10 @@ class FakeReport(val metadata: Metadata) {
             val csvField = element.csvFields?.get(0)
             val phoneNumberFormat = csvField?.format ?: "2#########:1:"
             return faker.numerify(phoneNumberFormat)
+        }
+
+        fun createFakeEmail(): String {
+            return "${context.patientName.username()}@email.com"
         }
 
         fun createFakeCodeValue(element: Element): String {
@@ -137,10 +118,10 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.POSTAL_CODE -> faker.address().zipCode().toString()
             Element.Type.TEXT -> createFakeText(element)
             Element.Type.BLANK -> ""
-            Element.Type.TEXT_OR_BLANK -> randomChoice("", faker.lorem().characters(5, 10))
+            Element.Type.TEXT_OR_BLANK -> randomChoice("", createFakeText(element))
             Element.Type.NUMBER -> faker.number().numberBetween(1, 10).toString()
             Element.Type.DATE -> createFakeDate(element)
-            Element.Type.DATETIME -> createFakeDateTime(element)
+            Element.Type.DATETIME -> createFakeDateTime()
             Element.Type.DURATION -> TODO()
             Element.Type.CODE -> createFakeCodeValue(element)
             Element.Type.TABLE, Element.Type.TABLE_OR_BLANK -> createFakeTableValue(element)
@@ -155,9 +136,46 @@ class FakeReport(val metadata: Metadata) {
             Element.Type.STREET_OR_BLANK -> ""
             Element.Type.PERSON_NAME -> createFakeName(element)
             Element.Type.TELEPHONE -> createFakePhoneNumber(element)
-            Element.Type.EMAIL -> "${context.patientName.username()}@email.com"
+            Element.Type.EMAIL -> createFakeEmail()
             null -> error("Invalid element type for ${element.name}")
         }
+    }
+
+    private fun randomChoice(vararg choices: String): String {
+        val random = Random()
+        return choices[random.nextInt(choices.size)]
+    }
+}
+
+class FakeReport(val metadata: Metadata) {
+    private val fakeDataService: FakeDataService = FakeDataService()
+
+    class RowContext(
+        findLookupTable: (String) -> LookupTable? = { null },
+        reportState: String? = null,
+        val schemaName: String? = null,
+        reportCounty: String? = null
+    ) {
+        val faker = Faker()
+        val patientName: Name = faker.name()
+        val schoolName: String = faker.university().name()
+        val equipmentModel = randomChoice(
+            "BinaxNOW COVID-19 Ag Card",
+            "BD Veritor System for Rapid Detection of SARS-CoV-2*"
+        )
+
+        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA")
+        val county = reportCounty ?: findLookupTable("fips-county")?.let {
+            when (state) {
+                "AZ" -> randomChoice("Pima", "Yuma")
+                "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
+                else -> randomChoice(it.filter("State", state, "County"))
+            }
+        }
+    }
+
+    internal fun buildColumn(element: Element, context: RowContext): String {
+        return fakeDataService.getFakeValueForElement(element, context)
     }
 
     internal fun buildMappedColumn(element: Element, rowContext: RowContext): String {
@@ -225,19 +243,6 @@ class FakeReport(val metadata: Metadata) {
             if (choices.isEmpty()) return ""
             val random = Random()
             return choices[random.nextInt(choices.size)]
-        }
-
-        private fun randomChoices(vararg choices: String): List<String> {
-            val random = Random()
-            if (choices.isEmpty() || random.nextBoolean()) return emptyList()
-
-            val selectedValues = mutableListOf<String>()
-            val limit = random.nextInt(choices.size)
-            for (i in 0..limit) {
-                selectedValues.add(choices[random.nextInt(choices.size)])
-            }
-
-            return selectedValues.toList()
         }
     }
 }
