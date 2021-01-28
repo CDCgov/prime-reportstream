@@ -22,11 +22,11 @@
                 window.location.reload() //replace("http://www.cdc.gov");
             }
 
-            window.location.hash = "no-back-button";
-            window.location.hash = "Again-No-back-button"; 
+            window.location.hash = " ";
+            window.location.hash = "  "; 
 
             window.onhashchange = function(){
-                window.location.hash = "no-back-button";
+                window.location.hash = " ";
             }
         </script>
     <title>CDC PRIME Data Hub - Download</title>
@@ -129,11 +129,10 @@
       <div class="usa-nav-container">
         <div class="usa-navbar">
           <div class="usa-logo" id="basic-logo">
-            <em class="usa-logo__text"
-              ><a th:href="@{${OKTA_redirect}}" title="Home" aria-label="Home">PRIME Data Hub</a></em
-            >
+            <em class="usa-logo__text">
+                <a th:href="@{${OKTA_redirect}}" title="Home" aria-label="Home">PRIME Data Hub</a>
+            </em>
           </div>
-          <button class="usa-menu-btn">Menu</button>
         </div>
         <nav aria-label="Primary navigation" class="usa-nav">
           <button class="usa-nav__close">
@@ -165,15 +164,16 @@
             </h1>
             <h2>Today's results</h2>
 
-            <span th:if="${todays.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>`.</em></span>
+            <span th:if="${todays.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
             <table th:unless="${todays.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Today's results">
               <thead>
                 <tr>
                   <th scope="col">Date</th>
-                  <th scope="col">Receiver</th>
+                  <th scope="col">Description</th>
                   <th scope="col">Expires</th>
                   <th scope="col">Total tests</th>
                   <th scope="col">File</th>
+                  <th scope="col">UUID</th>
                 </tr>
               </thead>
               <tbody class="font-mono-2xs">
@@ -189,6 +189,9 @@
                       <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download <span th:text="${result.format}"></span></a>
                     </span>
                   </td>
+                  <td data-title="UUID">
+                    <span th:text="${result.file}"></span>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -201,10 +204,11 @@
               <thead>
                 <tr>
                   <th scope="col">Date</th>
-                  <th scope="col">Receiver</th>
+                  <th scope="col">Description</th>
                   <th scope="col">Expires</th>
                   <th scope="col">Total tests</th>
                   <th scope="col">File</th>
+                  <th scope="col">UUID</th>
                 </tr>
               </thead>
               <tbody class="font-mono-2xs">
@@ -221,6 +225,9 @@
                         <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download <span th:text="${result.format}"></span></a>
                     </span>
                   </td>
+                  <td data-title="UUID">
+                    <span th:text="${result.file}"></span>
+                  </td>                  
                 </tr>
                 <!-- {{ endfor }} -->
               </tbody>
