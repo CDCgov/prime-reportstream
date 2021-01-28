@@ -41,7 +41,7 @@ internal class AzureCredentialServiceTests {
 
     @Test
     fun `uses Key Vault to retrieve a secret`() {
-        every { secretClient.getSecret(any()) } returns KeyVaultSecret("credential/$CONNECTION_ID", VALID_CREDENTIAL_JSON)
+        every { secretClient.getSecret(any()) } returns KeyVaultSecret("$CONNECTION_ID", VALID_CREDENTIAL_JSON)
         val credential = credentialService.fetchCredential(CONNECTION_ID, CALLER_ID, CredentialRequestReason.AUTOMATED_TEST)
         assertEquals(VALID_CREDENTIAL, credential, "Expected credential not returned")
     }
@@ -50,7 +50,7 @@ internal class AzureCredentialServiceTests {
     fun `uses Key Vault to persist a secret`() {
         every { secretClient.setSecret(any(), any()) } returns mockkClass(KeyVaultSecret::class)
         credentialService.saveCredential(CONNECTION_ID, VALID_CREDENTIAL, CALLER_ID)
-        verify { secretClient.setSecret("credential/$CONNECTION_ID", VALID_CREDENTIAL_JSON) }
+        verify { secretClient.setSecret("$CONNECTION_ID", VALID_CREDENTIAL_JSON) }
     }
 
     @Test

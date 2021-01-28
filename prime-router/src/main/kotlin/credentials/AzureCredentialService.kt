@@ -7,7 +7,6 @@ import com.azure.security.keyvault.secrets.SecretClientBuilder
 
 object AzureCredentialService : CredentialService() {
 
-    private const val CREDENTIAL_KEY_PREFIX = "credential/"
     private val KEY_VAULT_NAME: String by lazy { System.getenv("CREDENTIAL_KEY_VAULT_NAME") ?: "" }
     private val secretClient by lazy { initSecretClient() }
 
@@ -22,13 +21,13 @@ object AzureCredentialService : CredentialService() {
     }
 
     override fun fetchCredential(connectionId: String): Credential? {
-        return secretClient.getSecret("${CREDENTIAL_KEY_PREFIX}$connectionId")?.let {
+        return secretClient.getSecret("$connectionId")?.let {
             return Credential.fromJSON(it.value)
         }
     }
 
     override fun saveCredential(connectionId: String, credential: Credential) {
-        secretClient.setSecret("${CREDENTIAL_KEY_PREFIX}$connectionId", credential.toJSON())
+        secretClient.setSecret("$connectionId", credential.toJSON())
             ?: throw Exception("Failed to save credentials for: $connectionId")
     }
 }
