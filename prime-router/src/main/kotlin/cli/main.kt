@@ -240,7 +240,9 @@ class ProcessData : CliktCommand(
             "patient_phone_number" to Report.SynthesizeStrategy.FAKE,
             "patient_street" to Report.SynthesizeStrategy.FAKE,
             "patient_state" to Report.SynthesizeStrategy.FAKE,
+            "patient_city" to Report.SynthesizeStrategy.FAKE,
             "patient_county" to Report.SynthesizeStrategy.FAKE,
+            "patient_zip_code" to Report.SynthesizeStrategy.FAKE,
             "message_id" to Report.SynthesizeStrategy.FAKE,
         )
 
