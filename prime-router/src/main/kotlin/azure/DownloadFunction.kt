@@ -39,12 +39,11 @@ class DownloadFunction {
         val total: Any? = null,
         val positive: Any? = null,
         val file: String? = null,
-        val format: String? = null
+        val format: String? = null,
+        val fileName: String? = null,
     )
 
-    var orgName = ""
-    var userName = ""
-    var organization: Organization? = null
+    var organization: Organization? = null // todo hack.   Move into the run method.
 
     @FunctionName("download")
     @StorageAccount("AzureWebJobsStorage")
@@ -56,16 +55,14 @@ class DownloadFunction {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        if (checkAuthenticated(request)) {
-            organization = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
-            if (organization == null) {
-                return serveAuthenticatePage(request)
-            }
+        var authenticated = checkAuthenticated(request)
+        if (authenticated.first) {
+            organization = WorkflowEngine().metadata.findOrganization(authenticated.third.replace('_', '-'))
             val file: String = request.queryParameters["file"] ?: ""
             if (file.isBlank())
-                return responsePage(request)
+                return responsePage(request, authenticated.second, authenticated.third)
             else
-                return responseFile(request, file, context)
+                return responseFile(request, file, authenticated.second, authenticated.third, context)
         } else {
             return serveAuthenticatePage(request)
         }
@@ -89,7 +86,7 @@ class DownloadFunction {
         return response
     }
 
-    private fun generateTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
+    private fun generateTestResults(headers: List<DatabaseAccess.Header>, userName: String, orgName: String): List<TestResult> {
         return headers.sortedByDescending {
             it.task.createdAt
         }.map {
@@ -110,9 +107,9 @@ class DownloadFunction {
         }
     }
 
-    private fun generateTodaysTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
+    private fun generateTodaysTestResults(headers: List<DatabaseAccess.Header>, userName: String, orgName: String): List<TestResult> {
         var filtered = headers.filter { filter(it) }
-        return generateTestResults(filtered)
+        return generateTestResults(filtered, userName, orgName)
     }
 
     private fun filter(it: DatabaseAccess.Header): Boolean {
@@ -120,23 +117,23 @@ class DownloadFunction {
         return it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
     }
 
-    private fun generatePreviousTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
+    private fun generatePreviousTestResults(headers: List<DatabaseAccess.Header>, userName: String, orgName: String): List<TestResult> {
         var filtered = headers.filterNot { filter(it) }
-        return generateTestResults(filtered)
+        return generateTestResults(filtered, userName, orgName)
     }
 
-    private fun responsePage(request: HttpRequestMessage<String?>, fileNotFound: Boolean = false): HttpResponseMessage {
+    private fun responsePage(request: HttpRequestMessage<String?>, userName: String, orgName: String): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
         val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
         val attr = mapOf(
             "description" to (organization?.description ?: ""),
             "user" to userName,
             "today" to Calendar.getInstance(),
-            "todays" to generateTodaysTestResults(headers),
-            "previous" to generatePreviousTestResults(headers),
+            "todays" to generateTodaysTestResults(headers, userName, orgName),
+            "previous" to generatePreviousTestResults(headers, userName, orgName),
             "days_to_show" to DAYS_TO_SHOW,
             "OKTA_redirect" to System.getenv("OKTA_redirect"),
-            "showTables" to !fileNotFound
+            "showTables" to true
         )
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)
@@ -149,19 +146,26 @@ class DownloadFunction {
         return response
     }
 
-    private fun responseFile(request: HttpRequestMessage<String?>, requestedFile: String, context: ExecutionContext): HttpResponseMessage {
+    private fun responseFile(
+        request: HttpRequestMessage<String?>,
+        requestedFile: String,
+        userName: String,
+        orgName: String,
+        context: ExecutionContext
+    ): HttpResponseMessage {
         val reportId = ReportId.fromString(requestedFile)
         val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(reportId, orgName)
         var response: HttpResponseMessage
+
         try {
             val body = WorkflowEngine().readBody(header)
             if (body.size <= 0)
-                response = responsePage(request, true)
+                response = responsePage(request, userName, orgName)
             else {
                 // Give the external report a new UUID, so we can track its history distinct from the
-                // internal blob.
+                // internal blob.   This is going to be very confusing.
                 val externalReportId = UUID.randomUUID()
-                val filename = Report.formExternalFilename(header.task.receiverName, externalReportId, header.task.bodyFormat)
+                val filename = Report.formExternalFilename(header.task.receiverName, reportId, header.task.bodyFormat)
                 response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "text/csv")
@@ -178,7 +182,6 @@ class DownloadFunction {
             context.logger.log(Level.WARNING, "Exception during download of $requestedFile", ex)
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
         }
-
         return response
     }
 
@@ -197,9 +200,9 @@ class DownloadFunction {
         return templateEngine.process(htmlContent, context)
     }
 
-    private fun checkAuthenticated(request: HttpRequestMessage<String?>): Boolean {
-        userName = ""
-        orgName = ""
+    private fun checkAuthenticated(request: HttpRequestMessage<String?>): Triple<Boolean, String, String> {
+        var userName = ""
+        var orgName = ""
 
         val cookies = request.headers["cookie"] ?: ""
 
@@ -226,6 +229,6 @@ class DownloadFunction {
                 }
             }
         }
-        return userName.isNotBlank() && orgName.isNotBlank()
+        return Triple(userName.isNotBlank() && orgName.isNotBlank(), userName, orgName)
     }
 }
