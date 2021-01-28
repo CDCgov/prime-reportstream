@@ -18,8 +18,8 @@
             }
     
             function logout(){
-                removeItem("jwt")
-                window.location.replace("http://www.cdc.gov");
+                removeItem("jwt","/")
+                window.location.reload() //replace("http://www.cdc.gov");
             }
 
             window.location.hash = "no-back-button";
@@ -201,7 +201,7 @@
               <thead>
                 <tr>
                   <th scope="col">Date</th>
-                  <th scope="col">Reciever</th>
+                  <th scope="col">Receiver</th>
                   <th scope="col">Expires</th>
                   <th scope="col">Total tests</th>
                   <th scope="col">File</th>

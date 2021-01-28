@@ -1,0 +1,39 @@
+This is an example of the results of the cool-lineage-example queries:
+
+psql prime_data_hub -f ./docs/proposals/0003-lineage/cool-lineage-example.sql 
+>>>>> Find the entire lineage, starting from a simple-report
+              report_id               | creating_action | body_format |  sending_org  | receiving_org |     send_result      | item_count 
+--------------------------------------+-----------------+-------------+---------------+---------------+----------------------+------------
+ f0d85c32-266c-4a18-9400-ba56f17ef03a | receive         | CSV         | simple_report |               |                      |         50
+ 53d1f058-056e-4312-9f62-73dfe425fc03 | receive         | CSV         |               | az-phd        |                      |         50
+ 2c96e86f-17d4-4a40-a9c8-819c6b8d2910 | receive         | HL7         |               | az-phd        |                      |         50
+ da1fe97e-a42e-4849-bce1-730e1fe143c4 | receive         | CSV         |               | pima-az-phd   |                      |         25
+ 1627fa65-52fe-429f-bdf8-7da1a448e814 | send            | HL7         |               | az-phd        | Success: sftp upload |         -1
+ 5a1637a2-2c81-41bb-b5e9-83c10ee79d9d | batch           | CSV         |               | az-phd        |                      |        100
+ ff73ac93-cf3d-44ed-8c5a-665fe995e95c | batch           | CSV         |               | pima-az-phd   |                      |         50
+ 601a1858-4174-4422-a969-e28ec75b4ba3 | send            | CSV         |               | az-phd        | Success: sftp upload |         -1
+(8 rows)
+
+>>>>> Find the reports that were sent, based on a submitted simple_report
+              report_id               | creating_action | body_format | sending_org | receiving_org |     send_result      | item_count 
+--------------------------------------+-----------------+-------------+-------------+---------------+----------------------+------------
+ 1627fa65-52fe-429f-bdf8-7da1a448e814 | send            | HL7         |             | az-phd        | Success: sftp upload |         -1
+ 601a1858-4174-4422-a969-e28ec75b4ba3 | send            | CSV         |             | az-phd        | Success: sftp upload |         -1
+(2 rows)
+
+>>>>> Find the reports that were NEVER sent, based on a submitted simple_report
+              report_id               | creating_action | body_format | sending_org | receiving_org | send_result | item_count 
+--------------------------------------+-----------------+-------------+-------------+---------------+-------------+------------
+ ff73ac93-cf3d-44ed-8c5a-665fe995e95c | batch           | CSV         |             | pima-az-phd   |             |         50
+(1 row)
+
+>>>>> Example query that finds the ancestors of a report that is the product of a merge
+              report_id               | creating_action | body_format |  sending_org  | receiving_org |     send_result      | item_count 
+--------------------------------------+-----------------+-------------+---------------+---------------+----------------------+------------
+ 601a1858-4174-4422-a969-e28ec75b4ba3 | send            | CSV         |               | az-phd        | Success: sftp upload |         -1
+ 5a1637a2-2c81-41bb-b5e9-83c10ee79d9d | batch           | CSV         |               | az-phd        |                      |        100
+ 3fc313f6-85ea-4e62-909e-12c6c23fd998 | receive         | CSV         | simple_report |               |                      |         50
+ 6e491b4e-0b6d-4d76-9f98-d8bac935cdb9 | receive         | CSV         |               | az-phd        |                      |         50
+ f0d85c32-266c-4a18-9400-ba56f17ef03a | receive         | CSV         | simple_report |               |                      |         50
+ 53d1f058-056e-4312-9f62-73dfe425fc03 | receive         | CSV         |               | az-phd        |                      |         50
+(6 rows)

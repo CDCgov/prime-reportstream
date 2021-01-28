@@ -76,6 +76,7 @@
     description: Pima County, Arizona PHD
     services:
       - name: elr
+        description: Electronic Lab Record
         topic: covid-19
         schema: az/pima-az-covid-19
         jurisdictionalFilter: [ "filterByCounty(AZ, Pima)" ]
