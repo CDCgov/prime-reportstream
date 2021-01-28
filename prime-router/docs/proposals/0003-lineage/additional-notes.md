@@ -13,18 +13,3 @@ Note that other options are not as good:
 
 ### Notes on ITEM tracking in each of the main azure functions:
 
-
-
-#### TODO
-
-- Enable actionHistory to be called fluent-style.
-- Remove sending_org in REPORT_FILE during the`recieve` step.  As is, it will break the Download site (every file will appear twice).
-- Likewise, the downloads will mess things up too, as they have the same organization.
-- Write up a description of all the unicorns (see below)
-- Do DownloadFunction.
-- Do Items.
-- Remove Task_Source table.
-- Do design work around removing Task table.
-- Write lots of unit tests
-- Do the blob digest
-- Fix the -1.
