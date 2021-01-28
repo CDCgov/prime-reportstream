@@ -21,16 +21,16 @@ object HashicorpVaultCredentialService : CredentialService(), Logging {
     }
 
     override fun fetchCredential(connectionId: String): Credential? {
-        val (request, response, result) = manager.get("/$connectionId")
+        val (_, _, result) = manager.get("/$connectionId")
             .responseString()
-        val (data, error) = result
+        val (data, _) = result
         // Vault wraps the response in a data key
         val credentialJson = JSONObject(data).getJSONObject("data").toString()
         return Credential.fromJSON(credentialJson)
     }
 
     override fun saveCredential(connectionId: String, credential: Credential) {
-        val (request, response, result) = manager.post("/$connectionId")
+        val (_, response, _) = manager.post("/$connectionId")
             .header("Content-Type", "application/json")
             .body(credential.toJSON())
             .response()
