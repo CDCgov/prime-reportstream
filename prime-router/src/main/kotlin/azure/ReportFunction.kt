@@ -225,24 +225,38 @@ class ReportFunction {
             "${service.organization.description} (${service.name})"
         else
             service.organization.description
-        val event = when {
+        var loggerMsg: String
+        when {
             validatedRequest.options == Options.SkipSend -> {
-                ReportEvent(Event.Action.NONE, report.id)
+                val event = ReportEvent(Event.Action.NONE, report.id)
+                workflowEngine.dispatchReport(event, report, txn)
+                loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             service.batch != null -> {
                 val time = service.batch.nextBatchTime()
-                val destination = "Sending ${report.itemCount} items to $serviceDescription at $time"
-                destinations += destination
-                ReceiverEvent(Event.Action.BATCH, service.fullName, time)
+                destinations += "Sending ${report.itemCount} items to $serviceDescription at $time"
+                val event = ReceiverEvent(Event.Action.BATCH, service.fullName, time)
+                workflowEngine.dispatchReport(event, report, txn)
+                loggerMsg = "Queue: ${event.toQueueMessage()}"
+            }
+            service.format == OrganizationService.Format.HL7 -> {
+                destinations += "Sending ${report.itemCount} reports to $serviceDescription immediately"
+                report
+                    .split()
+                    .forEach {
+                        val event = ReportEvent(Event.Action.SEND, it.id)
+                        workflowEngine.dispatchReport(event, it, txn)
+                    }
+                loggerMsg = "Queue: ${report.itemCount}"
             }
             else -> {
-                val destination = "Sending ${report.itemCount} items to $serviceDescription immediately"
-                destinations += destination
-                ReportEvent(Event.Action.SEND, report.id)
+                destinations += "Sending ${report.itemCount} items to $serviceDescription immediately"
+                val event = ReportEvent(Event.Action.SEND, report.id)
+                workflowEngine.dispatchReport(event, report, txn)
+                loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
         }
-        workflowEngine.dispatchReport(event, report, txn)
-        context.logger.info("Queue: ${event.toQueueMessage()}")
+        context.logger.info(loggerMsg)
     }
 
     private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {

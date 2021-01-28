@@ -43,9 +43,13 @@ class BatchFunction {
                     context.logger.info("Batch contains ${headers.size} reports")
                 }
                 val inReports = headers.map { workflowEngine.createReport(it) }
-                val outReports = when (receiver.batch?.operation) {
+                val operationReports = when (receiver.batch?.operation) {
                     OrganizationService.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
+                }
+                val outReports = when (receiver.format) {
+                    OrganizationService.Format.HL7 -> operationReports.flatMap { it.split() }
+                    else -> operationReports
                 }
                 outReports.forEach {
                     val outReport = it.copy(destination = receiver)

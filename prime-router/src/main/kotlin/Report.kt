@@ -194,6 +194,16 @@ class Report {
         return Report(schema, Table.create(columns), fromThisReport("deidentify"))
     }
 
+    /**
+     * Create a separate report for each item in the report
+     */
+    fun split(): List<Report> {
+        return itemIndices.map {
+           val row = getRow(it)
+           Report(schema, values = listOf(row), sources = fromThisReport("split"), destination = destination)
+        }
+    }
+
     fun applyMapping(mapping: Translator.Mapping): Report {
         val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
