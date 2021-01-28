@@ -9,6 +9,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
@@ -370,5 +371,22 @@ class ActionHistory {
     private fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
         DSL.using(txn).newRecord(REPORT_LINEAGE, lineage).store()
         context?.logger?.info("Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}")
+    }
+
+    fun fetchReportFile(reportId: ReportId, txn: Configuration): ReportFile {
+        val reportFile = DSL.using(txn)
+            .selectFrom(Tables.REPORT_FILE)
+            .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+            .fetchOne()
+            ?.into(ReportFile::class.java)
+            ?: error("Could not find $reportId in report_file")
+
+      /*  val taskSources = DSL.using(txn)
+            .selectFrom(Tables.ITEM)
+            .where(Tables.ITEM.REPORT_ID.eq(reportId))
+            .fetch()
+            .into(Item::class.java)
+       */
+        return reportFile
     }
 }
