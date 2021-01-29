@@ -70,9 +70,9 @@ The patient's first name
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Long Name
+**Table Column**: Test Performed LOINC Long Name
 
 **Documentation**:
 
@@ -146,7 +146,7 @@ The specimen source, such as Blood or Serum
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Model
 
@@ -931,5 +931,51 @@ The phone number of the provider
 **Table**: fips-county
 
 **Table Column**: County
+
+---
+
+**Name**: organization_name
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_facility_name
+
+**Type**: TEXT
+
+**HL7 Field**: ORC-21-1
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the facility which the test was ordered from
+
+---
+
+**Name**: testing_lab_name
+
+**Type**: TEXT
+
+**HL7 Field**: OBX-23-1
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
+
+---
+
+**Name**: placer_order_id
+
+**Type**: ID
+
+**HL7 Field**: ORC-2-1
+
+**Cardinality**: [0..1]
 
 ---

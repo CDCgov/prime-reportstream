@@ -28,7 +28,8 @@ data class OrganizationService(
     val batch: Batch? = null,
     val address: String = "",
     val format: Format = Format.CSV,
-    val transports: List<TransportType> = emptyList()
+    val transports: List<TransportType> = emptyList(),
+    val description: String = ""
 ) {
     lateinit var organization: Organization
     val fullName: String get() = "${organization.name}.$name"

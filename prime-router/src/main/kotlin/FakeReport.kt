@@ -94,7 +94,7 @@ class FakeDataService {
             val lookupTable = element.tableRef
                 ?: error("LookupTable ${element.table} is not available")
             return when (element.table) {
-                "LIVD-2020-11-18" -> {
+                "LIVD-SARS-CoV-2-2021-01-20" -> {
                     if (element.tableColumn == null) return ""
                     lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn)
                         ?: error(

@@ -27,13 +27,15 @@ class BatchFunction {
             context.logger.info("Batch message: $message")
             val workflowEngine = WorkflowEngine()
             val event = Event.parseQueueMessage(message) as ReceiverEvent
-            if (event.action != Event.Action.BATCH) {
+            if (event.eventAction != Event.EventAction.BATCH) {
                 context.logger.warning("Batch function received a $message")
                 return
             }
             val receiver = workflowEngine.metadata.findService(event.receiverName)
                 ?: error("Internal Error: receiver name ${event.receiverName}")
             val maxBatchSize = receiver.batch?.maxReportCount ?: defaultBatchSize
+            val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
+            actionHistory.trackActionParams(message)
 
             workflowEngine.handleReceiverEvent(event, maxBatchSize) { headers, txn ->
                 if (headers.isEmpty()) {
@@ -42,17 +44,28 @@ class BatchFunction {
                 } else {
                     context.logger.info("Batch contains ${headers.size} reports")
                 }
-                val inReports = headers.map { workflowEngine.createReport(it) }
+                val inReports = headers.map {
+                    val report = workflowEngine.createReport(it)
+                    // todo replace the use of Event.Header.Task with info from ReportFile.
+                    // todo also I think we don't need `sources` any more.
+                    actionHistory.trackExistingInputReport(it.task.reportId)
+                    report
+                }
                 val outReports = when (receiver.batch?.operation) {
                     OrganizationService.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
                 }
                 outReports.forEach {
                     val outReport = it.copy(destination = receiver)
-                    val outEvent = ReportEvent(Event.Action.SEND, outReport.id)
+                    val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
                     workflowEngine.dispatchReport(outEvent, outReport, txn)
+                    actionHistory.trackCreatedReport(outEvent, outReport, receiver)
                     context.logger.info("Batch: queued to send ${outEvent.toQueueMessage()}")
                 }
+                val msg = if (inReports.size == 1 && outReports.size == 1) "Success: No merging needed - batch of 1"
+                else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
+                actionHistory.trackActionResult(msg)
+                workflowEngine.recordAction(actionHistory, txn)
             }
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, "Batch exception", e)
