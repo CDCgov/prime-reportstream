@@ -10,6 +10,7 @@
         <!-- <Logger name="org.jooq.tools.LoggerListener" level="debug"></Logger> -->
 
         <Logger name="gov.cdc.prime.router.transport.RedoxTransport" level="info"></Logger>
+        <Logger name="gov.cdc.prime.router.credentials" level="info"></Logger>
 
         <Root level="WARN">
             <AppenderRef ref="Console"/>
