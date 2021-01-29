@@ -61,7 +61,7 @@ class SftpTransport : ITransport, CredentialManagement {
 
         val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
 
-        var credential = credentialService.fetchCredential(envVarLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD) as? UserPassCredential?
+        val credential = credentialService.fetchCredential(envVarLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD) as? UserPassCredential?
             ?: error("Unable to find SFTP credentials for $orgName connectionId($envVarLabel)")
 
         return Pair(credential.user, credential.pass)
