@@ -63,7 +63,7 @@ class WorkflowEngine(
      * Place a report into the workflow
      */
     fun dispatchReport(nextAction: Event, report: Report, txn: Configuration? = null) {
-        val forceFormat = if (nextAction.action == Event.Action.BATCH) OrganizationService.Format.CSV else null
+        val forceFormat = if (nextAction.eventAction == Event.EventAction.BATCH) OrganizationService.Format.CSV else null
         val (bodyFormat, bodyUrl) = blob.uploadBody(report, forceFormat)
         try {
             db.insertHeader(report, bodyFormat, bodyUrl, nextAction, txn)

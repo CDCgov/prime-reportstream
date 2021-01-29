@@ -27,7 +27,7 @@ class BlobAccess(
 
     private fun createBodyBytes(report: Report, forceFormat: OrganizationService.Format?): Pair<String, ByteArray> {
         val outputStream = ByteArrayOutputStream()
-        val format = forceFormat ?: report.getBodyFormat(report)
+        val format = forceFormat ?: report.getBodyFormat()
         when (format) {
             OrganizationService.Format.HL7 -> hl7Serializer.write(report, outputStream)
             OrganizationService.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
@@ -35,10 +35,6 @@ class BlobAccess(
             OrganizationService.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }
         return Pair(format.toString(), outputStream.toByteArray())
-    }
-
-    private fun getBodyFormat(report: Report): OrganizationService.Format {
-        return report.destination?.format ?: OrganizationService.Format.CSV
     }
 
     private fun uploadBlob(fileName: String, bytes: ByteArray): String {

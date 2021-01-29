@@ -16,8 +16,6 @@ import java.io.InputStream
 import java.util.logging.Level
 
 class SftpTransport : ITransport {
-    private val hl7MessageDelimiter = "\r\r"
-
     override fun send(
         orgService: OrganizationService,
         transportType: TransportType,
@@ -33,22 +31,6 @@ class SftpTransport : ITransport {
         val port: String = sftpTransportType.port
         return try {
             val (user, pass) = lookupCredentials(orgService.fullName)
-
-            // context.logger.log(Level.INFO, "About to sftp upload ${sftpTransportType.filePath}/$fileName to $user at $host:$port (orgService = ${orgService.fullName})")
-            if (orgService.format == OrganizationService.Format.HL7) {
-                val extension = orgService.format.toExt()
-                val baseName = "${orgService.fullName.replace('.', '-')}-$reportId"
-                uploadMultipleFiles(
-                    host, port, user, pass, sftpTransportType.filePath, baseName, extension,
-                    contents = String(contents), delimiter = hl7MessageDelimiter
-                )
-            } else {
-                val extension = orgService.format.toExt()
-                val fileName = "${orgService.fullName.replace('.', '-')}-$reportId.$extension"
-                uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
-            }
-
-            // context.logger.log(Level.INFO, "Successful sftp upload of $fileName")
             val extension = orgService.format.toExt()
             // Dev note:  db table requires fileName to be unique.
             val fileName = "${orgService.fullName.replace('.', '-')}-$sentReportId.$extension"
@@ -101,47 +83,16 @@ class SftpTransport : ITransport {
             sshClient.addHostKeyVerifier(PromiscuousVerifier())
             sshClient.connect(host, port.toInt())
             sshClient.authPassword(user, pass)
-            putOneFile(sshClient, contents, fileName, path)
-        } finally {
-            sshClient.disconnect()
-            // context.logger.log(Level.INFO, "SFTP DISCONNECT succeeded: $fileName")
-        }
-    }
-
-    private fun uploadMultipleFiles(
-        host: String,
-        port: String,
-        user: String,
-        pass: String,
-        path: String,
-        baseName: String,
-        extension: String,
-        contents: String,
-        delimiter: String,
-    ) {
-        val sshClient = SSHClient()
-        try {
-            sshClient.addHostKeyVerifier(PromiscuousVerifier())
-            sshClient.connect(host, port.toInt())
-            sshClient.authPassword(user, pass)
-            val items = contents.split(delimiter)
-            items.forEachIndexed { index, item ->
-                if (item.isBlank()) return@forEachIndexed
-                putOneFile(sshClient, item.toByteArray(), "$baseName-$index.$extension", path)
+            val client = sshClient.newSFTPClient()
+            client.fileTransfer.preserveAttributes = false
+            client.use {
+                it.put(makeSourceFile(contents, fileName), "$path/$fileName")
             }
-        } finally {
-            sshClient.disconnect()
-            // context.logger.log(Level.INFO, "SFTP DISCONNECT succeeded: $fileName")
-        }
-    }
-
-    private fun putOneFile(sshClient: SSHClient, contents: ByteArray, fileName: String, path: String) {
-        val client = sshClient.newSFTPClient()
-        client.fileTransfer.preserveAttributes = false
-        client.use { client ->
-            client.put(makeSourceFile(contents, fileName), path + "/" + fileName)
             // TODO: remove this over logging when bug is fixed
             // context.logger.log(Level.INFO, "SFTP PUT succeeded: $fileName")
+        } finally {
+            sshClient.disconnect()
+            // context.logger.log(Level.INFO, "SFTP DISCONNECT succeeded: $fileName")
         }
     }
 

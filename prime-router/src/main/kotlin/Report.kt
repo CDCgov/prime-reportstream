@@ -199,7 +199,7 @@ class Report {
         }
         return Report(schema, Table.create(columns), fromThisReport("deidentify"))
     }
-    
+
     /**
      * Create a separate report for each item in the report
      */

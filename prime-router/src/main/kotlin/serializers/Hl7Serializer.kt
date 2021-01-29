@@ -33,17 +33,16 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     /**
-     * Write a report as two \r delimited messages
+     * Write a report with a single item
      */
     fun write(report: Report, outputStream: OutputStream) {
-        report.itemIndices.map {
-            val message = createMessage(report, it) + hl7SegmentDelimiter
-            outputStream.write(message.toByteArray())
-        }
+        if (report.itemCount != 1) error("Internal Error: multiple item report cannot be written as a single HL7 message")
+        val message = createMessage(report, 0) + hl7SegmentDelimiter
+        outputStream.write(message.toByteArray())
     }
 
     /**
-     * Write a report with BHS and FHS segments
+     * Write a report with BHS and FHS segments and multiple items
      */
     fun writeBatch(report: Report, outputStream: OutputStream) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
