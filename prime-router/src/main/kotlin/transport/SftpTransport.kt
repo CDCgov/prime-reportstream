@@ -5,6 +5,9 @@ import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
+import gov.cdc.prime.router.credentials.CredentialManagement
+import gov.cdc.prime.router.credentials.CredentialRequestReason
+import gov.cdc.prime.router.credentials.UserPassCredential
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
@@ -12,7 +15,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.logging.Level
 
-class SftpTransport : ITransport {
+class SftpTransport : ITransport, CredentialManagement {
     override fun send(
         orgService: OrganizationService,
         transportType: TransportType,
@@ -47,13 +50,10 @@ class SftpTransport : ITransport {
 
         val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
 
-        val user = System.getenv("${envVarLabel}__USER") ?: ""
-        val pass = System.getenv("${envVarLabel}__PASS") ?: ""
+        var credential = credentialService.fetchCredential(envVarLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD) as? UserPassCredential?
+            ?: error("Unable to find SFTP credentials for $orgName")
 
-        if (user.isBlank() || pass.isBlank())
-            error("Unable to find SFTP credentials for $orgName")
-
-        return Pair(user, pass)
+        return Pair(credential.user, credential.pass)
     }
 
     private fun uploadFile(

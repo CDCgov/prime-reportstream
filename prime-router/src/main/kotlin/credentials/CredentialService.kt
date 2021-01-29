@@ -30,8 +30,7 @@ abstract class CredentialService : Logging {
 }
 
 enum class CredentialRequestReason {
-    SEND_BATCH,
-    SEND_SINGLE,
+    SFTP_UPLOAD,
     AUTOMATED_TEST,
     PERSIST_VERIFY
 }
