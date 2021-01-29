@@ -24,9 +24,11 @@ object HashicorpVaultCredentialService : CredentialService(), Logging {
         val (_, _, result) = manager.get("/$connectionId")
             .responseString()
         val (data, _) = result
-        // Vault wraps the response in a data key
-        val credentialJson = JSONObject(data).getJSONObject("data").toString()
-        return Credential.fromJSON(credentialJson)
+        return data?.let {
+            // Vault wraps the response in a data key
+            val credentialJson = JSONObject(it).getJSONObject("data").toString()
+            return Credential.fromJSON(credentialJson)
+        }
     }
 
     override fun saveCredential(connectionId: String, credential: Credential) {
