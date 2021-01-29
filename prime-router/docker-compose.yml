@@ -26,6 +26,7 @@ services:
       - POSTGRES_URL=jdbc:postgresql://host.docker.internal:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
       - REDOX_SECRET=some_secret
+      - VAULT_API_ADDR=http://host.docker.internal:8200
       - AZ_PHD__ELR__USER=foo
       - AZ_PHD__ELR__PASS=pass
       - AZ_PHD__ELR_TEST__USER=foo
