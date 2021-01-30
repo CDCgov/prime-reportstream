@@ -17,9 +17,12 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
+import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import org.jooq.Configuration
+import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
+import java.time.OffsetDateTime
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -63,6 +66,11 @@ class ActionHistory {
     val reportsOut = mutableMapOf<ReportId, ReportFile>()
 
     /**
+     * Messages to be queued in an azure queue as part of the result of this action.
+     */
+    val messages = mutableListOf<Event>()
+
+    /**
      *
      * Collection of all the parent-child report relationships created by this action.
      *
@@ -85,6 +93,10 @@ class ActionHistory {
 
     fun setActionType(taskAction: TaskAction) {
         action.actionName = taskAction
+    }
+
+    fun trackEvent(event: Event) {
+        messages.add(event)
     }
 
     fun trackActionParams(request: HttpRequestMessage<String?>) {
@@ -211,6 +223,7 @@ class ActionHistory {
         */
     /**
      * Use this to record history info about an internally created report.
+     * This also tracks the event to be queued later, as an azure message.
      */
     fun trackCreatedReport(
         event: Event,
@@ -233,6 +246,7 @@ class ActionHistory {
         reportFile.bodyFormat = report.getBodyFormat().toString()
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
+        trackEvent(event)
     }
 
     fun trackSentReport(
@@ -272,7 +286,7 @@ class ActionHistory {
         originalReportId: ReportId,
         externalReportId: ReportId,
         userName: String,
-        organization: Organization?
+        organization: Organization
     ) {
         trackExistingInputReport(originalReportId)
         if (isReportAlreadyTracked(externalReportId)) {
@@ -280,7 +294,7 @@ class ActionHistory {
         }
         val reportFile = ReportFile()
         reportFile.reportId = externalReportId
-        reportFile.receivingOrg = organization?.name ?: "unknown"
+        reportFile.receivingOrg = organization.name
         reportFile.receivingOrgSvc = header.task.receiverName
         reportFile.schemaName = header.task.schemaName
         reportFile.schemaTopic = "unavailable" // todo fix this
@@ -303,6 +317,14 @@ class ActionHistory {
      */
     fun saveToDb(txn: Configuration) {
         insertAll(txn)
+        queueMessages()
+    }
+
+    private fun queueMessages() {
+        messages.forEach { event ->
+            WorkflowEngine().queue.sendMessage(event)
+            context?.logger?.info("Queued event: ${event.toQueueMessage()}")
+        }
     }
 
     private fun insertAll(txn: Configuration) {
@@ -373,20 +395,152 @@ class ActionHistory {
         context?.logger?.info("Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}")
     }
 
-    fun fetchReportFile(reportId: ReportId, txn: Configuration): ReportFile {
-        val reportFile = DSL.using(txn)
-            .selectFrom(Tables.REPORT_FILE)
-            .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
-            .fetchOne()
-            ?.into(ReportFile::class.java)
-            ?: error("Could not find $reportId in report_file")
+    companion object {
+        fun fetchReportFile(reportId: ReportId, ctx: DSLContext): ReportFile {
+            val reportFile = ctx
+                .selectFrom(Tables.REPORT_FILE)
+                .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+                .fetchOne()
+                ?.into(ReportFile::class.java)
+                ?: error("Could not find $reportId in REPORT_FILE")
 
-      /*  val taskSources = DSL.using(txn)
+            /*  val items = DSL.using(txn)
             .selectFrom(Tables.ITEM)
             .where(Tables.ITEM.REPORT_ID.eq(reportId))
             .fetch()
             .into(Item::class.java)
        */
-        return reportFile
+            return reportFile
+        }
+
+        fun fetchReportFilesForReceiver(
+            nextAction: TaskAction,
+            at: OffsetDateTime?,
+            receiver: OrganizationService,
+            limit: Int,
+            ctx: DSLContext,
+        ): Map<ReportId, ReportFile> {
+            val cond = if (at == null) {
+                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organization.name)
+                    .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
+                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(nextAction))
+            } else {
+                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organization.name)
+                    .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
+                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(nextAction))
+                    .and(Tables.REPORT_FILE.NEXT_ACTION_AT.eq(at))
+            }
+            return ctx
+                .selectFrom(Tables.REPORT_FILE)
+                .where(cond)
+                .limit(limit)
+// todo turn on locking!
+//                .forUpdate()
+//                .skipLocked() // Allows the same query to run in parallel. Otherwise, the query would lock the table.
+                .fetch()
+                .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
+        }
+
+        fun fetchDownloadableReportFiles(
+            since: OffsetDateTime?,
+            orgName: String,
+            ctx: DSLContext,
+        ): Map<ReportId, ReportFile> {
+            val cond = if (since == null) {
+                Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
+                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
+            } else {
+                Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
+                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
+                    .and(Tables.REPORT_FILE.CREATED_AT.ge(since))
+            }
+
+            return ctx
+                .selectFrom(Tables.REPORT_FILE)
+                .where(cond)
+                .fetch()
+                .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
+        }
+
+        /**
+         * Get rid of this once we have moved away from the old Task table.  In the meantime,
+         * this is a way of confirming that the new tables are robust.
+         */
+        fun sanityCheckReports(
+            tasks: List<Task>?,
+            reportFiles: Map<ReportId, ReportFile>?,
+            failOnError: Boolean = true
+        ) {
+            var msg: String = ""
+            if (tasks == null) {
+                msg = "headers is null"
+            } else {
+                if (reportFiles == null) {
+                    msg = "reportFiles is null"
+                } else {
+                    if (tasks.size != reportFiles.size) {
+                        msg = "Different result count: Got ${tasks.size} headers but ${reportFiles.size} reportFiles"
+                    } else {
+                        tasks.forEach {
+                            sanityCheckReport(it, reportFiles.get(it.reportId), failOnError)
+                        }
+                    }
+                }
+            }
+            if (msg.isNotEmpty()) {
+                if (failOnError) {
+                    error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
+                } else {
+                    System.out.println("************ FAILURE: sanity check comparing old Headers list to new ReportFiles list FAILED:  $msg\"")
+                }
+            }
+        }
+
+        /**
+         * Get rid of this once we have moved away from the old Task table.  In the meantime,
+         * this is a way of confirming that the new tables are robust.
+         */
+        fun sanityCheckReport(task: Task?, reportFile: ReportFile?, failOnError: Boolean = true) {
+            var msg: String = ""
+            if (task == null) {
+                msg = "header is null"
+            } else {
+                if (reportFile == null) {
+                    msg = "reportFile is null - no matching report was retreived with ${task.reportId}"
+                } else {
+                    if (task.bodyFormat != reportFile.bodyFormat) {
+                        msg =
+                            "header.bodyFormat = ${task.bodyFormat}, but reportFile.bodyFormat= ${reportFile.bodyFormat}, "
+                    }
+                    if (task.bodyUrl != reportFile.bodyUrl) {
+                        msg += "header.bodyUrl = ${task.bodyUrl}, but reportFile.bodyFormat= ${reportFile.bodyUrl}, "
+                    }
+                    if (task.itemCount != reportFile.itemCount) {
+                        msg += "header.itemCount = ${task.itemCount}, but reportFile.itemCount= ${reportFile.itemCount}, "
+                    }
+                    if (task.nextAction != reportFile.nextAction) {
+                        msg += "header.nextAction = ${task.nextAction}, but reportFile.nextAction= ${reportFile.nextAction}, "
+                    }
+                    if (task.nextActionAt != reportFile.nextActionAt) {
+                        msg += "header. = ${task.nextActionAt}, but reportFile.nextActionAt= ${reportFile.nextActionAt}, "
+                    }
+                    if (task.receiverName != (reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)) {
+                        msg += "header.receiverName = ${task.receiverName}, but reportFile has ${reportFile.receivingOrg + "." + reportFile.receivingOrgSvc}"
+                    }
+                    if (task.reportId != reportFile.reportId) {
+                        msg += "header.reportId = ${task.reportId}, but reportFile.reportId= ${reportFile.reportId}, "
+                    }
+                }
+            }
+            if (msg.isNotEmpty()) {
+                if (failOnError) {
+                    error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
+                } else {
+                    System.out.println("************ FAILURE: sanity check comparing old Header info and new ReportFile info FAILED:  $msg\"")
+                }
+            } else {
+                System.out.println("!!!!!!!!! Sanity check passed!!!!!!!!!")
+            }
+        }
     }
 }

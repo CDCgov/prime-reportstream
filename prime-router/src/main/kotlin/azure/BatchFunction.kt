@@ -60,12 +60,11 @@ class BatchFunction {
                     val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
                     workflowEngine.dispatchReport(outEvent, outReport, txn)
                     actionHistory.trackCreatedReport(outEvent, outReport, receiver)
-                    context.logger.info("Batch: queued to send ${outEvent.toQueueMessage()}")
                 }
                 val msg = if (inReports.size == 1 && outReports.size == 1) "Success: No merging needed - batch of 1"
                 else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
                 actionHistory.trackActionResult(msg)
-                workflowEngine.recordAction(actionHistory, txn)
+                workflowEngine.recordAction(actionHistory, txn) // save to db, and queue events.
             }
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, "Batch exception", e)

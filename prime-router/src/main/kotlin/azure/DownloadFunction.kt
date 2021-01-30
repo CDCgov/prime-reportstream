@@ -43,7 +43,10 @@ class DownloadFunction {
         val fileName: String? = null,
     )
 
-    var organization: Organization? = null // todo hack.   Move into the run method.
+    data class AuthClaims(
+        val userName: String,
+        val organization: Organization
+    )
 
     @FunctionName("download")
     @StorageAccount("AzureWebJobsStorage")
@@ -55,14 +58,13 @@ class DownloadFunction {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        var authenticated = checkAuthenticated(request)
-        if (authenticated.first) {
-            organization = WorkflowEngine().metadata.findOrganization(authenticated.third.replace('_', '-'))
+        var authClaims = checkAuthenticated(request, context)
+        if (authClaims != null) {
             val file: String = request.queryParameters["file"] ?: ""
             if (file.isBlank())
-                return responsePage(request, authenticated.second, authenticated.third)
+                return responsePage(request, authClaims, context)
             else
-                return responseFile(request, file, authenticated.second, authenticated.third, context)
+                return responseFile(request, file, authClaims, context)
         } else {
             return serveAuthenticatePage(request)
         }
@@ -86,15 +88,13 @@ class DownloadFunction {
         return response
     }
 
-    private fun generateTestResults(headers: List<DatabaseAccess.Header>, userName: String, orgName: String): List<TestResult> {
+    private fun generateTestResults(headers: List<DatabaseAccess.Header>, authClaims: AuthClaims): List<TestResult> {
         return headers.sortedByDescending {
             it.task.createdAt
         }.map {
-            val org = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
             val svc = WorkflowEngine().metadata.findService(it.task.receiverName)
-            val orgDesc = if (org !== null) org.description else "Unknown"
+            val orgDesc = authClaims.organization.description
             val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
-            System.out.println("org = $org")
             TestResult(
                 it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                 receiver,
@@ -107,9 +107,12 @@ class DownloadFunction {
         }
     }
 
-    private fun generateTodaysTestResults(headers: List<DatabaseAccess.Header>, userName: String, orgName: String): List<TestResult> {
+    private fun generateTodaysTestResults(
+        headers: List<DatabaseAccess.Header>,
+        authClaims: AuthClaims
+    ): List<TestResult> {
         var filtered = headers.filter { filter(it) }
-        return generateTestResults(filtered, userName, orgName)
+        return generateTestResults(filtered, authClaims)
     }
 
     private fun filter(it: DatabaseAccess.Header): Boolean {
@@ -117,20 +120,29 @@ class DownloadFunction {
         return it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
     }
 
-    private fun generatePreviousTestResults(headers: List<DatabaseAccess.Header>, userName: String, orgName: String): List<TestResult> {
+    private fun generatePreviousTestResults(
+        headers: List<DatabaseAccess.Header>,
+        authClaims: AuthClaims
+    ): List<TestResult> {
         var filtered = headers.filterNot { filter(it) }
-        return generateTestResults(filtered, userName, orgName)
+        return generateTestResults(filtered, authClaims)
     }
 
-    private fun responsePage(request: HttpRequestMessage<String?>, userName: String, orgName: String): HttpResponseMessage {
+    private fun responsePage(
+        request: HttpRequestMessage<String?>,
+        authClaims: AuthClaims,
+        context: ExecutionContext
+    ): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
-        val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
+        val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchDownloadableHeaders(
+            OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
+        )
         val attr = mapOf(
-            "description" to (organization?.description ?: ""),
-            "user" to userName,
+            "description" to (authClaims.organization.description ?: ""),
+            "user" to authClaims.userName,
             "today" to Calendar.getInstance(),
-            "todays" to generateTodaysTestResults(headers, userName, orgName),
-            "previous" to generatePreviousTestResults(headers, userName, orgName),
+            "todays" to generateTodaysTestResults(headers, authClaims),
+            "previous" to generatePreviousTestResults(headers, authClaims),
             "days_to_show" to DAYS_TO_SHOW,
             "OKTA_redirect" to System.getenv("OKTA_redirect"),
             "showTables" to true
@@ -149,23 +161,20 @@ class DownloadFunction {
     private fun responseFile(
         request: HttpRequestMessage<String?>,
         requestedFile: String,
-        userName: String,
-        orgName: String,
+        authClaims: AuthClaims,
         context: ExecutionContext
     ): HttpResponseMessage {
         val reportId = ReportId.fromString(requestedFile)
-        val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(reportId, orgName)
+        val header =
+            DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(reportId, authClaims.organization.name)
         var response: HttpResponseMessage
 
         try {
             val body = WorkflowEngine().readBody(header)
             if (body.size <= 0)
-                response = responsePage(request, userName, orgName)
+                response = responsePage(request, authClaims, context)
             else {
-                // Give the external report a new UUID, so we can track its history distinct from the
-                // internal blob.   This is going to be very confusing.
-                val externalReportId = UUID.randomUUID()
-                val filename = Report.formExternalFilename(header.task.receiverName, reportId, header.task.bodyFormat)
+                val filename = Report.formExternalFilename(reportId, header.task.receiverName, header.task.bodyFormat)
                 response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "text/csv")
@@ -174,7 +183,17 @@ class DownloadFunction {
                     .build()
                 val actionHistory = ActionHistory(TaskAction.download, context)
                 actionHistory.trackActionRequestResponse(request, response)
-                actionHistory.trackDownloadedReport(header, filename, reportId, externalReportId, userName, organization)
+                // Give the external report_file a new UUID, so we can track its history distinct from the
+                // internal blob.   This is going to be very confusing.
+                val externalReportId = UUID.randomUUID()
+                actionHistory.trackDownloadedReport(
+                    header,
+                    filename,
+                    reportId,
+                    externalReportId,
+                    authClaims.userName,
+                    authClaims.organization
+                )
                 WorkflowEngine().recordAction(actionHistory)
                 return response
             }
@@ -200,13 +219,16 @@ class DownloadFunction {
         return templateEngine.process(htmlContent, context)
     }
 
-    private fun checkAuthenticated(request: HttpRequestMessage<String?>): Triple<Boolean, String, String> {
+    /**
+     * returns null if not authorized, otherwise returns a set of claims.
+     */
+    private fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         var userName = ""
         var orgName = ""
 
         val cookies = request.headers["cookie"] ?: ""
 
-        System.out.println(cookies)
+        context.logger.info(cookies)
 
         var jwtString = ""
 
@@ -222,13 +244,20 @@ class DownloadFunction {
                     userName = jwt.getClaims().get("sub").toString()
                     val orgs = jwt.getClaims().get("organization")
                     var org = if (orgs !== null) (orgs as List<String>)[0] else ""
-
                     orgName = if (org.length > 3) org.substring(2) else ""
                 } catch (ex: Throwable) {
                     System.out.println(ex)
                 }
             }
         }
-        return Triple(userName.isNotBlank() && orgName.isNotBlank(), userName, orgName)
+        if (userName.isNotBlank() && orgName.isNotBlank()) {
+            val organization = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
+            if (organization != null) {
+                return AuthClaims(userName, organization)
+            } else {
+                context.logger.info("User $userName failed auth: Organization $orgName is unknown to the system.")
+            }
+        }
+        return null
     }
 }

@@ -59,13 +59,12 @@ class WorkflowEngine(
     }
 
     /**
-     * Place a report into the workflow
+     * Place a report into the workflow (Note:  I moved queueing the message to after the Action is saved)
      */
     fun dispatchReport(nextAction: Event, report: Report, txn: Configuration? = null) {
         val (bodyFormat, bodyUrl) = blob.uploadBody(report)
         try {
             db.insertHeader(report, bodyFormat, bodyUrl, nextAction, txn)
-            queue.sendMessage(nextAction)
             report.bodyURL = bodyUrl
         } catch (e: Exception) {
             // Clean up
@@ -111,11 +110,14 @@ class WorkflowEngine(
         maxCount: Int,
         updateBlock: (headers: List<DatabaseAccess.Header>, txn: Configuration?) -> Unit,
     ) {
+        val receiver = metadata.findService(messageEvent.receiverName)
+            ?: error("Unable to find a receiving service called ${messageEvent.receiverName}")
+
         db.transact { txn ->
             val headers = db.fetchAndLockHeaders(
                 messageEvent.eventAction.toTaskAction(),
                 messageEvent.at,
-                messageEvent.receiverName,
+                receiver,
                 maxCount,
                 txn
             )

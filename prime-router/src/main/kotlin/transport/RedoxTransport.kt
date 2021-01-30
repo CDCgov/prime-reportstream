@@ -69,6 +69,7 @@ class RedoxTransport() : ITransport {
         }
         val resultMsg = "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
         actionHistory.trackActionResult(resultMsg)
+        context.logger.log(Level.INFO, resultMsg)
         actionHistory.trackSentReport(orgService, sentReportId, null, sendUrl, resultMsg, successCount)
         return if (nextRetryItems.isNotEmpty()) nextRetryItems else null
     }
@@ -119,7 +120,6 @@ class RedoxTransport() : ITransport {
         id: String,
         context: ExecutionContext
     ): Boolean {
-        context.logger.log(Level.INFO, "About to post Redox msg to $sendUrl")
         val (_, _, result) = Fuel
             .post(sendUrl)
             .header(CONTENT_TYPE to jsonMimeType, AUTHORIZATION to "Bearer $token")
@@ -133,7 +133,6 @@ class RedoxTransport() : ITransport {
                     .getJSONObject("Meta")
                     .getJSONObject("Message")
                     .getInt("ID")
-                context.logger.log(Level.INFO, "Successfully posted $id to Redox msg $messageId")
                 true
             }
             is Result.Failure -> {

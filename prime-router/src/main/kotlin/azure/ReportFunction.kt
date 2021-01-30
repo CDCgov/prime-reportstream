@@ -255,7 +255,6 @@ class ReportFunction {
         }
         workflowEngine.dispatchReport(event, report, txn)
         actionHistory.trackCreatedReport(event, report, service)
-        context.logger.info("Queue: ${event.toQueueMessage()}")
     }
 
     private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {

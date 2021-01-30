@@ -33,7 +33,7 @@ class SftpTransport : ITransport {
             val (user, pass) = lookupCredentials(orgService.fullName)
             val extension = orgService.format.toExt()
             // Dev note:  db table requires fileName to be unique.
-            val fileName = Report.formExternalFilename(orgService.fullName, sentReportId, extension)
+            val fileName = Report.formExternalFilename(sentReportId, orgService.fullName, extension)
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)

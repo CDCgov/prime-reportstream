@@ -63,7 +63,7 @@ class Report {
     /**
      * A standard name for this report that take schema, id, and destination into account
      */
-    val name: String get() = formFileName(id, schema.baseName, destination?.format, createdDateTime)
+    val name: String get() = formFilename(id, schema.baseName, destination?.format, createdDateTime)
 
     /**
      * A pointer to where the Report is stored.
@@ -292,7 +292,7 @@ class Report {
             return Report(schema, newTable, sources)
         }
 
-        fun formFileName(
+        fun formFilename(
             id: ReportId,
             schemaName: String,
             fileFormat: OrganizationService.Format?,
@@ -305,8 +305,8 @@ class Report {
         }
 
         fun formExternalFilename(
-            orgServiceFullName: String,
             reportId: ReportId,
+            orgServiceFullName: String,
             extension: String
         ): String {
             return "${orgServiceFullName.replace('.', '-')}-$reportId.${extension.toLowerCase()}"

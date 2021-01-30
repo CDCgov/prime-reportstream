@@ -54,7 +54,7 @@ BEGIN
 SELECT RF.report_id FROM tmp, action AS A, report_file AS RF
 WHERE tmp.tmp_report_id = RF.report_id
       AND A.action_id = RF.action_id
-      AND A.action_name = 'send';
+      AND (A.action_name = 'send' OR A.action_name = 'download');
 END;
 $$  LANGUAGE PLPGSQL;
 
@@ -72,12 +72,12 @@ BEGIN
         SELECT report_descendants(start_report_id) AS tmp_report_id
       )
 -- Now find all reports that had no children and are not 'sent' leaf nodes.
--- These are nodes that withered and died.
+-- These are nodes that withered and died.  Note:  a report with at least one download is considered 'sent' as well.
 -- (As long as reports have relatively few descendants, the "NOT IN" query shouldn't be too expensive)
 SELECT RF.report_id FROM tmp, action AS A, report_file AS RF
 WHERE tmp.tmp_report_id = RF.report_id
       AND A.action_id = RF.action_id
-      AND A.action_name != 'send'
+      AND A.action_name != 'send' AND A.action_name != 'download'
       AND RF.report_id NOT IN 
             (select RL.parent_report_id from report_lineage RL where RL.parent_report_id = tmp.tmp_report_id);
 END;

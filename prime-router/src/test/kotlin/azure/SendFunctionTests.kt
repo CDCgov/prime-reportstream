@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.transport.RetryToken
@@ -69,7 +70,8 @@ class SendFunctionTests {
         setupLogger()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
             val block = thirdArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
+            val reportFile = ReportFile()
+            val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
@@ -93,7 +95,8 @@ class SendFunctionTests {
         setupLogger()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
             val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
+            val reportFile = ReportFile()
+            val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
@@ -119,7 +122,8 @@ class SendFunctionTests {
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
             val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val task = Task(reportId, TaskAction.send, null, null, "az-phd.elr-test", 0, "", "", null, null, null, null, null, null, null)
-            val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
+            val reportFile = ReportFile()
+            val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
             nextEvent = block(header, RetryToken(2, listOf(RetryTransport(0, RetryToken.allItems))), null)
         }
         setupWorkflow()
@@ -148,8 +152,8 @@ class SendFunctionTests {
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
             val block =
                 secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-
-            val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
+            val reportFile = ReportFile()
+            val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
             // Should be high enough retry count that the next action should have an error
             nextEvent = block(header, RetryToken(100, listOf(RetryTransport(0, RetryToken.allItems))), null)
         }
