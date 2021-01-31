@@ -6,11 +6,11 @@ import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.DatabaseAccess
 import java.util.logging.Level
 
 class RedoxTransport() : ITransport {
@@ -26,10 +26,8 @@ class RedoxTransport() : ITransport {
     private val redoxMessageId = "messageId"
 
     override fun send(
-        orgService: OrganizationService,
         transportType: TransportType,
-        contents: ByteArray,
-        inputReportId: ReportId,
+        header: DatabaseAccess.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
@@ -37,7 +35,8 @@ class RedoxTransport() : ITransport {
     ): RetryItems? {
         val redoxTransportType = transportType as RedoxTransportType
         val (key, secret) = getKeyAndSecret(redoxTransportType)
-        val messages = String(contents).split("\n") // NDJSON content
+        if (header.content == null || header.orgSvc == null) error("No content or orgSvc to send to redox for report ${header.reportFile.reportId}")
+        val messages = String(header.content).split("\n") // NDJSON content
         val token = fetchToken(redoxTransportType, key, secret, context)
         if (token == null) {
             actionHistory.trackActionResult("Failure: fetch redox token failed.  Requesting retry of allItems")
@@ -54,7 +53,7 @@ class RedoxTransport() : ITransport {
             }
             .mapNotNull { (index, message) ->
                 attemptedCount++
-                if (!sendItem(sendUrl, token, message, "$inputReportId-$index", context)) {
+                if (!sendItem(sendUrl, token, message, "${header.reportFile.reportId}-$index", context)) {
                     index.toString()
                 } else {
                     successCount++
@@ -70,7 +69,7 @@ class RedoxTransport() : ITransport {
         val resultMsg = "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
         actionHistory.trackActionResult(resultMsg)
         context.logger.log(Level.INFO, resultMsg)
-        actionHistory.trackSentReport(orgService, sentReportId, null, sendUrl, resultMsg, successCount)
+        actionHistory.trackSentReport(header.orgSvc, sentReportId, null, sendUrl, resultMsg, successCount)
         return if (nextRetryItems.isNotEmpty()) nextRetryItems else null
     }
 

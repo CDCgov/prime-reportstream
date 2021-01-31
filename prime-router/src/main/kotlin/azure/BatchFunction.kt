@@ -64,8 +64,9 @@ class BatchFunction {
                 val msg = if (inReports.size == 1 && outReports.size == 1) "Success: No merging needed - batch of 1"
                 else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
                 actionHistory.trackActionResult(msg)
-                workflowEngine.recordAction(actionHistory, txn) // save to db, and queue events.
+                workflowEngine.recordAction(actionHistory, txn) // save to db
             }
+            actionHistory.queueMessages() // Must be done after txn, to avoid race condition
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, "Batch exception", e)
         }

@@ -187,6 +187,7 @@ class ActionHistory {
         val reportFile = ReportFile()
         reportFile.reportId = report.id
         reportFile.nextAction = TaskAction.none
+        // todo remove this dependency on TaskSource
         if (report.sources.size != 1) {
             error("An external incoming report should have only one source.   Report ${report.id} had ${report.sources.size} sources")
         }
@@ -246,7 +247,7 @@ class ActionHistory {
         reportFile.bodyFormat = report.getBodyFormat().toString()
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        trackEvent(event)
+        trackEvent(event) // to be sent to queue later.
     }
 
     fun trackSentReport(
@@ -317,14 +318,17 @@ class ActionHistory {
      */
     fun saveToDb(txn: Configuration) {
         insertAll(txn)
-        queueMessages()
     }
 
-    private fun queueMessages() {
+    fun queueMessages() {
         messages.forEach { event ->
-            WorkflowEngine().queue.sendMessage(event)
-            context?.logger?.info("Queued event: ${event.toQueueMessage()}")
+            queueMessage(event)
         }
+    }
+
+    private fun queueMessage(event: Event) {
+        WorkflowEngine().queue.sendMessage(event)
+        context?.logger?.info("Queued event: ${event.toQueueMessage()}")
     }
 
     private fun insertAll(txn: Configuration) {

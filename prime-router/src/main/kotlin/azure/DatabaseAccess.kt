@@ -7,6 +7,7 @@ import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportSource
+import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.Tables.TASK
@@ -44,7 +45,32 @@ class DatabaseAccess(private val create: DSLContext) {
     constructor(dataSource: DataSource) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
     constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
 
-    data class Header(val task: Task, val sources: List<TaskSource>, val reportFile: ReportFile)
+    class Header(
+        val task: Task,
+        val sources: List<TaskSource>,
+        val reportFile: ReportFile,
+        val engine: WorkflowEngine = WorkflowEngine()
+    ) {
+        // Populate the header with useful metadata objs, and the blob body.
+        val orgSvc: OrganizationService?
+        val schema: Schema?
+        val content: ByteArray?
+
+        init {
+            val meta = engine.metadata
+            orgSvc = if (reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null)
+                meta.findService(reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)
+            else null
+
+            schema = if (reportFile.schemaName != null)
+                meta.findSchema(reportFile.schemaName)
+            else null
+
+            content = if (reportFile.bodyUrl != null)
+                engine.blob.downloadBlob(reportFile.bodyUrl)
+            else null
+        }
+    }
 
     fun checkConnection() {
         create.selectFrom(REPORT_FILE).where(REPORT_FILE.REPORT_ID.eq(UUID.randomUUID())).fetch()

@@ -94,7 +94,7 @@ class WorkflowEngine(
             val retryJson = nextEvent.retryToken?.toJSON()
             db.updateHeader(header.task.reportId, currentEventAction, nextEvent.eventAction, nextEvent.at, retryJson, txn)
             recordAction(actionHistory, txn)
-            queue.sendMessage(nextEvent)
+            queue.sendMessage(nextEvent) // todo Unlikely,but race condition if msg is grabbed for processing before txn completes.
         }
     }
 

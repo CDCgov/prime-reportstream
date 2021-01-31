@@ -153,9 +153,10 @@ class WorkflowEngineTests {
         val nextAction = ReportEvent(Event.EventAction.NONE, report1.id)
         val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
         val actionHistoryMock = mockk<ActionHistory>()
+        val engine = makeEngine(metadata)
 
         every { accessSpy.fetchAndLockHeader(reportId = eq(report1.id), any()) }
-            .returns(DatabaseAccess.Header(task, emptyList(), ReportFile()))
+            .returns(DatabaseAccess.Header(task, emptyList(), ReportFile(), engine))
         every {
             accessSpy.updateHeader(
                 reportId = eq(report1.id),
@@ -171,7 +172,6 @@ class WorkflowEngineTests {
         every { actionHistoryMock.saveToDb(any()) }.returns(Unit)
         every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
 
-        val engine = makeEngine(metadata)
         engine.handleReportEvent(event, actionHistoryMock) { header, _, _ ->
             assertEquals(task, header.task)
             assertEquals(0, header.sources.size)

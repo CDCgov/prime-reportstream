@@ -68,14 +68,14 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
+        setupWorkflow()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
             val block = thirdArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val reportFile = ReportFile()
-            val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
+            val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile, workflowEngine)
             nextEvent = block(header, null, null)
         }
-        setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(null)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -100,7 +100,7 @@ class SendFunctionTests {
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(),) }.returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -127,7 +127,7 @@ class SendFunctionTests {
             nextEvent = block(header, RetryToken(2, listOf(RetryTransport(0, RetryToken.allItems))), null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(),) }.returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -158,7 +158,7 @@ class SendFunctionTests {
             nextEvent = block(header, RetryToken(100, listOf(RetryTransport(0, RetryToken.allItems))), null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(),) }.returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)

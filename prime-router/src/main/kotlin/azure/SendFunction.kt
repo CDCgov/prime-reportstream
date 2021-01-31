@@ -65,28 +65,24 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                             workflowEngine
                                 .sftpTransport
                                 .send(
-                                    service,
                                     transport,
-                                    content,
-                                    inputReportId,
+                                    header,
                                     sentReportId,
                                     retryItems,
                                     context,
-                                    actionHistory
+                                    actionHistory,
                                 )
                         }
                         is RedoxTransportType -> {
                             workflowEngine
                                 .redoxTransport
                                 .send(
-                                    service,
                                     transport,
-                                    content,
-                                    inputReportId,
+                                    header,
                                     sentReportId,
                                     retryItems,
                                     context,
-                                    actionHistory
+                                    actionHistory,
                                 )
                         }
                         else -> null

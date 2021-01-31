@@ -1,12 +1,12 @@
 package gov.cdc.prime.router.transport
 
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
@@ -17,10 +17,8 @@ import java.util.logging.Level
 
 class SftpTransport : ITransport {
     override fun send(
-        orgService: OrganizationService,
         transportType: TransportType,
-        contents: ByteArray,
-        inputReportId: ReportId,
+        header: DatabaseAccess.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
@@ -30,26 +28,32 @@ class SftpTransport : ITransport {
         val host: String = sftpTransportType.host
         val port: String = sftpTransportType.port
         return try {
-            val (user, pass) = lookupCredentials(orgService.fullName)
-            val extension = orgService.format.toExt()
+            if (header.content == null || header.orgSvc == null) error("No content or orgSvc to sftp, for report ${header.reportFile.reportId}")
+            val (user, pass) = lookupCredentials(header.orgSvc.fullName)
+            val extension = header.orgSvc.format.toExt()
             // Dev note:  db table requires fileName to be unique.
-            val fileName = Report.formExternalFilename(sentReportId, orgService.fullName, extension)
-            uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, contents, context)
+            val fileName = Report.formExternalFilename(sentReportId, header.orgSvc.fullName, extension)
+            uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, header.content, context)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)
             actionHistory.trackActionResult(msg)
-            // todo fix the itemCount == -1, when we refactor workflowEngine to read from new tables.
-            actionHistory.trackSentReport(orgService, sentReportId, fileName, sftpTransportType.toString(), msg, -1)
+            actionHistory.trackSentReport(
+                header.orgSvc,
+                sentReportId,
+                fileName,
+                sftpTransportType.toString(),
+                msg,
+                header.reportFile.itemCount
+            )
             null
         } catch (ioException: IOException) {
-            val msg = "FAILED Sftp upload of inputReportId $inputReportId to $sftpTransportType (orgService = ${orgService.fullName})"
+            val msg =
+                "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to $sftpTransportType (orgService = ${header.orgSvc?.fullName ?: "null"})"
             context.logger.log(
                 Level.WARNING, msg, ioException
             )
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
-            // Ambivalent about this - seems not useful to track a file that does not exist.   Removing for now.
-// delete this            actionHistory.trackFailedReport(orgService, sentReportId, sftpTransportType.toString(), msg)
             RetryToken.allItems
         } // let non-IO exceptions be caught by the caller
     }
@@ -91,12 +95,29 @@ class SftpTransport : ITransport {
                 client
                     .put(
                         object : InMemorySourceFile() {
-                            override fun getName(): String { return fileName }
-                            override fun getLength(): Long { return contents.size.toLong() }
-                            override fun getInputStream(): InputStream { return contents.inputStream() }
-                            override fun isDirectory(): Boolean { return false }
-                            override fun isFile(): Boolean { return true }
-                            override fun getPermissions(): Int { return 777 }
+                            override fun getName(): String {
+                                return fileName
+                            }
+
+                            override fun getLength(): Long {
+                                return contents.size.toLong()
+                            }
+
+                            override fun getInputStream(): InputStream {
+                                return contents.inputStream()
+                            }
+
+                            override fun isDirectory(): Boolean {
+                                return false
+                            }
+
+                            override fun isFile(): Boolean {
+                                return true
+                            }
+
+                            override fun getPermissions(): Int {
+                                return 777
+                            }
                         },
                         path + "/" + fileName
                     )
