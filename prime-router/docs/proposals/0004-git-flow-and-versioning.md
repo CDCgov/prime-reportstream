@@ -27,7 +27,7 @@ The overall platform should be versioned in a temporally distinct way, yet allow
 |Full year|Zero-padded month|Zero-padded day|Release number|
 |2019, 2020, ...|01, 10, ...|01, 30, ...|0, 1, 2, ...
 
-The proposed versioning scheme is based off of `Calendar Versioning`<sup>2</sup>.  A separate proposal may leverage `Semantic Versioning`<sup>3</sup> to add granularity to the individual components within the PRIME Data Hub platform.
+The proposed versioning scheme is based off of `Calendar Versioning`<sup>1</sup>.  A separate proposal may leverage `Semantic Versioning`<sup>2</sup> to add granularity to the individual components within the PRIME Data Hub platform.
 
 ## Git Flow
 
@@ -44,19 +44,20 @@ Upon the creation of a pull request, the `test_build` workflow will be triggered
 
 Upon merge, the GitHub actions `test_release` workflow will be triggered to deploy to the `prime-data-hub-test` resource group within Azure.  The merged changes should then be thoroughly tested within the cloud environment.
 
-This proposed flow is based off of the `GitHub Flow`<sup>1</sup>.
+This proposed flow is based off of the `GitHub Flow`<sup>3</sup>.
 
 ## Production Release
 
 When a collection of features is deemed ready for production deployment, a release should be published.  Upon publish, the `prod_release` workflow will be triggered to deploy to the `prime-data-hub-prod` resource group within Azure.
 
-To create a release, navigate to the `Create a new release` link on the right-hand side of the main GitHub repository page.  Enter the appropriate version, title, and description (discussed below) and click `Publish release`.
+To create a release, navigate to the `Create a new release` link on the right-hand side of the main GitHub repository page.  Enter the appropriate version, title, and description and click `Publish release`.  The title should be a succinct overview of the theme(s) surrounding each release.  The description should contain a detailed change log describing the changes that were made to the platform.
 
 ![GitHub Release](../assets/github_release.png "GitHub Release UI")
 
 # References
-1. [GitHub Flow](https://guides.github.com/introduction/flow/)
 
-2. [Calendar Versioning](https://calver.org)
+1. [Calendar Versioning](https://calver.org)
 
-3. [Semantic Versioning](https://semver.org)
+2. [Semantic Versioning](https://semver.org)
+
+3. [GitHub Flow](https://guides.github.com/introduction/flow/)
