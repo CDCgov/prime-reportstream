@@ -27,16 +27,15 @@ class DownloadFunction {
     val FILENOTFOUND_PAGE = "./assets/csv-download-site/nosuchfile__inline.html"
 
     data class TestResult(
-        val date: String,
-        val receiver: String,
-        val expires: Long,
+        val date: String?,
+        val receiver: String?,
+        val expires: Long?,
         val total: Any? = null,
         val positive: Any? = null,
-        val file: String? = null
+        val file: String? = null,
+        val format: String? = null,
+        val fileName: String? = null,
     )
-
-    var orgName = ""
-    var userName = ""
 
     @FunctionName("download")
     @StorageAccount("AzureWebJobsStorage")
@@ -47,12 +46,13 @@ class DownloadFunction {
             authLevel = AuthorizationLevel.ANONYMOUS
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-        if (checkAuthenticated(request)) {
+        var authenticated = checkAuthenticated(request)
+        if (authenticated.first) {
             val file: String = request.queryParameters["file"] ?: ""
             if (file.isBlank())
-                return responsePage(request)
+                return responsePage(request, authenticated.second, authenticated.third)
             else
-                return responseFile(request, file)
+                return responseFile(request, file, authenticated.second, authenticated.third)
         } else {
             return serveAuthenticatePage(request)
         }
@@ -76,60 +76,57 @@ class DownloadFunction {
         return response
     }
 
-    private fun generateTodaysTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
-        return headers.filter {
-            val now = OffsetDateTime.now()
-            it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
+    private fun generateTestResults(headers: List<DatabaseAccess.Header>, userName: String, orgName: String): List<TestResult> {
+        return headers.sortedByDescending {
+            it.task.createdAt
+        }.map {
+            val org = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
+            val svc = WorkflowEngine().metadata.findService(it.task.receiverName)
+            val orgDesc = if (org !== null) org.description else "Unknown"
+            val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
+            System.out.println("org = $org")
+            TestResult(
+                it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                receiver,
+                DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
+                it.task.itemCount,
+                0,
+                it.task.reportId.toString(),
+                it.task.bodyFormat
+            )
         }
-            .sortedByDescending {
-                it.task.createdAt
-            }.map {
-                TestResult(
-                    it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                    it.task.receiverName,
-                    DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
-                    it.task.itemCount,
-                    0,
-                    it.task.reportId.toString()
-                )
-            }
     }
 
-    private fun generatePreviousTestResults(headers: List<DatabaseAccess.Header>): List<TestResult> {
-        return headers.filterNot {
-            val now = OffsetDateTime.now()
-            it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
-        }
-            .sortedByDescending {
-                it.task.createdAt
-            }
-            .map {
-                TestResult(
-                    it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                    it.task.receiverName,
-                    DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
-                    it.task.itemCount,
-                    0,
-                    it.task.reportId.toString()
-                )
-            }
+    private fun generateTodaysTestResults(headers: List<DatabaseAccess.Header>, userName: String, orgName: String): List<TestResult> {
+        var filtered = headers.filter { filter(it) }
+        return generateTestResults(filtered, userName, orgName)
     }
 
-    private fun responsePage(request: HttpRequestMessage<String?>, fileNotFound: Boolean = false): HttpResponseMessage {
+    private fun filter(it: DatabaseAccess.Header): Boolean {
+        val now = OffsetDateTime.now()
+        return it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
+    }
+
+    private fun generatePreviousTestResults(headers: List<DatabaseAccess.Header>, userName: String, orgName: String): List<TestResult> {
+        var filtered = headers.filterNot { filter(it) }
+        return generateTestResults(filtered, userName, orgName)
+    }
+
+    private fun responsePage(request: HttpRequestMessage<String?>, userName: String, orgName: String): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
         val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeaders(OffsetDateTime.now().minusDays(DAYS_TO_SHOW), orgName)
 
-        System.out.println("count of headers = ${headers.size}")
+        val org = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
 
         val attr = mapOf(
-            "description" to orgName,
+            "description" to if (org !== null) org.description else "",
             "user" to userName,
             "today" to Calendar.getInstance(),
-            "todays" to generateTodaysTestResults(headers),
-            "previous" to generatePreviousTestResults(headers),
+            "todays" to generateTodaysTestResults(headers, userName, orgName),
+            "previous" to generatePreviousTestResults(headers, userName, orgName),
             "days_to_show" to DAYS_TO_SHOW,
             "OKTA_redirect" to System.getenv("OKTA_redirect"),
-            "showTables" to !fileNotFound
+            "showTables" to true
         )
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)
@@ -142,18 +139,20 @@ class DownloadFunction {
         return response
     }
 
-    private fun responseFile(request: HttpRequestMessage<String?>, fileName: String): HttpResponseMessage {
+    private fun responseFile(request: HttpRequestMessage<String?>, fileName: String, userName: String, orgName: String): HttpResponseMessage {
         val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(ReportId.fromString(fileName), orgName)
         var response: HttpResponseMessage
+
+        val createdAt = header.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         try {
             val body = WorkflowEngine().readBody(header)
             if (body.size <= 0)
-                response = responsePage(request, true)
+                response = responsePage(request, userName, orgName)
             else {
                 response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "text/csv")
-                    .header("Content-Disposition", "attachment; filename=test-results.csv")
+                    .header("Content-Disposition", "attachment; filename=test-results--$orgName-$createdAt.csv")
                     .body(body)
                     .build()
             }
@@ -171,7 +170,7 @@ class DownloadFunction {
         return templateEngine
     }
 
-    private fun getTemplateFromAttributes(htmlContent: String, attr: Map<String, Any>): String {
+    private fun getTemplateFromAttributes(htmlContent: String, attr: Map<String, Any?>): String {
         val templateEngine = getTemplateEngine()
         val context = Context()
         if (!attr.isEmpty())
@@ -179,11 +178,14 @@ class DownloadFunction {
         return templateEngine.process(htmlContent, context)
     }
 
-    private fun checkAuthenticated(request: HttpRequestMessage<String?>): Boolean {
-        userName = ""
-        orgName = ""
+    private fun checkAuthenticated(request: HttpRequestMessage<String?>): Triple<Boolean, String, String> {
+        var userName = ""
+        var orgName = ""
 
         val cookies = request.headers["cookie"] ?: ""
+
+        System.out.println(cookies)
+
         var jwtString = ""
 
         cookies.replace(" ", "").split(";").forEach {
@@ -205,6 +207,6 @@ class DownloadFunction {
                 }
             }
         }
-        return userName.isNotBlank() && orgName.isNotBlank()
+        return Triple(userName.isNotBlank() && orgName.isNotBlank(), userName, orgName)
     }
 }

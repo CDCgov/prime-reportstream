@@ -67,20 +67,20 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
-        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
-            val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
+            val block = thirdArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(null)
 
         // Invoke
-        val event = ReportEvent(Event.Action.SEND, reportId)
+        val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
         // Verify
         assertNotNull(nextEvent)
-        assertEquals(Event.Action.NONE, nextEvent!!.action)
+        assertEquals(Event.EventAction.NONE, nextEvent!!.eventAction)
         assertNull(nextEvent!!.retryToken)
     }
 
@@ -91,21 +91,21 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
-        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
             val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
-        val event = ReportEvent(Event.Action.SEND, reportId)
+        val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertNotNull(nextEvent)
-        assertEquals(Event.Action.SEND, nextEvent!!.action)
+        assertEquals(Event.EventAction.SEND, nextEvent!!.eventAction)
         assertNotNull(nextEvent!!.retryToken)
         assertEquals(1, nextEvent!!.retryToken?.retryCount)
     }
@@ -116,22 +116,22 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
-        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
             val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val task = Task(reportId, TaskAction.send, null, null, "az-phd.elr-test", 0, "", "", null, null, null, null, null, null, null)
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>())
             nextEvent = block(header, RetryToken(2, listOf(RetryTransport(0, RetryToken.allItems))), null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
-        val event = ReportEvent(Event.Action.SEND, reportId)
+        val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertNotNull(nextEvent)
-        assertEquals(Event.Action.SEND, nextEvent!!.action)
+        assertEquals(Event.EventAction.SEND, nextEvent!!.eventAction)
         assertNotNull(nextEvent!!.retryToken)
         assertEquals(3, nextEvent!!.retryToken?.retryCount)
         assertTrue(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2)))
@@ -145,7 +145,7 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         val reportId = UUID.randomUUID()
-        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
             val block =
                 secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
 
@@ -154,15 +154,15 @@ class SendFunctionTests {
             nextEvent = block(header, RetryToken(100, listOf(RetryTransport(0, RetryToken.allItems))), null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
-        val event = ReportEvent(Event.Action.SEND, reportId)
+        val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertNotNull(nextEvent)
-        assertEquals(Event.Action.SEND_ERROR, nextEvent!!.action)
+        assertEquals(Event.EventAction.SEND_ERROR, nextEvent!!.eventAction)
         assertNull(nextEvent!!.retryToken)
     }
 

@@ -8,6 +8,7 @@ import gov.cdc.prime.router.EmailTransportType
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
+import gov.cdc.prime.router.azure.ActionHistory
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -23,8 +24,10 @@ class EmailTransport : ITransport {
         transportType: TransportType,
         contents: ByteArray,
         reportId: ReportId,
+        sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
+        actionHistory: ActionHistory, // not used by emailer
     ): RetryItems? {
 
         val emailTransport = transportType as EmailTransportType
