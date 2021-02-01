@@ -305,12 +305,8 @@ class ActionHistory {
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
         reportFile.bodyFormat = header.task.bodyFormat
         reportFile.itemCount = header.task.itemCount
+        reportFile.downloadedBy = userName
         reportsOut[reportFile.reportId] = reportFile
-    }
-
-    @Deprecated("Not sure we really need this")
-    fun trackFailedReport(service: OrganizationService, sentReportId: ReportId, params: String, msg: String) {
-        trackSentReport(service, sentReportId, null, params, msg, 0)
     }
 
     /**
