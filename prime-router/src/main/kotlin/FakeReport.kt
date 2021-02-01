@@ -6,6 +6,16 @@ import java.text.SimpleDateFormat
 import java.util.Random
 import java.util.concurrent.TimeUnit
 
+/*
+    The FakeDataService class was created to separate the logic
+    of generating faked data from the FakeReport class which
+    packages the faked data and creates a report out of it.
+
+    The goal is to allow us to inject the FakeDataService into
+    other areas and use its logic there, for example, generating
+    synthetic data, which is data that originates from outside of
+    prime and is then shuffled and/or faked
+*/
 class FakeDataService {
     fun getFakeValueForElement(
         element: Element,
@@ -13,6 +23,7 @@ class FakeDataService {
     ): String {
         val faker = context.faker
 
+        // creates fake text data
         fun createFakeText(element: Element): String {
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
@@ -35,6 +46,8 @@ class FakeDataService {
             }
         }
 
+        // creates a fake name for a person based on the patient name
+        // in the row context
         fun createFakeName(element: Element): String {
             return when {
                 element.nameContains("first") -> context.patientName.firstName()
@@ -45,6 +58,8 @@ class FakeDataService {
             }
         }
 
+        // creates a fake date and formats it according to the element's
+        // provided formatting string
         fun createFakeDate(element: Element): String {
             val date = when {
                 element.nameContains("DOB") -> faker.date().birthday(0, 100)
@@ -54,22 +69,31 @@ class FakeDataService {
             return formatter.format(date)
         }
 
+        // creates a fake date time and then formats it
         fun createFakeDateTime(): String {
             val date = faker.date().past(10, TimeUnit.DAYS)
             val formatter = SimpleDateFormat(Element.datetimePattern)
             return formatter.format(date)
         }
 
+        // creates a fake phone number for the element
         fun createFakePhoneNumber(element: Element): String {
             val csvField = element.csvFields?.get(0)
             val phoneNumberFormat = csvField?.format ?: "2#########:1:"
             return faker.numerify(phoneNumberFormat)
         }
 
+        // creates a fake email for the patient name that is part
+        // of the row context
         fun createFakeEmail(): String {
             return "${context.patientName.username()}@email.com"
         }
 
+        // code values typically come from valuesets, so we pass in the element
+        // and then we examine both the alt values and the value set for the element
+        // and we then pull a random value from all the potential values available.
+        // the rationale here is that if an element specifies alt values, they are preferred
+        // to the values held in the value set collection, and so we use them first
         fun createFakeCodeValue(element: Element): String {
             return when (element.name) {
                 "specimen_source_site_code" -> "71836000"
@@ -90,6 +114,8 @@ class FakeDataService {
             }
         }
 
+        // table values work in a similar fashion to the valuesets, but are
+        // more flexible and allow for more filtering.
         fun createFakeTableValue(element: Element): String {
             val lookupTable = element.tableRef
                 ?: error("LookupTable ${element.table} is not available")
@@ -113,6 +139,10 @@ class FakeDataService {
             }
         }
 
+        // now that we've created all our functions, we can call them in our
+        // when statement here, depending on the type of the element passed in.
+        // each element has a type, and depending on the type defined on the
+        // element, we call into some of the functions above
         return when (element.type) {
             Element.Type.CITY -> faker.address().city()
             Element.Type.POSTAL_CODE -> faker.address().zipCode().toString()
@@ -141,6 +171,8 @@ class FakeDataService {
         }
     }
 
+    // gives us the ability to pull a random choice from a
+    // variadic array of strings passed in
     private fun randomChoice(vararg choices: String): String {
         val random = Random()
         return choices[random.nextInt(choices.size)]
@@ -178,6 +210,13 @@ class FakeReport(val metadata: Metadata) {
         return fakeDataService.getFakeValueForElement(element, context)
     }
 
+    // mapped columns often refer back to non-mapped columns in the schema. in the past, for faked
+    // values we have just hard coded in the name of the element and let the faker process it,
+    // but that led to some problems with reading data back in and out via our testing process.
+    // therefore the method below was created, which actually looks to see if the field uses a mapper,
+    // and if it does, it attempts to invoke the mapper.
+    // right now, only the UseMapper and ConcatenateMapper are implemented.
+    // other mapper types will need to be filled in as required.
     internal fun buildMappedColumn(element: Element, rowContext: RowContext): String {
         if (element.mapper.isNullOrEmpty()) error("Cannot build a mapped column without a mapper.")
         if (rowContext.schemaName.isNullOrEmpty()) error("Cannot fake a mapped column without the schema name")

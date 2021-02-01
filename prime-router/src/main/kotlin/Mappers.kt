@@ -282,18 +282,6 @@ class Obx8Mapper : Mapper {
     }
 }
 
-class SyntheticDataMapper : Mapper {
-    override val name = "syntheticData"
-
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
-
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return "PII"
-    }
-}
-
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
         val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&^]*)\\x29").find(field)
