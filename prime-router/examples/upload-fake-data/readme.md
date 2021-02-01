@@ -1,7 +1,7 @@
-# Uploading Synthetic Data
+# Uploading Fake Data
 
 1. Compile and Run PRIME Data Hub
-2. Generate synthetic CSV data
+2. Generate fake CSV data
 3. Post CSV data to PRIME Web API
 4. Examine
 
@@ -20,15 +20,15 @@ docker-compose up -d
 docker-compose logs -f prime_dev
 ```
 
-### Generate synthetic data
+### Generate fake data
 
-Use `prime data` command to generate synthetic data.
+Use `prime data` command to generate fake data.
 
 ```bash
 # from the `prime-router/` directory
 ./prime data --input-fake 23 \
   --input-schema primedatainput/pdi-covid-19 \
-  --output examples/upload-synthetic-data/synthetic-data.csv
+  --output examples/upload-fake-data/Test.csv
 ```
 
 See `prime data --help` for details on the many options supported by the tool.
@@ -38,12 +38,12 @@ Notable support includes CSV and HL7 output format support, as well as transform
 ### Post CSV data to PRIME Web API
 
 ```bash
-cd examples/upload-synthetic-data
+cd examples/upload-fake-data
 
-# from the `prime-router/examples/upload-synthetic-data` directory
+# from the `prime-router/examples/upload-fake-data` directory
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
-  --data-binary '@./synthetic-data.csv' \
+  --data-binary '@./Test.csv' \
   'http://localhost:7071/api/reports'
 ```
 
