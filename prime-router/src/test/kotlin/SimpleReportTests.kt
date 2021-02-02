@@ -54,7 +54,7 @@ class SimpleReportTests {
         // 3) Write transformed objs to files
         val outputFiles = mutableListOf<Pair<File, OrganizationService>>()
         outputReports.forEach { (report, orgSvc) ->
-            val fileName = Report.formFileName(
+            val fileName = Report.formFilename(
                 report.id,
                 report.schema.baseName,
                 Report.Format.CSV,
@@ -75,7 +75,7 @@ class SimpleReportTests {
             numRows,
             FileSource("fake") // not really used
         )
-        val fakeReportFileName = Report.formFileName(
+        val fakeReportFileName = Report.formFilename(
             fakeReport.id,
             fakeReport.schema.baseName,
             if (useInternal) Report.Format.INTERNAL else Report.Format.CSV,

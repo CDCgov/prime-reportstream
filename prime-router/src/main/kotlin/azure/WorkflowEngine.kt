@@ -59,13 +59,12 @@ class WorkflowEngine(
     }
 
     /**
-     * Place a report into the workflow
+     * Place a report into the workflow (Note:  I moved queueing the message to after the Action is saved)
      */
     fun dispatchReport(nextAction: Event, report: Report, txn: Configuration? = null) {
         val (bodyFormat, bodyUrl) = blob.uploadBody(report)
         try {
             db.insertHeader(report, bodyFormat, bodyUrl, nextAction, txn)
-            queue.sendMessage(nextAction)
             report.bodyURL = bodyUrl
         } catch (e: Exception) {
             // Clean up
@@ -85,21 +84,30 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
         updateBlock: (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
+        lateinit var nextEvent: ReportEvent
         db.transact { txn ->
             val header = db.fetchAndLockHeader(messageEvent.reportId, txn)
             val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
             if (currentEventAction != messageEvent.eventAction) return@transact
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
-            val nextEvent = updateBlock(header, retryToken, txn)
+            nextEvent = updateBlock(header, retryToken, txn)
             val retryJson = nextEvent.retryToken?.toJSON()
-            db.updateHeader(header.task.reportId, currentEventAction, nextEvent.eventAction, nextEvent.at, retryJson, txn)
+            db.updateHeader(
+                header.task.reportId,
+                currentEventAction,
+                nextEvent.eventAction,
+                nextEvent.at,
+                retryJson,
+                txn
+            )
             recordAction(actionHistory, txn)
-            queue.sendMessage(nextEvent)
         }
+        if (nextEvent != null)
+            queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
     }
 
-    /**
+/**
      * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
      *
      * @param messageEvent that was received
@@ -111,11 +119,14 @@ class WorkflowEngine(
         maxCount: Int,
         updateBlock: (headers: List<DatabaseAccess.Header>, txn: Configuration?) -> Unit,
     ) {
+        val receiver = metadata.findService(messageEvent.receiverName)
+            ?: error("Unable to find a receiving service called ${messageEvent.receiverName}")
+
         db.transact { txn ->
             val headers = db.fetchAndLockHeaders(
                 messageEvent.eventAction.toTaskAction(),
                 messageEvent.at,
-                messageEvent.receiverName,
+                receiver,
                 maxCount,
                 txn
             )
@@ -134,7 +145,7 @@ class WorkflowEngine(
         }
     }
 
-    /**
+/**
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: DatabaseAccess.Header): Report {
@@ -159,7 +170,7 @@ class WorkflowEngine(
         }
     }
 
-    /**
+/**
      * Create a report object from a header including loading the blob data associated with it
      */
     fun readBody(header: DatabaseAccess.Header): ByteArray {

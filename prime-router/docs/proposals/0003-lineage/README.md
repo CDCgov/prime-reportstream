@@ -3,6 +3,12 @@
 
 This design covers improvements to the underlying postgres database schema to meet the goals and use cases here.
 
+#### Implementation
+
+[OK, here are notes added later, about the actual implementation](./additional-notes.md)
+
+Now on to the design proposal:
+
 ## Goals
 
 ### Support these primary Use Cases:
