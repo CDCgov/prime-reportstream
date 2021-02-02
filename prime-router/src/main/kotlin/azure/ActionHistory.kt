@@ -434,9 +434,6 @@ class ActionHistory {
                 .selectFrom(Tables.REPORT_FILE)
                 .where(cond)
                 .limit(limit)
-// todo turn on locking!
-//                .forUpdate()
-//                .skipLocked() // Allows the same query to run in parallel. Otherwise, the query would lock the table.
                 .fetch()
                 .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
         }
@@ -523,7 +520,7 @@ class ActionHistory {
                     //     msg += "header.nextAction = ${task.nextAction}, but reportFile.nextAction= ${reportFile.nextAction}, "
                     // }
                     if (task.nextActionAt != reportFile.nextActionAt) {
-                        msg += "header. = ${task.nextActionAt}, but reportFile.nextActionAt= ${reportFile.nextActionAt}, "
+                        msg += "(This is NOT an error on retries:  header.nextActionAt = ${task.nextActionAt}, but reportFile.nextActionAt= ${reportFile.nextActionAt}, "
                     }
                     if (task.receiverName != (reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)) {
                         msg += "header.receiverName = ${task.receiverName}, but reportFile has ${reportFile.receivingOrg + "." + reportFile.receivingOrgSvc}"
