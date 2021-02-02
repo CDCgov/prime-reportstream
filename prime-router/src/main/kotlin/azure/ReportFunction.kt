@@ -248,7 +248,7 @@ class ReportFunction {
             service.batch != null -> {
                 val time = service.batch.nextBatchTime()
                 // Always force a batched report to be saved in our INTERNAL format
-                val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
+                val batchReport = report.copy(destination = null)
                 destinations += "Sending ${batchReport.itemCount} items to $serviceDescription at $time"
                 val event = ReceiverEvent(Event.EventAction.BATCH, service.fullName, time)
                 workflowEngine.dispatchReport(event, batchReport, txn)

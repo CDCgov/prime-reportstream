@@ -90,7 +90,7 @@ class Report {
     /**
      * A standard name for this report that take schema, id, and destination into account
      */
-    val name: String get() = formFileName(id, schema.baseName, destination?.format, createdDateTime)
+    val name: String get() = formFileName(id, schema.baseName, bodyFormat, createdDateTime)
 
     /**
      * A format for the body or use the destination format
@@ -116,14 +116,13 @@ class Report {
         values: List<List<String>>,
         sources: List<Source>,
         destination: OrganizationService? = null,
-        bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: this.destination?.format ?: Format.CSV
+        this.bodyFormat = this.destination?.format ?: Format.INTERNAL
         this.table = createTable(schema, values)
     }
 
@@ -133,13 +132,12 @@ class Report {
         values: List<List<String>>,
         source: TestSource,
         destination: OrganizationService? = null,
-        bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(source)
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: this.destination?.format ?: Format.CSV
+        this.bodyFormat = this.destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
@@ -150,13 +148,12 @@ class Report {
         values: List<List<String>>,
         source: OrganizationClient,
         destination: OrganizationService? = null,
-        bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(ClientSource(source.organization.name, source.name))
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: this.destination?.format ?: Format.CSV
+        this.bodyFormat = this.destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
@@ -165,15 +162,14 @@ class Report {
         schema: Schema,
         table: Table,
         sources: List<Source>,
-        destination: OrganizationService? = null,
-        bodyFormat: Format? = null,
+        destination: OrganizationService? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.table = table
         this.sources = sources
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: this.destination?.format ?: Format.CSV
+        this.bodyFormat = this.destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
     }
 
@@ -193,14 +189,23 @@ class Report {
     /**
      * Does a shallow copy of this report. Will have a new id and create date.
      */
-    fun copy(destination: OrganizationService? = null, bodyFormat: Format? = null): Report {
+    fun copy(destination: OrganizationService?): Report {
         // Dev Note: table is immutable, so no need to duplicate it
         return Report(
             this.schema,
             this.table,
             fromThisReport("copy"),
-            destination ?: this.destination,
-            bodyFormat ?: this.bodyFormat
+            destination
+        )
+    }
+
+    fun copy(): Report {
+        // Dev Note: table is immutable, so no need to duplicate it
+        return Report(
+            this.schema,
+            this.table,
+            fromThisReport("copy"),
+            this.destination
         )
     }
 
