@@ -90,6 +90,7 @@ class ReportFunction {
             }
             actionHistory.trackActionResult(httpResponseMessage)
             workflowEngine.recordAction(actionHistory)
+            actionHistory.queueMessages() // Must be done after creating db records.
             return httpResponseMessage
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
@@ -255,7 +256,6 @@ class ReportFunction {
         }
         workflowEngine.dispatchReport(event, report, txn)
         actionHistory.trackCreatedReport(event, report, service)
-        context.logger.info("Queue: ${event.toQueueMessage()}")
     }
 
     private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {
