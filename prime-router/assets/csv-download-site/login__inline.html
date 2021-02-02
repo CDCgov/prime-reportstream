@@ -1,14 +1,17 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="none" />
 
     <title>CDC Prime Data Hub - Login</title>
-    <script src="https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js" integrity="sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh" crossorigin="anonymous"></script>
-    <link href="https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css" type="text/css" rel="stylesheet" />
+    <script src="https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js"
+      integrity="sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh" crossorigin="anonymous"></script>
+    <link href="https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css" type="text/css" rel="stylesheet"
+      integrity="sha384-NHrrVHQI7Uja/X0/0SMVLSk+nFzWI8AwBi1LqSOu7PogLHanNl0fOq1tTdvgb9C7" crossorigin="anonymous" />
 </head>
 
 <body>
@@ -16,7 +19,7 @@
 </body>
 
 <script type="text/javascript" th:inline="javascript">
-    config = {
+    var config = {
         logo: '//logo.clearbit.com/cdc.gov',
         language: 'en',
         features: {
@@ -50,5 +53,4 @@
             window.location.replace([[${OKTA_redirect}]]);
         })
 </script>
-
 </html>
