@@ -64,7 +64,7 @@ class ReportFunction {
     ): HttpResponseMessage {
         try {
             val workflowEngine = WorkflowEngine()
-            var actionHistory = ActionHistory(TaskAction.receive, context)
+            val actionHistory = ActionHistory(TaskAction.receive, context)
             actionHistory.trackActionParams(request)
             val validatedRequest = validateRequest(workflowEngine, request)
             val httpResponseMessage = when {
@@ -79,7 +79,7 @@ class ReportFunction {
                     okResponse(request, validatedRequest)
                 }
                 else -> {
-                    context.logger.info("Successfully reported: ${validatedRequest.report!!.id}.")
+                    context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
                     val destinations = mutableListOf<String>()
                     routeReport(context, workflowEngine, validatedRequest, destinations, actionHistory)
                     val responseBody = createResponseBody(validatedRequest, destinations)
@@ -161,7 +161,7 @@ class ReportFunction {
                 Pair(parts[0], parts[1])
             }.toMap()
         } else {
-            emptyMap<String, String>()
+            emptyMap()
         }
 
         if (content.isEmpty() || errors.isNotEmpty()) {
@@ -247,13 +247,18 @@ class ReportFunction {
             }
             service.batch != null -> {
                 val time = service.batch.nextBatchTime()
-                destinations += "Sending ${report.itemCount} items to $serviceDescription at $time"
+                // Always force a batched report to be saved as a
+                val batchReport = if (report.bodyFormat != Report.Format.CSV)
+                    report.copy(bodyFormat = Report.Format.CSV)
+                else
+                    report
+                destinations += "Sending ${batchReport.itemCount} items to $serviceDescription at $time"
                 val event = ReceiverEvent(Event.EventAction.BATCH, service.fullName, time)
-                workflowEngine.dispatchReport(event, report, txn)
-                actionHistory.trackCreatedReport(event, report, service)
+                workflowEngine.dispatchReport(event, batchReport, txn)
+                actionHistory.trackCreatedReport(event, batchReport, service)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            service.format == OrganizationService.Format.HL7 -> {
+            service.format == Report.Format.HL7 -> {
                 destinations += "Sending ${report.itemCount} reports to $serviceDescription immediately"
                 report
                     .split()

@@ -17,7 +17,6 @@ import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -118,8 +117,8 @@ class ProcessData : CliktCommand(
         metadata: Metadata,
         listOfFiles: String
     ): Report {
-        if (listOfFiles.isNullOrEmpty()) error("No files to merge.")
-        val files = listOfFiles.split(",", " ").filter { ! it.isNullOrBlank() }
+        if (listOfFiles.isEmpty()) error("No files to merge.")
+        val files = listOfFiles.split(",", " ").filter { it.isNotBlank() }
         if (files.isEmpty()) error("No files to merge found in comma separated list.  Need at least one file.")
         val reports = files.map { readReportFromFile(metadata, it) }
         echo("Merging ${reports.size} reports.")
@@ -150,8 +149,8 @@ class ProcessData : CliktCommand(
     }
 
     private fun writeReportsToFile(
-        reports: List<Pair<Report, OrganizationService.Format>>,
-        writeBlock: (report: Report, format: OrganizationService.Format, outputStream: OutputStream) -> Unit
+        reports: List<Pair<Report, Report.Format>>,
+        writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
 
@@ -232,8 +231,8 @@ class ProcessData : CliktCommand(
 
         // Transform reports
         val translator = Translator(metadata)
-        val outputFormat = if (outputHl7) OrganizationService.Format.HL7 else OrganizationService.Format.CSV
-        val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
+        val outputFormat = if (outputHl7) Report.Format.HL7_BATCH else Report.Format.CSV
+        val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
                     .filterAndTranslateByService(inputReport)
@@ -257,9 +256,10 @@ class ProcessData : CliktCommand(
         // Output reports
         writeReportsToFile(outputReports) { report, format, stream ->
             when (format) {
-                OrganizationService.Format.CSV -> csvSerializer.write(report, stream)
-                OrganizationService.Format.HL7 -> hl7Serializer.write(report, stream)
-                OrganizationService.Format.REDOX -> redoxSerializer.write(report, stream)
+                Report.Format.CSV -> csvSerializer.write(report, stream)
+                Report.Format.HL7 -> hl7Serializer.write(report, stream)
+                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
+                Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
     }
@@ -267,7 +267,7 @@ class ProcessData : CliktCommand(
 
 fun listSchemas(metadata: Metadata) {
     println("Current Hub Schema Library")
-    var formatTemplate = "%-25s\t%-10s\t%s"
+    val formatTemplate = "%-25s\t%-10s\t%s"
     println(formatTemplate.format("Schema Name", "Topic", "Description"))
     metadata.schemas.forEach {
         println(formatTemplate.format(it.name, it.topic, it.description))

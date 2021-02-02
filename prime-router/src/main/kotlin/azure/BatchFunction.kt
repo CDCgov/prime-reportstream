@@ -56,7 +56,7 @@ class BatchFunction {
                     else -> inReports
                 }
                 val outReports = when (receiver.format) {
-                    OrganizationService.Format.HL7 -> mergedReports.flatMap { it.split() }
+                    Report.Format.HL7 -> mergedReports.flatMap { it.split() }
                     else -> mergedReports
                 }
                 outReports.forEach {

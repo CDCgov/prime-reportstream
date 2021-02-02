@@ -56,7 +56,7 @@ class SimpleReportTests {
             val fileName = Report.formFileName(
                 report.id,
                 report.schema.baseName,
-                OrganizationService.Format.CSV,
+                Report.Format.CSV,
                 report.createdDateTime
             )
             val reportFile = File(outputPath, fileName)
@@ -77,7 +77,7 @@ class SimpleReportTests {
         val fakeReportFileName = Report.formFileName(
             fakeReport.id,
             fakeReport.schema.baseName,
-            OrganizationService.Format.CSV,
+            Report.Format.CSV,
             fakeReport.createdDateTime
         )
         val fakeReportFile = File(outputPath, fakeReportFileName)

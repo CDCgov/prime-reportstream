@@ -4,7 +4,6 @@ import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClientBuilder
-import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -19,22 +18,21 @@ class BlobAccess(
     private val hl7Serializer: Hl7Serializer,
     private val redoxSerializer: RedoxSerializer
 ) {
-    fun uploadBody(report: Report, forceFormat: OrganizationService.Format? = null): Pair<String, String> {
-        val (bodyFormat, blobBytes) = createBodyBytes(report, forceFormat)
+    fun uploadBody(report: Report): Pair<String, String> {
+        val (bodyFormat, blobBytes) = createBodyBytes(report)
         val blobUrl = uploadBlob(report.name, blobBytes)
         return Pair(bodyFormat, blobUrl)
     }
 
-    private fun createBodyBytes(report: Report, forceFormat: OrganizationService.Format?): Pair<String, ByteArray> {
+    private fun createBodyBytes(report: Report): Pair<String, ByteArray> {
         val outputStream = ByteArrayOutputStream()
-        val format = forceFormat ?: report.getBodyFormat()
-        when (format) {
-            OrganizationService.Format.HL7 -> hl7Serializer.write(report, outputStream)
-            OrganizationService.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
-            OrganizationService.Format.CSV -> csvSerializer.write(report, outputStream)
-            OrganizationService.Format.REDOX -> redoxSerializer.write(report, outputStream)
+        when (report.bodyFormat) {
+            Report.Format.HL7 -> hl7Serializer.write(report, outputStream)
+            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
+            Report.Format.CSV -> csvSerializer.write(report, outputStream)
+            Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }
-        return Pair(format.toString(), outputStream.toByteArray())
+        return Pair(report.bodyFormat.toString(), outputStream.toByteArray())
     }
 
     private fun uploadBlob(fileName: String, bytes: ByteArray): String {

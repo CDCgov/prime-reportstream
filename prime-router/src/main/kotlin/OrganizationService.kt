@@ -14,9 +14,9 @@ import java.time.ZoneId
  * @param schema defines the schema that the org wishes to receive
  * @param jurisdictionalFilter defines the set of elements and regexs that filter the topic
  * @param transforms defines the number of transforms to apply to the report before sending
- * @param batch defines how to batch reports to the org. If null, then send immediatlely
+ * @param batch defines how to batch reports to the org. If null, then send immediately
  * @param format that the org wishes to receive
- * @param transports that the org wishes to recieve
+ * @param transports that the org wishes to receive
  */
 data class OrganizationService(
     val name: String,
@@ -27,29 +27,12 @@ data class OrganizationService(
     val defaults: Map<String, String> = emptyMap(),
     val batch: Batch? = null,
     val address: String = "",
-    val format: Format = Format.CSV,
+    val format: Report.Format = Report.Format.CSV,
     val transports: List<TransportType> = emptyList(),
     val description: String = ""
 ) {
     lateinit var organization: Organization
     val fullName: String get() = "${organization.name}.$name"
-
-    enum class Format {
-        CSV,
-        HL7, // HL7 with one result per file
-        HL7_BATCH, // HL7 with BHS and FHS headers
-        REDOX;
-        // FHIR
-
-        fun toExt(): String {
-            return when (this) {
-                CSV -> "csv"
-                HL7 -> "hl7"
-                HL7_BATCH -> "hl7"
-                REDOX -> "redox"
-            }
-        }
-    }
 
     /**
      * Defines how batching of sending should proceed. Allows flexibility of
