@@ -39,6 +39,14 @@ class Report {
                 REDOX -> "redox"
             }
         }
+
+        fun isSingleItemFormat(): Boolean {
+            return when (this) {
+                REDOX -> true
+                HL7 -> true
+                else -> false
+            }
+        }
     }
 
     /**

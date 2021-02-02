@@ -157,22 +157,30 @@ class ProcessData : CliktCommand(
         if (reports.isNotEmpty()) {
             echo("Creating these files:")
         }
-
-        reports.forEach { (report, format) ->
-            val outputFile = if (outputFileName != null) {
-                File(outputFileName!!)
-            } else {
-                val fileName = Report.formFileName(report.id, report.schema.baseName, format, report.createdDateTime)
-                File(outputDir ?: ".", fileName)
+        reports
+            .flatMap { (report, format) ->
+                // Some report formats only support one result per file
+                if (format.isSingleItemFormat()) {
+                    val splitReports = report.split()
+                    splitReports.map { Pair(it, format) }
+                } else {
+                    listOf(Pair(report, format))
+                }
+            }.forEach { (report, format) ->
+                val outputFile = if (outputFileName != null) {
+                    File(outputFileName!!)
+                } else {
+                    val fileName = Report.formFileName(report.id, report.schema.baseName, format, report.createdDateTime)
+                    File(outputDir ?: ".", fileName)
+                }
+                echo(outputFile.absolutePath)
+                if (!outputFile.exists()) {
+                    outputFile.createNewFile()
+                }
+                outputFile.outputStream().use {
+                    writeBlock(report, format, it)
+                }
             }
-            echo(outputFile.absolutePath)
-            if (!outputFile.exists()) {
-                outputFile.createNewFile()
-            }
-            outputFile.outputStream().use {
-                writeBlock(report, format, it)
-            }
-        }
     }
 
     // NOTE: This exists to support not-yet-implemented functionality.
