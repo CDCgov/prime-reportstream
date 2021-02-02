@@ -10,15 +10,15 @@ variable "resource_group" {
 
 variable "name" {
     type = string
-    description = "Storage Account Name"
+    description = "Container Registry Name"
 }
 
 variable "location" {
     type = string
-    description = "Storage Account Location"
+    description = "Container Registry Location"
 }
 
-variable "subnet_ids" {
-    type = list(string)
-    description = "List of VNet Subnet IDs"
+variable "public_subnet_id" {
+    type = string
+    description = "Public Subnet ID"
 }
