@@ -9,3 +9,9 @@
 | Front Door         | Network requests                        | TBD (Do we have PII/PHI as request params?) | Disabled                     | No        | ?                          | We should enable these logs                             |
 | WAF                | Firewall denials                        | No                                          | No WAF enabled, so no logs   | No        | ?                          |                                                         |
 | primedatahub*      | Access errors, etc                      | No                                          | Resource > Logs              | No        | ?                          |                                                         |
+
+
+## Potential PII/PHI in Request Logs
+
+1. Download function has a request parameter `file`. Could the file URL have PII in it?
+2. Action history checks on some parameters `key` and `code`. Neither look like PII, but would like to verify.
