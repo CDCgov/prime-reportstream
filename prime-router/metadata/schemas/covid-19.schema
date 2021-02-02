@@ -834,6 +834,7 @@ elements:
   - name: specimen_received_date_time
     type: DATETIME
     natFlatFileField: Specimen_received_date_time
+    mapper: use(specimen_collection_date_time)
     hhsGuidanceField:
     hl7Field: SPM-18
 
