@@ -215,7 +215,7 @@ class DatabaseAccess(private val create: DSLContext) {
             .into(TaskSource::class.java)
 
         val reportFiles = ids.map { ActionHistory.fetchReportFile(it, ctx) }.map { (it.reportId as ReportId) to it }.toMap()
-        ActionHistory.sanityCheckReports(tasks, reportFiles, true)
+        ActionHistory.sanityCheckReports(tasks, reportFiles, false)
 
         // taskSources seems erroneous.  All the sources for all Tasks are attached to each indiv. task. ?
         // todo remove the !!

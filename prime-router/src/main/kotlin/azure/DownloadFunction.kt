@@ -165,21 +165,19 @@ class DownloadFunction {
         context: ExecutionContext
     ): HttpResponseMessage {
         val reportId = ReportId.fromString(requestedFile)
-        val header =
-            DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(reportId, authClaims.organization.name)
         var response: HttpResponseMessage
-
         try {
-            val body = WorkflowEngine().readBody(header)
-            if (body.size <= 0)
+            val header =
+                DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(reportId, authClaims.organization.name)
+            if (header.content == null || header.content.isEmpty())
                 response = responsePage(request, authClaims, context)
             else {
-                val filename = Report.formExternalFilename(reportId, header.task.receiverName, header.task.bodyFormat)
+                val filename = Report.formExternalFilename(header)
                 response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "text/csv")
                     .header("Content-Disposition", "attachment; filename=$filename")
-                    .body(body)
+                    .body(header.content)
                     .build()
                 val actionHistory = ActionHistory(TaskAction.download, context)
                 actionHistory.trackActionRequestResponse(request, response)

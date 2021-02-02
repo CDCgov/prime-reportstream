@@ -469,7 +469,7 @@ class ActionHistory {
         fun sanityCheckReports(
             tasks: List<Task>?,
             reportFiles: Map<ReportId, ReportFile>?,
-            failOnError: Boolean = true
+            failOnError: Boolean = false
         ) {
             var msg: String = ""
             if (tasks == null) {
@@ -500,7 +500,7 @@ class ActionHistory {
          * Get rid of this once we have moved away from the old Task table.  In the meantime,
          * this is a way of confirming that the new tables are robust.
          */
-        fun sanityCheckReport(task: Task?, reportFile: ReportFile?, failOnError: Boolean = true) {
+        fun sanityCheckReport(task: Task?, reportFile: ReportFile?, failOnError: Boolean = false) {
             var msg: String = ""
             if (task == null) {
                 msg = "header is null"
@@ -518,9 +518,10 @@ class ActionHistory {
                     if (task.itemCount != reportFile.itemCount) {
                         msg += "header.itemCount = ${task.itemCount}, but reportFile.itemCount= ${reportFile.itemCount}, "
                     }
-                    if (task.nextAction != reportFile.nextAction) {
-                        msg += "header.nextAction = ${task.nextAction}, but reportFile.nextAction= ${reportFile.nextAction}, "
-                    }
+                    // Not checking this.   Because Task updates, the nextAction change to 'none' normally.
+                    // if (task.nextAction != reportFile.nextAction) {
+                    //     msg += "header.nextAction = ${task.nextAction}, but reportFile.nextAction= ${reportFile.nextAction}, "
+                    // }
                     if (task.nextActionAt != reportFile.nextActionAt) {
                         msg += "header. = ${task.nextActionAt}, but reportFile.nextActionAt= ${reportFile.nextActionAt}, "
                     }
@@ -539,7 +540,7 @@ class ActionHistory {
                     System.out.println("************ FAILURE: sanity check comparing old Header info and new ReportFile info FAILED:  $msg\"")
                 }
             } else {
-                System.out.println("!!!!!!!!! Sanity check passed!!!!!!!!!")
+                System.out.println("Temporary sanity check passed: TASK and REPORT_FILE tables have the same data for report ${reportFile?.reportId ?: ""}")
             }
         }
     }

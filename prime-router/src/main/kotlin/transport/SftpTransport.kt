@@ -30,9 +30,8 @@ class SftpTransport : ITransport {
         return try {
             if (header.content == null || header.orgSvc == null) error("No content or orgSvc to sftp, for report ${header.reportFile.reportId}")
             val (user, pass) = lookupCredentials(header.orgSvc.fullName)
-            val extension = header.orgSvc.format.toExt()
-            // Dev note:  db table requires fileName to be unique.
-            val fileName = Report.formExternalFilename(sentReportId, header.orgSvc.fullName, extension)
+            // Dev note:  db table requires body_url to be unique, but not external_name
+            val fileName = Report.formExternalFilename(header)
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, header.content, context)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)

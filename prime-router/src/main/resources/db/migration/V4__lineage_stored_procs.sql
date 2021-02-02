@@ -36,25 +36,7 @@ SELECT tmp_report_id FROM tmp;
 END;
 $$  LANGUAGE PLPGSQL;
 
--- Find myself plus all my parents, grandparents, etc, back to the first protoplasm
-CREATE OR REPLACE FUNCTION report_ancestors(start_report_id UUID)
-RETURNS SETOF UUID
-AS $$
-DECLARE
-BEGIN
-    RETURN QUERY
-      WITH RECURSIVE tmp AS (
-        SELECT start_report_id AS tmp_report_id
-       UNION ALL
-        SELECT RL.parent_report_id
-        FROM report_lineage AS RL
-       JOIN tmp ON tmp.tmp_report_id = RL.child_report_id
-      )
-SELECT tmp_report_id FROM tmp;
-END;
-$$  LANGUAGE PLPGSQL;
-
--- Find all reports sent, that descended from me:
+-- Find all reports sent or downloaded, that descended from me:
 CREATE OR REPLACE FUNCTION find_sent_reports(start_report_id UUID)
 RETURNS SETOF UUID
 AS $$
@@ -95,4 +77,48 @@ WHERE tmp.tmp_report_id = RF.report_id
             (select RL.parent_report_id from report_lineage RL where RL.parent_report_id = tmp.tmp_report_id);
 END;
 $$  LANGUAGE PLPGSQL;
+
+-- Ancestor queries
+
+-- Most basic: Find myself plus all my parents, grandparents, etc, back to the first Ur reports.
+CREATE OR REPLACE FUNCTION report_ancestors(start_report_id UUID)
+RETURNS SETOF UUID
+AS $$
+DECLARE
+BEGIN
+    RETURN QUERY
+      WITH RECURSIVE tmp AS (
+        SELECT start_report_id AS tmp_report_id
+       UNION ALL
+        SELECT RL.parent_report_id
+        FROM report_lineage AS RL
+       JOIN tmp ON tmp.tmp_report_id = RL.child_report_id
+      )
+SELECT tmp_report_id FROM tmp;
+END;
+$$  LANGUAGE PLPGSQL;
+
+-- Find the externally submitted reports to the Hub that I'm descended from.
+-- That's Ur as in Abram and Sarai, not "you are"  ;)
+CREATE OR REPLACE FUNCTION report_ur_ancestors(start_report_id UUID)
+RETURNS SETOF UUID
+AS $$
+DECLARE
+BEGIN
+    RETURN QUERY
+      WITH RECURSIVE tmp AS (
+        SELECT start_report_id AS tmp_report_id
+       UNION ALL
+        SELECT RL.parent_report_id
+        FROM report_lineage AS RL
+       JOIN tmp ON tmp.tmp_report_id = RL.child_report_id
+      )
+SELECT RF.report_id FROM tmp, action AS A, report_file AS RF
+WHERE tmp.tmp_report_id = RF.report_id
+      AND A.action_id = RF.action_id
+      AND (A.action_name = 'receive')
+      AND RF.sending_org is not null;
+END;
+$$  LANGUAGE PLPGSQL;
+
 

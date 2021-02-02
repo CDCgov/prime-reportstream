@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.azure.DatabaseAccess
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
@@ -226,7 +227,11 @@ class Report {
         }
     }
 
-    private fun buildColumnPass2(mapping: Translator.Mapping, toElement: Element, pass1Columns: List<StringColumn?>): StringColumn {
+    private fun buildColumnPass2(
+        mapping: Translator.Mapping,
+        toElement: Element,
+        pass1Columns: List<StringColumn?>
+    ): StringColumn {
         val toSchema = mapping.toSchema
         val fromSchema = mapping.fromSchema
         val index = mapping.toSchema.findElementColumn(toElement.name)
@@ -304,12 +309,25 @@ class Report {
             return "$namePrefix.$nameSuffix"
         }
 
-        fun formExternalFilename(
-            reportId: ReportId,
-            orgServiceFullName: String,
-            extension: String
-        ): String {
-            return "${orgServiceFullName.replace('.', '-')}-$reportId.${extension.toLowerCase()}"
+        /**
+         * Try to extract an existing filename from report metadata.  If it does not exist or is malformed,
+         * create a new filename.
+         */
+        fun formExternalFilename(header: DatabaseAccess.Header): String {
+            // extract the filename from the blob url.
+            val filename = if (header.reportFile.bodyUrl != null)
+                header.reportFile.bodyUrl.split("/").last()
+            else ""
+            return if (filename.isNotEmpty())
+                filename
+            else {
+                formFilename(
+                    header.reportFile.reportId,
+                    header.reportFile.schemaName,
+                    header.orgSvc?.format ?: OrganizationService.Format.CSV, // todo problematic default.
+                    header.reportFile.createdAt
+                )
+            }
         }
     }
 }
