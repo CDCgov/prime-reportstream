@@ -25,14 +25,16 @@ typealias DefaultValues = Map<String, String>
  */
 class Report {
     enum class Format {
-        CSV,
+        INTERNAL, // A format that serializes all elements of a report (A CSV today)
+        CSV, // A CSV format the follows the csvFields
         HL7, // HL7 with one result per file
         HL7_BATCH, // HL7 with BHS and FHS headers
-        REDOX;
+        REDOX; // Redox format
         // FHIR
 
         fun toExt(): String {
             return when (this) {
+                INTERNAL -> "internal"
                 CSV -> "csv"
                 HL7 -> "hl7"
                 HL7_BATCH -> "hl7"

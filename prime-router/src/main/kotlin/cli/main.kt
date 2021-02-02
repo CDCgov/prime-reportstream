@@ -85,7 +85,7 @@ class ProcessData : CliktCommand(
     private val outputSchema by option("--output-schema", metavar = "<name>", help = "transform output to the given schema")
 
     // Output format
-    private val outputHl7 by option("--output-hl7", help = "format output as HL7 instead of CSV").flag(default = false)
+    private val forcedFormat by option("--output-format", help = "serialize as the specified format. Use the destination format if not specified.")
 
     // Output location
     private val outputFileName by option("--output", metavar = "<path>", help = "write output to this file. Do not use with --route, which generates multiple outputs.")
@@ -239,15 +239,22 @@ class ProcessData : CliktCommand(
 
         // Transform reports
         val translator = Translator(metadata)
-        val outputFormat = if (outputHl7) Report.Format.HL7_BATCH else Report.Format.CSV
+        val outputFormat = if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else Report.Format.CSV
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
                     .filterAndTranslateByService(inputReport)
-                    .map { it.first to it.second.format }
+                    .map {
+                        val format = if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else it.second.format
+                        it.first to format
+                    }
             routeTo != null -> {
                 val pair = translator.translate(input = inputReport, toService = routeTo!!)
-                if (pair != null) listOf(Pair(pair.first, pair.second.format)) else emptyList()
+                if (pair != null) {
+                    val format = if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else pair.second.format
+                    listOf(pair.first to format)
+                } else
+                    emptyList()
             }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
@@ -264,6 +271,7 @@ class ProcessData : CliktCommand(
         // Output reports
         writeReportsToFile(outputReports) { report, format, stream ->
             when (format) {
+                Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
                 Report.Format.CSV -> csvSerializer.write(report, stream)
                 Report.Format.HL7 -> hl7Serializer.write(report, stream)
                 Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
