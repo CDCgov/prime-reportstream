@@ -164,9 +164,9 @@ class DownloadFunction {
         authClaims: AuthClaims,
         context: ExecutionContext
     ): HttpResponseMessage {
-        val reportId = ReportId.fromString(requestedFile)
         var response: HttpResponseMessage
         try {
+            val reportId = ReportId.fromString(requestedFile)
             val header =
                 DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(reportId, authClaims.organization.name)
             if (header.content == null || header.content.isEmpty())
@@ -197,7 +197,10 @@ class DownloadFunction {
             }
         } catch (ex: Exception) {
             context.logger.log(Level.WARNING, "Exception during download of $requestedFile", ex)
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
+            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                .body("File $requestedFile not found")
+                .header("Content-Type", "text/html")
+                .build()
         }
         return response
     }
