@@ -11,6 +11,12 @@
 | primedatahub*      | Access errors, etc                      | No                                          | Resource > Logs              | No        | ?                          |                                                         |
 
 
+## Potential PII/PHI in Application Logs
+
+1. Batch function logs entire message when received.
+2. Send function logs retry and failed messages.
+3. Transports can log failures of files. Any concerns of PII in them?
+
 ## Potential PII/PHI in Request Logs
 
 1. Download function has a request parameter `file`. Could the file URL have PII in it?
