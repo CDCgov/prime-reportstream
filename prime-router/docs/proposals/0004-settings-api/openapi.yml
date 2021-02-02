@@ -24,7 +24,6 @@ paths:
             type: string
           required: true
           example: simple_report
-
         - in: query
           name: option
           description: Optional ways to process the request
@@ -83,49 +82,11 @@ paths:
 
   # The setting end-point handles the settings for PRIME admins and PHD users
   #
-  /settings:
-    get:
-      description: Get the all the current settings in the system. Must have admin access.
-      security:
-        - OAuth2: [read]
-      responses:
-        '200':
-          description: All the current settings for the system
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  organizations:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Organization'
-                  senders:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Sender'
-                  recievers:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Receiver'
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-
   /settings/organizations:
     get:
       description: The settings for all organizations of the system. Must have admin access.
       security:
-        - OAuth2: [ read ]
-      parameters:
-        - in: query
-          name: isActive
-          description: Fetch organization according to isActive
-          schema:
-            type: string
-          required: false
-          example: true
+        - OAuth2: [ admin ]
       responses:
         '200':
           description: OK
@@ -135,6 +96,21 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Organization'
+    post:
+      security:
+        - OAuth2: [ admin ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Organization'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
 
   /settings/organizations/{organizationName}:
     get:
@@ -158,7 +134,7 @@ paths:
     put:
       description: Create or update the direct settings associated with an organization
       security:
-        - OAuth2: [ write ]
+        - OAuth2: [ admin ]
       parameters:
         - in: path
           required: true
@@ -178,37 +154,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Organization'
-        '201':
-          description: Created, a new organization was added
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organization'
         '400':
           description: Bad Request
         '401':
           description: Unauthorized
 
-  /settings/receivers:
+  /settings/organizations/{organizationName}/receivers:
     get:
       description: A list of receivers and their current settings
       security:
           - OAuth2: [ read ]
       parameters:
-        - in: query
+        - in: path
           name: organizationName
           description: Fetch receivers with this organization name
           schema:
             type: string
-          required: false
+          required: true
           example: az-phd
-        - in: query
-          name: isActive
-          description: Fetch receivers with isActive set
-          schema:
-            type: boolean
-          required: false
-          example: true
       responses:
         '200':
           description: OK
@@ -222,20 +185,55 @@ paths:
           description: Bad Request
         '401':
           description: Unauthorized
+    post:
+      description: Create a receiver
+      security:
+        - OAuth2: [ write ]
+      parameters:
+        - in: path
+          name: organizationName
+          description: Create a receiver under this organization name
+          schema:
+            type: string
+          required: true
+          example: az-phd
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Receiver'
+      responses:
+        '201':
+          description: Created, the receiver setting was added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receiver'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
 
-  /settings/receivers/{receiverName}:
+  /settings/organizations/{organizationName}/receivers/{receiverName}:
     get:
       description: The settings of a single of receiver
       security:
         - OAuth2: [ read ]
       parameters:
         - in: path
+          name: organizationName
+          description: Create receivers under this organization name
+          schema:
+            type: string
+          required: true
+          example: az-phd
+        - in: path
           name: receiverName
           description: The name of the receiver
           schema:
             type: string
           required: true
-          example: az-phd.elr
+          example: elr
       responses:
         '200':
           description: OK
@@ -247,19 +245,25 @@ paths:
           description: Bad Request
         '401':
           description: Unauthorized
-
     put:
       description: Update a single reciever
       security:
         - OAuth2: [ write ]
       parameters:
         - in: path
+          name: organizationName
+          description: Create receivers under this organization name
+          schema:
+            type: string
+          required: true
+          example: az-phd
+        - in: path
           name: receiverName
           description: The name of the receiver
           schema:
             type: string
           required: true
-          example: az-phd.elr
+          example: elr
       requestBody:
         content:
           application/json:
@@ -272,38 +276,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Receiver'
-        '201':
-          description: Created, the receiver setting was added
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Receiver'
         '400':
           description: Bad Request
         '401':
           description: Unauthorized
 
-
-  /settings/senders:
+  /settings/organizations/{organizationName}/senders:
     get:
       description: A list of senders
       security:
         - OAuth2: [ read ]
       parameters:
-        - in: query
+        - in: path
           name: organizationName
           description: Fetch senders with this organization name
           schema:
             type: string
-          required: false
+          required: true
           example: az-phd
-        - in: query
-          name: isActive
-          description: Fetch senders with isActive set
-          schema:
-            type: string
-          required: false
-          example: true
       responses:
         '200':
           description: OK
@@ -312,25 +302,55 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Receiver'
+                  $ref: '#/components/schemas/Sender'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+    post:
+      description: A list of senders
+      security:
+        - OAuth2: [ read ]
+      parameters:
+        - in: path
+          name: organizationName
+          description: Fetch senders with this organization name
+          schema:
+            type: string
+          required: true
+          example: az-phd
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sender'
         '400':
           description: Bad Request
         '401':
           description: Unauthorized
 
-  /settings/senders/{senderName}:
+  /settings/organizations/{organizationName}/senders/{senderName}:
     get:
       description: The settings of a single of sender
       security:
         - OAuth2: [ read ]
       parameters:
         - in: path
+          name: organizationName
+          description: Fetch senders with this organization name
+          schema:
+            type: string
+          required: true
+          example: az-phd
+        - in: path
           name: senderName
           description: The name of a sender to the data hub
           schema:
             type: string
           required: true
-          example: simple_report.default
+          example: default
       responses:
         '200':
           description: OK
@@ -342,19 +362,25 @@ paths:
           description: Bad Request
         '401':
           description: Unauthorized
-
     put:
       description: Update a single sender
       security:
         - OAuth2: [ write ]
       parameters:
         - in: path
+          name: organizationName
+          description: Fetch senders with this organization name
+          schema:
+            type: string
+          required: true
+          example: az-phd
+        - in: path
           name: senderName
           description: The name of a sender to the data hub
           schema:
             type: string
           required: true
-          example: simple_report.default
+          example: default
       requestBody:
         content:
           application/json:
@@ -420,10 +446,30 @@ components:
           type: string
           description: The details of the error
 
+    SettingMetadata:
+      description: The metadata associated with an setting
+      type: object
+      properties:
+        version:
+          description: the version number of the object
+          type: number
+          readOnly: true
+          example: 11
+        createdAt:
+          description: the time that the particular revision was created
+          type: string
+          format: time-date
+          readOnly: true
+        createdBy:
+          description: the user who created the particular revision
+          type: string
+          readOnly: true
+          example: jj@phd.gov
+
     Organization:
       description: An organization connected to data hub
       type: object
-      required: ["name", "description"]
+      required: ["name", "description", "jurisdiction" ]
       properties:
         name:
           description: the unique id for the organization
@@ -433,16 +479,22 @@ components:
           description: the displayable description of the organization
           type: string
           example: Arizona PHD
-        updated_at:
-          description: the time of update
+        jurisdiction:
           type: string
-          format: date-time
-          readOnly: true
-        updated_by:
-          description: the user_name of who updated the organization
+          enum:
+            - NATIONAL
+            - STATE
+            - COUNTY
+        stateCode:
+          description: the two letter code for the organization
           type: string
-          example: jj@phd.gov
-          readOnly: true
+          example: AZ
+        countyName:
+          description: the county name (must match FIPS name)
+          type: string
+          example: Pima
+        meta:
+          $ref: '#/components/schemas/SettingMetadata'
 
     Sender:
       description: An sender of reports to the data hub
@@ -463,7 +515,7 @@ components:
           description: Display ready description of the sender
           type: string
         topic:
-          description: Topic of for this sender
+          description: Topic of for this sender. Must match the supported topics.
           type: string
           example: covid-19
         organizationName:
@@ -483,16 +535,8 @@ components:
           type: string
           enum:
             - CSV
-        updated_at:
-          description: the time of update
-          type: string
-          format: date-time
-          readOnly: true
-        updated_by:
-          description: the user_name of who updated the sender
-          type: string
-          example: jj@phd.gov
-          readOnly: true
+        meta:
+          $ref: '#/components/schemas/SettingMetadata'
 
     Receiver:
       description: A receiver of reports from the data hub
@@ -504,7 +548,7 @@ components:
         - isActive
         - jurisdictionalFilter
         - reportConfiguations
-        - batching
+        - timing
       properties:
         name:
           description: The unique name for the receiver. Should include the organization name as a prefix.
@@ -515,7 +559,7 @@ components:
           type: string
           example: Arizona PHD ELR feed
         topic:
-          description: The topic of for this receiver. Must match the senders.
+          description: The topic of for this receiver. Must match the supported topics.
           type: string
           example: covid-19
         isActive:
@@ -531,30 +575,28 @@ components:
           description: What items to include in the report.
           type: array
           required:
-            - state
             - matchFields
           items:
             description: A single filter
             type: object
             properties:
-              state:
-                description: The two-letter code for the state
-                type: string
-                example: AZ
-              county:
-                description: The name of the county (must match FIPS county name)
-                type: string
-                example: Pima
-              doesNotMatch:
-                description: Ensure that the result does not match
-                type: boolean
-                default: false
               matchFields:
                 description: What fields to match in the filter
                 type: string
                 enum:
-                  - FACILITY_OR_PATIENT
-                  - FACILITY_ONLY
+                  - FACILITY_OR_PATIENT_ADDRESS
+                  - FACILITY_ADDRESS
+                  - FACILITY_NAME
+                  - ABNORMAL_VALUE
+              matchValues:
+                description: What is the value to match against
+                type: array
+                items:
+                  type: string
+              doesNotMatch:
+                description: Ensure that the result does not match
+                type: boolean
+                default: false
         reportConfiguations:
           description: How the report is produced and sent. A report can be sent in multiple ways.
           type: array
@@ -566,8 +608,8 @@ components:
               # TODO: add the email configuration
             discriminator:
               propertyName: type
-        batching:
-          description: When the report is sent
+        timing:
+          description: When the report is sent if not immediately
           type: object
           required: [frequency]
           properties:
@@ -581,15 +623,8 @@ components:
             dailyAt:
               description: The UTC hour to send a daily batch
               type: number
-        updated_at:
-          description: The time of update
-          type: string
-          format: date-time
-          readOnly: true
-        updated_by:
-          description: The user_name of who updated the receiver
-          type: string
-          readOnly: true
+        meta:
+          $ref: '#/components/schemas/SettingMetadata'
 
     StandardHL7Configuration:
       description: A standard HL7 configuration
