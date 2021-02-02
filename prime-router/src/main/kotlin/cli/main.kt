@@ -170,7 +170,7 @@ class ProcessData : CliktCommand(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
-                    val fileName = Report.formFileName(report.id, report.schema.baseName, format, report.createdDateTime)
+                    val fileName = Report.formFilename(report.id, report.schema.baseName, format, report.createdDateTime)
                     File(outputDir ?: ".", fileName)
                 }
                 echo(outputFile.absolutePath)
@@ -207,6 +207,10 @@ class ProcessData : CliktCommand(
         csvComparer.compareFiles()
     }
 
+    private fun getOutputFormat(default: Report.Format): Report.Format {
+        return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
+    }
+
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
@@ -239,21 +243,16 @@ class ProcessData : CliktCommand(
 
         // Transform reports
         val translator = Translator(metadata)
-        val outputFormat = if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else Report.Format.CSV
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
                     .filterAndTranslateByService(inputReport)
-                    .map {
-                        val format = if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else it.second.format
-                        it.first to format
-                    }
+                    .map { it.first to getOutputFormat(it.second.format) }
             routeTo != null -> {
                 val pair = translator.translate(input = inputReport, toService = routeTo!!)
-                if (pair != null) {
-                    val format = if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else pair.second.format
-                    listOf(pair.first to format)
-                } else
+                if (pair != null)
+                    listOf(pair.first to getOutputFormat(pair.second.format))
+                else
                     emptyList()
             }
             outputSchema != null -> {
@@ -263,9 +262,9 @@ class ProcessData : CliktCommand(
                     error("Error: When translating to $'${toSchema.name} missing fields for ${mapping.missing.joinToString(", ")}")
                 }
                 val toReport = inputReport.applyMapping(mapping)
-                listOf(Pair(toReport, outputFormat))
+                listOf(Pair(toReport, getOutputFormat(Report.Format.CSV)))
             }
-            else -> listOf(Pair(inputReport, outputFormat))
+            else -> listOf(Pair(inputReport, getOutputFormat(Report.Format.CSV)))
         }
 
         // Output reports

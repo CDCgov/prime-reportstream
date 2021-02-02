@@ -91,7 +91,7 @@ class Report {
     /**
      * A standard name for this report that take schema, id, and destination into account
      */
-    val name: String get() = formFileName(id, schema.baseName, bodyFormat, createdDateTime)
+    val name: String get() = formFilename(id, schema.baseName, bodyFormat, createdDateTime)
 
     /**
      * A format for the body or use the destination format
@@ -381,7 +381,7 @@ class Report {
                 formFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    header.orgSvc?.format ?: OrganizationService.Format.CSV, // todo problematic default.
+                    header.orgSvc?.format ?: error("Internal Error: ${header.orgSvc?.name} does not have a format"),
                     header.reportFile.createdAt
                 )
             }
