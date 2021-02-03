@@ -3,11 +3,11 @@ locals {
 }
 
 terraform {
-  required_version = ">= 0.14"
+  required_version = "= 0.14.5" # This version must also be changed in other environments
   required_providers {
     azurerm = {
       source = "hashicorp/azurerm"
-      version = ">= 2.26"
+      version = "= 2.45.1" # This version must also be changed in other environments
     }
   }
   backend "azurerm" {
