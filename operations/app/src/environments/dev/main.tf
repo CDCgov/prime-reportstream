@@ -16,6 +16,7 @@ terraform {
 provider "azurerm" {
   features {}
   skip_provider_registration = true
+  subscription_id = "7d1e3999-6577-4cd5-b296-f518e5c8e677"
 }
 
 module "prime_data_hub" {
