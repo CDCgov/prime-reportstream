@@ -7,8 +7,6 @@ For more information about the design and genesis of these features, see [docs/p
 
 ### Setup DB and Example Data
 
-- Creates the stored procedures that do lineage queries.
-  (see [./lineage-report-stored-procedures.sql](./lineage-report-stored-procedures.sql) )
 - Creates fake data files for posting to API
 - Posts fake data and captures API response into JSON files
 

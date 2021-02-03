@@ -17,11 +17,11 @@ then
 fi
 
 echo
-echo -e "${TITLE}### Query: Ancestors for SENT_REPORT_ID=${SENT_REPORT_ID}${NC}"
+echo -e "${TITLE}### Query: Cousins for SENT_REPORT_ID=${SENT_REPORT_ID}${NC}"
 echo
 docker exec --user 999:999 \
   -i $(docker ps -f name=db_pgsql -q) \
   psql prime_data_hub prime \
     -v "param_id=$SENT_REPORT_ID" \
-    < ./lineage-ancestors.sql
+    < ./lineage-cousins.sql
 echo

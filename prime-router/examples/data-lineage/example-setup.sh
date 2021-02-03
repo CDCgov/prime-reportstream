@@ -1,29 +1,23 @@
 #!/usr/bin/env bash
 
-echo
-echo "Creates the stored procedures that do lineage queries."
-docker exec --user 999:999 \
-  -i $(docker ps -f name=db_pgsql -q) \
-  psql prime_data_hub prime \
-    < ./lineage-report-stored-procedures.sql
-echo
-
+TITLE='\033[1;4m'
+NC='\033[0m' # No Color
 
 cd ../../../prime-router/
 echo
-echo "Generating first set of 200 lines of fake data"
+echo -e "${TITLE}##### Generating first set of 200 lines of fake data${NC}"
 ./prime data --input-fake 200 \
   --input-schema primedatainput/pdi-covid-19 \
   --output examples/data-lineage/Test.a.csv
 echo
 
-echo "Generating second set of 200 lines of fake data"
+echo -e "${TITLE}##### Generating second set of 200 lines of fake data${NC}"
 ./prime data --input-fake 200 \
   --input-schema primedatainput/pdi-covid-19 \
   --output examples/data-lineage/Test.b.csv
 echo
 
-echo "Generating third set of 200 lines of fake data"
+echo -e "${TITLE}##### Generating third set of 200 lines of fake data${NC}"
 ./prime data --input-fake 200 \
   --input-schema primedatainput/pdi-covid-19 \
   --output examples/data-lineage/Test.c.csv
@@ -33,7 +27,7 @@ echo
 cd examples/data-lineage/
 
 echo
-echo "Uploading first set of fake data"
+echo -e "${TITLE}##### Uploading first set of fake data${NC}"
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
   --data-binary '@./Test.a.csv' \
@@ -42,7 +36,7 @@ curl -X POST -H 'client: simple_report' \
 echo
 
 echo
-echo "Uploading second set of fake data"
+echo -e "${TITLE}##### Uploading second set of fake data${NC}"
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
   --data-binary '@./Test.b.csv' \
@@ -51,7 +45,7 @@ curl -X POST -H 'client: simple_report' \
 echo
 
 echo
-echo "Uploading third set of fake data"
+echo -e "${TITLE}##### Uploading third set of fake data${NC}"
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
   --data-binary '@./Test.c.csv' \
@@ -60,11 +54,11 @@ curl -X POST -H 'client: simple_report' \
 echo
 
 echo
-echo "Duplicate upload of second set of fake data"
+echo -e "${TITLE}Duplicate upload of second set of fake data${NC}"
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
   --data-binary '@./Test.b.csv' \
   'http://localhost:7071/api/reports' \
-  > ./Test-post.bdup.json
+  > ./Test-post.bb.json
 echo
 
