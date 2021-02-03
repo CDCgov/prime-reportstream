@@ -828,13 +828,14 @@ elements:
 
   - name: specimen_id
     type: EI
+    hl7OutputFields: [SPM-2, OBR-3-1]
     hl7Field: SPM-2
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
 
   - name: specimen_received_date_time
     type: DATETIME
     natFlatFileField: Specimen_received_date_time
-    mapper: use(specimen_collection_date_time)
+    mapper: use(testing_lab_specimen_received_datetime)
     hhsGuidanceField:
     hl7Field: SPM-18
 
@@ -982,6 +983,7 @@ elements:
     natFlatFileField: Testing_lab_accession_number
     hhsGuidanceField:
     hl7Field: OBR-3-1
+    hl7OutputFields: [OBR-3-1, SPM-2]
     documentation: The accession number of the specimen collected
 
   - name: testing_lab_city
@@ -1045,11 +1047,11 @@ elements:
     hhsGuidanceField:
     hl7Field: SPM-2-1
 
-  - name: testing_lab_specimen_recieved_datetime
+  - name: testing_lab_specimen_received_datetime
     type: DATETIME
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
-    hl7Field: SPM-2-1
+    hl7Field: SPM-18
 
   - name: testing_lab_state
     type: TABLE

@@ -244,6 +244,7 @@ class ProcessData : CliktCommand(
             "patient_county" to Report.SynthesizeStrategy.FAKE,
             "patient_zip_code" to Report.SynthesizeStrategy.FAKE,
             "message_id" to Report.SynthesizeStrategy.FAKE,
+            "patient_email" to Report.SynthesizeStrategy.FAKE,
         )
 
         if (!validate) TODO("validation cannot currently be disabled")

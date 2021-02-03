@@ -1776,6 +1776,16 @@ Always filled when `patient_age` is filled
 
 ---
 
+**Name**: testing_lab_specimen_received_datetime
+
+**Type**: DATETIME
+
+**HL7 Field**: SPM-18
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: message_id
 
 **Type**: ID

@@ -410,6 +410,8 @@ elements:
 
     - name: patient_county
 
+    - name: testing_lab_specimen_received_datetime
+
     - name: message_id
       default: 000000
 

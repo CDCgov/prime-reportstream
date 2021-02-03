@@ -2628,11 +2628,11 @@ The name of the laboratory which performed the test, can be the same as the send
 
 ---
 
-**Name**: testing_lab_specimen_recieved_datetime
+**Name**: testing_lab_specimen_received_datetime
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-2-1
+**HL7 Field**: SPM-18
 
 **Cardinality**: [0..1]
 
