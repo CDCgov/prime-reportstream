@@ -832,13 +832,6 @@ elements:
     hl7Field: SPM-2
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
 
-  - name: specimen_received_date_time
-    type: DATETIME
-    natFlatFileField: Specimen_received_date_time
-    mapper: use(testing_lab_specimen_received_datetime)
-    hhsGuidanceField:
-    hl7Field: SPM-18
-
   - name: specimen_role
     type: CODE
     valueSet: specimen_role

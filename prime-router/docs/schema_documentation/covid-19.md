@@ -2193,16 +2193,6 @@ WOOD|Swab, Wooden Shaft
 
 ---
 
-**Name**: specimen_received_date_time
-
-**Type**: DATETIME
-
-**HL7 Field**: SPM-18
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: specimen_role
 
 **Type**: CODE
