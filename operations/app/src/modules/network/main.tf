@@ -33,7 +33,7 @@ resource "azurerm_subnet" "public" {
   address_prefixes = ["10.0.1.0/24"]
   service_endpoints = ["Microsoft.ContainerRegistry", 
                          "Microsoft.Storage",
-                         "Microsoft.SQL"]
+                         "Microsoft.Sql"]
 }
 
 resource "azurerm_subnet_network_security_group_association" "public_public" {
@@ -51,6 +51,9 @@ resource "azurerm_subnet" "container" {
       name = "delegation"
       service_delegation {
         name = "Microsoft.ContainerInstance/containerGroups"
+        actions = [
+          "Microsoft.Network/virtualNetworks/subnets/action"
+        ]
       }
   }
 }
@@ -65,7 +68,7 @@ resource "azurerm_subnet" "private" {
   resource_group_name = var.resource_group
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes = ["10.0.3.0/24"]
-  service_endpoints = ["Microsoft.Storage", "Microsoft.SQL"]
+  service_endpoints = ["Microsoft.Storage", "Microsoft.Sql"]
 }
 
 resource "azurerm_subnet_network_security_group_association" "private_private" {
