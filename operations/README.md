@@ -17,6 +17,8 @@ Running the above command will drop you into an interactive bash terminal for th
 ```az login```
 - Navigate to the provided login URL and input the provided token
 
+This only needs to be on first run and after your Azure credentials expire. The state of your login will be persisted in a Docker volume.
+
 
 ## Using Terraform
 
