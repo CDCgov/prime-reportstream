@@ -22,7 +22,7 @@ Running the above command will drop you into an interactive bash terminal for th
 
 Initialize the Terraform environment (only needed once, but doesn't hurt to run each time)
 ```
-terrform init
+terraform init
 ```
 
 Generate a plan (use the  `-out` flag to ensure the same plan gets applied in the following step)
