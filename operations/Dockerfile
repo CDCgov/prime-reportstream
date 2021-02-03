@@ -15,7 +15,7 @@ RUN yum install -y yum-utils
 RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 RUN yum -y install terraform-0.14.4-1
 
-# Move terraform config files into image
-COPY app /app
+# Create directory for terraform
+RUN mkdir /app
 
 ENTRYPOINT /bin/bash

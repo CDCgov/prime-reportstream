@@ -1,0 +1,35 @@
+version: "3.3"
+
+services:
+  dev:
+    container_name: terraform_state_dev
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+    working_dir: /app/src/environments/dev
+
+  test:
+    container_name: terraform_state_test
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+    working_dir: /app/src/environments/test
+
+  prod:
+    container_name: terraform_state_prod
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+    working_dir: /app/src/environments/prod

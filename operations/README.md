@@ -1,17 +1,39 @@
-## Build the docker image
+# PRIME Data Hub Operations
 
-```docker build -t terraform .```
+The PRIME Data Hub uses Terraform to manage our Azure development environment. All Azure configuration should be done through Terraform to ensure consistency between environments.
+
+To ensure our Terraform state is managed with consistent Terraform versions, we are running Terraform through a Docker image. Terraform should not be used outside of this Docker image to ensure the Terraform core, plugins, and other versions all remain identical.
 
 
-## Run the container interactively
+## Run Terraform interactively
 
-```docker run -it --rm -v <path_to_terraform_config>:/scratch --name terraform terraform```
+```docker-compose run {dev,test,prod}```
+
+Running the above command will drop you into an interactive bash terminal for the designated environment.
 
 
 ## Login to Azure CLI
 
 ```az login```
 - Navigate to the provided login URL and input the provided token
+
+
+## Using Terraform
+
+Initialize the Terraform environment (only needed once, but doesn't hurt to run each time)
+```
+terrform init
+```
+
+Generate a plan (use the  `-out` flag to ensure the same plan gets applied in the following step)
+```
+terraform plan -out plan.out
+```
+
+Review the above plan, then apply it to the environment
+```
+terraform apply plan.out
+```
 
 
 ## Terraform development

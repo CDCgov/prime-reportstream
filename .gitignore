@@ -80,6 +80,7 @@ prime-router/routed_files/*
 # Terraform files
 operations/app/src/**/.terraform*
 operations/app/src/**/terraform.tfstate*
+operations/app/src/**/plan.out
 
 # Hashicorp Vault Secrets
 prime-router/.vault/env/**
