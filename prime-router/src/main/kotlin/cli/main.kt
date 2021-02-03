@@ -163,7 +163,7 @@ class ProcessData : CliktCommand(
             val outputFile = if (outputFileName != null) {
                 File(outputFileName!!)
             } else {
-                val fileName = Report.formFileName(report.id, report.schema.baseName, format, report.createdDateTime)
+                val fileName = Report.formFilename(report.id, report.schema.baseName, format, report.createdDateTime)
                 File(outputDir ?: ".", fileName)
             }
             echo(outputFile.absolutePath)
