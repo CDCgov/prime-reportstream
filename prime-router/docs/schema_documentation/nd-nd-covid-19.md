@@ -806,6 +806,11 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
+
+
 ---
 
 **Name**: comment_source

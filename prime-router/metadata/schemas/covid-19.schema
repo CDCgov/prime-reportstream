@@ -861,7 +861,7 @@ elements:
     hl7Field: SPM-4
     documentation: The specimen source, such as Blood or Serum
 
-  - name: specimen_recieved_date_time
+  - name: specimen_received_date_time
     type: DATETIME
     mapper: use(specimen_collection_date_time)
     hl7Field: SPM-18

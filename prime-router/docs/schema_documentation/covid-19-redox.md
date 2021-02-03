@@ -532,6 +532,11 @@ The phone number of the facility which the test was ordered from
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
+
+
 ---
 
 **Name**: specimen_collection_date_time

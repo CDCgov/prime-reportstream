@@ -576,6 +576,11 @@ The specimen source, such as Blood or Serum
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
+
+
 ---
 
 **Name**: Finalized Date

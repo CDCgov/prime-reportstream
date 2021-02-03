@@ -1785,6 +1785,11 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
+
+
 ---
 
 **Name**: specimen_role
@@ -2622,21 +2627,6 @@ WOOD|Swab, Wooden Shaft
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10) 
-
----
-
-**Name**: specimen_recieved_date_time
-
-**Type**: DATETIME
-
-**HL7 Field**: SPM-18
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
-
 
 ---
 

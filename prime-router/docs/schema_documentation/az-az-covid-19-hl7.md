@@ -2280,7 +2280,7 @@ The specimen source, such as Blood or Serum
 
 ---
 
-**Name**: specimen_recieved_date_time
+**Name**: specimen_received_date_time
 
 **Type**: DATETIME
 
