@@ -96,7 +96,7 @@ class Report {
     /**
      * A format for the body or use the destination format
      */
-    val bodyFormat: Format
+    val bodyFormat: Format get() = this.destination?.format ?: Format.INTERNAL
 
     /**
      * A pointer to where the Report is stored.
@@ -123,7 +123,6 @@ class Report {
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
         this.destination = destination
-        this.bodyFormat = this.destination?.format ?: Format.INTERNAL
         this.table = createTable(schema, values)
     }
 
@@ -138,7 +137,6 @@ class Report {
         this.schema = schema
         this.sources = listOf(source)
         this.destination = destination
-        this.bodyFormat = this.destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
@@ -154,7 +152,6 @@ class Report {
         this.schema = schema
         this.sources = listOf(ClientSource(source.organization.name, source.name))
         this.destination = destination
-        this.bodyFormat = this.destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
@@ -170,7 +167,6 @@ class Report {
         this.table = table
         this.sources = sources
         this.destination = destination
-        this.bodyFormat = this.destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
     }
 
