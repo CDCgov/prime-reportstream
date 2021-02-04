@@ -90,6 +90,7 @@ class ReportFunction {
             }
             actionHistory.trackActionResult(httpResponseMessage)
             workflowEngine.recordAction(actionHistory)
+            actionHistory.queueMessages() // Must be done after creating db records.
             return httpResponseMessage
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
