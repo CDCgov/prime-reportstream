@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.azure.DatabaseAccess
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
@@ -24,6 +25,33 @@ typealias DefaultValues = Map<String, String>
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report {
+    enum class Format {
+        INTERNAL, // A format that serializes all elements of a report (A CSV today)
+        CSV, // A CSV format the follows the csvFields
+        HL7, // HL7 with one result per file
+        HL7_BATCH, // HL7 with BHS and FHS headers
+        REDOX; // Redox format
+        // FHIR
+
+        fun toExt(): String {
+            return when (this) {
+                INTERNAL -> "internal"
+                CSV -> "csv"
+                HL7 -> "hl7"
+                HL7_BATCH -> "hl7"
+                REDOX -> "redox"
+            }
+        }
+
+        fun isSingleItemFormat(): Boolean {
+            return when (this) {
+                REDOX -> true
+                HL7 -> true
+                else -> false
+            }
+        }
+    }
+
     /**
      * the UUID for the report
      */
@@ -63,7 +91,12 @@ class Report {
     /**
      * A standard name for this report that take schema, id, and destination into account
      */
-    val name: String get() = formFileName(id, schema.baseName, destination?.format, createdDateTime)
+    val name: String get() = formFilename(id, schema.baseName, bodyFormat, createdDateTime)
+
+    /**
+     * A format for the body or use the destination format
+     */
+    val bodyFormat: Format get() = this.destination?.format ?: Format.INTERNAL
 
     /**
      * A pointer to where the Report is stored.
@@ -138,7 +171,7 @@ class Report {
         schema: Schema,
         table: Table,
         sources: List<Source>,
-        destination: OrganizationService? = null,
+        destination: OrganizationService? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -164,9 +197,24 @@ class Report {
     /**
      * Does a shallow copy of this report. Will have a new id and create date.
      */
-    fun copy(destination: OrganizationService? = null): Report {
+    fun copy(destination: OrganizationService?): Report {
         // Dev Note: table is immutable, so no need to duplicate it
-        return Report(this.schema, this.table, fromThisReport("copy"), destination)
+        return Report(
+            this.schema,
+            this.table,
+            fromThisReport("copy"),
+            destination
+        )
+    }
+
+    fun copy(): Report {
+        // Dev Note: table is immutable, so no need to duplicate it
+        return Report(
+            this.schema,
+            this.table,
+            fromThisReport("copy"),
+            this.destination
+        )
     }
 
     fun isEmpty(): Boolean {
@@ -245,6 +293,16 @@ class Report {
         return Report(schema, Table.create(columns), fromThisReport("synthesizeData"))
     }
 
+    /**
+     * Create a separate report for each item in the report
+     */
+    fun split(): List<Report> {
+        return itemIndices.map {
+            val row = getRow(it)
+            Report(schema, values = listOf(row), sources = fromThisReport("split"), destination = destination)
+        }
+    }
+
     fun applyMapping(mapping: Translator.Mapping): Report {
         val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
@@ -271,7 +329,11 @@ class Report {
         }
     }
 
-    private fun buildColumnPass2(mapping: Translator.Mapping, toElement: Element, pass1Columns: List<StringColumn?>): StringColumn {
+    private fun buildColumnPass2(
+        mapping: Translator.Mapping,
+        toElement: Element,
+        pass1Columns: List<StringColumn?>
+    ): StringColumn {
         val toSchema = mapping.toSchema
         val fromSchema = mapping.fromSchema
         val index = mapping.toSchema.findElementColumn(toElement.name)
@@ -321,10 +383,6 @@ class Report {
         return StringColumn.create(name, List(itemCount) { fakeDataService.getFakeValueForElement(element, context) })
     }
 
-    fun getBodyFormat(): OrganizationService.Format {
-        return this.destination?.format ?: OrganizationService.Format.CSV
-    }
-
     companion object {
         fun merge(inputs: List<Report>): Report {
             if (inputs.isEmpty()) error("Cannot merge an empty report list")
@@ -348,16 +406,37 @@ class Report {
             return Report(schema, newTable, sources)
         }
 
-        fun formFileName(
+        fun formFilename(
             id: ReportId,
             schemaName: String,
-            fileFormat: OrganizationService.Format?,
+            fileFormat: Format?,
             createdDateTime: OffsetDateTime
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-            val nameSuffix = fileFormat?.toExt() ?: OrganizationService.Format.CSV.toExt()
+            val nameSuffix = fileFormat?.toExt() ?: Format.CSV.toExt()
             return "$namePrefix.$nameSuffix"
+        }
+
+        /**
+         * Try to extract an existing filename from report metadata.  If it does not exist or is malformed,
+         * create a new filename.
+         */
+        fun formExternalFilename(header: DatabaseAccess.Header): String {
+            // extract the filename from the blob url.
+            val filename = if (header.reportFile.bodyUrl != null)
+                header.reportFile.bodyUrl.split("/").last()
+            else ""
+            return if (filename.isNotEmpty())
+                filename
+            else {
+                formFilename(
+                    header.reportFile.reportId,
+                    header.reportFile.schemaName,
+                    header.orgSvc?.format ?: error("Internal Error: ${header.orgSvc?.name} does not have a format"),
+                    header.reportFile.createdAt
+                )
+            }
         }
     }
 }
