@@ -1,5 +1,7 @@
 # Current Available Logs in Azure
 
+This is a living document of all logs available to us.
+
 | Log Type                       | Type                                    | PII/PHI | Location                     | In Splunk | Required in Splunk for ATO | Notes                                                   |
 | :----------------------------- | :-------------------------------------- | :------ | :--------------------------- | :-------- | :------------------------- | :------------------------------------------------------ |
 | Azure Activity Log             | Access and environment changes in Azure | No      | Subscription > Activity Logs | Yes       | Yes                        |                                                         |
