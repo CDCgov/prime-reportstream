@@ -134,7 +134,7 @@ class ActionHistoryTests {
                 description = "blah blah",
                 clients = listOf(),
                 services = listOf(
-                    OrganizationService("myService", "topic1", "schema1", format = OrganizationService.Format.REDOX)
+                    OrganizationService("myService", "topic1", "schema1", format = Report.Format.REDOX)
                 )
             )
         val orgSvc = org.services[0]
@@ -172,7 +172,7 @@ class ActionHistoryTests {
                 description = "blah blah",
                 clients = listOf(),
                 services = listOf(
-                    OrganizationService("myService", "topic", "schema", format = OrganizationService.Format.HL7)
+                    OrganizationService("myService", "topic", "schema", format = Report.Format.HL7)
                 )
             )
         val actionHistory1 = ActionHistory(TaskAction.download)
