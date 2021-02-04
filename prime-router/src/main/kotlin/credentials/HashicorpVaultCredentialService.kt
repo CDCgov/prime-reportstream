@@ -4,7 +4,7 @@ import com.github.kittinunf.fuel.core.FuelManager
 import org.apache.logging.log4j.kotlin.Logging
 import org.json.JSONObject
 
-object HashicorpVaultCredentialService : CredentialService(), Logging {
+internal object HashicorpVaultCredentialService : CredentialService(), Logging {
 
     private val VAULT_API_ADDR: String by lazy { System.getenv("VAULT_API_ADDR") ?: "http://127.0.0.1:8200" }
     private val VAULT_TOKEN: String by lazy { System.getenv("VAULT_TOKEN") ?: "" }
