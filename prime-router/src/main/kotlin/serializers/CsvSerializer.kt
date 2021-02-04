@@ -84,6 +84,17 @@ class CsvSerializer(val metadata: Metadata) {
         return ReadResult(Report(schema, mappedRows, sources, destination), errors, warnings)
     }
 
+    fun readInternal(
+        schemaName: String,
+        input: InputStream,
+        sources: List<Source>,
+        destination: OrganizationService? = null
+    ): Report {
+        val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
+        val rows: List<List<String>> = csvReader().readAll(input).drop(1)
+        return Report(schema, rows, sources, destination)
+    }
+
     fun write(report: Report, output: OutputStream) {
         val schema = report.schema
 
@@ -105,6 +116,22 @@ class CsvSerializer(val metadata: Metadata) {
                         }
                     }
             }
+        }
+
+        val allRows = listOf(buildHeader()).plus(buildRows())
+        csvWriter {
+            lineTerminator = "\n"
+            outputLastLineTerminator = true
+        }.writeAll(allRows, output)
+    }
+
+    fun writeInternal(report: Report, output: OutputStream) {
+        val schema = report.schema
+
+        fun buildHeader(): List<String> = schema.elements.map { it.name }
+
+        fun buildRows(): List<List<String>> {
+            return report.itemIndices.map { row -> report.getRow(row) }
         }
 
         val allRows = listOf(buildHeader()).plus(buildRows())

@@ -197,7 +197,7 @@ class ActionHistory {
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = report.bodyURL
-        reportFile.bodyFormat = report.getBodyFormat().toString()
+        reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
     }
@@ -244,7 +244,7 @@ class ActionHistory {
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = report.bodyURL
-        reportFile.bodyFormat = report.getBodyFormat().toString()
+        reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
         trackEvent(event) // to be sent to queue later.
