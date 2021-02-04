@@ -226,13 +226,8 @@ class DownloadFunction {
     private fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         var userName = ""
         var orgName = ""
-
         val cookies = request.headers["cookie"] ?: ""
-
-        context.logger.info(cookies)
-
         var jwtString = ""
-
         cookies.replace(" ", "").split(";").forEach {
             val cookie = it.split("=")
             jwtString = if (cookie[0] == "jwt") cookie[1] else ""

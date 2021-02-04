@@ -202,26 +202,6 @@ class ActionHistory {
         reportsReceived[reportFile.reportId] = reportFile
     }
 
-    /* Table structure here for reference during development. Might be out of date.
-        public ReportFile(
-            UUID           reportId,
-            Integer        actionId,
-            TaskAction     nextAction,
-            OffsetDateTime nextActionAt,
-            String         sendingOrg,
-            String         sendingOrgClient,
-            String         receivingOrg,
-            String         receivingOrgSvc,
-            String         schemaName,
-            String         schemaTopic,
-            String         bodyUrl,
-            String         external_name,
-            String         bodyFormat,
-            byte[]         blobDigest,
-            Integer        itemCount,
-            OffsetDateTime wipedAt,
-            OffsetDateTime createdAt
-        */
     /**
      * Use this to record history info about an internally created report.
      * This also tracks the event to be queued later, as an azure message.
@@ -284,10 +264,10 @@ class ActionHistory {
     fun trackDownloadedReport(
         header: DatabaseAccess.Header,
         filename: String,
-        originalReportId: ReportId,
+        originalReportId: ReportId, // todo remove, replace with report in header
         externalReportId: ReportId,
-        userName: String,
-        organization: Organization
+        downloadedBy: String,
+        organization: Organization // todo remove, replace with report in header
     ) {
         trackExistingInputReport(originalReportId)
         if (isReportAlreadyTracked(externalReportId)) {
@@ -301,11 +281,11 @@ class ActionHistory {
         reportFile.schemaTopic = "unavailable" // todo fix this
         reportFile.externalName = filename
         reportFile.transportParams = "Internal id of report requested: $originalReportId"
-        reportFile.transportResult = "Downloaded by user=$userName"
+        reportFile.transportResult = "Downloaded by user=$downloadedBy"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
         reportFile.bodyFormat = header.task.bodyFormat
         reportFile.itemCount = header.task.itemCount
-        reportFile.downloadedBy = userName
+        reportFile.downloadedBy = downloadedBy
         reportsOut[reportFile.reportId] = reportFile
     }
 
