@@ -30,7 +30,7 @@ class Hl7SerializerTests {
     @Test
     fun `Test write batch`() {
         val outputStream = ByteArrayOutputStream()
-        serializer.write(testReport, outputStream)
+        serializer.writeBatch(testReport, outputStream)
         val output = outputStream.toString(StandardCharsets.UTF_8)
         assertNotNull(output)
     }

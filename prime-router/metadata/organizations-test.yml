@@ -26,7 +26,7 @@
         schema: az/az-covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills)"
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
         transforms: { deidentify: false }
         batch:
           operation: MERGE
@@ -44,21 +44,25 @@
         schema: az/az-covid-19-hl7
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills)"
+          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
         transforms: { deidentify: false }
-        # Note: No 'batch:' here, so that step is skipped.   No delay either. Send happens instantly after translate.
+        batch:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialBatch: 00:00
+          timeZone: ARIZONA
         transports:
           - type: SFTP
             host: 10.0.2.4
             port: 22
             filePath: ./upload
-        format: HL7
+        format: HL7_BATCH
       - name: elr-prod
         topic: covid-19
         schema: az/az-covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills)"
+          - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
         transforms: { deidentify: false }
         batch:
           operation: MERGE

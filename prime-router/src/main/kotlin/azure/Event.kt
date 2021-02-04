@@ -20,11 +20,11 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         TRANSLATE, // Deprecated
         BATCH,
         SEND,
-        WIPE,
+        WIPE, // Deprecated
         NONE,
         BATCH_ERROR,
         SEND_ERROR,
-        WIPE_ERROR;
+        WIPE_ERROR; // Deprecated
 
         fun toTaskAction(): TaskAction {
             return when (this) {
