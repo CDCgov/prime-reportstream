@@ -15,6 +15,7 @@ import java.util.Properties
 class Hl7Serializer(val metadata: Metadata) {
     private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
     private val softwareProductName = "PRIME Data Hub"
+    private val hl7SegmentDelimiter: String = "\r"
 
     private val hapiContext = DefaultHapiContext()
     private val buildVersion: String
@@ -31,7 +32,19 @@ class Hl7Serializer(val metadata: Metadata) {
         }
     }
 
+    /**
+     * Write a report with a single item
+     */
     fun write(report: Report, outputStream: OutputStream) {
+        if (report.itemCount != 1) error("Internal Error: multiple item report cannot be written as a single HL7 message")
+        val message = createMessage(report, 0)
+        outputStream.write(message.toByteArray())
+    }
+
+    /**
+     * Write a report with BHS and FHS segments and multiple items
+     */
+    fun writeBatch(report: Report, outputStream: OutputStream) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
         //
