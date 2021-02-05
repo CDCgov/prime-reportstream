@@ -87,7 +87,7 @@
         transforms: { deidentify: false }
         batch:
           operation: MERGE
-          numberPerDay: 144 # Every 10 minutes.  (Lets us test the timing of the batching; prod is once a day)
+          numberPerDay: 1440 # Every minute
           initialBatch: 00:00
           timeZone: ARIZONA
         format: CSV
