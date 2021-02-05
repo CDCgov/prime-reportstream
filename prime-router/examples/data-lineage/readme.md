@@ -117,3 +117,18 @@ psql prime_data_hub prime \
 
 See [./lineage-ancestors.sql](./lineage-ancestors.sql)
 
+
+### Go sideways! Query the cousins
+
+```sh
+bash ./example-cousins.sh
+
+# or, using `psql` from your command line:
+
+psql prime_data_hub prime \
+  -v "param_id=$SENT_REPORT_ID" \
+  < ./lineage-cousins.sql
+```
+
+See [./lineage-cousins.sql](./lineage-cousins.sql)
+
