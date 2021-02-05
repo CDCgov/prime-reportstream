@@ -65,7 +65,7 @@ class Translator(private val metadata: Metadata) {
                 }
             }
         }
-        return transformed.copy(destination = receiver)
+        return transformed.copy(destination = receiver, bodyFormat = receiver.format)
     }
 
     fun translate(input: Report, toService: String, defaultValues: DefaultValues = emptyMap()): Pair<Report, OrganizationService>? {
