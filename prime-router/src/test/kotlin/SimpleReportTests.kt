@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import gov.cdc.prime.router.serializers.CsvSerializer
+import org.apache.commons.io.FileUtils
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -53,10 +54,10 @@ class SimpleReportTests {
         // 3) Write transformed objs to files
         val outputFiles = mutableListOf<Pair<File, OrganizationService>>()
         outputReports.forEach { (report, orgSvc) ->
-            val fileName = Report.formFileName(
+            val fileName = Report.formFilename(
                 report.id,
                 report.schema.baseName,
-                OrganizationService.Format.CSV,
+                Report.Format.CSV,
                 report.createdDateTime
             )
             val reportFile = File(outputPath, fileName)
@@ -66,7 +67,7 @@ class SimpleReportTests {
         return outputFiles
     }
 
-    fun createFakeFile(schemaName: String, numRows: Int): File {
+    fun createFakeFile(schemaName: String, numRows: Int, useInternal: Boolean = false): File {
         val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
         // 1) Create the fake file
         val fakeReport = FakeReport(metadata).build(
@@ -74,14 +75,17 @@ class SimpleReportTests {
             numRows,
             FileSource("fake") // not really used
         )
-        val fakeReportFileName = Report.formFileName(
+        val fakeReportFileName = Report.formFilename(
             fakeReport.id,
             fakeReport.schema.baseName,
-            OrganizationService.Format.CSV,
+            if (useInternal) Report.Format.INTERNAL else Report.Format.CSV,
             fakeReport.createdDateTime
         )
         val fakeReportFile = File(outputPath, fakeReportFileName)
-        csvSerializer.write(fakeReport, fakeReportFile.outputStream())
+        if (useInternal)
+            csvSerializer.writeInternal(fakeReport, fakeReportFile.outputStream())
+        else
+            csvSerializer.write(fakeReport, fakeReportFile.outputStream())
         assertTrue(fakeReportFile.exists())
         return fakeReportFile
     }
@@ -104,6 +108,26 @@ class SimpleReportTests {
         // 2) Write the input report back out to a new file
         val outputFile = File(outputPath, inputReport.name)
         csvSerializer.write(inputReport, outputFile.outputStream())
+        assertTrue(outputFile.exists())
+        return outputFile
+    }
+
+    /**
+     * Read in a CSV file, then write it right back out again, in the same schema.
+     * The idea is: It shouldn't change.
+     */
+    fun readAndWriteInternal(inputFilePath: String, schemaName: String): File {
+        val inputFile = File(inputFilePath)
+        assertTrue(inputFile.exists())
+        val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
+
+        // 1) Ingest the file
+        val inputFileSource = FileSource(inputFilePath)
+        val inputReport = csvSerializer.readInternal(schema.name, inputFile.inputStream(), listOf(inputFileSource))
+
+        // 2) Write the input report back out to a new file
+        val outputFile = File(outputPath, inputReport.name)
+        csvSerializer.writeInternal(inputReport, outputFile.outputStream())
         assertTrue(outputFile.exists())
         return outputFile
     }
@@ -149,6 +173,15 @@ class SimpleReportTests {
         // Run the data thru its own schema and back out again
         val fakeReportFile2 = readAndWrite(fakeReportFile.absolutePath, schemaName)
         compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2, recordId = "Medical Record Number")
+    }
+
+    @Test
+    fun `test internal read and write`() {
+        val schemaName = "az/pima-az-covid-19"
+        val fakeReportFile = createFakeFile(schemaName, 100, useInternal = true)
+        // Run the data thru its own schema and back out again
+        val fakeReportFile2 = readAndWriteInternal(fakeReportFile.absolutePath, schemaName)
+        assertTrue(FileUtils.contentEquals(fakeReportFile, fakeReportFile2))
     }
 
     private fun compareTestResultsToExpectedResults(
