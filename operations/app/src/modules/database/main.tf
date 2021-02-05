@@ -35,3 +35,7 @@ resource "azurerm_postgresql_database" "prime_data_hub_db" {
   charset = "UTF8"
   collation = "English_United States.1252"
 }
+
+output "server_name" {
+  value = azurerm_postgresql_server.postgres_server.name
+}

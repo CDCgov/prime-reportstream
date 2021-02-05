@@ -21,11 +21,13 @@ variable "location" {
 variable "postgres_user" {
     type = string
     description = "Database Server Username"
+    sensitive = true
 }
 
 variable "postgres_password" {
     type = string
     description = "Database Server Password"
+    sensitive = true
 }
 
 variable "public_subnet_id" {

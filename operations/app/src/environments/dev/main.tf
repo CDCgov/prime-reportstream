@@ -21,4 +21,8 @@ module "prime_data_hub" {
   resource_prefix = var.dev_name
   postgres_user = var.postgres_user
   postgres_password = var.postgres_password
+  redox_secret = var.redox_secret
+  okta_client_id = var.okta_client_id
+  az_phd_user = var.az_phd_user
+  az_phd_password = var.az_phd_password
 }
