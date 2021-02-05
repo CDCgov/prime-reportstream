@@ -8,7 +8,7 @@ resource "azurerm_app_service_plan" "service_plan" {
   resource_group_name = var.resource_group
   kind = (var.environment == "prod" ? "elastic" : "Linux")
   reserved = true
-  maximum_elastic_worker_count = 10
+  maximum_elastic_worker_count = (var.environment == "prod" ? 10 : 1)
 
   sku {
     tier = (var.environment == "prod" ? "ElasticPremium" : "PremiumV2")
