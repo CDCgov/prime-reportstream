@@ -1,0 +1,15 @@
+---
+name: la-covid-19-hl7
+description: LA COVID-19
+trackingElement: message_id
+topic: covid-19
+extends: covid-19
+elements:
+  - name: sending_application
+
+  - name: sending_facility
+
+  - name: receiving_application
+
+  - name: receiving_facility
+

@@ -96,7 +96,7 @@ class Report {
     /**
      * A format for the body or use the destination format
      */
-    val bodyFormat: Format get() = this.destination?.format ?: Format.INTERNAL
+    val bodyFormat: Format
 
     /**
      * A pointer to where the Report is stored.
@@ -117,12 +117,14 @@ class Report {
         values: List<List<String>>,
         sources: List<Source>,
         destination: OrganizationService? = null,
+        bodyFormat: Format? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
         this.destination = destination
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.table = createTable(schema, values)
     }
 
@@ -132,11 +134,13 @@ class Report {
         values: List<List<String>>,
         source: TestSource,
         destination: OrganizationService? = null,
+        bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(source)
         this.destination = destination
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
@@ -147,10 +151,12 @@ class Report {
         values: List<List<String>>,
         source: OrganizationClient,
         destination: OrganizationService? = null,
+        bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(ClientSource(source.organization.name, source.name))
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
@@ -160,13 +166,15 @@ class Report {
         schema: Schema,
         table: Table,
         sources: List<Source>,
-        destination: OrganizationService? = null
+        destination: OrganizationService? = null,
+        bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.table = table
         this.sources = sources
         this.destination = destination
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
     }
 
@@ -186,23 +194,14 @@ class Report {
     /**
      * Does a shallow copy of this report. Will have a new id and create date.
      */
-    fun copy(destination: OrganizationService?): Report {
+    fun copy(destination: OrganizationService? = null, bodyFormat: Format? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
         return Report(
             this.schema,
             this.table,
             fromThisReport("copy"),
-            destination
-        )
-    }
-
-    fun copy(): Report {
-        // Dev Note: table is immutable, so no need to duplicate it
-        return Report(
-            this.schema,
-            this.table,
-            fromThisReport("copy"),
-            this.destination
+            destination ?: this.destination,
+            bodyFormat ?: this.bodyFormat
         )
     }
 
@@ -254,7 +253,13 @@ class Report {
     fun split(): List<Report> {
         return itemIndices.map {
             val row = getRow(it)
-            Report(schema, values = listOf(row), sources = fromThisReport("split"), destination = destination)
+            Report(
+                schema = schema,
+                values = listOf(row),
+                sources = fromThisReport("split"),
+                destination = destination,
+                bodyFormat = bodyFormat
+            )
         }
     }
 
@@ -329,8 +334,15 @@ class Report {
 
     companion object {
         fun merge(inputs: List<Report>): Report {
-            if (inputs.isEmpty()) error("Cannot merge an empty report list")
-            if (inputs.size == 1) return inputs[0]
+            if (inputs.isEmpty())
+                error("Cannot merge an empty report list")
+            if (inputs.size == 1)
+                return inputs[0]
+            if (!inputs.all { it.destination == inputs[0].destination })
+                error("Cannot merge reports with different destinations")
+            if (!inputs.all { it.bodyFormat == inputs[0].bodyFormat })
+                error("Cannot merge reports with different bodyFormats")
+
             val head = inputs[0]
             val tail = inputs.subList(1, inputs.size)
 
@@ -346,8 +358,7 @@ class Report {
 
             // Build sources
             val sources = inputs.map { ReportSource(it.id, "merge") }
-
-            return Report(schema, newTable, sources)
+            return Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
         }
 
         fun formFilename(

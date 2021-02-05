@@ -31,7 +31,8 @@ hs_err_pid*
 # Play files
 **/result_files/*.csv
 **/routed_files/*.csv
-Test.csv
+Test*.csv
+Test*.json
 **/Xperiment.kt
 **/junk
 

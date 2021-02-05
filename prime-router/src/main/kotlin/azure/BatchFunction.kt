@@ -60,7 +60,7 @@ class BatchFunction {
                     else -> mergedReports
                 }
                 outReports.forEach {
-                    val outReport = it.copy(destination = receiver)
+                    val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
                     val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
                     workflowEngine.dispatchReport(outEvent, outReport, txn)
                     actionHistory.trackCreatedReport(outEvent, outReport, receiver)
