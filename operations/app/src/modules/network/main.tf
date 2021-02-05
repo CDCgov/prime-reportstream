@@ -38,6 +38,7 @@ resource "azurerm_subnet" "public" {
     name = "server_farms"
     service_delegation {
       name = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
     }
   }
 }
@@ -57,9 +58,7 @@ resource "azurerm_subnet" "container" {
       name = "container_groups"
       service_delegation {
         name = "Microsoft.ContainerInstance/containerGroups"
-        actions = [
-          "Microsoft.Network/virtualNetworks/subnets/action"
-        ]
+        actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
   }
 }
