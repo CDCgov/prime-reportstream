@@ -1,0 +1,130 @@
+---
+name: la-covid-19
+description: Louisiana COVID-19 CSV Flat-File
+topic: covid-19
+trackingElement: testing_lab_specimen_id
+basedOn: covid-19
+elements:
+  - name: testing_lab_name
+    csvFields: [{ name: LabName }]
+    
+  - name: testing_lab_specimen_id
+    csvFields: [{ name: MRN }]
+
+  - name: patient_last_name
+    csvFields: [ { name: Last Name }]
+
+  - name: patient_middle_name
+    csvFields: [ { name: Middle Name } ]
+
+  - name: patient_first_name
+    csvFields: [ { name: First Name } ]
+
+  - name: patient_address
+    csvFields: [ { name: Patient Address } ]
+    mapper: 'concat(patient_street, patient_street2)'
+    delimiter: " "
+
+  - name: patient_state
+    csvFields:  [ { name: Patient State } ]
+
+  - name: patient_zip_code
+    csvFields: [ { name: Patient Zipcode } ]
+
+  - name: patient_phone_number
+    csvFields: [ { name: Patient Phone } ]
+
+  - name: ssn
+    type: TEXT
+    default:
+    csvFields: [{ name: SSN }]
+
+  - name: patient_dob
+    csvFields: [{ name: Birth Date }]
+
+  - name: patient_gender
+    csvFields: [{ name: Sex }]
+
+  - name: patient_ethnicity
+    csvFields: [{ name: Ethnicity }]
+
+  - name: specimen_collection_date_time
+    csvFields: [{ name: DateColl }]
+
+  - name: test_result_report_date
+    csvFields: [{ name: ResultDate }]
+
+  - name: test_performed_code
+    csvFields: [{ name: LOINC }]
+
+  - name: test_performed_name
+    csvFields: [{ name: TestName }]
+
+  - name: test_result
+    csvFields: [{ name: LabResult }]
+
+  - name: test_result_units
+    csvFields: [{ name: ResultUnits }]
+
+  - name: reference_range
+    csvFields: [{ name: Reference Range }]
+
+  - name: phyname
+    mapper: 'concat(ordering_provider_last_name, ordering_provider_first_name)'
+    csvFields: [{ name: Phyname }]
+
+  - name: ordering_provider_street
+    csvFields: [{ name: PhyAddress1 }]
+
+  - name: ordering_provider_city
+    csvFields: [{ name: Physcity }]
+
+  - name: ordering_provider_state
+    csvFields: [{ name: Physst }]
+
+  - name: ordering_provider_zip_code
+    csvFields: [{ name: Physzip }]
+
+  - name: ordering_provider_phone_number
+    csvFields: [{ name: PhysPhone }]
+
+  - name: ordering_facility_name
+    csvFields: [{ name: Facility }]
+
+  - name: ordering_facility_street
+    csvFields: [{ name: FAC_ADDR1 }]
+
+  - name: ordering_facility_city
+    csvFields: [{ name: FAC_CITY }]
+
+  - name: ordering_facility_state
+    csvFields: [{ name: FAC_STATE }]
+
+  - name: ordering_facility_zip_code
+    csvFields: [{ name: FAC_ZIP }]
+
+  - name: ordering_facility_phone_number
+    csvFields: [{ name: FAC_PHONE }]
+
+  - name: comment
+    csvFields: [{ name: Comment }]
+
+  - name: testing_lab_clia
+    csvFields: [{ name: CLIA NO }]
+
+  - name: testing_lab_accession_number
+    csvFields: [{ name: ACCESSION_NO }]
+
+  - name: specimen_type
+    csvFields: [{ name: Specimen_Type }]
+
+  - name: pregnant
+    csvFields: [{ name: Pregnant }]
+
+  - name: patient_street
+
+  - name: patient_street2
+
+  - name: ordering_provider_last_name
+
+  - name: ordering_provider_first_name
