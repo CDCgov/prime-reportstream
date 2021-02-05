@@ -27,6 +27,12 @@ Initialize the Terraform environment (only needed once, but doesn't hurt to run 
 terraform init
 ```
 
+Set the PostgreSQL server credentials as environment variables
+```
+export TF_VAR_postgres_user=<postgres_username>
+export TF_VAR_postgres_password=<postgres_password>
+```
+
 Generate a plan (use the  `-out` flag to ensure the same plan gets applied in the following step)
 ```
 terraform plan -out plan.out

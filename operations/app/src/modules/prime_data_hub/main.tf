@@ -40,3 +40,14 @@ module "function_app" {
     storage_account_key = module.storage.storage_account_key
     public_subnet_id = module.network.public_subnet_id
 }
+
+module "database" {
+    source = "../database"
+    environment = var.environment
+    resource_group = var.resource_group
+    name = "${var.resource_prefix}-pgsql"
+    location = local.location
+    postgres_user = var.postgres_user
+    postgres_password = var.postgres_password
+    public_subnet_id = module.network.public_subnet_id
+}

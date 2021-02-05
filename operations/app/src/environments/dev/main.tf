@@ -1,8 +1,3 @@
-variable "dev_name" {
-  type = string
-  description = "Name of developer (eg. cglodosky, rheft, jduff, etc.)"
-}
-
 terraform {
   required_version = "= 0.14.5" # This version must also be changed in other environments
   required_providers {
@@ -24,4 +19,6 @@ module "prime_data_hub" {
   environment = "dev"
   resource_group = "prime-dev-${var.dev_name}"
   resource_prefix = var.dev_name
+  postgres_user = var.postgres_user
+  postgres_password = var.postgres_password
 }
