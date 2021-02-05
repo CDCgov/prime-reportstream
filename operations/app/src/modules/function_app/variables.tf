@@ -15,5 +15,20 @@ variable "resource_prefix" {
 
 variable "location" {
     type = string
-    description = "Storage Account Location"
+    description = "Function App Location"
+}
+
+variable "storage_account_name" {
+    type = string
+    description = "Storage Account Name"
+}
+
+variable "storage_account_key" {
+    type = string
+    description = "Storage Account Key"
+}
+
+variable "public_subnet_id" {
+    type = string
+    description = "Public Subnet ID"
 }

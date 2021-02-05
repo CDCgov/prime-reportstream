@@ -29,3 +29,14 @@ module "container_registry" {
     location = local.location
     public_subnet_id = module.network.public_subnet_id
 }
+
+module "function_app" {
+    source = "../function_app"
+    environment = var.environment
+    resource_group = var.resource_group
+    resource_prefix = var.resource_prefix
+    location = local.location
+    storage_account_name = module.storage.storage_account_name
+    storage_account_key = module.storage.storage_account_key
+    public_subnet_id = module.network.public_subnet_id
+}
