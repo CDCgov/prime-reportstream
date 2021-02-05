@@ -30,8 +30,8 @@
         transforms: { deidentify: false }
         batch:
           operation: MERGE
-          numberPerDay: 6 # Every 4 hours
-          initialBatch: 00:00
+          numberPerDay: 1   # Once a day at 2pm EST
+          initialBatch: 12:00
           timeZone: ARIZONA
         format: CSV
         transports:
@@ -48,8 +48,8 @@
         transforms: { deidentify: false }
         batch:
           operation: MERGE
-          numberPerDay: 6 # Every 4 hours
-          initialBatch: 00:00
+          numberPerDay: 1   # Once a day at 2pm EST
+          initialBatch: 12:00
           timeZone: ARIZONA
         transports:
           - type: SFTP
@@ -66,8 +66,8 @@
         transforms: { deidentify: false }
         batch:
           operation: MERGE
-          numberPerDay: 6 # Every 4 hours
-          initialBatch: 00:00
+          numberPerDay: 1   # Once a day at 2pm EST
+          initialBatch: 12:00
           timeZone: ARIZONA
         format: CSV
         transports:
