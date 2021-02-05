@@ -39,6 +39,13 @@ module "function_app" {
     storage_account_name = module.storage.storage_account_name
     storage_account_key = module.storage.storage_account_key
     public_subnet_id = module.network.public_subnet_id
+    postgres_user = "${var.postgres_user}@${module.database.server_name}"
+    postgres_password = var.postgres_password
+    postgres_url = "jdbc:postgresql://${module.database.server_name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
+    redox_secret = var.redox_secret
+    okta_client_id = var.okta_client_id
+    az_phd_user = var.az_phd_user
+    az_phd_password = var.az_phd_password
 }
 
 module "database" {
