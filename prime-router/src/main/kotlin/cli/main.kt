@@ -113,6 +113,14 @@ class ProcessData : CliktCommand(
         metavar = "<name>",
         help = "when using --input-fake, fill county-related fields with this county name."
     )
+    private val receivingApplication by option(
+        "--receiving-application",
+        help = "the receiving application"
+    )
+    private val receivingFacility by option(
+        "--receiving-facility",
+        help = "the receiving facility"
+    )
 
     private fun mergeReports(
         metadata: Metadata,
@@ -215,6 +223,8 @@ class ProcessData : CliktCommand(
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        metadata.receivingApplication = receivingApplication
+        metadata.receivingFacility = receivingFacility
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata)
         val redoxSerializer = RedoxSerializer(metadata)

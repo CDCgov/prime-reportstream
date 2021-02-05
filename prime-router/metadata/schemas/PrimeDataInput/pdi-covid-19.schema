@@ -27,6 +27,9 @@ elements:
   - name: test_performed_code
     csvFields: [{name: Ordered_test_code}]
 
+  - name: specimen_id
+    csvFields: [{name: Specimen_ID}]
+
   - name: specimen_source_site_code
     csvFields: [{name: Specimen_source_site_code, format: $code}]
 
@@ -227,3 +230,6 @@ elements:
 
   - name: reporting_facility_clia
     mapper: use(testing_lab_clia)
+
+  - name: comment
+    csvFields: [{name: Comment}]
