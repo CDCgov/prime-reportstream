@@ -13,7 +13,7 @@ variable "resource_prefix" {
   description = "Resource Prefix"
 }
 
-variable "key_vault_id" {
+variable "location" {
   type = string
-  description = "Key Vault used for HTTPS certificate"
+  description = "Network Location"
 }
