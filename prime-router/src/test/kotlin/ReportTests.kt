@@ -1,6 +1,10 @@
 package gov.cdc.prime.router
 
-import kotlin.test.*
+import kotlin.test.Ignore
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.fail
 
 class ReportTests {
     @Test
