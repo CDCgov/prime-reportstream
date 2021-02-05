@@ -253,7 +253,13 @@ class Report {
     fun split(): List<Report> {
         return itemIndices.map {
             val row = getRow(it)
-            Report(schema, values = listOf(row), sources = fromThisReport("split"), destination = destination)
+            Report(
+                schema = schema,
+                values = listOf(row),
+                sources = fromThisReport("split"),
+                destination = destination,
+                bodyFormat = bodyFormat
+            )
         }
     }
 
@@ -328,8 +334,15 @@ class Report {
 
     companion object {
         fun merge(inputs: List<Report>): Report {
-            if (inputs.isEmpty()) error("Cannot merge an empty report list")
-            if (inputs.size == 1) return inputs[0]
+            if (inputs.isEmpty())
+                error("Cannot merge an empty report list")
+            if (inputs.size == 1)
+                return inputs[0]
+            if (!inputs.all { it.destination == inputs[0].destination })
+                error("Cannot merge reports with different destinations")
+            if (!inputs.all { it.bodyFormat == inputs[0].bodyFormat })
+                error("Cannot merge reports with different bodyFormats")
+
             val head = inputs[0]
             val tail = inputs.subList(1, inputs.size)
 
@@ -345,8 +358,7 @@ class Report {
 
             // Build sources
             val sources = inputs.map { ReportSource(it.id, "merge") }
-
-            return Report(schema, newTable, sources)
+            return Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
         }
 
         fun formFilename(
