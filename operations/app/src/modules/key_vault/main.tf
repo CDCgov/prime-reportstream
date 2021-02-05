@@ -9,7 +9,7 @@ resource "azurerm_key_vault" "application" {
   location = var.location
   resource_group_name = var.resource_group
   sku_name = "premium"
-  tenant_id = azurerm_key_vault.application.tenant_id
+  tenant_id = data.azurerm_client_config.current.tenant_id
 }
 
 output "application_key_vault_id" {
