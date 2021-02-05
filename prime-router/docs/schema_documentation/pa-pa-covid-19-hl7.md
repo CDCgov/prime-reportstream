@@ -2069,16 +2069,6 @@ Does the patient reside in a congregate care setting?
 
 ---
 
-**Name**: sending_facility
-
-**Type**: HD
-
-**HL7 Field**: MSH-4
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: specimen_collection_date_time
 
 **Type**: DATETIME

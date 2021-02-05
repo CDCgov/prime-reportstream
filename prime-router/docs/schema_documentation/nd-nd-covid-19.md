@@ -16,10 +16,6 @@
 
 **Name**: sending_facility
 
-**Type**: HD
-
-**HL7 Field**: MSH-4
-
 **Cardinality**: [0..1]
 
 ---

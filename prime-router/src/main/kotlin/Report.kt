@@ -19,6 +19,11 @@ typealias ReportId = UUID
  */
 typealias DefaultValues = Map<String, String>
 
+// the threshold for count of rows inside the report that we don't want
+// to shuffle at. If there are less than this number of rows in the table
+// then we just want to fake the data instead to prevent the leakage of PII
+const val SHUFFLE_THRESHOLD = 25
+
 /**
  * The report represents the report from one agent-organization, and which is
  * translated and sent to another agent-organization. Each report has a schema,
@@ -269,8 +274,17 @@ class Report {
     ): Report {
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
+                // we want to guard against the possibility that there are too few records
+                // to reliably shuffle against. because shuffling is pseudo-random, it's possible that
+                // with something below a threshold we could end up leaking PII, therefore
+                // ignore the call to shuffle and just fake it
+                val synthesizeStrategy = if (itemCount < SHUFFLE_THRESHOLD && strategy == SynthesizeStrategy.SHUFFLE) {
+                    SynthesizeStrategy.FAKE
+                } else {
+                    strategy
+                }
                 // look in the mapping parameter passed in for the current element
-                when (strategy) {
+                when (synthesizeStrategy) {
                     // examine the synthesizeStrategy for the field
                     // can be one of three values right now:
                     // empty column, shuffle column, pass through column untouched
