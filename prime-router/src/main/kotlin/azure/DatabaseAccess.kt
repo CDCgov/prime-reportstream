@@ -3,14 +3,18 @@ package gov.cdc.prime.router.azure
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportSource
+import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.Tables.TASK
 import gov.cdc.prime.router.azure.db.Tables.TASK_SOURCE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
@@ -41,10 +45,35 @@ class DatabaseAccess(private val create: DSLContext) {
     constructor(dataSource: DataSource) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
     constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
 
-    data class Header(val task: Task, val sources: List<TaskSource>)
+    class Header(
+        val task: Task,
+        val sources: List<TaskSource>,
+        val reportFile: ReportFile,
+        val engine: WorkflowEngine = WorkflowEngine()
+    ) {
+        // Populate the header with useful metadata objs, and the blob body.
+        val orgSvc: OrganizationService?
+        val schema: Schema?
+        val content: ByteArray?
+
+        init {
+            val meta = engine.metadata
+            orgSvc = if (reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null)
+                meta.findService(reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)
+            else null
+
+            schema = if (reportFile.schemaName != null)
+                meta.findSchema(reportFile.schemaName)
+            else null
+
+            content = if (reportFile.bodyUrl != null)
+                engine.blob.downloadBlob(reportFile.bodyUrl)
+            else null
+        }
+    }
 
     fun checkConnection() {
-        create.selectFrom(TASK).where(TASK.REPORT_ID.eq(UUID.randomUUID())).fetch()
+        create.selectFrom(REPORT_FILE).where(REPORT_FILE.REPORT_ID.eq(UUID.randomUUID())).fetch()
     }
 
     /**
@@ -146,7 +175,10 @@ class DatabaseAccess(private val create: DSLContext) {
             .fetch()
             .into(TaskSource::class.java)
 
-        return Header(task, taskSources)
+        val reportFile = ActionHistory.fetchReportFile(reportId, ctx)
+        ActionHistory.sanityCheckReport(task, reportFile, false)
+
+        return Header(task, taskSources, reportFile)
     }
 
     /**
@@ -156,14 +188,14 @@ class DatabaseAccess(private val create: DSLContext) {
     fun fetchAndLockHeaders(
         nextAction: TaskAction,
         at: OffsetDateTime?,
-        receiverName: String,
+        receiver: OrganizationService,
         limit: Int,
         txn: DataAccessTransaction,
     ): List<Header> {
         val cond = if (at == null) {
-            TASK.RECEIVER_NAME.eq(receiverName).and(TASK.NEXT_ACTION.eq(nextAction))
+            TASK.RECEIVER_NAME.eq(receiver.fullName).and(TASK.NEXT_ACTION.eq(nextAction))
         } else {
-            TASK.RECEIVER_NAME.eq(receiverName).and(TASK.NEXT_ACTION.eq(nextAction)).and(TASK.NEXT_ACTION_AT.eq(at))
+            TASK.RECEIVER_NAME.eq(receiver.fullName).and(TASK.NEXT_ACTION.eq(nextAction)).and(TASK.NEXT_ACTION_AT.eq(at))
         }
         val ctx = DSL.using(txn)
         val tasks = ctx
@@ -182,20 +214,26 @@ class DatabaseAccess(private val create: DSLContext) {
             .fetch()
             .into(TaskSource::class.java)
 
-        return tasks.map { Header(it, taskSources) }
+        val reportFiles = ids.map { ActionHistory.fetchReportFile(it, ctx) }.map { (it.reportId as ReportId) to it }.toMap()
+        ActionHistory.sanityCheckReports(tasks, reportFiles, false)
+
+        // taskSources seems erroneous.  All the sources for all Tasks are attached to each indiv. task. ?
+        // todo remove the !!
+        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!) }
     }
 
-    fun fetchHeaders(
+    fun fetchDownloadableHeaders(
         since: OffsetDateTime?,
         receiverName: String,
     ): List<Header> {
         val cond = if (since == null) {
-            TASK.RECEIVER_NAME.like("$receiverName%")
+            TASK.SENT_AT.isNotNull()
+                .and(TASK.RECEIVER_NAME.like("$receiverName%"))
         } else {
             TASK.RECEIVER_NAME.like("$receiverName%")
                 .and(TASK.CREATED_AT.ge(since))
+                .and(TASK.SENT_AT.isNotNull())
         }
-
         val tasks = create
             .selectFrom(TASK)
             .where(cond)
@@ -209,7 +247,11 @@ class DatabaseAccess(private val create: DSLContext) {
             .fetch()
             .into(TaskSource::class.java)
 
-        return tasks.map { Header(it, taskSources) }
+        val reportFiles = ActionHistory.fetchDownloadableReportFiles(since, receiverName, create)
+        ActionHistory.sanityCheckReports(tasks, reportFiles, false)
+
+        // todo fix the !!.  Right now the sanityCheck guarantees non-null.
+        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!) }
     }
 
     fun fetchHeader(
@@ -219,7 +261,7 @@ class DatabaseAccess(private val create: DSLContext) {
 
         val task = create
             .selectFrom(TASK)
-            .where(TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.like("$orgName%")))
+            .where(TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.like("$orgName%")).and(TASK.SENT_AT.isNotNull()))
             .fetchOne()
             ?.into(Task::class.java)
             ?: error("Could not find $reportId/$orgName that matches a task")
@@ -230,7 +272,10 @@ class DatabaseAccess(private val create: DSLContext) {
             .fetch()
             .into(TaskSource::class.java)
 
-        return Header(task, taskSources)
+        val reportFile = ActionHistory.fetchReportFile(reportId, create)
+        ActionHistory.sanityCheckReport(task, reportFile, false)
+
+        return Header(task, taskSources, reportFile)
     }
 
     /**
@@ -238,30 +283,31 @@ class DatabaseAccess(private val create: DSLContext) {
      */
     fun updateHeader(
         reportId: ReportId,
-        currentAction: Event.Action,
-        nextAction: Event.Action,
+        currentEventAction: Event.EventAction,
+        nextEventAction: Event.EventAction,
         nextActionAt: OffsetDateTime? = null,
         retryToken: String? = null,
         txn: DataAccessTransaction,
     ) {
-        fun finishedField(currentAction: Event.Action): Field<OffsetDateTime> {
-            return when (currentAction) {
-                Event.Action.TRANSLATE -> TASK.TRANSLATED_AT
-                Event.Action.BATCH -> TASK.BATCHED_AT
-                Event.Action.SEND -> TASK.SENT_AT
-                Event.Action.WIPE -> TASK.WIPED_AT
-                Event.Action.BATCH_ERROR, Event.Action.SEND_ERROR, Event.Action.WIPE_ERROR -> TASK.ERRORED_AT
-                Event.Action.NONE -> error("Internal Error: NONE currentAction")
+        fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> {
+            return when (currentEventAction) {
+                Event.EventAction.RECEIVE -> TASK.TRANSLATED_AT
+                Event.EventAction.TRANSLATE -> TASK.TRANSLATED_AT
+                Event.EventAction.BATCH -> TASK.BATCHED_AT
+                Event.EventAction.SEND -> TASK.SENT_AT
+                Event.EventAction.WIPE -> TASK.WIPED_AT
+                Event.EventAction.BATCH_ERROR, Event.EventAction.SEND_ERROR, Event.EventAction.WIPE_ERROR -> TASK.ERRORED_AT
+                Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
             }
         }
 
         DSL
             .using(txn)
             .update(TASK)
-            .set(TASK.NEXT_ACTION, nextAction.toTaskAction())
+            .set(TASK.NEXT_ACTION, nextEventAction.toTaskAction())
             .set(TASK.NEXT_ACTION_AT, nextActionAt)
             .set(TASK.RETRY_TOKEN, if (retryToken != null) JSON.valueOf(retryToken) else null)
-            .set(finishedField(currentAction), OffsetDateTime.now())
+            .set(finishedField(currentEventAction), OffsetDateTime.now())
             .where(TASK.REPORT_ID.eq(reportId))
             .execute()
     }
@@ -275,7 +321,7 @@ class DatabaseAccess(private val create: DSLContext) {
          * That is functions amortize startup costs by reusing an existing process for a function invocation.
          * Hence, a connection pool is a win in latency after the first initialization.
          */
-        private val hikariDataSource: HikariDataSource by lazy {
+        val hikariDataSource: HikariDataSource by lazy {
             DriverManager.registerDriver(Driver())
 
             val password = System.getenv(passwordVariable)
@@ -329,7 +375,7 @@ class DatabaseAccess(private val create: DSLContext) {
         ): TaskRecord {
             return TaskRecord(
                 report.id,
-                nextAction.action.toTaskAction(),
+                nextAction.eventAction.toTaskAction(),
                 nextAction.at,
                 report.schema.name,
                 report.destination?.fullName ?: "",
@@ -354,7 +400,7 @@ class DatabaseAccess(private val create: DSLContext) {
         ): Task {
             return Task(
                 report.id,
-                nextAction.action.toTaskAction(),
+                nextAction.eventAction.toTaskAction(),
                 nextAction.at,
                 report.schema.name,
                 report.destination?.fullName ?: "",

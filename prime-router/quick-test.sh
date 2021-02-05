@@ -208,7 +208,7 @@ fi
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --output-hl7)
+  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --output-format=HL7_BATCH)
   parse_prime_output_for_filename "$text" "/nd"
 
   echo Now send that fake ND data through the router
@@ -252,12 +252,12 @@ then
   count_lines $merged_file , $total
 fi
 
-# run north dakota
+# run louisiana
 if [ $RUN_LA -ne 0 ]
 then
   LA_FILE_SEARCH_STR="/la.*\.csv"
   echo Generate synthetic LA data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19-hl7 --output-dir $outputdir --target-state LA --output-hl7)
+  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19-hl7 --output-dir $outputdir --target-state LA --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/la"
 
   echo Now send that fake LA data through the router
