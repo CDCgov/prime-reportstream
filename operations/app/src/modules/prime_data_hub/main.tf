@@ -11,6 +11,7 @@ module "storage" {
     subnet_ids = [module.network.public_subnet_id,
                   module.network.container_subnet_id,
                   module.network.private_subnet_id]
+    sftp_share_name = module.sftp_container.name
 }
 
 module "network" {
@@ -57,4 +58,15 @@ module "database" {
     postgres_user = var.postgres_user
     postgres_password = var.postgres_password
     public_subnet_id = module.network.public_subnet_id
+}
+
+module "sftp_container" {
+    source = "../sftp_container"
+    environment = var.environment
+    resource_group = var.resource_group
+    name = "${var.resource_prefix}-sftpserver"
+    location = local.location
+    container_subnet_id = module.network.container_subnet_id
+    storage_account_name = module.storage.storage_account_name
+    storage_account_key = module.storage.storage_account_key
 }

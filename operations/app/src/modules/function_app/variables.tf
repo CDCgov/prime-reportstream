@@ -26,6 +26,7 @@ variable "storage_account_name" {
 variable "storage_account_key" {
     type = string
     description = "Storage Account Key"
+    sensitive = true
 }
 
 variable "public_subnet_id" {
