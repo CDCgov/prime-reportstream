@@ -132,4 +132,138 @@ class ReportTests {
         assertEquals("", oneDeidentified.getString(0, "a"))
         assertEquals("b1", oneDeidentified.getString(0, "b"))
     }
+
+    // Tests for Item lineage
+    @Test
+    fun `test merge item lineage`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+        val report2 = Report(schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource)
+
+        val merged = Report.merge(listOf(report1, report2))
+
+        assertEquals(4, merged.itemLineage!!.size)
+        val firstLineage = merged.itemLineage!![0]
+        assertEquals(report1.id, firstLineage.parentReportId)
+        assertEquals(0, firstLineage.parentIndex)
+        assertEquals(merged.id, firstLineage.childReportId)
+        assertEquals(0, firstLineage.childIndex)
+        assertEquals("rep1_row1_a", firstLineage.trackingId)
+
+        val lastLineage = merged.itemLineage!![3]
+        assertEquals(report2.id, lastLineage.parentReportId)
+        assertEquals(1, lastLineage.parentIndex)
+        assertEquals(merged.id, lastLineage.childReportId)
+        assertEquals(3, lastLineage.childIndex)
+        assertEquals("rep2_row2_a", lastLineage.trackingId)
+    }
+
+    @Test
+    fun `test split item lineage`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+
+        val reports = report1.split()
+
+        assertEquals(2, reports.size)
+        assertEquals(1, reports[0].itemLineage!!.size)
+        assertEquals(1, reports[1].itemLineage!!.size)
+
+        val firstLineage = reports[0].itemLineage!![0]
+        assertEquals(report1.id, firstLineage.parentReportId)
+        assertEquals(0, firstLineage.parentIndex)
+        assertEquals(reports[0].id, firstLineage.childReportId)
+        assertEquals(0, firstLineage.childIndex)
+        assertEquals("rep1_row1_a", firstLineage.trackingId)
+
+        val secondLineage = reports[1].itemLineage!![0]
+        assertEquals(report1.id, secondLineage.parentReportId)
+        assertEquals(1, secondLineage.parentIndex)
+        assertEquals(reports[1].id, secondLineage.childReportId)
+        assertEquals(0, secondLineage.childIndex)
+        assertEquals("rep1_row2_a", secondLineage.trackingId)
+    }
+
+    @Test
+    fun `test item lineage after jurisdictional filter`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val metadata = Metadata(schema = schema)
+        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+
+        val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "rep1_row2_a"))))
+
+        val lineage = filteredReport.itemLineage!!
+        assertEquals(1, lineage.size)
+        assertEquals(report1.id, lineage[0].parentReportId)
+        assertEquals(1, lineage[0].parentIndex)
+        assertEquals(filteredReport.id, lineage[0].childReportId)
+        assertEquals(0, lineage[0].childIndex)
+        assertEquals("rep1_row2_a", lineage[0].trackingId)
+    }
+
+    @Test
+    fun `test merge then split`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+        val report2 = Report(schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource)
+
+        val merged = Report.merge(listOf(report1, report2))
+        val reports = merged.split()
+
+        assertEquals(4, reports.size)
+        assertEquals(1, reports[0].itemLineage!!.size)
+        assertEquals(1, reports[3].itemLineage!!.size)
+
+        val firstLineage = reports[0].itemLineage!![0]
+        assertEquals(report1.id, firstLineage.parentReportId)
+        assertEquals(0, firstLineage.parentIndex)
+        assertEquals(reports[0].id, firstLineage.childReportId)
+        assertEquals(0, firstLineage.childIndex)
+        assertEquals("rep1_row1_a", firstLineage.trackingId)
+
+        val fourthLineage = reports[3].itemLineage!![0]
+        assertEquals(report2.id, fourthLineage.parentReportId)
+        assertEquals(1, fourthLineage.parentIndex)
+        assertEquals(reports[3].id, fourthLineage.childReportId)
+        assertEquals(0, fourthLineage.childIndex)
+        assertEquals("rep2_row2_a", fourthLineage.trackingId)
+    }
+
+    @Test
+    fun `test lineage insanity`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("bbb"), listOf("aaa"), listOf("aaa")), source = TestSource)
+        val metadata = Metadata(schema = schema)
+        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
+
+        // split, merge, split, merge, copy, copy, then filter.
+        val reports1 = report1.split()
+        val merge1 = Report.merge(reports1)
+        val reports2 = merge1.split()
+        val merge2 = Report.merge(reports2)
+        val copy1 = merge2.copy()
+        val copy2 = copy1.copy()
+        val filteredReport = copy2.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))))
+
+        val lineage = filteredReport.itemLineage!!
+        assertEquals(2, lineage.size)
+
+        assertEquals(report1.id, lineage[0].parentReportId)
+        assertEquals(1, lineage[0].parentIndex)
+        assertEquals(filteredReport.id, lineage[0].childReportId)
+        assertEquals(0, lineage[0].childIndex)
+        assertEquals("aaa", lineage[0].trackingId)
+
+        assertEquals(report1.id, lineage[1].parentReportId)
+        assertEquals(2, lineage[1].parentIndex)
+        assertEquals(filteredReport.id, lineage[1].childReportId)
+        assertEquals(1, lineage[1].childIndex)
+        assertEquals("aaa", lineage[1].trackingId)
+    }
 }

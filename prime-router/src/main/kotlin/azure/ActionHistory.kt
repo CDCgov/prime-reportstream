@@ -15,6 +15,7 @@ import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -66,6 +67,13 @@ class ActionHistory {
     val reportsOut = mutableMapOf<ReportId, ReportFile>()
 
     /**
+     * Set of new parent->child item mappings created by this Action.
+     * The parent-child can be many:many, but any one mapping should only exist once, hence the Set.
+     * Note this crucial assumption: the ordering of rows is fixed within any one report.
+     */
+    val itemLineages = mutableSetOf<ItemLineage>()
+
+    /**
      * Messages to be queued in an azure queue as part of the result of this action.
      */
     val messages = mutableListOf<Event>()
@@ -108,9 +116,12 @@ class ActionHistory {
             it.writeStringField("method", request.httpMethod.toString())
             it.writeObjectFieldStart("Headers")
             // remove secrets
-            request.headers.filter { !it.key.contains("key") }.forEach { (key, value) ->
-                it.writeStringField(key, value)
-            }
+            request.headers
+                .filter { !it.key.contains("key") }
+                .filter { !it.key.contains("cookie") }
+                .forEach { (key, value) ->
+                    it.writeStringField(key, value)
+                }
             it.writeEndObject()
             it.writeObjectFieldStart("QueryParameters")
             // remove secrets

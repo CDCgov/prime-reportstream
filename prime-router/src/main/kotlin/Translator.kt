@@ -51,6 +51,9 @@ class Translator(private val metadata: Metadata) {
         return Pair(mappedReport, service)
     }
 
+    /**
+     * This does both the filtering by jurisdiction, and also the translation.
+     */
     private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
