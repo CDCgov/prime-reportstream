@@ -46,7 +46,7 @@ CREATE TABLE item_lineage (
     parent_index INTEGER NOT NULL,
     child_report_id UUID NOT NULL REFERENCES report_file(report_id) ON DELETE CASCADE,
     child_index INTEGER NOT NULL,
-    tracking_id VARCHAR(128) NOT NULL, -- tracking_id of the child
+    tracking_id VARCHAR(128), -- value of the trackingElement of the child
     transport_result VARCHAR(512),     -- results of transporting the child
     created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );

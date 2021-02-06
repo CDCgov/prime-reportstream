@@ -88,7 +88,8 @@ class Report {
     /**
      * The set of parent -> child lineage items associated with this report.
      * The items in *this* report are the *child* items.
-     * There should be `itemCount` items in this List.  Implicit in that assumption is that each Item
+     * There should be `itemCount` items in this List, or it should be null.
+     * Implicit in that assumption is that each Item
      * within this report has only a single parent item.  If this assumption changes, we'll
      * need to make this into a more complex data structure.
      */
@@ -130,8 +131,9 @@ class Report {
         destination: OrganizationService? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
+        id: ReportId? = null // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
     ) {
-        this.id = UUID.randomUUID()
+        this.id = id ?: UUID.randomUUID()
         this.schema = schema
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
@@ -161,7 +163,7 @@ class Report {
     }
 
     // Client source
-    constructor(
+/*    constructor(
         schema: Schema,
         values: List<List<String>>,
         source: OrganizationClient,
@@ -178,6 +180,7 @@ class Report {
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
+*/
 
     private constructor(
         schema: Schema,
@@ -216,14 +219,15 @@ class Report {
      */
     fun copy(destination: OrganizationService? = null, bodyFormat: Format? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
-        return Report(
+        val copy = Report(
             this.schema,
             this.table,
             fromThisReport("copy"),
             destination ?: this.destination,
             bodyFormat ?: this.bodyFormat,
-            this.itemLineage
         )
+        copy.itemLineage = createOneToOneItemLineages(this, copy)
+        return copy
     }
 
     fun isEmpty(): Boolean {
@@ -420,21 +424,28 @@ class Report {
             }.toList()
         }
 
+        fun createOneToOneItemLineages(parentReport: Report, childReport: Report): List<ItemLineage> {
+            if (parentReport.itemCount != childReport.itemCount)
+                error("Reports must have same number of items: ${parentReport.id}, ${childReport.id}")
+            if (parentReport.itemLineage != null && parentReport.itemLineage!!.size != parentReport.itemCount) {
+                // good place for a simple sanity check.  OK to have no itemLineage, but if you do have it,
+                // it must be complete.
+                error(
+                    "Report ${parentReport.id} should have ${parentReport.itemCount} lineage items" +
+                        " but instead has ${parentReport.itemLineage!!.size} lineage items"
+                )
+            }
+            return parentReport.itemIndices.map { i ->
+                createItemLineageForRow(parentReport, i, childReport, i)
+            }.toList()
+        }
+
         /**
          * This is designed to survive any complicated dicing and slicing of Items that Rick can come up with.
          */
         fun createItemLineageForRow(parentReport: Report, parentRowNum: Int, childReport: Report, childRowNum: Int): ItemLineage {
             // ok if this is null.
             val trackingElementValue = parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
-            if (parentReport.itemLineage != null &&
-                parentReport.itemLineage!!.size != parentReport.itemCount
-            ) {
-                // sanity check.  If there's previous lineage, it needs to be complete.  todo: move this check up.
-                error(
-                    "Report ${parentReport.id} should have ${parentReport.itemCount} lineage items" +
-                        " but instead has \${parentReport.itemLineage!!.size} lineage items"
-                )
-            }
             if (parentReport.itemLineage != null) {
                 // Avoid losing history.
                 // If the parent report already had lineage, then pass its sins down to the next generation.

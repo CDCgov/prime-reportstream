@@ -123,7 +123,12 @@ class SimpleReportTests {
 
         // 1) Ingest the file
         val inputFileSource = FileSource(inputFilePath)
-        val inputReport = csvSerializer.readInternal(schema.name, inputFile.inputStream(), listOf(inputFileSource))
+        val inputReport = csvSerializer.readInternal(
+            schema.name,
+            inputFile.inputStream(),
+            listOf(inputFileSource),
+            blobReportId = null
+        )
 
         // 2) Write the input report back out to a new file
         val outputFile = File(outputPath, inputReport.name)

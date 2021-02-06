@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
@@ -80,7 +81,10 @@ class ActionHistoryTests {
     fun `test trackCreatedReport`() {
         val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), OffsetDateTime.now())
         val schema1 = Schema(name = "schema1", topic = "topic1", elements = listOf())
-        val report1 = Report(schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")))
+        val report1 = Report(
+            schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")),
+            itemLineage = listOf<ItemLineage>()
+        )
         val org =
             Organization(
                 name = "myOrg",
