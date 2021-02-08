@@ -268,7 +268,8 @@ class ProcessData : CliktCommand(
             is InputSource.DirSource ->
                 TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
-                val schema = metadata.findSchema(inputSchema ?: "") ?: error("$inputSchema is an invalid schema name")
+                val schema = metadata.findSchema(inputSchema ?: "")
+                    ?: error("$inputSchema is an invalid schema name")
                 FakeReport(metadata).build(
                     schema,
                     (inputSource as InputSource.FakeSource).count,
@@ -386,7 +387,11 @@ class GenerateDocs : CliktCommand(
     generate docs for a particular schema, use the --input-schema option.
     """
 ) {
-    private val inputSchema by option("--input-schema", metavar = "<schema_name>", help = "schema to document")
+    private val inputSchema by option(
+        "--input-schema",
+        metavar = "<schema_name>",
+        help = "schema to document"
+    )
     private val includeTimestamps by
     option("--include-timestamps", help = "include creation time in file names")
         .flag(default = false)
