@@ -158,7 +158,7 @@ class WorkflowEngine(
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV" -> {
-                val result = csvSerializer.read(schema.name, ByteArrayInputStream(bytes), sources, destination)
+                val result = csvSerializer.readExternal(schema.name, ByteArrayInputStream(bytes), sources, destination)
                 if (result.report == null || result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }

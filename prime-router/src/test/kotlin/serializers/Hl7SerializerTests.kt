@@ -24,7 +24,7 @@ class Hl7SerializerTests {
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
         csvSerializer = CsvSerializer(metadata)
         serializer = Hl7Serializer(metadata)
-        testReport = csvSerializer.read("primedatainput/pdi-covid-19", inputStream, TestSource).report ?: fail()
+        testReport = csvSerializer.readExternal("primedatainput/pdi-covid-19", inputStream, TestSource).report ?: fail()
     }
 
     @Test

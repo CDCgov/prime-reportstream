@@ -210,7 +210,7 @@ class ActionHistory {
         reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
-        if (report.itemLineage != null)
+        if (report.itemLineages != null)
             error("For report ${report.id}:  Externally submitted reports should never have item lineagee.")
     }
 
@@ -239,7 +239,7 @@ class ActionHistory {
         reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
-        trackItemLineage(report)
+        trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
 
@@ -302,16 +302,21 @@ class ActionHistory {
         reportsOut[reportFile.reportId] = reportFile
     }
 
-    private fun trackItemLineage(report: Report) {
+    private fun trackItemLineages(report: Report) {
         // sanity checks
-        if (report.itemLineage == null) error("Cannot create lineage For report ${report.id}: missing ItemLineage")
-        if (report.itemLineage!!.size != report.itemCount) {
+        if (report.itemLineages == null) error("Cannot create lineage For report ${report.id}: missing ItemLineage")
+        if (report.itemLineages!!.size != report.itemCount) {
             error(
                 "Report ${report.id} should have ${report.itemCount} lineage items" +
-                    " but instead has ${report.itemLineage!!.size} lineage items"
+                    " but instead has ${report.itemLineages!!.size} lineage items"
             )
         }
-        itemLineages.addAll(report.itemLineage!!)
+        trackItemLineages(report.itemLineages)
+    }
+
+    fun trackItemLineages(itemLineages: List<ItemLineage>?) {
+        if (itemLineages == null) return
+        this.itemLineages.addAll(itemLineages)
     }
 
     /**
@@ -405,7 +410,10 @@ class ActionHistory {
         itemLineages.forEach {
             DSL.using(txn).newRecord(ITEM_LINEAGE, it).store()
         }
-        context?.logger?.info("Inserted ${itemLineages.size} Item lineages into db for action ${action.actionId}")
+        context?.logger?.info(
+            "Inserted ${itemLineages.size} " +
+                "Item lineages into db for action ${action.actionId}: ${action.actionName}"
+        )
     }
 
     private fun insertItemLineage(itemLineage: ItemLineage, txn: Configuration) {
@@ -470,10 +478,22 @@ class ActionHistory {
         }
 
         /**
-         * May return an empty list if report has no item-level lineage info tracked.
-         * Note that there may be
+         * Returns a map of reportId -> List of item lineages associated with that report.
+         * Note that any given report might not have lineage, in which case a reportId -> null is in the returned map.
          */
-        fun fetchItemLineagesForReport(reportId: ReportId, itemCount: Int, ctx: DSLContext): List<ItemLineage> {
+        fun fetchItemLineagesForReports(
+            reportFiles: Collection<ReportFile>,
+            ctx: DSLContext
+        ): Map<ReportId, List<ItemLineage>?> {
+            return reportFiles.map { reportFile ->
+                reportFile.reportId to fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount, ctx)
+            }.toMap()
+        }
+
+        /**
+         * Returns null if report has no item-level lineage info tracked.
+         */
+        fun fetchItemLineagesForReport(reportId: ReportId, itemCount: Int, ctx: DSLContext): List<ItemLineage>? {
             val itemLineages = ctx
                 .selectFrom(ITEM_LINEAGE)
                 .where(ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId))
@@ -482,7 +502,9 @@ class ActionHistory {
                 .into(ItemLineage::class.java).toList()
             // sanity check.  If there are lineages, every record up to itemCount should have at least one lineage.
             // OK to have more than one lineage.  Eg, a merge.
-            if (itemLineages.size > 0) {
+            if (itemLineages.isEmpty()) {
+                return null
+            } else {
                 if (itemLineages.size < itemCount)
                     error("For $reportId, must have at least $itemCount item lineages. There were ${itemLineages.size}")
                 val uniqueIndexCount = itemLineages.map { it.childIndex }.toSet().size

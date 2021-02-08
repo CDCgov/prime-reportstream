@@ -41,11 +41,11 @@ class CsvSerializer(val metadata: Metadata) {
         val warnings: List<String>,
     )
 
-    fun read(schemaName: String, input: InputStream, source: Source): ReadResult {
-        return read(schemaName, input, listOf(source))
+    fun readExternal(schemaName: String, input: InputStream, source: Source): ReadResult {
+        return readExternal(schemaName, input, listOf(source))
     }
 
-    fun read(
+    fun readExternal(
         schemaName: String,
         input: InputStream,
         sources: List<Source>,

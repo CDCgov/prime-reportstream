@@ -93,7 +93,7 @@ class Report {
      * within this report has only a single parent item.  If this assumption changes, we'll
      * need to make this into a more complex data structure.
      */
-    var itemLineage: List<ItemLineage>? = null
+    var itemLineages: List<ItemLineage>? = null
 
     /**
      * A range of item index for this report
@@ -139,7 +139,7 @@ class Report {
         this.createdDateTime = OffsetDateTime.now()
         this.destination = destination
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
-        this.itemLineage = itemLineage
+        this.itemLineages = itemLineage
         this.table = createTable(schema, values)
     }
 
@@ -157,7 +157,7 @@ class Report {
         this.sources = listOf(source)
         this.destination = destination
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
-        this.itemLineage = itemLineage
+        this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
@@ -196,7 +196,7 @@ class Report {
         this.sources = sources
         this.destination = destination
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
-        this.itemLineage = itemLineage
+        this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
     }
 
@@ -226,7 +226,7 @@ class Report {
             destination ?: this.destination,
             bodyFormat ?: this.bodyFormat,
         )
-        copy.itemLineage = createOneToOneItemLineages(this, copy)
+        copy.itemLineages = createOneToOneItemLineages(this, copy)
         return copy
     }
 
@@ -263,7 +263,7 @@ class Report {
             filteredTable,
             fromThisReport("filter: $filterFunctions"),
         )
-        filteredReport.itemLineage = createItemLineages(combinedSelection, this, filteredReport)
+        filteredReport.itemLineages = createItemLineages(combinedSelection, this, filteredReport)
         return filteredReport
     }
 
@@ -279,7 +279,7 @@ class Report {
             schema,
             Table.create(columns),
             fromThisReport("deidentify"),
-            itemLineage = this.itemLineage
+            itemLineage = this.itemLineages
         )
     }
 
@@ -296,7 +296,7 @@ class Report {
                 destination = destination,
                 bodyFormat = bodyFormat,
             )
-            oneItemReport.itemLineage = listOf(createItemLineageForRow(this, it, oneItemReport, 0))
+            oneItemReport.itemLineages = listOf(createItemLineageForRow(this, it, oneItemReport, 0))
             oneItemReport
         }
     }
@@ -305,7 +305,7 @@ class Report {
         val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
         val newTable = Table.create(pass2Columns)
-        return Report(mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineage)
+        return Report(mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages)
     }
 
     private fun buildColumnPass1(mapping: Translator.Mapping, toElement: Element): StringColumn? {
@@ -397,7 +397,7 @@ class Report {
             // Build sources
             val sources = inputs.map { ReportSource(it.id, "merge") }
             val mergedReport = Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
-            mergedReport.itemLineage = createItemLineages(inputs, mergedReport)
+            mergedReport.itemLineages = createItemLineages(inputs, mergedReport)
             return mergedReport
         }
 
@@ -427,12 +427,12 @@ class Report {
         fun createOneToOneItemLineages(parentReport: Report, childReport: Report): List<ItemLineage> {
             if (parentReport.itemCount != childReport.itemCount)
                 error("Reports must have same number of items: ${parentReport.id}, ${childReport.id}")
-            if (parentReport.itemLineage != null && parentReport.itemLineage!!.size != parentReport.itemCount) {
+            if (parentReport.itemLineages != null && parentReport.itemLineages!!.size != parentReport.itemCount) {
                 // good place for a simple sanity check.  OK to have no itemLineage, but if you do have it,
                 // it must be complete.
                 error(
                     "Report ${parentReport.id} should have ${parentReport.itemCount} lineage items" +
-                        " but instead has ${parentReport.itemLineage!!.size} lineage items"
+                        " but instead has ${parentReport.itemLineages!!.size} lineage items"
                 )
             }
             return parentReport.itemIndices.map { i ->
@@ -446,11 +446,11 @@ class Report {
         fun createItemLineageForRow(parentReport: Report, parentRowNum: Int, childReport: Report, childRowNum: Int): ItemLineage {
             // ok if this is null.
             val trackingElementValue = parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
-            if (parentReport.itemLineage != null) {
+            if (parentReport.itemLineages != null) {
                 // Avoid losing history.
                 // If the parent report already had lineage, then pass its sins down to the next generation.
-                val grandParentReportId = parentReport.itemLineage!![parentRowNum].parentReportId
-                val grandParentRowNum = parentReport.itemLineage!![parentRowNum].parentIndex
+                val grandParentReportId = parentReport.itemLineages!![parentRowNum].parentReportId
+                val grandParentRowNum = parentReport.itemLineages!![parentRowNum].parentIndex
                 return ItemLineage(
                     null,
                     grandParentReportId,
@@ -473,6 +473,43 @@ class Report {
                     null
                 )
             }
+        }
+
+        /**
+         * Create a 1:1 parent_child lineage mapping, using data taken from the
+         * grandparent:parent lineage pulled from the database.
+         * This is needed in cases where an Action doesn't have the actual Report data in mem. (examples: Send,Download)
+         * In those cases, to populate the lineage, we can grab needed fields from previous lineage rows.
+         */
+        fun createItemLineagesFromDb(prevHeader: DatabaseAccess.Header, newChildReportId: ReportId): List<ItemLineage>? {
+            if (prevHeader.itemLineages == null) return null
+            val newLineages = mutableMapOf<Int, ItemLineage>()
+            prevHeader.itemLineages.forEach {
+                if (it.childReportId != prevHeader.reportFile.reportId) {
+                    return@forEach
+                }
+                newLineages[it.childIndex] =
+                    ItemLineage(
+                        null,
+                        it.childReportId, // the prev child is the new parent
+                        it.childIndex,
+                        newChildReportId,
+                        it.childIndex, // 1:1 mapping
+                        it.trackingId,
+                        it.transportResult,
+                        null
+                    )
+            }
+            val retval = mutableListOf<ItemLineage>()
+            for (i in 0 until prevHeader.reportFile.itemCount) {
+                if (newLineages[i] == null)
+                    error(
+                        "Unable to create parent->child lineage " +
+                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $i"
+                    )
+                retval.add(newLineages[i]!!)
+            }
+            return retval
         }
 
         fun formFilename(

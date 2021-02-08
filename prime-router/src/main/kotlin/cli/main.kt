@@ -129,7 +129,7 @@ class ProcessData : CliktCommand(
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
         val csvSerializer = CsvSerializer(metadata)
-        val result = csvSerializer.read(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
+        val result = csvSerializer.readExternal(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
         if (result.report == null) {
             error(result.errorsToString())
         }

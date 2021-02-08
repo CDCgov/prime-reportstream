@@ -45,6 +45,7 @@ class SftpTransport : ITransport {
                 msg,
                 header.reportFile.itemCount
             )
+            actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
         } catch (ioException: IOException) {
             val msg =

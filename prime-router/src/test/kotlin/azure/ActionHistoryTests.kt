@@ -169,7 +169,7 @@ class ActionHistoryTests {
         val uuid = UUID.randomUUID()
         val reportFile1 = ReportFile()
         reportFile1.reportId = uuid
-        val header = DatabaseAccess.Header(Task(), listOf<TaskSource>(), reportFile1, workflowEngine)
+        val header = DatabaseAccess.Header(Task(), listOf<TaskSource>(), reportFile1, null, workflowEngine)
         val org =
             Organization(
                 name = "myOrg",

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # Run a set of interesting lineage queries.  Pass in one parameter: an id (uuid), as returned in the json, to hub api caller.
-# Runs queries that list all descendants, 
 
 # Make sure you load to stored procs first:
 #      psql prime_data_hub -f lineage-report-stored-procedures.sql

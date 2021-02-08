@@ -143,15 +143,15 @@ class ReportTests {
 
         val merged = Report.merge(listOf(report1, report2))
 
-        assertEquals(4, merged.itemLineage!!.size)
-        val firstLineage = merged.itemLineage!![0]
+        assertEquals(4, merged.itemLineages!!.size)
+        val firstLineage = merged.itemLineages!![0]
         assertEquals(report1.id, firstLineage.parentReportId)
         assertEquals(0, firstLineage.parentIndex)
         assertEquals(merged.id, firstLineage.childReportId)
         assertEquals(0, firstLineage.childIndex)
         assertEquals("rep1_row1_a", firstLineage.trackingId)
 
-        val lastLineage = merged.itemLineage!![3]
+        val lastLineage = merged.itemLineages!![3]
         assertEquals(report2.id, lastLineage.parentReportId)
         assertEquals(1, lastLineage.parentIndex)
         assertEquals(merged.id, lastLineage.childReportId)
@@ -168,17 +168,17 @@ class ReportTests {
         val reports = report1.split()
 
         assertEquals(2, reports.size)
-        assertEquals(1, reports[0].itemLineage!!.size)
-        assertEquals(1, reports[1].itemLineage!!.size)
+        assertEquals(1, reports[0].itemLineages!!.size)
+        assertEquals(1, reports[1].itemLineages!!.size)
 
-        val firstLineage = reports[0].itemLineage!![0]
+        val firstLineage = reports[0].itemLineages!![0]
         assertEquals(report1.id, firstLineage.parentReportId)
         assertEquals(0, firstLineage.parentIndex)
         assertEquals(reports[0].id, firstLineage.childReportId)
         assertEquals(0, firstLineage.childIndex)
         assertEquals("rep1_row1_a", firstLineage.trackingId)
 
-        val secondLineage = reports[1].itemLineage!![0]
+        val secondLineage = reports[1].itemLineages!![0]
         assertEquals(report1.id, secondLineage.parentReportId)
         assertEquals(1, secondLineage.parentIndex)
         assertEquals(reports[1].id, secondLineage.childReportId)
@@ -196,7 +196,7 @@ class ReportTests {
 
         val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "rep1_row2_a"))))
 
-        val lineage = filteredReport.itemLineage!!
+        val lineage = filteredReport.itemLineages!!
         assertEquals(1, lineage.size)
         assertEquals(report1.id, lineage[0].parentReportId)
         assertEquals(1, lineage[0].parentIndex)
@@ -216,17 +216,17 @@ class ReportTests {
         val reports = merged.split()
 
         assertEquals(4, reports.size)
-        assertEquals(1, reports[0].itemLineage!!.size)
-        assertEquals(1, reports[3].itemLineage!!.size)
+        assertEquals(1, reports[0].itemLineages!!.size)
+        assertEquals(1, reports[3].itemLineages!!.size)
 
-        val firstLineage = reports[0].itemLineage!![0]
+        val firstLineage = reports[0].itemLineages!![0]
         assertEquals(report1.id, firstLineage.parentReportId)
         assertEquals(0, firstLineage.parentIndex)
         assertEquals(reports[0].id, firstLineage.childReportId)
         assertEquals(0, firstLineage.childIndex)
         assertEquals("rep1_row1_a", firstLineage.trackingId)
 
-        val fourthLineage = reports[3].itemLineage!![0]
+        val fourthLineage = reports[3].itemLineages!![0]
         assertEquals(report2.id, fourthLineage.parentReportId)
         assertEquals(1, fourthLineage.parentIndex)
         assertEquals(reports[3].id, fourthLineage.childReportId)
@@ -251,7 +251,7 @@ class ReportTests {
         val copy2 = copy1.copy()
         val filteredReport = copy2.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))))
 
-        val lineage = filteredReport.itemLineage!!
+        val lineage = filteredReport.itemLineages!!
         assertEquals(2, lineage.size)
 
         assertEquals(report1.id, lineage[0].parentReportId)
