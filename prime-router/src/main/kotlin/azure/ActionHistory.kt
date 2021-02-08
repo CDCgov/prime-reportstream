@@ -396,27 +396,63 @@ class ActionHistory {
         context?.logger?.info("Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}")
     }
 
-    fun prettyPrintDestinationJson(jsonGen: JsonGenerator) {
+    // Used as temp storage by the json generator, below.
+    private data class DestinationData(
+        val orgSvc: OrganizationService,
+        var count: Int,
+        val sendingAt: OffsetDateTime? = null,
+    )
+
+    /**
+     * Generate nice json describing the destinations, suitable for returning to a Hub client.
+     * Most of the ugliness here is the attempt to not print every 1-entry report, but combine and summarize them.
+     *
+     * This works by side-effect on jsonGen.
+     */
+    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator) {
         val metadata = WorkflowEngine.metadata
         if (reportsOut.isEmpty()) return
         jsonGen.writeArrayFieldStart("destinations")
+        // Avoid clutter.  Combine reports with one Item, and print combined count.
+        var singles = mutableMapOf<String, DestinationData>()
+        var destinationCounter = 0
         reportsOut.forEach { (id, reportFile) ->
-            jsonGen.writeStartObject()
-            // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
-            jsonGen.writeStringField("sending_to_organization", reportFile.receivingOrg)
-            jsonGen.writeStringField(
-                "organization_description",
-                metadata.findOrganization(reportFile.receivingOrg)?.description ?: "unknown"
-            )
-            jsonGen.writeStringField("organization_service", reportFile.receivingOrgSvc)
-            jsonGen.writeStringField(
-                "sending_at",
-                if (reportFile.nextActionAt == null) "immediately" else "${reportFile.nextActionAt}"
-            )
-            jsonGen.writeNumberField("items", reportFile.itemCount)
-            jsonGen.writeEndObject()
+            val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
+            val orgSvc = metadata.findService(fullname) ?: return@forEach
+            if (reportFile.itemCount == 1) {
+                var previous = singles.putIfAbsent(fullname, DestinationData(orgSvc, 0, reportFile.nextActionAt))
+                if (previous != null) previous.count++
+            } else {
+                prettyPrintDestinationJson(jsonGen, orgSvc, reportFile.nextActionAt, reportFile.itemCount)
+                destinationCounter++
+            }
+        }
+        singles.forEach { (orgSvcName, destData) ->
+            prettyPrintDestinationJson(jsonGen, destData.orgSvc, destData.sendingAt, destData.count)
+            destinationCounter++
         }
         jsonGen.writeEndArray()
+        jsonGen.writeNumberField("destinationCount", destinationCounter)
+    }
+
+    fun prettyPrintDestinationJson(
+        jsonGen: JsonGenerator,
+        orgSvc: OrganizationService,
+        sendingAt: OffsetDateTime?,
+        countToPrint: Int
+    ) {
+        val metadata = WorkflowEngine.metadata
+        jsonGen.writeStartObject()
+        // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
+        jsonGen.writeStringField("sending_to_organization", orgSvc.organization.name)
+        jsonGen.writeStringField("organization_description", orgSvc.organization.description)
+        jsonGen.writeStringField("organization_service", orgSvc.name)
+        jsonGen.writeStringField(
+            "sending_at",
+            if (sendingAt == null) "immediately" else "$sendingAt"
+        )
+        jsonGen.writeNumberField("itemCount", countToPrint)
+        jsonGen.writeEndObject()
     }
 
     companion object {

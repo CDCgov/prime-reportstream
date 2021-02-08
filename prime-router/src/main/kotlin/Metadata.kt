@@ -322,9 +322,13 @@ class Metadata {
 
     fun findService(name: String): OrganizationService? {
         if (name.isBlank()) return null
-        val (orgName, clientName) = parseName(name)
+        val (orgName, svcName) = parseName(name)
+        return findService(orgName, svcName)
+    }
+
+    fun findService(orgName: String, svcName: String): OrganizationService? {
         return findOrganization(orgName)?.services?.find {
-            it.name.equals(clientName, ignoreCase = true)
+            it.name.equals(svcName, ignoreCase = true)
         }
     }
 
