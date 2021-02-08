@@ -92,3 +92,7 @@ resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vn
   app_service_id = azurerm_function_app.function_app.id
   subnet_id = var.public_subnet_id
 }
+
+output "app_service_plan_id" {
+  value = azurerm_app_service_plan.service_plan.id
+}

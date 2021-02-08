@@ -47,6 +47,9 @@ module "function_app" {
     okta_client_id = var.okta_client_id
     az_phd_user = var.az_phd_user
     az_phd_password = var.az_phd_password
+    login_server = module.container_registry.login_server
+    admin_user = module.container_registry.admin_username
+    admin_password = module.container_registry.admin_password
 }
 
 module "database" {
@@ -60,21 +63,21 @@ module "database" {
     public_subnet_id = module.network.public_subnet_id
 }
 
-module "key_vault" {
-    source = "../key_vault"
-    environment = var.environment
-    resource_group = var.resource_group
-    resource_prefix = var.resource_prefix
-    location = local.location
-}
+# module "key_vault" {
+#     source = "../key_vault"
+#     environment = var.environment
+#     resource_group = var.resource_group
+#     resource_prefix = var.resource_prefix
+#     location = local.location
+# }
 
-module "front_door" {
-    source = "../front_door"
-    environment = var.environment
-    resource_group = var.resource_group
-    resource_prefix = var.resource_prefix
-    key_vault_id = module.key_vault.application_key_vault_id
-}
+# module "front_door" {
+#     source = "../front_door"
+#     environment = var.environment
+#     resource_group = var.resource_group
+#     resource_prefix = var.resource_prefix
+#     key_vault_id = module.key_vault.application_key_vault_id
+# }
 
 module "sftp_container" {
     source = "../sftp_container"
@@ -85,4 +88,15 @@ module "sftp_container" {
     container_subnet_id = module.network.container_subnet_id
     storage_account_name = module.storage.storage_account_name
     storage_account_key = module.storage.storage_account_key
+}
+
+module "metabase" {
+    source = "../metabase"
+    environment = var.environment
+    resource_group = var.resource_group
+    name = "${var.resource_prefix}-metabase"
+    location = local.location
+    app_service_plan_id = module.function_app.app_service_plan_id
+    public_subnet_id = module.network.public_subnet_id
+    postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${module.database.server_name}&password=${var.postgres_password}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
 }

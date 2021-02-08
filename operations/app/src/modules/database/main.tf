@@ -36,6 +36,14 @@ resource "azurerm_postgresql_database" "prime_data_hub_db" {
   collation = "English_United States.1252"
 }
 
+resource "azurerm_postgresql_database" "metabase_db" {
+  name = "metabase"
+  resource_group_name = var.resource_group
+  server_name = azurerm_postgresql_server.postgres_server.name
+  charset = "UTF8"
+  collation = "English_United States.1252"
+}
+
 output "server_name" {
   value = azurerm_postgresql_server.postgres_server.name
 }
