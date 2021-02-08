@@ -1,6 +1,8 @@
 package gov.cdc.prime.router
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import gov.cdc.prime.router.Element.Cardinality.ONE
+import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -167,10 +169,11 @@ data class Element(
 
     val isOptional get() = this.cardinality == Cardinality.ZERO_OR_ONE
 
-    val canBeBlank get() = type == Type.TEXT_OR_BLANK ||
-        type == Type.STREET_OR_BLANK ||
-        type == Type.TABLE_OR_BLANK ||
-        type == Type.BLANK
+    val canBeBlank
+        get() = type == Type.TEXT_OR_BLANK ||
+            type == Type.STREET_OR_BLANK ||
+            type == Type.TABLE_OR_BLANK ||
+            type == Type.BLANK
 
     fun inheritFrom(baseElement: Element): Element {
         return Element(
@@ -254,9 +257,12 @@ data class Element(
                     codeToken ->
                         toCode(normalizedValue)
                             ?: error(
-                                "Schema Error: '$normalizedValue' is not in valueSet '$valueSet' for '$name'/'$format'. " +
-                                    "\nAvailable values are ${valueSetRef?.values?.joinToString { "${it.code} -> ${it.display}" }}" +
-                                    "\nAlt values (${altValues?.count()}) are ${altValues?.joinToString { "${it.code} -> ${it.display}" }}"
+                                "Schema Error: " +
+                                    "'$normalizedValue' is not in valueSet '$valueSet' for '$name'/'$format'. " +
+                                    "\nAvailable values are " +
+                                    "${valueSetRef?.values?.joinToString { "${it.code} -> ${it.display}" }}" +
+                                    "\nAlt values (${altValues?.count()}) are " +
+                                    "${altValues?.joinToString { "${it.code} -> ${it.display}" }}"
                             )
                     caretToken -> {
                         val display = valueSetRef?.toDisplayFromCode(normalizedValue)
@@ -510,7 +516,9 @@ data class Element(
                 when (format) {
                     altDisplayToken ->
                         toAltCode(formattedValue)
-                            ?: error("Invalid code: '$formattedValue' is not a display value in altValues set for '$name'")
+                            ?: error(
+                                "Invalid code: '$formattedValue' is not a display value in altValues set for '$name'"
+                            )
                     codeToken ->
                         toCode(formattedValue)
                             ?: error("Invalid code '$formattedValue' is not a display value in valueSet for '$name")
