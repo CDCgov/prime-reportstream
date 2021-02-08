@@ -82,7 +82,7 @@ class ReportFunction {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
                     val destinations = mutableListOf<String>()
                     routeReport(context, workflowEngine, validatedRequest, destinations, actionHistory)
-                    val responseBody = createResponseBody(validatedRequest, destinations)
+                    val responseBody = createResponseBody(validatedRequest, destinations, actionHistory)
                     workflowEngine.receiveReport(validatedRequest.report)
                     actionHistory.trackExternalInputReport(validatedRequest)
                     createdResponse(request, validatedRequest, responseBody)
@@ -257,6 +257,7 @@ class ReportFunction {
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             service.format == Report.Format.HL7 -> {
+                // todo this 'immediately' is no longer always true.
                 destinations += "Sending ${report.itemCount} reports to $serviceDescription immediately"
                 report
                     .split()
@@ -278,7 +279,12 @@ class ReportFunction {
         context.logger.info(loggerMsg)
     }
 
-    private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {
+    // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
+    private fun createResponseBody(
+        result: ValidatedRequest,
+        destinations: List<String> = emptyList(),
+        actionHistory: ActionHistory? = null,
+    ): String {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
@@ -289,9 +295,7 @@ class ReportFunction {
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
-            it.writeArrayFieldStart("destinations")
-            destinations.forEach { destination -> it.writeString(destination) }
-            it.writeEndArray()
+            actionHistory?.prettyPrintDestinationJson(it)
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)

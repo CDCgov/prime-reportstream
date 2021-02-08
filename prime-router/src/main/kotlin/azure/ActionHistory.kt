@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonGenerator
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -393,6 +394,29 @@ class ActionHistory {
     private fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
         DSL.using(txn).newRecord(REPORT_LINEAGE, lineage).store()
         context?.logger?.info("Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}")
+    }
+
+    fun prettyPrintDestinationJson(jsonGen: JsonGenerator) {
+        val metadata = WorkflowEngine.metadata
+        if (reportsOut.isEmpty()) return
+        jsonGen.writeArrayFieldStart("destinations")
+        reportsOut.forEach { (id, reportFile) ->
+            jsonGen.writeStartObject()
+            // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
+            jsonGen.writeStringField("sending_to_organization", reportFile.receivingOrg)
+            jsonGen.writeStringField(
+                "organization_description",
+                metadata.findOrganization(reportFile.receivingOrg)?.description ?: "unknown"
+            )
+            jsonGen.writeStringField("organization_service", reportFile.receivingOrgSvc)
+            jsonGen.writeStringField(
+                "sending_at",
+                if (reportFile.nextActionAt == null) "immediately" else "${reportFile.nextActionAt}"
+            )
+            jsonGen.writeNumberField("items", reportFile.itemCount)
+            jsonGen.writeEndObject()
+        }
+        jsonGen.writeEndArray()
     }
 
     companion object {
