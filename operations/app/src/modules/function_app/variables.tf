@@ -74,3 +74,20 @@ variable "okta_client_id" {
     description = "Okta Client ID"
     sensitive = true
 }
+
+variable "login_server" {
+    type = string
+    description = "Container Registry Login Server"
+}
+
+variable "admin_user" {
+    type = string
+    description = "Container Registry Admin Username"
+    sensitive = true
+}
+
+variable "admin_password" {
+    type = string
+    description = "Container Registry Admin Password"
+    sensitive = true
+}

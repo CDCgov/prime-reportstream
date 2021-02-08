@@ -45,6 +45,9 @@ resource "azurerm_function_app" "function_app" {
       service_tag = "AzureFrontDoor.Backend"
     }
     scm_use_main_ip_restriction = true
+
+    always_on = true
+    linux_fx_version = "DOCKER|${var.login_server}/${var.resource_prefix}:latest"
   }
 
   app_settings = {
@@ -72,6 +75,12 @@ resource "azurerm_function_app" "function_app" {
     "AZ_PHD__ELR_HL7_PROD__USER" = var.az_phd_user
     "AZ_PHD__ELR_HL7_PROD__PASS" = var.az_phd_password
 
+    "WEBSITE_VNET_ROUTE_ALL" = 1
+
+    "DOCKER_REGISTRY_SERVER_URL" = var.login_server
+    "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user
+    "DOCKER_REGISTRY_SERVER_PASSWORD" = var.admin_password
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
   }
 
   tags = {
