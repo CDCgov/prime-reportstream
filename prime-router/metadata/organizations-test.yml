@@ -101,6 +101,15 @@
         jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
         transforms: { deidentify: false }
         format: CSV
+
+  - name: nd-doh
+    description: North Dakota Department of Health
+    services:
+      - name: elr
+        topic: covid-19
+        schema: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
+        format: HL7_BATCH
         
   - name: co-phd
     description: Colorado Department of Health

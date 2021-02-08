@@ -138,17 +138,21 @@ class ProcessData : CliktCommand(
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
         val csvSerializer = CsvSerializer(metadata)
-        val result = csvSerializer.read(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
-        if (result.report == null) {
-            error(result.errorsToString())
+        return if (file.extension.toUpperCase() == "INTERNAL") {
+            csvSerializer.readInternal(schema.name, file.inputStream(), listOf(FileSource(file.nameWithoutExtension)))
+        } else {
+            val result = csvSerializer.read(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
+            if (result.report == null) {
+                error(result.errorsToString())
+            }
+            if (result.errors.isNotEmpty()) {
+                echo(result.errorsToString())
+            }
+            if (result.warnings.isNotEmpty()) {
+                echo(result.warningsToString())
+            }
+            result.report
         }
-        if (result.errors.isNotEmpty()) {
-            echo(result.errorsToString())
-        }
-        if (result.warnings.isNotEmpty()) {
-            echo(result.warningsToString())
-        }
-        return result.report
     }
 
     private fun writeReportsToFile(
