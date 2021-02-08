@@ -68,28 +68,77 @@ class ProcessData : CliktCommand(
 ) {
     // Input
     private val inputSource: InputSource? by mutuallyExclusiveOptions(
-        option("--merge", metavar = "<paths>", help = "list of comma-separated CSV files to merge as input").convert { InputSource.ListOfFilesSource(it) },
-        option("--input", metavar = "<path>", help = "path to CSV file to read").convert { InputSource.FileSource(it) },
-        option("--input-fake", metavar = "<int>", help = "generate N rows of random input according to --input-schema. The value is the number of rows to generate.").int().convert { InputSource.FakeSource(it) },
-        option("--input-dir", metavar = "<dir>", help = "path to directory of files").convert { InputSource.DirSource(it) },
+        option(
+            "--merge",
+            metavar = "<paths>",
+            help = "list of comma-separated CSV files to merge as input"
+        ).convert { InputSource.ListOfFilesSource(it) },
+        option(
+            "--input",
+            metavar = "<path>",
+            help = "path to CSV file to read"
+        ).convert { InputSource.FileSource(it) },
+        option(
+            "--input-fake",
+            metavar = "<int>",
+            help = "generate N rows of random input according to --input-schema. " +
+                "The value is the number of rows to generate."
+        ).int().convert { InputSource.FakeSource(it) },
+        option(
+            "--input-dir",
+            metavar = "<dir>",
+            help = "path to directory of files"
+        ).convert { InputSource.DirSource(it) },
     ).single()
-    private val inputSchema by option("--input-schema", metavar = "<schema_name>", help = "interpret input according to this schema")
+    private val inputSchema by option(
+        "--input-schema",
+        metavar = "<schema_name>",
+        help = "interpret input according to this schema"
+    )
 
     // Actions
-    private val validate by option("--validate", help = "Validate stream").flag(default = true)
-    private val send by option("--send", help = "send output to receivers").flag(default = false)
+    private val validate by option(
+        "--validate",
+        help = "Validate stream"
+    ).flag(default = true)
+    private val send by option(
+        "--send",
+        help = "send output to receivers"
+    ).flag(default = false)
 
     // Output schema
-    private val route by option("--route", help = "transform output to the schemas for each receiver the input would be routed to").flag(default = false)
-    private val routeTo by option("--route-to", metavar = "<receiver>", help = "transform output to the schema for the given receiver")
-    private val outputSchema by option("--output-schema", metavar = "<name>", help = "transform output to the given schema")
+    private val route by option(
+        "--route",
+        help = "transform output to the schemas for each receiver the input would be routed to"
+    ).flag(default = false)
+    private val routeTo by option(
+        "--route-to",
+        metavar = "<receiver>",
+        help = "transform output to the schema for the given receiver"
+    )
+    private val outputSchema by option(
+        "--output-schema",
+        metavar = "<name>",
+        help = "transform output to the given schema"
+    )
 
     // Output format
-    private val forcedFormat by option("--output-format", help = "serialize as the specified format. Use the destination format if not specified.")
+    private val forcedFormat by option(
+        "--output-format",
+        help = "serialize as the specified format. Use the destination format if not specified."
+    )
 
     // Output location
-    private val outputFileName by option("--output", metavar = "<path>", help = "write output to this file. Do not use with --route, which generates multiple outputs.")
-    private val outputDir by option("--output-dir", metavar = "<path>", help = "write output files to this directory instead of the working directory. Ignored if --output is set.")
+    private val outputFileName by option(
+        "--output",
+        metavar = "<path>",
+        help = "write output to this file. Do not use with --route, which generates multiple outputs."
+    )
+    private val outputDir by option(
+        "--output-dir",
+        metavar = "<path>",
+        help = "write output files to this directory instead of the working directory. Ignored if --output is set."
+    )
 
     // Fake data configuration
     private val targetState: String? by
@@ -164,7 +213,12 @@ class ProcessData : CliktCommand(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
-                    val fileName = Report.formFilename(report.id, report.schema.baseName, format, report.createdDateTime)
+                    val fileName = Report.formFilename(
+                        report.id,
+                        report.schema.baseName,
+                        format,
+                        report.createdDateTime
+                    )
                     File(outputDir ?: ".", fileName)
                 }
                 echo(outputFile.absolutePath)
@@ -207,9 +261,12 @@ class ProcessData : CliktCommand(
         echo("Loaded schema and receivers")
         // Gather input source
         val inputReport: Report = when (inputSource) {
-            is InputSource.ListOfFilesSource -> mergeReports(metadata, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
-            is InputSource.FileSource -> readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName)
-            is InputSource.DirSource -> TODO("Dir source is not implemented")
+            is InputSource.ListOfFilesSource ->
+                mergeReports(metadata, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
+            is InputSource.FileSource ->
+                readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName)
+            is InputSource.DirSource ->
+                TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
                 val schema = metadata.findSchema(inputSchema ?: "") ?: error("$inputSchema is an invalid schema name")
                 FakeReport(metadata).build(
@@ -246,7 +303,10 @@ class ProcessData : CliktCommand(
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
                 val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())
                 if (mapping.missing.isNotEmpty()) {
-                    error("Error: When translating to $'${toSchema.name} missing fields for ${mapping.missing.joinToString(", ")}")
+                    error(
+                        "Error: When translating to $'${toSchema.name} " +
+                            "missing fields for ${mapping.missing.joinToString(", ")}"
+                    )
                 }
                 val toReport = inputReport.applyMapping(mapping)
                 listOf(Pair(toReport, getOutputFormat(Report.Format.CSV)))
@@ -290,7 +350,14 @@ class ListSchemas : CliktCommand(
         println()
         println("Current Services (Receivers from the Hub)")
         formatTemplate = "%-18s\t%-10s\t%-25s\t%s"
-        println(formatTemplate.format("Organization Name", "Service Name", "Schema Sent by Hub", "Filters Applied"))
+        println(
+            formatTemplate.format(
+                "Organization Name",
+                "Service Name",
+                "Schema Sent by Hub",
+                "Filters Applied"
+            )
+        )
         metadata.organizationServices.forEach {
             println(
                 formatTemplate.format(
@@ -323,9 +390,17 @@ class GenerateDocs : CliktCommand(
     private val includeTimestamps by
     option("--include-timestamps", help = "include creation time in file names")
         .flag(default = false)
-    private val outputFileName by option("--output", metavar = "<path>", help = "write documentation to this file (should not include extension)")
+    private val outputFileName by option(
+        "--output",
+        metavar = "<path>",
+        help = "write documentation to this file (should not include extension)"
+    )
     private val defaultOutputDir = "docs/schema_documentation"
-    private val outputDir by option("--output-dir", metavar = "<path>", help = "interpret `--output` relative to this directory (default: \"$defaultOutputDir\")")
+    private val outputDir by option(
+        "--output-dir",
+        metavar = "<path>",
+        help = "interpret `--output` relative to this directory (default: \"$defaultOutputDir\")"
+    )
         .default(defaultOutputDir)
 
     fun generateSchemaDocumentation(metadata: Metadata) {
@@ -373,7 +448,10 @@ class CompareCsvFiles : CliktCommand(
     """
 ) {
     // lets us compare CSV files generated by the application
-    private val csvCompareFile by option("--csv-file", help = "specify paths to CSV files to compare contents").multiple()
+    private val csvCompareFile by option(
+        "--csv-file",
+        help = "specify paths to CSV files to compare contents"
+    ).multiple()
     private val csvRecordId by option(
         "--record-id",
         help = "the column header that identifies the id value for each row in a CSV file"

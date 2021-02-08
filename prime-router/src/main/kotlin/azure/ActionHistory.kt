@@ -189,7 +189,10 @@ class ActionHistory {
         reportFile.nextAction = TaskAction.none
         // todo remove this dependency on TaskSource
         if (report.sources.size != 1) {
-            error("An external incoming report should have only one source.   Report ${report.id} had ${report.sources.size} sources")
+            error(
+                "An external incoming report should have only one source.   " +
+                    "Report ${report.id} had ${report.sources.size} sources"
+            )
         }
         val source = (report.sources[0] as ClientSource)
         reportFile.sendingOrg = source.organization
@@ -259,7 +262,10 @@ class ActionHistory {
         itemCount: Int
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
-            error("Bug:  attempt to track history of a report ($sentReportId) we've already associated with this action")
+            error(
+                "Bug:  attempt to track history of a report ($sentReportId) " +
+                    "we've already associated with this action"
+            )
         }
         val reportFile = ReportFile()
         reportFile.reportId = sentReportId
@@ -291,7 +297,10 @@ class ActionHistory {
     ) {
         trackExistingInputReport(originalReportId)
         if (isReportAlreadyTracked(externalReportId)) {
-            error("Bug:  attempt to track history of a report ($externalReportId) we've already associated with this action")
+            error(
+                "Bug:  attempt to track history of a report ($externalReportId)" +
+                    " we've already associated with this action"
+            )
         }
         val reportFile = ReportFile()
         reportFile.reportId = externalReportId
@@ -359,10 +368,14 @@ class ActionHistory {
     private fun insertReportFile(reportFile: ReportFile, txn: Configuration) {
         DSL.using(txn).newRecord(REPORT_FILE, reportFile).store()
         val fromInfo =
-            if (!reportFile.sendingOrg.isNullOrEmpty()) "${reportFile.sendingOrg}.${reportFile.sendingOrgClient} --> " else ""
+            if (!reportFile.sendingOrg.isNullOrEmpty())
+                "${reportFile.sendingOrg}.${reportFile.sendingOrgClient} --> " else ""
         val toInfo =
-            if (!reportFile.receivingOrg.isNullOrEmpty()) " --> ${reportFile.receivingOrg}.${reportFile.receivingOrgSvc}" else ""
-        context?.logger?.info("Saved to REPORT_FILE: ${reportFile.reportId} (${fromInfo}action ${action.actionName}$toInfo)")
+            if (!reportFile.receivingOrg.isNullOrEmpty())
+                " --> ${reportFile.receivingOrg}.${reportFile.receivingOrgSvc}" else ""
+        context?.logger?.info(
+            "Saved to REPORT_FILE: ${reportFile.reportId} (${fromInfo}action ${action.actionName}$toInfo)"
+        )
     }
 
     /**
@@ -392,7 +405,9 @@ class ActionHistory {
 
     private fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
         DSL.using(txn).newRecord(REPORT_LINEAGE, lineage).store()
-        context?.logger?.info("Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}")
+        context?.logger?.info(
+            "Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}"
+        )
     }
 
     companion object {
@@ -488,7 +503,10 @@ class ActionHistory {
                 if (failOnError) {
                     error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
                 } else {
-                    System.out.println("************ FAILURE: sanity check comparing old Headers list to new ReportFiles list FAILED:  $msg\"")
+                    System.out.println(
+                        "************ FAILURE: sanity check comparing old Headers " +
+                            "list to new ReportFiles list FAILED:  $msg\""
+                    )
                 }
             }
         }
@@ -506,24 +524,27 @@ class ActionHistory {
                     msg = "reportFile is null - no matching report was retreived with ${task.reportId}"
                 } else {
                     if (task.bodyFormat != reportFile.bodyFormat) {
-                        msg =
-                            "header.bodyFormat = ${task.bodyFormat}, but reportFile.bodyFormat= ${reportFile.bodyFormat}, "
+                        msg = "header.bodyFormat = ${task.bodyFormat}, " +
+                            "but reportFile.bodyFormat= ${reportFile.bodyFormat}, "
                     }
                     if (task.bodyUrl != reportFile.bodyUrl) {
                         msg += "header.bodyUrl = ${task.bodyUrl}, but reportFile.bodyFormat= ${reportFile.bodyUrl}, "
                     }
                     if (task.itemCount != reportFile.itemCount) {
-                        msg += "header.itemCount = ${task.itemCount}, but reportFile.itemCount= ${reportFile.itemCount}, "
+                        msg += "header.itemCount = ${task.itemCount}, " +
+                            "but reportFile.itemCount= ${reportFile.itemCount}, "
                     }
                     // Not checking this.   Because Task updates, the nextAction change to 'none' normally.
                     // if (task.nextAction != reportFile.nextAction) {
                     //     msg += "header.nextAction = ${task.nextAction}, but reportFile.nextAction= ${reportFile.nextAction}, "
                     // }
                     if (task.nextActionAt != reportFile.nextActionAt) {
-                        msg += "(This is NOT an error on retries:  header.nextActionAt = ${task.nextActionAt}, but reportFile.nextActionAt= ${reportFile.nextActionAt}, "
+                        msg += "(This is NOT an error on retries:  header.nextActionAt = ${task.nextActionAt}," +
+                            " but reportFile.nextActionAt= ${reportFile.nextActionAt}, "
                     }
                     if (task.receiverName != (reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)) {
-                        msg += "header.receiverName = ${task.receiverName}, but reportFile has ${reportFile.receivingOrg + "." + reportFile.receivingOrgSvc}"
+                        msg += "header.receiverName = ${task.receiverName}, but reportFile has " +
+                            "${reportFile.receivingOrg + "." + reportFile.receivingOrgSvc}"
                     }
                     if (task.reportId != reportFile.reportId) {
                         msg += "header.reportId = ${task.reportId}, but reportFile.reportId= ${reportFile.reportId}, "
@@ -534,10 +555,16 @@ class ActionHistory {
                 if (failOnError) {
                     error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
                 } else {
-                    System.out.println("************ FAILURE: sanity check comparing old Header info and new ReportFile info FAILED:  $msg\"")
+                    System.out.println(
+                        "************ FAILURE: sanity check comparing " +
+                            "old Header info and new ReportFile info FAILED:  $msg\""
+                    )
                 }
             } else {
-                System.out.println("Temporary sanity check passed: TASK and REPORT_FILE tables have the same data for report ${reportFile?.reportId ?: ""}")
+                System.out.println(
+                    "Temporary sanity check passed: TASK and REPORT_FILE tables " +
+                        "have the same data for report ${reportFile?.reportId ?: ""}"
+                )
             }
         }
     }

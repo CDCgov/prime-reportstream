@@ -32,7 +32,10 @@ class Translator(private val metadata: Metadata) {
     /**
      * Translate and filter by the list of services in metadata. Only return reports that have items.
      */
-    fun filterAndTranslateByService(input: Report, defaultValues: DefaultValues = emptyMap()): List<Pair<Report, OrganizationService>> {
+    fun filterAndTranslateByService(
+        input: Report,
+        defaultValues: DefaultValues = emptyMap()
+    ): List<Pair<Report, OrganizationService>> {
         if (input.isEmpty()) return emptyList()
         return metadata.organizationServices.filter { service ->
             service.topic == input.schema.topic
@@ -43,7 +46,11 @@ class Translator(private val metadata: Metadata) {
         }
     }
 
-    fun translate(input: Report, toService: String, defaultValues: DefaultValues = emptyMap()): Pair<Report, OrganizationService>? {
+    fun translate(
+        input: Report,
+        toService: String,
+        defaultValues: DefaultValues = emptyMap()
+    ): Pair<Report, OrganizationService>? {
         if (input.isEmpty()) return null
         val service = metadata.findService(toService) ?: error("invalid service name $toService")
         val mappedReport = translateByService(input, service, defaultValues)
@@ -71,7 +78,13 @@ class Translator(private val metadata: Metadata) {
             val defaults = if (receiver.defaults.isNotEmpty()) receiver.defaults.plus(defaultValues) else defaultValues
             val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
             if (mapping.missing.isNotEmpty()) {
-                error("Error: To translate to ${toSchema.name}, these elements are missing: ${mapping.missing.joinToString(", ")}")
+                error(
+                    "Error: To translate to ${toSchema.name}, these elements are missing: ${
+                    mapping.missing.joinToString(
+                        ", "
+                    )
+                    }"
+                )
             }
             filteredReport.applyMapping(mapping)
         } else {

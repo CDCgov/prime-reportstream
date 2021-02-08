@@ -117,7 +117,8 @@ data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val rec
                 continue
             }
 
-            if (recordIdIndex == -1) error("Key provided for recordId was not found in header of file. Expected $recordId")
+            if (recordIdIndex == -1)
+                error("Key provided for recordId was not found in header of file. Expected $recordId")
 
             val splitLine = expectedResultsLine.split(delimiter)
             if (!expectedLines.containsKey(splitLine[recordIdIndex])) {
