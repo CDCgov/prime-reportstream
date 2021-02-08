@@ -113,7 +113,11 @@ class ReportEvent(
     }
 }
 
-class ReceiverEvent(eventAction: EventAction, val receiverName: String, at: OffsetDateTime? = null) : Event(eventAction, at) {
+class ReceiverEvent(
+    eventAction: EventAction,
+    val receiverName: String,
+    at: OffsetDateTime? = null,
+) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
         return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName$afterClause"

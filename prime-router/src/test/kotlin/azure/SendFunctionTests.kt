@@ -75,7 +75,8 @@ class SendFunctionTests {
         setupLogger()
         setupWorkflow()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = thirdArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val block = thirdArg() as
+                (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val reportFile = ReportFile()
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile, workflowEngine)
             nextEvent = block(header, null, null)
@@ -99,13 +100,14 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val block = secondArg() as
+                (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val reportFile = ReportFile()
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(),) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -125,14 +127,33 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val task = Task(reportId, TaskAction.send, null, null, "az-phd.elr-test", 0, "", "", null, null, null, null, null, null, null)
+            val block = secondArg() as
+                (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val task = Task(
+                reportId,
+                TaskAction.send,
+                null,
+                null,
+                "az-phd.elr-test",
+                0,
+                "",
+                "",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
             val reportFile = ReportFile()
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
-            nextEvent = block(header, RetryToken(2, listOf(RetryTransport(0, RetryToken.allItems))), null)
+            nextEvent = block(
+                header, RetryToken(2, listOf(RetryTransport(0, RetryToken.allItems))), null
+            )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(),) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -155,15 +176,17 @@ class SendFunctionTests {
         setupLogger()
         val reportId = UUID.randomUUID()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block =
-                secondArg() as (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val block = secondArg() as
+                (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val reportFile = ReportFile()
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
             // Should be high enough retry count that the next action should have an error
-            nextEvent = block(header, RetryToken(100, listOf(RetryTransport(0, RetryToken.allItems))), null)
+            nextEvent = block(
+                header, RetryToken(100, listOf(RetryTransport(0, RetryToken.allItems))), null
+            )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(),) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
