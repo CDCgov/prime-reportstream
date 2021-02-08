@@ -14,13 +14,13 @@ current settings. Because settings can affect what is produced by the system, we
 delete a setting and always have a version of the setting in the settings history table.
 Because settings are small in number and in size, this should not be a size problem.
 */
-CREATE TYPE SETTING_TYPE AS ENUM ('organization', 'receiver', 'sender');
+CREATE TYPE SETTINGS_ENTITY AS ENUM ('organization', 'receiver', 'sender');
 CREATE TABLE settings (
     -- Key
+    entity SETTINGS_ENTITY NOT NULL,
     organization_name VARCHAR(63) NOT NULL,
-    setting_type SETTING_TYPE NOT NULL,
     setting_name VARCHAR(63),
-    PRIMARY KEY (organization_name, setting_type, setting_name),
+    PRIMARY KEY (organization_name, entity, setting_name),
 
     -- Value
     values JSON,
@@ -33,11 +33,11 @@ CREATE TABLE settings (
 
 CREATE TABLE settings_history (
     -- Key
+    entity SETTINGS_ENTITY NOT NULL,
     organization_name VARCHAR(63) NOT NULL,
-    setting_type SETTING_TYPE NOT NULL,
     setting_name VARCHAR(63),
     version INT,
-    PRIMARY KEY (organization_name, setting_type, setting_name, version),
+    PRIMARY KEY (organization_name, entity, setting_name, version),
 
     -- Value
     values JSON,
