@@ -51,16 +51,16 @@ class BatchFunction {
                     actionHistory.trackExistingInputReport(it.task.reportId)
                     report
                 }
-                val operationReports = when (receiver.batch?.operation) {
+                val mergedReports = when (receiver.batch?.operation) {
                     OrganizationService.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
                 }
                 val outReports = when (receiver.format) {
-                    OrganizationService.Format.HL7 -> operationReports.flatMap { it.split() }
-                    else -> operationReports
+                    Report.Format.HL7 -> mergedReports.flatMap { it.split() }
+                    else -> mergedReports
                 }
                 outReports.forEach {
-                    val outReport = it.copy(destination = receiver)
+                    val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
                     val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
                     workflowEngine.dispatchReport(outEvent, outReport, txn)
                     actionHistory.trackCreatedReport(outEvent, outReport, receiver)

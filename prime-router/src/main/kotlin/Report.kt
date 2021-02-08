@@ -25,6 +25,33 @@ typealias DefaultValues = Map<String, String>
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report {
+    enum class Format {
+        INTERNAL, // A format that serializes all elements of a report (A CSV today)
+        CSV, // A CSV format the follows the csvFields
+        HL7, // HL7 with one result per file
+        HL7_BATCH, // HL7 with BHS and FHS headers
+        REDOX; // Redox format
+        // FHIR
+
+        fun toExt(): String {
+            return when (this) {
+                INTERNAL -> "internal"
+                CSV -> "csv"
+                HL7 -> "hl7"
+                HL7_BATCH -> "hl7"
+                REDOX -> "redox"
+            }
+        }
+
+        fun isSingleItemFormat(): Boolean {
+            return when (this) {
+                REDOX -> true
+                HL7 -> true
+                else -> false
+            }
+        }
+    }
+
     /**
      * the UUID for the report
      */
@@ -64,7 +91,12 @@ class Report {
     /**
      * A standard name for this report that take schema, id, and destination into account
      */
-    val name: String get() = formFilename(id, schema.baseName, destination?.format, createdDateTime)
+    val name: String get() = formFilename(id, schema.baseName, bodyFormat, createdDateTime)
+
+    /**
+     * A format for the body or use the destination format
+     */
+    val bodyFormat: Format
 
     /**
      * A pointer to where the Report is stored.
@@ -85,12 +117,14 @@ class Report {
         values: List<List<String>>,
         sources: List<Source>,
         destination: OrganizationService? = null,
+        bodyFormat: Format? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
         this.destination = destination
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.table = createTable(schema, values)
     }
 
@@ -100,11 +134,13 @@ class Report {
         values: List<List<String>>,
         source: TestSource,
         destination: OrganizationService? = null,
+        bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(source)
         this.destination = destination
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
@@ -115,10 +151,12 @@ class Report {
         values: List<List<String>>,
         source: OrganizationClient,
         destination: OrganizationService? = null,
+        bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(ClientSource(source.organization.name, source.name))
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
@@ -129,12 +167,14 @@ class Report {
         table: Table,
         sources: List<Source>,
         destination: OrganizationService? = null,
+        bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.table = table
         this.sources = sources
         this.destination = destination
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.createdDateTime = OffsetDateTime.now()
     }
 
@@ -154,9 +194,15 @@ class Report {
     /**
      * Does a shallow copy of this report. Will have a new id and create date.
      */
-    fun copy(destination: OrganizationService? = null): Report {
+    fun copy(destination: OrganizationService? = null, bodyFormat: Format? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
-        return Report(this.schema, this.table, fromThisReport("copy"), destination)
+        return Report(
+            this.schema,
+            this.table,
+            fromThisReport("copy"),
+            destination ?: this.destination,
+            bodyFormat ?: this.bodyFormat
+        )
     }
 
     fun isEmpty(): Boolean {
@@ -206,8 +252,14 @@ class Report {
      */
     fun split(): List<Report> {
         return itemIndices.map {
-           val row = getRow(it)
-           Report(schema, values = listOf(row), sources = fromThisReport("split"), destination = destination)
+            val row = getRow(it)
+            Report(
+                schema = schema,
+                values = listOf(row),
+                sources = fromThisReport("split"),
+                destination = destination,
+                bodyFormat = bodyFormat
+            )
         }
     }
 
@@ -280,14 +332,17 @@ class Report {
         return StringColumn.create(name, List(itemCount) { "" })
     }
 
-    fun getBodyFormat(): OrganizationService.Format {
-        return this.destination?.format ?: OrganizationService.Format.CSV
-    }
-
     companion object {
         fun merge(inputs: List<Report>): Report {
-            if (inputs.isEmpty()) error("Cannot merge an empty report list")
-            if (inputs.size == 1) return inputs[0]
+            if (inputs.isEmpty())
+                error("Cannot merge an empty report list")
+            if (inputs.size == 1)
+                return inputs[0]
+            if (!inputs.all { it.destination == inputs[0].destination })
+                error("Cannot merge reports with different destinations")
+            if (!inputs.all { it.bodyFormat == inputs[0].bodyFormat })
+                error("Cannot merge reports with different bodyFormats")
+
             val head = inputs[0]
             val tail = inputs.subList(1, inputs.size)
 
@@ -303,19 +358,18 @@ class Report {
 
             // Build sources
             val sources = inputs.map { ReportSource(it.id, "merge") }
-
-            return Report(schema, newTable, sources)
+            return Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
         }
 
         fun formFilename(
             id: ReportId,
             schemaName: String,
-            fileFormat: OrganizationService.Format?,
+            fileFormat: Format?,
             createdDateTime: OffsetDateTime
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-            val nameSuffix = fileFormat?.toExt() ?: OrganizationService.Format.CSV.toExt()
+            val nameSuffix = fileFormat?.toExt() ?: Format.CSV.toExt()
             return "$namePrefix.$nameSuffix"
         }
 
@@ -334,7 +388,7 @@ class Report {
                 formFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    header.orgSvc?.format ?: OrganizationService.Format.CSV, // todo problematic default.
+                    header.orgSvc?.format ?: error("Internal Error: ${header.orgSvc?.name} does not have a format"),
                     header.reportFile.createdAt
                 )
             }
