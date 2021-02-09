@@ -61,6 +61,7 @@ module "database" {
     postgres_user = var.postgres_user
     postgres_password = var.postgres_password
     public_subnet_id = module.network.public_subnet_id
+    private_subnet_id = module.network.private_subnet_id
 }
 
 module "key_vault" {

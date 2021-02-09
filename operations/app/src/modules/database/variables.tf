@@ -34,3 +34,8 @@ variable "public_subnet_id" {
     type = string
     description = "Public Subnet ID"
 }
+
+variable "private_subnet_id" {
+    type = string
+    description = "Private Subnet ID"
+}

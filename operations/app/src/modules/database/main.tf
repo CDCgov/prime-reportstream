@@ -28,6 +28,13 @@ resource "azurerm_postgresql_virtual_network_rule" "allow_public_subnet" {
   subnet_id = var.public_subnet_id
 }
 
+resource "azurerm_postgresql_virtual_network_rule" "allow_private_subnet" {
+  name = "AllowPrivateSubnet"
+  resource_group_name = var.resource_group
+  server_name = azurerm_postgresql_server.postgres_server.name
+  subnet_id = var.private_subnet_id
+}
+
 resource "azurerm_postgresql_database" "prime_data_hub_db" {
   name = "prime_data_hub"
   resource_group_name = var.resource_group

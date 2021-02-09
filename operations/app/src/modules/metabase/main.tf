@@ -25,11 +25,13 @@ resource "azurerm_app_service" "metabase" {
     scm_use_main_ip_restriction = true
 
     always_on = true
-    linux_fx_version = "DOCKER|metabase/metabase:latest"
+    linux_fx_version = "DOCKER|metabase/metabase"
   }
 
   app_settings = {
     "MB_DB_CONNECTION_URI" = var.postgres_url
+    "WEBSITE_VNET_ROUTE_ALL" = 1
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
   }
 }
 

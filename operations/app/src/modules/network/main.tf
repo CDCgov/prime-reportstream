@@ -19,7 +19,6 @@ resource "azurerm_virtual_network" "virtual_network" {
   location = var.location
   resource_group_name = var.resource_group
   address_space = ["10.0.0.0/16"]
-  dns_servers = ["10.0.0.4", "10.0.0.5"]
 
   tags = {
     environment = var.environment
@@ -63,9 +62,9 @@ resource "azurerm_subnet" "container" {
   }
 }
 
-resource "azurerm_subnet_network_security_group_association" "container_private" {
+resource "azurerm_subnet_network_security_group_association" "container_public" {
   subnet_id = azurerm_subnet.container.id
-  network_security_group_id = azurerm_network_security_group.nsg_private.id
+  network_security_group_id = azurerm_network_security_group.nsg_public.id
 }
 
 resource "azurerm_subnet" "private" {
@@ -74,6 +73,14 @@ resource "azurerm_subnet" "private" {
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes = ["10.0.3.0/24"]
   service_endpoints = ["Microsoft.Storage", "Microsoft.Sql"]
+
+  delegation {
+    name = "server_farms"
+    service_delegation {
+      name = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet_network_security_group_association" "private_private" {

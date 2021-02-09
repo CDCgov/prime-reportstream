@@ -147,7 +147,7 @@ resource "azurerm_frontdoor" "front_door" {
         patterns_to_match = ["/metabase", "/metabase/*"]
 
         forwarding_configuration {
-            backend_pool_name = "functions"
+            backend_pool_name = "metabase"
             forwarding_protocol = "HttpsOnly"
             custom_forwarding_path = "/"
         }
