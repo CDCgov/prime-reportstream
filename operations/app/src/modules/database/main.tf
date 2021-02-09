@@ -14,7 +14,6 @@ resource "azurerm_postgresql_server" "postgres_server" {
   version = "11"
   storage_mb = 5120
 
-  geo_redundant_backup_enabled = true
   auto_grow_enabled = (var.environment == "prod" ? true : false)
 
   ssl_enforcement_enabled = true
