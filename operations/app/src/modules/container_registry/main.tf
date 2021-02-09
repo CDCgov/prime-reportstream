@@ -7,7 +7,7 @@ resource "azurerm_container_registry" "container_registry" {
   resource_group_name = var.resource_group
   location = var.location
   sku = "Premium"
-  admin_enabled = false
+  admin_enabled = true
   network_rule_set {
     virtual_network {
       action = "Allow"
