@@ -100,3 +100,12 @@ module "metabase" {
     public_subnet_id = module.network.public_subnet_id
     postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${module.database.server_name}&password=${var.postgres_password}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
 }
+
+module "nat_gateway" {
+    source = "../nat_gateway"
+    environment = var.environment
+    resource_group = var.resource_group
+    resource_prefix = var.resource_prefix
+    location = local.location
+    public_subnet_id = module.network.public_subnet_id
+}
