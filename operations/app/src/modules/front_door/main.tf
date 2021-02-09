@@ -155,6 +155,7 @@ resource "azurerm_frontdoor" "front_door" {
 }
 
 data "azurerm_key_vault_secret" "https_cert" {
+    count = (var.environment == "prod" ? 1 : 0)
     key_vault_id = var.key_vault_id
     name = local.https_cert_secret_name
 }
