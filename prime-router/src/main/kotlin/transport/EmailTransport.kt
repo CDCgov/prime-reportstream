@@ -1,9 +1,13 @@
 package gov.cdc.prime.router.transport
 
 import com.microsoft.azure.functions.ExecutionContext
-import com.sendgrid.*
+import com.sendgrid.Method
+import com.sendgrid.Request
+import com.sendgrid.SendGrid
 import com.sendgrid.helpers.mail.Mail
-import com.sendgrid.helpers.mail.objects.*
+import com.sendgrid.helpers.mail.objects.Content
+import com.sendgrid.helpers.mail.objects.Email
+import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.EmailTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType

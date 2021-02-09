@@ -219,7 +219,10 @@ class ReportFunction {
                 .translator
                 .filterAndTranslateByService(validatedRequest.report!!, validatedRequest.defaults)
                 .forEach { (report, service) ->
-                    sendToDestination(report, service, context, workflowEngine, validatedRequest, destinations, actionHistory, txn)
+                    sendToDestination(
+                        report, service, context, workflowEngine,
+                        validatedRequest, destinations, actionHistory, txn
+                    )
                 }
         }
     }
@@ -319,7 +322,10 @@ class ReportFunction {
         return outStream.toString()
     }
 
-    private fun okResponse(request: HttpRequestMessage<String?>, validatedRequest: ValidatedRequest): HttpResponseMessage {
+    private fun okResponse(
+        request: HttpRequestMessage<String?>,
+        validatedRequest: ValidatedRequest
+    ): HttpResponseMessage {
         return request
             .createResponseBuilder(HttpStatus.OK)
             .body(createResponseBody(validatedRequest))
