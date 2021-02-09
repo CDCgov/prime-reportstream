@@ -5,9 +5,9 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 
 /**
- * An `OrganizationService` represents the agent that the data hub sends reports
+ * An `Receiver` represents the agent that the data hub sends reports to
  * (minus the credentials used by that agent, of course). It contains information about
- * the specific topic and schema that the sender needs.
+ * the specific topic and schema that the receiver needs.
  *
  * @param name of the service
  * @param topic defines the set of schemas that can translate to each other
@@ -18,8 +18,9 @@ import java.time.ZoneId
  * @param format that the org wishes to receive
  * @param transports that the org wishes to receive
  */
-data class OrganizationService(
+data class Receiver(
     val name: String,
+    val organizationName: String,
     val topic: String,
     val schema: String,
     val jurisdictionalFilter: List<String> = emptyList(),
@@ -31,8 +32,7 @@ data class OrganizationService(
     val transports: List<TransportType> = emptyList(),
     val description: String = ""
 ) {
-    lateinit var organization: Organization
-    val fullName: String get() = "${organization.name}.$name"
+    val fullName: String get() = "$organizationName.$name"
 
     /**
      * Defines how batching of sending should proceed. Allows flexibility of

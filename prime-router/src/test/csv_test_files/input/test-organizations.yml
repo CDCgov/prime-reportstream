@@ -2,8 +2,11 @@
   # Output to 'test-schema' format
   - name: AZ-test
     description: Arizona PHD
-    services:
+    jurisdiction: STATE
+    stateCode: AZ
+    receivers:
       - name: receiver
+        organizationName: AZ-test
         topic: covid-19
         schema: test-schema
         jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state,AZ)" ]
@@ -15,8 +18,10 @@
   # Output to a deidentified schema
   - name: federal-test
     description: Federal feed
-    services:
+    jurisdiction: FEDERAL
+    receivers:
       - name: receiver
+        organizationName: federal-test
         topic: covid-19
         schema: federal-test-schema
         jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)" ]

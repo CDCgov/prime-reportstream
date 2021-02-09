@@ -25,24 +25,24 @@ class Translator(private val metadata: Metadata) {
      * Translate this report by the list of services in metadata. One report for every service, reports
      * may be empty.
      */
-    fun translateByService(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
-        return metadata.organizationServices.map { service -> translateByService(input, service, defaultValues) }
+    fun translateByReceiver(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
+        return metadata.receivers.map { receiver -> translateByReceiver(input, receiver, defaultValues) }
     }
 
     /**
-     * Translate and filter by the list of services in metadata. Only return reports that have items.
+     * Translate and filter by the list of receiver in metadata. Only return reports that have items.
      */
-    fun filterAndTranslateByService(
+    fun filterAndTranslateByReceiver(
         input: Report,
         defaultValues: DefaultValues = emptyMap()
-    ): List<Pair<Report, OrganizationService>> {
+    ): List<Pair<Report, Receiver>> {
         if (input.isEmpty()) return emptyList()
-        return metadata.organizationServices.filter { service ->
-            service.topic == input.schema.topic
-        }.mapNotNull { service ->
-            val mappedReport = translateByService(input, service, defaultValues)
+        return metadata.receivers.filter { receiver ->
+            receiver.topic == input.schema.topic
+        }.mapNotNull { receiver ->
+            val mappedReport = translateByReceiver(input, receiver, defaultValues)
             if (mappedReport.itemCount == 0) return@mapNotNull null
-            Pair(mappedReport, service)
+            Pair(mappedReport, receiver)
         }
     }
 
@@ -50,15 +50,15 @@ class Translator(private val metadata: Metadata) {
         input: Report,
         toService: String,
         defaultValues: DefaultValues = emptyMap()
-    ): Pair<Report, OrganizationService>? {
+    ): Pair<Report, Receiver>? {
         if (input.isEmpty()) return null
-        val service = metadata.findService(toService) ?: error("invalid service name $toService")
-        val mappedReport = translateByService(input, service, defaultValues)
+        val receiver = metadata.findReceiver(toService) ?: error("invalid service name $toService")
+        val mappedReport = translateByReceiver(input, receiver, defaultValues)
         if (mappedReport.itemCount == 0) return null
-        return Pair(mappedReport, service)
+        return Pair(mappedReport, receiver)
     }
 
-    private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
+    private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
             val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
@@ -146,7 +146,7 @@ class Translator(private val metadata: Metadata) {
         return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)
     }
 
-    private fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
+    private fun buildEmptyReport(receiver: Receiver, from: Report): Report {
         val toSchema = metadata.findSchema(receiver.schema)
             ?: error("${receiver.schema} schema is missing from catalog")
         return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))

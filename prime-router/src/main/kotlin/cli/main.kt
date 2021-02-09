@@ -291,7 +291,7 @@ class ProcessData : CliktCommand(
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
-                    .filterAndTranslateByService(inputReport)
+                    .filterAndTranslateByReceiver(inputReport)
                     .map { it.first to getOutputFormat(it.second.format) }
             routeTo != null -> {
                 val pair = translator.translate(input = inputReport, toService = routeTo!!)
@@ -339,14 +339,14 @@ fun listSchemas(metadata: Metadata) {
 
 class ListSchemas : CliktCommand(
     name = "list",
-    help = "list known schemas, clients, and services"
+    help = "list known schemas, senders, and receivers"
 ) {
     fun listOrganizations(metadata: Metadata) {
         println("Current Clients (Senders to the Hub)")
         var formatTemplate = "%-18s\t%-10s\t%s"
         println(formatTemplate.format("Organization Name", "Client Name", "Schema Sent to Hub"))
-        metadata.organizationClients.forEach {
-            println(formatTemplate.format(it.organization.name, it.name, it.schema))
+        metadata.senders.forEach {
+            println(formatTemplate.format(it.organizationName, it.name, it.schema))
         }
         println()
         println("Current Services (Receivers from the Hub)")
@@ -359,10 +359,10 @@ class ListSchemas : CliktCommand(
                 "Filters Applied"
             )
         )
-        metadata.organizationServices.forEach {
+        metadata.receivers.forEach {
             println(
                 formatTemplate.format(
-                    it.organization.name, it.name, it.schema,
+                    it.organizationName, it.name, it.schema,
                     it.jurisdictionalFilter.joinToString()
                 )
             )

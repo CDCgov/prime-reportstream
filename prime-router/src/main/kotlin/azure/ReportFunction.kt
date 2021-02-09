@@ -12,10 +12,11 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.OrganizationClient
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -120,16 +121,16 @@ class ReportFunction {
         val clientName = request.headers[clientParameter] ?: request.queryParameters.getOrDefault(clientParameter, "")
         if (clientName.isBlank())
             errors.add(ResultDetail.param(clientParameter, "Expected a '$clientParameter' query parameter"))
-        val client = engine.metadata.findClient(clientName)
-        if (client == null)
+        val sender = engine.metadata.findSender(clientName)
+        if (sender == null)
             errors.add(ResultDetail.param(clientParameter, "'$clientName' is not a valid"))
-        val schema = engine.metadata.findSchema(client?.schema ?: "")
+        val schema = engine.metadata.findSchema(sender?.schema ?: "")
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
-        } else if (client != null && client.format.mimeType != contentType) {
-            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "expecting '${client.format.mimeType}'"))
+        } else if (sender != null && sender.format.mimeType != contentType) {
+            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "expecting '${sender.format.mimeType}'"))
         }
 
         val content = request.body ?: ""
@@ -137,7 +138,7 @@ class ReportFunction {
             errors.add(ResultDetail.param("Content", "expecting a post message with content"))
         }
 
-        if (client == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
+        if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
             return ValidatedRequest(options, emptyMap(), errors, warnings, null)
         }
 
@@ -169,7 +170,7 @@ class ReportFunction {
             return ValidatedRequest(options, defaultValues, errors, warnings, null)
         }
 
-        var report = createReport(engine, client, content, defaultValues, errors, warnings)
+        var report = createReport(engine, sender, content, defaultValues, errors, warnings)
         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
             report = null
         }
@@ -178,19 +179,19 @@ class ReportFunction {
 
     private fun createReport(
         engine: WorkflowEngine,
-        client: OrganizationClient,
+        sender: Sender,
         content: String,
         defaults: Map<String, String>,
         errors: MutableList<ResultDetail>,
         warnings: MutableList<ResultDetail>
     ): Report? {
-        return when (client.format) {
-            OrganizationClient.Format.CSV -> {
+        return when (sender.format) {
+            Sender.Format.CSV -> {
                 try {
                     val readResult = engine.csvSerializer.read(
-                        schemaName = client.schema,
+                        schemaName = sender.schema,
                         input = ByteArrayInputStream(content.toByteArray()),
-                        sources = listOf(ClientSource(organization = client.organization.name, client = client.name)),
+                        sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
                         defaultValues = defaults
                     )
                     errors += readResult.errors
@@ -217,11 +218,19 @@ class ReportFunction {
         workflowEngine.db.transact { txn ->
             workflowEngine
                 .translator
-                .filterAndTranslateByService(validatedRequest.report!!, validatedRequest.defaults)
-                .forEach { (report, service) ->
+                .filterAndTranslateByReceiver(validatedRequest.report!!, validatedRequest.defaults)
+                .forEach { (report, receiver) ->
+                    val organization = workflowEngine.metadata.findOrganization(receiver.organizationName)!!
                     sendToDestination(
-                        report, service, context, workflowEngine,
-                        validatedRequest, destinations, actionHistory, txn
+                        report,
+                        organization,
+                        receiver,
+                        context,
+                        workflowEngine,
+                        validatedRequest,
+                        destinations,
+                        actionHistory,
+                        txn
                     )
                 }
         }
@@ -229,7 +238,8 @@ class ReportFunction {
 
     private fun sendToDestination(
         report: Report,
-        service: OrganizationService,
+        organization: Organization,
+        receiver: Receiver,
         context: ExecutionContext,
         workflowEngine: WorkflowEngine,
         validatedRequest: ValidatedRequest,
@@ -237,44 +247,41 @@ class ReportFunction {
         actionHistory: ActionHistory,
         txn: DataAccessTransaction
     ) {
-        val serviceDescription = if (service.organization.services.size > 1)
-            "${service.organization.description} (${service.name})"
-        else
-            service.organization.description
+        val receiverDescription = "${organization.description} (${receiver.name})"
         val loggerMsg: String
         when {
             validatedRequest.options == Options.SkipSend -> {
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
                 workflowEngine.dispatchReport(event, report, txn)
-                actionHistory.trackCreatedReport(event, report, service)
+                actionHistory.trackCreatedReport(event, report, receiver)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            service.batch != null -> {
-                val time = service.batch.nextBatchTime()
+            receiver.batch != null -> {
+                val time = receiver.batch.nextBatchTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                destinations += "Sending ${batchReport.itemCount} items to $serviceDescription at $time"
-                val event = ReceiverEvent(Event.EventAction.BATCH, service.fullName, time)
+                destinations += "Sending ${batchReport.itemCount} items to $receiverDescription at $time"
+                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
                 workflowEngine.dispatchReport(event, batchReport, txn)
-                actionHistory.trackCreatedReport(event, batchReport, service)
+                actionHistory.trackCreatedReport(event, batchReport, receiver)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            service.format == Report.Format.HL7 -> {
-                destinations += "Sending ${report.itemCount} reports to $serviceDescription immediately"
+            receiver.format == Report.Format.HL7 -> {
+                destinations += "Sending ${report.itemCount} reports to $receiverDescription immediately"
                 report
                     .split()
                     .forEach {
                         val event = ReportEvent(Event.EventAction.SEND, it.id)
                         workflowEngine.dispatchReport(event, it, txn)
-                        actionHistory.trackCreatedReport(event, it, service)
+                        actionHistory.trackCreatedReport(event, it, receiver)
                     }
                 loggerMsg = "Queue: ${report.itemCount} reports"
             }
             else -> {
-                destinations += "Sending ${report.itemCount} items to $serviceDescription immediately"
+                destinations += "Sending ${report.itemCount} items to $receiverDescription immediately"
                 val event = ReportEvent(Event.EventAction.SEND, report.id)
                 workflowEngine.dispatchReport(event, report, txn)
-                actionHistory.trackCreatedReport(event, report, service)
+                actionHistory.trackCreatedReport(event, report, receiver)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
         }

@@ -9,13 +9,16 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class OrganizationTests {
-    private val servicesYaml = """
+    private val receiversYaml = """
             ---
               # Arizona PHD
               - name: phd1
                 description: Arizona PHD
-                services: 
+                jurisdiction: STATE
+                stateCode: AZ
+                receivers: 
                 - name: elr
+                  organizationName: phd1
                   topic: test
                   schema: one
                   jurisdictionalFilter: [ "matches(a, 1)"]
@@ -24,13 +27,16 @@ class OrganizationTests {
                   format: CSV
     """.trimIndent()
 
-    private val clientsAndServicesYaml = """
+    private val sendersAndReceiversYaml = """
             ---
               # Arizona PHD
               - name: phd1
                 description: Arizona PHD
-                services: 
+                jurisdiction: STATE
+                stateCode: AZ
+                receivers: 
                   - name: elr
+                    organizationName: phd1
                     topic: test
                     schema: one
                     jurisdictionalFilter: [ "matches(a, 1)"]
@@ -42,8 +48,9 @@ class OrganizationTests {
                       timeZone: ARIZONA
                     address: phd1
                     format: CSV
-                clients:
+                senders:
                   - name: sender
+                    organizationName: phd1
                     topic: topic
                     schema: one
                     format: CSV
@@ -52,8 +59,8 @@ class OrganizationTests {
     @Test
     fun `test loading a service`() {
         val metadata = Metadata()
-        metadata.loadOrganizations(ByteArrayInputStream(servicesYaml.toByteArray()))
-        val result = metadata.findService("phd1.elr")
+        metadata.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
+        val result = metadata.findReceiver("phd1.elr")
 
         assertEquals(1, result?.jurisdictionalFilter?.size)
     }
@@ -61,9 +68,9 @@ class OrganizationTests {
     @Test
     fun `test loading a client and service`() {
         val metadata = Metadata()
-        metadata.loadOrganizations(ByteArrayInputStream(clientsAndServicesYaml.toByteArray()))
+        metadata.loadOrganizations(ByteArrayInputStream(sendersAndReceiversYaml.toByteArray()))
 
-        val result = metadata.findClient("phd1.sender")
+        val result = metadata.findSender("phd1.sender")
 
         assertEquals("sender", result?.name)
     }
@@ -71,23 +78,26 @@ class OrganizationTests {
     @Test
     fun `test loading a single organization`() {
         val metadata = Metadata().loadOrganizations(
-            Organization(
+            DeepOrganization(
                 name = "single",
                 description = "blah blah",
-                clients = listOf(),
-                services = listOf(
-                    OrganizationService("elr", "topic", "schema")
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                stateCode = null,
+                countyName = null,
+                senders = listOf(),
+                receivers = listOf(
+                    Receiver("elr", "single", "topic", "schema")
                 )
             )
         )
-        val result = metadata.findService("single.elr") ?: fail("Expected to find service")
+        val result = metadata.findReceiver("single.elr") ?: fail("Expected to find service")
         assertEquals("elr", result.name)
     }
 
     @Test
     fun `test nextBatchTime`() {
-        val batch = OrganizationService.Batch(
-            OrganizationService.BatchOperation.NONE,
+        val batch = Receiver.Batch(
+            Receiver.BatchOperation.NONE,
             24,
             "04:05",
             USTimeZone.ARIZONA

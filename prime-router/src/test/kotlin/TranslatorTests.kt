@@ -5,13 +5,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TranslatorTests {
-    private val servicesYaml = """
+    private val receiversYaml = """
         ---
           # Arizona PHD
           - name: phd1
             description: Arizona PHD
-            services: 
+            jurisdiction: STATE
+            stateCode: AZ
+            receivers: 
             - name: elr
+              organizationName: phd1
               topic: test
               schema: one
               jurisdictionalFilter: [ "matches(a, 1)"]
@@ -73,20 +76,20 @@ class TranslatorTests {
     }
 
     @Test
-    fun `test filterAndMapByService`() {
+    fun `test filterAndMapByReceiver`() {
         val metadata = Metadata()
-        metadata.loadOrganizations(ByteArrayInputStream(servicesYaml.toByteArray()))
+        metadata.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
         val translator = Translator(metadata)
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource)
 
-        val result = translator.filterAndTranslateByService(table1)
+        val result = translator.filterAndTranslateByReceiver(table1)
 
         assertEquals(1, result.size)
         val (mappedTable, forReceiver) = result[0]
         assertEquals(table1.schema, mappedTable.schema)
         assertEquals(1, mappedTable.itemCount)
-        assertEquals(metadata.organizationServices[0], forReceiver)
+        assertEquals(metadata.receivers.toTypedArray()[0], forReceiver)
     }
 }

@@ -4,7 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import java.util.logging.Level
 
@@ -31,7 +31,7 @@ class BatchFunction {
                 context.logger.warning("Batch function received a $message")
                 return
             }
-            val receiver = workflowEngine.metadata.findService(event.receiverName)
+            val receiver = workflowEngine.metadata.findReceiver(event.receiverName)
                 ?: error("Internal Error: receiver name ${event.receiverName}")
             val maxBatchSize = receiver.batch?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
@@ -52,7 +52,7 @@ class BatchFunction {
                     report
                 }
                 val mergedReports = when (receiver.batch?.operation) {
-                    OrganizationService.BatchOperation.MERGE -> listOf(Report.merge(inReports))
+                    Receiver.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
                 }
                 val outReports = when (receiver.format) {

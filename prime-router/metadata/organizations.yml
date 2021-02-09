@@ -4,24 +4,31 @@
   #
   - name: simple_report
     description: PRIME's POC testing app
-    clients:
+    jurisdiction: FEDERAL
+    senders:
       - name: default
+        organizationName: simple_report
         topic: covid-19
         schema: primedatainput/pdi-covid-19
         format: CSV
 
   - name: strac
     description: STRAC POC testing app
-    clients:
+    jurisdiction: FEDERAL
+    senders:
       - name: default
+        organizationName: strac
         topic: covid-19
         schema: strac/strac-covid-19
         format: CSV
 
   - name: az-phd
     description: Arizona PHD
-    services:
+    jurisdiction: STATE
+    stateCode: AZ
+    receivers:
       - name: elr-test
+        organizationName: az-phd
         topic: covid-19
         schema: az/az-covid-19
         jurisdictionalFilter:
@@ -35,6 +42,7 @@
           timeZone: ARIZONA
         format: CSV
       - name: elr-hl7-test
+        organizationName: az-phd
         topic: covid-19
         schema: az/az-covid-19-hl7
         jurisdictionalFilter:
@@ -43,6 +51,7 @@
         transforms: { deidentify: false }
         format: HL7_BATCH
       - name: elr-prod
+        organizationName: az-phd
         topic: covid-19
         schema: az/az-covid-19
         jurisdictionalFilter:
@@ -58,8 +67,12 @@
 
   - name: pima-az-phd
     description: Pima County, Arizona PHD
-    services:
+    jurisdiction: COUNTY
+    stateCode: AZ
+    countyName: Pima
+    receivers:
       - name: elr
+        organizationName: pima-az-phd
         topic: covid-19
         schema: az/pima-az-covid-19
         jurisdictionalFilter:
@@ -74,8 +87,11 @@
 
   - name: fl-phd
     description: Florida Department of Health
-    services:
+    jurisdiction: STATE
+    stateCode: FL
+    receivers:
       - name: elr
+        organizationName: fl-phd
         topic: covid-19
         schema: fl/fl-covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
@@ -84,8 +100,11 @@
         
   - name: co-phd
     description: Colorado Department of Health
-    services:
+    jurisdiction: STATE
+    stateCode: CO
+    receivers:
       - name: elr-redox-debug
+        organizationName: co-phd
         topic: covid-19
         schema: co/co-covid-19-redox
         jurisdictionalFilter: [ "matches(ordering_facility_state, CO)" ]
@@ -99,8 +118,11 @@
 
   - name: tx-phd
     description: Texas Texas Department of State Health Services
-    services:
+    jurisdiction: STATE
+    stateCode: TX
+    receivers:
       - name: elr
+        organizationName: tx-phd
         topic: covid-19
         schema: tx/tx-covid-19-hl7
         jurisdictionalFilter: [ "matches(ordering_facility_state, TX)"]
@@ -109,8 +131,11 @@
 
   - name: pa-phd
     description: Pennsylvania Department of Health
-    services:
+    jurisdiction: STATE
+    stateCode: PA
+    receivers:
       - name: elr-bucks-debug
+        organizationName: pa-phd
         topic: covid-19
         schema: pa/pa-covid-19-redox
         jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
@@ -123,6 +148,7 @@
           redox_source_name: "Prime Data Hub (Staging)"
         format: REDOX
       - name: elr-chester-debug
+        organizationName: pa-phd
         topic: covid-19
         schema: pa/pa-covid-19-redox
         jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester)" ]
@@ -135,6 +161,7 @@
           redox_source_name: "Prime Data Hub (Staging)"
         format: REDOX
       - name: elr-montgomery-debug
+        organizationName: pa-phd
         topic: covid-19
         schema: pa/pa-covid-19-redox
         jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
@@ -146,40 +173,3 @@
           redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
           redox_source_name: "Prime Data Hub (Staging)"
         format: REDOX
-
-
-  #
-  # Developer test organizations
-  #
-  - name: phd1
-    description: Arizona PHD
-    services:
-      - name: elr
-        topic: sample
-        schema: sample/phd1-sample
-        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, AZ)"]
-        transforms: {deidentify: false}
-        format: CSV
-
-
-    # Florida PHD
-  - name: phd2
-    description: Florida PHD
-    services:
-      - name: elr
-        topic: sample
-        schema: sample/phd2-sample
-        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state, FL)"]
-        transforms: {deidentify: false}
-        format: CSV
-
-  # HHS
-  - name: fed1
-    description: Federal feed
-    services:
-      - name: elr
-        topic: sample
-        schema: sample/fed1-sample
-        jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)"]
-        transforms: {deidentify: true}
-        format: CSV

@@ -92,7 +92,7 @@ class DownloadFunction {
         return headers.sortedByDescending {
             it.task.createdAt
         }.map {
-            val svc = WorkflowEngine().metadata.findService(it.task.receiverName)
+            val svc = WorkflowEngine().metadata.findReceiver(it.task.receiverName)
             val orgDesc = authClaims.organization.description
             val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
             TestResult(

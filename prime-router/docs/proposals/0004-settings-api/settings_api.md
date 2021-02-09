@@ -7,16 +7,23 @@ We wish to allow our Public Health customers to access their current feed config
 - An API that is useful for a settings page for the PHD customer.
 - An API that is useful for on-boarding states by the Data Hub team.
 - An API which doesn't require specific code knowledge.
+- An API which allows the separation of operations by sensitivity
 - An API which is implementable in an Azure Function.
 - Use Okta authentication.
 
 ## Proposal
 
 - The Organization metadata moves out of the project's JAR into the projects' database in Azure and new JSON files for the CLI.
+- Path hierarchy based on organization and sub resources
+    - `api/organizations/<organization-name>`
+    - `api/organizations/<organization-name>/users` 
+    - `api/organizations/<organization-name>/receivers`
+    - `api/organizations/<organization-name>/senders`
+    - `api/organizations/<organization-name>/receivers/secrets`
 - Extend the current Azure Functions App with a Settings function. 
 - For Azure functions, a `settings` database table. The table will be a hybrid of metadata about the setting as well
   as a JSON structure with the actual setting. 
-- Add `/api/settings` path and sub-paths. The OpenAPI specification documents details [openapi.yml](openapi.yml) doc
+- The CLI will add a settings
 - The CLI will add a `--organizations-file` parameter to pass in the equivalent information. One benefit is that configuration changes will not require a recompile.
 
 Outside of this proposal, pages and tooling will follow.

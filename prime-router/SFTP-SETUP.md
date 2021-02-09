@@ -22,7 +22,7 @@ Steps
     ```
       - name: az-phd
         description: Arizona PHD
-        services:
+        receivers:
         - name: elr
           topic: covid-19
           schema: az/az-covid-19

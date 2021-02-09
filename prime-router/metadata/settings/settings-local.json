@@ -1,0 +1,47 @@
+[
+  {
+    "path": "/api/organizations/simple_report",
+    "put": {
+      "name": "simple_report",
+      "description": "PRIME's POC testing app"
+    }
+  },
+  {
+    "path": "/api/organizations/strac",
+    "put": {
+      "name": "strac",
+      "description": "STRAC POC testing app"
+    }
+  },
+  {
+    "path": "/api/organizations/az-phd",
+    "put": {
+  {
+    "name": "az-phd",
+    "description": "Arizona PHD"
+  },
+    }
+  },
+
+,
+  {
+    "name": "pima-az-phd",
+    "description": "Pima County, Arizona PHD"
+  },
+  {
+    "name": "co-phd",
+    "description": "Colorado Department of Health"
+  },
+  {
+    "name": "tx-phd",
+    "description": "Texas Department of State Health Services"
+  },
+  {
+    "name": "fl-phd",
+    "description": "Florida Department of Health"
+  },
+  {
+    "name": "pa-phd",
+    "description": "Pennsylvania Department of Health"
+  }
+]

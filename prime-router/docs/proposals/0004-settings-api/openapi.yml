@@ -96,21 +96,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Organization'
-    post:
-      security:
-        - OAuth2: [ admin ]
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Organization'
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organization'
 
   /settings/organizations/{organizationName}:
     get:
@@ -154,6 +139,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Organization'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
         '400':
           description: Bad Request
         '401':
@@ -181,34 +172,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Receiver'
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-    post:
-      description: Create a receiver
-      security:
-        - OAuth2: [ write ]
-      parameters:
-        - in: path
-          name: organizationName
-          description: Create a receiver under this organization name
-          schema:
-            type: string
-          required: true
-          example: az-phd
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Receiver'
-      responses:
-        '201':
-          description: Created, the receiver setting was added
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Receiver'
         '400':
           description: Bad Request
         '401':
@@ -276,6 +239,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Receiver'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receiver'
         '400':
           description: Bad Request
         '401':
@@ -303,29 +272,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Sender'
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-    post:
-      description: A list of senders
-      security:
-        - OAuth2: [ read ]
-      parameters:
-        - in: path
-          name: organizationName
-          description: Fetch senders with this organization name
-          schema:
-            type: string
-          required: true
-          example: az-phd
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Sender'
         '400':
           description: Bad Request
         '401':
@@ -389,6 +335,20 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sender'
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sender'
         '400':
           description: Bad Request
         '401':

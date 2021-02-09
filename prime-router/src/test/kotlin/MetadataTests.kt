@@ -85,21 +85,21 @@ class MetadataTests {
     }
 
     @Test
-    fun `test find client`() {
+    fun `test find sender`() {
         val metadata = Metadata()
         metadata.loadOrganizations("./metadata/organizations.yml")
-        val client = metadata.findClient("simple_report")
-        assertNotNull(client)
+        val sender = metadata.findSender("simple_report")
+        assertNotNull(sender)
     }
 
     @Test
-    fun `test duplicate service name`() {
+    fun `test duplicate receiver name`() {
         val metadata = Metadata()
-        val org1 = Organization(
-            "test", "test",
-            services = listOf(
-                OrganizationService("service1", "topic1", "schema1"),
-                OrganizationService("service1", "topic1", "schema1")
+        val org1 = DeepOrganization(
+            "test", "test", Organization.Jurisdiction.FEDERAL, null, null,
+            receivers = listOf(
+                Receiver("service1", "test", "topic1", "schema1"),
+                Receiver("service1", "test", "topic1", "schema1")
             )
         )
         assertFails { metadata.loadOrganizationList(listOf(org1)) }

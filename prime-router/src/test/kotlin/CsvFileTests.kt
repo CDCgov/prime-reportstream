@@ -57,7 +57,7 @@ class CsvFileTests {
         assertTrue(result.warnings.isEmpty() && result.errors.isEmpty())
         val inputReport = result.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
-        val outputReports = Translator(metadata).translateByService(inputReport)
+        val outputReports = Translator(metadata).translateByReceiver(inputReport)
         assertEquals(2, outputReports.size)
         // 3) Write transformed objs to files, and check they are correct
 
@@ -88,8 +88,8 @@ class CsvFileTests {
     private fun loadTestOrganizations(metadata: Metadata) {
         val loadingStream = File(inputPath + "test-organizations.yml").inputStream()
         metadata.loadOrganizations(loadingStream)
-        assertEquals(2, metadata.organizationServices.size)
-        assertEquals(2, metadata.findService("federal-test.receiver")?.jurisdictionalFilter?.size)
+        assertEquals(2, metadata.receivers.size)
+        assertEquals(2, metadata.findReceiver("federal-test.receiver")?.jurisdictionalFilter?.size)
     }
 
     private fun loadTestSchemas(metadata: Metadata) {

@@ -3,7 +3,7 @@ package gov.cdc.prime.router.azure
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportSource
@@ -52,14 +52,14 @@ class DatabaseAccess(private val create: DSLContext) {
         val engine: WorkflowEngine = WorkflowEngine()
     ) {
         // Populate the header with useful metadata objs, and the blob body.
-        val orgSvc: OrganizationService?
+        val orgSvc: Receiver?
         val schema: Schema?
         val content: ByteArray?
 
         init {
             val meta = engine.metadata
             orgSvc = if (reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null)
-                meta.findService(reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)
+                meta.findReceiver(reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)
             else null
 
             schema = if (reportFile.schemaName != null)
@@ -188,7 +188,7 @@ class DatabaseAccess(private val create: DSLContext) {
     fun fetchAndLockHeaders(
         nextAction: TaskAction,
         at: OffsetDateTime?,
-        receiver: OrganizationService,
+        receiver: Receiver,
         limit: Int,
         txn: DataAccessTransaction,
     ): List<Header> {

@@ -6,7 +6,7 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
@@ -48,7 +48,7 @@ class CsvSerializer(val metadata: Metadata) {
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         defaultValues: Map<String, String> = emptyMap(),
     ): ReadResult {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
@@ -88,7 +88,7 @@ class CsvSerializer(val metadata: Metadata) {
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
-        destination: OrganizationService? = null
+        destination: Receiver? = null
     ): Report {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
         val rows: List<List<String>> = csvReader().readAll(input).drop(1)

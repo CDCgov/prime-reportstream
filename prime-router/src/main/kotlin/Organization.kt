@@ -3,15 +3,40 @@ package gov.cdc.prime.router
 /**
  * Organization represents a partner organization of the hub (eg. a sender or a receiver).
  */
-data class Organization(
+open class Organization(
     val name: String,
-    val description: String? = null,
-    val clients: List<OrganizationClient> = emptyList(),
-    val services: List<OrganizationService> = emptyList(),
+    val description: String,
+    val jurisdiction: Jurisdiction,
+    val stateCode: String?,
+    val countyName: String?,
 ) {
-    init {
-        // init back-references
-        services.forEach { it.organization = this }
-        clients.forEach { it.organization = this }
+    enum class Jurisdiction {
+        FEDERAL,
+        STATE,
+        COUNTY
     }
 }
+
+/**
+ * Organization with senders and receivers
+ */
+class DeepOrganization(
+    name: String,
+    description: String,
+    jurisdiction: Jurisdiction,
+    stateCode: String?,
+    countyName: String?,
+    val senders: List<Sender> = emptyList(),
+    val receivers: List<Receiver> = emptyList(),
+) : Organization(name, description, jurisdiction, stateCode, countyName)
+
+/**
+ * Organization for Api (Serialized as JSON)
+ */
+class APIOrganization(
+    name: String,
+    description: String,
+    jurisdiction: Jurisdiction,
+    stateCode: String?,
+    countyName: String?,
+) : Organization(name, description, jurisdiction, stateCode, countyName)

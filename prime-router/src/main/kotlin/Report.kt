@@ -71,7 +71,7 @@ class Report {
     /**
      * The intended destination service for this report
      */
-    val destination: OrganizationService?
+    val destination: Receiver?
 
     /**
      * The time when the report was created
@@ -116,7 +116,7 @@ class Report {
         schema: Schema,
         values: List<List<String>>,
         sources: List<Source>,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         bodyFormat: Format? = null
     ) {
         this.id = UUID.randomUUID()
@@ -133,7 +133,7 @@ class Report {
         schema: Schema,
         values: List<List<String>>,
         source: TestSource,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
@@ -149,13 +149,13 @@ class Report {
     constructor(
         schema: Schema,
         values: List<List<String>>,
-        source: OrganizationClient,
-        destination: OrganizationService? = null,
+        source: Sender,
+        destination: Receiver? = null,
         bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
-        this.sources = listOf(ClientSource(source.organization.name, source.name))
+        this.sources = listOf(ClientSource(source.organizationName, source.name))
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
@@ -166,7 +166,7 @@ class Report {
         schema: Schema,
         table: Table,
         sources: List<Source>,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         bodyFormat: Format? = null,
     ) {
         this.id = UUID.randomUUID()
@@ -194,7 +194,7 @@ class Report {
     /**
      * Does a shallow copy of this report. Will have a new id and create date.
      */
-    fun copy(destination: OrganizationService? = null, bodyFormat: Format? = null): Report {
+    fun copy(destination: Receiver? = null, bodyFormat: Format? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
         return Report(
             this.schema,

@@ -30,9 +30,9 @@ class Metadata {
         DoesNotMatch(),
     )
     private var valueSets = mapOf<String, ValueSet>()
-    private var organizationStore: List<Organization> = ArrayList()
-    private var organizationServiceStore: List<OrganizationService> = ArrayList()
-    private var organizationClientStore: List<OrganizationClient> = ArrayList()
+    private var organizationStore: Map<String, Organization> = mapOf()
+    private var receiverStore: Map<String, Receiver> = mapOf()
+    private var senderStore: Map<String, Sender> = mapOf()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
     /**
@@ -56,11 +56,9 @@ class Metadata {
         valueSet: ValueSet? = null,
         tableName: String? = null,
         table: LookupTable? = null,
-        organization: Organization? = null,
     ) {
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
-        organization?.let { loadOrganizations(it) }
         schema?.let { loadSchemas(it) }
     }
 
@@ -265,8 +263,8 @@ class Metadata {
      */
 
     val organizations get() = this.organizationStore
-    val organizationClients get() = this.organizationClientStore
-    val organizationServices get() = this.organizationServiceStore
+    val senders get() = this.senderStore.values
+    val receivers get() = this.receiverStore.values
 
     fun loadOrganizations(filePath: String): Metadata {
         try {
@@ -277,72 +275,48 @@ class Metadata {
     }
 
     fun loadOrganizations(organizationStream: InputStream): Metadata {
-        val list = mapper.readValue<List<Organization>>(organizationStream)
+        val list = mapper.readValue<List<DeepOrganization>>(organizationStream)
         return loadOrganizationList(list)
     }
 
-    fun loadOrganizations(vararg organizations: Organization): Metadata {
+    fun loadOrganizations(vararg organizations: DeepOrganization): Metadata {
         return loadOrganizationList(organizations.toList())
     }
 
-    fun loadOrganizationList(organizations: List<Organization>): Metadata {
-        organizationStore = organizations
-        organizationClientStore = organizations.flatMap { it.clients }
-        organizationServiceStore = organizations.flatMap { it.services }
-        // Check values
-        val clientNames = mutableSetOf<String>()
-        organizationClientStore.forEach {
-            if (clientNames.contains(it.fullName))
-                error("Metadata Error: Duplicate ${it.fullName} in organization clients")
-            else
-                clientNames.add(it.fullName)
+    fun loadOrganizationList(organizations: List<DeepOrganization>): Metadata {
+        organizations.forEach { org ->
+            if (org.receivers.find { it.organizationName != org.name } != null)
+                error("Metadata Error: receiver organizationName does not match in ${org.name}")
+            if (org.receivers.associateBy { it.fullName }.size != org.receivers.size)
+                error("Metadata Error: duplicate receiver name in ${org.name}")
+            if (org.senders.find { it.organizationName != org.name } != null)
+                error("Metadata Error: sender organizationName does not match in ${org.name}")
+            if (org.senders.associateBy { it.fullName }.size != org.senders.size)
+                error("Metadata Error: duplicate sender name in ${org.name}")
         }
-        val serviceNames = mutableSetOf<String>()
-        organizationServiceStore.forEach {
-            if (serviceNames.contains(it.fullName))
-                error("Metadata Error: Duplicate ${it.fullName} in organization services")
-            else
-                serviceNames.add(it.fullName)
-        }
-        organizationServiceStore.forEach { service ->
-            service.batch?.let {
+        organizationStore = organizations.associateBy { it.name }
+        senderStore = organizations.flatMap { it.senders }.associateBy { it.fullName }
+        receiverStore = organizations.flatMap { it.receivers }.associateBy { it.fullName }
+
+        receiverStore.forEach { (_, receiver) ->
+            receiver.batch?.let {
                 if (!it.isValid())
-                    error("Metadata Error: improper batch value for ${service.fullName}")
+                    error("Metadata Error: improper batch value for ${receiver.fullName}")
             }
         }
         return this
     }
 
     fun findOrganization(name: String): Organization? {
-        if (name.isBlank()) return null
-        return this.organizations.find {
-            it.name.equals(name, ignoreCase = true)
-        }
+        return organizationStore[name]
     }
 
-    fun findService(name: String): OrganizationService? {
-        if (name.isBlank()) return null
-        val (orgName, clientName) = parseName(name)
-        return findOrganization(orgName)?.services?.find {
-            it.name.equals(clientName, ignoreCase = true)
-        }
+    fun findReceiver(fullName: String): Receiver? {
+        return receiverStore[fullName] ?: receiverStore["$fullName.default"]
     }
 
-    fun findClient(name: String): OrganizationClient? {
-        if (name.isBlank()) return null
-        val (orgName, clientName) = parseName(name)
-        return findOrganization(orgName)?.clients?.find {
-            it.name.equals(clientName, ignoreCase = true)
-        }
-    }
-
-    private fun parseName(name: String): Pair<String, String> {
-        val subNames = name.split('.')
-        return when (subNames.size) {
-            2 -> Pair(subNames[0], subNames[1])
-            1 -> Pair(subNames[0], "default")
-            else -> error("too many sub-names")
-        }
+    fun findSender(fullName: String): Sender? {
+        return senderStore[fullName] ?: senderStore["$fullName.default"]
     }
 
     /*

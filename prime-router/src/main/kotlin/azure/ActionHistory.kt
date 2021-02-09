@@ -6,7 +6,7 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
@@ -232,7 +232,7 @@ class ActionHistory {
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        service: OrganizationService
+        service: Receiver
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -242,7 +242,7 @@ class ActionHistory {
         reportFile.reportId = report.id
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
-        reportFile.receivingOrg = service.organization.name
+        reportFile.receivingOrg = service.organizationName
         reportFile.receivingOrgSvc = service.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
@@ -254,7 +254,7 @@ class ActionHistory {
     }
 
     fun trackSentReport(
-        service: OrganizationService,
+        service: Receiver,
         sentReportId: ReportId,
         fileName: String?,
         params: String,
@@ -269,7 +269,7 @@ class ActionHistory {
         }
         val reportFile = ReportFile()
         reportFile.reportId = sentReportId
-        reportFile.receivingOrg = service.organization.name
+        reportFile.receivingOrg = service.organizationName
         reportFile.receivingOrgSvc = service.name
         reportFile.schemaName = service.schema
         reportFile.schemaTopic = service.topic
@@ -431,16 +431,16 @@ class ActionHistory {
         fun fetchReportFilesForReceiver(
             nextAction: TaskAction,
             at: OffsetDateTime?,
-            receiver: OrganizationService,
+            receiver: Receiver,
             limit: Int,
             ctx: DSLContext,
         ): Map<ReportId, ReportFile> {
             val cond = if (at == null) {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organization.name)
+                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organizationName)
                     .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
                     .and(Tables.REPORT_FILE.NEXT_ACTION.eq(nextAction))
             } else {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organization.name)
+                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organizationName)
                     .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
                     .and(Tables.REPORT_FILE.NEXT_ACTION.eq(nextAction))
                     .and(Tables.REPORT_FILE.NEXT_ACTION_AT.eq(at))

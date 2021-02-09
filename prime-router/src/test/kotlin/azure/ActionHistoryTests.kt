@@ -1,8 +1,9 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
@@ -86,18 +87,21 @@ class ActionHistoryTests {
             listOf<ResultDetail>(), report1
         )
         val org =
-            Organization(
+            DeepOrganization(
                 name = "myOrg",
                 description = "blah blah",
-                clients = listOf(),
-                services = listOf(
-                    OrganizationService("myService", "topic", "schema")
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                stateCode = null,
+                countyName = null,
+                senders = listOf(),
+                receivers = listOf(
+                    Receiver("myService", "myOrg", "topic", "schema")
                 )
             )
-        val orgSvc = org.services[0]
+        val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
 
-        actionHistory1.trackCreatedReport(event1, report1, orgSvc)
+        actionHistory1.trackCreatedReport(event1, report1, orgReceiver)
 
         assertNotNull(actionHistory1.reportsOut[report1.id])
         val reportFile = actionHistory1.reportsOut[report1.id] !!
@@ -109,7 +113,7 @@ class ActionHistoryTests {
         assertEquals(reportFile.itemCount, 0)
 
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackCreatedReport(event1, report1, orgSvc) }
+        assertFails { actionHistory1.trackCreatedReport(event1, report1, orgReceiver) }
     }
 
     /**

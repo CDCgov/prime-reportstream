@@ -119,7 +119,7 @@ class WorkflowEngine(
         maxCount: Int,
         updateBlock: (headers: List<DatabaseAccess.Header>, txn: Configuration?) -> Unit,
     ) {
-        val receiver = metadata.findService(messageEvent.receiverName)
+        val receiver = metadata.findReceiver(messageEvent.receiverName)
             ?: error("Unable to find a receiving service called ${messageEvent.receiverName}")
 
         db.transact { txn ->
@@ -151,7 +151,7 @@ class WorkflowEngine(
     fun createReport(header: DatabaseAccess.Header): Report {
         val schema = metadata.findSchema(header.task.schemaName)
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
-        val destination = metadata.findService(header.task.receiverName)
+        val destination = metadata.findReceiver(header.task.receiverName)
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         val sources = header.sources.map { DatabaseAccess.toSource(it) }
         return when (header.task.bodyFormat) {
