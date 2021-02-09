@@ -194,6 +194,7 @@ class DownloadFunction {
                     authClaims.userName,
                     authClaims.organization
                 )
+                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
                 WorkflowEngine().recordAction(actionHistory)
                 return response
             }

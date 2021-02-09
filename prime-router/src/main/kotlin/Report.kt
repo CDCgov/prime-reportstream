@@ -523,6 +523,18 @@ class Report {
             return retval
         }
 
+        fun decorateItemLineagesWithTransportResults(itemLineages: List<ItemLineage>, transportResults: List<String>) {
+            if (itemLineages.size != transportResults.size) {
+                error(
+                    "To include transport_results in item_lineages, must have 1:1." +
+                        "  Instead have ${transportResults.size} and  ${itemLineages.size} resp."
+                )
+            }
+            itemLineages.forEachIndexed { index, itemLineage ->
+                itemLineage.transportResult = transportResults[index]
+            }
+        }
+
         fun formFilename(
             id: ReportId,
             schemaName: String,
