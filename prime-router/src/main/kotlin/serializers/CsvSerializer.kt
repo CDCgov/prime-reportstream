@@ -243,7 +243,10 @@ class CsvSerializer(val metadata: Metadata) {
             val valueNames = mapper.valueNames(element, args)
             val valuesForMapper = valueNames.map { elementName ->
                 val valueElement = schema.findElement(elementName)
-                    ?: error("Schema Error: Could not find element '$elementName' for mapper '${mapper.name}' from '${element.name}'.")
+                    ?: error(
+                        "Schema Error: Could not find element '$elementName' for mapper " +
+                            "'${mapper.name}' from '${element.name}'."
+                    )
                 val value = lookupValues[elementName]
                     ?: error("Schema Error: No mapper input for $elementName")
                 ElementAndValue(valueElement, value)
@@ -270,7 +273,8 @@ class CsvSerializer(val metadata: Metadata) {
             if (value.isBlank() && !element.canBeBlank) {
                 when (element.cardinality) {
                     Element.Cardinality.ONE -> errors += "Empty value for '${element.name}'"
-                    Element.Cardinality.ZERO_OR_ONE -> {}
+                    Element.Cardinality.ZERO_OR_ONE -> {
+                    }
                 }
             }
             if (value == failureValue) {
