@@ -29,7 +29,8 @@ class SftpTransport : ITransport {
         val host: String = sftpTransportType.host
         val port: String = sftpTransportType.port
         return try {
-            if (header.content == null || header.orgSvc == null) error("No content or orgSvc to sftp, for report ${header.reportFile.reportId}")
+            if (header.content == null || header.orgSvc == null)
+                error("No content or orgSvc to sftp, for report ${header.reportFile.reportId}")
             val (user, pass) = lookupCredentials(header.orgSvc.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
@@ -48,7 +49,8 @@ class SftpTransport : ITransport {
             null
         } catch (ioException: IOException) {
             val msg =
-                "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to $sftpTransportType (orgService = ${header.orgSvc?.fullName ?: "null"})"
+                "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
+                    "$sftpTransportType (orgService = ${header.orgSvc?.fullName ?: "null"})"
             context.logger.log(
                 Level.WARNING, msg, ioException
             )

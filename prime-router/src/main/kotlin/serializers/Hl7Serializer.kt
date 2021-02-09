@@ -38,7 +38,8 @@ class Hl7Serializer(val metadata: Metadata) {
      * Write a report with a single item
      */
     fun write(report: Report, outputStream: OutputStream) {
-        if (report.itemCount != 1) error("Internal Error: multiple item report cannot be written as a single HL7 message")
+        if (report.itemCount != 1)
+            error("Internal Error: multiple item report cannot be written as a single HL7 message")
         val message = createMessage(report, 0)
         outputStream.write(message.toByteArray())
     }

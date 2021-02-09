@@ -90,20 +90,6 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 ---
 
-**Name**: Specimen_ID
-
-**Type**: EI
-
-**HL7 Field**: SPM-2
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
----
-
 **Name**: Specimen_source_site_code
 
 **Type**: CODE
@@ -1061,16 +1047,6 @@ The phone number of the provider
 **Type**: ID_CLIA
 
 **HL7 Field**: MSH-4-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: Comment
-
-**Type**: TEXT
-
-**HL7 Field**: NTE-3
 
 **Cardinality**: [0..1]
 

@@ -52,7 +52,9 @@ class ReportTests {
         assertEquals("row1_b", filteredReportB.getString(0, "b"))
         assertEquals("row2_b", filteredReportB.getString(1, "b"))
 
-        val filteredReportC = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "row1_a", "foo", "bar", "baz"))))
+        val filteredReportC = report1.filter(
+            listOf(Pair(jurisdictionalFilter, listOf("a", "row1_a", "foo", "bar", "baz")))
+        )
         assertEquals(1, filteredReportC.itemCount)
         assertEquals("row1_b", filteredReportC.getString(0, "b"))
 
@@ -87,7 +89,8 @@ class ReportTests {
 
         val oneReport = Report(schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")), TestSource)
         assertEquals(2, oneReport.itemCount)
-        val mappingOneToTwo = Translator(metadata).buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
+        val mappingOneToTwo = Translator(metadata)
+            .buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
 
         val twoTable = oneReport.applyMapping(mappingOneToTwo)
         assertEquals(2, twoTable.itemCount)
@@ -107,7 +110,8 @@ class ReportTests {
 
         val twoReport = Report(schema = two, values = listOf(listOf("b1"), listOf("b2")), source = TestSource)
         assertEquals(2, twoReport.itemCount)
-        val mappingTwoToOne = Translator(metadata).buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap())
+        val mappingTwoToOne = Translator(metadata)
+            .buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap())
 
         val oneReport = twoReport.applyMapping(mappingTwoToOne)
         assertEquals(2, oneReport.itemCount)
@@ -147,7 +151,7 @@ class ReportTests {
         )
         val report = Report(
             schema = schema,
-            values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta"),),
+            values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta")),
             source = TestSource
         )
         // act
@@ -174,7 +178,7 @@ class ReportTests {
         )
         val report = Report(
             schema = schema,
-            values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta"),),
+            values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta")),
             source = TestSource
         )
         val strategies = mapOf(

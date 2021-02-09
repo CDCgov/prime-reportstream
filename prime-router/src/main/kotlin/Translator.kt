@@ -29,7 +29,24 @@ class Translator(private val metadata: Metadata) {
         return metadata.organizationServices.map { service -> translateByService(input, service, defaultValues) }
     }
 
-    fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
+    /**
+     * Translate and filter by the list of services in metadata. Only return reports that have items.
+     */
+    fun filterAndTranslateByService(
+        input: Report,
+        defaultValues: DefaultValues = emptyMap()
+    ): List<Pair<Report, OrganizationService>> {
+        if (input.isEmpty()) return emptyList()
+        return metadata.organizationServices.filter { service ->
+            service.topic == input.schema.topic
+        }.mapNotNull { service ->
+            val mappedReport = translateByService(input, service, defaultValues)
+            if (mappedReport.itemCount == 0) return@mapNotNull null
+            Pair(mappedReport, service)
+        }
+    }
+
+    private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
             val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
@@ -49,7 +66,13 @@ class Translator(private val metadata: Metadata) {
             val defaults = if (receiver.defaults.isNotEmpty()) receiver.defaults.plus(defaultValues) else defaultValues
             val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
             if (mapping.missing.isNotEmpty()) {
-                error("Error: To translate to ${toSchema.name}, these elements are missing: ${mapping.missing.joinToString(", ")}")
+                error(
+                    "Error: To translate to ${toSchema.name}, these elements are missing: ${
+                    mapping.missing.joinToString(
+                        ", "
+                    )
+                    }"
+                )
             }
             filteredReport.applyMapping(mapping)
         } else {
@@ -68,14 +91,6 @@ class Translator(private val metadata: Metadata) {
         return transformed.copy(destination = receiver, bodyFormat = receiver.format)
     }
 
-    fun translate(input: Report, toService: String, defaultValues: DefaultValues = emptyMap()): Pair<Report, OrganizationService>? {
-        if (input.isEmpty()) return null
-        val service = metadata.findService(toService) ?: error("invalid service name $toService")
-        val mappedReport = translateByService(input, service, defaultValues)
-        if (mappedReport.itemCount == 0) return null
-        return Pair(mappedReport, service)
-    }
-
     fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
         val toSchema = metadata.findSchema(receiver.schema)
             ?: error("${receiver.schema} schema is missing from catalog")
@@ -90,15 +105,16 @@ class Translator(private val metadata: Metadata) {
         return input.applyMapping(mapping = mapping)
     }
 
-    fun filterAndTranslateByService(input: Report, defaultValues: DefaultValues = emptyMap()): List<Pair<Report, OrganizationService>> {
-        if (input.isEmpty()) return emptyList()
-        return metadata.organizationServices.filter { service ->
-            service.topic == input.schema.topic
-        }.mapNotNull { service ->
-            val mappedReport = translateByService(input, service, defaultValues)
-            if (mappedReport.itemCount == 0) return@mapNotNull null
-            Pair(mappedReport, service)
-        }
+    fun translate(
+        input: Report,
+        toService: String,
+        defaultValues: DefaultValues = emptyMap()
+    ): Pair<Report, OrganizationService>? {
+        if (input.isEmpty()) return null
+        val service = metadata.findService(toService) ?: error("invalid service name $toService")
+        val mappedReport = translateByService(input, service, defaultValues)
+        if (mappedReport.itemCount == 0) return null
+        return Pair(mappedReport, service)
     }
 
     /**
