@@ -296,7 +296,8 @@ class Report {
                 destination = destination,
                 bodyFormat = bodyFormat,
             )
-            oneItemReport.itemLineages = listOf(createItemLineageForRow(this, it, oneItemReport, 0))
+            oneItemReport.itemLineages =
+                listOf(createItemLineageForRow(this, it, oneItemReport, 0))
             oneItemReport
         }
     }
@@ -396,7 +397,8 @@ class Report {
 
             // Build sources
             val sources = inputs.map { ReportSource(it.id, "merge") }
-            val mergedReport = Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
+            val mergedReport =
+                Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
             mergedReport.itemLineages = createItemLineages(inputs, mergedReport)
             return mergedReport
         }
@@ -415,7 +417,7 @@ class Report {
 
         /**
          * Use a tablesaw Selection bitmap to create a mapping from this report items to newReport items.
-         * Note: A tablesaw Selection is just an array of the row indexes in the oldReport that meet the filter criteria.
+         * Note: A tablesaw Selection is just an array of the row indexes in the oldReport that meet the filter criteria
          * That is, selection[childRowNum] is the parentRowNum
          */
         fun createItemLineages(selection: Selection, parentReport: Report, childReport: Report): List<ItemLineage> {
@@ -443,9 +445,15 @@ class Report {
         /**
          * This is designed to survive any complicated dicing and slicing of Items that Rick can come up with.
          */
-        fun createItemLineageForRow(parentReport: Report, parentRowNum: Int, childReport: Report, childRowNum: Int): ItemLineage {
+        fun createItemLineageForRow(
+            parentReport: Report,
+            parentRowNum: Int,
+            childReport: Report,
+            childRowNum: Int
+        ): ItemLineage {
             // ok if this is null.
-            val trackingElementValue = parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
+            val trackingElementValue =
+                parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
             if (parentReport.itemLineages != null) {
                 // Avoid losing history.
                 // If the parent report already had lineage, then pass its sins down to the next generation.
@@ -481,7 +489,10 @@ class Report {
          * This is needed in cases where an Action doesn't have the actual Report data in mem. (examples: Send,Download)
          * In those cases, to populate the lineage, we can grab needed fields from previous lineage rows.
          */
-        fun createItemLineagesFromDb(prevHeader: DatabaseAccess.Header, newChildReportId: ReportId): List<ItemLineage>? {
+        fun createItemLineagesFromDb(
+            prevHeader: DatabaseAccess.Header,
+            newChildReportId: ReportId
+        ): List<ItemLineage>? {
             if (prevHeader.itemLineages == null) return null
             val newLineages = mutableMapOf<Int, ItemLineage>()
             prevHeader.itemLineages.forEach {

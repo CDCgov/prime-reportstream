@@ -223,11 +223,13 @@ class SimpleReportTests {
 
         assertTrue(
             actualKeys.minus(expectedKeys).count() == 0,
-            "There are keys in actual that are not in expected: ${actualKeys.minus(expectedKeys).joinToString { "," }}"
+            "There are keys in actual that are not in expected: " +
+                "${actualKeys.minus(expectedKeys).joinToString { "," }}"
         )
         assertTrue(
             expectedKeys.minus(actualKeys).count() == 0,
-            "There are keys in expected that are not present in actual: ${expectedKeys.minus(actualKeys).joinToString { "," }}"
+            "There are keys in expected that are not present in actual:" +
+                " ${expectedKeys.minus(actualKeys).joinToString { "," }}"
         )
     }
 
@@ -250,7 +252,8 @@ class SimpleReportTests {
             for ((i, v) in expectedLines.withIndex()) {
                 if (v != actualLines[i]) {
                     val header = headerRow?.get(i) ?: "$i"
-                    val message = "Patient_ID $expectedKey differed at $header. Expected '$v' but found '${actualLines[i]}'."
+                    val message = "Patient_ID $expectedKey differed at $header. " +
+                        "Expected '$v' but found '${actualLines[i]}'."
                     linesInError.add(message)
                     println(message)
                 }

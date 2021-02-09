@@ -117,7 +117,9 @@ class DownloadFunction {
 
     private fun filter(it: DatabaseAccess.Header): Boolean {
         val now = OffsetDateTime.now()
-        return it.task.createdAt.year == now.year && it.task.createdAt.monthValue == now.monthValue && it.task.createdAt.dayOfMonth == now.dayOfMonth
+        return it.task.createdAt.year == now.year &&
+            it.task.createdAt.monthValue == now.monthValue &&
+            it.task.createdAt.dayOfMonth == now.dayOfMonth
     }
 
     private fun generatePreviousTestResults(
@@ -167,8 +169,8 @@ class DownloadFunction {
         var response: HttpResponseMessage
         try {
             val reportId = ReportId.fromString(requestedFile)
-            val header =
-                DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchHeader(reportId, authClaims.organization.name)
+            val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource)
+                .fetchHeader(reportId, authClaims.organization.name)
             if (header.content == null || header.content.isEmpty())
                 response = responsePage(request, authClaims, context)
             else {

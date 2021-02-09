@@ -196,9 +196,12 @@ class DatabaseAccess(private val create: DSLContext) {
         txn: DataAccessTransaction,
     ): List<Header> {
         val cond = if (at == null) {
-            TASK.RECEIVER_NAME.eq(receiver.fullName).and(TASK.NEXT_ACTION.eq(nextAction))
+            TASK.RECEIVER_NAME.eq(receiver.fullName)
+                .and(TASK.NEXT_ACTION.eq(nextAction))
         } else {
-            TASK.RECEIVER_NAME.eq(receiver.fullName).and(TASK.NEXT_ACTION.eq(nextAction)).and(TASK.NEXT_ACTION_AT.eq(at))
+            TASK.RECEIVER_NAME.eq(receiver.fullName)
+                .and(TASK.NEXT_ACTION.eq(nextAction))
+                .and(TASK.NEXT_ACTION_AT.eq(at))
         }
         val ctx = DSL.using(txn)
         val tasks = ctx
@@ -217,7 +220,8 @@ class DatabaseAccess(private val create: DSLContext) {
             .fetch()
             .into(TaskSource::class.java)
 
-        val reportFiles = ids.map { ActionHistory.fetchReportFile(it, ctx) }
+        val reportFiles = ids
+            .map { ActionHistory.fetchReportFile(it, ctx) }
             .map { (it.reportId as ReportId) to it }
             .toMap()
         ActionHistory.sanityCheckReports(tasks, reportFiles, false)
@@ -304,7 +308,11 @@ class DatabaseAccess(private val create: DSLContext) {
                 Event.EventAction.BATCH -> TASK.BATCHED_AT
                 Event.EventAction.SEND -> TASK.SENT_AT
                 Event.EventAction.WIPE -> TASK.WIPED_AT
-                Event.EventAction.BATCH_ERROR, Event.EventAction.SEND_ERROR, Event.EventAction.WIPE_ERROR -> TASK.ERRORED_AT
+
+                Event.EventAction.BATCH_ERROR,
+                Event.EventAction.SEND_ERROR,
+                Event.EventAction.WIPE_ERROR -> TASK.ERRORED_AT
+
                 Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
             }
         }
