@@ -4,26 +4,32 @@
 #
 - name: simple_report
   description: PRIME's POC testing app
+  jurisdiction: FEDERAL
   senders:
     - name: default
+      organizationName: simple_report
       topic: covid-19
       schemaName: primedatainput/pdi-covid-19
       format: CSV
 
 - name: strac
   description: STRAC POC testing app
+  jurisdiction: FEDERAL
   senders:
     - name: default
+      organizationName: strac
       topic: covid-19
       schemaName: strac/strac-covid-19
       format: CSV
 
 - name: az-phd
   description: Arizona PHD
+  jurisdiction: STATE
+  stateCode: AZ
   receivers:
     - name: elr-test
+      organizationName: az-phd
       topic: covid-19
-      schemaName: az/az-covid-19
       jurisdictionalFilter:
         - matches(ordering_facility_state,AZ)
         - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
@@ -33,19 +39,31 @@
         numberPerDay: 1   # Once a day at 2pm EST
         initialTime: 12:00
         timeZone: ARIZONA
-      format: CSV
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19
+        format: CSV
       transport:
         type: SFTP
         host: hssftp.azdhs.gov
         port: 22
         filePath: ./TEST/IN
+
     - name: elr-hl7-test
+      organizationName: az-phd
       topic: covid-19
-      schemaName: az/az-covid-19-hl7
       jurisdictionalFilter:
         - matches(ordering_facility_state,AZ)
         - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
       deidentify: false
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: AZ.DOH.ELR
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.2.9.3
+        receivingFacilityName: AZDOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.142
+        messageProfileId: AZELRIG^ADHS^2.16.840.1.113883.9.31^ISO
       timing:
         operation: MERGE
         numberPerDay: 1   # Once a day at 2pm EST
@@ -56,20 +74,23 @@
         host: hssftp.azdhs.gov
         port: 22
         filePath: ./TEST/IN
-      format: HL7_BATCH
+
     - name: elr-prod
+      organizationName: az-phd
       topic: covid-19
-      schemaName: az/az-covid-19
       jurisdictionalFilter:
         - matches(ordering_facility_state,AZ)
         - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
       deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19
+        format: CSV
       timing:
         operation: MERGE
         numberPerDay: 1   # Once a day at 2pm EST
         initialTime: 12:00
         timeZone: ARIZONA
-      format: CSV
       transport:
         type: SFTP
         host: hssftp.azdhs.gov
@@ -78,75 +99,99 @@
 
 - name: pima-az-phd
   description: Pima County, Arizona PHD
+  jurisdiction: COUNTY
+  stateCode: AZ
+  countyName: Pima
   receivers:
     - name: elr
+      organizationName: pima-az-phd
       description: Electronic Lab Record
       topic: covid-19
-      schemaName: az/pima-az-covid-19
       jurisdictionalFilter: [ "filterByCounty(AZ, Pima)" ]
       deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: az/pima-az-covid-19
+        format: CSV
       timing:
         operation: MERGE
         numberPerDay: 1 # Once a day  NOTE:  In production, they want deliveries once a day at 8am MST.
         initialTime: 08:00
         timeZone: ARIZONA
-      format: CSV
 
 - name: fl-phd
   description: Florida Department of Health
+  jurisdiction: STATE
+  stateCode: FL
   receivers:
     - name: elr
+      organizationName: fl-phd
       topic: covid-19
-      schemaName: fl/fl-covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
       deidentify: false
-      format: CSV
+      translation:
+        type: CUSTOM
+        schemaName: fl/fl-covid-19
+        format: CSV
 
 - name: pa-phd
   description: Pennsylvania Department of Health
+  jurisdiction: STATE
+  stateCode: PA
   receivers:
     - name: elr-bucks-prod
+      organizationName: pa-phd
       topic: covid-19
-      schemaName: pa/pa-covid-19-redox
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
       deidentify: false
-      defaults:
-        processing_mode_code: P
-        redox_destination_id: fcafe93a-9e04-4e3f-9aac-203518f6c4c9
-        redox_destination_name: "CDC Bucks County PDH Destination (p)"
-        redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
-        redox_source_name: "Prime Data Hub (Prod)"
-      format: REDOX
+      translation:
+        type: CUSTOM
+        schemaName: pa/pa-covid-19-redox
+        defaults:
+          processing_mode_code: P
+          redox_destination_id: fcafe93a-9e04-4e3f-9aac-203518f6c4c9
+          redox_destination_name: "CDC Bucks County PDH Destination (p)"
+          redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
+          redox_source_name: "Prime Data Hub (Prod)"
+        format: REDOX
       transport:
         type: REDOX
         apiKey: 9e7f9bd1-a876-4f10-9d17-0833dc7bf60d # Redox prod
+
     - name: elr-chester-prod
+      organizationName: pa-phd
       topic: covid-19
-      schemaName: pa/pa-covid-19-redox
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester)" ]
       deidentify: false
-      defaults:
-        processing_mode_code: P
-        redox_destination_id: 5e841ef0-447b-46d0-8a60-49ca4defaf00
-        redox_destination_name: "CDC Chester County PDH Destination (p)"
-        redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
-        redox_source_name: "Prime Data Hub (Prod)"
-      format: REDOX
+      translation:
+        type: CUSTOM
+        schemaName: pa/pa-covid-19-redox
+        defaults:
+          processing_mode_code: P
+          redox_destination_id: 5e841ef0-447b-46d0-8a60-49ca4defaf00
+          redox_destination_name: "CDC Chester County PDH Destination (p)"
+          redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
+          redox_source_name: "Prime Data Hub (Prod)"
+        format: REDOX
       transport:
         type: REDOX
         apiKey: 9e7f9bd1-a876-4f10-9d17-0833dc7bf60d # Redox prod
+
     - name: elr-montgomery-prod
+      organizationName: pa-phd
       topic: covid-19
-      schemaName: pa/pa-covid-19-redox
       jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
       deidentify: false
-      defaults:
-        processing_mode_code: P
-        redox_destination_id: bb2947af-28dd-470d-9997-7445eb42252f
-        redox_destination_name: "CDC Montgomery County PDH Destination (p)"
-        redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
-        redox_source_name: "Prime Data Hub (Prod)"
-      format: REDOX
+      translation:
+        type: CUSTOM
+        schemaName: pa/pa-covid-19-redox
+        defaults:
+          processing_mode_code: P
+          redox_destination_id: bb2947af-28dd-470d-9997-7445eb42252f
+          redox_destination_name: "CDC Montgomery County PDH Destination (p)"
+          redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
+          redox_source_name: "Prime Data Hub (Prod)"
+        format: REDOX
       transport:
         type: REDOX
         apiKey: 9e7f9bd1-a876-4f10-9d17-0833dc7bf60d # Redox prod

@@ -23,6 +23,12 @@ class MetadataTests {
     }
 
     @Test
+    fun `test loading prod metadata catalog`() {
+        val metadata = Metadata("./metadata", "-prod")
+        assertNotNull(metadata)
+    }
+
+    @Test
     fun `test loading two schemas`() {
         val metadata = Metadata().loadSchemas(
             Schema(Element("a"), name = "one", topic = "test"),
