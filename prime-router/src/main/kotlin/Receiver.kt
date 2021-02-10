@@ -40,8 +40,8 @@ data class Receiver(
     ) : this(name, organizationName, topic, CustomConfiguration(schemaName = schemaName, format = format))
 
     val fullName: String get() = "$organizationName.$name"
-    val schemaName: String get() = translation.buildSchemaName()
-    val format: Report.Format get() = translation.buildFormat()
+    val schemaName: String get() = translation.schemaName
+    val format: Report.Format get() = translation.format
 
     /**
      * Defines how batching of sending should proceed. Allows flexibility of

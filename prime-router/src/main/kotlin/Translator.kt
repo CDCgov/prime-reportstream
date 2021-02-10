@@ -75,7 +75,7 @@ class Translator(private val metadata: Metadata) {
         val toReport: Report = if (receiver.schemaName != filteredReport.schema.name) {
             val toSchema = metadata.findSchema(receiver.schemaName)
                 ?: error("${receiver.schemaName} schema is missing from catalog")
-            val receiverDefaults = receiver.translation.buildDefaults()
+            val receiverDefaults = receiver.translation.defaults
             val defaults = if (receiverDefaults.isNotEmpty()) receiverDefaults.plus(defaultValues) else defaultValues
             val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
             if (mapping.missing.isNotEmpty()) {

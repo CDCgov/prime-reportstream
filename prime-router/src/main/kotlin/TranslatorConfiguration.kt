@@ -4,6 +4,18 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
+// Schemas used
+const val HL7_SCHEMA = "covid-19"
+const val REDOX_SCHEMA = "covid-19-redox"
+
+// Common set of properties for all translators
+interface TranslatorProperties {
+    val format: Report.Format
+    val schemaName: String
+    val defaults: Map<String, String>
+}
+
+// Base JSON Type
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
@@ -14,14 +26,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(RedoxConfiguration::class, name = "REDOX"),
     JsonSubTypes.Type(CustomConfiguration::class, name = "CUSTOM"),
 )
-abstract class TranslatorConfiguration(val type: String) {
-    open fun buildFormat(): Report.Format { error("override") }
-    open fun buildSchemaName(): String { error("override") }
-    open fun buildDefaults(): Map<String, String> { error("override") }
-}
-
-const val HL7_SCHEMA = "covid-19"
-const val REDOX_SCHEMA = "covid-19-redox"
+abstract class TranslatorConfiguration(val type: String) : TranslatorProperties
 
 /**
  * Standard HL7 report configuration
@@ -36,17 +41,11 @@ data class Hl7Configuration
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
 ) : TranslatorConfiguration("HL7") {
+    override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 
-    override fun buildFormat(): Report.Format {
-        return if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
-    }
+    override val schemaName: String get() = HL7_SCHEMA
 
-    override fun buildSchemaName(): String {
-        // TODO do the HL7 without AOE work
-        return HL7_SCHEMA
-    }
-
-    override fun buildDefaults(): Map<String, String> {
+    override val defaults: Map<String, String> get() {
         val receivingApplication = when {
             receivingApplicationName != null && receivingApplicationOID != null ->
                 "$receivingApplicationName^$receivingApplicationOID^ISO"
@@ -68,6 +67,9 @@ data class Hl7Configuration
     }
 }
 
+/**
+ * Standard Redox report configuration
+ */
 data class RedoxConfiguration
 @JsonCreator constructor(
     val useTestProcessingMode: Boolean = false,
@@ -76,15 +78,11 @@ data class RedoxConfiguration
     val sourceId: String,
     val sourceName: String,
 ) : TranslatorConfiguration("REDOX") {
-    override fun buildFormat(): Report.Format {
-        return Report.Format.REDOX
-    }
+    override val format: Report.Format get() = Report.Format.REDOX
 
-    override fun buildSchemaName(): String {
-        return REDOX_SCHEMA
-    }
+    override val schemaName: String get() = REDOX_SCHEMA
 
-    override fun buildDefaults(): Map<String, String> {
+    override val defaults: Map<String, String> get() {
         return mapOf(
             "processing_mode_code" to (if (useTestProcessingMode) "T" else "P"),
             "redox_destination_id" to destinationId,
@@ -95,21 +93,12 @@ data class RedoxConfiguration
     }
 }
 
+/**
+ * Custom report configuration
+ */
 data class CustomConfiguration
 @JsonCreator constructor(
-    val schemaName: String,
-    val format: Report.Format,
-    val defaults: Map<String, String> = emptyMap()
-) : TranslatorConfiguration("CUSTOM") {
-    override fun buildFormat(): Report.Format {
-        return format
-    }
-
-    override fun buildSchemaName(): String {
-        return schemaName
-    }
-
-    override fun buildDefaults(): Map<String, String> {
-        return defaults
-    }
-}
+    override val schemaName: String,
+    override val format: Report.Format,
+    override val defaults: Map<String, String> = emptyMap()
+) : TranslatorConfiguration("CUSTOM")

@@ -262,7 +262,7 @@ class Metadata {
      * Organizations
      */
 
-    val organizations get() = this.organizationStore
+    val organizations get() = this.organizationStore.values
     val senders get() = this.senderStore.values
     val receivers get() = this.receiverStore.values
 
