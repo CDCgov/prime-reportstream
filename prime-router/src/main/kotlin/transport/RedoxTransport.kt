@@ -64,31 +64,12 @@ class RedoxTransport() : ITransport {
                 else ->
                     SendResult(itemId, ResultStatus.NOT_SENT)
             }
-            if (sendResult.status == ResultStatus.SUCCESS) {
-                successCount++
-            } else {
-                nextRetryItems.add(index.toString())
+            when (sendResult.status) {
+                ResultStatus.SUCCESS -> successCount++
+                ResultStatus.FAILURE -> nextRetryItems.add(index.toString())
             }
             sendResult
         }
-
-/* todo remove this prior code:
-        val nextRetryItems = messages
-            .mapIndexed { index, message -> Pair(index, message) }
-            .filter { (index, _) ->
-                retryItems == null || RetryToken.isAllItems(retryItems) || retryItems.contains(index.toString())
-            }
-            .mapNotNull { (index, message) ->
-                attemptedCount++
-                if (!sendItem(sendUrl, token, message, "${header.reportFile.reportId}-$index")) {
-                    index.toString()
-                } else {
-                    successCount++
-                    null
-                }
-            }
-
- */
         val statusStr = when {
             attemptedCount == 0 -> "Weird"
             successCount == attemptedCount -> "Success"
