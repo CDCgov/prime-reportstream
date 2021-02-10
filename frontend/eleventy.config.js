@@ -1,6 +1,6 @@
 const { createProxyMiddleware } = require('http-proxy-middleware')
 
-const PRIME_api = process.env.PRIME_api || 'http://127.0.0.1:3000/api';
+const PRIME_api = process.env.PRIME_api || 'http://localhost:7071/api';
 
 
 module.exports = function eleventy_config(cfg) {

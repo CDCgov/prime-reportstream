@@ -5,7 +5,9 @@ import {
   openapi_server,
 } from './_api_utils.mjs'
 
-const port = 9000
+// Use same port as the prime-router server API being mocked out
+const port = 7071
+
 let api = openapi_basic(
   './mock/demo.openapi.yml',
   // './mock/prime.openapi.yml',
