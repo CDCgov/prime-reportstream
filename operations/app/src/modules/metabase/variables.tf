@@ -33,3 +33,9 @@ variable "postgres_url" {
     description = "PostgreSQL Connection URL"
     sensitive = true
 }
+
+variable "ai_instrumentation_key" {
+    type = string
+    description = "Application Insights Instrumentation Key"
+    sensitive = true
+}

@@ -81,6 +81,7 @@ resource "azurerm_function_app" "function_app" {
     "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user
     "DOCKER_REGISTRY_SERVER_PASSWORD" = var.admin_password
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
+    "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
   }
 
   tags = {

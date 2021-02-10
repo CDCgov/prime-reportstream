@@ -91,3 +91,9 @@ variable "admin_password" {
     description = "Container Registry Admin Password"
     sensitive = true
 }
+
+variable "ai_instrumentation_key" {
+    type = string
+    description = "Application Insights Instrumentation Key"
+    sensitive = true
+}

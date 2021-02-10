@@ -32,6 +32,7 @@ resource "azurerm_app_service" "metabase" {
     "MB_DB_CONNECTION_URI" = var.postgres_url
     "WEBSITE_VNET_ROUTE_ALL" = 1
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
+    "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
   }
 }
 

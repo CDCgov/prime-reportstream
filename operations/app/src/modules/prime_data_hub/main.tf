@@ -50,6 +50,7 @@ module "function_app" {
     login_server = module.container_registry.login_server
     admin_user = module.container_registry.admin_username
     admin_password = module.container_registry.admin_password
+    ai_instrumentation_key = module.application_insights.instrumentation_key
 }
 
 module "database" {
@@ -100,6 +101,7 @@ module "metabase" {
     app_service_plan_id = module.function_app.app_service_plan_id
     public_subnet_id = module.network.public_subnet_id
     postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${module.database.server_name}&password=${var.postgres_password}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    ai_instrumentation_key = module.application_insights.instrumentation_key
 }
 
 module "nat_gateway" {
@@ -109,4 +111,12 @@ module "nat_gateway" {
     resource_prefix = var.resource_prefix
     location = local.location
     public_subnet_id = module.network.public_subnet_id
+}
+
+module "application_insights" {
+    source = "../application_insights"
+    environment = var.environment
+    resource_group = var.resource_group
+    name = "${var.resource_prefix}-appinsights"
+    location = local.location
 }
