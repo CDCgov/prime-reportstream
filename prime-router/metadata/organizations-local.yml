@@ -53,6 +53,7 @@
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
           - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
+        deidentify: false
         translation:
           type: HL7
           useBatchHeaders: true
@@ -101,12 +102,12 @@
       - name: elr
         organizationName: pima-az-phd
         topic: covid-19
+        jurisdictionalFilter:
+          - filterByCounty(AZ, Pima)
         translation:
           type: CUSTOM
           schemaName: az/pima-az-covid-19
           format: CSV
-        jurisdictionalFilter:
-          - filterByCounty(AZ, Pima)
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute.  NOTE:  In production, they want deliveries once a day at 8am MST.

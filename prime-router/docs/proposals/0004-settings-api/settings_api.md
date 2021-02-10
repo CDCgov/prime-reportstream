@@ -23,6 +23,7 @@ We wish to allow our Public Health customers to access their current feed config
     - `api/organizations/<organization-name>/receivers/secrets`
 - Rework the Organization and associated structures to closely match the UX
 - Rename OrganizationService to Receiver and OrganizationClient to Sender (back to the way it was)
+- Rework jurisdicationalFilters to match jurisdictional boundary of the organization
 - Extend the current Azure Functions App with a Settings function. 
 - For Azure functions, a `settings` database table. The table will be a hybrid of metadata about the setting as well
 as a JSON structure with the actual setting.
