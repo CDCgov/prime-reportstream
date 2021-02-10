@@ -16,11 +16,11 @@ class TranslatorTests {
             - name: elr
               organizationName: phd1
               topic: test
-              schema: one
               jurisdictionalFilter: [ "matches(a, 1)"]
-              transforms: {deidentify: false}
-              address: phd1
-              format: CSV
+              translation: 
+                type: CUSTOM
+                schemaName: one
+                format: CSV
     """.trimIndent()
 
     @Test

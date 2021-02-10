@@ -124,7 +124,7 @@ class ReportFunction {
         val sender = engine.metadata.findSender(clientName)
         if (sender == null)
             errors.add(ResultDetail.param(clientParameter, "'$clientName' is not a valid"))
-        val schema = engine.metadata.findSchema(sender?.schema ?: "")
+        val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
         if (contentType.isBlank()) {
@@ -189,7 +189,7 @@ class ReportFunction {
             Sender.Format.CSV -> {
                 try {
                     val readResult = engine.csvSerializer.read(
-                        schemaName = sender.schema,
+                        schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
                         defaultValues = defaults
@@ -256,8 +256,8 @@ class ReportFunction {
                 actionHistory.trackCreatedReport(event, report, receiver)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.batch != null -> {
-                val time = receiver.batch.nextBatchTime()
+            receiver.timing != null -> {
+                val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
                 destinations += "Sending ${batchReport.itemCount} items to $receiverDescription at $time"

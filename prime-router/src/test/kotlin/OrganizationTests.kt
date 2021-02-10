@@ -20,11 +20,13 @@ class OrganizationTests {
                 - name: elr
                   organizationName: phd1
                   topic: test
-                  schema: one
                   jurisdictionalFilter: [ "matches(a, 1)"]
-                  transforms: {deidentify: false}
-                  address: phd1
-                  format: CSV
+                  deidentify: false
+                  translation:
+                    type: CUSTOM
+                    schemaName: one
+                    format: CSV
+                 
     """.trimIndent()
 
     private val sendersAndReceiversYaml = """
@@ -38,26 +40,27 @@ class OrganizationTests {
                   - name: elr
                     organizationName: phd1
                     topic: test
-                    schema: one
                     jurisdictionalFilter: [ "matches(a, 1)"]
-                    transforms: {deidentify: false}
-                    batch:
+                    deidentify: false
+                    timing:
                       operation: MERGE
                       numberPerDay: 24
-                      initialBatch: 00:00
+                      initialTime: 00:00
                       timeZone: ARIZONA
-                    address: phd1
-                    format: CSV
+                    translation:
+                      type: CUSTOM
+                      schemaName: one
+                      format: CSV
                 senders:
                   - name: sender
                     organizationName: phd1
                     topic: topic
-                    schema: one
+                    schemaName: one
                     format: CSV
     """.trimIndent()
 
     @Test
-    fun `test loading a service`() {
+    fun `test loading a receiver`() {
         val metadata = Metadata()
         metadata.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
         val result = metadata.findReceiver("phd1.elr")
@@ -66,7 +69,7 @@ class OrganizationTests {
     }
 
     @Test
-    fun `test loading a client and service`() {
+    fun `test loading a sender and receiver`() {
         val metadata = Metadata()
         metadata.loadOrganizations(ByteArrayInputStream(sendersAndReceiversYaml.toByteArray()))
 
@@ -96,23 +99,23 @@ class OrganizationTests {
 
     @Test
     fun `test nextBatchTime`() {
-        val batch = Receiver.Batch(
+        val timing = Receiver.Timing(
             Receiver.BatchOperation.NONE,
             24,
             "04:05",
             USTimeZone.ARIZONA
         ) // AZ is -7:00 from UTC
-        assertTrue(batch.isValid())
+        assertTrue(timing.isValid())
 
         // The result should be in the AZ timezone
         val now1 = ZonedDateTime.of(2020, 10, 2, 0, 0, 0, 999, ZoneId.of("UTC")).toOffsetDateTime()
         val expected1 = ZonedDateTime.of(2020, 10, 1, 17, 5, 0, 0, ZoneId.of("US/Arizona")).toOffsetDateTime()
-        val actual1 = batch.nextBatchTime(now1)
+        val actual1 = timing.nextTime(now1)
         assertEquals(expected1, actual1)
 
         // Test that the minDuration comes into play
         val now2 = ZonedDateTime.of(2020, 10, 1, 0, 5, 0, 0, ZoneId.of("UTC")).toOffsetDateTime()
-        val actual2 = batch.nextBatchTime(now2)
+        val actual2 = timing.nextTime(now2)
         val expected2 = ZonedDateTime.of(2020, 9, 30, 18, 5, 0, 0, ZoneId.of("US/Arizona")).toOffsetDateTime()
         assertEquals(expected2, actual2)
     }

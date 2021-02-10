@@ -33,7 +33,7 @@ class BatchFunction {
             }
             val receiver = workflowEngine.metadata.findReceiver(event.receiverName)
                 ?: error("Internal Error: receiver name ${event.receiverName}")
-            val maxBatchSize = receiver.batch?.maxReportCount ?: defaultBatchSize
+            val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
 
@@ -51,16 +51,16 @@ class BatchFunction {
                     actionHistory.trackExistingInputReport(it.task.reportId)
                     report
                 }
-                val mergedReports = when (receiver.batch?.operation) {
+                val mergedReports = when (receiver.timing?.operation) {
                     Receiver.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
                 }
-                val outReports = when (receiver.format) {
+                val outReports = when (receiver.translation.buildFormat()) {
                     Report.Format.HL7 -> mergedReports.flatMap { it.split() }
                     else -> mergedReports
                 }
                 outReports.forEach {
-                    val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
+                    val outReport = it.copy(destination = receiver, bodyFormat = receiver.translation.buildFormat())
                     val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
                     workflowEngine.dispatchReport(outEvent, outReport, txn)
                     actionHistory.trackCreatedReport(outEvent, outReport, receiver)

@@ -11,8 +11,9 @@ Copy a version of this comment into the next migration
 Settings are kept in hybrid table where the actual settings values are in a JSON field.
 Because settings are read many more times than they are written, we have a table of the
 current settings. Because settings can affect what is produced by the system, we never
-delete a setting and always have a version of the setting in the settings history table.
+always have a version of the setting in the settings history table.
 Because settings are small in number and in size, this should not be a size problem.
+When an entity is deleted, a tombstone entry is added to the history table
 */
 CREATE TYPE SETTINGS_ENTITY AS ENUM ('organization', 'receiver', 'sender');
 CREATE TABLE settings (

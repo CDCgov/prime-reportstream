@@ -149,6 +149,28 @@ paths:
           description: Bad Request
         '401':
           description: Unauthorized
+    delete:
+      description: Delete an organization (and the associated receivers and senders)
+      security:
+        - OAuth2: [ admin ]
+      parameters:
+        - in: path
+          required: true
+          schema:
+            type: string
+          name: organizationName
+          description: The name of the organization
+      responses:
+        '200':
+          description: OK, the organization setting was deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
 
   /settings/organizations/{organizationName}/receivers:
     get:
@@ -241,6 +263,36 @@ paths:
                 $ref: '#/components/schemas/Receiver'
         '201':
           description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receiver'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+    delete:
+      description: Delete a receiver
+      security:
+        - OAuth2: [ write ]
+      parameters:
+        - in: path
+          name: organizationName
+          description: the organization name
+          schema:
+            type: string
+          required: true
+          example: az-phd
+        - in: path
+          name: receiverName
+          description: The name of the receiver
+          schema:
+            type: string
+          required: true
+          example: elr
+      responses:
+        '200':
+          description: OK, the receiver was deleted
           content:
             application/json:
               schema:
@@ -349,6 +401,36 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Sender'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+    delete:
+      description: Delete a sender
+      security:
+        - OAuth2: [ write ]
+      parameters:
+        - in: path
+          name: organizationName
+          description: the organization name
+          schema:
+            type: string
+          required: true
+          example: az-phd
+        - in: path
+          name: senderName
+          description: The name of a sender to the data hub
+          schema:
+            type: string
+          required: true
+          example: default
+      responses:
+        '200':
+          description: OK, the sender was deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sender'
         '400':
           description: Bad Request
         '401':
@@ -463,7 +545,6 @@ components:
         - name
         - description
         - topic
-        - isActive
         - schema
         - format
       properties:
@@ -483,9 +564,6 @@ components:
           type: string
           example: az-phd
           readOnly: true
-        isActive:
-          description: is this sender active
-          type: boolean
         schema:
           description: the schema name for this sender
           example: az-phd-covid-19
@@ -505,7 +583,6 @@ components:
         - name
         - description
         - topic
-        - isActive
         - jurisdictionalFilter
         - reportConfiguations
         - timing
@@ -522,10 +599,6 @@ components:
           description: The topic of for this receiver. Must match the supported topics.
           type: string
           example: covid-19
-        isActive:
-          description: Is the receiver active
-          type: boolean
-          default: true
         organizationName:
           description: The name of the organization that this receiver belongs to
           type: string
@@ -557,8 +630,8 @@ components:
                 description: Ensure that the result does not match
                 type: boolean
                 default: false
-        reportConfiguations:
-          description: How the report is produced and sent. A report can be sent in multiple ways.
+        translations:
+          description: How the report is translated from the sender. A report can be sent in multiple ways.
           type: array
           items:
             anyOf:

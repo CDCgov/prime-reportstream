@@ -9,7 +9,7 @@
       - name: default
         organizationName: simple_report
         topic: covid-19
-        schema: primedatainput/pdi-covid-19
+        schemaName: primedatainput/pdi-covid-19
         format: CSV
 
   - name: strac
@@ -19,7 +19,7 @@
       - name: default
         organizationName: strac
         topic: covid-19
-        schema: strac/strac-covid-19
+        schemaName: strac/strac-covid-19
         format: CSV
 
   - name: az-phd
@@ -30,63 +30,67 @@
       - name: elr-test
         organizationName: az-phd
         topic: covid-19
-        schema: az/az-covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
           - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
-        transforms: { deidentify: false }
-        batch:
+        timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
-          initialBatch: 00:00
+          initialTime: 00:00
           timeZone: ARIZONA
-        transports:
-          - type: SFTP
-            host: sftp
-            port: 22
-            filePath: ./upload
-          - type: EMAIL
-            addresses: 
-              - qtv1@cdc.gov
-        format: CSV
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19
+          format: CSV
       - name: elr-hl7-test
         organizationName: az-phd
         topic: covid-19
-        schema: az/az-covid-19-hl7
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
           - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
-        transforms: { deidentify: false }
-        batch:
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: AZ.DOH.ELR
+          receivingApplicationOID: 2.16.840.1.114222.4.3.3.2.9.3
+          receivingFacilityName: AZDOH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.142
+          messageProfileId: AZELRIG^ADHS^2.16.840.1.113883.9.31^ISO
+        timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
-          initialBatch: 00:00
+          initialTime: 00:00
           timeZone: ARIZONA
-        transports:
-          - type: SFTP
-            host: sftp
-            port: 22
-            filePath: ./upload
-        format: HL7_BATCH
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
       - name: elr-prod
         organizationName: az-phd
         topic: covid-19
-        schema: az/az-covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
           - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
-        transforms: { deidentify: false }
-        batch:
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19
+          format: CSV
+        timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
-          initialBatch: 00:00
+          initialTime: 00:00
           timeZone: ARIZONA
-        transports:
-          - type: SFTP
-            host: sftp
-            port: 22
-            filePath: ./upload
-        format: CSV
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: pima-az-phd
     description: Pima County, Arizona PHD
@@ -97,16 +101,17 @@
       - name: elr
         organizationName: pima-az-phd
         topic: covid-19
-        schema: az/pima-az-covid-19
+        translation:
+          type: CUSTOM
+          schemaName: az/pima-az-covid-19
+          format: CSV
         jurisdictionalFilter:
           - filterByCounty(AZ, Pima)
-        transforms: { deidentify: false }
-        batch:
+        timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute.  NOTE:  In production, they want deliveries once a day at 8am MST.
-          initialBatch: 00:00
+          initialTime: 00:00
           timeZone: ARIZONA
-        format: CSV
 
   - name: co-phd
     description: Colorado Department of Health
@@ -116,16 +121,14 @@
       - name: elr-redox-debug
         organizationName: co-phd
         topic: covid-19
-        schema: co/co-covid-19-redox
         jurisdictionalFilter: [ "matches(ordering_facility_state, CO)" ]
-        transforms: { deidentify: false }
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 62d62d52-3771-4151-aff4-4a3d420a8b7a
-          redox_destination_name: "Colorado Dept of Public Health (CDPHE)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
+        translation:
+          type: REDOX
+          useTestProcessingMode: true
+          destinationId: 62d62d52-3771-4151-aff4-4a3d420a8b7a
+          destinationName: "Colorado Dept of Public Health (CDPHE)"
+          sourceId: d89d4057-930f-4c5b-bb39-8cddb326e928
+          sourceName: "Prime Data Hub (Staging)"
 
   - name: tx-phd
     description: Texas Department of State Health Services
@@ -135,26 +138,30 @@
       - name: elr-test
         organizationName: tx-phd
         topic: covid-19
-        schema: tx/tx-covid-19-hl7
         jurisdictionalFilter:
          - "matches(ordering_facility_state, TX)"
          - "matches(processing_mode_code, T)"
-        transforms: { deidentify: false }
-        transports:
-          - type: SFTP
-            host: sftp
-            port: 22
-            filePath: ./upload
-        format: HL7
+        translation:
+          type: HL7
+          useBatchHeaders: false
+          receivingApplicationName: NEDSS
+          receivingFacilityName: TX-ELR
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
       - name: elr-debug
         organizationName: tx-phd
         topic: covid-19
-        schema: tx/tx-covid-19-hl7
         jurisdictionalFilter:
           - "matches(ordering_facility_state, TX)"
           - "matches(processing_mode_code, D)"
-        transforms: { deidentify: false }
-        format: HL7
+        translation:
+          type: HL7
+          useBatchHeaders: false
+          receivingApplicationName: NEDSS
+          receivingFacilityName: TX-ELR
         
   - name: fl-phd
     description: Florida Department of Health
@@ -164,10 +171,11 @@
       - name: elr
         organizationName: fl-phd
         topic: covid-19
-        schema: fl/fl-covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
-        transforms: { deidentify: false }
-        format: CSV
+        translation:
+          type: CUSTOM
+          schemaName: fl/fl-covid-19
+          format: CSV
 
   - name: pa-phd
     description: Pennsylvania Department of Health
@@ -177,39 +185,42 @@
       - name: elr-bucks-local
         organizationName: pa-phd
         topic: covid-19
-        schema: pa/pa-covid-19-redox
         jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
-        transforms: { deidentify: false }
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: e0d33443-c134-4e5f-9c15-69f9ba6340bf
-          redox_destination_name: "CDC Bucks County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: e0d33443-c134-4e5f-9c15-69f9ba6340bf
+            redox_destination_name: "CDC Bucks County PDH Destination (s)"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Data Hub (Staging)"
+          format: REDOX
       - name: elr-chester-local
         topic: covid-19
         organizationName: pa-phd
-        schema: pa/pa-covid-19-redox
         jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester)" ]
-        transforms: { deidentify: false }
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 86aa61ac-8864-417f-860e-d83ae46c951f
-          redox_destination_name: "CDC Chester County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: 86aa61ac-8864-417f-860e-d83ae46c951f
+            redox_destination_name: "CDC Chester County PDH Destination (s)"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Data Hub (Staging)"
+          format: REDOX
       - name: elr-montgomery-local
         organizationName: pa-phd
         topic: covid-19
-        schema: pa/pa-covid-19-redox
         jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
-        transforms: { deidentify: false }
-        defaults:
-          processing_mode_code: T
-          redox_destination_id: 21485dc8-8a6e-49d3-8b80-46531e015039
-          redox_destination_name: "CDC Montgomery County PDH Destination (s)"
-          redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
-          redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: 21485dc8-8a6e-49d3-8b80-46531e015039
+            redox_destination_name: "CDC Montgomery County PDH Destination (s)"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Data Hub (Staging)"
+          format: REDOX

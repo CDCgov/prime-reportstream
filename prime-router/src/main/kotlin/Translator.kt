@@ -48,11 +48,11 @@ class Translator(private val metadata: Metadata) {
 
     fun translate(
         input: Report,
-        toService: String,
+        toReceiver: String,
         defaultValues: DefaultValues = emptyMap()
     ): Pair<Report, Receiver>? {
         if (input.isEmpty()) return null
-        val receiver = metadata.findReceiver(toService) ?: error("invalid service name $toService")
+        val receiver = metadata.findReceiver(toReceiver) ?: error("invalid receiver name $toReceiver")
         val mappedReport = translateByReceiver(input, receiver, defaultValues)
         if (mappedReport.itemCount == 0) return null
         return Pair(mappedReport, receiver)
@@ -72,10 +72,11 @@ class Translator(private val metadata: Metadata) {
         if (filteredReport.isEmpty()) return buildEmptyReport(receiver, input)
 
         // Apply mapping to change schema
-        val toReport: Report = if (receiver.schema != filteredReport.schema.name) {
-            val toSchema = metadata.findSchema(receiver.schema)
-                ?: error("${receiver.schema} schema is missing from catalog")
-            val defaults = if (receiver.defaults.isNotEmpty()) receiver.defaults.plus(defaultValues) else defaultValues
+        val toReport: Report = if (receiver.schemaName != filteredReport.schema.name) {
+            val toSchema = metadata.findSchema(receiver.schemaName)
+                ?: error("${receiver.schemaName} schema is missing from catalog")
+            val receiverDefaults = receiver.translation.buildDefaults()
+            val defaults = if (receiverDefaults.isNotEmpty()) receiverDefaults.plus(defaultValues) else defaultValues
             val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
             if (mapping.missing.isNotEmpty()) {
                 error(
@@ -93,13 +94,8 @@ class Translator(private val metadata: Metadata) {
 
         // Transform reports
         var transformed = toReport
-        receiver.transforms.forEach { (transform, transformValue) ->
-            when (transform) {
-                "deidentify" -> if (transformValue == "true") {
-                    transformed = transformed.deidentify()
-                }
-            }
-        }
+        if (receiver.deidentify)
+            transformed = transformed.deidentify()
         return transformed.copy(destination = receiver, bodyFormat = receiver.format)
     }
 
@@ -147,8 +143,8 @@ class Translator(private val metadata: Metadata) {
     }
 
     private fun buildEmptyReport(receiver: Receiver, from: Report): Report {
-        val toSchema = metadata.findSchema(receiver.schema)
-            ?: error("${receiver.schema} schema is missing from catalog")
+        val toSchema = metadata.findSchema(receiver.schemaName)
+            ?: error("${receiver.schemaName} schema is missing from catalog")
         return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
     }
 }

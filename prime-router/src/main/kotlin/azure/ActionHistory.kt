@@ -254,7 +254,7 @@ class ActionHistory {
     }
 
     fun trackSentReport(
-        service: Receiver,
+        receiver: Receiver,
         sentReportId: ReportId,
         fileName: String?,
         params: String,
@@ -269,15 +269,15 @@ class ActionHistory {
         }
         val reportFile = ReportFile()
         reportFile.reportId = sentReportId
-        reportFile.receivingOrg = service.organizationName
-        reportFile.receivingOrgSvc = service.name
-        reportFile.schemaName = service.schema
-        reportFile.schemaTopic = service.topic
+        reportFile.receivingOrg = receiver.organizationName
+        reportFile.receivingOrgSvc = receiver.name
+        reportFile.schemaName = receiver.schemaName
+        reportFile.schemaTopic = receiver.topic
         reportFile.externalName = fileName
         reportFile.transportParams = params
         reportFile.transportResult = result
         reportFile.bodyUrl = null
-        reportFile.bodyFormat = service.format.toString()
+        reportFile.bodyFormat = receiver.format.toString()
         reportFile.itemCount = itemCount
         reportsOut[reportFile.reportId] = reportFile
     }

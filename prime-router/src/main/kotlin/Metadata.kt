@@ -299,7 +299,7 @@ class Metadata {
         receiverStore = organizations.flatMap { it.receivers }.associateBy { it.fullName }
 
         receiverStore.forEach { (_, receiver) ->
-            receiver.batch?.let {
+            receiver.timing?.let {
                 if (!it.isValid())
                     error("Metadata Error: improper batch value for ${receiver.fullName}")
             }

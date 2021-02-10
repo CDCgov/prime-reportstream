@@ -5,14 +5,9 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 
 typealias RetryItems = List<String>
 
-data class RetryTransport(
-    val index: Int,
-    val items: List<String> = emptyList()
-)
-
 data class RetryToken(
     var retryCount: Int,
-    val transports: List<RetryTransport>
+    val items: List<String>
 ) {
     fun toJSON(): String {
         return mapper.writeValueAsString(this)

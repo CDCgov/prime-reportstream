@@ -7,7 +7,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.transport.RetryToken
-import gov.cdc.prime.router.transport.RetryTransport
 import gov.cdc.prime.router.transport.SftpTransport
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -149,7 +148,7 @@ class SendFunctionTests {
             val reportFile = ReportFile()
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
             nextEvent = block(
-                header, RetryToken(2, listOf(RetryTransport(0, RetryToken.allItems))), null
+                header, RetryToken(2, RetryToken.allItems), null
             )
         }
         setupWorkflow()
@@ -182,7 +181,7 @@ class SendFunctionTests {
             val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile)
             // Should be high enough retry count that the next action should have an error
             nextEvent = block(
-                header, RetryToken(100, listOf(RetryTransport(0, RetryToken.allItems))), null
+                header, RetryToken(100, RetryToken.allItems), null
             )
         }
         setupWorkflow()

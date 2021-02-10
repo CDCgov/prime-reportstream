@@ -10,7 +10,7 @@ data class Sender(
     val organizationName: String,
     val format: Format,
     val topic: String,
-    val schema: String,
+    val schemaName: String,
 ) {
     val fullName: String get() = "$organizationName.$name"
 

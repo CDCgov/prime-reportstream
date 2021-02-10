@@ -9,30 +9,39 @@ import java.time.ZoneId
  * (minus the credentials used by that agent, of course). It contains information about
  * the specific topic and schema that the receiver needs.
  *
- * @param name of the service
+ * @param name of the receiver
+ * @param organizationName of the receiver
  * @param topic defines the set of schemas that can translate to each other
- * @param schema defines the schema that the org wishes to receive
+ * @param translation configuration to translate
  * @param jurisdictionalFilter defines the set of elements and regexs that filter the topic
- * @param transforms defines the number of transforms to apply to the report before sending
- * @param batch defines how to batch reports to the org. If null, then send immediately
- * @param format that the org wishes to receive
- * @param transports that the org wishes to receive
+ * @param deidentify transform
+ * @param timing defines how to delay reports to the org. If null, then send immediately
+ * @param description of the receiver
+ * @param transport that the org wishes to receive
  */
 data class Receiver(
     val name: String,
     val organizationName: String,
     val topic: String,
-    val schema: String,
+    val translation: TranslatorConfiguration,
     val jurisdictionalFilter: List<String> = emptyList(),
-    val transforms: Map<String, String> = emptyMap(),
-    val defaults: Map<String, String> = emptyMap(),
-    val batch: Batch? = null,
-    val address: String = "",
-    val format: Report.Format = Report.Format.CSV,
-    val transports: List<TransportType> = emptyList(),
-    val description: String = ""
+    val deidentify: Boolean = false,
+    val timing: Timing? = null,
+    val description: String = "",
+    val transport: TransportType? = null,
 ) {
+    // Custom constructor
+    constructor(
+        name: String,
+        organizationName: String,
+        topic: String,
+        schemaName: String,
+        format: Report.Format = Report.Format.CSV
+    ) : this(name, organizationName, topic, CustomConfiguration(schemaName = schemaName, format = format))
+
     val fullName: String get() = "$organizationName.$name"
+    val schemaName: String get() = translation.buildSchemaName()
+    val format: Report.Format get() = translation.buildFormat()
 
     /**
      * Defines how batching of sending should proceed. Allows flexibility of
@@ -40,23 +49,23 @@ data class Receiver(
      *
      * @param operation MERGE will combine all reports in the batch into a single batch
      * @param numberPerDay Number of batches per day must be 1 to 3600
-     * @param initialBatch The time of the day to send the first batch. Must be format of hh:mm.
+     * @param initialTime The time of the day to first send. Must be format of hh:mm.
      * @param timeZone the time zone of the initial sending
      */
-    data class Batch(
+    data class Timing(
         val operation: BatchOperation = BatchOperation.NONE,
         val numberPerDay: Int = 1,
-        val initialBatch: String = "00:00",
+        val initialTime: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxReportCount: Int = 100,
     ) {
         /**
-         * Calculate the next batch time.
+         * Calculate the next event time.
          *
          * @param now is the current time
          * @param minDurationInSeconds in the future
          */
-        fun nextBatchTime(now: OffsetDateTime = OffsetDateTime.now(), minDurationInSeconds: Int = 10): OffsetDateTime {
+        fun nextTime(now: OffsetDateTime = OffsetDateTime.now(), minDurationInSeconds: Int = 10): OffsetDateTime {
             if (minDurationInSeconds < 1) error("MinDuration must be at least 1 second")
             val zoneId = ZoneId.of(timeZone.zoneId)
             val zonedNow = now
@@ -64,7 +73,7 @@ data class Receiver(
                 .plusSeconds(minDurationInSeconds.toLong())
                 .withNano(0)
 
-            val initialSeconds = LocalTime.parse(initialBatch).toSecondOfDay()
+            val initialSeconds = LocalTime.parse(initialTime).toSecondOfDay()
             val durationFromInitial = zonedNow.toLocalTime().toSecondOfDay() - initialSeconds
             val period = (24 * 60 * 60) / numberPerDay
             val secondsLeftInPeriod = period - ((durationFromInitial + (24 * 60 * 60)) % period)
