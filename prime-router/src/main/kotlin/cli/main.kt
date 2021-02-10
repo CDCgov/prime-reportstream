@@ -304,12 +304,14 @@ class ProcessData : CliktCommand(
         // synthesize the data here
         // todo: put these strategies into metadata so we can load them from a file
         val synthesizeStrategies = mapOf(
-            "patient_last_name" to Report.SynthesizeStrategy.SHUFFLE,
-            "patient_first_name" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_last_name" to Report.SynthesizeStrategy.FAKE,
+            "patient_first_name" to Report.SynthesizeStrategy.FAKE,
+            "patient_middle_name" to Report.SynthesizeStrategy.FAKE,
+            "patient_middle_initial" to Report.SynthesizeStrategy.FAKE,
             "patient_gender" to Report.SynthesizeStrategy.SHUFFLE,
             "patient_race" to Report.SynthesizeStrategy.SHUFFLE,
             "patient_ethnicity" to Report.SynthesizeStrategy.SHUFFLE,
-            "patient_dob" to Report.SynthesizeStrategy.FAKE,
+            "patient_dob" to Report.SynthesizeStrategy.SHUFFLE,
             "patient_phone_number" to Report.SynthesizeStrategy.FAKE,
             "patient_street" to Report.SynthesizeStrategy.FAKE,
             "patient_state" to Report.SynthesizeStrategy.FAKE,
