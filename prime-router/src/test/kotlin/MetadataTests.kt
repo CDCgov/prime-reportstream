@@ -11,8 +11,14 @@ import kotlin.test.assertTrue
 
 class MetadataTests {
     @Test
-    fun `test loading actual metadata catalog`() {
+    fun `test loading metadata catalog`() {
         val metadata = Metadata("./metadata")
+        assertNotNull(metadata)
+    }
+
+    @Test
+    fun `test loading local metadata catalog`() {
+        val metadata = Metadata("./metadata", "-local")
         assertNotNull(metadata)
     }
 

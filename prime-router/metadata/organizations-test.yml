@@ -139,6 +139,7 @@
   stateCode: ND
   receivers:
     - name: elr
+      organizationName: nd-doh
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
       translation:
