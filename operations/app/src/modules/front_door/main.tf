@@ -154,6 +154,54 @@ resource "azurerm_frontdoor" "front_door" {
     }
 }
 
+resource "azurerm_monitor_diagnostic_setting" "frontdoor_access_log" {
+  name = "${var.resource_prefix}-front_door-access-log"
+  target_resource_id = azurerm_frontdoor.front_door.id
+  eventhub_name = var.access_eventhub
+  eventhub_authorization_rule_id = var.auth_rule
+
+  log {
+    category = "FrontdoorAccessLog"
+    enabled  = true
+
+    retention_policy {
+      enabled = false
+    }
+  }
+
+  metric {
+    category = "AllMetrics"
+
+    retention_policy {
+      enabled = false
+    }
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "frontdoor_waf_log" {
+  name = "${var.resource_prefix}-front_door-waf-log"
+  target_resource_id = azurerm_frontdoor.front_door.id
+  eventhub_name = var.waf_eventhub
+  eventhub_authorization_rule_id = var.auth_rule
+
+  log {
+    category = "FrontdoorWebApplicationFirewallLog"
+    enabled  = true
+
+    retention_policy {
+      enabled = false
+    }
+  }
+
+  metric {
+    category = "AllMetrics"
+
+    retention_policy {
+      enabled = false
+    }
+  }
+}
+
 data "azurerm_key_vault_secret" "https_cert" {
     count = (var.environment == "prod" ? 1 : 0)
     key_vault_id = var.key_vault_id

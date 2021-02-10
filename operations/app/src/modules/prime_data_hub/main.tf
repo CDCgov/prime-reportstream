@@ -79,6 +79,9 @@ module "front_door" {
     resource_group = var.resource_group
     resource_prefix = var.resource_prefix
     key_vault_id = module.key_vault.application_key_vault_id
+    access_eventhub = module.event_hub.frontdoor_access_eventhub
+    waf_eventhub = module.event_hub.frontdoor_waf_eventhub
+    auth_rule = module.event_hub.frontdoor_auth_rule
 }
 
 module "sftp_container" {
