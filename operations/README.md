@@ -27,10 +27,16 @@ Initialize the Terraform environment (only needed once, but doesn't hurt to run 
 terraform init
 ```
 
-Set the PostgreSQL server credentials as environment variables
+Several environment variables need to be set for terraform to apply to
+the configuration.  This is temporary until secrets are pulled from
+Azure Key Vault.
 ```
-export TF_VAR_postgres_user=<postgres_username>
-export TF_VAR_postgres_password=<postgres_password>
+export TF_VAR_postgres_user=******
+export TF_VAR_postgres_password=******
+export TF_VAR_redox_secret=******
+export TF_VAR_okta_client_id=******
+export TF_VAR_az_phd_user=******
+export TF_VAR_az_phd_password=******
 ```
 
 Generate a plan (use the  `-out` flag to ensure the same plan gets applied in the following step)
