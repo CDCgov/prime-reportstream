@@ -2,6 +2,7 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
@@ -32,6 +33,7 @@ class Hl7Serializer(val metadata: Metadata) {
             buildVersion = buildProperties.getProperty("buildVersion", "0.0.0.0")
             buildDate = buildProperties.getProperty("buildDate", "20200101")
         }
+        hapiContext.modelClassFactory = CanonicalModelClassFactory("2.5.1")
     }
 
     /**
@@ -62,6 +64,7 @@ class Hl7Serializer(val metadata: Metadata) {
         val message = ORU_R01()
         message.initQuickstart("ORU", "R01", "D")
         buildMessage(message, report, row)
+        hapiContext.modelClassFactory = CanonicalModelClassFactory("2.5.1")
         return hapiContext.pipeParser.encode(message)
     }
 
@@ -264,30 +267,31 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     private fun createHeaders(report: Report): String {
+        val encodingCharacters = "^~\\&"
         val sendingApp = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
         val sendingFacility = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
         val receivingApp = formatHD(Element.parseHD(report.getString(0, "receiving_application") ?: ""))
         val receivingFacility = formatHD(Element.parseHD(report.getString(0, "receiving_facility") ?: ""))
 
-        return "FHS|^~\\&|" +
+        return "FHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
             nowTimestamp() +
-            "\r" +
-            "BHS|^~\\&|" +
+            hl7SegmentDelimiter +
+            "BHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
             nowTimestamp() +
-            "\r"
+            hl7SegmentDelimiter
     }
 
     private fun createFooters(report: Report): String {
-        return "BTS|${report.itemCount}\r" +
-            "FTS|1\r"
+        return "BTS|${report.itemCount}$hl7SegmentDelimiter" +
+            "FTS|1$hl7SegmentDelimiter"
     }
 
     private fun nowTimestamp(): String {
