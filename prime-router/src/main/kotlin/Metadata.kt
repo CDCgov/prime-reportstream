@@ -34,11 +34,16 @@ class Metadata {
     private var receiverStore: Map<String, Receiver> = mapOf()
     private var senderStore: Map<String, Sender> = mapOf()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
+    var receivingApplication: String? = null
+    var receivingFacility: String? = null
 
     /**
      * Load all parts of the metadata catalog from a directory and its sub-directories
      */
-    constructor(metadataPath: String, orgExt: String? = null) {
+    constructor(
+        metadataPath: String,
+        orgExt: String? = null
+    ) {
         val organizationsFilename = "$organizationsBaseName${orgExt ?: ""}.yml"
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
@@ -56,6 +61,7 @@ class Metadata {
         valueSet: ValueSet? = null,
         tableName: String? = null,
         table: LookupTable? = null,
+        organization: DeepOrganization? = null
     ) {
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }

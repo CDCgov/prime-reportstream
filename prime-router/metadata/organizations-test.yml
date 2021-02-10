@@ -130,9 +130,20 @@
       jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
       deidentify: false
       translation:
-        type: CUSTOM
-        schemaName: fl/fl-covid-19
-        format: CSV
+        type: HL7
+        useBatchHeaders: true
+
+- name: nd-doh
+  description: North Dakota Department of Health
+  jurisdiction: STATE
+  stateCode: ND
+  receivers:
+    - name: elr
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
 
 - name: co-phd
   description: Colorado Department of Health

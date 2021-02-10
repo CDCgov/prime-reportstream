@@ -710,6 +710,7 @@ elements:
 
   - name: processing_mode_code
     type: CODE
+    default: D
     cardinality: ZERO_OR_ONE
     valueSet: hl70103
     hl7Field: MSH-11-1
@@ -793,13 +794,6 @@ elements:
     natFlatFileField:
     hl7Field: MSH-3
 
-  - name: sending_facility
-    type: HD
-    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
-    default: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
-    natFlatFileField:
-    hl7Field: MSH-4
-
   - name: specimen_collection_date_time
     type: DATETIME
     natFlatFileField: Specimen_collection_date_time
@@ -828,14 +822,9 @@ elements:
 
   - name: specimen_id
     type: EI
+    hl7OutputFields: [SPM-2, OBR-3-1]
     hl7Field: SPM-2
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
-
-  - name: specimen_received_date_time
-    type: DATETIME
-    natFlatFileField: Specimen_received_date_time
-    hhsGuidanceField:
-    hl7Field: SPM-18
 
   - name: specimen_role
     type: CODE
@@ -859,7 +848,7 @@ elements:
     hl7Field: SPM-4
     documentation: The specimen source, such as Blood or Serum
 
-  - name: specimen_recieved_date_time
+  - name: specimen_received_date_time
     type: DATETIME
     mapper: use(specimen_collection_date_time)
     hl7Field: SPM-18
@@ -981,6 +970,7 @@ elements:
     natFlatFileField: Testing_lab_accession_number
     hhsGuidanceField:
     hl7Field: OBR-3-1
+    hl7OutputFields: [OBR-3-1, SPM-2]
     documentation: The accession number of the specimen collected
 
   - name: testing_lab_city
@@ -1044,11 +1034,11 @@ elements:
     hhsGuidanceField:
     hl7Field: SPM-2-1
 
-  - name: testing_lab_specimen_recieved_datetime
+  - name: testing_lab_specimen_received_datetime
     type: DATETIME
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
-    hl7Field: SPM-2-1
+    hl7Field: SPM-18
 
   - name: testing_lab_state
     type: TABLE

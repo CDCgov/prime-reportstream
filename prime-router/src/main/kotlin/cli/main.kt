@@ -105,6 +105,10 @@ class ProcessData : CliktCommand(
         "--send",
         help = "send output to receivers"
     ).flag(default = false)
+    private val synthesize by option(
+        "--synthesize",
+        help = "converts live production data into synthesized data"
+    ).flag(default = false)
 
     // Output schema
     private val route by option(
@@ -155,6 +159,14 @@ class ProcessData : CliktCommand(
         metavar = "<name>",
         help = "when using --input-fake, fill county-related fields with this county name."
     )
+    private val receivingApplication by option(
+        "--receiving-application",
+        help = "the receiving application"
+    )
+    private val receivingFacility by option(
+        "--receiving-facility",
+        help = "the receiving facility"
+    )
 
     private fun mergeReports(
         metadata: Metadata,
@@ -178,17 +190,21 @@ class ProcessData : CliktCommand(
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
         val csvSerializer = CsvSerializer(metadata)
-        val result = csvSerializer.read(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
-        if (result.report == null) {
-            error(result.errorsToString())
+        return if (file.extension.toUpperCase() == "INTERNAL") {
+            csvSerializer.readInternal(schema.name, file.inputStream(), listOf(FileSource(file.nameWithoutExtension)))
+        } else {
+            val result = csvSerializer.read(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
+            if (result.report == null) {
+                error(result.errorsToString())
+            }
+            if (result.errors.isNotEmpty()) {
+                echo(result.errorsToString())
+            }
+            if (result.warnings.isNotEmpty()) {
+                echo(result.warningsToString())
+            }
+            result.report
         }
-        if (result.errors.isNotEmpty()) {
-            echo(result.errorsToString())
-        }
-        if (result.warnings.isNotEmpty()) {
-            echo(result.warningsToString())
-        }
-        return result.report
     }
 
     private fun writeReportsToFile(
@@ -255,12 +271,14 @@ class ProcessData : CliktCommand(
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        metadata.receivingApplication = receivingApplication
+        metadata.receivingFacility = receivingFacility
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata)
         val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
         // Gather input source
-        val inputReport: Report = when (inputSource) {
+        var inputReport: Report = when (inputSource) {
             is InputSource.ListOfFilesSource ->
                 mergeReports(metadata, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
             is InputSource.FileSource ->
@@ -283,8 +301,28 @@ class ProcessData : CliktCommand(
             }
         }
 
+        // synthesize the data here
+        // todo: put these strategies into metadata so we can load them from a file
+        val synthesizeStrategies = mapOf(
+            "patient_last_name" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_first_name" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_gender" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_race" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_ethnicity" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_dob" to Report.SynthesizeStrategy.FAKE,
+            "patient_phone_number" to Report.SynthesizeStrategy.FAKE,
+            "patient_street" to Report.SynthesizeStrategy.FAKE,
+            "patient_state" to Report.SynthesizeStrategy.FAKE,
+            "patient_city" to Report.SynthesizeStrategy.FAKE,
+            "patient_county" to Report.SynthesizeStrategy.FAKE,
+            "patient_zip_code" to Report.SynthesizeStrategy.FAKE,
+            "message_id" to Report.SynthesizeStrategy.FAKE,
+            "patient_email" to Report.SynthesizeStrategy.FAKE,
+        )
+
         if (!validate) TODO("validation cannot currently be disabled")
         if (send) TODO("--send is not implemented")
+        if (synthesize) inputReport = inputReport.synthesizeData(synthesizeStrategies, targetState, targetCounty)
 
         // Transform reports
         val translator = Translator(metadata)
