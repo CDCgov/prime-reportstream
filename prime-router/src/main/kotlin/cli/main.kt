@@ -141,19 +141,19 @@ class ProcessData : CliktCommand(
     )
 
     // Fake data configuration
-    private val targetState: String? by
+    private val targetStates: String? by
     option(
-        "--target-state",
+        "--target-states",
         metavar = "<abbrev>",
-        help = "when using --input-fake, fill geographic fields using this state. " +
-            "This should be a two-letter abbreviation, e.g. 'FL' for Florida."
+        help = "when using --input-fake, fill geographic fields using these states, separated by commas. " +
+            "States should be two letters, e.g. 'FL'"
     )
 
-    private val targetCounty: String? by
+    private val targetCounties: String? by
     option(
-        "--target-county",
+        "--target-counties",
         metavar = "<name>",
-        help = "when using --input-fake, fill county-related fields with this county name."
+        help = "when using --input-fake, fill county-related fields with these county names, separated by commas."
     )
 
     private fun mergeReports(
@@ -274,8 +274,8 @@ class ProcessData : CliktCommand(
                     schema,
                     (inputSource as InputSource.FakeSource).count,
                     FileSource("fake"),
-                    targetState,
-                    targetCounty
+                    targetStates,
+                    targetCounties
                 )
             }
             else -> {
