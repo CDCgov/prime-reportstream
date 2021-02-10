@@ -452,24 +452,25 @@ class Report {
             childRowNum: Int
         ): ItemLineage {
             // ok if this is null.
-            val trackingElementValue =
-                parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
             if (parentReport.itemLineages != null) {
                 // Avoid losing history.
                 // If the parent report already had lineage, then pass its sins down to the next generation.
                 val grandParentReportId = parentReport.itemLineages!![parentRowNum].parentReportId
                 val grandParentRowNum = parentReport.itemLineages!![parentRowNum].parentIndex
+                val grandParentTrackingValue = parentReport.itemLineages!![parentRowNum].trackingId
                 return ItemLineage(
                     null,
                     grandParentReportId,
                     grandParentRowNum,
                     childReport.id,
                     childRowNum,
-                    trackingElementValue,
+                    grandParentTrackingValue,
                     null,
                     null
                 )
             } else {
+                val trackingElementValue =
+                    parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
                 return ItemLineage(
                     null,
                     parentReport.id,

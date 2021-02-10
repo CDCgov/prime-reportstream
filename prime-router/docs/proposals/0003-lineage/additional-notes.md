@@ -23,9 +23,9 @@ One option would be to implement triggers that prevent updates except for a stat
 
 This simple parent/child table should also be immutable.
 
-### ITEM Tracking (Coming soon)
+### ITEM Tracking
 
-To ensure that items can be uniquely tracked, we make the following key assumption:
+**Ordering Assumption**:  To ensure that items can be uniquely tracked, we make the following key assumption:
 
 We assume that within any one report, the index ordering (eg, 1,2,3,...) and number of Items is fixed. That is, we can write a Report to a blob store, and read it back into memory later, and be certain that the order of the Items and the number of Items has not changed.   This simple assumption means our code can guarantee unique Item lineage tracking, because (item_index, report_id) is now a system-wide unique key for each Item.   When we read data from the blob store, we now have a simple way to match Items in the data blob to corresponding items tracked in our lineage database tables.
 
@@ -36,4 +36,19 @@ Note that other options are not as good:
 
 ### Notes on ITEM tracking in each of the main azure functions:
 
-tbd
+**All or nothing assertion**: Throughtout item_lineage tracking, the code asserts the following:  either no lineage is tracked (for example, for older data prior to item_lineage implementation), or lineage is tracked completely for every item.  No partial/incomplete item_lineage - that's an error that causes an exception.   This means that our future reporting/auditing code doesn't need to worry about weirdly incomplete data.  If its incomplete, that's a bug that we need to fix asap.
+
+**ReportFunction and BatchFunction**:  As they do transforms on the data, both of these functions have access to both parent and child Report.kt objects.  These functiosn uses that Report.kt data to create item_lineage info.  Notes that Reports can be transmogrified in memory in all kinds of ways in these steps, through split(), merge(), copy().   Item_lineage is carefully preserved through all such transformations.   If in the future we add new clever data transform code to Report.kt, we will need to make sure item_lineage is preserved during that transform.  You can look at split(), merge(), copy() for examples.
+
+**SendFunction and DownloadFunction**:  These functions never create Report objects (which is good - we should be messing with the data as little as possible).  In these cases, item_lineage data for the parent report is read from the database, and that's used as the basis for creating the parent->child item_lineage.   Currently, these functions are also simpler, in that there's a 1:1 mapping from parent to child rows in these functions.
+
+**RedoxTransport special case**: This is currently the only Transport that can fail/succeed on individual items.  The item_lineage.transport_result column is designed to store these fine-grained send results.   The retry mechanism adds complexity here as well.   Each time a Redox report is sent, its rows can have one of three possible statuses:
+1. Success
+2. Failed to send
+3. Not sent, because it was already sent in some previous attempt.
+
+Note that because of the 'all or nothing' assertion above, the retry code in RedoxTransport was modified to track item_lineage for all three of these statuses.
+
+**Note this subtle future bug lurking for us**:  As soon as we begin to read in schemas (into BatchFunction) with no trackingElement defined in the .schema, we will lose the tracking_id column in the item_lineage table.   This is an artifact of how lineage tracking works in BatchFunction, where lineage is created in-memory based on data in the Report.kt objects.   If the parent report in the lineage has no trackingElement defined, then of course we can't fill in the item_lineage.tracking_id column.    The fix is to read in the parent's item_lineage from the database table, rather than creating it from scratch in memory.   The main downside to this is it just slows down processing even more.
+
+
