@@ -120,3 +120,11 @@ module "application_insights" {
     name = "${var.resource_prefix}-appinsights"
     location = local.location
 }
+
+module "event_hub" {
+    source = "../event_hub"
+    environment = var.environment
+    resource_group = var.resource_group
+    resource_prefix = var.resource_prefix
+    location = local.location
+}
