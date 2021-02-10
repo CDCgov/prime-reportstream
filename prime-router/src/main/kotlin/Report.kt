@@ -298,11 +298,12 @@ class Report {
                                 // parse the date
                                 val parsedDate = LocalDate.parse(dob, DateTimeFormatter.ofPattern(Element.datePattern))
                                 // get the year and date
-                                val (year, day) = listOf(parsedDate.year, parsedDate.dayOfYear)
+                                val year = parsedDate.year
                                 // fake a month
                                 val month = Random.nextInt(1, 12)
+                                val day = Random.nextInt(1, 28)
                                 // return with a different month and day
-                                "$year$month$day"
+                                Element.dateFormatter.format(LocalDate.of(year, month, day))
                             }
                             // return our list of days
                             dobs
