@@ -46,18 +46,6 @@ class Translator(private val metadata: Metadata) {
         }
     }
 
-    fun translate(
-        input: Report,
-        toService: String,
-        defaultValues: DefaultValues = emptyMap()
-    ): Pair<Report, OrganizationService>? {
-        if (input.isEmpty()) return null
-        val service = metadata.findService(toService) ?: error("invalid service name $toService")
-        val mappedReport = translateByService(input, service, defaultValues)
-        if (mappedReport.itemCount == 0) return null
-        return Pair(mappedReport, service)
-    }
-
     private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
@@ -103,12 +91,30 @@ class Translator(private val metadata: Metadata) {
         return transformed.copy(destination = receiver, bodyFormat = receiver.format)
     }
 
+    fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
+        val toSchema = metadata.findSchema(receiver.schema)
+            ?: error("${receiver.schema} schema is missing from catalog")
+        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
+    }
+
     /**
      * Translate one report to another schema. Translate all items.
      */
     fun translate(input: Report, toSchema: Schema, defaultValues: DefaultValues): Report {
         val mapping = buildMapping(toSchema = toSchema, fromSchema = input.schema, defaultValues)
         return input.applyMapping(mapping = mapping)
+    }
+
+    fun translate(
+        input: Report,
+        toService: String,
+        defaultValues: DefaultValues = emptyMap()
+    ): Pair<Report, OrganizationService>? {
+        if (input.isEmpty()) return null
+        val service = metadata.findService(toService) ?: error("invalid service name $toService")
+        val mappedReport = translateByService(input, service, defaultValues)
+        if (mappedReport.itemCount == 0) return null
+        return Pair(mappedReport, service)
     }
 
     /**
@@ -144,11 +150,5 @@ class Translator(private val metadata: Metadata) {
             }
         }
         return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)
-    }
-
-    private fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
-        val toSchema = metadata.findSchema(receiver.schema)
-            ?: error("${receiver.schema} schema is missing from catalog")
-        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
     }
 }
