@@ -34,10 +34,19 @@ components:
         iat:
           type: integer
           example: 1516239022
+
   securitySchemes:
-    jwtAuth:
+    jwt_bearer_auth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+    jwt_cookie_auth:
+      type: JWT
+      in: cookie
+      name: jwt
+
 security:
-  - jwtAuth: []
+  - jwt_cookie_auth: []
+  - jwt_bearer_auth: []
+
