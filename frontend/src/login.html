@@ -1,0 +1,42 @@
+---
+layout: prime_page.liquid
+title: "Login"
+cdn_styles:
+  - href: "https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css"
+    integrity: "sha384-NHrrVHQI7Uja/X0/0SMVLSk+nFzWI8AwBi1LqSOu7PogLHanNl0fOq1tTdvgb9C7"
+
+cdn_scripts:
+  - src: "https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js"
+    integrity: "sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh"
+---
+
+<div id="okta-login-container"></div>
+
+<script>
+  let config = {
+    logo: '//logo.clearbit.com/cdc.gov',
+    language: 'en',
+    features: {
+      registration: false, // Enable self-service registration flow
+      rememberMe: false, // Setting to false will remove the checkbox to save username
+      router: true, // Leave this set to true for the API demo
+    },
+    el: "#okta-login-container",
+    baseUrl: "https://{{ env.OKTA_baseUrl }}",
+    clientId: "{{ env.OKTA_clientId }}",
+    redirectUri: "{{ env.OKTA_redirect }}",
+    authParams: {
+      issuer: "https://{{ env.OKTA_baseUrl }}/oauth2/default"
+    }
+  };
+  
+  let signInWidget = new OktaSignIn(config);
+  signInWidget
+    .showSignInToGetTokens( { scopes: ['openid', 'email', 'profile', 'simple_report'] } )
+    .then( tokens => {
+      // set jwt cookie with 5 minute expiration
+      let ts_expires = new Date(Date.now() + 5*60*1000)
+      document.cookie = `jwt=${tokens.accessToken.value};expires=${ts_expires.toUTCString()};path=/`; 
+      window.location.replace("{{ env.OKTA_redirect }}");
+    })
+</script>

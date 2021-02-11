@@ -23,6 +23,10 @@ hs_err_pid*
 **/log/**
 **/dependency-reduced-pom.xml
 
+# Frontend build output
+**/node_modules/**
+**/_site/**
+
 # IDEA files
 **/.idea/**
 **/*.iml

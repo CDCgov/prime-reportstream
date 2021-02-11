@@ -57,13 +57,13 @@ class DatabaseAccess(private val create: DSLContext) {
         val content: ByteArray?
 
         init {
-            val meta = engine.metadata
+            val metadata = engine.metadata
             orgSvc = if (reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null)
-                meta.findService(reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)
+                metadata.findService(reportFile.receivingOrg, reportFile.receivingOrgSvc)
             else null
 
             schema = if (reportFile.schemaName != null)
-                meta.findSchema(reportFile.schemaName)
+                metadata.findSchema(reportFile.schemaName)
             else null
 
             content = if (reportFile.bodyUrl != null)
