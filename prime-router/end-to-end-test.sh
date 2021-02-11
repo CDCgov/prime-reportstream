@@ -35,7 +35,7 @@ printf "$text\n"
 
 printf "${BLUE}Generating second fake data file with $rows rows${NC}\n"
 fake2="./prime data --input-fake $rows --input-schema $starter_schema --output $testfile2 --target-counties=CSV,HL7_BATCH,HL7,REDOX --target-states=PM"
-echo $fake1
+echo $fake2
 text=$($fake2)
 printf "$text\n"
 
@@ -58,7 +58,7 @@ else
 fi 
 
 printf "${BLUE}Post second fake report to prime hub${NC}\n"
-echo Posting $testfile1 to reports endpoint
+echo Posting $testfile2 to reports endpoint
 $boilerplate_front --data-binary @$testfile2 $boilerplate_back | cat > $testfile2.json
 # Get the report_id from the output
 report_id2=$(cat $testfile2.json | python <( echo '
