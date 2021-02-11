@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonGenerator
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -408,6 +409,66 @@ class ActionHistory {
         context?.logger?.info(
             "Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}"
         )
+    }
+
+    // Used as temp storage by the json generator, below.
+    private data class DestinationData(
+        val orgSvc: OrganizationService,
+        var count: Int,
+        val sendingAt: OffsetDateTime? = null,
+    )
+
+    /**
+     * Generate nice json describing the destinations, suitable for returning to a Hub client.
+     * Most of the ugliness here is the attempt to not print every 1-entry report, but combine and summarize them.
+     *
+     * This works by side-effect on jsonGen.
+     */
+    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator) {
+        val metadata = WorkflowEngine.metadata
+        var destinationCounter = 0
+        jsonGen.writeArrayFieldStart("destinations")
+        if (reportsOut.isNotEmpty()) {
+            // Avoid clutter.  Combine reports with one Item, and print combined count.
+            var singles = mutableMapOf<String, DestinationData>()
+            reportsOut.forEach { (id, reportFile) ->
+                val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
+                val orgSvc = metadata.findService(fullname) ?: return@forEach
+                if (reportFile.itemCount == 1) {
+                    var previous = singles.putIfAbsent(fullname, DestinationData(orgSvc, 0, reportFile.nextActionAt))
+                    if (previous != null) previous.count++
+                } else {
+                    prettyPrintDestinationJson(jsonGen, orgSvc, reportFile.nextActionAt, reportFile.itemCount)
+                    destinationCounter++
+                }
+            }
+            singles.forEach { (orgSvcName, destData) ->
+                prettyPrintDestinationJson(jsonGen, destData.orgSvc, destData.sendingAt, destData.count)
+                destinationCounter++
+            }
+        }
+        jsonGen.writeEndArray()
+        jsonGen.writeNumberField("destinationCount", destinationCounter)
+    }
+
+    fun prettyPrintDestinationJson(
+        jsonGen: JsonGenerator,
+        orgSvc: OrganizationService,
+        sendingAt: OffsetDateTime?,
+        countToPrint: Int
+    ) {
+        val metadata = WorkflowEngine.metadata
+        jsonGen.writeStartObject()
+        // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
+        jsonGen.writeStringField("organization", orgSvc.organization.description)
+        jsonGen.writeStringField("organization_id", orgSvc.organization.name)
+        jsonGen.writeStringField("service", orgSvc.name)
+        jsonGen.writeStringField(
+            "sending_at",
+            if (sendingAt == null) "immediately" else "$sendingAt"
+        )
+        jsonGen.writeNumberField("itemCount", countToPrint)
+        jsonGen.writeEndObject()
     }
 
     companion object {

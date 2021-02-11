@@ -5,9 +5,11 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import kotlin.random.Random
 
 /**
  * Report id
@@ -288,7 +290,27 @@ class Report {
                     // can be one of three values right now:
                     // empty column, shuffle column, pass through column untouched
                     SynthesizeStrategy.SHUFFLE -> {
-                        val shuffledValues = table.column(it.name).asStringColumn().shuffled()
+                        // if the field is date of birth, then we can break it apart and make
+                        // a pseudo-random date
+                        val shuffledValues = if (it.name == "patient_dob") {
+                            // shuffle all the DOBs
+                            val dobs = table.column(it.name).asStringColumn().shuffled().map { dob ->
+                                // parse the date
+                                val parsedDate = LocalDate.parse(dob, DateTimeFormatter.ofPattern(Element.datePattern))
+                                // get the year and date
+                                val year = parsedDate.year
+                                // fake a month
+                                val month = Random.nextInt(1, 12)
+                                val day = Random.nextInt(1, 28)
+                                // return with a different month and day
+                                Element.dateFormatter.format(LocalDate.of(year, month, day))
+                            }
+                            // return our list of days
+                            dobs
+                        } else {
+                            // return the string column shuffled
+                            table.column(it.name).asStringColumn().shuffled()
+                        }
                         StringColumn.create(it.name, shuffledValues)
                     }
                     SynthesizeStrategy.FAKE -> {
