@@ -208,8 +208,8 @@ fi
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --output-format=HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/nd"
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-state ND --output-format=HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/covid"
 
   echo Now send that fake ND data through the router
   # TODO: can we import HL7?
@@ -257,8 +257,8 @@ if [ $RUN_LA -ne 0 ]
 then
   LA_FILE_SEARCH_STR="/la.*\.csv"
   echo Generate synthetic LA data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19-hl7 --output-dir $outputdir --target-state LA --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/la"
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-state LA --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/covid"
 
   echo Now send that fake LA data through the router
   # TODO: can we import HL7?
@@ -266,22 +266,6 @@ then
 
   echo Now those _those_ LA results back in to their own schema and export again!
   # TODO: once we've imported HL7 we can finish this step
-
-  echo Now generate fake LA data in CSV
-  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --target-state LA)
-  parse_prime_output_for_filename "$text" $LA_FILE_SEARCH_STR
-  fake_la=$filename
-
-  echo Now send that fake LA data through the router.
-  text=$(./prime data --input-schema la/la-covid-19 --input $fake_la --output-dir $outputdir)
-  parse_prime_output_for_filename "$text" $LA_FILE_SEARCH_STR
-  fake_la2=$filename
-  compare_files "Fake LA Orig -> Fake LA2" $fake_la $fake_la2
-
-  echo Now send _those_ LA results back in to their own schema and export again!
-  text=$(./prime data --input-schema la/la-covid-19 --input $fake_la2 --output-dir $outputdir)
-  fake_la3=$filename
-  compare_files "FakeLA2 -> FakeLA3" $fake_la2 $fake_la3
 fi
 
 exit 0
