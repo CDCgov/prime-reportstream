@@ -20,6 +20,7 @@ import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7SerializerTests {
+    private val hl7TestFileDir = "./src/test/hl7_test_files/"
     private val testReport: Report
     private val context = DefaultHapiContext()
     private val serializer: Hl7Serializer
@@ -34,47 +35,17 @@ class Hl7SerializerTests {
         csvSerializer = CsvSerializer(metadata)
         serializer = Hl7Serializer(metadata)
         testReport = csvSerializer.read("primedatainput/pdi-covid-19", inputStream, TestSource).report ?: fail()
-        // when I look at doing the HL7 this way I cry, but if I put it into a multiline string it doesn't
-        // parse correctly yet, and when I tried to force it to convert \n\r to just \r it failed as well
-        // and our linter is very specific about line length so here we are
-        // I am reminded of Ozymandias by Shelley:
-        //
-        // "Look upon my Works, ye Mighty, and despair!"
-        // Nothing beside remains. Round the decay
-        // Of that colossal Wreck, boundless and bare
-        // The lone and level sands stretch far away
-        // todo: fix this so it doesn't make me sad anymore
-        sampleHl7Message = "MSH|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|" +
-            "Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||" +
-            "PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\r" +
-            "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210\r" +
-            "PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||" +
-            "19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||" +
-            "^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N\r" +
-            "ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||" +
-            "1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||" +
-            "Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|" +
-            "^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174\r" +
-            "OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in " +
-            "Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||" +
-            "1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220" +
-            "|||||202102090000-0600|||F\r" +
-            "OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|" +
-            "|260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F" +
-            "|||202102090000-0600||" +
-            "|CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600|||" +
-            "|Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|" +
-            "170 North King Road^^Ormond Beach^FL^32174^^^^12127\r" +
-            "OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|" +
-            "||202102090000-0600|||||||||||||||QST\r" +
-            "OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F||" +
-            "|202102090000-0600|||||||||||||||QST\r" +
-            "OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||" +
-            "202102090000-0600|||||||||||||||QST\r" +
-            "OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||" +
-            "202102090000-0600|||||||||||||||QST\r" +
-            "SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT" +
-            "^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600"
+        sampleHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600"""
     }
 
     @Test
@@ -98,7 +69,9 @@ class Hl7SerializerTests {
         context.modelClassFactory = mcf
         val parser = context.pipeParser
         // act
-        val hapiMsg = parser.parse(sampleHl7Message)
+        val reg = "(\r|\n)".toRegex()
+        val cleanedMessage = reg.replace(sampleHl7Message, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
         // these messages are of type ORU_R01, so we can cast to that
         // as well, and let's test that while we're here as well
@@ -117,11 +90,24 @@ class Hl7SerializerTests {
         assertNotNull(oru)
         assertNotNull(oru.patienT_RESULT.patient)
         assertNotNull(oru.patienT_RESULT.patient.pid)
+        println(oru.printStructure())
     }
 
     @Test
     fun `test converting hl7 into mapped list of values`() {
         val mappedValues = serializer.convertMessageToMap(sampleHl7Message, covid19Schema)
+        mappedValues.forEach {
+            println("${it.key}: ${it.value.joinToString()}")
+        }
+        assertTrue(mappedValues.containsKey("patient_city"))
+        assertEquals("South Rodneychester", mappedValues["patient_city"]?.get(0))
+    }
+
+    @Test
+    fun `test reading HL7 message from file`() {
+        val inputFile = "$hl7TestFileDir/single_message.hl7"
+        val message = File(inputFile).readText()
+        val mappedValues = serializer.convertMessageToMap(message, covid19Schema)
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
         }

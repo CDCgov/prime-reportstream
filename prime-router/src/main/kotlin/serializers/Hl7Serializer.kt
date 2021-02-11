@@ -80,23 +80,40 @@ class Hl7Serializer(val metadata: Metadata) {
         val mcf = CanonicalModelClassFactory("2.5.1")
         hapiContext.modelClassFactory = mcf
         val parser = hapiContext.pipeParser
-        val hapiMsg = parser.parse(message)
+        val reg = "(\r|\n)".toRegex()
+        val cleanedMessage = reg.replace(message, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
         schema.elements.forEach {
             if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty())
                 return@forEach
-            if (it.hl7Field?.startsWith("OBX") == true)
-                return@forEach
             if (!mappedRows.containsKey(it.name))
                 mappedRows[it.name] = mutableListOf()
-            val terserSpec = if (it.hl7Field?.startsWith("MSH") == true) {
-                "/${it.hl7Field}"
+            if (!it.hl7Field.isNullOrEmpty()) {
+                val terserSpec = if (it.hl7Field.startsWith("MSH")) {
+                    "/${it.hl7Field}"
+                } else {
+                    "/.${it.hl7Field}"
+                }
+                val parsedValue = try { terser.get(terserSpec) } catch (_: HL7Exception) { "Exception for $terserSpec" }
+                // add the rows
+                mappedRows[it.name]?.add(parsedValue ?: "Blank for $terserSpec")
             } else {
-                "/.${it.hl7Field}"
+                it.hl7OutputFields?.forEach { h ->
+                    val terserSpec = if (h.startsWith("MSH")) {
+                        "/$h"
+                    } else {
+                        "/.$h"
+                    }
+                    val parsedValue = try {
+                        terser.get(terserSpec)
+                    } catch (_: HL7Exception) {
+                        "Exception for $terserSpec"
+                    }
+                    // add the rows
+                    mappedRows[it.name]?.add(parsedValue ?: "Blank for $terserSpec")
+                }
             }
-            val parsedValue = try { terser.get(terserSpec) } catch (_: HL7Exception) { "Exception for $terserSpec" }
-            // add the rows
-            mappedRows[it.name]?.add(parsedValue ?: "Blank for $terserSpec")
         }
         return mappedRows.toMap()
     }
