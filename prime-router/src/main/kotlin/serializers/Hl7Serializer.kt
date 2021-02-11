@@ -1,12 +1,14 @@
 package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.ValueSet
 import java.io.OutputStream
 import java.time.OffsetDateTime
@@ -58,6 +60,45 @@ class Hl7Serializer(val metadata: Metadata) {
             outputStream.write(message.toByteArray())
         }
         outputStream.write(createFooters(report).toByteArray())
+    }
+
+    /*
+     * Read in a file
+     */
+    fun convertMessageToMap(message: String, schema: Schema): Map<String, List<String>> {
+        // key of the map is the column header, list is the values in the column
+        val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
+        // todo: check for the segments that need to be removed because HAPI doesn't support batching
+        // todo: remove FHS
+        // todo: remove BHS
+        // todo: remove BTS (but preserve batch count so we can validate)
+        // todo: remove FTS
+        // todo: loop each line (message split on \r)
+        // todo: for each segment, loop through the elements (i.e. MSH-3-1)
+        // todo: find a matching schema element that maps to the segment element
+        // todo: add each value to the mapped rows collection
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        hapiContext.modelClassFactory = mcf
+        val parser = hapiContext.pipeParser
+        val hapiMsg = parser.parse(message)
+        val terser = Terser(hapiMsg)
+        schema.elements.forEach {
+            if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty())
+                return@forEach
+            if (it.hl7Field?.startsWith("OBX") == true)
+                return@forEach
+            if (!mappedRows.containsKey(it.name))
+                mappedRows[it.name] = mutableListOf()
+            val terserSpec = if (it.hl7Field?.startsWith("MSH") == true) {
+                "/${it.hl7Field}"
+            } else {
+                "/.${it.hl7Field}"
+            }
+            val parsedValue = try { terser.get(terserSpec) } catch (_: HL7Exception) { "Exception for $terserSpec" }
+            // add the rows
+            mappedRows[it.name]?.add(parsedValue ?: "Blank for $terserSpec")
+        }
+        return mappedRows.toMap()
     }
 
     internal fun createMessage(report: Report, row: Int): String {
