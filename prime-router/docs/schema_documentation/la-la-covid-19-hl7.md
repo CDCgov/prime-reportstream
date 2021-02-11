@@ -16,10 +16,6 @@
 
 **Name**: sending_facility
 
-**Type**: HD
-
-**HL7 Field**: MSH-4
-
 **Cardinality**: [0..1]
 
 ---
@@ -2193,16 +2189,6 @@ WOOD|Swab, Wooden Shaft
 
 ---
 
-**Name**: specimen_received_date_time
-
-**Type**: DATETIME
-
-**HL7 Field**: SPM-18
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: specimen_role
 
 **Type**: CODE
@@ -2280,7 +2266,7 @@ The specimen source, such as Blood or Serum
 
 ---
 
-**Name**: specimen_recieved_date_time
+**Name**: specimen_received_date_time
 
 **Type**: DATETIME
 
@@ -2628,11 +2614,11 @@ The name of the laboratory which performed the test, can be the same as the send
 
 ---
 
-**Name**: testing_lab_specimen_recieved_datetime
+**Name**: testing_lab_specimen_received_datetime
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-2-1
+**HL7 Field**: SPM-18
 
 **Cardinality**: [0..1]
 
