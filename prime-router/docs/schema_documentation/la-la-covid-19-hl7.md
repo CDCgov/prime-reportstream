@@ -14,12 +14,6 @@
 
 ---
 
-**Name**: sending_facility
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: receiving_application
 
 **Type**: HD
