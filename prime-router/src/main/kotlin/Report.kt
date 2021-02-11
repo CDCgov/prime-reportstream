@@ -180,7 +180,7 @@ class Report {
         this.table = createTable(schema, values)
     }
 
-    // Client source
+    // Client source.  Proposed deprecation of this - it is not used.
 /*    constructor(
         schema: Schema,
         values: List<List<String>>,
