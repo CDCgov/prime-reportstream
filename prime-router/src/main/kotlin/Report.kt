@@ -6,9 +6,11 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import kotlin.random.Random
 
 /**
  * Report id
@@ -19,6 +21,11 @@ typealias ReportId = UUID
  * Default values for elements to use when creating reports
  */
 typealias DefaultValues = Map<String, String>
+
+// the threshold for count of rows inside the report that we don't want
+// to shuffle at. If there are less than this number of rows in the table
+// then we just want to fake the data instead to prevent the leakage of PII
+const val SHUFFLE_THRESHOLD = 25
 
 /**
  * The report represents the report from one agent-organization, and which is
@@ -122,6 +129,17 @@ class Report {
     // Don't let the TableSaw abstraction leak.
     //
     private val table: Table
+
+    /**
+     * Allows us to specify a synthesize strategy when converting a report from live data
+     * into synthetic data that cannot be tied back to any real persons
+     */
+    enum class SynthesizeStrategy {
+        BLANK,
+        SHUFFLE,
+        PASSTHROUGH,
+        FAKE
+    }
 
     // Generic
     constructor(
@@ -283,6 +301,69 @@ class Report {
         )
     }
 
+    // takes the data in the existing report and synthesizes different data from it
+    // the goal is to allow us to take real data in, move it around and scramble it so it's
+    // not able to point back to the actual records
+    fun synthesizeData(
+        synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap(),
+        targetState: String? = null,
+        targetCounty: String? = null
+    ): Report {
+        val columns = schema.elements.map {
+            val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
+                // we want to guard against the possibility that there are too few records
+                // to reliably shuffle against. because shuffling is pseudo-random, it's possible that
+                // with something below a threshold we could end up leaking PII, therefore
+                // ignore the call to shuffle and just fake it
+                val synthesizeStrategy = if (itemCount < SHUFFLE_THRESHOLD && strategy == SynthesizeStrategy.SHUFFLE) {
+                    SynthesizeStrategy.FAKE
+                } else {
+                    strategy
+                }
+                // look in the mapping parameter passed in for the current element
+                when (synthesizeStrategy) {
+                    // examine the synthesizeStrategy for the field
+                    // can be one of three values right now:
+                    // empty column, shuffle column, pass through column untouched
+                    SynthesizeStrategy.SHUFFLE -> {
+                        // if the field is date of birth, then we can break it apart and make
+                        // a pseudo-random date
+                        val shuffledValues = if (it.name == "patient_dob") {
+                            // shuffle all the DOBs
+                            val dobs = table.column(it.name).asStringColumn().shuffled().map { dob ->
+                                // parse the date
+                                val parsedDate = LocalDate.parse(dob, DateTimeFormatter.ofPattern(Element.datePattern))
+                                // get the year and date
+                                val year = parsedDate.year
+                                // fake a month
+                                val month = Random.nextInt(1, 12)
+                                val day = Random.nextInt(1, 28)
+                                // return with a different month and day
+                                Element.dateFormatter.format(LocalDate.of(year, month, day))
+                            }
+                            // return our list of days
+                            dobs
+                        } else {
+                            // return the string column shuffled
+                            table.column(it.name).asStringColumn().shuffled()
+                        }
+                        StringColumn.create(it.name, shuffledValues)
+                    }
+                    SynthesizeStrategy.FAKE -> {
+                        // generate random faked data for the column passed in
+                        buildFakedColumn(it.name, it, targetState, targetCounty)
+                    }
+                    SynthesizeStrategy.BLANK -> buildEmptyColumn(it.name)
+                    SynthesizeStrategy.PASSTHROUGH -> table.column(it.name).copy()
+                }
+            }
+            // if the element name is not mapping, it is handled as a pass through
+            synthesizedColumn ?: table.column(it.name).copy()
+        }
+        // return the new copy of the report here
+        return Report(schema, Table.create(columns), fromThisReport("synthesizeData"))
+    }
+
     /**
      * Create a separate report for each item in the report
      */
@@ -369,6 +450,17 @@ class Report {
 
     private fun buildEmptyColumn(name: String): StringColumn {
         return StringColumn.create(name, List(itemCount) { "" })
+    }
+
+    private fun buildFakedColumn(
+        name: String,
+        element: Element,
+        targetState: String?,
+        targetCounty: String?
+    ): StringColumn {
+        val context = FakeReport.RowContext({ null }, targetState, schema.name, targetCounty)
+        val fakeDataService = FakeDataService()
+        return StringColumn.create(name, List(itemCount) { fakeDataService.getFakeValueForElement(element, context) })
     }
 
     companion object {
