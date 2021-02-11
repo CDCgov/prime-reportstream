@@ -1,0 +1,138 @@
+openapi: 3.0.0
+info:
+  title: Prime Data Hub
+  description: A router of public health data from multiple senders and receivers
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+  version: 0.1.0-oas3
+paths:
+  /reports:
+    post:
+      summary: Post a report to the data hub
+      parameters:
+        - in: query
+          name: client
+          description: The client's name that matches the client name in metadata
+          schema:
+            type: string
+          required: true
+          example: simple_report
+
+        - in: query
+          name: option
+          description: Optional ways to process the request
+          required: false
+          schema:
+            type: string
+            enum:
+              - ValidatePayload # Validate the payload, but do not process. return 200 on OK or 400 on fail
+              - CheckConnections # Health check
+              - SkipSend # Validate and route but do not send reports. Data is kept in the hub.
+              - SkipInvalidItems # Send valid ones
+          example: ValidatePayload
+
+        - in: query
+          name: default
+          description: Dynamic default values for an element. ':' or %3A is used to seperate element name and value
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+          example: processing_mode_code%3AD
+
+        - in: header
+          name: x-functions-key
+          description: The Azure function key for the end-point
+          schema:
+            type: string
+          required: true
+
+      requestBody:
+        description: The public health information being routed
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+            example:
+              header1, header2
+
+              value1, value2
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '201':
+          description: Created. A report was created, but items may have been rejected.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Invalid request. No report created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '500':
+          description: Internal Server Error
+
+components:
+  schemas:
+    Report:
+      type: object
+      required:
+      properties:
+        id:
+          description: the id for the report assigned by the Hub
+          type: string
+        reportItemCount:
+          description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
+          type: integer
+        destinations:
+          description: where the report is being sent to
+          type: array
+          items:
+            type: string
+        errorCount:
+          description: total errors found during initial validation.  There may be multiple errors per item.
+          type: integer
+        warningCount:
+          description: total warnings found during initial validation.  There may be multiple warnings per item.
+          type: integer
+        errors:
+          description: a list of errors in the report
+          type: array
+          items:
+            $ref: '#/components/schemas/Detail'
+        warnings:
+          description: a list of warnings in the report
+          type: array
+          items:
+            $ref: '#/components/schemas/Detail'
+
+    Detail:
+      type: object
+      properties:
+        scope:
+          type: string
+          description: Does the error apply to one item
+          enum:
+            - Parameter
+            - Report
+            - Item
+        id:
+          type: string
+          description: Depends on scope, either the item's id (message_id) or the report's id
+        detail:
+          type: string
+          description: The details of the error
