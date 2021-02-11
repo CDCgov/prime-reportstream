@@ -14,12 +14,6 @@
 
 ---
 
-**Name**: sending_facility
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: reporting_facility_name
 
 **Type**: TEXT

@@ -7,8 +7,6 @@ extends: covid-19
 elements:
   - name: sending_application
 
-  - name: sending_facility
-
   - name: receiving_application
 
   - name: receiving_facility
