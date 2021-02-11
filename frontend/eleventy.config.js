@@ -1,5 +1,3 @@
-const { createProxyMiddleware } = require('http-proxy-middleware')
-
 // Use same port as the prime-router server API being mocked out
 //const PRIME_api = process.env.PRIME_api || 'http://localhost:7071/api';
 
@@ -10,6 +8,25 @@ const PRIME_api = process.env.PRIME_api || 'http://localhost:9000/api';
 module.exports = function eleventy_config(cfg) {
   cfg.addFilter('as_literal',
     value => JSON.stringify(value) )
+
+  cfg.addPassthroughCopy('src/js')
+  cfg.addPassthroughCopy('src/css')
+
+  if ('production' != process.env.NODE_ENV) {
+    _with_live_reloading(cfg)
+  }
+
+  return {
+    dir: {
+      output: './_site',
+      input: './src',
+    },
+  }
+}
+
+
+function _with_live_reloading(cfg) {
+  const { createProxyMiddleware } = require('http-proxy-middleware')
 
   cfg.setBrowserSyncConfig({
     port: 7071,
@@ -37,14 +54,4 @@ module.exports = function eleventy_config(cfg) {
       { route: `/api`, handle: createProxyMiddleware(PRIME_api) },
     ],
   })
-
-  cfg.addPassthroughCopy('src/js')
-  cfg.addPassthroughCopy('src/css')
-
-  return {
-    dir: {
-      output: './_site',
-      input: './src',
-    },
-  }
 }
