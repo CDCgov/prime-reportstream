@@ -426,25 +426,26 @@ class ActionHistory {
      */
     fun prettyPrintDestinationsJson(jsonGen: JsonGenerator) {
         val metadata = WorkflowEngine.metadata
-        if (reportsOut.isEmpty()) return
-        jsonGen.writeArrayFieldStart("destinations")
-        // Avoid clutter.  Combine reports with one Item, and print combined count.
-        var singles = mutableMapOf<String, DestinationData>()
         var destinationCounter = 0
-        reportsOut.forEach { (id, reportFile) ->
-            val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
-            val orgSvc = metadata.findService(fullname) ?: return@forEach
-            if (reportFile.itemCount == 1) {
-                var previous = singles.putIfAbsent(fullname, DestinationData(orgSvc, 0, reportFile.nextActionAt))
-                if (previous != null) previous.count++
-            } else {
-                prettyPrintDestinationJson(jsonGen, orgSvc, reportFile.nextActionAt, reportFile.itemCount)
+        jsonGen.writeArrayFieldStart("destinations")
+        if (reportsOut.isNotEmpty()) {
+            // Avoid clutter.  Combine reports with one Item, and print combined count.
+            var singles = mutableMapOf<String, DestinationData>()
+            reportsOut.forEach { (id, reportFile) ->
+                val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
+                val orgSvc = metadata.findService(fullname) ?: return@forEach
+                if (reportFile.itemCount == 1) {
+                    var previous = singles.putIfAbsent(fullname, DestinationData(orgSvc, 0, reportFile.nextActionAt))
+                    if (previous != null) previous.count++
+                } else {
+                    prettyPrintDestinationJson(jsonGen, orgSvc, reportFile.nextActionAt, reportFile.itemCount)
+                    destinationCounter++
+                }
+            }
+            singles.forEach { (orgSvcName, destData) ->
+                prettyPrintDestinationJson(jsonGen, destData.orgSvc, destData.sendingAt, destData.count)
                 destinationCounter++
             }
-        }
-        singles.forEach { (orgSvcName, destData) ->
-            prettyPrintDestinationJson(jsonGen, destData.orgSvc, destData.sendingAt, destData.count)
-            destinationCounter++
         }
         jsonGen.writeEndArray()
         jsonGen.writeNumberField("destinationCount", destinationCounter)
@@ -459,9 +460,9 @@ class ActionHistory {
         val metadata = WorkflowEngine.metadata
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
-        jsonGen.writeStringField("sending_to_organization", orgSvc.organization.name)
-        jsonGen.writeStringField("organization_description", orgSvc.organization.description)
-        jsonGen.writeStringField("organization_service", orgSvc.name)
+        jsonGen.writeStringField("organization", orgSvc.organization.description)
+        jsonGen.writeStringField("organization_id", orgSvc.organization.name)
+        jsonGen.writeStringField("service", orgSvc.name)
         jsonGen.writeStringField(
             "sending_at",
             if (sendingAt == null) "immediately" else "$sendingAt"
