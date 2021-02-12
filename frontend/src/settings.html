@@ -1,6 +1,10 @@
 ---
 layout: prime_page.liquid
 title: "Settings"
+cdn_scripts:
+  - src: "https://cdn.jsdelivr.net/npm/uhtml@2.4.0/min.js"
+    integrity: "sha256-pFTx1NUIxgU2M6OB3sCTkpuwmqwRspaWJAW7mrEqswo="
+
 local_styles:
   - "./css/prime.css"
 ---
@@ -9,22 +13,68 @@ local_styles:
 {% include app_topbar %}
 
 <main>
-  <h1>HELLO Settings</h1>
+  <div class="grid-container margin-top-4">
+    <div class="grid-row">
+      <div class="grid-col-auto margin-top-2 margin-right-6">
+        <nav aria-label="Secondary navigation">
+          <ul class="usa-sidenav">
+            <li class="usa-sidenav__item"><a href="#personal_info" class="usa-current">Personal info</a></li>
+            <li class="usa-sidenav__item"><a href="#team">Team</a></li>
+            <li class="usa-sidenav__item"><a href="#delivery_options">Delivery options</a></li>
+            <li class="usa-sidenav__item"><a href="#schema_viewer">Schema viewer</a></li>
+          </ul>
+        </nav>
+      </div>
 
-  <pre><output><script>{
-    let jwt_body = JSON.parse(localStorage.getItem('jwt_body') || null)
-    let el_output = document.currentScript.parentElement
+      <div class="grid-col-fill">
+        <h4>Name & contact</h4>
+        <div class="grid-row">
+          <div class='flex-1'>First name</div>
+          <div class='flex-5' data-key='given_name'>Ellen</div>
+        </div>
+        <div class="grid-row">
+          <div class='flex-1'>Last name</div>
+          <div class='flex-5' data-key='family_name'>Ellen</div>
+        </div>
+        <div class="grid-row">
+          <div class='flex-1'>Email</div>
+          <div class='flex-5' data-key='sub'>e.ripley@weylandyutani.com</div>
+        </div>
+        <div class="grid-row">
+          <div class='flex-1'>Phone</div>
+          <div class='flex-5'>(555) 867-5309</div>
+        </div>
 
-    if (jwt_body) {
-      el_output.textContent = [
-          `- jwt_body.sub: ${jwt_body.sub}`,
-          `- jwt_body.given_name: ${jwt_body.given_name}`,
-          `- jwt_body.family_name: ${jwt_body.family_name}`,
-        ].join('\n')
-    } else {
-      el_output.textContent = 'not logged in'
-    }
-  }</script></output></pre>
+        <h4>Security</h4>
+        <div class="grid-row">
+          <div class='flex-1'>Password</div>
+          <div class='flex-5'><a href=''>Reset password</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br /> <br /> <hr />
+  <div style='max-height: 40vh' class="grid-container overflow-y-scroll">
+    <pre><output><script>{
+      let jwt_body = JSON.parse(localStorage.getItem('jwt_body') || null)
+      let el_output = document.currentScript.parentElement
+
+      el_output.textContent = JSON.stringify(jwt_body, null, 2)
+
+      if (jwt_body) {
+        for (let key of ['given_name', 'family_name', 'sub'])
+          document.querySelector(`[data-key=${key}]`)
+            .textContent = `${jwt_body[key]}`
+      }
+    }</script></output></pre>
+
+  </div>
 </main>
 
 {% include footer_cdc_website %}
+
+<script type=module>
+  import prime_rest_api from '/js/prime_api.mjs'
+  window.prime_rest_api = prime_rest_api
+</script>

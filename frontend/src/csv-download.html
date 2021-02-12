@@ -1,6 +1,10 @@
 ---
 layout: prime_page.liquid
 title: "Download"
+cdn_scripts:
+  - src: "https://cdn.jsdelivr.net/npm/uhtml@2.4.0/min.js"
+    integrity: "sha256-pFTx1NUIxgU2M6OB3sCTkpuwmqwRspaWJAW7mrEqswo="
+
 local_styles:
   - "./css/prime.css"
 ---
@@ -9,8 +13,105 @@ local_styles:
 {% include app_topbar %}
 
 <main>
-  <h1>HELLO Download</h1>
+  <div class="grid-container margin-top-4">
+    <div class="grid-row">
+      <div class="grid-col-12 margin-top-3 margin-bottom-2">
+        <h1 class="margin-bottom-6">
+          COVID-19 test results <br />
+          <span class="text-base-light" th:text="${description}"></span>
+        </h1>
+        <h2>Today's results</h2>
+
+        <span th:if="${todays.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
+        <table th:unless="${todays.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Today's results">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Description</th>
+              <th scope="col">Expires</th>
+              <th scope="col">Total tests</th>
+              <th scope="col">File</th>
+              <th scope="col">UUID</th>
+            </tr>
+          </thead>
+          <tbody class="font-mono-2xs">
+            <tr th:each="result : ${todays}">
+              <th data-title="date" scope="row"><span th:text="${result.date}"></span> GMT</th>
+              <th data-title="receiver" scope="row" th:text="${result.receiver}"></th>
+              <td data-title="expires">
+                <span th:text="${result.expires}"></span> <span th:if="${result.expires > 1}"> days</span><span th:unless="${result.expires>1}"> day</span>
+              </td>
+              <td data-title="Total tests" th:text="${result.total}">-</td>
+              <td data-title="File">
+                <span>
+                  <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download <span th:text="${result.format}"></span></a>
+                </span>
+              </td>
+              <td data-title="UUID">
+                <span th:text="${result.file}"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-col-12">
+        <h2>Previous <span th:text="${days_to_show}"></span> days</h2>
+        <span th:if="${previous.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
+        <table th:unless="${previous.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Previous results">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Description</th>
+              <th scope="col">Expires</th>
+              <th scope="col">Total tests</th>
+              <th scope="col">File</th>
+              <th scope="col">UUID</th>
+            </tr>
+          </thead>
+          <tbody class="font-mono-2xs">
+            <!-- {{ for result in results }} -->
+            <tr th:each="result : ${previous}">
+              <th data-title="date" scope="row"><span  th:text="${result.date}"></span> GMT</th>
+              <th data-title="receiver" scope="row" th:text="${result.receiver}"></th>
+              <td data-title="expires">
+                <span th:text="${result.expires}"></span> <span th:if="${result.expires > 1}"> days</span><span th:unless="${result.expires>1}"> day</span>
+              </td>
+              <td data-title="Total tests" th:text="${result.total}">-</td>
+              <td data-title="File">
+                <span>
+                    <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download <span th:text="${result.format}"></span></a>
+                </span>
+              </td>
+              <td data-title="UUID">
+                <span th:text="${result.file}"></span>
+              </td>                  
+            </tr>
+            <!-- {{ endfor }} -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <br /> <br /> <hr />
+  <div style='max-height: 40vh' class="grid-container overflow-y-scroll">
+    <pre><output id='out'></output></pre>
+  </div>
 
 </main>
 
 {% include footer_cdc_website %}
+
+
+<script type=module>
+  import prime_rest_api from '/js/prime_api.mjs'
+  window.prime_rest_api = prime_rest_api
+
+  prime_rest_api
+    .json_get('csv-download')
+    .then(info => {
+      document.querySelector('output#out')
+        .textContent = JSON.stringify(info, null, 2)
+    })
+</script>

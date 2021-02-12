@@ -18,7 +18,7 @@ console.info(`export MOCK_URL='http://localhost:${port}'`)
 console.info(`export MOCK_ACCEPT='Accept: application/json'`)
 
 if (1) {
-  api = openapi_jwt_auth(api)
+  api = openapi_jwt_auth(api, true)
   console.info(`export MOCK_AUTH=$(curl -s $MOCK_URL/_mock_login_token_)`)
   console.info(`export MOCK_COOKIE=$(curl -s $MOCK_URL/_mock_login_cookie_)`)
 }

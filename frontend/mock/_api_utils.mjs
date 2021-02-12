@@ -55,7 +55,7 @@ export const new_jwt_token = (login_obj) =>
   jwt.sign(login_obj || default_login_obj, _jwt_mock_secret_)
 
 
-export function openapi_jwt_auth(api) {
+export function openapi_jwt_auth(api, bypass_verify) {
 
   api.register({
     async unauthorizedHandler(oapi_ctx, req, res) {
@@ -75,6 +75,9 @@ export function openapi_jwt_auth(api) {
       throw new Error('Missing JWT authorization header')
     }
 
+    if (bypass_verify) return true
+
+    // pull jwt token from bearer value
     const jwt_token = authHeader.replace('Bearer ', '')
     return jwt.verify(jwt_token, _jwt_mock_secret_)
   }
@@ -86,6 +89,8 @@ export function openapi_jwt_auth(api) {
     if (!jwt_cookie) {
       throw new Error('Missing JWT authorization cookie')
     }
+
+    if (bypass_verify) return true
 
     // pull jwt token from first match group
     const jwt_token = jwt_cookie[1]

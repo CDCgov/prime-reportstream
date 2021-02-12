@@ -17,9 +17,9 @@ paths:
         '401':
           description: Unauthorized
 
-  '/api/download':
+  '/api/csv-download':
     get:
-      operationId: download
+      operationId: csv-download
       responses:
         '200':
           description: Token data
