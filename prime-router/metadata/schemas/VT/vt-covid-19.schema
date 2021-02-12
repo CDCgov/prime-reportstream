@@ -1,19 +1,18 @@
 ---
-name: fl-covid-19
-description: Florida COVID-19 HL7
+name: vt-covid-19
 topic: covid-19
-trackingElement: message_id
-basedOn: covid-19
+extends: covid-19
+description: A schema for VT DOH to receive HL7 files
 elements:
   - name: sending_application
 
   - name: sending_facility
 
   - name: receiving_application
-    default: FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO
+    default: NBS^2.16.840.1.114222.4.1.185.1^ISO
 
   - name: receiving_facility
-    default: FDOH^2.16.840.1.114222.1.3645^ISO
+    default: VDH^2.16.840.1.114222.4.1.185^ISO
 
   - name: comment
 
@@ -53,8 +52,6 @@ elements:
 
   - name: ordering_facility_city
 
-  - name: ordering_facility_county
-
   - name: ordering_facility_county_code
 
   - name: ordering_facility_email
@@ -72,8 +69,6 @@ elements:
   - name: ordering_facility_zip_code
 
   - name: ordering_provider_city
-
-  - name: ordering_provider_county
 
   - name: ordering_provider_county_code
 
@@ -100,8 +95,6 @@ elements:
   - name: ordering_provider_zip_code
 
   - name: patient_city
-
-  - name: patient_county
 
   - name: patient_county_code
 
@@ -213,8 +206,6 @@ elements:
 
   - name: testing_lab_city
 
-  - name: testing_lab_county
-
   - name: testing_lab_county_code
 
   - name: testing_lab_id
@@ -257,7 +248,3 @@ elements:
   - name: resident_congregate_setting
 
   - name: symptomatic_for_disease
-
-
-
-

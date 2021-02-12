@@ -1,19 +1,19 @@
 ---
-name: fl-covid-19
-description: Florida COVID-19 HL7
-topic: covid-19
+name: la-covid-19
+description: LA COVID-19
 trackingElement: message_id
-basedOn: covid-19
+topic: covid-19
+extends: covid-19
 elements:
   - name: sending_application
 
   - name: sending_facility
 
   - name: receiving_application
-    default: FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO
+    default: LA-ELR
 
   - name: receiving_facility
-    default: FDOH^2.16.840.1.114222.1.3645^ISO
+    default: LADOH
 
   - name: comment
 
@@ -257,7 +257,4 @@ elements:
   - name: resident_congregate_setting
 
   - name: symptomatic_for_disease
-
-
-
 

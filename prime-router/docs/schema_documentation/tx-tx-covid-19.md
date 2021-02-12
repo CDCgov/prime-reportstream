@@ -1,6 +1,6 @@
 
-### Schema:         standard/standard-covid-19
-#### Description:   A standard file for ELR HL7 messags
+### Schema:         tx/tx-covid-19
+#### Description:   TX NEDSS ELR for HL7 messages
 
 ---
 

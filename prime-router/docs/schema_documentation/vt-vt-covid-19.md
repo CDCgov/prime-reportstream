@@ -1,6 +1,6 @@
 
-### Schema:         standard/standard-covid-19
-#### Description:   A standard file for ELR HL7 messags
+### Schema:         vt/vt-covid-19
+#### Description:   A schema for VT DOH to receive HL7 files
 
 ---
 
