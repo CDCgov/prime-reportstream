@@ -42,6 +42,20 @@ npm run mock
 ```
 
 
+## CI/CD Integration
+
+The frontend is integrated into the GitHub actions build workflow by calling
+[`./ci_build.bash`](./ci_build.bash). Executable both locally and as part of
+the workflow, the script uses a [docker NodeJS image][dkr_node] for a stable
+environment to reproducably build the static site assets.  The multi-stage
+[`./Dockerfile`](./Dockerfile) also produces a [docker nginx server][dkr_nginx]
+embedding the static website.  The [`./ci_validate.bash`](./ci_validate.bash)
+performs a cursory validation on the output nginx server image.
+
+
+ [dkr_node]: https://hub.docker.com/_/node "Docker official image for NodeJS"
+ [dkr_nginx]: https://hub.docker.com/_/nginx "Docker official image for Nginx"
+
 
 ## Tech Stack
 
