@@ -57,13 +57,13 @@ class DatabaseAccess(private val create: DSLContext) {
         val content: ByteArray?
 
         init {
-            val meta = engine.metadata
+            val metadata = engine.metadata
             orgSvc = if (reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null)
-                meta.findService(reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)
+                metadata.findService(reportFile.receivingOrg, reportFile.receivingOrgSvc)
             else null
 
             schema = if (reportFile.schemaName != null)
-                meta.findSchema(reportFile.schemaName)
+                metadata.findSchema(reportFile.schemaName)
             else null
 
             content = if (reportFile.bodyUrl != null)
@@ -193,9 +193,12 @@ class DatabaseAccess(private val create: DSLContext) {
         txn: DataAccessTransaction,
     ): List<Header> {
         val cond = if (at == null) {
-            TASK.RECEIVER_NAME.eq(receiver.fullName).and(TASK.NEXT_ACTION.eq(nextAction))
+            TASK.RECEIVER_NAME.eq(receiver.fullName)
+                .and(TASK.NEXT_ACTION.eq(nextAction))
         } else {
-            TASK.RECEIVER_NAME.eq(receiver.fullName).and(TASK.NEXT_ACTION.eq(nextAction)).and(TASK.NEXT_ACTION_AT.eq(at))
+            TASK.RECEIVER_NAME.eq(receiver.fullName)
+                .and(TASK.NEXT_ACTION.eq(nextAction))
+                .and(TASK.NEXT_ACTION_AT.eq(at))
         }
         val ctx = DSL.using(txn)
         val tasks = ctx
@@ -214,7 +217,10 @@ class DatabaseAccess(private val create: DSLContext) {
             .fetch()
             .into(TaskSource::class.java)
 
-        val reportFiles = ids.map { ActionHistory.fetchReportFile(it, ctx) }.map { (it.reportId as ReportId) to it }.toMap()
+        val reportFiles = ids
+            .map { ActionHistory.fetchReportFile(it, ctx) }
+            .map { (it.reportId as ReportId) to it }
+            .toMap()
         ActionHistory.sanityCheckReports(tasks, reportFiles, false)
 
         // taskSources seems erroneous.  All the sources for all Tasks are attached to each indiv. task. ?
@@ -296,7 +302,11 @@ class DatabaseAccess(private val create: DSLContext) {
                 Event.EventAction.BATCH -> TASK.BATCHED_AT
                 Event.EventAction.SEND -> TASK.SENT_AT
                 Event.EventAction.WIPE -> TASK.WIPED_AT
-                Event.EventAction.BATCH_ERROR, Event.EventAction.SEND_ERROR, Event.EventAction.WIPE_ERROR -> TASK.ERRORED_AT
+
+                Event.EventAction.BATCH_ERROR,
+                Event.EventAction.SEND_ERROR,
+                Event.EventAction.WIPE_ERROR -> TASK.ERRORED_AT
+
                 Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
             }
         }

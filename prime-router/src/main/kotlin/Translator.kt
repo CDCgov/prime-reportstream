@@ -32,7 +32,10 @@ class Translator(private val metadata: Metadata) {
     /**
      * Translate and filter by the list of services in metadata. Only return reports that have items.
      */
-    fun filterAndTranslateByService(input: Report, defaultValues: DefaultValues = emptyMap()): List<Pair<Report, OrganizationService>> {
+    fun filterAndTranslateByService(
+        input: Report,
+        defaultValues: DefaultValues = emptyMap()
+    ): List<Pair<Report, OrganizationService>> {
         if (input.isEmpty()) return emptyList()
         return metadata.organizationServices.filter { service ->
             service.topic == input.schema.topic
@@ -41,14 +44,6 @@ class Translator(private val metadata: Metadata) {
             if (mappedReport.itemCount == 0) return@mapNotNull null
             Pair(mappedReport, service)
         }
-    }
-
-    fun translate(input: Report, toService: String, defaultValues: DefaultValues = emptyMap()): Pair<Report, OrganizationService>? {
-        if (input.isEmpty()) return null
-        val service = metadata.findService(toService) ?: error("invalid service name $toService")
-        val mappedReport = translateByService(input, service, defaultValues)
-        if (mappedReport.itemCount == 0) return null
-        return Pair(mappedReport, service)
     }
 
     private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
@@ -71,7 +66,13 @@ class Translator(private val metadata: Metadata) {
             val defaults = if (receiver.defaults.isNotEmpty()) receiver.defaults.plus(defaultValues) else defaultValues
             val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
             if (mapping.missing.isNotEmpty()) {
-                error("Error: To translate to ${toSchema.name}, these elements are missing: ${mapping.missing.joinToString(", ")}")
+                error(
+                    "Error: To translate to ${toSchema.name}, these elements are missing: ${
+                    mapping.missing.joinToString(
+                        ", "
+                    )
+                    }"
+                )
             }
             filteredReport.applyMapping(mapping)
         } else {
@@ -90,12 +91,30 @@ class Translator(private val metadata: Metadata) {
         return transformed.copy(destination = receiver, bodyFormat = receiver.format)
     }
 
+    fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
+        val toSchema = metadata.findSchema(receiver.schema)
+            ?: error("${receiver.schema} schema is missing from catalog")
+        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
+    }
+
     /**
      * Translate one report to another schema. Translate all items.
      */
     fun translate(input: Report, toSchema: Schema, defaultValues: DefaultValues): Report {
         val mapping = buildMapping(toSchema = toSchema, fromSchema = input.schema, defaultValues)
         return input.applyMapping(mapping = mapping)
+    }
+
+    fun translate(
+        input: Report,
+        toService: String,
+        defaultValues: DefaultValues = emptyMap()
+    ): Pair<Report, OrganizationService>? {
+        if (input.isEmpty()) return null
+        val service = metadata.findService(toService) ?: error("invalid service name $toService")
+        val mappedReport = translateByService(input, service, defaultValues)
+        if (mappedReport.itemCount == 0) return null
+        return Pair(mappedReport, service)
     }
 
     /**
@@ -131,11 +150,5 @@ class Translator(private val metadata: Metadata) {
             }
         }
         return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)
-    }
-
-    private fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
-        val toSchema = metadata.findSchema(receiver.schema)
-            ?: error("${receiver.schema} schema is missing from catalog")
-        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
     }
 }

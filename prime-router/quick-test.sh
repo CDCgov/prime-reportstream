@@ -23,6 +23,7 @@ NC='\033[0m' # No Color
 RUN_AZ=0
 RUN_FL=0
 RUN_ND=0
+RUN_LA=0
 # always should run, but we'll leave this here for now in case that could change at some point
 RUN_STANDARD=1
 RUN_ALL=0
@@ -40,6 +41,7 @@ do
     fl | FL) RUN_FL=1;;
     az | AZ) RUN_AZ=1;;
     nd | ND) RUN_ND=1;;
+    la | LA) RUN_LA=1;;
     all | ALL) RUN_ALL=1;;
     merge | MERGE) RUN_MERGE=1;;
   esac
@@ -50,6 +52,7 @@ then
   RUN_FL=1
   RUN_AZ=1
   RUN_ND=1
+  RUN_LA=1
   RUN_STANDARD=1
   RUN_MERGE=1
 fi
@@ -205,8 +208,8 @@ fi
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --output-format=HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/nd"
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-state ND --output-format=HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/covid"
 
   echo Now send that fake ND data through the router
   # TODO: can we import HL7?
@@ -247,6 +250,22 @@ then
   let total=($numitems \* 3)+1 
   # All the lines should have a comma
   count_lines $merged_file , $total
+fi
+
+# run louisiana
+if [ $RUN_LA -ne 0 ]
+then
+  LA_FILE_SEARCH_STR="/la.*\.csv"
+  echo Generate synthetic LA data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-state LA --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/covid"
+
+  echo Now send that fake LA data through the router
+  # TODO: can we import HL7?
+  # TODO: how do we compare HL7?
+
+  echo Now those _those_ LA results back in to their own schema and export again!
+  # TODO: once we've imported HL7 we can finish this step
 fi
 
 exit 0

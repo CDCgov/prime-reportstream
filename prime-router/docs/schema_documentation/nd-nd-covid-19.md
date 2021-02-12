@@ -14,16 +14,6 @@
 
 ---
 
-**Name**: sending_facility
-
-**Type**: HD
-
-**HL7 Field**: MSH-4
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: reporting_facility_name
 
 **Type**: TEXT
@@ -805,6 +795,11 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **HL7 Field**: SPM-18
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
+
 
 ---
 

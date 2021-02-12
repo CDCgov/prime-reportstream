@@ -10,6 +10,7 @@ import gov.cdc.prime.router.ValueSet
 import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 class Hl7Serializer(val metadata: Metadata) {
@@ -20,6 +21,7 @@ class Hl7Serializer(val metadata: Metadata) {
     private val hapiContext = DefaultHapiContext()
     private val buildVersion: String
     private val buildDate: String
+    private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
 
     init {
         val buildProperties = Properties()
@@ -36,7 +38,8 @@ class Hl7Serializer(val metadata: Metadata) {
      * Write a report with a single item
      */
     fun write(report: Report, outputStream: OutputStream) {
-        if (report.itemCount != 1) error("Internal Error: multiple item report cannot be written as a single HL7 message")
+        if (report.itemCount != 1)
+            error("Internal Error: multiple item report cannot be written as a single HL7 message")
         val message = createMessage(report, 0)
         outputStream.write(message.toByteArray())
     }
@@ -47,7 +50,6 @@ class Hl7Serializer(val metadata: Metadata) {
     fun writeBatch(report: Report, outputStream: OutputStream) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        //
         outputStream.write(createHeaders(report).toByteArray())
         report.itemIndices.map {
             val message = createMessage(report, it)
@@ -63,10 +65,11 @@ class Hl7Serializer(val metadata: Metadata) {
         return hapiContext.pipeParser.encode(message)
     }
 
-    private fun buildMessage(message: ORU_R01, report: Report, row: Int) {
+    private fun buildMessage(message: ORU_R01, report: Report, row: Int, processingId: String = "D") {
         var aoeSequence = 1
         val terser = Terser(message)
         setLiterals(terser)
+        // serialize the rest of the elements
         report.schema.elements.forEach { element ->
             val value = report.getString(row, element.name) ?: return@forEach
 
@@ -87,6 +90,10 @@ class Hl7Serializer(val metadata: Metadata) {
                 }
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
+            } else if (element.hl7Field == "MSH-7") {
+                setComponent(terser, element, "MSH-7", formatter.format(report.createdDateTime))
+            } else if (element.hl7Field == "MSH-11") {
+                setComponent(terser, element, "MSH-11", processingId)
             } else if (element.hl7Field != null) {
                 setComponent(terser, element, element.hl7Field, value)
             }
@@ -231,6 +238,8 @@ class Hl7Serializer(val metadata: Metadata) {
 
     private fun setLiterals(terser: Terser) {
         // Value that NIST requires (although # is not part of 2.5.1)
+        terser.set("MSH-5", metadata.receivingApplication)
+        terser.set("MSH-6", metadata.receivingFacility)
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", "2.5.1")
@@ -256,7 +265,7 @@ class Hl7Serializer(val metadata: Metadata) {
 
     private fun createHeaders(report: Report): String {
         val sendingApp = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
-        val sendingFacility = formatHD(Element.parseHD(report.getString(0, "sending_facility") ?: ""))
+        val sendingFacility = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
         val receivingApp = formatHD(Element.parseHD(report.getString(0, "receiving_application") ?: ""))
         val receivingFacility = formatHD(Element.parseHD(report.getString(0, "receiving_facility") ?: ""))
 
