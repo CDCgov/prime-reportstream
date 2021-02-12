@@ -37,6 +37,30 @@ export const prime_rest_api = {
   async json_put(route, body) {
     return this.json_rest_api(route, 'PUT', body)
   },
+
+  async jwt_login(jwt, td_expiration=5*60000) {
+    jwt = await jwt
+
+    // set JSON Web Token (JWT) cookie with 5 minute expiration
+    let ts_expires = new Date(Date.now() + td_expiration)
+    document.cookie = `jwt=${jwt};expires=${ts_expires.toUTCString()};path=/`; 
+
+    // Save raw JWT for direct API calls 
+    const stg = window.localStorage
+    stg.setItem('jwt', jwt)
+    stg.setItem('jwt_expires', ts_expires.toISOString())
+
+    // base64 decode JWT body part using Fetch, DataURL, and JSON
+    let jwt_body = await window.fetch(`data:application/json;base64,${jwt.split('.')[1]}`)
+    jwt_body = await jwt_body.json()
+
+    let {given_name, family_name, sub} = jwt_body || {}
+    jwt_body = {given_name, family_name, sub}
+
+    // Save decoded JWT body for local display
+    stg.setItem('jwt_body', JSON.stringify(jwt_body))
+    return jwt_body
+  }
 }
 
 if ('undefined' !== typeof window) {

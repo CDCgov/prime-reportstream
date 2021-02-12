@@ -19,7 +19,10 @@ local_styles:
   <div id="okta-login-container"></div>
 </main>
 
-<script>{
+<script type=module>
+  import prime_rest_api from '/js/prime_api.mjs'
+  window.prime_rest_api = prime_rest_api
+
   let config = {
     logo: '//logo.clearbit.com/cdc.gov',
     language: 'en',
@@ -40,28 +43,6 @@ local_styles:
   let signInWidget = new OktaSignIn(config);
   signInWidget
     .showSignInToGetTokens( { scopes: ['openid', 'email', 'profile', 'simple_report'] } )
-    .then( tokens => {
-      let jwt = tokens.accessToken.value
-      window.sessionStorage.setItem('jwt', jwt)
-
-      // set JSON Web Token (JWT) cookie with 5 minute expiration
-      let ts_expires = new Date(Date.now() + 5*60*1000)
-
-      document.cookie = `jwt=${jwt};expires=${ts_expires.toUTCString()};path=/`; 
-
-      // Save raw JWT for direct API calls 
-      window.localStorage.setItem('jwt', jwt)
-      window.localStorage.setItem('jwt_expires', ts_expires.toISOString())
-
-      // base64 decode JWT body part using Fetch, DataURL, and JSON
-      return window.fetch(`data:application/json;base64,${jwt.split('.')[1]}`)
-    })
-    .then( jwt_body_req => jwt_body_req.json() )
-    .then( jwt_body => {
-      // Save decoded JWT body for local display
-      window.localStorage.setItem('jwt_body', JSON.stringify(jwt_body))
-
-      // navigate back to 
-      window.location.replace({{"/" | url | as_literal }})
-    })
-}</script>
+    .then( tokens => prime_rest_api.jwt_login(tokens.accessToken.value))
+    .then( () => window.location.replace({{"/" | url | as_literal }}) )
+</script>

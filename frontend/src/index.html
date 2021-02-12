@@ -5,7 +5,7 @@ cdn_scripts:
     integrity: "sha256-pFTx1NUIxgU2M6OB3sCTkpuwmqwRspaWJAW7mrEqswo="
 
 local_styles:
-  - "./css/prime.css"
+  - "/css/prime.css"
 ---
 
 {% include header_gov_website %}
@@ -14,19 +14,22 @@ local_styles:
 <main>
   <div class="grid-container margin-top-4">
     <div class="grid-row">
-      <nav aria-label="Secondary navigation">
-        <ul class="usa-sidenav">
-          <li class="usa-sidenav__item"><a href='./login.html'>Login</a></li>
-          <li class="usa-sidenav__item"><a href='./settings/'>Settings</a></li>
-          <li class="usa-sidenav__item"><a href='./download/'>Download</a></li>
-        </ul>
-      </nav>
-    </div>
-  </div>
+      <div class="grid-col-auto margin-top-2 margin-right-6">
+        <nav aria-label="Secondary navigation">
+          <ul class="usa-sidenav">
+            <!--li class="usa-sidenav__item"><a href='./login.html'>Login</a></li-->
+            <li class="usa-sidenav__item"><a href='./settings/'>Settings</a></li>
+            <li class="usa-sidenav__item"><a href='./download/'>Download</a></li>
+          </ul>
+        </nav>
+      </div>
 
-  <br /> <br /> <hr />
-  <div class="grid-container maxh-card overflow-y-scroll">
-    <pre><output id='out'></output></pre>
+      <div class="grid-col-fill">
+        <h1>Index Page</h1>
+
+        {% include devel_output %}
+      </div>
+    </div>
   </div>
 
   <script type=module>

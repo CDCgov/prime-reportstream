@@ -6,7 +6,7 @@ cdn_scripts:
     integrity: "sha256-pFTx1NUIxgU2M6OB3sCTkpuwmqwRspaWJAW7mrEqswo="
 
 local_styles:
-  - "./css/prime.css"
+  - "/css/prime.css"
 ---
 
 {% include header_gov_website %}
@@ -90,15 +90,12 @@ local_styles:
             <!-- {{ endfor }} -->
           </tbody>
         </table>
+
+
+        {% include devel_output %}
       </div>
     </div>
   </div>
-
-  <br /> <br /> <hr />
-  <div style='max-height: 40vh' class="grid-container overflow-y-scroll">
-    <pre><output id='out'></output></pre>
-  </div>
-
 </main>
 
 {% include footer_cdc_website %}

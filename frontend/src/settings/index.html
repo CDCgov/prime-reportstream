@@ -6,7 +6,7 @@ cdn_scripts:
     integrity: "sha256-pFTx1NUIxgU2M6OB3sCTkpuwmqwRspaWJAW7mrEqswo="
 
 local_styles:
-  - "./css/prime.css"
+  - "/css/prime.css"
 ---
 
 {% include header_gov_website %}
@@ -50,25 +50,10 @@ local_styles:
           <div class='flex-1'>Password</div>
           <div class='flex-5'><a href=''>Reset password</a></div>
         </div>
+
+        {% include devel_output %}
       </div>
     </div>
-  </div>
-
-  <br /> <br /> <hr />
-  <div style='max-height: 40vh' class="grid-container overflow-y-scroll">
-    <pre><output><script>{
-      let jwt_body = JSON.parse(localStorage.getItem('jwt_body') || null)
-      let el_output = document.currentScript.parentElement
-
-      el_output.textContent = JSON.stringify(jwt_body, null, 2)
-
-      if (jwt_body) {
-        for (let key of ['given_name', 'family_name', 'sub'])
-          document.querySelector(`[data-key=${key}]`)
-            .textContent = `${jwt_body[key]}`
-      }
-    }</script></output></pre>
-
   </div>
 </main>
 
@@ -77,4 +62,20 @@ local_styles:
 <script type=module>
   import prime_rest_api from '/js/prime_api.mjs'
   window.prime_rest_api = prime_rest_api
+
+  prime_rest_api
+    .json_get('me')
+    .then( async api_query => {
+      let jwt_body = JSON.parse(localStorage.getItem('jwt_body') || null)
+
+      let dbg_obj = { api_query, jwt_body, }
+      document.querySelector('output#out')
+        .textContent = JSON.stringify(dbg_obj, null, 2)
+
+      if (jwt_body) {
+        for (let key of ['given_name', 'family_name', 'sub'])
+          document.querySelector(`[data-key=${key}]`)
+            .textContent = `${jwt_body[key]}`
+      }
+    })
 </script>

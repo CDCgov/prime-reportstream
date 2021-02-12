@@ -50,7 +50,11 @@ function assure_openapi_backend(api) {
 // JSON Web Token (JWT) integration into openapi-backend 
 
 const _jwt_mock_secret_ = 'jwt_mock_secret'
-const default_login_obj = { name: 'John Doe', email: 'john@example.com' }
+const default_login_obj = {
+  sub: 'jane@example.com',
+  given_name: 'Jane',
+  family_name: 'Doe',
+}
 export const new_jwt_token = (login_obj) =>
   jwt.sign(login_obj || default_login_obj, _jwt_mock_secret_)
 
@@ -113,22 +117,32 @@ export function openapi_server(api, cfg={}) {
   app.use(morgan('combined'))
 
   // add a JWT supporting mock login
-  app.use('/_mock_login_token_',
-    (req, res) => 
+  const mock_login_fns = {
+    token(req, res) {
+      console.log("TOKEN")
       res.status(200)
-        .end(`Authorization: Bearer ${new_jwt_token()}`) )
+        .end(`Authorization: Bearer ${new_jwt_token()}`)
+    },
 
-  app.use('/_mock_login_cookie_',
-    (req, res) =>
+    cookie(req, res) {
+      console.log("COOKIE")
       res.status(200)
-        .end(`Cookie: jwt=${new_jwt_token()};`) )
+        .end(`Cookie: jwt=${new_jwt_token()};`)
+    },
 
-  app.use('/_mock_login_',
-    (req, res) => {
+    json(req, res) {
+      console.log("JSON")
       let jwt = new_jwt_token()
       res.status(200)
         .json({token: jwt, cookie: `jwt=${jwt};`})
-    })
+    },
+  }
+
+  for (let api_prefix of ['', '/api']) {
+    app.use(`${api_prefix}/_mock_login_token_`, mock_login_fns.token)
+    app.use(`${api_prefix}/_mock_login_cookie_`, mock_login_fns.cookie)
+    app.use(`${api_prefix}/_mock_login_`, mock_login_fns.json)
+  }
 
   // use openapi-backend api as express middleware
   app.use((req, res) =>
