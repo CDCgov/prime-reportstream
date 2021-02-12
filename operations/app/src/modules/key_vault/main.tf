@@ -3,10 +3,16 @@ terraform {
 }
 
 locals {
+  # These object ids correspond to developers with access
+  # to key vault
+                # Richard Teasley
   object_ids = ["34232fe8-00ad-4bd0-9afb-eb9b3cc93ffe",
+                # IAMB-Prod-KV
                 "cd341fbc-26a3-405c-a350-c4237a27aa93",
+                # Ron Heft
                 "637fb7df-c200-4e0d-ba86-608576acb786",
-                "aabc25d7-dd99-42b9-8f3a-fd593b1f229a"]
+                # Chris Glodosky
+                "aabc25d7-dd99-42b9-8f3a-fd593b1f229a" ]
 }
 
 data "azurerm_client_config" "current" {}
@@ -21,6 +27,14 @@ resource "azurerm_key_vault" "application" {
   enabled_for_disk_encryption = true
   enabled_for_template_deployment = true
   purge_protection_enabled = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    "environment" = var.environment
+  }
 }
 
 resource "azurerm_key_vault_access_policy" "access_policy" {

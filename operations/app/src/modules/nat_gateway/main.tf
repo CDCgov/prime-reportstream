@@ -9,6 +9,10 @@ resource "azurerm_public_ip" "nat_gateway_ip" {
   allocation_method = "Static"
   sku = "Standard"
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   tags = {
     environment = var.environment
   }

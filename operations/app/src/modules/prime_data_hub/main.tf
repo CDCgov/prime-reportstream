@@ -85,6 +85,7 @@ module "front_door" {
 }
 
 module "sftp_container" {
+    count = (var.environment == "prod" ? 0 : 1)
     source = "../sftp_container"
     environment = var.environment
     resource_group = var.resource_group

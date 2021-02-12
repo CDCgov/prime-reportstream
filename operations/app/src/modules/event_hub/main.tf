@@ -11,6 +11,10 @@ resource "azurerm_eventhub_namespace" "eventhub_namespace" {
   auto_inflate_enabled = true
   zone_redundant = true
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   tags = {
     environment = var.environment
   }

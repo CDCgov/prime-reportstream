@@ -13,6 +13,10 @@ resource "azurerm_storage_account" "storage_account" {
     default_action = "Deny"
     virtual_network_subnet_ids = var.subnet_ids
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
   
   tags = {
     environment = var.environment
@@ -20,6 +24,7 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 resource "azurerm_storage_share" "sftp_share" {
+  count = (var.environment == "prod" ? 0 : 1)
   name = var.sftp_share_name
   storage_account_name = azurerm_storage_account.storage_account.name
 }
