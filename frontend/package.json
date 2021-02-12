@@ -12,7 +12,7 @@
     "openapi-backend": "^3.9.0"
   },
   "scripts": {
-    "clean": "rm -rf ./_site",
+    "clean": "rm -rf ./_site ./dist",
     "start": "npm -s run serve",
     "prebuild": "npm -s run clean",
     "prewatch": "npm -s run clean",
