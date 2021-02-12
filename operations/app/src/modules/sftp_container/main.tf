@@ -26,7 +26,7 @@ resource "azurerm_container_group" "sftp_container" {
   restart_policy = "Always"
   
   container {
-    name = "sftp"
+    name = var.name
     image = "atmoz/sftp:latest"
     cpu = 1.0
     memory = 1.5

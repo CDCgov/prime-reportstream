@@ -8,6 +8,8 @@ resource "azurerm_eventhub_namespace" "eventhub_namespace" {
   resource_group_name = var.resource_group
   sku = "Standard"
   capacity = 1
+  auto_inflate_enabled = true
+  zone_redundant = true
 
   tags = {
     environment = var.environment
@@ -23,7 +25,7 @@ resource "azurerm_eventhub" "frontdoor_access" {
 }
 
 resource "azurerm_eventhub" "frontdoor_waf" {
-  name = "${var.resource_prefix}front_door-waf-log"
+  name = "${var.resource_prefix}-front_door-waf-log"
   namespace_name = azurerm_eventhub_namespace.eventhub_namespace.name
   resource_group_name = var.resource_group
   partition_count = 1
@@ -31,7 +33,7 @@ resource "azurerm_eventhub" "frontdoor_waf" {
 }
 
 resource "azurerm_eventhub_namespace_authorization_rule" "frontdoor_auth_rule" {
-  name = "${var.resource_prefix}-frontdoor_auth_rule"
+  name = "RootManageSharedAccessKey"
   namespace_name = azurerm_eventhub_namespace.eventhub_namespace.name
   resource_group_name = var.resource_group
 

@@ -29,7 +29,8 @@ resource "azurerm_function_app" "function_app" {
   storage_account_access_key = var.storage_account_key
   https_only = true
   os_type = "linux"
-  version = 3
+  version = "~3"
+  enable_builtin_logging = false
 
   site_config {
     ip_restriction {
@@ -46,7 +47,9 @@ resource "azurerm_function_app" "function_app" {
     }
     scm_use_main_ip_restriction = true
 
+    http2_enabled = true
     always_on = true
+    use_32_bit_worker_process = false
     linux_fx_version = "DOCKER|${var.login_server}/${var.resource_prefix}:latest"
   }
 
@@ -60,7 +63,7 @@ resource "azurerm_function_app" "function_app" {
     "REDOX_SECRET" = var.redox_secret
 
     "OKTA_baseUrl" = "hhs-prime.okta.com"
-    "OKTA_cliendId" = var.okta_client_id
+    "OKTA_clientId" = var.okta_client_id
     "OKTA_redirect" = (var.environment == "prod" ? "https://prime.cdc.gov/download" : "https://prime-data-hub-test.azurefd.net/api/download")
 
     # Test and Prod both need each set of credentials for various

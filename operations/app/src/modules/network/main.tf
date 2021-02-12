@@ -32,7 +32,9 @@ resource "azurerm_subnet" "public" {
   address_prefixes = ["10.0.1.0/24"]
   service_endpoints = ["Microsoft.ContainerRegistry", 
                        "Microsoft.Storage",
-                       "Microsoft.Sql"]
+                       "Microsoft.Sql",
+                       "Microsoft.Web",
+                       "Microsoft.KeyVault"]
   delegation {
     name = "server_farms"
     service_delegation {
@@ -52,7 +54,7 @@ resource "azurerm_subnet" "container" {
   resource_group_name = var.resource_group
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes = ["10.0.2.0/24"]
-  service_endpoints = ["Microsoft.Storage"]
+  service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
   delegation {
       name = "container_groups"
       service_delegation {
@@ -72,7 +74,7 @@ resource "azurerm_subnet" "private" {
   resource_group_name = var.resource_group
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes = ["10.0.3.0/24"]
-  service_endpoints = ["Microsoft.Storage", "Microsoft.Sql"]
+  service_endpoints = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
 
   delegation {
     name = "server_farms"

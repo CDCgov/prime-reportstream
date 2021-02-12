@@ -18,6 +18,8 @@ resource "azurerm_frontdoor" "front_door" {
     name = local.name
     resource_group_name = var.resource_group
     enforce_backend_pools_certificate_name_check = true
+    backend_pools_send_receive_timeout_seconds = 30
+    friendly_name = local.name
 
     backend_pool_load_balancing {
         name = "functionsLoadBalancingSettings"
@@ -168,14 +170,6 @@ resource "azurerm_monitor_diagnostic_setting" "frontdoor_access_log" {
       enabled = false
     }
   }
-
-  metric {
-    category = "AllMetrics"
-
-    retention_policy {
-      enabled = false
-    }
-  }
 }
 
 resource "azurerm_monitor_diagnostic_setting" "frontdoor_waf_log" {
@@ -187,14 +181,6 @@ resource "azurerm_monitor_diagnostic_setting" "frontdoor_waf_log" {
   log {
     category = "FrontdoorWebApplicationFirewallLog"
     enabled  = true
-
-    retention_policy {
-      enabled = false
-    }
-  }
-
-  metric {
-    category = "AllMetrics"
 
     retention_policy {
       enabled = false
