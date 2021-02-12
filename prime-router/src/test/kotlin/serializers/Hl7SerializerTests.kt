@@ -114,4 +114,17 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         assertTrue(mappedValues.containsKey("patient_city"))
         assertEquals("South Rodneychester", mappedValues["patient_city"]?.get(0))
     }
+
+    @Test
+    fun `test reading HL7 batch message from file`() {
+        val inputFile = "$hl7TestFileDir/batch_message.hl7"
+        val message = File(inputFile).readText()
+        val mappedValues = serializer.convertBatchMessagesToMap(message, covid19Schema)
+        mappedValues.forEach {
+            println("${it.key}: ${it.value.joinToString()}")
+        }
+        assertTrue(mappedValues.containsKey("patient_city"))
+        val cities = mappedValues["patient_city"]?.toSet()
+        assertEquals(setOf("North Taylor", "South Rodneychester"), cities)
+    }
 }

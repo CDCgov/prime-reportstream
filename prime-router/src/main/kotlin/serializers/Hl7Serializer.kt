@@ -65,15 +65,58 @@ class Hl7Serializer(val metadata: Metadata) {
     /*
      * Read in a file
      */
-    fun convertMessageToMap(message: String, schema: Schema): Map<String, List<String>> {
-        // key of the map is the column header, list is the values in the column
+    fun convertBatchMessagesToMap(message: String, schema: Schema): Map<String, List<String>> {
         val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
+        val reg = "(\r|\n)".toRegex()
+        val cleanedMessage = reg.replace(message, "\r")
         // todo: check for the segments that need to be removed because HAPI doesn't support batching
         // todo: remove FHS
         // todo: remove BHS
         // todo: remove BTS (but preserve batch count so we can validate)
         // todo: remove FTS
         // todo: loop each line (message split on \r)
+        val messageLines = cleanedMessage.split("\r")
+        val nextMessage = StringBuilder()
+
+        fun deconstructStringMessage() {
+            println("Examining:\n$nextMessage")
+            val parsedMessage = convertMessageToMap(nextMessage.toString(), schema)
+            nextMessage.clear()
+            parsedMessage.forEach { (k, v) ->
+                if (!mappedRows.containsKey(k))
+                    mappedRows[k] = mutableListOf()
+
+                mappedRows[k]?.addAll(v)
+            }
+        }
+
+        messageLines.forEach {
+            if (it.startsWith("FHS"))
+                return@forEach
+            if (it.startsWith("BHS"))
+                return@forEach
+            if (it.startsWith("BTS"))
+                return@forEach
+            if (it.startsWith("FTS"))
+                return@forEach
+
+            if (nextMessage.isNotEmpty() && it.startsWith("MSH")) {
+                deconstructStringMessage()
+            }
+            nextMessage.append("$it\r")
+        }
+
+        // catch the last message
+        if (nextMessage.isNotEmpty()) {
+            deconstructStringMessage()
+        }
+
+        return mappedRows.toMap()
+    }
+
+    fun convertMessageToMap(message: String, schema: Schema): Map<String, List<String>> {
+        // key of the map is the column header, list is the values in the column
+        val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
         // todo: for each segment, loop through the elements (i.e. MSH-3-1)
         // todo: find a matching schema element that maps to the segment element
         // todo: add each value to the mapped rows collection
