@@ -6,6 +6,8 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ElementAndValue
+import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -198,9 +200,37 @@ class Hl7Serializer(val metadata: Metadata) {
                 setComponent(terser, element, "MSH-7", formatter.format(report.createdDateTime))
             } else if (element.hl7Field == "MSH-11") {
                 setComponent(terser, element, "MSH-11", processingId)
+            } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
+                setComponentForTable(terser, element, report, row)
             } else if (element.hl7Field != null) {
                 setComponent(terser, element, element.hl7Field, value)
             }
+        }
+    }
+
+    private fun setComponentForTable(terser: Terser, element: Element, report: Report, row: Int) {
+        val lookupValues = mutableMapOf<String, String>()
+        val pathSpec = formPathSpec(element.hl7Field!!)
+        val mapper: Mapper? = element.mapperRef
+        val args = element.mapperArgs ?: emptyList()
+        val valueNames = mapper?.valueNames(element, args)
+        report.schema.elements.forEach {
+            lookupValues[it.name] = report.getString(row, it.name) ?: ""
+        }
+        val valuesForMapper = valueNames?.map { elementName ->
+            val valueElement = report.schema.findElement(elementName)
+                ?: error(
+                    "Schema Error: Could not find element '$elementName' for mapper " +
+                        "'${mapper.name}' from '${element.name}'."
+                )
+            val value = lookupValues[elementName]
+                ?: error("Schema Error: No mapper input for $elementName")
+            ElementAndValue(valueElement, value)
+        }
+        if (valuesForMapper == null) {
+            terser.set(pathSpec, "")
+        } else {
+            terser.set(pathSpec, mapper.apply(element, args, valuesForMapper) ?: "")
         }
     }
 
@@ -238,7 +268,6 @@ class Hl7Serializer(val metadata: Metadata) {
                     }
                 }
             }
-
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
             Element.Type.TELEPHONE -> {
                 if (value.isNotEmpty()) {

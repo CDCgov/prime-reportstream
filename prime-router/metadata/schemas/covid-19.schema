@@ -799,7 +799,7 @@ elements:
     natFlatFileField: Specimen_collection_date_time
     hhsGuidanceField: Test result date
     hl7Field: SPM-17-1
-    hl7OutputFields: [SPM-17-1, SPM-17-2, OBR-7, OBR-8, OBX-14]
+    hl7OutputFields: [SPM-17-1, SPM-18-1, OBR-7, OBR-8, OBX-14]
     documentation: |
       The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
 
