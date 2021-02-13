@@ -47,7 +47,6 @@ components:
           example: jane@example.com
         phone:
           type: string
-          format: phone
           example: "(555) 867-5309"
 
     DataDownload:

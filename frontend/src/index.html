@@ -31,18 +31,8 @@ local_styles:
       </div>
     </div>
   </div>
-
-  <script type=module>
-    import prime_rest_api from '/js/prime_api.mjs'
-    window.prime_rest_api = prime_rest_api
-
-    prime_rest_api
-      .json_get('me')
-      .then(info => {
-        document.querySelector('output#out')
-          .textContent = JSON.stringify(info, null, 2)
-      })
-  </script>
 </main>
 
 {% include footer_cdc_website %}
+
+{% include devel_tools %}

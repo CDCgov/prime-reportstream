@@ -12,18 +12,29 @@ local_styles:
 {% include header_gov_website %}
 {% include app_topbar %}
 
+<style>
+/* Manage DOM visual state via dataset CSS attribute queries
+ *   "?" is pending: show only data-when="?"
+ *   "0" is empty: show only data-when="0"
+ *   "n" is one or more: show only data-when="1"
+ */
+[data-rpt="?"] [data-when]:not([data-when="?"]) { display: none }
+[data-rpt="0"] [data-when]:not([data-when="0"]) { display: none }
+[data-rpt="n"] [data-when]:not([data-when="n"]) { display: none }
+</style>
+
 <main>
-  <div class="grid-container margin-top-4">
+  <div class="grid-container margin-y-4">
     <div class="grid-row">
-      <div class="grid-col-12 margin-top-3 margin-bottom-2">
+      <div data-rpt="?" id='prime_rpt_today' class="grid-col-12 margin-top-3 margin-bottom-2 prime_rpt_pending">
         <h1 class="margin-bottom-6">
           COVID-19 test results <br />
           <span class="text-base-light" th:text="${description}"></span>
         </h1>
         <h2>Today's results</h2>
 
-        <span th:if="${todays.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
-        <table th:unless="${todays.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Today's results">
+        <span data-when="0" class="prime_rpt_when_empty"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
+        <table data-when="n" class="usa-table usa-table--borderless prime-table prime_rpt_when_valid" summary="Today's results">
           <thead>
             <tr>
               <th scope="col">Date</th>
@@ -34,31 +45,14 @@ local_styles:
               <th scope="col">UUID</th>
             </tr>
           </thead>
-          <tbody class="font-mono-2xs">
-            <tr th:each="result : ${todays}">
-              <th data-title="date" scope="row"><span th:text="${result.date}"></span> GMT</th>
-              <th data-title="receiver" scope="row" th:text="${result.receiver}"></th>
-              <td data-title="expires">
-                <span th:text="${result.expires}"></span> <span th:if="${result.expires > 1}"> days</span><span th:unless="${result.expires>1}"> day</span>
-              </td>
-              <td data-title="Total tests" th:text="${result.total}">-</td>
-              <td data-title="File">
-                <span>
-                  <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download <span th:text="${result.format}"></span></a>
-                </span>
-              </td>
-              <td data-title="UUID">
-                <span th:text="${result.file}"></span>
-              </td>
-            </tr>
-          </tbody>
+          <tbody class="font-mono-2xs prime_rpt_tbody"></tbody>
         </table>
       </div>
 
-      <div class="grid-col-12">
+      <div data-rpt="?" id='prime_rpt_previous' class="grid-col-12 prime_rpt_pending">
         <h2>Previous <span th:text="${days_to_show}"></span> days</h2>
-        <span th:if="${previous.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
-        <table th:unless="${previous.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Previous results">
+        <span data-when="0" class="prime_rpt_when_empty"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
+        <table data-when="n" class="usa-table usa-table--borderless prime-table prime_rpt_when_valid" summary="Previous results">
           <thead>
             <tr>
               <th scope="col">Date</th>
@@ -69,46 +63,46 @@ local_styles:
               <th scope="col">UUID</th>
             </tr>
           </thead>
-          <tbody class="font-mono-2xs">
-            <!-- {{ for result in results }} -->
-            <tr th:each="result : ${previous}">
-              <th data-title="date" scope="row"><span  th:text="${result.date}"></span> GMT</th>
-              <th data-title="receiver" scope="row" th:text="${result.receiver}"></th>
-              <td data-title="expires">
-                <span th:text="${result.expires}"></span> <span th:if="${result.expires > 1}"> days</span><span th:unless="${result.expires>1}"> day</span>
-              </td>
-              <td data-title="Total tests" th:text="${result.total}">-</td>
-              <td data-title="File">
-                <span>
-                    <a th:href="@{${OKTA_redirect}(file=${result.file})}">Download <span th:text="${result.format}"></span></a>
-                </span>
-              </td>
-              <td data-title="UUID">
-                <span th:text="${result.file}"></span>
-              </td>                  
-            </tr>
-            <!-- {{ endfor }} -->
-          </tbody>
+          <tbody class="font-mono-2xs prime_rpt_tbody"></tbody>
         </table>
-
-
-        {% include devel_output %}
       </div>
     </div>
   </div>
 </main>
 
 {% include footer_cdc_website %}
+{% include ./_download_row %}
 
+{% include devel_tools %}
 
 <script type=module>
   import prime_rest_api from '/js/prime_api.mjs'
-  window.prime_rest_api = prime_rest_api
 
   prime_rest_api
     .json_get('csv-download')
     .then(info => {
-      document.querySelector('output#out')
-        .textContent = JSON.stringify(info, null, 2)
+
+      as_prime_rpt(
+        info.today || [],
+        document.querySelector('#prime_rpt_today'))
+
+      as_prime_rpt(
+        info.previous || [],
+        document.querySelector('#prime_rpt_previous'))
     })
+
+  function as_prime_rpt(report_rows, el_report) {
+    el_report.dataset.rpt = report_rows.length > 0 ? 'n' : '0'
+
+    let {classList} = el_report
+    classList.remove('prime_rpt_pending')
+    let is_empty = (0 === report_rows.length)
+    classList.toggle('prime_rpt_empty', is_empty)
+    classList.toggle('prime_rpt_valid', !is_empty)
+
+    let el_rows = as_download_rows(report_rows)
+
+    let el_tbody = el_report.querySelector('.prime_rpt_tbody')
+    window.uhtml.render(el_tbody, el_rows)
+  }
 </script>

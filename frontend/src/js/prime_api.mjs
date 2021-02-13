@@ -1,5 +1,7 @@
 
 export const prime_rest_api = {
+  APIError: class PRIME_API_Error extends Error {},
+
   _api_options: {
       mode: 'same-origin',
       cache: 'no-cache',
@@ -22,8 +24,18 @@ export const prime_rest_api = {
   },
 
   async json_rest_api(route, method, body) {
-    let response = await this.rest_api_fetch(route, method, body)
-    return await response.json()
+    let resp = await this.rest_api_fetch(route, method, body)
+    if (!resp.ok) {
+      let {status, statusText} = resp
+      let err = new this.APIError(`${status} ${statusText}`)
+      err.status = status
+      err.statusText = statusText
+      if (status < 500) {
+        err.detail = await resp.json()
+      }
+      throw err
+    }
+    return await resp.json()
   },
 
   async json_get(route) {

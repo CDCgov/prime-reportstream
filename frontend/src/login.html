@@ -20,8 +20,7 @@ local_styles:
 </main>
 
 <script type=module>
-  import prime_rest_api from '/js/prime_api.mjs'
-  window.prime_rest_api = prime_rest_api
+  import prime_api from '/js/prime_api.mjs'
 
   let config = {
     logo: '//logo.clearbit.com/cdc.gov',
@@ -43,6 +42,8 @@ local_styles:
   let signInWidget = new OktaSignIn(config);
   signInWidget
     .showSignInToGetTokens( { scopes: ['openid', 'email', 'profile', 'simple_report'] } )
-    .then( tokens => prime_rest_api.jwt_login(tokens.accessToken.value))
+    .then( tokens => prime_api.jwt_login(tokens.accessToken.value))
     .then( () => window.location.replace({{"/" | url | as_literal }}) )
 </script>
+
+{% include devel_tools %}

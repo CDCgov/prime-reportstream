@@ -1,0 +1,11 @@
+<script type=module>
+  import api from '/js/prime_api.mjs'
+  window.prime_rest_api = window.prime_api = api
+
+  api.mock_login = async function (reload=true) {
+    let {token} = await this.json_get('_mock_login_')
+    await this.jwt_login(token)
+
+    if (reload) location.reload()
+  }
+</script>

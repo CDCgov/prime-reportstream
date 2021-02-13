@@ -60,10 +60,9 @@ local_styles:
 {% include footer_cdc_website %}
 
 <script type=module>
-  import prime_rest_api from '/js/prime_api.mjs'
-  window.prime_rest_api = prime_rest_api
+  import prime_api from '/js/prime_api.mjs'
 
-  prime_rest_api
+  prime_api
     .json_get('me')
     .then( async api_query => {
       let jwt_body = JSON.parse(localStorage.getItem('jwt_body') || null)
@@ -79,3 +78,5 @@ local_styles:
       }
     })
 </script>
+
+{% include devel_tools %}
