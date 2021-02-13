@@ -51,6 +51,8 @@ npm run mock
   - using [liquid templating](https://www.11ty.dev/docs/languages/liquid/) for Jekyll familiarity
 - [OpenAPI](https://openapi.tools)
   - [openapi-backend](https://github.com/anttiviljami/openapi-backend) for server mocks
+- [uhtml / lighterhtml / hyperhtml](https://github.com/WebReflection/uhtml#api-documentation)
+  for rendering data into DOM elements.
 
 
 ### Browser Support
