@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
@@ -424,8 +425,7 @@ class ActionHistory {
      *
      * This works by side-effect on jsonGen.
      */
-    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator) {
-        val metadata = WorkflowEngine.metadata
+    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator, metadata: Metadata) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
         if (reportsOut.isNotEmpty()) {
@@ -435,7 +435,8 @@ class ActionHistory {
                 val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
                 val orgSvc = metadata.findService(fullname) ?: return@forEach
                 if (reportFile.itemCount == 1) {
-                    var previous = singles.putIfAbsent(fullname, DestinationData(orgSvc, 0, reportFile.nextActionAt))
+                    var previous =
+                        singles.putIfAbsent(fullname, DestinationData(orgSvc, 1, reportFile.nextActionAt))
                     if (previous != null) previous.count++
                 } else {
                     prettyPrintDestinationJson(jsonGen, orgSvc, reportFile.nextActionAt, reportFile.itemCount)
@@ -457,7 +458,6 @@ class ActionHistory {
         sendingAt: OffsetDateTime?,
         countToPrint: Int
     ) {
-        val metadata = WorkflowEngine.metadata
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
         jsonGen.writeStringField("organization", orgSvc.organization.description)
