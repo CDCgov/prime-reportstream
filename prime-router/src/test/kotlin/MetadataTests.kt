@@ -2,7 +2,6 @@ package gov.cdc.prime.router
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
@@ -100,27 +99,6 @@ class MetadataTests {
             Schema(name = "Two", topic = "test", elements = listOf(Element("a"), Element("b")))
         )
         assertNotNull(metadata.findSchema("one"))
-    }
-
-    @Test
-    fun `test find sender`() {
-        val metadata = Metadata()
-        metadata.loadOrganizations("./metadata/organizations.yml")
-        val sender = metadata.findSender("simple_report")
-        assertNotNull(sender)
-    }
-
-    @Test
-    fun `test duplicate receiver name`() {
-        val metadata = Metadata()
-        val org1 = DeepOrganization(
-            "test", "test", Organization.Jurisdiction.FEDERAL, null, null,
-            receivers = listOf(
-                Receiver("service1", "test", "topic1", "schema1"),
-                Receiver("service1", "test", "topic1", "schema1")
-            )
-        )
-        assertFails { metadata.loadOrganizationList(listOf(org1)) }
     }
 
     @Test

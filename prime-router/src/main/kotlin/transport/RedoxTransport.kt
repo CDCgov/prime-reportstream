@@ -35,7 +35,7 @@ class RedoxTransport() : ITransport {
     ): RetryItems? {
         val redoxTransportType = transportType as RedoxTransportType
         val (key, secret) = getKeyAndSecret(redoxTransportType)
-        if (header.content == null || header.orgSvc == null)
+        if (header.content == null || header.receiver == null)
             error("No content or orgSvc to send to redox for report ${header.reportFile.reportId}")
         val messages = String(header.content).split("\n") // NDJSON content
         val token = fetchToken(redoxTransportType, key, secret, context)
@@ -70,7 +70,7 @@ class RedoxTransport() : ITransport {
         val resultMsg = "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
         actionHistory.trackActionResult(resultMsg)
         context.logger.log(Level.INFO, resultMsg)
-        actionHistory.trackSentReport(header.orgSvc, sentReportId, null, sendUrl, resultMsg, successCount)
+        actionHistory.trackSentReport(header.receiver, sentReportId, null, sendUrl, resultMsg, successCount)
         return if (nextRetryItems.isNotEmpty()) nextRetryItems else null
     }
 

@@ -92,7 +92,7 @@ class DownloadFunction {
         return headers.sortedByDescending {
             it.task.createdAt
         }.map {
-            val svc = WorkflowEngine().metadata.findReceiver(it.task.receiverName)
+            val svc = WorkflowEngine().settings.findReceiver(it.task.receiverName)
             val orgDesc = authClaims.organization.description
             val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
             TestResult(
@@ -254,7 +254,7 @@ class DownloadFunction {
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
+            val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
             if (organization != null) {
                 return AuthClaims(userName, organization)
             } else {

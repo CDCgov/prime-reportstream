@@ -7,7 +7,7 @@ package gov.cdc.prime.router
  * Dev Note: This glue code was originally in the Report class and then
  * in the Metadata class.
  */
-class Translator(private val metadata: Metadata) {
+class Translator(private val metadata: Metadata, private val settings: SettingsProvider) {
     /**
      * A mapping defines how to translate from one schema to another
      */
@@ -26,7 +26,7 @@ class Translator(private val metadata: Metadata) {
      * may be empty.
      */
     fun translateByReceiver(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
-        return metadata.receivers.map { receiver -> translateByReceiver(input, receiver, defaultValues) }
+        return settings.receivers.map { receiver -> translateByReceiver(input, receiver, defaultValues) }
     }
 
     /**
@@ -37,7 +37,7 @@ class Translator(private val metadata: Metadata) {
         defaultValues: DefaultValues = emptyMap()
     ): List<Pair<Report, Receiver>> {
         if (input.isEmpty()) return emptyList()
-        return metadata.receivers.filter { receiver ->
+        return settings.receivers.filter { receiver ->
             receiver.topic == input.schema.topic
         }.mapNotNull { receiver ->
             val mappedReport = translateByReceiver(input, receiver, defaultValues)
@@ -107,7 +107,7 @@ class Translator(private val metadata: Metadata) {
         defaultValues: DefaultValues = emptyMap()
     ): Pair<Report, Receiver>? {
         if (input.isEmpty()) return null
-        val service = metadata.findReceiver(toReceiver) ?: error("invalid service name $toReceiver")
+        val service = settings.findReceiver(toReceiver) ?: error("invalid service name $toReceiver")
         val mappedReport = translateByReceiver(input, service, defaultValues)
         if (mappedReport.itemCount == 0) return null
         return Pair(mappedReport, service)

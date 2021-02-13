@@ -144,6 +144,7 @@
                                         <include>metadata/**/*.schema</include>
                                         <include>metadata/**/*.valuesets</include>
                                         <include>metadata/**/*.csv</include>
+                                        <include>settings/**/*.yml</include>
                                         <include>assets/**/*__inline.html</include>
                                     </includes>
                                 </resource>

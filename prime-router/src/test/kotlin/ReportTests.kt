@@ -89,7 +89,7 @@ class ReportTests {
 
         val oneReport = Report(schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")), TestSource)
         assertEquals(2, oneReport.itemCount)
-        val mappingOneToTwo = Translator(metadata)
+        val mappingOneToTwo = Translator(metadata, FileSettings())
             .buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
 
         val twoTable = oneReport.applyMapping(mappingOneToTwo)
@@ -110,7 +110,7 @@ class ReportTests {
 
         val twoReport = Report(schema = two, values = listOf(listOf("b1"), listOf("b2")), source = TestSource)
         assertEquals(2, twoReport.itemCount)
-        val mappingTwoToOne = Translator(metadata)
+        val mappingTwoToOne = Translator(metadata, FileSettings())
             .buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap())
 
         val oneReport = twoReport.applyMapping(mappingTwoToOne)

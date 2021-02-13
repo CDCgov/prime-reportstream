@@ -1,9 +1,11 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -33,9 +35,10 @@ class WorkflowEngineTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
 
-    fun makeEngine(metadata: Metadata): WorkflowEngine {
+    fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return WorkflowEngine(
             metadata,
+            settings,
             csvSerializer = CsvSerializer(metadata),
             hl7Serializer = Hl7Serializer(metadata),
             redoxSerializer = RedoxSerializer(metadata),
@@ -54,6 +57,7 @@ class WorkflowEngineTests {
     fun `test dispatchReport`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
+        val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID())
         val bodyFormat = "CSV"
@@ -63,7 +67,7 @@ class WorkflowEngineTests {
         every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
 //        every { queueMock.sendMessage(eq(event)) }.returns(Unit)
 
-        val engine = makeEngine(metadata)
+        val engine = makeEngine(metadata, settings)
         engine.dispatchReport(event, report1)
 
         verify(exactly = 1) {
@@ -84,6 +88,7 @@ class WorkflowEngineTests {
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
+        val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.EventAction.NONE, report1.id)
         val bodyFormat = "CSV"
@@ -94,7 +99,7 @@ class WorkflowEngineTests {
 // todo clean up this test      every { queueMock.sendMessage(eq(event)) }.answers { throw Exception("problem") }
         every { blobMock.deleteBlob(eq(bodyUrl)) }.returns(Unit)
 
-        val engine = makeEngine(metadata)
+        val engine = makeEngine(metadata, settings)
         engine.dispatchReport(event, report1)
 
         verify(exactly = 1) {
@@ -115,6 +120,7 @@ class WorkflowEngineTests {
     fun `test receiveReport`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
+        val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.EventAction.RECEIVE, UUID.randomUUID())
         val bodyFormat = "CSV"
@@ -124,7 +130,7 @@ class WorkflowEngineTests {
         every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
         every { queueMock.sendMessage(eq(event)) }.returns(Unit)
 
-        val engine = makeEngine(metadata)
+        val engine = makeEngine(metadata, settings)
         engine.receiveReport(report1)
 
         verify(exactly = 1) {
@@ -146,6 +152,7 @@ class WorkflowEngineTests {
     fun `test handleReportEvent`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
+        val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
@@ -153,7 +160,7 @@ class WorkflowEngineTests {
         val nextAction = ReportEvent(Event.EventAction.NONE, report1.id)
         val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
         val actionHistoryMock = mockk<ActionHistory>()
-        val engine = makeEngine(metadata)
+        val engine = makeEngine(metadata, settings)
 
         every { accessSpy.fetchAndLockHeader(reportId = eq(report1.id), any()) }
             .returns(DatabaseAccess.Header(task, emptyList(), ReportFile(), engine))

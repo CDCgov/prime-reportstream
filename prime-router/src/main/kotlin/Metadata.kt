@@ -30,9 +30,6 @@ class Metadata {
         DoesNotMatch(),
     )
     private var valueSets = mapOf<String, ValueSet>()
-    private var organizationStore: Map<String, Organization> = mapOf()
-    private var receiverStore: Map<String, Receiver> = mapOf()
-    private var senderStore: Map<String, Sender> = mapOf()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
     var receivingApplication: String? = null
     var receivingFacility: String? = null
@@ -44,11 +41,9 @@ class Metadata {
         metadataPath: String,
         orgExt: String? = null
     ) {
-        val organizationsFilename = "$organizationsBaseName${orgExt ?: ""}.yml"
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
-        loadOrganizations(metadataDir.toPath().resolve(organizationsFilename).toString())
         loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
     }
@@ -60,8 +55,7 @@ class Metadata {
         schema: Schema? = null,
         valueSet: ValueSet? = null,
         tableName: String? = null,
-        table: LookupTable? = null,
-        organization: DeepOrganization? = null
+        table: LookupTable? = null
     ) {
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
@@ -219,8 +213,8 @@ class Metadata {
     }
 
     /*
-      * ValueSet
-      */
+     * ValueSet
+     */
 
     fun loadValueSetCatalog(catalog: String): Metadata {
         val catalogDir = File(catalog)
@@ -262,67 +256,6 @@ class Metadata {
 
     private fun normalizeValueSetName(name: String): String {
         return name.toLowerCase()
-    }
-
-    /*
-     * Organizations
-     */
-
-    val organizations get() = this.organizationStore.values
-    val senders get() = this.senderStore.values
-    val receivers get() = this.receiverStore.values
-
-    fun loadOrganizations(filePath: String): Metadata {
-        try {
-            return loadOrganizations(File(filePath).inputStream())
-        } catch (e: Exception) {
-            throw Exception("Error loading: $filePath", e)
-        }
-    }
-
-    fun loadOrganizations(organizationStream: InputStream): Metadata {
-        val list = mapper.readValue<List<DeepOrganization>>(organizationStream)
-        return loadOrganizationList(list)
-    }
-
-    fun loadOrganizations(vararg organizations: DeepOrganization): Metadata {
-        return loadOrganizationList(organizations.toList())
-    }
-
-    fun loadOrganizationList(organizations: List<DeepOrganization>): Metadata {
-        organizations.forEach { org ->
-            if (org.receivers.find { it.organizationName != org.name } != null)
-                error("Metadata Error: receiver organizationName does not match in ${org.name}")
-            if (org.receivers.associateBy { it.fullName }.size != org.receivers.size)
-                error("Metadata Error: duplicate receiver name in ${org.name}")
-            if (org.senders.find { it.organizationName != org.name } != null)
-                error("Metadata Error: sender organizationName does not match in ${org.name}")
-            if (org.senders.associateBy { it.fullName }.size != org.senders.size)
-                error("Metadata Error: duplicate sender name in ${org.name}")
-        }
-        organizationStore = organizations.associateBy { it.name }
-        senderStore = organizations.flatMap { it.senders }.associateBy { it.fullName }
-        receiverStore = organizations.flatMap { it.receivers }.associateBy { it.fullName }
-
-        receiverStore.forEach { (_, receiver) ->
-            receiver.timing?.let {
-                if (!it.isValid())
-                    error("Metadata Error: improper batch value for ${receiver.fullName}")
-            }
-        }
-        return this
-    }
-
-    fun findOrganization(name: String): Organization? {
-        return organizationStore[name]
-    }
-
-    fun findReceiver(fullName: String): Receiver? {
-        return receiverStore[fullName] ?: receiverStore["$fullName.default"]
-    }
-
-    fun findSender(fullName: String): Sender? {
-        return senderStore[fullName] ?: senderStore["$fullName.default"]
     }
 
     /*
@@ -376,6 +309,5 @@ class Metadata {
         const val schemasSubdirectory = "schemas"
         const val valuesetsSubdirectory = "valuesets"
         const val tableSubdirectory = "tables"
-        const val organizationsBaseName = "organizations"
     }
 }

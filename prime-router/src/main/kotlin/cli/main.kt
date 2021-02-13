@@ -15,9 +15,11 @@ import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.CsvComparer
 import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FakeReport
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -271,6 +273,7 @@ class ProcessData : CliktCommand(
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
         metadata.receivingApplication = receivingApplication
         metadata.receivingFacility = receivingFacility
         val csvSerializer = CsvSerializer(metadata)
@@ -325,7 +328,7 @@ class ProcessData : CliktCommand(
         if (synthesize) inputReport = inputReport.synthesizeData(synthesizeStrategies, targetState, targetCounty)
 
         // Transform reports
-        val translator = Translator(metadata)
+        val translator = Translator(metadata, fileSettings)
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
@@ -379,11 +382,11 @@ class ListSchemas : CliktCommand(
     name = "list",
     help = "list known schemas, senders, and receivers"
 ) {
-    fun listOrganizations(metadata: Metadata) {
+    fun listOrganizations(settings: SettingsProvider) {
         println("Current Clients (Senders to the Hub)")
         var formatTemplate = "%-18s\t%-10s\t%s"
         println(formatTemplate.format("Organization Name", "Client Name", "Schema Sent to Hub"))
-        metadata.senders.forEach {
+        settings.senders.forEach {
             println(formatTemplate.format(it.organizationName, it.name, it.schemaName))
         }
         println()
@@ -397,7 +400,7 @@ class ListSchemas : CliktCommand(
                 "Filters Applied"
             )
         )
-        metadata.receivers.forEach {
+        settings.receivers.forEach {
             println(
                 formatTemplate.format(
                     it.organizationName,
@@ -411,10 +414,11 @@ class ListSchemas : CliktCommand(
 
     override fun run() {
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         println()
         listSchemas(metadata)
         println()
-        listOrganizations(metadata)
+        listOrganizations(settings)
         println()
     }
 }

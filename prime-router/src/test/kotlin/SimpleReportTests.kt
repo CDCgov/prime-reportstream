@@ -18,6 +18,7 @@ class SimpleReportTests {
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./target/csv_test_files/"
     private val metadata: Metadata
+    private val settings: SettingsProvider
     private val csvSerializer: CsvSerializer
 
     init {
@@ -28,6 +29,7 @@ class SimpleReportTests {
         assertTrue(expectedDir.exists())
 
         metadata = Metadata(Metadata.defaultMetadataDirectory)
+        settings = FileSettings(FileSettings.defaultSettingsDirectory)
         csvSerializer = CsvSerializer(metadata)
     }
 
@@ -49,7 +51,7 @@ class SimpleReportTests {
         //        assertTrue(readResult.warnings.isEmpty())
         val inputReport = readResult.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
-        val outputReports = Translator(metadata).filterAndTranslateByReceiver(inputReport)
+        val outputReports = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport)
 
         // 3) Write transformed objs to files
         val outputFiles = mutableListOf<Pair<File, Receiver>>()

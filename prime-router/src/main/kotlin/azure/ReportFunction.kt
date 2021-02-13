@@ -121,7 +121,7 @@ class ReportFunction {
         val clientName = request.headers[clientParameter] ?: request.queryParameters.getOrDefault(clientParameter, "")
         if (clientName.isBlank())
             errors.add(ResultDetail.param(clientParameter, "Expected a '$clientParameter' query parameter"))
-        val sender = engine.metadata.findSender(clientName)
+        val sender = engine.settings.findSender(clientName)
         if (sender == null)
             errors.add(ResultDetail.param(clientParameter, "'$clientName' is not a valid"))
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
@@ -220,7 +220,7 @@ class ReportFunction {
                 .translator
                 .filterAndTranslateByReceiver(validatedRequest.report!!, validatedRequest.defaults)
                 .forEach { (report, receiver) ->
-                    val organization = workflowEngine.metadata.findOrganization(receiver.organizationName)!!
+                    val organization = workflowEngine.settings.findOrganization(receiver.organizationName)!!
                     sendToDestination(
                         report,
                         organization,

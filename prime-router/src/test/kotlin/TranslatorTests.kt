@@ -28,7 +28,7 @@ class TranslatorTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata().loadSchemas(one, two)
-        val translator = Translator(metadata)
+        val translator = Translator(metadata, FileSettings())
 
         val oneToTwo = translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
         assertEquals(one, oneToTwo.fromSchema)
@@ -50,7 +50,7 @@ class TranslatorTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b", default = "x")))
         val metadata = Metadata().loadSchemas(one, two)
-        val translator = Translator(metadata)
+        val translator = Translator(metadata, FileSettings())
 
         val oneToTwo = translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = mapOf("b" to "foo"))
         assertEquals(true, oneToTwo.useDefault.contains("b"))
@@ -66,7 +66,7 @@ class TranslatorTests {
             elements = listOf(Element("a"), Element("c", cardinality = Element.Cardinality.ONE))
         )
         val metadata = Metadata().loadSchemas(one, three)
-        val translator = Translator(metadata)
+        val translator = Translator(metadata, FileSettings())
 
         val oneToThree = translator.buildMapping(fromSchema = one, toSchema = three, defaultValues = emptyMap())
         assertEquals(1, oneToThree.useDirectly.size)
@@ -78,8 +78,9 @@ class TranslatorTests {
     @Test
     fun `test filterAndMapByReceiver`() {
         val metadata = Metadata()
-        metadata.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
-        val translator = Translator(metadata)
+        val settings = FileSettings()
+        settings.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
+        val translator = Translator(metadata, settings)
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource)
@@ -90,6 +91,6 @@ class TranslatorTests {
         val (mappedTable, forReceiver) = result[0]
         assertEquals(table1.schema, mappedTable.schema)
         assertEquals(1, mappedTable.itemCount)
-        assertEquals(metadata.receivers.toTypedArray()[0], forReceiver)
+        assertEquals(settings.receivers.toTypedArray()[0], forReceiver)
     }
 }

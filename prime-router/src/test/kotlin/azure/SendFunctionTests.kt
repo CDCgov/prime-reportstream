@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -27,7 +28,8 @@ import kotlin.test.assertTrue
 
 class SendFunctionTests {
     val context = mockkClass(ExecutionContext::class)
-    val metadata = Metadata("./metadata", "-local")
+    val metadata = Metadata(Metadata.defaultMetadataDirectory, "-local")
+    val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-local")
     val logger = mockkClass(Logger::class)
     val workflowEngine = mockkClass(WorkflowEngine::class)
     val sftpTransport = mockkClass(SftpTransport::class)
@@ -58,6 +60,7 @@ class SendFunctionTests {
 
     fun setupWorkflow() {
         every { workflowEngine.metadata }.returns(metadata)
+        every { workflowEngine.settings }.returns(settings)
         every { workflowEngine.readBody(any()) }.returns("body".toByteArray())
         every { workflowEngine.sftpTransport }.returns(sftpTransport)
     }

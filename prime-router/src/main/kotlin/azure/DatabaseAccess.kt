@@ -52,18 +52,17 @@ class DatabaseAccess(private val create: DSLContext) {
         val engine: WorkflowEngine = WorkflowEngine()
     ) {
         // Populate the header with useful metadata objs, and the blob body.
-        val orgSvc: Receiver?
+        val receiver: Receiver?
         val schema: Schema?
         val content: ByteArray?
 
         init {
-            val meta = engine.metadata
-            orgSvc = if (reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null)
-                meta.findReceiver(reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)
+            receiver = if (reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null)
+                engine.settings.findReceiver(reportFile.receivingOrg + "." + reportFile.receivingOrgSvc)
             else null
 
             schema = if (reportFile.schemaName != null)
-                meta.findSchema(reportFile.schemaName)
+                engine.metadata.findSchema(reportFile.schemaName)
             else null
 
             content = if (reportFile.bodyUrl != null)

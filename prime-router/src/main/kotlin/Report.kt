@@ -458,7 +458,7 @@ class Report {
                 formFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    header.orgSvc?.format ?: error("Internal Error: ${header.orgSvc?.name} does not have a format"),
+                    header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
                     header.reportFile.createdAt
                 )
             }

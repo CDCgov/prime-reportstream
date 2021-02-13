@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.azure
 
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -23,10 +25,11 @@ import java.io.ByteArrayInputStream
 class WorkflowEngine(
     // Immutable objects can be shared between every function call
     val metadata: Metadata = WorkflowEngine.metadata,
+    val settings: SettingsProvider = WorkflowEngine.settings,
     val hl7Serializer: Hl7Serializer = WorkflowEngine.hl7Serializer,
     val csvSerializer: CsvSerializer = WorkflowEngine.csvSerializer,
     val redoxSerializer: RedoxSerializer = WorkflowEngine.redoxSerializer,
-    val translator: Translator = Translator(metadata),
+    val translator: Translator = Translator(metadata, settings),
     // New connection for every function
     val db: DatabaseAccess = DatabaseAccess(dataSource = DatabaseAccess.dataSource),
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
@@ -119,7 +122,7 @@ class WorkflowEngine(
         maxCount: Int,
         updateBlock: (headers: List<DatabaseAccess.Header>, txn: Configuration?) -> Unit,
     ) {
-        val receiver = metadata.findReceiver(messageEvent.receiverName)
+        val receiver = settings.findReceiver(messageEvent.receiverName)
             ?: error("Unable to find a receiving service called ${messageEvent.receiverName}")
 
         db.transact { txn ->
@@ -151,7 +154,7 @@ class WorkflowEngine(
     fun createReport(header: DatabaseAccess.Header): Report {
         val schema = metadata.findSchema(header.task.schemaName)
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
-        val destination = metadata.findReceiver(header.task.receiverName)
+        val destination = settings.findReceiver(header.task.receiverName)
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         val sources = header.sources.map { DatabaseAccess.toSource(it) }
         return when (header.task.bodyFormat) {
@@ -195,6 +198,13 @@ class WorkflowEngine(
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
             val ext = primeEnv?.let { "-$it" } ?: ""
             Metadata("$baseDir/metadata", orgExt = ext)
+        }
+
+        val settings: SettingsProvider by lazy {
+            val baseDir = System.getenv("AzureWebJobsScriptRoot")
+            val primeEnv = System.getenv("PRIME_ENVIRONMENT")
+            val ext = primeEnv?.let { "-$it" } ?: ""
+            FileSettings("$baseDir/settings", orgExt = ext)
         }
 
         val csvSerializer: CsvSerializer by lazy {
