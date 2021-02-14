@@ -195,9 +195,7 @@ class WorkflowEngine(
          */
         val metadata: Metadata by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
-            val primeEnv = System.getenv("PRIME_ENVIRONMENT")
-            val ext = primeEnv?.let { "-$it" } ?: ""
-            Metadata("$baseDir/metadata", orgExt = ext)
+            Metadata("$baseDir/metadata")
         }
 
         val settings: SettingsProvider by lazy {

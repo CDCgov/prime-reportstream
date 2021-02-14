@@ -13,6 +13,7 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.CsvComparer
+import gov.cdc.prime.router.DefaultValues
 import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSettings
@@ -270,12 +271,17 @@ class ProcessData : CliktCommand(
         return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
     }
 
+    private fun getDefaultValues(): DefaultValues {
+        val values = mutableMapOf<String, String>()
+        receivingApplication?.let { values["receiving_application"] = it }
+        receivingFacility?.let { values["receiving_facility"] = it }
+        return values
+    }
+
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
         val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
-        metadata.receivingApplication = receivingApplication
-        metadata.receivingFacility = receivingFacility
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata)
         val redoxSerializer = RedoxSerializer(metadata)
@@ -332,10 +338,14 @@ class ProcessData : CliktCommand(
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
-                    .filterAndTranslateByReceiver(inputReport)
+                    .filterAndTranslateByReceiver(inputReport, getDefaultValues())
                     .map { it.first to getOutputFormat(it.second.format) }
             routeTo != null -> {
-                val pair = translator.translate(input = inputReport, toReceiver = routeTo!!)
+                val pair = translator.translate(
+                    input = inputReport,
+                    toReceiver = routeTo!!,
+                    defaultValues = getDefaultValues()
+                )
                 if (pair != null)
                     listOf(pair.first to getOutputFormat(pair.second.format))
                 else
@@ -343,7 +353,11 @@ class ProcessData : CliktCommand(
             }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
-                val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())
+                val mapping = translator.buildMapping(
+                    toSchema = toSchema,
+                    fromSchema = inputReport.schema,
+                    defaultValues = getDefaultValues()
+                )
                 if (mapping.missing.isNotEmpty()) {
                     error(
                         "Error: When translating to $'${toSchema.name} " +

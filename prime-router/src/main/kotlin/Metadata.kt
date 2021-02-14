@@ -31,15 +31,12 @@ class Metadata {
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
-    var receivingApplication: String? = null
-    var receivingFacility: String? = null
 
     /**
      * Load all parts of the metadata catalog from a directory and its sub-directories
      */
     constructor(
-        metadataPath: String,
-        orgExt: String? = null
+        metadataPath: String
     ) {
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")

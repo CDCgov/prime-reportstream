@@ -28,7 +28,7 @@ import kotlin.test.assertTrue
 
 class SendFunctionTests {
     val context = mockkClass(ExecutionContext::class)
-    val metadata = Metadata(Metadata.defaultMetadataDirectory, "-local")
+    val metadata = Metadata(Metadata.defaultMetadataDirectory)
     val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-local")
     val logger = mockkClass(Logger::class)
     val workflowEngine = mockkClass(WorkflowEngine::class)
