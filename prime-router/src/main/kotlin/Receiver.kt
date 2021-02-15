@@ -39,7 +39,7 @@ data class Receiver(
         format: Report.Format = Report.Format.CSV
     ) : this(name, organizationName, topic, CustomConfiguration(schemaName = schemaName, format = format))
 
-    val fullName: String get() = "$organizationName.$name"
+    val fullName: String get() = "$organizationName$fullNameSeparator$name"
     val schemaName: String get() = translation.schemaName
     val format: Report.Format get() = translation.format
 
@@ -90,5 +90,17 @@ data class Receiver(
     enum class BatchOperation {
         NONE,
         MERGE
+    }
+
+    companion object {
+        const val fullNameSeparator = "."
+
+        fun parseFullName(fullName: String): Pair<String, String> {
+            val splits = fullName.split(Sender.fullNameSeparator)
+            return when (splits.size) {
+                2 -> Pair(splits[0], splits[1])
+                else -> error("Internal Error: Invalid fullName: $fullName")
+            }
+        }
     }
 }

@@ -15,13 +15,13 @@ always have a version of the setting in the settings history table.
 Because settings are small in number and in size, this should not be a size problem.
 When an entity is deleted, a tombstone entry is added to the history table
 */
-CREATE TYPE SETTINGS_ENTITY AS ENUM ('organization', 'receiver', 'sender');
-CREATE TABLE settings (
+CREATE TYPE SETTING_TYPE AS ENUM ('organization', 'receiver', 'sender');
+CREATE TABLE setting (
     -- Key
-    entity SETTINGS_ENTITY NOT NULL,
+    type SETTING_TYPE NOT NULL,
     organization_name VARCHAR(63) NOT NULL,
     setting_name VARCHAR(63),
-    PRIMARY KEY (organization_name, entity, setting_name),
+    PRIMARY KEY (organization_name, type, setting_name),
 
     -- Value
     values JSON,
@@ -32,15 +32,16 @@ CREATE TABLE settings (
     created_by VARCHAR(63)
 );
 
-CREATE TABLE settings_history (
+CREATE TABLE setting_history (
     -- Key
-    entity SETTINGS_ENTITY NOT NULL,
+    type SETTING_TYPE NOT NULL,
     organization_name VARCHAR(63) NOT NULL,
     setting_name VARCHAR(63),
     version INT,
-    PRIMARY KEY (organization_name, entity, setting_name, version),
+    PRIMARY KEY (organization_name, type, setting_name, version),
 
     -- Value
+    is_deleted BOOLEAN,
     values JSON,
 
     -- Metadata

@@ -12,9 +12,31 @@ data class Sender(
     val topic: String,
     val schemaName: String,
 ) {
-    val fullName: String get() = "$organizationName.$name"
+    val fullName: String get() = "$organizationName$fullNameSeparator$name"
 
     enum class Format(val mimeType: String) {
         CSV("text/csv")
+    }
+
+    companion object {
+        const val fullNameSeparator = "."
+
+        fun parseFullName(fullName: String): Pair<String, String> {
+            val splits = fullName.split(fullNameSeparator)
+            return when (splits.size) {
+                1 -> Pair(splits[0], "default")
+                2 -> Pair(splits[0], splits[1])
+                else -> error("Internal Error: Invalid fullName: $fullName")
+            }
+        }
+
+        fun canonicalizeFullName(fullName: String): String {
+            val splits = fullName.split(fullNameSeparator)
+            return when (splits.size) {
+                1 -> "${fullName}${fullNameSeparator}default"
+                2 -> fullName
+                else -> error("Internal Error: Invalid fullName: $fullName")
+            }
+        }
     }
 }

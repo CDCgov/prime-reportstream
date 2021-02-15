@@ -10,11 +10,16 @@ import gov.cdc.prime.router.ReportSource
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.azure.db.Tables.SETTING
+import gov.cdc.prime.router.azure.db.Tables.SETTING_HISTORY
 import gov.cdc.prime.router.azure.db.Tables.TASK
 import gov.cdc.prime.router.azure.db.Tables.TASK_SOURCE
+import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.Setting
+import gov.cdc.prime.router.azure.db.tables.pojos.SettingHistory
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
@@ -80,6 +85,13 @@ class DatabaseAccess(private val create: DSLContext) {
      */
     fun transact(block: (txn: DataAccessTransaction) -> Unit) {
         create.transaction { txn: Configuration -> block(txn) }
+    }
+
+    /**
+     * Make the other calls in the context of a SQL transaction, returning a result
+     */
+    fun <T> transactReturning(block: (txn: DataAccessTransaction) -> T): T {
+        return create.transactionResult { txn: Configuration -> block(txn) }
     }
 
     /**
@@ -320,6 +332,82 @@ class DatabaseAccess(private val create: DSLContext) {
             .where(TASK.REPORT_ID.eq(reportId))
             .execute()
     }
+
+    /**
+     * Settings section
+     */
+
+    fun fetchSetting(name: String, organizationName: String, type: SettingType, txn: DataAccessTransaction): Setting? {
+        return DSL
+            .using(txn)
+            .selectFrom(SETTING)
+            .where(
+                SETTING.TYPE.eq(type),
+                SETTING.SETTING_NAME.eq(name),
+                SETTING.ORGANIZATION_NAME.eq(organizationName)
+            )
+            .fetchOne()
+            ?.into(Setting::class.java)
+    }
+
+    fun fetchSettings(type: SettingType, txn: DataAccessTransaction): List<Setting> {
+        return DSL
+            .using(txn)
+            .selectFrom(SETTING)
+            .where(
+                SETTING.TYPE.eq(type)
+            )
+            .fetch()
+            .into(Setting::class.java)
+    }
+
+    fun insertSetting(setting: Setting, txn: DataAccessTransaction) {
+        DSL
+            .using(txn)
+            .insertInto(SETTING)
+            .values(setting)
+            .execute()
+    }
+
+    fun updateSetting(setting: Setting, txn: DataAccessTransaction) {
+        DSL
+            .using(txn)
+            .update(SETTING)
+            .set(SETTING.VERSION, setting.version)
+            .set(SETTING.VALUES, setting.values)
+            .set(SETTING.CREATED_BY, setting.createdBy)
+            .set(SETTING.CREATED_AT, setting.createdAt)
+            .where(
+                SETTING.TYPE.eq(setting.type),
+                SETTING.SETTING_NAME.eq(setting.settingName),
+                SETTING.ORGANIZATION_NAME.eq(setting.organizationName)
+            )
+            .execute()
+    }
+
+    fun deleteSetting(name: String, organizationName: String, type: SettingType, txn: DataAccessTransaction) {
+        DSL
+            .using(txn)
+            .deleteFrom(SETTING)
+            .where(
+                SETTING.TYPE.eq(type),
+                SETTING.SETTING_NAME.eq(name),
+                SETTING.ORGANIZATION_NAME.eq(organizationName)
+            )
+            .execute()
+    }
+
+    fun insertSettingHistory(settingHistory: SettingHistory, txn: DataAccessTransaction) {
+        DSL
+            .using(txn)
+            .insertInto(SETTING_HISTORY)
+            .values(settingHistory)
+            .execute()
+    }
+
+    /**
+     * Common companion object
+     */
 
     companion object {
         /**

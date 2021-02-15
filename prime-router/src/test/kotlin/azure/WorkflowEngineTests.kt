@@ -35,7 +35,7 @@ class WorkflowEngineTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
 
-    fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return WorkflowEngine(
             metadata,
             settings,

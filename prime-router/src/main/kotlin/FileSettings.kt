@@ -84,11 +84,11 @@ class FileSettings : SettingsProvider {
     }
 
     override fun findReceiver(fullName: String): Receiver? {
-        return receiverStore[fullName] ?: receiverStore["$fullName.default"]
+        return receiverStore[fullName]
     }
 
     override fun findSender(fullName: String): Sender? {
-        return senderStore[fullName] ?: senderStore["$fullName.default"]
+        return senderStore[Sender.canonicalizeFullName(fullName)]
     }
 
     companion object {
