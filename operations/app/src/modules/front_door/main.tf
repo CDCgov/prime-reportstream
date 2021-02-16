@@ -169,7 +169,7 @@ resource "azurerm_monitor_diagnostic_setting" "frontdoor_access_log" {
   name = "${var.resource_prefix}-front_door-access-log"
   target_resource_id = azurerm_frontdoor.front_door.id
   eventhub_name = module.frontdoor_access_log_event_hub_log.event_hub_name
-  eventhub_authorization_rule_id = module.frontdoor_access_log_event_hub_log.event_hub_resource_auth_rule_id
+  eventhub_authorization_rule_id = var.eventhub_diagnostic_auth_rule_id
 
   log {
     category = "FrontdoorAccessLog"
@@ -190,21 +190,21 @@ module "frontdoor_waf_log_event_hub_log" {
     resource_prefix = var.resource_prefix
 }
 
-resource "azurerm_monitor_diagnostic_setting" "frontdoor_waf_log" {
-  name = "${var.resource_prefix}-front_door-waf-log"
-  target_resource_id = azurerm_frontdoor.front_door.id
-  eventhub_name = module.frontdoor_waf_log_event_hub_log.event_hub_name
-  eventhub_authorization_rule_id = module.frontdoor_waf_log_event_hub_log.event_hub_resource_auth_rule_id
+# resource "azurerm_monitor_diagnostic_setting" "frontdoor_waf_log" {
+#   name = "${var.resource_prefix}-front_door-waf-log"
+#   target_resource_id = azurerm_frontdoor.front_door.id
+#   eventhub_name = module.frontdoor_waf_log_event_hub_log.event_hub_name
+#   eventhub_authorization_rule_id = module.frontdoor_waf_log_event_hub_log.event_hub_resource_auth_rule_id
 
-  log {
-    category = "FrontdoorWebApplicationFirewallLog"
-    enabled  = true
+#   log {
+#     category = "FrontdoorWebApplicationFirewallLog"
+#     enabled  = true
 
-    retention_policy {
-      enabled = false
-    }
-  }
-}
+#     retention_policy {
+#       enabled = false
+#     }
+#   }
+# }
 
 data "azurerm_key_vault_secret" "https_cert" {
     count = (var.environment == "prod" ? 1 : 0)

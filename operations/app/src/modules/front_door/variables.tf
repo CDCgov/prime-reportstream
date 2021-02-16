@@ -22,3 +22,8 @@ variable "eventhub_namespace_name" {
   type = string
   description = "Event hub to stream logs to"
 }
+
+variable "eventhub_diagnostic_auth_rule_id" {
+  type = string
+  description = "Event Hub Authorization Rule ID"
+}
