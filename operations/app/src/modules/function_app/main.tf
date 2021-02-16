@@ -45,6 +45,12 @@ resource "azurerm_function_app" "function_app" {
       priority = 110
       service_tag = "AzureFrontDoor.Backend"
     }
+    ip_restriction {
+      action = "Allow"
+      name = "jduff"
+      priority = 120
+      ip_address = "108.51.58.151/32"
+    }
     scm_use_main_ip_restriction = true
 
     http2_enabled = true
