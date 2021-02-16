@@ -24,6 +24,8 @@ RUN_AZ=0
 RUN_FL=0
 RUN_ND=0
 RUN_LA=0
+RUN_VT=0
+RUN_TX=0
 # always should run, but we'll leave this here for now in case that could change at some point
 RUN_STANDARD=1
 RUN_ALL=0
@@ -42,6 +44,8 @@ do
     az | AZ) RUN_AZ=1;;
     nd | ND) RUN_ND=1;;
     la | LA) RUN_LA=1;;
+    vt | VT) RUN_VT=1;;
+    tx | TX) RUN_TX=1;;
     all | ALL) RUN_ALL=1;;
     merge | MERGE) RUN_MERGE=1;;
   esac
@@ -53,6 +57,8 @@ then
   RUN_AZ=1
   RUN_ND=1
   RUN_LA=1
+  RUN_VT=1
+  RUN_TX=1
   RUN_STANDARD=1
   RUN_MERGE=1
 fi
@@ -185,31 +191,19 @@ fi
 # run florida
 if [ $RUN_FL -ne 0 ]
 then
-  FL_FILE_SEARCH_STR="/fl.*\.csv"
+  FL_FILE_SEARCH_STR="/fl.*\.hl7"
   # FLORIDA, MAN
   echo Generate fake FL data
-  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-state FL)
+  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-state FL --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
-  fake_fl=$filename
-
-  echo Now send that fake FL data through the router.
-  text=$(./prime data --input-schema fl/fl-covid-19 --input $fake_fl --output-dir $outputdir)
-  parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
-  fake_fl2=$filename
-  compare_files "Fake FL Orig -> Fake FL2" $fake_fl $fake_fl2
-
-  echo Now send _those_ FL results back in to their own schema and export again!
-  text=$(./prime data --input-schema fl/fl-covid-19 --input $fake_fl2 --output-dir $outputdir)
-  fake_fl3=$filename
-  compare_files "FakeFL2 -> FakeFL3" $fake_fl2 $fake_fl3
 fi
 
 # run north dakota
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-state ND --output-format=HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/covid"
+  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/nd.*\.hl7"
 
   echo Now send that fake ND data through the router
   # TODO: can we import HL7?
@@ -217,6 +211,22 @@ then
 
   echo Now those _those_ ND results back in to their own schema and export again!
   # TODO: once we've imported HL7 we can finish this step
+fi
+
+# run tx
+if [ $RUN_TX -ne 0 ]
+then
+  echo Generate fake TX data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema tx/tx-covid-19 --output-dir $outputdir --target-state TX --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/tx.*\.hl7"
+fi
+
+# run tx
+if [ $RUN_VT -ne 0 ]
+then
+  echo Generate fake VT data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-state VT --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/vt.*\.hl7"
 fi
 
 if [ $RUN_MERGE -ne 0 ]
@@ -255,10 +265,10 @@ fi
 # run louisiana
 if [ $RUN_LA -ne 0 ]
 then
-  LA_FILE_SEARCH_STR="/la.*\.csv"
+  LA_FILE_SEARCH_STR="/la.*\.hl7"
   echo Generate synthetic LA data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-state LA --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/covid"
+  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --target-state LA --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "$LA_FILE_SEARCH_STR"
 
   echo Now send that fake LA data through the router
   # TODO: can we import HL7?
