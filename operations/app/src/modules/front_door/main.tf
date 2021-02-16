@@ -176,7 +176,28 @@ resource "azurerm_monitor_diagnostic_setting" "frontdoor_access_log" {
     enabled  = true
 
     retention_policy {
+      days = 0
       enabled = false
+    }
+  }
+
+  log {
+    category = "FrontdoorWebApplicationFirewallLog"
+    enabled  = false
+
+    retention_policy {
+      days = 0
+      enabled = false
+    }
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled = false
+
+    retention_policy {
+        days = 0
+        enabled = false
     }
   }
 }
@@ -197,11 +218,32 @@ resource "azurerm_monitor_diagnostic_setting" "frontdoor_waf_log" {
   eventhub_authorization_rule_id = var.eventhub_manage_auth_rule_id
 
   log {
+    category = "FrontdoorAccessLog"
+    enabled  = false
+
+    retention_policy {
+      days = 0
+      enabled = false
+    }
+  }
+
+  log {
     category = "FrontdoorWebApplicationFirewallLog"
     enabled  = true
 
     retention_policy {
+      days = 0
       enabled = false
+    }
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled = false
+
+    retention_policy {
+        days = 0
+        enabled = false
     }
   }
 }
