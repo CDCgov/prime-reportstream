@@ -14,12 +14,6 @@
 
 ---
 
-**Name**: sending_facility
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: receiving_application
 
 **Type**: HD
@@ -970,7 +964,11 @@ The patient's second address line
 
 ---
 
-**Name**: pattient_suffix
+**Name**: patient_suffix
+
+**Type**: PERSON_NAME
+
+**HL7 Field**: PID-5-4
 
 **Cardinality**: [0..1]
 
@@ -1769,15 +1767,74 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 ---
 
-**Name**: speciment_collection_method
+**Name**: specimen_collection_method
+
+**Type**: CODE
+
+**HL7 Field**: SPM-7
 
 **Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+ANP|Plates, Anaerobic
+BAP|Plates, Blood Agar
+BCAE|Blood Culture, Aerobic Bottle
+BCAN|Blood Culture, Anaerobic Bottle
+BCPD|Blood Culture, Pediatric Bottle
+BIO|Biopsy
+CAP|Capillary Specimen
+CATH|Catheterized
+CVP|Line, CVP
+EPLA|Environmental, Plate
+ESWA|Environmental, Swab
+FNA|Aspiration, Fine Needle
+KOFFP|Plate, Cough
+LNA|Line, Arterial
+LNV|Line, Venous
+MARTL|Martin-Lewis Agar
+ML11|Mod. Martin-Lewis Agar
+MLP|Plate, Martin-Lewis
+NYP|Plate, New York City
+PACE|Pace, Gen-Probe
+PIN|Pinworm Prep
+PNA|Aterial puncture
+PRIME|Pump Prime
+PUMP|Pump Specimen
+QC5|Quality Control For Micro
+SCLP|Scalp, Fetal Vein
+SCRAPS|Scrapings
+SHA|Shaving
+SWA|Swab
+SWD|Swab, Dacron tipped
+TMAN|Transport Media, Anaerobic
+TMCH|Transport Media, Chalamydia
+TMM4|Transport Media, M4
+TMMY|Transport Media, Mycoplasma
+TMOT|Transport Media
+TMP|Plate, Thayer-Martin
+TMPV|Transport Media, PVA
+TMSC|Transport Media, Stool Culture
+TMUP|Transport Media, Ureaplasma
+TMVI|Transport Media, Viral
+VENIP|Venipuncture
+WOOD|Swab, Wooden Shaft
 
 ---
 
-**Name**: speciment_collection_site
+**Name**: specimen_collection_site
+
+**Type**: TEXT
+
+**HL7 Field**: SPM-10
 
 **Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10) 
 
 ---
 
@@ -1804,12 +1861,6 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
----
-
-**Name**: specimen_received_date_time
-
-**Cardinality**: [0..1]
 
 ---
 

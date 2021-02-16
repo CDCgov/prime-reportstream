@@ -9,8 +9,6 @@ elements:
     # msh section
     - name: sending_application
 
-    - name: sending_facility
-
     - name: receiving_application
       default: Maven^2.16.840.1.114222.4.3.4.34.1.1^ISO
 
@@ -145,7 +143,7 @@ elements:
 
     - name: patient_street2
 
-    - name: pattient_suffix
+    - name: patient_suffix
 
     - name: patient_tribal_citizenship
 
@@ -177,15 +175,13 @@ elements:
 
     - name: specimen_collection_date_time
 
-    - name: speciment_collection_method
+    - name: specimen_collection_method
 
-    - name: speciment_collection_site
+    - name: specimen_collection_site
 
     - name: specimen_description
 
     - name: specimen_id
-
-    - name: specimen_received_date_time
 
     - name: specimen_role
 

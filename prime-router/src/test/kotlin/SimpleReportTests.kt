@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import gov.cdc.prime.router.serializers.CsvSerializer
 import org.apache.commons.io.FileUtils
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -167,6 +168,7 @@ class SimpleReportTests {
     }
 
     @Test
+    @Ignore
     fun `test fake FL data`() {
         val schemaName = "fl/fl-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)

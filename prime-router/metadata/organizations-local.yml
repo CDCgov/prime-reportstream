@@ -116,7 +116,7 @@
     services:
       - name: elr-test
         topic: covid-19
-        schema: tx/tx-covid-19-hl7
+        schema: tx/tx-covid-19
         jurisdictionalFilter:
          - "matches(ordering_facility_state, TX)"
          - "matches(processing_mode_code, T)"
@@ -129,7 +129,7 @@
         format: HL7
       - name: elr-debug
         topic: covid-19
-        schema: tx/tx-covid-19-hl7
+        schema: tx/tx-covid-19
         jurisdictionalFilter:
           - "matches(ordering_facility_state, TX)"
           - "matches(processing_mode_code, D)"

@@ -7,8 +7,6 @@ basedOn: covid-19
 elements:
   - name: sending_application
 
-  - name: sending_facility
-
   - name: receiving_application
     default: FDOH-ELR^2.16.840.1.114222.4.3.3.8.1.3^ISO
 
@@ -143,7 +141,7 @@ elements:
 
   - name: patient_street2
 
-  - name: pattient_suffix
+  - name: patient_suffix
 
   - name: patient_tribal_citizenship
 
@@ -175,15 +173,13 @@ elements:
 
   - name: specimen_collection_date_time
 
-  - name: speciment_collection_method
+  - name: specimen_collection_method
 
-  - name: speciment_collection_site
+  - name: specimen_collection_site
 
   - name: specimen_description
 
   - name: specimen_id
-
-  - name: specimen_received_date_time
 
   - name: specimen_role
 
