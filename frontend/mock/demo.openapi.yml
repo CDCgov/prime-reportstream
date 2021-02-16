@@ -3,7 +3,7 @@ info:
   title: 'My API'
   version: 1.0.0
 paths:
-  '/me':
+  '/api/me':
     get:
       operationId: me
       responses:
@@ -15,17 +15,6 @@ paths:
                 $ref: '#/components/schemas/TokenData'
         '401':
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TokenData'
-  '/login':
-    get:
-      operationId: login
-      security: [] # no auth needed
-      responses:
-        '200':
-          description: Logged in succesfully
           content:
             application/json:
               schema:

@@ -26,6 +26,7 @@ hs_err_pid*
 # Frontend build output
 **/node_modules/**
 **/_site/**
+**/dist/**
 
 # IDEA files
 **/.idea/**

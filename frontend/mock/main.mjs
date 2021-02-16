@@ -5,8 +5,8 @@ import {
   openapi_server,
 } from './_api_utils.mjs'
 
-// Use same port as the prime-router server API being mocked out
-const port = 7071
+//const port = 7071 // Use same port as the prime-router server API being mocked out
+const port = 9000 // Use different port
 
 let api = openapi_basic(
   './mock/demo.openapi.yml',
@@ -17,7 +17,7 @@ console.info('')
 console.info(`export MOCK_URL='http://localhost:${port}'`)
 console.info(`export MOCK_ACCEPT='Accept: application/json'`)
 
-if (1) {
+if (0) {
   api = openapi_jwtAuth(api)
   console.info(`export MOCK_AUTH='Authorization: Bearer ${new_jwt_token()}'`)
 }
