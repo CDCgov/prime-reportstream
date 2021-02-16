@@ -8,11 +8,18 @@ cdn_styles:
 cdn_scripts:
   - src: "https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js"
     integrity: "sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh"
+
+local_styles:
+  - "./css/prime.css"
 ---
 
-<div id="okta-login-container"></div>
+{% include header_gov_website %}
 
-<script>
+<main>
+  <div id="okta-login-container"></div>
+</main>
+
+<script>{
   let config = {
     logo: '//logo.clearbit.com/cdc.gov',
     language: 'en',
@@ -34,9 +41,29 @@ cdn_scripts:
   signInWidget
     .showSignInToGetTokens( { scopes: ['openid', 'email', 'profile', 'simple_report'] } )
     .then( tokens => {
-      // set jwt cookie with 5 minute expiration
+      let jwt = tokens.accessToken.value
+      window.sessionStorage.setItem('jwt', jwt)
+
+      // set JSON Web Token (JWT) cookie with 5 minute expiration
       let ts_expires = new Date(Date.now() + 5*60*1000)
-      document.cookie = `jwt=${tokens.accessToken.value};expires=${ts_expires.toUTCString()};path=/`; 
-      window.location.replace("{{ env.OKTA_redirect }}");
+
+      document.cookie = `jwt=${jwt};expires=${ts_expires.toUTCString()};path=/`; 
+
+      // Save raw JWT for direct API calls 
+      window.localStorage.setItem('jwt', jwt)
+      window.localStorage.setItem('jwt_expires', ts_expires.toISOString())
+
+      // base64 decode JWT body part using Fetch, DataURL, and JSON
+      return window.fetch(`data:application/json;base64,${jwt.split('.')[1]}`)
     })
-</script>
+    .then( jwt_body_req => jwt_body_req.json() )
+    .then( jwt_body => {
+      // Save decoded JWT body for local display
+      window.localStorage.setItem('jwt_body', JSON.stringify(jwt_body))
+
+      // navigate back to 
+      window.location.replace({{"/" | url | as_literal }})
+    })
+}</script>
+
+{% include footer_cdc_website %}

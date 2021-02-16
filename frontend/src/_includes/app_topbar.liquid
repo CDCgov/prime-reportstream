@@ -17,14 +17,30 @@
         />
       </button>
       <div class="prime-user-account">
-        <span th:text="${user}">e.ripley@weyland-yutani.com</span><br />
-        <script>
-          function jwt_cookie_logout(){
-            document.cookie = `jwt=;path=/;expires=${new Date(0).toUTCString()}`
-            window.location.reload()
+        <span><script>{
+          let jwt_body = JSON.parse(localStorage.getItem('jwt_body') || null)
+          if (jwt_body) {
+            document.currentScript
+              .parentElement.textContent = `${jwt_body.sub}`
+          } else {
+            window.location.replace({{"/login.html" | url | as_literal }})
           }
-        </script>
-        <a href="#" onclick="jwt_cookie_logout(); return false">Logout</a>
+        }</script></span>
+
+        <br />
+        <a href="#" onclick="false">Logout
+          <script>
+            document.currentScript.parentElement.onclick = (event) => {
+              event.preventDefault()
+
+              document.cookie = `jwt=;path=/;expires=${new Date(0).toUTCString()}`
+              window.localStorage.removeItem('jwt')
+              window.localStorage.removeItem('jwt_body')
+
+              window.location.replace({{"/login.html" | url | as_literal }})
+            }
+          </script>
+        </a>
       </div>
     </nav>
   </div>
