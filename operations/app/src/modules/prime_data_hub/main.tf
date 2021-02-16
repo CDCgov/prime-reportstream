@@ -80,7 +80,7 @@ module "front_door" {
     resource_prefix = var.resource_prefix
     key_vault_id = module.key_vault.application_key_vault_id
     eventhub_namespace_name = module.event_hub.eventhub_namespace_name
-    eventhub_diagnostic_auth_rule_id = module.event_hub.diagnostic_auth_rule_id
+    eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
 }
 
 module "sftp_container" {

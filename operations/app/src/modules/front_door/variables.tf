@@ -23,7 +23,7 @@ variable "eventhub_namespace_name" {
   description = "Event hub to stream logs to"
 }
 
-variable "eventhub_diagnostic_auth_rule_id" {
+variable "eventhub_manage_auth_rule_id" {
   type = string
-  description = "Event Hub Authorization Rule ID"
+  description = "Event Hub Manage Authorization Rule ID"
 }

@@ -20,20 +20,20 @@ resource "azurerm_eventhub_namespace" "eventhub_namespace" {
   }
 }
 
-resource "azurerm_eventhub_namespace_authorization_rule" "diagnostic_auth_rule" {
-  name = "DiagnosticSharedAccessKey"
+resource "azurerm_eventhub_namespace_authorization_rule" "eventhub_manage_auth_rule" {
+  name = "RootManageSharedAccessKey"
   namespace_name = azurerm_eventhub_namespace.eventhub_namespace.name
   resource_group_name = var.resource_group
 
-  listen = false
+  listen = true
   send = true
-  manage = false
+  manage = true
 }
 
 output "eventhub_namespace_name" {
   value = azurerm_eventhub_namespace.eventhub_namespace.name
 }
 
-output "diagnostic_auth_rule_id" {
-  value = azurerm_eventhub_namespace_authorization_rule.diagnostic_auth_rule.id
+output "manage_auth_rule_id" {
+  value = azurerm_eventhub_namespace_authorization_rule.eventhub_manage_auth_rule.id
 }
