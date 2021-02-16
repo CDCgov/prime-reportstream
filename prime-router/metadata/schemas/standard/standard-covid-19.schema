@@ -242,6 +242,8 @@ elements:
 
   - name: patient_age
 
+  - name: patient_age_units
+
   - name: resident_congregate_setting
 
   - name: symptomatic_for_disease

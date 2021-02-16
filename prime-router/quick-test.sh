@@ -22,10 +22,11 @@ NC='\033[0m' # No Color
 # let's make it possible for run for different states
 RUN_AZ=0
 RUN_FL=0
-RUN_ND=0
 RUN_LA=0
-RUN_VT=0
+RUN_ND=0
+RUN_NM=0
 RUN_TX=0
+RUN_VT=0
 # always should run, but we'll leave this here for now in case that could change at some point
 RUN_STANDARD=1
 RUN_ALL=0
@@ -40,12 +41,13 @@ fi
 for arg in "$@"
 do
   case "$arg" in
-    fl | FL) RUN_FL=1;;
     az | AZ) RUN_AZ=1;;
-    nd | ND) RUN_ND=1;;
+    fl | FL) RUN_FL=1;;
     la | LA) RUN_LA=1;;
-    vt | VT) RUN_VT=1;;
+    nd | ND) RUN_ND=1;;
+    nm | NM) RUN_NM=1;;
     tx | TX) RUN_TX=1;;
+    vt | VT) RUN_VT=1;;
     all | ALL) RUN_ALL=1;;
     merge | MERGE) RUN_MERGE=1;;
   esac
@@ -53,12 +55,13 @@ done
 
 if [ $RUN_ALL -ne 0 ]
 then
-  RUN_FL=1
   RUN_AZ=1
-  RUN_ND=1
+  RUN_FL=1
   RUN_LA=1
-  RUN_VT=1
+  RUN_ND=1
+  RUN_NM=1
   RUN_TX=1
+  RUN_VT=1
   RUN_STANDARD=1
   RUN_MERGE=1
 fi
@@ -194,7 +197,7 @@ then
   FL_FILE_SEARCH_STR="/fl.*\.hl7"
   # FLORIDA, MAN
   echo Generate fake FL data
-  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-state FL --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-state FL --target-county Broward --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
 fi
 
@@ -202,31 +205,32 @@ fi
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --target-county Richland --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/nd.*\.hl7"
-
-  echo Now send that fake ND data through the router
-  # TODO: can we import HL7?
-  # TODO: how do we compare HL7?
-
-  echo Now those _those_ ND results back in to their own schema and export again!
-  # TODO: once we've imported HL7 we can finish this step
 fi
 
 # run tx
 if [ $RUN_TX -ne 0 ]
 then
   echo Generate fake TX data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema tx/tx-covid-19 --output-dir $outputdir --target-state TX --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema tx/tx-covid-19 --output-dir $outputdir --target-state TX --target-county Knox --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/tx.*\.hl7"
 fi
 
-# run tx
+# run vt
 if [ $RUN_VT -ne 0 ]
 then
   echo Generate fake VT data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-state VT --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-state VT --target-county Essex --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/vt.*\.hl7"
+fi
+
+# run nm
+if [ $RUN_NM -ne 0 ]
+then
+  echo Generate fake NM data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-state NM --target-county Hidalgo --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/nm.*\.hl7"
 fi
 
 if [ $RUN_MERGE -ne 0 ]
