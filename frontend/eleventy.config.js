@@ -12,9 +12,7 @@ module.exports = function eleventy_config(cfg) {
   cfg.addPassthroughCopy('src/js')
   cfg.addPassthroughCopy('src/css')
 
-  if ('production' != process.env.NODE_ENV) {
-    _with_live_reloading(cfg)
-  }
+  _with_live_reloading(cfg)
 
   return {
     dir: {
