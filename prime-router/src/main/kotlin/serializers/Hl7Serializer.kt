@@ -137,12 +137,34 @@ class Hl7Serializer(val metadata: Metadata) {
             if (!it.hl7Field.isNullOrEmpty()) {
                 val terserSpec = if (it.hl7Field.startsWith("MSH")) {
                     "/${it.hl7Field}"
+                } else if (it.hl7Field == "AOE") {
+                    val question = it.hl7AOEQuestion!!
+                    val countObservations = 10
+                    // todo: map each AOE by the AOE question ID
+                    for (c in 0 until countObservations) {
+                        var spec = "/.OBSERVATION($c)/OBX-3-1"
+                        val questionCode = try { terser.get(spec) } catch (_: HL7Exception) { "Exception for $spec" }
+                        if (questionCode?.startsWith(question) == true) {
+                            spec = "/.OBSERVATION($c)/OBX-5"
+                            val parsedValue = try { terser.get(spec) } catch (_: HL7Exception) { "Exception for $spec" }
+                            // add the rows
+                            mappedRows[it.name]?.add(parsedValue ?: "Blank for $spec")
+                        }
+                    }
+                    "/.AOE"
                 } else {
                     "/.${it.hl7Field}"
                 }
-                val parsedValue = try { terser.get(terserSpec) } catch (_: HL7Exception) { "Exception for $terserSpec" }
-                // add the rows
-                mappedRows[it.name]?.add(parsedValue ?: "Blank for $terserSpec")
+
+                if (terserSpec != "/.AOE") {
+                    val parsedValue = try {
+                        terser.get(terserSpec)
+                    } catch (_: HL7Exception) {
+                        "Exception for $terserSpec"
+                    }
+                    // add the rows
+                    mappedRows[it.name]?.add(parsedValue ?: "Blank for $terserSpec")
+                }
             } else {
                 it.hl7OutputFields?.forEach { h ->
                     val terserSpec = if (h.startsWith("MSH")) {
