@@ -18,22 +18,21 @@ This epic is not about DDOS attacks which will be handled by the WAF epics.
 
 The system will define these overall limits:
 
-- MAX_BYTES - a reasonable limit on the overall size of the payload. Azure limit is 100Meg.   **Suggest: 40Meg. (allows 4k per row)** 
+- MAX_BYTES - a reasonable limit on the overall size of the payload. (Azure limit is 100Meg.)   **Suggest: 40Meg. (allows 4k per row)** 
 - MAX_ITEMS - a limit on the number of Items (in a CSV, this is a limit on the number of rows + 1).  **Suggest: 10,000 Items (10,001 rows)**
 - **Phase 2 work?**: (MAX_COLUMNS - for CSVs only, a limit on the number of columns input. **Suggest: 1000 columns**)
 - MAX_ITEM_SIZE - byte limit on the size of one item.  This will be most useful in the future, when we read in hl7 - we'll want a way to reject inputs without having to get bogged down in detailed item parsing.   **Suggest:  200K, to match Redox max**
 - MAX_ERRORS - Validation will fail immediately if the total number of Errors passes this threshold.  **Suggest: 100 errors**
-- Note:  no limit on warnings.
+- Note:  no limit on warnings, since warnings by definition should not cause failures.
 
-These will be set globally, hardcoded, for now.  Could be set per schema in the future, with careful consideration of how that gets locked down.
+These limits will be set globally, hardcoded, for now.  Could be set per schema in the future, with careful consideration of how that gets locked down.
 
 ### Proposed Order to Apply new "max" Validation Rules
 
 1. MAX_BYTES test.  First check Content-Length header, then check actual bytes.  Return immediately on failure. (*? Can this be checked by firewall as well?*)
 2. MAX_ITEMS and MAX_ITEM_SIZE tests, for CSVs, can be done prior to reading into Tablesaw format.  Return on failure.
-3. For CSVs, data is now read into internal Tablesaw structure.  MAX_COLUMNS test is applied. Return immediately on first failure.
-   At all times, if MAX_ERRORS is passed, return immediately.
-4. First pass validation:  Individual field Max Bytes validation rules applied here, including truncation.  No other checking.
+3. For CSVs, data is now read into internal Tablesaw structure.  MAX_COLUMNS test is applied. Return immediately on failure.
+4. Individual field validation validation rules applied here, including Max Bytes.  No other checking.
    At all times, if MAX_ERRORS is passed, return immediately.
 5. Second pass validation: All other existing validation rules applied
    At all times, if MAX_ERRORS is passed, return immediately.
@@ -43,36 +42,39 @@ These will be set globally, hardcoded, for now.  Could be set per schema in the 
 Proposal is for very simple fixed maximums per type, with only a small number of length values used, all in bytes, so its very easy for customers to understand.
 Only one new type is needed to support this, which I'm calling **BIGTEXT**.
 
-|     Type        | Max Bytes | Other validation rules and notes
-|-----------------|-----------|----------------------------------
-| TEXT            | 256       | Example: ordering_facility_name might go over 64.  Also allows some room for UTF-8
-| BIGTEXT         | 65536     | *New Proposed Type* Example: `comment field`, `test_method_description`, `remarks` (HL7 Limit is 64K on remarks)
-| TEXT_OR_BLANK   | 256       |  Blank values are valid (not null) 
-| NUMBER          | ?        | 
-| DATE            | ?        |  
-| DATETIME        | ?        |  
-| DURATION        | ?        |  
-| CODE            | ?        |  CODED with a HL7 SNOMED-CT, LONIC valueSet
-| TABLE           | 4096      | (max is based on largest cell in LIVD table, which is 1133 bytes)
-| TABLE_OR_BLANK  | 4096      |  
-| EI              | ?        |  A HL7 Entity Identifier (4 parts)
-| HD              | ?        |  ISO Hierarchic Designator 
-| ID              | ?        |  Generic ID 
-| ID_CLIA         | ?        |  CMS CLIA number (must follow CLIA format rules) 
-| ID_DLN          | ?        |  
-| ID_SSN          | ?        |  
-| ID_NPI          | ?        |  
-| STREET          | 256	      |  
-| STREET_OR_BLANK | 256       |  
-| CITY            | 256       |  
-| POSTAL_CODE     | ?        |  
-| PERSON_NAME     | 256       |  
-| TELEPHONE       | ?        |  
-| EMAIL           | 256       |  
-| BLANK           | ?        |  
+Note: other validations occur, but are not covered here (yet).
+
+|     Type        | Max Bytes |  Action on max length failure | Notes
+|-----------------|-----------|--------------------------------------
+| TEXT            | 256       | Truncate, continue| Example: ordering_facility_name might go over 64.  Also allows some room for UTF-8
+| TEXT_OR_BLANK   | 256       | Truncate, continue|  Blank values are valid (not null)
+| BIGTEXT         | 65536     | Truncate, continue| *New Proposed Type* Example: `comment field`, `test_method_description`, `remarks` (HL7 Limit is 64K on remarks)
+| BIGTEXT_OR_BLANK| 65536     | Truncate, continue|  Blank values are valid (not null)
+| NUMBER          | 16?       | Fail, always error|
+| DATE            | 16?       | Fail, always error|
+| DATETIME        | 16?       | Fail, always error|
+| DURATION        | 16?       | Null-out, continue| Not used as of this writing.
+| CODE            | 16?       | Fail, always error| CODED with a HL7 SNOMED-CT, LONIC valueSet
+| TABLE           | 4096      | Fail, always error| (max is based on largest cell in LIVD table, which is 1133 bytes)
+| TABLE_OR_BLANK  | 4096      | Fail, always error| 
+| EI              | 32?       | Fail, always error| A HL7 Entity Identifier (4 parts)
+| HD              | 32?       | Fail, always error|  ISO Hierarchic Designator 
+| ID              | 32?       | Fail, always error| none Generic ID 
+| ID_CLIA         | 64?       | Fail, always error| CMS CLIA number (must follow CLIA format rules) 
+| ID_DLN(DriveLic)| 64        | Fail, always error| 
+| ID_SSN          | 11        | Fail, always error| 
+| ID_NPI          | ?         | Fail, always error| 
+| STREET          | 256	      | Truncate, continue|
+| STREET_OR_BLANK | 256       | Truncate, continue|
+| CITY            | 256       | Truncate, continue|
+| POSTAL_CODE     | 32?       | Truncate, continue|
+| PERSON_NAME     | 256       | Truncate, continue|
+| TELEPHONE       | 20?       | Truncate, continue| 
+| EMAIL           | 256       | Truncate, continue|
+| BLANK           | 1?        | Truncate, continue|
 
 
-##  Questions on URL Hashing
+##  URL Signing
 
 - Should we allow for an optional digest on the payload, as way to confirm data is not corrupted in transit?
 
