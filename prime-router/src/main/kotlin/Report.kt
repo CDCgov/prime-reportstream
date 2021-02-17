@@ -180,6 +180,22 @@ class Report {
         this.table = createTable(schema, values)
     }
 
+    constructor(
+        schema: Schema,
+        values: Map<String, List<String>>,
+        source: Source,
+        destination: OrganizationService? = null,
+        bodyFormat: Format? = null,
+    ) {
+        this.id = UUID.randomUUID()
+        this.schema = schema
+        this.sources = listOf(source)
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.destination = destination
+        this.createdDateTime = OffsetDateTime.now()
+        this.table = createTable(values)
+    }
+
     private constructor(
         schema: Schema,
         table: Table,
@@ -205,6 +221,15 @@ class Report {
         }
 
         return Table.create("prime", valuesToColumns(schema, values))
+    }
+
+    private fun createTable(values: Map<String, List<String>>): Table {
+        fun valuesToColumns(values: Map<String, List<String>>): List<Column<*>> {
+            return values.keys.map {
+                StringColumn.create(it, values[it])
+            }
+        }
+        return Table.create("prime", valuesToColumns(values))
     }
 
     private fun fromThisReport(action: String) = listOf(ReportSource(this.id, action))

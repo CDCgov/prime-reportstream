@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -96,6 +97,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
     @Test
     fun `test converting hl7 into mapped list of values`() {
         val mappedValues = serializer.convertMessageToMap(sampleHl7Message, covid19Schema)
+        println("\ntest converting hl7 into mapped list of values:\n")
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
         }
@@ -126,5 +128,14 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         assertTrue(mappedValues.containsKey("patient_city"))
         val cities = mappedValues["patient_city"]?.toSet()
         assertEquals(setOf("North Taylor", "South Rodneychester"), cities)
+    }
+
+    @Test
+    fun `test reading HL7 batch and creating report instance`() {
+        val inputFile = "$hl7TestFileDir/batch_message.hl7"
+        val message = File(inputFile)
+        val source = FileSource(inputFile)
+        val report = serializer.readExternal("covid-19", message.inputStream(), source)
+        assertEquals("South Rodneychester", report.getString(0, "patient_city"))
     }
 }

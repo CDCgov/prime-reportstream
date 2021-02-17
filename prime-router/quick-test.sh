@@ -191,48 +191,6 @@ then
   compare_files "PIMA->PIMA" $actual_pima3 $actual_pima4
 fi
 
-# run florida
-if [ $RUN_FL -ne 0 ]
-then
-  FL_FILE_SEARCH_STR="/fl.*\.hl7"
-  # FLORIDA, MAN
-  echo Generate fake FL data
-  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-state FL --target-county Broward --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
-fi
-
-# run north dakota
-if [ $RUN_ND -ne 0 ]
-then
-  echo Generate fake ND data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --target-county Richland --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/nd.*\.hl7"
-fi
-
-# run tx
-if [ $RUN_TX -ne 0 ]
-then
-  echo Generate fake TX data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema tx/tx-covid-19 --output-dir $outputdir --target-state TX --target-county Knox --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/tx.*\.hl7"
-fi
-
-# run vt
-if [ $RUN_VT -ne 0 ]
-then
-  echo Generate fake VT data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-state VT --target-county Essex --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/vt.*\.hl7"
-fi
-
-# run nm
-if [ $RUN_NM -ne 0 ]
-then
-  echo Generate fake NM data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-state NM --target-county Hidalgo --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/nm.*\.hl7"
-fi
-
 if [ $RUN_MERGE -ne 0 ]
 then
   STRAC_FILE_SEARCH_STR="/strac-covid-19.*\.csv"
@@ -273,13 +231,49 @@ then
   echo Generate synthetic LA data, HL7!
   text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --target-state LA --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "$LA_FILE_SEARCH_STR"
+fi
 
-  echo Now send that fake LA data through the router
-  # TODO: can we import HL7?
-  # TODO: how do we compare HL7?
 
-  echo Now those _those_ LA results back in to their own schema and export again!
-  # TODO: once we've imported HL7 we can finish this step
+# run florida
+if [ $RUN_FL -ne 0 ]
+then
+  FL_FILE_SEARCH_STR="/fl.*\.hl7"
+  # FLORIDA, MAN
+  echo Generate fake FL data
+  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-state FL --target-county Broward --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
+fi
+
+# run north dakota
+if [ $RUN_ND -ne 0 ]
+then
+  echo Generate fake ND data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --target-county Richland --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/nd.*\.hl7"
+fi
+
+# run tx
+if [ $RUN_TX -ne 0 ]
+then
+  echo Generate fake TX data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema tx/tx-covid-19 --output-dir $outputdir --target-state TX --target-county Knox --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/tx.*\.hl7"
+fi
+
+# run vt
+if [ $RUN_VT -ne 0 ]
+then
+  echo Generate fake VT data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-state VT --target-county Essex --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/vt.*\.hl7"
+fi
+
+# run nm
+if [ $RUN_NM -ne 0 ]
+then
+  echo Generate fake NM data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-state NM --target-county Hidalgo --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/nm.*\.hl7"
 fi
 
 exit 0

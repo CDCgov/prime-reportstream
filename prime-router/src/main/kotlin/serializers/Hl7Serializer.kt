@@ -11,7 +11,9 @@ import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
+import java.io.InputStream
 import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -71,12 +73,6 @@ class Hl7Serializer(val metadata: Metadata) {
         val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
         val reg = "(\r|\n)".toRegex()
         val cleanedMessage = reg.replace(message, "\r")
-        // todo: check for the segments that need to be removed because HAPI doesn't support batching
-        // todo: remove FHS
-        // todo: remove BHS
-        // todo: remove BTS (but preserve batch count so we can validate)
-        // todo: remove FTS
-        // todo: loop each line (message split on \r)
         val messageLines = cleanedMessage.split("\r")
         val nextMessage = StringBuilder()
 
@@ -117,11 +113,19 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     fun convertMessageToMap(message: String, schema: Schema): Map<String, List<String>> {
+        // safely merge into the set. might not be necessary
+        fun mergeIntoMappedRows(mappedRows: MutableMap<String, MutableSet<String>>, key: String, value: String) {
+            if (!mappedRows.containsKey(key)) error("Map doesn't contain key $key")
+            // get the existing values
+            val existingValues = mappedRows[key] ?: emptySet()
+            // if the existing value doesn't exist, add it in
+            if (!existingValues.contains(value)) {
+                mappedRows[key]?.add(value)
+            }
+        }
+
         // key of the map is the column header, list is the values in the column
-        val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
-        // todo: for each segment, loop through the elements (i.e. MSH-3-1)
-        // todo: find a matching schema element that maps to the segment element
-        // todo: add each value to the mapped rows collection
+        val mappedRows: MutableMap<String, MutableSet<String>> = mutableMapOf()
         val mcf = CanonicalModelClassFactory("2.5.1")
         hapiContext.modelClassFactory = mcf
         val parser = hapiContext.pipeParser
@@ -130,10 +134,14 @@ class Hl7Serializer(val metadata: Metadata) {
         val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
         schema.elements.forEach {
-            if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty())
-                return@forEach
             if (!mappedRows.containsKey(it.name))
-                mappedRows[it.name] = mutableListOf()
+                mappedRows[it.name] = mutableSetOf()
+
+            if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty()) {
+                mappedRows[it.name]?.add("")
+                return@forEach
+            }
+
             if (!it.hl7Field.isNullOrEmpty()) {
                 val terserSpec = if (it.hl7Field.startsWith("MSH")) {
                     "/${it.hl7Field}"
@@ -143,12 +151,20 @@ class Hl7Serializer(val metadata: Metadata) {
                     // todo: map each AOE by the AOE question ID
                     for (c in 0 until countObservations) {
                         var spec = "/.OBSERVATION($c)/OBX-3-1"
-                        val questionCode = try { terser.get(spec) } catch (_: HL7Exception) { "Exception for $spec" }
+                        val questionCode = try {
+                            terser.get(spec)
+                        } catch (_: HL7Exception) {
+                            "Exception for $spec"
+                        }
                         if (questionCode?.startsWith(question) == true) {
                             spec = "/.OBSERVATION($c)/OBX-5"
-                            val parsedValue = try { terser.get(spec) } catch (_: HL7Exception) { "Exception for $spec" }
+                            val parsedValue = try {
+                                terser.get(spec)
+                            } catch (_: HL7Exception) {
+                                "Exception for $spec"
+                            }
                             // add the rows
-                            mappedRows[it.name]?.add(parsedValue ?: "Blank for $spec")
+                            mergeIntoMappedRows(mappedRows, it.name, parsedValue ?: "Blank for $spec")
                         }
                     }
                     "/.AOE"
@@ -163,7 +179,9 @@ class Hl7Serializer(val metadata: Metadata) {
                         "Exception for $terserSpec"
                     }
                     // add the rows
-                    mappedRows[it.name]?.add(parsedValue ?: "Blank for $terserSpec")
+                    mergeIntoMappedRows(mappedRows, it.name, parsedValue ?: "Blank for $terserSpec")
+                } else {
+                    if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
                 }
             } else {
                 it.hl7OutputFields?.forEach { h ->
@@ -178,11 +196,25 @@ class Hl7Serializer(val metadata: Metadata) {
                         "Exception for $terserSpec"
                     }
                     // add the rows
-                    mappedRows[it.name]?.add(parsedValue ?: "Blank for $terserSpec")
+                    mergeIntoMappedRows(mappedRows, it.name, parsedValue ?: "Blank for $terserSpec")
                 }
             }
         }
-        return mappedRows.toMap()
+        // convert sets to lists
+        return mappedRows.keys.map {
+            it to (mappedRows[it]?.toList() ?: emptyList())
+        }.toMap()
+    }
+
+    fun readExternal(
+        schemaName: String,
+        input: InputStream,
+        source: Source
+    ): Report {
+        val messageBody = input.bufferedReader().use { it.readText() }
+        val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
+        val mappedRows = convertBatchMessagesToMap(messageBody, schema)
+        return Report(schema, mappedRows, source)
     }
 
     internal fun createMessage(report: Report, row: Int): String {

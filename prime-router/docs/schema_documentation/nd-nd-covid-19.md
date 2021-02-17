@@ -217,6 +217,8 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Type**: ID
 
+**HL7 Field**: ORC-3-1
+
 **Cardinality**: [0..1]
 
 ---
@@ -2383,6 +2385,29 @@ Is the patient in the ICU?
 **HL7 Field**: AOE
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age_units
+
+**Type**: CODE
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+min|minutes
+h|hours
+d|days
+wk|weeks
+mo|months
+a|years
+
+**Documentation**:
+
+Always filled when `patient_age` is filled
 
 ---
 
