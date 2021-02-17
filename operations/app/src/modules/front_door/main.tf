@@ -92,7 +92,7 @@ resource "azurerm_frontdoor" "front_door" {
             custom_https_configuration {
                 certificate_source = "AzureKeyVault"
                 azure_key_vault_certificate_secret_name = local.https_cert_secret_name
-                azure_key_vault_certificate_secret_version = data.azurerm_key_vault_secret.https_cert.version
+                azure_key_vault_certificate_secret_version = data.azurerm_key_vault_secret.https_cert[0].version
                 azure_key_vault_certificate_vault_id = var.key_vault_id
             }
         }

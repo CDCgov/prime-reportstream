@@ -5,14 +5,16 @@ terraform {
 locals {
   # These object ids correspond to developers with access
   # to key vault
-                # Richard Teasley
-  object_ids = ["34232fe8-00ad-4bd0-9afb-eb9b3cc93ffe",
-                # IAMB-Prod-KV
-                "cd341fbc-26a3-405c-a350-c4237a27aa93",
-                # Ron Heft
-                "637fb7df-c200-4e0d-ba86-608576acb786",
-                # Chris Glodosky
-                "aabc25d7-dd99-42b9-8f3a-fd593b1f229a" ]
+                     # Richard Teasley
+  dev_object_ids = [ "34232fe8-00ad-4bd0-9afb-eb9b3cc93ffe",
+                     # IAMB-Prod-KV
+                     "cd341fbc-26a3-405c-a350-c4237a27aa93",
+                     # Ron Heft
+                     "637fb7df-c200-4e0d-ba86-608576acb786",
+                     # Chris Glodosky
+                     "aabc25d7-dd99-42b9-8f3a-fd593b1f229a" ]
+
+  frontdoor_object_id = "270e4d1a-12bd-4564-8a4b-c9de1bbdbe95"
 }
 
 data "azurerm_client_config" "current" {}
@@ -37,11 +39,11 @@ resource "azurerm_key_vault" "application" {
   }
 }
 
-resource "azurerm_key_vault_access_policy" "access_policy" {
-  count = length(local.object_ids)
+resource "azurerm_key_vault_access_policy" "dev_access_policy" {
+  count = length(local.dev_object_ids)
   key_vault_id = azurerm_key_vault.application.id
   tenant_id = data.azurerm_client_config.current.tenant_id
-  object_id = local.object_ids[count.index]
+  object_id = local.dev_object_ids[count.index]
 
   key_permissions = [
     "Get",
@@ -82,6 +84,15 @@ resource "azurerm_key_vault_access_policy" "access_policy" {
     "SetIssuers",
     "DeleteIssuers" 
   ]
+}
+
+resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
+  key_vault_id = azurerm_key_vault.application.id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = local.frontdoor_object_id
+
+  secret_permissions = [ "Get" ]
+  certificate_permissions = [ "Get" ]
 }
 
 output "application_key_vault_id" {
