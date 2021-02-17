@@ -188,7 +188,7 @@ then
   FL_FILE_SEARCH_STR="/fl.*\.csv"
   # FLORIDA, MAN
   echo Generate fake FL data
-  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-state FL)
+  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-states FL)
   parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
   fake_fl=$filename
 
@@ -208,7 +208,7 @@ fi
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-state ND --output-format=HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states ND --output-format=HL7_BATCH)
   parse_prime_output_for_filename "$text" "/covid"
 
   echo Now send that fake ND data through the router
@@ -225,17 +225,17 @@ then
   numitems=5
   echo Merge testing.  First, generate some fake STRAC data
    # Hack: put some unique strings in each one, so we can count lines.
-  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-county lilliput)
+  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties lilliput)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake1=$filename
 
  echo More fake STRAC data
-  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-county brobdingnag)
+  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties brobdingnag)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake2=$filename
 
  echo 3rd file of fake STRAC data
-  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-county houyhnhnm)
+  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties houyhnhnm)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake3=$filename
 
@@ -257,7 +257,7 @@ if [ $RUN_LA -ne 0 ]
 then
   LA_FILE_SEARCH_STR="/la.*\.csv"
   echo Generate synthetic LA data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-state LA --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states LA --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/covid"
 
   echo Now send that fake LA data through the router

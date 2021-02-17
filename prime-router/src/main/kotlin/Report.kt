@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
@@ -53,6 +54,7 @@ class Report {
         fun isSingleItemFormat(): Boolean {
             return when (this) {
                 REDOX -> true
+
                 HL7 -> true
                 else -> false
             }
@@ -89,6 +91,16 @@ class Report {
      * The number of items in the report
      */
     val itemCount: Int get() = this.table.rowCount()
+
+    /**
+     * The set of parent -> child lineage items associated with this report.
+     * The items in *this* report are the *child* items.
+     * There should be `itemCount` items in this List, or it should be null.
+     * Implicit in that assumption is that each Item
+     * within this report has only a single parent item.  If this assumption changes, we'll
+     * need to make this into a more complex data structure.
+     */
+    var itemLineages: List<ItemLineage>? = null
 
     /**
      * A range of item index for this report
@@ -135,14 +147,17 @@ class Report {
         values: List<List<String>>,
         sources: List<Source>,
         destination: OrganizationService? = null,
-        bodyFormat: Format? = null
+        bodyFormat: Format? = null,
+        itemLineage: List<ItemLineage>? = null,
+        id: ReportId? = null // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
     ) {
-        this.id = UUID.randomUUID()
+        this.id = id ?: UUID.randomUUID()
         this.schema = schema
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
         this.destination = destination
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.itemLineages = itemLineage
         this.table = createTable(schema, values)
     }
 
@@ -153,32 +168,37 @@ class Report {
         source: TestSource,
         destination: OrganizationService? = null,
         bodyFormat: Format? = null,
+        itemLineage: List<ItemLineage>? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(source)
         this.destination = destination
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
 
-    // Client source
-    constructor(
+    // Client source.  Proposed deprecation of this - it is not used.
+/*    constructor(
         schema: Schema,
         values: List<List<String>>,
         source: OrganizationClient,
         destination: OrganizationService? = null,
         bodyFormat: Format? = null,
+        itemLineage: List<ItemLineage>? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(ClientSource(source.organization.name, source.name))
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.destination = destination
+        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.itemLineage = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
     }
+*/
 
     private constructor(
         schema: Schema,
@@ -186,6 +206,7 @@ class Report {
         sources: List<Source>,
         destination: OrganizationService? = null,
         bodyFormat: Format? = null,
+        itemLineage: List<ItemLineage>? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -193,6 +214,7 @@ class Report {
         this.sources = sources
         this.destination = destination
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
     }
 
@@ -207,6 +229,7 @@ class Report {
         return Table.create("prime", valuesToColumns(schema, values))
     }
 
+    // todo remove this when we remove ReportSource
     private fun fromThisReport(action: String) = listOf(ReportSource(this.id, action))
 
     /**
@@ -214,13 +237,15 @@ class Report {
      */
     fun copy(destination: OrganizationService? = null, bodyFormat: Format? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
-        return Report(
+        val copy = Report(
             this.schema,
             this.table,
             fromThisReport("copy"),
             destination ?: this.destination,
-            bodyFormat ?: this.bodyFormat
+            bodyFormat ?: this.bodyFormat,
         )
+        copy.itemLineages = createOneToOneItemLineages(this, copy)
+        return copy
     }
 
     fun isEmpty(): Boolean {
@@ -251,7 +276,13 @@ class Report {
             combinedSelection.and(filterFnSelection)
         }
         val filteredTable = table.where(combinedSelection)
-        return Report(this.schema, filteredTable, fromThisReport("filter: $filterFunctions"))
+        val filteredReport = Report(
+            this.schema,
+            filteredTable,
+            fromThisReport("filter: $filterFunctions"),
+        )
+        filteredReport.itemLineages = createItemLineages(combinedSelection, this, filteredReport)
+        return filteredReport
     }
 
     fun deidentify(): Report {
@@ -262,7 +293,12 @@ class Report {
                 table.column(it.name).copy()
             }
         }
-        return Report(schema, Table.create(columns), fromThisReport("deidentify"))
+        return Report(
+            schema,
+            Table.create(columns),
+            fromThisReport("deidentify"),
+            itemLineage = this.itemLineages
+        )
     }
 
     // takes the data in the existing report and synthesizes different data from it
@@ -334,13 +370,16 @@ class Report {
     fun split(): List<Report> {
         return itemIndices.map {
             val row = getRow(it)
-            Report(
+            val oneItemReport = Report(
                 schema = schema,
                 values = listOf(row),
                 sources = fromThisReport("split"),
                 destination = destination,
-                bodyFormat = bodyFormat
+                bodyFormat = bodyFormat,
             )
+            oneItemReport.itemLineages =
+                listOf(createItemLineageForRow(this, it, oneItemReport, 0))
+            oneItemReport
         }
     }
 
@@ -348,7 +387,7 @@ class Report {
         val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
         val newTable = Table.create(pass2Columns)
-        return Report(mapping.toSchema, newTable, fromThisReport("mapping"))
+        return Report(mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages)
     }
 
     private fun buildColumnPass1(mapping: Translator.Mapping, toElement: Element): StringColumn? {
@@ -450,7 +489,143 @@ class Report {
 
             // Build sources
             val sources = inputs.map { ReportSource(it.id, "merge") }
-            return Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
+            val mergedReport =
+                Report(schema, newTable, sources, destination = head.destination, bodyFormat = head.bodyFormat)
+            mergedReport.itemLineages = createItemLineages(inputs, mergedReport)
+            return mergedReport
+        }
+
+        fun createItemLineages(parentReports: List<Report>, childReport: Report): List<ItemLineage> {
+            var childRowNum = 0
+            var itemLineages = mutableListOf<ItemLineage>()
+            parentReports.forEach { parentReport ->
+                parentReport.itemIndices.forEach {
+                    itemLineages.add(createItemLineageForRow(parentReport, it, childReport, childRowNum))
+                    childRowNum++
+                }
+            }
+            return itemLineages
+        }
+
+        /**
+         * Use a tablesaw Selection bitmap to create a mapping from this report items to newReport items.
+         * Note: A tablesaw Selection is just an array of the row indexes in the oldReport that meet the filter criteria
+         * That is, selection[childRowNum] is the parentRowNum
+         */
+        fun createItemLineages(selection: Selection, parentReport: Report, childReport: Report): List<ItemLineage> {
+            return selection.mapIndexed() { childRowNum, parentRowNum ->
+                createItemLineageForRow(parentReport, parentRowNum, childReport, childRowNum)
+            }.toList()
+        }
+
+        fun createOneToOneItemLineages(parentReport: Report, childReport: Report): List<ItemLineage> {
+            if (parentReport.itemCount != childReport.itemCount)
+                error("Reports must have same number of items: ${parentReport.id}, ${childReport.id}")
+            if (parentReport.itemLineages != null && parentReport.itemLineages!!.size != parentReport.itemCount) {
+                // good place for a simple sanity check.  OK to have no itemLineage, but if you do have it,
+                // it must be complete.
+                error(
+                    "Report ${parentReport.id} should have ${parentReport.itemCount} lineage items" +
+                        " but instead has ${parentReport.itemLineages!!.size} lineage items"
+                )
+            }
+            return parentReport.itemIndices.map { i ->
+                createItemLineageForRow(parentReport, i, childReport, i)
+            }.toList()
+        }
+
+        /**
+         * This is designed to survive any complicated dicing and slicing of Items that Rick can come up with.
+         */
+        fun createItemLineageForRow(
+            parentReport: Report,
+            parentRowNum: Int,
+            childReport: Report,
+            childRowNum: Int
+        ): ItemLineage {
+            // ok if this is null.
+            if (parentReport.itemLineages != null) {
+                // Avoid losing history.
+                // If the parent report already had lineage, then pass its sins down to the next generation.
+                val grandParentReportId = parentReport.itemLineages!![parentRowNum].parentReportId
+                val grandParentRowNum = parentReport.itemLineages!![parentRowNum].parentIndex
+                val grandParentTrackingValue = parentReport.itemLineages!![parentRowNum].trackingId
+                return ItemLineage(
+                    null,
+                    grandParentReportId,
+                    grandParentRowNum,
+                    childReport.id,
+                    childRowNum,
+                    grandParentTrackingValue,
+                    null,
+                    null
+                )
+            } else {
+                val trackingElementValue =
+                    parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
+                return ItemLineage(
+                    null,
+                    parentReport.id,
+                    parentRowNum,
+                    childReport.id,
+                    childRowNum,
+                    trackingElementValue,
+                    null,
+                    null
+                )
+            }
+        }
+
+        /**
+         * Create a 1:1 parent_child lineage mapping, using data taken from the
+         * grandparent:parent lineage pulled from the database.
+         * This is needed in cases where an Action doesn't have the actual Report data in mem. (examples: Send,Download)
+         * In those cases, to populate the lineage, we can grab needed fields from previous lineage rows.
+         */
+        fun createItemLineagesFromDb(
+            prevHeader: DatabaseAccess.Header,
+            newChildReportId: ReportId
+        ): List<ItemLineage>? {
+            if (prevHeader.itemLineages == null) return null
+            val newLineages = mutableMapOf<Int, ItemLineage>()
+            prevHeader.itemLineages.forEach {
+                if (it.childReportId != prevHeader.reportFile.reportId) {
+                    return@forEach
+                }
+                newLineages[it.childIndex] =
+                    ItemLineage(
+                        null,
+                        it.childReportId, // the prev child is the new parent
+                        it.childIndex,
+                        newChildReportId,
+                        it.childIndex, // 1:1 mapping
+                        it.trackingId,
+                        it.transportResult,
+                        null
+                    )
+            }
+            val retval = mutableListOf<ItemLineage>()
+            for (i in 0 until prevHeader.reportFile.itemCount) {
+                if (newLineages[i] == null)
+                    error(
+                        "Unable to create parent->child lineage " +
+                            "${prevHeader.reportFile.reportId} -> $newChildReportId: missing lineage $i"
+                    )
+                retval.add(newLineages[i]!!)
+            }
+            return retval
+        }
+
+        fun decorateItemLineagesWithTransportResults(itemLineages: List<ItemLineage>, transportResults: List<String>) {
+            if (itemLineages.size != transportResults.size) {
+                error(
+                    "To include transport_results in item_lineages, must have 1:1." +
+                        "  Instead have ${transportResults.size} and  ${itemLineages.size} resp."
+                )
+            }
+            itemLineages.forEachIndexed { index, itemLineage ->
+                itemLineage.transportResult = transportResults[index]
+            }
         }
 
         fun formFilename(

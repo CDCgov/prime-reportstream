@@ -43,7 +43,7 @@ class SimpleReportTests {
 
         // 1) Ingest the file
         val fileSource = FileSource(filePath)
-        val readResult = csvSerializer.read(schema.name, file.inputStream(), fileSource)
+        val readResult = csvSerializer.readExternal(schema.name, file.inputStream(), fileSource)
         assertTrue(readResult.errors.isEmpty())
         // I removed this test- at this time, the SimpleReport parsing does return an empty column warning.
         //        assertTrue(readResult.warnings.isEmpty())
@@ -101,7 +101,7 @@ class SimpleReportTests {
 
         // 1) Ingest the file
         val inputFileSource = FileSource(inputFilePath)
-        val readResult = csvSerializer.read(schema.name, inputFile.inputStream(), inputFileSource)
+        val readResult = csvSerializer.readExternal(schema.name, inputFile.inputStream(), inputFileSource)
         assertTrue(readResult.warnings.isEmpty() && readResult.errors.isEmpty())
         val inputReport = readResult.report ?: fail()
 
@@ -123,7 +123,12 @@ class SimpleReportTests {
 
         // 1) Ingest the file
         val inputFileSource = FileSource(inputFilePath)
-        val inputReport = csvSerializer.readInternal(schema.name, inputFile.inputStream(), listOf(inputFileSource))
+        val inputReport = csvSerializer.readInternal(
+            schema.name,
+            inputFile.inputStream(),
+            listOf(inputFileSource),
+            blobReportId = null
+        )
 
         // 2) Write the input report back out to a new file
         val outputFile = File(outputPath, inputReport.name)
