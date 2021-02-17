@@ -8,7 +8,7 @@ resource "azurerm_eventhub_namespace" "eventhub_namespace" {
   resource_group_name = var.resource_group
   sku = "Standard"
   capacity = 1
-  auto_inflate_enabled = true
+  auto_inflate_enabled = var.environment == "prod" ? true : false
   zone_redundant = true
 
   lifecycle {
