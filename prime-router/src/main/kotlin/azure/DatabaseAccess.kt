@@ -47,7 +47,7 @@ typealias DataAccessTransaction = Configuration
  * A data access layer for the database. Hides JOOQ, Hikari, JDBC and other low-level abstractions.
  */
 class DatabaseAccess(private val create: DSLContext) {
-    constructor(dataSource: DataSource) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
+    constructor(dataSource: DataSource = hikariDataSource) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
     constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
 
     class Header(
@@ -337,7 +337,7 @@ class DatabaseAccess(private val create: DSLContext) {
      * Settings section
      */
 
-    fun fetchSetting(name: String, organizationName: String, type: SettingType, txn: DataAccessTransaction): Setting? {
+    fun fetchSetting(type: SettingType, organizationName: String, name: String, txn: DataAccessTransaction): Setting? {
         return DSL
             .using(txn)
             .selectFrom(SETTING)
@@ -361,11 +361,30 @@ class DatabaseAccess(private val create: DSLContext) {
             .into(Setting::class.java)
     }
 
+    fun fetchSettings(type: SettingType, organizationName: String, txn: DataAccessTransaction): List<Setting> {
+        return DSL
+            .using(txn)
+            .selectFrom(SETTING)
+            .where(
+                SETTING.TYPE.eq(type),
+                SETTING.ORGANIZATION_NAME.eq(organizationName)
+            )
+            .fetch()
+            .into(Setting::class.java)
+    }
+
     fun insertSetting(setting: Setting, txn: DataAccessTransaction) {
         DSL
             .using(txn)
             .insertInto(SETTING)
-            .values(setting)
+            .set(SETTING.SETTING_ID, DSL.defaultValue(SETTING.SETTING_ID))
+            .set(SETTING.TYPE, setting.type)
+            .set(SETTING.ORGANIZATION_NAME, setting.organizationName)
+            .set(SETTING.SETTING_NAME, setting.settingName)
+            .set(SETTING.VALUES, setting.values)
+            .set(SETTING.VERSION, setting.version)
+            .set(SETTING.CREATED_AT, setting.createdAt)
+            .set(SETTING.CREATED_BY, setting.createdBy)
             .execute()
     }
 
@@ -397,11 +416,33 @@ class DatabaseAccess(private val create: DSLContext) {
             .execute()
     }
 
+    fun findSettingVersion(name: String, organizationName: String, type: SettingType, txn: DataAccessTransaction): Int {
+        val record = DSL
+            .using(txn)
+            .select(DSL.max(SETTING_HISTORY.VERSION))
+            .from(SETTING_HISTORY)
+            .where(
+                SETTING_HISTORY.TYPE.eq(type),
+                SETTING_HISTORY.SETTING_NAME.eq(name),
+                SETTING_HISTORY.ORGANIZATION_NAME.eq(organizationName)
+            )
+            .fetchOne()
+        return record?.getValue(DSL.max(SETTING_HISTORY.VERSION)) ?: -1
+    }
+
     fun insertSettingHistory(settingHistory: SettingHistory, txn: DataAccessTransaction) {
         DSL
             .using(txn)
             .insertInto(SETTING_HISTORY)
-            .values(settingHistory)
+            .set(SETTING_HISTORY.SETTING_ID, DSL.defaultValue(SETTING_HISTORY.SETTING_ID))
+            .set(SETTING_HISTORY.TYPE, settingHistory.type)
+            .set(SETTING_HISTORY.ORGANIZATION_NAME, settingHistory.organizationName)
+            .set(SETTING_HISTORY.SETTING_NAME, settingHistory.settingName)
+            .set(SETTING_HISTORY.VALUES, settingHistory.values)
+            .set(SETTING_HISTORY.IS_DELETED, settingHistory.isDeleted)
+            .set(SETTING_HISTORY.VERSION, settingHistory.version)
+            .set(SETTING_HISTORY.CREATED_AT, settingHistory.createdAt)
+            .set(SETTING_HISTORY.CREATED_BY, settingHistory.createdBy)
             .execute()
     }
 

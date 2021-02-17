@@ -31,7 +31,7 @@ class WorkflowEngine(
     val redoxSerializer: RedoxSerializer = WorkflowEngine.redoxSerializer,
     val translator: Translator = Translator(metadata, settings),
     // New connection for every function
-    val db: DatabaseAccess = DatabaseAccess(dataSource = DatabaseAccess.dataSource),
+    val db: DatabaseAccess = DatabaseAccess(),
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess(),
     val sftpTransport: SftpTransport = SftpTransport(),

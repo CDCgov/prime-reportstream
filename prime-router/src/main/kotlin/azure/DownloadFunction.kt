@@ -136,7 +136,7 @@ class DownloadFunction {
         context: ExecutionContext
     ): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
-        val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchDownloadableHeaders(
+        val headers = DatabaseAccess().fetchDownloadableHeaders(
             OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
         )
         val attr = mapOf(
@@ -169,8 +169,7 @@ class DownloadFunction {
         var response: HttpResponseMessage
         try {
             val reportId = ReportId.fromString(requestedFile)
-            val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource)
-                .fetchHeader(reportId, authClaims.organization.name)
+            val header = DatabaseAccess().fetchHeader(reportId, authClaims.organization.name)
             if (header.content == null || header.content.isEmpty())
                 response = responsePage(request, authClaims, context)
             else {

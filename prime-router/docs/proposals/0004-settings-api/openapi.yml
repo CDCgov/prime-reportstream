@@ -524,9 +524,9 @@ components:
         jurisdiction:
           type: string
           enum:
-            - NATIONAL
-            - STATE
-            - COUNTY
+            - National
+            - State
+            - County
         stateCode:
           description: the two letter code for the organization
           type: string

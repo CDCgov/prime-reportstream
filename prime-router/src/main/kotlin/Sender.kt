@@ -5,7 +5,7 @@ package gov.cdc.prime.router
  * to the data hub (minus the credentials used by that agent, of course). It
  * contains information about the specific topic and schema that the sender uses.
  */
-data class Sender(
+open class Sender(
     val name: String,
     val organizationName: String,
     val format: Format,

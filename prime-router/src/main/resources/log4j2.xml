@@ -11,7 +11,7 @@
 
         <Logger name="gov.cdc.prime.router.transport.RedoxTransport" level="info"></Logger>
 
-        <Root level="WARN">
+        <Root level="INFO">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

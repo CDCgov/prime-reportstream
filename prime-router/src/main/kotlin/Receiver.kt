@@ -19,7 +19,7 @@ import java.time.ZoneId
  * @param description of the receiver
  * @param transport that the org wishes to receive
  */
-data class Receiver(
+open class Receiver(
     val name: String,
     val organizationName: String,
     val topic: String,

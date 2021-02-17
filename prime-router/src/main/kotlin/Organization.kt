@@ -31,14 +31,3 @@ class DeepOrganization(
     val senders: List<Sender> = emptyList(),
     val receivers: List<Receiver> = emptyList(),
 ) : Organization(name, description, jurisdiction, stateCode, countyName)
-
-/**
- * Organization for Api (Serialized as JSON)
- */
-class APIOrganization(
-    name: String,
-    description: String,
-    jurisdiction: Jurisdiction,
-    stateCode: String?,
-    countyName: String?,
-) : Organization(name, description, jurisdiction, stateCode, countyName)

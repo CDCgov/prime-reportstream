@@ -15,36 +15,31 @@ always have a version of the setting in the settings history table.
 Because settings are small in number and in size, this should not be a size problem.
 When an entity is deleted, a tombstone entry is added to the history table
 */
-CREATE TYPE SETTING_TYPE AS ENUM ('organization', 'receiver', 'sender');
+CREATE TYPE SETTING_TYPE AS ENUM ('ORGANIZATION', 'RECEIVER', 'SENDER');
 CREATE TABLE setting (
-    -- Key
+    --
+    setting_id SERIAL PRIMARY KEY,
     type SETTING_TYPE NOT NULL,
     organization_name VARCHAR(63) NOT NULL,
-    setting_name VARCHAR(63),
-    PRIMARY KEY (organization_name, type, setting_name),
+    setting_name VARCHAR(63) NOT NULL,
 
     -- Value
     values JSON,
 
     -- Metadata
-    version INT,
-    created_at TIMESTAMP WITH TIME ZONE,
-    created_by VARCHAR(63)
+    version INT NOT NULL,
+    created_by VARCHAR(63) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
+CREATE UNIQUE INDEX setting_name_index ON setting(type, organization_name, setting_name);
 
 CREATE TABLE setting_history (
-    -- Key
-    type SETTING_TYPE NOT NULL,
-    organization_name VARCHAR(63) NOT NULL,
-    setting_name VARCHAR(63),
-    version INT,
-    PRIMARY KEY (organization_name, type, setting_name, version),
-
-    -- Value
-    is_deleted BOOLEAN,
-    values JSON,
-
-    -- Metadata
-    created_at TIMESTAMP WITH TIME ZONE,
-    created_by VARCHAR(63)
+    LIKE setting INCLUDING ALL,
+    is_deleted BOOLEAN
 );
+DROP INDEX IF EXISTS setting_history_type_organization_name_setting_name_idx;
+CREATE UNIQUE INDEX setting_history_name_index ON setting_history(type, organization_name, setting_name, version);
+
+
+
+
