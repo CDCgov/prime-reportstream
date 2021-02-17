@@ -17,29 +17,10 @@
         />
       </button>
       <div class="prime-user-account">
-        <span><script>{
-          let jwt_body = JSON.parse(localStorage.getItem('jwt_body') || null)
-          if (jwt_body) {
-            document.currentScript
-              .parentElement.textContent = `${jwt_body.sub}`
-          } else {
-            window.location.replace({{"/login.html" | url | as_literal }})
-          }
-        }</script></span>
+        <span></span>
 
         <br />
         <a href="#" onclick="false">Logout
-          <script>
-            document.currentScript.parentElement.onclick = (event) => {
-              event.preventDefault()
-
-              document.cookie = `jwt=;path=/;expires=${new Date(0).toUTCString()}`
-              window.localStorage.removeItem('jwt')
-              window.localStorage.removeItem('jwt_body')
-
-              window.location.replace({{"/login.html" | url | as_literal }})
-            }
-          </script>
         </a>
       </div>
     </nav>
