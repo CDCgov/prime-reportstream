@@ -22,31 +22,10 @@ resource "azurerm_frontdoor" "front_door" {
     friendly_name = local.name
 
     backend_pool_load_balancing {
-        name = "functionsLoadBalancingSettings"
-        sample_size = 4
-        successful_samples_required = 2
-        additional_latency_milliseconds = 0
-    }
-
-    backend_pool_health_probe {
-        name = "functionsHealthProbeSettings"
-        path = "/"
-        interval_in_seconds = 30
-        protocol = "Https"
-        probe_method = "HEAD"
-    }
-
-    backend_pool {
-        name = "functions"
-        health_probe_name = "functionsHealthProbeSettings"
-        load_balancing_name = "functionsLoadBalancingSettings"
-
-        backend {
-            address = local.functionapp_address
-            host_header = local.functionapp_address
-            http_port = 80
-            https_port = 443
-        }
+      name = "functionsLoadBalancingSettings"
+      sample_size = 4
+      successful_samples_required = 2
+      additional_latency_milliseconds = 0
     }
 
     backend_pool_load_balancing {
@@ -75,6 +54,27 @@ resource "azurerm_frontdoor" "front_door" {
             http_port = 80
             https_port = 443
         }
+    }
+
+    backend_pool_health_probe {
+      name = "functionsHealthProbeSettings"
+      path = "/"
+      interval_in_seconds = 30
+      protocol = "Https"
+      probe_method = "HEAD"
+    }
+
+    backend_pool {
+      name = "functions"
+      health_probe_name = "functionsHealthProbeSettings"
+      load_balancing_name = "functionsLoadBalancingSettings"
+
+      backend {
+        address = local.functionapp_address
+        host_header = local.functionapp_address
+        http_port = 80
+        https_port = 443
+      }
     }
 
     frontend_endpoint {
@@ -131,6 +131,19 @@ resource "azurerm_frontdoor" "front_door" {
     }
 
     routing_rule {
+      name = "metabase"
+      frontend_endpoints = ["DefaultFrontendEndpoint"]
+      accepted_protocols = ["Https"]
+      patterns_to_match = ["/metabase", "/metabase/*"]
+
+      forwarding_configuration {
+        backend_pool_name = "metabase"
+        forwarding_protocol = "HttpsOnly"
+        custom_forwarding_path = "/"
+      }
+    }
+
+    routing_rule {
         name = "api"
         frontend_endpoints = ["DefaultFrontendEndpoint"]
         accepted_protocols = ["Https"]
@@ -139,19 +152,6 @@ resource "azurerm_frontdoor" "front_door" {
         forwarding_configuration {
             backend_pool_name = "functions"
             forwarding_protocol = "HttpsOnly"
-        }
-    }
-
-    routing_rule {
-        name = "metabase"
-        frontend_endpoints = ["DefaultFrontendEndpoint"]
-        accepted_protocols = ["Https"]
-        patterns_to_match = ["/metabase", "/metabase/*"]
-
-        forwarding_configuration {
-            backend_pool_name = "metabase"
-            forwarding_protocol = "HttpsOnly"
-            custom_forwarding_path = "/"
         }
     }
 }
