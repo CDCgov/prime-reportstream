@@ -11,7 +11,7 @@ module "storage" {
     subnet_ids = [module.network.public_subnet_id,
                   module.network.container_subnet_id,
                   module.network.private_subnet_id]
-    sftp_share_name = module.sftp_container.name
+    sftp_share_name = (var.environment == "prod" ? null : module.sftp_container[0].name)
 }
 
 module "network" {
@@ -84,6 +84,7 @@ module "front_door" {
 }
 
 module "sftp_container" {
+    count = (var.environment == "prod" ? 0 : 1)
     source = "../sftp_container"
     environment = var.environment
     resource_group = var.resource_group
@@ -95,6 +96,7 @@ module "sftp_container" {
 }
 
 module "metabase" {
+    count = (var.environment == "prod" ? 0 : 1)
     source = "../metabase"
     environment = var.environment
     resource_group = var.resource_group

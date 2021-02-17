@@ -24,6 +24,7 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 resource "azurerm_storage_share" "sftp_share" {
+  count = (var.environment == "prod" ? 0 : 1)
   name = var.sftp_share_name
   storage_account_name = azurerm_storage_account.storage_account.name
 }
@@ -37,5 +38,5 @@ output "storage_account_key" {
 }
 
 output "sftp_share_name" {
-  value = azurerm_storage_share.sftp_share.name
+  value = (var.environment == "prod" ? null : azurerm_storage_share.sftp_share[0].name)
 }
