@@ -11,7 +11,6 @@ module "storage" {
     subnet_ids = [module.network.public_subnet_id,
                   module.network.container_subnet_id,
                   module.network.private_subnet_id]
-    sftp_share_name = (var.environment == "prod" ? null : module.sftp_container[0].name)
 }
 
 module "network" {
