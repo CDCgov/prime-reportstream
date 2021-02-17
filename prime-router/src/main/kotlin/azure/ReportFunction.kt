@@ -6,7 +6,6 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
-import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
@@ -20,7 +19,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.time.OffsetDateTime
 import java.util.logging.Level
 
 /**
@@ -71,13 +69,13 @@ class ReportFunction {
             val httpResponseMessage = when {
                 validatedRequest.options == Options.CheckConnections -> {
                     workflowEngine.checkConnections()
-                    okResponse(request, validatedRequest)
+                    HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
                 }
                 validatedRequest.report == null -> {
-                    badRequestResponse(request, validatedRequest)
+                    HttpUtilities.badRequestResponse(request, createResponseBody(validatedRequest))
                 }
                 validatedRequest.options == Options.ValidatePayload -> {
-                    okResponse(request, validatedRequest)
+                    HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
                 }
                 else -> {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
@@ -86,7 +84,7 @@ class ReportFunction {
                     val responseBody = createResponseBody(validatedRequest, destinations)
                     workflowEngine.receiveReport(validatedRequest.report)
                     actionHistory.trackExternalInputReport(validatedRequest)
-                    createdResponse(request, validatedRequest, responseBody)
+                    HttpUtilities.createdResponse(request, responseBody)
                 }
             }
             actionHistory.trackActionResult(httpResponseMessage)
@@ -95,7 +93,7 @@ class ReportFunction {
             return httpResponseMessage
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
-            return internalErrorResponse(request)
+            return HttpUtilities.internalErrorResponse(request)
         }
     }
 
@@ -323,48 +321,5 @@ class ReportFunction {
             it.writeEndObject()
         }
         return outStream.toString()
-    }
-
-    private fun okResponse(
-        request: HttpRequestMessage<String?>,
-        validatedRequest: ValidatedRequest
-    ): HttpResponseMessage {
-        return request
-            .createResponseBuilder(HttpStatus.OK)
-            .body(createResponseBody(validatedRequest))
-            .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
-            .build()
-    }
-
-    private fun badRequestResponse(
-        request: HttpRequestMessage<String?>,
-        validatedRequest: ValidatedRequest,
-    ): HttpResponseMessage {
-        return request
-            .createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(createResponseBody(validatedRequest))
-            .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
-            .build()
-    }
-
-    private fun createdResponse(
-        request: HttpRequestMessage<String?>,
-        validatedRequest: ValidatedRequest,
-        responseBody: String,
-    ): HttpResponseMessage {
-        return request
-            .createResponseBuilder(HttpStatus.CREATED)
-            .body(responseBody)
-            .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
-            .build()
-    }
-
-    private fun internalErrorResponse(
-        request: HttpRequestMessage<String?>
-    ): HttpResponseMessage {
-        return request
-            .createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Internal error at ${OffsetDateTime.now()}")
-            .build()
     }
 }
