@@ -4,19 +4,22 @@ local_styles:
   - "./css/prime.css"
 ---
 
-{% include header_gov_website %}
+{% include gov_header %}
 
 <div class="usa-overlay"></div>
 <header class="usa-header usa-header--basic">
   <div class="usa-nav-container">
     <div class="usa-navbar">
   <div class="usa-logo" id="basic-logo">
-    <em class="usa-logo__text"><a href="/" title="Home" aria-label="Home">PRIME Data Hub</a></em>
+    <em class="usa-logo__text">
+      <img src="./css/logo.png" role="img" alt="Logo" style="width:32px;height:32px;vertical-align:middle;" /> 
+      <a href="/" title="Home" aria-label="Home">PRIME Data Hub</a>
+    </em>
   </div>
   <button class="usa-menu-btn">Menu</button>
 </div>
 <nav aria-label="Primary navigation" class="usa-nav">
-  <button class="usa-button usa-button--outline">Sign in</button>
+  <a class="usa-button usa-button--outline" href="./download.html">Sign in</a>
 </nav>
   </div>
 </header>
@@ -85,4 +88,4 @@ local_styles:
 
 </main>
 
-{% include footer_cdc_website %}
+{% include identifier %}
