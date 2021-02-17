@@ -42,7 +42,7 @@ resource "azurerm_container_group" "sftp_container" {
 
     volume {
       name = var.name
-      share_name = var.name
+      share_name = azurerm_storage_share.sftp_share.name
       mount_path = "/home/foo/upload"
       storage_account_name = var.storage_account_name
       storage_account_key = var.storage_account_key
