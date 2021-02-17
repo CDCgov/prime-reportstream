@@ -22,8 +22,3 @@ variable "subnet_ids" {
     type = list(string)
     description = "List of VNet Subnet IDs"
 }
-
-variable "sftp_share_name" {
-    type = string
-    description = "SFTP Container Share"
-}

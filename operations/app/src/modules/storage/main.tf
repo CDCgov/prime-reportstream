@@ -23,20 +23,10 @@ resource "azurerm_storage_account" "storage_account" {
   }
 }
 
-resource "azurerm_storage_share" "sftp_share" {
-  count = (var.environment == "prod" ? 0 : 1)
-  name = var.sftp_share_name
-  storage_account_name = azurerm_storage_account.storage_account.name
-}
-
 output "storage_account_name" {
   value = azurerm_storage_account.storage_account.name
 }
 
 output "storage_account_key" {
   value = azurerm_storage_account.storage_account.primary_access_key
-}
-
-output "sftp_share_name" {
-  value = (var.environment == "prod" ? null : azurerm_storage_share.sftp_share[0].name)
 }
