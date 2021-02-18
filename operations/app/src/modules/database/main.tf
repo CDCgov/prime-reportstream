@@ -27,6 +27,18 @@ resource "azurerm_postgresql_server" "postgres_server" {
   }
 }
 
+data "azurerm_key_vault_key" "postgres_server_encryption_key" {
+  count = var.environment == "test" ? 1 : 0 // Only use Vormetric keys in test
+  key_vault_id = var.key_vault_id
+  name = "${var.resource_prefix}-key-2048" // Postgres only supports 2048 RSA keys
+}
+
+resource "azurerm_postgresql_server_key" "postgres_server_key" {
+  count = var.environment == "test" ? 1 : 0 // Only use Vormetric keys in test
+  server_id = azurerm_postgresql_server.postgres_server.id
+  key_vault_key_id = data.azurerm_key_vault_key.postgres_server_encryption_key[0].id
+}
+
 resource "azurerm_postgresql_virtual_network_rule" "allow_public_subnet" {
   name = "AllowPublicSubnet"
   resource_group_name = var.resource_group

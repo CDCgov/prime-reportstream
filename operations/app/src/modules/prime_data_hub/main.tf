@@ -58,12 +58,14 @@ module "database" {
     source = "../database"
     environment = var.environment
     resource_group = var.resource_group
+    resource_prefix = var.resource_prefix
     name = "${var.resource_prefix}-pgsql"
     location = local.location
     postgres_user = var.postgres_user
     postgres_password = var.postgres_password
     public_subnet_id = module.network.public_subnet_id
     private_subnet_id = module.network.private_subnet_id
+    key_vault_id = module.key_vault.application_key_vault_id
 }
 
 module "key_vault" {

@@ -8,6 +8,11 @@ variable "resource_group" {
     description = "Resource Group Name"
 }
 
+variable "resource_prefix" {
+    type = string
+    description = "Resource Prefix"
+}
+
 variable "name" {
     type = string
     description = "Database Server Name"
@@ -38,4 +43,9 @@ variable "public_subnet_id" {
 variable "private_subnet_id" {
     type = string
     description = "Private Subnet ID"
+}
+
+variable "key_vault_id" {
+    type = string
+    description = "Key Vault used for data encryption"
 }
