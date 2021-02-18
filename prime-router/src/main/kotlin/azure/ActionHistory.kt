@@ -13,10 +13,12 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -82,11 +84,16 @@ class ActionHistory {
      * In addition, in-memory, reports get copied many times, with lots of parent-child relationships
      * that are error-prone to track.  Hiding the lineage data here helps ensure correctness and hide complexity.
      *
-     * todo Note that this does not work for command line.   Is that a problem?
-     * todo this is redundant with `Report.sources`.   Merge these together.  Eliminate one of them.
+     * todo this is redundant with `Report.sources`.   Remove report_sources.
      *
      */
     private val reportLineages = mutableListOf<ReportLineage>()
+
+    /**
+     * Set of new parent->child Item mappings created by this Action.
+     * Note this crucial assumption: the ordering of rows is fixed within any one report.
+     */
+    val itemLineages = mutableSetOf<ItemLineage>()
 
     constructor(taskAction: TaskAction, context: ExecutionContext? = null) {
         action.actionName = taskAction
@@ -110,9 +117,12 @@ class ActionHistory {
             it.writeStringField("method", request.httpMethod.toString())
             it.writeObjectFieldStart("Headers")
             // remove secrets
-            request.headers.filter { !it.key.contains("key") }.forEach { (key, value) ->
-                it.writeStringField(key, value)
-            }
+            request.headers
+                .filter { !it.key.contains("key") }
+                .filter { !it.key.contains("cookie") }
+                .forEach { (key, value) ->
+                    it.writeStringField(key, value)
+                }
             it.writeEndObject()
             it.writeObjectFieldStart("QueryParameters")
             // remove secrets
@@ -205,28 +215,10 @@ class ActionHistory {
         reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
+        if (report.itemLineages != null)
+            error("For report ${report.id}:  Externally submitted reports should never have item lineagee.")
     }
 
-    /* Table structure here for reference during development. Might be out of date.
-        public ReportFile(
-            UUID           reportId,
-            Integer        actionId,
-            TaskAction     nextAction,
-            OffsetDateTime nextActionAt,
-            String         sendingOrg,
-            String         sendingOrgClient,
-            String         receivingOrg,
-            String         receivingOrgSvc,
-            String         schemaName,
-            String         schemaTopic,
-            String         bodyUrl,
-            String         external_name,
-            String         bodyFormat,
-            byte[]         blobDigest,
-            Integer        itemCount,
-            OffsetDateTime wipedAt,
-            OffsetDateTime createdAt
-        */
     /**
      * Use this to record history info about an internally created report.
      * This also tracks the event to be queued later, as an azure message.
@@ -252,6 +244,7 @@ class ActionHistory {
         reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
+        trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
 
@@ -292,10 +285,10 @@ class ActionHistory {
     fun trackDownloadedReport(
         header: DatabaseAccess.Header,
         filename: String,
-        originalReportId: ReportId,
+        originalReportId: ReportId, // todo remove, replace with report in header
         externalReportId: ReportId,
-        userName: String,
-        organization: Organization
+        downloadedBy: String,
+        organization: Organization // todo remove, replace with report in header
     ) {
         trackExistingInputReport(originalReportId)
         if (isReportAlreadyTracked(externalReportId)) {
@@ -312,12 +305,29 @@ class ActionHistory {
         reportFile.schemaTopic = "unavailable" // todo fix this
         reportFile.externalName = filename
         reportFile.transportParams = "Internal id of report requested: $originalReportId"
-        reportFile.transportResult = "Downloaded by user=$userName"
+        reportFile.transportResult = "Downloaded by user=$downloadedBy"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
         reportFile.bodyFormat = header.task.bodyFormat
         reportFile.itemCount = header.task.itemCount
-        reportFile.downloadedBy = userName
+        reportFile.downloadedBy = downloadedBy
         reportsOut[reportFile.reportId] = reportFile
+    }
+
+    private fun trackItemLineages(report: Report) {
+        // sanity checks
+        if (report.itemLineages == null) error("Cannot create lineage For report ${report.id}: missing ItemLineage")
+        if (report.itemLineages!!.size != report.itemCount) {
+            error(
+                "Report ${report.id} should have ${report.itemCount} lineage items" +
+                    " but instead has ${report.itemLineages!!.size} lineage items"
+            )
+        }
+        trackItemLineages(report.itemLineages)
+    }
+
+    fun trackItemLineages(itemLineages: List<ItemLineage>?) {
+        if (itemLineages == null) return
+        this.itemLineages.addAll(itemLineages)
     }
 
     /**
@@ -344,7 +354,8 @@ class ActionHistory {
         reportsOut.values.forEach { it.actionId = action.actionId }
         insertReports(txn)
         generateReportLineages(action.actionId)
-        insertLineages(txn)
+        insertReportLineages(txn)
+        insertItemLineages(itemLineages, txn)
     }
 
     /**
@@ -399,7 +410,7 @@ class ActionHistory {
         }
     }
 
-    private fun insertLineages(txn: Configuration) {
+    private fun insertReportLineages(txn: Configuration) {
         reportLineages.forEach {
             insertReportLineage(it, txn)
         }
@@ -410,6 +421,20 @@ class ActionHistory {
         context?.logger?.info(
             "Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}"
         )
+    }
+
+    private fun insertItemLineages(itemLineages: Set<ItemLineage>, txn: Configuration) {
+        itemLineages.forEach {
+            DSL.using(txn).newRecord(ITEM_LINEAGE, it).store()
+        }
+        context?.logger?.info(
+            "Inserted ${itemLineages.size} " +
+                "Item lineages into db for action ${action.actionId}: ${action.actionName}"
+        )
+    }
+
+    private fun insertItemLineage(itemLineage: ItemLineage, txn: Configuration) {
+        DSL.using(txn).newRecord(ITEM_LINEAGE, itemLineage).store()
     }
 
     // Used as temp storage by the json generator, below.
@@ -479,13 +504,6 @@ class ActionHistory {
                 .fetchOne()
                 ?.into(ReportFile::class.java)
                 ?: error("Could not find $reportId in REPORT_FILE")
-
-            /*  val items = DSL.using(txn)
-            .selectFrom(Tables.ITEM)
-            .where(Tables.ITEM.REPORT_ID.eq(reportId))
-            .fetch()
-            .into(Item::class.java)
-       */
             return reportFile
         }
 
@@ -533,6 +551,43 @@ class ActionHistory {
                 .where(cond)
                 .fetch()
                 .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
+        }
+
+        /**
+         * Returns a map of reportId -> List of item lineages associated with that report.
+         * Note that any given report might not have lineage, in which case a reportId -> null is in the returned map.
+         */
+        fun fetchItemLineagesForReports(
+            reportFiles: Collection<ReportFile>,
+            ctx: DSLContext
+        ): Map<ReportId, List<ItemLineage>?> {
+            return reportFiles.map { reportFile ->
+                reportFile.reportId to fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount, ctx)
+            }.toMap()
+        }
+
+        /**
+         * Returns null if report has no item-level lineage info tracked.
+         */
+        fun fetchItemLineagesForReport(reportId: ReportId, itemCount: Int, ctx: DSLContext): List<ItemLineage>? {
+            val itemLineages = ctx
+                .selectFrom(ITEM_LINEAGE)
+                .where(ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId))
+                .orderBy(ITEM_LINEAGE.CHILD_INDEX) // todo Don't know if this will be too slow?  Use a map in mem?
+                .fetch()
+                .into(ItemLineage::class.java).toList()
+            // sanity check.  If there are lineages, every record up to itemCount should have at least one lineage.
+            // OK to have more than one lineage.  Eg, a merge.
+            if (itemLineages.isEmpty()) {
+                return null
+            } else {
+                if (itemLineages.size < itemCount)
+                    error("For $reportId, must have at least $itemCount item lineages. There were ${itemLineages.size}")
+                val uniqueIndexCount = itemLineages.map { it.childIndex }.toSet().size
+                if (uniqueIndexCount != itemCount)
+                    error("For report $reportId, expected $itemCount unique indexes; there were $uniqueIndexCount")
+            }
+            return itemLineages
         }
 
         /**

@@ -197,17 +197,17 @@ then
   numitems=5
   echo Merge testing.  First, generate some fake STRAC data
    # Hack: put some unique strings in each one, so we can count lines.
-  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-county lilliput)
+  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties lilliput)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake1=$filename
 
  echo More fake STRAC data
-  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-county brobdingnag)
+  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties brobdingnag)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake2=$filename
 
  echo 3rd file of fake STRAC data
-  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-county houyhnhnm)
+  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties houyhnhnm)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake3=$filename
 
@@ -229,7 +229,7 @@ if [ $RUN_LA -ne 0 ]
 then
   LA_FILE_SEARCH_STR="/la.*\.hl7"
   echo Generate synthetic LA data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --target-state LA --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --target-states LA --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "$LA_FILE_SEARCH_STR"
 fi
 
@@ -240,7 +240,7 @@ then
   FL_FILE_SEARCH_STR="/fl.*\.hl7"
   # FLORIDA, MAN
   echo Generate fake FL data
-  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-state FL --target-county Broward --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-states FL --target-counties Broward --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
 fi
 
@@ -248,7 +248,7 @@ fi
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-state ND --target-county Richland --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-states ND --target-counties Richland --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/nd.*\.hl7"
 fi
 
@@ -256,7 +256,7 @@ fi
 if [ $RUN_TX -ne 0 ]
 then
   echo Generate fake TX data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema tx/tx-covid-19 --output-dir $outputdir --target-state TX --target-county Knox --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema tx/tx-covid-19 --output-dir $outputdir --target-states TX --target-counties Knox --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/tx.*\.hl7"
 fi
 
@@ -264,7 +264,7 @@ fi
 if [ $RUN_VT -ne 0 ]
 then
   echo Generate fake VT data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-state VT --target-county Essex --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-states VT --target-counties Essex --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/vt.*\.hl7"
 fi
 
@@ -272,7 +272,7 @@ fi
 if [ $RUN_NM -ne 0 ]
 then
   echo Generate fake NM data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-state NM --target-county Hidalgo --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-states NM --target-counties Hidalgo --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/nm.*\.hl7"
 fi
 

@@ -145,10 +145,11 @@ class WorkflowEngine(
         }
     }
 
-/**
+    /**
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: DatabaseAccess.Header): Report {
+        // todo All of this info is already populated in the Header obj.
         val schema = metadata.findSchema(header.task.schemaName)
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
         val destination = metadata.findService(header.task.receiverName)
@@ -157,14 +158,20 @@ class WorkflowEngine(
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV" -> {
-                val result = csvSerializer.read(schema.name, ByteArrayInputStream(bytes), sources, destination)
+                val result = csvSerializer.readExternal(schema.name, ByteArrayInputStream(bytes), sources, destination)
                 if (result.report == null || result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
                 result.report
             }
             "INTERNAL" -> {
-                csvSerializer.readInternal(schema.name, ByteArrayInputStream(bytes), sources, destination)
+                csvSerializer.readInternal(
+                    schema.name,
+                    ByteArrayInputStream(bytes),
+                    sources,
+                    destination,
+                    header.reportFile.reportId
+                )
             }
             else -> error("Unsupported read format")
         }
