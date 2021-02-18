@@ -1,6 +1,5 @@
 import {
   openapi_basic,
-  new_jwt_token,
   openapi_jwt_auth,
   openapi_server,
 } from './_api_utils.mjs'

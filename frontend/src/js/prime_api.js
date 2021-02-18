@@ -12,7 +12,7 @@ export const prime_rest_api = {
       },
     },
 
-  rest_api_fetch(route, method='GET', body) {
+  rest_api_fetch(route, method='GET', body=undefined) {
     let options = {... this._api_options, method}
 
     if (undefined !== body)
@@ -31,11 +31,11 @@ export const prime_rest_api = {
       err.status = status
       err.statusText = statusText
       if (status < 500) {
-        err.detail = await resp.json()
+        err.detail = resp.json()
       }
       throw err
     }
-    return await resp.json()
+    return resp.json()
   },
 
   async json_get(route) {

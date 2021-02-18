@@ -119,22 +119,19 @@ export function openapi_server(api, cfg={}) {
   // add a JWT supporting mock login
   const mock_login_fns = {
     token(req, res) {
-      console.log("TOKEN")
       res.status(200)
         .end(`Authorization: Bearer ${new_jwt_token()}`)
     },
 
     cookie(req, res) {
-      console.log("COOKIE")
       res.status(200)
         .end(`Cookie: jwt=${new_jwt_token()};`)
     },
 
     json(req, res) {
-      console.log("JSON")
-      let jwt = new_jwt_token()
+      let jwt_token = new_jwt_token()
       res.status(200)
-        .json({token: jwt, cookie: `jwt=${jwt};`})
+        .json({token: jwt_token, cookie: `jwt=${jwt_token};`})
     },
   }
 
