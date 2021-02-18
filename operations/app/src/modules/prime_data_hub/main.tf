@@ -6,11 +6,14 @@ module "storage" {
     source = "../storage"
     environment = var.environment
     resource_group = var.resource_group
+    resource_prefix = var.resource_prefix
     name = "${var.resource_prefix}storageaccount"
     location = local.location
     subnet_ids = [module.network.public_subnet_id,
                   module.network.container_subnet_id,
                   module.network.private_subnet_id]
+    eventhub_namespace_name = module.event_hub.eventhub_namespace_name
+    eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
 }
 
 module "network" {
