@@ -10,6 +10,7 @@ import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
@@ -21,6 +22,17 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 class Hl7Serializer(val metadata: Metadata) {
+    data class Hl7Mapping(
+        val mappedRows: Map<String, List<String>>,
+        val rows: List<RowResult>,
+        val errors: List<String>,
+        val warnings: List<String>,
+    )
+    data class RowResult(
+        val row: Map<String, List<String>>,
+        val errors: List<String>,
+        val warnings: List<String>,
+    )
     private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
     private val softwareProductName = "PRIME Data Hub"
     private val hl7SegmentDelimiter: String = "\r"
@@ -69,8 +81,11 @@ class Hl7Serializer(val metadata: Metadata) {
     /*
      * Read in a file
      */
-    fun convertBatchMessagesToMap(message: String, schema: Schema): Map<String, List<String>> {
+    fun convertBatchMessagesToMap(message: String, schema: Schema): Hl7Mapping {
         val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
+        val errors = mutableListOf<String>()
+        val warnings = mutableListOf<String>()
+        val rowResults = mutableListOf<RowResult>()
         val reg = "(\r|\n)".toRegex()
         val cleanedMessage = reg.replace(message, "\r")
         val messageLines = cleanedMessage.split("\r")
@@ -79,8 +94,11 @@ class Hl7Serializer(val metadata: Metadata) {
         fun deconstructStringMessage() {
             println("Examining:\n$nextMessage")
             val parsedMessage = convertMessageToMap(nextMessage.toString(), schema)
+            errors.addAll(parsedMessage.errors)
+            warnings.addAll(parsedMessage.warnings)
+            rowResults.add(parsedMessage)
             nextMessage.clear()
-            parsedMessage.forEach { (k, v) ->
+            parsedMessage.row.forEach { (k, v) ->
                 if (!mappedRows.containsKey(k))
                     mappedRows[k] = mutableListOf()
 
@@ -109,10 +127,10 @@ class Hl7Serializer(val metadata: Metadata) {
             deconstructStringMessage()
         }
 
-        return mappedRows.toMap()
+        return Hl7Mapping(mappedRows, rowResults, errors, warnings)
     }
 
-    fun convertMessageToMap(message: String, schema: Schema): Map<String, List<String>> {
+    fun convertMessageToMap(message: String, schema: Schema): Hl7Serializer.RowResult {
         // safely merge into the set. might not be necessary
         fun mergeIntoMappedRows(mappedRows: MutableMap<String, MutableSet<String>>, key: String, value: String) {
             if (!mappedRows.containsKey(key)) error("Map doesn't contain key $key")
@@ -123,7 +141,29 @@ class Hl7Serializer(val metadata: Metadata) {
                 mappedRows[key]?.add(value)
             }
         }
-
+        // query the terser and get a value
+        fun queryTerserForValue(
+            terser: Terser,
+            terserSpec: String,
+            elementName: String,
+            mappedRows: MutableMap<String, MutableSet<String>>,
+            errors: MutableList<String>,
+            warnings: MutableList<String>
+        ) {
+            val parsedValue = try {
+                terser.get(terserSpec)
+            } catch (e: HL7Exception) {
+                errors.add("Exception for $terserSpec: ${e.message}")
+                null
+            }
+            // add the rows
+            if (parsedValue.isNullOrEmpty()) {
+                warnings.add("Blank for $terserSpec")
+            }
+            mergeIntoMappedRows(mappedRows, elementName, parsedValue ?: "")
+        }
+        val errors = mutableListOf<String>()
+        val warnings = mutableListOf<String>()
         // key of the map is the column header, list is the values in the column
         val mappedRows: MutableMap<String, MutableSet<String>> = mutableMapOf()
         val mcf = CanonicalModelClassFactory("2.5.1")
@@ -153,18 +193,14 @@ class Hl7Serializer(val metadata: Metadata) {
                         var spec = "/.OBSERVATION($c)/OBX-3-1"
                         val questionCode = try {
                             terser.get(spec)
-                        } catch (_: HL7Exception) {
-                            "Exception for $spec"
+                        } catch (e: HL7Exception) {
+                            // todo: convert to result detail, maybe
+                            errors.add("Exception for $spec: ${e.message}")
+                            null
                         }
                         if (questionCode?.startsWith(question) == true) {
                             spec = "/.OBSERVATION($c)/OBX-5"
-                            val parsedValue = try {
-                                terser.get(spec)
-                            } catch (_: HL7Exception) {
-                                "Exception for $spec"
-                            }
-                            // add the rows
-                            mergeIntoMappedRows(mappedRows, it.name, parsedValue ?: "Blank for $spec")
+                            queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
                         }
                     }
                     "/.AOE"
@@ -173,13 +209,7 @@ class Hl7Serializer(val metadata: Metadata) {
                 }
 
                 if (terserSpec != "/.AOE") {
-                    val parsedValue = try {
-                        terser.get(terserSpec)
-                    } catch (_: HL7Exception) {
-                        "Exception for $terserSpec"
-                    }
-                    // add the rows
-                    mergeIntoMappedRows(mappedRows, it.name, parsedValue ?: "Blank for $terserSpec")
+                    queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
                 } else {
                     if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
                 }
@@ -190,31 +220,32 @@ class Hl7Serializer(val metadata: Metadata) {
                     } else {
                         "/.$h"
                     }
-                    val parsedValue = try {
-                        terser.get(terserSpec)
-                    } catch (_: HL7Exception) {
-                        "Exception for $terserSpec"
-                    }
-                    // add the rows
-                    mergeIntoMappedRows(mappedRows, it.name, parsedValue ?: "Blank for $terserSpec")
+                    queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
                 }
             }
         }
         // convert sets to lists
-        return mappedRows.keys.map {
+        val rows = mappedRows.keys.map {
             it to (mappedRows[it]?.toList() ?: emptyList())
         }.toMap()
+
+        return RowResult(rows, errors, warnings)
     }
 
     fun readExternal(
         schemaName: String,
         input: InputStream,
         source: Source
-    ): Report {
+    ): ReadResult {
+        val errors = mutableListOf<ResultDetail>()
+        val warnings = mutableListOf<ResultDetail>()
         val messageBody = input.bufferedReader().use { it.readText() }
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
-        val mappedRows = convertBatchMessagesToMap(messageBody, schema)
-        return Report(schema, mappedRows, source)
+        val mapping = convertBatchMessagesToMap(messageBody, schema)
+        val mappedRows = mapping.mappedRows
+        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
+        warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
+        return ReadResult(Report(schema, mappedRows, source), errors, warnings)
     }
 
     internal fun createMessage(report: Report, row: Int): String {

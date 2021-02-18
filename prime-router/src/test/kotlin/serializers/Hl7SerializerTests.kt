@@ -98,7 +98,8 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test converting hl7 into mapped list of values`() {
-        val mappedValues = serializer.convertMessageToMap(sampleHl7Message, covid19Schema)
+        val mappedMessage = serializer.convertMessageToMap(sampleHl7Message, covid19Schema)
+        val mappedValues = mappedMessage.row
         println("\ntest converting hl7 into mapped list of values:\n")
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
@@ -111,7 +112,8 @@ NTE|1|L|This is a final comment|RE"""
     fun `test reading HL7 message from file`() {
         val inputFile = "$hl7TestFileDir/single_message.hl7"
         val message = File(inputFile).readText()
-        val mappedValues = serializer.convertMessageToMap(message, covid19Schema)
+        val mappedMessage = serializer.convertMessageToMap(message, covid19Schema)
+        val mappedValues = mappedMessage.row
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
         }
@@ -123,13 +125,23 @@ NTE|1|L|This is a final comment|RE"""
     fun `test reading HL7 batch message from file`() {
         val inputFile = "$hl7TestFileDir/batch_message.hl7"
         val message = File(inputFile).readText()
-        val mappedValues = serializer.convertBatchMessagesToMap(message, covid19Schema)
+        val mappedMessage = serializer.convertBatchMessagesToMap(message, covid19Schema)
+        val mappedValues = mappedMessage.mappedRows
+        println("\ntest reading HL7 batch message from file:\n")
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
         }
         assertTrue(mappedValues.containsKey("patient_city"))
         val cities = mappedValues["patient_city"]?.toSet()
         assertEquals(setOf("North Taylor", "South Rodneychester"), cities)
+        println("Errors:")
+        mappedMessage.errors.forEach {
+            println(it)
+        }
+        println("Warnings:")
+        mappedMessage.warnings.forEach {
+            println(it)
+        }
     }
 
     @Test
@@ -137,7 +149,8 @@ NTE|1|L|This is a final comment|RE"""
         val inputFile = "$hl7TestFileDir/batch_message.hl7"
         val message = File(inputFile)
         val source = FileSource(inputFile)
-        val report = serializer.readExternal("covid-19", message.inputStream(), source)
+        val readResult = serializer.readExternal("covid-19", message.inputStream(), source)
+        val report = readResult.report ?: fail("Report was null and should not be")
         assertEquals("South Rodneychester", report.getString(0, "patient_city"))
         assertEquals("North Taylor", report.getString(1, "patient_city"))
         assertTrue(report.itemCount == 2)
