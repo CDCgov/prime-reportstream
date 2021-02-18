@@ -1,5 +1,14 @@
 ---
 permalink: "{{ page.filePathStem }}.html" # prefer named files, not blog-like permalinks
+cdn_styles:
+  - href: "https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css"
+    integrity: "sha384-NHrrVHQI7Uja/X0/0SMVLSk+nFzWI8AwBi1LqSOu7PogLHanNl0fOq1tTdvgb9C7"
+
+cdn_scripts:
+  - src: "https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js"
+    integrity: "sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh"
+local_styles:
+  - "./css/prime.css"
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +56,29 @@ permalink: "{{ page.filePathStem }}.html" # prefer named files, not blog-like pe
 </head>
 
 <body>
+{% if jwt %}
+{% include gov_header %}
+{% include navbar %}
+{% endif %}
+<main>
+
+{% if jwt == nil %}
+  <div id="okta-login-container"></div>
+{% endif %}
+
+<script type="module">
+  import {login} from './js/login.js'
+  login();
+</script>
+
+{% if jwt %} 
   {{ content }}
+{% endif %}
+</main> 
+
+{% if jwt %}
+{% include identifier %}
+{% endif %}
 
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds.min.js"
