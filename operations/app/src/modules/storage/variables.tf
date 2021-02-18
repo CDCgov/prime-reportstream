@@ -8,6 +8,11 @@ variable "resource_group" {
     description = "Resource Group Name"
 }
 
+variable "resource_prefix" {
+    type = string
+    description = "Resource Prefix"
+}
+
 variable "name" {
     type = string
     description = "Storage Account Name"
@@ -21,4 +26,9 @@ variable "location" {
 variable "subnet_ids" {
     type = list(string)
     description = "List of VNet Subnet IDs"
+}
+
+variable "key_vault_id" {
+    type = string
+    description = "Key Vault used to encrypt blob storage"
 }
