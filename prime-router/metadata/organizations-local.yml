@@ -186,6 +186,30 @@
           redox_source_name: "Prime Data Hub (Staging)"
         format: REDOX
 
+  - name: pa-chester-phd
+    description: Chester County, Pennsylvania, Department of Health
+    services:
+      - name: elr-chester-download
+        topic: covid-19
+        schema: strac/strac-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+        transforms: { deidentify: false }
+        defaults:
+          processing_mode_code: T
+        format: CSV
+
+  - name: pa-montgomery-phd
+    description: Montgomery County, Pennsylvania, Department of Health
+    services:
+      - name: elr-montgomery-download
+        topic: covid-19
+        schema: strac/strac-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+        transforms: { deidentify: false }
+        defaults:
+          processing_mode_code: T
+        format: CSV
+
   - name: prime
     description: Prime Test Receiver
     services:
