@@ -3,7 +3,7 @@ terraform {
 }
 
 resource "azurerm_public_ip" "nat_gateway_ip" {
-  name = "${var.resource_prefix}-publicip.natgateway"
+  name = "${var.resource_prefix}-publicip"
   location = var.location
   resource_group_name = var.resource_group
   allocation_method = "Static"
