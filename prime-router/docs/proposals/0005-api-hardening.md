@@ -10,9 +10,7 @@ This epic is not about DDOS attacks which will be handled by the WAF epics.
 ## Goals 
 
 1. Enforce limits on report size overall size, and on individual data elements size
-2. URL hashing in the of the data hubs reports end-point
-3. Expiring URLs and URL hashing for download URLs
-4. Prevent SQL and Javascript injection, by design.
+2. Prevent SQL and Javascript injection, by design.
 
 ## Detailed proposal for overall size limitation, and individual field size limitations
 
@@ -21,13 +19,17 @@ The system will define these overall limits:
 - MAX_BYTES - a reasonable limit on the overall size of the payload. (Azure limit is 100Meg.)   **Suggest: 40Meg. (allows 4k per row)** 
 - MAX_ITEMS - a limit on the number of Items (in a CSV, this is a limit on the number of rows + 1).  **Suggest: 10,000 Items (10,001 rows)**
 - **Phase 2 work?**: (MAX_COLUMNS - for CSVs only, a limit on the number of columns input. **Suggest: 1000 columns**)
-- MAX_ITEM_SIZE - byte limit on the size of one item.  This will be most useful in the future, when we read in hl7 - we'll want a way to reject inputs without having to get bogged down in detailed item parsing.   **Suggest:  200K, to match Redox max**
+- MAX_ITEM_SIZE - byte limit on the size of one item.  This is most useful for reading in hl7 - we'll want a way to reject inputs without having to get bogged down in detailed item parsing.   **Suggest:  200K, to match Redox max**
 - MAX_ERRORS - Validation will fail immediately if the total number of Errors passes this threshold.  **Suggest: 100 errors**
 - Note:  no limit on warnings, since warnings by definition should not cause failures.
 
 These limits will be set globally, hardcoded, for now.  Could be set per schema in the future, with careful consideration of how that gets locked down.
 
+The limits will apply to both CSV and HL7, when appropriate.
+
 ### Proposed Order to Apply new "max" Validation Rules
+
+The goal is to minimize memory and cpu impact by failing as early as possible.
 
 1. MAX_BYTES test.  First check Content-Length header, then check actual bytes.  Return immediately on failure. (*? Can this be checked by firewall as well?*)
 2. MAX_ITEMS and MAX_ITEM_SIZE tests, for CSVs, can be done prior to reading into Tablesaw format.  Return on failure.
@@ -44,12 +46,12 @@ Only one new type is needed to support this, which I'm calling **BIGTEXT**.
 
 Note: other validations occur, but are not covered here (yet).
 
-|     Type        | Max Bytes |  Action on max length failure | Notes
+|     Type        | Max Bytes |  Action on max bytes failure | Notes
 |-----------------|-----------|--------------------------------------
 | TEXT            | 256       | Truncate, continue| Example: ordering_facility_name might go over 64.  Also allows some room for UTF-8
 | TEXT_OR_BLANK   | 256       | Truncate, continue|  Blank values are valid (not null)
-| BIGTEXT         | 65536     | Truncate, continue| *New Proposed Type* Example: `comment field`, `test_method_description`, `remarks` (HL7 Limit is 64K on remarks)
-| BIGTEXT_OR_BLANK| 65536     | Truncate, continue|  Blank values are valid (not null)
+| BIGTEXT         | 65536     | Truncate, continue| **New Proposed Type** Example: `comment field`, `test_method_description`, `remarks` (HL7 Limit is 64K on remarks)
+| BIGTEXT_OR_BLANK| 65536     | Truncate, continue| **New Proposed Type**   Blank values are valid (not null)
 | NUMBER          | 16?       | Fail, always error|
 | DATE            | 16?       | Fail, always error|
 | DATETIME        | 16?       | Fail, always error|
@@ -73,15 +75,11 @@ Note: other validations occur, but are not covered here (yet).
 | EMAIL           | 256       | Truncate, continue|
 | BLANK           | 1?        | Truncate, continue|
 
-
-##  URL Signing
-
-- Should we allow for an optional digest on the payload, as way to confirm data is not corrupted in transit?
-
 ## Proposal for SQL injection protection
 
+- Review code and look for weaknesses.
 
-## Notes
+## Appendix / Notes
 
 ### HL7 Notes on Size limitations
 
@@ -123,22 +121,5 @@ Character encoding:  Redox uses UTF-8.   However, [see here](https://www.redoxen
 - [X] truncate fields when converting
 - [X] Consider whether to Error or Warn on truncation.
 
-### Need for URL Signing and Expiration
-
-To reduce our attack surface on our APIs, we are considering a scheme for URL signing, to prevent URL tampering in the report end-point by adding a URL hash that is checked on every request.
-
-#### Implementation Options
-- Consider what Frontdoor and Akamai can do with URL signing techniques.
-- Verify with the CISO team about our implementation
-
-#### URL Hashing Tasks
-
-Use a FIPS 180-2 approved hash algorithm. https://csrc.nist.gov/publications/detail/fips/180/4/final
-Put initialization materials into the secrets keyvault.
-Rotation of initialization materials in secret keyvalut.
-Develop a common modules and libraries for URL signing
-Develop a conical form of every URL query parameters
-add a hash= query parameter as required for every URL
-check hash on entry
-
+Above proposal does not meet the 'individual custom schema' criteria.
 
