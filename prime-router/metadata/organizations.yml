@@ -102,7 +102,7 @@
     services:
       - name: elr
         topic: covid-19
-        schema: tx/tx-covid-19-hl7
+        schema: tx/tx-covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, TX)"]
         transforms: { deidentify: false }
         format: HL7
@@ -207,7 +207,7 @@
             filePath: ./upload
       - name: HL7
         topic: covid-19
-        schema: tx/tx-covid-19-hl7
+        schema: tx/tx-covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, HL7)" ]
         batch:
           operation: MERGE

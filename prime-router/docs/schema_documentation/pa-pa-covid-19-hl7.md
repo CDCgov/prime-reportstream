@@ -312,6 +312,8 @@ UNK|Unknown
 
 **Type**: ID
 
+**HL7 Field**: ORC-3-1
+
 **Cardinality**: [0..1]
 
 ---
@@ -2173,8 +2175,6 @@ WOOD|Swab, Wooden Shaft
 
 **Type**: EI
 
-**HL7 Field**: SPM-2
-
 **Cardinality**: [0..1]
 
 
@@ -2257,21 +2257,6 @@ Code | Display
 **Documentation**:
 
 The specimen source, such as Blood or Serum
-
----
-
-**Name**: specimen_received_date_time
-
-**Type**: DATETIME
-
-**HL7 Field**: SPM-18
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -2493,8 +2478,6 @@ Z|No record of this patient
 
 **Type**: ID
 
-**HL7 Field**: OBR-3-1
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -2612,7 +2595,7 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-18
+**HL7 Field**: SPM-18-1
 
 **Cardinality**: [0..1]
 

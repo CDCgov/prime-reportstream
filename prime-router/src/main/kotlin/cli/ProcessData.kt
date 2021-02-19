@@ -319,7 +319,9 @@ class ProcessData : CliktCommand(
                     report.id,
                     report.schema.baseName,
                     format,
-                    report.createdDateTime
+                    report.createdDateTime,
+                    report.schema.useAphlNamingFormat,
+                    report.schema.receivingOrganization
                 )
                 File(outputDir ?: ".", fileName)
             }
