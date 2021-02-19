@@ -271,12 +271,12 @@ class Hl7Serializer(val metadata: Metadata) {
                 if (value.isNotBlank()) {
                     val units = report.getString(row, "${element.name}_units")
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, units)
+                    setAOE(terser, element, aoeSequence++, date, value, report, row, units)
                 }
             } else if (element.hl7Field == "AOE") {
                 if (value.isNotBlank()) {
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value)
+                    setAOE(terser, element, aoeSequence++, date, value, report, row)
                 }
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
@@ -419,11 +419,12 @@ class Hl7Serializer(val metadata: Metadata) {
         aoeRep: Int,
         date: String,
         value: String,
-        units: String? = null
+        report: Report,
+        row: Int,
+        units: String? = null,
     ) {
         terser.set(formPathSpec("OBX-1", aoeRep), (aoeRep + 1).toString())
         terser.set(formPathSpec("OBX-2", aoeRep), "CWE")
-
         val aoeQuestion = element.hl7AOEQuestion
             ?: error("Schema Error: missing hl7AOEQuestion for '${element.name}'")
         setCodeComponent(terser, aoeQuestion, formPathSpec("OBX-3", aoeRep), "covid-19/aoe")
@@ -441,7 +442,9 @@ class Hl7Serializer(val metadata: Metadata) {
 
         terser.set(formPathSpec("OBX-11", aoeRep), "F")
         terser.set(formPathSpec("OBX-14", aoeRep), date)
+        terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
         terser.set(formPathSpec("OBX-29", aoeRep), "QST")
+        terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
     }
 
     private fun setNote(terser: Terser, value: String) {
@@ -478,6 +481,7 @@ class Hl7Serializer(val metadata: Metadata) {
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
     }
 
     private fun createHeaders(report: Report): String {

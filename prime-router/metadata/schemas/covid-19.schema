@@ -730,7 +730,7 @@ elements:
   - name: message_profile_id
     type: EI
     hl7Field: MSH-21
-    default: PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+    default: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
     documentation: The message profile identifer
 
   # name: public_health_case_id

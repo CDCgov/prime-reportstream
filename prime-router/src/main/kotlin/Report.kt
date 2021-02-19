@@ -295,6 +295,13 @@ class Report {
         return table.getString(row, column)
     }
 
+    fun getStringByHl7Field(row: Int, hl7Field: String): String? {
+        val column = schema.elements.filter { it.hl7Field.equals(hl7Field, ignoreCase = true) }.firstOrNull()
+            ?: error("There is no schema element that matches HL7 spec $hl7Field")
+        val index = schema.findElementColumn(column.name) ?: return null
+        return table.getString(row, index)
+    }
+
     fun getRow(row: Int): List<String> {
         return schema.elements.map {
             val column = schema.findElementColumn(it.name)
