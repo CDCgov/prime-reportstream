@@ -92,7 +92,6 @@ class Hl7Serializer(val metadata: Metadata) {
         val nextMessage = StringBuilder()
 
         fun deconstructStringMessage() {
-            println("Examining:\n$nextMessage")
             val parsedMessage = convertMessageToMap(nextMessage.toString(), schema)
             errors.addAll(parsedMessage.errors)
             warnings.addAll(parsedMessage.warnings)
