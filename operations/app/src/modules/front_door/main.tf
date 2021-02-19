@@ -7,6 +7,7 @@ locals {
     functionapp_address = "${var.resource_prefix}-functionapp.azurewebsites.net"
     metabase_address = "${var.resource_prefix}-metabase.azurewebsites.net"
     prod_condition = var.environment == "prod" ? [1] : []
+    frontend_endpoints = var.environment == "prod" ? ["DefaultFrontendEndpoint", "prime-cdc-gov"] : ["DefaultFrontendEndpoint"]
     https_cert_secret_name = "prime-cdc-gov"
 }
 
@@ -100,7 +101,7 @@ resource "azurerm_frontdoor" "front_door" {
 
     routing_rule {
         name = "HttpToHttpsRedirect"
-        frontend_endpoints = ["DefaultFrontendEndpoint"]
+        frontend_endpoints = local.frontend_endpoints
         accepted_protocols = ["Http"]
         patterns_to_match = [
             "/",
@@ -119,7 +120,7 @@ resource "azurerm_frontdoor" "front_door" {
 
     routing_rule {
         name = "download"
-        frontend_endpoints = ["DefaultFrontendEndpoint"]
+        frontend_endpoints = local.frontend_endpoints
         accepted_protocols = ["Https"]
         patterns_to_match = ["/", "/download"]
 
@@ -132,7 +133,7 @@ resource "azurerm_frontdoor" "front_door" {
 
     routing_rule {
       name = "metabase"
-      frontend_endpoints = ["DefaultFrontendEndpoint"]
+      frontend_endpoints = local.frontend_endpoints
       accepted_protocols = ["Https"]
       patterns_to_match = ["/metabase", "/metabase/*"]
 
@@ -145,7 +146,7 @@ resource "azurerm_frontdoor" "front_door" {
 
     routing_rule {
         name = "api"
-        frontend_endpoints = ["DefaultFrontendEndpoint"]
+        frontend_endpoints = local.frontend_endpoints
         accepted_protocols = ["Https"]
         patterns_to_match = ["/*", "/api/*"]
 
