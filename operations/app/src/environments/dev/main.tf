@@ -25,4 +25,5 @@ module "prime_data_hub" {
   okta_client_id = var.okta_client_id
   az_phd_user = var.az_phd_user
   az_phd_password = var.az_phd_password
+  https_cert_name = null
 }

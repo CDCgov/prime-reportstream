@@ -48,3 +48,8 @@ variable "okta_client_id" {
     description = "Okta Client ID"
     sensitive = true
 }
+
+variable "https_cert_name" {
+    type = string
+    description = "The HTTPS cert to associate with the front door. Omitting will not associate a domain to the front door."
+}
