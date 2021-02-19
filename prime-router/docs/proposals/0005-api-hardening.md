@@ -47,7 +47,7 @@ Only one new type is needed to support this, which I'm calling **BIGTEXT**.
 Note: other validations occur, but are not covered here (yet).
 
 |     Type        | Max Bytes |  Action on max bytes failure | Notes
-|-----------------|-----------|--------------------------------------
+|-----------------|-----------|------------------------------|---
 | TEXT            | 256       | Truncate, continue| Example: ordering_facility_name might go over 64.  Also allows some room for UTF-8
 | TEXT_OR_BLANK   | 256       | Truncate, continue|  Blank values are valid (not null)
 | BIGTEXT         | 65536     | Truncate, continue| **New Proposed Type** Example: `comment field`, `test_method_description`, `remarks` (HL7 Limit is 64K on remarks)
