@@ -609,22 +609,15 @@ The phone number of the facility which the test was ordered from
 
 **Type**: ID
 
+**HL7 Field**: ORC-3-1
+
 **Cardinality**: [0..1]
 
 ---
 
 **Name**: specimen_received_date_time
 
-**Type**: DATETIME
-
-**HL7 Field**: SPM-18
-
 **Cardinality**: [0..1]
-
-**Documentation**:
-
-Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
-
 
 ---
 
