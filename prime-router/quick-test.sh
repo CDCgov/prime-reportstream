@@ -227,7 +227,7 @@ fi
 # run louisiana
 if [ $RUN_LA -ne 0 ]
 then
-  LA_FILE_SEARCH_STR="/la.*\.hl7"
+  LA_FILE_SEARCH_STR="/cdcprime.*\.hl7"
   echo Generate synthetic LA data, HL7!
   text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --target-states LA --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "$LA_FILE_SEARCH_STR"

@@ -110,7 +110,14 @@ class Report {
     /**
      * A standard name for this report that take schema, id, and destination into account
      */
-    val name: String get() = formFilename(id, schema.baseName, bodyFormat, createdDateTime)
+    val name: String get() = formFilename(
+        id,
+        schema.baseName,
+        bodyFormat,
+        createdDateTime,
+        schema.useAphlNamingFormat,
+        schema.receivingOrganization
+    )
 
     /**
      * A format for the body or use the destination format
@@ -657,12 +664,41 @@ class Report {
             id: ReportId,
             schemaName: String,
             fileFormat: Format?,
-            createdDateTime: OffsetDateTime
+            createdDateTime: OffsetDateTime,
+            useAphlFormat: Boolean = false,
+            receivingOrganization: String? = null,
+            sendingFacility: String = ""
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-            val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
             val nameSuffix = fileFormat?.toExt() ?: Format.CSV.toExt()
-            return "$namePrefix.$nameSuffix"
+            return if (useAphlFormat) {
+                /*
+                APHL has a format that requires a different file name format that looks like this:
+                <SO>_<SF>_<RO>_<SE>_<RE>_<OF>_<Timestamp>.extension
+
+                SO - sending organization
+                SF - sending facility
+                RO - receiving organization
+                SE - sending environment (test/prod)
+                RE - receiving environment (test/prod)
+                OF - original file name (optional)
+                Timestamp - creation ts of the file
+                Extension - HL7 for hl7, csv for csv, etc
+
+                Examples:
+                OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
+                ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
+                 */
+                val so = "cdcprime"
+                val se = "testing"
+                val re = "testing"
+                val ts = formatter.format(createdDateTime)
+                // have to escape with curly braces because Kotlin allows underscores in variable names
+                "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
+            } else {
+                val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
+                "$namePrefix.$nameSuffix"
+            }
         }
 
         /**
@@ -677,6 +713,7 @@ class Report {
             return if (filename.isNotEmpty())
                 filename
             else {
+                // todo: extend this to use the APHL naming convention
                 formFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
