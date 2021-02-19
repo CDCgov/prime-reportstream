@@ -7,7 +7,7 @@ package gov.cdc.prime.router
  */
 data class OrganizationClient(
     val name: String,
-    val format: Format,
+    val format: Format, // todo change this to Report.Format.  We don't need two format enums!
     val topic: String,
     val schema: String,
 ) {
