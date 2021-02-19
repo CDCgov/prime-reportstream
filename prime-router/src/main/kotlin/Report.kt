@@ -213,6 +213,7 @@ class Report {
         source: Source,
         destination: OrganizationService? = null,
         bodyFormat: Format? = null,
+        itemLineage: List<ItemLineage>? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -220,6 +221,7 @@ class Report {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
+        this.itemLineages = itemLineage
         this.table = createTable(values)
     }
 
