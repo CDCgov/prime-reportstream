@@ -187,9 +187,9 @@
         format: REDOX
 
   - name: pa-chester-phd
-    description: Chester County, Pennsylvania, Department of Health
+    description: Health Department - Chester County, Pennsylvania
     services:
-      - name: elr-chester-download
+      - name: elr-chester-download-local
         topic: covid-19
         schema: strac/strac-covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
@@ -199,9 +199,9 @@
         format: CSV
 
   - name: pa-montgomery-phd
-    description: Montgomery County, Pennsylvania, Department of Health
+    description: Office of Public Health - Montgomery County, Pennsylvania
     services:
-      - name: elr-montgomery-download
+      - name: elr-montgomery-download-local
         topic: covid-19
         schema: strac/strac-covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
