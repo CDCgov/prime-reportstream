@@ -1,17 +1,16 @@
 ---
-# This is a standard schema for HL7.
-# We will use this for all of the on-boarding DOH's that want an
-# HL7 message and then we can extend, modify, etc from there
-name: standard-covid-19
+name: vt-covid-19
 topic: covid-19
-description: A standard file for ELR HL7 messags
 extends: covid-19
+description: A schema for VT DOH to receive HL7 files
 elements:
   - name: sending_application
 
   - name: receiving_application
+    default: NBS^2.16.840.1.114222.4.1.185.1^ISO
 
   - name: receiving_facility
+    default: VDH^2.16.840.1.114222.4.1.185^ISO
 
   - name: comment
 
@@ -247,4 +246,3 @@ elements:
   - name: resident_congregate_setting
 
   - name: symptomatic_for_disease
-

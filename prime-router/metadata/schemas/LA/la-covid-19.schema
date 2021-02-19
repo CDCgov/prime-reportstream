@@ -1,17 +1,19 @@
 ---
-# This is a standard schema for HL7.
-# We will use this for all of the on-boarding DOH's that want an
-# HL7 message and then we can extend, modify, etc from there
-name: standard-covid-19
+name: la-covid-19
+description: LA COVID-19
+trackingElement: message_id
 topic: covid-19
-description: A standard file for ELR HL7 messags
 extends: covid-19
+useAphlNamingFormat: true
+receivingOrganization: LAOPH
 elements:
   - name: sending_application
 
   - name: receiving_application
+    default: LA-ELR
 
   - name: receiving_facility
+    default: LADOH
 
   - name: comment
 
@@ -51,6 +53,8 @@ elements:
 
   - name: ordering_facility_city
 
+  - name: ordering_facility_county
+
   - name: ordering_facility_county_code
 
   - name: ordering_facility_email
@@ -68,6 +72,8 @@ elements:
   - name: ordering_facility_zip_code
 
   - name: ordering_provider_city
+
+  - name: ordering_provider_county
 
   - name: ordering_provider_county_code
 
@@ -94,6 +100,8 @@ elements:
   - name: ordering_provider_zip_code
 
   - name: patient_city
+
+  - name: patient_county
 
   - name: patient_county_code
 
@@ -202,6 +210,8 @@ elements:
   - name: testing_lab_accession_number
 
   - name: testing_lab_city
+
+  - name: testing_lab_county
 
   - name: testing_lab_county_code
 
