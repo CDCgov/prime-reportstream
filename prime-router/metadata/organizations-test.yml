@@ -92,6 +92,22 @@
           timeZone: ARIZONA
         format: CSV
 
+  - name: pentest-pima-az-phd
+    description: Pen testers feed (configured for Pima)
+    services:
+      - name: elr
+        description: Electronic Lab Record
+        topic: covid-19
+        schema: az/pima-az-covid-19
+        jurisdictionalFilter: [ "filterByCounty(AZ, Pima)" ]
+        transforms: { deidentify: false }
+        batch:
+          operation: MERGE
+          numberPerDay: 96 # Every 15 minutes
+          initialBatch: 00:00
+          timeZone: ARIZONA
+        format: CSV
+
   - name: fl-phd
     description: Florida Department of Health
     services:
