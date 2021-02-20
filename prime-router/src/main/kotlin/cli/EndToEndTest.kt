@@ -52,12 +52,12 @@ class EndToEndTest : CliktCommand(
     val sendingOrgClientName = "default"
     val targetStates = "PM"
     val receivngOrgName = "prime"
-    val fakeItemCount = 20
 
     enum class AwesomeTest(val description: String) {
-        end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
         ping("Is the reports endpoint alive and listening?"),
+        end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
         simplereport("Submit our prepared simplereport.csv, wait, confirm via database queries"),
+        // 10,000 lines fake data generation took about 90 seconds on my laptop.  6Meg.
         tenthousand("Submit 10,000 line csv file, wait, confirm via db"),
         merge("Submit multiple files, wait, confirm via db that merge occurred"),
     }
@@ -126,9 +126,47 @@ class EndToEndTest : CliktCommand(
             when (test) {
                 AwesomeTest.ping -> doCheckConnections(sendingOrg, sendingOrgClient, receivingOrg, environment)
                 AwesomeTest.end2end -> doEndToEndTest(sendingOrg, sendingOrgClient, receivingOrg, environment)
+                AwesomeTest.tenthousand -> doGiganticTest(sendingOrg, sendingOrgClient, receivingOrg, environment)
                 else -> echo("Test $test not implemented")
             }
         }
+    }
+
+    private fun doGiganticTest(
+        sendingOrg: Organization,
+        sendingOrgClient: OrganizationClient,
+        receivingOrg: Organization,
+        environment: EndToEndTest.TestingEnvironment
+    ) {
+        val fakeItemCount = 10000
+        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}")
+        // Send to just one type
+        val receivingOrgSvc = receivingOrg.services.find { it.name == "CSV" }
+            ?: error("Unable to find CSV as a sender in ${receivingOrg.name}")
+        echo("Testing ${receivingOrgSvc.name}")
+        val file = createFakeFile(
+            metadata,
+            sendingOrgClient,
+            fakeItemCount,
+            targetStates,
+            receivingOrgSvc.name,
+            dir,
+            Report.Format.CSV
+        )
+        echo("Created datafile $file")
+        // Now send it to the Hub.
+        val (responseCode, json) = postReportFile(environment, file, sendingOrgName, sendingOrgClientName, key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            echo("***EndToEnd Test FAILED***:  response code $responseCode")
+            exitProcess(-1)
+        }
+        val tree = jacksonObjectMapper().readTree(json)
+        val reportId = ReportId.fromString(tree["id"].textValue())
+        echo("Id of submitted report: $reportId")
+        waitABit(fakeItemCount)
+        examineLineageResults(reportId, listOf(receivingOrgSvc), fakeItemCount)
     }
 
     private fun doCheckConnections(
@@ -166,18 +204,18 @@ class EndToEndTest : CliktCommand(
         receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
+        val fakeItemCount = 20
         echo("EndToEndTest of: ${environment.endPoint}")
         val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
         echo("Testing $targetCounties")
-        val report = FakeReport(metadata).build(
-            metadata.findSchema(sendingOrgClient.schema)
-                ?: error("Unable to find schema ${sendingOrgClient.schema}"),
+        val file = createFakeFile(
+            metadata,
+            sendingOrgClient,
             fakeItemCount,
-            FileSource("fake"),
             targetStates,
             targetCounties,
+            dir,
         )
-        val file = ProcessData.writeReportToFile(report, Report.Format.CSV, metadata, dir, null)
         echo("Created datafile $file")
         // Now send it to the Hub.
         val (responseCode, json) = postReportFile(environment, file, sendingOrgName, sendingOrgClientName, key)
@@ -190,7 +228,7 @@ class EndToEndTest : CliktCommand(
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit()
+        waitABit(fakeItemCount)
         examineLineageResults(reportId, receivingOrg.services, fakeItemCount)
     }
 
@@ -224,10 +262,50 @@ class EndToEndTest : CliktCommand(
 
     companion object {
 
-        fun waitABit() {
-            val secondsElapsed = OffsetDateTime.now().second % 60
-            // Wait until 15 seconds after the next minute
-            val wait = 80 - secondsElapsed
+        fun createFakeFile(
+            metadata: Metadata,
+            sendingOrgClient: OrganizationClient,
+            count: Int,
+            targetStates: String? = null,
+            targetCounties: String? = null,
+            directory: String = ".",
+            format: Report.Format = Report.Format.CSV,
+        ): File {
+            val report = createFakeReport(
+                metadata,
+                sendingOrgClient,
+                count,
+                targetStates,
+                targetCounties,
+            )
+            return ProcessData.writeReportToFile(report, format, metadata, directory, null)
+        }
+
+        fun createFakeReport(
+            metadata: Metadata,
+            sendingOrgClient: OrganizationClient,
+            count: Int,
+            targetStates: String? = null,
+            targetCounties: String? = null,
+        ): Report {
+            return FakeReport(metadata).build(
+                metadata.findSchema(sendingOrgClient.schema)
+                    ?: error("Unable to find schema ${sendingOrgClient.schema}"),
+                count,
+                FileSource("fake"),
+                targetStates,
+                targetCounties,
+            )
+        }
+
+        fun waitABit(items: Int) {
+            val wait = if (items <= 100) {
+                val secondsElapsed = OffsetDateTime.now().second % 60
+                // Wait until 15 seconds after the next minute
+                (80 - secondsElapsed)
+            } else {
+                80 + (items / 100) // an additional second for every 100 rows
+            }
             echo("Waiting $wait seconds for the Hub to fully receive, batch, and send the data")
             for (i in 1..wait) {
                 sleep(1000)
