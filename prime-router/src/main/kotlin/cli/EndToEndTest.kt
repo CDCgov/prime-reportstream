@@ -10,6 +10,8 @@ import com.github.ajalt.clikt.parameters.types.choice
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.OrganizationClient
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -22,25 +24,25 @@ import java.io.File
 import java.lang.Thread.sleep
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.OffsetDateTime
 import kotlin.system.exitProcess
 
 class EndToEndTest : CliktCommand(
     name = "test",
     help = """
-    Run tests of the Router functions, either locally or in Azure, by creating test data, submitting it,
-    waiting for processing to complete, then examining the database audit trail to confirm success.
+    Run tests of the Router functions
     
-    Database connection info is supplied by environement variables as follows:
-            export POSTGRES_USER=prime
-            export POSTGRES_PASSWORD=<secret>
-            export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub     <--- should work locally    
+    Database connection info is supplied by environment variables as follows:
 
-    If running against azure, you must also specify
-    auth information to connect to the report submission endpoint.  Currently this is a --key xxxxx secret.
-        
+    export POSTGRES_USER=prime
+
+    export POSTGRES_PASSWORD=<secret>
+
+    export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub     <--- should work locally    
+
     Examples:
-    ./prime test --env local --dbpass xxxxx
-    ./prime test --env test --dbuser prime --dbpass xxxxx --key xxxxxxx
+    ./prime test    This runs all the tests locally.
+    ./prime test --run end2end --env test --key xxxxxxx  Ths runs the end2end test in azure Test env
     """,
 ) {
     lateinit var metadata: Metadata
@@ -51,6 +53,14 @@ class EndToEndTest : CliktCommand(
     val targetStates = "PM"
     val receivngOrgName = "prime"
     val fakeItemCount = 20
+
+    enum class AwesomeTest(val description: String) {
+        end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
+        ping("Is the reports endpoint alive and listening?"),
+        simplereport("Submit our prepared simplereport.csv, wait, confirm via database queries"),
+        tenthousand("Submit 10,000 line csv file, wait, confirm via db"),
+        merge("Submit multiple files, wait, confirm via db that merge occurred"),
+    }
 
     enum class TestingEnvironment(val endPoint: String) {
         // track headers and parameters separate from the base endpoint, since they vary
@@ -69,6 +79,13 @@ class EndToEndTest : CliktCommand(
         help = "Specify reports function access key"
     )
 
+    private val run by option(
+        "--run",
+        metavar = "test1,test2",
+        help = "Specify set of tests to run.   Default is to run all if not specified." +
+            " Allowed tests are:  ${AwesomeTest.values().joinToString(",")}"
+    )
+
     private val env by option(
         "--env",
         help = "Specify 'local' or 'test'.  'local' will connect to ${TestingEnvironment.LOCAL.endPoint}," +
@@ -79,16 +96,23 @@ class EndToEndTest : CliktCommand(
         }
     }
 
-    fun waitABit() {
-        val seconds: Long = 70
-        echo("Waiting $seconds seconds for the Hub to fully receive, batch, and send the data")
-        for (i in 1..seconds / 2) {
-            sleep(2000)
-            print(".")
+    override fun run() {
+        val tests = if (run != null) {
+            run.toString().split(",").mapNotNull {
+                try {
+                    AwesomeTest.valueOf(it)
+                } catch (e: IllegalArgumentException) {
+                    echo("Skipping unknown test: $it")
+                    null
+                }
+            }
+        } else {
+            AwesomeTest.values().toList()
         }
+        doTests(tests)
     }
 
-    private fun endToEndTest() {
+    private fun doTests(tests: List<AwesomeTest>) {
         metadata = Metadata(Metadata.defaultMetadataDirectory)
         val sendingOrg = metadata.findOrganization(sendingOrgName)
             ?: error("Unable to find org '$sendingOrgName' in metadata")
@@ -96,6 +120,53 @@ class EndToEndTest : CliktCommand(
             ?: error("Unable to find sender '$sendingOrgClientName' for organization $sendingOrgName")
         val receivingOrg = metadata.findOrganization(receivngOrgName)
             ?: error("Unable to find org '$receivngOrgName' in metadata")
+        val environment = TestingEnvironment.valueOf(env.toUpperCase())
+
+        tests.forEach { test ->
+            when (test) {
+                AwesomeTest.ping -> doCheckConnections(sendingOrg, sendingOrgClient, receivingOrg, environment)
+                AwesomeTest.end2end -> doEndToEndTest(sendingOrg, sendingOrgClient, receivingOrg, environment)
+                else -> echo("Test $test not implemented")
+            }
+        }
+    }
+
+    private fun doCheckConnections(
+        sendingOrg: Organization,
+        sendingOrgClient: OrganizationClient,
+        receivingOrg: Organization,
+        environment: TestingEnvironment
+    ) {
+        echo("CheckConnections of ${environment.endPoint}")
+        val (responseCode, json) = postReportBytes(
+            environment,
+            "x".toByteArray(),
+            sendingOrgName,
+            sendingOrgClientName,
+            key,
+            ReportFunction.Options.CheckConnections
+        )
+        echo("Response to POST: $responseCode")
+        echo(json)
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            echo("Test FAILED:  response code $responseCode")
+            exitProcess(-1)
+        }
+        val tree = jacksonObjectMapper().readTree(json)
+        if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
+            echo("***CheckConnections Test FAILED***:  Response was $json")
+        } else {
+            echo("CheckConnections Test passed.")
+        }
+    }
+
+    private fun doEndToEndTest(
+        sendingOrg: Organization,
+        sendingOrgClient: OrganizationClient,
+        receivingOrg: Organization,
+        environment: TestingEnvironment
+    ) {
+        echo("EndToEndTest of: ${environment.endPoint}")
         val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
         echo("Testing $targetCounties")
         val report = FakeReport(metadata).build(
@@ -109,13 +180,11 @@ class EndToEndTest : CliktCommand(
         val file = ProcessData.writeReportToFile(report, Report.Format.CSV, metadata, dir, null)
         echo("Created datafile $file")
         // Now send it to the Hub.
-        val environment = TestingEnvironment.valueOf(env.toUpperCase())
-        echo("Sending to: ${environment.endPoint}")
         val (responseCode, json) = postReportFile(environment, file, sendingOrgName, sendingOrgClientName, key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            echo("Test FAILED:  response code $responseCode")
+            echo("***EndToEnd Test FAILED***:  response code $responseCode")
             exitProcess(-1)
         }
         val tree = jacksonObjectMapper().readTree(json)
@@ -139,12 +208,12 @@ class EndToEndTest : CliktCommand(
                     val count = lineageCountQuery(txn, reportId, receiver.name, action)
                     if (count == null || expected != count) {
                         echo(
-                            "***TEST FAILED*** for ${receiver.fullName} action $action: " +
+                            "***EndToEnd TEST FAILED*** for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records but got $count"
                         )
                     } else {
                         echo(
-                            "Test passed: for ${receiver.fullName} action $action: " +
+                            "EndToEnd Test passed: for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records and got $count"
                         )
                     }
@@ -153,11 +222,18 @@ class EndToEndTest : CliktCommand(
         }
     }
 
-    override fun run() {
-        endToEndTest()
-    }
-
     companion object {
+
+        fun waitABit() {
+            val secondsElapsed = OffsetDateTime.now().second % 60
+            // Wait until 15 seconds after the next minute
+            val wait = 80 - secondsElapsed
+            echo("Waiting $wait seconds for the Hub to fully receive, batch, and send the data")
+            for (i in 1..wait) {
+                sleep(1000)
+                print(".")
+            }
+        }
 
         /**
          * A generic function to POST a Prime Data Hub report File to a particular Prime Data Hub Environment,
