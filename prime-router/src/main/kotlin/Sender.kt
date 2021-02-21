@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 /**
  * A `Sender` represents the agent that is sending reports to
  * to the data hub (minus the credentials used by that agent, of course). It
@@ -12,7 +14,8 @@ open class Sender(
     val topic: String,
     val schemaName: String,
 ) {
-    open val fullName: String get() = "$organizationName$fullNameSeparator$name"
+    @get:JsonIgnore
+    val fullName: String get() = "$organizationName$fullNameSeparator$name"
 
     enum class Format(val mimeType: String) {
         CSV("text/csv")

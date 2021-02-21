@@ -39,10 +39,12 @@ open class Receiver(
         schemaName: String,
         format: Report.Format = Report.Format.CSV
     ) : this(name, organizationName, topic, CustomConfiguration(schemaName = schemaName, format = format))
-
-    open val fullName: String get() = "$organizationName$fullNameSeparator$name"
-    open val schemaName: String get() = translation.schemaName
-    open val format: Report.Format get() = translation.format
+    @get:JsonIgnore
+    val fullName: String get() = "$organizationName$fullNameSeparator$name"
+    @get:JsonIgnore
+    val schemaName: String get() = translation.schemaName
+    @get:JsonIgnore
+    val format: Report.Format get() = translation.format
 
     /**
      * Defines how batching of sending should proceed. Allows flexibility of

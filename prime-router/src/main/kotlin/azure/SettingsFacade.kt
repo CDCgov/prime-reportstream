@@ -8,7 +8,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TranslatorConfiguration
@@ -235,7 +234,9 @@ class SettingsFacade(
         }
 
         // The SettingAccess is heavy-weight object (because it contains a Jackson Mapper) so reuse it when possible
-        val common = SettingsFacade(metadata, DatabaseAccess())
+        val common: SettingsFacade by lazy {
+            SettingsFacade(metadata, DatabaseAccess())
+        }
 
         private fun settingTypeFromClass(className: String): SettingType {
             return when (className) {
@@ -278,7 +279,7 @@ class OrganizationAPI
     countyName: String?,
     override var meta: SettingMetadata?,
 ) : Organization(name, description, jurisdiction, stateCode, countyName), SettingAPI {
-    @JsonIgnore
+    @get:JsonIgnore
     override val organizationName: String? = null
     override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
 }
@@ -298,10 +299,7 @@ class SenderAPI
     topic,
     schemaName,
 ),
-    SettingAPI {
-    @JsonIgnore
-    override val fullName: String = ""
-}
+    SettingAPI
 
 class ReceiverAPI
 @JsonCreator constructor(
@@ -326,11 +324,4 @@ class ReceiverAPI
     description,
     transport
 ),
-    SettingAPI {
-    @JsonIgnore
-    override val fullName: String = ""
-    @JsonIgnore
-    override val schemaName: String = ""
-    @JsonIgnore
-    override val format: Report.Format = Report.Format.INTERNAL
-}
+    SettingAPI
