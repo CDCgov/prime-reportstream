@@ -80,12 +80,11 @@ class ReportFunction {
                 }
                 else -> {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
-                    val destinations = mutableListOf<String>()
-                    routeReport(context, workflowEngine, validatedRequest, destinations, actionHistory)
-                    val responseBody = createResponseBody(validatedRequest, destinations, actionHistory)
+                    routeReport(context, workflowEngine, validatedRequest, actionHistory)
+                    val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest.report)
                     actionHistory.trackExternalInputReport(validatedRequest)
-                    createdResponse(request, validatedRequest, responseBody)
+                    createdResponse(request, responseBody)
                 }
             }
             actionHistory.trackActionResult(httpResponseMessage)
@@ -208,7 +207,6 @@ class ReportFunction {
         context: ExecutionContext,
         workflowEngine: WorkflowEngine,
         validatedRequest: ValidatedRequest,
-        destinations: MutableList<String>,
         actionHistory: ActionHistory,
     ) {
         if (validatedRequest.options == Options.ValidatePayload ||
@@ -221,7 +219,7 @@ class ReportFunction {
                 .forEach { (report, service) ->
                     sendToDestination(
                         report, service, context, workflowEngine,
-                        validatedRequest, destinations, actionHistory, txn
+                        validatedRequest, actionHistory, txn
                     )
                 }
         }
@@ -233,14 +231,9 @@ class ReportFunction {
         context: ExecutionContext,
         workflowEngine: WorkflowEngine,
         validatedRequest: ValidatedRequest,
-        destinations: MutableList<String>,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction
     ) {
-        val serviceDescription = if (service.organization.services.size > 1)
-            "${service.organization.description} (${service.name})"
-        else
-            service.organization.description
         val loggerMsg: String
         when {
             validatedRequest.options == Options.SkipSend -> {
@@ -253,16 +246,12 @@ class ReportFunction {
                 val time = service.batch.nextBatchTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                // todo remove this.
-                destinations += "Sending ${batchReport.itemCount} items to $serviceDescription at $time"
                 val event = ReceiverEvent(Event.EventAction.BATCH, service.fullName, time)
                 workflowEngine.dispatchReport(event, batchReport, txn)
                 actionHistory.trackCreatedReport(event, batchReport, service)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             service.format == Report.Format.HL7 -> {
-                // todo Remove this.   Furthermore, this 'immediately' is no longer always true.
-                destinations += "Sending ${report.itemCount} reports to $serviceDescription immediately"
                 report
                     .split()
                     .forEach {
@@ -273,7 +262,6 @@ class ReportFunction {
                 loggerMsg = "Queue: ${report.itemCount} reports"
             }
             else -> {
-                destinations += "Sending ${report.itemCount} items to $serviceDescription immediately"
                 val event = ReportEvent(Event.EventAction.SEND, report.id)
                 workflowEngine.dispatchReport(event, report, txn)
                 actionHistory.trackCreatedReport(event, report, service)
@@ -286,7 +274,6 @@ class ReportFunction {
     // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
     private fun createResponseBody(
         result: ValidatedRequest,
-        destinations: List<String> = emptyList(),
         actionHistory: ActionHistory? = null,
     ): String {
         val factory = JsonFactory()
@@ -346,7 +333,6 @@ class ReportFunction {
 
     private fun createdResponse(
         request: HttpRequestMessage<String?>,
-        validatedRequest: ValidatedRequest,
         responseBody: String,
     ): HttpResponseMessage {
         return request

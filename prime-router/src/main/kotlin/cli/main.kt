@@ -174,5 +174,5 @@ class CompareCsvFiles : CliktCommand(
 }
 
 fun main(args: Array<String>) = RouterCli()
-    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CompareCsvFiles(), EndToEndTest())
+    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CompareCsvFiles(), TestReportStream())
     .main(args)

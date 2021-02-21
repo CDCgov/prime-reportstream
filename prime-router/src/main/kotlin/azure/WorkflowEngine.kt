@@ -103,8 +103,7 @@ class WorkflowEngine(
             )
             recordAction(actionHistory, txn)
         }
-        if (nextEvent != null)
-            queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
+        queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
     }
 
 /**

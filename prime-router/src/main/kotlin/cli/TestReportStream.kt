@@ -27,36 +27,36 @@ import java.net.URL
 import java.time.OffsetDateTime
 import kotlin.system.exitProcess
 
-class EndToEndTest : CliktCommand(
+class TestReportStream : CliktCommand(
     name = "test",
-    help = """
-    Run tests of the Router functions
-    
-    Database connection info is supplied by environment variables as follows:
+    help = """Run tests of the Router functions
 
-    export POSTGRES_USER=prime
+Database connection info is supplied by environment variables, for localhost, and Test, resp.:
 
-    export POSTGRES_PASSWORD=<secret>
+export POSTGRES_USER=prime
+export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+export POSTGRES_PASSWORD=<secret>
 
-    export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub     <--- should work locally    
+export POSTGRES_USER=prime@pdhtest-pgsql
+export POSTGRES_URL=jdbc:postgresql://pdhtest-pgsql.postgres.database.azure.com:5432/prime_data_hub
+export POSTGRES_PASSWORD=<SECRET>
 
-    Examples:
-    ./prime test    This runs all the tests locally.
-    ./prime test --run end2end --env test --key xxxxxxx  Ths runs the end2end test in azure Test env
-    """,
+Examples:
+  ./prime test    This runs all the tests locally.
+  
+./prime test --run ping,end2end --env test --key xxxxxxx  This runs the ping and end2end tests in azure Test
+""",
 ) {
     lateinit var metadata: Metadata
     lateinit var db: DatabaseAccess
 
-    val sendingOrgName = "simple_report"
-    val sendingOrgClientName = "default"
-    val targetStates = "PM"
-    val receivngOrgName = "prime"
+    val receivingStates = "PM"
+    val receivingOrgName = "prime"
 
     enum class AwesomeTest(val description: String) {
         ping("Is the reports endpoint alive and listening?"),
         end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
-        simplereport("Submit our prepared simplereport.csv, wait, confirm via database queries"),
+        strac("Submit our prepared simplereport.csv, wait, confirm via database queries"),
         // 10,000 lines fake data generation took about 90 seconds on my laptop.  6Meg.
         tenthousand("Submit 10,000 line csv file, wait, confirm via db"),
         merge("Submit multiple files, wait, confirm via db that merge occurred"),
@@ -114,48 +114,44 @@ class EndToEndTest : CliktCommand(
 
     private fun doTests(tests: List<AwesomeTest>) {
         metadata = Metadata(Metadata.defaultMetadataDirectory)
-        val sendingOrg = metadata.findOrganization(sendingOrgName)
-            ?: error("Unable to find org '$sendingOrgName' in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == sendingOrgClientName }
-            ?: error("Unable to find sender '$sendingOrgClientName' for organization $sendingOrgName")
-        val receivingOrg = metadata.findOrganization(receivngOrgName)
-            ?: error("Unable to find org '$receivngOrgName' in metadata")
+        val receivingOrg = metadata.findOrganization(receivingOrgName)
+            ?: error("Unable to find org '$receivingOrgName' in metadata")
         val environment = TestingEnvironment.valueOf(env.toUpperCase())
 
         tests.forEach { test ->
             when (test) {
-                AwesomeTest.ping -> doCheckConnections(sendingOrg, sendingOrgClient, receivingOrg, environment)
-                AwesomeTest.end2end -> doEndToEndTest(sendingOrg, sendingOrgClient, receivingOrg, environment)
-                AwesomeTest.tenthousand -> doGiganticTest(sendingOrg, sendingOrgClient, receivingOrg, environment)
+                AwesomeTest.ping -> doCheckConnections(environment)
+                AwesomeTest.end2end -> doEndToEndTest(receivingOrg, environment)
+                AwesomeTest.strac -> doStracTest(receivingOrg, environment)
+                AwesomeTest.tenthousand -> doGiganticTest(receivingOrg, environment)
                 else -> echo("Test $test not implemented")
             }
         }
     }
 
-    private fun doGiganticTest(
-        sendingOrg: Organization,
-        sendingOrgClient: OrganizationClient,
+    private fun doStracTest(
         receivingOrg: Organization,
-        environment: EndToEndTest.TestingEnvironment
+        environment: TestingEnvironment
     ) {
-        val fakeItemCount = 10000
-        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}")
-        // Send to just one type
-        val receivingOrgSvc = receivingOrg.services.find { it.name == "CSV" }
-            ?: error("Unable to find CSV as a sender in ${receivingOrg.name}")
-        echo("Testing ${receivingOrgSvc.name}")
+        val sendingOrg = metadata.findOrganization("strac")
+            ?: error("Unable to find org 'strac' in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+        val fakeItemCount = 20
+        echo("Test sending Strac data to: ${environment.endPoint}")
+        val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
+        echo("Testing $targetCounties")
         val file = createFakeFile(
             metadata,
             sendingOrgClient,
             fakeItemCount,
-            targetStates,
-            receivingOrgSvc.name,
+            receivingStates,
+            targetCounties,
             dir,
-            Report.Format.CSV
         )
         echo("Created datafile $file")
         // Now send it to the Hub.
-        val (responseCode, json) = postReportFile(environment, file, sendingOrgName, sendingOrgClientName, key)
+        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -165,22 +161,58 @@ class EndToEndTest : CliktCommand(
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit(fakeItemCount)
+        waitABit(15, environment)
+        examineLineageResults(reportId, receivingOrg.services, fakeItemCount)
+    }
+
+    private fun doGiganticTest(
+        receivingOrg: Organization,
+        environment: TestingEnvironment
+    ) {
+        val sendingOrg = metadata.findOrganization("simple_report")
+            ?: error("Unable to find org 'simple_report' in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+        val fakeItemCount = 10000
+        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is slow.")
+        // Send to just one type
+        val receivingOrgSvc = receivingOrg.services.find { it.name == "CSV" }
+            ?: error("Unable to find CSV as a sender in ${receivingOrg.name}")
+        echo("Testing ${receivingOrgSvc.name}")
+        val file = createFakeFile(
+            metadata,
+            sendingOrgClient,
+            fakeItemCount,
+            receivingStates,
+            receivingOrgSvc.name,
+            dir,
+            Report.Format.CSV
+        )
+        echo("Created datafile $file")
+        // Now send it to the Hub.
+        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            echo("***EndToEnd Test FAILED***:  response code $responseCode")
+            exitProcess(-1)
+        }
+        val tree = jacksonObjectMapper().readTree(json)
+        val reportId = ReportId.fromString(tree["id"].textValue())
+        echo("Id of submitted report: $reportId")
+        waitABit(20, environment)
         examineLineageResults(reportId, listOf(receivingOrgSvc), fakeItemCount)
     }
 
     private fun doCheckConnections(
-        sendingOrg: Organization,
-        sendingOrgClient: OrganizationClient,
-        receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
         echo("CheckConnections of ${environment.endPoint}")
         val (responseCode, json) = postReportBytes(
             environment,
             "x".toByteArray(),
-            sendingOrgName,
-            sendingOrgClientName,
+            "simple_report",
+            "default",
             key,
             ReportFunction.Options.CheckConnections
         )
@@ -199,11 +231,13 @@ class EndToEndTest : CliktCommand(
     }
 
     private fun doEndToEndTest(
-        sendingOrg: Organization,
-        sendingOrgClient: OrganizationClient,
         receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
+        val sendingOrg = metadata.findOrganization("simple_report")
+            ?: error("Unable to find org 'simple_report' in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
         val fakeItemCount = 20
         echo("EndToEndTest of: ${environment.endPoint}")
         val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
@@ -212,13 +246,13 @@ class EndToEndTest : CliktCommand(
             metadata,
             sendingOrgClient,
             fakeItemCount,
-            targetStates,
+            receivingStates,
             targetCounties,
             dir,
         )
         echo("Created datafile $file")
         // Now send it to the Hub.
-        val (responseCode, json) = postReportFile(environment, file, sendingOrgName, sendingOrgClientName, key)
+        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -228,7 +262,7 @@ class EndToEndTest : CliktCommand(
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit(fakeItemCount)
+        waitABit(15, environment)
         examineLineageResults(reportId, receivingOrg.services, fakeItemCount)
     }
 
@@ -298,16 +332,22 @@ class EndToEndTest : CliktCommand(
             )
         }
 
-        fun waitABit(items: Int) {
-            val wait = if (items <= 100) {
-                val secondsElapsed = OffsetDateTime.now().second % 60
-                // Wait until 15 seconds after the next minute
-                (80 - secondsElapsed)
-            } else {
-                80 + (items / 100) // an additional second for every 100 rows
+        /**
+         * A hack attempt to wait enough time, but not too long, for Hub to finish.
+         * This assumes the batch/send executes on the minute boundary.
+         */
+        fun waitABit(plusSecs: Int, env: TestReportStream.TestingEnvironment) {
+            // seconds elapsed so far in this minute
+            val secsElapsed = OffsetDateTime.now().second % 60
+            // Wait until the top of the next minute, and pluSecs more, for 'batch', and 'send' to finish.
+            var waitSecs = 60 - secsElapsed + plusSecs
+            if (secsElapsed > (60 - plusSecs) || env == TestingEnvironment.TEST) {
+                // Uh oh, we are close to the top of the minute *now*, so 'receive' might not finish in time.
+                // Or, we are in Test, which doesn't execute on the top of the hour.
+                waitSecs += 60
             }
-            echo("Waiting $wait seconds for the Hub to fully receive, batch, and send the data")
-            for (i in 1..wait) {
+            echo("Waiting $waitSecs seconds for the Hub to fully receive, batch, and send the data")
+            for (i in 1..waitSecs) {
                 sleep(1000)
                 print(".")
             }
@@ -319,7 +359,7 @@ class EndToEndTest : CliktCommand(
          * Returns Pair(Http response code, json response text)
          */
         fun postReportFile(
-            environment: EndToEndTest.TestingEnvironment,
+            environment: TestingEnvironment,
             file: File,
             sendingOrgName: String,
             sendingOrgClientName: String? = null,
@@ -336,14 +376,14 @@ class EndToEndTest : CliktCommand(
          * Returns Pair(Http response code, json response text)
          */
         private fun postReportBytes(
-            environment: EndToEndTest.TestingEnvironment,
+            environment: TestingEnvironment,
             bytes: ByteArray,
             sendingOrgName: String,
             sendingOrgClientName: String?,
             key: String?,
             option: ReportFunction.Options?
         ): Pair<Int, String> {
-            var headers = mutableListOf<Pair<String, String>>()
+            val headers = mutableListOf<Pair<String, String>>()
             headers.add("Content-Type" to "text/csv")
             val clientStr = sendingOrgName + if (sendingOrgClientName != null) ".$sendingOrgClientName" else ""
             headers.add("client" to clientStr)
@@ -382,14 +422,14 @@ class EndToEndTest : CliktCommand(
             action: TaskAction,
         ): Int? {
             val ctx = DSL.using(txn)
-            val sql = "select count(*)" +
-                " from item_lineage as IL" +
-                " join report_file as RF on IL.child_report_id = RF.report_id" +
-                " join action as A on A.action_id = RF.action_id" +
-                " where RF.receiving_org_svc = ? " +
-                " and A.action_name = ? " +
-                " and IL.item_lineage_id in" +
-                " (select item_descendants(?))"
+            val sql = """select count(*)
+              from item_lineage as IL
+              join report_file as RF on IL.child_report_id = RF.report_id
+              join action as A on A.action_id = RF.action_id
+              where RF.receiving_org_svc = ? 
+              and A.action_name = ? 
+              and IL.item_lineage_id in 
+              (select item_descendants(?)) """
             return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
         }
     }

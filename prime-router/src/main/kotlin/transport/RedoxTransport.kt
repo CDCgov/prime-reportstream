@@ -67,6 +67,7 @@ class RedoxTransport() : ITransport {
             when (sendResult.status) {
                 ResultStatus.SUCCESS -> successCount++
                 ResultStatus.FAILURE -> nextRetryItems.add(index.toString())
+                else -> { /* do nothing */ }
             }
             sendResult
         }

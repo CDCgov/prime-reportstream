@@ -456,7 +456,7 @@ class ActionHistory {
         if (reportsOut.isNotEmpty()) {
             // Avoid clutter.  Combine reports with one Item, and print combined count.
             var singles = mutableMapOf<String, DestinationData>()
-            reportsOut.forEach { (id, reportFile) ->
+            reportsOut.forEach { (_, reportFile) ->
                 val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
                 val orgSvc = metadata.findService(fullname) ?: return@forEach
                 if (reportFile.itemCount == 1) {
@@ -468,7 +468,7 @@ class ActionHistory {
                     destinationCounter++
                 }
             }
-            singles.forEach { (orgSvcName, destData) ->
+            singles.forEach { (_, destData) ->
                 prettyPrintDestinationJson(jsonGen, destData.orgSvc, destData.sendingAt, destData.count)
                 destinationCounter++
             }

@@ -62,7 +62,7 @@ class DownloadFunction {
         if (authClaims != null) {
             val file: String = request.queryParameters["file"] ?: ""
             if (file.isBlank())
-                return responsePage(request, authClaims, context)
+                return responsePage(request, authClaims)
             else
                 return responseFile(request, file, authClaims, context)
         } else {
@@ -132,8 +132,7 @@ class DownloadFunction {
 
     private fun responsePage(
         request: HttpRequestMessage<String?>,
-        authClaims: AuthClaims,
-        context: ExecutionContext
+        authClaims: AuthClaims
     ): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
         val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchDownloadableHeaders(
@@ -172,7 +171,7 @@ class DownloadFunction {
             val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource)
                 .fetchHeader(reportId, authClaims.organization.name)
             if (header.content == null || header.content.isEmpty())
-                response = responsePage(request, authClaims, context)
+                response = responsePage(request, authClaims)
             else {
                 val filename = Report.formExternalFilename(header)
                 response = request
