@@ -15,6 +15,29 @@ open class Organization(
         STATE,
         COUNTY
     }
+
+    /**
+     * Validate the object and return null or an error message
+     */
+    fun consistencyErrorMessage(): String? {
+        return when (jurisdiction) {
+            Jurisdiction.FEDERAL -> {
+                if (stateCode != null || countyName != null)
+                    "stateCode or countyName not allowed for FEDERAL organizations"
+                else null
+            }
+            Jurisdiction.STATE -> {
+                if (stateCode == null || countyName != null)
+                    "stateCode required for STATE organizations"
+                else null
+            }
+            Jurisdiction.COUNTY -> {
+                if (stateCode == null || countyName == null)
+                    "stateCode and countyName required for COUNTY organizations"
+                else null
+            }
+        }
+    }
 }
 
 /**

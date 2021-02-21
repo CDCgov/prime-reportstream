@@ -11,7 +11,6 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.Tables.SETTING
-import gov.cdc.prime.router.azure.db.Tables.SETTING_HISTORY
 import gov.cdc.prime.router.azure.db.Tables.TASK
 import gov.cdc.prime.router.azure.db.Tables.TASK_SOURCE
 import gov.cdc.prime.router.azure.db.enums.SettingType
@@ -19,10 +18,10 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
-import gov.cdc.prime.router.azure.db.tables.pojos.SettingHistory
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
+import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
 import org.jooq.Configuration
 import org.jooq.DSLContext
@@ -46,8 +45,8 @@ typealias DataAccessTransaction = Configuration
 /**
  * A data access layer for the database. Hides JOOQ, Hikari, JDBC and other low-level abstractions.
  */
-class DatabaseAccess(private val create: DSLContext) {
-    constructor(dataSource: DataSource = hikariDataSource) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
+class DatabaseAccess(private val create: DSLContext) : Logging {
+    constructor(dataSource: DataSource = commonDataSource) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
     constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
 
     class Header(
@@ -244,12 +243,12 @@ class DatabaseAccess(private val create: DSLContext) {
         receiverName: String,
     ): List<Header> {
         val cond = if (since == null) {
-            TASK.SENT_AT.isNotNull()
+            TASK.SENT_AT.isNotNull
                 .and(TASK.RECEIVER_NAME.like("$receiverName%"))
         } else {
             TASK.RECEIVER_NAME.like("$receiverName%")
                 .and(TASK.CREATED_AT.ge(since))
-                .and(TASK.SENT_AT.isNotNull())
+                .and(TASK.SENT_AT.isNotNull)
         }
         val tasks = create
             .selectFrom(TASK)
@@ -278,7 +277,7 @@ class DatabaseAccess(private val create: DSLContext) {
 
         val task = create
             .selectFrom(TASK)
-            .where(TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.like("$orgName%")).and(TASK.SENT_AT.isNotNull()))
+            .where(TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.like("$orgName%")).and(TASK.SENT_AT.isNotNull))
             .fetchOne()
             ?.into(Task::class.java)
             ?: error("Could not find $reportId/$orgName that matches a task")
@@ -334,17 +333,39 @@ class DatabaseAccess(private val create: DSLContext) {
     }
 
     /**
-     * Settings section
+     * Settings queries
      */
 
-    fun fetchSetting(type: SettingType, organizationName: String, name: String, txn: DataAccessTransaction): Setting? {
+    fun fetchSetting(type: SettingType, name: String, parentId: Int?, txn: DataAccessTransaction): Setting? {
         return DSL
             .using(txn)
             .selectFrom(SETTING)
             .where(
+                SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type),
-                SETTING.SETTING_NAME.eq(name),
-                SETTING.ORGANIZATION_NAME.eq(organizationName)
+                SETTING.NAME.eq(name),
+                if (parentId != null) SETTING.ORGANIZATION_ID.eq(parentId) else SETTING.ORGANIZATION_ID.isNull
+            )
+            .fetchOne()
+            ?.into(Setting::class.java)
+    }
+
+    fun fetchSetting(type: SettingType, name: String, organizationName: String, txn: DataAccessTransaction): Setting? {
+        val org = SETTING.`as`("org")
+        val item = SETTING.`as`("item")
+        return DSL
+            .using(txn)
+            .select(item.asterisk())
+            .from(item)
+            .join(org).on(item.ORGANIZATION_ID.eq(org.SETTING_ID))
+            .where(
+                item.IS_ACTIVE.isTrue,
+                item.TYPE.eq(type),
+                item.NAME.eq(name),
+                org.IS_ACTIVE.isTrue,
+                org.TYPE.eq(SettingType.ORGANIZATION),
+                org.ORGANIZATION_ID.isNull,
+                org.NAME.eq(organizationName),
             )
             .fetchOne()
             ?.into(Setting::class.java)
@@ -355,95 +376,139 @@ class DatabaseAccess(private val create: DSLContext) {
             .using(txn)
             .selectFrom(SETTING)
             .where(
+                SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type)
             )
             .fetch()
             .into(Setting::class.java)
     }
 
-    fun fetchSettings(type: SettingType, organizationName: String, txn: DataAccessTransaction): List<Setting> {
+    fun fetchSettings(type: SettingType, organizationId: Int, txn: DataAccessTransaction): List<Setting> {
         return DSL
             .using(txn)
-            .selectFrom(SETTING)
+            .select()
+            .from(SETTING)
             .where(
+                SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type),
-                SETTING.ORGANIZATION_NAME.eq(organizationName)
+                SETTING.ORGANIZATION_ID.eq(organizationId)
             )
             .fetch()
             .into(Setting::class.java)
     }
 
-    fun insertSetting(setting: Setting, txn: DataAccessTransaction) {
-        DSL
+    fun insertSetting(setting: Setting, txn: DataAccessTransaction): Int {
+        return DSL
             .using(txn)
             .insertInto(SETTING)
             .set(SETTING.SETTING_ID, DSL.defaultValue(SETTING.SETTING_ID))
             .set(SETTING.TYPE, setting.type)
-            .set(SETTING.ORGANIZATION_NAME, setting.organizationName)
-            .set(SETTING.SETTING_NAME, setting.settingName)
+            .set(SETTING.ORGANIZATION_ID, setting.organizationId)
+            .set(SETTING.NAME, setting.name)
+            .set(SETTING.IS_ACTIVE, setting.isActive)
+            .set(SETTING.IS_DELETED, setting.isDeleted)
             .set(SETTING.VALUES, setting.values)
             .set(SETTING.VERSION, setting.version)
             .set(SETTING.CREATED_AT, setting.createdAt)
             .set(SETTING.CREATED_BY, setting.createdBy)
-            .execute()
+            .returningResult(SETTING.SETTING_ID)
+            .fetchOne()
+            ?.value1() ?: error("Fetch error")
     }
 
-    fun updateSetting(setting: Setting, txn: DataAccessTransaction) {
+    fun updateOrganizationId(currentOrganizationId: Int, newOrganizationId: Int, txn: DataAccessTransaction) {
         DSL
             .using(txn)
             .update(SETTING)
-            .set(SETTING.VERSION, setting.version)
-            .set(SETTING.VALUES, setting.values)
-            .set(SETTING.CREATED_BY, setting.createdBy)
-            .set(SETTING.CREATED_AT, setting.createdAt)
+            .set(SETTING.ORGANIZATION_ID, newOrganizationId)
             .where(
-                SETTING.TYPE.eq(setting.type),
-                SETTING.SETTING_NAME.eq(setting.settingName),
-                SETTING.ORGANIZATION_NAME.eq(setting.organizationName)
+                SETTING.ORGANIZATION_ID.eq(currentOrganizationId),
+                SETTING.IS_ACTIVE.isTrue
             )
             .execute()
     }
 
-    fun deleteSetting(name: String, organizationName: String, type: SettingType, txn: DataAccessTransaction) {
+    /**
+     * search for a setting and it children, insert a deleted setting for those found
+     */
+    fun insertDeletedSettingAndChildren(settingId: Int, settingMetadata: SettingMetadata, txn: DataAccessTransaction) {
         DSL
             .using(txn)
-            .deleteFrom(SETTING)
+            .insertInto(
+                SETTING,
+                SETTING.TYPE,
+                SETTING.ORGANIZATION_ID,
+                SETTING.NAME,
+                SETTING.VALUES,
+                SETTING.IS_DELETED,
+                SETTING.IS_ACTIVE,
+                SETTING.VERSION,
+                SETTING.CREATED_BY,
+                SETTING.CREATED_AT
+            )
+            .select(
+                DSL
+                    .select(
+                        SETTING.TYPE,
+                        SETTING.ORGANIZATION_ID,
+                        SETTING.NAME,
+                        SETTING.VALUES,
+                        DSL.value(true, SETTING.IS_DELETED),
+                        DSL.value(false, SETTING.IS_ACTIVE),
+                        SETTING.VERSION.plus(1),
+                        DSL.value(settingMetadata.createdBy, SETTING.CREATED_BY),
+                        DSL.value(settingMetadata.createdAt, SETTING.CREATED_AT)
+                    )
+                    .from(SETTING)
+                    .where(
+                        SETTING.SETTING_ID.eq(settingId).or(SETTING.ORGANIZATION_ID.eq(settingId)),
+                        SETTING.IS_ACTIVE.isTrue
+                    )
+            )
+            .execute()
+    }
+
+    fun deactivateSetting(settingId: Int, txn: DataAccessTransaction) {
+        DSL
+            .using(txn)
+            .update(SETTING)
+            .set(SETTING.IS_ACTIVE, false)
+            .where(
+                SETTING.SETTING_ID.eq(settingId)
+            )
+            .execute()
+    }
+
+    fun deactivateSettingAndChildren(settingId: Int, txn: DataAccessTransaction) {
+        DSL
+            .using(txn)
+            .update(SETTING)
+            .set(SETTING.IS_ACTIVE, false)
+            .where(
+                SETTING.SETTING_ID.eq(settingId).or(SETTING.ORGANIZATION_ID.eq(settingId)),
+                SETTING.IS_ACTIVE.isTrue
+            )
+            .execute()
+    }
+
+    /**
+     * Find the current setting version looking through inactive and active settings. Return -1 no setting is found.
+     */
+    fun findSettingVersion(type: SettingType, name: String, organizationId: Int?, txn: DataAccessTransaction): Int {
+        return DSL
+            .using(txn)
+            .select(DSL.max(SETTING.VERSION))
+            .from(SETTING)
             .where(
                 SETTING.TYPE.eq(type),
-                SETTING.SETTING_NAME.eq(name),
-                SETTING.ORGANIZATION_NAME.eq(organizationName)
-            )
-            .execute()
-    }
-
-    fun findSettingVersion(name: String, organizationName: String, type: SettingType, txn: DataAccessTransaction): Int {
-        val record = DSL
-            .using(txn)
-            .select(DSL.max(SETTING_HISTORY.VERSION))
-            .from(SETTING_HISTORY)
-            .where(
-                SETTING_HISTORY.TYPE.eq(type),
-                SETTING_HISTORY.SETTING_NAME.eq(name),
-                SETTING_HISTORY.ORGANIZATION_NAME.eq(organizationName)
+                SETTING.NAME.eq(name),
+                if (organizationId == null)
+                    SETTING.ORGANIZATION_ID.isNull
+                else
+                    SETTING.ORGANIZATION_ID.eq(organizationId)
             )
             .fetchOne()
-        return record?.getValue(DSL.max(SETTING_HISTORY.VERSION)) ?: -1
-    }
-
-    fun insertSettingHistory(settingHistory: SettingHistory, txn: DataAccessTransaction) {
-        DSL
-            .using(txn)
-            .insertInto(SETTING_HISTORY)
-            .set(SETTING_HISTORY.SETTING_ID, DSL.defaultValue(SETTING_HISTORY.SETTING_ID))
-            .set(SETTING_HISTORY.TYPE, settingHistory.type)
-            .set(SETTING_HISTORY.ORGANIZATION_NAME, settingHistory.organizationName)
-            .set(SETTING_HISTORY.SETTING_NAME, settingHistory.settingName)
-            .set(SETTING_HISTORY.VALUES, settingHistory.values)
-            .set(SETTING_HISTORY.IS_DELETED, settingHistory.isDeleted)
-            .set(SETTING_HISTORY.VERSION, settingHistory.version)
-            .set(SETTING_HISTORY.CREATED_AT, settingHistory.createdAt)
-            .set(SETTING_HISTORY.CREATED_BY, settingHistory.createdBy)
-            .execute()
+            ?.getValue(DSL.max(SETTING.VERSION)) ?: -1
     }
 
     /**
@@ -459,7 +524,7 @@ class DatabaseAccess(private val create: DSLContext) {
          * That is functions amortize startup costs by reusing an existing process for a function invocation.
          * Hence, a connection pool is a win in latency after the first initialization.
          */
-        val hikariDataSource: HikariDataSource by lazy {
+        private val hikariDataSource: HikariDataSource by lazy {
             DriverManager.registerDriver(Driver())
 
             val password = System.getenv(passwordVariable)
@@ -489,7 +554,7 @@ class DatabaseAccess(private val create: DSLContext) {
             dataSource
         }
 
-        val dataSource: DataSource get() = hikariDataSource
+        val commonDataSource: DataSource get() = hikariDataSource
 
         fun toSource(taskSource: TaskSource): Source {
             return when {

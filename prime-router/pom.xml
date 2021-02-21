@@ -29,7 +29,7 @@
 
         <jackson.version>2.11.3</jackson.version>
         <hapi.version>2.3</hapi.version>
-        <jooq.version>3.14.3</jooq.version>
+        <jooq.version>3.14.7</jooq.version>
         <log4j.version>[2.13.2,)</log4j.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
@@ -400,6 +400,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api-kotlin</artifactId>
             <version>1.0.0</version>
         </dependency>
@@ -557,11 +562,6 @@
             <groupId>org.jooq</groupId>
             <artifactId>jooq-kotlin</artifactId>
             <version>${jooq.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-          <version>1.7.30</version>
         </dependency>
     </dependencies>
 </project>

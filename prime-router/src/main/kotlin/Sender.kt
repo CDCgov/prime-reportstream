@@ -12,10 +12,18 @@ open class Sender(
     val topic: String,
     val schemaName: String,
 ) {
-    val fullName: String get() = "$organizationName$fullNameSeparator$name"
+    open val fullName: String get() = "$organizationName$fullNameSeparator$name"
 
     enum class Format(val mimeType: String) {
         CSV("text/csv")
+    }
+
+    /**
+     * Validate the object and return null or an error message
+     */
+    fun consistencyErrorMessage(metadata: Metadata): String? {
+        if (metadata.findSchema(schemaName) == null) return "Invalid schemaName: $schemaName"
+        return null
     }
 
     companion object {

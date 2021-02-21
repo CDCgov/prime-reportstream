@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -39,9 +40,9 @@ open class Receiver(
         format: Report.Format = Report.Format.CSV
     ) : this(name, organizationName, topic, CustomConfiguration(schemaName = schemaName, format = format))
 
-    val fullName: String get() = "$organizationName$fullNameSeparator$name"
-    val schemaName: String get() = translation.schemaName
-    val format: Report.Format get() = translation.format
+    open val fullName: String get() = "$organizationName$fullNameSeparator$name"
+    open val schemaName: String get() = translation.schemaName
+    open val format: Report.Format get() = translation.format
 
     /**
      * Defines how batching of sending should proceed. Allows flexibility of
@@ -82,6 +83,7 @@ open class Receiver(
                 .toOffsetDateTime()
         }
 
+        @JsonIgnore
         fun isValid(): Boolean {
             return numberPerDay in 1..(24 * 60)
         }
@@ -90,6 +92,27 @@ open class Receiver(
     enum class BatchOperation {
         NONE,
         MERGE
+    }
+
+    /**
+     * Validate the object and return null or an error message
+     */
+    fun consistencyErrorMessage(metadata: Metadata): String? {
+        when (translation) {
+            is CustomConfiguration -> {
+                if (metadata.findSchema(translation.schemaName) == null)
+                    return "Invalid schemaName: ${translation.schemaName}"
+            }
+            is Hl7Configuration -> {
+                if (transport is RedoxTransportType)
+                    return "HL7 configurations should have have Redox transports"
+            }
+            is RedoxConfiguration -> {
+                if (transport !is RedoxTransportType)
+                    return "Redox configurations should have Redox transports"
+            }
+        }
+        return null
     }
 
     companion object {

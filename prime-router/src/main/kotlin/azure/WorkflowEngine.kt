@@ -201,8 +201,13 @@ class WorkflowEngine(
         val settings: SettingsProvider by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
-            val ext = primeEnv?.let { "-$it" } ?: ""
-            FileSettings("$baseDir/settings", orgExt = ext)
+            val settingsEnabled = System.getenv("PRIME_FEATURE_FLAG_SETTINGS_ENABLED")
+            if (settingsEnabled.equals("true", ignoreCase = true)) {
+                SettingsFacade(metadata)
+            } else {
+                val ext = primeEnv?.let { "-$it" } ?: ""
+                FileSettings("$baseDir/settings", orgExt = ext)
+            }
         }
 
         val csvSerializer: CsvSerializer by lazy {
