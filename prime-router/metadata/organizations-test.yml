@@ -113,19 +113,118 @@
     services:
       - name: elr
         topic: covid-19
-        schema: covid-19
+        schema: fl/fl-covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
         transforms: { deidentify: false }
         format: HL7_BATCH
+        batch:
+          operation: MERGE
+          numberPerDay: 96 # Every 15 minutes
+          initialBatch: 00:00
+          timeZone: EASTERN
+        transports:
+          - type: SFTP
+            host: ww12.doh.state.fl.us
+            port: 22
+            filePath:
 
   - name: nd-doh
     description: North Dakota Department of Health
     services:
       - name: elr
         topic: covid-19
-        schema: covid-19
+        schema: nd/nd-covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
         format: HL7_BATCH
+        batch:
+          operation: MERGE
+          numberPerDay: 96
+          initialBatch: 00:00
+          timeZone: CENTRAL
+        transports:
+          - type: SFTP
+            host: mft.nd.gov
+            port: 22
+            filePath: /Home/dohdcmsg/nddoh_elr/hl7
+
+  - name: oh-odh
+    description: Ohio Department of Health
+    services:
+      - name: elr
+        topic: covid-19
+        schema: oh/oh-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, OH)" ]
+        format: HL7_BATCH
+        batch:
+          operation: MERGE
+          numberPerDay: 1
+          initialBatch: 02:00
+          timeZone: EASTERN
+        transports:
+          - type: SFTP
+            host: 156.63.28.72
+            port: 4022
+            filePath: CDC-ELR/TestFiles
+
+  - name: vt-doh
+    description: Vermont Department of Health
+    services:
+      - name: elr
+        topic: covid-19
+        schema: vt/vt-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, VT)" ]
+        format: HL7_BATCH
+        batch:
+          operation: MERGE
+          numberPerDay: 96
+          initialBatch: 00:00
+          timeZone: EASTERN
+
+  - name: tx-doh
+    description: Texas Department of Health
+    services:
+      - name: elr
+        topic: covid-19
+        schema: tx/tx-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, TX)" ]
+        format: HL7_BATCH
+        batch:
+          operation: MERGE
+          numberPerDay: 96
+          initialBatch: 00:00
+          timeZone: CENTRAL
+
+  - name: la-doh
+    description: Louisiana Department of Health
+    services:
+      - name: elr
+        topic: covid-19
+        schema: la/la-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, LA)" ]
+        format: HL7_BATCH
+        batch:
+          operation: MERGE
+          numberPerDay: 96
+          initialBatch: 00:00
+          timeZone: CENTRAL
+        transports:
+          - type: SFTP
+            host: 204.58.124.41
+            port: 22
+
+  - name: nm-doh
+    description: New Mexico Department of Health
+    services:
+      - name: elr
+        topic: covid-19
+        schema: nm/nm-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, NM)" ]
+        format: HL7_BATCH
+        batch:
+          operation: MERGE
+          numberPerDay: 96
+          initialBatch: 00:00
+          timeZone: MOUNTAIN
         
   - name: co-phd
     description: Colorado Department of Health
