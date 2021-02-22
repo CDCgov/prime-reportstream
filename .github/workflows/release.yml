@@ -5,6 +5,7 @@ on:
     # Disable master branch for pentesting
     # branches: [ master, production ]
     branches: [ production ]
+  workflow_dispatch:
 
 defaults:
   run:
