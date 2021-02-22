@@ -2,7 +2,9 @@ name: Prime Data Hub
 
 on:
   push:
-    branches: [ master, production ]
+    # Disable master branch for pentesting
+    # branches: [ master, production ]
+    branches: [ production ]
 
 defaults:
   run:
