@@ -227,21 +227,21 @@
             host: sftp
             port: 22
             filePath: ./upload
-      - name: hl7-test
-        topic: covid-19
-        schema: tx/tx-covid-19-hl7
-        jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, HL7)" ]
-        batch:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialBatch: 00:00
-          timeZone: ARIZONA
-        format: HL7
-        transports:
-          - type: SFTP
-            host: sftp
-            port: 22
-            filePath: ./upload
+  #    - name: hl7-test
+  #      topic: covid-19
+  #      schema: tx/tx-covid-19-hl7
+  #      jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, HL7)" ]
+  #      batch:
+  #        operation: MERGE
+  #        numberPerDay: 1440 # Every minute
+  #        initialBatch: 00:00
+  #        timeZone: ARIZONA
+  #      format: HL7
+  #      transports:
+  #        - type: SFTP
+  #          host: sftp
+  #          port: 22
+  #          filePath: ./upload
       - name: hl7-batch-test
         topic: covid-19
         schema: az/az-covid-19-hl7
