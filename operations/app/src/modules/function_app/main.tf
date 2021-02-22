@@ -70,7 +70,7 @@ resource "azurerm_function_app" "function_app" {
 
     "OKTA_baseUrl" = "hhs-prime.okta.com"
     "OKTA_clientId" = var.okta_client_id
-    "OKTA_redirect" = (var.environment == "prod" ? "https://prime.cdc.gov/download" : "https://prime-data-hub-test.azurefd.net/api/download")
+    "OKTA_redirect" = (var.environment == "prod" ? "https://prime.cdc.gov/download" : (var.environment == "staging" ? "https://prime-data-hub-staging.azurefd.net/download" : "https://prime-data-hub-test.azurefd.net/download"))
 
     # Test and Prod both need each set of credentials for various
     # means of testing configurations

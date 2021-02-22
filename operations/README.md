@@ -7,7 +7,7 @@ To ensure our Terraform state is managed with consistent Terraform versions, we 
 
 ## Run Terraform interactively
 
-```docker-compose run {dev,test,prod}```
+```docker-compose run {dev,test,staging,prod}```
 
 Running the above command will drop you into an interactive bash terminal for the designated environment.
 
@@ -52,7 +52,7 @@ terraform apply plan.out
 
 ## Terraform development
 
-Once you are authenticated with Azure CLI, you can access your locally stored terraform state through the bind mount.  If you are developing for the `test` or `prod` environments, the terraform state will be stored in the respective Azure storage account. Within `dev` you will be prompted to enter your developer name (eg. cglodosky) to deploy to the appropriate resource group.
+Once you are authenticated with Azure CLI, you can access your locally stored terraform state through the bind mount.  If you are developing for the `test`, `staging`, or `prod` environments, the terraform state will be stored in the respective Azure storage account. Within `dev` you will be prompted to enter your developer name (eg. cglodosky) to deploy to the appropriate resource group.
 
 
 ## Changing the Dockerfile
