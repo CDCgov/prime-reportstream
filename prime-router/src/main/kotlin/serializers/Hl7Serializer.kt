@@ -444,7 +444,16 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
         terser.set(formPathSpec("OBX-29", aoeRep), "QST")
+        // all of these values must be set on the OBX AOE's for validation
         terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
+        terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
+        terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
+        terser.set(formPathSpec("OBX-24-1", aoeRep), report.getStringByHl7Field(row, "OBX-24-1"))
+        terser.set(formPathSpec("OBX-24-2", aoeRep), report.getStringByHl7Field(row, "OBX-24-2"))
+        terser.set(formPathSpec("OBX-24-3", aoeRep), report.getStringByHl7Field(row, "OBX-24-3"))
+        terser.set(formPathSpec("OBX-24-4", aoeRep), report.getStringByHl7Field(row, "OBX-24-4"))
+        terser.set(formPathSpec("OBX-24-5", aoeRep), report.getStringByHl7Field(row, "OBX-24-5"))
+        terser.set(formPathSpec("OBX-24-9", aoeRep), report.getStringByHl7Field(row, "OBX-24-9"))
     }
 
     private fun setNote(terser: Terser, value: String) {
@@ -472,12 +481,19 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set("SFT-6", buildDate)
 
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
+        terser.set("/PATIENT_RESULT/PATIENT/PID-3-4-3", "ISO")
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-2-4", "ISO")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "ISO")
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-1", "1")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-2-4", "ISO")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-3-4", "ISO")
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-1", "1")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-2-1-4", "ISO")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-2-2-4", "ISO")
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
