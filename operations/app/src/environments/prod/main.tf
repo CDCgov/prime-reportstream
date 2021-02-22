@@ -29,11 +29,5 @@ module "prime_data_hub" {
   environment = local.target_env
   resource_group = "prime-data-hub-${local.target_env}"
   resource_prefix = "pdhprod"
-  postgres_user = var.postgres_user
-  postgres_password = var.postgres_password
-  redox_secret = var.redox_secret
-  okta_client_id = var.okta_client_id
-  az_phd_user = var.az_phd_user
-  az_phd_password = var.az_phd_password
   https_cert_name = "prime-cdc-gov"
 }

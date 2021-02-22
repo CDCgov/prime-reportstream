@@ -39,13 +39,9 @@ module "function_app" {
     storage_account_name = module.storage.storage_account_name
     storage_account_key = module.storage.storage_account_key
     public_subnet_id = module.network.public_subnet_id
-    postgres_user = "${var.postgres_user}@${module.database.server_name}"
-    postgres_password = var.postgres_password
+    postgres_user = "${module.database.postgres_user}@${module.database.server_name}"
+    postgres_password = module.database.postgres_pass
     postgres_url = "jdbc:postgresql://${module.database.server_name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
-    redox_secret = var.redox_secret
-    okta_client_id = var.okta_client_id
-    az_phd_user = var.az_phd_user
-    az_phd_password = var.az_phd_password
     login_server = module.container_registry.login_server
     admin_user = module.container_registry.admin_username
     admin_password = module.container_registry.admin_password
@@ -58,10 +54,9 @@ module "database" {
     resource_group = var.resource_group
     name = "${var.resource_prefix}-pgsql"
     location = local.location
-    postgres_user = var.postgres_user
-    postgres_password = var.postgres_password
     public_subnet_id = module.network.public_subnet_id
     private_subnet_id = module.network.private_subnet_id
+    app_config_key_vault_id = module.key_vault.app_config_key_vault_id
 }
 
 module "key_vault" {
@@ -104,7 +99,7 @@ module "metabase" {
     location = local.location
     app_service_plan_id = module.function_app.app_service_plan_id
     public_subnet_id = module.network.public_subnet_id
-    postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${module.database.server_name}&password=${var.postgres_password}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${module.database.postgres_user}&password=${module.database.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
     ai_instrumentation_key = module.application_insights.instrumentation_key
 }
 

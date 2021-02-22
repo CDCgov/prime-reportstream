@@ -18,18 +18,6 @@ variable "location" {
     description = "Database Server Location"
 }
 
-variable "postgres_user" {
-    type = string
-    description = "Database Server Username"
-    sensitive = true
-}
-
-variable "postgres_password" {
-    type = string
-    description = "Database Server Password"
-    sensitive = true
-}
-
 variable "public_subnet_id" {
     type = string
     description = "Public Subnet ID"
@@ -38,4 +26,9 @@ variable "public_subnet_id" {
 variable "private_subnet_id" {
     type = string
     description = "Private Subnet ID"
+}
+
+variable "app_config_key_vault_id" {
+    type = string
+    description = "Key Vault used for database user/pass"
 }
