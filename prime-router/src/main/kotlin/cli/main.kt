@@ -145,19 +145,19 @@ class ProcessData : CliktCommand(
     )
 
     // Fake data configuration
-    private val targetState: String? by
+    private val targetStates: String? by
     option(
-        "--target-state",
+        "--target-states",
         metavar = "<abbrev>",
-        help = "when using --input-fake, fill geographic fields using this state. " +
-            "This should be a two-letter abbreviation, e.g. 'FL' for Florida."
+        help = "when using --input-fake, fill geographic fields using these states, separated by commas. " +
+            "States should be two letters, e.g. 'FL'"
     )
 
-    private val targetCounty: String? by
+    private val targetCounties: String? by
     option(
-        "--target-county",
+        "--target-counties",
         metavar = "<name>",
-        help = "when using --input-fake, fill county-related fields with this county name."
+        help = "when using --input-fake, fill county-related fields with these county names, separated by commas."
     )
     private val receivingApplication by option(
         "--receiving-application",
@@ -193,7 +193,8 @@ class ProcessData : CliktCommand(
         return if (file.extension.toUpperCase() == "INTERNAL") {
             csvSerializer.readInternal(schema.name, file.inputStream(), listOf(FileSource(file.nameWithoutExtension)))
         } else {
-            val result = csvSerializer.read(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
+            val result =
+                csvSerializer.readExternal(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
             if (result.report == null) {
                 error(result.errorsToString())
             }
@@ -233,7 +234,9 @@ class ProcessData : CliktCommand(
                         report.id,
                         report.schema.baseName,
                         format,
-                        report.createdDateTime
+                        report.createdDateTime,
+                        report.schema.useAphlNamingFormat,
+                        report.schema.receivingOrganization
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -292,8 +295,8 @@ class ProcessData : CliktCommand(
                     schema,
                     (inputSource as InputSource.FakeSource).count,
                     FileSource("fake"),
-                    targetState,
-                    targetCounty
+                    targetStates,
+                    targetCounties
                 )
             }
             else -> {
@@ -324,7 +327,7 @@ class ProcessData : CliktCommand(
 
         if (!validate) TODO("validation cannot currently be disabled")
         if (send) TODO("--send is not implemented")
-        if (synthesize) inputReport = inputReport.synthesizeData(synthesizeStrategies, targetState, targetCounty)
+        if (synthesize) inputReport = inputReport.synthesizeData(synthesizeStrategies, targetStates, targetCounties)
 
         // Transform reports
         val translator = Translator(metadata)

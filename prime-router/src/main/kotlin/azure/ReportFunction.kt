@@ -187,7 +187,7 @@ class ReportFunction {
         return when (client.format) {
             OrganizationClient.Format.CSV -> {
                 try {
-                    val readResult = engine.csvSerializer.read(
+                    val readResult = engine.csvSerializer.readExternal(
                         schemaName = client.schema,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = client.organization.name, client = client.name)),

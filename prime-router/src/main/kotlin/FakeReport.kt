@@ -265,10 +265,14 @@ class FakeReport(val metadata: Metadata) {
         schema: Schema,
         count: Int = 10,
         source: Source,
-        targetState: String? = null,
-        targetCounty: String? = null
+        targetStates: String? = null,
+        targetCounties: String? = null
     ): Report {
-        val rows = (0 until count).map { buildRow(schema, targetState, targetCounty) }.toList()
+        val counties = targetCounties?.split(",")
+        val states = targetStates?.split(",")
+        val rows = (0 until count).map {
+            buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties))
+        }.toList()
         return Report(schema, rows, listOf(source))
     }
 
@@ -282,6 +286,33 @@ class FakeReport(val metadata: Metadata) {
             if (choices.isEmpty()) return ""
             val random = Random()
             return choices[random.nextInt(choices.size)]
+        }
+
+        private fun randomChoices(vararg choices: String): List<String> {
+            val random = Random()
+            if (choices.isEmpty() || random.nextBoolean()) return emptyList()
+
+            val selectedValues = mutableListOf<String>()
+            val limit = random.nextInt(choices.size)
+            for (i in 0..limit) {
+                selectedValues.add(choices[random.nextInt(choices.size)])
+            }
+
+            return selectedValues.toList()
+        }
+
+        /**
+         * The round robin choices is a nice option for building data with a predictable set of values.
+         * eg, if I know I have two state choices, and I generate 10 rows, I'm guaranteed 5 of each.
+         * Very nice for generating fake data for automated tests.
+         */
+        // Is hashing on an entire list a good idea?
+        var iteratorStore = mutableMapOf<List<String>, Int>()
+        private fun roundRobinChoice(list: List<String>?): String? {
+            if (list == null) return null
+            val next = ((iteratorStore[list] ?: -1) + 1) % list.size
+            iteratorStore[list] = next
+            return list[next]
         }
     }
 }
