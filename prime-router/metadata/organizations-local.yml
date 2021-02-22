@@ -116,7 +116,7 @@
     services:
       - name: elr-test
         topic: covid-19
-        schema: tx/tx-covid-19-hl7
+        schema: tx/tx-covid-19
         jurisdictionalFilter:
          - "matches(ordering_facility_state, TX)"
          - "matches(processing_mode_code, T)"
@@ -129,7 +129,7 @@
         format: HL7
       - name: elr-debug
         topic: covid-19
-        schema: tx/tx-covid-19-hl7
+        schema: tx/tx-covid-19
         jurisdictionalFilter:
           - "matches(ordering_facility_state, TX)"
           - "matches(processing_mode_code, D)"
@@ -185,6 +185,30 @@
           redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
           redox_source_name: "Prime Data Hub (Staging)"
         format: REDOX
+
+  - name: pa-chester-phd
+    description: Health Department - Chester County, Pennsylvania
+    services:
+      - name: elr-chester-download-local
+        topic: covid-19
+        schema: strac/strac-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+        transforms: { deidentify: false }
+        defaults:
+          processing_mode_code: T
+        format: CSV
+
+  - name: pa-montgomery-phd
+    description: Office of Public Health - Montgomery County, Pennsylvania
+    services:
+      - name: elr-montgomery-download-local
+        topic: covid-19
+        schema: strac/strac-covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+        transforms: { deidentify: false }
+        defaults:
+          processing_mode_code: T
+        format: CSV
 
   - name: prime
     description: Prime Test Receiver

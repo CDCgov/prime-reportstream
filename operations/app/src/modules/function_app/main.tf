@@ -54,7 +54,7 @@ resource "azurerm_function_app" "function_app" {
     scm_use_main_ip_restriction = true
 
     http2_enabled = true
-    always_on = true
+    always_on = (var.environment == "prod" ? null : true)
     use_32_bit_worker_process = false
     linux_fx_version = "DOCKER|${var.login_server}/${var.resource_prefix}:latest"
   }
@@ -89,8 +89,17 @@ resource "azurerm_function_app" "function_app" {
     "DOCKER_REGISTRY_SERVER_URL" = var.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user
     "DOCKER_REGISTRY_SERVER_PASSWORD" = var.admin_password
+    "DOCKER_CUSTOM_IMAGE_NAME" = "${var.login_server}/${var.resource_prefix}:latest"
+
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
+
     "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
+
+    "FUNCTION_APP_EDIT_MODE" = (var.environment == "prod" ? "readOnly" : null)
+    "MACHINEKEY_DecryptionKey" = (var.environment == "prod" ? data.azurerm_function_app.app_data.app_settings.MACHINEKEY_DecryptionKey : null)
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = (var.environment == "prod" ? data.azurerm_function_app.app_data.app_settings.WEBSITE_CONTENTAZUREFILECONNECTIONSTRING : null)
+    "WEBSITE_CONTENTSHARE" = (var.environment == "prod" ? "${var.resource_prefix}-functionapp" : null)
+    "WEBSITE_HTTPLOGGING_RETENTION_DAYS" = (var.environment == "prod" ? 3 : null)
   }
 
   tags = {
@@ -101,6 +110,11 @@ resource "azurerm_function_app" "function_app" {
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
   app_service_id = azurerm_function_app.function_app.id
   subnet_id = var.public_subnet_id
+}
+
+data "azurerm_function_app" "app_data" {
+  name = "${var.resource_prefix}-functionapp"
+  resource_group_name = var.resource_group
 }
 
 module "functionapp_app_log_event_hub_log" {

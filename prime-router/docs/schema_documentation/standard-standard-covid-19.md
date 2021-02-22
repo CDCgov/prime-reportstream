@@ -217,6 +217,8 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Type**: ID
 
+**HL7 Field**: ORC-3-1
+
 **Cardinality**: [0..1]
 
 ---
@@ -928,7 +930,11 @@ The patient's second address line
 
 ---
 
-**Name**: pattient_suffix
+**Name**: patient_suffix
+
+**Type**: PERSON_NAME
+
+**HL7 Field**: PID-5-4
 
 **Cardinality**: [0..1]
 
@@ -1727,15 +1733,74 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 ---
 
-**Name**: speciment_collection_method
+**Name**: specimen_collection_method
+
+**Type**: CODE
+
+**HL7 Field**: SPM-7
 
 **Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+ANP|Plates, Anaerobic
+BAP|Plates, Blood Agar
+BCAE|Blood Culture, Aerobic Bottle
+BCAN|Blood Culture, Anaerobic Bottle
+BCPD|Blood Culture, Pediatric Bottle
+BIO|Biopsy
+CAP|Capillary Specimen
+CATH|Catheterized
+CVP|Line, CVP
+EPLA|Environmental, Plate
+ESWA|Environmental, Swab
+FNA|Aspiration, Fine Needle
+KOFFP|Plate, Cough
+LNA|Line, Arterial
+LNV|Line, Venous
+MARTL|Martin-Lewis Agar
+ML11|Mod. Martin-Lewis Agar
+MLP|Plate, Martin-Lewis
+NYP|Plate, New York City
+PACE|Pace, Gen-Probe
+PIN|Pinworm Prep
+PNA|Aterial puncture
+PRIME|Pump Prime
+PUMP|Pump Specimen
+QC5|Quality Control For Micro
+SCLP|Scalp, Fetal Vein
+SCRAPS|Scrapings
+SHA|Shaving
+SWA|Swab
+SWD|Swab, Dacron tipped
+TMAN|Transport Media, Anaerobic
+TMCH|Transport Media, Chalamydia
+TMM4|Transport Media, M4
+TMMY|Transport Media, Mycoplasma
+TMOT|Transport Media
+TMP|Plate, Thayer-Martin
+TMPV|Transport Media, PVA
+TMSC|Transport Media, Stool Culture
+TMUP|Transport Media, Ureaplasma
+TMVI|Transport Media, Viral
+VENIP|Venipuncture
+WOOD|Swab, Wooden Shaft
 
 ---
 
-**Name**: speciment_collection_site
+**Name**: specimen_collection_site
+
+**Type**: TEXT
+
+**HL7 Field**: SPM-10
 
 **Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10) 
 
 ---
 
@@ -1757,28 +1822,11 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Type**: EI
 
-**HL7 Field**: SPM-2
-
 **Cardinality**: [0..1]
 
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
----
-
-**Name**: specimen_received_date_time
-
-**Type**: DATETIME
-
-**HL7 Field**: SPM-18
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
-
 
 ---
 
@@ -2007,8 +2055,6 @@ Z|No record of this patient
 
 **Type**: ID
 
-**HL7 Field**: OBR-3-1
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -2106,7 +2152,7 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-18
+**HL7 Field**: SPM-18-1
 
 **Cardinality**: [0..1]
 
@@ -2294,6 +2340,29 @@ Is the patient in the ICU?
 
 ---
 
+**Name**: patient_age_units
+
+**Type**: CODE
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+min|minutes
+h|hours
+d|days
+wk|weeks
+mo|months
+a|years
+
+**Documentation**:
+
+Always filled when `patient_age` is filled
+
+---
+
 **Name**: resident_congregate_setting
 
 **Type**: CODE
@@ -2448,29 +2517,6 @@ UNK|Unknown
 
 ---
 
-**Name**: patient_age_units
-
-**Type**: CODE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-min|minutes
-h|hours
-d|days
-wk|weeks
-mo|months
-a|years
-
-**Documentation**:
-
-Always filled when `patient_age` is filled
-
----
-
 **Name**: patient_county
 
 **Type**: TABLE_OR_BLANK
@@ -2496,16 +2542,6 @@ Always filled when `patient_age` is filled
 **Type**: PERSON_NAME
 
 **HL7 Field**: PID-5-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_suffix
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-4
 
 **Cardinality**: [0..1]
 
@@ -2546,77 +2582,6 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 **HL7 Field**: OBR-31
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: specimen_collection_method
-
-**Type**: CODE
-
-**HL7 Field**: SPM-7
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-ANP|Plates, Anaerobic
-BAP|Plates, Blood Agar
-BCAE|Blood Culture, Aerobic Bottle
-BCAN|Blood Culture, Anaerobic Bottle
-BCPD|Blood Culture, Pediatric Bottle
-BIO|Biopsy
-CAP|Capillary Specimen
-CATH|Catheterized
-CVP|Line, CVP
-EPLA|Environmental, Plate
-ESWA|Environmental, Swab
-FNA|Aspiration, Fine Needle
-KOFFP|Plate, Cough
-LNA|Line, Arterial
-LNV|Line, Venous
-MARTL|Martin-Lewis Agar
-ML11|Mod. Martin-Lewis Agar
-MLP|Plate, Martin-Lewis
-NYP|Plate, New York City
-PACE|Pace, Gen-Probe
-PIN|Pinworm Prep
-PNA|Aterial puncture
-PRIME|Pump Prime
-PUMP|Pump Specimen
-QC5|Quality Control For Micro
-SCLP|Scalp, Fetal Vein
-SCRAPS|Scrapings
-SHA|Shaving
-SWA|Swab
-SWD|Swab, Dacron tipped
-TMAN|Transport Media, Anaerobic
-TMCH|Transport Media, Chalamydia
-TMM4|Transport Media, M4
-TMMY|Transport Media, Mycoplasma
-TMOT|Transport Media
-TMP|Plate, Thayer-Martin
-TMPV|Transport Media, PVA
-TMSC|Transport Media, Stool Culture
-TMUP|Transport Media, Ureaplasma
-TMVI|Transport Media, Viral
-VENIP|Venipuncture
-WOOD|Swab, Wooden Shaft
-
----
-
-**Name**: specimen_collection_site
-
-**Type**: TEXT
-
-**HL7 Field**: SPM-10
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10) 
 
 ---
 
