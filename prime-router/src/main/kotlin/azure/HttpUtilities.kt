@@ -8,7 +8,7 @@ import java.time.OffsetDateTime
 
 class HttpUtilities {
     companion object {
-        private const val jsonMediaType = "application/json"
+        const val jsonMediaType = "application/json"
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
@@ -59,6 +59,17 @@ class HttpUtilities {
                 .build()
         }
 
+        fun unauthorizedResponse(
+            request: HttpRequestMessage<String?>,
+            responseBody: String,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.UNAUTHORIZED)
+                .body(responseBody)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .build()
+        }
+
         fun notFoundResponse(
             request: HttpRequestMessage<String?>
         ): HttpResponseMessage {
@@ -76,6 +87,10 @@ class HttpUtilities {
                 .body(body)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .build()
+        }
+
+        fun errorJson(message: String): String {
+            return """{"error": "$message"}"""
         }
     }
 }

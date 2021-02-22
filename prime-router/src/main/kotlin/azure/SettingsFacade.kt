@@ -132,7 +132,7 @@ class SettingsFacade(
     fun <T : SettingAPI> putSetting(
         name: String,
         json: String,
-        claims: AuthenticationClaims,
+        claims: AuthenticatedClaims,
         clazz: Class<T>,
         organizationName: String? = null
     ): Pair<AccessResult, String> {
@@ -163,18 +163,25 @@ class SettingsFacade(
             )
 
             // Now insert
-            val accessResult = if (current == null) {
-                // No existing setting, just add to the new setting to the table
-                db.insertSetting(setting, txn)
-                AccessResult.CREATED
-            } else {
-                // Update existing setting by deactivate the current setting and inserting a new version
-                db.deactivateSetting(current.settingId, txn)
-                val newId = db.insertSetting(setting, txn)
-                // If inserting an org, update all children settings to point to the new org
-                if (settingType == SettingType.ORGANIZATION)
-                    db.updateOrganizationId(current.settingId, newId, txn)
-                AccessResult.SUCCESS
+            val accessResult = when {
+                current == null -> {
+                    // No existing setting, just add to the new setting to the table
+                    db.insertSetting(setting, txn)
+                    AccessResult.CREATED
+                }
+                current.values == normalizedJson -> {
+                    // Don't create a new version if the payload matches the current version
+                    AccessResult.SUCCESS
+                }
+                else -> {
+                    // Update existing setting by deactivate the current setting and inserting a new version
+                    db.deactivateSetting(current.settingId, txn)
+                    val newId = db.insertSetting(setting, txn)
+                    // If inserting an org, update all children settings to point to the new org
+                    if (settingType == SettingType.ORGANIZATION)
+                        db.updateOrganizationId(current.settingId, newId, txn)
+                    AccessResult.SUCCESS
+                }
             }
             val outputJson = mapper.writeValueAsString(settingMetadata)
             Pair(accessResult, outputJson)
@@ -206,7 +213,7 @@ class SettingsFacade(
 
     fun <T : SettingAPI> deleteSetting(
         name: String,
-        claims: AuthenticationClaims,
+        claims: AuthenticatedClaims,
         clazz: Class<T>,
         organizationName: String? = null
     ): Pair<AccessResult, String> {

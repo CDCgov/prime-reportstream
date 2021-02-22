@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -8,6 +9,10 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import org.apache.logging.log4j.kotlin.Logging
+
+/*
+ * Organizations API
+ */
 
 class GetOrganizations(settingsFacade: SettingsFacade = SettingsFacade.common) :
     BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.USER) {
@@ -188,8 +193,8 @@ open class BaseFunction(
     private val facade: SettingsFacade,
     private val minimumLevel: PrincipalLevel
 ) : Logging {
-
-    private val verifier: AuthenticationVerifier = TestAuthenticationVerifier()
+    private val missingAuthorizationHeader = HttpUtilities.errorJson("Missing Authorization Header")
+    private val invalidClaim = HttpUtilities.errorJson("Invalid Authorization Header")
 
     fun <T : SettingAPI> getList(
         request: HttpRequestMessage<String?>,
@@ -234,13 +239,16 @@ open class BaseFunction(
         return handleRequest(request, organizationName ?: settingName) { claims ->
             val (result, outputBody) = when (request.httpMethod) {
                 HttpMethod.PUT -> {
-                    val body = request.body ?: return@handleRequest HttpUtilities.badRequestResponse(request)
+                    if (request.headers[HttpHeaders.CONTENT_TYPE.toLowerCase()] != HttpUtilities.jsonMediaType)
+                        return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("invalid media type"))
+                    val body = request.body
+                        ?: return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
                     facade.putSetting(settingName, body, claims, clazz, organizationName)
                 }
                 HttpMethod.DELETE ->
                     facade.deleteSetting(settingName, claims, clazz, organizationName)
                 else ->
-                    return@handleRequest HttpUtilities.badRequestResponse(request)
+                    return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("unsupported method"))
             }
             facadeResultToResponse(request, result, outputBody)
         }
@@ -249,16 +257,26 @@ open class BaseFunction(
     private fun handleRequest(
         request: HttpRequestMessage<String?>,
         organizationName: String,
-        block: (claims: AuthenticationClaims) -> HttpResponseMessage
+        block: (claims: AuthenticatedClaims) -> HttpResponseMessage
     ): HttpResponseMessage {
         try {
-            logger.info("Settings request: ${request.httpMethod}:${request.uri.path}")
-
             val accessToken = getAccessToken(request)
-                ?: return HttpUtilities.unauthorizedResponse(request)
-            val claims = verifier.checkClaims(accessToken, minimumLevel, organizationName)
-                ?: return HttpUtilities.unauthorizedResponse(request)
+            if (accessToken == null) {
+                logger.info("Missing Authorization Header: ${request.httpMethod}:${request.uri.path}")
+                return HttpUtilities.unauthorizedResponse(request, missingAuthorizationHeader)
+            }
+            val host = request.uri.toURL().host
+            if (claimVerifier.requiredHosts.isNotEmpty() && !claimVerifier.requiredHosts.contains(host)) {
+                logger.error("Wrong Authentication Verifier being used: ${claimVerifier::class} for $host")
+                return HttpUtilities.unauthorizedResponse(request)
+            }
+            val claims = claimVerifier.checkClaims(accessToken, minimumLevel, organizationName)
+            if (claims == null) {
+                logger.info("Invalid Authorization Header: ${request.httpMethod}:${request.uri.path}")
+                return HttpUtilities.unauthorizedResponse(request, invalidClaim)
+            }
 
+            logger.info("Settings request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
             return block(claims)
         } catch (ex: Exception) {
             if (ex.message != null)
@@ -283,7 +301,20 @@ open class BaseFunction(
     }
 
     private fun getAccessToken(request: HttpRequestMessage<String?>): String? {
-        // TODO
-        return ""
+        // RFC6750 defines the access token
+        val authorization = request.headers[HttpHeaders.AUTHORIZATION.toLowerCase()] ?: return null
+        return authorization.substringAfter("Bearer ", "")
+    }
+
+    private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
+
+    companion object {
+        val claimVerifier: AuthenticationVerifier by lazy {
+            val primeEnv = System.getenv("PRIME_ENVIRONMENT")
+            if (primeEnv == "local")
+                TestAuthenticationVerifier()
+            else
+                OktaAuthenticationVerifier()
+        }
     }
 }
