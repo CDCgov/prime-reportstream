@@ -2,7 +2,9 @@ name: Prime Data Hub
 
 on:
   pull_request:
-    branches: [ master, production ]
+    # Disable master branch for pentesting
+    # branches: [ master, production ]
+    branches: [ master ]
     paths-ignore:
       - 'prime-router/docs/**'
 
