@@ -4,7 +4,7 @@ on:
   pull_request:
     # Disable master branch for pentesting
     # branches: [ master, production ]
-    branches: [ master ]
+    branches: [ production ]
     paths-ignore:
       - 'prime-router/docs/**'
 

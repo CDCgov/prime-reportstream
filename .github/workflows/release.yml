@@ -4,7 +4,7 @@ on:
   push:
     # Disable master branch for pentesting
     # branches: [ master, production ]
-    branches: [ master ]
+    branches: [ production ]
 
 defaults:
   run:
