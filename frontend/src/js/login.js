@@ -1,3 +1,10 @@
+const env = {
+  OKTA_redirect: 'http://localhost:7071/api/download',
+  OKTA_clientId:  '0oa6fm8j4G1xfrthd4h6',
+  OKTA_baseUrl: 'hhs-prime.okta.com',
+}
+
+
 export function login() {
     
   var jwt = window.sessionStorage.getItem("jwt");
@@ -14,11 +21,11 @@ export function login() {
       router: true, // Leave this set to true for the API demo
     },
     el: "#okta-login-container",
-    baseUrl: "https://{{ env.OKTA_baseUrl }}",
-    clientId: "{{ env.OKTA_clientId }}",
-    redirectUri: "{{ env.OKTA_redirect }}",
+    baseUrl: `https://${env.OKTA_baseUrl}`,
+    clientId: env.OKTA_clientId,
+    redirectUri: env.OKTA_redirect,
     authParams: {
-      issuer: "https://{{ env.OKTA_baseUrl }}/oauth2/default"
+      issuer: `https://${env.OKTA_baseUrl}/oauth2/default`
     }
   };
   
@@ -28,6 +35,8 @@ export function login() {
     .then( tokens => {
       let jwt = tokens.accessToken.value;
       window.sessionStorage.setItem('jwt', jwt) ; 
+      console.log( 'reload' );
+      window.location.replace( './download.html' )
   });
 }
 }
