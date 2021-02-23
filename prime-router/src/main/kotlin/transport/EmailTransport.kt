@@ -1,14 +1,18 @@
 package gov.cdc.prime.router.transport
 
 import com.microsoft.azure.functions.ExecutionContext
-import com.sendgrid.*
+import com.sendgrid.Method
+import com.sendgrid.Request
+import com.sendgrid.SendGrid
 import com.sendgrid.helpers.mail.Mail
-import com.sendgrid.helpers.mail.objects.*
+import com.sendgrid.helpers.mail.objects.Content
+import com.sendgrid.helpers.mail.objects.Email
+import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.EmailTransportType
-import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.DatabaseAccess
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -20,10 +24,8 @@ import java.util.logging.Level
 class EmailTransport : ITransport {
 
     override fun send(
-        orgService: OrganizationService,
         transportType: TransportType,
-        contents: ByteArray,
-        reportId: ReportId,
+        header: DatabaseAccess.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
@@ -31,7 +33,7 @@ class EmailTransport : ITransport {
     ): RetryItems? {
 
         val emailTransport = transportType as EmailTransportType
-        val content = buildContent(reportId)
+        val content = buildContent(header)
         val mail = buildMail(content, emailTransport)
 
         try {
@@ -62,12 +64,12 @@ class EmailTransport : ITransport {
         return templateEngine.process(htmlContent, context)
     }
 
-    fun buildContent(reportId: ReportId): Content {
+    fun buildContent(header: DatabaseAccess.Header): Content {
         val htmlTemplate = Files.readString(Path.of("./assets/email-templates/test-results-ready__inline.html"))
 
         val attr = mapOf(
             "today" to Calendar.getInstance(),
-            "file" to reportId
+            "file" to header.reportFile.reportId
         )
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)

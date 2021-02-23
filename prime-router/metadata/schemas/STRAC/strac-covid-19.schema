@@ -122,15 +122,15 @@ elements:
         code: 455371000124106
     csvFields: [{name: patient_positive, format: $alt}]
 
-  #
-  # These are the mapping of these fields into
-  #
-
-  # Base all LIVD values on this mapper
+  # Base all LVID values on this mapper
   - name: equipment_model_name
     mapper:
     default: BinaxNOW COVID-19 Ag Card
+    csvFields: [{name: equipment_model_name }]
 
+  #
+  # These are the mapping of these fields into
+  #
   - name: ordered_test_code
 
   - name: ordered_test_name

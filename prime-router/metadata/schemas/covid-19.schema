@@ -149,7 +149,7 @@ elements:
 
   - name: filler_order_id
     type: ID
-    hl7OutputFields: [ORC-3-1, OBR-3-1]
+    hl7Field: ORC-3-1
 
   - name: filler_clia
     type: ID_CLIA
@@ -710,6 +710,7 @@ elements:
 
   - name: processing_mode_code
     type: CODE
+    default: D
     cardinality: ZERO_OR_ONE
     valueSet: hl70103
     hl7Field: MSH-11-1
@@ -793,19 +794,12 @@ elements:
     natFlatFileField:
     hl7Field: MSH-3
 
-  - name: sending_facility
-    type: HD
-    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
-    default: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
-    natFlatFileField:
-    hl7Field: MSH-4
-
   - name: specimen_collection_date_time
     type: DATETIME
     natFlatFileField: Specimen_collection_date_time
     hhsGuidanceField: Test result date
     hl7Field: SPM-17-1
-    hl7OutputFields: [SPM-17-1, SPM-17-2, OBR-7, OBR-8, OBX-14]
+    hl7OutputFields: [SPM-17-1, OBR-7, OBR-8, OBX-14]
     documentation: |
       The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
 
@@ -828,14 +822,9 @@ elements:
 
   - name: specimen_id
     type: EI
-    hl7Field: SPM-2
+    hl7OutputFields: [SPM-2, OBR-3-1]
+    mapper: use(message_id)
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
-
-  - name: specimen_received_date_time
-    type: DATETIME
-    natFlatFileField: Specimen_received_date_time
-    hhsGuidanceField:
-    hl7Field: SPM-18
 
   - name: specimen_role
     type: CODE
@@ -858,13 +847,6 @@ elements:
     hhsGuidanceField: Specimen source
     hl7Field: SPM-4
     documentation: The specimen source, such as Blood or Serum
-
-  - name: specimen_recieved_date_time
-    type: DATETIME
-    mapper: use(specimen_collection_date_time)
-    hl7Field: SPM-18
-    documentation: |
-      Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
 
   - name: symptomatic_for_disease
     type: CODE
@@ -980,7 +962,8 @@ elements:
     type: ID
     natFlatFileField: Testing_lab_accession_number
     hhsGuidanceField:
-    hl7Field: OBR-3-1
+    #hl7Field: OBR-3-1
+    #hl7OutputFields: [OBR-3-1, SPM-2]
     documentation: The accession number of the specimen collected
 
   - name: testing_lab_city
@@ -1040,15 +1023,17 @@ elements:
 
   - name: testing_lab_specimen_id
     type: ID
+    mapper: use(message_id)
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
     hl7Field: SPM-2-1
 
-  - name: testing_lab_specimen_recieved_datetime
+  - name: testing_lab_specimen_received_datetime
     type: DATETIME
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
-    hl7Field: SPM-2-1
+    hl7Field: SPM-18-1
+    mapper: use(specimen_collection_date_time)
 
   - name: testing_lab_state
     type: TABLE

@@ -34,11 +34,16 @@ class Metadata {
     private var organizationServiceStore: List<OrganizationService> = ArrayList()
     private var organizationClientStore: List<OrganizationClient> = ArrayList()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
+    var receivingApplication: String? = null
+    var receivingFacility: String? = null
 
     /**
      * Load all parts of the metadata catalog from a directory and its sub-directories
      */
-    constructor(metadataPath: String, orgExt: String? = null) {
+    constructor(
+        metadataPath: String,
+        orgExt: String? = null
+    ) {
         val organizationsFilename = "$organizationsBaseName${orgExt ?: ""}.yml"
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
@@ -56,7 +61,7 @@ class Metadata {
         valueSet: ValueSet? = null,
         tableName: String? = null,
         table: LookupTable? = null,
-        organization: Organization? = null,
+        organization: Organization? = null
     ) {
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
@@ -322,9 +327,13 @@ class Metadata {
 
     fun findService(name: String): OrganizationService? {
         if (name.isBlank()) return null
-        val (orgName, clientName) = parseName(name)
+        val (orgName, svcName) = parseName(name)
+        return findService(orgName, svcName)
+    }
+
+    fun findService(orgName: String, svcName: String): OrganizationService? {
         return findOrganization(orgName)?.services?.find {
-            it.name.equals(clientName, ignoreCase = true)
+            it.name.equals(svcName, ignoreCase = true)
         }
     }
 

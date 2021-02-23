@@ -96,13 +96,16 @@ components:
           description: the id for the report assigned by the Hub
           type: string
         reportItemCount:
-          description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
+          description: total number of individual items sent to the Hub (in a csv, the number of data lines sent)
           type: integer
         destinations:
-          description: where the report is being sent to
+          description: organizations where the report is being sent
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/Destination'
+        destinationCount:
+          description: total number of organizations that are due to receive data from this submission.
+          type: integer
         errorCount:
           description: total errors found during initial validation.  There may be multiple errors per item.
           type: integer
@@ -127,12 +130,42 @@ components:
           type: string
           description: Does the error apply to one item
           enum:
-            - Parameter
-            - Report
-            - Item
+            - PARAMETER
+            - REPORT
+            - ITEM
         id:
           type: string
-          description: Depends on scope, either the item's id (message_id) or the report's id
+          description: Depends on scope, either the item's id (message_id) or empty
         detail:
           type: string
           description: The details of the error
+      example:
+        scope: ITEM
+        id: row0
+        details: Empty value for 'message_id'
+
+    Destination:
+      type: object
+      properties:
+        organization:
+          type: string
+          description: Entity that is receiving one or more items from this report, now or in the future.
+        organization_id:
+          type: string
+          description: Internal name that Prime uses to track the organization.
+        service:
+          type: string
+          description: An endpoint where the organization receives the data, eg, an sftp site or redox endpoint.
+        sending_at:
+          type: string
+          description: The timestamp at which this data is due to be transmitted to that organization/service.
+        itemCount:
+          type: string
+          description: The number of items (rows, in a csv) due to be sent to this organization/service.
+      example:
+        organization: Brobdingnag Public Health Department
+        organization_id: brob-phd
+        service: elr
+        sending_at: 2021-02-11T14:55-05:00
+        itemCount: 17
+

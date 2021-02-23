@@ -188,6 +188,8 @@ The zip code of the provider
 
 **Type**: ID
 
+**HL7 Field**: ORC-3-1
+
 **Cardinality**: [0..1]
 
 ---
@@ -659,10 +661,6 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 ---
 
 **Name**: specimen_received_date_time
-
-**Type**: DATETIME
-
-**HL7 Field**: SPM-18
 
 **Cardinality**: [0..1]
 

@@ -43,16 +43,17 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
             workflowEngine.handleReportEvent(event, actionHistory) { header, retryToken, _ ->
-                val service = workflowEngine.metadata.findService(header.task.receiverName)
-                    ?: error("Internal Error: could not find ${header.task.receiverName}")
-                val inputReportId = header.task.reportId
+                val service = header.orgSvc
+                    ?: error("Internal Error: could not find service for ${header.reportFile.receivingOrgSvc}")
+                val inputReportId = header.reportFile.reportId
                 actionHistory.trackExistingInputReport(inputReportId)
                 val serviceName = service.fullName
-                val content = workflowEngine.readBody(header)
                 val nextRetryTransports = mutableListOf<RetryTransport>()
                 val transports = service
                     .transports
-                    .filterIndexed { i, _ -> retryToken == null || retryToken.transports.find { it.index == i } != null }
+                    .filterIndexed { i, _ ->
+                        retryToken == null || retryToken.transports.find { it.index == i } != null
+                    }
                 if (transports.isEmpty()) {
                     actionHistory.setActionType(TaskAction.send_error)
                     actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
@@ -65,28 +66,24 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                             workflowEngine
                                 .sftpTransport
                                 .send(
-                                    service,
                                     transport,
-                                    content,
-                                    inputReportId,
+                                    header,
                                     sentReportId,
                                     retryItems,
                                     context,
-                                    actionHistory
+                                    actionHistory,
                                 )
                         }
                         is RedoxTransportType -> {
                             workflowEngine
                                 .redoxTransport
                                 .send(
-                                    service,
                                     transport,
-                                    content,
-                                    inputReportId,
+                                    header,
                                     sentReportId,
                                     retryItems,
                                     context,
-                                    actionHistory
+                                    actionHistory,
                                 )
                         }
                         else -> null
@@ -129,7 +126,8 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)
                 val nextRetryTime = OffsetDateTime.now().plusMinutes(waitMinutes)
                 val nextRetryToken = RetryToken(nextRetryCount, nextRetryTransports)
-                val msg = "Send Failed.  Will retry sending report: $reportId to $serviceName} in $waitMinutes minutes, at $nextRetryTime"
+                val msg = "Send Failed.  Will retry sending report: $reportId to $serviceName}" +
+                    " in $waitMinutes minutes, at $nextRetryTime"
                 context.logger.info(msg)
                 actionHistory.trackActionResult(msg)
                 ReportEvent(Event.EventAction.SEND, reportId, nextRetryTime, nextRetryToken)

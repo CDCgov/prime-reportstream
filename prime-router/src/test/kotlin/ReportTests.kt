@@ -1,7 +1,9 @@
 package gov.cdc.prime.router
 
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.fail
 
 class ReportTests {
@@ -50,7 +52,9 @@ class ReportTests {
         assertEquals("row1_b", filteredReportB.getString(0, "b"))
         assertEquals("row2_b", filteredReportB.getString(1, "b"))
 
-        val filteredReportC = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "row1_a", "foo", "bar", "baz"))))
+        val filteredReportC = report1.filter(
+            listOf(Pair(jurisdictionalFilter, listOf("a", "row1_a", "foo", "bar", "baz")))
+        )
         assertEquals(1, filteredReportC.itemCount)
         assertEquals("row1_b", filteredReportC.getString(0, "b"))
 
@@ -85,7 +89,8 @@ class ReportTests {
 
         val oneReport = Report(schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")), TestSource)
         assertEquals(2, oneReport.itemCount)
-        val mappingOneToTwo = Translator(metadata).buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
+        val mappingOneToTwo = Translator(metadata)
+            .buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
 
         val twoTable = oneReport.applyMapping(mappingOneToTwo)
         assertEquals(2, twoTable.itemCount)
@@ -105,7 +110,8 @@ class ReportTests {
 
         val twoReport = Report(schema = two, values = listOf(listOf("b1"), listOf("b2")), source = TestSource)
         assertEquals(2, twoReport.itemCount)
-        val mappingTwoToOne = Translator(metadata).buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap())
+        val mappingTwoToOne = Translator(metadata)
+            .buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap())
 
         val oneReport = twoReport.applyMapping(mappingTwoToOne)
         assertEquals(2, oneReport.itemCount)
@@ -131,5 +137,275 @@ class ReportTests {
         assertEquals(2, oneDeidentified.itemCount)
         assertEquals("", oneDeidentified.getString(0, "a"))
         assertEquals("b1", oneDeidentified.getString(0, "b"))
+    }
+
+    // Tests for Item lineage
+    @Test
+    fun `test merge item lineage`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+        val report2 = Report(schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource)
+
+        val merged = Report.merge(listOf(report1, report2))
+
+        assertEquals(4, merged.itemLineages!!.size)
+        val firstLineage = merged.itemLineages!![0]
+        assertEquals(report1.id, firstLineage.parentReportId)
+        assertEquals(0, firstLineage.parentIndex)
+        assertEquals(merged.id, firstLineage.childReportId)
+        assertEquals(0, firstLineage.childIndex)
+        assertEquals("rep1_row1_a", firstLineage.trackingId)
+
+        val lastLineage = merged.itemLineages!![3]
+        assertEquals(report2.id, lastLineage.parentReportId)
+        assertEquals(1, lastLineage.parentIndex)
+        assertEquals(merged.id, lastLineage.childReportId)
+        assertEquals(3, lastLineage.childIndex)
+        assertEquals("rep2_row2_a", lastLineage.trackingId)
+    }
+
+    @Test
+    fun `test split item lineage`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+
+        val reports = report1.split()
+
+        assertEquals(2, reports.size)
+        assertEquals(1, reports[0].itemLineages!!.size)
+        assertEquals(1, reports[1].itemLineages!!.size)
+
+        val firstLineage = reports[0].itemLineages!![0]
+        assertEquals(report1.id, firstLineage.parentReportId)
+        assertEquals(0, firstLineage.parentIndex)
+        assertEquals(reports[0].id, firstLineage.childReportId)
+        assertEquals(0, firstLineage.childIndex)
+        assertEquals("rep1_row1_a", firstLineage.trackingId)
+
+        val secondLineage = reports[1].itemLineages!![0]
+        assertEquals(report1.id, secondLineage.parentReportId)
+        assertEquals(1, secondLineage.parentIndex)
+        assertEquals(reports[1].id, secondLineage.childReportId)
+        assertEquals(0, secondLineage.childIndex)
+        assertEquals("rep1_row2_a", secondLineage.trackingId)
+    }
+
+    @Test
+    fun `test item lineage after jurisdictional filter`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        val metadata = Metadata(schema = schema)
+        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+
+        val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "rep1_row2_a"))))
+
+        val lineage = filteredReport.itemLineages!!
+        assertEquals(1, lineage.size)
+        assertEquals(report1.id, lineage[0].parentReportId)
+        assertEquals(1, lineage[0].parentIndex)
+        assertEquals(filteredReport.id, lineage[0].childReportId)
+        assertEquals(0, lineage[0].childIndex)
+        assertEquals("rep1_row2_a", lineage[0].trackingId)
+    }
+
+    @Test
+    fun `test merge then split`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
+        val report2 = Report(schema, listOf(listOf("rep2_row1_a"), listOf("rep2_row2_a")), source = TestSource)
+
+        val merged = Report.merge(listOf(report1, report2))
+        val reports = merged.split()
+
+        assertEquals(4, reports.size)
+        assertEquals(1, reports[0].itemLineages!!.size)
+        assertEquals(1, reports[3].itemLineages!!.size)
+
+        val firstLineage = reports[0].itemLineages!![0]
+        assertEquals(report1.id, firstLineage.parentReportId)
+        assertEquals(0, firstLineage.parentIndex)
+        assertEquals(reports[0].id, firstLineage.childReportId)
+        assertEquals(0, firstLineage.childIndex)
+        assertEquals("rep1_row1_a", firstLineage.trackingId)
+
+        val fourthLineage = reports[3].itemLineages!![0]
+        assertEquals(report2.id, fourthLineage.parentReportId)
+        assertEquals(1, fourthLineage.parentIndex)
+        assertEquals(reports[3].id, fourthLineage.childReportId)
+        assertEquals(0, fourthLineage.childIndex)
+        assertEquals("rep2_row2_a", fourthLineage.trackingId)
+    }
+
+    @Test
+    fun `test lineage insanity`() {
+        val schema = Schema(name = "one", topic = "test", elements = listOf(Element("a")), trackingElement = "a")
+        // each sublist is a row.
+        val report1 = Report(schema, listOf(listOf("bbb"), listOf("aaa"), listOf("aaa")), source = TestSource)
+        val metadata = Metadata(schema = schema)
+        val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
+
+        // split, merge, split, merge, copy, copy, then filter.
+        val reports1 = report1.split()
+        val merge1 = Report.merge(reports1)
+        val reports2 = merge1.split()
+        val merge2 = Report.merge(reports2)
+        val copy1 = merge2.copy()
+        val copy2 = copy1.copy()
+        val filteredReport = copy2.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))))
+
+        val lineage = filteredReport.itemLineages!!
+        assertEquals(2, lineage.size)
+
+        assertEquals(report1.id, lineage[0].parentReportId)
+        assertEquals(1, lineage[0].parentIndex)
+        assertEquals(filteredReport.id, lineage[0].childReportId)
+        assertEquals(0, lineage[0].childIndex)
+        assertEquals("aaa", lineage[0].trackingId)
+
+        assertEquals(report1.id, lineage[1].parentReportId)
+        assertEquals(2, lineage[1].parentIndex)
+        assertEquals(filteredReport.id, lineage[1].childReportId)
+        assertEquals(1, lineage[1].childIndex)
+        assertEquals("aaa", lineage[1].trackingId)
+    }
+
+    @Test
+    fun `test synthesize data with empty strategy map`() {
+        // arrange
+        val schema = Schema(
+            name = "test",
+            topic = "test",
+            elements = listOf(
+                Element("last_name"), Element("first_name")
+            )
+        )
+        val report = Report(
+            schema = schema,
+            values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta")),
+            source = TestSource
+        )
+        // act
+        val synthesizedReport = report.synthesizeData()
+        // assert
+        assertEquals(3, synthesizedReport.itemCount)
+        assertEquals("smith", synthesizedReport.getString(0, "last_name"))
+        assertEquals("jones", synthesizedReport.getString(1, "last_name"))
+        assertEquals("white", synthesizedReport.getString(2, "last_name"))
+        assertEquals("sarah", synthesizedReport.getString(0, "first_name"))
+        assertEquals("mary", synthesizedReport.getString(1, "first_name"))
+        assertEquals("roberta", synthesizedReport.getString(2, "first_name"))
+    }
+
+    @Test
+    fun `test synthesize data with pass through strategy map`() {
+        // arrange
+        val schema = Schema(
+            name = "test",
+            topic = "test",
+            elements = listOf(
+                Element("last_name"), Element("first_name")
+            )
+        )
+        val report = Report(
+            schema = schema,
+            values = listOf(listOf("smith", "sarah"), listOf("jones", "mary"), listOf("white", "roberta")),
+            source = TestSource
+        )
+        val strategies = mapOf(
+            "last_name" to Report.SynthesizeStrategy.PASSTHROUGH,
+            "first_name" to Report.SynthesizeStrategy.PASSTHROUGH
+        )
+        // act
+        val synthesizedReport = report.synthesizeData(strategies)
+        // assert
+        assertEquals(3, synthesizedReport.itemCount)
+        assertEquals("smith", synthesizedReport.getString(0, "last_name"))
+        assertEquals("jones", synthesizedReport.getString(1, "last_name"))
+        assertEquals("white", synthesizedReport.getString(2, "last_name"))
+        assertEquals("sarah", synthesizedReport.getString(0, "first_name"))
+        assertEquals("mary", synthesizedReport.getString(1, "first_name"))
+        assertEquals("roberta", synthesizedReport.getString(2, "first_name"))
+    }
+
+    @Test
+    fun `test synthesize data with blank strategy`() {
+        // arrange
+        val schema = Schema(
+            name = "test",
+            topic = "test",
+            elements = listOf(
+                Element("last_name"), Element("first_name"), Element("ssn")
+            )
+        )
+        val report = Report(
+            schema = schema,
+            values = listOf(
+                listOf("smith", "sarah", "000000000"),
+                listOf("jones", "mary", "000000000"),
+                listOf("white", "roberta", "000000000"),
+            ),
+            source = TestSource
+        )
+        val strategies = mapOf(
+            "last_name" to Report.SynthesizeStrategy.PASSTHROUGH,
+            "first_name" to Report.SynthesizeStrategy.PASSTHROUGH,
+            "ssn" to Report.SynthesizeStrategy.BLANK,
+        )
+        // act
+        val synthesizedReport = report.synthesizeData(strategies)
+        // assert
+        assertEquals(3, synthesizedReport.itemCount)
+        assertEquals("smith", synthesizedReport.getString(0, "last_name"))
+        assertEquals("jones", synthesizedReport.getString(1, "last_name"))
+        assertEquals("white", synthesizedReport.getString(2, "last_name"))
+        assertEquals("sarah", synthesizedReport.getString(0, "first_name"))
+        assertEquals("mary", synthesizedReport.getString(1, "first_name"))
+        assertEquals("roberta", synthesizedReport.getString(2, "first_name"))
+        assertEquals("", synthesizedReport.getString(0, "ssn"))
+        assertEquals("", synthesizedReport.getString(1, "ssn"))
+        assertEquals("", synthesizedReport.getString(2, "ssn"))
+    }
+
+    // ignoring this test for now because shuffling is non-deterministic
+    @Test
+    @Ignore
+    fun `test synthesize data with shuffle strategy`() {
+        // arrange
+        val schema = Schema(
+            name = "test",
+            topic = "test",
+            elements = listOf(
+                Element("last_name"), Element("first_name"),
+            )
+        )
+        val report = Report(
+            schema = schema,
+            values = listOf(
+                listOf("smith", "sarah"),
+                listOf("jones", "mary"),
+                listOf("white", "roberta"),
+                listOf("stock", "julie"),
+                listOf("chang", "emily"),
+                listOf("rodriguez", "anna"),
+            ),
+            source = TestSource
+        )
+        val strategies = mapOf(
+            "last_name" to Report.SynthesizeStrategy.SHUFFLE,
+            "first_name" to Report.SynthesizeStrategy.SHUFFLE,
+        )
+        // act
+        val synthesizedReport = report.synthesizeData(strategies)
+        // assert
+        assertNotEquals("smith", synthesizedReport.getString(0, "last_name"))
+        assertNotEquals("jones", synthesizedReport.getString(1, "last_name"))
+        assertNotEquals("white", synthesizedReport.getString(2, "last_name"))
+        assertNotEquals("sarah", synthesizedReport.getString(0, "first_name"))
+        assertNotEquals("mary", synthesizedReport.getString(1, "first_name"))
+        assertNotEquals("roberta", synthesizedReport.getString(2, "first_name"))
     }
 }
