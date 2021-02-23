@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
@@ -40,11 +41,11 @@ class CsvSerializer(val metadata: Metadata) {
         val warnings: List<String>,
     )
 
-    fun read(schemaName: String, input: InputStream, source: Source): ReadResult {
-        return read(schemaName, input, listOf(source))
+    fun readExternal(schemaName: String, input: InputStream, source: Source): ReadResult {
+        return readExternal(schemaName, input, listOf(source))
     }
 
-    fun read(
+    fun readExternal(
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
@@ -84,6 +85,18 @@ class CsvSerializer(val metadata: Metadata) {
         return ReadResult(Report(schema, mappedRows, sources, destination), errors, warnings)
     }
 
+    fun readInternal(
+        schemaName: String,
+        input: InputStream,
+        sources: List<Source>,
+        destination: OrganizationService? = null,
+        blobReportId: ReportId? = null
+    ): Report {
+        val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
+        val rows: List<List<String>> = csvReader().readAll(input).drop(1)
+        return Report(schema, rows, sources, destination, id = blobReportId)
+    }
+
     fun write(report: Report, output: OutputStream) {
         val schema = report.schema
 
@@ -105,6 +118,22 @@ class CsvSerializer(val metadata: Metadata) {
                         }
                     }
             }
+        }
+
+        val allRows = listOf(buildHeader()).plus(buildRows())
+        csvWriter {
+            lineTerminator = "\n"
+            outputLastLineTerminator = true
+        }.writeAll(allRows, output)
+    }
+
+    fun writeInternal(report: Report, output: OutputStream) {
+        val schema = report.schema
+
+        fun buildHeader(): List<String> = schema.elements.map { it.name }
+
+        fun buildRows(): List<List<String>> {
+            return report.itemIndices.map { row -> report.getRow(row) }
         }
 
         val allRows = listOf(buildHeader()).plus(buildRows())
@@ -216,7 +245,10 @@ class CsvSerializer(val metadata: Metadata) {
             val valueNames = mapper.valueNames(element, args)
             val valuesForMapper = valueNames.map { elementName ->
                 val valueElement = schema.findElement(elementName)
-                    ?: error("Schema Error: Could not find element '$elementName' for mapper '${mapper.name}' from '${element.name}'.")
+                    ?: error(
+                        "Schema Error: Could not find element '$elementName' for mapper " +
+                            "'${mapper.name}' from '${element.name}'."
+                    )
                 val value = lookupValues[elementName]
                     ?: error("Schema Error: No mapper input for $elementName")
                 ElementAndValue(valueElement, value)
@@ -243,7 +275,8 @@ class CsvSerializer(val metadata: Metadata) {
             if (value.isBlank() && !element.canBeBlank) {
                 when (element.cardinality) {
                     Element.Cardinality.ONE -> errors += "Empty value for '${element.name}'"
-                    Element.Cardinality.ZERO_OR_ONE -> {}
+                    Element.Cardinality.ZERO_OR_ONE -> {
+                    }
                 }
             }
             if (value == failureValue) {

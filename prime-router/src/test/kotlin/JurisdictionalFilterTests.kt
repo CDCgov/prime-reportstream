@@ -46,10 +46,18 @@ class JurisdictionalFilterTests {
     fun `test FilterByCounty`() {
         val filter = FilterByCounty()
         val table = Table.create(
-            StringColumn.create("patient_state", listOf("MD", "MD", "MD", "AZ")),
-            StringColumn.create("patient_county", listOf("Prince George's", "Baltimore", "Baltimore City", "Pima")),
-            StringColumn.create("ordering_facility_state", listOf("MD", "MD", "AZ", "AZ")),
-            StringColumn.create("ordering_facility_county", listOf("Prince George's", "Montgomery", "Pima", "Pima Cty")),
+            StringColumn.create(
+                "patient_state", listOf("MD", "MD", "MD", "AZ")
+            ),
+            StringColumn.create(
+                "patient_county", listOf("Prince George's", "Baltimore", "Baltimore City", "Pima")
+            ),
+            StringColumn.create(
+                "ordering_facility_state", listOf("MD", "MD", "AZ", "AZ")
+            ),
+            StringColumn.create(
+                "ordering_facility_county", listOf("Prince George's", "Montgomery", "Pima", "Pima Cty")
+            ),
         )
 
         val args1 = listOf("MD", "Prince George's")

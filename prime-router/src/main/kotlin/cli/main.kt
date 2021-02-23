@@ -17,7 +17,6 @@ import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -69,57 +68,112 @@ class ProcessData : CliktCommand(
 ) {
     // Input
     private val inputSource: InputSource? by mutuallyExclusiveOptions(
-        option("--merge", metavar = "<paths>", help = "list of comma-separated CSV files to merge as input").convert { InputSource.ListOfFilesSource(it) },
-        option("--input", metavar = "<path>", help = "path to CSV file to read").convert { InputSource.FileSource(it) },
-        option("--input-fake", metavar = "<int>", help = "generate N rows of random input according to --input-schema. The value is the number of rows to generate.").int().convert { InputSource.FakeSource(it) },
-        option("--input-dir", metavar = "<dir>", help = "path to directory of files").convert { InputSource.DirSource(it) },
+        option(
+            "--merge",
+            metavar = "<paths>",
+            help = "list of comma-separated CSV files to merge as input"
+        ).convert { InputSource.ListOfFilesSource(it) },
+        option(
+            "--input",
+            metavar = "<path>",
+            help = "path to CSV file to read"
+        ).convert { InputSource.FileSource(it) },
+        option(
+            "--input-fake",
+            metavar = "<int>",
+            help = "generate N rows of random input according to --input-schema. " +
+                "The value is the number of rows to generate."
+        ).int().convert { InputSource.FakeSource(it) },
+        option(
+            "--input-dir",
+            metavar = "<dir>",
+            help = "path to directory of files"
+        ).convert { InputSource.DirSource(it) },
     ).single()
-    private val inputSchema by option("--input-schema", metavar = "<schema_name>", help = "interpret input according to this schema")
+    private val inputSchema by option(
+        "--input-schema",
+        metavar = "<schema_name>",
+        help = "interpret input according to this schema"
+    )
 
     // Actions
-    private val validate by option("--validate", help = "Validate stream").flag(default = true)
-    private val send by option("--send", help = "send output to receivers").flag(default = false)
+    private val validate by option(
+        "--validate",
+        help = "Validate stream"
+    ).flag(default = true)
+    private val send by option(
+        "--send",
+        help = "send output to receivers"
+    ).flag(default = false)
+    private val synthesize by option(
+        "--synthesize",
+        help = "converts live production data into synthesized data"
+    ).flag(default = false)
 
     // Output schema
-    private val route by option("--route", help = "transform output to the schemas for each receiver the input would be routed to").flag(default = false)
-    private val routeTo by option("--route-to", metavar = "<receiver>", help = "transform output to the schema for the given receiver")
-    private val outputSchema by option("--output-schema", metavar = "<name>", help = "transform output to the given schema")
+    private val route by option(
+        "--route",
+        help = "transform output to the schemas for each receiver the input would be routed to"
+    ).flag(default = false)
+    private val routeTo by option(
+        "--route-to",
+        metavar = "<receiver>",
+        help = "transform output to the schema for the given receiver"
+    )
+    private val outputSchema by option(
+        "--output-schema",
+        metavar = "<name>",
+        help = "transform output to the given schema"
+    )
 
     // Output format
-    private val outputHl7 by option("--output-hl7", help = "format output as HL7 instead of CSV").flag(default = false)
+    private val forcedFormat by option(
+        "--output-format",
+        help = "serialize as the specified format. Use the destination format if not specified."
+    )
 
     // Output location
-    private val outputFileName by option("--output", metavar = "<path>", help = "write output to this file. Do not use with --route, which generates multiple outputs.")
-    private val outputDir by option("--output-dir", metavar = "<path>", help = "write output files to this directory instead of the working directory. Ignored if --output is set.")
+    private val outputFileName by option(
+        "--output",
+        metavar = "<path>",
+        help = "write output to this file. Do not use with --route, which generates multiple outputs."
+    )
+    private val outputDir by option(
+        "--output-dir",
+        metavar = "<path>",
+        help = "write output files to this directory instead of the working directory. Ignored if --output is set."
+    )
 
     // Fake data configuration
-    private val targetState: String? by
+    private val targetStates: String? by
     option(
-        "--target-state",
+        "--target-states",
         metavar = "<abbrev>",
-        help = "when using --input-fake, fill geographic fields using this state. " +
-            "This should be a two-letter abbreviation, e.g. 'FL' for Florida."
+        help = "when using --input-fake, fill geographic fields using these states, separated by commas. " +
+            "States should be two letters, e.g. 'FL'"
     )
-    // lets us compare CSV files generated by the application
-    private val compareCsv by option("--compare-csv", help = "compare Csv files").flag(default = false)
-    private val csvCompareFile by option("--csv-file", help = "specify paths to CSV files to compare contents").multiple()
-    private val csvRecordId by option(
-        "--record-id",
-        help = "the column header that identifies the id value for each row in a CSV file"
-    ).default("Patient_Id")
-    private val targetCounty: String? by
+
+    private val targetCounties: String? by
     option(
-        "--target-county",
+        "--target-counties",
         metavar = "<name>",
-        help = "when using --input-fake, fill county-related fields with this county name."
+        help = "when using --input-fake, fill county-related fields with these county names, separated by commas."
+    )
+    private val receivingApplication by option(
+        "--receiving-application",
+        help = "the receiving application"
+    )
+    private val receivingFacility by option(
+        "--receiving-facility",
+        help = "the receiving facility"
     )
 
     private fun mergeReports(
         metadata: Metadata,
         listOfFiles: String
     ): Report {
-        if (listOfFiles.isNullOrEmpty()) error("No files to merge.")
-        val files = listOfFiles.split(",", " ").filter { ! it.isNullOrBlank() }
+        if (listOfFiles.isEmpty()) error("No files to merge.")
+        val files = listOfFiles.split(",", " ").filter { it.isNotBlank() }
         if (files.isEmpty()) error("No files to merge found in comma separated list.  Need at least one file.")
         val reports = files.map { readReportFromFile(metadata, it) }
         echo("Merging ${reports.size} reports.")
@@ -136,44 +190,64 @@ class ProcessData : CliktCommand(
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
         val csvSerializer = CsvSerializer(metadata)
-        val result = csvSerializer.read(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
-        if (result.report == null) {
-            error(result.errorsToString())
+        return if (file.extension.toUpperCase() == "INTERNAL") {
+            csvSerializer.readInternal(schema.name, file.inputStream(), listOf(FileSource(file.nameWithoutExtension)))
+        } else {
+            val result =
+                csvSerializer.readExternal(schema.name, file.inputStream(), FileSource(file.nameWithoutExtension))
+            if (result.report == null) {
+                error(result.errorsToString())
+            }
+            if (result.errors.isNotEmpty()) {
+                echo(result.errorsToString())
+            }
+            if (result.warnings.isNotEmpty()) {
+                echo(result.warningsToString())
+            }
+            result.report
         }
-        if (result.errors.isNotEmpty()) {
-            echo(result.errorsToString())
-        }
-        if (result.warnings.isNotEmpty()) {
-            echo(result.warningsToString())
-        }
-        return result.report
     }
 
     private fun writeReportsToFile(
-        reports: List<Pair<Report, OrganizationService.Format>>,
-        writeBlock: (report: Report, format: OrganizationService.Format, outputStream: OutputStream) -> Unit
+        reports: List<Pair<Report, Report.Format>>,
+        writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
 
         if (reports.isNotEmpty()) {
             echo("Creating these files:")
         }
-
-        reports.forEach { (report, format) ->
-            val outputFile = if (outputFileName != null) {
-                File(outputFileName!!)
-            } else {
-                val fileName = Report.formFileName(report.id, report.schema.baseName, format, report.createdDateTime)
-                File(outputDir ?: ".", fileName)
+        reports
+            .flatMap { (report, format) ->
+                // Some report formats only support one result per file
+                if (format.isSingleItemFormat()) {
+                    val splitReports = report.split()
+                    splitReports.map { Pair(it, format) }
+                } else {
+                    listOf(Pair(report, format))
+                }
+            }.forEach { (report, format) ->
+                val outputFile = if (outputFileName != null) {
+                    File(outputFileName!!)
+                } else {
+                    val fileName = Report.formFilename(
+                        report.id,
+                        report.schema.baseName,
+                        format,
+                        report.createdDateTime,
+                        report.schema.useAphlNamingFormat,
+                        report.schema.receivingOrganization
+                    )
+                    File(outputDir ?: ".", fileName)
+                }
+                echo(outputFile.absolutePath)
+                if (!outputFile.exists()) {
+                    outputFile.createNewFile()
+                }
+                outputFile.outputStream().use {
+                    writeBlock(report, format, it)
+                }
             }
-            echo(outputFile.absolutePath)
-            if (!outputFile.exists()) {
-                outputFile.createNewFile()
-            }
-            outputFile.outputStream().use {
-                writeBlock(report, format, it)
-            }
-        }
     }
 
     // NOTE: This exists to support not-yet-implemented functionality.
@@ -193,33 +267,36 @@ class ProcessData : CliktCommand(
         }
     }
 
-    private fun compareCsvDocuments() {
-        val fileOne = csvCompareFile[0]
-        val fileTwo = csvCompareFile[1]
-        val csvComparer = CsvComparer(fileOne, fileTwo, csvRecordId)
-        csvComparer.compareFiles()
+    private fun getOutputFormat(default: Report.Format): Report.Format {
+        return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
     }
 
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        metadata.receivingApplication = receivingApplication
+        metadata.receivingFacility = receivingFacility
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata)
         val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
         // Gather input source
-        val inputReport: Report = when (inputSource) {
-            is InputSource.ListOfFilesSource -> mergeReports(metadata, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
-            is InputSource.FileSource -> readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName)
-            is InputSource.DirSource -> TODO("Dir source is not implemented")
+        var inputReport: Report = when (inputSource) {
+            is InputSource.ListOfFilesSource ->
+                mergeReports(metadata, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
+            is InputSource.FileSource ->
+                readReportFromFile(metadata, (inputSource as InputSource.FileSource).fileName)
+            is InputSource.DirSource ->
+                TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
-                val schema = metadata.findSchema(inputSchema ?: "") ?: error("$inputSchema is an invalid schema name")
+                val schema = metadata.findSchema(inputSchema ?: "")
+                    ?: error("$inputSchema is an invalid schema name")
                 FakeReport(metadata).build(
                     schema,
                     (inputSource as InputSource.FakeSource).count,
                     FileSource("fake"),
-                    targetState,
-                    targetCounty
+                    targetStates,
+                    targetCounties
                 )
             }
             else -> {
@@ -227,39 +304,68 @@ class ProcessData : CliktCommand(
             }
         }
 
+        // synthesize the data here
+        // todo: put these strategies into metadata so we can load them from a file
+        val synthesizeStrategies = mapOf(
+            "patient_last_name" to Report.SynthesizeStrategy.FAKE,
+            "patient_first_name" to Report.SynthesizeStrategy.FAKE,
+            "patient_middle_name" to Report.SynthesizeStrategy.FAKE,
+            "patient_middle_initial" to Report.SynthesizeStrategy.FAKE,
+            "patient_gender" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_race" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_ethnicity" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_dob" to Report.SynthesizeStrategy.SHUFFLE,
+            "patient_phone_number" to Report.SynthesizeStrategy.FAKE,
+            "patient_street" to Report.SynthesizeStrategy.FAKE,
+            "patient_state" to Report.SynthesizeStrategy.FAKE,
+            "patient_city" to Report.SynthesizeStrategy.FAKE,
+            "patient_county" to Report.SynthesizeStrategy.FAKE,
+            "patient_zip_code" to Report.SynthesizeStrategy.FAKE,
+            "message_id" to Report.SynthesizeStrategy.FAKE,
+            "patient_email" to Report.SynthesizeStrategy.FAKE,
+        )
+
         if (!validate) TODO("validation cannot currently be disabled")
         if (send) TODO("--send is not implemented")
+        if (synthesize) inputReport = inputReport.synthesizeData(synthesizeStrategies, targetStates, targetCounties)
 
         // Transform reports
         val translator = Translator(metadata)
-        val outputFormat = if (outputHl7) OrganizationService.Format.HL7 else OrganizationService.Format.CSV
-        val outputReports: List<Pair<Report, OrganizationService.Format>> = when {
+        val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
                     .filterAndTranslateByService(inputReport)
-                    .map { it.first to it.second.format }
+                    .map { it.first to getOutputFormat(it.second.format) }
             routeTo != null -> {
                 val pair = translator.translate(input = inputReport, toService = routeTo!!)
-                if (pair != null) listOf(Pair(pair.first, pair.second.format)) else emptyList()
+                if (pair != null)
+                    listOf(pair.first to getOutputFormat(pair.second.format))
+                else
+                    emptyList()
             }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
                 val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())
                 if (mapping.missing.isNotEmpty()) {
-                    error("Error: When translating to $'${toSchema.name} missing fields for ${mapping.missing.joinToString(", ")}")
+                    error(
+                        "Error: When translating to $'${toSchema.name} " +
+                            "missing fields for ${mapping.missing.joinToString(", ")}"
+                    )
                 }
                 val toReport = inputReport.applyMapping(mapping)
-                listOf(Pair(toReport, outputFormat))
+                listOf(Pair(toReport, getOutputFormat(Report.Format.CSV)))
             }
-            else -> listOf(Pair(inputReport, outputFormat))
+            else -> listOf(Pair(inputReport, getOutputFormat(Report.Format.CSV)))
         }
 
         // Output reports
         writeReportsToFile(outputReports) { report, format, stream ->
             when (format) {
-                OrganizationService.Format.CSV -> csvSerializer.write(report, stream)
-                OrganizationService.Format.HL7 -> hl7Serializer.write(report, stream)
-                OrganizationService.Format.REDOX -> redoxSerializer.write(report, stream)
+                Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
+                Report.Format.CSV -> csvSerializer.write(report, stream)
+                Report.Format.HL7 -> hl7Serializer.write(report, stream)
+                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
+                Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
     }
@@ -267,7 +373,7 @@ class ProcessData : CliktCommand(
 
 fun listSchemas(metadata: Metadata) {
     println("Current Hub Schema Library")
-    var formatTemplate = "%-25s\t%-10s\t%s"
+    val formatTemplate = "%-25s\t%-10s\t%s"
     println(formatTemplate.format("Schema Name", "Topic", "Description"))
     metadata.schemas.forEach {
         println(formatTemplate.format(it.name, it.topic, it.description))
@@ -288,7 +394,14 @@ class ListSchemas : CliktCommand(
         println()
         println("Current Services (Receivers from the Hub)")
         formatTemplate = "%-18s\t%-10s\t%-25s\t%s"
-        println(formatTemplate.format("Organization Name", "Service Name", "Schema Sent by Hub", "Filters Applied"))
+        println(
+            formatTemplate.format(
+                "Organization Name",
+                "Service Name",
+                "Schema Sent by Hub",
+                "Filters Applied"
+            )
+        )
         metadata.organizationServices.forEach {
             println(
                 formatTemplate.format(
@@ -317,13 +430,25 @@ class GenerateDocs : CliktCommand(
     generate docs for a particular schema, use the --input-schema option.
     """
 ) {
-    private val inputSchema by option("--input-schema", metavar = "<schema_name>", help = "schema to document")
+    private val inputSchema by option(
+        "--input-schema",
+        metavar = "<schema_name>",
+        help = "schema to document"
+    )
     private val includeTimestamps by
     option("--include-timestamps", help = "include creation time in file names")
         .flag(default = false)
-    private val outputFileName by option("--output", metavar = "<path>", help = "write documentation to this file (should not include extension)")
+    private val outputFileName by option(
+        "--output",
+        metavar = "<path>",
+        help = "write documentation to this file (should not include extension)"
+    )
     private val defaultOutputDir = "docs/schema_documentation"
-    private val outputDir by option("--output-dir", metavar = "<path>", help = "interpret `--output` relative to this directory (default: \"$defaultOutputDir\")")
+    private val outputDir by option(
+        "--output-dir",
+        metavar = "<path>",
+        help = "interpret `--output` relative to this directory (default: \"$defaultOutputDir\")"
+    )
         .default(defaultOutputDir)
 
     fun generateSchemaDocumentation(metadata: Metadata) {
@@ -358,6 +483,40 @@ class GenerateDocs : CliktCommand(
     }
 }
 
+class CompareCsvFiles : CliktCommand(
+    name = "compare",
+    help = """
+    compares two CSV files so you can view the differences within them
+    
+    In order to compare two CSV files, you need to pass in a record ID value, which is the
+    column header for a value that is unique per row. i.e. "Patient ID"
+        
+    Example:
+    ./prime compare --record-id "MRN" --csv-file FILE_PATH --csv-file FILE_PATH
+    """
+) {
+    // lets us compare CSV files generated by the application
+    private val csvCompareFile by option(
+        "--csv-file",
+        help = "specify paths to CSV files to compare contents"
+    ).multiple()
+    private val csvRecordId by option(
+        "--record-id",
+        help = "the column header that identifies the id value for each row in a CSV file"
+    ).default("Patient_Id")
+
+    private fun compareCsvDocuments() {
+        val fileOne = csvCompareFile[0]
+        val fileTwo = csvCompareFile[1]
+        val csvComparer = CsvComparer(fileOne, fileTwo, csvRecordId)
+        csvComparer.compareFiles()
+    }
+
+    override fun run() {
+        compareCsvDocuments()
+    }
+}
+
 fun main(args: Array<String>) = RouterCli()
-    .subcommands(ProcessData(), ListSchemas(), GenerateDocs())
+    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CompareCsvFiles())
     .main(args)

@@ -23,6 +23,11 @@ hs_err_pid*
 **/log/**
 **/dependency-reduced-pom.xml
 
+# Frontend build output
+**/node_modules/**
+**/_site/**
+**/dist/**
+
 # IDEA files
 **/.idea/**
 **/*.iml
@@ -31,7 +36,8 @@ hs_err_pid*
 # Play files
 **/result_files/*.csv
 **/routed_files/*.csv
-Test.csv
+Test*.csv
+Test*.json
 **/Xperiment.kt
 **/junk
 
@@ -76,6 +82,11 @@ prime-router/source.mry
 # PRIME test files
 prime-router/result_files/*
 prime-router/routed_files/*
+
+# Terraform files
+operations/app/src/**/.terraform*
+operations/app/src/**/terraform.tfstate*
+operations/app/src/**/plan.out
 
 # Hashicorp Vault Secrets
 prime-router/.vault/env/**

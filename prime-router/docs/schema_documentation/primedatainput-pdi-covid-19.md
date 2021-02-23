@@ -80,9 +80,9 @@ The patient's first name
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: LOINC Code
+**Table Column**: Test Performed LOINC Code
 
 **Documentation**:
 
@@ -154,7 +154,7 @@ The specimen source, such as Blood or Serum
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-2020-11-18
+**Table**: LIVD-SARS-CoV-2-2021-01-20
 
 **Table Column**: Model
 
@@ -207,6 +207,8 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 **Name**: filler_order_id
 
 **Type**: ID
+
+**HL7 Field**: ORC-3-1
 
 **Cardinality**: [0..1]
 

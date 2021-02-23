@@ -12,21 +12,23 @@ import java.util.UUID
  */
 const val messageDelimiter = "&"
 
-abstract class Event(val action: Action, val at: OffsetDateTime?) {
+abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
     abstract fun toQueueMessage(): String
 
-    enum class Action {
+    enum class EventAction {
+        RECEIVE,
         TRANSLATE, // Deprecated
         BATCH,
         SEND,
-        WIPE,
+        WIPE, // Deprecated
         NONE,
         BATCH_ERROR,
         SEND_ERROR,
-        WIPE_ERROR;
+        WIPE_ERROR; // Deprecated
 
         fun toTaskAction(): TaskAction {
             return when (this) {
+                RECEIVE -> TaskAction.receive
                 TRANSLATE -> TaskAction.translate
                 BATCH -> TaskAction.batch
                 SEND -> TaskAction.send
@@ -49,8 +51,9 @@ abstract class Event(val action: Action, val at: OffsetDateTime?) {
         }
 
         companion object {
-            fun parseQueueMessage(action: String): Action {
+            fun parseQueueMessage(action: String): EventAction {
                 return when (action.toLowerCase()) {
+                    "receive" -> RECEIVE
                     "translate" -> TRANSLATE
                     "batch" -> BATCH
                     "send" -> SEND
@@ -69,7 +72,7 @@ abstract class Event(val action: Action, val at: OffsetDateTime?) {
         fun parseQueueMessage(event: String): Event {
             val parts = event.split(messageDelimiter)
             if (parts.size < 3 || parts.size > 4) error("Internal Error: bad event format")
-            val action = Action.parseQueueMessage(parts[1])
+            val action = EventAction.parseQueueMessage(parts[1])
             val after = parts.getOrNull(3)?.let { OffsetDateTime.parse(it) }
             return when (parts[0]) {
                 ReportEvent.eventType -> {
@@ -86,20 +89,20 @@ abstract class Event(val action: Action, val at: OffsetDateTime?) {
 }
 
 class ReportEvent(
-    action: Action,
+    eventAction: EventAction,
     val reportId: UUID,
     at: OffsetDateTime? = null,
     val retryToken: RetryToken? = null
-) : Event(action, at) {
+) : Event(eventAction, at) {
 
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$action$messageDelimiter$reportId$afterClause"
+        return "$eventType$messageDelimiter$eventAction$messageDelimiter$reportId$afterClause"
     }
 
     override fun equals(other: Any?): Boolean {
         return other is ReportEvent &&
-            action == other.action &&
+            eventAction == other.eventAction &&
             reportId == other.reportId &&
             at == other.at &&
             retryToken == other.retryToken
@@ -110,15 +113,19 @@ class ReportEvent(
     }
 }
 
-class ReceiverEvent(action: Action, val receiverName: String, at: OffsetDateTime? = null) : Event(action, at) {
+class ReceiverEvent(
+    eventAction: EventAction,
+    val receiverName: String,
+    at: OffsetDateTime? = null,
+) : Event(eventAction, at) {
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
-        return "$eventType$messageDelimiter$action$messageDelimiter$receiverName$afterClause"
+        return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName$afterClause"
     }
 
     override fun equals(other: Any?): Boolean {
         return other is ReceiverEvent &&
-            action == other.action &&
+            eventAction == other.eventAction &&
             receiverName == other.receiverName &&
             at == other.at
     }

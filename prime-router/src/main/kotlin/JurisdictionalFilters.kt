@@ -92,7 +92,6 @@ class DoesNotMatch : JurisdictionalFilter {
 class FilterByCounty : JurisdictionalFilter {
     override val name = "filterByCounty"
 
-    // @todo need tons of error checking.
     override fun getSelection(args: List<String>, table: Table): Selection {
         if (args.size != 2) error("Expecting two args to filter $name:  (TwoLetterState, County)")
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.
@@ -107,7 +106,9 @@ class FilterByCounty : JurisdictionalFilter {
             patientState.isEqualTo(args[0]).and(patientCounty.matchesRegex(countyRegex))
         } else error("Schema Error: missing patient_state or patient_county columns")
 
-        val facilitySelection = if (columnNames.contains("ordering_facility_state") && columnNames.contains("ordering_facility_county")) {
+        val facilitySelection = if (columnNames.contains("ordering_facility_state") &&
+            columnNames.contains("ordering_facility_county")
+        ) {
             val facilityState = table.stringColumn("ordering_facility_state")
             val facilityCounty = table.stringColumn("ordering_facility_county")
             facilityState.isEqualTo(args[0]).and(facilityCounty.matchesRegex(countyRegex))
