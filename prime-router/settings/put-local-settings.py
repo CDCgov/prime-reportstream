@@ -35,20 +35,23 @@ def put_org(org):
         del justOrg["receivers"]
     print(f'PUT: {json.dumps(justOrg)}')
     url = f'{base_url}/settings/organizations/{org["name"]}'
-    requests.put(url, data=json.dumps(justOrg), headers=headers)
+    r = requests.put(url, data=json.dumps(justOrg), headers=headers)
+    r.raise_for_status()
 
 
 def put_sender(sender):
     print(f'PUT: {json.dumps(sender)}')
     url = f'{base_url}/settings/organizations/{sender["organizationName"]}/senders/{sender["name"]}'
-    requests.put(url, data=json.dumps(sender), headers=headers)
+    r = requests.put(url, data=json.dumps(sender), headers=headers)
+    r.raise_for_status()
 
 
 def put_receiver(receiver):
     print(f'PUT: {json.dumps(receiver)}')
     url = f'{base_url}/settings/organizations/{receiver["organizationName"]}/receivers/{receiver["name"]}'
-    requests.put(url, data=json.dumps(receiver), headers=headers)
-
+    r = requests.put(url, data=json.dumps(receiver), headers=headers)
+    r.raise_for_status()
+    
 
 def main():
     try:

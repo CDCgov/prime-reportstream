@@ -201,7 +201,7 @@ class WorkflowEngine(
         val settings: SettingsProvider by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
-            val settingsEnabled = System.getenv("PRIME_FEATURE_FLAG_SETTINGS_ENABLED")
+            val settingsEnabled = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
             if (settingsEnabled.equals("true", ignoreCase = true)) {
                 SettingsFacade(metadata)
             } else {

@@ -106,11 +106,11 @@ open class Receiver(
                     return "Invalid schemaName: ${translation.schemaName}"
             }
             is Hl7Configuration -> {
-                if (transport is RedoxTransportType)
-                    return "HL7 configurations should have have Redox transports"
+                if (transport != null && transport is RedoxTransportType)
+                    return "HL7 configurations should not have a Redox transport"
             }
             is RedoxConfiguration -> {
-                if (transport !is RedoxTransportType)
+                if (transport != null && transport !is RedoxTransportType)
                     return "Redox configurations should have Redox transports"
             }
         }

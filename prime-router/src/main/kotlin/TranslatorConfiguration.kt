@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
@@ -41,10 +42,13 @@ data class Hl7Configuration
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
 ) : TranslatorConfiguration("HL7") {
+    @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 
+    @get:JsonIgnore
     override val schemaName: String get() = HL7_SCHEMA
 
+    @get:JsonIgnore
     override val defaults: Map<String, String> get() {
         val receivingApplication = when {
             receivingApplicationName != null && receivingApplicationOID != null ->
@@ -78,10 +82,13 @@ data class RedoxConfiguration
     val sourceId: String,
     val sourceName: String,
 ) : TranslatorConfiguration("REDOX") {
+    @get:JsonIgnore
     override val format: Report.Format get() = Report.Format.REDOX
 
+    @get:JsonIgnore
     override val schemaName: String get() = REDOX_SCHEMA
 
+    @get:JsonIgnore
     override val defaults: Map<String, String> get() {
         return mapOf(
             "processing_mode_code" to (if (useTestProcessingMode) "T" else "P"),
