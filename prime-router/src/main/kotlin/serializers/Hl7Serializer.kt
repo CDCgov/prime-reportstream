@@ -360,6 +360,11 @@ class Hl7Serializer(val metadata: Metadata) {
                     terser.set(pathSpec, "") // Not at all sure what to do here.
                 }
             }
+            Element.Type.EMAIL -> {
+                if (value.isNotEmpty()) {
+                    setEmailComponent(terser, value, pathSpec, element)
+                }
+            }
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
@@ -401,11 +406,34 @@ class Hl7Serializer(val metadata: Metadata) {
         val country = parts[1]
         val extension = parts[2]
 
-        terser.set(buildComponent(pathSpec, 2), if (element.nameContains("patient")) "PRN" else "WPN")
-        terser.set(buildComponent(pathSpec, 5), country)
-        terser.set(buildComponent(pathSpec, 6), areaCode)
-        terser.set(buildComponent(pathSpec, 7), local)
-        if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
+        if (element.nameContains("patient")) {
+            var rep = 0
+            if (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
+                rep = 1
+            }
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", if (element.nameContains("patient")) "PRN" else "WPN")
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-5", country)
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-6", areaCode)
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-7", local)
+            if (extension.isNotEmpty()) terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-8", extension)
+        } else {
+            terser.set(buildComponent(pathSpec, 2), "WPN")
+            terser.set(buildComponent(pathSpec, 5), country)
+            terser.set(buildComponent(pathSpec, 6), areaCode)
+            terser.set(buildComponent(pathSpec, 7), local)
+            terser.set(buildComponent(pathSpec, 8), extension)
+        }
+    }
+
+    private fun setEmailComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
+        var rep = 0
+        if (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
+            rep = 1
+        }
+        if (element.nameContains("patient_email")) {
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "NET")
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-4", value)
+        }
     }
 
     private fun setPostalComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
@@ -446,7 +474,8 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set(formPathSpec("OBX-29", aoeRep), "QST")
         // all of these values must be set on the OBX AOE's for validation
         terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
-        terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
+        // set to a default value, but look below
+        // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
         terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
         terser.set(formPathSpec("OBX-24-1", aoeRep), report.getStringByHl7Field(row, "OBX-24-1"))
         terser.set(formPathSpec("OBX-24-2", aoeRep), report.getStringByHl7Field(row, "OBX-24-2"))
@@ -454,6 +483,14 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set(formPathSpec("OBX-24-4", aoeRep), report.getStringByHl7Field(row, "OBX-24-4"))
         terser.set(formPathSpec("OBX-24-5", aoeRep), report.getStringByHl7Field(row, "OBX-24-5"))
         terser.set(formPathSpec("OBX-24-9", aoeRep), report.getStringByHl7Field(row, "OBX-24-9"))
+        // check for the OBX-23-6 value. it needs to be split apart
+        val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner")
+        if (testingLabIdAssigner?.contains("^") == true) {
+            val testingLabIdAssignerParts = testingLabIdAssigner.split("^")
+            testingLabIdAssignerParts.forEachIndexed { index, s ->
+                terser.set(formPathSpec("OBX-23-6-${index + 1}", aoeRep), s)
+            }
+        }
     }
 
     private fun setNote(terser: Terser, value: String) {
