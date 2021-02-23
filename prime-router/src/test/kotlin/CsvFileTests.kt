@@ -55,7 +55,7 @@ class CsvFileTests {
         val schema = metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
 
         // 1) Ingest the file
-        val result = csvSerializer.read(schema.name, file.inputStream(), TestSource)
+        val result = csvSerializer.readExternal(schema.name, file.inputStream(), TestSource)
         assertTrue(result.warnings.isEmpty() && result.errors.isEmpty())
         val inputReport = result.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules

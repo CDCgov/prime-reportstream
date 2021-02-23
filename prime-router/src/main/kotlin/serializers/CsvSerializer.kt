@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
@@ -40,11 +41,11 @@ class CsvSerializer(val metadata: Metadata) {
         val warnings: List<String>,
     )
 
-    fun read(schemaName: String, input: InputStream, source: Source): ReadResult {
-        return read(schemaName, input, listOf(source))
+    fun readExternal(schemaName: String, input: InputStream, source: Source): ReadResult {
+        return readExternal(schemaName, input, listOf(source))
     }
 
-    fun read(
+    fun readExternal(
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
@@ -88,11 +89,12 @@ class CsvSerializer(val metadata: Metadata) {
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
-        destination: Receiver? = null
+        destination: Receiver? = null,
+        blobReportId: ReportId? = null
     ): Report {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
         val rows: List<List<String>> = csvReader().readAll(input).drop(1)
-        return Report(schema, rows, sources, destination)
+        return Report(schema, rows, sources, destination, id = blobReportId)
     }
 
     fun write(report: Report, output: OutputStream) {

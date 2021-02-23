@@ -81,7 +81,7 @@ class ReportFunction {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
                     val destinations = mutableListOf<String>()
                     routeReport(context, workflowEngine, validatedRequest, destinations, actionHistory)
-                    val responseBody = createResponseBody(validatedRequest, destinations)
+                    val responseBody = createResponseBody(validatedRequest, destinations, actionHistory)
                     workflowEngine.receiveReport(validatedRequest.report)
                     actionHistory.trackExternalInputReport(validatedRequest)
                     HttpUtilities.createdResponse(request, responseBody)
@@ -186,7 +186,7 @@ class ReportFunction {
         return when (sender.format) {
             Sender.Format.CSV -> {
                 try {
-                    val readResult = engine.csvSerializer.read(
+                    val readResult = engine.csvSerializer.readExternal(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
@@ -258,14 +258,16 @@ class ReportFunction {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                destinations += "Sending ${batchReport.itemCount} items to $receiverDescription at $time"
-                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
+                // todo remove this.
+                destinations += "Sending ${batchReport.itemCount} items to $serviceDescription at $time"
+                val event = ReceiverEvent(Event.EventAction.BATCH, service.fullName, time)
                 workflowEngine.dispatchReport(event, batchReport, txn)
                 actionHistory.trackCreatedReport(event, batchReport, receiver)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.format == Report.Format.HL7 -> {
-                destinations += "Sending ${report.itemCount} reports to $receiverDescription immediately"
+            service.format == Report.Format.HL7 -> {
+                // todo Remove this.   Furthermore, this 'immediately' is no longer always true.
+                destinations += "Sending ${report.itemCount} reports to $serviceDescription immediately"
                 report
                     .split()
                     .forEach {
@@ -286,7 +288,12 @@ class ReportFunction {
         context.logger.info(loggerMsg)
     }
 
-    private fun createResponseBody(result: ValidatedRequest, destinations: List<String> = emptyList()): String {
+    // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
+    private fun createResponseBody(
+        result: ValidatedRequest,
+        destinations: List<String> = emptyList(),
+        actionHistory: ActionHistory? = null,
+    ): String {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
@@ -297,9 +304,7 @@ class ReportFunction {
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
-            it.writeArrayFieldStart("destinations")
-            destinations.forEach { destination -> it.writeString(destination) }
-            it.writeEndArray()
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.metadata)
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)
@@ -315,7 +320,6 @@ class ReportFunction {
                 }
                 it.writeEndArray()
             }
-
             writeDetailsArray("errors", result.errors)
             writeDetailsArray("warnings", result.warnings)
             it.writeEndObject()

@@ -46,6 +46,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         }
     }
 
+    /**
+     * This does both the filtering by jurisdiction, and also the translation.
+     */
     private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->

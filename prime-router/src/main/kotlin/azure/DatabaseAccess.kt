@@ -16,6 +16,7 @@ import gov.cdc.prime.router.azure.db.Tables.TASK_SOURCE
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -53,6 +54,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         val task: Task,
         val sources: List<TaskSource>,
         val reportFile: ReportFile,
+        val itemLineages: List<ItemLineage>?, // ok to not have item-level lineage
         val engine: WorkflowEngine = WorkflowEngine()
     ) {
         // Populate the header with useful metadata objs, and the blob body.
@@ -187,8 +189,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
         val reportFile = ActionHistory.fetchReportFile(reportId, ctx)
         ActionHistory.sanityCheckReport(task, reportFile, false)
+        val itemLineages = ActionHistory.fetchItemLineagesForReport(reportId, reportFile.itemCount, ctx)
 
-        return Header(task, taskSources, reportFile)
+        return Header(task, taskSources, reportFile, itemLineages)
     }
 
     /**
@@ -235,7 +238,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
         // taskSources seems erroneous.  All the sources for all Tasks are attached to each indiv. task. ?
         // todo remove the !!
-        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!) }
+        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, null) }
     }
 
     fun fetchDownloadableHeaders(
@@ -264,10 +267,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .into(TaskSource::class.java)
 
         val reportFiles = ActionHistory.fetchDownloadableReportFiles(since, receiverName, create)
+//        val itemLineagesPerReport = ActionHistory.fetchItemLineagesForReports(reportFiles.values, create)
         ActionHistory.sanityCheckReports(tasks, reportFiles, false)
 
         // todo fix the !!.  Right now the sanityCheck guarantees non-null.
-        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!) }
+//        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, itemLineagesPerReport[it.reportId]) }
+        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, null) }
     }
 
     fun fetchHeader(
@@ -290,8 +295,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
         val reportFile = ActionHistory.fetchReportFile(reportId, create)
         ActionHistory.sanityCheckReport(task, reportFile, false)
+        val itemLineages = ActionHistory.fetchItemLineagesForReport(reportId, reportFile.itemCount, create)
 
-        return Header(task, taskSources, reportFile)
+        return Header(task, taskSources, reportFile, itemLineages)
     }
 
     /**
