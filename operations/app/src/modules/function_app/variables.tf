@@ -97,3 +97,8 @@ variable "ai_instrumentation_key" {
     description = "Application Insights Instrumentation Key"
     sensitive = true
 }
+
+variable "okta_redirect_url" {
+    type = string
+    description = "Okta Redirect URL"
+}

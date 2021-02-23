@@ -115,7 +115,6 @@ resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vn
 data "azurerm_function_app" "app_data" {
   name = "${var.resource_prefix}-functionapp"
   resource_group_name = var.resource_group
-
 }
 
 output "app_service_plan_id" {
