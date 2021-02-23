@@ -44,6 +44,7 @@ module "function_app" {
     postgres_url = "jdbc:postgresql://${module.database.server_name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
     redox_secret = var.redox_secret
     okta_client_id = var.okta_client_id
+    okta_redirect_url = var.okta_redirect_url
     az_phd_user = var.az_phd_user
     az_phd_password = var.az_phd_password
     login_server = module.container_registry.login_server

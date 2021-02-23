@@ -15,6 +15,7 @@ RUN yum -y install azure-cli-${AZURE_CLI_VERSION}-1.el7
 # Changing the terraform version must also be done in:
 # - app/src/environments/dev/main.tf
 # - app/src/environments/test/main.tf
+# - app/src/environments/staging/main.tf
 # - app/src/environments/prod/main.tf
 ENV TERRAFORM_VERSION=0.14.5
 
