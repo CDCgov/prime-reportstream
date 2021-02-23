@@ -6,11 +6,11 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
@@ -439,7 +439,8 @@ class ActionHistory {
 
     // Used as temp storage by the json generator, below.
     private data class DestinationData(
-        val orgSvc: OrganizationService,
+        val orgReceiver: Receiver,
+        val organization: Organization,
         var count: Int,
         val sendingAt: OffsetDateTime? = null,
     )
@@ -450,7 +451,7 @@ class ActionHistory {
      *
      * This works by side-effect on jsonGen.
      */
-    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator, metadata: Metadata) {
+    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator, settings: SettingsProvider) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
         if (reportsOut.isNotEmpty()) {
@@ -458,18 +459,25 @@ class ActionHistory {
             var singles = mutableMapOf<String, DestinationData>()
             reportsOut.forEach { (id, reportFile) ->
                 val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
-                val orgSvc = metadata.findService(fullname) ?: return@forEach
+                val orgReceiver = settings.findReceiver(fullname) ?: return@forEach
+                val organization = settings.findOrganization(reportFile.receivingOrg) ?: return@forEach
                 if (reportFile.itemCount == 1) {
                     var previous =
-                        singles.putIfAbsent(fullname, DestinationData(orgSvc, 1, reportFile.nextActionAt))
+                        singles.putIfAbsent(
+                            fullname, DestinationData(orgReceiver, organization, 1, reportFile.nextActionAt)
+                        )
                     if (previous != null) previous.count++
                 } else {
-                    prettyPrintDestinationJson(jsonGen, orgSvc, reportFile.nextActionAt, reportFile.itemCount)
+                    prettyPrintDestinationJson(
+                        jsonGen, orgReceiver, organization, reportFile.nextActionAt, reportFile.itemCount
+                    )
                     destinationCounter++
                 }
             }
-            singles.forEach { (orgSvcName, destData) ->
-                prettyPrintDestinationJson(jsonGen, destData.orgSvc, destData.sendingAt, destData.count)
+            singles.forEach { (orgReceiverName, destData) ->
+                prettyPrintDestinationJson(
+                    jsonGen, destData.orgReceiver, destData.organization, destData.sendingAt, destData.count
+                )
                 destinationCounter++
             }
         }
@@ -479,15 +487,16 @@ class ActionHistory {
 
     fun prettyPrintDestinationJson(
         jsonGen: JsonGenerator,
-        orgSvc: OrganizationService,
+        orgReceiver: Receiver,
+        organization: Organization,
         sendingAt: OffsetDateTime?,
         countToPrint: Int
     ) {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
-        jsonGen.writeStringField("organization", orgSvc.organization.description)
-        jsonGen.writeStringField("organization_id", orgSvc.organization.name)
-        jsonGen.writeStringField("service", orgSvc.name)
+        jsonGen.writeStringField("organization", organization.description)
+        jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
+        jsonGen.writeStringField("service", orgReceiver.name)
         jsonGen.writeStringField(
             "sending_at",
             if (sendingAt == null) "immediately" else "$sendingAt"

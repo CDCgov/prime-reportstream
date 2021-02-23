@@ -49,8 +49,8 @@ class DeepOrganization(
     name: String,
     description: String,
     jurisdiction: Jurisdiction,
-    stateCode: String?,
-    countyName: String?,
+    stateCode: String? = null,
+    countyName: String? = null,
     val senders: List<Sender> = emptyList(),
     val receivers: List<Receiver> = emptyList(),
 ) : Organization(name, description, jurisdiction, stateCode, countyName)

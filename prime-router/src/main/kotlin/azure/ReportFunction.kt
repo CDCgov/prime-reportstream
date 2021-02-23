@@ -259,15 +259,15 @@ class ReportFunction {
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
                 // todo remove this.
-                destinations += "Sending ${batchReport.itemCount} items to $serviceDescription at $time"
-                val event = ReceiverEvent(Event.EventAction.BATCH, service.fullName, time)
+                destinations += "Sending ${batchReport.itemCount} items to $receiverDescription at $time"
+                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
                 workflowEngine.dispatchReport(event, batchReport, txn)
                 actionHistory.trackCreatedReport(event, batchReport, receiver)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            service.format == Report.Format.HL7 -> {
+            receiver.format == Report.Format.HL7 -> {
                 // todo Remove this.   Furthermore, this 'immediately' is no longer always true.
-                destinations += "Sending ${report.itemCount} reports to $serviceDescription immediately"
+                destinations += "Sending ${report.itemCount} reports to $receiverDescription immediately"
                 report
                     .split()
                     .forEach {
@@ -304,7 +304,7 @@ class ReportFunction {
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.metadata)
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings)
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)

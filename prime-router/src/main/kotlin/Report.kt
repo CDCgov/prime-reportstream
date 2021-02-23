@@ -211,7 +211,7 @@ class Report {
         schema: Schema,
         values: Map<String, List<String>>,
         source: Source,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
     ) {

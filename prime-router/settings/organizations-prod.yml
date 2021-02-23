@@ -161,7 +161,7 @@
     - name: elr-chester-prod
       organizationName: pa-phd
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
       deidentify: false
       translation:
         type: CUSTOM
@@ -195,3 +195,35 @@
       transport:
         type: REDOX
         apiKey: 9e7f9bd1-a876-4f10-9d17-0833dc7bf60d # Redox prod
+
+- name: pa-chester-phd
+  description: Health Department - Chester County, Pennsylvania
+  jurisdiction: COUNTY
+  stateCode: CO
+  countyName: Chester
+  receivers:
+    - name: elr-chester-download
+      organizationName: pa-chester-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: strac/strac-covid-19
+        format: CSV
+
+- name: pa-montgomery-phd
+  description: Office of Public Health - Montgomery County, Pennsylvania
+  jurisdiction: COUNTY
+  stateCode: CO
+  countyName: Montgomery
+  receivers:
+    - name: elr-montgomery-download
+      organizationName: pa-montgomery-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: strac/strac-covid-19
+        format: CSV

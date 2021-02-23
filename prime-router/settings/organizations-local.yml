@@ -200,7 +200,7 @@
       - name: elr-chester-local
         topic: covid-19
         organizationName: pa-phd
-        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
         translation:
           type: CUSTOM
           schemaName: pa/pa-covid-19-redox
@@ -225,3 +225,119 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+
+  - name: pa-chester-phd
+    description: Health Department - Chester County, Pennsylvania
+    jurisdiction: COUNTY
+    stateCode: CO
+    countyName: Chester
+    receivers:
+      - name: elr-chester-download-local
+        organizationName: pa-chester-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: strac/strac-covid-19
+          defaults:
+            processing_mode_code: T
+          format: CSV
+
+  - name: pa-montgomery-phd
+    description: Office of Public Health - Montgomery County, Pennsylvania
+    jurisdiction: COUNTY
+    stateCode: CO
+    countyName: Montgomery
+    receivers:
+      - name: elr-montgomery-download-local
+        organizationName: pa-montgomery-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: strac/strac-covid-19
+          defaults:
+            processing_mode_code: T
+          format: CSV
+
+  - name: prime
+    description: Prime Test Receiver
+    jurisdiction: FEDERAL
+    receivers:
+      - name: csv-test
+        organizationName: prime
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, CSV)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: fl/fl-covid-19
+          format: CSV
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        #    - name: hl7-test
+        #      topic: covid-19
+        #      schemaName: tx/tx-covid-19-hl7
+        #      jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, HL7)" ]
+        #      batch:
+        #        operation: MERGE
+        #        numberPerDay: 1440 # Every minute
+        #        initialTime: 00:00
+        #        timeZone: ARIZONA
+        #      format: HL7
+        #      transports:
+        #        - type: SFTP
+        #          host: sftp
+        #          port: 22
+        #          filePath: ./upload
+      - name: hl7-batch-test
+        organizationName: prime
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, HL7_BATCH)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: ARIZONA
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19-hl7
+          format: HL7_BATCH
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+      - name: redox-test
+        organizationName: prime
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, REDOX)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: ARIZONA
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19-hl7
+          format: REDOX
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: 62d62d52-3771-4151-aff4-4a3d420a8b7a
+            redox_destination_name: "Prime Local Redox Destination"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Hub (Staging)"
+        transport:
+          type: REDOX
+          apiKey: some_key
+          baseUrl: http://redox:1080
+
+
