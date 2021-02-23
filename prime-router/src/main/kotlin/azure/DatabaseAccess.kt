@@ -377,6 +377,58 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.into(Setting::class.java)
     }
 
+    /**
+     * Fetch both the item and the organization of the item at the same time to optimize db queries
+     */
+    fun fetchItemAndOrganization(
+        type: SettingType, name: String, organizationName: String, txn: DataAccessTransaction
+    ): Pair<Setting, Setting>? {
+        val org = SETTING.`as`("org")
+        val item = SETTING.`as`("item")
+        val result = DSL
+            .using(txn)
+            .select(item.asterisk(), org.asterisk())
+            .from(item)
+            .join(org).on(item.ORGANIZATION_ID.eq(org.SETTING_ID))
+            .where(
+                item.IS_ACTIVE.isTrue,
+                item.TYPE.eq(type),
+                item.NAME.eq(name),
+                org.IS_ACTIVE.isTrue,
+                org.TYPE.eq(SettingType.ORGANIZATION),
+                org.ORGANIZATION_ID.isNull,
+                org.NAME.eq(organizationName),
+            )
+            .fetchOne()
+            ?: return null
+
+        val itemSetting = Setting(
+            result.get(item.SETTING_ID),
+            result.get(item.TYPE),
+            result.get(item.NAME),
+            result.get(item.ORGANIZATION_ID),
+            result.get(item.VALUES),
+            result.get(item.IS_DELETED),
+            result.get(item.IS_ACTIVE),
+            result.get(item.VERSION),
+            result.get(item.CREATED_BY),
+            result.get(item.CREATED_AT)
+        )
+        val orgSetting = Setting(
+            result.get(org.SETTING_ID),
+            result.get(org.TYPE),
+            result.get(org.NAME),
+            result.get(org.ORGANIZATION_ID),
+            result.get(org.VALUES),
+            result.get(org.IS_DELETED),
+            result.get(org.IS_ACTIVE),
+            result.get(org.VERSION),
+            result.get(org.CREATED_BY),
+            result.get(org.CREATED_AT)
+        )
+        return Pair(itemSetting, orgSetting)
+    }
+
     fun fetchSettings(type: SettingType, txn: DataAccessTransaction): List<Setting> {
         return DSL
             .using(txn)

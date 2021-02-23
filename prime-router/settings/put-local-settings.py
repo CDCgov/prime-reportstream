@@ -15,9 +15,10 @@ parser.add_argument('org_file', default='organizations-local.yml')
 parser.add_argument('--wait', type=int, default=0)
 args = parser.parse_args()
 host = args.host
+protocol = "http"
 org_file = args.org_file
 
-base_url = f"http://{host}:7071/api"
+base_url = f"{protocol}://{host}:7071/api"
 headers = {"Authorization": "bearer xyz", "Content-Type": "application/json"}
 
 
