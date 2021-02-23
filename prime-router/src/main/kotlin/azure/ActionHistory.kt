@@ -26,6 +26,7 @@ import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
+import java.security.MessageDigest
 import java.time.OffsetDateTime
 
 /**
@@ -536,7 +537,7 @@ class ActionHistory {
             since: OffsetDateTime?,
             orgName: String,
             ctx: DSLContext,
-        ): Map<ReportId, ReportFile> {
+        ): List<ReportFile> {
             val cond = if (since == null) {
                 Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
                     .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
@@ -549,8 +550,9 @@ class ActionHistory {
             return ctx
                 .selectFrom(Tables.REPORT_FILE)
                 .where(cond)
+                .orderBy(REPORT_FILE.CREATED_AT.desc())
                 .fetch()
-                .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
+                .into(ReportFile::class.java).toList()
         }
 
         /**
@@ -588,6 +590,20 @@ class ActionHistory {
                     error("For report $reportId, expected $itemCount unique indexes; there were $uniqueIndexCount")
             }
             return itemLineages
+        }
+
+        fun digestToString(digest: ByteArray): String {
+            return digest.joinToString(separator = "", limit = 40) { Integer.toHexString(it.toInt()) }
+        }
+
+        fun sha256Digest(input: ByteArray): ByteArray {
+            return hashBytes("SHA-256", input)
+        }
+
+        fun hashBytes(type: String, input: ByteArray): ByteArray {
+            return MessageDigest
+                .getInstance(type)
+                .digest(input)
         }
 
         /**

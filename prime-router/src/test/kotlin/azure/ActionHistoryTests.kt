@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
@@ -58,7 +59,7 @@ class ActionHistoryTests {
         val incomingReport = ReportFunction.ValidatedRequest(
             ReportFunction.Options.CheckConnections, mapOf(),
             listOf<ResultDetail>(),
-            listOf<ResultDetail>(), report1
+            listOf<ResultDetail>(), report1, HttpStatus.OK
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.trackExternalInputReport(incomingReport)
@@ -77,7 +78,7 @@ class ActionHistoryTests {
         val incomingReport2 = ReportFunction.ValidatedRequest(
             ReportFunction.Options.CheckConnections, mapOf(),
             listOf<ResultDetail>(),
-            listOf<ResultDetail>(), null
+            listOf<ResultDetail>(), null, HttpStatus.OK
         )
         assertFails { actionHistory1.trackExternalInputReport(incomingReport2) }
     }
@@ -214,7 +215,7 @@ class ActionHistoryTests {
         val incomingReport = ReportFunction.ValidatedRequest(
             ReportFunction.Options.None, mapOf(),
             listOf<ResultDetail>(),
-            listOf<ResultDetail>(), report1
+            listOf<ResultDetail>(), report1, HttpStatus.OK
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.trackExternalInputReport(incomingReport)

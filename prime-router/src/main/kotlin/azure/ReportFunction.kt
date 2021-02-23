@@ -19,6 +19,7 @@ import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.lang.NumberFormatException
 import java.time.OffsetDateTime
 import java.util.logging.Level
 
@@ -32,6 +33,7 @@ class ReportFunction {
     private val defaultParameter = "default"
     private val defaultSeparator = ":"
     private val jsonMediaType = "application/json" // TODO: find a good media library
+    private val maxContentLength: Long = 40 * 1000 * 1000
 
     enum class Options {
         None,
@@ -46,7 +48,8 @@ class ReportFunction {
         val defaults: Map<String, String>,
         val errors: List<ResultDetail>,
         val warnings: List<ResultDetail>,
-        val report: Report?
+        val report: Report?,
+        val httpStatus: HttpStatus
     )
 
     /**
@@ -73,7 +76,7 @@ class ReportFunction {
                     okResponse(request, validatedRequest)
                 }
                 validatedRequest.report == null -> {
-                    badRequestResponse(request, validatedRequest)
+                    notOKResponse(request, validatedRequest)
                 }
                 validatedRequest.options == Options.ValidatePayload -> {
                     okResponse(request, validatedRequest)
@@ -101,6 +104,13 @@ class ReportFunction {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
 
+        val (sizeStatus, errMsg) = payloadSizeCheck(request)
+        if (sizeStatus != HttpStatus.OK) {
+            errors.add(ResultDetail.report(errMsg))
+            // If size is too big, we ignore the option.
+            return ValidatedRequest(Options.None, emptyMap(), errors, warnings, null, sizeStatus)
+        }
+
         val optionsText = request.queryParameters.getOrDefault(optionParameter, "")
         val options = if (optionsText.isNotBlank()) {
             try {
@@ -112,8 +122,9 @@ class ReportFunction {
         } else {
             Options.None
         }
+
         if (options == Options.CheckConnections) {
-            return ValidatedRequest(options, emptyMap(), errors, warnings, null)
+            return ValidatedRequest(options, emptyMap(), errors, warnings, null, HttpStatus.OK)
         }
 
         val clientName = request.headers[clientParameter] ?: request.queryParameters.getOrDefault(clientParameter, "")
@@ -137,7 +148,7 @@ class ReportFunction {
         }
 
         if (client == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, emptyMap(), errors, warnings, null)
+            return ValidatedRequest(options, emptyMap(), errors, warnings, null, HttpStatus.BAD_REQUEST)
         }
 
         val defaultValues = if (request.queryParameters.containsKey(defaultParameter)) {
@@ -165,14 +176,14 @@ class ReportFunction {
         }
 
         if (content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, defaultValues, errors, warnings, null)
+            return ValidatedRequest(options, defaultValues, errors, warnings, null, HttpStatus.BAD_REQUEST)
         }
 
         var report = createReport(engine, client, content, defaultValues, errors, warnings)
         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
             report = null
         }
-        return ValidatedRequest(options, defaultValues, errors, warnings, report)
+        return ValidatedRequest(options, defaultValues, errors, warnings, report, HttpStatus.OK)
     }
 
     private fun createReport(
@@ -320,12 +331,12 @@ class ReportFunction {
             .build()
     }
 
-    private fun badRequestResponse(
+    private fun notOKResponse(
         request: HttpRequestMessage<String?>,
         validatedRequest: ValidatedRequest,
     ): HttpResponseMessage {
         return request
-            .createResponseBuilder(HttpStatus.BAD_REQUEST)
+            .createResponseBuilder(validatedRequest.httpStatus)
             .body(createResponseBody(validatedRequest))
             .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
             .build()
@@ -349,5 +360,34 @@ class ReportFunction {
             .createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("Internal error at ${OffsetDateTime.now()}")
             .build()
+    }
+
+    private fun payloadSizeCheck(request: HttpRequestMessage<String?>): Pair<HttpStatus, String> {
+        val contentLengthStr = request.headers["content-length"]
+        if (contentLengthStr == null) {
+            return HttpStatus.LENGTH_REQUIRED to "ERROR: No content-length header found.  Refusing this request."
+        }
+        val contentLength = try {
+            contentLengthStr.toLong()
+        } catch (e: NumberFormatException) {
+            return HttpStatus.LENGTH_REQUIRED to "ERROR: content-length header is not a number"
+        }
+        when {
+            contentLength < 0 -> {
+                return HttpStatus.LENGTH_REQUIRED to "ERROR: negative content-length $contentLength"
+            }
+            contentLength > maxContentLength -> {
+                return HttpStatus.PAYLOAD_TOO_LARGE to
+                    "ERROR: content-length $contentLength is larger than max $maxContentLength"
+            }
+        }
+        // content-length header is ok.  Now check size of actual body as well
+        val content = request.body
+        if (content != null && content.length > maxContentLength) {
+            return HttpStatus.PAYLOAD_TOO_LARGE to
+                "ERROR: body size ${content.length} is larger than max $maxContentLength " +
+                "(content-length header = $contentLength"
+        }
+        return HttpStatus.OK to ""
     }
 }

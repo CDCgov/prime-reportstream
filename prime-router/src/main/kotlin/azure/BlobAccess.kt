@@ -18,6 +18,13 @@ class BlobAccess(
     private val hl7Serializer: Hl7Serializer,
     private val redoxSerializer: RedoxSerializer
 ) {
+
+    data class Info(
+        val format: Report.Format,
+        val blobUrl: String,
+        val digest: ByteArray,
+    )
+
     fun uploadBody(report: Report): Pair<String, String> {
         val (bodyFormat, blobBytes) = createBodyBytes(report)
         val blobUrl = uploadBlob(report.name, blobBytes)

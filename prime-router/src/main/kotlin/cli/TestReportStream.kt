@@ -21,6 +21,7 @@ import gov.cdc.prime.router.azure.ReportFunction
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import org.jooq.impl.DSL
 import java.io.File
+import java.io.IOException
 import java.lang.Thread.sleep
 import java.net.HttpURLConnection
 import java.net.URL
@@ -155,8 +156,8 @@ Examples:
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            echo("***EndToEnd Test FAILED***:  response code $responseCode")
-            exitProcess(-1)
+            echo("**Strac Test FAILED***:  response code $responseCode")
+            return
         }
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
@@ -195,7 +196,7 @@ Examples:
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             echo("***EndToEnd Test FAILED***:  response code $responseCode")
-            exitProcess(-1)
+            return
         }
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
@@ -220,7 +221,7 @@ Examples:
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_OK) {
             echo("Test FAILED:  response code $responseCode")
-            exitProcess(-1)
+            exitProcess(-1) // other tests won't work.
         }
         val tree = jacksonObjectMapper().readTree(json)
         if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
@@ -257,7 +258,7 @@ Examples:
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             echo("***EndToEnd Test FAILED***:  response code $responseCode")
-            exitProcess(-1)
+            return
         }
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
@@ -410,7 +411,11 @@ Examples:
                 outputStream.use {
                     it.write(bytes)
                 }
-                val response = inputStream.bufferedReader().readText()
+                val response = try {
+                    inputStream.bufferedReader().readText()
+                } catch (e: IOException) {
+                    return responseCode to responseMessage
+                }
                 return responseCode to response
             }
         }

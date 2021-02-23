@@ -231,38 +231,11 @@ class DatabaseAccess(private val create: DSLContext) {
         return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, null) }
     }
 
-    fun fetchDownloadableHeaders(
+    fun fetchDownloadableReportFiles(
         since: OffsetDateTime?,
         receiverName: String,
-    ): List<Header> {
-        val cond = if (since == null) {
-            TASK.SENT_AT.isNotNull()
-                .and(TASK.RECEIVER_NAME.like("$receiverName%"))
-        } else {
-            TASK.RECEIVER_NAME.like("$receiverName%")
-                .and(TASK.CREATED_AT.ge(since))
-                .and(TASK.SENT_AT.isNotNull())
-        }
-        val tasks = create
-            .selectFrom(TASK)
-            .where(cond)
-            .fetch()
-            .into(Task::class.java)
-
-        val ids = tasks.map { it.reportId }
-        val taskSources = create
-            .selectFrom(TASK_SOURCE)
-            .where(TASK_SOURCE.REPORT_ID.`in`(ids))
-            .fetch()
-            .into(TaskSource::class.java)
-
-        val reportFiles = ActionHistory.fetchDownloadableReportFiles(since, receiverName, create)
-//        val itemLineagesPerReport = ActionHistory.fetchItemLineagesForReports(reportFiles.values, create)
-        ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-
-        // todo fix the !!.  Right now the sanityCheck guarantees non-null.
-//        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, itemLineagesPerReport[it.reportId]) }
-        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, null) }
+    ): List<ReportFile> {
+        return ActionHistory.fetchDownloadableReportFiles(since, receiverName, create)
     }
 
     fun fetchHeader(
