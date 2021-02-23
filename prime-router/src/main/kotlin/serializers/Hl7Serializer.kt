@@ -40,7 +40,7 @@ class Hl7Serializer(val metadata: Metadata) {
     private val hapiContext = DefaultHapiContext()
     private val buildVersion: String
     private val buildDate: String
-    private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+    private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSZZZ")
 
     init {
         val buildProperties = Properties()
