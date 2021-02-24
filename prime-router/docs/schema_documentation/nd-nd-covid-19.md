@@ -324,6 +324,20 @@ Z|No record of this patient
 
 ---
 
+**Name**: ordered_test_encoding_version
+
+**Type**: TABLE
+
+**HL7 Field**: OBR-4-7
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
+
+---
+
 **Name**: ordering_facility_city
 
 **Type**: CITY
@@ -335,18 +349,6 @@ Z|No record of this patient
 **Documentation**:
 
 The city of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_county
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
 
 ---
 
@@ -473,18 +475,6 @@ The zip code of the facility which the test was ordered from
 **Documentation**:
 
 The city of the provider
-
----
-
-**Name**: ordering_provider_county
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
 
 ---
 
@@ -660,18 +650,6 @@ The patient's city
 
 ---
 
-**Name**: patient_county
-
-**Type**: TABLE_OR_BLANK
-
-**Cardinality**: [1..1]
-
-**Table**: fips-county
-
-**Table Column**: County
-
----
-
 **Name**: patient_county_code
 
 **Type**: TABLE
@@ -769,7 +747,8 @@ U|Unknown
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
 
 ---
@@ -1943,6 +1922,20 @@ The specimen source, such as Blood or Serum
 
 ---
 
+**Name**: test_kit_name_id_cwe_version
+
+**Type**: TABLE
+
+**HL7 Field**: OBX-17-7
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
+
+---
+
 **Name**: test_performed_code
 
 **Type**: TABLE
@@ -1986,6 +1979,20 @@ The LOINC description of the test performed as related to the LOINC code.
 **HL7 Field**: OBX-3-3
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: test_performed_system_version
+
+**Type**: TABLE
+
+**HL7 Field**: OBX-3-7
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
 
 ---
 
@@ -2106,18 +2113,6 @@ The accession number of the specimen collected
 **HL7 Field**: OBX-24-3
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_county
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
 
 ---
 

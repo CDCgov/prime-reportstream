@@ -733,7 +733,8 @@ U|Unknown
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
 
 ---
@@ -2467,6 +2468,20 @@ UNK|Unknown
 
 ---
 
+**Name**: ordered_test_encoding_version
+
+**Type**: TABLE
+
+**HL7 Field**: OBR-4-7
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
+
+---
+
 **Name**: ordering_facility_county
 
 **Type**: TABLE
@@ -2617,6 +2632,20 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 ---
 
+**Name**: test_kit_name_id_cwe_version
+
+**Type**: TABLE
+
+**HL7 Field**: OBX-17-7
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
+
+---
+
 **Name**: test_method_description
 
 **Type**: TEXT
@@ -2630,6 +2659,20 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 **Type**: TEXT
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: test_performed_system_version
+
+**Type**: TABLE
+
+**HL7 Field**: OBX-3-7
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
 
 ---
 

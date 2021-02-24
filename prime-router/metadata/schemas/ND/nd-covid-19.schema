@@ -51,9 +51,9 @@ elements:
 
     - name: ordered_test_name
 
-    - name: ordering_facility_city
+    - name: ordered_test_encoding_version
 
-    - name: ordering_facility_county
+    - name: ordering_facility_city
 
     - name: ordering_facility_county_code
 
@@ -72,8 +72,6 @@ elements:
     - name: ordering_facility_zip_code
 
     - name: ordering_provider_city
-
-    - name: ordering_provider_county
 
     - name: ordering_provider_county_code
 
@@ -100,8 +98,6 @@ elements:
     - name: ordering_provider_zip_code
 
     - name: patient_city
-
-    - name: patient_county
 
     - name: patient_county_code
 
@@ -189,11 +185,15 @@ elements:
 
     - name: specimen_type
 
+    - name: test_kit_name_id_cwe_version
+
     - name: test_performed_code
 
     - name: test_performed_name
 
     - name: test_performed_system_abbr
+
+    - name: test_performed_system_version
 
     - name: test_result
 
@@ -210,8 +210,6 @@ elements:
     - name: testing_lab_accession_number
 
     - name: testing_lab_city
-
-    - name: testing_lab_county
 
     - name: testing_lab_county_code
 
@@ -237,7 +235,7 @@ elements:
 
     - name: testing_lab_phone_number
 
-    # AOE questions
+  # AOE questions
     - name: pregnant
 
     - name: employed_in_healthcare

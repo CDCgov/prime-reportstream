@@ -19,6 +19,8 @@ import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import java.util.Locale
 import java.util.Properties
 
 class Hl7Serializer(val metadata: Metadata) {
@@ -365,6 +367,25 @@ class Hl7Serializer(val metadata: Metadata) {
                     setEmailComponent(terser, value, pathSpec, element)
                 }
             }
+            Element.Type.DATETIME -> {
+                if (element.name.equals("testing_lab_specimen_received_datetime", ignoreCase = true)) {
+                    val normalDate = try {
+                        OffsetDateTime.parse(value)
+                    } catch (e: DateTimeParseException) {
+                        null
+                    } ?: try {
+                        val formatter = DateTimeFormatter.ofPattern(Element.datetimePattern, Locale.ENGLISH)
+                        OffsetDateTime.parse(value, formatter)
+                    } catch (e: DateTimeParseException) {
+                        error("Invalid date: '$value' for element '$${element.name}'")
+                    }
+                    val adjustedDateTime = normalDate.plusSeconds(6)
+                    val formattedDateTime = formatter.format(adjustedDateTime)
+                    terser.set(pathSpec, formattedDateTime)
+                } else {
+                    terser.set(pathSpec, value)
+                }
+            }
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
@@ -411,7 +432,7 @@ class Hl7Serializer(val metadata: Metadata) {
             if (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
                 rep = 1
             }
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", if (element.nameContains("patient")) "PRN" else "WPN")
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-5", country)
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-6", areaCode)
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-7", local)
