@@ -62,17 +62,20 @@ class ActionHistoryTests {
             listOf<ResultDetail>(), report1, HttpStatus.OK
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        actionHistory1.trackExternalInputReport(incomingReport)
+        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        actionHistory1.trackExternalInputReport(incomingReport, blobInfo1)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id] !!
         assertEquals(reportFile.schemaName, "one")
         assertEquals(reportFile.schemaTopic, "test")
         assertEquals(reportFile.sendingOrg, "myOrg")
         assertEquals(reportFile.sendingOrgClient, "myClient")
+        assertEquals(reportFile.bodyUrl, "myUrl")
+        assertEquals(reportFile.blobDigest[1], 34)
         assertNull(reportFile.receivingOrg)
 
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackExternalInputReport(incomingReport) }
+        assertFails { actionHistory1.trackExternalInputReport(incomingReport, blobInfo1) }
 
         // must pass a valid report.   Here, its set to null.
         val incomingReport2 = ReportFunction.ValidatedRequest(
@@ -80,7 +83,7 @@ class ActionHistoryTests {
             listOf<ResultDetail>(),
             listOf<ResultDetail>(), null, HttpStatus.OK
         )
-        assertFails { actionHistory1.trackExternalInputReport(incomingReport2) }
+        assertFails { actionHistory1.trackExternalInputReport(incomingReport2, blobInfo1) }
     }
 
     @Test
@@ -102,8 +105,9 @@ class ActionHistoryTests {
             )
         val orgSvc = org.services[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
+        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
 
-        actionHistory1.trackCreatedReport(event1, report1, orgSvc)
+        actionHistory1.trackCreatedReport(event1, report1, orgSvc, blobInfo1)
 
         assertNotNull(actionHistory1.reportsOut[report1.id])
         val reportFile = actionHistory1.reportsOut[report1.id] !!
@@ -111,11 +115,13 @@ class ActionHistoryTests {
         assertEquals(reportFile.schemaTopic, "topic1")
         assertEquals(reportFile.receivingOrg, "myOrg")
         assertEquals(reportFile.receivingOrgSvc, "myService")
+        assertEquals(reportFile.bodyUrl, "myUrl")
+        assertEquals(reportFile.blobDigest[1], 34)
         assertNull(reportFile.sendingOrg)
         assertEquals(reportFile.itemCount, 0)
 
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackCreatedReport(event1, report1, orgSvc) }
+        assertFails { actionHistory1.trackCreatedReport(event1, report1, orgSvc, blobInfo1) }
     }
 
     @Test
@@ -162,6 +168,7 @@ class ActionHistoryTests {
         assertEquals("REDOX", reportFile.bodyFormat)
         assertNull(reportFile.sendingOrg)
         assertNull(reportFile.bodyUrl)
+        assertNull(reportFile.blobDigest)
         assertEquals(15, reportFile.itemCount)
         // not allowed to track the same report twice.
         assertFails { actionHistory1.trackSentReport(orgSvc, uuid, "filename1", "params1", "result1", 15) }
@@ -195,6 +202,7 @@ class ActionHistoryTests {
         assertEquals("bob", reportFile2.downloadedBy)
         assertNull(reportFile2.sendingOrg)
         assertNull(reportFile2.bodyUrl)
+        assertNull(reportFile2.blobDigest)
         // not allowed to track the same report twice.
         assertFails { actionHistory1.trackDownloadedReport(header, "filename1", uuid, uuid2, "bob", org) }
     }
@@ -218,7 +226,8 @@ class ActionHistoryTests {
             listOf<ResultDetail>(), report1, HttpStatus.OK
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        actionHistory1.trackExternalInputReport(incomingReport)
+        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        actionHistory1.trackExternalInputReport(incomingReport, blobInfo1)
 
         // Not sure how to get a transaction obj, to pass to saveToDb. ?
 //        every { connection.transaction(any()) }.returns(Unit)

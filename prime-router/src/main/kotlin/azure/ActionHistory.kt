@@ -26,7 +26,6 @@ import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
-import java.security.MessageDigest
 import java.time.OffsetDateTime
 
 /**
@@ -191,7 +190,7 @@ class ActionHistory {
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(incomingReport: ReportFunction.ValidatedRequest) {
+    fun trackExternalInputReport(incomingReport: ReportFunction.ValidatedRequest, blobInfo: BlobAccess.BlobInfo) {
         val report = incomingReport.report ?: error("No report to track!")
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -212,8 +211,9 @@ class ActionHistory {
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = report.bodyURL
-        reportFile.bodyFormat = report.bodyFormat.toString()
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
         if (report.itemLineages != null)
@@ -227,7 +227,8 @@ class ActionHistory {
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        service: OrganizationService
+        service: OrganizationService,
+        blobInfo: BlobAccess.BlobInfo
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -241,8 +242,9 @@ class ActionHistory {
         reportFile.receivingOrgSvc = service.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = report.bodyURL
-        reportFile.bodyFormat = report.bodyFormat.toString()
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
         trackItemLineages(report)
@@ -274,6 +276,7 @@ class ActionHistory {
         reportFile.transportResult = result
         reportFile.bodyUrl = null
         reportFile.bodyFormat = service.format.toString()
+        reportFile.blobDigest = null
         reportFile.itemCount = itemCount
         reportsOut[reportFile.reportId] = reportFile
     }
@@ -309,6 +312,7 @@ class ActionHistory {
         reportFile.transportResult = "Downloaded by user=$downloadedBy"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
         reportFile.bodyFormat = header.task.bodyFormat
+        reportFile.blobDigest = null
         reportFile.itemCount = header.task.itemCount
         reportFile.downloadedBy = downloadedBy
         reportsOut[reportFile.reportId] = reportFile
@@ -590,20 +594,6 @@ class ActionHistory {
                     error("For report $reportId, expected $itemCount unique indexes; there were $uniqueIndexCount")
             }
             return itemLineages
-        }
-
-        fun digestToString(digest: ByteArray): String {
-            return digest.joinToString(separator = "", limit = 40) { Integer.toHexString(it.toInt()) }
-        }
-
-        fun sha256Digest(input: ByteArray): ByteArray {
-            return hashBytes("SHA-256", input)
-        }
-
-        fun hashBytes(type: String, input: ByteArray): ByteArray {
-            return MessageDigest
-                .getInstance(type)
-                .digest(input)
         }
 
         /**

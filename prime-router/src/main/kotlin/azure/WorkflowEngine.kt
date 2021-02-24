@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -45,15 +46,22 @@ class WorkflowEngine(
     /**
      * Place a report into the workflow
      */
-    fun receiveReport(report: Report, txn: Configuration? = null) {
-        val (bodyFormat, bodyUrl) = blob.uploadBody(report)
+    fun receiveReport(
+        validatedRequest: ReportFunction.ValidatedRequest,
+        actionHistory: ActionHistory,
+        txn: Configuration? = null
+    ) {
+        if (validatedRequest.report == null) error("Cannot receive a null report")
+        val blobInfo = blob.uploadBody(validatedRequest.report)
         try {
-            val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, report.id, null)
-            db.insertHeader(report, bodyFormat, bodyUrl, receiveEvent, txn)
-            report.bodyURL = bodyUrl
+            val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, validatedRequest.report.id, null)
+            db.insertHeader(validatedRequest.report, blobInfo.format.toString(), blobInfo.blobUrl, receiveEvent, txn)
+            // todo bodyURL is no longer needed in report; its in 'blobInfo'
+            validatedRequest.report.bodyURL = blobInfo.blobUrl
+            actionHistory.trackExternalInputReport(validatedRequest, blobInfo)
         } catch (e: Exception) {
             // Clean up
-            blob.deleteBlob(bodyUrl)
+            blob.deleteBlob(blobInfo.blobUrl)
             throw e
         }
     }
@@ -61,14 +69,22 @@ class WorkflowEngine(
     /**
      * Place a report into the workflow (Note:  I moved queueing the message to after the Action is saved)
      */
-    fun dispatchReport(nextAction: Event, report: Report, txn: Configuration? = null) {
-        val (bodyFormat, bodyUrl) = blob.uploadBody(report)
+    fun dispatchReport(
+        nextAction: Event,
+        report: Report,
+        actionHistory: ActionHistory,
+        receiver: OrganizationService,
+        txn: Configuration? = null
+    ) {
+        val blobInfo = blob.uploadBody(report)
         try {
-            db.insertHeader(report, bodyFormat, bodyUrl, nextAction, txn)
-            report.bodyURL = bodyUrl
+            db.insertHeader(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
+            // todo remove this; its now tracked in BlobInfo
+            report.bodyURL = blobInfo.blobUrl
+            actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
         } catch (e: Exception) {
             // Clean up
-            blob.deleteBlob(bodyUrl)
+            blob.deleteBlob(blobInfo.blobUrl)
             throw e
         }
     }

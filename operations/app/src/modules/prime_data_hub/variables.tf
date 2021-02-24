@@ -53,3 +53,8 @@ variable "https_cert_name" {
     type = string
     description = "The HTTPS cert to associate with the front door. Omitting will not associate a domain to the front door."
 }
+
+variable "okta_redirect_url" {
+    type = string
+    description = "Okta Redirect URL"
+}

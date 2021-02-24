@@ -85,8 +85,7 @@ class ReportFunction {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
-                    workflowEngine.receiveReport(validatedRequest.report)
-                    actionHistory.trackExternalInputReport(validatedRequest)
+                    workflowEngine.receiveReport(validatedRequest, actionHistory)
                     createdResponse(request, responseBody)
                 }
             }
@@ -249,8 +248,7 @@ class ReportFunction {
         when {
             validatedRequest.options == Options.SkipSend -> {
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
-                workflowEngine.dispatchReport(event, report, txn)
-                actionHistory.trackCreatedReport(event, report, service)
+                workflowEngine.dispatchReport(event, report, actionHistory, service, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             service.batch != null -> {
@@ -258,8 +256,7 @@ class ReportFunction {
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
                 val event = ReceiverEvent(Event.EventAction.BATCH, service.fullName, time)
-                workflowEngine.dispatchReport(event, batchReport, txn)
-                actionHistory.trackCreatedReport(event, batchReport, service)
+                workflowEngine.dispatchReport(event, batchReport, actionHistory, service, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             service.format == Report.Format.HL7 -> {
@@ -267,15 +264,13 @@ class ReportFunction {
                     .split()
                     .forEach {
                         val event = ReportEvent(Event.EventAction.SEND, it.id)
-                        workflowEngine.dispatchReport(event, it, txn)
-                        actionHistory.trackCreatedReport(event, it, service)
+                        workflowEngine.dispatchReport(event, it, actionHistory, service, txn)
                     }
                 loggerMsg = "Queue: ${report.itemCount} reports"
             }
             else -> {
                 val event = ReportEvent(Event.EventAction.SEND, report.id)
-                workflowEngine.dispatchReport(event, report, txn)
-                actionHistory.trackCreatedReport(event, report, service)
+                workflowEngine.dispatchReport(event, report, actionHistory, service, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
         }

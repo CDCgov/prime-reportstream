@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.azure
 
+import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
@@ -56,15 +58,19 @@ class WorkflowEngineTests {
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID())
-        val bodyFormat = "CSV"
+        val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
+        val actionHistory = mockk<ActionHistory>()
+        val service = OrganizationService("myService", "topic", "schema")
 
-        every { blobMock.uploadBody(report = eq(report1)) }.returns(Pair(bodyFormat, bodyUrl))
-        every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
+        every { blobMock.uploadBody(report = eq(report1)) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        every { accessSpy.insertHeader(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
 //        every { queueMock.sendMessage(eq(event)) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata)
-        engine.dispatchReport(event, report1)
+        engine.dispatchReport(event, report1, actionHistory, service)
 
         verify(exactly = 1) {
             accessSpy.insertHeader(
@@ -73,6 +79,7 @@ class WorkflowEngineTests {
                 bodyUrl = any(),
                 nextAction = any()
             )
+            actionHistory.trackCreatedReport(any(), any(), any(), any())
             blobMock.uploadBody(report = any())
 //            queueMock.sendMessage(event = any())
         }
@@ -86,16 +93,20 @@ class WorkflowEngineTests {
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.EventAction.NONE, report1.id)
-        val bodyFormat = "CSV"
+        val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
+        val actionHistory = mockk<ActionHistory>()
+        val service = OrganizationService("myService", "topic", "schema")
 
-        every { blobMock.uploadBody(report = eq(report1)) }.returns(Pair(bodyFormat, bodyUrl))
-        every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
+        every { blobMock.uploadBody(report = eq(report1)) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        every { accessSpy.insertHeader(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
 // todo clean up this test      every { queueMock.sendMessage(eq(event)) }.answers { throw Exception("problem") }
         every { blobMock.deleteBlob(eq(bodyUrl)) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata)
-        engine.dispatchReport(event, report1)
+        engine.dispatchReport(event, report1, actionHistory, service)
 
         verify(exactly = 1) {
             accessSpy.insertHeader(
@@ -105,6 +116,7 @@ class WorkflowEngineTests {
                 nextAction = any()
             )
             blobMock.uploadBody(report = any())
+            actionHistory.trackCreatedReport(any(), any(), any(), any())
 // todo           queueMock.sendMessage(event = any())
 // todo           blobMock.deleteBlob(blobUrl = any())
         }
@@ -117,15 +129,23 @@ class WorkflowEngineTests {
         val metadata = Metadata(schema = one)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.EventAction.RECEIVE, UUID.randomUUID())
-        val bodyFormat = "CSV"
+        val bodyFormat = Report.Format.CSV
         val bodyUrl = "http://anyblob.com"
+        val actionHistory = mockk<ActionHistory>()
 
-        every { blobMock.uploadBody(report = eq(report1)) }.returns(Pair(bodyFormat, bodyUrl))
-        every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
+        every { blobMock.uploadBody(report = eq(report1)) }
+            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
+        every { accessSpy.insertHeader(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
         every { queueMock.sendMessage(eq(event)) }.returns(Unit)
+        every { actionHistory.trackExternalInputReport(any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata)
-        engine.receiveReport(report1)
+        val validatedRequest = ReportFunction.ValidatedRequest(
+            ReportFunction.Options.None,
+            emptyMap(),
+            emptyList(), emptyList(), report1, HttpStatus.OK
+        )
+        engine.receiveReport(validatedRequest, actionHistory)
 
         verify(exactly = 1) {
             accessSpy.insertHeader(
@@ -134,6 +154,7 @@ class WorkflowEngineTests {
                 bodyUrl = any(),
                 nextAction = any()
             )
+            actionHistory.trackExternalInputReport(any(), any())
             blobMock.uploadBody(report = any())
         }
         verify(exactly = 0) {
