@@ -6,7 +6,6 @@ import json
 import requests
 import yaml
 import time
-import sys
 import argparse
 
 parser = argparse.ArgumentParser(description='Put org file into a prime service')
