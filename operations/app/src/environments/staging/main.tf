@@ -1,3 +1,7 @@
+locals {
+  target_env = "staging"
+}
+
 terraform {
   required_version = "= 0.14.5" # This version must also be changed in other environments
   required_providers {
@@ -5,6 +9,12 @@ terraform {
       source = "hashicorp/azurerm"
       version = "= 2.45.1" # This version must also be changed in other environments
     }
+  }
+  backend "azurerm" {
+    resource_group_name = "prime-data-hub-staging"
+    storage_account_name = "pdhstagingstorageaccount"
+    container_name = "terraformstate"
+    key = "terraform.tfstate"
   }
 }
 
@@ -16,15 +26,15 @@ provider "azurerm" {
 
 module "prime_data_hub" {
   source = "../../modules/prime_data_hub"
-  environment = "dev"
-  resource_group = "prime-dev-${var.dev_name}"
-  resource_prefix = var.dev_name
+  environment = local.target_env
+  resource_group = "prime-data-hub-${local.target_env}"
+  resource_prefix = "pdhstaging"
   postgres_user = var.postgres_user
   postgres_password = var.postgres_password
   redox_secret = var.redox_secret
   okta_client_id = var.okta_client_id
-  okta_redirect_url = "https://prime-data-hub-${var.dev_name}.azurefd.net/download"
+  okta_redirect_url = "https://staging.prime.cdc.gov/download"
   az_phd_user = var.az_phd_user
   az_phd_password = var.az_phd_password
-  https_cert_name = null
+  https_cert_name = "staging-prime-cdc-gov"
 }
