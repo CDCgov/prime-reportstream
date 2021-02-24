@@ -362,7 +362,7 @@ elements:
     natFlatFileField: Ordering_provider_id
     hhsGuidanceField: Ordering provider name; NPI
     hl7Field: ORC-12-1
-    hl7OutputFields: [ORC-12-1, OBR-16-1]
+    hl7OutputFields: [ ORC-12-1, OBR-16-1 ]
     documentation: The ordering provider’s National Provider Identifier
 
   - name: ordering_provider_id_authority
@@ -779,6 +779,7 @@ elements:
     natFlatFileField: Reporting_facility_id
     hhsGuidanceField:
     hl7Field: MSH-4-2
+    hl7OutputFields: [ MSH-4-2, SPM-2-1-3, SPM-2-2-3 ]
 
   - name: resident_congregate_setting
     type: CODE
@@ -1033,7 +1034,7 @@ elements:
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
-    hl7OutputFields: [ OBX-15-1, OBX-23-10 ]
+    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3 ]
     documentation: |
         CLIA Number from the laboratory that sends the message to DOH
 
