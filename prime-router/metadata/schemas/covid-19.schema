@@ -242,6 +242,13 @@ elements:
     default: LN
     hl7Field: OBR-4-3
 
+  - name: ordered_test_encoding_version
+    type: TABLE
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: LOINC Version ID
+    mapper: lookup(equipment_model_name)
+    hl7Field: OBR-4-7
+
   - name: ordering_facility_city
     type: CITY
     natFlatFileField: Ordering_facility_city
@@ -522,7 +529,8 @@ elements:
     hhsGuidanceField: Patient ethnicity
     hl7Field: PID-22
     documentation: |
-      The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+      The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+      consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
   - name: patient_first_name
     type: PERSON_NAME
@@ -875,6 +883,14 @@ elements:
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: lookup(equipment_model_name)
 
+  - name: test_kit_name_id_cwe_version
+    type: TABLE
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: LOINC Version ID
+    reference: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
+    mapper: lookup(equipment_model_name)
+    hl7Field: OBX-17-7
+
   - name: test_method_description
     type: TEXT
     natFlatFileField: Test_method_description
@@ -909,6 +925,13 @@ elements:
   - name: test_performed_system
     type: TEXT
     default: LOINC
+
+  - name: test_performed_system_version
+    type: TABLE
+    table: LIVD-SARS-CoV-2-2021-01-20
+    mapper: lookup(equipment_model_name)
+    tableColumn: LOINC Version ID
+    hl7Field: OBX-3-7
 
   #- name: test_performed_number
   #  type: NUMBER
@@ -1010,6 +1033,7 @@ elements:
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
+    hl7OutputFields: [ OBX-15-1, OBX-23-10 ]
     documentation: |
         CLIA Number from the laboratory that sends the message to DOH
 

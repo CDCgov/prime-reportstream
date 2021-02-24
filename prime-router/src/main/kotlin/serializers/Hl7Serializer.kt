@@ -384,7 +384,7 @@ class Hl7Serializer(val metadata: Metadata) {
                     if (value.isNotEmpty()) {
                         terser.set("$pathSpec-1", value)
                         terser.set("$pathSpec-2", valueSet.toDisplayFromCode(value))
-                        terser.set("$pathSpec-3", valueSet.systemCode)
+                        terser.set("$pathSpec-3", valueSet.toSystemFromCode(value))
                         valueSet.toVersionFromCode(value)?.let {
                             terser.set("$pathSpec-7", it)
                         }
@@ -477,6 +477,7 @@ class Hl7Serializer(val metadata: Metadata) {
         // set to a default value, but look below
         // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
         terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
+        terser.set(formPathSpec("OBX-15", aoeRep), report.getString(row, "testing_lab_clia"))
         terser.set(formPathSpec("OBX-24-1", aoeRep), report.getStringByHl7Field(row, "OBX-24-1"))
         terser.set(formPathSpec("OBX-24-2", aoeRep), report.getStringByHl7Field(row, "OBX-24-2"))
         terser.set(formPathSpec("OBX-24-3", aoeRep), report.getStringByHl7Field(row, "OBX-24-3"))

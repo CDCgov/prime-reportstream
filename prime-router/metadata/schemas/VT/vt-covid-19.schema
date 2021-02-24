@@ -48,6 +48,8 @@ elements:
 
   - name: ordered_test_name
 
+  - name: ordered_test_encoding_version
+
   - name: ordering_facility_city
 
   - name: ordering_facility_county_code
@@ -180,11 +182,15 @@ elements:
 
   - name: specimen_type
 
+  - name: test_kit_name_id_cwe_version
+
   - name: test_performed_code
 
   - name: test_performed_name
 
   - name: test_performed_system_abbr
+
+  - name: test_performed_system_version
 
   - name: test_result
 
