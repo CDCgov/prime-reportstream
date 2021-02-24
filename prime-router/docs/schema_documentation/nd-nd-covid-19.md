@@ -352,6 +352,18 @@ The city of the facility which the test was ordered from
 
 ---
 
+**Name**: ordering_facility_county
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
 **Name**: ordering_facility_county_code
 
 **Type**: TABLE
@@ -475,6 +487,18 @@ The zip code of the facility which the test was ordered from
 **Documentation**:
 
 The city of the provider
+
+---
+
+**Name**: ordering_provider_county
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
 
 ---
 
@@ -647,6 +671,18 @@ The zip code of the provider
 **Documentation**:
 
 The patient's city
+
+---
+
+**Name**: patient_county
+
+**Type**: TABLE_OR_BLANK
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: County
 
 ---
 
@@ -2113,6 +2149,18 @@ The accession number of the specimen collected
 **HL7 Field**: OBX-24-3
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_county
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
 
 ---
 

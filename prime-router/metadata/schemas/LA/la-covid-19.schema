@@ -55,6 +55,8 @@ elements:
 
   - name: ordering_facility_city
 
+  - name: ordering_facility_county
+
   - name: ordering_facility_county_code
 
   - name: ordering_facility_email
@@ -72,6 +74,8 @@ elements:
   - name: ordering_facility_zip_code
 
   - name: ordering_provider_city
+
+  - name: ordering_provider_county
 
   - name: ordering_provider_county_code
 
@@ -98,6 +102,8 @@ elements:
   - name: ordering_provider_zip_code
 
   - name: patient_city
+
+  - name: patient_county
 
   - name: patient_county_code
 
@@ -210,6 +216,8 @@ elements:
   - name: testing_lab_accession_number
 
   - name: testing_lab_city
+
+  - name: testing_lab_county
 
   - name: testing_lab_county_code
 
