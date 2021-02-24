@@ -102,3 +102,13 @@ variable "okta_redirect_url" {
     type = string
     description = "Okta Redirect URL"
 }
+
+variable "eventhub_namespace_name" {
+    type = string
+    description = "Event hub to stream logs to"
+}
+
+variable "eventhub_manage_auth_rule_id" {
+    type = string
+    description = "Event Hub Manage Authorization Rule ID"
+}
