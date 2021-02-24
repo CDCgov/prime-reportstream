@@ -70,7 +70,7 @@ resource "azurerm_function_app" "function_app" {
 
     "OKTA_baseUrl" = "hhs-prime.okta.com"
     "OKTA_clientId" = var.okta_client_id
-    "OKTA_redirect" = (var.environment == "prod" ? "https://prime.cdc.gov/download" : "https://prime-data-hub-test.azurefd.net/api/download")
+    "OKTA_redirect" = var.okta_redirect_url
 
     # Test and Prod both need each set of credentials for various
     # means of testing configurations
@@ -115,7 +115,6 @@ resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vn
 data "azurerm_function_app" "app_data" {
   name = "${var.resource_prefix}-functionapp"
   resource_group_name = var.resource_group
-
 }
 
 output "app_service_plan_id" {
