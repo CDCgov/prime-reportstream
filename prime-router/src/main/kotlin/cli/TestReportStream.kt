@@ -13,6 +13,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.OrganizationClient
 import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DataAccessTransaction
@@ -59,14 +60,16 @@ Examples:
         end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
         strac("Submit our prepared simplereport.csv, wait, confirm via database queries"),
         // 10,000 lines fake data generation took about 90 seconds on my laptop.  6Meg.
-        tenthousand("Submit 10,000 line csv file, wait, confirm via db"),
+        huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db"),
+        toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which shoudl be an error"),
         merge("Submit multiple files, wait, confirm via db that merge occurred"),
     }
 
     enum class TestingEnvironment(val endPoint: String) {
         // track headers and parameters separate from the base endpoint, since they vary
         TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
-        LOCAL("http://localhost:7071/api/reports")
+        LOCAL("http://localhost:7071/api/reports"),
+        STAGE("https://pdhstage-functionapp.azurewebsites.net/api/reports")
     }
 
     private val dir by option(
@@ -89,9 +92,9 @@ Examples:
 
     private val env by option(
         "--env",
-        help = "Specify 'local' or 'test'.  'local' will connect to ${TestingEnvironment.LOCAL.endPoint}," +
+        help = "Specify 'local, 'test', or 'stage'.  'local' will connect to ${TestingEnvironment.LOCAL.endPoint}," +
             " and 'test' will connect to ${TestingEnvironment.TEST.endPoint}"
-    ).choice("test", "local").default("local").validate {
+    ).choice("test", "local", "stage").default("local").validate {
         when (it) {
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
         }
@@ -124,7 +127,8 @@ Examples:
                 AwesomeTest.ping -> doCheckConnections(environment)
                 AwesomeTest.end2end -> doEndToEndTest(receivingOrg, environment)
                 AwesomeTest.strac -> doStracTest(receivingOrg, environment)
-                AwesomeTest.tenthousand -> doGiganticTest(receivingOrg, environment)
+                AwesomeTest.huge -> doHugeTest(receivingOrg, environment)
+                AwesomeTest.toobig -> doTooManyItemsTest(receivingOrg, environment)
                 else -> echo("Test $test not implemented")
             }
         }
@@ -166,7 +170,7 @@ Examples:
         examineLineageResults(reportId, receivingOrg.services, fakeItemCount)
     }
 
-    private fun doGiganticTest(
+    private fun doHugeTest(
         receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
@@ -203,6 +207,43 @@ Examples:
         echo("Id of submitted report: $reportId")
         waitABit(20, environment)
         examineLineageResults(reportId, listOf(receivingOrgSvc), fakeItemCount)
+    }
+
+    private fun doTooManyItemsTest(
+        receivingOrg: Organization,
+        environment: TestingEnvironment
+    ) {
+        val sendingOrg = metadata.findOrganization("simple_report")
+            ?: error("Unable to find org 'simple_report' in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+        val fakeItemCount = REPORT_MAX_ITEMS + 1
+        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is slow.")
+        // Send to just one type
+        val receivingOrgSvc = receivingOrg.services.find { it.name == "CSV" }
+            ?: error("Unable to find CSV as a sender in ${receivingOrg.name}")
+        echo("Testing ${receivingOrgSvc.name}")
+        val file = createFakeFile(
+            metadata,
+            sendingOrgClient,
+            fakeItemCount,
+            receivingStates,
+            receivingOrgSvc.name,
+            dir,
+            Report.Format.CSV
+        )
+        echo("Created datafile $file")
+        // Now send it to the Hub.
+        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            echo("***TooBigTest Test FAILED***:  response code $responseCode")
+            return
+        }
+        val tree = jacksonObjectMapper().readTree(json)
+        val reportId = ReportId.fromString(tree["id"].textValue())
+        echo("Id of submitted report: $reportId")
     }
 
     private fun doCheckConnections(

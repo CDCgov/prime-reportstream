@@ -14,6 +14,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.OrganizationClient
 import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.REPORT_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -33,7 +34,6 @@ class ReportFunction {
     private val defaultParameter = "default"
     private val defaultSeparator = ":"
     private val jsonMediaType = "application/json" // TODO: find a good media library
-    private val maxContentLength: Long = 40 * 1000 * 1000
 
     enum class Options {
         None,
@@ -371,16 +371,16 @@ class ReportFunction {
             contentLength < 0 -> {
                 return HttpStatus.LENGTH_REQUIRED to "ERROR: negative content-length $contentLength"
             }
-            contentLength > maxContentLength -> {
+            contentLength > REPORT_MAX_BYTES -> {
                 return HttpStatus.PAYLOAD_TOO_LARGE to
-                    "ERROR: content-length $contentLength is larger than max $maxContentLength"
+                    "ERROR: content-length $contentLength is larger than max $REPORT_MAX_BYTES"
             }
         }
         // content-length header is ok.  Now check size of actual body as well
         val content = request.body
-        if (content != null && content.length > maxContentLength) {
+        if (content != null && content.length > REPORT_MAX_BYTES) {
             return HttpStatus.PAYLOAD_TOO_LARGE to
-                "ERROR: body size ${content.length} is larger than max $maxContentLength " +
+                "ERROR: body size ${content.length} is larger than max $REPORT_MAX_BYTES " +
                 "(content-length header = $contentLength"
         }
         return HttpStatus.OK to ""

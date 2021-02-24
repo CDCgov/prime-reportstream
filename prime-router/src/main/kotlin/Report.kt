@@ -27,6 +27,12 @@ typealias DefaultValues = Map<String, String>
 // then we just want to fake the data instead to prevent the leakage of PII
 const val SHUFFLE_THRESHOLD = 25
 
+// Basic size limitations on incoming reports
+const val REPORT_MAX_BYTES: Long = 50 * 1000 * 1000 // Experiments show 10k HL7 Items is just over 40Meg.
+const val REPORT_MAX_ITEMS = 10000
+const val REPORT_MAX_ITEM_COLUMNS = 2000
+const val REPORT_MAX_ERRORS = 2
+
 /**
  * The report represents the report from one agent-organization, and which is
  * translated and sent to another agent-organization. Each report has a schema,
