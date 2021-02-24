@@ -15,7 +15,7 @@ import org.apache.logging.log4j.kotlin.Logging
  */
 
 class GetOrganizations(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.USER) {
+    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.SYSTEM_ADMIN) {
     @FunctionName("getOrganizations")
     fun run(
         @HttpTrigger(

@@ -11,7 +11,7 @@ Copy a version of this comment into the next migration
 Settings are kept a table where the actual settings values are in a JSON field. Receivers and Senders
 have a parent organizationId. Organizations do not have a organizationId.
 Each setting is versioned to keep around old values for lineage auditing. Deleted settings
-are tomb-stoned, a row is never deleted.
+are tomb-stoned, a row is never deleted
 */
 CREATE TYPE SETTING_TYPE AS ENUM ('ORGANIZATION', 'RECEIVER', 'SENDER');
 CREATE TABLE setting (

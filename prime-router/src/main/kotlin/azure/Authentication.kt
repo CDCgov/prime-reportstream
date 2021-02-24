@@ -4,7 +4,7 @@ import com.okta.jwt.JwtVerifiers
 
 // These constants match how PRIME Okta subscription is configured
 const val oktaGroupPrefix = "DH"
-const val oktaAdminGroupSuffix = "_Admins"
+const val oktaAdminGroupSuffix = "Admins"
 const val oktaSystemAdminGroup = "DHPrimeAdmins"
 const val oktaSubjectClaim = "sub"
 const val oktaMembershipClaim = "organization"
@@ -76,6 +76,8 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
         minimumLevel: PrincipalLevel,
         organizationName: String?
     ): Boolean {
+        if (organizationName == null && minimumLevel != PrincipalLevel.SYSTEM_ADMIN)
+            error("Internal Error: Expected checks without organizationName to be at the SYSTEM ADMIN level")
         val lookupMemberships = when (minimumLevel) {
             PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
             PrincipalLevel.ORGANIZATION_ADMIN ->
@@ -85,7 +87,7 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
                 )
             PrincipalLevel.USER ->
                 listOf(
-                    "$oktaAdminGroupSuffix$organizationName",
+                    "$oktaGroupPrefix$organizationName",
                     "$oktaGroupPrefix$organizationName$oktaAdminGroupSuffix",
                     oktaSystemAdminGroup
                 )

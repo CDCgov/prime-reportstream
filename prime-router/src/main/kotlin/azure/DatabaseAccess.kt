@@ -381,7 +381,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * Fetch both the item and the organization of the item at the same time to optimize db queries
      */
     fun fetchItemAndOrganization(
-        type: SettingType, name: String, organizationName: String, txn: DataAccessTransaction
+        type: SettingType,
+        name: String,
+        organizationName: String,
+        txn: DataAccessTransaction
     ): Pair<Setting, Setting>? {
         val org = SETTING.`as`("org")
         val item = SETTING.`as`("item")
