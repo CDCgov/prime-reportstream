@@ -5,7 +5,7 @@
 As a secure system, the Prime Data Hub's API end-points must be hardened against malicious attacks that manipulate the payload sent through the data hub. 
 The API end-points should have a number of limits, checks and validations that prevents from an attacker who knows about the inner workings of the data hub (ie. read our source code) from information disclosure and service disruption. 
 
-This epic is not about DDOS attacks which will be handled by the WAF epics. 
+This epic is not about DDoS attacks which will be handled by the WAF epics. 
 
 ## Goals 
 
