@@ -86,7 +86,7 @@ paths:
     get:
       description: The settings for all organizations of the system. Must have admin access.
       security:
-        - OAuth2: [ admin ]
+        - OAuth2: [ system_admin ]
       responses:
         '200':
           description: OK
@@ -119,7 +119,7 @@ paths:
     put:
       description: Create or update the direct settings associated with an organization
       security:
-        - OAuth2: [ admin ]
+        - OAuth2: [ system_admin ]
       parameters:
         - in: path
           required: true
@@ -152,7 +152,7 @@ paths:
     delete:
       description: Delete an organization (and the associated receivers and senders)
       security:
-        - OAuth2: [ admin ]
+        - OAuth2: [ system_admin ]
       parameters:
         - in: path
           required: true
