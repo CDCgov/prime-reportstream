@@ -105,7 +105,7 @@ module "sftp_container" {
 }
 
 module "metabase" {
-    count = (var.environment == "prod" ? 0 : 1)
+    count = (var.environment == "test" ? 1 : 0)
     source = "../metabase"
     environment = var.environment
     resource_group = var.resource_group
