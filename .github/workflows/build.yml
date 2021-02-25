@@ -2,9 +2,7 @@ name: Prime Data Hub
 
 on:
   pull_request:
-    # Disable master branch for pentesting
-    # branches: [ master, production ]
-    branches: [ production ]
+    branches: [ master, production ]
     paths-ignore:
       - 'prime-router/docs/**'
 
@@ -40,8 +38,8 @@ jobs:
                    echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
                else
                    echo "Building for the test environment."
-                   echo >> $GITHUB_ENV ACR_REPO=pdhtestcontainerregistry.azurecr.io
-                   echo >> $GITHUB_ENV PREFIX=pdhtest
+                   echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
+                   echo >> $GITHUB_ENV PREFIX=pdhstaging
                    echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
                    echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
