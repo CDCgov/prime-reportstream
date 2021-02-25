@@ -324,7 +324,7 @@ Examples:
         val tree = jacksonObjectMapper().readTree(json)
         val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
         if (firstError["details"].textValue().contains("columns")) {
-            good("Too many columns test passed.")
+            good("Test passed: Too many columns test.")
         } else {
             bad("***Too Many Columns Test FAILED***:  did not find the error.")
         }
@@ -352,7 +352,7 @@ Examples:
         if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
             bad("***CheckConnections Test FAILED***:  Response was $json")
         } else {
-            good("CheckConnections Test passed.")
+            good("Test passed: CheckConnections")
         }
     }
 
