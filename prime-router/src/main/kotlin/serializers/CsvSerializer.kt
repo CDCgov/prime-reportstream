@@ -85,7 +85,6 @@ class CsvSerializer(val metadata: Metadata) {
         if (errors.size > 0) {
             return ReadResult(null, errors, warnings)
         }
-//        val rows2: List<Map<String, String>> = csvReader().readAllWithHeader(input)
 
         if (rows.isEmpty()) {
             return ReadResult(Report(schema, emptyList(), sources, destination), errors, warnings)

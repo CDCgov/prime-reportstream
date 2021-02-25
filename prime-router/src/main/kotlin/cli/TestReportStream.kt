@@ -1,9 +1,12 @@
 package gov.cdc.prime.router.cli
 
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.choice
@@ -14,6 +17,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.OrganizationClient
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
+import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DataAccessTransaction
@@ -47,6 +51,7 @@ Examples:
   ./prime test    This runs all the tests locally.
   
 ./prime test --run ping,end2end --env test --key xxxxxxx  This runs the ping and end2end tests in azure Test
+
 """,
 ) {
     lateinit var metadata: Metadata
@@ -58,10 +63,11 @@ Examples:
     enum class AwesomeTest(val description: String) {
         ping("Is the reports endpoint alive and listening?"),
         end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
-        strac("Submit our prepared simplereport.csv, wait, confirm via database queries"),
+        strac("Submit data in the strac schema format, wait, confirm via database queries"),
         // 10,000 lines fake data generation took about 90 seconds on my laptop.  6Meg.
-        huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db"),
-        toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which shoudl be an error"),
+        huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."),
+        toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"),
+        toomanycols("Submit a file with more than $REPORT_MAX_ITEM_COLUMNS columns, which should error"),
         merge("Submit multiple files, wait, confirm via db that merge occurred"),
     }
 
@@ -86,9 +92,15 @@ Examples:
     private val run by option(
         "--run",
         metavar = "test1,test2",
-        help = "Specify set of tests to run.   Default is to run all if not specified." +
-            " Allowed tests are:  ${AwesomeTest.values().joinToString(",")}"
+        help = """Specify set of tests to run.   Default is to run all if not specified.
+            Allowed tests are: ${AwesomeTest.values().joinToString(",")}
+       """
     )
+
+    private val list by option(
+        "--list",
+        help = "List available tests, then quit."
+    ).flag(default = false)
 
     private val env by option(
         "--env",
@@ -101,12 +113,13 @@ Examples:
     }
 
     override fun run() {
+        if (list) doList()
         val tests = if (run != null) {
             run.toString().split(",").mapNotNull {
                 try {
                     AwesomeTest.valueOf(it)
                 } catch (e: IllegalArgumentException) {
-                    echo("Skipping unknown test: $it")
+                    bad("Skipping unknown test: $it")
                     null
                 }
             }
@@ -114,6 +127,15 @@ Examples:
             AwesomeTest.values().toList()
         }
         doTests(tests)
+    }
+
+    private fun doList() {
+        echo("Available options to --run <test1,test2> are:")
+        val formatTemplate = "%-20s\t%s"
+        AwesomeTest.values().forEach {
+            echo(formatTemplate.format(it.name, it.description))
+        }
+        exitProcess(0)
     }
 
     private fun doTests(tests: List<AwesomeTest>) {
@@ -129,9 +151,46 @@ Examples:
                 AwesomeTest.strac -> doStracTest(receivingOrg, environment)
                 AwesomeTest.huge -> doHugeTest(receivingOrg, environment)
                 AwesomeTest.toobig -> doTooManyItemsTest(receivingOrg, environment)
-                else -> echo("Test $test not implemented")
+                AwesomeTest.toomanycols -> doTooManyColumnsTest(environment)
+                AwesomeTest.merge -> doMergeTest(receivingOrg, environment)
+                else -> bad("Test $test not implemented")
             }
         }
+    }
+
+    private fun doMergeTest(receivingOrg: Organization, environment: TestReportStream.TestingEnvironment) {
+        val sendingOrg = metadata.findOrganization("simple_report")
+            ?: error("Unable to find org 'simple_report' in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+        val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
+        echo("Merge test of: ${environment.endPoint}")
+        val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
+        echo("Testing $targetCounties")
+        val file = createFakeFile(
+            metadata,
+            sendingOrgClient,
+            fakeItemCount,
+            receivingStates,
+            targetCounties,
+            dir,
+        )
+        echo("Created datafile $file")
+        // Now send it to the Hub
+        val reportIds = (1..5).map {
+            val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+            echo("Response to POST: $responseCode")
+            if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                bad("***Merge Test FAILED***:  response code $responseCode")
+                return
+            }
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
+            echo("Id of submitted report: $reportId")
+            reportId
+        }
+        waitABit(30, environment)
+        examineMergeResults(reportIds[0], receivingOrg.services, fakeItemCount, 5)
     }
 
     private fun doStracTest(
@@ -142,7 +201,7 @@ Examples:
             ?: error("Unable to find org 'strac' in metadata")
         val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
             ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
-        val fakeItemCount = 20
+        val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
         echo("Test sending Strac data to: ${environment.endPoint}")
         val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
         echo("Testing $targetCounties")
@@ -160,7 +219,7 @@ Examples:
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            echo("**Strac Test FAILED***:  response code $responseCode")
+            bad("**Strac Test FAILED***:  response code $responseCode")
             return
         }
         val tree = jacksonObjectMapper().readTree(json)
@@ -199,7 +258,7 @@ Examples:
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            echo("***EndToEnd Test FAILED***:  response code $responseCode")
+            bad("***EndToEnd Test FAILED***:  response code $responseCode")
             return
         }
         val tree = jacksonObjectMapper().readTree(json)
@@ -237,13 +296,38 @@ Examples:
         val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
-        if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            echo("***TooBigTest Test FAILED***:  response code $responseCode")
-            return
-        }
         val tree = jacksonObjectMapper().readTree(json)
-        val reportId = ReportId.fromString(tree["id"].textValue())
-        echo("Id of submitted report: $reportId")
+        val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
+        if (firstError["details"].textValue().contains("rows")) {
+            good("Too Big Test passed.")
+        } else {
+            bad("***Too Big Test Test FAILED***: Did not find the error")
+        }
+    }
+
+    private fun doTooManyColumnsTest(
+        environment: TestingEnvironment
+    ) {
+        echo("Testing a file with too many columns.")
+        val file = File("./src/test/csv_test_files/input/too-many-columns.csv")
+        if (!file.exists()) {
+            error("Unable to find file ${file.absolutePath} to do toomanycols test")
+        }
+        val sendingOrg = metadata.findOrganization("simple_report")
+            ?: error("Unable to find org 'simple_report' in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+        // Now send it to the Hub.
+        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        val tree = jacksonObjectMapper().readTree(json)
+        val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
+        if (firstError["details"].textValue().contains("columns")) {
+            good("Too many columns test passed.")
+        } else {
+            bad("***Too Many Columns Test FAILED***:  did not find the error.")
+        }
     }
 
     private fun doCheckConnections(
@@ -266,9 +350,9 @@ Examples:
         }
         val tree = jacksonObjectMapper().readTree(json)
         if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
-            echo("***CheckConnections Test FAILED***:  Response was $json")
+            bad("***CheckConnections Test FAILED***:  Response was $json")
         } else {
-            echo("CheckConnections Test passed.")
+            good("CheckConnections Test passed.")
         }
     }
 
@@ -280,7 +364,7 @@ Examples:
             ?: error("Unable to find org 'simple_report' in metadata")
         val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
             ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
-        val fakeItemCount = 20
+        val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
         echo("EndToEndTest of: ${environment.endPoint}")
         val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
         echo("Testing $targetCounties")
@@ -298,7 +382,7 @@ Examples:
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            echo("***EndToEnd Test FAILED***:  response code $responseCode")
+            bad("***EndToEnd Test FAILED***:  response code $responseCode")
             return
         }
         val tree = jacksonObjectMapper().readTree(json)
@@ -319,15 +403,15 @@ Examples:
             val actionsList = listOf(TaskAction.receive, TaskAction.batch, TaskAction.send)
             receivers.forEach { receiver ->
                 actionsList.forEach { action ->
-                    val count = lineageCountQuery(txn, reportId, receiver.name, action)
+                    val count = itemLineageCountQuery(txn, reportId, receiver.name, action)
                     if (count == null || expected != count) {
-                        echo(
-                            "***EndToEnd TEST FAILED*** for ${receiver.fullName} action $action: " +
+                        bad(
+                            "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records but got $count"
                         )
                     } else {
-                        echo(
-                            "EndToEnd Test passed: for ${receiver.fullName} action $action: " +
+                        good(
+                            "Test passed: for ${receiver.fullName} action $action: " +
                                 " Expecting $expected item lineage records and got $count"
                         )
                     }
@@ -336,7 +420,50 @@ Examples:
         }
     }
 
+    private fun examineMergeResults(
+        reportId: ReportId,
+        receivers: List<OrganizationService>,
+        itemsPerReport: Int,
+        reportCount: Int
+    ) {
+        db = DatabaseAccess(dataSource = DatabaseAccess.dataSource)
+        db.transact { txn ->
+            val expected = (itemsPerReport * reportCount) / receivers.size
+            val actionsList = listOf(TaskAction.batch, TaskAction.send)
+            receivers.forEach { receiver ->
+                actionsList.forEach { action ->
+                    val count = reportLineageCountQuery(txn, reportId, receiver.name, action)
+                    if (count == null || expected != count) {
+                        bad(
+                            "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
+                                " Expecting sum(itemCount)=$expected but got $count"
+                        )
+                    } else {
+                        good(
+                            "Test passed: for ${receiver.fullName} action $action: " +
+                                " Expecting sum(itemCount)=$expected and got $count"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     companion object {
+
+        const val ANSI_RESET = "\u001B[0m"
+        const val ANSI_BLACK = "\u001B[30m"
+        const val ANSI_RED = "\u001B[31m"
+        const val ANSI_GREEN = "\u001B[32m"
+        const val ANSI_BLUE = "\u001B[34m"
+
+        fun good(msg: String) {
+            echo(ANSI_GREEN + msg + ANSI_RESET)
+        }
+
+        fun bad(msg: String) {
+            echo(ANSI_RED + msg + ANSI_RESET)
+        }
 
         fun createFakeFile(
             metadata: Metadata,
@@ -461,7 +588,7 @@ Examples:
             }
         }
 
-        fun lineageCountQuery(
+        fun itemLineageCountQuery(
             txn: DataAccessTransaction,
             reportId: ReportId,
             receivingOrgSvc: String,
@@ -478,6 +605,23 @@ Examples:
               (select item_descendants(?)) """
             return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
         }
+    }
+
+    fun reportLineageCountQuery(
+        txn: DataAccessTransaction,
+        reportId: ReportId,
+        receivingOrgSvc: String,
+        action: TaskAction,
+    ): Int? {
+        val ctx = DSL.using(txn)
+        val sql = """select sum(item_count)
+              from report_file as RF
+              join action as A on A.action_id = RF.action_id
+              where RF.receiving_org_svc = ? 
+              and A.action_name = ? 
+              and RF.report_id in
+              (select report_descendants(?)) """
+        return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
     }
 }
 

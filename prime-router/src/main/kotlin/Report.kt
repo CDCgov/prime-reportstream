@@ -31,7 +31,7 @@ const val SHUFFLE_THRESHOLD = 25
 const val REPORT_MAX_BYTES: Long = 50 * 1000 * 1000 // Experiments show 10k HL7 Items is just over 40Meg.
 const val REPORT_MAX_ITEMS = 10000
 const val REPORT_MAX_ITEM_COLUMNS = 2000
-const val REPORT_MAX_ERRORS = 2
+const val REPORT_MAX_ERRORS = 100
 
 /**
  * The report represents the report from one agent-organization, and which is
