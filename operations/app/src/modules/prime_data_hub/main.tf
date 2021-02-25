@@ -6,11 +6,14 @@ module "storage" {
     source = "../storage"
     environment = var.environment
     resource_group = var.resource_group
+    resource_prefix = var.resource_prefix
     name = "${var.resource_prefix}storageaccount"
     location = local.location
     subnet_ids = [module.network.public_subnet_id,
                   module.network.container_subnet_id,
                   module.network.private_subnet_id]
+    eventhub_namespace_name = module.event_hub.eventhub_namespace_name
+    eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
 }
 
 module "network" {
@@ -42,20 +45,26 @@ module "function_app" {
     postgres_user = "${module.database.postgres_user}@${module.database.server_name}"
     postgres_password = module.database.postgres_pass
     postgres_url = "jdbc:postgresql://${module.database.server_name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
+    okta_redirect_url = var.okta_redirect_url
     login_server = module.container_registry.login_server
     admin_user = module.container_registry.admin_username
     admin_password = module.container_registry.admin_password
     ai_instrumentation_key = module.application_insights.instrumentation_key
+    eventhub_namespace_name = module.event_hub.eventhub_namespace_name
+    eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
 }
 
 module "database" {
     source = "../database"
     environment = var.environment
     resource_group = var.resource_group
+    resource_prefix = var.resource_prefix
     name = "${var.resource_prefix}-pgsql"
     location = local.location
     public_subnet_id = module.network.public_subnet_id
     private_subnet_id = module.network.private_subnet_id
+    eventhub_namespace_name = module.event_hub.eventhub_namespace_name
+    eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
     app_config_key_vault_id = module.key_vault.app_config_key_vault_id
 }
 
@@ -91,7 +100,7 @@ module "sftp_container" {
 }
 
 module "metabase" {
-    count = (var.environment == "prod" ? 0 : 1)
+    count = (var.environment == "test" ? 1 : 0)
     source = "../metabase"
     environment = var.environment
     resource_group = var.resource_group

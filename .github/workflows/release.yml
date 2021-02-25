@@ -2,9 +2,7 @@ name: Prime Data Hub
 
 on:
   push:
-    # Disable master branch for pentesting
-    # branches: [ master, production ]
-    branches: [ production ]
+    branches: [ master, production ]
 
 defaults:
   run:
@@ -32,9 +30,9 @@ jobs:
                    echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
                else
                    echo "Deploying to the test environment."
-                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
-                   echo >> $GITHUB_ENV ACR_REPO=pdhtestcontainerregistry.azurecr.io
-                   echo >> $GITHUB_ENV PREFIX=pdhtest
+                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-staging
+                   echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
+                   echo >> $GITHUB_ENV PREFIX=pdhstaging
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=test
                    echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_TEST_CREDS }}
                    echo >> $GITHUB_ENV REDOX_SECRET=${{ secrets.REDOX_STAGING_SECRET }}
