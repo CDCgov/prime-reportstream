@@ -59,7 +59,7 @@ resource "azurerm_postgresql_database" "prime_data_hub_db" {
 }
 
 resource "azurerm_postgresql_database" "metabase_db" {
-  count = (var.environment == "test" ? 1 : 0)
+  count = (var.environment == "test" || var.environment == "prod" ? 1 : 0)
   name = "metabase"
   resource_group_name = var.resource_group
   server_name = azurerm_postgresql_server.postgres_server.name
