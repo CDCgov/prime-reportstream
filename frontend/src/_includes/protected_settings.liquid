@@ -3,13 +3,13 @@ permalink: "{{ page.filePathStem }}.html" # prefer named files, not blog-like pe
 cdn_styles:
   - href: "https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css"
     integrity: "sha384-NHrrVHQI7Uja/X0/0SMVLSk+nFzWI8AwBi1LqSOu7PogLHanNl0fOq1tTdvgb9C7"
-
 cdn_scripts:
   - src: "https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js"
     integrity: "sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh"
 local_styles:
-  - "/css/prime.css"
-data-index: "./data-index.html"
+  - "./css/prime.css"
+data-index: "../data-index.html"
+current: "profile"
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -63,7 +63,69 @@ data-index: "./data-index.html"
 {% include gov_header %}
 {% include navbar %}
 <main>
-  {{ content }}
+<section class="grid-container margin-bottom-5">
+  <h3 class="margin-bottom-0">
+    <span class="text-gray-30">Pima County, AZ</span>
+  </h3>
+  <h1 class="margin-top-0 margin-bottom-0">
+    <p class="margin-top-0 margin-bottom-0">Settings</p>
+  </h1>
+</section>
+
+<section class="grid-container margin-bottom-5">
+  <div class="grid-row grid-gap">
+    <div class="tablet:grid-col-4">
+      <nav aria-label="Secondary navigation">
+        <ul class="usa-sidenav">          
+          <li class="usa-sidenav__item">
+          {% if current == "profile" %}
+          <a href="./profile.html" class="usa-current">
+          {% else %}
+          <a href="./profile.html">
+          {% endif %}
+          Profile</a>
+          </li>
+          <li class="usa-sidenav__item">
+          {% if current == "organization" %}
+            <a href="./organization.html" class="usa-current">
+          {% else %}  
+            <a href="./organization.html">
+          {%endif%}
+            Organization</a>
+          </li>
+          <li class="usa-sidenav__item">
+          {% if current == "delivery" %}
+            <a href="./delivery.html" class="usa-current">
+          {%else%}
+            <a href="./delivery.html">
+          {%endif%}
+          Delivery</a>
+          </li>
+          <li class="usa-sidenav__item">
+          {% if current == "schema" %}
+            <a href="./schema.html" class="usa-current">
+          {%else%}
+            <a href="./schema.html">
+          {%endif%}
+          Schema</a>
+          </li>
+          <li class="usa-sidenav__item">
+          {% if current == "facilities" %}
+            <a href="./facilities.html" class="usa-current">
+          {%else%}
+            <a href="./facilities.html">
+          {%endif%}
+          Facilities</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="tablet:grid-col-4">
+    {{ content }}
+    </div>
+  </div>
+</section>
+  
 </main> 
 
 <section>
