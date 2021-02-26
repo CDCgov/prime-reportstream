@@ -95,6 +95,15 @@ resource "azurerm_function_app" "function_app" {
 
     "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
 
+    # Test/Staging-specific app settings
+    "PRIME__HL7__USER" = (var.environment != "prod" ? var.az_phd_user : null)
+    "PRIME__HL7__PASS" = (var.environment != "prod" ? var.az_phd_password : null)
+    "PRIME__HL7_BATCH__USER" = (var.environment != "prod" ? var.az_phd_user : null)
+    "PRIME__HL7_BATCH__PASS" = (var.environment != "prod" ? var.az_phd_password : null)
+    "PRIME__CSV__USER" = (var.environment != "prod" ? var.az_phd_user : null)
+    "PRIME__CSV__PASS" = (var.environment != "prod" ? var.az_phd_password : null)
+
+    # Production-specific app settings
     "FUNCTION_APP_EDIT_MODE" = (var.environment == "prod" ? "readOnly" : null)
     "MACHINEKEY_DecryptionKey" = (var.environment == "prod" ? data.azurerm_function_app.app_data.app_settings.MACHINEKEY_DecryptionKey : null)
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = (var.environment == "prod" ? data.azurerm_function_app.app_data.app_settings.WEBSITE_CONTENTAZUREFILECONNECTIONSTRING : null)
