@@ -18,6 +18,11 @@ resource "azurerm_postgresql_server" "postgres_server" {
   ssl_enforcement_enabled = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
 
+  threat_detection_policy {
+    enabled = true
+    email_account_admins = true
+  }
+
   lifecycle {
     prevent_destroy = true
   }
