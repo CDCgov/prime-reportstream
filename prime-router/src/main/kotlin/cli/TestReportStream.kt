@@ -75,7 +75,7 @@ Examples:
         // track headers and parameters separate from the base endpoint, since they vary
         TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
         LOCAL("http://localhost:7071/api/reports"),
-        STAGE("https://pdhstage-functionapp.azurewebsites.net/api/reports")
+        STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports")
     }
 
     private val dir by option(
@@ -104,11 +104,12 @@ Examples:
 
     private val env by option(
         "--env",
-        help = "Specify 'local, 'test', or 'stage'.  'local' will connect to ${TestingEnvironment.LOCAL.endPoint}," +
+        help = "Specify 'local, 'test', or 'staging'.  'local' will connect to ${TestingEnvironment.LOCAL.endPoint}," +
             " and 'test' will connect to ${TestingEnvironment.TEST.endPoint}"
-    ).choice("test", "local", "stage").default("local").validate {
+    ).choice("test", "local", "staging").default("local").validate {
         when (it) {
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
+            "staging" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
         }
     }
 
@@ -510,9 +511,9 @@ Examples:
             val secsElapsed = OffsetDateTime.now().second % 60
             // Wait until the top of the next minute, and pluSecs more, for 'batch', and 'send' to finish.
             var waitSecs = 60 - secsElapsed + plusSecs
-            if (secsElapsed > (60 - plusSecs) || env == TestingEnvironment.TEST) {
+            if (secsElapsed > (60 - plusSecs) || env != TestingEnvironment.LOCAL) {
                 // Uh oh, we are close to the top of the minute *now*, so 'receive' might not finish in time.
-                // Or, we are in Test, which doesn't execute on the top of the hour.
+                // Or, we are in Test or Staging, which don't execute on the top of the minute.
                 waitSecs += 60
             }
             echo("Waiting $waitSecs seconds for the Hub to fully receive, batch, and send the data")
