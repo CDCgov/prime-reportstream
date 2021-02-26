@@ -2,11 +2,30 @@ terraform {
     required_version = ">= 0.14"
 }
 
+resource "azurerm_app_service_plan" "service_plan" {
+  count = (var.environment == "prod" ? 1 : 0)
+  name = "${var.resource_prefix}-metabaseserviceplan"
+  location = var.location
+  resource_group_name = var.resource_group
+  kind = "Linux"
+  reserved = true
+  maximum_elastic_worker_count = 1
+
+  sku {
+    tier = "PremiumV2"
+    size = "P2v2"
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
+
 resource "azurerm_app_service" "metabase" {
   name = var.name
   location = var.location
   resource_group_name = var.resource_group
-  app_service_plan_id = var.app_service_plan_id
+  app_service_plan_id = (var.environment == "prod" ? azurerm_app_service_plan.service_plan[0].id : var.app_service_plan_id)
   https_only = true
 
   site_config {
