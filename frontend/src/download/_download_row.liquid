@@ -1,0 +1,55 @@
+<script type=module>
+  const td_day_ms = 24*60*60*1000 // 1 day in ms
+  const ifmt_date = new Intl.DateTimeFormat([], {dateStyle:'medium', timeStyle:'medium'})
+  const ifmt_reltime = new Intl.RelativeTimeFormat([], {})
+
+  const {html} = window.uhtml
+
+  const _humanize_row_data = (row_result) => {
+    let ts = new Date(row_result.timestamp)
+    let ts_expires = new Date(row_result.expires)
+    let day_expires = ((ts_expires - new Date()) / td_day_ms).toFixed(1)
+
+    return {... row_result, 
+      human_timestamp: ifmt_date.format(ts),
+      human_expires: ifmt_reltime.format(day_expires, 'day')
+    }
+  }
+
+  const _as_download_tr = (row_result) =>
+    html`
+      <tr>
+        <!-- in download_row/_download_row.liquid -->
+        <th data-title="date" scope="row">
+          <span>${row_result.human_timestamp}></span>
+        </th>
+
+        <th data-title="description" scope="row">
+          ${row_result.description}
+        </th>
+
+        <td data-title="expires">
+          <span>${row_result.human_expires}</span>
+        </td>
+
+        <td data-title="Total tests">
+          ${row_result.total_tests}
+        </td>
+
+        <td data-title="File">
+          <span>
+            <a href="${row_result.url + '.csv'}">CSV</a>
+            <a href="${row_result.url + '.hl7'}">HL7</a>
+          </span>
+        </td>
+        <td data-title="UUID">
+          <span>${row_result.uuid}</span>
+        </td>
+      </tr>`
+
+  window.as_download_rows = (data_row_list) =>
+    html`${
+      Array.from(data_row_list)
+        .map(_humanize_row_data)
+        .map(_as_download_tr) }`
+</script>
