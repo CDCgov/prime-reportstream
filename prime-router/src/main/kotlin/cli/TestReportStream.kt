@@ -297,12 +297,16 @@ Examples:
         val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
-        val tree = jacksonObjectMapper().readTree(json)
-        val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
-        if (firstError["details"].textValue().contains("rows")) {
-            good("Too Big Test passed.")
-        } else {
-            bad("***Too Big Test Test FAILED***: Did not find the error")
+        try {
+            val tree = jacksonObjectMapper().readTree(json)
+            val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
+            if (firstError["details"].textValue().contains("rows")) {
+                good("Too Big Test passed.")
+            } else {
+                bad("***Too Big Test Test FAILED***: Did not find the error")
+            }
+        } catch (e: Exception) {
+            bad("***Too Big Test Test FAILED***: Unable to find the expected error message")
         }
     }
 
@@ -322,12 +326,16 @@ Examples:
         val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
-        val tree = jacksonObjectMapper().readTree(json)
-        val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
-        if (firstError["details"].textValue().contains("columns")) {
-            good("Test passed: Too many columns test.")
-        } else {
-            bad("***Too Many Columns Test FAILED***:  did not find the error.")
+        try {
+            val tree = jacksonObjectMapper().readTree(json)
+            val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
+            if (firstError["details"].textValue().contains("columns")) {
+                good("Test passed: Too many columns test.")
+            } else {
+                bad("***Too Many Columns Test FAILED***:  did not find the error.")
+            }
+        } catch (e: Exception) {
+            bad("***Too Many Columns Test FAILED***: Unable to find the expected error message")
         }
     }
 
@@ -349,11 +357,15 @@ Examples:
             echo("Test FAILED:  response code $responseCode")
             exitProcess(-1) // other tests won't work.
         }
-        val tree = jacksonObjectMapper().readTree(json)
-        if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
-            bad("***CheckConnections Test FAILED***:  Response was $json")
-        } else {
-            good("Test passed: CheckConnections")
+        try {
+            val tree = jacksonObjectMapper().readTree(json)
+            if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
+                bad("***CheckConnections Test FAILED***")
+            } else {
+                good("Test passed: CheckConnections")
+            }
+        } catch (e: NullPointerException) {
+            bad("***CheckConnections FAILED***: Unable to properly parse response json")
         }
     }
 
@@ -386,11 +398,15 @@ Examples:
             bad("***EndToEnd Test FAILED***:  response code $responseCode")
             return
         }
-        val tree = jacksonObjectMapper().readTree(json)
-        val reportId = ReportId.fromString(tree["id"].textValue())
-        echo("Id of submitted report: $reportId")
-        waitABit(15, environment)
-        examineLineageResults(reportId, receivingOrg.services, fakeItemCount)
+        try {
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
+            echo("Id of submitted report: $reportId")
+            waitABit(15, environment)
+            examineLineageResults(reportId, receivingOrg.services, fakeItemCount)
+        } catch (e: NullPointerException) {
+            bad("***End to End Test FAILED***: Unable to properly parse response json")
+        }
     }
 
     fun examineLineageResults(
