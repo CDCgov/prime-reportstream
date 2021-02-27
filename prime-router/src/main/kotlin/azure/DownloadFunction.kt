@@ -190,10 +190,8 @@ class DownloadFunction {
                 actionHistory.trackDownloadedReport(
                     header,
                     filename,
-                    reportId,
                     externalReportId,
                     authClaims.userName,
-                    authClaims.organization
                 )
                 actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
                 WorkflowEngine().recordAction(actionHistory)

@@ -16,7 +16,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
@@ -182,21 +181,15 @@ class ActionHistoryTests {
         val uuid = UUID.randomUUID()
         val reportFile1 = ReportFile()
         reportFile1.reportId = uuid
-        val header = DatabaseAccess.Header(Task(), listOf<TaskSource>(), reportFile1, null, workflowEngine)
-        val org =
-            Organization(
-                name = "myOrg",
-                description = "blah blah",
-                clients = listOf(),
-                services = listOf(
-                    OrganizationService("myService", "topic", "schema", format = Report.Format.HL7)
-                )
-            )
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+        val header = DatabaseAccess.Header(Task(), reportFile1, null, workflowEngine)
         val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()
-        actionHistory1.trackDownloadedReport(header, "filename1", uuid, uuid2, "bob", org)
+        actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob")
         assertNotNull(actionHistory1.reportsOut[uuid2])
         val reportFile2 = actionHistory1.reportsOut[uuid2] !!
+        assertEquals("myRcvr", reportFile2.receivingOrgSvc)
         assertEquals("myOrg", reportFile2.receivingOrg)
         assertEquals("filename1", reportFile2.externalName)
         assertEquals("bob", reportFile2.downloadedBy)
@@ -204,7 +197,7 @@ class ActionHistoryTests {
         assertNull(reportFile2.bodyUrl)
         assertNull(reportFile2.blobDigest)
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackDownloadedReport(header, "filename1", uuid, uuid2, "bob", org) }
+        assertFails { actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob") }
     }
 
     /**

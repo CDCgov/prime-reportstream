@@ -79,7 +79,7 @@ class Report {
 
     /**
      * The sources that generated this service
-     * todo this is now redundant with ActionHistory.reportLineages.
+     * todo this is no longer being stored in the db. Its not clear what its useful for.
      */
     val sources: List<Source>
 

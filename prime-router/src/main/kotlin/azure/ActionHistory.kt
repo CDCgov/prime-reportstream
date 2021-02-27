@@ -7,7 +7,6 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -83,9 +82,6 @@ class ActionHistory {
      * However, its here because there are Functions that do not create Report.kt objects.  For example, Send.
      * In addition, in-memory, reports get copied many times, with lots of parent-child relationships
      * that are error-prone to track.  Hiding the lineage data here helps ensure correctness and hide complexity.
-     *
-     * todo this is redundant with `Report.sources`.   Remove report_sources.
-     *
      */
     private val reportLineages = mutableListOf<ReportLineage>()
 
@@ -199,7 +195,7 @@ class ActionHistory {
         val reportFile = ReportFile()
         reportFile.reportId = report.id
         reportFile.nextAction = TaskAction.none
-        // todo remove this dependency on TaskSource
+        // todo Is there a better way to get the sendingOrg and sendingOrgClient?
         if (report.sources.size != 1) {
             error(
                 "An external incoming report should have only one source.   " +
@@ -289,12 +285,11 @@ class ActionHistory {
     fun trackDownloadedReport(
         header: DatabaseAccess.Header,
         filename: String,
-        originalReportId: ReportId, // todo remove, replace with report in header
         externalReportId: ReportId,
         downloadedBy: String,
-        organization: Organization // todo remove, replace with report in header
     ) {
-        trackExistingInputReport(originalReportId)
+        val parentReportFile = header.reportFile
+        trackExistingInputReport(parentReportFile.reportId)
         if (isReportAlreadyTracked(externalReportId)) {
             error(
                 "Bug:  attempt to track history of a report ($externalReportId)" +
@@ -302,18 +297,18 @@ class ActionHistory {
             )
         }
         val reportFile = ReportFile()
-        reportFile.reportId = externalReportId
-        reportFile.receivingOrg = organization.name
-        reportFile.receivingOrgSvc = header.task.receiverName
-        reportFile.schemaName = header.task.schemaName
-        reportFile.schemaTopic = "unavailable" // todo fix this
+        reportFile.reportId = externalReportId // child report
+        reportFile.receivingOrg = parentReportFile.receivingOrg
+        reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
+        reportFile.schemaName = parentReportFile.schemaName
+        reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename
-        reportFile.transportParams = "Internal id of report requested: $originalReportId"
-        reportFile.transportResult = "Downloaded by user=$downloadedBy"
+        reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
+        reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
-        reportFile.bodyFormat = header.task.bodyFormat
-        reportFile.blobDigest = null
-        reportFile.itemCount = header.task.itemCount
+        reportFile.bodyFormat = parentReportFile.bodyFormat
+        reportFile.blobDigest = null // no blob
+        reportFile.itemCount = parentReportFile.itemCount
         reportFile.downloadedBy = downloadedBy
         reportsOut[reportFile.reportId] = reportFile
     }

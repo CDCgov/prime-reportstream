@@ -29,9 +29,10 @@ class SftpTransport : ITransport {
         val host: String = sftpTransportType.host
         val port: String = sftpTransportType.port
         return try {
-            if (header.content == null || header.orgSvc == null)
-                error("No content or orgSvc to sftp, for report ${header.reportFile.reportId}")
-            val (user, pass) = lookupCredentials(header.orgSvc.fullName)
+            if (header.content == null)
+                error("No content to sftp for report ${header.reportFile.reportId}")
+            val receiver = header.orgSvc ?: error("No receiver defined for report ${header.reportFile.reportId}")
+            val (user, pass) = lookupCredentials(receiver.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
             uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, header.content)
@@ -39,7 +40,7 @@ class SftpTransport : ITransport {
             context.logger.log(Level.INFO, msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
-                header.orgSvc,
+                receiver,
                 sentReportId,
                 fileName,
                 sftpTransportType.toString(),

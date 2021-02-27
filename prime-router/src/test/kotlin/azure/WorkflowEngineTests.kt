@@ -177,7 +177,7 @@ class WorkflowEngineTests {
         val engine = makeEngine(metadata)
 
         every { accessSpy.fetchAndLockHeader(reportId = eq(report1.id), any()) }
-            .returns(DatabaseAccess.Header(task, emptyList(), ReportFile(), null, engine))
+            .returns(DatabaseAccess.Header(task, ReportFile(), null, engine))
         every {
             accessSpy.updateHeader(
                 reportId = eq(report1.id),
@@ -195,7 +195,6 @@ class WorkflowEngineTests {
 
         engine.handleReportEvent(event, actionHistoryMock) { header, _, _ ->
             assertEquals(task, header.task)
-            assertEquals(0, header.sources.size)
             nextAction
         }
 

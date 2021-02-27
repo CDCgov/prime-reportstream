@@ -169,11 +169,11 @@ class WorkflowEngine(
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
         val destination = metadata.findService(header.task.receiverName)
         val bytes = blob.downloadBlob(header.task.bodyUrl)
-        val sources = header.sources.map { DatabaseAccess.toSource(it) }
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV" -> {
-                val result = csvSerializer.readExternal(schema.name, ByteArrayInputStream(bytes), sources, destination)
+                val result =
+                    csvSerializer.readExternal(schema.name, ByteArrayInputStream(bytes), emptyList(), destination)
                 if (result.report == null || result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
@@ -183,7 +183,7 @@ class WorkflowEngine(
                 csvSerializer.readInternal(
                     schema.name,
                     ByteArrayInputStream(bytes),
-                    sources,
+                    emptyList(),
                     destination,
                     header.reportFile.reportId
                 )

@@ -2,22 +2,16 @@ package gov.cdc.prime.router.azure
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.ReportSource
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.Tables.TASK
-import gov.cdc.prime.router.azure.db.Tables.TASK_SOURCE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import org.flywaydb.core.Flyway
 import org.jooq.Configuration
@@ -48,21 +42,21 @@ class DatabaseAccess(private val create: DSLContext) {
 
     class Header(
         val task: Task,
-        val sources: List<TaskSource>,
         val reportFile: ReportFile,
         val itemLineages: List<ItemLineage>?, // ok to not have item-level lineage
-        val engine: WorkflowEngine = WorkflowEngine()
+        val engine: WorkflowEngine = WorkflowEngine(),
+        var orgSvc: OrganizationService? = null,
     ) {
         // Populate the header with useful metadata objs, and the blob body.
-        val orgSvc: OrganizationService?
         val schema: Schema?
         val content: ByteArray?
 
         init {
             val metadata = engine.metadata
-            orgSvc = if (reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null)
-                metadata.findService(reportFile.receivingOrg, reportFile.receivingOrgSvc)
-            else null
+            if (orgSvc == null && reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null) {
+                orgSvc = metadata.findService(reportFile.receivingOrg, reportFile.receivingOrgSvc)
+                // note:  orgSvc might still be null if not found.
+            }
 
             schema = if (reportFile.schemaName != null)
                 metadata.findSchema(reportFile.schemaName)
@@ -98,62 +92,12 @@ class DatabaseAccess(private val create: DSLContext) {
         fun insert(txn: Configuration) {
             val task = createTaskRecord(report, bodyFormat, bodyUrl, nextAction)
             DSL.using(txn).executeInsert(task)
-            report.sources.forEach {
-                insertTaskSource(report, it, txn)
-            }
         }
 
         if (txn != null) {
             insert(txn)
         } else {
             create.transaction { innerTxn -> insert(innerTxn) }
-        }
-    }
-
-    private fun insertTaskSource(report: Report, source: Source, txn: DataAccessTransaction) {
-        fun insertReportSource(report: Report, source: ReportSource) {
-            DSL.using(txn)
-                .insertInto(
-                    TASK_SOURCE,
-                    TASK_SOURCE.REPORT_ID,
-                    TASK_SOURCE.FROM_REPORT_ID,
-                    TASK_SOURCE.FROM_REPORT_ACTION,
-                ).values(
-                    report.id,
-                    source.id,
-                    source.action,
-                ).execute()
-        }
-
-        fun insertClientSource(report: Report, source: ClientSource) {
-            DSL.using(txn)
-                .insertInto(
-                    TASK_SOURCE,
-                    TASK_SOURCE.REPORT_ID,
-                    TASK_SOURCE.FROM_SENDER,
-                    TASK_SOURCE.FROM_SENDER_ORGANIZATION,
-                ).values(
-                    report.id,
-                    source.client,
-                    source.organization,
-                ).execute()
-        }
-
-        fun insertTestSource(report: Report) {
-            DSL.using(txn)
-                .insertInto(
-                    TASK_SOURCE,
-                    TASK_SOURCE.REPORT_ID
-                ).values(
-                    report.id,
-                ).execute()
-        }
-
-        when (source) {
-            is ReportSource -> insertReportSource(report, source)
-            is ClientSource -> insertClientSource(report, source)
-            is TestSource -> insertTestSource(report)
-            else -> TODO()
         }
     }
 
@@ -171,17 +115,11 @@ class DatabaseAccess(private val create: DSLContext) {
             ?.into(Task::class.java)
             ?: error("Could not find $reportId that matches a task")
 
-        val taskSources = ctx
-            .selectFrom(TASK_SOURCE)
-            .where(TASK_SOURCE.REPORT_ID.eq(reportId))
-            .fetch()
-            .into(TaskSource::class.java)
-
         val reportFile = ActionHistory.fetchReportFile(reportId, ctx)
         ActionHistory.sanityCheckReport(task, reportFile, false)
         val itemLineages = ActionHistory.fetchItemLineagesForReport(reportId, reportFile.itemCount, ctx)
 
-        return Header(task, taskSources, reportFile, itemLineages)
+        return Header(task, reportFile, itemLineages)
     }
 
     /**
@@ -214,12 +152,6 @@ class DatabaseAccess(private val create: DSLContext) {
             .into(Task::class.java)
 
         val ids = tasks.map { it.reportId }
-        val taskSources = ctx
-            .selectFrom(TASK_SOURCE)
-            .where(TASK_SOURCE.REPORT_ID.`in`(ids))
-            .fetch()
-            .into(TaskSource::class.java)
-
         val reportFiles = ids
             .map { ActionHistory.fetchReportFile(it, ctx) }
             .map { (it.reportId as ReportId) to it }
@@ -228,7 +160,7 @@ class DatabaseAccess(private val create: DSLContext) {
 
         // taskSources seems erroneous.  All the sources for all Tasks are attached to each indiv. task. ?
         // todo remove the !!
-        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, null) }
+        return tasks.map { Header(it, reportFiles[it.reportId]!!, null) }
     }
 
     fun fetchDownloadableReportFiles(
@@ -250,17 +182,10 @@ class DatabaseAccess(private val create: DSLContext) {
             ?.into(Task::class.java)
             ?: error("Could not find $reportId/$orgName that matches a task")
 
-        val taskSources = create
-            .selectFrom(TASK_SOURCE)
-            .where(TASK_SOURCE.REPORT_ID.eq(reportId))
-            .fetch()
-            .into(TaskSource::class.java)
-
         val reportFile = ActionHistory.fetchReportFile(reportId, create)
         ActionHistory.sanityCheckReport(task, reportFile, false)
         val itemLineages = ActionHistory.fetchItemLineagesForReport(reportId, reportFile.itemCount, create)
-
-        return Header(task, taskSources, reportFile, itemLineages)
+        return Header(task, reportFile, itemLineages)
     }
 
     /**
@@ -341,20 +266,6 @@ class DatabaseAccess(private val create: DSLContext) {
         }
 
         val dataSource: DataSource get() = hikariDataSource
-
-        fun toSource(taskSource: TaskSource): Source {
-            return when {
-                taskSource.fromReportId != null -> {
-                    ReportSource(taskSource.fromReportId, taskSource.fromReportAction)
-                }
-                taskSource.fromSender != null -> {
-                    ClientSource(taskSource.fromSenderOrganization, taskSource.fromSender)
-                }
-                else -> {
-                    TestSource
-                }
-            }
-        }
 
         fun createTaskRecord(
             report: Report,
