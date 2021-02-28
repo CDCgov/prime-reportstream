@@ -58,12 +58,15 @@ Examples:
     lateinit var db: DatabaseAccess
 
     val receivingStates = "PM"
-    val receivingOrgName = "prime"
+    val orgName = "prime"
+    val senderName = "prime-simple-report"
+    val senderNameStrac = "prime-strac"
 
     enum class AwesomeTest(val description: String) {
         ping("Is the reports endpoint alive and listening?"),
         end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
         strac("Submit data in the strac schema format, wait, confirm via database queries"),
+        stracbasic("Basic strac test to REDOX only."),
         // 10,000 lines fake data generation took about 90 seconds on my laptop.  6Meg.
         huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."),
         toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"),
@@ -141,8 +144,8 @@ Examples:
 
     private fun doTests(tests: List<AwesomeTest>) {
         metadata = Metadata(Metadata.defaultMetadataDirectory)
-        val receivingOrg = metadata.findOrganization(receivingOrgName)
-            ?: error("Unable to find org '$receivingOrgName' in metadata")
+        val receivingOrg = metadata.findOrganization(orgName)
+            ?: error("Unable to find org '$orgName' in metadata")
         val environment = TestingEnvironment.valueOf(env.toUpperCase())
 
         tests.forEach { test ->
@@ -150,6 +153,7 @@ Examples:
                 AwesomeTest.ping -> doCheckConnections(environment)
                 AwesomeTest.end2end -> doEndToEndTest(receivingOrg, environment)
                 AwesomeTest.strac -> doStracTest(receivingOrg, environment)
+                AwesomeTest.stracbasic -> doStracBasicTest(environment)
                 AwesomeTest.huge -> doHugeTest(receivingOrg, environment)
                 AwesomeTest.toobig -> doTooManyItemsTest(receivingOrg, environment)
                 AwesomeTest.toomanycols -> doTooManyColumnsTest(environment)
@@ -160,9 +164,9 @@ Examples:
     }
 
     private fun doMergeTest(receivingOrg: Organization, environment: TestReportStream.TestingEnvironment) {
-        val sendingOrg = metadata.findOrganization("simple_report")
-            ?: error("Unable to find org 'simple_report' in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+        val sendingOrg = metadata.findOrganization(orgName)
+            ?: error("Unable to find org $orgName in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
             ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
         val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
         echo("Merge test of: ${environment.endPoint}")
@@ -198,9 +202,9 @@ Examples:
         receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
-        val sendingOrg = metadata.findOrganization("strac")
-            ?: error("Unable to find org 'strac' in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+        val sendingOrg = metadata.findOrganization(orgName)
+            ?: error("Unable to find org $orgName in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == senderNameStrac }
             ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
         val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
         echo("Test sending Strac data to: ${environment.endPoint}")
@@ -230,13 +234,50 @@ Examples:
         examineLineageResults(reportId, receivingOrg.services, fakeItemCount)
     }
 
+    private fun doStracBasicTest(
+        environment: TestingEnvironment
+    ) {
+        val sendingOrg = metadata.findOrganization(orgName)
+            ?: error("Unable to find org $orgName in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == senderNameStrac }
+            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+        val fakeItemCount = 100
+        echo("StracBasic Test: sending Strac data to: ${environment.endPoint}")
+        val receiverName = "REDOX"
+        echo("Test sending to $receiverName")
+        val receiver = metadata.findService(orgName, receiverName)
+            ?: error("Can't do StracBasic test - no $receiverName receiver found in settings")
+        val file = createFakeFile(
+            metadata,
+            sendingOrgClient,
+            fakeItemCount,
+            receivingStates,
+            receiverName,
+            dir,
+        )
+        echo("Created datafile $file")
+        // Now send it to the Hub.
+        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            bad("***StracBasic Test FAILED***:  response code $responseCode")
+            return
+        }
+        val tree = jacksonObjectMapper().readTree(json)
+        val reportId = ReportId.fromString(tree["id"].textValue())
+        echo("Id of submitted report: $reportId")
+        waitABit(15, environment)
+        examineLineageResults(reportId, listOf(receiver), fakeItemCount)
+    }
+
     private fun doHugeTest(
         receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
-        val sendingOrg = metadata.findOrganization("simple_report")
-            ?: error("Unable to find org 'simple_report' in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+        val sendingOrg = metadata.findOrganization(orgName)
+            ?: error("Unable to find org $orgName in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
             ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
         val fakeItemCount = 10000
         echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is slow.")
@@ -273,9 +314,9 @@ Examples:
         receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
-        val sendingOrg = metadata.findOrganization("simple_report")
-            ?: error("Unable to find org 'simple_report' in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+        val sendingOrg = metadata.findOrganization(orgName)
+            ?: error("Unable to find org $orgName in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
             ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
         val fakeItemCount = REPORT_MAX_ITEMS + 1
         echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is slow.")
@@ -318,9 +359,9 @@ Examples:
         if (!file.exists()) {
             error("Unable to find file ${file.absolutePath} to do toomanycols test")
         }
-        val sendingOrg = metadata.findOrganization("simple_report")
-            ?: error("Unable to find org 'simple_report' in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+        val sendingOrg = metadata.findOrganization(orgName)
+            ?: error("Unable to find org $orgName in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
             ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
         // Now send it to the Hub.
         val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
@@ -346,8 +387,8 @@ Examples:
         val (responseCode, json) = postReportBytes(
             environment,
             "x".toByteArray(),
-            "simple_report",
-            "default",
+            orgName,
+            senderName,
             key,
             ReportFunction.Options.CheckConnections
         )
@@ -373,9 +414,9 @@ Examples:
         receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
-        val sendingOrg = metadata.findOrganization("simple_report")
-            ?: error("Unable to find org 'simple_report' in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == "default" }
+        val sendingOrg = metadata.findOrganization(orgName)
+            ?: error("Unable to find org $orgName in metadata")
+        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
             ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
         val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
         echo("EndToEndTest of: ${environment.endPoint}")
@@ -537,6 +578,7 @@ Examples:
                 sleep(1000)
                 print(".")
             }
+            println()
         }
 
         /**

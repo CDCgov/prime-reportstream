@@ -223,6 +223,15 @@
   # This is to aid in readability.
   - name: prime
     description: Prime Test Receiver
+    clients:
+      - name: prime-strac      # A client useful for sending strac data
+        topic: covid-19
+        schema: strac/strac-covid-19
+        format: CSV
+      - name: prime-simple-report      # A client useful for sending simple-report data
+        topic: covid-19
+        schema: primedatainput/pdi-covid-19
+        format: CSV
     services:
       - name: CSV
         topic: covid-19
