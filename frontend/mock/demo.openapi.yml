@@ -24,20 +24,32 @@ components:
     TokenData:
       type: object
       properties:
-        name:
+        given_name: 
           type: string
-          example: Jane Doe
+          example: 'Jane'
+        family_name: 
+          type: string
+          example: 'Doe'
         email:
           type: string
           format: email
-          example: john@example.com
-        iat:
-          type: integer
-          example: 1516239022
+          example: jane@example.com
+        phone:
+          type: string
+          example: "(555) 867-5309"
+
   securitySchemes:
-    jwtAuth:
+    jwt_bearer_auth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+    jwt_cookie_auth:
+      type: JWT
+      in: cookie
+      name: jwt
+
 security:
-  - jwtAuth: []
+  - jwt_cookie_auth: []
+  - jwt_bearer_auth: []
+
