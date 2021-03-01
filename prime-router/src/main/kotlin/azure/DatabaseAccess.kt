@@ -117,13 +117,13 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     fun fetchDownloadableTasks(
         since: OffsetDateTime?,
-        receiverName: String,
+        organizationName: String,
     ): List<Task> {
         val cond = if (since == null) {
             TASK.SENT_AT.isNotNull
-                .and(TASK.RECEIVER_NAME.like("$receiverName%"))
+                .and(TASK.RECEIVER_NAME.like("$organizationName%"))
         } else {
-            TASK.RECEIVER_NAME.like("$receiverName%")
+            TASK.RECEIVER_NAME.like("$organizationName%")
                 .and(TASK.CREATED_AT.ge(since))
                 .and(TASK.SENT_AT.isNotNull)
         }

@@ -277,20 +277,20 @@ class WorkflowEngine(
 
     fun fetchDownloadableHeaders(
         since: OffsetDateTime?,
-        receiverName: String,
+        organizationName: String,
     ): List<Header> {
-        val tasks = db.fetchDownloadableTasks(since, receiverName)
+        val tasks = db.fetchDownloadableTasks(since, organizationName)
         val ids = tasks.map { it.reportId }
         val taskSources = db.fetchTaskSources(ids)
 
-        val reportFiles = db.fetchDownloadableReportFiles(since, receiverName)
+        val reportFiles = db.fetchDownloadableReportFiles(since, organizationName)
 //        val itemLineagesPerReport = ActionHistory.fetchItemLineagesForReports(reportFiles.values, create)
         ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-        val (organization, receiver) = findOrganizationAndReceiver(receiverName)
 
         // todo fix the !!.  Right now the sanityCheck guarantees non-null.
 //        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, itemLineagesPerReport[it.reportId]) }
         return tasks.map {
+            val (organization, receiver) = findOrganizationAndReceiver(it.receiverName)
             createHeader(it, taskSources, reportFiles[it.reportId]!!, null, organization, receiver)
         }
     }
