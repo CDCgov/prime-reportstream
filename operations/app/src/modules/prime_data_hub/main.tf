@@ -100,10 +100,11 @@ module "sftp_container" {
 }
 
 module "metabase" {
-    count = (var.environment == "test" ? 1 : 0)
+    count = (var.environment == "test" || var.environment == "prod" ? 1 : 0)
     source = "../metabase"
     environment = var.environment
     resource_group = var.resource_group
+    resource_prefix = var.resource_prefix
     name = "${var.resource_prefix}-metabase"
     location = local.location
     app_service_plan_id = module.function_app.app_service_plan_id

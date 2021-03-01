@@ -5,7 +5,7 @@ terraform {
 locals {
     name = var.environment != "dev" ? "prime-data-hub-${var.environment}" : "prime-data-hub-${var.resource_prefix}"
     functionapp_address = "${var.resource_prefix}-functionapp.azurewebsites.net"
-    metabase_address = (var.environment == "test" ? "${var.resource_prefix}-metabase.azurewebsites.net" : null)
+    metabase_address = (var.environment == "test" || var.environment == "prod" ? "${var.resource_prefix}-metabase.azurewebsites.net" : null)
     frontend_endpoints = var.https_cert_name != null ? ["DefaultFrontendEndpoint", var.https_cert_name] : ["DefaultFrontendEndpoint"]
 }
 
@@ -28,7 +28,7 @@ resource "azurerm_frontdoor" "front_door" {
     }
 
     dynamic "backend_pool_load_balancing" {
-      for_each = (var.environment == "test" ? [1] : [])
+      for_each = (var.environment == "test" || var.environment == "prod" ? [1] : [])
       content {
         name = "metabaseLoadBalancingSettings"
         sample_size = 4
@@ -38,7 +38,7 @@ resource "azurerm_frontdoor" "front_door" {
     }
 
     dynamic "backend_pool_health_probe" {
-        for_each = (var.environment == "test" ? [1] : [])
+        for_each = (var.environment == "test" || var.environment == "prod" ? [1] : [])
         content {
           name = "metabaseHealthProbeSettings"
           path = "/"
@@ -49,7 +49,7 @@ resource "azurerm_frontdoor" "front_door" {
     }
 
     dynamic "backend_pool" {
-      for_each = (var.environment == "test" ? [1] : [])
+      for_each = (var.environment == "test" || var.environment == "prod" ? [1] : [])
       content {
         name = "metabase"
         health_probe_name = "metabaseHealthProbeSettings"
@@ -111,7 +111,7 @@ resource "azurerm_frontdoor" "front_door" {
         name = "HttpToHttpsRedirect"
         frontend_endpoints = local.frontend_endpoints
         accepted_protocols = ["Http"]
-        patterns_to_match = (var.environment == "test" ? ["/", "/*", "/api/*", "/download", "/metabase", "/metabase/*"] : ["/", "/*", "/api/*", "/download"])
+        patterns_to_match = (var.environment == "test" || var.environment == "prod" ? ["/", "/*", "/api/*", "/download", "/metabase", "/metabase/*"] : ["/", "/*", "/api/*", "/download"])
 
         redirect_configuration {
             redirect_protocol = "HttpsOnly"
@@ -133,7 +133,7 @@ resource "azurerm_frontdoor" "front_door" {
     }
 
     dynamic "routing_rule" {
-      for_each = (var.environment == "test" ? [1] : [])
+      for_each = (var.environment == "test" || var.environment == "prod" ? [1] : [])
       content {
         name = "metabase"
         frontend_endpoints = local.frontend_endpoints

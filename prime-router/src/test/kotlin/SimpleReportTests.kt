@@ -19,6 +19,7 @@ class SimpleReportTests {
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./target/csv_test_files/"
     private val metadata: Metadata
+    private val settings: SettingsProvider
     private val csvSerializer: CsvSerializer
 
     init {
@@ -29,6 +30,7 @@ class SimpleReportTests {
         assertTrue(expectedDir.exists())
 
         metadata = Metadata(Metadata.defaultMetadataDirectory)
+        settings = FileSettings(FileSettings.defaultSettingsDirectory)
         csvSerializer = CsvSerializer(metadata)
     }
 
@@ -37,7 +39,7 @@ class SimpleReportTests {
      * Returns a list of Pairs.  Each pair is created report File based on the routing,
      *   and the OrganizationService, as useful metadata about the File.
      */
-    fun readAndRoute(filePath: String, schemaName: String): MutableList<Pair<File, OrganizationService>> {
+    fun readAndRoute(filePath: String, schemaName: String): MutableList<Pair<File, Receiver>> {
         val file = File(filePath)
         assertTrue(file.exists())
         val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
@@ -50,10 +52,10 @@ class SimpleReportTests {
         //        assertTrue(readResult.warnings.isEmpty())
         val inputReport = readResult.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
-        val outputReports = Translator(metadata).filterAndTranslateByService(inputReport)
+        val outputReports = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport)
 
         // 3) Write transformed objs to files
-        val outputFiles = mutableListOf<Pair<File, OrganizationService>>()
+        val outputFiles = mutableListOf<Pair<File, Receiver>>()
         outputReports.forEach { (report, orgSvc) ->
             val fileName = Report.formFilename(
                 report.id,

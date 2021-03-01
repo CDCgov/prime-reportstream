@@ -78,6 +78,16 @@ resource "azurerm_monitor_diagnostic_setting" "storageaccount_access_log" {
       enabled = false
     }
   }
+
+  metric {
+    category = "Capacity"
+    enabled  = false
+
+    retention_policy {
+      days = 0
+      enabled = false
+    }
+  }
 }
 
 output "storage_account_name" {
