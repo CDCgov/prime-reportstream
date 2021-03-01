@@ -13,11 +13,14 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.CsvComparer
+import gov.cdc.prime.router.DefaultValues
 import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FakeReport
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -143,6 +146,14 @@ class ProcessData : CliktCommand(
         metavar = "<path>",
         help = "write output files to this directory instead of the working directory. Ignored if --output is set."
     )
+    private val useAphlFileName by option(
+        "--output-aphl-filename",
+        help = "Output using the APHL file format"
+    ).flag()
+    private val receivingOrganization by option(
+        "--output-receiving-org",
+        help = "Output using the APHL file format"
+    )
 
     // Fake data configuration
     private val targetStates: String? by
@@ -230,13 +241,14 @@ class ProcessData : CliktCommand(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
+
                     val fileName = Report.formFilename(
                         report.id,
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
-                        report.schema.useAphlNamingFormat,
-                        report.schema.receivingOrganization
+                        useAphlFileName || report.destination?.translation?.useAphlNamingFormat ?: false,
+                        receivingOrganization ?: report.destination?.translation?.receivingOrganization
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -271,11 +283,17 @@ class ProcessData : CliktCommand(
         return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
     }
 
+    private fun getDefaultValues(): DefaultValues {
+        val values = mutableMapOf<String, String>()
+        receivingApplication?.let { values["receiving_application"] = it }
+        receivingFacility?.let { values["receiving_facility"] = it }
+        return values
+    }
+
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
-        metadata.receivingApplication = receivingApplication
-        metadata.receivingFacility = receivingFacility
+        val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata)
         val redoxSerializer = RedoxSerializer(metadata)
@@ -330,14 +348,18 @@ class ProcessData : CliktCommand(
         if (synthesize) inputReport = inputReport.synthesizeData(synthesizeStrategies, targetStates, targetCounties)
 
         // Transform reports
-        val translator = Translator(metadata)
+        val translator = Translator(metadata, fileSettings)
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
-                    .filterAndTranslateByService(inputReport)
+                    .filterAndTranslateByReceiver(inputReport, getDefaultValues())
                     .map { it.first to getOutputFormat(it.second.format) }
             routeTo != null -> {
-                val pair = translator.translate(input = inputReport, toService = routeTo!!)
+                val pair = translator.translate(
+                    input = inputReport,
+                    toReceiver = routeTo!!,
+                    defaultValues = getDefaultValues()
+                )
                 if (pair != null)
                     listOf(pair.first to getOutputFormat(pair.second.format))
                 else
@@ -345,7 +367,11 @@ class ProcessData : CliktCommand(
             }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
-                val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())
+                val mapping = translator.buildMapping(
+                    toSchema = toSchema,
+                    fromSchema = inputReport.schema,
+                    defaultValues = getDefaultValues()
+                )
                 if (mapping.missing.isNotEmpty()) {
                     error(
                         "Error: When translating to $'${toSchema.name} " +
@@ -382,14 +408,14 @@ fun listSchemas(metadata: Metadata) {
 
 class ListSchemas : CliktCommand(
     name = "list",
-    help = "list known schemas, clients, and services"
+    help = "list known schemas, senders, and receivers"
 ) {
-    fun listOrganizations(metadata: Metadata) {
+    fun listOrganizations(settings: SettingsProvider) {
         println("Current Clients (Senders to the Hub)")
         var formatTemplate = "%-18s\t%-10s\t%s"
         println(formatTemplate.format("Organization Name", "Client Name", "Schema Sent to Hub"))
-        metadata.organizationClients.forEach {
-            println(formatTemplate.format(it.organization.name, it.name, it.schema))
+        settings.senders.forEach {
+            println(formatTemplate.format(it.organizationName, it.name, it.schemaName))
         }
         println()
         println("Current Services (Receivers from the Hub)")
@@ -402,10 +428,12 @@ class ListSchemas : CliktCommand(
                 "Filters Applied"
             )
         )
-        metadata.organizationServices.forEach {
+        settings.receivers.forEach {
             println(
                 formatTemplate.format(
-                    it.organization.name, it.name, it.schema,
+                    it.organizationName,
+                    it.name,
+                    it.schemaName,
                     it.jurisdictionalFilter.joinToString()
                 )
             )
@@ -414,10 +442,11 @@ class ListSchemas : CliktCommand(
 
     override fun run() {
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         println()
         listSchemas(metadata)
         println()
-        listOrganizations(metadata)
+        listOrganizations(settings)
         println()
     }
 }

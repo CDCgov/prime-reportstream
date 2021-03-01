@@ -101,7 +101,7 @@ paths:
     get:
       description: A single organization settings
       security:
-        - OAuth2: [ user ]
+        - OAuth2: [ read ]
       parameters:
         - in: path
           schema:
@@ -176,7 +176,7 @@ paths:
     get:
       description: A list of receivers and their current settings
       security:
-          - OAuth2: [ user ]
+          - OAuth2: [ read ]
       parameters:
         - in: path
           name: organizationName
@@ -203,7 +203,7 @@ paths:
     get:
       description: The settings of a single of receiver
       security:
-        - OAuth2: [ user ]
+        - OAuth2: [ read ]
       parameters:
         - in: path
           name: organizationName
@@ -233,7 +233,7 @@ paths:
     put:
       description: Update a single reciever
       security:
-        - OAuth2: [ org_admin ]
+        - OAuth2: [ write ]
       parameters:
         - in: path
           name: organizationName
@@ -274,7 +274,7 @@ paths:
     delete:
       description: Delete a receiver
       security:
-        - OAuth2: [ org_admin ]
+        - OAuth2: [ write ]
       parameters:
         - in: path
           name: organizationName
@@ -306,7 +306,7 @@ paths:
     get:
       description: A list of senders
       security:
-        - OAuth2: [ user ]
+        - OAuth2: [ read ]
       parameters:
         - in: path
           name: organizationName
@@ -333,7 +333,7 @@ paths:
     get:
       description: The settings of a single of sender
       security:
-        - OAuth2: [ user ]
+        - OAuth2: [ read ]
       parameters:
         - in: path
           name: organizationName
@@ -363,7 +363,7 @@ paths:
     put:
       description: Update a single sender
       security:
-        - OAuth2: [ org_admin ]
+        - OAuth2: [ write ]
       parameters:
         - in: path
           name: organizationName
@@ -408,7 +408,7 @@ paths:
     delete:
       description: Delete a sender
       security:
-        - OAuth2: [ org_admin ]
+        - OAuth2: [ write ]
       parameters:
         - in: path
           name: organizationName
@@ -838,6 +838,6 @@ components:
           authorizationUrl: https://hhs-prime.okta.com/oauth/authorize
           tokenUrl: https://hhs-prime.okta.com/oauth/token
           scopes:
-            user: Grants read access
-            org_admin: Grants write access to single org
-            system_admin: Grants access to admin operations
+            read: Grants read access
+            write: Grants write access
+            admin: Grants access to admin operations

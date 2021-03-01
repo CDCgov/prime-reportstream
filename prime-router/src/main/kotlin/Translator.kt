@@ -7,7 +7,7 @@ package gov.cdc.prime.router
  * Dev Note: This glue code was originally in the Report class and then
  * in the Metadata class.
  */
-class Translator(private val metadata: Metadata) {
+class Translator(private val metadata: Metadata, private val settings: SettingsProvider) {
     /**
      * A mapping defines how to translate from one schema to another
      */
@@ -25,31 +25,31 @@ class Translator(private val metadata: Metadata) {
      * Translate this report by the list of services in metadata. One report for every service, reports
      * may be empty.
      */
-    fun translateByService(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
-        return metadata.organizationServices.map { service -> translateByService(input, service, defaultValues) }
+    fun translateByReceiver(input: Report, defaultValues: DefaultValues = emptyMap()): List<Report> {
+        return settings.receivers.map { receiver -> translateByReceiver(input, receiver, defaultValues) }
     }
 
     /**
-     * Translate and filter by the list of services in metadata. Only return reports that have items.
+     * Translate and filter by the list of receiver in metadata. Only return reports that have items.
      */
-    fun filterAndTranslateByService(
+    fun filterAndTranslateByReceiver(
         input: Report,
         defaultValues: DefaultValues = emptyMap()
-    ): List<Pair<Report, OrganizationService>> {
+    ): List<Pair<Report, Receiver>> {
         if (input.isEmpty()) return emptyList()
-        return metadata.organizationServices.filter { service ->
-            service.topic == input.schema.topic
-        }.mapNotNull { service ->
-            val mappedReport = translateByService(input, service, defaultValues)
+        return settings.receivers.filter { receiver ->
+            receiver.topic == input.schema.topic
+        }.mapNotNull { receiver ->
+            val mappedReport = translateByReceiver(input, receiver, defaultValues)
             if (mappedReport.itemCount == 0) return@mapNotNull null
-            Pair(mappedReport, service)
+            Pair(mappedReport, receiver)
         }
     }
 
     /**
      * This does both the filtering by jurisdiction, and also the translation.
      */
-    private fun translateByService(input: Report, receiver: OrganizationService, defaultValues: DefaultValues): Report {
+    private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report {
         // Filter according to receiver patterns
         val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
             val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
@@ -63,10 +63,11 @@ class Translator(private val metadata: Metadata) {
         if (filteredReport.isEmpty()) return buildEmptyReport(receiver, input)
 
         // Apply mapping to change schema
-        val toReport: Report = if (receiver.schema != filteredReport.schema.name) {
-            val toSchema = metadata.findSchema(receiver.schema)
-                ?: error("${receiver.schema} schema is missing from catalog")
-            val defaults = if (receiver.defaults.isNotEmpty()) receiver.defaults.plus(defaultValues) else defaultValues
+        val toReport: Report = if (receiver.schemaName != filteredReport.schema.name) {
+            val toSchema = metadata.findSchema(receiver.schemaName)
+                ?: error("${receiver.schemaName} schema is missing from catalog")
+            val receiverDefaults = receiver.translation.defaults
+            val defaults = if (receiverDefaults.isNotEmpty()) receiverDefaults.plus(defaultValues) else defaultValues
             val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
             if (mapping.missing.isNotEmpty()) {
                 error(
@@ -84,19 +85,14 @@ class Translator(private val metadata: Metadata) {
 
         // Transform reports
         var transformed = toReport
-        receiver.transforms.forEach { (transform, transformValue) ->
-            when (transform) {
-                "deidentify" -> if (transformValue == "true") {
-                    transformed = transformed.deidentify()
-                }
-            }
-        }
+        if (receiver.deidentify)
+            transformed = transformed.deidentify()
         return transformed.copy(destination = receiver, bodyFormat = receiver.format)
     }
 
-    fun buildEmptyReport(receiver: OrganizationService, from: Report): Report {
-        val toSchema = metadata.findSchema(receiver.schema)
-            ?: error("${receiver.schema} schema is missing from catalog")
+    fun buildEmptyReport(receiver: Receiver, from: Report): Report {
+        val toSchema = metadata.findSchema(receiver.schemaName)
+            ?: error("${receiver.schemaName} schema is missing from catalog")
         return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
     }
 
@@ -110,12 +106,12 @@ class Translator(private val metadata: Metadata) {
 
     fun translate(
         input: Report,
-        toService: String,
+        toReceiver: String,
         defaultValues: DefaultValues = emptyMap()
-    ): Pair<Report, OrganizationService>? {
+    ): Pair<Report, Receiver>? {
         if (input.isEmpty()) return null
-        val service = metadata.findService(toService) ?: error("invalid service name $toService")
-        val mappedReport = translateByService(input, service, defaultValues)
+        val service = settings.findReceiver(toReceiver) ?: error("invalid service name $toReceiver")
+        val mappedReport = translateByReceiver(input, service, defaultValues)
         if (mappedReport.itemCount == 0) return null
         return Pair(mappedReport, service)
     }
