@@ -146,6 +146,14 @@ class ProcessData : CliktCommand(
         metavar = "<path>",
         help = "write output files to this directory instead of the working directory. Ignored if --output is set."
     )
+    private val useAphlFileName by option(
+        "--output-aphl-filename",
+        help = "Output using the APHL file format"
+    ).flag()
+    private val receivingOrganization by option(
+        "--output-receiving-org",
+        help = "Output using the APHL file format"
+    )
 
     // Fake data configuration
     private val targetStates: String? by
@@ -233,13 +241,14 @@ class ProcessData : CliktCommand(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
+
                     val fileName = Report.formFilename(
                         report.id,
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
-                        report.schema.useAphlNamingFormat,
-                        report.schema.receivingOrganization
+                        useAphlFileName || report.destination?.translation?.useAphlNamingFormat ?: false,
+                        receivingOrganization ?: report.destination?.translation?.receivingOrganization
                     )
                     File(outputDir ?: ".", fileName)
                 }

@@ -45,8 +45,6 @@ data class Schema(
     val extendsRef: Schema? = null,
     val basedOn: String? = null,
     val basedOnRef: Schema? = null,
-    val useAphlNamingFormat: Boolean = false,
-    val receivingOrganization: String? = null,
 ) {
     constructor(
         vararg varElements: Element,
@@ -56,9 +54,7 @@ data class Schema(
         description: String? = null,
         referenceUrl: String? = null,
         extends: String? = null,
-        basedOn: String? = null,
-        useAphlNamingFormat: Boolean = false,
-        receivingOrganization: String? = null,
+        basedOn: String? = null
     ) : this(
         name = name,
         topic = topic,
@@ -70,8 +66,6 @@ data class Schema(
         extendsRef = null,
         basedOn = basedOn,
         basedOnRef = null,
-        useAphlNamingFormat = useAphlNamingFormat,
-        receivingOrganization = receivingOrganization
     )
 
     val baseName: String get() = formBaseName(name)

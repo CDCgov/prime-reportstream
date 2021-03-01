@@ -14,6 +14,8 @@ interface TranslatorProperties {
     val format: Report.Format
     val schemaName: String
     val defaults: Map<String, String>
+    val useAphlNamingFormat: Boolean
+    val receivingOrganization: String?
 }
 
 // Base JSON Type
@@ -41,6 +43,8 @@ data class Hl7Configuration
     val receivingFacilityName: String?,
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
+    override val useAphlNamingFormat: Boolean = false,
+    override val receivingOrganization: String?
 ) : TranslatorConfiguration("HL7") {
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
@@ -98,6 +102,12 @@ data class RedoxConfiguration
             "redox_source_name" to sourceName,
         )
     }
+
+    @get:JsonIgnore
+    override val useAphlNamingFormat: Boolean = false
+
+    @get:JsonIgnore
+    override val receivingOrganization: String? = null
 }
 
 /**
@@ -107,5 +117,7 @@ data class CustomConfiguration
 @JsonCreator constructor(
     override val schemaName: String,
     override val format: Report.Format,
-    override val defaults: Map<String, String> = emptyMap()
+    override val defaults: Map<String, String> = emptyMap(),
+    override val useAphlNamingFormat: Boolean = false,
+    override val receivingOrganization: String?
 ) : TranslatorConfiguration("CUSTOM")

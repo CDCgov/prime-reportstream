@@ -211,6 +211,11 @@
         type: CUSTOM
         schemaName: strac/strac-covid-19
         format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1 # Every day
+        initialTime: 00:00
+        timeZone: EASTERN
 
 - name: pa-montgomery-phd
   description: Office of Public Health - Montgomery County, Pennsylvania
@@ -227,3 +232,8 @@
         type: CUSTOM
         schemaName: strac/strac-covid-19
         format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1 # Every day
+        initialTime: 00:00
+        timeZone: EASTERN

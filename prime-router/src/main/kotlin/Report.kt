@@ -115,8 +115,8 @@ class Report {
         schema.baseName,
         bodyFormat,
         createdDateTime,
-        schema.useAphlNamingFormat,
-        schema.receivingOrganization
+        destination?.translation?.useAphlNamingFormat ?: false,
+        destination?.translation?.receivingOrganization
     )
 
     /**
