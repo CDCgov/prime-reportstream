@@ -23,6 +23,7 @@ module "prime_data_hub" {
   postgres_password = var.postgres_password
   redox_secret = var.redox_secret
   okta_client_id = var.okta_client_id
+  okta_redirect_url = "https://prime-data-hub-${var.dev_name}.azurefd.net/download"
   az_phd_user = var.az_phd_user
   az_phd_password = var.az_phd_password
   https_cert_name = null

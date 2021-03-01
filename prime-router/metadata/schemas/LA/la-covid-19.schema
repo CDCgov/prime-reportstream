@@ -4,8 +4,6 @@ description: LA COVID-19
 trackingElement: message_id
 topic: covid-19
 extends: covid-19
-useAphlNamingFormat: true
-receivingOrganization: LAOPH
 elements:
   - name: sending_application
 

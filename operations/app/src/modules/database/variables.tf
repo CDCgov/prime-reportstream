@@ -8,6 +8,11 @@ variable "resource_group" {
     description = "Resource Group Name"
 }
 
+variable "resource_prefix" {
+    type = string
+    description = "Resource Prefix"
+}
+
 variable "name" {
     type = string
     description = "Database Server Name"
@@ -38,4 +43,14 @@ variable "public_subnet_id" {
 variable "private_subnet_id" {
     type = string
     description = "Private Subnet ID"
+}
+
+variable "eventhub_namespace_name" {
+    type = string
+    description = "Event hub to stream logs to"
+}
+
+variable "eventhub_manage_auth_rule_id" {
+    type = string
+    description = "Event Hub Manage Authorization Rule ID"
 }
