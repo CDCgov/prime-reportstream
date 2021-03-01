@@ -6,7 +6,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
@@ -19,7 +19,7 @@ import java.util.logging.Level
 class SftpTransport : ITransport {
     override fun send(
         transportType: TransportType,
-        header: DatabaseAccess.Header,
+        header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,

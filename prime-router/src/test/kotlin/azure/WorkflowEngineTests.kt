@@ -1,8 +1,11 @@
 package gov.cdc.prime.router.azure
 
+import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
@@ -34,6 +37,10 @@ class WorkflowEngineTests {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
+    val oneOrganization = DeepOrganization(
+        "phd", "test", Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(Receiver("elr", "phd", "topic", "one"))
+    )
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return WorkflowEngine(
@@ -57,21 +64,21 @@ class WorkflowEngineTests {
     fun `test dispatchReport`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
-        val settings = FileSettings()
+        val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID())
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
 
         every { blobMock.uploadBody(report = eq(report1)) }.returns(Pair(bodyFormat, bodyUrl))
-        every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
+        every { accessSpy.insertTask(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
 //        every { queueMock.sendMessage(eq(event)) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
         engine.dispatchReport(event, report1)
 
         verify(exactly = 1) {
-            accessSpy.insertHeader(
+            accessSpy.insertTask(
                 report = any(),
                 bodyFormat = any(),
                 bodyUrl = any(),
@@ -88,14 +95,14 @@ class WorkflowEngineTests {
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
-        val settings = FileSettings()
+        val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val event = ReportEvent(Event.EventAction.NONE, report1.id)
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
 
         every { blobMock.uploadBody(report = eq(report1)) }.returns(Pair(bodyFormat, bodyUrl))
-        every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
+        every { accessSpy.insertTask(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
 // todo clean up this test      every { queueMock.sendMessage(eq(event)) }.answers { throw Exception("problem") }
         every { blobMock.deleteBlob(eq(bodyUrl)) }.returns(Unit)
 
@@ -103,7 +110,7 @@ class WorkflowEngineTests {
         engine.dispatchReport(event, report1)
 
         verify(exactly = 1) {
-            accessSpy.insertHeader(
+            accessSpy.insertTask(
                 report = any(),
                 bodyFormat = any(),
                 bodyUrl = any(),
@@ -127,14 +134,14 @@ class WorkflowEngineTests {
         val bodyUrl = "http://anyblob.com"
 
         every { blobMock.uploadBody(report = eq(report1)) }.returns(Pair(bodyFormat, bodyUrl))
-        every { accessSpy.insertHeader(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
+        every { accessSpy.insertTask(report = eq(report1), bodyFormat, bodyUrl, eq(event)) }.returns(Unit)
         every { queueMock.sendMessage(eq(event)) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
         engine.receiveReport(report1)
 
         verify(exactly = 1) {
-            accessSpy.insertHeader(
+            accessSpy.insertTask(
                 report = any(),
                 bodyFormat = any(),
                 bodyUrl = any(),
@@ -152,8 +159,11 @@ class WorkflowEngineTests {
     fun `test handleReportEvent`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
-        val settings = FileSettings()
-        val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val report1 = Report(
+            one, listOf(listOf("1", "2"), listOf("3", "4")),
+            source = TestSource, destination = oneOrganization.receivers[0]
+        )
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
         val event = ReportEvent(Event.EventAction.SEND, report1.id)
@@ -162,13 +172,17 @@ class WorkflowEngineTests {
         val actionHistoryMock = mockk<ActionHistory>()
         val engine = makeEngine(metadata, settings)
 
-        every { accessSpy.fetchAndLockHeader(reportId = eq(report1.id), any()) }
-            .returns(DatabaseAccess.Header(task, emptyList(), ReportFile(), null, engine))
+        every { accessSpy.fetchAndLockTask(reportId = eq(report1.id), any()) }.returns(task)
+        every { accessSpy.fetchTaskSources(reportId = eq(report1.id), any()) }.returns(emptyList())
+        every { accessSpy.fetchReportFile(eq(report1.id), any()) }.returns(
+            ReportFile().setReportId(report1.id).setItemCount(0)
+        )
+        every { accessSpy.fetchItemLineagesForReport(eq(report1.id), any(), any()) }.returns(emptyList())
         every {
-            accessSpy.updateHeader(
+            accessSpy.updateTask(
                 reportId = eq(report1.id),
-                eq(event.eventAction),
-                eq(nextAction.eventAction),
+                eq(event.eventAction.toTaskAction()),
+                any(),
                 any(),
                 any(),
                 any()
@@ -188,8 +202,11 @@ class WorkflowEngineTests {
         verify(exactly = 1) {
             queueMock.sendMessage(event = any())
             accessSpy.transact(block = any())
-            accessSpy.updateHeader(reportId = any(), any(), any(), any(), any(), any())
-            accessSpy.fetchAndLockHeader(reportId = any(), any())
+            accessSpy.updateTask(reportId = any(), any(), any(), any(), any(), any())
+            accessSpy.fetchAndLockTask(reportId = any(), any())
+            accessSpy.fetchTaskSources(reportId = any(), any())
+            accessSpy.fetchItemLineagesForReport(reportId = any(), any(), any())
+            accessSpy.fetchReportFile(reportId = any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
     }

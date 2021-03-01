@@ -283,7 +283,7 @@ class ActionHistory {
      * of our custody.
      */
     fun trackDownloadedReport(
-        header: DatabaseAccess.Header,
+        header: WorkflowEngine.Header,
         filename: String,
         originalReportId: ReportId, // todo remove, replace with report in header
         externalReportId: ReportId,
@@ -457,10 +457,9 @@ class ActionHistory {
         if (reportsOut.isNotEmpty()) {
             // Avoid clutter.  Combine reports with one Item, and print combined count.
             var singles = mutableMapOf<String, DestinationData>()
-            reportsOut.forEach { (id, reportFile) ->
+            reportsOut.forEach { (_, reportFile) ->
                 val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
-                val orgReceiver = settings.findReceiver(fullname) ?: return@forEach
-                val organization = settings.findOrganization(reportFile.receivingOrg) ?: return@forEach
+                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
                 if (reportFile.itemCount == 1) {
                     var previous =
                         singles.putIfAbsent(
@@ -506,15 +505,7 @@ class ActionHistory {
     }
 
     companion object {
-        fun fetchReportFile(reportId: ReportId, ctx: DSLContext): ReportFile {
-            val reportFile = ctx
-                .selectFrom(Tables.REPORT_FILE)
-                .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
-                .fetchOne()
-                ?.into(ReportFile::class.java)
-                ?: error("Could not find $reportId in REPORT_FILE")
-            return reportFile
-        }
+        // TODO: These methods should go to the DB Access or a similar object so they can be mocked for tests
 
         fun fetchReportFilesForReceiver(
             nextAction: TaskAction,
@@ -539,64 +530,6 @@ class ActionHistory {
                 .limit(limit)
                 .fetch()
                 .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
-        }
-
-        fun fetchDownloadableReportFiles(
-            since: OffsetDateTime?,
-            orgName: String,
-            ctx: DSLContext,
-        ): Map<ReportId, ReportFile> {
-            val cond = if (since == null) {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
-                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
-            } else {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
-                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
-                    .and(Tables.REPORT_FILE.CREATED_AT.ge(since))
-            }
-
-            return ctx
-                .selectFrom(Tables.REPORT_FILE)
-                .where(cond)
-                .fetch()
-                .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
-        }
-
-        /**
-         * Returns a map of reportId -> List of item lineages associated with that report.
-         * Note that any given report might not have lineage, in which case a reportId -> null is in the returned map.
-         */
-        fun fetchItemLineagesForReports(
-            reportFiles: Collection<ReportFile>,
-            ctx: DSLContext
-        ): Map<ReportId, List<ItemLineage>?> {
-            return reportFiles.map { reportFile ->
-                reportFile.reportId to fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount, ctx)
-            }.toMap()
-        }
-
-        /**
-         * Returns null if report has no item-level lineage info tracked.
-         */
-        fun fetchItemLineagesForReport(reportId: ReportId, itemCount: Int, ctx: DSLContext): List<ItemLineage>? {
-            val itemLineages = ctx
-                .selectFrom(ITEM_LINEAGE)
-                .where(ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId))
-                .orderBy(ITEM_LINEAGE.CHILD_INDEX) // todo Don't know if this will be too slow?  Use a map in mem?
-                .fetch()
-                .into(ItemLineage::class.java).toList()
-            // sanity check.  If there are lineages, every record up to itemCount should have at least one lineage.
-            // OK to have more than one lineage.  Eg, a merge.
-            if (itemLineages.isEmpty()) {
-                return null
-            } else {
-                if (itemLineages.size < itemCount)
-                    error("For $reportId, must have at least $itemCount item lineages. There were ${itemLineages.size}")
-                val uniqueIndexCount = itemLineages.map { it.childIndex }.toSet().size
-                if (uniqueIndexCount != itemCount)
-                    error("For report $reportId, expected $itemCount unique indexes; there were $uniqueIndexCount")
-            }
-            return itemLineages
         }
 
         /**

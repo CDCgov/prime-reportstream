@@ -15,4 +15,6 @@ interface SettingsProvider {
     fun findReceiver(fullName: String): Receiver?
 
     fun findSender(fullName: String): Sender?
+
+    fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>?
 }

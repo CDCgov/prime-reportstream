@@ -1,6 +1,6 @@
 package gov.cdc.prime.router
 
-import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
@@ -617,7 +617,7 @@ class Report {
          * In those cases, to populate the lineage, we can grab needed fields from previous lineage rows.
          */
         fun createItemLineagesFromDb(
-            prevHeader: DatabaseAccess.Header,
+            prevHeader: WorkflowEngine.Header,
             newChildReportId: ReportId
         ): List<ItemLineage>? {
             if (prevHeader.itemLineages == null) return null
@@ -707,7 +707,7 @@ class Report {
          * Try to extract an existing filename from report metadata.  If it does not exist or is malformed,
          * create a new filename.
          */
-        fun formExternalFilename(header: DatabaseAccess.Header): String {
+        fun formExternalFilename(header: WorkflowEngine.Header): String {
             // extract the filename from the blob url.
             val filename = if (header.reportFile.bodyUrl != null)
                 header.reportFile.bodyUrl.split("/").last()

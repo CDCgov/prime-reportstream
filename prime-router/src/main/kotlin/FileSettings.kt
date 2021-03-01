@@ -91,6 +91,13 @@ class FileSettings : SettingsProvider {
         return senderStore[Sender.canonicalizeFullName(fullName)]
     }
 
+    override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
+        val (organizationName, _) = Receiver.parseFullName(fullName)
+        val organization = organizationStore[organizationName] ?: return null
+        val receiver = receiverStore[fullName] ?: return null
+        return Pair(organization, receiver)
+    }
+
     companion object {
         const val defaultSettingsDirectory = "./settings"
         const val organizationsBaseName = "organizations"

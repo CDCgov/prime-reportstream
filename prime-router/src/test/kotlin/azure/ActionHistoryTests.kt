@@ -17,7 +17,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
@@ -176,7 +175,6 @@ class ActionHistoryTests {
         val uuid = UUID.randomUUID()
         val reportFile1 = ReportFile()
         reportFile1.reportId = uuid
-        val header = DatabaseAccess.Header(Task(), listOf<TaskSource>(), reportFile1, null, workflowEngine)
         val org =
             DeepOrganization(
                 name = "myOrg",
@@ -186,6 +184,10 @@ class ActionHistoryTests {
                     Receiver("myService", "myOrg", "topic", "schema", format = Report.Format.HL7)
                 )
             )
+        val schema = Schema("schema", "topic")
+        val header = WorkflowEngine.Header(
+            Task(), emptyList(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray()
+        )
         val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()
         actionHistory1.trackDownloadedReport(header, "filename1", uuid, uuid2, "bob", org)

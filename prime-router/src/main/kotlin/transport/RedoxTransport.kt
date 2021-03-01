@@ -11,7 +11,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.transport.RedoxTransport.ResultStatus
 import java.util.logging.Level
 
@@ -32,7 +32,7 @@ class RedoxTransport() : ITransport {
 
     override fun send(
         transportType: TransportType,
-        header: DatabaseAccess.Header,
+        header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,

@@ -63,6 +63,10 @@ class SettingsFacade(
         return findSetting(pair.second, SenderAPI::class.java, pair.first)
     }
 
+    override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
+        return findOrganizationAndReceiver(fullName, null)
+    }
+
     fun <T : SettingAPI> findSettingAsJson(
         name: String,
         clazz: Class<T>,
@@ -127,6 +131,16 @@ class SettingsFacade(
         } else {
             Pair(result, errorMessage)
         }
+    }
+
+    fun findOrganizationAndReceiver(fullName: String, txn: DataAccessTransaction?): Pair<Organization, Receiver>? {
+        val (organizationName, receiverName) = Receiver.parseFullName(fullName)
+        val (organizationSetting, receiverSetting) = db.fetchOrganizationAndSetting(
+            SettingType.RECEIVER, receiverName, organizationName, txn
+        ) ?: return null
+        val receiver = mapper.readValue(receiverSetting.values.data(), ReceiverAPI::class.java)
+        val organization = mapper.readValue(organizationSetting.values.data(), OrganizationAPI::class.java)
+        return Pair(organization, receiver)
     }
 
     fun <T : SettingAPI> putSetting(

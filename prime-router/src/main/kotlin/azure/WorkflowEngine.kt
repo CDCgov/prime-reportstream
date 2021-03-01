@@ -2,9 +2,18 @@ package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
@@ -12,11 +21,13 @@ import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import org.jooq.Configuration
+import org.jooq.Field
 import java.io.ByteArrayInputStream
+import java.time.OffsetDateTime
 
 /**
- * Methods to add a new report to the workflow pipeline and to handle a step in the pipeline.
- * A new WorkflowEngine object should be created for every function call.
+ * A top-level object that contains all the helpers and accessors to power the workflow.
+ * Workflow objects are heavy-weight and should only be created once per function lifetime.
  *
  * @see gov.cdc.prime.router.Report
  * @see QueueAccess
@@ -31,7 +42,7 @@ class WorkflowEngine(
     val redoxSerializer: RedoxSerializer = WorkflowEngine.redoxSerializer,
     val translator: Translator = Translator(metadata, settings),
     // New connection for every function
-    val db: DatabaseAccess = DatabaseAccess(),
+    val db: DatabaseAccess = WorkflowEngine.databaseAccess,
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess(),
     val sftpTransport: SftpTransport = SftpTransport(),
@@ -52,7 +63,7 @@ class WorkflowEngine(
         val (bodyFormat, bodyUrl) = blob.uploadBody(report)
         try {
             val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, report.id, null)
-            db.insertHeader(report, bodyFormat, bodyUrl, receiveEvent, txn)
+            db.insertTask(report, bodyFormat, bodyUrl, receiveEvent, txn)
             report.bodyURL = bodyUrl
         } catch (e: Exception) {
             // Clean up
@@ -67,7 +78,7 @@ class WorkflowEngine(
     fun dispatchReport(nextAction: Event, report: Report, txn: Configuration? = null) {
         val (bodyFormat, bodyUrl) = blob.uploadBody(report)
         try {
-            db.insertHeader(report, bodyFormat, bodyUrl, nextAction, txn)
+            db.insertTask(report, bodyFormat, bodyUrl, nextAction, txn)
             report.bodyURL = bodyUrl
         } catch (e: Exception) {
             // Clean up
@@ -85,18 +96,27 @@ class WorkflowEngine(
     fun handleReportEvent(
         messageEvent: ReportEvent,
         actionHistory: ActionHistory,
-        updateBlock: (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
+        updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         lateinit var nextEvent: ReportEvent
         db.transact { txn ->
-            val header = db.fetchAndLockHeader(messageEvent.reportId, txn)
+            val reportId = messageEvent.reportId
+            val task = db.fetchAndLockTask(reportId, txn)
+            val taskSources = db.fetchTaskSources(reportId, txn)
+            val (organization, receiver) = findOrganizationAndReceiver(task.receiverName, txn)
+            val reportFile = db.fetchReportFile(reportId, txn)
+            ActionHistory.sanityCheckReport(task, reportFile, false)
+            val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount, txn)
+            val header = createHeader(task, taskSources, reportFile, itemLineages, organization, receiver)
             val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
             if (currentEventAction != messageEvent.eventAction) return@transact
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
+
             nextEvent = updateBlock(header, retryToken, txn)
+
             val retryJson = nextEvent.retryToken?.toJSON()
-            db.updateHeader(
+            updateHeader(
                 header.task.reportId,
                 currentEventAction,
                 nextEvent.eventAction,
@@ -110,7 +130,7 @@ class WorkflowEngine(
             queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
     }
 
-/**
+    /**
      * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
      *
      * @param messageEvent that was received
@@ -120,23 +140,35 @@ class WorkflowEngine(
     fun handleReceiverEvent(
         messageEvent: ReceiverEvent,
         maxCount: Int,
-        updateBlock: (headers: List<DatabaseAccess.Header>, txn: Configuration?) -> Unit,
+        updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
     ) {
-        val receiver = settings.findReceiver(messageEvent.receiverName)
-            ?: error("Unable to find a receiving service called ${messageEvent.receiverName}")
-
         db.transact { txn ->
-            val headers = db.fetchAndLockHeaders(
+            val tasks = db.fetchAndLockTasks(
                 messageEvent.eventAction.toTaskAction(),
                 messageEvent.at,
-                receiver,
+                messageEvent.receiverName,
                 maxCount,
                 txn
             )
+            val ids = tasks.map { it.reportId }
+            val taskSources = db.fetchTaskSources(ids, txn)
+            val reportFiles = ids
+                .map { db.fetchReportFile(it, txn) }
+                .map { (it.reportId as ReportId) to it }
+                .toMap()
+            val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
+            ActionHistory.sanityCheckReports(tasks, reportFiles, false)
+            // taskSources seems erroneous.  All the sources for all Tasks are attached to each indiv. task. ?
+            // todo remove the !!
+            val headers = tasks.map {
+                createHeader(it, taskSources, reportFiles[it.reportId]!!, null, organization, receiver)
+            }
+
             updateBlock(headers, txn)
+
             headers.forEach {
                 val currentAction = Event.EventAction.parseQueueMessage(it.task.nextAction.literal)
-                db.updateHeader(
+                updateHeader(
                     it.task.reportId,
                     currentAction,
                     Event.EventAction.NONE,
@@ -151,17 +183,18 @@ class WorkflowEngine(
     /**
      * Create a report object from a header including loading the blob data associated with it
      */
-    fun createReport(header: DatabaseAccess.Header): Report {
+    fun createReport(header: Header): Report {
         // todo All of this info is already populated in the Header obj.
         val schema = metadata.findSchema(header.task.schemaName)
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
-        val destination = settings.findReceiver(header.task.receiverName)
         val bytes = blob.downloadBlob(header.task.bodyUrl)
         val sources = header.sources.map { DatabaseAccess.toSource(it) }
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV" -> {
-                val result = csvSerializer.readExternal(schema.name, ByteArrayInputStream(bytes), sources, destination)
+                val result = csvSerializer.readExternal(
+                    schema.name, ByteArrayInputStream(bytes), sources, header.receiver
+                )
                 if (result.report == null || result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
@@ -172,7 +205,7 @@ class WorkflowEngine(
                     schema.name,
                     ByteArrayInputStream(bytes),
                     sources,
-                    destination,
+                    header.receiver,
                     header.reportFile.reportId
                 )
             }
@@ -180,10 +213,10 @@ class WorkflowEngine(
         }
     }
 
-/**
+    /**
      * Create a report object from a header including loading the blob data associated with it
      */
-    fun readBody(header: DatabaseAccess.Header): ByteArray {
+    fun readBody(header: Header): ByteArray {
         return blob.downloadBlob(header.task.bodyUrl)
     }
 
@@ -193,6 +226,118 @@ class WorkflowEngine(
         } else {
             db.transact { innerTxn -> actionHistory.saveToDb(innerTxn) }
         }
+    }
+
+    private fun findOrganizationAndReceiver(
+        fullName: String,
+        txn: DataAccessTransaction? = null
+    ): Pair<Organization, Receiver> {
+        return if (settings is SettingsFacade) {
+            val (organization, receiver) = settings.findOrganizationAndReceiver(fullName, txn)
+                ?: error("Receiver not found in database: $fullName")
+            Pair(organization, receiver)
+        } else {
+            val (organization, receiver) = settings.findOrganizationAndReceiver(fullName)
+                ?: error("Invalid receiver name: $fullName")
+            Pair(organization, receiver)
+        }
+    }
+
+    /**
+     * The header class provides the information needed to process a task.
+     */
+    data class Header(
+        val task: Task,
+        val sources: List<TaskSource>,
+        val reportFile: ReportFile,
+        val itemLineages: List<ItemLineage>?, // ok to not have item-level lineage
+        val organization: Organization?,
+        val receiver: Receiver?,
+        val schema: Schema?,
+        val content: ByteArray?
+    )
+
+    private fun createHeader(
+        task: Task,
+        sources: List<TaskSource>,
+        reportFile: ReportFile,
+        itemLineages: List<ItemLineage>?,
+        organization: Organization?,
+        receiver: Receiver?
+    ): Header {
+        val schema = if (reportFile.schemaName != null)
+            metadata.findSchema(reportFile.schemaName)
+        else null
+
+        val content = if (reportFile.bodyUrl != null)
+            blob.downloadBlob(reportFile.bodyUrl)
+        else null
+        return Header(task, sources, reportFile, itemLineages, organization, receiver, schema, content)
+    }
+
+    fun fetchDownloadableHeaders(
+        since: OffsetDateTime?,
+        receiverName: String,
+    ): List<Header> {
+        val tasks = db.fetchDownloadableTasks(since, receiverName)
+        val ids = tasks.map { it.reportId }
+        val taskSources = db.fetchTaskSources(ids)
+
+        val reportFiles = db.fetchDownloadableReportFiles(since, receiverName)
+//        val itemLineagesPerReport = ActionHistory.fetchItemLineagesForReports(reportFiles.values, create)
+        ActionHistory.sanityCheckReports(tasks, reportFiles, false)
+        val (organization, receiver) = findOrganizationAndReceiver(receiverName)
+
+        // todo fix the !!.  Right now the sanityCheck guarantees non-null.
+//        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, itemLineagesPerReport[it.reportId]) }
+        return tasks.map {
+            createHeader(it, taskSources, reportFiles[it.reportId]!!, null, organization, receiver)
+        }
+    }
+
+    fun fetchHeader(
+        reportId: ReportId,
+        orgName: String
+    ): Header {
+        val task = db.fetchTask(reportId, orgName)
+        val taskSources = db.fetchTaskSources(reportId)
+        val (organization, receiver) = findOrganizationAndReceiver(task.receiverName)
+        val reportFile = db.fetchReportFile(reportId)
+        ActionHistory.sanityCheckReport(task, reportFile, false)
+        val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount)
+
+        return createHeader(task, taskSources, reportFile, itemLineages, organization, receiver)
+    }
+
+    /**
+     * Update the header of a report with new values
+     */
+    private fun updateHeader(
+        reportId: ReportId,
+        currentEventAction: Event.EventAction,
+        nextEventAction: Event.EventAction,
+        nextActionAt: OffsetDateTime? = null,
+        retryToken: String? = null,
+        txn: DataAccessTransaction,
+    ) {
+        fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> {
+            return when (currentEventAction) {
+                Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
+                Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
+                Event.EventAction.BATCH -> Tables.TASK.BATCHED_AT
+                Event.EventAction.SEND -> Tables.TASK.SENT_AT
+                Event.EventAction.WIPE -> Tables.TASK.WIPED_AT
+
+                Event.EventAction.BATCH_ERROR,
+                Event.EventAction.SEND_ERROR,
+                Event.EventAction.WIPE_ERROR -> Tables.TASK.ERRORED_AT
+
+                Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
+            }
+        }
+        db.updateTask(
+            reportId, nextEventAction.toTaskAction(), nextActionAt, retryToken, finishedField(currentEventAction), txn
+        )
     }
 
     companion object {
@@ -205,12 +350,16 @@ class WorkflowEngine(
             Metadata("$baseDir/metadata")
         }
 
+        val databaseAccess: DatabaseAccess by lazy {
+            DatabaseAccess()
+        }
+
         val settings: SettingsProvider by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot")
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
             val settingsEnabled = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
             if (settingsEnabled.equals("true", ignoreCase = true)) {
-                SettingsFacade(metadata)
+                SettingsFacade(metadata, databaseAccess)
             } else {
                 val ext = primeEnv?.let { "-$it" } ?: ""
                 FileSettings("$baseDir/settings", orgExt = ext)
