@@ -509,8 +509,11 @@ class Hl7Serializer(val metadata: Metadata) {
 
         terser.set(formPathSpec("OBX-11", aoeRep), "F")
         terser.set(formPathSpec("OBX-14", aoeRep), date)
+        // some states want the observation date for the AOE questions as well
+        terser.set(formPathSpec("OBX-19", aoeRep), report.getString(row, "test_result_date"))
         terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
         // todo: many states can't accept the QST datapoint out at the end because it is nonstandard
+        // todo: we need to pass this in via the translation configuration
         terser.set(formPathSpec("OBX-29", aoeRep), "QST")
         // all of these values must be set on the OBX AOE's for validation
         terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
