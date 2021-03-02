@@ -1,0 +1,108 @@
+---
+layout: prime_page.liquid
+title: "Download"
+cdn_scripts:
+  - src: "https://cdn.jsdelivr.net/npm/uhtml@2.4.0/min.js"
+    integrity: "sha256-pFTx1NUIxgU2M6OB3sCTkpuwmqwRspaWJAW7mrEqswo="
+
+local_styles:
+  - "/css/prime.css"
+---
+
+{% include header_gov_website %}
+{% include app_topbar %}
+
+<style>
+/* Manage DOM visual state via dataset CSS attribute queries
+ *   "?" is pending: show only data-when="?"
+ *   "0" is empty: show only data-when="0"
+ *   "n" is one or more: show only data-when="1"
+ */
+[data-rpt="?"] [data-when]:not([data-when="?"]) { display: none }
+[data-rpt="0"] [data-when]:not([data-when="0"]) { display: none }
+[data-rpt="n"] [data-when]:not([data-when="n"]) { display: none }
+</style>
+
+<main>
+  <div class="grid-container margin-y-4">
+    <div class="grid-row">
+      <div data-rpt="?" id='prime_rpt_today' class="grid-col-12 margin-top-3 margin-bottom-2 prime_rpt_pending">
+        <h1 class="margin-bottom-6">
+          COVID-19 test results <br />
+          <span class="text-base-light" th:text="${description}"></span>
+        </h1>
+        <h2>Today's results</h2>
+
+        <span data-when="0" class="prime_rpt_when_empty"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
+        <table data-when="n" class="usa-table usa-table--borderless prime-table prime_rpt_when_valid" summary="Today's results">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Description</th>
+              <th scope="col">Expires</th>
+              <th scope="col">Total tests</th>
+              <th scope="col">File</th>
+              <th scope="col">UUID</th>
+            </tr>
+          </thead>
+          <tbody class="font-mono-2xs prime_rpt_tbody"></tbody>
+        </table>
+      </div>
+
+      <div data-rpt="?" id='prime_rpt_previous' class="grid-col-12 prime_rpt_pending">
+        <h2>Previous <span th:text="${days_to_show}"></span> days</h2>
+        <span data-when="0" class="prime_rpt_when_empty"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
+        <table data-when="n" class="usa-table usa-table--borderless prime-table prime_rpt_when_valid" summary="Previous results">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Description</th>
+              <th scope="col">Expires</th>
+              <th scope="col">Total tests</th>
+              <th scope="col">File</th>
+              <th scope="col">UUID</th>
+            </tr>
+          </thead>
+          <tbody class="font-mono-2xs prime_rpt_tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% include footer_cdc_website %}
+{% include ./_download_row %}
+
+{% include devel_tools %}
+
+<script type=module>
+  import prime_rest_api from '/js/prime_api.js'
+
+  prime_rest_api
+    .json_get('csv-download')
+    .then(info => {
+
+      as_prime_rpt(
+        info.today || [],
+        document.querySelector('#prime_rpt_today'))
+
+      as_prime_rpt(
+        info.previous || [],
+        document.querySelector('#prime_rpt_previous'))
+    })
+
+  function as_prime_rpt(report_rows, el_report) {
+    el_report.dataset.rpt = report_rows.length > 0 ? 'n' : '0'
+
+    let {classList} = el_report
+    classList.remove('prime_rpt_pending')
+    let is_empty = (0 === report_rows.length)
+    classList.toggle('prime_rpt_empty', is_empty)
+    classList.toggle('prime_rpt_valid', !is_empty)
+
+    let el_rows = as_download_rows(report_rows)
+
+    let el_tbody = el_report.querySelector('.prime_rpt_tbody')
+    window.uhtml.render(el_tbody, el_rows)
+  }
+</script>
