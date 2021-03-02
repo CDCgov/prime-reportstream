@@ -501,9 +501,15 @@ class Report {
         targetCounty: String?,
         metadata: Metadata,
     ): StringColumn {
-        val context = FakeReport.RowContext(metadata::findLookupTable, targetState, schema.name, targetCounty)
         val fakeDataService = FakeDataService()
-        return StringColumn.create(name, List(itemCount) { fakeDataService.getFakeValueForElement(element, context) })
+        return StringColumn.create(
+            name,
+            List(itemCount) {
+                // moved context into the list creator so we get many different values
+                val context = FakeReport.RowContext(metadata::findLookupTable, targetState, schema.name, targetCounty)
+                fakeDataService.getFakeValueForElement(element, context)
+            }
+        )
     }
 
     companion object {
