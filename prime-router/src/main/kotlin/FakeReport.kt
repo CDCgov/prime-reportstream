@@ -144,8 +144,8 @@ class FakeDataService {
         // each element has a type, and depending on the type defined on the
         // element, we call into some of the functions above
         return when (element.type) {
-            Element.Type.CITY -> faker.address().city()
-            Element.Type.POSTAL_CODE -> faker.address().zipCode().toString()
+            Element.Type.CITY -> context.city ?: faker.address().city()
+            Element.Type.POSTAL_CODE -> context.zipCode
             Element.Type.TEXT -> createFakeText(element)
             Element.Type.BLANK -> ""
             Element.Type.TEXT_OR_BLANK -> randomChoice("", createFakeText(element))
@@ -195,14 +195,39 @@ class FakeReport(val metadata: Metadata) {
             "BinaxNOW COVID-19 Ag Card",
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
-
-        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA", "NM", "VT")
+        // find our state
+        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA", "NM", "VT", "GU")
+        // find our county
         val county = reportCounty ?: findLookupTable("fips-county")?.let {
             when (state) {
                 "AZ" -> randomChoice("Pima", "Yuma")
                 "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
                 else -> randomChoice(it.filter("State", state, "County"))
             }
+        } ?: "Prime"
+        // find our zipcode
+        val zipCode: String = findLookupTable("zip-code-data")?.let {
+            randomChoice(
+                it.filter(
+                    "zipcode",
+                    mapOf(
+                        "state_abbr" to state,
+                        "county" to county
+                    )
+                )
+            )
+        } ?: faker.address().zipCode().toString()
+        val city = findLookupTable("zip-code-data")?.let {
+            randomChoice(
+                it.filter(
+                    "city",
+                    mapOf(
+                        "state_abbr" to state,
+                        "county" to county,
+                        "zipcode" to zipCode
+                    )
+                )
+            )
         }
     }
 

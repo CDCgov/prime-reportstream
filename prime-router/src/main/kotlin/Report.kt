@@ -348,7 +348,8 @@ class Report {
     fun synthesizeData(
         synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap(),
         targetState: String? = null,
-        targetCounty: String? = null
+        targetCounty: String? = null,
+        metadata: Metadata,
     ): Report {
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
@@ -392,7 +393,7 @@ class Report {
                     }
                     SynthesizeStrategy.FAKE -> {
                         // generate random faked data for the column passed in
-                        buildFakedColumn(it.name, it, targetState, targetCounty)
+                        buildFakedColumn(it.name, it, targetState, targetCounty, metadata)
                     }
                     SynthesizeStrategy.BLANK -> buildEmptyColumn(it.name)
                     SynthesizeStrategy.PASSTHROUGH -> table.column(it.name).copy()
@@ -497,9 +498,10 @@ class Report {
         name: String,
         element: Element,
         targetState: String?,
-        targetCounty: String?
+        targetCounty: String?,
+        metadata: Metadata,
     ): StringColumn {
-        val context = FakeReport.RowContext({ null }, targetState, schema.name, targetCounty)
+        val context = FakeReport.RowContext(metadata::findLookupTable, targetState, schema.name, targetCounty)
         val fakeDataService = FakeDataService()
         return StringColumn.create(name, List(itemCount) { fakeDataService.getFakeValueForElement(element, context) })
     }
