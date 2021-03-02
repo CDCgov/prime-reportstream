@@ -143,8 +143,10 @@ output "server_name" {
 
 output "postgres_user" {
   value = data.azurerm_key_vault_secret.postgres_user.value
+  sensitive = true
 }
 
 output "postgres_pass" {
   value = data.azurerm_key_vault_secret.postgres_pass.value
+  sensitive = true
 }

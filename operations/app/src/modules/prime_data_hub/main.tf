@@ -52,6 +52,8 @@ module "function_app" {
     ai_instrumentation_key = module.application_insights.instrumentation_key
     eventhub_namespace_name = module.event_hub.eventhub_namespace_name
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
+    app_config_key_vault_id = module.key_vault.app_config_key_vault_id
+    client_config_key_vault_id = module.key_vault.client_config_key_vault_id
 }
 
 module "database" {
