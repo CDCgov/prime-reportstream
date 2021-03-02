@@ -368,6 +368,15 @@ class Hl7Serializer(val metadata: Metadata) {
                 }
             }
             Element.Type.DATETIME -> {
+                // HACK WARNING
+                // some states have complained that the specimen_collected_datetime and the
+                // specimen_received_datetime cannot be the same data point. SimpleReport does not
+                // currently collect the received date time, so we have been setting the collected
+                // and received to the same value.
+                // in order to move past validation from states, we are shifting the value of
+                // the received date time ahead by six seconds. this is a total hack, and probably
+                // needs more robust guard rails and some wrapping in a set of properties, but for now
+                // this is how we have to do it
                 if (element.name.equals("testing_lab_specimen_received_datetime", ignoreCase = true)) {
                     val normalDate = try {
                         OffsetDateTime.parse(value)
@@ -379,7 +388,7 @@ class Hl7Serializer(val metadata: Metadata) {
                     } catch (e: DateTimeParseException) {
                         error("Invalid date: '$value' for element '$${element.name}'")
                     }
-                    val adjustedDateTime = normalDate.plusSeconds(6)
+                    val adjustedDateTime = normalDate.plusSeconds(SPECIMEN_RECEIVED_DATE_TIME_SECONDS_ADJUSTMENT)
                     val formattedDateTime = formatter.format(adjustedDateTime)
                     terser.set(pathSpec, formattedDateTime)
                 } else {
@@ -432,13 +441,19 @@ class Hl7Serializer(val metadata: Metadata) {
             if (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
                 rep = 1
             }
+            // primary residence number
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
+            // it's a phone
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "PH")
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-5", country)
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-6", areaCode)
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-7", local)
             if (extension.isNotEmpty()) terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-8", extension)
         } else {
+            // work phone number
             terser.set(buildComponent(pathSpec, 2), "WPN")
+            // it's a phone
+            terser.set(buildComponent(pathSpec, 3), "PH")
             terser.set(buildComponent(pathSpec, 5), country)
             terser.set(buildComponent(pathSpec, 6), areaCode)
             terser.set(buildComponent(pathSpec, 7), local)
@@ -452,7 +467,10 @@ class Hl7Serializer(val metadata: Metadata) {
             rep = 1
         }
         if (element.nameContains("patient_email")) {
+            // this is an email address
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "NET")
+            // specifies it's an internet telecommunications type
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "Internet")
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-4", value)
         }
     }
@@ -492,6 +510,7 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set(formPathSpec("OBX-11", aoeRep), "F")
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
+        // todo: many states can't accept the QST datapoint out at the end because it is nonstandard
         terser.set(formPathSpec("OBX-29", aoeRep), "QST")
         // all of these values must be set on the OBX AOE's for validation
         terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
@@ -644,5 +663,9 @@ class Hl7Serializer(val metadata: Metadata) {
         } else {
             eiFields.name
         }
+    }
+
+    companion object {
+        const val SPECIMEN_RECEIVED_DATE_TIME_SECONDS_ADJUSTMENT: Long = 6
     }
 }

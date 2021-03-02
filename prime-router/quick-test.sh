@@ -224,16 +224,6 @@ then
   count_lines $merged_file , $total
 fi
 
-# run louisiana
-if [ $RUN_LA -ne 0 ]
-then
-  LA_FILE_SEARCH_STR="/cdcprime.*\.hl7"
-  echo Generate synthetic LA data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --output-aphl-filename --output-receiving-org=LAOPH --target-states LA --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "$LA_FILE_SEARCH_STR"
-fi
-
-
 # run florida
 if [ $RUN_FL -ne 0 ]
 then
@@ -244,12 +234,29 @@ then
   parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
 fi
 
+# run louisiana
+if [ $RUN_LA -ne 0 ]
+then
+  LA_FILE_SEARCH_STR="/cdcprime.*\.hl7"
+  echo Generate synthetic LA data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --output-aphl-filename --output-receiving-org=LAOPH --target-states LA --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "$LA_FILE_SEARCH_STR"
+fi
+
 # run north dakota
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
   text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-states ND --target-counties Richland --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/nd.*\.hl7"
+fi
+
+# run nm
+if [ $RUN_NM -ne 0 ]
+then
+  echo Generate fake NM data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-states NM --target-counties Hidalgo --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/nm.*\.hl7"
 fi
 
 # run tx
@@ -266,14 +273,6 @@ then
   echo Generate fake VT data, HL7!
   text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-states VT --target-counties Essex --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/vt.*\.hl7"
-fi
-
-# run nm
-if [ $RUN_NM -ne 0 ]
-then
-  echo Generate fake NM data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-states NM --target-counties Hidalgo --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/nm.*\.hl7"
 fi
 
 exit 0
