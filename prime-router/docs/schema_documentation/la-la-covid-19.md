@@ -1753,7 +1753,7 @@ This field contains a table lookup indicating the normalcy status of the result.
 
 **Type**: ID_CLIA
 
-**HL7 Field**: MSH-4-2
+**HL7 Field**: SPM-2-1-3
 
 **Cardinality**: [0..1]
 
@@ -1764,6 +1764,36 @@ This field contains a table lookup indicating the normalcy status of the result.
 **Type**: TEXT
 
 **HL7 Field**: OBX-2
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sending_facility_id
+
+**Type**: TEXT
+
+**HL7 Field**: MSH-4-2
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sending_facility_id_type
+
+**Type**: TEXT
+
+**HL7 Field**: MSH-4-3
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sending_facility_name
+
+**Type**: TEXT
+
+**HL7 Field**: MSH-4-1
 
 **Cardinality**: [0..1]
 

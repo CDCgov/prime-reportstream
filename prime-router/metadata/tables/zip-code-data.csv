@@ -1,5 +1,5 @@
 state_fips,state,state_abbr,zipcode,county,city
-1,Alabama,AL,35004,St. Clair,Acmar
+1,Alabama,AL,35004,St Clair,Acmar
 1,Alabama,AL,35005,Jefferson,Adamsville
 1,Alabama,AL,35006,Jefferson,Adger
 1,Alabama,AL,35007,Shelby,Keystone
@@ -21,9 +21,9 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35045,Chilton,Clanton
 1,Alabama,AL,35049,Blount,Cleveland
 1,Alabama,AL,35051,Shelby,Columbiana
-1,Alabama,AL,35052,St. Clair,Cook springs
+1,Alabama,AL,35052,St Clair,Cook springs
 1,Alabama,AL,35053,Cullman,Crane hill
-1,Alabama,AL,35054,St. Clair,Cropwell
+1,Alabama,AL,35054,St Clair,Cropwell
 1,Alabama,AL,35055,Cullman,Cullman
 1,Alabama,AL,35057,Cullman,Cullman
 1,Alabama,AL,35060,Jefferson,Docena
@@ -52,27 +52,27 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35097,Blount,Locust fork
 1,Alabama,AL,35098,Cullman,Logan
 1,Alabama,AL,35111,Tuscaloosa,Mc calla
-1,Alabama,AL,35112,St. Clair,Margaret
+1,Alabama,AL,35112,St Clair,Margaret
 1,Alabama,AL,35114,Shelby,Maylene
 1,Alabama,AL,35115,Shelby,Montevallo
 1,Alabama,AL,35116,Jefferson,Morris
 1,Alabama,AL,35117,Jefferson,Mount olive
 1,Alabama,AL,35118,Jefferson,Sylvan springs
 1,Alabama,AL,35119,Jefferson,New castle
-1,Alabama,AL,35120,St. Clair,Odenville
+1,Alabama,AL,35120,St Clair,Odenville
 1,Alabama,AL,35121,Blount,Oneonta
 1,Alabama,AL,35124,Shelby,Indian springs
-1,Alabama,AL,35125,St. Clair,Pell city
+1,Alabama,AL,35125,St Clair,Pell city
 1,Alabama,AL,35126,Jefferson,Dixiana
 1,Alabama,AL,35127,Jefferson,Pleasant grove
 1,Alabama,AL,35130,Walker,Quinton
-1,Alabama,AL,35131,St. Clair,Ragland
+1,Alabama,AL,35131,St Clair,Ragland
 1,Alabama,AL,35133,Blount,Remlap
-1,Alabama,AL,35135,St. Clair,Riverside
+1,Alabama,AL,35135,St Clair,Riverside
 1,Alabama,AL,35136,Coosa,Rockford
 1,Alabama,AL,35139,Jefferson,Sayre
 1,Alabama,AL,35143,Shelby,Shelby
-1,Alabama,AL,35146,St. Clair,Springville
+1,Alabama,AL,35146,St Clair,Springville
 1,Alabama,AL,35147,Shelby,Sterrett
 1,Alabama,AL,35148,Walker,Sumiton
 1,Alabama,AL,35149,Talladega,Sycamore
@@ -265,7 +265,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35906,Etowah,Rainbow city
 1,Alabama,AL,35950,Marshall,Albertville
 1,Alabama,AL,35952,Etowah,Snead
-1,Alabama,AL,35953,St. Clair,Ashville
+1,Alabama,AL,35953,St Clair,Ashville
 1,Alabama,AL,35954,Etowah,Attalla
 1,Alabama,AL,35957,Marshall,Boaz
 1,Alabama,AL,35958,Jackson,Bryant
@@ -289,7 +289,7 @@ state_fips,state,state_abbr,zipcode,county,city
 1,Alabama,AL,35983,Cherokee,Leesburg
 1,Alabama,AL,35984,DeKalb,Mentone
 1,Alabama,AL,35986,DeKalb,Rainsville
-1,Alabama,AL,35987,St. Clair,Steele
+1,Alabama,AL,35987,St Clair,Steele
 1,Alabama,AL,35988,DeKalb,Sylvania
 1,Alabama,AL,35989,DeKalb,Valley head
 1,Alabama,AL,35990,Etowah,Walnut grove
@@ -1468,9 +1468,9 @@ state_fips,state,state_abbr,zipcode,county,city
 5,Arkansas,AR,72315,Mississippi,Blytheville a f
 5,Arkansas,AR,72320,Lee,Brickeys
 5,Arkansas,AR,72321,Mississippi,Burdette
-5,Arkansas,AR,72322,St. Francis,Caldwell
+5,Arkansas,AR,72322,St Francis,Caldwell
 5,Arkansas,AR,72324,Cross,Cherry valley
-5,Arkansas,AR,72326,St. Francis,Colt
+5,Arkansas,AR,72326,St Francis,Colt
 5,Arkansas,AR,72327,Crittenden,Crawfordsville
 5,Arkansas,AR,72328,Phillips,Crumrod
 5,Arkansas,AR,72329,Mississippi,Driver
@@ -1478,22 +1478,22 @@ state_fips,state,state_abbr,zipcode,county,city
 5,Arkansas,AR,72331,Crittenden,Earle
 5,Arkansas,AR,72332,Crittenden,Edmondson
 5,Arkansas,AR,72333,Phillips,Elaine
-5,Arkansas,AR,72335,St. Francis,Forrest city
+5,Arkansas,AR,72335,St Francis,Forrest city
 5,Arkansas,AR,72338,Mississippi,Frenchmans bayou
 5,Arkansas,AR,72339,Crittenden,Gilmore
-5,Arkansas,AR,72340,St. Francis,Goodwin
+5,Arkansas,AR,72340,St Francis,Goodwin
 5,Arkansas,AR,72341,Lee,Haynes
 5,Arkansas,AR,72342,Phillips,Helena
-5,Arkansas,AR,72346,St. Francis,Heth
+5,Arkansas,AR,72346,St Francis,Heth
 5,Arkansas,AR,72347,Cross,Hickory ridge
-5,Arkansas,AR,72348,St. Francis,Hughes
+5,Arkansas,AR,72348,St Francis,Hughes
 5,Arkansas,AR,72350,Mississippi,Joiner
 5,Arkansas,AR,72351,Mississippi,Keiser
 5,Arkansas,AR,72353,Phillips,Lambrook
 5,Arkansas,AR,72354,Poinsett,Lepanto
 5,Arkansas,AR,72355,Phillips,Lexa
 5,Arkansas,AR,72358,Mississippi,Luxora
-5,Arkansas,AR,72359,St. Francis,Madison
+5,Arkansas,AR,72359,St Francis,Madison
 5,Arkansas,AR,72360,Lee,Marianna
 5,Arkansas,AR,72364,Crittenden,Marion
 5,Arkansas,AR,72365,Poinsett,Marked tree
@@ -1502,7 +1502,7 @@ state_fips,state,state_abbr,zipcode,county,city
 5,Arkansas,AR,72368,Lee,Moro
 5,Arkansas,AR,72369,Phillips,Oneida
 5,Arkansas,AR,72370,Mississippi,Osceola
-5,Arkansas,AR,72372,St. Francis,Palestine
+5,Arkansas,AR,72372,St Francis,Palestine
 5,Arkansas,AR,72373,Cross,Parkin
 5,Arkansas,AR,72374,Phillips,Poplar grove
 5,Arkansas,AR,72376,Crittenden,Proctor
@@ -1514,8 +1514,8 @@ state_fips,state,state_abbr,zipcode,county,city
 5,Arkansas,AR,72387,Cross,Vanndale
 5,Arkansas,AR,72389,Phillips,Wabash
 5,Arkansas,AR,72390,Phillips,West helena
-5,Arkansas,AR,72392,St. Francis,Wheatley
-5,Arkansas,AR,72394,St. Francis,Widener
+5,Arkansas,AR,72392,St Francis,Wheatley
+5,Arkansas,AR,72394,St Francis,Widener
 5,Arkansas,AR,72395,Mississippi,Wilson
 5,Arkansas,AR,72396,Cross,Wynne
 5,Arkansas,AR,72401,Craighead,Jonesboro
@@ -4255,7 +4255,7 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32009,Nassau,Bryceville
 12,Florida,FL,32011,Nassau,Callahan
 12,Florida,FL,32013,Lafayette,Day
-12,Florida,FL,32033,St. Johns,Elkton
+12,Florida,FL,32033,St Johns,Elkton
 12,Florida,FL,32034,Nassau,Amelia island
 12,Florida,FL,32038,Columbia,Fort white
 12,Florida,FL,32040,Baker,Glen saint mary
@@ -4279,15 +4279,15 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32072,Baker,Olustee
 12,Florida,FL,32073,Clay,Orange park
 12,Florida,FL,32079,Clay,Penney farms
-12,Florida,FL,32082,St. Johns,Ponte vedra beac
+12,Florida,FL,32082,St Johns,Ponte vedra beac
 12,Florida,FL,32083,Union,Raiford
-12,Florida,FL,32084,St. Johns,Saint augustine
-12,Florida,FL,32086,St. Johns,Saint augustine
+12,Florida,FL,32084,St Johns,Saint augustine
+12,Florida,FL,32086,St Johns,Saint augustine
 12,Florida,FL,32087,Baker,Sanderson
 12,Florida,FL,32091,Bradford,Starke
-12,Florida,FL,32092,St. Johns,Saint augustine
+12,Florida,FL,32092,St Johns,Saint augustine
 12,Florida,FL,32094,Suwannee,Wellborn
-12,Florida,FL,32095,St. Johns,Saint augustine
+12,Florida,FL,32095,St Johns,Saint augustine
 12,Florida,FL,32096,Hamilton,White springs
 12,Florida,FL,32097,Nassau,Yulee
 12,Florida,FL,32102,Lake,Astor
@@ -4310,7 +4310,7 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32139,Putnam,Georgetown
 12,Florida,FL,32140,Putnam,Florahome
 12,Florida,FL,32141,Volusia,Edgewater
-12,Florida,FL,32145,St. Johns,Hastings
+12,Florida,FL,32145,St Johns,Hastings
 12,Florida,FL,32147,Putnam,Hollister
 12,Florida,FL,32148,Putnam,Interlachen
 12,Florida,FL,32157,Putnam,Lake como
@@ -4362,7 +4362,7 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32256,Duval,Jacksonville
 12,Florida,FL,32257,Duval,Jacksonville
 12,Florida,FL,32258,Duval,Jacksonville
-12,Florida,FL,32259,St. Johns,Jacksonville
+12,Florida,FL,32259,St Johns,Jacksonville
 12,Florida,FL,32266,Duval,Neptune beach
 12,Florida,FL,32301,Leon,Tallahassee
 12,Florida,FL,32303,Leon,Tallahassee
@@ -5111,24 +5111,24 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,34787,Orange,Winter garden
 12,Florida,FL,34788,Lake,Haines creek
 12,Florida,FL,34797,Lake,Yalaha
-12,Florida,FL,34945,St. Lucie,Fort pierce
-12,Florida,FL,34946,St. Lucie,Fort pierce
-12,Florida,FL,34947,St. Lucie,Fort pierce
-12,Florida,FL,34949,St. Lucie,Fort pierce
-12,Florida,FL,34950,St. Lucie,Fort pierce
-12,Florida,FL,34951,St. Lucie,Fort pierce
-12,Florida,FL,34952,St. Lucie,Port saint lucie
-12,Florida,FL,34953,St. Lucie,Port saint lucie
+12,Florida,FL,34945,St Lucie,Fort pierce
+12,Florida,FL,34946,St Lucie,Fort pierce
+12,Florida,FL,34947,St Lucie,Fort pierce
+12,Florida,FL,34949,St Lucie,Fort pierce
+12,Florida,FL,34950,St Lucie,Fort pierce
+12,Florida,FL,34951,St Lucie,Fort pierce
+12,Florida,FL,34952,St Lucie,Port saint lucie
+12,Florida,FL,34953,St Lucie,Port saint lucie
 12,Florida,FL,34956,Martin,Indiantown
 12,Florida,FL,34957,Martin,Jensen beach
 12,Florida,FL,34972,Okeechobee,Basinger
 12,Florida,FL,34974,Okeechobee,Okeechobee
-12,Florida,FL,34981,St. Lucie,Fort pierce
-12,Florida,FL,34982,St. Lucie,Fort pierce
-12,Florida,FL,34983,St. Lucie,Port saint lucie
-12,Florida,FL,34984,St. Lucie,Port saint lucie
-12,Florida,FL,34986,St. Lucie,Port saint lucie
-12,Florida,FL,34987,St. Lucie,Port saint lucie
+12,Florida,FL,34981,St Lucie,Fort pierce
+12,Florida,FL,34982,St Lucie,Fort pierce
+12,Florida,FL,34983,St Lucie,Port saint lucie
+12,Florida,FL,34984,St Lucie,Port saint lucie
+12,Florida,FL,34986,St Lucie,Port saint lucie
+12,Florida,FL,34987,St Lucie,Port saint lucie
 12,Florida,FL,34990,Martin,Palm city
 12,Florida,FL,34994,Martin,Stuart
 12,Florida,FL,34996,Martin,Stuart
@@ -6990,7 +6990,7 @@ state_fips,state,state_abbr,zipcode,county,city
 17,Illinois,IL,62054,Greene,Kane
 17,Illinois,IL,62056,Montgomery,Litchfield
 17,Illinois,IL,62058,Madison,Livingston
-17,Illinois,IL,62059,St. Clair,Lovejoy
+17,Illinois,IL,62059,St Clair,Lovejoy
 17,Illinois,IL,62060,Madison,Madison
 17,Illinois,IL,62061,Madison,Marine
 17,Illinois,IL,62062,Madison,Maryville
@@ -7021,55 +7021,55 @@ state_fips,state,state_abbr,zipcode,county,city
 17,Illinois,IL,62094,Montgomery,Witt
 17,Illinois,IL,62095,Madison,Wood river
 17,Illinois,IL,62097,Madison,Worden
-17,Illinois,IL,62201,St. Clair,Sauget
-17,Illinois,IL,62203,St. Clair,East saint louis
-17,Illinois,IL,62204,St. Clair,Washington park
-17,Illinois,IL,62205,St. Clair,East saint louis
-17,Illinois,IL,62206,St. Clair,Cahokia
-17,Illinois,IL,62207,St. Clair,Alorton
-17,Illinois,IL,62208,St. Clair,Fairview heights
+17,Illinois,IL,62201,St Clair,Sauget
+17,Illinois,IL,62203,St Clair,East saint louis
+17,Illinois,IL,62204,St Clair,Washington park
+17,Illinois,IL,62205,St Clair,East saint louis
+17,Illinois,IL,62206,St Clair,Cahokia
+17,Illinois,IL,62207,St Clair,Alorton
+17,Illinois,IL,62208,St Clair,Fairview heights
 17,Illinois,IL,62214,Washington,Venedy
 17,Illinois,IL,62215,Clinton,Albers
 17,Illinois,IL,62216,Clinton,Aviston
 17,Illinois,IL,62217,Randolph,Baldwin
 17,Illinois,IL,62218,Clinton,Bartelso
 17,Illinois,IL,62219,Clinton,Beckemeyer
-17,Illinois,IL,62220,St. Clair,Belleville
-17,Illinois,IL,62221,St. Clair,Belleville
-17,Illinois,IL,62223,St. Clair,Belleville
-17,Illinois,IL,62225,St. Clair,Scott a f b
+17,Illinois,IL,62220,St Clair,Belleville
+17,Illinois,IL,62221,St Clair,Belleville
+17,Illinois,IL,62223,St Clair,Belleville
+17,Illinois,IL,62225,St Clair,Scott a f b
 17,Illinois,IL,62230,Clinton,Breese
 17,Illinois,IL,62231,Clinton,Carlyle
-17,Illinois,IL,62232,St. Clair,Caseyville
+17,Illinois,IL,62232,St Clair,Caseyville
 17,Illinois,IL,62233,Randolph,Chester
 17,Illinois,IL,62234,Madison,Collinsville
 17,Illinois,IL,62236,Monroe,Columbia
 17,Illinois,IL,62237,Randolph,Swanwick
 17,Illinois,IL,62238,Perry,Cutler
-17,Illinois,IL,62239,St. Clair,Dupo
-17,Illinois,IL,62240,St. Clair,East carondelet
+17,Illinois,IL,62239,St Clair,Dupo
+17,Illinois,IL,62240,St Clair,East carondelet
 17,Illinois,IL,62241,Randolph,Ellis grove
 17,Illinois,IL,62242,Randolph,Evansville
-17,Illinois,IL,62243,St. Clair,Freeburg
+17,Illinois,IL,62243,St Clair,Freeburg
 17,Illinois,IL,62244,Monroe,Fults
 17,Illinois,IL,62245,Clinton,Germantown
 17,Illinois,IL,62246,Bond,Greenville
 17,Illinois,IL,62249,Madison,Highland
 17,Illinois,IL,62250,Clinton,Hoffman
 17,Illinois,IL,62253,Bond,Keyesport
-17,Illinois,IL,62254,St. Clair,Lebanon
-17,Illinois,IL,62255,St. Clair,Lenzburg
-17,Illinois,IL,62257,St. Clair,Marissa
-17,Illinois,IL,62258,St. Clair,Mascoutah
-17,Illinois,IL,62260,St. Clair,Millstadt
+17,Illinois,IL,62254,St Clair,Lebanon
+17,Illinois,IL,62255,St Clair,Lenzburg
+17,Illinois,IL,62257,St Clair,Marissa
+17,Illinois,IL,62258,St Clair,Mascoutah
+17,Illinois,IL,62260,St Clair,Millstadt
 17,Illinois,IL,62261,Randolph,Modoc
 17,Illinois,IL,62262,Bond,Mulberry grove
 17,Illinois,IL,62263,Washington,Nashville
-17,Illinois,IL,62264,St. Clair,New athens
+17,Illinois,IL,62264,St Clair,New athens
 17,Illinois,IL,62265,Clinton,New baden
 17,Illinois,IL,62266,Clinton,New memphis
 17,Illinois,IL,62268,Washington,Oakdale
-17,Illinois,IL,62269,St. Clair,Shiloh
+17,Illinois,IL,62269,St Clair,Shiloh
 17,Illinois,IL,62271,Washington,Okawville
 17,Illinois,IL,62272,Randolph,Percy
 17,Illinois,IL,62273,Bond,Pierron
@@ -7082,10 +7082,10 @@ state_fips,state,state_abbr,zipcode,county,city
 17,Illinois,IL,62281,Madison,Saint jacob
 17,Illinois,IL,62283,Clinton,Shattuc
 17,Illinois,IL,62284,Bond,Smithboro
-17,Illinois,IL,62285,St. Clair,Smithton
+17,Illinois,IL,62285,St Clair,Smithton
 17,Illinois,IL,62286,Randolph,Sparta
 17,Illinois,IL,62288,Randolph,Steeleville
-17,Illinois,IL,62289,St. Clair,Summerfield
+17,Illinois,IL,62289,St Clair,Summerfield
 17,Illinois,IL,62292,Randolph,Tilden
 17,Illinois,IL,62293,Clinton,Trenton
 17,Illinois,IL,62294,Madison,Troy
@@ -7679,26 +7679,26 @@ state_fips,state,state_abbr,zipcode,county,city
 18,Indiana,IN,46517,Elkhart,Elkhart
 18,Indiana,IN,46524,Kosciusko,Etna green
 18,Indiana,IN,46526,Elkhart,Foraker
-18,Indiana,IN,46530,St. Joseph,Granger
+18,Indiana,IN,46530,St Joseph,Granger
 18,Indiana,IN,46531,Starke,Grovertown
 18,Indiana,IN,46532,Starke,Hamlet
 18,Indiana,IN,46534,Starke,Ober
-18,Indiana,IN,46536,St. Joseph,Lakeville
+18,Indiana,IN,46536,St Joseph,Lakeville
 18,Indiana,IN,46537,Marshall,Lapaz
 18,Indiana,IN,46538,Kosciusko,Leesburg
 18,Indiana,IN,46539,Kosciusko,Mentone
 18,Indiana,IN,46540,Elkhart,Middlebury
 18,Indiana,IN,46542,Kosciusko,Milford
 18,Indiana,IN,46543,Elkhart,Millersburg
-18,Indiana,IN,46544,St. Joseph,Mishawaka
-18,Indiana,IN,46545,St. Joseph,Mishawaka
+18,Indiana,IN,46544,St Joseph,Mishawaka
+18,Indiana,IN,46545,St Joseph,Mishawaka
 18,Indiana,IN,46550,Elkhart,Nappanee
-18,Indiana,IN,46552,St. Joseph,New carlisle
+18,Indiana,IN,46552,St Joseph,New carlisle
 18,Indiana,IN,46553,Elkhart,New paris
-18,Indiana,IN,46554,St. Joseph,North liberty
+18,Indiana,IN,46554,St Joseph,North liberty
 18,Indiana,IN,46555,Kosciusko,North webster
-18,Indiana,IN,46556,St. Joseph,Saint marys
-18,Indiana,IN,46561,St. Joseph,Osceola
+18,Indiana,IN,46556,St Joseph,Saint marys
+18,Indiana,IN,46561,St Joseph,Osceola
 18,Indiana,IN,46562,Kosciusko,Pierceton
 18,Indiana,IN,46563,Marshall,Inwood
 18,Indiana,IN,46565,Lagrange,Shipshewana
@@ -7707,21 +7707,21 @@ state_fips,state,state_abbr,zipcode,county,city
 18,Indiana,IN,46570,Marshall,Tippecanoe
 18,Indiana,IN,46571,Lagrange,Topeka
 18,Indiana,IN,46573,Elkhart,Wakarusa
-18,Indiana,IN,46574,St. Joseph,Walkerton
+18,Indiana,IN,46574,St Joseph,Walkerton
 18,Indiana,IN,46580,Kosciusko,Warsaw
 18,Indiana,IN,46590,Kosciusko,Winona lake
-18,Indiana,IN,46595,St. Joseph,Wyatt
-18,Indiana,IN,46601,St. Joseph,South bend
-18,Indiana,IN,46613,St. Joseph,South bend
-18,Indiana,IN,46614,St. Joseph,South bend
-18,Indiana,IN,46615,St. Joseph,South bend
-18,Indiana,IN,46616,St. Joseph,South bend
-18,Indiana,IN,46617,St. Joseph,South bend
-18,Indiana,IN,46619,St. Joseph,South bend
-18,Indiana,IN,46628,St. Joseph,South bend
-18,Indiana,IN,46629,St. Joseph,South bend
-18,Indiana,IN,46635,St. Joseph,South bend
-18,Indiana,IN,46637,St. Joseph,South bend
+18,Indiana,IN,46595,St Joseph,Wyatt
+18,Indiana,IN,46601,St Joseph,South bend
+18,Indiana,IN,46613,St Joseph,South bend
+18,Indiana,IN,46614,St Joseph,South bend
+18,Indiana,IN,46615,St Joseph,South bend
+18,Indiana,IN,46616,St Joseph,South bend
+18,Indiana,IN,46617,St Joseph,South bend
+18,Indiana,IN,46619,St Joseph,South bend
+18,Indiana,IN,46628,St Joseph,South bend
+18,Indiana,IN,46629,St Joseph,South bend
+18,Indiana,IN,46635,St Joseph,South bend
+18,Indiana,IN,46637,St Joseph,South bend
 18,Indiana,IN,46701,Noble,Albion
 18,Indiana,IN,46702,Huntington,Andrews
 18,Indiana,IN,46703,Steuben,Angola
@@ -10636,519 +10636,519 @@ state_fips,state,state_abbr,zipcode,county,city
 21,Kentucky,KY,42782,Green,Summersville
 21,Kentucky,KY,42784,Hardin,Upton
 21,Kentucky,KY,42788,Hardin,White mills
-22,Louisiana,LA,70001,Jefferson Parish,Metairie
-22,Louisiana,LA,70002,Jefferson Parish,Metairie
-22,Louisiana,LA,70003,Jefferson Parish,Metairie
-22,Louisiana,LA,70005,Jefferson Parish,Metairie
-22,Louisiana,LA,70006,Jefferson Parish,Metairie
-22,Louisiana,LA,70030,St. Charles Parish,Des allemands
-22,Louisiana,LA,70031,St. Charles Parish,Ama
-22,Louisiana,LA,70032,St. Bernard Parish,Arabi
-22,Louisiana,LA,70036,Jefferson Parish,Barataria
-22,Louisiana,LA,70037,Plaquemines Parish,Belle chasse
-22,Louisiana,LA,70038,Plaquemines Parish,Boothville
-22,Louisiana,LA,70039,St. Charles Parish,Boutte
-22,Louisiana,LA,70040,Plaquemines Parish,Braithwaite
-22,Louisiana,LA,70041,Plaquemines Parish,Buras
-22,Louisiana,LA,70043,St. Bernard Parish,Chalmette
-22,Louisiana,LA,70047,St. Charles Parish,New sarpy
-22,Louisiana,LA,70049,St. John the Baptist Parish,Edgard
-22,Louisiana,LA,70050,Plaquemines Parish,Empire
-22,Louisiana,LA,70051,St. John the Baptist Parish,Garyville
-22,Louisiana,LA,70052,St. James Parish,Gramercy
-22,Louisiana,LA,70053,Jefferson Parish,Gretna
-22,Louisiana,LA,70056,Jefferson Parish,Terrytown
-22,Louisiana,LA,70057,St. Charles Parish,Hahnville
-22,Louisiana,LA,70058,Jefferson Parish,Harvey
-22,Louisiana,LA,70062,Jefferson Parish,Kenner
-22,Louisiana,LA,70065,Jefferson Parish,Kenner
-22,Louisiana,LA,70066,St. Charles Parish,Killona
-22,Louisiana,LA,70067,Jefferson Parish,Lafitte
-22,Louisiana,LA,70068,St. John the Baptist Parish,La place
-22,Louisiana,LA,70070,St. Charles Parish,Luling
-22,Louisiana,LA,70071,St. James Parish,Lutcher
-22,Louisiana,LA,70072,Jefferson Parish,Marrero
-22,Louisiana,LA,70075,St. Bernard Parish,Meraux
-22,Louisiana,LA,70076,St. John the Baptist Parish,Mount airy
-22,Louisiana,LA,70079,St. Charles Parish,Norco
-22,Louisiana,LA,70080,St. Charles Parish,Paradis
-22,Louisiana,LA,70082,Plaquemines Parish,Pointe a la hach
-22,Louisiana,LA,70083,Plaquemines Parish,Port sulphur
-22,Louisiana,LA,70084,St. John the Baptist Parish,Reserve
-22,Louisiana,LA,70085,St. Bernard Parish,Saint bernard
-22,Louisiana,LA,70086,St. James Parish,Saint james
-22,Louisiana,LA,70087,St. Charles Parish,Saint rose
-22,Louisiana,LA,70090,St. James Parish,Vacherie
-22,Louisiana,LA,70091,Plaquemines Parish,Venice
-22,Louisiana,LA,70092,St. Bernard Parish,Violet
-22,Louisiana,LA,70094,Jefferson Parish,Bridge city
-22,Louisiana,LA,70112,Orleans Parish,New orleans
-22,Louisiana,LA,70113,Orleans Parish,New orleans
-22,Louisiana,LA,70114,Orleans Parish,New orleans
-22,Louisiana,LA,70115,Orleans Parish,New orleans
-22,Louisiana,LA,70116,Orleans Parish,New orleans
-22,Louisiana,LA,70117,Orleans Parish,New orleans
-22,Louisiana,LA,70118,Orleans Parish,New orleans
-22,Louisiana,LA,70119,Orleans Parish,New orleans
-22,Louisiana,LA,70121,Jefferson Parish,Jefferson
-22,Louisiana,LA,70122,Orleans Parish,New orleans
-22,Louisiana,LA,70123,Jefferson Parish,Harahan
-22,Louisiana,LA,70124,Orleans Parish,New orleans
-22,Louisiana,LA,70125,Orleans Parish,New orleans
-22,Louisiana,LA,70126,Orleans Parish,New orleans
-22,Louisiana,LA,70127,Orleans Parish,New orleans
-22,Louisiana,LA,70128,Orleans Parish,New orleans
-22,Louisiana,LA,70129,Orleans Parish,New orleans
-22,Louisiana,LA,70130,Orleans Parish,New orleans
-22,Louisiana,LA,70131,Orleans Parish,New orleans
-22,Louisiana,LA,70163,Orleans Parish,New orleans
-22,Louisiana,LA,70301,Lafourche Parish,Thibodaux
-22,Louisiana,LA,70339,Assumption Parish,Pierre part
-22,Louisiana,LA,70341,Assumption Parish,Belle rose
-22,Louisiana,LA,70342,St. Mary Parish,Berwick
-22,Louisiana,LA,70343,Terrebonne Parish,Bourg
-22,Louisiana,LA,70344,Terrebonne Parish,Chauvin
-22,Louisiana,LA,70345,Lafourche Parish,Cut off
-22,Louisiana,LA,70346,Ascension Parish,Donaldsonville
-22,Louisiana,LA,70353,Terrebonne Parish,Dulac
-22,Louisiana,LA,70354,Lafourche Parish,Galliano
-22,Louisiana,LA,70355,Lafourche Parish,Gheens
-22,Louisiana,LA,70356,Terrebonne Parish,Gibson
-22,Louisiana,LA,70357,Lafourche Parish,Golden meadow
-22,Louisiana,LA,70358,Jefferson Parish,Grand isle
-22,Louisiana,LA,70359,Terrebonne Parish,Gray
-22,Louisiana,LA,70360,Terrebonne Parish,Houma
-22,Louisiana,LA,70363,Terrebonne Parish,Houma
-22,Louisiana,LA,70364,Terrebonne Parish,Houma
-22,Louisiana,LA,70372,Assumption Parish,Labadieville
-22,Louisiana,LA,70373,Lafourche Parish,Larose
-22,Louisiana,LA,70374,Lafourche Parish,Lockport
-22,Louisiana,LA,70375,Lafourche Parish,Mathews
-22,Louisiana,LA,70377,Terrebonne Parish,Montegut
-22,Louisiana,LA,70380,St. Mary Parish,Morgan city
-22,Louisiana,LA,70390,Assumption Parish,Napoleonville
-22,Louisiana,LA,70391,Assumption Parish,Paincourtville
-22,Louisiana,LA,70392,St. Mary Parish,Patterson
-22,Louisiana,LA,70393,Assumption Parish,Plattenville
-22,Louisiana,LA,70394,Lafourche Parish,Raceland
-22,Louisiana,LA,70395,Terrebonne Parish,Schriever
-22,Louisiana,LA,70397,Terrebonne Parish,Theriot
-22,Louisiana,LA,70401,Tangipahoa Parish,Hammond
-22,Louisiana,LA,70403,Tangipahoa Parish,Hammond
-22,Louisiana,LA,70420,St. Tammany Parish,Abita springs
-22,Louisiana,LA,70422,Tangipahoa Parish,Amite
-22,Louisiana,LA,70426,Washington Parish,Angie
-22,Louisiana,LA,70427,Washington Parish,Bogalusa
-22,Louisiana,LA,70431,St. Tammany Parish,Bush
-22,Louisiana,LA,70433,St. Tammany Parish,Covington
-22,Louisiana,LA,70436,Tangipahoa Parish,Fluker
-22,Louisiana,LA,70437,St. Tammany Parish,Folsom
-22,Louisiana,LA,70438,Washington Parish,Franklinton
-22,Louisiana,LA,70441,St. Helena Parish,Greensburg
-22,Louisiana,LA,70442,Tangipahoa Parish,Husser
-22,Louisiana,LA,70443,Tangipahoa Parish,Independence
-22,Louisiana,LA,70444,Tangipahoa Parish,Kentwood
-22,Louisiana,LA,70445,St. Tammany Parish,Lacombe
-22,Louisiana,LA,70446,Tangipahoa Parish,Loranger
-22,Louisiana,LA,70447,St. Tammany Parish,Madisonville
-22,Louisiana,LA,70448,St. Tammany Parish,Mandeville
-22,Louisiana,LA,70449,Livingston Parish,Maurepas
-22,Louisiana,LA,70450,Washington Parish,Mount hermon
-22,Louisiana,LA,70451,Tangipahoa Parish,Natalbany
-22,Louisiana,LA,70452,St. Tammany Parish,Pearl river
-22,Louisiana,LA,70453,St. Helena Parish,Pine grove
-22,Louisiana,LA,70454,Tangipahoa Parish,Ponchatoula
-22,Louisiana,LA,70455,Tangipahoa Parish,Robert
-22,Louisiana,LA,70456,Tangipahoa Parish,Roseland
-22,Louisiana,LA,70458,St. Tammany Parish,Slidell
-22,Louisiana,LA,70460,St. Tammany Parish,Slidell
-22,Louisiana,LA,70461,St. Tammany Parish,Slidell
-22,Louisiana,LA,70462,Livingston Parish,Springfield
-22,Louisiana,LA,70463,St. Tammany Parish,Sun
-22,Louisiana,LA,70464,St. Tammany Parish,Talisheek
-22,Louisiana,LA,70465,Tangipahoa Parish,Tangipahoa
-22,Louisiana,LA,70466,Tangipahoa Parish,Tickfaw
-22,Louisiana,LA,70501,Lafayette Parish,Lafayette
-22,Louisiana,LA,70503,Lafayette Parish,Lafayette
-22,Louisiana,LA,70506,Lafayette Parish,Lafayette
-22,Louisiana,LA,70507,Lafayette Parish,Lafayette
-22,Louisiana,LA,70508,Lafayette Parish,Lafayette
-22,Louisiana,LA,70510,Vermilion Parish,Forked island
-22,Louisiana,LA,70512,St. Landry Parish,Arnaudville
-22,Louisiana,LA,70513,Iberia Parish,Avery island
-22,Louisiana,LA,70514,St. Mary Parish,Baldwin
-22,Louisiana,LA,70515,Evangeline Parish,Basile
-22,Louisiana,LA,70516,Acadia Parish,Branch
-22,Louisiana,LA,70517,St. Martin Parish,Henderson
-22,Louisiana,LA,70518,Lafayette Parish,Broussard
-22,Louisiana,LA,70520,Lafayette Parish,Carencro
-22,Louisiana,LA,70521,St. Martin Parish,Cecilia
-22,Louisiana,LA,70523,St. Mary Parish,Charenton
-22,Louisiana,LA,70524,Evangeline Parish,Chataignier
-22,Louisiana,LA,70525,Acadia Parish,Church point
-22,Louisiana,LA,70526,Acadia Parish,Crowley
-22,Louisiana,LA,70528,Vermilion Parish,Delcambre
-22,Louisiana,LA,70529,Lafayette Parish,Duson
-22,Louisiana,LA,70531,Acadia Parish,Egan
-22,Louisiana,LA,70532,Jefferson Davis Parish,Elton
-22,Louisiana,LA,70533,Vermilion Parish,Erath
-22,Louisiana,LA,70534,Acadia Parish,Estherwood
-22,Louisiana,LA,70535,St. Landry Parish,Eunice
-22,Louisiana,LA,70537,Acadia Parish,Evangeline
-22,Louisiana,LA,70538,St. Mary Parish,Franklin
-22,Louisiana,LA,70540,St. Mary Parish,Garden city
-22,Louisiana,LA,70541,St. Landry Parish,Grand coteau
-22,Louisiana,LA,70542,Vermilion Parish,Gueydan
-22,Louisiana,LA,70543,Acadia Parish,Iota
-22,Louisiana,LA,70544,Iberia Parish,Jeanerette
-22,Louisiana,LA,70546,Jefferson Davis Parish,Jennings
-22,Louisiana,LA,70548,Vermilion Parish,Kaplan
-22,Louisiana,LA,70549,Jefferson Davis Parish,Lake arthur
-22,Louisiana,LA,70550,St. Landry Parish,Lawtell
-22,Louisiana,LA,70552,Iberia Parish,Loreauville
-22,Louisiana,LA,70554,Evangeline Parish,Mamou
-22,Louisiana,LA,70555,Vermilion Parish,Maurice
-22,Louisiana,LA,70556,Acadia Parish,Mermentau
-22,Louisiana,LA,70558,Lafayette Parish,Milton
-22,Louisiana,LA,70559,Acadia Parish,Midland
-22,Louisiana,LA,70560,Iberia Parish,New iberia
-22,Louisiana,LA,70570,St. Landry Parish,Opelousas
-22,Louisiana,LA,70576,Evangeline Parish,Pine prairie
-22,Louisiana,LA,70577,St. Landry Parish,Port barre
-22,Louisiana,LA,70578,Acadia Parish,Rayne
-22,Louisiana,LA,70580,Evangeline Parish,Reddell
-22,Louisiana,LA,70581,Jefferson Davis Parish,Roanoke
-22,Louisiana,LA,70582,St. Martin Parish,Saint martinvill
-22,Louisiana,LA,70583,Lafayette Parish,Scott
-22,Louisiana,LA,70584,St. Landry Parish,Cankton
-22,Louisiana,LA,70585,Evangeline Parish,Turkey creek
-22,Louisiana,LA,70586,Evangeline Parish,Ville platte
-22,Louisiana,LA,70589,St. Landry Parish,Washington
-22,Louisiana,LA,70591,Jefferson Davis Parish,Welsh
-22,Louisiana,LA,70592,Lafayette Parish,Youngsville
-22,Louisiana,LA,70601,Calcasieu Parish,Lake charles
-22,Louisiana,LA,70605,Calcasieu Parish,Lake charles
-22,Louisiana,LA,70607,Calcasieu Parish,Lake charles
-22,Louisiana,LA,70611,Calcasieu Parish,Lake charles
-22,Louisiana,LA,70615,Calcasieu Parish,Lake charles
-22,Louisiana,LA,70630,Calcasieu Parish,Bell city
-22,Louisiana,LA,70631,Cameron Parish,Cameron
-22,Louisiana,LA,70632,Cameron Parish,Creole
-22,Louisiana,LA,70633,Calcasieu Parish,Dequincy
-22,Louisiana,LA,70634,Beauregard Parish,Deridder
-22,Louisiana,LA,70637,Allen Parish,Dry creek
-22,Louisiana,LA,70638,Allen Parish,Elizabeth
-22,Louisiana,LA,70639,Vernon Parish,Evans
-22,Louisiana,LA,70640,Jefferson Davis Parish,Fenton
-22,Louisiana,LA,70643,Cameron Parish,Grand chenier
-22,Louisiana,LA,70644,Allen Parish,Grant
-22,Louisiana,LA,70645,Cameron Parish,Hackberry
-22,Louisiana,LA,70646,Calcasieu Parish,Hayes
-22,Louisiana,LA,70647,Calcasieu Parish,Iowa
-22,Louisiana,LA,70648,Allen Parish,Kinder
-22,Louisiana,LA,70650,Jefferson Davis Parish,Lacassine
-22,Louisiana,LA,70651,Allen Parish,Leblanc
-22,Louisiana,LA,70652,Beauregard Parish,Longville
-22,Louisiana,LA,70653,Beauregard Parish,Fields
-22,Louisiana,LA,70654,Allen Parish,Mittie
-22,Louisiana,LA,70655,Allen Parish,Oberlin
-22,Louisiana,LA,70656,Vernon Parish,Pitkin
-22,Louisiana,LA,70657,Beauregard Parish,Ragley
-22,Louisiana,LA,70658,Allen Parish,Reeves
-22,Louisiana,LA,70659,Vernon Parish,Rosepine
-22,Louisiana,LA,70660,Beauregard Parish,Singer
-22,Louisiana,LA,70661,Calcasieu Parish,Starks
-22,Louisiana,LA,70662,Beauregard Parish,Sugartown
-22,Louisiana,LA,70663,Calcasieu Parish,Sulphur
-22,Louisiana,LA,70668,Calcasieu Parish,Vinton
-22,Louisiana,LA,70669,Calcasieu Parish,Westlake
-22,Louisiana,LA,70710,West Baton Rouge Parish,Addis
-22,Louisiana,LA,70711,Livingston Parish,Albany
-22,Louisiana,LA,70712,West Feliciana Parish,Angola
-22,Louisiana,LA,70714,East Baton Rouge Parish,Baker
-22,Louisiana,LA,70715,Pointe Coupee Parish,Batchelor
-22,Louisiana,LA,70717,Pointe Coupee Parish,Blanks
-22,Louisiana,LA,70719,West Baton Rouge Parish,Brusly
-22,Louisiana,LA,70720,West Baton Rouge Parish,Bueche
-22,Louisiana,LA,70721,Iberville Parish,Point clair
-22,Louisiana,LA,70722,East Feliciana Parish,Clinton
-22,Louisiana,LA,70723,St. James Parish,Convent
-22,Louisiana,LA,70725,Ascension Parish,Darrow
-22,Louisiana,LA,70726,Livingston Parish,Port vincent
-22,Louisiana,LA,70729,Pointe Coupee Parish,Erwinville
-22,Louisiana,LA,70730,East Feliciana Parish,Ethel
-22,Louisiana,LA,70732,Pointe Coupee Parish,Fordoche
-22,Louisiana,LA,70733,Livingston Parish,French settlemen
-22,Louisiana,LA,70734,Ascension Parish,Geismar
-22,Louisiana,LA,70736,Pointe Coupee Parish,Glynn
-22,Louisiana,LA,70737,Ascension Parish,Gonzales
-22,Louisiana,LA,70739,East Baton Rouge Parish,Greenwell spring
-22,Louisiana,LA,70740,Iberville Parish,Grosse tete
-22,Louisiana,LA,70743,St. James Parish,Hester
-22,Louisiana,LA,70744,Livingston Parish,Holden
-22,Louisiana,LA,70747,Pointe Coupee Parish,Innis
-22,Louisiana,LA,70748,East Feliciana Parish,The bluffs
-22,Louisiana,LA,70749,Pointe Coupee Parish,Jarreau
-22,Louisiana,LA,70750,St. Landry Parish,Krotz springs
-22,Louisiana,LA,70752,Pointe Coupee Parish,Lakeland
-22,Louisiana,LA,70753,Pointe Coupee Parish,Lettsworth
-22,Louisiana,LA,70754,Livingston Parish,Livingston
-22,Louisiana,LA,70755,Pointe Coupee Parish,Livonia
-22,Louisiana,LA,70756,Pointe Coupee Parish,Lottie
-22,Louisiana,LA,70757,Iberville Parish,Ramah
-22,Louisiana,LA,70759,Pointe Coupee Parish,Morganza
-22,Louisiana,LA,70760,Pointe Coupee Parish,New roads
-22,Louisiana,LA,70761,East Feliciana Parish,Norwood
-22,Louisiana,LA,70762,Pointe Coupee Parish,Oscar
-22,Louisiana,LA,70763,St. James Parish,Paulina
-22,Louisiana,LA,70764,Iberville Parish,Plaquemine
-22,Louisiana,LA,70767,West Baton Rouge Parish,Port allen
-22,Louisiana,LA,70769,Ascension Parish,Galvez
-22,Louisiana,LA,70770,East Baton Rouge Parish,Pride
-22,Louisiana,LA,70772,Iberville Parish,Rosedale
-22,Louisiana,LA,70773,Pointe Coupee Parish,Rougon
-22,Louisiana,LA,70774,Ascension Parish,Saint amant
-22,Louisiana,LA,70775,West Feliciana Parish,Bains
-22,Louisiana,LA,70776,Iberville Parish,Iberville
-22,Louisiana,LA,70777,East Feliciana Parish,Slaughter
-22,Louisiana,LA,70778,Ascension Parish,Sorrento
-22,Louisiana,LA,70780,Iberville Parish,Sunshine
-22,Louisiana,LA,70781,Pointe Coupee Parish,Torbert
-22,Louisiana,LA,70782,West Feliciana Parish,Tunica
-22,Louisiana,LA,70783,Pointe Coupee Parish,Ventress
-22,Louisiana,LA,70785,Livingston Parish,Walker
-22,Louisiana,LA,70787,West Feliciana Parish,Weyanoke
-22,Louisiana,LA,70788,Iberville Parish,White castle
-22,Louisiana,LA,70789,East Feliciana Parish,Wilson
-22,Louisiana,LA,70791,East Baton Rouge Parish,Zachary
-22,Louisiana,LA,70801,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70802,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70805,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70806,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70807,East Baton Rouge Parish,Scotlandville
-22,Louisiana,LA,70808,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70809,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70810,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70811,East Baton Rouge Parish,Greenwood
-22,Louisiana,LA,70812,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70814,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70815,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70816,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70817,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70818,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70819,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70820,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,70836,East Baton Rouge Parish,Baton rouge
-22,Louisiana,LA,71001,Bienville Parish,Arcadia
-22,Louisiana,LA,71002,Natchitoches Parish,Ashland
-22,Louisiana,LA,71003,Claiborne Parish,Athens
-22,Louisiana,LA,71004,Caddo Parish,Belcher
-22,Louisiana,LA,71006,Bossier Parish,Benton
-22,Louisiana,LA,71007,Caddo Parish,Bethany
-22,Louisiana,LA,71008,Bienville Parish,Bienville
-22,Louisiana,LA,71009,Caddo Parish,Blanchard
-22,Louisiana,LA,71016,Bienville Parish,Castor
-22,Louisiana,LA,71018,Webster Parish,Cotton valley
-22,Louisiana,LA,71019,Red River Parish,Hanna
-22,Louisiana,LA,71021,Webster Parish,Cullen
-22,Louisiana,LA,71023,Webster Parish,Doyline
-22,Louisiana,LA,71024,Webster Parish,Dubberly
-22,Louisiana,LA,71027,De Soto Parish,Frierson
-22,Louisiana,LA,71028,Bienville Parish,Gibsland
-22,Louisiana,LA,71029,Caddo Parish,Gilliam
-22,Louisiana,LA,71030,De Soto Parish,Gloster
-22,Louisiana,LA,71031,Natchitoches Parish,Goldonna
-22,Louisiana,LA,71032,De Soto Parish,Grand cane
-22,Louisiana,LA,71033,Caddo Parish,Greenwood
-22,Louisiana,LA,71034,Red River Parish,Hall summit
-22,Louisiana,LA,71037,Bossier Parish,Haughton
-22,Louisiana,LA,71038,Claiborne Parish,Haynesville
-22,Louisiana,LA,71039,Webster Parish,Heflin
-22,Louisiana,LA,71040,Claiborne Parish,Homer
-22,Louisiana,LA,71043,Caddo Parish,Hosston
-22,Louisiana,LA,71044,Caddo Parish,Ida
-22,Louisiana,LA,71045,Bienville Parish,Jamestown
-22,Louisiana,LA,71046,De Soto Parish,Keatchie
-22,Louisiana,LA,71047,Caddo Parish,Keithville
-22,Louisiana,LA,71048,Claiborne Parish,Lisbon
-22,Louisiana,LA,71049,De Soto Parish,Logansport
-22,Louisiana,LA,71051,Bossier Parish,Elm grove
-22,Louisiana,LA,71052,De Soto Parish,Mansfield
-22,Louisiana,LA,71055,Webster Parish,Minden
-22,Louisiana,LA,71060,Caddo Parish,Mooringsport
-22,Louisiana,LA,71061,Caddo Parish,Oil city
-22,Louisiana,LA,71063,De Soto Parish,Pelican
-22,Louisiana,LA,71064,Bossier Parish,Plain dealing
-22,Louisiana,LA,71065,Sabine Parish,Pleasant hill
-22,Louisiana,LA,71066,Natchitoches Parish,Powhatan
-22,Louisiana,LA,71067,Bossier Parish,Princeton
-22,Louisiana,LA,71068,Bienville Parish,Ringgold
-22,Louisiana,LA,71069,Caddo Parish,Rodessa
-22,Louisiana,LA,71070,Bienville Parish,Chestnut
-22,Louisiana,LA,71071,Webster Parish,Sarepta
-22,Louisiana,LA,71072,Webster Parish,Shongaloo
-22,Louisiana,LA,71073,Webster Parish,Sibley
-22,Louisiana,LA,71075,Webster Parish,Springhill
-22,Louisiana,LA,71078,De Soto Parish,Stonewall
-22,Louisiana,LA,71079,Claiborne Parish,Summerfield
-22,Louisiana,LA,71082,Caddo Parish,Trees
-22,Louisiana,LA,71101,Caddo Parish,Shreveport
-22,Louisiana,LA,71103,Caddo Parish,Shreveport
-22,Louisiana,LA,71104,Caddo Parish,Shreveport
-22,Louisiana,LA,71105,Caddo Parish,Shreveport
-22,Louisiana,LA,71106,Caddo Parish,Forbing
-22,Louisiana,LA,71107,Caddo Parish,Dixie
-22,Louisiana,LA,71108,Caddo Parish,Shreveport
-22,Louisiana,LA,71109,Caddo Parish,Shreveport
-22,Louisiana,LA,71110,Bossier Parish,Barksdale a f b
-22,Louisiana,LA,71111,Bossier Parish,Bossier city
-22,Louisiana,LA,71112,Bossier Parish,Bossier city
-22,Louisiana,LA,71115,Caddo Parish,Caspiana
-22,Louisiana,LA,71118,Caddo Parish,Shreveport
-22,Louisiana,LA,71119,Caddo Parish,Shreveport
-22,Louisiana,LA,71129,Caddo Parish,Shreveport
-22,Louisiana,LA,71201,Ouachita Parish,Monroe
-22,Louisiana,LA,71202,Ouachita Parish,Richwood
-22,Louisiana,LA,71203,Ouachita Parish,Monroe
-22,Louisiana,LA,71218,Richland Parish,Archibald
-22,Louisiana,LA,71219,Franklin Parish,Baskin
-22,Louisiana,LA,71220,Morehouse Parish,Bastrop
-22,Louisiana,LA,71222,Union Parish,Bernice
-22,Louisiana,LA,71223,Morehouse Parish,Bonita
-22,Louisiana,LA,71225,Ouachita Parish,Calhoun
-22,Louisiana,LA,71226,Jackson Parish,Chatham
-22,Louisiana,LA,71227,Lincoln Parish,Choudrant
-22,Louisiana,LA,71229,Morehouse Parish,Collinston
-22,Louisiana,LA,71232,Richland Parish,Warden
-22,Louisiana,LA,71234,Union Parish,Downsville
-22,Louisiana,LA,71235,Lincoln Parish,Dubach
-22,Louisiana,LA,71237,West Carroll Parish,Epps
-22,Louisiana,LA,71238,Ouachita Parish,Eros
-22,Louisiana,LA,71241,Union Parish,Farmerville
-22,Louisiana,LA,71243,Franklin Parish,Fort necessity
-22,Louisiana,LA,71245,Lincoln Parish,Grambling
-22,Louisiana,LA,71247,Jackson Parish,Hodge
-22,Louisiana,LA,71250,Morehouse Parish,Jones
-22,Louisiana,LA,71251,Jackson Parish,Jonesboro
-22,Louisiana,LA,71253,West Carroll Parish,Kilbourne
-22,Louisiana,LA,71254,East Carroll Parish,Lake providence
-22,Louisiana,LA,71256,Union Parish,Lillie
-22,Louisiana,LA,71259,Richland Parish,Mangham
-22,Louisiana,LA,71260,Union Parish,Linville
-22,Louisiana,LA,71261,Morehouse Parish,Mer rouge
-22,Louisiana,LA,71263,West Carroll Parish,Terry
-22,Louisiana,LA,71264,Morehouse Parish,Oak ridge
-22,Louisiana,LA,71266,West Carroll Parish,Pioneer
-22,Louisiana,LA,71268,Jackson Parish,Quitman
-22,Louisiana,LA,71269,Richland Parish,Alto
-22,Louisiana,LA,71270,Lincoln Parish,Ruston
-22,Louisiana,LA,71275,Lincoln Parish,Simsboro
-22,Louisiana,LA,71276,East Carroll Parish,Sondheimer
-22,Louisiana,LA,71277,Union Parish,Spearsville
-22,Louisiana,LA,71280,Ouachita Parish,Spencer
-22,Louisiana,LA,71282,Madison Parish,Mound
-22,Louisiana,LA,71286,East Carroll Parish,Transylvania
-22,Louisiana,LA,71291,Ouachita Parish,West monroe
-22,Louisiana,LA,71292,Ouachita Parish,West monroe
-22,Louisiana,LA,71295,Franklin Parish,Winnsboro
-22,Louisiana,LA,71301,Rapides Parish,Alexandria
-22,Louisiana,LA,71302,Rapides Parish,Alexandria
-22,Louisiana,LA,71303,Rapides Parish,Alexandria
-22,Louisiana,LA,71316,Concordia Parish,Acme
-22,Louisiana,LA,71320,Avoyelles Parish,Bordelonville
-22,Louisiana,LA,71322,Avoyelles Parish,Eola
-22,Louisiana,LA,71323,Avoyelles Parish,Center point
-22,Louisiana,LA,71325,Rapides Parish,Cheneyville
-22,Louisiana,LA,71326,Concordia Parish,Clayton
-22,Louisiana,LA,71327,Avoyelles Parish,Cottonport
-22,Louisiana,LA,71328,Rapides Parish,Buckeye
-22,Louisiana,LA,71330,Rapides Parish,Echo
-22,Louisiana,LA,71331,Avoyelles Parish,Vick
-22,Louisiana,LA,71333,Avoyelles Parish,Goudeau
-22,Louisiana,LA,71334,Concordia Parish,Frogmore
-22,Louisiana,LA,71336,Franklin Parish,Gilbert
-22,Louisiana,LA,71339,Avoyelles Parish,Hamburg
-22,Louisiana,LA,71340,Catahoula Parish,Harrisonburg
-22,Louisiana,LA,71341,Avoyelles Parish,Hessmer
-22,Louisiana,LA,71342,La Salle Parish,Jena
-22,Louisiana,LA,71343,Catahoula Parish,Larto
-22,Louisiana,LA,71345,St. Landry Parish,Rosa
-22,Louisiana,LA,71346,Rapides Parish,Lecompte
-22,Louisiana,LA,71350,Avoyelles Parish,Mansura
-22,Louisiana,LA,71351,Avoyelles Parish,Marksville
-22,Louisiana,LA,71353,St. Landry Parish,Melville
-22,Louisiana,LA,71354,Concordia Parish,Monterey
-22,Louisiana,LA,71355,Avoyelles Parish,Moreauville
-22,Louisiana,LA,71356,St. Landry Parish,Le moyen
-22,Louisiana,LA,71357,Tensas Parish,Newellton
-22,Louisiana,LA,71358,St. Landry Parish,Palmetto
-22,Louisiana,LA,71360,Rapides Parish,Kolin
-22,Louisiana,LA,71362,Avoyelles Parish,Plaucheville
-22,Louisiana,LA,71366,Tensas Parish,Saint joseph
-22,Louisiana,LA,71367,Evangeline Parish,Saint landry
-22,Louisiana,LA,71368,Catahoula Parish,Sicily island
-22,Louisiana,LA,71369,Avoyelles Parish,Simmesport
-22,Louisiana,LA,71371,La Salle Parish,Trout
-22,Louisiana,LA,71373,Concordia Parish,Vidalia
-22,Louisiana,LA,71375,Tensas Parish,Waterproof
-22,Louisiana,LA,71377,Concordia Parish,Wildsville
-22,Louisiana,LA,71378,Franklin Parish,Wisner
-22,Louisiana,LA,71401,Catahoula Parish,Aimwell
-22,Louisiana,LA,71403,Vernon Parish,Anacoco
-22,Louisiana,LA,71404,Winn Parish,Atlanta
-22,Louisiana,LA,71406,Sabine Parish,Belmont
-22,Louisiana,LA,71407,Grant Parish,Bentley
-22,Louisiana,LA,71409,Rapides Parish,Boyce
-22,Louisiana,LA,71410,Winn Parish,Calvin
-22,Louisiana,LA,71411,Natchitoches Parish,Campti
-22,Louisiana,LA,71414,Natchitoches Parish,Clarence
-22,Louisiana,LA,71415,Caldwell Parish,Clarks
-22,Louisiana,LA,71416,Natchitoches Parish,Derry
-22,Louisiana,LA,71417,Grant Parish,Colfax
-22,Louisiana,LA,71418,Caldwell Parish,Hebert
-22,Louisiana,LA,71419,Sabine Parish,Mitchell
-22,Louisiana,LA,71422,Winn Parish,Dodson
-22,Louisiana,LA,71423,Grant Parish,Dry prong
-22,Louisiana,LA,71424,Rapides Parish,Elmer
-22,Louisiana,LA,71425,Catahoula Parish,Enterprise
-22,Louisiana,LA,71426,Sabine Parish,Fisher
-22,Louisiana,LA,71427,Rapides Parish,Flatwoods
-22,Louisiana,LA,71429,Sabine Parish,Florien
-22,Louisiana,LA,71430,Rapides Parish,Forest hill
-22,Louisiana,LA,71432,Grant Parish,Georgetown
-22,Louisiana,LA,71433,Rapides Parish,Calcasieu
-22,Louisiana,LA,71434,Natchitoches Parish,Gorum
-22,Louisiana,LA,71435,Caldwell Parish,Grayson
-22,Louisiana,LA,71438,Rapides Parish,Leander
-22,Louisiana,LA,71439,Vernon Parish,Hornbeck
-22,Louisiana,LA,71441,Caldwell Parish,Kelly
-22,Louisiana,LA,71446,Vernon Parish,Hicks
-22,Louisiana,LA,71447,Rapides Parish,Chopin
-22,Louisiana,LA,71449,Sabine Parish,Many
-22,Louisiana,LA,71450,Natchitoches Parish,Marthaville
-22,Louisiana,LA,71452,Natchitoches Parish,Melrose
-22,Louisiana,LA,71454,Grant Parish,Montgomery
-22,Louisiana,LA,71455,Rapides Parish,Clifton
-22,Louisiana,LA,71456,Natchitoches Parish,Natchez
-22,Louisiana,LA,71457,Natchitoches Parish,Natchitoches
-22,Louisiana,LA,71459,Vernon Parish,Fort polk
-22,Louisiana,LA,71461,Vernon Parish,Newllano
-22,Louisiana,LA,71462,Sabine Parish,Noble
-22,Louisiana,LA,71463,Allen Parish,Oakdale
-22,Louisiana,LA,71465,La Salle Parish,Olla
-22,Louisiana,LA,71466,Rapides Parish,Otis
-22,Louisiana,LA,71467,Grant Parish,Pollock
-22,Louisiana,LA,71468,Natchitoches Parish,Provencal
-22,Louisiana,LA,71469,Natchitoches Parish,Robeline
-22,Louisiana,LA,71472,Rapides Parish,Sieper
-22,Louisiana,LA,71473,Winn Parish,Sikes
-22,Louisiana,LA,71474,Vernon Parish,Temple
-22,Louisiana,LA,71479,La Salle Parish,Tullos
-22,Louisiana,LA,71480,La Salle Parish,Urania
-22,Louisiana,LA,71483,Winn Parish,Winnfield
-22,Louisiana,LA,71485,Rapides Parish,Woodworth
-22,Louisiana,LA,71486,Sabine Parish,Zwolle
-22,Louisiana,LA,71749,Union Parish,
+22,Louisiana,LA,70001,Jefferson,Metairie
+22,Louisiana,LA,70002,Jefferson,Metairie
+22,Louisiana,LA,70003,Jefferson,Metairie
+22,Louisiana,LA,70005,Jefferson,Metairie
+22,Louisiana,LA,70006,Jefferson,Metairie
+22,Louisiana,LA,70030,St Charles,Des allemands
+22,Louisiana,LA,70031,St Charles,Ama
+22,Louisiana,LA,70032,St Bernard,Arabi
+22,Louisiana,LA,70036,Jefferson,Barataria
+22,Louisiana,LA,70037,Plaquemines,Belle chasse
+22,Louisiana,LA,70038,Plaquemines,Boothville
+22,Louisiana,LA,70039,St Charles,Boutte
+22,Louisiana,LA,70040,Plaquemines,Braithwaite
+22,Louisiana,LA,70041,Plaquemines,Buras
+22,Louisiana,LA,70043,St Bernard,Chalmette
+22,Louisiana,LA,70047,St Charles,New sarpy
+22,Louisiana,LA,70049,St John the Baptist,Edgard
+22,Louisiana,LA,70050,Plaquemines,Empire
+22,Louisiana,LA,70051,St John the Baptist,Garyville
+22,Louisiana,LA,70052,St James,Gramercy
+22,Louisiana,LA,70053,Jefferson,Gretna
+22,Louisiana,LA,70056,Jefferson,Terrytown
+22,Louisiana,LA,70057,St Charles,Hahnville
+22,Louisiana,LA,70058,Jefferson,Harvey
+22,Louisiana,LA,70062,Jefferson,Kenner
+22,Louisiana,LA,70065,Jefferson,Kenner
+22,Louisiana,LA,70066,St Charles,Killona
+22,Louisiana,LA,70067,Jefferson,Lafitte
+22,Louisiana,LA,70068,St John the Baptist,La place
+22,Louisiana,LA,70070,St Charles,Luling
+22,Louisiana,LA,70071,St James,Lutcher
+22,Louisiana,LA,70072,Jefferson,Marrero
+22,Louisiana,LA,70075,St Bernard,Meraux
+22,Louisiana,LA,70076,St John the Baptist,Mount airy
+22,Louisiana,LA,70079,St Charles,Norco
+22,Louisiana,LA,70080,St Charles,Paradis
+22,Louisiana,LA,70082,Plaquemines,Pointe a la hach
+22,Louisiana,LA,70083,Plaquemines,Port sulphur
+22,Louisiana,LA,70084,St John the Baptist,Reserve
+22,Louisiana,LA,70085,St Bernard,Saint bernard
+22,Louisiana,LA,70086,St James,Saint james
+22,Louisiana,LA,70087,St Charles,Saint rose
+22,Louisiana,LA,70090,St James,Vacherie
+22,Louisiana,LA,70091,Plaquemines,Venice
+22,Louisiana,LA,70092,St Bernard,Violet
+22,Louisiana,LA,70094,Jefferson,Bridge city
+22,Louisiana,LA,70112,Orleans,New orleans
+22,Louisiana,LA,70113,Orleans,New orleans
+22,Louisiana,LA,70114,Orleans,New orleans
+22,Louisiana,LA,70115,Orleans,New orleans
+22,Louisiana,LA,70116,Orleans,New orleans
+22,Louisiana,LA,70117,Orleans,New orleans
+22,Louisiana,LA,70118,Orleans,New orleans
+22,Louisiana,LA,70119,Orleans,New orleans
+22,Louisiana,LA,70121,Jefferson,Jefferson
+22,Louisiana,LA,70122,Orleans,New orleans
+22,Louisiana,LA,70123,Jefferson,Harahan
+22,Louisiana,LA,70124,Orleans,New orleans
+22,Louisiana,LA,70125,Orleans,New orleans
+22,Louisiana,LA,70126,Orleans,New orleans
+22,Louisiana,LA,70127,Orleans,New orleans
+22,Louisiana,LA,70128,Orleans,New orleans
+22,Louisiana,LA,70129,Orleans,New orleans
+22,Louisiana,LA,70130,Orleans,New orleans
+22,Louisiana,LA,70131,Orleans,New orleans
+22,Louisiana,LA,70163,Orleans,New orleans
+22,Louisiana,LA,70301,Lafourche,Thibodaux
+22,Louisiana,LA,70339,Assumption,Pierre part
+22,Louisiana,LA,70341,Assumption,Belle rose
+22,Louisiana,LA,70342,St Mary,Berwick
+22,Louisiana,LA,70343,Terrebonne,Bourg
+22,Louisiana,LA,70344,Terrebonne,Chauvin
+22,Louisiana,LA,70345,Lafourche,Cut off
+22,Louisiana,LA,70346,Ascension,Donaldsonville
+22,Louisiana,LA,70353,Terrebonne,Dulac
+22,Louisiana,LA,70354,Lafourche,Galliano
+22,Louisiana,LA,70355,Lafourche,Gheens
+22,Louisiana,LA,70356,Terrebonne,Gibson
+22,Louisiana,LA,70357,Lafourche,Golden meadow
+22,Louisiana,LA,70358,Jefferson,Grand isle
+22,Louisiana,LA,70359,Terrebonne,Gray
+22,Louisiana,LA,70360,Terrebonne,Houma
+22,Louisiana,LA,70363,Terrebonne,Houma
+22,Louisiana,LA,70364,Terrebonne,Houma
+22,Louisiana,LA,70372,Assumption,Labadieville
+22,Louisiana,LA,70373,Lafourche,Larose
+22,Louisiana,LA,70374,Lafourche,Lockport
+22,Louisiana,LA,70375,Lafourche,Mathews
+22,Louisiana,LA,70377,Terrebonne,Montegut
+22,Louisiana,LA,70380,St Mary,Morgan city
+22,Louisiana,LA,70390,Assumption,Napoleonville
+22,Louisiana,LA,70391,Assumption,Paincourtville
+22,Louisiana,LA,70392,St Mary,Patterson
+22,Louisiana,LA,70393,Assumption,Plattenville
+22,Louisiana,LA,70394,Lafourche,Raceland
+22,Louisiana,LA,70395,Terrebonne,Schriever
+22,Louisiana,LA,70397,Terrebonne,Theriot
+22,Louisiana,LA,70401,Tangipahoa,Hammond
+22,Louisiana,LA,70403,Tangipahoa,Hammond
+22,Louisiana,LA,70420,St Tammany,Abita springs
+22,Louisiana,LA,70422,Tangipahoa,Amite
+22,Louisiana,LA,70426,Washington,Angie
+22,Louisiana,LA,70427,Washington,Bogalusa
+22,Louisiana,LA,70431,St Tammany,Bush
+22,Louisiana,LA,70433,St Tammany,Covington
+22,Louisiana,LA,70436,Tangipahoa,Fluker
+22,Louisiana,LA,70437,St Tammany,Folsom
+22,Louisiana,LA,70438,Washington,Franklinton
+22,Louisiana,LA,70441,St Helena,Greensburg
+22,Louisiana,LA,70442,Tangipahoa,Husser
+22,Louisiana,LA,70443,Tangipahoa,Independence
+22,Louisiana,LA,70444,Tangipahoa,Kentwood
+22,Louisiana,LA,70445,St Tammany,Lacombe
+22,Louisiana,LA,70446,Tangipahoa,Loranger
+22,Louisiana,LA,70447,St Tammany,Madisonville
+22,Louisiana,LA,70448,St Tammany,Mandeville
+22,Louisiana,LA,70449,Livingston,Maurepas
+22,Louisiana,LA,70450,Washington,Mount hermon
+22,Louisiana,LA,70451,Tangipahoa,Natalbany
+22,Louisiana,LA,70452,St Tammany,Pearl river
+22,Louisiana,LA,70453,St Helena,Pine grove
+22,Louisiana,LA,70454,Tangipahoa,Ponchatoula
+22,Louisiana,LA,70455,Tangipahoa,Robert
+22,Louisiana,LA,70456,Tangipahoa,Roseland
+22,Louisiana,LA,70458,St Tammany,Slidell
+22,Louisiana,LA,70460,St Tammany,Slidell
+22,Louisiana,LA,70461,St Tammany,Slidell
+22,Louisiana,LA,70462,Livingston,Springfield
+22,Louisiana,LA,70463,St Tammany,Sun
+22,Louisiana,LA,70464,St Tammany,Talisheek
+22,Louisiana,LA,70465,Tangipahoa,Tangipahoa
+22,Louisiana,LA,70466,Tangipahoa,Tickfaw
+22,Louisiana,LA,70501,Lafayette,Lafayette
+22,Louisiana,LA,70503,Lafayette,Lafayette
+22,Louisiana,LA,70506,Lafayette,Lafayette
+22,Louisiana,LA,70507,Lafayette,Lafayette
+22,Louisiana,LA,70508,Lafayette,Lafayette
+22,Louisiana,LA,70510,Vermilion,Forked island
+22,Louisiana,LA,70512,St Landry,Arnaudville
+22,Louisiana,LA,70513,Iberia,Avery island
+22,Louisiana,LA,70514,St Mary,Baldwin
+22,Louisiana,LA,70515,Evangeline,Basile
+22,Louisiana,LA,70516,Acadia,Branch
+22,Louisiana,LA,70517,St Martin,Henderson
+22,Louisiana,LA,70518,Lafayette,Broussard
+22,Louisiana,LA,70520,Lafayette,Carencro
+22,Louisiana,LA,70521,St Martin,Cecilia
+22,Louisiana,LA,70523,St Mary,Charenton
+22,Louisiana,LA,70524,Evangeline,Chataignier
+22,Louisiana,LA,70525,Acadia,Church point
+22,Louisiana,LA,70526,Acadia,Crowley
+22,Louisiana,LA,70528,Vermilion,Delcambre
+22,Louisiana,LA,70529,Lafayette,Duson
+22,Louisiana,LA,70531,Acadia,Egan
+22,Louisiana,LA,70532,Jefferson Davis,Elton
+22,Louisiana,LA,70533,Vermilion,Erath
+22,Louisiana,LA,70534,Acadia,Estherwood
+22,Louisiana,LA,70535,St Landry,Eunice
+22,Louisiana,LA,70537,Acadia,Evangeline
+22,Louisiana,LA,70538,St Mary,Franklin
+22,Louisiana,LA,70540,St Mary,Garden city
+22,Louisiana,LA,70541,St Landry,Grand coteau
+22,Louisiana,LA,70542,Vermilion,Gueydan
+22,Louisiana,LA,70543,Acadia,Iota
+22,Louisiana,LA,70544,Iberia,Jeanerette
+22,Louisiana,LA,70546,Jefferson Davis,Jennings
+22,Louisiana,LA,70548,Vermilion,Kaplan
+22,Louisiana,LA,70549,Jefferson Davis,Lake arthur
+22,Louisiana,LA,70550,St Landry,Lawtell
+22,Louisiana,LA,70552,Iberia,Loreauville
+22,Louisiana,LA,70554,Evangeline,Mamou
+22,Louisiana,LA,70555,Vermilion,Maurice
+22,Louisiana,LA,70556,Acadia,Mermentau
+22,Louisiana,LA,70558,Lafayette,Milton
+22,Louisiana,LA,70559,Acadia,Midland
+22,Louisiana,LA,70560,Iberia,New iberia
+22,Louisiana,LA,70570,St Landry,Opelousas
+22,Louisiana,LA,70576,Evangeline,Pine prairie
+22,Louisiana,LA,70577,St Landry,Port barre
+22,Louisiana,LA,70578,Acadia,Rayne
+22,Louisiana,LA,70580,Evangeline,Reddell
+22,Louisiana,LA,70581,Jefferson Davis,Roanoke
+22,Louisiana,LA,70582,St Martin,Saint martinvill
+22,Louisiana,LA,70583,Lafayette,Scott
+22,Louisiana,LA,70584,St Landry,Cankton
+22,Louisiana,LA,70585,Evangeline,Turkey creek
+22,Louisiana,LA,70586,Evangeline,Ville platte
+22,Louisiana,LA,70589,St Landry,Washington
+22,Louisiana,LA,70591,Jefferson Davis,Welsh
+22,Louisiana,LA,70592,Lafayette,Youngsville
+22,Louisiana,LA,70601,Calcasieu,Lake charles
+22,Louisiana,LA,70605,Calcasieu,Lake charles
+22,Louisiana,LA,70607,Calcasieu,Lake charles
+22,Louisiana,LA,70611,Calcasieu,Lake charles
+22,Louisiana,LA,70615,Calcasieu,Lake charles
+22,Louisiana,LA,70630,Calcasieu,Bell city
+22,Louisiana,LA,70631,Cameron,Cameron
+22,Louisiana,LA,70632,Cameron,Creole
+22,Louisiana,LA,70633,Calcasieu,Dequincy
+22,Louisiana,LA,70634,Beauregard,Deridder
+22,Louisiana,LA,70637,Allen,Dry creek
+22,Louisiana,LA,70638,Allen,Elizabeth
+22,Louisiana,LA,70639,Vernon,Evans
+22,Louisiana,LA,70640,Jefferson Davis,Fenton
+22,Louisiana,LA,70643,Cameron,Grand chenier
+22,Louisiana,LA,70644,Allen,Grant
+22,Louisiana,LA,70645,Cameron,Hackberry
+22,Louisiana,LA,70646,Calcasieu,Hayes
+22,Louisiana,LA,70647,Calcasieu,Iowa
+22,Louisiana,LA,70648,Allen,Kinder
+22,Louisiana,LA,70650,Jefferson Davis,Lacassine
+22,Louisiana,LA,70651,Allen,Leblanc
+22,Louisiana,LA,70652,Beauregard,Longville
+22,Louisiana,LA,70653,Beauregard,Fields
+22,Louisiana,LA,70654,Allen,Mittie
+22,Louisiana,LA,70655,Allen,Oberlin
+22,Louisiana,LA,70656,Vernon,Pitkin
+22,Louisiana,LA,70657,Beauregard,Ragley
+22,Louisiana,LA,70658,Allen,Reeves
+22,Louisiana,LA,70659,Vernon,Rosepine
+22,Louisiana,LA,70660,Beauregard,Singer
+22,Louisiana,LA,70661,Calcasieu,Starks
+22,Louisiana,LA,70662,Beauregard,Sugartown
+22,Louisiana,LA,70663,Calcasieu,Sulphur
+22,Louisiana,LA,70668,Calcasieu,Vinton
+22,Louisiana,LA,70669,Calcasieu,Westlake
+22,Louisiana,LA,70710,West Baton Rouge,Addis
+22,Louisiana,LA,70711,Livingston,Albany
+22,Louisiana,LA,70712,West Feliciana,Angola
+22,Louisiana,LA,70714,East Baton Rouge,Baker
+22,Louisiana,LA,70715,Pointe Coupee,Batchelor
+22,Louisiana,LA,70717,Pointe Coupee,Blanks
+22,Louisiana,LA,70719,West Baton Rouge,Brusly
+22,Louisiana,LA,70720,West Baton Rouge,Bueche
+22,Louisiana,LA,70721,Iberville,Point clair
+22,Louisiana,LA,70722,East Feliciana,Clinton
+22,Louisiana,LA,70723,St James,Convent
+22,Louisiana,LA,70725,Ascension,Darrow
+22,Louisiana,LA,70726,Livingston,Port vincent
+22,Louisiana,LA,70729,Pointe Coupee,Erwinville
+22,Louisiana,LA,70730,East Feliciana,Ethel
+22,Louisiana,LA,70732,Pointe Coupee,Fordoche
+22,Louisiana,LA,70733,Livingston,French settlemen
+22,Louisiana,LA,70734,Ascension,Geismar
+22,Louisiana,LA,70736,Pointe Coupee,Glynn
+22,Louisiana,LA,70737,Ascension,Gonzales
+22,Louisiana,LA,70739,East Baton Rouge,Greenwell spring
+22,Louisiana,LA,70740,Iberville,Grosse tete
+22,Louisiana,LA,70743,St James,Hester
+22,Louisiana,LA,70744,Livingston,Holden
+22,Louisiana,LA,70747,Pointe Coupee,Innis
+22,Louisiana,LA,70748,East Feliciana,The bluffs
+22,Louisiana,LA,70749,Pointe Coupee,Jarreau
+22,Louisiana,LA,70750,St Landry,Krotz springs
+22,Louisiana,LA,70752,Pointe Coupee,Lakeland
+22,Louisiana,LA,70753,Pointe Coupee,Lettsworth
+22,Louisiana,LA,70754,Livingston,Livingston
+22,Louisiana,LA,70755,Pointe Coupee,Livonia
+22,Louisiana,LA,70756,Pointe Coupee,Lottie
+22,Louisiana,LA,70757,Iberville,Ramah
+22,Louisiana,LA,70759,Pointe Coupee,Morganza
+22,Louisiana,LA,70760,Pointe Coupee,New roads
+22,Louisiana,LA,70761,East Feliciana,Norwood
+22,Louisiana,LA,70762,Pointe Coupee,Oscar
+22,Louisiana,LA,70763,St James,Paulina
+22,Louisiana,LA,70764,Iberville,Plaquemine
+22,Louisiana,LA,70767,West Baton Rouge,Port allen
+22,Louisiana,LA,70769,Ascension,Galvez
+22,Louisiana,LA,70770,East Baton Rouge,Pride
+22,Louisiana,LA,70772,Iberville,Rosedale
+22,Louisiana,LA,70773,Pointe Coupee,Rougon
+22,Louisiana,LA,70774,Ascension,Saint amant
+22,Louisiana,LA,70775,West Feliciana,Bains
+22,Louisiana,LA,70776,Iberville,Iberville
+22,Louisiana,LA,70777,East Feliciana,Slaughter
+22,Louisiana,LA,70778,Ascension,Sorrento
+22,Louisiana,LA,70780,Iberville,Sunshine
+22,Louisiana,LA,70781,Pointe Coupee,Torbert
+22,Louisiana,LA,70782,West Feliciana,Tunica
+22,Louisiana,LA,70783,Pointe Coupee,Ventress
+22,Louisiana,LA,70785,Livingston,Walker
+22,Louisiana,LA,70787,West Feliciana,Weyanoke
+22,Louisiana,LA,70788,Iberville,White castle
+22,Louisiana,LA,70789,East Feliciana,Wilson
+22,Louisiana,LA,70791,East Baton Rouge,Zachary
+22,Louisiana,LA,70801,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70802,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70805,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70806,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70807,East Baton Rouge,Scotlandville
+22,Louisiana,LA,70808,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70809,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70810,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70811,East Baton Rouge,Greenwood
+22,Louisiana,LA,70812,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70814,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70815,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70816,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70817,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70818,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70819,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70820,East Baton Rouge,Baton rouge
+22,Louisiana,LA,70836,East Baton Rouge,Baton rouge
+22,Louisiana,LA,71001,Bienville,Arcadia
+22,Louisiana,LA,71002,Natchitoches,Ashland
+22,Louisiana,LA,71003,Claiborne,Athens
+22,Louisiana,LA,71004,Caddo,Belcher
+22,Louisiana,LA,71006,Bossier,Benton
+22,Louisiana,LA,71007,Caddo,Bethany
+22,Louisiana,LA,71008,Bienville,Bienville
+22,Louisiana,LA,71009,Caddo,Blanchard
+22,Louisiana,LA,71016,Bienville,Castor
+22,Louisiana,LA,71018,Webster,Cotton valley
+22,Louisiana,LA,71019,Red River,Hanna
+22,Louisiana,LA,71021,Webster,Cullen
+22,Louisiana,LA,71023,Webster,Doyline
+22,Louisiana,LA,71024,Webster,Dubberly
+22,Louisiana,LA,71027,De Soto,Frierson
+22,Louisiana,LA,71028,Bienville,Gibsland
+22,Louisiana,LA,71029,Caddo,Gilliam
+22,Louisiana,LA,71030,De Soto,Gloster
+22,Louisiana,LA,71031,Natchitoches,Goldonna
+22,Louisiana,LA,71032,De Soto,Grand cane
+22,Louisiana,LA,71033,Caddo,Greenwood
+22,Louisiana,LA,71034,Red River,Hall summit
+22,Louisiana,LA,71037,Bossier,Haughton
+22,Louisiana,LA,71038,Claiborne,Haynesville
+22,Louisiana,LA,71039,Webster,Heflin
+22,Louisiana,LA,71040,Claiborne,Homer
+22,Louisiana,LA,71043,Caddo,Hosston
+22,Louisiana,LA,71044,Caddo,Ida
+22,Louisiana,LA,71045,Bienville,Jamestown
+22,Louisiana,LA,71046,De Soto,Keatchie
+22,Louisiana,LA,71047,Caddo,Keithville
+22,Louisiana,LA,71048,Claiborne,Lisbon
+22,Louisiana,LA,71049,De Soto,Logansport
+22,Louisiana,LA,71051,Bossier,Elm grove
+22,Louisiana,LA,71052,De Soto,Mansfield
+22,Louisiana,LA,71055,Webster,Minden
+22,Louisiana,LA,71060,Caddo,Mooringsport
+22,Louisiana,LA,71061,Caddo,Oil city
+22,Louisiana,LA,71063,De Soto,Pelican
+22,Louisiana,LA,71064,Bossier,Plain dealing
+22,Louisiana,LA,71065,Sabine,Pleasant hill
+22,Louisiana,LA,71066,Natchitoches,Powhatan
+22,Louisiana,LA,71067,Bossier,Princeton
+22,Louisiana,LA,71068,Bienville,Ringgold
+22,Louisiana,LA,71069,Caddo,Rodessa
+22,Louisiana,LA,71070,Bienville,Chestnut
+22,Louisiana,LA,71071,Webster,Sarepta
+22,Louisiana,LA,71072,Webster,Shongaloo
+22,Louisiana,LA,71073,Webster,Sibley
+22,Louisiana,LA,71075,Webster,Springhill
+22,Louisiana,LA,71078,De Soto,Stonewall
+22,Louisiana,LA,71079,Claiborne,Summerfield
+22,Louisiana,LA,71082,Caddo,Trees
+22,Louisiana,LA,71101,Caddo,Shreveport
+22,Louisiana,LA,71103,Caddo,Shreveport
+22,Louisiana,LA,71104,Caddo,Shreveport
+22,Louisiana,LA,71105,Caddo,Shreveport
+22,Louisiana,LA,71106,Caddo,Forbing
+22,Louisiana,LA,71107,Caddo,Dixie
+22,Louisiana,LA,71108,Caddo,Shreveport
+22,Louisiana,LA,71109,Caddo,Shreveport
+22,Louisiana,LA,71110,Bossier,Barksdale a f b
+22,Louisiana,LA,71111,Bossier,Bossier city
+22,Louisiana,LA,71112,Bossier,Bossier city
+22,Louisiana,LA,71115,Caddo,Caspiana
+22,Louisiana,LA,71118,Caddo,Shreveport
+22,Louisiana,LA,71119,Caddo,Shreveport
+22,Louisiana,LA,71129,Caddo,Shreveport
+22,Louisiana,LA,71201,Ouachita,Monroe
+22,Louisiana,LA,71202,Ouachita,Richwood
+22,Louisiana,LA,71203,Ouachita,Monroe
+22,Louisiana,LA,71218,Richland,Archibald
+22,Louisiana,LA,71219,Franklin,Baskin
+22,Louisiana,LA,71220,Morehouse,Bastrop
+22,Louisiana,LA,71222,Union,Bernice
+22,Louisiana,LA,71223,Morehouse,Bonita
+22,Louisiana,LA,71225,Ouachita,Calhoun
+22,Louisiana,LA,71226,Jackson,Chatham
+22,Louisiana,LA,71227,Lincoln,Choudrant
+22,Louisiana,LA,71229,Morehouse,Collinston
+22,Louisiana,LA,71232,Richland,Warden
+22,Louisiana,LA,71234,Union,Downsville
+22,Louisiana,LA,71235,Lincoln,Dubach
+22,Louisiana,LA,71237,West Carroll,Epps
+22,Louisiana,LA,71238,Ouachita,Eros
+22,Louisiana,LA,71241,Union,Farmerville
+22,Louisiana,LA,71243,Franklin,Fort necessity
+22,Louisiana,LA,71245,Lincoln,Grambling
+22,Louisiana,LA,71247,Jackson,Hodge
+22,Louisiana,LA,71250,Morehouse,Jones
+22,Louisiana,LA,71251,Jackson,Jonesboro
+22,Louisiana,LA,71253,West Carroll,Kilbourne
+22,Louisiana,LA,71254,East Carroll,Lake providence
+22,Louisiana,LA,71256,Union,Lillie
+22,Louisiana,LA,71259,Richland,Mangham
+22,Louisiana,LA,71260,Union,Linville
+22,Louisiana,LA,71261,Morehouse,Mer rouge
+22,Louisiana,LA,71263,West Carroll,Terry
+22,Louisiana,LA,71264,Morehouse,Oak ridge
+22,Louisiana,LA,71266,West Carroll,Pioneer
+22,Louisiana,LA,71268,Jackson,Quitman
+22,Louisiana,LA,71269,Richland,Alto
+22,Louisiana,LA,71270,Lincoln,Ruston
+22,Louisiana,LA,71275,Lincoln,Simsboro
+22,Louisiana,LA,71276,East Carroll,Sondheimer
+22,Louisiana,LA,71277,Union,Spearsville
+22,Louisiana,LA,71280,Ouachita,Spencer
+22,Louisiana,LA,71282,Madison,Mound
+22,Louisiana,LA,71286,East Carroll,Transylvania
+22,Louisiana,LA,71291,Ouachita,West monroe
+22,Louisiana,LA,71292,Ouachita,West monroe
+22,Louisiana,LA,71295,Franklin,Winnsboro
+22,Louisiana,LA,71301,Rapides,Alexandria
+22,Louisiana,LA,71302,Rapides,Alexandria
+22,Louisiana,LA,71303,Rapides,Alexandria
+22,Louisiana,LA,71316,Concordia,Acme
+22,Louisiana,LA,71320,Avoyelles,Bordelonville
+22,Louisiana,LA,71322,Avoyelles,Eola
+22,Louisiana,LA,71323,Avoyelles,Center point
+22,Louisiana,LA,71325,Rapides,Cheneyville
+22,Louisiana,LA,71326,Concordia,Clayton
+22,Louisiana,LA,71327,Avoyelles,Cottonport
+22,Louisiana,LA,71328,Rapides,Buckeye
+22,Louisiana,LA,71330,Rapides,Echo
+22,Louisiana,LA,71331,Avoyelles,Vick
+22,Louisiana,LA,71333,Avoyelles,Goudeau
+22,Louisiana,LA,71334,Concordia,Frogmore
+22,Louisiana,LA,71336,Franklin,Gilbert
+22,Louisiana,LA,71339,Avoyelles,Hamburg
+22,Louisiana,LA,71340,Catahoula,Harrisonburg
+22,Louisiana,LA,71341,Avoyelles,Hessmer
+22,Louisiana,LA,71342,La Salle,Jena
+22,Louisiana,LA,71343,Catahoula,Larto
+22,Louisiana,LA,71345,St Landry,Rosa
+22,Louisiana,LA,71346,Rapides,Lecompte
+22,Louisiana,LA,71350,Avoyelles,Mansura
+22,Louisiana,LA,71351,Avoyelles,Marksville
+22,Louisiana,LA,71353,St Landry,Melville
+22,Louisiana,LA,71354,Concordia,Monterey
+22,Louisiana,LA,71355,Avoyelles,Moreauville
+22,Louisiana,LA,71356,St Landry,Le moyen
+22,Louisiana,LA,71357,Tensas,Newellton
+22,Louisiana,LA,71358,St Landry,Palmetto
+22,Louisiana,LA,71360,Rapides,Kolin
+22,Louisiana,LA,71362,Avoyelles,Plaucheville
+22,Louisiana,LA,71366,Tensas,Saint joseph
+22,Louisiana,LA,71367,Evangeline,Saint landry
+22,Louisiana,LA,71368,Catahoula,Sicily island
+22,Louisiana,LA,71369,Avoyelles,Simmesport
+22,Louisiana,LA,71371,La Salle,Trout
+22,Louisiana,LA,71373,Concordia,Vidalia
+22,Louisiana,LA,71375,Tensas,Waterproof
+22,Louisiana,LA,71377,Concordia,Wildsville
+22,Louisiana,LA,71378,Franklin,Wisner
+22,Louisiana,LA,71401,Catahoula,Aimwell
+22,Louisiana,LA,71403,Vernon,Anacoco
+22,Louisiana,LA,71404,Winn,Atlanta
+22,Louisiana,LA,71406,Sabine,Belmont
+22,Louisiana,LA,71407,Grant,Bentley
+22,Louisiana,LA,71409,Rapides,Boyce
+22,Louisiana,LA,71410,Winn,Calvin
+22,Louisiana,LA,71411,Natchitoches,Campti
+22,Louisiana,LA,71414,Natchitoches,Clarence
+22,Louisiana,LA,71415,Caldwell,Clarks
+22,Louisiana,LA,71416,Natchitoches,Derry
+22,Louisiana,LA,71417,Grant,Colfax
+22,Louisiana,LA,71418,Caldwell,Hebert
+22,Louisiana,LA,71419,Sabine,Mitchell
+22,Louisiana,LA,71422,Winn,Dodson
+22,Louisiana,LA,71423,Grant,Dry prong
+22,Louisiana,LA,71424,Rapides,Elmer
+22,Louisiana,LA,71425,Catahoula,Enterprise
+22,Louisiana,LA,71426,Sabine,Fisher
+22,Louisiana,LA,71427,Rapides,Flatwoods
+22,Louisiana,LA,71429,Sabine,Florien
+22,Louisiana,LA,71430,Rapides,Forest hill
+22,Louisiana,LA,71432,Grant,Georgetown
+22,Louisiana,LA,71433,Rapides,Calcasieu
+22,Louisiana,LA,71434,Natchitoches,Gorum
+22,Louisiana,LA,71435,Caldwell,Grayson
+22,Louisiana,LA,71438,Rapides,Leander
+22,Louisiana,LA,71439,Vernon,Hornbeck
+22,Louisiana,LA,71441,Caldwell,Kelly
+22,Louisiana,LA,71446,Vernon,Hicks
+22,Louisiana,LA,71447,Rapides,Chopin
+22,Louisiana,LA,71449,Sabine,Many
+22,Louisiana,LA,71450,Natchitoches,Marthaville
+22,Louisiana,LA,71452,Natchitoches,Melrose
+22,Louisiana,LA,71454,Grant,Montgomery
+22,Louisiana,LA,71455,Rapides,Clifton
+22,Louisiana,LA,71456,Natchitoches,Natchez
+22,Louisiana,LA,71457,Natchitoches,Natchitoches
+22,Louisiana,LA,71459,Vernon,Fort polk
+22,Louisiana,LA,71461,Vernon,Newllano
+22,Louisiana,LA,71462,Sabine,Noble
+22,Louisiana,LA,71463,Allen,Oakdale
+22,Louisiana,LA,71465,La Salle,Olla
+22,Louisiana,LA,71466,Rapides,Otis
+22,Louisiana,LA,71467,Grant,Pollock
+22,Louisiana,LA,71468,Natchitoches,Provencal
+22,Louisiana,LA,71469,Natchitoches,Robeline
+22,Louisiana,LA,71472,Rapides,Sieper
+22,Louisiana,LA,71473,Winn,Sikes
+22,Louisiana,LA,71474,Vernon,Temple
+22,Louisiana,LA,71479,La Salle,Tullos
+22,Louisiana,LA,71480,La Salle,Urania
+22,Louisiana,LA,71483,Winn,Winnfield
+22,Louisiana,LA,71485,Rapides,Woodworth
+22,Louisiana,LA,71486,Sabine,Zwolle
+22,Louisiana,LA,71749,Union,
 23,Maine,ME,03901,York,Berwick
 23,Maine,ME,03902,York,Cape neddick
 23,Maine,ME,03903,York,Eliot
@@ -11551,58 +11551,58 @@ state_fips,state,state_abbr,zipcode,county,city
 24,Maryland,MD,20601,Charles,Waldorf
 24,Maryland,MD,20602,Charles,Saint charles
 24,Maryland,MD,20603,Charles,Saint charles
-24,Maryland,MD,20606,St. Marys,Abell
+24,Maryland,MD,20606,St Marys,Abell
 24,Maryland,MD,20607,Prince Georges,Accokeek
 24,Maryland,MD,20608,Prince Georges,Aquasco
-24,Maryland,MD,20609,St. Marys,Avenue
+24,Maryland,MD,20609,St Marys,Avenue
 24,Maryland,MD,20611,Charles,Bel alton
 24,Maryland,MD,20612,Charles,Benedict
 24,Maryland,MD,20613,Prince Georges,Brandywine
 24,Maryland,MD,20615,Calvert,Broomes island
 24,Maryland,MD,20616,Charles,Bryans road
 24,Maryland,MD,20617,Charles,Bryantown
-24,Maryland,MD,20618,St. Marys,Bushwood
-24,Maryland,MD,20619,St. Marys,California
-24,Maryland,MD,20620,St. Marys,Callaway
-24,Maryland,MD,20621,St. Marys,Maddox
+24,Maryland,MD,20618,St Marys,Bushwood
+24,Maryland,MD,20619,St Marys,California
+24,Maryland,MD,20620,St Marys,Callaway
+24,Maryland,MD,20621,St Marys,Maddox
 24,Maryland,MD,20622,Charles,Charlotte hall
 24,Maryland,MD,20623,Prince Georges,Cheltenham
-24,Maryland,MD,20624,St. Marys,Clements
+24,Maryland,MD,20624,St Marys,Clements
 24,Maryland,MD,20625,Charles,Cobb island
-24,Maryland,MD,20626,St. Marys,Coltons point
-24,Maryland,MD,20628,St. Marys,Dameron
+24,Maryland,MD,20626,St Marys,Coltons point
+24,Maryland,MD,20628,St Marys,Dameron
 24,Maryland,MD,20629,Calvert,Dowell
-24,Maryland,MD,20630,St. Marys,Drayden
+24,Maryland,MD,20630,St Marys,Drayden
 24,Maryland,MD,20632,Charles,Faulkner
-24,Maryland,MD,20634,St. Marys,Great mills
-24,Maryland,MD,20636,St. Marys,Hollywood
+24,Maryland,MD,20634,St Marys,Great mills
+24,Maryland,MD,20636,St Marys,Hollywood
 24,Maryland,MD,20637,Charles,Hughesville
 24,Maryland,MD,20639,Calvert,Huntingtown
 24,Maryland,MD,20640,Charles,Pisgah
 24,Maryland,MD,20645,Charles,Issue
 24,Maryland,MD,20646,Charles,La plata
-24,Maryland,MD,20650,St. Marys,Leonardtown
-24,Maryland,MD,20653,St. Marys,Lexington park
+24,Maryland,MD,20650,St Marys,Leonardtown
+24,Maryland,MD,20653,St Marys,Lexington park
 24,Maryland,MD,20657,Calvert,Lusby
 24,Maryland,MD,20658,Charles,Rison
-24,Maryland,MD,20659,St. Marys,Mechanicsville
+24,Maryland,MD,20659,St Marys,Mechanicsville
 24,Maryland,MD,20662,Charles,Nanjemoy
 24,Maryland,MD,20664,Charles,Newburg
-24,Maryland,MD,20667,St. Marys,Park hall
-24,Maryland,MD,20670,St. Marys,Patuxent river
-24,Maryland,MD,20674,St. Marys,Piney point
+24,Maryland,MD,20667,St Marys,Park hall
+24,Maryland,MD,20670,St Marys,Patuxent river
+24,Maryland,MD,20674,St Marys,Piney point
 24,Maryland,MD,20675,Charles,Pomfret
 24,Maryland,MD,20676,Calvert,Port republic
 24,Maryland,MD,20677,Charles,Port tobacco
 24,Maryland,MD,20678,Calvert,Prince frederick
-24,Maryland,MD,20680,St. Marys,Ridge
-24,Maryland,MD,20684,St. Marys,Saint inigoes
+24,Maryland,MD,20680,St Marys,Ridge
+24,Maryland,MD,20684,St Marys,Saint inigoes
 24,Maryland,MD,20685,Calvert,Saint leonard
-24,Maryland,MD,20687,St. Marys,Scotland
+24,Maryland,MD,20687,St Marys,Scotland
 24,Maryland,MD,20688,Calvert,Solomons
 24,Maryland,MD,20689,Calvert,Sunderland
-24,Maryland,MD,20690,St. Marys,Tall timbers
-24,Maryland,MD,20692,St. Marys,Valley lee
+24,Maryland,MD,20690,St Marys,Tall timbers
+24,Maryland,MD,20692,St Marys,Valley lee
 24,Maryland,MD,20693,Charles,Welcome
 24,Maryland,MD,20695,Charles,White plains
 24,Maryland,MD,20701,Howard,Annapolis juncti
@@ -12466,46 +12466,46 @@ state_fips,state,state_abbr,zipcode,county,city
 25,Massachusetts,MA,02779,Bristol,Berkley
 25,Massachusetts,MA,02780,Bristol,Taunton
 25,Massachusetts,MA,02790,Bristol,Westport
-26,Michigan,MI,48001,St. Clair,Pearl beach
-26,Michigan,MI,48002,St. Clair,Berlin
+26,Michigan,MI,48001,St Clair,Pearl beach
+26,Michigan,MI,48002,St Clair,Berlin
 26,Michigan,MI,48003,Lapeer,Almont
 26,Michigan,MI,48005,Macomb,Armada
-26,Michigan,MI,48006,St. Clair,Greenwood
+26,Michigan,MI,48006,St Clair,Greenwood
 26,Michigan,MI,48009,Oakland,Birmingham
-26,Michigan,MI,48014,St. Clair,Mussey
+26,Michigan,MI,48014,St Clair,Mussey
 26,Michigan,MI,48015,Macomb,Center line
 26,Michigan,MI,48017,Oakland,Clawson
 26,Michigan,MI,48021,Macomb,Eastpointe
-26,Michigan,MI,48022,St. Clair,Emmett
-26,Michigan,MI,48023,St. Clair,Ira
+26,Michigan,MI,48022,St Clair,Emmett
+26,Michigan,MI,48023,St Clair,Ira
 26,Michigan,MI,48025,Oakland,Franklin
 26,Michigan,MI,48026,Macomb,Fraser
-26,Michigan,MI,48027,St. Clair,Wales
-26,Michigan,MI,48028,St. Clair,Harsens island
+26,Michigan,MI,48027,St Clair,Wales
+26,Michigan,MI,48028,St Clair,Harsens island
 26,Michigan,MI,48030,Oakland,Hazel park
-26,Michigan,MI,48032,St. Clair,Grant township
+26,Michigan,MI,48032,St Clair,Grant township
 26,Michigan,MI,48034,Oakland,Southfield
 26,Michigan,MI,48035,Macomb,Clinton township
 26,Michigan,MI,48036,Macomb,Clinton township
 26,Michigan,MI,48038,Macomb,Clinton township
-26,Michigan,MI,48039,St. Clair,Cottrellville
-26,Michigan,MI,48040,St. Clair,Marysville
-26,Michigan,MI,48041,St. Clair,Riley
+26,Michigan,MI,48039,St Clair,Cottrellville
+26,Michigan,MI,48040,St Clair,Marysville
+26,Michigan,MI,48041,St Clair,Riley
 26,Michigan,MI,48042,Macomb,Macomb
 26,Michigan,MI,48043,Macomb,Mount clemens
 26,Michigan,MI,48044,Macomb,Macomb
 26,Michigan,MI,48045,Macomb,Selfridge a n g
 26,Michigan,MI,48047,Macomb,Chesterfield
 26,Michigan,MI,48048,Macomb,Lenox
-26,Michigan,MI,48049,St. Clair,Ruby
+26,Michigan,MI,48049,St Clair,Ruby
 26,Michigan,MI,48050,Macomb,Lenox
 26,Michigan,MI,48051,Macomb,Chesterfield
-26,Michigan,MI,48054,St. Clair,China
-26,Michigan,MI,48059,St. Clair,Fort gratiot
-26,Michigan,MI,48060,St. Clair,Port huron
+26,Michigan,MI,48054,St Clair,China
+26,Michigan,MI,48059,St Clair,Fort gratiot
+26,Michigan,MI,48060,St Clair,Port huron
 26,Michigan,MI,48062,Macomb,Richmond
-26,Michigan,MI,48063,St. Clair,Columbus
-26,Michigan,MI,48064,St. Clair,Casco
+26,Michigan,MI,48063,St Clair,Columbus
+26,Michigan,MI,48064,St Clair,Casco
 26,Michigan,MI,48065,Macomb,Bruce
 26,Michigan,MI,48066,Macomb,Roseville
 26,Michigan,MI,48067,Oakland,Royal oak
@@ -12514,10 +12514,10 @@ state_fips,state,state_abbr,zipcode,county,city
 26,Michigan,MI,48071,Oakland,Madison heights
 26,Michigan,MI,48072,Oakland,Berkley
 26,Michigan,MI,48073,Oakland,Royal oak
-26,Michigan,MI,48074,St. Clair,Kimball
+26,Michigan,MI,48074,St Clair,Kimball
 26,Michigan,MI,48075,Oakland,Southfield
 26,Michigan,MI,48076,Oakland,Lathrup village
-26,Michigan,MI,48079,St. Clair,Saint clair
+26,Michigan,MI,48079,St Clair,Saint clair
 26,Michigan,MI,48080,Macomb,Saint clair shor
 26,Michigan,MI,48081,Macomb,Saint clair shor
 26,Michigan,MI,48082,Macomb,Saint clair shor
@@ -12530,7 +12530,7 @@ state_fips,state,state_abbr,zipcode,county,city
 26,Michigan,MI,48094,Macomb,Washington
 26,Michigan,MI,48095,Macomb,Washington
 26,Michigan,MI,48096,Macomb,Ray
-26,Michigan,MI,48097,St. Clair,Brockway
+26,Michigan,MI,48097,St Clair,Brockway
 26,Michigan,MI,48098,Oakland,Troy
 26,Michigan,MI,48101,Wayne,Allen park
 26,Michigan,MI,48103,Washtenaw,Ann arbor
@@ -12951,15 +12951,15 @@ state_fips,state,state_abbr,zipcode,county,city
 26,Michigan,MI,49027,Van Buren,Breedsville
 26,Michigan,MI,49028,Branch,Bronson
 26,Michigan,MI,49029,Calhoun,Burlington
-26,Michigan,MI,49030,St. Joseph,Burr oak
+26,Michigan,MI,49030,St Joseph,Burr oak
 26,Michigan,MI,49031,Cass,Cassopolis
-26,Michigan,MI,49032,St. Joseph,Centreville
+26,Michigan,MI,49032,St Joseph,Centreville
 26,Michigan,MI,49033,Calhoun,Ceresco
 26,Michigan,MI,49034,Kalamazoo,Climax
 26,Michigan,MI,49036,Branch,Coldwater
 26,Michigan,MI,49038,Berrien,Coloma
-26,Michigan,MI,49040,St. Joseph,Colon
-26,Michigan,MI,49042,St. Joseph,Constantine
+26,Michigan,MI,49040,St Joseph,Colon
+26,Michigan,MI,49042,St Joseph,Constantine
 26,Michigan,MI,49043,Van Buren,Covert
 26,Michigan,MI,49045,Van Buren,Decatur
 26,Michigan,MI,49046,Barry,Delton
@@ -12976,14 +12976,14 @@ state_fips,state,state_abbr,zipcode,county,city
 26,Michigan,MI,49061,Cass,Jones
 26,Michigan,MI,49064,Van Buren,Lawrence
 26,Michigan,MI,49065,Van Buren,Lawton
-26,Michigan,MI,49066,St. Joseph,Leonidas
+26,Michigan,MI,49066,St Joseph,Leonidas
 26,Michigan,MI,49067,Cass,Marcellus
 26,Michigan,MI,49068,Calhoun,Marshall
 26,Michigan,MI,49070,Allegan,Martin
 26,Michigan,MI,49071,Van Buren,Mattawan
-26,Michigan,MI,49072,St. Joseph,Mendon
+26,Michigan,MI,49072,St Joseph,Mendon
 26,Michigan,MI,49073,Barry,Nashville
-26,Michigan,MI,49075,St. Joseph,Nottawa
+26,Michigan,MI,49075,St Joseph,Nottawa
 26,Michigan,MI,49076,Eaton,Olivet
 26,Michigan,MI,49078,Allegan,Otsego
 26,Michigan,MI,49079,Van Buren,Paw paw
@@ -12995,15 +12995,15 @@ state_fips,state,state_abbr,zipcode,county,city
 26,Michigan,MI,49088,Kalamazoo,Scotts
 26,Michigan,MI,49089,Branch,Sherwood
 26,Michigan,MI,49090,Van Buren,South haven
-26,Michigan,MI,49091,St. Joseph,Sturgis
+26,Michigan,MI,49091,St Joseph,Sturgis
 26,Michigan,MI,49092,Calhoun,Tekonsha
-26,Michigan,MI,49093,St. Joseph,Three rivers
+26,Michigan,MI,49093,St Joseph,Three rivers
 26,Michigan,MI,49094,Branch,Union city
 26,Michigan,MI,49095,Cass,Vandalia
 26,Michigan,MI,49096,Eaton,Vermontville
 26,Michigan,MI,49097,Kalamazoo,Vicksburg
 26,Michigan,MI,49098,Berrien,Watervliet
-26,Michigan,MI,49099,St. Joseph,White pigeon
+26,Michigan,MI,49099,St Joseph,White pigeon
 26,Michigan,MI,49101,Berrien,Baroda
 26,Michigan,MI,49102,Berrien,Berrien center
 26,Michigan,MI,49103,Berrien,Berrien springs
@@ -13654,7 +13654,7 @@ state_fips,state,state_abbr,zipcode,county,city
 27,Minnesota,MN,55454,Hennepin,Minneapolis
 27,Minnesota,MN,55455,Hennepin,Minneapolis
 27,Minnesota,MN,55601,Lake,Beaver bay
-27,Minnesota,MN,55602,St. Louis,Brimson
+27,Minnesota,MN,55602,St Louis,Brimson
 27,Minnesota,MN,55603,Lake,Finland
 27,Minnesota,MN,55604,Cook,Grand marais
 27,Minnesota,MN,55605,Cook,Grand portage
@@ -13666,84 +13666,84 @@ state_fips,state,state_abbr,zipcode,county,city
 27,Minnesota,MN,55614,Lake,Little marais
 27,Minnesota,MN,55615,Cook,Tofte
 27,Minnesota,MN,55616,Lake,Two harbors
-27,Minnesota,MN,55702,St. Louis,Alborn
-27,Minnesota,MN,55703,St. Louis,Angora
+27,Minnesota,MN,55702,St Louis,Alborn
+27,Minnesota,MN,55703,St Louis,Angora
 27,Minnesota,MN,55704,Pine,Askov
-27,Minnesota,MN,55705,St. Louis,Aurora
-27,Minnesota,MN,55706,St. Louis,Babbitt
+27,Minnesota,MN,55705,St Louis,Aurora
+27,Minnesota,MN,55706,St Louis,Babbitt
 27,Minnesota,MN,55707,Carlton,Barnum
-27,Minnesota,MN,55708,St. Louis,Biwabik
+27,Minnesota,MN,55708,St Louis,Biwabik
 27,Minnesota,MN,55709,Itasca,Bovey
-27,Minnesota,MN,55710,St. Louis,Britt
-27,Minnesota,MN,55711,St. Louis,Brookston
+27,Minnesota,MN,55710,St Louis,Britt
+27,Minnesota,MN,55711,St Louis,Brookston
 27,Minnesota,MN,55712,Pine,Bruno
-27,Minnesota,MN,55713,St. Louis,Buhl
+27,Minnesota,MN,55713,St Louis,Buhl
 27,Minnesota,MN,55716,Itasca,Calumet
-27,Minnesota,MN,55717,St. Louis,Canyon
+27,Minnesota,MN,55717,St Louis,Canyon
 27,Minnesota,MN,55718,Carlton,Carlton
-27,Minnesota,MN,55719,St. Louis,Chisholm
+27,Minnesota,MN,55719,St Louis,Chisholm
 27,Minnesota,MN,55720,Carlton,Cloquet
 27,Minnesota,MN,55721,Itasca,Cohasset
 27,Minnesota,MN,55722,Itasca,Coleraine
-27,Minnesota,MN,55723,St. Louis,Cook
-27,Minnesota,MN,55724,St. Louis,Kelsey
-27,Minnesota,MN,55725,St. Louis,Crane lake
+27,Minnesota,MN,55723,St Louis,Cook
+27,Minnesota,MN,55724,St Louis,Kelsey
+27,Minnesota,MN,55725,St Louis,Crane lake
 27,Minnesota,MN,55726,Carlton,Cromwell
-27,Minnesota,MN,55731,St. Louis,Ely
-27,Minnesota,MN,55732,St. Louis,Embarrass
+27,Minnesota,MN,55731,St Louis,Ely
+27,Minnesota,MN,55732,St Louis,Embarrass
 27,Minnesota,MN,55733,Carlton,Esko
-27,Minnesota,MN,55734,St. Louis,Eveleth
+27,Minnesota,MN,55734,St Louis,Eveleth
 27,Minnesota,MN,55735,Pine,Finlayson
-27,Minnesota,MN,55736,St. Louis,Floodwood
-27,Minnesota,MN,55738,St. Louis,Forbes
-27,Minnesota,MN,55741,St. Louis,Gilbert
+27,Minnesota,MN,55736,St Louis,Floodwood
+27,Minnesota,MN,55738,St Louis,Forbes
+27,Minnesota,MN,55741,St Louis,Gilbert
 27,Minnesota,MN,55742,Itasca,Goodland
 27,Minnesota,MN,55744,Itasca,La prairie
-27,Minnesota,MN,55746,St. Louis,Hibbing
+27,Minnesota,MN,55746,St Louis,Hibbing
 27,Minnesota,MN,55748,Aitkin,Hill city
 27,Minnesota,MN,55749,Carlton,Holyoke
-27,Minnesota,MN,55750,St. Louis,Hoyt lakes
-27,Minnesota,MN,55751,St. Louis,Iron
+27,Minnesota,MN,55750,St Louis,Hoyt lakes
+27,Minnesota,MN,55751,St Louis,Iron
 27,Minnesota,MN,55752,Aitkin,Jacobson
 27,Minnesota,MN,55753,Itasca,Keewatin
 27,Minnesota,MN,55756,Pine,Kerrick
 27,Minnesota,MN,55757,Carlton,Kettle river
-27,Minnesota,MN,55758,St. Louis,Kinney
+27,Minnesota,MN,55758,St Louis,Kinney
 27,Minnesota,MN,55760,Aitkin,Mc gregor
-27,Minnesota,MN,55763,St. Louis,Makinen
+27,Minnesota,MN,55763,St Louis,Makinen
 27,Minnesota,MN,55764,Itasca,Marble
-27,Minnesota,MN,55765,St. Louis,Meadowlands
+27,Minnesota,MN,55765,St Louis,Meadowlands
 27,Minnesota,MN,55767,Carlton,Moose lake
-27,Minnesota,MN,55768,St. Louis,Mountain iron
+27,Minnesota,MN,55768,St Louis,Mountain iron
 27,Minnesota,MN,55769,Itasca,Nashwauk
-27,Minnesota,MN,55771,St. Louis,Buyck
+27,Minnesota,MN,55771,St Louis,Buyck
 27,Minnesota,MN,55775,Itasca,Pengilly
-27,Minnesota,MN,55779,St. Louis,Saginaw
+27,Minnesota,MN,55779,St Louis,Saginaw
 27,Minnesota,MN,55780,Carlton,Sawyer
-27,Minnesota,MN,55781,St. Louis,Side lake
-27,Minnesota,MN,55782,St. Louis,Soudan
+27,Minnesota,MN,55781,St Louis,Side lake
+27,Minnesota,MN,55782,St Louis,Soudan
 27,Minnesota,MN,55783,Pine,Sturgeon lake
 27,Minnesota,MN,55784,Itasca,Swan river
 27,Minnesota,MN,55785,Aitkin,Swatara
 27,Minnesota,MN,55786,Itasca,Taconite
 27,Minnesota,MN,55787,Aitkin,Tamarack
-27,Minnesota,MN,55790,St. Louis,Tower
-27,Minnesota,MN,55792,St. Louis,Virginia
+27,Minnesota,MN,55790,St Louis,Tower
+27,Minnesota,MN,55792,St Louis,Virginia
 27,Minnesota,MN,55793,Itasca,Warba
 27,Minnesota,MN,55795,Pine,Willow river
-27,Minnesota,MN,55796,St. Louis,Winton
+27,Minnesota,MN,55796,St Louis,Winton
 27,Minnesota,MN,55797,Carlton,Wrenshall
 27,Minnesota,MN,55798,Carlton,Wright
-27,Minnesota,MN,55802,St. Louis,Duluth
-27,Minnesota,MN,55803,St. Louis,Duluth
-27,Minnesota,MN,55804,St. Louis,Duluth
-27,Minnesota,MN,55805,St. Louis,Duluth
-27,Minnesota,MN,55806,St. Louis,Duluth
-27,Minnesota,MN,55807,St. Louis,Duluth
-27,Minnesota,MN,55808,St. Louis,Duluth
-27,Minnesota,MN,55810,St. Louis,Proctor
-27,Minnesota,MN,55811,St. Louis,Hermantown
-27,Minnesota,MN,55812,St. Louis,Duluth
+27,Minnesota,MN,55802,St Louis,Duluth
+27,Minnesota,MN,55803,St Louis,Duluth
+27,Minnesota,MN,55804,St Louis,Duluth
+27,Minnesota,MN,55805,St Louis,Duluth
+27,Minnesota,MN,55806,St Louis,Duluth
+27,Minnesota,MN,55807,St Louis,Duluth
+27,Minnesota,MN,55808,St Louis,Duluth
+27,Minnesota,MN,55810,St Louis,Proctor
+27,Minnesota,MN,55811,St Louis,Hermantown
+27,Minnesota,MN,55812,St Louis,Duluth
 27,Minnesota,MN,55901,Olmsted,Rochester
 27,Minnesota,MN,55902,Olmsted,Rochester
 27,Minnesota,MN,55904,Olmsted,Rochester
@@ -14712,35 +14712,35 @@ state_fips,state,state_abbr,zipcode,county,city
 29,Missouri,MO,51630,Atchison,
 29,Missouri,MO,51640,Atchison,
 29,Missouri,MO,52626,Clark,
-29,Missouri,MO,63005,St. Louis,Chesterfield
+29,Missouri,MO,63005,St Louis,Chesterfield
 29,Missouri,MO,63010,Jefferson,Arnold
-29,Missouri,MO,63011,St. Louis,Manchester
+29,Missouri,MO,63011,St Louis,Manchester
 29,Missouri,MO,63012,Jefferson,Barnhart
 29,Missouri,MO,63013,Franklin,Beaufort
 29,Missouri,MO,63014,Franklin,Berger
 29,Missouri,MO,63015,Franklin,Catawissa
 29,Missouri,MO,63016,Jefferson,Cedar hill
-29,Missouri,MO,63017,St. Louis,Town and country
+29,Missouri,MO,63017,St Louis,Town and country
 29,Missouri,MO,63019,Jefferson,Crystal city
 29,Missouri,MO,63020,Jefferson,De soto
-29,Missouri,MO,63021,St. Louis,Ballwin
+29,Missouri,MO,63021,St Louis,Ballwin
 29,Missouri,MO,63023,Jefferson,Dittmer
-29,Missouri,MO,63025,St. Louis,Crescent
-29,Missouri,MO,63026,St. Louis,Fenton
+29,Missouri,MO,63025,St Louis,Crescent
+29,Missouri,MO,63026,St Louis,Fenton
 29,Missouri,MO,63028,Jefferson,Festus
 29,Missouri,MO,63030,Washington,Fletcher
-29,Missouri,MO,63031,St. Louis,Florissant
-29,Missouri,MO,63033,St. Louis,Florissant
-29,Missouri,MO,63034,St. Louis,Florissant
-29,Missouri,MO,63036,St. Francois,French village
+29,Missouri,MO,63031,St Louis,Florissant
+29,Missouri,MO,63033,St Louis,Florissant
+29,Missouri,MO,63034,St Louis,Florissant
+29,Missouri,MO,63036,St Francois,French village
 29,Missouri,MO,63037,Franklin,Gerald
-29,Missouri,MO,63038,St. Louis,Glencoe
+29,Missouri,MO,63038,St Louis,Glencoe
 29,Missouri,MO,63039,Franklin,Gray summit
-29,Missouri,MO,63040,St. Louis,Grover
+29,Missouri,MO,63040,St Louis,Grover
 29,Missouri,MO,63041,Franklin,Grubville
-29,Missouri,MO,63042,St. Louis,Hazelwood
-29,Missouri,MO,63043,St. Louis,Maryland heights
-29,Missouri,MO,63044,St. Louis,Bridgeton
+29,Missouri,MO,63042,St Louis,Hazelwood
+29,Missouri,MO,63043,St Louis,Maryland heights
+29,Missouri,MO,63044,St Louis,Bridgeton
 29,Missouri,MO,63048,Jefferson,Herculaneum
 29,Missouri,MO,63049,Jefferson,High ridge
 29,Missouri,MO,63050,Jefferson,Hillsboro
@@ -14755,75 +14755,75 @@ state_fips,state,state_abbr,zipcode,county,city
 29,Missouri,MO,63070,Jefferson,Pevely
 29,Missouri,MO,63071,Washington,Richwoods
 29,Missouri,MO,63072,Franklin,Robertsville
-29,Missouri,MO,63074,St. Louis,Saint ann
+29,Missouri,MO,63074,St Louis,Saint ann
 29,Missouri,MO,63077,Franklin,Saint clair
 29,Missouri,MO,63080,Franklin,Sullivan
 29,Missouri,MO,63084,Franklin,Union
-29,Missouri,MO,63087,St. Francois,Valles mines
-29,Missouri,MO,63088,St. Louis,Valley park
+29,Missouri,MO,63087,St Francois,Valles mines
+29,Missouri,MO,63088,St Louis,Valley park
 29,Missouri,MO,63089,Franklin,Villa ridge
 29,Missouri,MO,63090,Franklin,Washington
 29,Missouri,MO,63091,Gasconade,Rosebud
-29,Missouri,MO,63101,St. Louis city,Saint louis
-29,Missouri,MO,63102,St. Louis city,Saint louis
-29,Missouri,MO,63103,St. Louis city,Saint louis
-29,Missouri,MO,63104,St. Louis city,Saint louis
-29,Missouri,MO,63105,St. Louis,Clayton
-29,Missouri,MO,63106,St. Louis city,Saint louis
-29,Missouri,MO,63107,St. Louis city,Saint louis
-29,Missouri,MO,63108,St. Louis city,Saint louis
-29,Missouri,MO,63109,St. Louis city,Saint louis
-29,Missouri,MO,63110,St. Louis city,Saint louis
-29,Missouri,MO,63111,St. Louis city,Saint louis
-29,Missouri,MO,63112,St. Louis city,Saint louis
-29,Missouri,MO,63113,St. Louis city,Saint louis
-29,Missouri,MO,63114,St. Louis,Overland
-29,Missouri,MO,63115,St. Louis city,Saint louis
-29,Missouri,MO,63116,St. Louis city,Saint louis
-29,Missouri,MO,63117,St. Louis,Richmond heights
-29,Missouri,MO,63118,St. Louis city,Saint louis
-29,Missouri,MO,63119,St. Louis,Webster groves
-29,Missouri,MO,63120,St. Louis city,Saint louis
-29,Missouri,MO,63121,St. Louis,Normandy
-29,Missouri,MO,63122,St. Louis,Kirkwood
-29,Missouri,MO,63123,St. Louis,Affton
-29,Missouri,MO,63124,St. Louis,Ladue
-29,Missouri,MO,63125,St. Louis,Lemay
-29,Missouri,MO,63126,St. Louis,Sappington
-29,Missouri,MO,63127,St. Louis,Sappington
-29,Missouri,MO,63128,St. Louis,Sappington
-29,Missouri,MO,63129,St. Louis,South county
-29,Missouri,MO,63130,St. Louis,University city
-29,Missouri,MO,63131,St. Louis,Des peres
-29,Missouri,MO,63132,St. Louis,Olivette
-29,Missouri,MO,63133,St. Louis,Saint louis
-29,Missouri,MO,63134,St. Louis,Berkeley
-29,Missouri,MO,63135,St. Louis,Ferguson
-29,Missouri,MO,63136,St. Louis,Jennings
-29,Missouri,MO,63137,St. Louis,North county
-29,Missouri,MO,63138,St. Louis,North county
-29,Missouri,MO,63139,St. Louis city,Saint louis
-29,Missouri,MO,63140,St. Louis,Berkeley
-29,Missouri,MO,63141,St. Louis,Creve coeur
-29,Missouri,MO,63143,St. Louis,Maplewood
-29,Missouri,MO,63144,St. Louis,Brentwood
-29,Missouri,MO,63146,St. Louis,West county
-29,Missouri,MO,63147,St. Louis city,Saint louis
-29,Missouri,MO,63301,St. Charles,Saint charles
-29,Missouri,MO,63303,St. Charles,Saint charles
-29,Missouri,MO,63304,St. Charles,Saint charles
+29,Missouri,MO,63101,St Louis city,Saint louis
+29,Missouri,MO,63102,St Louis city,Saint louis
+29,Missouri,MO,63103,St Louis city,Saint louis
+29,Missouri,MO,63104,St Louis city,Saint louis
+29,Missouri,MO,63105,St Louis,Clayton
+29,Missouri,MO,63106,St Louis city,Saint louis
+29,Missouri,MO,63107,St Louis city,Saint louis
+29,Missouri,MO,63108,St Louis city,Saint louis
+29,Missouri,MO,63109,St Louis city,Saint louis
+29,Missouri,MO,63110,St Louis city,Saint louis
+29,Missouri,MO,63111,St Louis city,Saint louis
+29,Missouri,MO,63112,St Louis city,Saint louis
+29,Missouri,MO,63113,St Louis city,Saint louis
+29,Missouri,MO,63114,St Louis,Overland
+29,Missouri,MO,63115,St Louis city,Saint louis
+29,Missouri,MO,63116,St Louis city,Saint louis
+29,Missouri,MO,63117,St Louis,Richmond heights
+29,Missouri,MO,63118,St Louis city,Saint louis
+29,Missouri,MO,63119,St Louis,Webster groves
+29,Missouri,MO,63120,St Louis city,Saint louis
+29,Missouri,MO,63121,St Louis,Normandy
+29,Missouri,MO,63122,St Louis,Kirkwood
+29,Missouri,MO,63123,St Louis,Affton
+29,Missouri,MO,63124,St Louis,Ladue
+29,Missouri,MO,63125,St Louis,Lemay
+29,Missouri,MO,63126,St Louis,Sappington
+29,Missouri,MO,63127,St Louis,Sappington
+29,Missouri,MO,63128,St Louis,Sappington
+29,Missouri,MO,63129,St Louis,South county
+29,Missouri,MO,63130,St Louis,University city
+29,Missouri,MO,63131,St Louis,Des peres
+29,Missouri,MO,63132,St Louis,Olivette
+29,Missouri,MO,63133,St Louis,Saint louis
+29,Missouri,MO,63134,St Louis,Berkeley
+29,Missouri,MO,63135,St Louis,Ferguson
+29,Missouri,MO,63136,St Louis,Jennings
+29,Missouri,MO,63137,St Louis,North county
+29,Missouri,MO,63138,St Louis,North county
+29,Missouri,MO,63139,St Louis city,Saint louis
+29,Missouri,MO,63140,St Louis,Berkeley
+29,Missouri,MO,63141,St Louis,Creve coeur
+29,Missouri,MO,63143,St Louis,Maplewood
+29,Missouri,MO,63144,St Louis,Brentwood
+29,Missouri,MO,63146,St Louis,West county
+29,Missouri,MO,63147,St Louis city,Saint louis
+29,Missouri,MO,63301,St Charles,Saint charles
+29,Missouri,MO,63303,St Charles,Saint charles
+29,Missouri,MO,63304,St Charles,Saint charles
 29,Missouri,MO,63330,Pike,Annada
-29,Missouri,MO,63332,St. Charles,Augusta
+29,Missouri,MO,63332,St Charles,Augusta
 29,Missouri,MO,63333,Montgomery,Bellflower
 29,Missouri,MO,63334,Pike,Bowling green
 29,Missouri,MO,63336,Pike,Clarksville
 29,Missouri,MO,63339,Pike,Curryville
-29,Missouri,MO,63341,St. Charles,Defiance
+29,Missouri,MO,63341,St Charles,Defiance
 29,Missouri,MO,63343,Lincoln,Elsberry
 29,Missouri,MO,63344,Pike,Eolia
 29,Missouri,MO,63345,Audrain,Farber
 29,Missouri,MO,63347,Lincoln,Foley
-29,Missouri,MO,63348,St. Charles,Foristell
+29,Missouri,MO,63348,St Charles,Foristell
 29,Missouri,MO,63349,Lincoln,Hawk point
 29,Missouri,MO,63350,Montgomery,High hill
 29,Missouri,MO,63351,Montgomery,Jonesburg
@@ -14834,20 +14834,20 @@ state_fips,state,state_abbr,zipcode,county,city
 29,Missouri,MO,63361,Montgomery,Montgomery city
 29,Missouri,MO,63362,Lincoln,Moscow mills
 29,Missouri,MO,63363,Montgomery,New florence
-29,Missouri,MO,63366,St. Charles,Saint paul
-29,Missouri,MO,63367,St. Charles,Lake saint louis
+29,Missouri,MO,63366,St Charles,Saint paul
+29,Missouri,MO,63367,St Charles,Lake saint louis
 29,Missouri,MO,63369,Lincoln,Old monroe
 29,Missouri,MO,63370,Lincoln,Olney
-29,Missouri,MO,63373,St. Charles,Portage des siou
-29,Missouri,MO,63376,St. Charles,Saint peters
+29,Missouri,MO,63373,St Charles,Portage des siou
+29,Missouri,MO,63376,St Charles,Saint peters
 29,Missouri,MO,63377,Lincoln,Silex
 29,Missouri,MO,63379,Lincoln,Troy
 29,Missouri,MO,63381,Lincoln,Truxton
 29,Missouri,MO,63382,Audrain,Vandalia
 29,Missouri,MO,63383,Warren,Warrenton
 29,Missouri,MO,63384,Montgomery,Wellsville
-29,Missouri,MO,63385,St. Charles,Wentzville
-29,Missouri,MO,63386,St. Charles,West alton
+29,Missouri,MO,63385,St Charles,Wentzville
+29,Missouri,MO,63386,St Charles,West alton
 29,Missouri,MO,63387,Lincoln,Whiteside
 29,Missouri,MO,63388,Callaway,Williamsburg
 29,Missouri,MO,63389,Lincoln,Winfield
@@ -14924,28 +14924,28 @@ state_fips,state,state_abbr,zipcode,county,city
 29,Missouri,MO,63565,Putnam,Unionville
 29,Missouri,MO,63566,Linn,Winigan
 29,Missouri,MO,63567,Putnam,Worthington
-29,Missouri,MO,63601,St. Francois,Desloge
+29,Missouri,MO,63601,St Francois,Desloge
 29,Missouri,MO,63620,Iron,Annapolis
 29,Missouri,MO,63621,Iron,Arcadia
 29,Missouri,MO,63622,Washington,Belgrade
 29,Missouri,MO,63623,Iron,Belleview
-29,Missouri,MO,63624,St. Francois,Desloge
+29,Missouri,MO,63624,St Francois,Desloge
 29,Missouri,MO,63625,Reynolds,Black
-29,Missouri,MO,63626,St. Francois,Blackwell
+29,Missouri,MO,63626,St Francois,Blackwell
 29,Missouri,MO,63627,Ste. Genevieve,Bloomsdale
-29,Missouri,MO,63628,St. Francois,Bonne terre
+29,Missouri,MO,63628,St Francois,Bonne terre
 29,Missouri,MO,63629,Reynolds,Bunker
 29,Missouri,MO,63630,Washington,Cadet
 29,Missouri,MO,63631,Washington,Caledonia
 29,Missouri,MO,63633,Reynolds,Centerville
 29,Missouri,MO,63636,Iron,Des arc
-29,Missouri,MO,63637,St. Francois,Doe run
+29,Missouri,MO,63637,St Francois,Doe run
 29,Missouri,MO,63638,Reynolds,Ellington
-29,Missouri,MO,63640,St. Francois,Farmington
+29,Missouri,MO,63640,St Francois,Farmington
 29,Missouri,MO,63645,Madison,Millcreek
 29,Missouri,MO,63648,Washington,Irondale
 29,Missouri,MO,63650,Iron,Iron mountain
-29,Missouri,MO,63653,St. Francois,Leadwood
+29,Missouri,MO,63653,St Francois,Leadwood
 29,Missouri,MO,63654,Reynolds,Lesterville
 29,Missouri,MO,63655,Madison,Marquand
 29,Missouri,MO,63656,Iron,Middle brook
@@ -15310,7 +15310,7 @@ state_fips,state,state_abbr,zipcode,county,city
 29,Missouri,MO,64720,Bates,Adrian
 29,Missouri,MO,64722,Bates,Amoret
 29,Missouri,MO,64723,Bates,Amsterdam
-29,Missouri,MO,64724,St. Clair,Appleton city
+29,Missouri,MO,64724,St Clair,Appleton city
 29,Missouri,MO,64725,Cass,Archie
 29,Missouri,MO,64726,Henry,Blairstown
 29,Missouri,MO,64728,Vernon,Bronaugh
@@ -15318,7 +15318,7 @@ state_fips,state,state_abbr,zipcode,county,city
 29,Missouri,MO,64733,Johnson,Chilhowee
 29,Missouri,MO,64734,Cass,Cleveland
 29,Missouri,MO,64735,Henry,Tightwad
-29,Missouri,MO,64738,St. Clair,Collins
+29,Missouri,MO,64738,St Clair,Collins
 29,Missouri,MO,64739,Cass,Creighton
 29,Missouri,MO,64740,Henry,Deepwater
 29,Missouri,MO,64741,Vernon,Deerfield
@@ -15337,17 +15337,17 @@ state_fips,state,state_abbr,zipcode,county,city
 29,Missouri,MO,64759,Barton,Iantha
 29,Missouri,MO,64761,Johnson,Leeton
 29,Missouri,MO,64762,Barton,Liberal
-29,Missouri,MO,64763,St. Clair,Lowry city
+29,Missouri,MO,64763,St Clair,Lowry city
 29,Missouri,MO,64767,Vernon,Milo
 29,Missouri,MO,64769,Barton,Mindenmines
 29,Missouri,MO,64770,Henry,Montrose
 29,Missouri,MO,64771,Vernon,Moundville
 29,Missouri,MO,64772,Vernon,Nevada
-29,Missouri,MO,64776,St. Clair,Osceola
+29,Missouri,MO,64776,St Clair,Osceola
 29,Missouri,MO,64778,Vernon,Richards
 29,Missouri,MO,64779,Bates,Rich hill
 29,Missouri,MO,64780,Bates,Rockville
-29,Missouri,MO,64781,St. Clair,Roscoe
+29,Missouri,MO,64781,St Clair,Roscoe
 29,Missouri,MO,64783,Vernon,Schell city
 29,Missouri,MO,64784,Vernon,Sheldon
 29,Missouri,MO,64788,Henry,Urich
@@ -18821,10 +18821,10 @@ state_fips,state,state_abbr,zipcode,county,city
 36,New york,NY,12919,Clinton,Champlain
 36,New york,NY,12920,Franklin,Chateaugay
 36,New york,NY,12921,Clinton,Chazy
-36,New york,NY,12922,St. Lawrence,Childwold
+36,New york,NY,12922,St Lawrence,Childwold
 36,New york,NY,12923,Clinton,Churubusco
 36,New york,NY,12926,Franklin,Constable
-36,New york,NY,12927,St. Lawrence,Cranberry lake
+36,New york,NY,12927,St Lawrence,Cranberry lake
 36,New york,NY,12928,Essex,Crown point
 36,New york,NY,12930,Franklin,Dickinson center
 36,New york,NY,12932,Essex,Elizabethtown
@@ -18850,9 +18850,9 @@ state_fips,state,state_abbr,zipcode,county,city
 36,New york,NY,12961,Essex,Moriah center
 36,New york,NY,12962,Clinton,Morrisonville
 36,New york,NY,12964,Essex,New russia
-36,New york,NY,12965,St. Lawrence,Nicholville
+36,New york,NY,12965,St Lawrence,Nicholville
 36,New york,NY,12966,Franklin,Bangor
-36,New york,NY,12967,St. Lawrence,North lawrence
+36,New york,NY,12967,St Lawrence,North lawrence
 36,New york,NY,12969,Franklin,Owls head
 36,New york,NY,12970,Franklin,Paul smiths
 36,New york,NY,12972,Clinton,Peru
@@ -19074,62 +19074,62 @@ state_fips,state,state_abbr,zipcode,county,city
 36,New york,NY,13607,Jefferson,Point vivian
 36,New york,NY,13608,Jefferson,Antwerp
 36,New york,NY,13612,Jefferson,Black river
-36,New york,NY,13613,St. Lawrence,Brasher falls
-36,New york,NY,13614,St. Lawrence,Brier hill
+36,New york,NY,13613,St Lawrence,Brasher falls
+36,New york,NY,13614,St Lawrence,Brier hill
 36,New york,NY,13615,Jefferson,Brownville
 36,New york,NY,13616,Jefferson,Calcium
-36,New york,NY,13617,St. Lawrence,Canton
+36,New york,NY,13617,St Lawrence,Canton
 36,New york,NY,13618,Jefferson,Cape vincent
 36,New york,NY,13619,Jefferson,Carthage
 36,New york,NY,13620,Lewis,Castorland
-36,New york,NY,13621,St. Lawrence,Chase mills
+36,New york,NY,13621,St Lawrence,Chase mills
 36,New york,NY,13622,Jefferson,Chaumont
 36,New york,NY,13624,Jefferson,Frontenac
-36,New york,NY,13625,St. Lawrence,Colton
+36,New york,NY,13625,St Lawrence,Colton
 36,New york,NY,13626,Lewis,Copenhagen
-36,New york,NY,13630,St. Lawrence,De kalb junction
-36,New york,NY,13633,St. Lawrence,De peyster
+36,New york,NY,13630,St Lawrence,De kalb junction
+36,New york,NY,13633,St Lawrence,De peyster
 36,New york,NY,13634,Jefferson,Dexter
-36,New york,NY,13635,St. Lawrence,Edwards
+36,New york,NY,13635,St Lawrence,Edwards
 36,New york,NY,13637,Jefferson,Evans mills
 36,New york,NY,13638,Jefferson,Felts mills
-36,New york,NY,13639,St. Lawrence,Fine
+36,New york,NY,13639,St Lawrence,Fine
 36,New york,NY,13640,Jefferson,Wellesley island
-36,New york,NY,13642,St. Lawrence,Gouverneur
-36,New york,NY,13646,St. Lawrence,Hammond
+36,New york,NY,13642,St Lawrence,Gouverneur
+36,New york,NY,13646,St Lawrence,Hammond
 36,New york,NY,13648,Lewis,Harrisville
 36,New york,NY,13650,Jefferson,Henderson
-36,New york,NY,13652,St. Lawrence,Hermon
-36,New york,NY,13654,St. Lawrence,Heuvelton
+36,New york,NY,13652,St Lawrence,Hermon
+36,New york,NY,13654,St Lawrence,Heuvelton
 36,New york,NY,13655,Franklin,Hogansburg
 36,New york,NY,13656,Jefferson,La fargeville
-36,New york,NY,13658,St. Lawrence,Lisbon
+36,New york,NY,13658,St Lawrence,Lisbon
 36,New york,NY,13659,Jefferson,Lorraine
-36,New york,NY,13660,St. Lawrence,Madrid
+36,New york,NY,13660,St Lawrence,Madrid
 36,New york,NY,13661,Jefferson,Mannsville
-36,New york,NY,13662,St. Lawrence,Massena
-36,New york,NY,13664,St. Lawrence,Morristown
+36,New york,NY,13662,St Lawrence,Massena
+36,New york,NY,13664,St Lawrence,Morristown
 36,New york,NY,13665,Jefferson,Natural bridge
-36,New york,NY,13667,St. Lawrence,Norfolk
-36,New york,NY,13668,St. Lawrence,Norwood
-36,New york,NY,13669,St. Lawrence,Ogdensburg
-36,New york,NY,13670,St. Lawrence,Oswegatchie
-36,New york,NY,13672,St. Lawrence,Parishville
+36,New york,NY,13667,St Lawrence,Norfolk
+36,New york,NY,13668,St Lawrence,Norwood
+36,New york,NY,13669,St Lawrence,Ogdensburg
+36,New york,NY,13670,St Lawrence,Oswegatchie
+36,New york,NY,13672,St Lawrence,Parishville
 36,New york,NY,13673,Jefferson,Philadelphia
 36,New york,NY,13675,Jefferson,Plessis
-36,New york,NY,13676,St. Lawrence,Potsdam
+36,New york,NY,13676,St Lawrence,Potsdam
 36,New york,NY,13679,Jefferson,Redwood
-36,New york,NY,13680,St. Lawrence,Rensselaer falls
-36,New york,NY,13681,St. Lawrence,Richville
+36,New york,NY,13680,St Lawrence,Rensselaer falls
+36,New york,NY,13681,St Lawrence,Richville
 36,New york,NY,13682,Jefferson,Rodman
-36,New york,NY,13684,St. Lawrence,Degrasse
+36,New york,NY,13684,St Lawrence,Degrasse
 36,New york,NY,13685,Jefferson,Sackets harbor
-36,New york,NY,13687,St. Lawrence,South colton
-36,New york,NY,13690,St. Lawrence,Star lake
+36,New york,NY,13687,St Lawrence,South colton
+36,New york,NY,13690,St Lawrence,Star lake
 36,New york,NY,13691,Jefferson,Theresa
 36,New york,NY,13693,Jefferson,Three mile bay
-36,New york,NY,13694,St. Lawrence,Waddington
-36,New york,NY,13697,St. Lawrence,Winthrop
+36,New york,NY,13694,St Lawrence,Waddington
+36,New york,NY,13697,St Lawrence,Winthrop
 36,New york,NY,13730,Chenango,Afton
 36,New york,NY,13731,Delaware,Andes
 36,New york,NY,13732,Tioga,Apalachin
@@ -30885,30 +30885,30 @@ state_fips,state,state_abbr,zipcode,county,city
 55,Wisconsin,WI,53968,Juneau,Wonewoc
 55,Wisconsin,WI,53969,Columbia,Wyocena
 55,Wisconsin,WI,54001,Polk,Deronda
-55,Wisconsin,WI,54002,St. Croix,Baldwin
+55,Wisconsin,WI,54002,St Croix,Baldwin
 55,Wisconsin,WI,54003,Pierce,Beldenville
 55,Wisconsin,WI,54004,Polk,Clayton
 55,Wisconsin,WI,54005,Polk,Clear lake
 55,Wisconsin,WI,54006,Polk,Cushing
-55,Wisconsin,WI,54007,St. Croix,Deer park
+55,Wisconsin,WI,54007,St Croix,Deer park
 55,Wisconsin,WI,54009,Polk,Dresser
 55,Wisconsin,WI,54011,Pierce,Ellsworth
-55,Wisconsin,WI,54012,St. Croix,Emerald
-55,Wisconsin,WI,54013,St. Croix,Glenwood city
+55,Wisconsin,WI,54012,St Croix,Emerald
+55,Wisconsin,WI,54013,St Croix,Glenwood city
 55,Wisconsin,WI,54014,Pierce,Hager city
-55,Wisconsin,WI,54015,St. Croix,Hammond
-55,Wisconsin,WI,54016,St. Croix,Hudson
-55,Wisconsin,WI,54017,St. Croix,New richmond
+55,Wisconsin,WI,54015,St Croix,Hammond
+55,Wisconsin,WI,54016,St Croix,Hudson
+55,Wisconsin,WI,54017,St Croix,New richmond
 55,Wisconsin,WI,54020,Polk,Osceola
 55,Wisconsin,WI,54021,Pierce,Prescott
 55,Wisconsin,WI,54022,Pierce,River falls
-55,Wisconsin,WI,54023,St. Croix,Roberts
+55,Wisconsin,WI,54023,St Croix,Roberts
 55,Wisconsin,WI,54024,Polk,Saint croix fall
-55,Wisconsin,WI,54025,St. Croix,Somerset
+55,Wisconsin,WI,54025,St Croix,Somerset
 55,Wisconsin,WI,54026,Polk,Star prairie
-55,Wisconsin,WI,54027,St. Croix,Wilson
-55,Wisconsin,WI,54028,St. Croix,Woodville
-55,Wisconsin,WI,54082,St. Croix,Saint joseph
+55,Wisconsin,WI,54027,St Croix,Wilson
+55,Wisconsin,WI,54028,St Croix,Woodville
+55,Wisconsin,WI,54082,St Croix,Saint joseph
 55,Wisconsin,WI,54101,Oconto,Abrams
 55,Wisconsin,WI,54102,Marinette,Amberg
 55,Wisconsin,WI,54103,Forest,Armstrong creek
@@ -31504,3 +31504,7 @@ state_fips,state,state_abbr,zipcode,county,city
 56,Wyoming,WY,83126,Lincoln,Smoot
 56,Wyoming,WY,83127,Lincoln,Thayne
 56,Wyoming,WY,83128,Lincoln,Alpine
+14,Guam,GU,96912,Guam,Dededo
+14,Guam,GU,96910,Guam,Hagatna
+14,Guam,GU,96932,Guam,Hagatna
+14,Guam,GU,96929,Guam,Yigo

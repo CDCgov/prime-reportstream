@@ -53,7 +53,7 @@ class Hl7Serializer(val metadata: Metadata) {
             buildVersion = buildProperties.getProperty("buildVersion", "0.0.0.0")
             buildDate = buildProperties.getProperty("buildDate", "20200101")
         }
-        hapiContext.modelClassFactory = CanonicalModelClassFactory("2.5.1")
+        hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
     }
 
     /**
@@ -167,7 +167,7 @@ class Hl7Serializer(val metadata: Metadata) {
         val warnings = mutableListOf<String>()
         // key of the map is the column header, list is the values in the column
         val mappedRows: MutableMap<String, MutableSet<String>> = mutableMapOf()
-        val mcf = CanonicalModelClassFactory("2.5.1")
+        val mcf = CanonicalModelClassFactory(HL7_SPEC_VERSION)
         hapiContext.modelClassFactory = mcf
         val parser = hapiContext.pipeParser
         val reg = "(\r|\n)".toRegex()
@@ -253,7 +253,7 @@ class Hl7Serializer(val metadata: Metadata) {
         val message = ORU_R01()
         message.initQuickstart("ORU", "R01", "D")
         buildMessage(message, report, row)
-        hapiContext.modelClassFactory = CanonicalModelClassFactory("2.5.1")
+        hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
         return hapiContext.pipeParser.encode(message)
     }
 
@@ -437,9 +437,11 @@ class Hl7Serializer(val metadata: Metadata) {
         val extension = parts[2]
 
         if (element.nameContains("patient")) {
+            // PID-13 is repeatable, which means we could have more than one phone #
+            // or email etc, so we need to increment until we get empty for PID-13-2
             var rep = 0
-            if (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
-                rep = 1
+            while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
+                rep += 1
             }
             // primary residence number
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
@@ -462,9 +464,11 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     private fun setEmailComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
+        // PID-13 is repeatable, which means we could have more than one phone #
+        // or email etc, so we need to increment until we get empty for PID-13-2
         var rep = 0
-        if (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
-            rep = 1
+        while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
+            rep += 1
         }
         if (element.nameContains("patient_email")) {
             // this is an email address
@@ -543,14 +547,14 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set(formPathSpec("NTE-4-1"), "RE")
         terser.set(formPathSpec("NTE-4-2"), "Remark")
         terser.set(formPathSpec("NTE-4-3"), "HL70364")
-        terser.set(formPathSpec("NTE-4-7"), "2.5.1")
+        terser.set(formPathSpec("NTE-4-7"), HL7_SPEC_VERSION)
     }
 
     private fun setLiterals(terser: Terser) {
         // Value that NIST requires (although # is not part of 2.5.1)
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
-        terser.set("MSH-12", "2.5.1")
+        terser.set("MSH-12", HL7_SPEC_VERSION)
         terser.set("MSH-17", "USA")
 
         terser.set("SFT-1", softwareVendorOrganization)
@@ -670,5 +674,6 @@ class Hl7Serializer(val metadata: Metadata) {
 
     companion object {
         const val SPECIMEN_RECEIVED_DATE_TIME_SECONDS_ADJUSTMENT: Long = 6
+        const val HL7_SPEC_VERSION: String = "2.5.1"
     }
 }
