@@ -111,9 +111,39 @@ resource "azurerm_function_app" "function_app" {
     "WEBSITE_HTTPLOGGING_RETENTION_DAYS" = (var.environment == "prod" ? 3 : null)
   }
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   tags = {
     environment = var.environment
   }
+}
+
+resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {
+  # This is a hack. The function_app module has a bug where it does not export the values until after being updated.
+  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
+  # The second deploy adds the Key Value access policy.
+  count = azurerm_function_app.function_app.identity.0.tenant_id != null ? 1 : 0
+
+  key_vault_id = var.app_config_key_vault_id
+  tenant_id = azurerm_function_app.function_app.identity.0.tenant_id
+  object_id = azurerm_function_app.function_app.identity.0.principal_id
+
+  secret_permissions = [ "Get" ]
+}
+
+resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_policy" {
+  # This is a hack. The function_app module has a bug where it does not export the values until after being updated.
+  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
+  # The second deploy adds the Key Value access policy.
+  count = azurerm_function_app.function_app.identity.0.tenant_id != null ? 1 : 0
+
+  key_vault_id = var.client_config_key_vault_id
+  tenant_id = azurerm_function_app.function_app.identity.0.tenant_id
+  object_id = azurerm_function_app.function_app.identity.0.principal_id
+
+  secret_permissions = [ "Get" ]
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
