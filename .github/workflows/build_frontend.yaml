@@ -3,8 +3,8 @@ name: Frontend Build
 on:
   pull_request:
     branches: [ master, production ]
-    paths-ignore:
-      - 'prime-router/docs/**'
+    paths:
+      - 'frontend/**'
 
 jobs:
   gate_workflow:
