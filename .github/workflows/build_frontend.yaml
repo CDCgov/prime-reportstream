@@ -1,0 +1,41 @@
+name: Frontend Build
+
+on:
+  pull_request:
+    branches: [ master, production ]
+    paths-ignore:
+      - 'prime-router/docs/**'
+
+jobs:
+  gate_workflow:
+    # Do not run on PRs from forks to prevent workflow abuse.
+    # NOTE: changing this condition *may* require adjusting secrets usage in
+    # the workflow steps below.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: echo 'Build gate PASSED. Continuing with other build steps.'
+
+  build_frontend:
+    name: Frontend
+    needs: gate_workflow
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run Build Script
+        run: bash ci_build.bash
+
+      - name: Save Static Website
+        uses: actions/upload-artifact@v2
+        with:
+          name: static_website
+          path: frontend/dist
+
+      - name: Validate static website server
+        run: bash ci_validate.bash
