@@ -302,7 +302,7 @@ UNK|Unknown
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-3-1
+**HL7 Field**: ORC-3-2
 
 **Cardinality**: [0..1]
 
@@ -312,7 +312,7 @@ UNK|Unknown
 
 **Type**: ID
 
-**HL7 Field**: ORC-3-1
+**HL7 Field**: ORC-3-2
 
 **Cardinality**: [0..1]
 
@@ -321,6 +321,8 @@ UNK|Unknown
 **Name**: filler_clia
 
 **Type**: ID_CLIA
+
+**HL7 Field**: OBR-3-3
 
 **Cardinality**: [0..1]
 

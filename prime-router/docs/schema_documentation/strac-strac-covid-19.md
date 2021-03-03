@@ -188,7 +188,7 @@ The zip code of the provider
 
 **Type**: ID
 
-**HL7 Field**: ORC-3-1
+**HL7 Field**: ORC-3-2
 
 **Cardinality**: [0..1]
 

@@ -207,7 +207,7 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-3-1
+**HL7 Field**: ORC-3-2
 
 **Cardinality**: [0..1]
 
@@ -217,7 +217,7 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Type**: ID
 
-**HL7 Field**: ORC-3-1
+**HL7 Field**: ORC-3-2
 
 **Cardinality**: [0..1]
 
@@ -226,6 +226,8 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 **Name**: filler_clia
 
 **Type**: ID_CLIA
+
+**HL7 Field**: OBR-3-3
 
 **Cardinality**: [0..1]
 
