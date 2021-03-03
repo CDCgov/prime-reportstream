@@ -19,8 +19,6 @@ import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
-import java.util.Locale
 import java.util.Properties
 
 class Hl7Serializer(val metadata: Metadata) {
@@ -35,10 +33,8 @@ class Hl7Serializer(val metadata: Metadata) {
         val errors: List<String>,
         val warnings: List<String>,
     )
-    private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
-    private val softwareProductName = "PRIME Data Hub"
-    private val hl7SegmentDelimiter: String = "\r"
 
+    private val hl7SegmentDelimiter: String = "\r"
     private val hapiContext = DefaultHapiContext()
     private val buildVersion: String
     private val buildDate: String
@@ -367,34 +363,6 @@ class Hl7Serializer(val metadata: Metadata) {
                     setEmailComponent(terser, value, pathSpec, element)
                 }
             }
-            Element.Type.DATETIME -> {
-                // HACK WARNING
-                // some states have complained that the specimen_collected_datetime and the
-                // specimen_received_datetime cannot be the same data point. SimpleReport does not
-                // currently collect the received date time, so we have been setting the collected
-                // and received to the same value.
-                // in order to move past validation from states, we are shifting the value of
-                // the received date time ahead by six seconds. this is a total hack, and probably
-                // needs more robust guard rails and some wrapping in a set of properties, but for now
-                // this is how we have to do it
-                if (element.name.equals("testing_lab_specimen_received_datetime", ignoreCase = true)) {
-                    val normalDate = try {
-                        OffsetDateTime.parse(value)
-                    } catch (e: DateTimeParseException) {
-                        null
-                    } ?: try {
-                        val formatter = DateTimeFormatter.ofPattern(Element.datetimePattern, Locale.ENGLISH)
-                        OffsetDateTime.parse(value, formatter)
-                    } catch (e: DateTimeParseException) {
-                        error("Invalid date: '$value' for element '$${element.name}'")
-                    }
-                    val adjustedDateTime = normalDate.plusSeconds(SPECIMEN_RECEIVED_DATE_TIME_SECONDS_ADJUSTMENT)
-                    val formattedDateTime = formatter.format(adjustedDateTime)
-                    terser.set(pathSpec, formattedDateTime)
-                } else {
-                    terser.set(pathSpec, value)
-                }
-            }
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
@@ -557,26 +525,19 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set("MSH-12", HL7_SPEC_VERSION)
         terser.set("MSH-17", "USA")
 
-        terser.set("SFT-1", softwareVendorOrganization)
+        terser.set("SFT-1", SOFTWARE_VENDOR_ORGANIZATION)
         terser.set("SFT-2", buildVersion)
-        terser.set("SFT-3", softwareProductName)
+        terser.set("SFT-3", SOFTWARE_PRODUCT_NAME)
         terser.set("SFT-4", buildVersion)
         terser.set("SFT-6", buildDate)
 
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
-        terser.set("/PATIENT_RESULT/PATIENT/PID-3-4-3", "ISO")
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
-        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-2-4", "ISO")
-        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "ISO")
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-1", "1")
-        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-2-4", "ISO")
-        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-3-4", "ISO")
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-1", "1")
-        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-2-1-4", "ISO")
-        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-2-2-4", "ISO")
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
@@ -673,7 +634,8 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     companion object {
-        const val SPECIMEN_RECEIVED_DATE_TIME_SECONDS_ADJUSTMENT: Long = 6
         const val HL7_SPEC_VERSION: String = "2.5.1"
+        const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
+        const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
     }
 }

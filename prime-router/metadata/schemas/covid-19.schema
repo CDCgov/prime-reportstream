@@ -1060,7 +1060,7 @@ elements:
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
     hl7Field: SPM-18-1
-    mapper: use(specimen_collection_date_time)
+    mapper: offsetDateTime(specimen_collection_date_time, seconds, 6)
 
   - name: testing_lab_state
     type: TABLE
