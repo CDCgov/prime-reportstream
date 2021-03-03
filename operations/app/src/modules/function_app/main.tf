@@ -91,6 +91,13 @@ resource "azurerm_function_app" "function_app" {
     "FL_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-user)"
     "FL_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-pass)"
 
+    # LA
+    "LA_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
+    "LA_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
+
+    "LA_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
+    "LA_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
+
     # ND
     "ND_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-user)"
     "ND_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-pass)"
@@ -104,13 +111,6 @@ resource "azurerm_function_app" "function_app" {
 
     "OH_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-user)"
     "OH_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-pass)"
-
-    # LA
-    "LA_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
-    "LA_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
-
-    "LA_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
-    "LA_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
 
     # TX
     "TX_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-user)"
