@@ -58,7 +58,7 @@ jobs:
            java-version: 11
 
       - name: Cache Maven Dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('prime-router/pom.xml') }}
