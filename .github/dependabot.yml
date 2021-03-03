@@ -28,19 +28,19 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/dev"
+    directory: "/operations/app/src/environments/dev"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/test"
+    directory: "/operations/app/src/environments/test"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/staging"
+    directory: "/operations/app/src/environments/staging"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/prod"
+    directory: "/operations/app/src/environments/prod"
     schedule:
       interval: "weekly"
   
