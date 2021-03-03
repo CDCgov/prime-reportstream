@@ -27,7 +27,7 @@
         <maven.plugin>3.1.0</maven.plugin>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
 
-        <jackson.version>2.11.3</jackson.version>
+        <jackson.version>2.12.1</jackson.version>
         <hapi.version>2.3</hapi.version>
         <jooq.version>3.14.7</jooq.version>
         <log4j.version>[2.13.2,)</log4j.version>
