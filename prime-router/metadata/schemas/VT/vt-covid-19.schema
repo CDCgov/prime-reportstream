@@ -33,10 +33,13 @@ elements:
   - name: file_created_date
 
   - name: filler_name
+    mapper: use(testing_lab_name)
 
   - name: filler_order_id
+    mapper: use(message_id)
 
   - name: filler_clia
+    mapper: use(testing_lab_clia)
 
   - name: observation_result_status
 
@@ -149,10 +152,13 @@ elements:
   - name: patient_zip_code
 
   - name: placer_order_id
+    mapper: use(message_id)
 
   - name: placer_name
+    mapper: use(testing_lab_name)
 
   - name: placer_clia
+    mapper: use(testing_lab_clia)
 
   - name: placer_order_group_id
 

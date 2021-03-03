@@ -145,16 +145,18 @@ elements:
   - name: filler_name
     type: TEXT
     natFlatFileField: Not Supported
-    hl7Field: ORC-3-1
+    hl7Field: ORC-3-2
+    hl7OutputFields: [ORC-3-2, OBR-3-2]
 
   - name: filler_order_id
     type: ID
-    hl7Field: ORC-3-1
-    hl7OutputFields: [ ORC-3-1, SPM-2-2 ]
+    hl7Field: ORC-3-2
+    hl7OutputFields: [ ORC-3-2, SPM-2-2, OBR-3-2 ]
 
   - name: filler_clia
     type: ID_CLIA
     natFlatFileField: Not Supported
+    hl7Field: OBR-3-3
 
   - name: first_test
     type: CODE
@@ -833,7 +835,7 @@ elements:
 
   - name: specimen_id
     type: EI
-    hl7OutputFields: [SPM-2, OBR-3-1]
+    hl7OutputFields: [SPM-2, OBR-3-1, ORC-3-1]
     mapper: use(message_id)
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
 
