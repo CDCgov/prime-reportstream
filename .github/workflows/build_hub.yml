@@ -9,20 +9,23 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+      has_router_change: ${{ steps.skip_check.outputs.router }}
       is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
+      - uses: dorny/paths-filter@v2
+        id: skip_check
         with:
-          paths: '["prime-router/**"]'
+          list-files: csv
+          filters: |
+            router:
+              - 'prime-router/**'
       - id: fork_check
         run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
   build_router:
     name: Build Router
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
