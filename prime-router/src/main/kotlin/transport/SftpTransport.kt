@@ -6,7 +6,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
@@ -19,7 +19,7 @@ import java.util.logging.Level
 class SftpTransport : ITransport {
     override fun send(
         transportType: TransportType,
-        header: DatabaseAccess.Header,
+        header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
@@ -31,7 +31,7 @@ class SftpTransport : ITransport {
         return try {
             if (header.content == null)
                 error("No content to sftp for report ${header.reportFile.reportId}")
-            val receiver = header.orgSvc ?: error("No receiver defined for report ${header.reportFile.reportId}")
+            val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
             val (user, pass) = lookupCredentials(receiver.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
@@ -52,7 +52,7 @@ class SftpTransport : ITransport {
         } catch (ioException: IOException) {
             val msg =
                 "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
-                    "$sftpTransportType (orgService = ${header.orgSvc?.fullName ?: "null"})"
+                    "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})"
             context.logger.log(
                 Level.WARNING, msg, ioException
             )

@@ -11,8 +11,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.transport.RedoxTransport.ResultStatus
+import gov.cdc.prime.router.azure.WorkflowEngine
 import java.util.logging.Level
 
 class RedoxTransport() : ITransport {
@@ -32,7 +31,7 @@ class RedoxTransport() : ITransport {
 
     override fun send(
         transportType: TransportType,
-        header: DatabaseAccess.Header,
+        header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
@@ -42,7 +41,7 @@ class RedoxTransport() : ITransport {
         val (key, secret) = getKeyAndSecret(redoxTransportType)
         if (header.content == null)
             error("No content to send to redox for report ${header.reportFile.reportId}")
-        val receiver = header.orgSvc ?: error("No receiver defined for report ${header.reportFile.reportId}")
+        val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
         val messages = String(header.content).split("\n") // NDJSON content
         val token = fetchToken(redoxTransportType, key, secret, context)
         if (token == null) {

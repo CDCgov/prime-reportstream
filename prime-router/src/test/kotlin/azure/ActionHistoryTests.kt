@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
@@ -94,19 +96,18 @@ class ActionHistoryTests {
             itemLineage = listOf<ItemLineage>()
         )
         val org =
-            Organization(
+            DeepOrganization(
                 name = "myOrg",
                 description = "blah blah",
-                clients = listOf(),
-                services = listOf(
-                    OrganizationService("myService", "topic", "schema")
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                receivers = listOf(
+                    Receiver("myService", "myOrg", "topic", "schema")
                 )
             )
-        val orgSvc = org.services[0]
+        val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
-
-        actionHistory1.trackCreatedReport(event1, report1, orgSvc, blobInfo1)
+        actionHistory1.trackCreatedReport(event1, report1, orgReceiver, blobInfo1)
 
         assertNotNull(actionHistory1.reportsOut[report1.id])
         val reportFile = actionHistory1.reportsOut[report1.id] !!
@@ -120,7 +121,7 @@ class ActionHistoryTests {
         assertEquals(reportFile.itemCount, 0)
 
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackCreatedReport(event1, report1, orgSvc, blobInfo1) }
+        assertFails { actionHistory1.trackCreatedReport(event1, report1, orgReceiver, blobInfo1) }
     }
 
     @Test
@@ -144,17 +145,17 @@ class ActionHistoryTests {
     fun `test trackSentReport`() {
         val uuid = UUID.randomUUID()
         val org =
-            Organization(
+            DeepOrganization(
                 name = "myOrg",
                 description = "blah blah",
-                clients = listOf(),
-                services = listOf(
-                    OrganizationService("myService", "topic1", "schema1", format = Report.Format.REDOX)
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                receivers = listOf(
+                    Receiver("myService", "myOrg", "topic1", "schema1", format = Report.Format.REDOX)
                 )
             )
-        val orgSvc = org.services[0]
+        val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        actionHistory1.trackSentReport(orgSvc, uuid, "filename1", "params1", "result1", 15)
+        actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", 15)
         assertNotNull(actionHistory1.reportsOut[uuid])
         val reportFile = actionHistory1.reportsOut[uuid] !!
         assertEquals("schema1", reportFile.schemaName)
@@ -170,12 +171,12 @@ class ActionHistoryTests {
         assertNull(reportFile.blobDigest)
         assertEquals(15, reportFile.itemCount)
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackSentReport(orgSvc, uuid, "filename1", "params1", "result1", 15) }
+        assertFails { actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", 15) }
     }
 
     @Test
     fun `test trackDownloadedReport`() {
-        val metadata = Metadata("./metadata", "-local")
+        val metadata = Metadata("./metadata")
         val workflowEngine = mockkClass(WorkflowEngine::class)
         every { workflowEngine.metadata }.returns(metadata)
         val uuid = UUID.randomUUID()
@@ -183,7 +184,20 @@ class ActionHistoryTests {
         reportFile1.reportId = uuid
         reportFile1.receivingOrg = "myOrg"
         reportFile1.receivingOrgSvc = "myRcvr"
-        val header = DatabaseAccess.Header(Task(), reportFile1, null, workflowEngine)
+        // As of this writing, lineage is taken from the parent report obj, not the org/receiver obj.
+        val org =
+            DeepOrganization(
+                name = "orgX",
+                description = "blah blah",
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                receivers = listOf(
+                    Receiver("receiverX", "myOrg", "topic", "schema", format = Report.Format.HL7)
+                )
+            )
+        val schema = Schema("schema", "topic")
+        val header = WorkflowEngine.Header(
+            Task(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray()
+        )
         val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()
         actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob")
@@ -236,35 +250,35 @@ class ActionHistoryTests {
     @Test
     fun `test prettyPrintDestinations`() {
         val org0 =
-            Organization(
+            DeepOrganization(
                 name = "org0",
                 description = "foo bar",
-                clients = listOf(),
-                services = listOf(
-                    OrganizationService("service0", "topic", "schema", format = Report.Format.REDOX)
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                receivers = listOf(
+                    Receiver("service0", "org0", "topic", "schema", format = Report.Format.REDOX)
                 )
             )
         val org1 =
-            Organization(
+            DeepOrganization(
                 name = "org1",
                 description = "blah blah",
-                clients = listOf(),
-                services = listOf(
-                    OrganizationService("service1", "topic", "schema", format = Report.Format.HL7)
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                receivers = listOf(
+                    Receiver("service1", "org1", "topic", "schema", format = Report.Format.HL7)
                 )
             )
-        val metadata = Metadata().loadOrganizationList(listOf(org0, org1))
+        val settings = FileSettings().loadOrganizationList(listOf(org0, org1))
         val actionHistory = ActionHistory(TaskAction.batch)
         val r0 = ReportFile()
         r0.reportId = UUID.randomUUID()
         r0.receivingOrg = org0.name
-        r0.receivingOrgSvc = org0.services[0].name
+        r0.receivingOrgSvc = org0.receivers[0].name
         r0.itemCount = 17
         actionHistory.reportsOut[r0.reportId] = r0
         val r1 = ReportFile()
         r1.reportId = UUID.randomUUID()
         r1.receivingOrg = org1.name
-        r1.receivingOrgSvc = org1.services[0].name
+        r1.receivingOrgSvc = org1.receivers[0].name
         r1.nextActionAt = OffsetDateTime.now()
         r1.itemCount = 1
         actionHistory.reportsOut[r1.reportId] = r1
@@ -274,7 +288,7 @@ class ActionHistoryTests {
         factory.createGenerator(outStream).use {
             it.writeStartObject()
             // Finally, we're ready to run the test:
-            actionHistory.prettyPrintDestinationsJson(it, metadata)
+            actionHistory.prettyPrintDestinationsJson(it, settings)
             it.writeEndObject()
         }
 
@@ -310,7 +324,7 @@ class ActionHistoryTests {
         outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.writeStartObject()
-            actionHistory.prettyPrintDestinationsJson(it, metadata)
+            actionHistory.prettyPrintDestinationsJson(it, settings)
             it.writeEndObject()
         }
         val json2 = outStream.toString()

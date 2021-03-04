@@ -1,6 +1,6 @@
 package gov.cdc.prime.router
 
-import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
@@ -28,7 +28,7 @@ typealias DefaultValues = Map<String, String>
 const val SHUFFLE_THRESHOLD = 25
 
 // Basic size limitations on incoming reports
-const val REPORT_MAX_BYTES: Long = 50 * 1000 * 1000 // Experiments show 10k HL7 Items is ~41Meg. So allow 50Meg
+const val PAYLOAD_MAX_BYTES: Long = 50 * 1000 * 1000 // Experiments show 10k HL7 Items is ~41Meg. So allow 50Meg
 const val REPORT_MAX_ITEMS = 10000
 const val REPORT_MAX_ITEM_COLUMNS = 2000
 const val REPORT_MAX_ERRORS = 100
@@ -86,7 +86,7 @@ class Report {
     /**
      * The intended destination service for this report
      */
-    val destination: OrganizationService?
+    val destination: Receiver?
 
     /**
      * The time when the report was created
@@ -121,8 +121,8 @@ class Report {
         schema.baseName,
         bodyFormat,
         createdDateTime,
-        schema.useAphlNamingFormat,
-        schema.receivingOrganization
+        destination?.translation?.useAphlNamingFormat ?: false,
+        destination?.translation?.receivingOrganization
     )
 
     /**
@@ -159,7 +159,7 @@ class Report {
         schema: Schema,
         values: List<List<String>>,
         sources: List<Source>,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         id: ReportId? = null // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
@@ -179,7 +179,7 @@ class Report {
         schema: Schema,
         values: List<List<String>>,
         source: TestSource,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null
     ) {
@@ -197,8 +197,8 @@ class Report {
 /*    constructor(
         schema: Schema,
         values: List<List<String>>,
-        source: OrganizationClient,
-        destination: OrganizationService? = null,
+        source: Sender,
+        destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null
     ) {
@@ -217,7 +217,7 @@ class Report {
         schema: Schema,
         values: Map<String, List<String>>,
         source: Source,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
     ) {
@@ -235,7 +235,7 @@ class Report {
         schema: Schema,
         table: Table,
         sources: List<Source>,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null
     ) {
@@ -275,7 +275,7 @@ class Report {
     /**
      * Does a shallow copy of this report. Will have a new id and create date.
      */
-    fun copy(destination: OrganizationService? = null, bodyFormat: Format? = null): Report {
+    fun copy(destination: Receiver? = null, bodyFormat: Format? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
         val copy = Report(
             this.schema,
@@ -623,7 +623,7 @@ class Report {
          * In those cases, to populate the lineage, we can grab needed fields from previous lineage rows.
          */
         fun createItemLineagesFromDb(
-            prevHeader: DatabaseAccess.Header,
+            prevHeader: WorkflowEngine.Header,
             newChildReportId: ReportId
         ): List<ItemLineage>? {
             if (prevHeader.itemLineages == null) return null
@@ -713,7 +713,7 @@ class Report {
          * Try to extract an existing filename from report metadata.  If it does not exist or is malformed,
          * create a new filename.
          */
-        fun formExternalFilename(header: DatabaseAccess.Header): String {
+        fun formExternalFilename(header: WorkflowEngine.Header): String {
             // extract the filename from the blob url.
             val filename = if (header.reportFile.bodyUrl != null)
                 header.reportFile.bodyUrl.split("/").last()
@@ -725,7 +725,7 @@ class Report {
                 formFilename(
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
-                    header.orgSvc?.format ?: error("Internal Error: ${header.orgSvc?.name} does not have a format"),
+                    header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
                     header.reportFile.createdAt
                 )
             }

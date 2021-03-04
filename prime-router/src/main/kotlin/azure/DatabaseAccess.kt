@@ -2,17 +2,20 @@ package gov.cdc.prime.router.azure
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
+import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
+import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
 import org.jooq.Configuration
 import org.jooq.DSLContext
@@ -34,39 +37,14 @@ const val passwordVariable = "POSTGRES_PASSWORD"
 typealias DataAccessTransaction = Configuration
 
 /**
- * A data access layer for the database. Hides JOOQ, Hikari, JDBC and other low-level abstractions.
+ * A data access layer for the database. The idea or abstraction is CRUD on tables in the database. The interface
+ * uses the POJO abstractions of the database tables.
+ *
+ * The companion object does the connection pooling and settings.
  */
-class DatabaseAccess(private val create: DSLContext) {
-    constructor(dataSource: DataSource) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
+class DatabaseAccess(private val create: DSLContext) : Logging {
+    constructor(dataSource: DataSource = commonDataSource) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
     constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
-
-    class Header(
-        val task: Task,
-        val reportFile: ReportFile,
-        val itemLineages: List<ItemLineage>?, // ok to not have item-level lineage
-        val engine: WorkflowEngine = WorkflowEngine(),
-        var orgSvc: OrganizationService? = null,
-    ) {
-        // Populate the header with useful metadata objs, and the blob body.
-        val schema: Schema?
-        val content: ByteArray?
-
-        init {
-            val metadata = engine.metadata
-            if (orgSvc == null && reportFile.receivingOrg != null && reportFile.receivingOrgSvc != null) {
-                orgSvc = metadata.findService(reportFile.receivingOrg, reportFile.receivingOrgSvc)
-                // note:  orgSvc might still be null if not found.
-            }
-
-            schema = if (reportFile.schemaName != null)
-                metadata.findSchema(reportFile.schemaName)
-            else null
-
-            content = if (reportFile.bodyUrl != null)
-                engine.blob.downloadBlob(reportFile.bodyUrl)
-            else null
-        }
-    }
 
     fun checkConnection() {
         create.selectFrom(REPORT_FILE).where(REPORT_FILE.REPORT_ID.eq(UUID.randomUUID())).fetch()
@@ -80,9 +58,73 @@ class DatabaseAccess(private val create: DSLContext) {
     }
 
     /**
+     * Make the other calls in the context of a SQL transaction, returning a result
+     */
+    fun <T> transactReturning(block: (txn: DataAccessTransaction) -> T): T {
+        return create.transactionResult { txn: Configuration -> block(txn) }
+    }
+
+    /*
+     * Task queries
+     */
+
+    /**
+     * Fetch a task record and lock it so other connections can grab it
+     */
+    fun fetchAndLockTask(reportId: ReportId, txn: DataAccessTransaction): Task {
+        return DSL.using(txn)
+            .selectFrom(TASK)
+            .where(TASK.REPORT_ID.eq(reportId))
+            .forUpdate()
+            .fetchOne()
+            ?.into(Task::class.java)
+            ?: error("Could not find $reportId that matches a task")
+    }
+
+    /**
+     * Fetch multiple task records and lock them so other connections can not grab them
+     */
+    fun fetchAndLockTasks(
+        nextAction: TaskAction,
+        at: OffsetDateTime?,
+        receiverFullName: String,
+        limit: Int,
+        txn: DataAccessTransaction
+    ): List<Task> {
+        val cond = if (at == null) {
+            TASK.RECEIVER_NAME.eq(receiverFullName)
+                .and(TASK.NEXT_ACTION.eq(nextAction))
+        } else {
+            TASK.RECEIVER_NAME.eq(receiverFullName)
+                .and(TASK.NEXT_ACTION.eq(nextAction))
+                .and(TASK.NEXT_ACTION_AT.eq(at))
+        }
+        return DSL.using(txn)
+            .selectFrom(TASK)
+            .where(cond)
+            .limit(limit)
+            .forUpdate()
+            .skipLocked() // Allows the same query to run in parallel. Otherwise, the query would lock the table.
+            .fetch()
+            .into(Task::class.java)
+    }
+
+    fun fetchTask(reportId: ReportId, orgName: String): Task {
+        return create
+            .selectFrom(TASK)
+            .where(
+                TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.like("$orgName%"))
+                    .and(TASK.SENT_AT.isNotNull)
+            )
+            .fetchOne()
+            ?.into(Task::class.java)
+            ?: error("Could not find $reportId/$orgName that matches a task")
+    }
+
+    /**
      * Take a report and put into the database after already serializing the body of the report
      */
-    fun insertHeader(
+    fun insertTask(
         report: Report,
         bodyFormat: String,
         bodyUrl: String,
@@ -101,130 +143,326 @@ class DatabaseAccess(private val create: DSLContext) {
         }
     }
 
-    /**
-     * Fetch a particular task and taskSource. In addition, lock the row for updating, so
-     * other connections will not grab it.
-     */
-    fun fetchAndLockHeader(reportId: ReportId, txn: DataAccessTransaction): Header {
-        val ctx = DSL.using(txn)
-        val task = ctx
-            .selectFrom(TASK)
+    fun updateTask(
+        reportId: ReportId,
+        nextAction: TaskAction,
+        nextActionAt: OffsetDateTime?,
+        retryToken: String?,
+        finishedField: Field<OffsetDateTime>,
+        txn: DataAccessTransaction?
+    ) {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        ctx
+            .update(TASK)
+            .set(TASK.NEXT_ACTION, nextAction)
+            .set(TASK.NEXT_ACTION_AT, nextActionAt)
+            .set(TASK.RETRY_TOKEN, if (retryToken != null) JSON.valueOf(retryToken) else null)
+            .set(finishedField, OffsetDateTime.now())
             .where(TASK.REPORT_ID.eq(reportId))
-            .forUpdate()
+            .execute()
+    }
+
+    /*
+     * ActionHistory queries
+     */
+
+    fun fetchReportFile(reportId: ReportId, txn: DataAccessTransaction? = null): ReportFile {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .selectFrom(Tables.REPORT_FILE)
+            .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
             .fetchOne()
-            ?.into(Task::class.java)
-            ?: error("Could not find $reportId that matches a task")
-
-        val reportFile = ActionHistory.fetchReportFile(reportId, ctx)
-        ActionHistory.sanityCheckReport(task, reportFile, false)
-        val itemLineages = ActionHistory.fetchItemLineagesForReport(reportId, reportFile.itemCount, ctx)
-
-        return Header(task, reportFile, itemLineages)
+            ?.into(ReportFile::class.java)
+            ?: error("Could not find $reportId in REPORT_FILE")
     }
 
     /**
-     * Fetch all tasks associated with a receiver. In addition, lock the rows for updating, so
-     * other connections will not grab it.
+     * Returns null if report has no item-level lineage info tracked.
      */
-    fun fetchAndLockHeaders(
-        nextAction: TaskAction,
-        at: OffsetDateTime?,
-        receiver: OrganizationService,
-        limit: Int,
-        txn: DataAccessTransaction,
-    ): List<Header> {
-        val cond = if (at == null) {
-            TASK.RECEIVER_NAME.eq(receiver.fullName)
-                .and(TASK.NEXT_ACTION.eq(nextAction))
-        } else {
-            TASK.RECEIVER_NAME.eq(receiver.fullName)
-                .and(TASK.NEXT_ACTION.eq(nextAction))
-                .and(TASK.NEXT_ACTION_AT.eq(at))
-        }
-        val ctx = DSL.using(txn)
-        val tasks = ctx
-            .selectFrom(TASK)
-            .where(cond)
-            .limit(limit)
-            .forUpdate()
-            .skipLocked() // Allows the same query to run in parallel. Otherwise, the query would lock the table.
+    fun fetchItemLineagesForReport(
+        reportId: ReportId,
+        itemCount: Int,
+        txn: DataAccessTransaction? = null
+    ): List<ItemLineage>? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val itemLineages = ctx
+            .selectFrom(Tables.ITEM_LINEAGE)
+            .where(Tables.ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId))
+            .orderBy(Tables.ITEM_LINEAGE.CHILD_INDEX) // todo Don't know if this will be too slow?  Use a map in mem?
             .fetch()
-            .into(Task::class.java)
-
-        val ids = tasks.map { it.reportId }
-        val reportFiles = ids
-            .map { ActionHistory.fetchReportFile(it, ctx) }
-            .map { (it.reportId as ReportId) to it }
-            .toMap()
-        ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-
-        // taskSources seems erroneous.  All the sources for all Tasks are attached to each indiv. task. ?
-        // todo remove the !!
-        return tasks.map { Header(it, reportFiles[it.reportId]!!, null) }
+            .into(ItemLineage::class.java).toList()
+        // sanity check.  If there are lineages, every record up to itemCount should have at least one lineage.
+        // OK to have more than one lineage.  Eg, a merge.
+        if (itemLineages.isEmpty()) {
+            return null
+        } else {
+            if (itemLineages.size < itemCount)
+                error("For $reportId, must have at least $itemCount item lineages. There were ${itemLineages.size}")
+            val uniqueIndexCount = itemLineages.map { it.childIndex }.toSet().size
+            if (uniqueIndexCount != itemCount)
+                error("For report $reportId, expected $itemCount unique indexes; there were $uniqueIndexCount")
+        }
+        return itemLineages
     }
 
     fun fetchDownloadableReportFiles(
         since: OffsetDateTime?,
-        receiverName: String,
+        orgName: String,
+        txn: DataAccessTransaction? = null,
     ): List<ReportFile> {
-        return ActionHistory.fetchDownloadableReportFiles(since, receiverName, create)
-    }
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val cond = if (since == null) {
+            Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
+                .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
+        } else {
+            Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
+                .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
+                .and(Tables.REPORT_FILE.CREATED_AT.ge(since))
+        }
 
-    fun fetchHeader(
-        reportId: ReportId,
-        orgName: String
-    ): Header {
-
-        val task = create
-            .selectFrom(TASK)
-            .where(TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.like("$orgName%")).and(TASK.SENT_AT.isNotNull()))
-            .fetchOne()
-            ?.into(Task::class.java)
-            ?: error("Could not find $reportId/$orgName that matches a task")
-
-        val reportFile = ActionHistory.fetchReportFile(reportId, create)
-        ActionHistory.sanityCheckReport(task, reportFile, false)
-        val itemLineages = ActionHistory.fetchItemLineagesForReport(reportId, reportFile.itemCount, create)
-        return Header(task, reportFile, itemLineages)
+        return ctx
+            .selectFrom(Tables.REPORT_FILE)
+            .where(cond)
+            .fetch()
+            .into(ReportFile::class.java).toList()
     }
 
     /**
-     * Update the header of a report with new values
+     * Settings queries
      */
-    fun updateHeader(
-        reportId: ReportId,
-        currentEventAction: Event.EventAction,
-        nextEventAction: Event.EventAction,
-        nextActionAt: OffsetDateTime? = null,
-        retryToken: String? = null,
-        txn: DataAccessTransaction,
-    ) {
-        fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> {
-            return when (currentEventAction) {
-                Event.EventAction.RECEIVE -> TASK.TRANSLATED_AT
-                Event.EventAction.TRANSLATE -> TASK.TRANSLATED_AT
-                Event.EventAction.BATCH -> TASK.BATCHED_AT
-                Event.EventAction.SEND -> TASK.SENT_AT
-                Event.EventAction.WIPE -> TASK.WIPED_AT
+    fun fetchSetting(type: SettingType, name: String, parentId: Int?, txn: DataAccessTransaction): Setting? {
+        return DSL
+            .using(txn)
+            .selectFrom(SETTING)
+            .where(
+                SETTING.IS_ACTIVE.isTrue,
+                SETTING.TYPE.eq(type),
+                SETTING.NAME.eq(name),
+                if (parentId != null) SETTING.ORGANIZATION_ID.eq(parentId) else SETTING.ORGANIZATION_ID.isNull
+            )
+            .fetchOne()
+            ?.into(Setting::class.java)
+    }
 
-                Event.EventAction.BATCH_ERROR,
-                Event.EventAction.SEND_ERROR,
-                Event.EventAction.WIPE_ERROR -> TASK.ERRORED_AT
+    fun fetchSetting(type: SettingType, name: String, organizationName: String, txn: DataAccessTransaction): Setting? {
+        val org = SETTING.`as`("org")
+        val item = SETTING.`as`("item")
+        return DSL
+            .using(txn)
+            .select(item.asterisk())
+            .from(item)
+            .join(org).on(item.ORGANIZATION_ID.eq(org.SETTING_ID))
+            .where(
+                item.IS_ACTIVE.isTrue,
+                item.TYPE.eq(type),
+                item.NAME.eq(name),
+                org.IS_ACTIVE.isTrue,
+                org.TYPE.eq(SettingType.ORGANIZATION),
+                org.ORGANIZATION_ID.isNull,
+                org.NAME.eq(organizationName),
+            )
+            .fetchOne()
+            ?.into(Setting::class.java)
+    }
 
-                Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
-            }
-        }
+    /**
+     * Fetch both the item and the organization of the item at the same time to optimize db queries
+     */
+    fun fetchOrganizationAndSetting(
+        type: SettingType,
+        name: String,
+        organizationName: String,
+        txn: DataAccessTransaction? = null
+    ): Pair<Setting, Setting>? {
+        val org = SETTING.`as`("org")
+        val item = SETTING.`as`("item")
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val result = ctx
+            .select(item.asterisk(), org.asterisk())
+            .from(item)
+            .join(org).on(item.ORGANIZATION_ID.eq(org.SETTING_ID))
+            .where(
+                item.IS_ACTIVE.isTrue,
+                item.TYPE.eq(type),
+                item.NAME.eq(name),
+                org.IS_ACTIVE.isTrue,
+                org.TYPE.eq(SettingType.ORGANIZATION),
+                org.ORGANIZATION_ID.isNull,
+                org.NAME.eq(organizationName),
+            )
+            .fetchOne()
+            ?: return null
 
+        val itemSetting = Setting(
+            result.get(item.SETTING_ID),
+            result.get(item.TYPE),
+            result.get(item.NAME),
+            result.get(item.ORGANIZATION_ID),
+            result.get(item.VALUES),
+            result.get(item.IS_DELETED),
+            result.get(item.IS_ACTIVE),
+            result.get(item.VERSION),
+            result.get(item.CREATED_BY),
+            result.get(item.CREATED_AT)
+        )
+        val orgSetting = Setting(
+            result.get(org.SETTING_ID),
+            result.get(org.TYPE),
+            result.get(org.NAME),
+            result.get(org.ORGANIZATION_ID),
+            result.get(org.VALUES),
+            result.get(org.IS_DELETED),
+            result.get(org.IS_ACTIVE),
+            result.get(org.VERSION),
+            result.get(org.CREATED_BY),
+            result.get(org.CREATED_AT)
+        )
+        return Pair(orgSetting, itemSetting)
+    }
+
+    fun fetchSettings(type: SettingType, txn: DataAccessTransaction): List<Setting> {
+        return DSL
+            .using(txn)
+            .selectFrom(SETTING)
+            .where(
+                SETTING.IS_ACTIVE.isTrue,
+                SETTING.TYPE.eq(type)
+            )
+            .fetch()
+            .into(Setting::class.java)
+    }
+
+    fun fetchSettings(type: SettingType, organizationId: Int, txn: DataAccessTransaction): List<Setting> {
+        return DSL
+            .using(txn)
+            .select()
+            .from(SETTING)
+            .where(
+                SETTING.IS_ACTIVE.isTrue,
+                SETTING.TYPE.eq(type),
+                SETTING.ORGANIZATION_ID.eq(organizationId)
+            )
+            .fetch()
+            .into(Setting::class.java)
+    }
+
+    fun insertSetting(setting: Setting, txn: DataAccessTransaction): Int {
+        return DSL
+            .using(txn)
+            .insertInto(SETTING)
+            .set(SETTING.SETTING_ID, DSL.defaultValue(SETTING.SETTING_ID))
+            .set(SETTING.TYPE, setting.type)
+            .set(SETTING.ORGANIZATION_ID, setting.organizationId)
+            .set(SETTING.NAME, setting.name)
+            .set(SETTING.IS_ACTIVE, setting.isActive)
+            .set(SETTING.IS_DELETED, setting.isDeleted)
+            .set(SETTING.VALUES, setting.values)
+            .set(SETTING.VERSION, setting.version)
+            .set(SETTING.CREATED_AT, setting.createdAt)
+            .set(SETTING.CREATED_BY, setting.createdBy)
+            .returningResult(SETTING.SETTING_ID)
+            .fetchOne()
+            ?.value1() ?: error("Fetch error")
+    }
+
+    fun updateOrganizationId(currentOrganizationId: Int, newOrganizationId: Int, txn: DataAccessTransaction) {
         DSL
             .using(txn)
-            .update(TASK)
-            .set(TASK.NEXT_ACTION, nextEventAction.toTaskAction())
-            .set(TASK.NEXT_ACTION_AT, nextActionAt)
-            .set(TASK.RETRY_TOKEN, if (retryToken != null) JSON.valueOf(retryToken) else null)
-            .set(finishedField(currentEventAction), OffsetDateTime.now())
-            .where(TASK.REPORT_ID.eq(reportId))
+            .update(SETTING)
+            .set(SETTING.ORGANIZATION_ID, newOrganizationId)
+            .where(
+                SETTING.ORGANIZATION_ID.eq(currentOrganizationId),
+                SETTING.IS_ACTIVE.isTrue
+            )
             .execute()
     }
+
+    /**
+     * search for a setting and it children, insert a deleted setting for those found
+     */
+    fun insertDeletedSettingAndChildren(settingId: Int, settingMetadata: SettingMetadata, txn: DataAccessTransaction) {
+        DSL
+            .using(txn)
+            .insertInto(
+                SETTING,
+                SETTING.TYPE,
+                SETTING.ORGANIZATION_ID,
+                SETTING.NAME,
+                SETTING.VALUES,
+                SETTING.IS_DELETED,
+                SETTING.IS_ACTIVE,
+                SETTING.VERSION,
+                SETTING.CREATED_BY,
+                SETTING.CREATED_AT
+            )
+            .select(
+                DSL
+                    .select(
+                        SETTING.TYPE,
+                        SETTING.ORGANIZATION_ID,
+                        SETTING.NAME,
+                        SETTING.VALUES,
+                        DSL.value(true, SETTING.IS_DELETED),
+                        DSL.value(false, SETTING.IS_ACTIVE),
+                        SETTING.VERSION.plus(1),
+                        DSL.value(settingMetadata.createdBy, SETTING.CREATED_BY),
+                        DSL.value(settingMetadata.createdAt, SETTING.CREATED_AT)
+                    )
+                    .from(SETTING)
+                    .where(
+                        SETTING.SETTING_ID.eq(settingId).or(SETTING.ORGANIZATION_ID.eq(settingId)),
+                        SETTING.IS_ACTIVE.isTrue
+                    )
+            )
+            .execute()
+    }
+
+    fun deactivateSetting(settingId: Int, txn: DataAccessTransaction) {
+        DSL
+            .using(txn)
+            .update(SETTING)
+            .set(SETTING.IS_ACTIVE, false)
+            .where(
+                SETTING.SETTING_ID.eq(settingId)
+            )
+            .execute()
+    }
+
+    fun deactivateSettingAndChildren(settingId: Int, txn: DataAccessTransaction) {
+        DSL
+            .using(txn)
+            .update(SETTING)
+            .set(SETTING.IS_ACTIVE, false)
+            .where(
+                SETTING.SETTING_ID.eq(settingId).or(SETTING.ORGANIZATION_ID.eq(settingId)),
+                SETTING.IS_ACTIVE.isTrue
+            )
+            .execute()
+    }
+
+    /**
+     * Find the current setting version looking through inactive and active settings. Return -1 no setting is found.
+     */
+    fun findSettingVersion(type: SettingType, name: String, organizationId: Int?, txn: DataAccessTransaction): Int {
+        return DSL
+            .using(txn)
+            .select(DSL.max(SETTING.VERSION))
+            .from(SETTING)
+            .where(
+                SETTING.TYPE.eq(type),
+                SETTING.NAME.eq(name),
+                if (organizationId == null)
+                    SETTING.ORGANIZATION_ID.isNull
+                else
+                    SETTING.ORGANIZATION_ID.eq(organizationId)
+            )
+            .fetchOne()
+            ?.getValue(DSL.max(SETTING.VERSION)) ?: -1
+    }
+
+    /**
+     * Common companion object
+     */
 
     companion object {
         /**
@@ -235,7 +473,7 @@ class DatabaseAccess(private val create: DSLContext) {
          * That is functions amortize startup costs by reusing an existing process for a function invocation.
          * Hence, a connection pool is a win in latency after the first initialization.
          */
-        val hikariDataSource: HikariDataSource by lazy {
+        private val hikariDataSource: HikariDataSource by lazy {
             DriverManager.registerDriver(Driver())
 
             val password = System.getenv(passwordVariable)
@@ -265,7 +503,7 @@ class DatabaseAccess(private val create: DSLContext) {
             dataSource
         }
 
-        val dataSource: DataSource get() = hikariDataSource
+        val commonDataSource: DataSource get() = hikariDataSource
 
         fun createTaskRecord(
             report: Report,

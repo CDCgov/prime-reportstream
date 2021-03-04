@@ -27,8 +27,7 @@ import java.util.Calendar
 import java.util.UUID
 import java.util.logging.Level
 
-class DownloadFunction {
-
+class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
     val DAYS_TO_SHOW = 7L
     val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
     val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
@@ -94,7 +93,7 @@ class DownloadFunction {
         return reportFiles.sortedByDescending {
             it.createdAt
         }.map {
-            val svc = WorkflowEngine().metadata.findService(it.receivingOrg)
+            val svc = WorkflowEngine().settings.findReceiver(it.receivingOrg)
             val orgDesc = authClaims.organization.description
             val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
             TestResult(
@@ -137,11 +136,11 @@ class DownloadFunction {
         authClaims: AuthClaims
     ): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
-        val reportFiles = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchDownloadableReportFiles(
+        val reportFiles = workflowEngine.fetchDownloadableReportFiles(
             OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
         )
         val attr = mapOf(
-            "description" to (authClaims.organization.description ?: ""),
+            "description" to (authClaims.organization.description),
             "user" to authClaims.userName,
             "today" to Calendar.getInstance(),
             "todays" to generateTodaysTestResults(reportFiles, authClaims),
@@ -170,8 +169,7 @@ class DownloadFunction {
         var response: HttpResponseMessage
         try {
             val reportId = ReportId.fromString(requestedFile)
-            val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource)
-                .fetchHeader(reportId, authClaims.organization.name)
+            val header = workflowEngine.fetchHeader(reportId, authClaims.organization.name)
             if (header.content == null || header.content.isEmpty())
                 response = responsePage(request, authClaims)
             else {
@@ -249,7 +247,7 @@ class DownloadFunction {
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
+            val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
             if (organization != null) {
                 return AuthClaims(userName, organization)
             } else {

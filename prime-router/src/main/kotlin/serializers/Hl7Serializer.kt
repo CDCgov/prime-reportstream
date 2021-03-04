@@ -455,8 +455,6 @@ class Hl7Serializer(val metadata: Metadata) {
 
     private fun setLiterals(terser: Terser) {
         // Value that NIST requires (although # is not part of 2.5.1)
-        terser.set("MSH-5", metadata.receivingApplication)
-        terser.set("MSH-6", metadata.receivingFacility)
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", "2.5.1")

@@ -11,19 +11,23 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.choice
 import gov.cdc.prime.router.FakeReport
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.OrganizationClient
-import gov.cdc.prime.router.OrganizationService
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.ReportFunction
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.RedoxSerializer
 import org.jooq.impl.DSL
 import java.io.File
 import java.io.IOException
@@ -54,13 +58,7 @@ Examples:
 
 """,
 ) {
-    lateinit var metadata: Metadata
     lateinit var db: DatabaseAccess
-
-    val receivingStates = "PM"
-    val orgName = "prime"
-    val senderName = "prime-simple-report"
-    val senderNameStrac = "prime-strac"
 
     enum class AwesomeTest(val description: String) {
         ping("Is the reports endpoint alive and listening?"),
@@ -143,47 +141,39 @@ Examples:
     }
 
     private fun doTests(tests: List<AwesomeTest>) {
-        metadata = Metadata(Metadata.defaultMetadataDirectory)
-        val receivingOrg = metadata.findOrganization(orgName)
-            ?: error("Unable to find org '$orgName' in metadata")
         val environment = TestingEnvironment.valueOf(env.toUpperCase())
 
         tests.forEach { test ->
             when (test) {
                 AwesomeTest.ping -> doCheckConnections(environment)
-                AwesomeTest.end2end -> doEndToEndTest(receivingOrg, environment)
-                AwesomeTest.strac -> doStracTest(receivingOrg, environment)
+                AwesomeTest.end2end -> doEndToEndTest(environment)
+                AwesomeTest.strac -> doStracTest(environment)
                 AwesomeTest.stracbasic -> doStracBasicTest(environment)
-                AwesomeTest.huge -> doHugeTest(receivingOrg, environment)
-                AwesomeTest.toobig -> doTooManyItemsTest(receivingOrg, environment)
+                AwesomeTest.huge -> doHugeTest(environment)
+                AwesomeTest.toobig -> doTooManyItemsTest(environment)
                 AwesomeTest.toomanycols -> doTooManyColumnsTest(environment)
-                AwesomeTest.merge -> doMergeTest(receivingOrg, environment)
+                AwesomeTest.merge -> doMergeTest(environment)
                 else -> bad("Test $test not implemented")
             }
         }
     }
 
-    private fun doMergeTest(receivingOrg: Organization, environment: TestReportStream.TestingEnvironment) {
-        val sendingOrg = metadata.findOrganization(orgName)
-            ?: error("Unable to find org $orgName in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
-            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+    private fun doMergeTest(environment: TestingEnvironment) {
         val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
-        echo("Merge test of: ${environment.endPoint}")
-        val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
-        echo("Testing $targetCounties")
+        echo("Merge test of: ${environment.endPoint} across $fourTargetCounties")
         val file = createFakeFile(
             metadata,
-            sendingOrgClient,
+            simpleRepSender,
             fakeItemCount,
             receivingStates,
-            targetCounties,
+            fourTargetCounties,
             dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub
+        // Now send it to the Hub over and over
         val reportIds = (1..5).map {
-            val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+            val (responseCode, json) =
+                postReportFile(environment, file, org.name, simpleRepSender.name, key)
             echo("Response to POST: $responseCode")
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 bad("***Merge Test FAILED***:  response code $responseCode")
@@ -195,32 +185,25 @@ Examples:
             reportId
         }
         waitABit(30, environment)
-        examineMergeResults(reportIds[0], receivingOrg.services, fakeItemCount, 5)
+        examineMergeResults(reportIds[0], fourReceivers, fakeItemCount, 5)
     }
 
     private fun doStracTest(
-        receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
-        val sendingOrg = metadata.findOrganization(orgName)
-            ?: error("Unable to find org $orgName in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == senderNameStrac }
-            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+        echo("Test sending Strac data to: ${environment.endPoint} across $fourTargetCounties")
         val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
-        echo("Test sending Strac data to: ${environment.endPoint}")
-        val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
-        echo("Testing $targetCounties")
         val file = createFakeFile(
             metadata,
-            sendingOrgClient,
+            stracSender,
             fakeItemCount,
             receivingStates,
-            targetCounties,
+            fourTargetCounties,
             dir,
         )
         echo("Created datafile $file")
         // Now send it to the Hub.
-        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        val (responseCode, json) = postReportFile(environment, file, org.name, stracSender.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -231,33 +214,25 @@ Examples:
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
         waitABit(15, environment)
-        examineLineageResults(reportId, receivingOrg.services, fakeItemCount)
+        examineLineageResults(reportId, fourReceivers, fakeItemCount)
     }
 
     private fun doStracBasicTest(
         environment: TestingEnvironment
     ) {
-        val sendingOrg = metadata.findOrganization(orgName)
-            ?: error("Unable to find org $orgName in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == senderNameStrac }
-            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
         val fakeItemCount = 100
-        echo("StracBasic Test: sending Strac data to: ${environment.endPoint}")
-        val receiverName = "REDOX"
-        echo("Test sending to $receiverName")
-        val receiver = metadata.findService(orgName, receiverName)
-            ?: error("Can't do StracBasic test - no $receiverName receiver found in settings")
+        echo("StracBasic Test: sending Strac data to: ${environment.endPoint} using ${redoxReceiver.name}")
         val file = createFakeFile(
             metadata,
-            sendingOrgClient,
+            stracSender,
             fakeItemCount,
             receivingStates,
-            receiverName,
+            redoxReceiver.name,
             dir,
         )
         echo("Created datafile $file")
         // Now send it to the Hub.
-        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        val (responseCode, json) = postReportFile(environment, file, org.name, stracSender.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -268,35 +243,24 @@ Examples:
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
         waitABit(15, environment)
-        examineLineageResults(reportId, listOf(receiver), fakeItemCount)
+        examineLineageResults(reportId, listOf(redoxReceiver), fakeItemCount)
     }
 
-    private fun doHugeTest(
-        receivingOrg: Organization,
-        environment: TestingEnvironment
-    ) {
-        val sendingOrg = metadata.findOrganization(orgName)
-            ?: error("Unable to find org $orgName in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
-            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+    private fun doHugeTest(environment: TestingEnvironment) {
         val fakeItemCount = 10000
-        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is slow.")
-        // Send to just one type
-        val receivingOrgSvc = receivingOrg.services.find { it.name == "CSV" }
-            ?: error("Unable to find CSV as a sender in ${receivingOrg.name}")
-        echo("Testing ${receivingOrgSvc.name}")
+        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is terrapin slow.")
         val file = createFakeFile(
             metadata,
-            sendingOrgClient,
+            simpleRepSender,
             fakeItemCount,
             receivingStates,
-            receivingOrgSvc.name,
+            csvReceiver.name,
             dir,
             Report.Format.CSV
         )
         echo("Created datafile $file")
         // Now send it to the Hub.
-        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        val (responseCode, json) = postReportFile(environment, file, org.name, simpleRepSender.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -307,35 +271,24 @@ Examples:
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
         waitABit(20, environment)
-        examineLineageResults(reportId, listOf(receivingOrgSvc), fakeItemCount)
+        examineLineageResults(reportId, listOf(csvReceiver), fakeItemCount)
     }
 
-    private fun doTooManyItemsTest(
-        receivingOrg: Organization,
-        environment: TestingEnvironment
-    ) {
-        val sendingOrg = metadata.findOrganization(orgName)
-            ?: error("Unable to find org $orgName in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
-            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+    private fun doTooManyItemsTest(environment: TestingEnvironment) {
         val fakeItemCount = REPORT_MAX_ITEMS + 1
-        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is slow.")
-        // Send to just one type
-        val receivingOrgSvc = receivingOrg.services.find { it.name == "CSV" }
-            ?: error("Unable to find CSV as a sender in ${receivingOrg.name}")
-        echo("Testing ${receivingOrgSvc.name}")
+        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is slllooooowww.")
         val file = createFakeFile(
             metadata,
-            sendingOrgClient,
+            simpleRepSender,
             fakeItemCount,
             receivingStates,
-            receivingOrgSvc.name,
+            csvReceiver.name,
             dir,
             Report.Format.CSV
         )
         echo("Created datafile $file")
         // Now send it to the Hub.
-        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        val (responseCode, json) = postReportFile(environment, file, org.name, simpleRepSender.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -359,12 +312,12 @@ Examples:
         if (!file.exists()) {
             error("Unable to find file ${file.absolutePath} to do toomanycols test")
         }
-        val sendingOrg = metadata.findOrganization(orgName)
+        val sendingOrg = settings.findOrganization(orgName)
             ?: error("Unable to find org $orgName in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
-            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
+        val sender = settings.findSender(orgName + "." + simpleReportSenderName)
+            ?: error("Unable to find sender $simpleReportSenderName for organization ${sendingOrg.name}")
         // Now send it to the Hub.
-        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sender.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -388,7 +341,7 @@ Examples:
             environment,
             "x".toByteArray(),
             orgName,
-            senderName,
+            simpleReportSenderName,
             key,
             ReportFunction.Options.CheckConnections
         )
@@ -411,28 +364,21 @@ Examples:
     }
 
     private fun doEndToEndTest(
-        receivingOrg: Organization,
         environment: TestingEnvironment
     ) {
-        val sendingOrg = metadata.findOrganization(orgName)
-            ?: error("Unable to find org $orgName in metadata")
-        val sendingOrgClient = sendingOrg.clients.find { it.name == senderName }
-            ?: error("Unable to find sender 'default' for organization ${sendingOrg.name}")
-        val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
         echo("EndToEndTest of: ${environment.endPoint}")
-        val targetCounties = receivingOrg.services.map { it.name }.joinToString(",")
-        echo("Testing $targetCounties")
+        val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
         val file = createFakeFile(
             metadata,
-            sendingOrgClient,
+            simpleRepSender,
             fakeItemCount,
             receivingStates,
-            targetCounties,
+            fourTargetCounties,
             dir,
         )
         echo("Created datafile $file")
         // Now send it to the Hub.
-        val (responseCode, json) = postReportFile(environment, file, sendingOrg.name, sendingOrgClient.name, key)
+        val (responseCode, json) = postReportFile(environment, file, org.name, simpleRepSender.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -444,7 +390,7 @@ Examples:
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
             waitABit(15, environment)
-            examineLineageResults(reportId, receivingOrg.services, fakeItemCount)
+            examineLineageResults(reportId, fourReceivers, fakeItemCount)
         } catch (e: NullPointerException) {
             bad("***End to End Test FAILED***: Unable to properly parse response json")
         }
@@ -452,10 +398,10 @@ Examples:
 
     fun examineLineageResults(
         reportId: ReportId,
-        receivers: List<OrganizationService>,
+        receivers: List<Receiver>,
         totalRecords: Int,
     ) {
-        db = DatabaseAccess(dataSource = DatabaseAccess.dataSource)
+        db = WorkflowEngine().db
         db.transact { txn ->
             val expected = totalRecords / receivers.size
             val actionsList = listOf(TaskAction.receive, TaskAction.batch, TaskAction.send)
@@ -480,11 +426,11 @@ Examples:
 
     private fun examineMergeResults(
         reportId: ReportId,
-        receivers: List<OrganizationService>,
+        receivers: List<Receiver>,
         itemsPerReport: Int,
         reportCount: Int
     ) {
-        db = DatabaseAccess(dataSource = DatabaseAccess.dataSource)
+        db = WorkflowEngine().db
         db.transact { txn ->
             val expected = (itemsPerReport * reportCount) / receivers.size
             val actionsList = listOf(TaskAction.batch, TaskAction.send)
@@ -515,6 +461,23 @@ Examples:
         const val ANSI_GREEN = "\u001B[32m"
         const val ANSI_BLUE = "\u001B[34m"
 
+        val receivingStates = "IG"
+        val orgName = "ignore"
+        val simpleReportSenderName = "ignore-simple-report"
+        val stracSenderName = "ignore-strac"
+        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val settings = FileSettings(FileSettings.defaultSettingsDirectory)
+        val org = settings.findOrganization(orgName)
+            ?: error("Unable to find org $orgName in metadata")
+        val simpleRepSender = settings.findSender(orgName + "." + simpleReportSenderName)
+            ?: error("Unable to find sender $simpleReportSenderName for organization ${org.name}")
+        val stracSender = settings.findSender(orgName + "." + simpleReportSenderName)
+            ?: error("Unable to find sender $stracSenderName for organization ${org.name}")
+        val fourReceivers = settings.receivers.filter { it.organizationName == orgName }
+        val csvReceiver = fourReceivers.filter { it.name == "CSV" }[0]
+        val redoxReceiver = fourReceivers.filter { it.name == "REDOX" }[0]
+        val fourTargetCounties = fourReceivers.map { it.name }.joinToString(",")
+
         fun good(msg: String) {
             echo(ANSI_GREEN + msg + ANSI_RESET)
         }
@@ -525,7 +488,7 @@ Examples:
 
         fun createFakeFile(
             metadata: Metadata,
-            sendingOrgClient: OrganizationClient,
+            sender: Sender,
             count: Int,
             targetStates: String? = null,
             targetCounties: String? = null,
@@ -534,24 +497,24 @@ Examples:
         ): File {
             val report = createFakeReport(
                 metadata,
-                sendingOrgClient,
+                sender,
                 count,
                 targetStates,
                 targetCounties,
             )
-            return ProcessData.writeReportToFile(report, format, metadata, directory, null)
+            return writeReportToFile(report, format, metadata, directory, null)
         }
 
         fun createFakeReport(
             metadata: Metadata,
-            sendingOrgClient: OrganizationClient,
+            sender: Sender,
             count: Int,
             targetStates: String? = null,
             targetCounties: String? = null,
         ): Report {
             return FakeReport(metadata).build(
-                metadata.findSchema(sendingOrgClient.schema)
-                    ?: error("Unable to find schema ${sendingOrgClient.schema}"),
+                metadata.findSchema(sender.schemaName)
+                    ?: error("Unable to find schema ${sender.schemaName}"),
                 count,
                 FileSource("fake"),
                 targetStates,
@@ -645,6 +608,73 @@ Examples:
                 }
                 return responseCode to response
             }
+        }
+
+        // todo this belongs in some other utility class.  simple version of what's in main.
+        fun writeReportsToFile(
+            reports: List<Pair<Report, Report.Format>>,
+            metadata: Metadata,
+            outputDir: String?,
+            outputFileName: String?,
+        ) {
+            if (outputDir == null && outputFileName == null) return
+
+            if (reports.isNotEmpty()) {
+                echo("Creating these files:")
+            }
+            reports
+                .flatMap { (report, format) ->
+                    // Some report formats only support one result per file
+                    if (format.isSingleItemFormat()) {
+                        val splitReports = report.split()
+                        splitReports.map { Pair(it, format) }
+                    } else {
+                        listOf(Pair(report, format))
+                    }
+                }.forEach { (report, format) ->
+                    var outputFile = writeReportToFile(report, format, metadata, outputDir, outputFileName)
+                    echo(outputFile.absolutePath)
+                }
+        }
+
+        // todo this belongs in some other utility class.  simple version of what's in main.
+        fun writeReportToFile(
+            report: Report,
+            format: Report.Format,
+            metadata: Metadata,
+            outputDir: String?,
+            outputFileName: String?,
+        ): File {
+            val outputFile = if (outputFileName != null) {
+                File(outputFileName)
+            } else {
+                val fileName = Report.formFilename(
+                    report.id,
+                    report.schema.baseName,
+                    format,
+                    report.createdDateTime,
+                    useAphlFormat = false,
+                    report.destination?.translation?.receivingOrganization,
+                )
+                File(outputDir ?: ".", fileName)
+            }
+            if (!outputFile.exists()) {
+                outputFile.createNewFile()
+            }
+
+            val csvSerializer = CsvSerializer(metadata)
+            val hl7Serializer = Hl7Serializer(metadata)
+            val redoxSerializer = RedoxSerializer(metadata)
+            outputFile.outputStream().use {
+                when (format) {
+                    Report.Format.INTERNAL -> csvSerializer.writeInternal(report, it)
+                    Report.Format.CSV -> csvSerializer.write(report, it)
+                    Report.Format.HL7 -> hl7Serializer.write(report, it)
+                    Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, it)
+                    Report.Format.REDOX -> redoxSerializer.write(report, it)
+                }
+            }
+            return outputFile
         }
 
         fun itemLineageCountQuery(
