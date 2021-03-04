@@ -23,7 +23,11 @@ object DocumentationFactory {
         appendLabelAndData(sb, "Name", displayName)
         appendLabelAndData(sb, "Type", element.type?.name)
         appendLabelAndData(sb, "Format", csvField?.format)
-        appendLabelAndData(sb, "HL7 Field", element.hl7Field)
+        if (element.hl7OutputFields != null)
+            appendLabelAndData(sb, "HL7 Fields", element.hl7OutputFields.joinToString(", "))
+        else if (element.hl7Field != null)
+            appendLabelAndData(sb, "HL7 Field", element.hl7Field)
+        if (element.hl7Field == "AOE") appendLabelAndData(sb, "LOINC Code", element.hl7AOEQuestion)
         appendLabelAndData(
             sb, "Cardinality",
             element.cardinality?.toFormatted() ?: Element.Cardinality.ZERO_OR_ONE.toFormatted()

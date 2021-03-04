@@ -18,7 +18,7 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-8
     mapper: obx8(test_result)
-    documentation: This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
+    documentation: This field is generated based on the normalcy status of the result. A = abnormal; N = normal
 
   - name: comment
     type: TEXT
@@ -374,6 +374,7 @@ elements:
     mapper: ifPresent(ordering_provider_id, CMS^2.16.840.1.113883.3.249^ISO)
     hl7Field: ORC-12-9
     hl7OutputFields: [ORC-12-9, OBR-16-9]
+    documentation: Usually the OID for CMS
 
   - name: ordering_provider_id_authority_type
     type: TEXT
@@ -382,6 +383,7 @@ elements:
     mapper: ifPresent(ordering_provider_id, NPI)
     hl7Field: ORC-12-13
     hl7OutputFields: [ORC-12-13, OBR-16-13]
+    documentation: Usually NPI
 
   - name: ordering_provider_last_name
     type: PERSON_NAME
@@ -759,10 +761,12 @@ elements:
   - name: receiving_application
     type: HD
     hl7Field: MSH-5
+    documentation: The receiving application for the message (specified by the receiver)
 
   - name: receiving_facility
     type: HD
     hl7Field: MSH-6
+    documentation: The receiving facility for the message (specified by the receiver)
 
   - name: reference_range
     type: TEXT
@@ -776,6 +780,7 @@ elements:
     natFlatFileField: Reporting_facility_name
     hhsGuidanceField:
     hl7Field: MSH-4-1
+    documentation: The reporting facility's name
 
   - name: reporting_facility_clia
     type: ID_CLIA
@@ -783,6 +788,7 @@ elements:
     hhsGuidanceField:
     hl7Field: MSH-4-2
     hl7OutputFields: [ MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2 ]
+    documentation: The reporting facility's CLIA
 
   - name: resident_congregate_setting
     type: CODE
@@ -833,11 +839,13 @@ elements:
     hl7Field: SPM-14
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14
 
+  # replaced by testing_lab_specimen_id?
   - name: specimen_id
     type: EI
     hl7OutputFields: [SPM-2, OBR-3-1, ORC-3-1]
     mapper: use(message_id)
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
+    documentation: A unique code for this specimen
 
   - name: specimen_role
     type: CODE
@@ -1056,6 +1064,7 @@ elements:
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
     hl7Field: SPM-2-1
+    documentation: The specimen-id from the testing lab
 
   - name: testing_lab_specimen_received_datetime
     type: DATETIME

@@ -229,6 +229,10 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The specimen-id from the testing lab
+
 ---
 
 **Name**: SpecimenCollectedDate

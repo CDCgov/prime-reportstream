@@ -192,6 +192,10 @@ Additional field per request from the County.  HHS lists 4 codes for 'Prior test
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The specimen-id from the testing lab
+
 ---
 
 **Name**: Test_result_code

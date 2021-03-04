@@ -1074,7 +1074,7 @@ N|Normal
 
 **Documentation**:
 
-This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
 
 ---
 

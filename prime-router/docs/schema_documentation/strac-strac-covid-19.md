@@ -12,6 +12,10 @@
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The reporting facility's name
+
 ---
 
 **Name**: reporting_facility_CLIA
@@ -21,6 +25,10 @@
 **HL7 Field**: MSH-4-2
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
 
 ---
 
@@ -712,7 +720,7 @@ W|Worse--use when direction not relevant
 
 **Documentation**:
 
-This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
 
 ---
 

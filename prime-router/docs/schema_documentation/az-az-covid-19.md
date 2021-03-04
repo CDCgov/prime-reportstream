@@ -453,6 +453,10 @@ The phone number of the provider
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The specimen-id from the testing lab
+
 ---
 
 **Name**: Collection_Date

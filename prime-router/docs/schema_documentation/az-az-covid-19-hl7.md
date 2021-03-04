@@ -12,6 +12,10 @@
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The receiving application for the message (specified by the receiver)
+
 ---
 
 **Name**: receiving_facility
@@ -21,6 +25,10 @@
 **HL7 Field**: MSH-6
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The receiving facility for the message (specified by the receiver)
 
 ---
 
@@ -83,7 +91,7 @@ W|Worse--use when direction not relevant
 
 **Documentation**:
 
-This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
 
 ---
 
@@ -781,6 +789,10 @@ The ordering provider’s National Provider Identifier
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Usually the OID for CMS
+
 ---
 
 **Name**: ordering_provider_id_authority_type
@@ -790,6 +802,10 @@ The ordering provider’s National Provider Identifier
 **HL7 Field**: ORC-12-13
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+Usually NPI
 
 ---
 
@@ -2034,6 +2050,10 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The reporting facility's name
+
 ---
 
 **Name**: reporting_facility_clia
@@ -2043,6 +2063,10 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 **HL7 Field**: MSH-4-2
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
 
 ---
 
@@ -2197,6 +2221,10 @@ WOOD|Swab, Wooden Shaft
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
+
+**Documentation**:
+
+A unique code for this specimen
 
 ---
 
@@ -2633,6 +2661,10 @@ The name of the laboratory which performed the test, can be the same as the send
 **HL7 Field**: SPM-2-1
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The specimen-id from the testing lab
 
 ---
 

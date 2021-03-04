@@ -1,4 +1,4 @@
-FROM node:14-buster-slim as static_site
+FROM node:15-buster-slim as static_site
 WORKDIR /usr/app
 COPY package*.json ./
 ENV NODE_ENV=production
@@ -8,7 +8,7 @@ RUN npm -s run build
 CMD npm -s run serve
 
 
-FROM node:14-buster-slim as api_mock
+FROM node:15-buster-slim as api_mock
 WORKDIR /usr/app
 COPY --from=static_site /usr/app/ /usr/app
 RUN npm install

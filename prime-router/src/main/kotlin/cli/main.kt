@@ -20,6 +20,7 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -152,6 +153,7 @@ class ProcessData : CliktCommand(
     ).flag()
     private val receivingOrganization by option(
         "--output-receiving-org",
+        metavar = "<org name>",
         help = "Output using the APHL file format"
     )
 
@@ -472,6 +474,9 @@ class GenerateDocs : CliktCommand(
     private val includeTimestamps by
     option("--include-timestamps", help = "include creation time in file names")
         .flag(default = false)
+    private val outputHl7Elements by option(
+        "--mapped-hl7-elements"
+    ).flag(default = false)
     private val outputFileName by option(
         "--output",
         metavar = "<path>",
@@ -499,7 +504,7 @@ class GenerateDocs : CliktCommand(
             }
         } else {
             val schemaName = inputSchema?.toLowerCase() ?: ""
-            val schema = metadata.findSchema(schemaName)
+            var schema = metadata.findSchema(schemaName)
             if (schema == null) {
                 echo("$schemaName not found. Did you mean one of these?")
                 listSchemas(metadata)
@@ -507,6 +512,9 @@ class GenerateDocs : CliktCommand(
             }
             // start generating documentation
             echo("Generating documentation for $schemaName")
+            if (outputHl7Elements) {
+                schema = buildMappedHl7Schema(schema)
+            }
             DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps)
         }
     }
@@ -514,6 +522,52 @@ class GenerateDocs : CliktCommand(
     override fun run() {
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
         generateSchemaDocumentation(metadata)
+    }
+
+    /**
+     * Build a schema that contains all hl7 elements that would result from translation of the input schema
+     * This includes not only the elements from the input schema, but also mapped and default elements. Filter
+     * these elements to only those that have HL7 fields. In other words, this schema represents the
+     * output data dictionary for the input schema. The schema is sorted by HL7 segment.
+     */
+    private fun buildMappedHl7Schema(fromSchema: Schema): Schema {
+        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
+        val translator = Translator(metadata, fileSettings)
+        val mappedDefaults = mapOf(
+            "receiving_application" to "AZ",
+            "receiving_facility" to "AZDOH",
+            "message_profile_id" to "AZELR"
+        )
+        val toSchema = metadata.findSchema("covid-19") ?: error("covid-19 schema not defined")
+        val mapping = translator.buildMapping(toSchema, fromSchema, mappedDefaults)
+        val set = mutableSetOf<String>()
+        set.addAll(mapping.useDirectly.keys)
+        set.addAll(mapping.useDefault.keys)
+        set.addAll(mapping.useValueSet.keys)
+        set.addAll(mapping.useMapper.keys)
+        val reg = Regex("([A-Z]*)-?(\\d+)?-?(\\d+)?")
+        val hl7Elements = set.toList().mapNotNull {
+            val element = toSchema.findElement(it) ?: error("invalid element: $it")
+            if (element.hl7Field != null || element.hl7AOEQuestion != null) element else null
+        }.sortedBy {
+            if (it.hl7Field != null) {
+                val matches = reg.find(it.hl7Field) ?: return@sortedBy ""
+                val groupValues = matches.groupValues
+                val segment = groupValues[1]
+                val field = if (groupValues[2].isNotBlank()) 'A'.plus(groupValues[2].toInt()) else ""
+                val subField = if (groupValues[3].isNotBlank()) 'A'.plus(groupValues[3].toInt()) else ""
+                "$segment$field$subField${it.name}"
+            } else {
+                ""
+            }
+        }
+        return Schema(
+            fromSchema.baseName,
+            "covid-19",
+            hl7Elements,
+            description = "HL7 data elements resulting from ${fromSchema.baseName}"
+        )
     }
 }
 

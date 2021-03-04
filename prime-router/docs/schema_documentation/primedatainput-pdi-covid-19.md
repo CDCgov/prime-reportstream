@@ -1043,6 +1043,10 @@ The phone number of the provider
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The reporting facility's name
+
 ---
 
 **Name**: reporting_facility_clia
@@ -1052,5 +1056,9 @@ The phone number of the provider
 **HL7 Field**: MSH-4-2
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
 
 ---
