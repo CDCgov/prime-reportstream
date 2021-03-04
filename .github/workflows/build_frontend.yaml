@@ -3,8 +3,6 @@ name: Frontend Build
 on:
   pull_request:
     branches: [ master, production ]
-    paths:
-      - 'frontend/**'
 
 jobs:
   gate_workflow:
@@ -17,9 +15,21 @@ jobs:
     steps:
       - run: echo 'Build gate PASSED. Continuing with other build steps.'
 
+  pre_job:
+    # continue-on-error: true # Uncomment once integration is finished
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          paths: '["prime-router/**"]'
+
   build_frontend:
-    name: Frontend
-    needs: gate_workflow
+    needs: [ gate_workflow, pre_job ]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
