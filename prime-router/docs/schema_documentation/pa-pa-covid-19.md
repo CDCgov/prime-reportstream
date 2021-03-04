@@ -239,7 +239,7 @@ The specimen-id from the testing lab
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-17-1
+**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
 

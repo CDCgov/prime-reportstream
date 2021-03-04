@@ -22,7 +22,7 @@ The reporting facility's name
 
 **Type**: ID_CLIA
 
-**HL7 Field**: MSH-4-2
+**HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
 
 **Cardinality**: [0..1]
 
@@ -50,7 +50,7 @@ The name of the facility which the test was ordered from
 
 **Type**: TELEPHONE
 
-**HL7 Field**: ORC-14
+**HL7 Fields**: ORC-14, OBR-17
 
 **Cardinality**: [0..1]
 
@@ -186,7 +186,7 @@ The zip code of the provider
 
 **Type**: ID
 
-**HL7 Field**: ORC-2-1
+**HL7 Fields**: ORC-2-1, OBR-2-1
 
 **Cardinality**: [0..1]
 
@@ -196,7 +196,7 @@ The zip code of the provider
 
 **Type**: ID
 
-**HL7 Field**: ORC-3-2
+**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
@@ -375,6 +375,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 82810-3
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -480,6 +482,8 @@ The patient's state
 **Type**: DATE
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 65222-2
 
 **Cardinality**: [0..1]
 
@@ -658,7 +662,7 @@ The specimen source, such as Blood or Serum
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-17-1
+**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
 
@@ -728,7 +732,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: CODE
 
-**HL7 Field**: OBX-11-1
+**HL7 Fields**: OBX-11-1, OBR-25-1
 
 **Cardinality**: [0..1]
 

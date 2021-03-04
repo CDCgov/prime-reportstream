@@ -842,7 +842,7 @@ elements:
   # replaced by testing_lab_specimen_id?
   - name: specimen_id
     type: EI
-    hl7OutputFields: [SPM-2, OBR-3-1, ORC-3-1]
+    hl7OutputFields: [SPM-2]
     mapper: use(message_id)
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
     documentation: A unique code for this specimen

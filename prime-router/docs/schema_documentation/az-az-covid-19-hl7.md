@@ -202,6 +202,8 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 95418-0
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -324,7 +326,7 @@ UNK|Unknown
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-3-2
+**HL7 Fields**: ORC-3-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
@@ -334,7 +336,7 @@ UNK|Unknown
 
 **Type**: ID
 
-**HL7 Field**: ORC-3-2
+**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
@@ -355,6 +357,8 @@ UNK|Unknown
 **Type**: CODE
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 95417-2
 
 **Cardinality**: [0..1]
 
@@ -386,6 +390,8 @@ Is this the patient's first test for this condition?
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 77974-4
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -408,6 +414,8 @@ Is the patient hospitalized?
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 95420-6
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -429,6 +437,8 @@ Is the patient in the ICU?
 **Type**: DATE
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 65222-2
 
 **Cardinality**: [0..1]
 
@@ -757,7 +767,7 @@ The city of the provider
 
 **Type**: PERSON_NAME
 
-**HL7 Field**: ORC-12-3
+**HL7 Fields**: ORC-12-3, OBR-16-3
 
 **Cardinality**: [0..1]
 
@@ -771,7 +781,7 @@ The first name of the provider who ordered the test
 
 **Type**: ID_NPI
 
-**HL7 Field**: ORC-12-1
+**HL7 Fields**: ORC-12-1, OBR-16-1
 
 **Cardinality**: [0..1]
 
@@ -785,7 +795,7 @@ The ordering provider’s National Provider Identifier
 
 **Type**: HD
 
-**HL7 Field**: ORC-12-9
+**HL7 Fields**: ORC-12-9, OBR-16-9
 
 **Cardinality**: [0..1]
 
@@ -799,7 +809,7 @@ Usually the OID for CMS
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-12-13
+**HL7 Fields**: ORC-12-13, OBR-16-13
 
 **Cardinality**: [0..1]
 
@@ -813,6 +823,8 @@ Usually NPI
 
 **Type**: PERSON_NAME
 
+**HL7 Fields**: ORC-12-2, OBR-16-2
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -825,7 +837,7 @@ The last name of provider who ordered the test
 
 **Type**: PERSON_NAME
 
-**HL7 Field**: ORC-12-4
+**HL7 Fields**: ORC-12-4, OBR-16-4
 
 **Cardinality**: [0..1]
 
@@ -835,7 +847,7 @@ The last name of provider who ordered the test
 
 **Type**: PERSON_NAME
 
-**HL7 Field**: ORC-12-4
+**HL7 Fields**: ORC-12-4, OBR-16-4
 
 **Cardinality**: [0..1]
 
@@ -845,7 +857,7 @@ The last name of provider who ordered the test
 
 **Type**: TELEPHONE
 
-**HL7 Field**: ORC-14
+**HL7 Fields**: ORC-14, OBR-17
 
 **Cardinality**: [0..1]
 
@@ -920,6 +932,8 @@ The zip code of the provider
 **Type**: NUMBER
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 30525-0
 
 **Cardinality**: [0..1]
 
@@ -1139,7 +1153,7 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Type**: HD
 
-**HL7 Field**: PID-3-4
+**HL7 Fields**: PID-3-6-2
 
 **Cardinality**: [0..1]
 
@@ -1896,7 +1910,7 @@ The patient's zip code
 
 **Type**: ID
 
-**HL7 Field**: ORC-2-1
+**HL7 Fields**: ORC-2-1, OBR-2-1
 
 **Cardinality**: [0..1]
 
@@ -1906,7 +1920,7 @@ The patient's zip code
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-2-2
+**HL7 Fields**: ORC-2-2, ORC-4-2, OBR-2-2
 
 **Cardinality**: [0..1]
 
@@ -1916,7 +1930,7 @@ The patient's zip code
 
 **Type**: ID_CLIA
 
-**HL7 Field**: ORC-2-3
+**HL7 Fields**: ORC-2-3, ORC-4-3, OBR-2-3
 
 **Cardinality**: [0..1]
 
@@ -1937,6 +1951,8 @@ The patient's zip code
 **Type**: CODE
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 82810-3
 
 **Cardinality**: [0..1]
 
@@ -2060,7 +2076,7 @@ The reporting facility's name
 
 **Type**: ID_CLIA
 
-**HL7 Field**: MSH-4-2
+**HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
 
 **Cardinality**: [0..1]
 
@@ -2075,6 +2091,8 @@ The reporting facility's CLIA
 **Type**: CODE
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 95421-4
 
 **Cardinality**: [0..1]
 
@@ -2116,7 +2134,7 @@ Does the patient reside in a congregate care setting?
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-17-1
+**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
 
@@ -2216,6 +2234,8 @@ WOOD|Swab, Wooden Shaft
 
 **Type**: EI
 
+**HL7 Fields**: SPM-2
+
 **Cardinality**: [0..1]
 
 
@@ -2310,6 +2330,8 @@ The specimen source, such as Blood or Serum
 **Type**: CODE
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 95419-8
 
 **Cardinality**: [0..1]
 
@@ -2503,7 +2525,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Type**: CODE
 
-**HL7 Field**: OBX-11-1
+**HL7 Fields**: OBX-11-1, OBR-25-1
 
 **Cardinality**: [0..1]
 
@@ -2627,7 +2649,7 @@ The accession number of the specimen collected
 
 **Type**: ID_CLIA
 
-**HL7 Field**: OBX-23-10
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
 
 **Cardinality**: [1..1]
 
