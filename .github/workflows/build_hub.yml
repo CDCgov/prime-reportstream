@@ -1,4 +1,4 @@
-name: Router Build
+name: Router
 
 on:
   pull_request:
@@ -6,6 +6,7 @@ on:
 
 jobs:
   gate_workflow:
+    name: Not in Forked Repo
     # Do not run on PRs from forks to prevent workflow abuse.
     # NOTE: changing this condition *may* require adjusting secrets usage in
     # the workflow steps below.
@@ -16,6 +17,7 @@ jobs:
       - run: echo 'Build gate PASSED. Continuing with other build steps.'
 
   pre_job:
+    name: Verify Directory Changes
     # continue-on-error: true # Uncomment once integration is finished
     runs-on: ubuntu-latest
     # Map a step output to a job output
@@ -27,7 +29,8 @@ jobs:
         with:
           paths: '["prime-router/**"]'
 
-  build:
+  build_router:
+    name: Build Router
     needs: [gate_workflow, pre_job]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
@@ -88,7 +91,7 @@ jobs:
           path: prime-router/target
 
   update_docs:
-    name: Update Docs
+    name: Update Router Docs
     needs: build
     runs-on: ubuntu-latest
     defaults:
