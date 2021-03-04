@@ -81,7 +81,7 @@ jobs:
           path: prime-router/target
 
   update_docs:
-    name: Update Router Docs
+    name: Verify Router Docs
     needs: build_router
     runs-on: ubuntu-latest
     defaults:
