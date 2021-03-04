@@ -1,18 +1,16 @@
 ---
-name: tx-covid-19
-description: TX NEDSS ELR for HL7 messages
-referenceUrl: https://www.dshs.state.tx.us/IDCU/investigation/ELR/Texas-HL7-2_5_1-ELR_Specification_-2016_Final-Draft-4-29-16.pdf
+name: mt-covid-19
 topic: covid-19
 extends: covid-19
-trackingElement: message_id
+description: A schema for MT DOH to receive HL7 files
 elements:
   - name: sending_application
 
   - name: receiving_application
-    default: NEDSS
+    default: OHDOH^2.16.840.1.114222.4.1.3674^ISO
 
   - name: receiving_facility
-    default: TX-ELR
+    default: OHDOH^2.16.840.1.114222.4.1.3674^ISO
 
   - name: comment
 
@@ -262,4 +260,3 @@ elements:
   - name: resident_congregate_setting
 
   - name: symptomatic_for_disease
-

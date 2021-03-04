@@ -14,6 +14,7 @@
 # used for OBX-8
 - name: hl70078
   system: HL7
+  version: 2.7
   referenceUrl: https://phinvads.cdc.gov/vads/ViewCodeSystem.action?id=2.16.840.1.113883.12.78
   values:
   - code: A
@@ -155,6 +156,7 @@
   system: HL7
   reference: HL7 guidance for ethnicity
   referenceUrl: https://www.hl7.org/fhir/v2/0189/index.html
+  version: 2.9
   values:
     - code: H
       display: Hispanic or Latino
@@ -162,6 +164,7 @@
       display: Non Hispanic or Latino
     - code: U
       display: Unknown
+      system: NULLFL
 
 - name: omb_ethnicity
   system: FHIR
@@ -203,9 +206,11 @@
     - display: Unknown
       code: UNK
       version: 2.5.1
+      system: NULLFL
     - display: Asked, but unknown
       code: ASKU
       version: 2.5.1
+      system: NULLFL
 
 
 - name: specimen_role

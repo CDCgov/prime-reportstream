@@ -173,10 +173,104 @@
         organizationName: fl-phd
         topic: covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
+        deidentify: false
         translation:
-          type: CUSTOM
-          schemaName: fl/fl-covid-19
-          format: CSV
+          type: HL7
+          useBatchHeaders: true
+
+  - name: nd-doh
+    description: North Dakota Department of Health
+    jurisdiction: STATE
+    stateCode: ND
+    receivers:
+      - name: elr
+        organizationName: nd-doh
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: Maven
+          receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
+          receivingFacilityName: NDDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+
+  - name: la-doh
+    description: Louisiana Department of Health
+    jurisdiction: STATE
+    stateCode: LA
+    receivers:
+      - name: elr
+        organizationName: la-doh
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, LA)" ]
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: LA-ELR
+          receivingFacilityName: LADOH
+
+  - name: oh-doh
+    description: Ohio Department of Health
+    jurisdiction: STATE
+    stateCode: OH
+    receivers:
+      - name: elr
+        organizationName: oh-doh
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, OH)" ]
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: OHDOH
+          receivingApplicationOID: 2.16.840.1.114222.4.1.3674
+          receivingFacilityName: OHDOH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+
+  - name: nm-doh
+    description: New Mexico Department of Health
+    jurisdiction: STATE
+    stateCode: NM
+    receivers:
+      - name: elr
+        organizationName: nm-doh
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, NM)" ]
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: NMDOH
+          receivingApplicationOID: 2.16.840.1.113883.3.5364
+          receivingFacilityName: NMDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.5364
+
+  - name: mt-doh
+    description: Montana Department of Health
+    jurisdiction: STATE
+    stateCode: MT
+    receivers:
+      - name: elr
+        organizationName: mt-doh
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(patient_state, MT)" ]
+        translation:
+          type: HL7
+          useBatchHeaders: true
+
+  - name: tx-doh
+    description: Texas Department of Health
+    jurisdiction: STATE
+    stateCode: TX
+    receivers:
+      - name: elr
+        organizationName: tx-doh
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, TX)" ]
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: NEDSS
+          receivingFacilityName: TX-ELR
 
   - name: pa-phd
     description: Pennsylvania Department of Health

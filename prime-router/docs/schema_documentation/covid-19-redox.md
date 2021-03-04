@@ -179,7 +179,8 @@ N|false
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
 
 ---
@@ -520,7 +521,7 @@ The phone number of the facility which the test was ordered from
 
 **Type**: ID
 
-**HL7 Field**: ORC-3-1
+**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
@@ -1016,7 +1017,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: ID_CLIA
 
-**HL7 Field**: OBX-23-10
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
 
 **Cardinality**: [1..1]
 

@@ -13,6 +13,7 @@
 ---
 - name: covid-19/specimen_type
   system: SNOMED_CT
+  version: 2.67
   referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
   values:
     - code: 445297001

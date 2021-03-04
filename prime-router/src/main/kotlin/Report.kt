@@ -295,6 +295,13 @@ class Report {
         return table.getString(row, column)
     }
 
+    fun getStringByHl7Field(row: Int, hl7Field: String): String? {
+        val column = schema.elements.filter { it.hl7Field.equals(hl7Field, ignoreCase = true) }.firstOrNull()
+            ?: return null
+        val index = schema.findElementColumn(column.name) ?: return null
+        return table.getString(row, index)
+    }
+
     fun getRow(row: Int): List<String> {
         return schema.elements.map {
             val column = schema.findElementColumn(it.name)
@@ -341,7 +348,8 @@ class Report {
     fun synthesizeData(
         synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap(),
         targetState: String? = null,
-        targetCounty: String? = null
+        targetCounty: String? = null,
+        metadata: Metadata,
     ): Report {
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
@@ -385,7 +393,7 @@ class Report {
                     }
                     SynthesizeStrategy.FAKE -> {
                         // generate random faked data for the column passed in
-                        buildFakedColumn(it.name, it, targetState, targetCounty)
+                        buildFakedColumn(it.name, it, targetState, targetCounty, metadata)
                     }
                     SynthesizeStrategy.BLANK -> buildEmptyColumn(it.name)
                     SynthesizeStrategy.PASSTHROUGH -> table.column(it.name).copy()
@@ -490,11 +498,18 @@ class Report {
         name: String,
         element: Element,
         targetState: String?,
-        targetCounty: String?
+        targetCounty: String?,
+        metadata: Metadata,
     ): StringColumn {
-        val context = FakeReport.RowContext({ null }, targetState, schema.name, targetCounty)
         val fakeDataService = FakeDataService()
-        return StringColumn.create(name, List(itemCount) { fakeDataService.getFakeValueForElement(element, context) })
+        return StringColumn.create(
+            name,
+            List(itemCount) {
+                // moved context into the list creator so we get many different values
+                val context = FakeReport.RowContext(metadata::findLookupTable, targetState, schema.name, targetCounty)
+                fakeDataService.getFakeValueForElement(element, context)
+            }
+        )
     }
 
     companion object {
