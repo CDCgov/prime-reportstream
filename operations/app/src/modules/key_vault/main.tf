@@ -95,6 +95,96 @@ resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
   certificate_permissions = [ "Get" ]
 }
 
+resource "azurerm_key_vault" "app_config" {
+  name = "${var.resource_prefix}-appconfig" # Does not include "-keyvault" due to char limits (24)
+  location = var.location
+  resource_group_name = var.resource_group
+  sku_name = "premium"
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  enabled_for_deployment = true
+  enabled_for_disk_encryption = true
+  enabled_for_template_deployment = true
+  purge_protection_enabled = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    "environment" = var.environment
+  }
+}
+
+resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
+  count = length(local.dev_object_ids)
+  key_vault_id = azurerm_key_vault.app_config.id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = local.dev_object_ids[count.index]
+
+  key_permissions = []
+
+  secret_permissions = [
+    "Get",
+    "List",
+    "Set",
+    "Delete",
+    "Recover",
+    "Backup",
+    "Restore"
+  ]
+
+  certificate_permissions = []
+}
+
+resource "azurerm_key_vault" "client_config" {
+  name = "${var.resource_prefix}-clientconfig" # Does not include "-keyvault" due to char limits (24)
+  location = var.location
+  resource_group_name = var.resource_group
+  sku_name = "premium"
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  enabled_for_deployment = true
+  enabled_for_disk_encryption = true
+  enabled_for_template_deployment = true
+  purge_protection_enabled = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    "environment" = var.environment
+  }
+}
+
+resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
+  count = length(local.dev_object_ids)
+  key_vault_id = azurerm_key_vault.client_config.id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = local.dev_object_ids[count.index]
+
+  key_permissions = []
+
+  secret_permissions = [
+    "Get",
+    "List",
+    "Set",
+    "Delete",
+    "Recover",
+    "Backup",
+    "Restore"
+  ]
+
+  certificate_permissions = []
+}
+
 output "application_key_vault_id" {
   value = azurerm_key_vault.application.id
+}
+
+output "app_config_key_vault_id" {
+  value = azurerm_key_vault.app_config.id
+}
+
+output "client_config_key_vault_id" {
+  value = azurerm_key_vault.client_config.id
 }

@@ -26,7 +26,7 @@ import java.util.Calendar
 import java.util.UUID
 import java.util.logging.Level
 
-class DownloadFunction {
+class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
     val DAYS_TO_SHOW = 7L
     val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
     val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
@@ -88,11 +88,11 @@ class DownloadFunction {
         return response
     }
 
-    private fun generateTestResults(headers: List<DatabaseAccess.Header>, authClaims: AuthClaims): List<TestResult> {
+    private fun generateTestResults(headers: List<WorkflowEngine.Header>, authClaims: AuthClaims): List<TestResult> {
         return headers.sortedByDescending {
             it.task.createdAt
         }.map {
-            val svc = WorkflowEngine().metadata.findService(it.task.receiverName)
+            val svc = WorkflowEngine().settings.findReceiver(it.task.receiverName)
             val orgDesc = authClaims.organization.description
             val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
             TestResult(
@@ -108,14 +108,14 @@ class DownloadFunction {
     }
 
     private fun generateTodaysTestResults(
-        headers: List<DatabaseAccess.Header>,
+        headers: List<WorkflowEngine.Header>,
         authClaims: AuthClaims
     ): List<TestResult> {
         var filtered = headers.filter { filter(it) }
         return generateTestResults(filtered, authClaims)
     }
 
-    private fun filter(it: DatabaseAccess.Header): Boolean {
+    private fun filter(it: WorkflowEngine.Header): Boolean {
         val now = OffsetDateTime.now()
         return it.task.createdAt.year == now.year &&
             it.task.createdAt.monthValue == now.monthValue &&
@@ -123,7 +123,7 @@ class DownloadFunction {
     }
 
     private fun generatePreviousTestResults(
-        headers: List<DatabaseAccess.Header>,
+        headers: List<WorkflowEngine.Header>,
         authClaims: AuthClaims
     ): List<TestResult> {
         var filtered = headers.filterNot { filter(it) }
@@ -136,7 +136,7 @@ class DownloadFunction {
         context: ExecutionContext
     ): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
-        val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchDownloadableHeaders(
+        val headers = workflowEngine.fetchDownloadableHeaders(
             OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
         )
         val attr = mapOf(
@@ -169,8 +169,7 @@ class DownloadFunction {
         var response: HttpResponseMessage
         try {
             val reportId = ReportId.fromString(requestedFile)
-            val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource)
-                .fetchHeader(reportId, authClaims.organization.name)
+            val header = workflowEngine.fetchHeader(reportId, authClaims.organization.name)
             if (header.content == null || header.content.isEmpty())
                 response = responsePage(request, authClaims, context)
             else {
@@ -250,7 +249,7 @@ class DownloadFunction {
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
+            val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
             if (organization != null) {
                 return AuthClaims(userName, organization)
             } else {

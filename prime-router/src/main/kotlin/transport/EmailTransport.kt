@@ -12,7 +12,7 @@ import gov.cdc.prime.router.EmailTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -25,7 +25,7 @@ class EmailTransport : ITransport {
 
     override fun send(
         transportType: TransportType,
-        header: DatabaseAccess.Header,
+        header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
@@ -64,7 +64,7 @@ class EmailTransport : ITransport {
         return templateEngine.process(htmlContent, context)
     }
 
-    fun buildContent(header: DatabaseAccess.Header): Content {
+    fun buildContent(header: WorkflowEngine.Header): Content {
         val htmlTemplate = Files.readString(Path.of("./assets/email-templates/test-results-ready__inline.html"))
 
         val attr = mapOf(
