@@ -6,9 +6,12 @@ This PR does ...
 
 ## Checklist
 - [ ] Tested locally?
-- [ ] Updated the docs?
-- [ ] Added a test?
-- [ ] Did you check for sensitive data including passwords and secret, and remove any?
+- [ ] Ran `quickTest all`?
+- [ ] Downloaded a file from http://localhost:7071/api/download
+- [ ] Updated the release notes? 
+- [ ] Added tests?
+- [ ] Did you check for sensitive data, and remove any? 
+- [ ] Does logging contain sensitive data?  
 - [ ] Are additional approvals needed for this change?
 - [ ] Are there potential vulnerabilities or licensing issues with any new dependencies introduced?
 
