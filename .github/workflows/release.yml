@@ -1,4 +1,4 @@
-name: Prime Data Hub
+name: Release to Azure
 
 on:
   push:

@@ -1,10 +1,10 @@
-name: Prime Data Hub
+name: Router Build
 
 on:
   pull_request:
     branches: [ master, production ]
-    paths-ignore:
-      - 'prime-router/docs/**'
+    paths:
+      - 'prime-router/**'
 
 jobs:
   gate_workflow:
@@ -29,20 +29,20 @@ jobs:
 
       - name: Set Environment Variables
         run: |
-               if [ "$GITHUB_BASE_REF" == "production" ]
-               then
-                   echo "Building for the production environment."
-                   echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
-                   echo >> $GITHUB_ENV PREFIX=pdhprod
-                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
-                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
-               else
-                   echo "Building for the test environment."
-                   echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
-                   echo >> $GITHUB_ENV PREFIX=pdhstaging
-                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
-                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
-               fi
+          if [ "$GITHUB_BASE_REF" == "production" ]
+          then
+              echo "Building for the production environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV PREFIX=pdhprod
+              echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
+              echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
+          else
+              echo "Building for the test environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV PREFIX=pdhstaging
+              echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
+              echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
+          fi
 
       - name: Setup PostgreSQL
         uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
@@ -55,7 +55,7 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v1.4.3
         with:
-           java-version: 11
+          java-version: 11
 
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
@@ -94,7 +94,7 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v1.4.3
         with:
-           java-version: 11
+          java-version: 11
 
       - name: Restore Build Target
         uses: actions/download-artifact@v2
@@ -150,27 +150,4 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-
-  build_frontend:
-    name: Frontend
-    needs: gate_workflow
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Run Build Script
-        run: bash ci_build.bash
-
-      - name: Save Static Website
-        uses: actions/upload-artifact@v2
-        with:
-          name: static_website
-          path: frontend/dist
-
-      - name: Validate static website server
-        run: bash ci_validate.bash
 
