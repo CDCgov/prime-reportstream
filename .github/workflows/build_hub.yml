@@ -3,8 +3,6 @@ name: Router Build
 on:
   pull_request:
     branches: [ master, production ]
-    paths:
-      - 'prime-router/**'
 
 jobs:
   gate_workflow:
@@ -13,12 +11,19 @@ jobs:
     # the workflow steps below.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:
+      # Only run when a change to the directory
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          paths: '["prime-router/**"]'
       - run: echo 'Build gate PASSED. Continuing with other build steps.'
 
   build:
     needs: gate_workflow
+    if: ${{ needs.gate_workflow.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
