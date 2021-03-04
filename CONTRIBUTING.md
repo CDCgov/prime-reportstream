@@ -84,6 +84,7 @@ A good code review considers many aspects of the PR
 - Will the code work and will it work in the **long-term**?
 - Is the code undertandable and readable? Is documentation needed? 
 - What are the security implications of the PR?
+- Does the PR contain sensitive information like secret keys or passwords? Can these be logged? 
 
 Submitters should help reviewers by calling out how these responsibilities are met in comments on the review. 
 
