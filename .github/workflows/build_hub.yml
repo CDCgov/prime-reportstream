@@ -92,7 +92,7 @@ jobs:
 
   update_docs:
     name: Update Router Docs
-    needs: build
+    needs: build_router
     runs-on: ubuntu-latest
     defaults:
       run:
