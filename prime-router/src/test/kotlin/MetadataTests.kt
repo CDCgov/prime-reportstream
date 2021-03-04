@@ -2,7 +2,6 @@ package gov.cdc.prime.router
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
@@ -11,7 +10,7 @@ import kotlin.test.assertTrue
 
 class MetadataTests {
     @Test
-    fun `test loading actual metadata catalog`() {
+    fun `test loading metadata catalog`() {
         val metadata = Metadata("./metadata")
         assertNotNull(metadata)
     }
@@ -82,27 +81,6 @@ class MetadataTests {
             Schema(name = "Two", topic = "test", elements = listOf(Element("a"), Element("b")))
         )
         assertNotNull(metadata.findSchema("one"))
-    }
-
-    @Test
-    fun `test find client`() {
-        val metadata = Metadata()
-        metadata.loadOrganizations("./metadata/organizations.yml")
-        val client = metadata.findClient("simple_report")
-        assertNotNull(client)
-    }
-
-    @Test
-    fun `test duplicate service name`() {
-        val metadata = Metadata()
-        val org1 = Organization(
-            "test", "test",
-            services = listOf(
-                OrganizationService("service1", "topic1", "schema1"),
-                OrganizationService("service1", "topic1", "schema1")
-            )
-        )
-        assertFails { metadata.loadOrganizationList(listOf(org1)) }
     }
 
     @Test

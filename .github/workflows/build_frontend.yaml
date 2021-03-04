@@ -1,0 +1,54 @@
+name: Frontend
+
+on:
+  pull_request:
+    branches: [ master, production ]
+
+jobs:
+  gate_workflow:
+    name: Not in Forked Repo
+    # Do not run on PRs from forks to prevent workflow abuse.
+    # NOTE: changing this condition *may* require adjusting secrets usage in
+    # the workflow steps below.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: echo 'Build gate PASSED. Continuing with other build steps.'
+
+  pre_job:
+    name: Verify Directory Changes
+    # continue-on-error: true # Uncomment once integration is finished
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          paths: '["prime-router/**"]'
+
+  build_frontend:
+    name: Build Frontend
+    needs: [ gate_workflow, pre_job ]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run Build Script
+        run: bash ci_build.bash
+
+      - name: Save Static Website
+        uses: actions/upload-artifact@v2
+        with:
+          name: static_website
+          path: frontend/dist
+
+      - name: Validate static website server
+        run: bash ci_validate.bash

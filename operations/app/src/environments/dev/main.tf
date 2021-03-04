@@ -19,10 +19,6 @@ module "prime_data_hub" {
   environment = "dev"
   resource_group = "prime-dev-${var.dev_name}"
   resource_prefix = var.dev_name
-  postgres_user = var.postgres_user
-  postgres_password = var.postgres_password
-  redox_secret = var.redox_secret
-  okta_client_id = var.okta_client_id
-  az_phd_user = var.az_phd_user
-  az_phd_password = var.az_phd_password
+  okta_redirect_url = "https://prime-data-hub-${var.dev_name}.azurefd.net/download"
+  https_cert_name = null
 }

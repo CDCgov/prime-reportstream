@@ -408,7 +408,7 @@ The zip code of the facility which the test was ordered from
 
 **Type**: PERSON_NAME
 
-**HL7 Field**: ORC-12-3
+**HL7 Fields**: ORC-12-3, OBR-16-3
 
 **Cardinality**: [0..1]
 
@@ -422,6 +422,8 @@ The first name of the provider who ordered the test
 
 **Type**: PERSON_NAME
 
+**HL7 Fields**: ORC-12-2, OBR-16-2
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -434,7 +436,7 @@ The last name of provider who ordered the test
 
 **Type**: TELEPHONE
 
-**HL7 Field**: ORC-14
+**HL7 Fields**: ORC-14, OBR-17
 
 **Cardinality**: [0..1]
 
@@ -452,6 +454,10 @@ The phone number of the provider
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The specimen-id from the testing lab
+
 ---
 
 **Name**: Collection_Date
@@ -460,7 +466,7 @@ The phone number of the provider
 
 **Format**: yyyyMMdd
 
-**HL7 Field**: SPM-17-1
+**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
 

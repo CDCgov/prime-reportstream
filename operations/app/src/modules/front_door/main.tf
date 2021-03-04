@@ -5,9 +5,8 @@ terraform {
 locals {
     name = var.environment != "dev" ? "prime-data-hub-${var.environment}" : "prime-data-hub-${var.resource_prefix}"
     functionapp_address = "${var.resource_prefix}-functionapp.azurewebsites.net"
-    metabase_address = "${var.resource_prefix}-metabase.azurewebsites.net"
-    prod_condition = var.environment == "prod" ? [1] : []
-    https_cert_secret_name = "prime-cdc-gov"
+    metabase_address = (var.environment == "test" || var.environment == "prod" ? "${var.resource_prefix}-metabase.azurewebsites.net" : null)
+    frontend_endpoints = var.https_cert_name != null ? ["DefaultFrontendEndpoint", var.https_cert_name] : ["DefaultFrontendEndpoint"]
 }
 
 // TODO: Terraform does not support Azure's rules engine yet
@@ -28,32 +27,41 @@ resource "azurerm_frontdoor" "front_door" {
       additional_latency_milliseconds = 0
     }
 
-    backend_pool_load_balancing {
+    dynamic "backend_pool_load_balancing" {
+      for_each = (var.environment == "test" || var.environment == "prod" ? [1] : [])
+      content {
         name = "metabaseLoadBalancingSettings"
         sample_size = 4
         successful_samples_required = 2
         additional_latency_milliseconds = 0
+      }
     }
 
-    backend_pool_health_probe {
-        name = "metabaseHealthProbeSettings"
-        path = "/"
-        interval_in_seconds = 30
-        protocol = "Https"
-        probe_method = "HEAD"
+    dynamic "backend_pool_health_probe" {
+        for_each = (var.environment == "test" || var.environment == "prod" ? [1] : [])
+        content {
+          name = "metabaseHealthProbeSettings"
+          path = "/"
+          interval_in_seconds = 30
+          protocol = "Https"
+          probe_method = "HEAD"
+        }
     }
 
-    backend_pool {
+    dynamic "backend_pool" {
+      for_each = (var.environment == "test" || var.environment == "prod" ? [1] : [])
+      content {
         name = "metabase"
         health_probe_name = "metabaseHealthProbeSettings"
         load_balancing_name = "metabaseLoadBalancingSettings"
 
         backend {
-            address = local.metabase_address
-            host_header = local.metabase_address
-            http_port = 80
-            https_port = 443
+          address = local.metabase_address
+          host_header = local.metabase_address
+          http_port = 80
+          https_port = 443
         }
+      }
     }
 
     backend_pool_health_probe {
@@ -84,32 +92,26 @@ resource "azurerm_frontdoor" "front_door" {
     }
 
     dynamic "frontend_endpoint" {
-        for_each = local.prod_condition
+        for_each = var.https_cert_name != null ? [1] : []
         content {
-            name = "prime-cdc-gov"
-            host_name = "prime.cdc.gov"
-            custom_https_provisioning_enabled = true
-            custom_https_configuration {
-                certificate_source = "AzureKeyVault"
-                azure_key_vault_certificate_secret_name = local.https_cert_secret_name
-                azure_key_vault_certificate_secret_version = data.azurerm_key_vault_secret.https_cert[0].version
-                azure_key_vault_certificate_vault_id = var.key_vault_id
-            }
+          name = var.https_cert_name
+          host_name = replace(var.https_cert_name, "-", ".") // This will change test-prime-cdc-gov to test.prime.cdc.gov
+          custom_https_provisioning_enabled = true
+          
+          custom_https_configuration {
+            certificate_source = "AzureKeyVault"
+            azure_key_vault_certificate_secret_name = var.https_cert_name
+            azure_key_vault_certificate_secret_version = data.azurerm_key_vault_secret.https_cert[0].version
+            azure_key_vault_certificate_vault_id = var.key_vault_id
+          }
         }
-    }
+      }
 
     routing_rule {
         name = "HttpToHttpsRedirect"
-        frontend_endpoints = ["DefaultFrontendEndpoint"]
+        frontend_endpoints = local.frontend_endpoints
         accepted_protocols = ["Http"]
-        patterns_to_match = [
-            "/",
-            "/*",
-            "/api/*",
-            "/download",
-            "/metabase",
-            "/metabase/*"
-        ]
+        patterns_to_match = (var.environment == "test" || var.environment == "prod" ? ["/", "/*", "/api/*", "/download", "/metabase", "/metabase/*"] : ["/", "/*", "/api/*", "/download"])
 
         redirect_configuration {
             redirect_protocol = "HttpsOnly"
@@ -119,7 +121,7 @@ resource "azurerm_frontdoor" "front_door" {
 
     routing_rule {
         name = "download"
-        frontend_endpoints = ["DefaultFrontendEndpoint"]
+        frontend_endpoints = local.frontend_endpoints
         accepted_protocols = ["Https"]
         patterns_to_match = ["/", "/download"]
 
@@ -130,22 +132,25 @@ resource "azurerm_frontdoor" "front_door" {
         }
     }
 
-    routing_rule {
-      name = "metabase"
-      frontend_endpoints = ["DefaultFrontendEndpoint"]
-      accepted_protocols = ["Https"]
-      patterns_to_match = ["/metabase", "/metabase/*"]
+    dynamic "routing_rule" {
+      for_each = (var.environment == "test" || var.environment == "prod" ? [1] : [])
+      content {
+        name = "metabase"
+        frontend_endpoints = local.frontend_endpoints
+        accepted_protocols = ["Https"]
+        patterns_to_match = ["/metabase", "/metabase/*"]
 
-      forwarding_configuration {
-        backend_pool_name = "metabase"
-        forwarding_protocol = "HttpsOnly"
-        custom_forwarding_path = "/"
+        forwarding_configuration {
+          backend_pool_name = "metabase"
+          forwarding_protocol = "HttpsOnly"
+          custom_forwarding_path = "/"
+        }
       }
     }
 
     routing_rule {
         name = "api"
-        frontend_endpoints = ["DefaultFrontendEndpoint"]
+        frontend_endpoints = local.frontend_endpoints
         accepted_protocols = ["Https"]
         patterns_to_match = ["/*", "/api/*"]
 
@@ -249,9 +254,9 @@ resource "azurerm_monitor_diagnostic_setting" "frontdoor_waf_log" {
 }
 
 data "azurerm_key_vault_secret" "https_cert" {
-    count = (var.environment == "prod" ? 1 : 0)
+    count = (var.https_cert_name != null ? 1 : 0)
     key_vault_id = var.key_vault_id
-    name = local.https_cert_secret_name
+    name = var.https_cert_name
 }
 
 output "id" {

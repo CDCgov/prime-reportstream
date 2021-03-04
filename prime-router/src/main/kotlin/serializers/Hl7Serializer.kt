@@ -1,12 +1,20 @@
 package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ElementAndValue
+import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
+import java.io.InputStream
 import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -14,6 +22,17 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 class Hl7Serializer(val metadata: Metadata) {
+    data class Hl7Mapping(
+        val mappedRows: Map<String, List<String>>,
+        val rows: List<RowResult>,
+        val errors: List<String>,
+        val warnings: List<String>,
+    )
+    data class RowResult(
+        val row: Map<String, List<String>>,
+        val errors: List<String>,
+        val warnings: List<String>,
+    )
     private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
     private val softwareProductName = "PRIME Data Hub"
     private val hl7SegmentDelimiter: String = "\r"
@@ -32,6 +51,7 @@ class Hl7Serializer(val metadata: Metadata) {
             buildVersion = buildProperties.getProperty("buildVersion", "0.0.0.0")
             buildDate = buildProperties.getProperty("buildDate", "20200101")
         }
+        hapiContext.modelClassFactory = CanonicalModelClassFactory("2.5.1")
     }
 
     /**
@@ -58,10 +78,180 @@ class Hl7Serializer(val metadata: Metadata) {
         outputStream.write(createFooters(report).toByteArray())
     }
 
+    /*
+     * Read in a file
+     */
+    fun convertBatchMessagesToMap(message: String, schema: Schema): Hl7Mapping {
+        val mappedRows: MutableMap<String, MutableList<String>> = mutableMapOf()
+        val errors = mutableListOf<String>()
+        val warnings = mutableListOf<String>()
+        val rowResults = mutableListOf<RowResult>()
+        val reg = "(\r|\n)".toRegex()
+        val cleanedMessage = reg.replace(message, "\r")
+        val messageLines = cleanedMessage.split("\r")
+        val nextMessage = StringBuilder()
+
+        fun deconstructStringMessage() {
+            val parsedMessage = convertMessageToMap(nextMessage.toString(), schema)
+            errors.addAll(parsedMessage.errors)
+            warnings.addAll(parsedMessage.warnings)
+            rowResults.add(parsedMessage)
+            nextMessage.clear()
+            parsedMessage.row.forEach { (k, v) ->
+                if (!mappedRows.containsKey(k))
+                    mappedRows[k] = mutableListOf()
+
+                mappedRows[k]?.addAll(v)
+            }
+        }
+
+        messageLines.forEach {
+            if (it.startsWith("FHS"))
+                return@forEach
+            if (it.startsWith("BHS"))
+                return@forEach
+            if (it.startsWith("BTS"))
+                return@forEach
+            if (it.startsWith("FTS"))
+                return@forEach
+
+            if (nextMessage.isNotEmpty() && it.startsWith("MSH")) {
+                deconstructStringMessage()
+            }
+            nextMessage.append("$it\r")
+        }
+
+        // catch the last message
+        if (nextMessage.isNotEmpty()) {
+            deconstructStringMessage()
+        }
+
+        return Hl7Mapping(mappedRows, rowResults, errors, warnings)
+    }
+
+    fun convertMessageToMap(message: String, schema: Schema): Hl7Serializer.RowResult {
+        // safely merge into the set. might not be necessary
+        fun mergeIntoMappedRows(mappedRows: MutableMap<String, MutableSet<String>>, key: String, value: String) {
+            if (!mappedRows.containsKey(key)) error("Map doesn't contain key $key")
+            // get the existing values
+            val existingValues = mappedRows[key] ?: emptySet()
+            // if the existing value doesn't exist, add it in
+            if (!existingValues.contains(value)) {
+                mappedRows[key]?.add(value)
+            }
+        }
+        // query the terser and get a value
+        fun queryTerserForValue(
+            terser: Terser,
+            terserSpec: String,
+            elementName: String,
+            mappedRows: MutableMap<String, MutableSet<String>>,
+            errors: MutableList<String>,
+            warnings: MutableList<String>
+        ) {
+            val parsedValue = try {
+                terser.get(terserSpec)
+            } catch (e: HL7Exception) {
+                errors.add("Exception for $terserSpec: ${e.message}")
+                null
+            }
+            // add the rows
+            if (parsedValue.isNullOrEmpty()) {
+                warnings.add("Blank for $terserSpec")
+            }
+            mergeIntoMappedRows(mappedRows, elementName, parsedValue ?: "")
+        }
+        val errors = mutableListOf<String>()
+        val warnings = mutableListOf<String>()
+        // key of the map is the column header, list is the values in the column
+        val mappedRows: MutableMap<String, MutableSet<String>> = mutableMapOf()
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        hapiContext.modelClassFactory = mcf
+        val parser = hapiContext.pipeParser
+        val reg = "(\r|\n)".toRegex()
+        val cleanedMessage = reg.replace(message, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+        schema.elements.forEach {
+            if (!mappedRows.containsKey(it.name))
+                mappedRows[it.name] = mutableSetOf()
+
+            if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty()) {
+                mappedRows[it.name]?.add("")
+                return@forEach
+            }
+
+            if (!it.hl7Field.isNullOrEmpty()) {
+                val terserSpec = if (it.hl7Field.startsWith("MSH")) {
+                    "/${it.hl7Field}"
+                } else if (it.hl7Field == "AOE") {
+                    val question = it.hl7AOEQuestion!!
+                    val countObservations = 10
+                    // todo: map each AOE by the AOE question ID
+                    for (c in 0 until countObservations) {
+                        var spec = "/.OBSERVATION($c)/OBX-3-1"
+                        val questionCode = try {
+                            terser.get(spec)
+                        } catch (e: HL7Exception) {
+                            // todo: convert to result detail, maybe
+                            errors.add("Exception for $spec: ${e.message}")
+                            null
+                        }
+                        if (questionCode?.startsWith(question) == true) {
+                            spec = "/.OBSERVATION($c)/OBX-5"
+                            queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
+                        }
+                    }
+                    "/.AOE"
+                } else {
+                    "/.${it.hl7Field}"
+                }
+
+                if (terserSpec != "/.AOE") {
+                    queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                } else {
+                    if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
+                }
+            } else {
+                it.hl7OutputFields?.forEach { h ->
+                    val terserSpec = if (h.startsWith("MSH")) {
+                        "/$h"
+                    } else {
+                        "/.$h"
+                    }
+                    queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                }
+            }
+        }
+        // convert sets to lists
+        val rows = mappedRows.keys.map {
+            it to (mappedRows[it]?.toList() ?: emptyList())
+        }.toMap()
+
+        return RowResult(rows, errors, warnings)
+    }
+
+    fun readExternal(
+        schemaName: String,
+        input: InputStream,
+        source: Source
+    ): ReadResult {
+        val errors = mutableListOf<ResultDetail>()
+        val warnings = mutableListOf<ResultDetail>()
+        val messageBody = input.bufferedReader().use { it.readText() }
+        val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
+        val mapping = convertBatchMessagesToMap(messageBody, schema)
+        val mappedRows = mapping.mappedRows
+        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
+        warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
+        return ReadResult(Report(schema, mappedRows, source), errors, warnings)
+    }
+
     internal fun createMessage(report: Report, row: Int): String {
         val message = ORU_R01()
         message.initQuickstart("ORU", "R01", "D")
         buildMessage(message, report, row)
+        hapiContext.modelClassFactory = CanonicalModelClassFactory("2.5.1")
         return hapiContext.pipeParser.encode(message)
     }
 
@@ -94,9 +284,37 @@ class Hl7Serializer(val metadata: Metadata) {
                 setComponent(terser, element, "MSH-7", formatter.format(report.createdDateTime))
             } else if (element.hl7Field == "MSH-11") {
                 setComponent(terser, element, "MSH-11", processingId)
+            } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
+                setComponentForTable(terser, element, report, row)
             } else if (element.hl7Field != null) {
                 setComponent(terser, element, element.hl7Field, value)
             }
+        }
+    }
+
+    private fun setComponentForTable(terser: Terser, element: Element, report: Report, row: Int) {
+        val lookupValues = mutableMapOf<String, String>()
+        val pathSpec = formPathSpec(element.hl7Field!!)
+        val mapper: Mapper? = element.mapperRef
+        val args = element.mapperArgs ?: emptyList()
+        val valueNames = mapper?.valueNames(element, args)
+        report.schema.elements.forEach {
+            lookupValues[it.name] = report.getString(row, it.name) ?: ""
+        }
+        val valuesForMapper = valueNames?.map { elementName ->
+            val valueElement = report.schema.findElement(elementName)
+                ?: error(
+                    "Schema Error: Could not find element '$elementName' for mapper " +
+                        "'${mapper.name}' from '${element.name}'."
+                )
+            val value = lookupValues[elementName]
+                ?: error("Schema Error: No mapper input for $elementName")
+            ElementAndValue(valueElement, value)
+        }
+        if (valuesForMapper == null) {
+            terser.set(pathSpec, "")
+        } else {
+            terser.set(pathSpec, mapper.apply(element, args, valuesForMapper) ?: "")
         }
     }
 
@@ -134,7 +352,6 @@ class Hl7Serializer(val metadata: Metadata) {
                     }
                 }
             }
-
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
             Element.Type.TELEPHONE -> {
                 if (value.isNotEmpty()) {
@@ -238,8 +455,6 @@ class Hl7Serializer(val metadata: Metadata) {
 
     private fun setLiterals(terser: Terser) {
         // Value that NIST requires (although # is not part of 2.5.1)
-        terser.set("MSH-5", metadata.receivingApplication)
-        terser.set("MSH-6", metadata.receivingFacility)
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", "2.5.1")
@@ -264,30 +479,31 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     private fun createHeaders(report: Report): String {
+        val encodingCharacters = "^~\\&"
         val sendingApp = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
         val sendingFacility = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
         val receivingApp = formatHD(Element.parseHD(report.getString(0, "receiving_application") ?: ""))
         val receivingFacility = formatHD(Element.parseHD(report.getString(0, "receiving_facility") ?: ""))
 
-        return "FHS|^~\\&|" +
+        return "FHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
             nowTimestamp() +
-            "\r" +
-            "BHS|^~\\&|" +
+            hl7SegmentDelimiter +
+            "BHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
             nowTimestamp() +
-            "\r"
+            hl7SegmentDelimiter
     }
 
     private fun createFooters(report: Report): String {
-        return "BTS|${report.itemCount}\r" +
-            "FTS|1\r"
+        return "BTS|${report.itemCount}$hl7SegmentDelimiter" +
+            "FTS|1$hl7SegmentDelimiter"
     }
 
     private fun nowTimestamp(): String {

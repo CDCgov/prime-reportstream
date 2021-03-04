@@ -28,6 +28,15 @@ variable "subnet_ids" {
     description = "List of VNet Subnet IDs"
 }
 
+variable "eventhub_namespace_name" {
+    type = string
+    description = "Event hub to stream logs to"
+}
+
+variable "eventhub_manage_auth_rule_id" {
+    type = string
+    description = "Event Hub Manage Authorization Rule ID"
+}
 variable "key_vault_id" {
     type = string
     description = "Key Vault used to encrypt blob storage"
