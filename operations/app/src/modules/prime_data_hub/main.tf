@@ -15,6 +15,7 @@ module "storage" {
     eventhub_namespace_name = module.event_hub.eventhub_namespace_name
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
     key_vault_id = module.key_vault.application_key_vault_id
+    rsa_key_4096 = var.rsa_key_4096
 }
 
 module "network" {
@@ -70,6 +71,7 @@ module "database" {
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
     app_config_key_vault_id = module.key_vault.app_config_key_vault_id
     key_vault_id = module.key_vault.application_key_vault_id
+    rsa_key_2048 = var.rsa_key_2048
 }
 
 module "key_vault" {

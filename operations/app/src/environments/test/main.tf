@@ -31,4 +31,6 @@ module "prime_data_hub" {
   resource_prefix = "pdhtest"
   okta_redirect_url = "https://test.prime.cdc.gov/download"
   https_cert_name = "test-prime-cdc-gov"
+  rsa_key_2048 = "pdhtest-2048-key"
+  rsa_key_4096 = "pdhtest-key"
 }

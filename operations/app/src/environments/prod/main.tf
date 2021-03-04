@@ -31,4 +31,6 @@ module "prime_data_hub" {
   resource_prefix = "pdhprod"
   okta_redirect_url = "https://prime.cdc.gov/download"
   https_cert_name = "prime-cdc-gov"
+  rsa_key_2048 = null
+  rsa_key_4096 = null
 }

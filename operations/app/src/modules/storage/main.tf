@@ -24,8 +24,8 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_key" {
-  count = var.environment == "test" ? 1 : 0 // Only use Vormetric keys in test
-  key_name = "${var.resource_prefix}-key"
+  count = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
+  key_name = var.rsa_key_4096
   key_vault_id = var.key_vault_id
   key_version = null // Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_account.id

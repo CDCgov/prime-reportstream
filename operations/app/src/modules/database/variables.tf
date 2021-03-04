@@ -51,3 +51,8 @@ variable "key_vault_id" {
     type = string
     description = "Key Vault used for data encryption"
 }
+
+variable "rsa_key_2048" {
+    type = string
+    description = "Name of the 2048 length RSA key in the Key Vault. Omitting will use Azure-managed key instead of a customer-key."
+}

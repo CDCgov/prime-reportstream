@@ -43,13 +43,13 @@ resource "azurerm_postgresql_server" "postgres_server" {
 }
 
 data "azurerm_key_vault_key" "postgres_server_encryption_key" {
-  count = var.environment == "test" ? 1 : 0 // Only use Vormetric keys in test
+  count = var.rsa_key_2048 != null && var.rsa_key_2048 != "" ? 1 : 0
   key_vault_id = var.key_vault_id
-  name = "${var.resource_prefix}-key-2048" // Postgres only supports 2048 RSA keys
+  name = var.rsa_key_2048
 }
 
 resource "azurerm_postgresql_server_key" "postgres_server_key" {
-  count = var.environment == "test" ? 1 : 0 // Only use Vormetric keys in test
+  count = var.rsa_key_2048 != null && var.rsa_key_2048 != "" ? 1 : 0
   server_id = azurerm_postgresql_server.postgres_server.id
   key_vault_key_id = data.azurerm_key_vault_key.postgres_server_encryption_key[0].id
 }
