@@ -30,6 +30,8 @@ import java.io.File
 import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Paths
 
 sealed class InputSource {
     data class FileSource(val fileName: String) : InputSource()
@@ -489,6 +491,12 @@ class GenerateDocs : CliktCommand(
     fun generateSchemaDocumentation(metadata: Metadata) {
         if (inputSchema.isNullOrBlank()) {
             println("Generating documentation for all schemas")
+
+            // Clear the existing schema (we want to remove deleted schemas)
+            if (Files.exists(Paths.get(outputDir))) {
+                File(outputDir).deleteRecursively()
+            }
+
             metadata.schemas.forEach {
                 DocumentationFactory.writeDocumentationForSchema(
                     it,
