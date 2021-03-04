@@ -62,6 +62,18 @@ class LookupTable(
             .map { row -> row[selectColumnNumber] }
     }
 
+    fun filter(selectColumn: String, filters: Map<String, String>): List<String> {
+        val selectColumnNumber = headerIndex[selectColumn.toLowerCase()] ?: return emptyList()
+        return table
+            .filter { row ->
+                filters.all { (k, v) ->
+                    val filterColumnNumber = headerIndex[k.toLowerCase()] ?: error("$k doesn't exist lookup table")
+                    row[filterColumnNumber] == v
+                }
+            }
+            .map { row -> row[selectColumnNumber] }
+    }
+
     @Synchronized
     private fun getIndex(columnNames: List<String>): Map<String, Int> {
         val indexName = columnNames.joinToString(indexDelimiter)

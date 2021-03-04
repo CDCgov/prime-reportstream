@@ -7,6 +7,8 @@ import kotlin.test.assertNotEquals
 import kotlin.test.fail
 
 class ReportTests {
+    private val metadata: Metadata = Metadata("./metadata")
+
     @Test
     fun `test merge`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
@@ -289,7 +291,7 @@ class ReportTests {
             source = TestSource
         )
         // act
-        val synthesizedReport = report.synthesizeData()
+        val synthesizedReport = report.synthesizeData(metadata = metadata)
         // assert
         assertEquals(3, synthesizedReport.itemCount)
         assertEquals("smith", synthesizedReport.getString(0, "last_name"))
@@ -320,7 +322,7 @@ class ReportTests {
             "first_name" to Report.SynthesizeStrategy.PASSTHROUGH
         )
         // act
-        val synthesizedReport = report.synthesizeData(strategies)
+        val synthesizedReport = report.synthesizeData(strategies, metadata = metadata)
         // assert
         assertEquals(3, synthesizedReport.itemCount)
         assertEquals("smith", synthesizedReport.getString(0, "last_name"))
@@ -356,7 +358,7 @@ class ReportTests {
             "ssn" to Report.SynthesizeStrategy.BLANK,
         )
         // act
-        val synthesizedReport = report.synthesizeData(strategies)
+        val synthesizedReport = report.synthesizeData(strategies, metadata = metadata)
         // assert
         assertEquals(3, synthesizedReport.itemCount)
         assertEquals("smith", synthesizedReport.getString(0, "last_name"))
@@ -399,7 +401,7 @@ class ReportTests {
             "first_name" to Report.SynthesizeStrategy.SHUFFLE,
         )
         // act
-        val synthesizedReport = report.synthesizeData(strategies)
+        val synthesizedReport = report.synthesizeData(strategies, metadata = metadata)
         // assert
         assertNotEquals("smith", synthesizedReport.getString(0, "last_name"))
         assertNotEquals("jones", synthesizedReport.getString(1, "last_name"))

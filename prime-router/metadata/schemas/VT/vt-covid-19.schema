@@ -33,10 +33,13 @@ elements:
   - name: file_created_date
 
   - name: filler_name
+    mapper: use(testing_lab_name)
 
   - name: filler_order_id
+    mapper: use(message_id)
 
   - name: filler_clia
+    mapper: use(testing_lab_clia)
 
   - name: observation_result_status
 
@@ -48,7 +51,11 @@ elements:
 
   - name: ordered_test_name
 
+  - name: ordered_test_encoding_version
+
   - name: ordering_facility_city
+
+  - name: ordering_facility_county
 
   - name: ordering_facility_county_code
 
@@ -67,6 +74,8 @@ elements:
   - name: ordering_facility_zip_code
 
   - name: ordering_provider_city
+
+  - name: ordering_provider_county
 
   - name: ordering_provider_county_code
 
@@ -93,6 +102,8 @@ elements:
   - name: ordering_provider_zip_code
 
   - name: patient_city
+
+  - name: patient_county
 
   - name: patient_county_code
 
@@ -141,10 +152,13 @@ elements:
   - name: patient_zip_code
 
   - name: placer_order_id
+    mapper: use(message_id)
 
   - name: placer_name
+    mapper: use(testing_lab_name)
 
   - name: placer_clia
+    mapper: use(testing_lab_clia)
 
   - name: placer_order_group_id
 
@@ -180,11 +194,15 @@ elements:
 
   - name: specimen_type
 
+  - name: test_kit_name_id_cwe_version
+
   - name: test_performed_code
 
   - name: test_performed_name
 
   - name: test_performed_system_abbr
+
+  - name: test_performed_system_version
 
   - name: test_result
 
@@ -201,6 +219,8 @@ elements:
   - name: testing_lab_accession_number
 
   - name: testing_lab_city
+
+  - name: testing_lab_county
 
   - name: testing_lab_county_code
 
