@@ -2,29 +2,11 @@ terraform {
     required_version = ">= 0.14"
 }
 
-resource "azurerm_app_service_plan" "service_plan" {
-  name = "${var.resource_prefix}-serviceplan"
-  location = var.location
-  resource_group_name = var.resource_group
-  kind = (var.environment == "prod" ? "elastic" : "Linux")
-  reserved = true
-  maximum_elastic_worker_count = (var.environment == "prod" ? 10 : 1)
-
-  sku {
-    tier = (var.environment == "prod" ? "ElasticPremium" : "PremiumV2")
-    size = (var.environment == "prod" ? "EP1" : "P2v2")
-  }
-
-  tags = {
-    environment = var.environment
-  }
-}
-
 resource "azurerm_function_app" "function_app" {
   name = "${var.resource_prefix}-functionapp"
   location = var.location
   resource_group_name = var.resource_group
-  app_service_plan_id = azurerm_app_service_plan.service_plan.id
+  app_service_plan_id = var.app_service_plan_id
   storage_account_name = var.storage_account_name
   storage_account_access_key = var.storage_account_key
   https_only = true
@@ -210,8 +192,4 @@ resource "azurerm_monitor_diagnostic_setting" "functionapp_app_log" {
       enabled = false
     }
   }
-}
-
-output "app_service_plan_id" {
-  value = azurerm_app_service_plan.service_plan.id
 }
