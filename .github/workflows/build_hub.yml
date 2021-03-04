@@ -5,34 +5,27 @@ on:
     branches: [ master, production ]
 
 jobs:
-  gate_workflow:
-    name: Not in Forked Repo
-    # Do not run on PRs from forks to prevent workflow abuse.
-    # NOTE: changing this condition *may* require adjusting secrets usage in
-    # the workflow steps below.
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-
-    steps:
-      - run: echo 'Build gate PASSED. Continuing with other build steps.'
-
   pre_job:
-    name: Verify Directory Changes
-    # continue-on-error: true # Uncomment once integration is finished
+    name: Pre Job
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+      has_router_change: ${{ steps.skip_check.outputs.router }}
+      is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
+      - uses: dorny/paths-filter@v2
+        id: skip_check
         with:
-          paths: '["prime-router/**"]'
+          list-files: csv
+          filters: |
+            router:
+              - 'prime-router/**'
+      - id: fork_check
+        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
   build_router:
     name: Build Router
-    needs: [gate_workflow, pre_job]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -91,7 +84,7 @@ jobs:
           path: prime-router/target
 
   update_docs:
-    name: Update Router Docs
+    name: Verify Router Docs
     needs: build_router
     runs-on: ubuntu-latest
     defaults:
