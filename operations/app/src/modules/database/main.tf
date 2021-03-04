@@ -2,12 +2,22 @@ terraform {
     required_version = ">= 0.14"
 }
 
+data "azurerm_key_vault_secret" "postgres_user" {
+  key_vault_id = var.app_config_key_vault_id
+  name = "functionapp-postgres-user"
+}
+
+data "azurerm_key_vault_secret" "postgres_pass" {
+  key_vault_id = var.app_config_key_vault_id
+  name = "functionapp-postgres-pass"
+}
+
 resource "azurerm_postgresql_server" "postgres_server" {
   name = var.name
   location = var.location
   resource_group_name = var.resource_group
-  administrator_login = var.postgres_user
-  administrator_login_password = var.postgres_password
+  administrator_login = data.azurerm_key_vault_secret.postgres_user.value
+  administrator_login_password = data.azurerm_key_vault_secret.postgres_pass.value
 
   sku_name = "GP_Gen5_4"
   version = "11"
@@ -129,4 +139,14 @@ resource "azurerm_monitor_diagnostic_setting" "postgresql_db_log" {
 
 output "server_name" {
   value = azurerm_postgresql_server.postgres_server.name
+}
+
+output "postgres_user" {
+  value = data.azurerm_key_vault_secret.postgres_user.value
+  sensitive = true
+}
+
+output "postgres_pass" {
+  value = data.azurerm_key_vault_secret.postgres_pass.value
+  sensitive = true
 }

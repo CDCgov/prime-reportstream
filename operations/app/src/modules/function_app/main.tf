@@ -66,23 +66,58 @@ resource "azurerm_function_app" "function_app" {
 
     "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
 
-    "REDOX_SECRET" = var.redox_secret
+    "REDOX_SECRET" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-redox-secret)"
 
     "OKTA_baseUrl" = "hhs-prime.okta.com"
-    "OKTA_clientId" = var.okta_client_id
+    "OKTA_clientId" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-okta-client-id)"
     "OKTA_redirect" = var.okta_redirect_url
 
-    # Test and Prod both need each set of credentials for various
-    # means of testing configurations
-    "AZ_PHD__ELR_HL7_TEST__USER" = var.az_phd_user
-    "AZ_PHD__ELR_HL7_TEST__PASS" = var.az_phd_password
-    "AZ_PHD__ELR_TEST__USER" = var.az_phd_user
-    "AZ_PHD__ELR_TEST__PASS" = var.az_phd_password
+    # Test and Prod both need each set of credentials for various means of testing configurations
+    # AZ
+    "AZ_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)"
+    "AZ_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)"
+    "AZ_PHD__ELR_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)"
+    "AZ_PHD__ELR_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)"
 
-    "AZ_PHD__ELR_PROD__USER" = var.az_phd_user
-    "AZ_PHD__ELR_PROD__PASS" = var.az_phd_password
-    "AZ_PHD__ELR_HL7_PROD__USER" = var.az_phd_user
-    "AZ_PHD__ELR_HL7_PROD__PASS" = var.az_phd_password
+    "AZ_PHD__ELR_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)"
+    "AZ_PHD__ELR_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)"
+    "AZ_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)"
+    "AZ_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)"
+
+    # FL
+    "FL_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-user)"
+    "FL_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-pass)"
+
+    "FL_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-user)"
+    "FL_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-pass)"
+
+    # LA
+    "LA_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
+    "LA_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
+
+    "LA_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
+    "LA_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
+
+    # ND
+    "ND_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-user)"
+    "ND_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-pass)"
+
+    "ND_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-user)"
+    "ND_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-pass)"
+
+    # OH
+    "OH_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-user)"
+    "OH_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-pass)"
+
+    "OH_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-user)"
+    "OH_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-pass)"
+
+    # TX
+    "TX_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-user)"
+    "TX_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-pass)"
+
+    "TX_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-user)"
+    "TX_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-pass)"
 
     "WEBSITE_VNET_ROUTE_ALL" = 1
 
@@ -96,12 +131,12 @@ resource "azurerm_function_app" "function_app" {
     "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
 
     # Test/Staging-specific app settings
-    "PRIME__HL7__USER" = (var.environment != "prod" ? var.az_phd_user : null)
-    "PRIME__HL7__PASS" = (var.environment != "prod" ? var.az_phd_password : null)
-    "PRIME__HL7_BATCH__USER" = (var.environment != "prod" ? var.az_phd_user : null)
-    "PRIME__HL7_BATCH__PASS" = (var.environment != "prod" ? var.az_phd_password : null)
-    "PRIME__CSV__USER" = (var.environment != "prod" ? var.az_phd_user : null)
-    "PRIME__CSV__PASS" = (var.environment != "prod" ? var.az_phd_password : null)
+    "PRIME__HL7__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
+    "PRIME__HL7__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
+    "PRIME__HL7_BATCH__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
+    "PRIME__HL7_BATCH__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
+    "PRIME__CSV__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
+    "PRIME__CSV__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
 
     # Production-specific app settings
     "FUNCTION_APP_EDIT_MODE" = (var.environment == "prod" ? "readOnly" : null)
@@ -111,9 +146,39 @@ resource "azurerm_function_app" "function_app" {
     "WEBSITE_HTTPLOGGING_RETENTION_DAYS" = (var.environment == "prod" ? 3 : null)
   }
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   tags = {
     environment = var.environment
   }
+}
+
+resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {
+  # This is a hack. The function_app module has a bug where it does not export the values until after being updated.
+  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
+  # The second deploy adds the Key Value access policy.
+  count = azurerm_function_app.function_app.identity.0.tenant_id != null ? 1 : 0
+
+  key_vault_id = var.app_config_key_vault_id
+  tenant_id = azurerm_function_app.function_app.identity.0.tenant_id
+  object_id = azurerm_function_app.function_app.identity.0.principal_id
+
+  secret_permissions = [ "Get" ]
+}
+
+resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_policy" {
+  # This is a hack. The function_app module has a bug where it does not export the values until after being updated.
+  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
+  # The second deploy adds the Key Value access policy.
+  count = azurerm_function_app.function_app.identity.0.tenant_id != null ? 1 : 0
+
+  key_vault_id = var.client_config_key_vault_id
+  tenant_id = azurerm_function_app.function_app.identity.0.tenant_id
+  object_id = azurerm_function_app.function_app.identity.0.principal_id
+
+  secret_permissions = [ "Get" ]
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {

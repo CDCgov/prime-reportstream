@@ -1,23 +1,22 @@
-This PR does ...
+This PR ... 
 
 ## Changes
--
+- 
 - 
 
 ## Checklist
 - [ ] Tested locally?
-- [ ] Added new dependencies?
-- [ ] Updated the docs?
+- [ ] Ran `quickTest all`?
+- [ ] Downloaded a file from http://localhost:7071/api/download
+- [ ] Updated the release notes? 
 - [ ] Added a test?
 - [ ] Did you check for sensitive data, and remove any?
 - [ ] Are additional approvals needed for this change?
 - [ ] Are there potential vulnerabilities or licensing issues with any new dependencies introduced?
 
 ## Fixes 
-
-- #issue
+- #issues in GitHub
 
 ## To Be Done
-
-- #issue 
+- Stuff still to done
 

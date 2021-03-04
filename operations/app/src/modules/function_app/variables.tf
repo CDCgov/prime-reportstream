@@ -51,30 +51,6 @@ variable "postgres_url" {
     description = "Database Server URL"
 }
 
-variable "az_phd_user" {
-    type = string
-    description = "AZ Public Health Department Username"
-    sensitive = true
-}
-
-variable "az_phd_password" {
-    type = string
-    description = "AZ Public Health Department Password"
-    sensitive = true
-}
-
-variable "redox_secret" {
-    type = string
-    description = "Redox Secret"
-    sensitive = true
-}
-
-variable "okta_client_id" {
-    type = string
-    description = "Okta Client ID"
-    sensitive = true
-}
-
 variable "login_server" {
     type = string
     description = "Container Registry Login Server"
@@ -111,4 +87,14 @@ variable "eventhub_namespace_name" {
 variable "eventhub_manage_auth_rule_id" {
     type = string
     description = "Event Hub Manage Authorization Rule ID"
+}
+
+variable "app_config_key_vault_id" {
+    type = string
+    description = "Key Vault used for function app configuration"
+}
+
+variable "client_config_key_vault_id" {
+    type = string
+    description = "Key Vault used for client credential secrets"
 }
