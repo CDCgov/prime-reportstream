@@ -382,7 +382,7 @@ The patient's zip code
 
 **Type**: ID
 
-**HL7 Field**: ORC-2-1
+**HL7 Fields**: ORC-2-1, OBR-2-1
 
 **Cardinality**: [0..1]
 
@@ -536,7 +536,7 @@ The phone number of the facility which the test was ordered from
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-17-1
+**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
 
@@ -561,7 +561,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Type**: CODE
 
-**HL7 Field**: OBX-11-1
+**HL7 Fields**: OBX-11-1, OBR-25-1
 
 **Cardinality**: [0..1]
 
@@ -634,7 +634,7 @@ F|Final
 
 **Type**: ID_NPI
 
-**HL7 Field**: ORC-12-1
+**HL7 Fields**: ORC-12-1, OBR-16-1
 
 **Cardinality**: [0..1]
 
@@ -648,7 +648,7 @@ The ordering provider’s National Provider Identifier
 
 **Type**: PERSON_NAME
 
-**HL7 Field**: ORC-12-3
+**HL7 Fields**: ORC-12-3, OBR-16-3
 
 **Cardinality**: [0..1]
 
@@ -661,6 +661,8 @@ The first name of the provider who ordered the test
 **Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
+
+**HL7 Fields**: ORC-12-2, OBR-16-2
 
 **Cardinality**: [0..1]
 
@@ -754,7 +756,7 @@ The zip code of the provider
 
 **Type**: TELEPHONE
 
-**HL7 Field**: ORC-14
+**HL7 Fields**: ORC-14, OBR-17
 
 **Cardinality**: [0..1]
 
@@ -996,7 +998,7 @@ N|Normal
 
 **Documentation**:
 
-This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
 
 ---
 
@@ -1147,6 +1149,8 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 82810-3
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1199,6 +1203,8 @@ Is the patient pregnant?
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 65222-2
+
 **Cardinality**: [0..1]
 
 ---
@@ -1238,6 +1244,8 @@ Is the patient pregnant?
 **Type**: CODE
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 95418-0
 
 **Cardinality**: [0..1]
 
@@ -1291,6 +1299,8 @@ Is the patient employed in health care?
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 95417-2
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1342,6 +1352,8 @@ Is this the patient's first test for this condition?
 **Type**: CODE
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 77974-4
 
 **Cardinality**: [0..1]
 
@@ -1395,6 +1407,8 @@ Is the patient hospitalized?
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 95420-6
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1447,6 +1461,8 @@ Is the patient in the ICU?
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 95421-4
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1498,6 +1514,8 @@ Does the patient reside in a congregate care setting?
 **Type**: CODE
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 95419-8
 
 **Cardinality**: [0..1]
 
