@@ -5,7 +5,17 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
+import java.io.File
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 import java.time.OffsetDateTime
+
+enum class ReportStreamEnv(val endPoint: String) {
+    TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
+    LOCAL("http://localhost:7071/api/reports"),
+    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports")
+}
 
 class HttpUtilities {
     companion object {
@@ -38,8 +48,6 @@ class HttpUtilities {
          * Can be used for any failed response code.
          & todo other generic failure response methods here could be removed, and replaced with this
          *      generic method, instead of having to create a new method for every HttpStatus code.
-         *
-         *
          */
         fun notOKResponse(
             request: HttpRequestMessage<String?>,
@@ -135,6 +143,72 @@ class HttpUtilities {
                     "(content-length header = $contentLength"
             }
             return HttpStatus.OK to ""
+        }
+
+        /**
+         * A generic function to POST a Prime Data Hub report File to a particular Prime Data Hub Environment,
+         * as if from sendingOrgName.sendingOrgClientName.
+         * Returns Pair(Http response code, json response text)
+         */
+        fun postReportFile(
+            environment: ReportStreamEnv,
+            file: File,
+            sendingOrgName: String,
+            sendingOrgClientName: String? = null,
+            key: String? = null,
+            option: ReportFunction.Options ? = null
+        ): Pair<Int, String> {
+            if (!file.exists()) error("Unable to find file ${file.absolutePath}")
+            return postReportBytes(environment, file.readBytes(), sendingOrgName, sendingOrgClientName, key, option)
+        }
+
+        /**
+         * A generic function to POST data to a particular Prime Data Hub Environment,
+         * as if from sendingOrgName.sendingOrgClientName.
+         * Returns Pair(Http response code, json response text)
+         */
+        fun postReportBytes(
+            environment: ReportStreamEnv,
+            bytes: ByteArray,
+            sendingOrgName: String,
+            sendingOrgClientName: String?,
+            key: String?,
+            option: ReportFunction.Options?
+        ): Pair<Int, String> {
+            val headers = mutableListOf<Pair<String, String>>()
+            headers.add("Content-Type" to "text/csv")
+            val clientStr = sendingOrgName + if (sendingOrgClientName != null) ".$sendingOrgClientName" else ""
+            headers.add("client" to clientStr)
+            if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
+            if (key != null)
+                headers.add("x-functions-key" to key)
+            val url = environment.endPoint + if (option != null) "?option=$option" else ""
+            return postHttp(url, bytes, headers)
+        }
+
+        /**
+         * A generic function that posts data to a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun postHttp(urlStr: String, bytes: ByteArray, headers: List<Pair<String, String>>? = null): Pair<Int, String> {
+            val urlObj = URL(urlStr)
+            with(urlObj.openConnection() as HttpURLConnection) {
+                requestMethod = "POST"
+                doOutput = true
+                doInput = true
+                headers?.forEach {
+                    addRequestProperty(it.first, it.second)
+                }
+                outputStream.use {
+                    it.write(bytes)
+                }
+                val response = try {
+                    inputStream.bufferedReader().readText()
+                } catch (e: IOException) {
+                    return responseCode to responseMessage
+                }
+                return responseCode to response
+            }
         }
     }
 }
