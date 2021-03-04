@@ -40,6 +40,7 @@ import java.time.OffsetDateTime
  */
 class ActionHistory {
 
+    // todo change to Logger
     private var context: ExecutionContext?
 
     /**
@@ -83,9 +84,6 @@ class ActionHistory {
      * However, its here because there are Functions that do not create Report.kt objects.  For example, Send.
      * In addition, in-memory, reports get copied many times, with lots of parent-child relationships
      * that are error-prone to track.  Hiding the lineage data here helps ensure correctness and hide complexity.
-     *
-     * todo this is redundant with `Report.sources`.   Remove report_sources.
-     *
      */
     private val reportLineages = mutableListOf<ReportLineage>()
 
@@ -190,7 +188,7 @@ class ActionHistory {
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(incomingReport: ReportFunction.ValidatedRequest) {
+    fun trackExternalInputReport(incomingReport: ReportFunction.ValidatedRequest, blobInfo: BlobAccess.BlobInfo) {
         val report = incomingReport.report ?: error("No report to track!")
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -199,7 +197,7 @@ class ActionHistory {
         val reportFile = ReportFile()
         reportFile.reportId = report.id
         reportFile.nextAction = TaskAction.none
-        // todo remove this dependency on TaskSource
+        // todo Is there a better way to get the sendingOrg and sendingOrgClient?
         if (report.sources.size != 1) {
             error(
                 "An external incoming report should have only one source.   " +
@@ -211,8 +209,9 @@ class ActionHistory {
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = report.bodyURL
-        reportFile.bodyFormat = report.bodyFormat.toString()
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
         if (report.itemLineages != null)
@@ -226,7 +225,8 @@ class ActionHistory {
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        service: Receiver
+        receiver: Receiver,
+        blobInfo: BlobAccess.BlobInfo,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -236,12 +236,13 @@ class ActionHistory {
         reportFile.reportId = report.id
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
-        reportFile.receivingOrg = service.organizationName
-        reportFile.receivingOrgSvc = service.name
+        reportFile.receivingOrg = receiver.organizationName
+        reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = report.bodyURL
-        reportFile.bodyFormat = report.bodyFormat.toString()
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
         trackItemLineages(report)
@@ -273,6 +274,7 @@ class ActionHistory {
         reportFile.transportResult = result
         reportFile.bodyUrl = null
         reportFile.bodyFormat = receiver.format.toString()
+        reportFile.blobDigest = null // no blob
         reportFile.itemCount = itemCount
         reportsOut[reportFile.reportId] = reportFile
     }
@@ -285,12 +287,11 @@ class ActionHistory {
     fun trackDownloadedReport(
         header: WorkflowEngine.Header,
         filename: String,
-        originalReportId: ReportId, // todo remove, replace with report in header
         externalReportId: ReportId,
         downloadedBy: String,
-        organization: Organization // todo remove, replace with report in header
     ) {
-        trackExistingInputReport(originalReportId)
+        val parentReportFile = header.reportFile
+        trackExistingInputReport(parentReportFile.reportId)
         if (isReportAlreadyTracked(externalReportId)) {
             error(
                 "Bug:  attempt to track history of a report ($externalReportId)" +
@@ -298,17 +299,18 @@ class ActionHistory {
             )
         }
         val reportFile = ReportFile()
-        reportFile.reportId = externalReportId
-        reportFile.receivingOrg = organization.name
-        reportFile.receivingOrgSvc = header.task.receiverName
-        reportFile.schemaName = header.task.schemaName
-        reportFile.schemaTopic = "unavailable" // todo fix this
+        reportFile.reportId = externalReportId // child report
+        reportFile.receivingOrg = parentReportFile.receivingOrg
+        reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
+        reportFile.schemaName = parentReportFile.schemaName
+        reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename
-        reportFile.transportParams = "Internal id of report requested: $originalReportId"
-        reportFile.transportResult = "Downloaded by user=$downloadedBy"
+        reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
+        reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
-        reportFile.bodyFormat = header.task.bodyFormat
-        reportFile.itemCount = header.task.itemCount
+        reportFile.bodyFormat = parentReportFile.bodyFormat
+        reportFile.blobDigest = null // no blob
+        reportFile.itemCount = parentReportFile.itemCount
         reportFile.downloadedBy = downloadedBy
         reportsOut[reportFile.reportId] = reportFile
     }
@@ -473,7 +475,7 @@ class ActionHistory {
                     destinationCounter++
                 }
             }
-            singles.forEach { (orgReceiverName, destData) ->
+            singles.forEach { (_, destData) ->
                 prettyPrintDestinationJson(
                     jsonGen, destData.orgReceiver, destData.organization, destData.sendingAt, destData.count
                 )
@@ -505,8 +507,8 @@ class ActionHistory {
     }
 
     companion object {
-        // TODO: These methods should go to the DB Access or a similar object so they can be mocked for tests
 
+        // TODO: Deprecated. Delete.  WorkflowEngine.handleRecieverEvent pulls in each report individually.
         fun fetchReportFilesForReceiver(
             nextAction: TaskAction,
             at: OffsetDateTime?,

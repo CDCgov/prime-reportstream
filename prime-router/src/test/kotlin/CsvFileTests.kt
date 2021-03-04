@@ -80,11 +80,13 @@ class CsvFileTests {
 
     private fun compareTestResultsToExpectedResults(testFile: String, expectedResultsName: String) {
         val expectedResultsFile = "$expectedResultsPath$expectedResultsName"
-        println("CsvFileTests: diff'ing actual vs expected: $testFile to $expectedResultsFile")
-        // A bit of a hack:  diff the two files.  
+        // A bit of a hack:  diff the two files.
         val testFileLines = File(testFile).readLines()
         val expectedResultsLines = File(expectedResultsFile).readLines()
-        assertEquals(expectedResultsLines, testFileLines)
+        assertEquals(
+            expectedResultsLines, testFileLines,
+            "Actual data file: $testFile Expected data file: $expectedResultsFile"
+        )
     }
 
     private fun loadTestOrganizations(settings: FileSettings) {

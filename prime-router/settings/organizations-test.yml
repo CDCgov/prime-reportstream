@@ -172,6 +172,83 @@
         receivingFacilityName: NDDOH
         receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
 
+- name: la-doh
+  description: Louisiana Department of Health
+  jurisdiction: STATE
+  stateCode: LA
+  receivers:
+    - name: elr
+      organizationName: la-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, LA)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: LA-ELR
+        receivingFacilityName: LADOH
+
+- name: oh-doh
+  description: Ohio Department of Health
+  jurisdiction: STATE
+  stateCode: OH
+  receivers:
+    - name: elr
+      organizationName: oh-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: OHDOH
+        receivingApplicationOID: 2.16.840.1.114222.4.1.3674
+        receivingFacilityName: OHDOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+
+- name: nm-doh
+  description: New Mexico Department of Health
+  jurisdiction: STATE
+  stateCode: NM
+  receivers:
+    - name: elr
+      organizationName: nm-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, NM)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NMDOH
+        receivingApplicationOID: 2.16.840.1.113883.3.5364
+        receivingFacilityName: NMDOH
+        receivingFacilityOID: 2.16.840.1.113883.3.5364
+
+- name: mt-doh
+  description: Montana Department of Health
+  jurisdiction: STATE
+  stateCode: MT
+  receivers:
+    - name: elr
+      organizationName: mt-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(patient_state, MT)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+
+- name: tx-doh
+  description: Texas Department of Health
+  jurisdiction: STATE
+  stateCode: TX
+  receivers:
+    - name: elr
+      organizationName: tx-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, TX)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NEDSS
+        receivingFacilityName: TX-ELR
+
 - name: co-phd
   description: Colorado Department of Health
   jurisdiction: STATE
@@ -279,14 +356,29 @@
           processing_mode_code: T
         format: CSV
 
-- name: prime
-  description: Prime Test Receiver
+# 'ignore' is a test organization, designed to be safely usable across all our environments.
+# It has four receivers, each named _exactly_ the same as the format of data.
+# Each also has a fake "county", also named _exactly_ the same as the format of the data.
+# This is to aid in readability.
+- name: ignore
+  description: FOR TESTING ONLY
   jurisdiction: FEDERAL
+  senders:
+    - name: ignore-strac      # Use this to test sending strac data
+      organizationName: ignore
+      topic: covid-19
+      schemaName: strac/strac-covid-19
+      format: CSV
+    - name: ignore-simple-report      # Use this to test sending simple_report data
+      organizationName: ignore
+      topic: covid-19
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
   receivers:
     - name: CSV
-      organizationName: prime
+      organizationName: ignore
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, CSV)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -301,9 +393,9 @@
         port: 22
         filePath: ./upload
     - name: HL7
-      organizationName: prime
+      organizationName: ignore
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, HL7)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -318,9 +410,9 @@
         port: 22
         filePath: ./upload
     - name: HL7_BATCH
-      organizationName: prime
+      organizationName: ignore
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, HL7_BATCH)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -335,9 +427,9 @@
         port: 22
         filePath: ./upload
     - name: REDOX
-      organizationName: prime
+      organizationName: ignore
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PM)", "matches(ordering_facility_county, REDOX)" ]
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, REDOX)" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -345,15 +437,14 @@
       translation:
         type: CUSTOM
         schemaName: pa/pa-covid-19-redox
+        format: REDOX
         defaults:
           processing_mode_code: T
           redox_destination_id: 21485dc8-8a6e-49d3-8b80-46531e015039
           redox_destination_name: "CDC Montgomery County PDH Destination (s) TEST ONLY"
           redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
           redox_source_name: "Prime Data Hub (Staging)"
-        format: REDOX
       transport:
         type: REDOX      # Will fail.
         apiKey: some_key
         baseUrl: some_url
-

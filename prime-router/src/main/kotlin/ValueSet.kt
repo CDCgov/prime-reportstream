@@ -16,6 +16,7 @@ data class ValueSet(
     val reference: String? = null,
     val referenceUrl: String? = null,
     val values: List<Value> = emptyList(),
+    val version: String? = null
 ) {
     enum class SetSystem {
         HL7,
@@ -24,6 +25,7 @@ data class ValueSet(
         LOCAL,
         FHIR,
         UCUM,
+        NULLFL
     }
 
     val systemCode
@@ -34,6 +36,7 @@ data class ValueSet(
             SetSystem.UCUM -> "UCUM"
             SetSystem.LOCAL -> "LOCAL"
             SetSystem.FHIR -> "FHIR"
+            SetSystem.NULLFL -> "NULLFL"
         }
 
     data class Value(
@@ -43,15 +46,24 @@ data class ValueSet(
         // replaces is used in the case of an altValue that needs to be used instead
         // of what is normally used in the valueSet.
         // for example, a DOH might want to use 'U' instead of 'UNK' for Y/N/UNK values
-        val replaces: String? = null
+        val replaces: String? = null,
+        val system: SetSystem? = null,
     )
 
     fun toDisplayFromCode(code: String): String? {
         return values.find { code.equals(it.code, ignoreCase = true) }?.display
     }
 
+    // set a version on the whole value set if you want, but you can still use
+    // the value-specific version if you're adding something from a different version
     fun toVersionFromCode(code: String): String? {
         return values.find { code.equals(it.code, ignoreCase = true) }?.version
+            ?: this.version
+    }
+
+    fun toSystemFromCode(code: String): String? {
+        return values.find { code.equals(it.code, ignoreCase = true) }?.system?.toString()?.toUpperCase()
+            ?: this.systemCode
     }
 
     fun toCodeFromDisplay(display: String): String? {
@@ -76,7 +88,8 @@ data class ValueSet(
                 system = this.system,
                 reference = this.reference,
                 referenceUrl = this.referenceUrl,
-                values = mergedValues
+                values = mergedValues,
+                version = this.version,
             )
         }
 

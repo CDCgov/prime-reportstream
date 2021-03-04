@@ -6,12 +6,12 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
@@ -45,7 +45,8 @@ class ReportFunction {
         val defaults: Map<String, String>,
         val errors: List<ResultDetail>,
         val warnings: List<ResultDetail>,
-        val report: Report?
+        val report: Report?,
+        val httpStatus: HttpStatus
     )
 
     /**
@@ -72,18 +73,20 @@ class ReportFunction {
                     HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
                 }
                 validatedRequest.report == null -> {
-                    HttpUtilities.badRequestResponse(request, createResponseBody(validatedRequest))
+                    HttpUtilities.notOKResponse(
+                        request,
+                        createResponseBody(validatedRequest),
+                        validatedRequest.httpStatus
+                    )
                 }
                 validatedRequest.options == Options.ValidatePayload -> {
                     HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
                 }
                 else -> {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
-                    val destinations = mutableListOf<String>()
-                    routeReport(context, workflowEngine, validatedRequest, destinations, actionHistory)
-                    val responseBody = createResponseBody(validatedRequest, destinations, actionHistory)
-                    workflowEngine.receiveReport(validatedRequest.report)
-                    actionHistory.trackExternalInputReport(validatedRequest)
+                    routeReport(context, workflowEngine, validatedRequest, actionHistory)
+                    val responseBody = createResponseBody(validatedRequest, actionHistory)
+                    workflowEngine.receiveReport(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)
                 }
             }
@@ -101,6 +104,13 @@ class ReportFunction {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
 
+        val (sizeStatus, errMsg) = HttpUtilities.payloadSizeCheck(request)
+        if (sizeStatus != HttpStatus.OK) {
+            errors.add(ResultDetail.report(errMsg))
+            // If size is too big, we ignore the option.
+            return ValidatedRequest(Options.None, emptyMap(), errors, warnings, null, sizeStatus)
+        }
+
         val optionsText = request.queryParameters.getOrDefault(optionParameter, "")
         val options = if (optionsText.isNotBlank()) {
             try {
@@ -112,8 +122,9 @@ class ReportFunction {
         } else {
             Options.None
         }
+
         if (options == Options.CheckConnections) {
-            return ValidatedRequest(options, emptyMap(), errors, warnings, null)
+            return ValidatedRequest(options, emptyMap(), errors, warnings, null, HttpStatus.OK)
         }
 
         val clientName = request.headers[clientParameter] ?: request.queryParameters.getOrDefault(clientParameter, "")
@@ -137,7 +148,7 @@ class ReportFunction {
         }
 
         if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, emptyMap(), errors, warnings, null)
+            return ValidatedRequest(options, emptyMap(), errors, warnings, null, HttpStatus.BAD_REQUEST)
         }
 
         val defaultValues = if (request.queryParameters.containsKey(defaultParameter)) {
@@ -165,14 +176,14 @@ class ReportFunction {
         }
 
         if (content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, defaultValues, errors, warnings, null)
+            return ValidatedRequest(options, defaultValues, errors, warnings, null, HttpStatus.BAD_REQUEST)
         }
 
         var report = createReport(engine, sender, content, defaultValues, errors, warnings)
         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
             report = null
         }
-        return ValidatedRequest(options, defaultValues, errors, warnings, report)
+        return ValidatedRequest(options, defaultValues, errors, warnings, report, HttpStatus.OK)
     }
 
     private fun createReport(
@@ -207,7 +218,6 @@ class ReportFunction {
         context: ExecutionContext,
         workflowEngine: WorkflowEngine,
         validatedRequest: ValidatedRequest,
-        destinations: MutableList<String>,
         actionHistory: ActionHistory,
     ) {
         if (validatedRequest.options == Options.ValidatePayload ||
@@ -221,12 +231,10 @@ class ReportFunction {
                     val organization = workflowEngine.settings.findOrganization(receiver.organizationName)!!
                     sendToDestination(
                         report,
-                        organization,
                         receiver,
                         context,
                         workflowEngine,
                         validatedRequest,
-                        destinations,
                         actionHistory,
                         txn
                     )
@@ -236,53 +244,42 @@ class ReportFunction {
 
     private fun sendToDestination(
         report: Report,
-        organization: Organization,
         receiver: Receiver,
         context: ExecutionContext,
         workflowEngine: WorkflowEngine,
         validatedRequest: ValidatedRequest,
-        destinations: MutableList<String>,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction
     ) {
-        val receiverDescription = "${organization.description} (${receiver.name})"
         val loggerMsg: String
         when {
             validatedRequest.options == Options.SkipSend -> {
+                // Note that SkipSend should really be called SkipTimingAndSend  ;)
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
-                workflowEngine.dispatchReport(event, report, txn)
-                actionHistory.trackCreatedReport(event, report, receiver)
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.timing != null -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                // todo remove this.
-                destinations += "Sending ${batchReport.itemCount} items to $receiverDescription at $time"
                 val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
-                workflowEngine.dispatchReport(event, batchReport, txn)
-                actionHistory.trackCreatedReport(event, batchReport, receiver)
+                workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.format == Report.Format.HL7 -> {
-                // todo Remove this.   Furthermore, this 'immediately' is no longer always true.
-                destinations += "Sending ${report.itemCount} reports to $receiverDescription immediately"
                 report
                     .split()
                     .forEach {
                         val event = ReportEvent(Event.EventAction.SEND, it.id)
-                        workflowEngine.dispatchReport(event, it, txn)
-                        actionHistory.trackCreatedReport(event, it, receiver)
+                        workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn)
                     }
-                loggerMsg = "Queue: ${report.itemCount} reports"
+                loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
-                destinations += "Sending ${report.itemCount} items to $receiverDescription immediately"
                 val event = ReportEvent(Event.EventAction.SEND, report.id)
-                workflowEngine.dispatchReport(event, report, txn)
-                actionHistory.trackCreatedReport(event, report, receiver)
-                loggerMsg = "Queue: ${event.toQueueMessage()}"
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
+                loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }
         context.logger.info(loggerMsg)
@@ -291,7 +288,6 @@ class ReportFunction {
     // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
     private fun createResponseBody(
         result: ValidatedRequest,
-        destinations: List<String> = emptyList(),
         actionHistory: ActionHistory? = null,
     ): String {
         val factory = JsonFactory()
