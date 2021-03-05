@@ -140,6 +140,11 @@
           receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
           receivingFacilityName: NDDOH
           receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: la-doh
     description: Louisiana Department of Health
