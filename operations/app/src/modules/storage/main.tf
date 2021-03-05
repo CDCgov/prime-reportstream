@@ -2,6 +2,8 @@ terraform {
     required_version = ">= 0.14"
 }
 
+data "azurerm_client_config" "current" {}
+
 resource "azurerm_storage_account" "storage_account" {
   resource_group_name = var.resource_group
   name = var.name
@@ -14,6 +16,11 @@ resource "azurerm_storage_account" "storage_account" {
     virtual_network_subnet_ids = var.subnet_ids
   }
 
+  # Required for customer-managed encryption
+  identity {
+    type = "SystemAssigned"
+  }
+
   lifecycle {
     prevent_destroy = true
   }
@@ -21,6 +28,15 @@ resource "azurerm_storage_account" "storage_account" {
   tags = {
     environment = var.environment
   }
+}
+
+# Grant the storage account Key Vault access, to access encryption keys
+resource "azurerm_key_vault_access_policy" "storage_policy" {
+  key_vault_id = var.key_vault_id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_storage_account.storage_account.identity.0.principal_id
+
+  key_permissions    = ["get", "unwrapkey", "wrapkey"]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_key" {
