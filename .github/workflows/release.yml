@@ -80,17 +80,3 @@ jobs:
 
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
-
-      - name: Set SFTP Environment Variables
-        run: |
-              az functionapp config appsettings set \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.PREFIX }}-functionapp \
-              --settings PRIME_ENVIRONMENT=${{ env.PRIME_ENVIRONMENT }} ${{ env.SFTP_CREDS }}
-
-      - name: Set Redox Environment Variables
-        run: |
-              az functionapp config appsettings set \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.PREFIX }}-functionapp \
-              --settings REDOX_SECRET=${{ env.REDOX_SECRET }} 
