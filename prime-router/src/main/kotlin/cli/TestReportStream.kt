@@ -61,6 +61,7 @@ Examples:
         ping("Is the reports endpoint alive and listening?"),
         end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
         merge("Submit multiple files, wait, confirm via db that merge occurred"),
+        dbconnections("Test weird problem wherein many 'sends' cause db connection failures"),
         // Note: 10,000 lines fake data generation took about 90 seconds on my laptop.  6Meg.
         huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."),
         toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"),
@@ -139,6 +140,7 @@ Examples:
                 AwesomeTest.ping -> doCheckConnections(environment)
                 AwesomeTest.end2end -> doEndToEndTest(environment)
                 AwesomeTest.merge -> doMergeTest(environment)
+                AwesomeTest.dbconnections -> doDbConnectionTest(environment)
                 AwesomeTest.huge -> doHugeTest(environment)
                 AwesomeTest.toobig -> doTooManyItemsTest(environment)
                 AwesomeTest.toomanycols -> doTooManyColumnsTest(environment)
@@ -207,7 +209,7 @@ Examples:
             val tree = jacksonObjectMapper().readTree(json)
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
-            waitABit(15, environment)
+            waitABit(25, environment)
             examineLineageResults(reportId, fourReceivers, fakeItemCount)
         } catch (e: NullPointerException) {
             bad("***End to End Test FAILED***: Unable to properly parse response json")
@@ -244,6 +246,44 @@ Examples:
         examineMergeResults(reportIds[0], fourReceivers, fakeItemCount, 5)
     }
 
+    /**
+     * Test weirdness in Staging wherein we have strange HL7 'send' numbers
+     *
+     * This test, when it fails, exposes a database connection exception in Staging.
+     *
+     */
+    private fun doDbConnectionTest(environment: ReportStreamEnv) {
+        // 20 means 10 separate redox sends and 10 separate HL7 sends, since each sends one record at a time.
+        val fakeItemCount = 40 // hack:  you need use a multiple of # of targetCounties
+        echo("DBConnectionTest: test of many threads all doing sftp sends in ${environment.endPoint}, format HL7")
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            simpleRepSender,
+            fakeItemCount,
+            receivingStates,
+            "HL7",
+            dir,
+        )
+        echo("Created datafile $file")
+        // Now send it to the Hub over and over
+        val numResends = 1
+        val reportIds = (1..numResends).map {
+            val (responseCode, json) =
+                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, key)
+            echo("Response to POST: $responseCode")
+            if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                bad("***DbConnection Test FAILED***:  response code $responseCode")
+                return
+            }
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
+            echo("Id of submitted report: $reportId")
+            reportId
+        }
+        waitABit(30, environment)
+        examineMergeResults(reportIds[0], listOf(hl7Receiver), fakeItemCount, numResends)
+    }
+
     private fun doHugeTest(environment: ReportStreamEnv) {
         val fakeItemCount = 10000
         echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is terrapin slow.")
@@ -268,7 +308,7 @@ Examples:
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit(20, environment)
+        waitABit(30, environment)
         examineLineageResults(reportId, listOf(csvReceiver), fakeItemCount)
     }
 
@@ -357,7 +397,7 @@ Examples:
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit(15, environment)
+        waitABit(20, environment)
         examineLineageResults(reportId, listOf(redoxReceiver), fakeItemCount)
     }
 
@@ -387,7 +427,7 @@ Examples:
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit(15, environment)
+        waitABit(20, environment)
         examineLineageResults(reportId, fourReceivers, fakeItemCount)
     }
 
@@ -468,6 +508,8 @@ Examples:
 
         val fourReceivers = settings.receivers.filter { it.organizationName == orgName }
         val csvReceiver = fourReceivers.filter { it.name == "CSV" }[0]
+        val hl7Receiver = fourReceivers.filter { it.name == "HL7" }[0]
+        val hl7BatchReceiver = fourReceivers.filter { it.name == "HL7_BATCH" }[0]
         val redoxReceiver = fourReceivers.filter { it.name == "REDOX" }[0]
         val fourTargetCounties = fourReceivers.map { it.name }.joinToString(",")
 
@@ -499,7 +541,7 @@ Examples:
             if (secsElapsed > (60 - plusSecs) || env != ReportStreamEnv.LOCAL) {
                 // Uh oh, we are close to the top of the minute *now*, so 'receive' might not finish in time.
                 // Or, we are in Test or Staging, which don't execute on the top of the minute.
-                waitSecs += 60
+                waitSecs += 120
             }
             echo("Waiting $waitSecs seconds for the Hub to fully receive, batch, and send the data")
             for (i in 1..waitSecs) {
