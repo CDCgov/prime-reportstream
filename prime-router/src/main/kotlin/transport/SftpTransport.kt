@@ -29,17 +29,18 @@ class SftpTransport : ITransport {
         val host: String = sftpTransportType.host
         val port: String = sftpTransportType.port
         return try {
-            if (header.content == null || header.receiver == null)
-                error("No content or orgSvc to sftp, for report ${header.reportFile.reportId}")
-            val (user, pass) = lookupCredentials(header.receiver.fullName)
+            if (header.content == null)
+                error("No content to sftp for report ${header.reportFile.reportId}")
+            val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
+            val (user, pass) = lookupCredentials(receiver.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
-            uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, header.content, context)
+            uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
-                header.receiver,
+                receiver,
                 sentReportId,
                 fileName,
                 sftpTransportType.toString(),
@@ -81,8 +82,7 @@ class SftpTransport : ITransport {
         pass: String,
         path: String,
         fileName: String,
-        contents: ByteArray,
-        context: ExecutionContext // TODO: temp fix to add logging
+        contents: ByteArray
     ) {
         val sshClient = SSHClient()
         try {
@@ -94,11 +94,8 @@ class SftpTransport : ITransport {
             client.use {
                 it.put(makeSourceFile(contents, fileName), "$path/$fileName")
             }
-            // TODO: remove this over logging when bug is fixed
-            // context.logger.log(Level.INFO, "SFTP PUT succeeded: $fileName")
         } finally {
             sshClient.disconnect()
-            // context.logger.log(Level.INFO, "SFTP DISCONNECT succeeded: $fileName")
         }
     }
 

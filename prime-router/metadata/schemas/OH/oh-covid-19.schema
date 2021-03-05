@@ -1,18 +1,16 @@
 ---
-name: tx-covid-19
-description: TX NEDSS ELR for HL7 messages
-referenceUrl: https://www.dshs.state.tx.us/IDCU/investigation/ELR/Texas-HL7-2_5_1-ELR_Specification_-2016_Final-Draft-4-29-16.pdf
+name: oh-covid-19
 topic: covid-19
-extends: covid-19
-trackingElement: message_id
+basedOn: covid-19
+description: A schema for OH DOH to receive HL7 files
 elements:
   - name: sending_application
 
   - name: receiving_application
-    default: NEDSS
+    default: OHDOH^2.16.840.1.114222.4.1.3674^ISO
 
   - name: receiving_facility
-    default: TX-ELR
+    default: OHDOH^2.16.840.1.114222.4.1.3674^ISO
 
   - name: comment
 
@@ -243,23 +241,4 @@ elements:
   - name: testing_lab_phone_number
 
   # AOE questions
-  - name: pregnant
-
-  - name: employed_in_healthcare
-
-  - name: first_test
-
-  - name: hospitalized
-
-  - name: icu
-
-  - name: illness_onset_date
-
-  - name: patient_age
-
-  - name: patient_age_units
-
-  - name: resident_congregate_setting
-
-  - name: symptomatic_for_disease
-
+  # Ohio doesn't want AOE questions

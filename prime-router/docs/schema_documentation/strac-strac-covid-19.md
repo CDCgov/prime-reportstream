@@ -22,7 +22,7 @@ The reporting facility's name
 
 **Type**: ID_CLIA
 
-**HL7 Field**: MSH-4-2
+**HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
 
 **Cardinality**: [0..1]
 
@@ -196,7 +196,7 @@ The zip code of the provider
 
 **Type**: ID
 
-**HL7 Field**: ORC-3-1
+**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
@@ -361,7 +361,8 @@ U|Unknown
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
 
 ---

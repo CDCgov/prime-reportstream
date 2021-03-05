@@ -1,18 +1,17 @@
 ---
-name: tx-covid-19
-description: TX NEDSS ELR for HL7 messages
-referenceUrl: https://www.dshs.state.tx.us/IDCU/investigation/ELR/Texas-HL7-2_5_1-ELR_Specification_-2016_Final-Draft-4-29-16.pdf
-topic: covid-19
-extends: covid-19
+name: gu-covid-19
+description: Guam COVID-19
 trackingElement: message_id
+topic: covid-19
+basedOn: covid-19
 elements:
   - name: sending_application
 
   - name: receiving_application
-    default: NEDSS
+    default: GUDOH
 
   - name: receiving_facility
-    default: TX-ELR
+    default: GUDOH
 
   - name: comment
 
@@ -105,8 +104,6 @@ elements:
   - name: patient_county
 
   - name: patient_county_code
-
-  - name: patient_email
 
   - name: patient_death_date
 
@@ -262,4 +259,3 @@ elements:
   - name: resident_congregate_setting
 
   - name: symptomatic_for_disease
-

@@ -27,6 +27,12 @@ typealias DefaultValues = Map<String, String>
 // then we just want to fake the data instead to prevent the leakage of PII
 const val SHUFFLE_THRESHOLD = 25
 
+// Basic size limitations on incoming reports
+const val PAYLOAD_MAX_BYTES: Long = 50 * 1000 * 1000 // Experiments show 10k HL7 Items is ~41Meg. So allow 50Meg
+const val REPORT_MAX_ITEMS = 10000
+const val REPORT_MAX_ITEM_COLUMNS = 2000
+const val REPORT_MAX_ERRORS = 100
+
 /**
  * The report represents the report from one agent-organization, and which is
  * translated and sent to another agent-organization. Each report has a schema,
@@ -73,7 +79,7 @@ class Report {
 
     /**
      * The sources that generated this service
-     * todo this is now redundant with ActionHistory.reportLineages.
+     * todo this is no longer being stored in the db. Its not clear what its useful for.
      */
     val sources: List<Source>
 
@@ -295,6 +301,13 @@ class Report {
         return table.getString(row, column)
     }
 
+    fun getStringByHl7Field(row: Int, hl7Field: String): String? {
+        val column = schema.elements.filter { it.hl7Field.equals(hl7Field, ignoreCase = true) }.firstOrNull()
+            ?: return null
+        val index = schema.findElementColumn(column.name) ?: return null
+        return table.getString(row, index)
+    }
+
     fun getRow(row: Int): List<String> {
         return schema.elements.map {
             val column = schema.findElementColumn(it.name)
@@ -341,7 +354,8 @@ class Report {
     fun synthesizeData(
         synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap(),
         targetState: String? = null,
-        targetCounty: String? = null
+        targetCounty: String? = null,
+        metadata: Metadata,
     ): Report {
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
@@ -385,7 +399,7 @@ class Report {
                     }
                     SynthesizeStrategy.FAKE -> {
                         // generate random faked data for the column passed in
-                        buildFakedColumn(it.name, it, targetState, targetCounty)
+                        buildFakedColumn(it.name, it, targetState, targetCounty, metadata)
                     }
                     SynthesizeStrategy.BLANK -> buildEmptyColumn(it.name)
                     SynthesizeStrategy.PASSTHROUGH -> table.column(it.name).copy()
@@ -490,11 +504,18 @@ class Report {
         name: String,
         element: Element,
         targetState: String?,
-        targetCounty: String?
+        targetCounty: String?,
+        metadata: Metadata,
     ): StringColumn {
-        val context = FakeReport.RowContext({ null }, targetState, schema.name, targetCounty)
         val fakeDataService = FakeDataService()
-        return StringColumn.create(name, List(itemCount) { fakeDataService.getFakeValueForElement(element, context) })
+        return StringColumn.create(
+            name,
+            List(itemCount) {
+                // moved context into the list creator so we get many different values
+                val context = FakeReport.RowContext(metadata::findLookupTable, targetState, schema.name, targetCounty)
+                fakeDataService.getFakeValueForElement(element, context)
+            }
+        )
     }
 
     companion object {

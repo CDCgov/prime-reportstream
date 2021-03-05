@@ -12,7 +12,6 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.transport.RedoxTransport.ResultStatus
 import java.util.logging.Level
 
 class RedoxTransport() : ITransport {
@@ -40,8 +39,9 @@ class RedoxTransport() : ITransport {
     ): RetryItems? {
         val redoxTransportType = transportType as RedoxTransportType
         val (key, secret) = getKeyAndSecret(redoxTransportType)
-        if (header.content == null || header.receiver == null)
-            error("No content or orgSvc to send to redox for report ${header.reportFile.reportId}")
+        if (header.content == null)
+            error("No content to send to redox for report ${header.reportFile.reportId}")
+        val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
         val messages = String(header.content).split("\n") // NDJSON content
         val token = fetchToken(redoxTransportType, key, secret, context)
         if (token == null) {
@@ -67,6 +67,7 @@ class RedoxTransport() : ITransport {
             when (sendResult.status) {
                 ResultStatus.SUCCESS -> successCount++
                 ResultStatus.FAILURE -> nextRetryItems.add(index.toString())
+                else -> { /* do nothing */ }
             }
             sendResult
         }
@@ -79,7 +80,7 @@ class RedoxTransport() : ITransport {
         val resultMsg = "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
         actionHistory.trackActionResult(resultMsg)
         context.logger.log(Level.INFO, resultMsg)
-        actionHistory.trackSentReport(header.receiver, sentReportId, null, sendUrl, resultMsg, successCount)
+        actionHistory.trackSentReport(receiver, sentReportId, null, sendUrl, resultMsg, successCount)
         val itemLineages = Report.createItemLineagesFromDb(header, sentReportId)
         if (itemLineages != null) {
             Report.decorateItemLineagesWithTransportResults(

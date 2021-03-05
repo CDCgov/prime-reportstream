@@ -132,4 +132,119 @@ class MapperTests {
         // assert
         assertEquals(expected, actual, "Expected: $expected. Actual: $actual")
     }
+
+    @Test
+    fun `test date time offset mapper with seconds`() {
+        // arrange
+        val mapper = DateTimeOffsetMapper()
+        val args = listOf(
+            "a",
+            "seconds",
+            "6"
+        )
+        val element = Element("a")
+        val values = listOf(
+            ElementAndValue(element, "202103020000-0600")
+        )
+
+        // act
+        val expected = "20210302000006.0000-0600"
+        val actual = mapper.apply(element, args, values)
+
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+    }
+
+    @Test
+    fun `test date time offset mapper with negative seconds`() {
+        // arrange
+        val mapper = DateTimeOffsetMapper()
+        val args = listOf(
+            "a",
+            "seconds",
+            "-6"
+        )
+        val element = Element("a")
+        val values = listOf(
+            ElementAndValue(element, "20210302000006.0000-0600")
+        )
+
+        // act
+        val expected = "20210302000000.0000-0600"
+        val actual = mapper.apply(element, args, values)
+
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+    }
+
+    @Test
+    fun `test date time offset mapper with minutes`() {
+        // arrange
+        val mapper = DateTimeOffsetMapper()
+        val args = listOf(
+            "a",
+            "minutes",
+            "1"
+        )
+        val element = Element("a")
+        val values = listOf(
+            ElementAndValue(element, "202103020000-0600")
+        )
+
+        // act
+        val expected = "20210302000100.0000-0600"
+        val actual = mapper.apply(element, args, values)
+
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+    }
+
+    @Test
+    fun `test date time offset mapper with negative minutes`() {
+        // arrange
+        val mapper = DateTimeOffsetMapper()
+        val args = listOf(
+            "a",
+            "minutes",
+            "-1"
+        )
+        val element = Element("a")
+        val values = listOf(
+            ElementAndValue(element, "20210302000100.0000-0600")
+        )
+
+        // act
+        val expected = "20210302000000.0000-0600"
+        val actual = mapper.apply(element, args, values)
+
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+    }
+
+    @Test
+    fun `test coalesce mapper`() {
+        // arrange
+        val mapper = CoalesceMapper()
+        val args = listOf("a", "b", "c")
+        val element = Element("target")
+        var values = listOf(
+            ElementAndValue(Element("a"), ""),
+            ElementAndValue(Element("b"), ""),
+            ElementAndValue(Element("c"), "c")
+        )
+        // act
+        var expected = "c"
+        var actual = mapper.apply(element, args, values)
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+
+        values = listOf(
+            ElementAndValue(Element("a"), ""),
+            ElementAndValue(Element("b"), "b"),
+            ElementAndValue(Element("c"), "c")
+        )
+        expected = "b"
+        actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
 }
