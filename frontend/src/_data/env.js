@@ -1,4 +1,4 @@
-const env_vars = {
+const env = {
   OKTA_redirect: process.env.OKTA_redirect || 'http://localhost:7071/api/download',
   // OKTA_redirect: process.env.OKTA_redirect || 'http://localhost:7079/authorize.html',
   OKTA_clientId: process.env.OKTA_clientId || '0oa6fm8j4G1xfrthd4h6',
@@ -10,10 +10,10 @@ const env_vars = {
 }
 
 // use JSON.parse to validate content
-for (let [key, value] of Object.entries(env_vars)) {
+for (let [key, value] of Object.entries(env)) {
   if (value != JSON.parse(`"${value}"`)) {
     throw new Error(`Invalid value for process.env.${key}`)
   }
 }
 
-module.exports = env_vars
+module.exports = env 

@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "dependencies": {
     "@11ty/eleventy": "^0.11.1",
+    "jshint": "^2.12.0",
     "http-proxy-middleware": "^1.0.6"
   },
   "devDependencies": {
@@ -12,7 +13,7 @@
     "openapi-backend": "^3.9.0"
   },
   "scripts": {
-    "clean": "rm -rf ./_site ./dist",
+    "clean": "rm -rf ./_site",
     "start": "npm -s run serve",
     "prebuild": "npm -s run clean",
     "prewatch": "npm -s run clean",

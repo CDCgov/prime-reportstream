@@ -4,7 +4,8 @@
     <div class="usa-navbar">
       <div class="usa-logo" id="basic-logo">
         <em class="usa-logo__text">
-          <a href="{{ '/' | url }}" title="Home" aria-label="Home">PRIME Data Hub</a>
+          <img src="/css/logo.png" role="img" alt="Logo" style="width:32px;height:32px;vertical-align:middle;" /> 
+          <a href="{{ '/' | url }}" title="Home" aria-label="Home">ReportStream</a>
         </em>
       </div>
     </div>
@@ -17,30 +18,9 @@
         />
       </button>
       <div class="prime-user-account">
-        <span><script>{
-          let jwt_body = JSON.parse(localStorage.getItem('jwt_body') || null)
-          if (jwt_body) {
-            document.currentScript
-              .parentElement.textContent = `${jwt_body.sub}`
-          } else {
-            window.location.replace({{"/login.html" | url | as_literal }})
-          }
-        }</script></span>
-
+        cbrown@cdc.gov
         <br />
-        <a href="#" onclick="false">Logout
-          <script>
-            document.currentScript.parentElement.onclick = (event) => {
-              event.preventDefault()
-
-              document.cookie = `jwt=;path=/;expires=${new Date(0).toUTCString()}`
-              window.localStorage.removeItem('jwt')
-              window.localStorage.removeItem('jwt_body')
-
-              window.location.replace({{"/login.html" | url | as_literal }})
-            }
-          </script>
-        </a>
+        <a href="{{data-index}}" onclick="false">Dashboard</a> | <a href="/settings/profile.html" onclick="false">Settings</a> | <a href="#" onclick="false">Logout</a>
       </div>
     </nav>
   </div>
