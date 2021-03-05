@@ -1,0 +1,105 @@
+---
+layout: protected.liquid
+title: "Download"
+---
+{% assign report = reports[0] %}
+
+<section class="grid-container margin-bottom-5">
+  <h3 class="margin-bottom-0">
+    <span class="text-gray-30">Pima County, AZ</span>
+  </h3>
+  <h1 class="margin-top-0 margin-bottom-0">
+    <p class="margin-top-0 margin-bottom-0">COVID-19</p>
+    <p class="margin-top-0 margin-bottom-0">Test results
+    {% if report.fileType == "CSV" %}
+    <a class="usa-button usa-button--outline float-right" href="">CSV</a>
+    {% elsif report.fileType == "HL7" %}
+    <a class="usa-button usa-button--outline float-right" href="">HL7</a>
+    {% endif %}
+    </p>
+</h1>
+</section>
+
+<section class="grid-container margin-top-0">
+    <div class="grid-row grid-gap margin-top-0">
+      <div class="tablet:grid-col-4">
+
+            <h4 class="text-gray-30 margin-bottom-0">Date sent</h4>
+            <p class="text-bold margin-top-0">{% date report.sent "dddd, MMMM DD, YYYY" %}</p>
+            <h4 class="text-gray-30 margin-bottom-0">Time sent</h4>
+            <p class="text-bold margin-top-0">{% date report.sent "hh:mm A" %}</p>
+            <h4 class="text-gray-30 margin-bottom-0">Sent via</h4>
+            <p class="text-bold margin-top-0">{{ report.via }}</p>
+        </div>
+      <div class="tablet:grid-col-4">
+            <h4 class="text-gray-30 margin-bottom-0">Total positive</h4>
+            <p class="text-bold margin-top-0">{% comma report.positive %}</p>
+            <h4 class="text-gray-30 margin-bottom-0">Total tests</h4>
+            <p class="text-bold margin-top-0">{% comma report.total %}</p>
+            <h4 class="text-gray-30 margin-bottom-0">Facilities reporting</h4>
+            <p class="text-bold margin-top-0">{{ report.facilities.length }}</p>
+      </div>
+      <div class="tablet:grid-col-4">
+            <h4 class="text-gray-30 margin-bottom-0">Type</h4>
+            <p class="text-bold margin-top-0">{{ report.type }}</p>
+            <h4 class="text-gray-30 margin-bottom-0">UUID</h4>
+            <p class="text-bold margin-top-0">{{ report.reportId }}</p>
+            <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
+            <p class="text-bold margin-top-0">{{ report.expires }} days</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid-container margin-top-5">
+    <div class="grid-col-12">
+      <h2>Facilities</h2>
+      <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+        <thead>
+          <tr>
+            <th scope="col">Organization</th>
+            <th scope="col">Facility</th>
+            <th scope="col">CLIA</th>
+            <th scope="col">Total tests</th>
+            <th scope="col">Total positive</th>
+          </tr>
+        </thead>
+        <tbody class="font-mono-2xs">
+          {% for facility in report.facilities %}
+          <tr>
+            <th data-title="date" scope="row">{{ facility.organization }}</th>
+            <th data-title="receiver" scope="row">{{ facility.facility }}</th>
+            <th data-title="Total tests" scope="row">{{ facility.CLIA }} </th>
+            <th date-title="expires" scope="row">{{ facility.total }}</th>
+            <th data-title="File" scope="row">{{ facility.positive }}</th>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+</section>
+
+<section class="grid-container margin-top-5">
+    <div class="grid-col-12">
+      <h2>Activities</h2>
+      <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">User</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody class="font-mono-2xs">
+          {% for action in report.actions %}
+          <tr>
+            <th data-title="date" scope="row">{% date action.date "YYYY-MM-DD hh:mm" %}</th>
+            <th data-title="receiver" scope="row">{{ action.user }}</th>
+            <th data-title="Total tests" scope="row">{{ action.action }}</th>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+</section>
+
+  

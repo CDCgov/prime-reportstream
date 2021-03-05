@@ -2,12 +2,20 @@
 //const PRIME_api = process.env.PRIME_api || 'http://localhost:7071/api';
 
 // Use different port
-const PRIME_api = process.env.PRIME_api || 'http://localhost:9000/api';
+const PRIME_api = process.env.PRIME_api || 'http://localhost:7071/api';
 
+const moment = require('moment');
 
 module.exports = function eleventy_config(cfg) {
   cfg.addFilter('as_literal',
     value => JSON.stringify(value) )
+
+  cfg.addLiquidShortcode("comma", 
+    num => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") );
+
+  cfg.addLiquidShortcode("date", 
+    (date,fmt) => moment(date).format( fmt ) );
+
 
   cfg.addPassthroughCopy('src/js')
   cfg.addPassthroughCopy('src/css')
@@ -22,12 +30,11 @@ module.exports = function eleventy_config(cfg) {
   }
 }
 
-
 function _with_live_reloading(cfg) {
   const { createProxyMiddleware } = require('http-proxy-middleware')
 
   cfg.setBrowserSyncConfig({
-    port: 7071,
+    port: 8090,
     // port: 7079,
 
     // see https://browsersync.io/docs/options

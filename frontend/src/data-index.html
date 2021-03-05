@@ -1,0 +1,141 @@
+---
+layout: protected.liquid
+title: "Download"
+---
+
+<section class="grid-container margin-bottom-5">
+  <h3 class="margin-bottom-0">
+    <span class="text-gray-30">Pima County, AZ</span>
+  </h3>
+  <h1 class="margin-top-0 margin-bottom-0">
+    COVID-19 {{reportId}}
+  
+    <a class="usa-button usa-button--outline float-right" href="/data-show.html">Today's Results</a>
+</h1>
+</section>
+
+<section class="grid-container margin-top-0">
+  <div class="grid-row grid-gap margin-top-0">
+    {% for card in cards %}
+    <div class="tablet:grid-col-4">
+      <div class="usa-card__container">
+        <div class="usa-card__body">
+          <h4 class="text-gray-30 margin-bottom-0">{{card.title}}</h4>
+          <p class="text-bold margin-top-0">{{card.subtitle}}</p>
+          <h4 class="text-gray-30 margin-bottom-0">Daily</h4>
+          <p class="text-bold margin-top-0">{% comma card.daily %}</p>
+          <h4 class="text-gray-30 margin-bottom-0">Last 7 days</h4>
+          <p class="text-bold margin-top-0">
+            {% comma card.last %}
+            {% if card.positive %}
+            <span class="text-green float-right">&#8593;{% comma card.change %} ({{card.pct_change}}%)</span>
+            {% else %}
+            <span class="text-red float-right">&#8595;{% comma card.change %} ({{card.pct_change}}%)</span>
+            {% endif %}             
+          </p>
+          <canvas id="{{card.id}}" width="200" height="200"></canvas>
+        </div>  
+      </div>
+      </div>
+      {% endfor %}
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<script>
+  var ctx = 'positive-cases';
+  var ctx2 = 'tests-administered';
+  var ctx3 = 'facilities';
+  
+  var myLineChart = new Chart(ctx, {
+    type: 'line',
+    data: {datasets: [{
+            data: [12, 19, 3, 5, 2, 3]
+    }],
+  },
+    options: {
+        legend: {
+            display: false,
+        },
+        scales: {
+            yAxes: [{
+                display: false
+            }]
+        }
+    }
+});
+
+var myLineChart = new Chart(ctx2, {
+    type: 'line',
+    data: {datasets: [{
+            data: [12, 19, 3, 5, 2, 3]
+    }],
+  },
+    options: {
+        legend: {
+            display: false,
+        },
+        scales: {
+            yAxes: [{
+                display: false
+            }]
+        }
+    }
+});
+
+var myLineChart = new Chart(ctx3, {
+    type: 'line',
+    data:  {datasets: [{
+            data: [12, 19, 3, 5, 2, 3]
+    }],
+  },
+    options: {
+        legend: {
+            display: false,
+        },
+        scales: {
+            yAxes: [{
+                display: false
+            }]
+        }
+    }
+});
+</script>
+
+
+
+<section class="grid-container margin-top-5">
+  <div class="grid-col-12">
+    <h2>Previous <span>7</span> days</h2>
+    <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Type</th>
+          <th scope="col">Total tests</th>
+          <th scope="col">Expires</th>
+          <th scope="col">File</th>
+        </tr>
+      </thead>
+      <tbody class="font-mono-2xs">
+        {% for report in reports %}
+        <tr>
+          <th data-title="date" scope="row">{% date report.sent "YYYY-MM-DD hh:mm:ss" %}</th>
+          <th data-title="receiver" scope="row">{{report.type}}</th>
+          <th data-title="Total tests" scope="row">{% comma report.total %}</th>
+          <th date-title="expires" scope="row">{{report.expires}} days</th>
+          <th data-title="File" scope="row"><span><a href=".">{{report.fileType}}</a></span>
+          </th>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+
+
+
+
+
