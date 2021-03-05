@@ -4,6 +4,7 @@ COPY package*.json ./
 ENV NODE_ENV=production
 RUN npm i
 COPY . ./
+RUN npm install
 RUN npm -s run build
 CMD npm -s run serve
 
