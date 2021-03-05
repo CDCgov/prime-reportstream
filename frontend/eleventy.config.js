@@ -24,7 +24,7 @@ module.exports = function eleventy_config(cfg) {
 
 
 function _with_live_reloading(cfg) {
-  const { createProxyMiddleware } = require('http-proxy-middleware')
+
 
   cfg.setBrowserSyncConfig({
     port: 7071,
@@ -36,12 +36,5 @@ function _with_live_reloading(cfg) {
     open: false, // don't open browser windows for us
     cors: true,
 
-    // see https://browsersync.io/docs/options#option-middleware
-    middleware: [
-      // The PRIME_api is handled by http proxy of `/api`, using same-site policy to avoid CORS hurdles.
-      // See `frontend/mock/` and `frontend/src/_data/env.js` for additional details.
-      // Proxy `/api` to prime-router or mock server backend
-      { route: `/api`, handle: createProxyMiddleware(PRIME_api) },
-    ],
-  })
+   })
 }
