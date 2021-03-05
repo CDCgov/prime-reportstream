@@ -12,14 +12,13 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.OrganizationClient
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.time.OffsetDateTime
 import java.util.logging.Level
 
 /**
@@ -46,7 +45,8 @@ class ReportFunction {
         val defaults: Map<String, String>,
         val errors: List<ResultDetail>,
         val warnings: List<ResultDetail>,
-        val report: Report?
+        val report: Report?,
+        val httpStatus: HttpStatus
     )
 
     /**
@@ -70,22 +70,24 @@ class ReportFunction {
             val httpResponseMessage = when {
                 validatedRequest.options == Options.CheckConnections -> {
                     workflowEngine.checkConnections()
-                    okResponse(request, validatedRequest)
+                    HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
                 }
                 validatedRequest.report == null -> {
-                    badRequestResponse(request, validatedRequest)
+                    HttpUtilities.notOKResponse(
+                        request,
+                        createResponseBody(validatedRequest),
+                        validatedRequest.httpStatus
+                    )
                 }
                 validatedRequest.options == Options.ValidatePayload -> {
-                    okResponse(request, validatedRequest)
+                    HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
                 }
                 else -> {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
-                    val destinations = mutableListOf<String>()
-                    routeReport(context, workflowEngine, validatedRequest, destinations, actionHistory)
-                    val responseBody = createResponseBody(validatedRequest, destinations, actionHistory)
-                    workflowEngine.receiveReport(validatedRequest.report)
-                    actionHistory.trackExternalInputReport(validatedRequest)
-                    createdResponse(request, validatedRequest, responseBody)
+                    routeReport(context, workflowEngine, validatedRequest, actionHistory)
+                    val responseBody = createResponseBody(validatedRequest, actionHistory)
+                    workflowEngine.receiveReport(validatedRequest, actionHistory)
+                    HttpUtilities.createdResponse(request, responseBody)
                 }
             }
             actionHistory.trackActionResult(httpResponseMessage)
@@ -94,13 +96,20 @@ class ReportFunction {
             return httpResponseMessage
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
-            return internalErrorResponse(request)
+            return HttpUtilities.internalErrorResponse(request)
         }
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
+
+        val (sizeStatus, errMsg) = HttpUtilities.payloadSizeCheck(request)
+        if (sizeStatus != HttpStatus.OK) {
+            errors.add(ResultDetail.report(errMsg))
+            // If size is too big, we ignore the option.
+            return ValidatedRequest(Options.None, emptyMap(), errors, warnings, null, sizeStatus)
+        }
 
         val optionsText = request.queryParameters.getOrDefault(optionParameter, "")
         val options = if (optionsText.isNotBlank()) {
@@ -113,23 +122,24 @@ class ReportFunction {
         } else {
             Options.None
         }
+
         if (options == Options.CheckConnections) {
-            return ValidatedRequest(options, emptyMap(), errors, warnings, null)
+            return ValidatedRequest(options, emptyMap(), errors, warnings, null, HttpStatus.OK)
         }
 
         val clientName = request.headers[clientParameter] ?: request.queryParameters.getOrDefault(clientParameter, "")
         if (clientName.isBlank())
             errors.add(ResultDetail.param(clientParameter, "Expected a '$clientParameter' query parameter"))
-        val client = engine.metadata.findClient(clientName)
-        if (client == null)
+        val sender = engine.settings.findSender(clientName)
+        if (sender == null)
             errors.add(ResultDetail.param(clientParameter, "'$clientName' is not a valid"))
-        val schema = engine.metadata.findSchema(client?.schema ?: "")
+        val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
-        } else if (client != null && client.format.mimeType != contentType) {
-            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "expecting '${client.format.mimeType}'"))
+        } else if (sender != null && sender.format.mimeType != contentType) {
+            errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "expecting '${sender.format.mimeType}'"))
         }
 
         val content = request.body ?: ""
@@ -137,8 +147,8 @@ class ReportFunction {
             errors.add(ResultDetail.param("Content", "expecting a post message with content"))
         }
 
-        if (client == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, emptyMap(), errors, warnings, null)
+        if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
+            return ValidatedRequest(options, emptyMap(), errors, warnings, null, HttpStatus.BAD_REQUEST)
         }
 
         val defaultValues = if (request.queryParameters.containsKey(defaultParameter)) {
@@ -166,31 +176,31 @@ class ReportFunction {
         }
 
         if (content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, defaultValues, errors, warnings, null)
+            return ValidatedRequest(options, defaultValues, errors, warnings, null, HttpStatus.BAD_REQUEST)
         }
 
-        var report = createReport(engine, client, content, defaultValues, errors, warnings)
+        var report = createReport(engine, sender, content, defaultValues, errors, warnings)
         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
             report = null
         }
-        return ValidatedRequest(options, defaultValues, errors, warnings, report)
+        return ValidatedRequest(options, defaultValues, errors, warnings, report, HttpStatus.OK)
     }
 
     private fun createReport(
         engine: WorkflowEngine,
-        client: OrganizationClient,
+        sender: Sender,
         content: String,
         defaults: Map<String, String>,
         errors: MutableList<ResultDetail>,
         warnings: MutableList<ResultDetail>
     ): Report? {
-        return when (client.format) {
-            OrganizationClient.Format.CSV -> {
+        return when (sender.format) {
+            Sender.Format.CSV -> {
                 try {
-                    val readResult = engine.csvSerializer.read(
-                        schemaName = client.schema,
+                    val readResult = engine.csvSerializer.readExternal(
+                        schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
-                        sources = listOf(ClientSource(organization = client.organization.name, client = client.name)),
+                        sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
                         defaultValues = defaults
                     )
                     errors += readResult.errors
@@ -208,7 +218,6 @@ class ReportFunction {
         context: ExecutionContext,
         workflowEngine: WorkflowEngine,
         validatedRequest: ValidatedRequest,
-        destinations: MutableList<String>,
         actionHistory: ActionHistory,
     ) {
         if (validatedRequest.options == Options.ValidatePayload ||
@@ -217,11 +226,17 @@ class ReportFunction {
         workflowEngine.db.transact { txn ->
             workflowEngine
                 .translator
-                .filterAndTranslateByService(validatedRequest.report!!, validatedRequest.defaults)
-                .forEach { (report, service) ->
+                .filterAndTranslateByReceiver(validatedRequest.report!!, validatedRequest.defaults)
+                .forEach { (report, receiver) ->
+                    val organization = workflowEngine.settings.findOrganization(receiver.organizationName)!!
                     sendToDestination(
-                        report, service, context, workflowEngine,
-                        validatedRequest, destinations, actionHistory, txn
+                        report,
+                        receiver,
+                        context,
+                        workflowEngine,
+                        validatedRequest,
+                        actionHistory,
+                        txn
                     )
                 }
         }
@@ -229,55 +244,42 @@ class ReportFunction {
 
     private fun sendToDestination(
         report: Report,
-        service: OrganizationService,
+        receiver: Receiver,
         context: ExecutionContext,
         workflowEngine: WorkflowEngine,
         validatedRequest: ValidatedRequest,
-        destinations: MutableList<String>,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction
     ) {
-        val serviceDescription = if (service.organization.services.size > 1)
-            "${service.organization.description} (${service.name})"
-        else
-            service.organization.description
         val loggerMsg: String
         when {
             validatedRequest.options == Options.SkipSend -> {
+                // Note that SkipSend should really be called SkipTimingAndSend  ;)
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
-                workflowEngine.dispatchReport(event, report, txn)
-                actionHistory.trackCreatedReport(event, report, service)
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            service.batch != null -> {
-                val time = service.batch.nextBatchTime()
+            receiver.timing != null -> {
+                val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                // todo remove this.
-                destinations += "Sending ${batchReport.itemCount} items to $serviceDescription at $time"
-                val event = ReceiverEvent(Event.EventAction.BATCH, service.fullName, time)
-                workflowEngine.dispatchReport(event, batchReport, txn)
-                actionHistory.trackCreatedReport(event, batchReport, service)
+                val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
+                workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            service.format == Report.Format.HL7 -> {
-                // todo Remove this.   Furthermore, this 'immediately' is no longer always true.
-                destinations += "Sending ${report.itemCount} reports to $serviceDescription immediately"
+            receiver.format == Report.Format.HL7 -> {
                 report
                     .split()
                     .forEach {
                         val event = ReportEvent(Event.EventAction.SEND, it.id)
-                        workflowEngine.dispatchReport(event, it, txn)
-                        actionHistory.trackCreatedReport(event, it, service)
+                        workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn)
                     }
-                loggerMsg = "Queue: ${report.itemCount} reports"
+                loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
-                destinations += "Sending ${report.itemCount} items to $serviceDescription immediately"
                 val event = ReportEvent(Event.EventAction.SEND, report.id)
-                workflowEngine.dispatchReport(event, report, txn)
-                actionHistory.trackCreatedReport(event, report, service)
-                loggerMsg = "Queue: ${event.toQueueMessage()}"
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
+                loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }
         context.logger.info(loggerMsg)
@@ -286,7 +288,6 @@ class ReportFunction {
     // todo I think all of this info is now in ActionHistory.  Move to there.   Already did destinations.
     private fun createResponseBody(
         result: ValidatedRequest,
-        destinations: List<String> = emptyList(),
         actionHistory: ActionHistory? = null,
     ): String {
         val factory = JsonFactory()
@@ -299,7 +300,7 @@ class ReportFunction {
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.metadata)
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings)
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)
@@ -320,48 +321,5 @@ class ReportFunction {
             it.writeEndObject()
         }
         return outStream.toString()
-    }
-
-    private fun okResponse(
-        request: HttpRequestMessage<String?>,
-        validatedRequest: ValidatedRequest
-    ): HttpResponseMessage {
-        return request
-            .createResponseBuilder(HttpStatus.OK)
-            .body(createResponseBody(validatedRequest))
-            .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
-            .build()
-    }
-
-    private fun badRequestResponse(
-        request: HttpRequestMessage<String?>,
-        validatedRequest: ValidatedRequest,
-    ): HttpResponseMessage {
-        return request
-            .createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(createResponseBody(validatedRequest))
-            .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
-            .build()
-    }
-
-    private fun createdResponse(
-        request: HttpRequestMessage<String?>,
-        validatedRequest: ValidatedRequest,
-        responseBody: String,
-    ): HttpResponseMessage {
-        return request
-            .createResponseBuilder(HttpStatus.CREATED)
-            .body(responseBody)
-            .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
-            .build()
-    }
-
-    private fun internalErrorResponse(
-        request: HttpRequestMessage<String?>
-    ): HttpResponseMessage {
-        return request
-            .createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Internal error at ${OffsetDateTime.now()}")
-            .build()
     }
 }

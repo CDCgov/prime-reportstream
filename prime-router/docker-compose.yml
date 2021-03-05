@@ -35,10 +35,17 @@ services:
       - TX_PHD__ELR_TEST__PASS=pass
       - TX_PHD__ELR_DEBUG__USER=foo
       - TX_PHD__ELR_DEBUG__PASS=pass
+      - IGNORE__HL7__USER=foo
+      - IGNORE__HL7__PASS=pass
+      - IGNORE__HL7_BATCH__USER=foo
+      - IGNORE__HL7_BATCH__PASS=pass
+      - IGNORE__CSV__USER=foo
+      - IGNORE__CSV__PASS=pass
       - SENDGRID_API_KEY=SnBfxpPsQkmOh0SfU3X_ng
       - OKTA_baseUrl=hhs-prime.okta.com
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
+      - FEATURE_FLAG_SETTINGS_ENABLED=true
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port
@@ -71,6 +78,12 @@ services:
       - type: bind
         source: ./src/test/redox
         target: /config
+
+  settings:
+    build: settings/.
+    command: "--wait=8 prime_dev organizations-local.yml"
+    depends_on:
+      - prime_dev
 
   # Secrets management
   vault:

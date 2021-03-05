@@ -14,6 +14,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -26,7 +27,7 @@ import java.util.Calendar
 import java.util.UUID
 import java.util.logging.Level
 
-class DownloadFunction {
+class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
     val DAYS_TO_SHOW = 7L
     val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
     val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
@@ -62,7 +63,7 @@ class DownloadFunction {
         if (authClaims != null) {
             val file: String = request.queryParameters["file"] ?: ""
             if (file.isBlank())
-                return responsePage(request, authClaims, context)
+                return responsePage(request, authClaims)
             else
                 return responseFile(request, file, authClaims, context)
         } else {
@@ -88,63 +89,62 @@ class DownloadFunction {
         return response
     }
 
-    private fun generateTestResults(headers: List<DatabaseAccess.Header>, authClaims: AuthClaims): List<TestResult> {
-        return headers.sortedByDescending {
-            it.task.createdAt
+    private fun generateTestResults(reportFiles: List<ReportFile>, authClaims: AuthClaims): List<TestResult> {
+        return reportFiles.sortedByDescending {
+            it.createdAt
         }.map {
-            val svc = WorkflowEngine().metadata.findService(it.task.receiverName)
+            val svc = WorkflowEngine().settings.findReceiver(it.receivingOrg)
             val orgDesc = authClaims.organization.description
             val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
             TestResult(
-                it.task.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                it.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                 receiver,
-                DAYS_TO_SHOW - it.task.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
-                it.task.itemCount,
+                DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS),
+                it.itemCount,
                 0,
-                it.task.reportId.toString(),
-                it.task.bodyFormat
+                it.reportId.toString(),
+                it.bodyFormat
             )
         }
     }
 
     private fun generateTodaysTestResults(
-        headers: List<DatabaseAccess.Header>,
+        reportFiles: List<ReportFile>,
         authClaims: AuthClaims
     ): List<TestResult> {
-        var filtered = headers.filter { filter(it) }
+        var filtered = reportFiles.filter { filter(it) }
         return generateTestResults(filtered, authClaims)
     }
 
-    private fun filter(it: DatabaseAccess.Header): Boolean {
+    private fun filter(reportFile: ReportFile): Boolean {
         val now = OffsetDateTime.now()
-        return it.task.createdAt.year == now.year &&
-            it.task.createdAt.monthValue == now.monthValue &&
-            it.task.createdAt.dayOfMonth == now.dayOfMonth
+        return reportFile.createdAt.year == now.year &&
+            reportFile.createdAt.monthValue == now.monthValue &&
+            reportFile.createdAt.dayOfMonth == now.dayOfMonth
     }
 
     private fun generatePreviousTestResults(
-        headers: List<DatabaseAccess.Header>,
+        reportFiles: List<ReportFile>,
         authClaims: AuthClaims
     ): List<TestResult> {
-        var filtered = headers.filterNot { filter(it) }
+        var filtered = reportFiles.filterNot { filter(it) }
         return generateTestResults(filtered, authClaims)
     }
 
     private fun responsePage(
         request: HttpRequestMessage<String?>,
-        authClaims: AuthClaims,
-        context: ExecutionContext
+        authClaims: AuthClaims
     ): HttpResponseMessage {
         val htmlTemplate: String = Files.readString(Path.of(DOWNLOAD_PAGE))
-        val headers = DatabaseAccess(dataSource = DatabaseAccess.dataSource).fetchDownloadableHeaders(
+        val reportFiles = workflowEngine.fetchDownloadableReportFiles(
             OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
         )
         val attr = mapOf(
-            "description" to (authClaims.organization.description ?: ""),
+            "description" to (authClaims.organization.description),
             "user" to authClaims.userName,
             "today" to Calendar.getInstance(),
-            "todays" to generateTodaysTestResults(headers, authClaims),
-            "previous" to generatePreviousTestResults(headers, authClaims),
+            "todays" to generateTodaysTestResults(reportFiles, authClaims),
+            "previous" to generatePreviousTestResults(reportFiles, authClaims),
             "days_to_show" to DAYS_TO_SHOW,
             "OKTA_redirect" to System.getenv("OKTA_redirect"),
             "showTables" to true
@@ -169,10 +169,9 @@ class DownloadFunction {
         var response: HttpResponseMessage
         try {
             val reportId = ReportId.fromString(requestedFile)
-            val header = DatabaseAccess(dataSource = DatabaseAccess.dataSource)
-                .fetchHeader(reportId, authClaims.organization.name)
+            val header = workflowEngine.fetchHeader(reportId, authClaims.organization.name)
             if (header.content == null || header.content.isEmpty())
-                response = responsePage(request, authClaims, context)
+                response = responsePage(request, authClaims)
             else {
                 val filename = Report.formExternalFilename(header)
                 response = request
@@ -189,11 +188,10 @@ class DownloadFunction {
                 actionHistory.trackDownloadedReport(
                     header,
                     filename,
-                    reportId,
                     externalReportId,
                     authClaims.userName,
-                    authClaims.organization
                 )
+                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
                 WorkflowEngine().recordAction(actionHistory)
                 return response
             }
@@ -228,13 +226,8 @@ class DownloadFunction {
     private fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         var userName = ""
         var orgName = ""
-
         val cookies = request.headers["cookie"] ?: ""
-
-        context.logger.info(cookies)
-
         var jwtString = ""
-
         cookies.replace(" ", "").split(";").forEach {
             val cookie = it.split("=")
             jwtString = if (cookie[0] == "jwt") cookie[1] else ""
@@ -254,7 +247,7 @@ class DownloadFunction {
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = WorkflowEngine().metadata.findOrganization(orgName.replace('_', '-'))
+            val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
             if (organization != null) {
                 return AuthClaims(userName, organization)
             } else {

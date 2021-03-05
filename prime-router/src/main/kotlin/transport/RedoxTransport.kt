@@ -7,10 +7,11 @@ import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.RedoxTransportType
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import java.util.logging.Level
 
 class RedoxTransport() : ITransport {
@@ -25,9 +26,12 @@ class RedoxTransport() : ITransport {
     private val jsonMimeType = "application/json"
     private val redoxMessageId = "messageId"
 
+    enum class ResultStatus { SUCCESS, FAILURE, NOT_SENT }
+    data class SendResult(val itemId: String, val status: ResultStatus, val redoxId: Int? = null)
+
     override fun send(
         transportType: TransportType,
-        header: DatabaseAccess.Header,
+        header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
@@ -35,8 +39,9 @@ class RedoxTransport() : ITransport {
     ): RetryItems? {
         val redoxTransportType = transportType as RedoxTransportType
         val (key, secret) = getKeyAndSecret(redoxTransportType)
-        if (header.content == null || header.orgSvc == null)
-            error("No content or orgSvc to send to redox for report ${header.reportFile.reportId}")
+        if (header.content == null)
+            error("No content to send to redox for report ${header.reportFile.reportId}")
+        val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
         val messages = String(header.content).split("\n") // NDJSON content
         val token = fetchToken(redoxTransportType, key, secret, context)
         if (token == null) {
@@ -45,22 +50,27 @@ class RedoxTransport() : ITransport {
         }
         val sendUrl = "${getBaseUrl(redoxTransportType)}$redoxEndpointPath"
         // DevNote: Redox access tokens live for many days
+
         var attemptedCount: Int = 0
         var successCount: Int = 0
-        val nextRetryItems = messages
-            .mapIndexed { index, message -> Pair(index, message) }
-            .filter { (index, _) ->
-                retryItems == null || RetryToken.isAllItems(retryItems) || retryItems.contains(index.toString())
-            }
-            .mapNotNull { (index, message) ->
-                attemptedCount++
-                if (!sendItem(sendUrl, token, message, "${header.reportFile.reportId}-$index", context)) {
-                    index.toString()
-                } else {
-                    successCount++
-                    null
+        val nextRetryItems = mutableListOf<String>()
+        val results = messages.mapIndexed() { index, message ->
+            val itemId = "${header.reportFile.reportId}-$index"
+            val sendResult = when {
+                (retryItems == null) || RetryToken.isAllItems(retryItems) || retryItems.contains(index.toString()) -> {
+                    attemptedCount++
+                    sendItem(sendUrl, token, message, itemId)
                 }
+                else ->
+                    SendResult(itemId, ResultStatus.NOT_SENT)
             }
+            when (sendResult.status) {
+                ResultStatus.SUCCESS -> successCount++
+                ResultStatus.FAILURE -> nextRetryItems.add(index.toString())
+                else -> { /* do nothing */ }
+            }
+            sendResult
+        }
         val statusStr = when {
             attemptedCount == 0 -> "Weird"
             successCount == attemptedCount -> "Success"
@@ -70,8 +80,29 @@ class RedoxTransport() : ITransport {
         val resultMsg = "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
         actionHistory.trackActionResult(resultMsg)
         context.logger.log(Level.INFO, resultMsg)
-        actionHistory.trackSentReport(header.orgSvc, sentReportId, null, sendUrl, resultMsg, successCount)
+        actionHistory.trackSentReport(receiver, sentReportId, null, sendUrl, resultMsg, successCount)
+        val itemLineages = Report.createItemLineagesFromDb(header, sentReportId)
+        if (itemLineages != null) {
+            Report.decorateItemLineagesWithTransportResults(
+                itemLineages,
+                createTransportResults(results, retryItems != null)
+            )
+            actionHistory.trackItemLineages(itemLineages)
+        }
         return if (nextRetryItems.isNotEmpty()) nextRetryItems else null
+    }
+
+    /**
+     * Map redox results onto strings that we can store in the item_lineage table.
+     */
+    private fun createTransportResults(results: List<SendResult>, isRetry: Boolean): List<String> {
+        return results.map {
+            when (it.status) {
+                ResultStatus.SUCCESS -> it.redoxId.toString()
+                ResultStatus.FAILURE -> if (isRetry) "RETRY_FAILURE" else "FAILURE"
+                ResultStatus.NOT_SENT -> "NOT_SENT" + if (isRetry) " (likely sent in prior attempt)" else "(bug!!)"
+            }
+        }
     }
 
     private fun getBaseUrl(redox: RedoxTransportType): String {
@@ -85,7 +116,12 @@ class RedoxTransport() : ITransport {
         return Pair(redox.apiKey, secret)
     }
 
-    private fun fetchToken(redox: RedoxTransportType, key: String, secret: String, context: ExecutionContext): String? {
+    private fun fetchToken(
+        redox: RedoxTransportType,
+        key: String,
+        secret: String,
+        context: ExecutionContext
+    ): String? {
         val url = "${getBaseUrl(redox)}$redoxAuthPath"
         val (_, _, result) = Fuel
             .post(url)
@@ -118,28 +154,25 @@ class RedoxTransport() : ITransport {
         token: String,
         message: String,
         id: String,
-        context: ExecutionContext
-    ): Boolean {
+    ): SendResult {
         val (_, _, result) = Fuel
             .post(sendUrl)
             .header(CONTENT_TYPE to jsonMimeType, AUTHORIZATION to "Bearer $token")
             .timeout(redoxTimeout)
             .body(message)
             .responseJson()
-        // TODO: store the result id when we get line level tracking
         return when (result) {
             is Result.Success -> {
                 val messageId = result.value.obj()
                     .getJSONObject("Meta")
                     .getJSONObject("Message")
                     .getInt("ID")
-                true
+                SendResult(id, ResultStatus.SUCCESS, messageId)
             }
             is Result.Failure -> {
-                context.logger.log(Level.WARNING, "FAILED to post $id to Redox")
-                false
+                SendResult(id, ResultStatus.FAILURE)
             }
-            else -> false
+            else -> SendResult(id, ResultStatus.FAILURE)
         }
     }
 }

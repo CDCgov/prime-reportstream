@@ -6,17 +6,19 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -38,6 +40,7 @@ import java.time.OffsetDateTime
  */
 class ActionHistory {
 
+    // todo change to Logger
     private var context: ExecutionContext?
 
     /**
@@ -81,12 +84,14 @@ class ActionHistory {
      * However, its here because there are Functions that do not create Report.kt objects.  For example, Send.
      * In addition, in-memory, reports get copied many times, with lots of parent-child relationships
      * that are error-prone to track.  Hiding the lineage data here helps ensure correctness and hide complexity.
-     *
-     * todo Note that this does not work for command line.   Is that a problem?
-     * todo this is redundant with `Report.sources`.   Merge these together.  Eliminate one of them.
-     *
      */
     private val reportLineages = mutableListOf<ReportLineage>()
+
+    /**
+     * Set of new parent->child Item mappings created by this Action.
+     * Note this crucial assumption: the ordering of rows is fixed within any one report.
+     */
+    val itemLineages = mutableSetOf<ItemLineage>()
 
     constructor(taskAction: TaskAction, context: ExecutionContext? = null) {
         action.actionName = taskAction
@@ -110,9 +115,12 @@ class ActionHistory {
             it.writeStringField("method", request.httpMethod.toString())
             it.writeObjectFieldStart("Headers")
             // remove secrets
-            request.headers.filter { !it.key.contains("key") }.forEach { (key, value) ->
-                it.writeStringField(key, value)
-            }
+            request.headers
+                .filter { !it.key.contains("key") }
+                .filter { !it.key.contains("cookie") }
+                .forEach { (key, value) ->
+                    it.writeStringField(key, value)
+                }
             it.writeEndObject()
             it.writeObjectFieldStart("QueryParameters")
             // remove secrets
@@ -180,7 +188,7 @@ class ActionHistory {
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(incomingReport: ReportFunction.ValidatedRequest) {
+    fun trackExternalInputReport(incomingReport: ReportFunction.ValidatedRequest, blobInfo: BlobAccess.BlobInfo) {
         val report = incomingReport.report ?: error("No report to track!")
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -189,7 +197,7 @@ class ActionHistory {
         val reportFile = ReportFile()
         reportFile.reportId = report.id
         reportFile.nextAction = TaskAction.none
-        // todo remove this dependency on TaskSource
+        // todo Is there a better way to get the sendingOrg and sendingOrgClient?
         if (report.sources.size != 1) {
             error(
                 "An external incoming report should have only one source.   " +
@@ -201,32 +209,15 @@ class ActionHistory {
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = report.bodyURL
-        reportFile.bodyFormat = report.bodyFormat.toString()
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
+        if (report.itemLineages != null)
+            error("For report ${report.id}:  Externally submitted reports should never have item lineagee.")
     }
 
-    /* Table structure here for reference during development. Might be out of date.
-        public ReportFile(
-            UUID           reportId,
-            Integer        actionId,
-            TaskAction     nextAction,
-            OffsetDateTime nextActionAt,
-            String         sendingOrg,
-            String         sendingOrgClient,
-            String         receivingOrg,
-            String         receivingOrgSvc,
-            String         schemaName,
-            String         schemaTopic,
-            String         bodyUrl,
-            String         external_name,
-            String         bodyFormat,
-            byte[]         blobDigest,
-            Integer        itemCount,
-            OffsetDateTime wipedAt,
-            OffsetDateTime createdAt
-        */
     /**
      * Use this to record history info about an internally created report.
      * This also tracks the event to be queued later, as an azure message.
@@ -234,7 +225,8 @@ class ActionHistory {
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        service: OrganizationService
+        receiver: Receiver,
+        blobInfo: BlobAccess.BlobInfo,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -244,19 +236,21 @@ class ActionHistory {
         reportFile.reportId = report.id
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
-        reportFile.receivingOrg = service.organization.name
-        reportFile.receivingOrgSvc = service.name
+        reportFile.receivingOrg = receiver.organizationName
+        reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = report.bodyURL
-        reportFile.bodyFormat = report.bodyFormat.toString()
+        reportFile.bodyUrl = blobInfo.blobUrl
+        reportFile.bodyFormat = blobInfo.format.toString()
+        reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
         reportsOut[reportFile.reportId] = reportFile
+        trackItemLineages(report)
         trackEvent(event) // to be sent to queue later.
     }
 
     fun trackSentReport(
-        service: OrganizationService,
+        receiver: Receiver,
         sentReportId: ReportId,
         fileName: String?,
         params: String,
@@ -271,15 +265,16 @@ class ActionHistory {
         }
         val reportFile = ReportFile()
         reportFile.reportId = sentReportId
-        reportFile.receivingOrg = service.organization.name
-        reportFile.receivingOrgSvc = service.name
-        reportFile.schemaName = service.schema
-        reportFile.schemaTopic = service.topic
+        reportFile.receivingOrg = receiver.organizationName
+        reportFile.receivingOrgSvc = receiver.name
+        reportFile.schemaName = receiver.schemaName
+        reportFile.schemaTopic = receiver.topic
         reportFile.externalName = fileName
         reportFile.transportParams = params
         reportFile.transportResult = result
         reportFile.bodyUrl = null
-        reportFile.bodyFormat = service.format.toString()
+        reportFile.bodyFormat = receiver.format.toString()
+        reportFile.blobDigest = null // no blob
         reportFile.itemCount = itemCount
         reportsOut[reportFile.reportId] = reportFile
     }
@@ -290,14 +285,13 @@ class ActionHistory {
      * of our custody.
      */
     fun trackDownloadedReport(
-        header: DatabaseAccess.Header,
+        header: WorkflowEngine.Header,
         filename: String,
-        originalReportId: ReportId,
         externalReportId: ReportId,
-        userName: String,
-        organization: Organization
+        downloadedBy: String,
     ) {
-        trackExistingInputReport(originalReportId)
+        val parentReportFile = header.reportFile
+        trackExistingInputReport(parentReportFile.reportId)
         if (isReportAlreadyTracked(externalReportId)) {
             error(
                 "Bug:  attempt to track history of a report ($externalReportId)" +
@@ -305,19 +299,37 @@ class ActionHistory {
             )
         }
         val reportFile = ReportFile()
-        reportFile.reportId = externalReportId
-        reportFile.receivingOrg = organization.name
-        reportFile.receivingOrgSvc = header.task.receiverName
-        reportFile.schemaName = header.task.schemaName
-        reportFile.schemaTopic = "unavailable" // todo fix this
+        reportFile.reportId = externalReportId // child report
+        reportFile.receivingOrg = parentReportFile.receivingOrg
+        reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
+        reportFile.schemaName = parentReportFile.schemaName
+        reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = filename
-        reportFile.transportParams = "Internal id of report requested: $originalReportId"
-        reportFile.transportResult = "Downloaded by user=$userName"
+        reportFile.transportParams = "{ \"reportRequested\": \"${parentReportFile.reportId}\"}"
+        reportFile.transportResult = "{ \"downloadedBy\": \"$downloadedBy\"}"
         reportFile.bodyUrl = null // this entry represents an external file, not a blob.
-        reportFile.bodyFormat = header.task.bodyFormat
-        reportFile.itemCount = header.task.itemCount
-        reportFile.downloadedBy = userName
+        reportFile.bodyFormat = parentReportFile.bodyFormat
+        reportFile.blobDigest = null // no blob
+        reportFile.itemCount = parentReportFile.itemCount
+        reportFile.downloadedBy = downloadedBy
         reportsOut[reportFile.reportId] = reportFile
+    }
+
+    private fun trackItemLineages(report: Report) {
+        // sanity checks
+        if (report.itemLineages == null) error("Cannot create lineage For report ${report.id}: missing ItemLineage")
+        if (report.itemLineages!!.size != report.itemCount) {
+            error(
+                "Report ${report.id} should have ${report.itemCount} lineage items" +
+                    " but instead has ${report.itemLineages!!.size} lineage items"
+            )
+        }
+        trackItemLineages(report.itemLineages)
+    }
+
+    fun trackItemLineages(itemLineages: List<ItemLineage>?) {
+        if (itemLineages == null) return
+        this.itemLineages.addAll(itemLineages)
     }
 
     /**
@@ -344,7 +356,8 @@ class ActionHistory {
         reportsOut.values.forEach { it.actionId = action.actionId }
         insertReports(txn)
         generateReportLineages(action.actionId)
-        insertLineages(txn)
+        insertReportLineages(txn)
+        insertItemLineages(itemLineages, txn)
     }
 
     /**
@@ -399,7 +412,7 @@ class ActionHistory {
         }
     }
 
-    private fun insertLineages(txn: Configuration) {
+    private fun insertReportLineages(txn: Configuration) {
         reportLineages.forEach {
             insertReportLineage(it, txn)
         }
@@ -412,9 +425,24 @@ class ActionHistory {
         )
     }
 
+    private fun insertItemLineages(itemLineages: Set<ItemLineage>, txn: Configuration) {
+        itemLineages.forEach {
+            DSL.using(txn).newRecord(ITEM_LINEAGE, it).store()
+        }
+        context?.logger?.info(
+            "Inserted ${itemLineages.size} " +
+                "Item lineages into db for action ${action.actionId}: ${action.actionName}"
+        )
+    }
+
+    private fun insertItemLineage(itemLineage: ItemLineage, txn: Configuration) {
+        DSL.using(txn).newRecord(ITEM_LINEAGE, itemLineage).store()
+    }
+
     // Used as temp storage by the json generator, below.
     private data class DestinationData(
-        val orgSvc: OrganizationService,
+        val orgReceiver: Receiver,
+        val organization: Organization,
         var count: Int,
         val sendingAt: OffsetDateTime? = null,
     )
@@ -425,26 +453,32 @@ class ActionHistory {
      *
      * This works by side-effect on jsonGen.
      */
-    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator, metadata: Metadata) {
+    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator, settings: SettingsProvider) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
         if (reportsOut.isNotEmpty()) {
             // Avoid clutter.  Combine reports with one Item, and print combined count.
             var singles = mutableMapOf<String, DestinationData>()
-            reportsOut.forEach { (id, reportFile) ->
+            reportsOut.forEach { (_, reportFile) ->
                 val fullname = reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
-                val orgSvc = metadata.findService(fullname) ?: return@forEach
+                val (organization, orgReceiver) = settings.findOrganizationAndReceiver(fullname) ?: return@forEach
                 if (reportFile.itemCount == 1) {
                     var previous =
-                        singles.putIfAbsent(fullname, DestinationData(orgSvc, 1, reportFile.nextActionAt))
+                        singles.putIfAbsent(
+                            fullname, DestinationData(orgReceiver, organization, 1, reportFile.nextActionAt)
+                        )
                     if (previous != null) previous.count++
                 } else {
-                    prettyPrintDestinationJson(jsonGen, orgSvc, reportFile.nextActionAt, reportFile.itemCount)
+                    prettyPrintDestinationJson(
+                        jsonGen, orgReceiver, organization, reportFile.nextActionAt, reportFile.itemCount
+                    )
                     destinationCounter++
                 }
             }
-            singles.forEach { (orgSvcName, destData) ->
-                prettyPrintDestinationJson(jsonGen, destData.orgSvc, destData.sendingAt, destData.count)
+            singles.forEach { (_, destData) ->
+                prettyPrintDestinationJson(
+                    jsonGen, destData.orgReceiver, destData.organization, destData.sendingAt, destData.count
+                )
                 destinationCounter++
             }
         }
@@ -454,15 +488,16 @@ class ActionHistory {
 
     fun prettyPrintDestinationJson(
         jsonGen: JsonGenerator,
-        orgSvc: OrganizationService,
+        orgReceiver: Receiver,
+        organization: Organization,
         sendingAt: OffsetDateTime?,
         countToPrint: Int
     ) {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
-        jsonGen.writeStringField("organization", orgSvc.organization.description)
-        jsonGen.writeStringField("organization_id", orgSvc.organization.name)
-        jsonGen.writeStringField("service", orgSvc.name)
+        jsonGen.writeStringField("organization", organization.description)
+        jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
+        jsonGen.writeStringField("service", orgReceiver.name)
         jsonGen.writeStringField(
             "sending_at",
             if (sendingAt == null) "immediately" else "$sendingAt"
@@ -472,36 +507,21 @@ class ActionHistory {
     }
 
     companion object {
-        fun fetchReportFile(reportId: ReportId, ctx: DSLContext): ReportFile {
-            val reportFile = ctx
-                .selectFrom(Tables.REPORT_FILE)
-                .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
-                .fetchOne()
-                ?.into(ReportFile::class.java)
-                ?: error("Could not find $reportId in REPORT_FILE")
 
-            /*  val items = DSL.using(txn)
-            .selectFrom(Tables.ITEM)
-            .where(Tables.ITEM.REPORT_ID.eq(reportId))
-            .fetch()
-            .into(Item::class.java)
-       */
-            return reportFile
-        }
-
+        // TODO: Deprecated. Delete.  WorkflowEngine.handleRecieverEvent pulls in each report individually.
         fun fetchReportFilesForReceiver(
             nextAction: TaskAction,
             at: OffsetDateTime?,
-            receiver: OrganizationService,
+            receiver: Receiver,
             limit: Int,
             ctx: DSLContext,
         ): Map<ReportId, ReportFile> {
             val cond = if (at == null) {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organization.name)
+                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organizationName)
                     .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
                     .and(Tables.REPORT_FILE.NEXT_ACTION.eq(nextAction))
             } else {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organization.name)
+                Tables.REPORT_FILE.RECEIVING_ORG.eq(receiver.organizationName)
                     .and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.name))
                     .and(Tables.REPORT_FILE.NEXT_ACTION.eq(nextAction))
                     .and(Tables.REPORT_FILE.NEXT_ACTION_AT.eq(at))
@@ -510,27 +530,6 @@ class ActionHistory {
                 .selectFrom(Tables.REPORT_FILE)
                 .where(cond)
                 .limit(limit)
-                .fetch()
-                .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
-        }
-
-        fun fetchDownloadableReportFiles(
-            since: OffsetDateTime?,
-            orgName: String,
-            ctx: DSLContext,
-        ): Map<ReportId, ReportFile> {
-            val cond = if (since == null) {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
-                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
-            } else {
-                Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
-                    .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
-                    .and(Tables.REPORT_FILE.CREATED_AT.ge(since))
-            }
-
-            return ctx
-                .selectFrom(Tables.REPORT_FILE)
-                .where(cond)
                 .fetch()
                 .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
         }

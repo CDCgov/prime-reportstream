@@ -5,19 +5,22 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TranslatorTests {
-    private val servicesYaml = """
+    private val receiversYaml = """
         ---
           # Arizona PHD
           - name: phd1
             description: Arizona PHD
-            services: 
+            jurisdiction: STATE
+            stateCode: AZ
+            receivers: 
             - name: elr
+              organizationName: phd1
               topic: test
-              schema: one
               jurisdictionalFilter: [ "matches(a, 1)"]
-              transforms: {deidentify: false}
-              address: phd1
-              format: CSV
+              translation: 
+                type: CUSTOM
+                schemaName: one
+                format: CSV
     """.trimIndent()
 
     @Test
@@ -25,7 +28,7 @@ class TranslatorTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata().loadSchemas(one, two)
-        val translator = Translator(metadata)
+        val translator = Translator(metadata, FileSettings())
 
         val oneToTwo = translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
         assertEquals(one, oneToTwo.fromSchema)
@@ -47,7 +50,7 @@ class TranslatorTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
         val two = Schema(name = "two", topic = "test", elements = listOf(Element("a"), Element("b", default = "x")))
         val metadata = Metadata().loadSchemas(one, two)
-        val translator = Translator(metadata)
+        val translator = Translator(metadata, FileSettings())
 
         val oneToTwo = translator.buildMapping(fromSchema = one, toSchema = two, defaultValues = mapOf("b" to "foo"))
         assertEquals(true, oneToTwo.useDefault.contains("b"))
@@ -63,7 +66,7 @@ class TranslatorTests {
             elements = listOf(Element("a"), Element("c", cardinality = Element.Cardinality.ONE))
         )
         val metadata = Metadata().loadSchemas(one, three)
-        val translator = Translator(metadata)
+        val translator = Translator(metadata, FileSettings())
 
         val oneToThree = translator.buildMapping(fromSchema = one, toSchema = three, defaultValues = emptyMap())
         assertEquals(1, oneToThree.useDirectly.size)
@@ -73,20 +76,21 @@ class TranslatorTests {
     }
 
     @Test
-    fun `test filterAndMapByService`() {
+    fun `test filterAndMapByReceiver`() {
         val metadata = Metadata()
-        metadata.loadOrganizations(ByteArrayInputStream(servicesYaml.toByteArray()))
-        val translator = Translator(metadata)
+        val settings = FileSettings()
+        settings.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
+        val translator = Translator(metadata, settings)
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource)
 
-        val result = translator.filterAndTranslateByService(table1)
+        val result = translator.filterAndTranslateByReceiver(table1)
 
         assertEquals(1, result.size)
         val (mappedTable, forReceiver) = result[0]
         assertEquals(table1.schema, mappedTable.schema)
         assertEquals(1, mappedTable.itemCount)
-        assertEquals(metadata.organizationServices[0], forReceiver)
+        assertEquals(settings.receivers.toTypedArray()[0], forReceiver)
     }
 }

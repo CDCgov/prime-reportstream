@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # Run a set of interesting lineage queries.  Pass in one parameter: an id (uuid), as returned in the json, to hub api caller.
-# Runs queries that list all descendants, 
 
 # Make sure you load to stored procs first:
 #      psql prime_data_hub -f lineage-report-stored-procedures.sql
@@ -28,7 +27,9 @@ fi
 printf "\n\n${RED}How are baby reports made?   Find all the descendants of $REPORT_UUID${NC}\n"
 psql prime_data_hub <<EOF
 select RF.report_id, A.action_id as ACT_ID, A.action_name as action_taken,
-       RF.body_format as FMT, RF.receiving_org AS receiver, receiving_org_svc AS rcvr_service, left(A.action_result, 7) AS actn_rslt, left(RF.transport_result, 15) as send_result, RF.item_count AS COUNT, RF.next_action as NEXT_ACT
+       RF.body_format as FMT, RF.receiving_org AS receiver, receiving_org_svc AS rcvr_service,
+       left(A.action_result, 7) AS actn_rslt, left(RF.transport_result, 15) as send_result,
+       RF.item_count AS COUNT, RF.next_action as NEXT_ACT
 from report_file as RF
 join action as A ON A.action_id = RF.action_id
 where RF.report_id in (select report_descendants('$REPORT_UUID'))
@@ -48,7 +49,9 @@ EOF
 printf "\n${RED}Now find the reports that were NEVER sent.   These might need investigation.${NC}\n"
 psql prime_data_hub <<EOF
 select RF.report_id, A.action_id as ACT_ID, A.action_name as action_taken,
-       RF.body_format as FMT, RF.receiving_org AS receiver, receiving_org_svc AS rcvr_service, left(A.action_result, 7) AS actn_rslt, left(RF.transport_result, 15) as send_result, RF.item_count AS COUNT, RF.next_action as NEXT_ACT
+       RF.body_format as FMT, RF.receiving_org AS receiver, receiving_org_svc AS rcvr_service,
+       left(A.action_result, 7) AS actn_rslt, left(RF.transport_result, 15) as send_result,
+       RF.item_count AS COUNT, RF.next_action as NEXT_ACT
 from report_file as RF
 join action as A ON A.action_id = RF.action_id
 where RF.report_id in (select find_withered_reports('$REPORT_UUID'))

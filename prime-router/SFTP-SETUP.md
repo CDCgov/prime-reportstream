@@ -22,14 +22,18 @@ Steps
     ```
       - name: az-phd
         description: Arizona PHD
-        services:
+        jurisdiction: STATE
+        stateCode: AZ
+        receivers:
         - name: elr
+          organizationName: az-phd
           topic: covid-19
-          schema: az/az-covid-19
           jurisdictionalFilter: { patient_state: AZ }
-          transforms: { deidentify: false }
-          address: http://localhost:1181/
-          format: CSV
+          deidentify: false
+          translation:
+            type: CUSTOM
+            schemaName: az/az-covid-19
+            format: CSV
           transport:
             type: SFTP
             host: localhost

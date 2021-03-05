@@ -50,12 +50,16 @@ function assure_openapi_backend(api) {
 // JSON Web Token (JWT) integration into openapi-backend 
 
 const _jwt_mock_secret_ = 'jwt_mock_secret'
-const default_login_obj = { name: 'John Doe', email: 'john@example.com' }
+const default_login_obj = {
+  sub: 'jane@example.com',
+  given_name: 'Jane',
+  family_name: 'Doe',
+}
 export const new_jwt_token = (login_obj) =>
   jwt.sign(login_obj || default_login_obj, _jwt_mock_secret_)
 
 
-export function openapi_jwtAuth(api) {
+export function openapi_jwt_auth(api, bypass_verify) {
 
   api.register({
     async unauthorizedHandler(oapi_ctx, req, res) {
@@ -64,16 +68,36 @@ export function openapi_jwtAuth(api) {
     }
   })
 
-  api.registerSecurityHandler('jwtAuth', validate_jwt_auth_header)
+  api.registerSecurityHandler('jwt_bearer_auth', validate_jwt_bearer_auth)
+  api.registerSecurityHandler('jwt_cookie_auth', validate_jwt_cookie_auth)
+
   return api
 
-  async function validate_jwt_auth_header(oapi_ctx, req, res) {
+  async function validate_jwt_bearer_auth(oapi_ctx, req, res) {
     const authHeader = oapi_ctx.request.headers['authorization']
     if (!authHeader) {
-      throw new Error('Missing authorization header')
+      throw new Error('Missing JWT authorization header')
     }
 
+    if (bypass_verify) return true
+
+    // pull jwt token from bearer value
     const jwt_token = authHeader.replace('Bearer ', '')
+    return jwt.verify(jwt_token, _jwt_mock_secret_)
+  }
+
+  async function validate_jwt_cookie_auth(oapi_ctx, req, res) {
+    const cookie = oapi_ctx.request.headers['cookie'] || ''
+
+    const jwt_cookie = cookie.match(/\bjwt\b=\s*([^;]+)/)
+    if (!jwt_cookie) {
+      throw new Error('Missing JWT authorization cookie')
+    }
+
+    if (bypass_verify) return true
+
+    // pull jwt token from first match group
+    const jwt_token = jwt_cookie[1]
     return jwt.verify(jwt_token, _jwt_mock_secret_)
   }
 }
@@ -93,9 +117,29 @@ export function openapi_server(api, cfg={}) {
   app.use(morgan('combined'))
 
   // add a JWT supporting mock login
-  app.use('/_mock_login_',
-    (req, res) => res.status(200)
-      .json({token: new_jwt_token()}) )
+  const mock_login_fns = {
+    token(req, res) {
+      res.status(200)
+        .end(`Authorization: Bearer ${new_jwt_token()}`)
+    },
+
+    cookie(req, res) {
+      res.status(200)
+        .end(`Cookie: jwt=${new_jwt_token()};`)
+    },
+
+    json(req, res) {
+      let jwt_token = new_jwt_token()
+      res.status(200)
+        .json({token: jwt_token, cookie: `jwt=${jwt_token};`})
+    },
+  }
+
+  for (let api_prefix of ['', '/api']) {
+    app.use(`${api_prefix}/_mock_login_token_`, mock_login_fns.token)
+    app.use(`${api_prefix}/_mock_login_cookie_`, mock_login_fns.cookie)
+    app.use(`${api_prefix}/_mock_login_`, mock_login_fns.json)
+  }
 
   // use openapi-backend api as express middleware
   app.use((req, res) =>
