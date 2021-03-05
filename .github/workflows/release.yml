@@ -24,8 +24,6 @@ jobs:
                    echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
                    echo >> $GITHUB_ENV PREFIX=pdhprod
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=prod
-                   echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_PROD_CREDS }}
-                   echo >> $GITHUB_ENV REDOX_SECRET=${{ secrets.REDOX_PROD_SECRET }}
                    echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
                    echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
                else
@@ -34,8 +32,6 @@ jobs:
                    echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
                    echo >> $GITHUB_ENV PREFIX=pdhstaging
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=test
-                   echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_TEST_CREDS }}
-                   echo >> $GITHUB_ENV REDOX_SECRET=${{ secrets.REDOX_STAGING_SECRET }}
                    echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
                    echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
