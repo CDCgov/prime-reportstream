@@ -33,10 +33,10 @@ resource "azurerm_storage_account" "storage_account" {
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_policy" {
   key_vault_id = var.key_vault_id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = azurerm_storage_account.storage_account.identity.0.principal_id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azurerm_storage_account.storage_account.identity.0.principal_id
 
-  key_permissions    = ["get", "unwrapkey", "wrapkey"]
+  key_permissions = ["get", "unwrapkey", "wrapkey"]
 }
 
 resource "azurerm_storage_account_customer_managed_key" "storage_key" {
@@ -45,6 +45,8 @@ resource "azurerm_storage_account_customer_managed_key" "storage_key" {
   key_vault_id = var.key_vault_id
   key_version = null // Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_account.id
+
+  depends_on = [azurerm_key_vault_access_policy.storage_policy]
 }
 
 module "storageaccount_access_log_event_hub_log" {

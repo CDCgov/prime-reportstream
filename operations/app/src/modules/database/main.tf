@@ -2,6 +2,8 @@ terraform {
     required_version = ">= 0.14"
 }
 
+data "azurerm_client_config" "current" {}
+
 data "azurerm_key_vault_secret" "postgres_user" {
   key_vault_id = var.app_config_key_vault_id
   name = "functionapp-postgres-user"
@@ -33,6 +35,11 @@ resource "azurerm_postgresql_server" "postgres_server" {
     email_account_admins = true
   }
 
+  # Required for customer-managed encryption
+  identity {
+    type = "SystemAssigned"
+  }
+
   lifecycle {
     prevent_destroy = true
   }
@@ -42,14 +49,30 @@ resource "azurerm_postgresql_server" "postgres_server" {
   }
 }
 
+# Grant the storage account Key Vault access, to access encryption keys
+resource "azurerm_key_vault_access_policy" "postgres_policy" {
+  # This is a hack. The postgres module has a bug where it does not export the values until after being updated.
+  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
+  # The second deploy adds the Key Value access policy.
+  count = azurerm_postgresql_server.postgres_server.identity.0.principal_id != null ? 1 : 0
+
+  key_vault_id = var.key_vault_id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azurerm_postgresql_server.postgres_server.identity.0.principal_id
+
+  key_permissions = ["get", "unwrapkey", "wrapkey"]
+}
+
 data "azurerm_key_vault_key" "postgres_server_encryption_key" {
-  count = var.rsa_key_2048 != null && var.rsa_key_2048 != "" ? 1 : 0
+  count = var.rsa_key_2048 != null && var.rsa_key_2048 != "" && azurerm_postgresql_server.postgres_server.identity.0.principal_id != null ? 1 : 0
   key_vault_id = var.key_vault_id
   name = var.rsa_key_2048
+
+  depends_on = [azurerm_key_vault_access_policy.postgres_policy[0]]
 }
 
 resource "azurerm_postgresql_server_key" "postgres_server_key" {
-  count = var.rsa_key_2048 != null && var.rsa_key_2048 != "" ? 1 : 0
+  count = length(data.azurerm_key_vault_key.postgres_server_encryption_key)
   server_id = azurerm_postgresql_server.postgres_server.id
   key_vault_key_id = data.azurerm_key_vault_key.postgres_server_encryption_key[0].id
 }
