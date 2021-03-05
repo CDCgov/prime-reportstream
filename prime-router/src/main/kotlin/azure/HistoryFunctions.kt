@@ -70,6 +70,26 @@ class GetReportById :
     }
 }
 
+class GetSummaryPositive {
+    @FunctionName("getSummaryPositive")
+    @StorageAccount("AzureWebJobsStorage")
+    fun run(
+        @HttpTrigger(
+            name = "getSummaryPositive",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/summary/positive"
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext
+    ): HttpResponseMessage {
+        return request.createResponseBuilder(HttpStatus.OK)
+            .body([{ title:Case}]) 
+            .header("Content-Type", "application/json")
+            .build();
+  
+    }
+}
+
 open class BaseHistoryFunction {
 
     val DAYS_TO_SHOW = 7L
@@ -80,7 +100,8 @@ open class BaseHistoryFunction {
             OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
         )
         return request.createResponseBuilder(HttpStatus.OK)
-            .body(headers)
+            .body("{ \"reportId\": \"123\" }")
+            .header("Content-Type", "application/json")
             .build()
     }
 
