@@ -56,6 +56,77 @@ The mechanism for how each record is translated is laid out in the schema, which
 - Canonical name style: `name: lt-covid-19`
 - Typically, you can copy a basic/standard schema based on a previous state, and modify.
 
+Let's look at a schema header, and then a schema element so you can see an example of each.
+
+#### Schema Header
+```yaml
+---
+name: lt-covid-19
+description: LT COVID-19 HL7
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+elements:
+  # a list of elements follows here
+```
+
+In the example above, the name is what the schema is known by in the system. If you execute the following command in the `prime-router` folder you will see a list of the schemas, clients, and receivers that we currently have loaded in PRIME.
+
+```shell
+./prime list
+```
+`description` is used to give a more descriptive name to the schema.
+
+`topic` ties the schema to a specific topic for routing information. If you refer back to the organization example above, you will see that a topic is provided. These must match. If the topic of the schema does not match the schema being used to translate information for a receiver, you will get an error.
+
+`trackingElement` is the name of the unique key for each row being processed
+
+`basedOn` is one of two ways we can inherit from another schema. The other potential option is `extends`. The difference between the two is subtle but important.
+
+#### Schema Element
+
+Here is a more complex element
+```yaml
+- name: patient_ethnicity
+  type: CODE
+  default: U
+  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?oid=2.16.840.1.114222.4.11.6066
+  cardinality: ZERO_OR_ONE
+  valueSet: hl70189
+  natFlatFileField: Patient_ethnicity
+  hhsGuidanceField: Patient ethnicity
+  hl7Field: PID-22
+  hl7OutputFields: [ PID-22 ]
+  csvFields: [ { name: Patient_ethnicity } ]
+  documentation: |
+    The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+    consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+```
+And here is a simpler element:
+```yaml
+- name: receiving_application
+  type: TEXT
+  default: LT-DPH-ELR
+```
+
+There is a lot to go over here, so we'll take this a piece at a time. Note, not all fields are required for every element, especially once you're inheriting from another schema, such as the base `covid-19` schema where this came from.
+
+`name` is the name of the field
+
+`type` is the data type of the field. We have any available types for elements. Refer back to the code in Element for a complete list. In this case, `CODE` means it refers to a valueSet we have defined in the application elsewhere.
+
+`default` is a default value is one is not provided
+
+`cardinality` allows us to specify if a field is required, or can accept only one, or multiple values
+
+`valueSet` is the name of the value set the element ties back to
+
+`hl7Field` and `hl7OutputFields` can be used by themselves or in conjunction with each other. In some cases, a data point might be needed in multiple different locations, for example, the specimen ID might show up in multiple segments so they would be put into the list for `hl7OutputFields`, but if it's only used in a single location, then you can omit it and just use `hl7Field`.
+
+`csvFields` is similar to `hl7OutputFields` in that it takes a list of the column header name the report will write out for this data point, and you can have multiple in case you need to duplicate the data. CSV fields also let you output different formats, so for example, with a value set you might want to output both the code and the description, which you could do by providing multiple CSV fields and different format specifiers.
+
+`documentation` lets you add documentation to the element, which is then carried over into the documentation generator we have built into prime. This can be used in conjunction with the `referenceUrl` which points to a website with additional information about the element.
+
 ### Generate test data
 
 Generate fake, or better, synthesized test data. Prime has two ways to generate anonymous fake data:
@@ -89,10 +160,66 @@ If you want to create the data as HL7, that is easy to do as well:
 - Test again in Test
 - If needed, push to production following our procedures for doing that.
 
+#### Testing locally
+The best way to test locally is to use the `quick-test.sh` shell script that we have in the `prime-router` folder in the project.
+
+```shell
+    # add your state here
+    for arg in "$@"
+    do
+      case "$arg" in
+        az | AZ) RUN_AZ=1;;
+        lt | LT) RUN_LT=1;;
+        all | ALL) RUN_ALL=1;;
+        merge | MERGE) RUN_MERGE=1;;
+      esac
+    done
+    
+    # and add the state here as well
+    if [ $RUN_ALL -ne 0 ]
+    then
+      RUN_AZ=1
+      RUN_LT=1
+      RUN_STANDARD=1
+      RUN_MERGE=1
+    fi
+    
+    # and then at a minimum run your state like this
+    # run LT
+    if [ $RUN_LT -ne 0 ]
+    then
+      LT_FILE_SEARCH_STR="/lt.*\.hl7"
+      echo Generate fake LT data
+      text=$(./prime data --input-fake 50 --input-schema lt/lt-covid-19 --output-dir $outputdir --target-states LT --output-format HL7_BATCH)
+      parse_prime_output_for_filename "$text" $LT_FILE_SEARCH_STR
+    fi
+```
+
+If you are generating CSV data, then you can test a roundtrip in the code:
+```shell
+    if [ $RUN_LT -ne 0 ]
+    then
+      LT_FILE_SEARCH_STR="/lt.*\.hl7"
+      echo Generate fake LT data
+      actual_lt=$(./prime data --input-fake 50 --input-schema lt/lt-covid-19 --output-dir $outputdir --target-states LT --output-format HL7_BATCH)
+      parse_prime_output_for_filename "$text" $LT_FILE_SEARCH_STR
+      
+      # Now read the data back in to their own schema and export again.
+      # LT again
+      echo Test sending LT data into its own Schema:
+      text=$(./prime data --input-schema lt/lt-covid-19 --input $actual_lt --output-dir $outputdir)
+      parse_prime_output_for_filename "$text" $LT_FILE_SEARCH_STR
+      actual_lt2=$filename
+      compare_files "LT->LT" $actual_lt $actual_lt2
+    fi
+```
+
+Testing a round trip like this is good practice because it ensures your schema is valid in both directions and values are translating as you expect.
+
 ### Create access to the Download site
 
 - Set up an Okta account for **LT**.  Be sure to include an internal Hub staffperson as a user, so they can test connectivity.  
-- If you are testing in Test, obvioulys you'll need to set up access to that download site.
+- If you are testing in Test, obviously you'll need to set up access to that download site.
 
 ### Validation in Prod
 
