@@ -216,6 +216,32 @@ If you are generating CSV data, then you can test a roundtrip in the code:
 
 Testing a round trip like this is good practice because it ensures your schema is valid in both directions and values are translating as you expect.
 
+### Testing in your Docker container
+
+Another important step to take when onboarding a receiver is to start the docker container and then submit a file to the container and make sure that it translates and routes correctly.
+
+First build the solution:
+
+`mvn clean package`
+
+Then build the docker image:
+
+`docker-compose build`
+
+Then start the docker container:
+
+`docker-compose up`
+
+At this point, once the container is loaded you can submit a file via curl:
+```shell
+curl -X POST -H 'client: simple_report' -H 'Content-Type: text/csv' --data-binary '@/Path/to/test/file.csv' 'http://localhost:7071/api/reports'
+```
+You will then see a report of the result of your post to the local container.  After a few minutes, you can sftp into the container and view the results of your file:
+
+`sftp foo@localhost`
+
+You then change into the `./upload` folder and can download and view the files you've created.
+
 ### Create access to the Download site
 
 - Set up an Okta account for **LT**.  Be sure to include an internal Hub staffperson as a user, so they can test connectivity.  
