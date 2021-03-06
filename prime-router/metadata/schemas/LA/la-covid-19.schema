@@ -177,21 +177,6 @@ elements:
 
   - name: result_format
 
-  - name: sending_facility_id
-    type: TEXT
-    default: 2.16.840.1.114222.4.1.237821
-    hl7Field: MSH-4-2
-
-  - name: sending_facility_id_type
-    type: TEXT
-    default: ISO
-    hl7Field: MSH-4-3
-
-  - name: sending_facility_name
-    type: TEXT
-    default: CDC Prime - Atlanta
-    hl7Field: MSH-4-1
-
   - name: specimen_collection_date_time
 
   - name: specimen_collection_method
