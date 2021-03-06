@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(SFTPTransportType::class, name = "SFTP"),
     JsonSubTypes.Type(EmailTransportType::class, name = "EMAIL"),
     JsonSubTypes.Type(RedoxTransportType::class, name = "REDOX"),
+    JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
 )
 abstract class TransportType(val type: String)
 
@@ -37,3 +38,8 @@ data class RedoxTransportType
     val baseUrl: String?,
 ) :
     TransportType("REDOX")
+
+data class NullTransportType
+@JsonCreator constructor(
+    val dummy: String? = null,
+) : TransportType("NULL")

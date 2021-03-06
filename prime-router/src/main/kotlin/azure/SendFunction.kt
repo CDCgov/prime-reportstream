@@ -89,7 +89,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             }
             // For debugging and auditing purposes
         } catch (t: Throwable) {
-            context.logger.log(Level.SEVERE, "Send exception", t)
+            context.logger.log(Level.SEVERE, "Send function exception for event: $message", t)
         }
     }
 
