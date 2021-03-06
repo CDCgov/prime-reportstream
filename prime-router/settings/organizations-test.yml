@@ -405,10 +405,7 @@
         schemaName: tx/tx-covid-19
         format: HL7
       transport:
-        type: SFTP
-        host: 10.0.2.4
-        port: 22
-        filePath: ./upload
+        type: NULL
     - name: HL7_BATCH
       organizationName: ignore
       topic: covid-19
