@@ -189,11 +189,15 @@ The patient's state
 
 **Name**: Zip
 
-**Type**: POSTAL_CODE
+**Type**: TABLE
 
 **HL7 Field**: PID-11-5
 
 **Cardinality**: [0..1]
+
+**Table**: zip-code-data
+
+**Table Column**: zipcode
 
 **Documentation**:
 
@@ -540,6 +544,30 @@ Is the patient pregnant?
 
 ---
 
+**Name**: sending_application
+
+**Type**: HD
+
+**HL7 Field**: MSH-3
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: message_profile_id
+
+**Type**: EI
+
+**HL7 Field**: MSH-21
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer
+
+---
+
 **Name**: patient_first_name
 
 **Type**: PERSON_NAME
@@ -579,5 +607,126 @@ The patient's last name
 **Documentation**:
 
 The first name of the provider who ordered the test
+
+---
+
+**Name**: ordering_provider_last_name
+
+**Type**: PERSON_NAME
+
+**HL7 Fields**: ORC-12-2, OBR-16-2
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The last name of provider who ordered the test
+
+---
+
+**Name**: testing_lab_name
+
+**Type**: TEXT
+
+**HL7 Field**: OBX-23-1
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
+
+---
+
+**Name**: testing_lab_city
+
+**Type**: CITY
+
+**HL7 Field**: OBX-24-3
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_street
+
+**Type**: STREET
+
+**HL7 Field**: OBX-24-1
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_state
+
+**Type**: TABLE
+
+**HL7 Field**: OBX-24-4
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+---
+
+**Name**: testing_lab_zip_code
+
+**Type**: POSTAL_CODE
+
+**HL7 Field**: OBX-24-5
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_county
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: testing_lab_phone_number
+
+**Type**: TELEPHONE
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_clia
+
+**Type**: ID_CLIA
+
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+CLIA Number from the laboratory that sends the message to DOH
+
+An example of the ID is 03D2159846
+
+
+---
+
+**Name**: patient_county
+
+**Type**: TABLE
+
+**Cardinality**: [1..1]
+
+**Table**: zip-code-data
+
+**Table Column**: county
 
 ---

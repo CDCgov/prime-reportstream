@@ -70,6 +70,9 @@ elements:
     csvFields: [{ name: State }]
 
   - name: patient_zip_code
+    type: TABLE
+    table: zip-code-data
+    tableColumn: zipcode
     csvFields: [{ name: Zip }]
 
   - name: patient_phone_number_raw
@@ -145,6 +148,10 @@ elements:
 
   - name: equipment_model_name
 
+  - name: sending_application
+
+  - name: message_profile_id
+
   - name: patient_first_name
     mapper: split(patient_name, 0)
 
@@ -153,3 +160,37 @@ elements:
 
   - name: ordering_provider_first_name
     mapper: split(ordering_provider, 0)
+
+  - name: ordering_provider_last_name
+    mapper: split(ordering_provider, 1)
+
+  - name: testing_lab_name
+    default: TPCA Lab and Diagnostic Imaging Center
+
+  - name: testing_lab_city
+    default: Talahassee
+
+  - name: testing_lab_street
+    default: 1803 Miccosukee Commons Drive
+
+  - name: testing_lab_state
+    default: FL
+
+  - name: testing_lab_zip_code
+    default: 32308
+
+  - name: testing_lab_county
+    default: Leon
+
+  - name: testing_lab_phone_number
+    default: 8509426624
+
+  - name: testing_lab_clia
+    default: 10D0270039
+
+  - name: patient_county
+    type: TABLE
+    table: zip-code-data
+    tableColumn: county
+    mapper: lookup(patient_zip_code)
+    #csvFields: [{ name: Patient_county }] # <- uncomment this to see it show up in csv file
