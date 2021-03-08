@@ -183,7 +183,7 @@ elements:
     default: Leon
 
   - name: testing_lab_phone_number
-    default: 8509426624
+    default: "8509426624:1:"
 
   - name: testing_lab_clia
     default: 10D0270039
@@ -194,3 +194,24 @@ elements:
     tableColumn: county
     mapper: lookup(patient_zip_code)
     #csvFields: [{ name: Patient_county }] # <- uncomment this to see it show up in csv file
+
+  - name: ordering_facility_state
+    mapper: use(testing_lab_state)
+
+  - name: ordering_facility_street
+    mapper: use(testing_lab_street)
+
+  - name: ordering_facility_city
+    mapper: use(testing_lab_city)
+
+  - name: ordering_facility_zip_code
+    mapper: use(testing_lab_zip_code)
+
+  - name: ordering_facility_county
+    mapper: use(testing_lab_county)
+
+  - name: ordering_facility_phone_number
+    default: "8509426624:1:"
+
+  - name: message_id
+    mapper: use(specimen_id)
