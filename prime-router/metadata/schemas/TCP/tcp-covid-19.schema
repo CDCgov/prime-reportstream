@@ -1,0 +1,99 @@
+---
+name: tcp-covid-19
+description: A COVID-19 schema for TCP working through A6
+trackingElement: specimen_id
+topic: covid-19
+extends: covid-19
+elements:
+  - name: patient_id
+    csvFields: [ { name: "Patient ID" } ]
+
+  # todo: needs a mapper to split
+  - name: patient_name
+    type: TEXT
+    csvFields: [ { name: Name } ]
+
+  - name: patient_dob
+    csvFields: [ { name: DOB } ]
+
+  - name: patient_age
+    csvFields: [ { name: Age } ]
+
+  - name: patient_race
+    csvFields: [{ name: Race }]
+
+  # todo: needs a mapper
+  - name: ordering_provider
+    type: TEXT
+    csvFields: [{ name: Provider }]
+
+  - name: patient_street
+    csvFields: [{ name: Address }]
+
+  - name: patient_city
+    csvFields: [{ name: City }]
+
+  - name: patient_state
+    csvFields: [{ name: State }]
+
+  - name: patient_zip_code
+    csvFields: [{ name: Zip }]
+
+  - name: patient_phone_number
+    csvFields: [{ name: Phone }]
+
+  # todo: needs a mapper
+  - name: test_result_description
+    type: TEXT
+    csvFields: [{ name: "Result Descr" }]
+
+  # todo: what should this map to?
+  - name: appr_date
+    type: DATE
+    csvFields: [{ name: "Appr Date" }]
+
+  - name: test_performed_code
+    csvFields: [{ name: LOINC }]
+
+  - name: test_performed_description
+    type: TEXT
+    csvFields: [{ name: "LOINC Test Descr" }]
+
+  - name: test_result
+    csvFields: [{ name: "SNOMED Rslt Code" }]
+
+  - name: specimen_id
+    csvFields: [{ name: "Sample ID" }]
+
+  - name: specimen_collection_date_time
+    csvFields: [{ name: "Draw Date" }]
+
+  # todo: needs a mapper
+  - name: sample_type
+    type: TEXT
+    csvFields: [{ name: "Sample Type" }]
+
+  - name: first_test
+    csvFields: [{ name: "1st Test?" }]
+
+  - name: employed_in_healthcare
+    csvFields: [{ name: "HCW?" }]
+
+  - name: symptomatic_for_disease
+    csvFields: [{ name: "Symptomatic" }]
+
+  - name: illness_onset_date
+    csvFields: [{ name: "Sympt Date" }]
+
+  - name: hospitalized
+    csvFields: [{ name: "Hosp?" }]
+
+  - name: icu
+    csvFields: [{ name: "ICU?" }]
+
+  # todo: what does this map to?
+  - name: resident_congregate_care_setting
+    csvFields: [{ name: "Nsg Home?" }]
+
+  - name: pregnant
+    csvFields: [{ name: "Preg?" }]

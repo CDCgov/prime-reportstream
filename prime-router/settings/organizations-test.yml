@@ -22,6 +22,16 @@
       schemaName: strac/strac-covid-19
       format: CSV
 
+  - name: tcp
+    description: TCP Receiver organization, via A6
+    jurisdiction: STATE
+    senders:
+      - name: default
+        organizationName: tcp
+        topic: covid-19
+        schemaName: tcp/tcp-covid-19
+        format: CSV
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
