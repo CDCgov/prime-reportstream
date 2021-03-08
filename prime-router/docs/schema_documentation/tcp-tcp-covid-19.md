@@ -567,3 +567,17 @@ The patient's first name
 The patient's last name
 
 ---
+
+**Name**: ordering_provider_first_name
+
+**Type**: PERSON_NAME
+
+**HL7 Fields**: ORC-12-3, OBR-16-3
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The first name of the provider who ordered the test
+
+---

@@ -150,3 +150,6 @@ elements:
 
   - name: patient_last_name
     mapper: split(patient_name, 1)
+
+  - name: ordering_provider_first_name
+    mapper: split(ordering_provider, 0)
