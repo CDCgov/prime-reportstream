@@ -23,8 +23,8 @@
       format: CSV
 
 - name: tcp
-  description: TCP Receiver organization, via A6
-  jurisdiction: STATE
+  description: TCP Receiver organization via A6
+  jurisdiction: FEDERAL
   senders:
     - name: default
       organizationName: tcp
