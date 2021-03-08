@@ -1797,36 +1797,6 @@ The reporting facility's CLIA
 
 ---
 
-**Name**: sending_facility_id
-
-**Type**: TEXT
-
-**HL7 Field**: MSH-4-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: sending_facility_id_type
-
-**Type**: TEXT
-
-**HL7 Field**: MSH-4-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: sending_facility_name
-
-**Type**: TEXT
-
-**HL7 Field**: MSH-4-1
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: specimen_collection_date_time
 
 **Type**: DATETIME
