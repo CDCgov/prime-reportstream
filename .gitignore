@@ -90,3 +90,6 @@ operations/app/src/**/plan.out
 
 # Hashicorp Vault Secrets
 prime-router/.vault/env/**
+
+# Python virtualenv files
+**/venv/**

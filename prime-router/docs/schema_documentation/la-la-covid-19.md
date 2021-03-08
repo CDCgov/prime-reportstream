@@ -1797,36 +1797,6 @@ The reporting facility's CLIA
 
 ---
 
-**Name**: sending_facility_id
-
-**Type**: TEXT
-
-**HL7 Field**: MSH-4-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: sending_facility_id_type
-
-**Type**: TEXT
-
-**HL7 Field**: MSH-4-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: sending_facility_name
-
-**Type**: TEXT
-
-**HL7 Field**: MSH-4-1
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: specimen_collection_date_time
 
 **Type**: DATETIME
@@ -2119,6 +2089,13 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 

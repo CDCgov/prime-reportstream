@@ -247,4 +247,56 @@ class MapperTests {
         actual = mapper.apply(element, args, values)
         assertEquals(expected, actual, "Expected $expected. Actual $actual")
     }
+
+    @Test
+    fun `test strip formatting mapper`() {
+        val mapper = StripPhoneFormattingMapper()
+        val args = listOf("patient_phone_number_raw")
+        val element = Element("patient_phone_number")
+        val values = listOf(
+            ElementAndValue(Element("patient_phone_number_raw"), "(850) 999-9999xHOME")
+        )
+        val expected = "8509999999:1:"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test strip numeric mapper`() {
+        val mapper = StripNumericDataMapper()
+        val args = listOf("patient_age_and_units")
+        val element = Element("patient_age")
+        val values = listOf(
+            ElementAndValue(Element("patient_age_and_units"), "99 years")
+        )
+        val expected = "years"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test strip non numeric mapper`() {
+        val mapper = StripNonNumericDataMapper()
+        val args = listOf("patient_age_and_units")
+        val element = Element("patient_age")
+        val values = listOf(
+            ElementAndValue(Element("patient_age_and_units"), "99 years")
+        )
+        val expected = "99"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test split mapper`() {
+        val mapper = SplitMapper()
+        val args = listOf("patient_name", "0")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "John Doe")
+        )
+        val expected = "John"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
 }
