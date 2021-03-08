@@ -25,6 +25,8 @@ class Metadata {
         DateTimeOffsetMapper(),
         CoalesceMapper(),
         StripPhoneFormattingMapper(),
+        StripNonNumericDataMapper(),
+        StripNumericDataMapper(),
     )
 
     private var jurisdictionalFilters = listOf(

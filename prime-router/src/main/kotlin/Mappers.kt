@@ -366,6 +366,36 @@ class StripPhoneFormattingMapper : Mapper {
     }
 }
 
+class StripNonNumericDataMapper : Mapper {
+    override val name = "stripNonNumeric"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) return null
+        val returnValue = values.firstOrNull()?.value ?: ""
+        val nonDigitRegex = "\\D".toRegex()
+        return nonDigitRegex.replace(returnValue, "").trim()
+    }
+}
+
+class StripNumericDataMapper : Mapper {
+    override val name = "stripNumeric"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) return null
+        val returnValue = values.firstOrNull()?.value ?: ""
+        val nonDigitRegex = "\\d".toRegex()
+        return nonDigitRegex.replace(returnValue, "").trim()
+    }
+}
+
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
         val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&^]*)\\x29").find(field)

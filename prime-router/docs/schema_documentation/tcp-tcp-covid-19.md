@@ -43,6 +43,12 @@ Other states may choose to define their own formats.
 
 **Name**: Age
 
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age
+
 **Type**: NUMBER
 
 **HL7 Field**: AOE
@@ -50,6 +56,29 @@ Other states may choose to define their own formats.
 **LOINC Code**: 30525-0
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age_units
+
+**Type**: CODE
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+min|minutes
+h|hours
+d|days
+wk|weeks
+mo|months
+a|years
+
+**Documentation**:
+
+Always filled when `patient_age` is filled
 
 ---
 
@@ -492,5 +521,21 @@ Code | Display
 **Documentation**:
 
 Is the patient pregnant?
+
+---
+
+**Name**: equipment_model_name
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: Model
 
 ---

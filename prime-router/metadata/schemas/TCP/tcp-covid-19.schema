@@ -16,8 +16,14 @@ elements:
   - name: patient_dob
     csvFields: [ { name: DOB, format: "M/d/yyyy" } ]
 
-  - name: patient_age
+  - name: patient_age_and_units
     csvFields: [ { name: Age } ]
+
+  - name: patient_age
+    mapper: stripNonNumeric(patient_age_and_units)
+
+  - name: patient_age_units
+    mapper: stripNumeric(patient_age_and_units)
 
   - name: patient_race
     csvFields: [{ name: Race, format: $alt }]
@@ -136,3 +142,5 @@ elements:
         display: N
       - code: 261665006
         display: Unknown
+
+  - name: equipment_model_name
