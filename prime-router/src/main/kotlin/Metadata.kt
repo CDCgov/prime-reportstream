@@ -27,6 +27,7 @@ class Metadata {
         StripPhoneFormattingMapper(),
         StripNonNumericDataMapper(),
         StripNumericDataMapper(),
+        SplitMapper(),
     )
 
     private var jurisdictionalFilters = listOf(

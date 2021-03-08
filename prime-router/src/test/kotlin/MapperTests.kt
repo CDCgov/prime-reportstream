@@ -286,4 +286,17 @@ class MapperTests {
         val actual = mapper.apply(element, args, values)
         assertEquals(expected, actual, "Expected $expected. Actual $actual")
     }
+
+    @Test
+    fun `test split mapper`() {
+        val mapper = SplitMapper()
+        val args = listOf("patient_name", "0")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "John Doe")
+        )
+        val expected = "John"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
 }

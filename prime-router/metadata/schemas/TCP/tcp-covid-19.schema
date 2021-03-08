@@ -144,3 +144,9 @@ elements:
         display: Unknown
 
   - name: equipment_model_name
+
+  - name: patient_first_name
+    mapper: split(patient_name, 0)
+
+  - name: patient_last_name
+    mapper: split(patient_name, 1)

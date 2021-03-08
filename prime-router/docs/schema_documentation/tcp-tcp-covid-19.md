@@ -539,3 +539,31 @@ Is the patient pregnant?
 **Table Column**: Model
 
 ---
+
+**Name**: patient_first_name
+
+**Type**: PERSON_NAME
+
+**HL7 Field**: PID-5-2
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's first name
+
+---
+
+**Name**: patient_last_name
+
+**Type**: PERSON_NAME
+
+**HL7 Field**: PID-5-1
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+The patient's last name
+
+---
