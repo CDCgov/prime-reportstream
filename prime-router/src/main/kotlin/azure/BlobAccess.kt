@@ -10,6 +10,7 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.security.MessageDigest
 
 const val blobContainerName = "reports"
 
@@ -18,13 +19,22 @@ class BlobAccess(
     private val hl7Serializer: Hl7Serializer,
     private val redoxSerializer: RedoxSerializer
 ) {
-    fun uploadBody(report: Report): Pair<String, String> {
+
+    // Basic info about a blob: its format, url in azure, and its sha256 hash
+    data class BlobInfo(
+        val format: Report.Format,
+        val blobUrl: String,
+        val digest: ByteArray,
+    )
+
+    fun uploadBody(report: Report): BlobInfo {
         val (bodyFormat, blobBytes) = createBodyBytes(report)
+        val digest = sha256Digest(blobBytes)
         val blobUrl = uploadBlob(report.name, blobBytes)
-        return Pair(bodyFormat, blobUrl)
+        return BlobInfo(bodyFormat, blobUrl, digest)
     }
 
-    private fun createBodyBytes(report: Report): Pair<String, ByteArray> {
+    private fun createBodyBytes(report: Report): Pair<Report.Format, ByteArray> {
         val outputStream = ByteArrayOutputStream()
         when (report.bodyFormat) {
             Report.Format.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
@@ -33,7 +43,8 @@ class BlobAccess(
             Report.Format.CSV -> csvSerializer.write(report, outputStream)
             Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }
-        return Pair(report.bodyFormat.toString(), outputStream.toByteArray())
+        val contentBytes = outputStream.toByteArray()
+        return Pair(report.bodyFormat, contentBytes)
     }
 
     private fun uploadBlob(fileName: String, bytes: ByteArray): String {
@@ -71,5 +82,25 @@ class BlobAccess(
     private fun getBlobClient(blobUrl: String): BlobClient {
         val blobConnection = System.getenv("AzureWebJobsStorage")
         return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
+    }
+
+    companion object {
+
+        /**
+         * Create a hex string style of a digest.
+         */
+        fun digestToString(digest: ByteArray): String {
+            return digest.joinToString(separator = "", limit = 40) { Integer.toHexString(it.toInt()) }
+        }
+
+        fun sha256Digest(input: ByteArray): ByteArray {
+            return hashBytes("SHA-256", input)
+        }
+
+        fun hashBytes(type: String, input: ByteArray): ByteArray {
+            return MessageDigest
+                .getInstance(type)
+                .digest(input)
+        }
     }
 }

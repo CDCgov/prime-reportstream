@@ -1,0 +1,160 @@
+name: Router
+
+on:
+  pull_request:
+    branches: [ master, production ]
+
+jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_router_change: ${{ steps.skip_check.outputs.router }}
+      is_fork: ${{ steps.fork_check.outputs.is_fork }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: skip_check
+        with:
+          list-files: csv
+          filters: |
+            router:
+              - 'prime-router/**'
+      - id: fork_check
+        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
+
+  build_router:
+    name: Build Router
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prime-router
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set Environment Variables
+        run: |
+          if [ "$GITHUB_BASE_REF" == "production" ]
+          then
+              echo "Building for the production environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV PREFIX=pdhprod
+              echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
+              echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
+          else
+              echo "Building for the test environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV PREFIX=pdhstaging
+              echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
+              echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
+          fi
+
+      - name: Setup PostgreSQL
+        uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
+        with:
+          postgresql version: 11
+          postgresql db: prime_data_hub
+          postgresql user: ${{ env.POSTGRES_USER }}
+          postgresql password: ${{ env.POSTGRES_PASSWORD }}
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 11
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('prime-router/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven
+
+      - name: Build Maven Package
+        run: mvn -B clean package --file pom.xml -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
+
+      - name: Build Docker Image
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+
+      - name: Save Build Target
+        uses: actions/upload-artifact@v2
+        with:
+          name: build_target
+          path: prime-router/target
+
+  update_docs:
+    name: Verify Router Docs
+    needs: build_router
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prime-router
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Explicitly use the head_ref here (which is a branch name, rather
+          # than a commit hash) so we can commit and push back to it.
+          ref: ${{ github.head_ref }}
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 11
+
+      - name: Restore Build Target
+        uses: actions/download-artifact@v2
+        with:
+          name: build_target
+          path: prime-router/target
+
+      - name: Generate New Docs
+        run: |
+          # Clean the docs before regenerating
+          rm -rf docs/schema_documentation/*
+          ./prime generate-docs
+
+      - name: Check for Uncommited Docs
+        id: check_changes
+        continue-on-error: true
+        run: |
+          CHANGED_FILES=$(git status --short docs)
+          if [[ -n "$CHANGED_FILES" ]]; then
+            echo "Updated documentation:"
+            git diff docs
+
+            # Escape line breaks so they can be used in step output.
+            # See: https://github.community/t/set-output-truncates-multiline-strings/16852
+            FILES_ESCAPED="$CHANGED_FILES"
+            FILES_ESCAPED="${FILES_ESCAPED//'%'/'%25'}"
+            FILES_ESCAPED="${FILES_ESCAPED//$'\n'/'%0A'}"
+            FILES_ESCAPED="${FILES_ESCAPED//$'\r'/'%0D'}"
+            echo "::set-output name=files::$FILES_ESCAPED"
+
+            # End with an error
+            false
+          fi
+
+      - name: Add diff as PR comment
+        if: ${{ steps.check_changes.outcome == 'failure' }}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          body: |
+            The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
+
+            Please run `./prime generate-docs` to generate updated documentation, then commit the results.
+
+            Expected changes in files:
+
+            ```sh
+            ${{ steps.check_changes.outputs.files }}
+            ```
+
+      - name: Fail if there were changes
+        if: ${{ steps.check_changes.outcome == 'failure' }}
+        run: |
+          false
+

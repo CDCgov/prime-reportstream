@@ -21,6 +21,7 @@ class CsvFileTests {
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
     private val outputPath = "./target/csv_test_files/"
     private val metadata: Metadata
+    private val settings: FileSettings
     private val csvSerializer: CsvSerializer
 
     init {
@@ -32,7 +33,8 @@ class CsvFileTests {
 
         metadata = Metadata()
         loadTestSchemas(metadata)
-        loadTestOrganizations(metadata)
+        settings = FileSettings()
+        loadTestOrganizations(settings)
         csvSerializer = CsvSerializer(metadata)
     }
 
@@ -57,7 +59,7 @@ class CsvFileTests {
         assertTrue(result.warnings.isEmpty() && result.errors.isEmpty())
         val inputReport = result.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
-        val outputReports = Translator(metadata).translateByService(inputReport)
+        val outputReports = Translator(metadata, settings).translateByReceiver(inputReport)
         assertEquals(2, outputReports.size)
         // 3) Write transformed objs to files, and check they are correct
 
@@ -78,18 +80,20 @@ class CsvFileTests {
 
     private fun compareTestResultsToExpectedResults(testFile: String, expectedResultsName: String) {
         val expectedResultsFile = "$expectedResultsPath$expectedResultsName"
-        println("CsvFileTests: diff'ing actual vs expected: $testFile to $expectedResultsFile")
-        // A bit of a hack:  diff the two files.  
+        // A bit of a hack:  diff the two files.
         val testFileLines = File(testFile).readLines()
         val expectedResultsLines = File(expectedResultsFile).readLines()
-        assertEquals(expectedResultsLines, testFileLines)
+        assertEquals(
+            expectedResultsLines, testFileLines,
+            "Actual data file: $testFile Expected data file: $expectedResultsFile"
+        )
     }
 
-    private fun loadTestOrganizations(metadata: Metadata) {
+    private fun loadTestOrganizations(settings: FileSettings) {
         val loadingStream = File(inputPath + "test-organizations.yml").inputStream()
-        metadata.loadOrganizations(loadingStream)
-        assertEquals(2, metadata.organizationServices.size)
-        assertEquals(2, metadata.findService("federal-test.receiver")?.jurisdictionalFilter?.size)
+        settings.loadOrganizations(loadingStream)
+        assertEquals(2, settings.receivers.size)
+        assertEquals(2, settings.findReceiver("federal-test.receiver")?.jurisdictionalFilter?.size)
     }
 
     private fun loadTestSchemas(metadata: Metadata) {

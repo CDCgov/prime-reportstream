@@ -4,8 +4,6 @@ description: LA COVID-19
 trackingElement: message_id
 topic: covid-19
 extends: covid-19
-useAphlNamingFormat: true
-receivingOrganization: LAOPH
 elements:
   - name: sending_application
 
@@ -50,6 +48,8 @@ elements:
   - name: ordered_test_code
 
   - name: ordered_test_name
+
+  - name: ordered_test_encoding_version
 
   - name: ordering_facility_city
 
@@ -168,8 +168,12 @@ elements:
   - name: abnormal_flag
 
   - name: reporting_facility_name
+    default: CDC Prime - Atlanta
+    hl7Field:
 
   - name: reporting_facility_clia
+    hl7Field: SPM-2-1-3
+    hl7OutputFields: [ SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2 ]
 
   - name: result_format
 
@@ -189,11 +193,15 @@ elements:
 
   - name: specimen_type
 
+  - name: test_kit_name_id_cwe_version
+
   - name: test_performed_code
 
   - name: test_performed_name
 
   - name: test_performed_system_abbr
+
+  - name: test_performed_system_version
 
   - name: test_result
 
@@ -257,4 +265,3 @@ elements:
   - name: resident_congregate_setting
 
   - name: symptomatic_for_disease
-

@@ -8,6 +8,11 @@ variable "resource_group" {
     description = "Resource Group Name"
 }
 
+variable "resource_prefix" {
+    type = string
+    description = "Resource Prefix"
+}
+
 variable "name" {
     type = string
     description = "App Service Name"

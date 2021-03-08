@@ -1,13 +1,12 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.transport.RetryToken
-import gov.cdc.prime.router.transport.RetryTransport
 import gov.cdc.prime.router.transport.SftpTransport
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -19,7 +18,6 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -28,7 +26,8 @@ import kotlin.test.assertTrue
 
 class SendFunctionTests {
     val context = mockkClass(ExecutionContext::class)
-    val metadata = Metadata("./metadata", "-local")
+    val metadata = Metadata(Metadata.defaultMetadataDirectory)
+    val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-local")
     val logger = mockkClass(Logger::class)
     val workflowEngine = mockkClass(WorkflowEngine::class)
     val sftpTransport = mockkClass(SftpTransport::class)
@@ -70,8 +69,19 @@ class SendFunctionTests {
 
     fun setupWorkflow() {
         every { workflowEngine.metadata }.returns(metadata)
+        every { workflowEngine.settings }.returns(settings)
         every { workflowEngine.readBody(any()) }.returns("body".toByteArray())
         every { workflowEngine.sftpTransport }.returns(sftpTransport)
+    }
+
+    fun makeHeader(): WorkflowEngine.Header {
+        return WorkflowEngine.Header(
+            task, reportFile,
+            null,
+            settings.findOrganization("az-phd"),
+            settings.findReceiver("az-phd.elr-test"),
+            metadata.findSchema("covid-19"), "hello".toByteArray()
+        )
     }
 
     @BeforeEach
@@ -87,11 +97,8 @@ class SendFunctionTests {
         setupWorkflow()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
             val block = thirdArg() as
-                (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val header = DatabaseAccess.Header(
-                task, emptyList<TaskSource>(), reportFile,
-                null, workflowEngine
-            )
+                (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val header = makeHeader()
             nextEvent = block(header, null, null)
         }
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
@@ -105,18 +112,15 @@ class SendFunctionTests {
         assertNull(nextEvent!!.retryToken)
     }
 
-    // TODO: Enable when retry is enabled
-    @Ignore
     @Test
     fun `Test with sftp error`() {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = secondArg() as
-                (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val reportFile = ReportFile()
-            val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile, null)
+            val block = thirdArg() as
+                (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val header = makeHeader()
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
@@ -133,15 +137,14 @@ class SendFunctionTests {
         assertEquals(1, nextEvent!!.retryToken?.retryCount)
     }
 
-    @Ignore
     @Test
     fun `Test with third sftp error`() {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = secondArg() as
-                (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val block = thirdArg() as
+                (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val task = Task(
                 reportId,
                 TaskAction.send,
@@ -159,10 +162,9 @@ class SendFunctionTests {
                 null,
                 null
             )
-            val reportFile = ReportFile()
-            val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile, null)
+            val header = makeHeader()
             nextEvent = block(
-                header, RetryToken(2, listOf(RetryTransport(0, RetryToken.allItems))), null
+                header, RetryToken(2, RetryToken.allItems), null
             )
         }
         setupWorkflow()
@@ -181,7 +183,6 @@ class SendFunctionTests {
         nextEvent!!.retryToken?.toJSON()?.let { assertTrue(it.contains("\"retryCount\":3")) }
     }
 
-    @Ignore
     @Test
     fun `Test with 100th sftp error`() {
         // Setup
@@ -189,13 +190,12 @@ class SendFunctionTests {
         setupLogger()
         val reportId = UUID.randomUUID()
         every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = secondArg() as
-                (header: DatabaseAccess.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val reportFile = ReportFile()
-            val header = DatabaseAccess.Header(task, emptyList<TaskSource>(), reportFile, null)
+            val block = thirdArg() as
+                (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val header = makeHeader()
             // Should be high enough retry count that the next action should have an error
             nextEvent = block(
-                header, RetryToken(100, listOf(RetryTransport(0, RetryToken.allItems))), null
+                header, RetryToken(100, RetryToken.allItems), null
             )
         }
         setupWorkflow()

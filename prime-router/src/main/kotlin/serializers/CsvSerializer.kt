@@ -6,7 +6,10 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.REPORT_MAX_ERRORS
+import gov.cdc.prime.router.REPORT_MAX_ITEMS
+import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ResultDetail
@@ -49,13 +52,39 @@ class CsvSerializer(val metadata: Metadata) {
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         defaultValues: Map<String, String> = emptyMap(),
     ): ReadResult {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
-        val rows: List<Map<String, String>> = csvReader().readAllWithHeader(input)
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
+        var rows = mutableListOf<Map<String, String>>()
+        csvReader().open(input) {
+            readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
+                rows.add(row)
+                if (rows.size > REPORT_MAX_ITEMS) {
+                    errors.add(
+                        ResultDetail(
+                            ResultDetail.DetailScope.REPORT, "",
+                            "Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows"
+                        )
+                    )
+                    return@open
+                }
+                if (row.size > REPORT_MAX_ITEM_COLUMNS) {
+                    errors.add(
+                        ResultDetail(
+                            ResultDetail.DetailScope.REPORT, "",
+                            "Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS"
+                        )
+                    )
+                    return@open
+                }
+            }
+        }
+        if (errors.size > 0) {
+            return ReadResult(null, errors, warnings)
+        }
 
         if (rows.isEmpty()) {
             return ReadResult(Report(schema, emptyList(), sources, destination), errors, warnings)
@@ -64,6 +93,15 @@ class CsvSerializer(val metadata: Metadata) {
         val csvMapping = buildMappingForReading(schema, defaultValues, rows[0])
         errors.addAll(csvMapping.errors.map { ResultDetail.report(it) })
         warnings.addAll(csvMapping.warnings.map { ResultDetail.report(it) })
+        if (errors.size > REPORT_MAX_ERRORS) {
+            errors.add(
+                ResultDetail(
+                    ResultDetail.DetailScope.REPORT, "",
+                    "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping further work."
+                )
+            )
+            return ReadResult(null, errors, warnings)
+        }
         if (csvMapping.errors.isNotEmpty()) {
             return ReadResult(null, errors, warnings)
         }
@@ -82,6 +120,15 @@ class CsvSerializer(val metadata: Metadata) {
                 null
             }
         }
+        if (errors.size > REPORT_MAX_ERRORS) {
+            errors.add(
+                ResultDetail(
+                    ResultDetail.DetailScope.REPORT, "",
+                    "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping."
+                )
+            )
+            return ReadResult(null, errors, warnings)
+        }
         return ReadResult(Report(schema, mappedRows, sources, destination), errors, warnings)
     }
 
@@ -89,7 +136,7 @@ class CsvSerializer(val metadata: Metadata) {
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
-        destination: OrganizationService? = null,
+        destination: Receiver? = null,
         blobReportId: ReportId? = null
     ): Report {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")

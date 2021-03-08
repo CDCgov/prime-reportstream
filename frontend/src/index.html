@@ -1,34 +1,88 @@
 ---
-layout: prime_page.liquid
+layout: non-protected.liquid
 local_styles:
   - "./css/prime.css"
 ---
 
-{% include header_gov_website %}
-{% include app_topbar %}
+<div class="usa-overlay"></div>
+<header class="usa-header usa-header--basic">
+  <div class="usa-nav-container">
+    <div class="usa-navbar">
+  <div class="usa-logo" id="basic-logo">
+    <em class="usa-logo__text">
+      <img src="./css/logo.png" role="img" alt="Logo" style="width:32px;height:32px;vertical-align:middle;" /> 
+      <a href="/" title="Home" aria-label="Home">ReportStream</a>
+    </em>
+  </div>
+  <button class="usa-menu-btn">Menu</button>
+</div>
+<nav aria-label="Primary navigation" class="usa-nav">
+  <a class="usa-button usa-button--outline" href="./data-index.html">Sign in</a>
+</nav>
+  </div>
+</header>
 
-<main>
-  <h1>HELLO Index Page</h1>
+<main id="main-content">
+  <section class="usa-hero" aria-label="Introduction">
+  <div class="grid-container">
+    <div class="usa-hero__callout">
+      <h1 class="usa-hero__heading"><span class="usa-hero__heading--alt">Example headline</span>What ReportStream is and how it works
+      </h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vel massa enim.</p>
+      <a class="usa-button" href="javascript:void(0)">Request an account</a>
+    </div>
+  </div>
+</section>
 
-  <ul>
-    <li><a href='./login.html'>Login</a></li>
-    <li><a href='./settings.html'>Settings</a></li>
-    <li><a href='./csv-download.html'>CSV Download</a></li>
-  </ul>
+<section class="grid-container usa-section">
+  <div class="grid-row grid-gap">
+    <div class="tablet:grid-col-4">
+      <h2 class="font-heading margin-top-0 tablet:margin-bottom-0">Another example headline with more information about ReportStream</h2>
+    </div>
+    <div class="tablet:grid-col-8 usa-prose">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque efficitur tristique nisi, et laoreet erat suscipit vestibulum. Cras egestas bibendum feugiat. Pellentesque sit amet massa placerat, molestie diam viverra, blandit ex. Nulla tempus sem sed convallis hendrerit. </p>
+      <p>Cras tristique lorem non porttitor rutrum. In et tellus pharetra, finibus odio viverra, maximus mauris. Vestibulum nec risus ac enim imperdiet commodo vitae at orci. Curabitur in tincidunt eros, non tempor ipsum. Cras sollicitudin consectetur nulla sit amet facilisis. Nulla facilisi. </p>
 
-  <pre><output id='out'></output></pre>
+    </div>
+  </div>
+</section>
 
-  <script type=module>
-    import prime_rest_api from '/js/prime_api.mjs'
-    window.prime_rest_api = prime_rest_api
+<section class="grid-container usa-section">
+  <div class="grid-row grid-gap">
+    <div class="tablet:grid-col-6">
+      <h2 class="font-heading margin-top-0 tablet:margin-bottom-3">Documentation to help you get started with ReportStream or see if it is right for your jursidiction</h2>
+      <div class="usa-prose">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pulvinar eget neque et ultrices. Duis at ligula turpis. Praesent faucibus turpis velit, facilisis feugiat libero auctor sed. Etiam quis luctus eros, vel ultricies nunc. Maecenas in mollis arcu. Curabitur justo risus, tempus sed nulla non, malesuada laoreet neque. Integer ornare elit dapibus mauris porttitor sagittis. Cras rhoncus maximus ante id tincidunt. Nunc vel rutrum augue. Etiam at iaculis urna. Nulla fermentum nec tortor non porta. Nulla massa turpis, efficitur at elit a, bibendum egestas orci. Nunc ornare egestas eleifend. Aliquam erat volutpat.</p>
+      <p>Integer eu tincidunt dolor. Quisque vehicula, justo in vestibulum congue, justo nunc mattis sapien, id hendrerit mi purus et risus. Donec eu ex vitae libero consequat faucibus id a turpis. Ut vitae augue aliquet, viverra orci sed, pellentesque sem. Suspendisse at metus massa. Pellentesque eget laoreet arcu, sed porta turpis. Etiam sit amet pharetra neque. Duis venenatis turpis vel fermentum ullamcorper.</p>
+      </div>
+    </div>
+    <div class="tablet:grid-col-6">
+      <ul class="usa-collection">
+      <li class="usa-collection__item">
+        <img class="usa-collection__img" src="https://www.nationalstandard.com/wp-content/uploads/2017/10/55145034_s.jpg" alt="Alt text">
+        <div class="usa-collection__body">
+          <h3 class="usa-collection__heading">About ReportStream</h3>
+          <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+        </div>
+      </li>
+      <li class="usa-collection__item">
+        <img class="usa-collection__img" src="https://www.nationalstandard.com/wp-content/uploads/2017/10/55145034_s.jpg" alt="Alt text">
+        <div class="usa-collection__body">
+          <h3 class="usa-collection__heading">Onboarding guide</h3>
+          <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+        </div>
+      </li>
+      <li class="usa-collection__item">
+        <img class="usa-collection__img" src="https://www.nationalstandard.com/wp-content/uploads/2017/10/55145034_s.jpg" alt="Alt text">
+        <div class="usa-collection__body">
+          <h3 class="usa-collection__heading">Technical Documentation</h3>
+          <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+        </div>
+      </li>      
+      </ul>      
+    </div>
+  </div>
+</section>
 
-    prime_rest_api
-      .json_get('me')
-      .then(info => {
-        document.querySelector('output#out')
-          .textContent = JSON.stringify(info, null, 2)
-      })
-  </script>
+
 </main>
 
-{% include footer_cdc_website %}

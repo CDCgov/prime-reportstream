@@ -13,6 +13,7 @@
 ---
 - name: covid-19/specimen_type
   system: SNOMED_CT
+  version: 2.67
   referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
   values:
     - code: 445297001
@@ -73,6 +74,27 @@
       display: Specimen unsatisfactory for evaluation
     - code: 455371000124106
       display: Invalid result
+    - code: 840539006
+      display: Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+      version: 20200309
+    - code: 840544004
+      display: Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+      version: 20200309
+    - code: 840546002
+      display: Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+      version: 20200309
+    - code: 840533007
+      display: Severe acute respiratory syndrome coronavirus 2 (organism)
+      version: 20200309
+    - code: 840536004
+      display: Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+      version: 20200309
+    - code: 840535000
+      display: Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+      version: 20200309
+    - code: 840534001
+      display: Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+      version: 20200309
 
 - name: covid-19/order
   system: LOINC

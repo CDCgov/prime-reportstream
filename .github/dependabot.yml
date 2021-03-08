@@ -1,0 +1,56 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  
+  # FRONTEND
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+
+  # OPERATIONS
+  - package-ecosystem: "docker"
+    directory: "/operations"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/src/environments/dev"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/src/environments/test"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/src/environments/staging"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/src/environments/prod"
+    schedule:
+      interval: "weekly"
+  
+  
+  # ROUTER
+  - package-ecosystem: "docker"
+    directory: "/prime-router"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "maven"
+    directory: "/prime-router"
+    schedule:
+      interval: "weekly"

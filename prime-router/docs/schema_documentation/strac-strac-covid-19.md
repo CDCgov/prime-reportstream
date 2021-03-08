@@ -12,15 +12,23 @@
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The reporting facility's name
+
 ---
 
 **Name**: reporting_facility_CLIA
 
 **Type**: ID_CLIA
 
-**HL7 Field**: MSH-4-2
+**HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
 
 ---
 
@@ -42,7 +50,7 @@ The name of the facility which the test was ordered from
 
 **Type**: TELEPHONE
 
-**HL7 Field**: ORC-14
+**HL7 Fields**: ORC-14, OBR-17
 
 **Cardinality**: [0..1]
 
@@ -178,7 +186,7 @@ The zip code of the provider
 
 **Type**: ID
 
-**HL7 Field**: ORC-2-1
+**HL7 Fields**: ORC-2-1, OBR-2-1
 
 **Cardinality**: [0..1]
 
@@ -188,7 +196,7 @@ The zip code of the provider
 
 **Type**: ID
 
-**HL7 Field**: ORC-3-1
+**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
@@ -353,7 +361,8 @@ U|Unknown
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
 
 ---
@@ -365,6 +374,8 @@ The patient's ethnicity. There is a valueset defined based on the values in PID-
 **Format**: $display
 
 **HL7 Field**: AOE
+
+**LOINC Code**: 82810-3
 
 **Cardinality**: [0..1]
 
@@ -472,6 +483,8 @@ The patient's state
 
 **HL7 Field**: AOE
 
+**LOINC Code**: 65222-2
+
 **Cardinality**: [0..1]
 
 ---
@@ -517,6 +530,13 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 260373001|Detected
 260415000|Not detected
 455371000124106|Invalid result
@@ -649,7 +669,7 @@ The specimen source, such as Blood or Serum
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-17-1
+**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
 
@@ -711,7 +731,7 @@ W|Worse--use when direction not relevant
 
 **Documentation**:
 
-This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
 
 ---
 
@@ -719,7 +739,7 @@ This field contains a table lookup indicating the normalcy status of the result.
 
 **Type**: CODE
 
-**HL7 Field**: OBX-11-1
+**HL7 Fields**: OBX-11-1, OBR-25-1
 
 **Cardinality**: [0..1]
 

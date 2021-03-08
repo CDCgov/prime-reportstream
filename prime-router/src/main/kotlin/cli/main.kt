@@ -13,11 +13,15 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.CsvComparer
+import gov.cdc.prime.router.DefaultValues
 import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FakeReport
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -26,20 +30,14 @@ import java.io.File
 import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Paths
 
 sealed class InputSource {
     data class FileSource(val fileName: String) : InputSource()
     data class FakeSource(val count: Int) : InputSource()
     data class DirSource(val dirName: String) : InputSource()
     data class ListOfFilesSource(val commaSeparatedList: String) : InputSource() // supports merge.
-}
-
-class RouterCli : CliktCommand(
-    name = "prime",
-    help = "Tools and commands that support the PRIME Data Hub.",
-    printHelpOnEmptyArgs = true,
-) {
-    override fun run() = Unit
 }
 
 class ProcessData : CliktCommand(
@@ -64,7 +62,8 @@ class ProcessData : CliktCommand(
     transformations. For example, to generate 5 rows of test data using the
     Florida COVID-19 schema:
     > prime data --input-fake 5 --input-schema fl/fl-covid-19 --output florida-data.csv
-    """
+    """,
+    printHelpOnEmptyArgs = true,
 ) {
     // Input
     private val inputSource: InputSource? by mutuallyExclusiveOptions(
@@ -142,6 +141,15 @@ class ProcessData : CliktCommand(
         "--output-dir",
         metavar = "<path>",
         help = "write output files to this directory instead of the working directory. Ignored if --output is set."
+    )
+    private val useAphlFileName by option(
+        "--output-aphl-filename",
+        help = "Output using the APHL file format"
+    ).flag()
+    private val receivingOrganization by option(
+        "--output-receiving-org",
+        metavar = "<org name>",
+        help = "Output using the APHL file format"
     )
 
     // Fake data configuration
@@ -230,13 +238,14 @@ class ProcessData : CliktCommand(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
+
                     val fileName = Report.formFilename(
                         report.id,
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
-                        report.schema.useAphlNamingFormat,
-                        report.schema.receivingOrganization
+                        useAphlFileName || report.destination?.translation?.useAphlNamingFormat ?: false,
+                        receivingOrganization ?: report.destination?.translation?.receivingOrganization
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -271,11 +280,17 @@ class ProcessData : CliktCommand(
         return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
     }
 
+    private fun getDefaultValues(): DefaultValues {
+        val values = mutableMapOf<String, String>()
+        receivingApplication?.let { values["receiving_application"] = it }
+        receivingFacility?.let { values["receiving_facility"] = it }
+        return values
+    }
+
     override fun run() {
         // Load the schema and receivers
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
-        metadata.receivingApplication = receivingApplication
-        metadata.receivingFacility = receivingFacility
+        val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata)
         val redoxSerializer = RedoxSerializer(metadata)
@@ -327,17 +342,26 @@ class ProcessData : CliktCommand(
 
         if (!validate) TODO("validation cannot currently be disabled")
         if (send) TODO("--send is not implemented")
-        if (synthesize) inputReport = inputReport.synthesizeData(synthesizeStrategies, targetStates, targetCounties)
+        if (synthesize) inputReport = inputReport.synthesizeData(
+            synthesizeStrategies,
+            targetStates,
+            targetCounties,
+            metadata
+        )
 
         // Transform reports
-        val translator = Translator(metadata)
+        val translator = Translator(metadata, fileSettings)
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
-                    .filterAndTranslateByService(inputReport)
+                    .filterAndTranslateByReceiver(inputReport, getDefaultValues())
                     .map { it.first to getOutputFormat(it.second.format) }
             routeTo != null -> {
-                val pair = translator.translate(input = inputReport, toService = routeTo!!)
+                val pair = translator.translate(
+                    input = inputReport,
+                    toReceiver = routeTo!!,
+                    defaultValues = getDefaultValues()
+                )
                 if (pair != null)
                     listOf(pair.first to getOutputFormat(pair.second.format))
                 else
@@ -345,7 +369,11 @@ class ProcessData : CliktCommand(
             }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")
-                val mapping = translator.buildMapping(toSchema, inputReport.schema, defaultValues = emptyMap())
+                val mapping = translator.buildMapping(
+                    toSchema = toSchema,
+                    fromSchema = inputReport.schema,
+                    defaultValues = getDefaultValues()
+                )
                 if (mapping.missing.isNotEmpty()) {
                     error(
                         "Error: When translating to $'${toSchema.name} " +
@@ -371,6 +399,14 @@ class ProcessData : CliktCommand(
     }
 }
 
+class RouterCli : CliktCommand(
+    name = "prime",
+    help = "Tools and commands that support the PRIME Data Hub.",
+    printHelpOnEmptyArgs = true,
+) {
+    override fun run() = Unit
+}
+
 fun listSchemas(metadata: Metadata) {
     println("Current Hub Schema Library")
     val formatTemplate = "%-25s\t%-10s\t%s"
@@ -382,14 +418,14 @@ fun listSchemas(metadata: Metadata) {
 
 class ListSchemas : CliktCommand(
     name = "list",
-    help = "list known schemas, clients, and services"
+    help = "list known schemas, senders, and receivers"
 ) {
-    fun listOrganizations(metadata: Metadata) {
+    fun listOrganizations(settings: SettingsProvider) {
         println("Current Clients (Senders to the Hub)")
         var formatTemplate = "%-18s\t%-10s\t%s"
         println(formatTemplate.format("Organization Name", "Client Name", "Schema Sent to Hub"))
-        metadata.organizationClients.forEach {
-            println(formatTemplate.format(it.organization.name, it.name, it.schema))
+        settings.senders.forEach {
+            println(formatTemplate.format(it.organizationName, it.name, it.schemaName))
         }
         println()
         println("Current Services (Receivers from the Hub)")
@@ -402,10 +438,12 @@ class ListSchemas : CliktCommand(
                 "Filters Applied"
             )
         )
-        metadata.organizationServices.forEach {
+        settings.receivers.forEach {
             println(
                 formatTemplate.format(
-                    it.organization.name, it.name, it.schema,
+                    it.organizationName,
+                    it.name,
+                    it.schemaName,
                     it.jurisdictionalFilter.joinToString()
                 )
             )
@@ -414,10 +452,11 @@ class ListSchemas : CliktCommand(
 
     override fun run() {
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         println()
         listSchemas(metadata)
         println()
-        listOrganizations(metadata)
+        listOrganizations(settings)
         println()
     }
 }
@@ -438,6 +477,9 @@ class GenerateDocs : CliktCommand(
     private val includeTimestamps by
     option("--include-timestamps", help = "include creation time in file names")
         .flag(default = false)
+    private val outputHl7Elements by option(
+        "--mapped-hl7-elements"
+    ).flag(default = false)
     private val outputFileName by option(
         "--output",
         metavar = "<path>",
@@ -454,6 +496,12 @@ class GenerateDocs : CliktCommand(
     fun generateSchemaDocumentation(metadata: Metadata) {
         if (inputSchema.isNullOrBlank()) {
             println("Generating documentation for all schemas")
+
+            // Clear the existing schema (we want to remove deleted schemas)
+            if (Files.exists(Paths.get(outputDir))) {
+                File(outputDir).deleteRecursively()
+            }
+
             metadata.schemas.forEach {
                 DocumentationFactory.writeDocumentationForSchema(
                     it,
@@ -465,7 +513,7 @@ class GenerateDocs : CliktCommand(
             }
         } else {
             val schemaName = inputSchema?.toLowerCase() ?: ""
-            val schema = metadata.findSchema(schemaName)
+            var schema = metadata.findSchema(schemaName)
             if (schema == null) {
                 echo("$schemaName not found. Did you mean one of these?")
                 listSchemas(metadata)
@@ -473,6 +521,9 @@ class GenerateDocs : CliktCommand(
             }
             // start generating documentation
             echo("Generating documentation for $schemaName")
+            if (outputHl7Elements) {
+                schema = buildMappedHl7Schema(schema)
+            }
             DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps)
         }
     }
@@ -480,6 +531,52 @@ class GenerateDocs : CliktCommand(
     override fun run() {
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
         generateSchemaDocumentation(metadata)
+    }
+
+    /**
+     * Build a schema that contains all hl7 elements that would result from translation of the input schema
+     * This includes not only the elements from the input schema, but also mapped and default elements. Filter
+     * these elements to only those that have HL7 fields. In other words, this schema represents the
+     * output data dictionary for the input schema. The schema is sorted by HL7 segment.
+     */
+    private fun buildMappedHl7Schema(fromSchema: Schema): Schema {
+        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        val fileSettings = FileSettings(FileSettings.defaultSettingsDirectory)
+        val translator = Translator(metadata, fileSettings)
+        val mappedDefaults = mapOf(
+            "receiving_application" to "AZ",
+            "receiving_facility" to "AZDOH",
+            "message_profile_id" to "AZELR"
+        )
+        val toSchema = metadata.findSchema("covid-19") ?: error("covid-19 schema not defined")
+        val mapping = translator.buildMapping(toSchema, fromSchema, mappedDefaults)
+        val set = mutableSetOf<String>()
+        set.addAll(mapping.useDirectly.keys)
+        set.addAll(mapping.useDefault.keys)
+        set.addAll(mapping.useValueSet.keys)
+        set.addAll(mapping.useMapper.keys)
+        val reg = Regex("([A-Z]*)-?(\\d+)?-?(\\d+)?")
+        val hl7Elements = set.toList().mapNotNull {
+            val element = toSchema.findElement(it) ?: error("invalid element: $it")
+            if (element.hl7Field != null || element.hl7AOEQuestion != null) element else null
+        }.sortedBy {
+            if (it.hl7Field != null) {
+                val matches = reg.find(it.hl7Field) ?: return@sortedBy ""
+                val groupValues = matches.groupValues
+                val segment = groupValues[1]
+                val field = if (groupValues[2].isNotBlank()) 'A'.plus(groupValues[2].toInt()) else ""
+                val subField = if (groupValues[3].isNotBlank()) 'A'.plus(groupValues[3].toInt()) else ""
+                "$segment$field$subField${it.name}"
+            } else {
+                ""
+            }
+        }
+        return Schema(
+            fromSchema.baseName,
+            "covid-19",
+            hl7Elements,
+            description = "HL7 data elements resulting from ${fromSchema.baseName}"
+        )
     }
 }
 
@@ -518,5 +615,5 @@ class CompareCsvFiles : CliktCommand(
 }
 
 fun main(args: Array<String>) = RouterCli()
-    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CompareCsvFiles())
+    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CompareCsvFiles(), TestReportStream())
     .main(args)

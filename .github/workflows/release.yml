@@ -1,11 +1,8 @@
-name: Prime Data Hub
+name: Release to Azure
 
 on:
   push:
-    # Disable master branch for pentesting
-    # branches: [ master, production ]
-    branches: [ production ]
-  workflow_dispatch:
+    branches: [ master, production ]
 
 defaults:
   run:
@@ -27,18 +24,14 @@ jobs:
                    echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
                    echo >> $GITHUB_ENV PREFIX=pdhprod
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=prod
-                   echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_PROD_CREDS }}
-                   echo >> $GITHUB_ENV REDOX_SECRET=${{ secrets.REDOX_PROD_SECRET }}
                    echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
                    echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
                else
                    echo "Deploying to the test environment."
-                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-test
-                   echo >> $GITHUB_ENV ACR_REPO=pdhtestcontainerregistry.azurecr.io
-                   echo >> $GITHUB_ENV PREFIX=pdhtest
+                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-staging
+                   echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
+                   echo >> $GITHUB_ENV PREFIX=pdhstaging
                    echo >> $GITHUB_ENV PRIME_ENVIRONMENT=test
-                   echo >> $GITHUB_ENV SFTP_CREDS=${{ secrets.SFTP_TEST_CREDS }}
-                   echo >> $GITHUB_ENV REDOX_SECRET=${{ secrets.REDOX_STAGING_SECRET }}
                    echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
                    echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
                fi
@@ -83,17 +76,3 @@ jobs:
 
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
-
-      - name: Set SFTP Environment Variables
-        run: |
-              az functionapp config appsettings set \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.PREFIX }}-functionapp \
-              --settings PRIME_ENVIRONMENT=${{ env.PRIME_ENVIRONMENT }} ${{ env.SFTP_CREDS }}
-
-      - name: Set Redox Environment Variables
-        run: |
-              az functionapp config appsettings set \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --name ${{ env.PREFIX }}-functionapp \
-              --settings REDOX_SECRET=${{ env.REDOX_SECRET }} 

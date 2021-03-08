@@ -12,9 +12,7 @@ module.exports = function eleventy_config(cfg) {
   cfg.addPassthroughCopy('src/js')
   cfg.addPassthroughCopy('src/css')
 
-  if ('production' != process.env.NODE_ENV) {
-    _with_live_reloading(cfg)
-  }
+  _with_live_reloading(cfg)
 
   return {
     dir: {
@@ -26,7 +24,7 @@ module.exports = function eleventy_config(cfg) {
 
 
 function _with_live_reloading(cfg) {
-  const { createProxyMiddleware } = require('http-proxy-middleware')
+
 
   cfg.setBrowserSyncConfig({
     port: 7071,
@@ -38,20 +36,5 @@ function _with_live_reloading(cfg) {
     open: false, // don't open browser windows for us
     cors: true,
 
-    // see https://browsersync.io/docs/options#option-middleware
-    middleware: [
-      { route: `/api/download`,
-        handle(req, res, next) {
-          // Hack: the registered OKTA_redirect is `/api/download` -- rewrite it!
-          res.writeHead(302, {location: '../authorize.html'})
-          res.end()
-        }
-      },
-
-      // The PRIME_api is handled by http proxy of `/api`, using same-site policy to avoid CORS hurdles.
-      // See `frontend/mock/` and `frontend/src/_data/env.js` for additional details.
-      // Proxy `/api` to prime-router or mock server backend
-      { route: `/api`, handle: createProxyMiddleware(PRIME_api) },
-    ],
-  })
+   })
 }
