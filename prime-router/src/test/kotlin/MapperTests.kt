@@ -247,4 +247,17 @@ class MapperTests {
         actual = mapper.apply(element, args, values)
         assertEquals(expected, actual, "Expected $expected. Actual $actual")
     }
+
+    @Test
+    fun `test strip formatting mapper`() {
+        val mapper = StripPhoneFormattingMapper()
+        val args = listOf("patient_phone_number_raw", " ", "(", ")", "-", "xHOME")
+        val element = Element("patient_phone_number")
+        val values = listOf(
+            ElementAndValue(Element("patient_phone_number_raw"), "(850) 999-9999xHOME")
+        )
+        val expected = "8509999999:1:"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
 }

@@ -3,7 +3,7 @@ name: tcp-covid-19
 description: A COVID-19 schema for TCP working through A6
 trackingElement: specimen_id
 topic: covid-19
-extends: covid-19
+basedOn: covid-19
 elements:
   - name: patient_id
     csvFields: [ { name: "Patient ID" } ]
@@ -14,13 +14,40 @@ elements:
     csvFields: [ { name: Name } ]
 
   - name: patient_dob
-    csvFields: [ { name: DOB } ]
+    csvFields: [ { name: DOB, format: "M/d/yyyy" } ]
 
   - name: patient_age
     csvFields: [ { name: Age } ]
 
   - name: patient_race
-    csvFields: [{ name: Race }]
+    csvFields: [{ name: Race, format: $alt }]
+    altValues:
+      - display: American Indian or Alaska Native
+        code: 1002-5
+        version: 2.5.1
+      - display: Asian
+        code: 2028-9
+        version: 2.5.1
+      - display: Black or African American
+        code: 2054-5
+        version: 2.5.1
+      - display: Native Hawaiian or Other Pacific Islander
+        code: 2076-8
+        version: 2.5.1
+      - display: White
+        code: 2106-3
+        version: 2.5.1
+      - display: Other
+        code: 2131-1
+        version: 2.5.1
+      - display: Undefined
+        code: UNK
+        version: 2.5.1
+        system: NULLFL
+      - display: Asked, but unknown
+        code: ASKU
+        version: 2.5.1
+        system: NULLFL
 
   # todo: needs a mapper
   - name: ordering_provider
@@ -39,8 +66,13 @@ elements:
   - name: patient_zip_code
     csvFields: [{ name: Zip }]
 
-  - name: patient_phone_number
+  - name: patient_phone_number_raw
+    type: TEXT
     csvFields: [{ name: Phone }]
+
+  - name: patient_phone_number
+    mapper: stripPhoneFormatting(patient_phone_number_raw)
+    # csvFields: [{ name: Patient_phone }] # <-- if you uncomment this it will output to the CSV field. left as an example
 
   # todo: needs a mapper
   - name: test_result_description
@@ -50,7 +82,7 @@ elements:
   # todo: what should this map to?
   - name: appr_date
     type: DATE
-    csvFields: [{ name: "Appr Date" }]
+    csvFields: [{ name: "Appr Date", format: "M/d/yyyy" }]
 
   - name: test_performed_code
     csvFields: [{ name: LOINC }]
@@ -66,7 +98,7 @@ elements:
     csvFields: [{ name: "Sample ID" }]
 
   - name: specimen_collection_date_time
-    csvFields: [{ name: "Draw Date" }]
+    csvFields: [{ name: "Draw Date", format: "M/d/yyyy" }]
 
   # todo: needs a mapper
   - name: sample_type
@@ -83,7 +115,7 @@ elements:
     csvFields: [{ name: "Symptomatic" }]
 
   - name: illness_onset_date
-    csvFields: [{ name: "Sympt Date" }]
+    csvFields: [{ name: "Sympt Date", format: "M/d/yyyy" }]
 
   - name: hospitalized
     csvFields: [{ name: "Hosp?" }]
@@ -96,4 +128,11 @@ elements:
     csvFields: [{ name: "Nsg Home?" }]
 
   - name: pregnant
-    csvFields: [{ name: "Preg?" }]
+    csvFields: [{ name: "Preg?", format: $alt }]
+    altValues:
+      - code: 77386006
+        display: Y
+      - code: 60001007
+        display: N
+      - code: 261665006
+        display: Unknown

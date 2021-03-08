@@ -23,7 +23,8 @@ class Metadata {
         Obx17TypeMapper(),
         Obx8Mapper(),
         DateTimeOffsetMapper(),
-        CoalesceMapper()
+        CoalesceMapper(),
+        StripPhoneFormattingMapper(),
     )
 
     private var jurisdictionalFilters = listOf(

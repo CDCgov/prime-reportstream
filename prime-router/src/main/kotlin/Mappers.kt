@@ -349,6 +349,23 @@ class CoalesceMapper : Mapper {
     }
 }
 
+class StripPhoneFormattingMapper : Mapper {
+    override val name = "stripPhoneFormatting"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isEmpty()) error("StripFormatting mapper requires one or more arguments")
+        return listOf(args[0])
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) return null
+        val returnValue = values.firstOrNull()?.value ?: ""
+        val nonDigitRegex = "\\D".toRegex()
+        val cleanedNumber = nonDigitRegex.replace(returnValue, "")
+        return "$cleanedNumber:1:"
+    }
+}
+
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
         val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&^]*)\\x29").find(field)
