@@ -249,7 +249,7 @@ class Hl7Serializer(val metadata: Metadata) {
 
     internal fun createMessage(report: Report, row: Int, translatorConfig: TranslatorConfiguration? = null): String {
         val message = ORU_R01()
-        val hl7Config = translatorConfig as Hl7Configuration?
+        val hl7Config = translatorConfig as? Hl7Configuration?
         val processingId = if (hl7Config?.useTestProcessingMode == true) {
             "T"
         } else {
