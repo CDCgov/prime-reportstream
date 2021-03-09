@@ -199,7 +199,7 @@ elements:
     table: zip-code-data
     tableColumn: county
     mapper: zipCodeToCounty(patient_zip_code)
-    csvFields: [{ name: Patient_county }] # <- uncomment this to see it show up in csv file
+    # csvFields: [{ name: Patient_county }] # <- uncomment this to see it show up in csv file
 
   - name: ordering_facility_state
     mapper: use(testing_lab_state)

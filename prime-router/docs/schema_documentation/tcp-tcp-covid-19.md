@@ -725,7 +725,7 @@ An example of the ID is 03D2159846
 
 ---
 
-**Name**: Patient_county
+**Name**: patient_county
 
 **Type**: TABLE
 
