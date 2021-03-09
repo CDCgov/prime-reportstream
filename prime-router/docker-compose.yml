@@ -85,9 +85,13 @@ services:
 
   settings:
     build: settings/.
-    command: "--wait=8 prime_dev organizations-local.yml"
+    command: "--wait=8 prime_dev /settings/organizations-local.yml"
     depends_on:
       - prime_dev
+    volumes:
+      - type: bind
+        source: ./settings
+        target: /settings
 
   # Secrets management
   vault:
