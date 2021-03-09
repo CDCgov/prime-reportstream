@@ -299,4 +299,28 @@ class MapperTests {
         val actual = mapper.apply(element, args, values)
         assertEquals(expected, actual, "Expected $expected. Actual $actual")
     }
+
+    @Test
+    fun `test zip code to county mapper`() {
+        val mapper = ZipCodeToCountyMapper()
+        val csv = """
+            zipcode,county
+            32303,Leon
+        """.trimIndent()
+        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val schema = Schema(
+            "test", topic = "test",
+            elements = listOf(
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val lookupElement = metadata.findSchema("test")?.findElement("a") ?: fail("Schema element missing")
+        val values = listOf(
+            ElementAndValue(Element("patient_zip_code"), "32303-4509")
+        )
+        val expected = "Leon"
+        val actual = mapper.apply(lookupElement, listOf("patient_zip_code"), values)
+        assertEquals(expected, actual, "Expected: $expected, Actual: $actual")
+    }
 }
