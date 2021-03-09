@@ -170,6 +170,7 @@
           useBatchHeaders: true
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
+          useAphlNamingFormat: true
 
   - name: oh-doh
     description: Ohio Department of Health
@@ -373,3 +374,17 @@
           type: REDOX
           apiKey: some_key
           baseUrl: http://redox:1080
+      - name: HL7_NULL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: tx/tx-covid-19
+          format: HL7
+        transport:
+          type: "NULL"

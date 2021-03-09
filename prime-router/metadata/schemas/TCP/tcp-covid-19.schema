@@ -165,10 +165,10 @@ elements:
     mapper: split(patient_name, 1)
 
   - name: ordering_provider_first_name
-    mapper: split(ordering_provider, 0)
+    mapper: splitByComma(ordering_provider, 0)
 
   - name: ordering_provider_last_name
-    mapper: split(ordering_provider, 1)
+    mapper: splitByComma(ordering_provider, 2)
 
   - name: testing_lab_name
     default: TPCA Lab and Diagnostic Imaging Center

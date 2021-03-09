@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
@@ -70,6 +71,18 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                         is RedoxTransportType -> {
                             workflowEngine
                                 .redoxTransport
+                                .send(
+                                    receiver.transport,
+                                    header,
+                                    sentReportId,
+                                    retryItems,
+                                    context,
+                                    actionHistory,
+                                )
+                        }
+                        is NullTransportType -> {
+                            workflowEngine
+                                .nullTransport
                                 .send(
                                     receiver.transport,
                                     header,

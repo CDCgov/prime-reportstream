@@ -301,6 +301,19 @@ class MapperTests {
     }
 
     @Test
+    fun `test split by comma mapper`() {
+        val mapper = SplitMapper()
+        val args = listOf("patient_name", "2")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "Antley, ARNP, Mona")
+        )
+        val expected = "Mona"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
     fun `test zip code to county mapper`() {
         val mapper = ZipCodeToCountyMapper()
         val csv = """

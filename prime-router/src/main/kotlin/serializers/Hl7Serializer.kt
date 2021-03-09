@@ -7,12 +7,14 @@ import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
+import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.ValueSet
 import java.io.InputStream
 import java.io.OutputStream
@@ -55,22 +57,22 @@ class Hl7Serializer(val metadata: Metadata) {
     /**
      * Write a report with a single item
      */
-    fun write(report: Report, outputStream: OutputStream) {
+    fun write(report: Report, outputStream: OutputStream, translatorConfig: TranslatorConfiguration? = null) {
         if (report.itemCount != 1)
             error("Internal Error: multiple item report cannot be written as a single HL7 message")
-        val message = createMessage(report, 0)
+        val message = createMessage(report, 0, translatorConfig)
         outputStream.write(message.toByteArray())
     }
 
     /**
      * Write a report with BHS and FHS segments and multiple items
      */
-    fun writeBatch(report: Report, outputStream: OutputStream) {
+    fun writeBatch(report: Report, outputStream: OutputStream, translatorConfig: TranslatorConfiguration? = null) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
         outputStream.write(createHeaders(report).toByteArray())
         report.itemIndices.map {
-            val message = createMessage(report, it)
+            val message = createMessage(report, it, translatorConfig)
             outputStream.write(message.toByteArray())
         }
         outputStream.write(createFooters(report).toByteArray())
@@ -245,15 +247,30 @@ class Hl7Serializer(val metadata: Metadata) {
         return ReadResult(Report(schema, mappedRows, source), errors, warnings)
     }
 
-    internal fun createMessage(report: Report, row: Int): String {
+    internal fun createMessage(report: Report, row: Int, translatorConfig: TranslatorConfiguration? = null): String {
         val message = ORU_R01()
-        message.initQuickstart("ORU", "R01", "D")
-        buildMessage(message, report, row)
+        val hl7Config = translatorConfig as Hl7Configuration?
+        val processingId = if (hl7Config?.useTestProcessingMode == true) {
+            "T"
+        } else {
+            "P"
+        }
+        message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
+        buildMessage(message, report, row, processingId, hl7Config)
         hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
         return hapiContext.pipeParser.encode(message)
     }
 
-    private fun buildMessage(message: ORU_R01, report: Report, row: Int, processingId: String = "D") {
+    private fun buildMessage(
+        message: ORU_R01,
+        report: Report,
+        row: Int,
+        processingId: String = "T",
+        hl7Config: Hl7Configuration? = null,
+    ) {
+        // set up our configuration
+        val suppressQst = hl7Config?.suppressQstForAoe ?: false
+        // start processing
         var aoeSequence = 1
         val terser = Terser(message)
         setLiterals(terser)
@@ -269,12 +286,12 @@ class Hl7Serializer(val metadata: Metadata) {
                 if (value.isNotBlank()) {
                     val units = report.getString(row, "${element.name}_units")
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, report, row, units)
+                    setAOE(terser, element, aoeSequence++, date, value, report, row, units, suppressQst)
                 }
             } else if (element.hl7Field == "AOE") {
                 if (value.isNotBlank()) {
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, report, row)
+                    setAOE(terser, element, aoeSequence++, date, value, report, row, suppressQst = suppressQst)
                 }
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
@@ -461,6 +478,7 @@ class Hl7Serializer(val metadata: Metadata) {
         report: Report,
         row: Int,
         units: String? = null,
+        suppressQst: Boolean = false,
     ) {
         terser.set(formPathSpec("OBX-1", aoeRep), (aoeRep + 1).toString())
         terser.set(formPathSpec("OBX-2", aoeRep), "CWE")
@@ -484,9 +502,9 @@ class Hl7Serializer(val metadata: Metadata) {
         // some states want the observation date for the AOE questions as well
         terser.set(formPathSpec("OBX-19", aoeRep), report.getString(row, "test_result_date"))
         terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
-        // todo: many states can't accept the QST datapoint out at the end because it is nonstandard
-        // todo: we need to pass this in via the translation configuration
-        terser.set(formPathSpec("OBX-29", aoeRep), "QST")
+        // many states can't accept the QST datapoint out at the end because it is nonstandard
+        // we need to pass this in via the translation configuration
+        if (!suppressQst) terser.set(formPathSpec("OBX-29", aoeRep), "QST")
         // all of these values must be set on the OBX AOE's for validation
         terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
         // set to a default value, but look below
@@ -635,6 +653,8 @@ class Hl7Serializer(val metadata: Metadata) {
 
     companion object {
         const val HL7_SPEC_VERSION: String = "2.5.1"
+        const val MESSAGE_CODE = "ORU"
+        const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
     }

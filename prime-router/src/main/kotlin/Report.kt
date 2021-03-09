@@ -686,7 +686,7 @@ class Report {
             createdDateTime: OffsetDateTime,
             useAphlFormat: Boolean = false,
             receivingOrganization: String? = null,
-            sendingFacility: String = ""
+            sendingFacility: String = "cdcprime"
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext

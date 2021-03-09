@@ -241,8 +241,10 @@
           type: HL7
           schemaName: la/la-covid-19
           useBatchHeaders: true
+          receivingOrganization: laoph
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
+          useAphlNamingFormat: true
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -268,6 +270,7 @@
           type: HL7
           schemaName: oh/oh-covid-19
           useBatchHeaders: true
+          suppressQstForAoe: true
           receivingApplicationName: OHDOH
           receivingApplicationOID: 2.16.840.1.114222.4.1.3674
           receivingFacilityName: OHDOH
@@ -495,7 +498,10 @@
           schemaName: tx/tx-covid-19
           format: HL7
         transport:
-          type: NULL
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
       - name: HL7_BATCH
         organizationName: ignore
         topic: covid-19
@@ -535,3 +541,17 @@
           type: REDOX
           apiKey: some_key
           baseUrl: http://redox:1080
+      - name: HL7_NULL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: tx/tx-covid-19
+          format: HL7
+        transport:
+          type: "NULL"
