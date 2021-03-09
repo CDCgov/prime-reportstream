@@ -16,6 +16,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
+import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
@@ -46,6 +47,7 @@ class WorkflowEngine(
     val queue: QueueAccess = QueueAccess(),
     val sftpTransport: SftpTransport = SftpTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
+    val nullTransport: NullTransport = NullTransport(),
 ) {
     /**
      * Check the connections to Azure Storage and DB

@@ -61,6 +61,8 @@ Examples:
         ping("Is the reports endpoint alive and listening?"),
         end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
         merge("Submit multiple files, wait, confirm via db that merge occurred"),
+        dbconnections("Test weird problem wherein many 'sends' cause db connection failures"),
+        hl7null("The NULL transport does db work, but no transport.  Uses HL7 format"),
         // Note: 10,000 lines fake data generation took about 90 seconds on my laptop.  6Meg.
         huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."),
         toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"),
@@ -139,6 +141,8 @@ Examples:
                 AwesomeTest.ping -> doCheckConnections(environment)
                 AwesomeTest.end2end -> doEndToEndTest(environment)
                 AwesomeTest.merge -> doMergeTest(environment)
+                AwesomeTest.dbconnections -> doDbConnectionTest(environment)
+                AwesomeTest.hl7null -> doNullTest(environment)
                 AwesomeTest.huge -> doHugeTest(environment)
                 AwesomeTest.toobig -> doTooManyItemsTest(environment)
                 AwesomeTest.toomanycols -> doTooManyColumnsTest(environment)
@@ -185,7 +189,7 @@ Examples:
         environment: ReportStreamEnv
     ) {
         echo("EndToEndTest of: ${environment.endPoint}")
-        val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
+        val fakeItemCount = allIgnoreReceivers.size * 5 // 5 to each receiver
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -207,15 +211,15 @@ Examples:
             val tree = jacksonObjectMapper().readTree(json)
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
-            waitABit(15, environment)
-            examineLineageResults(reportId, fourReceivers, fakeItemCount)
+            waitABit(25, environment)
+            examineLineageResults(reportId, allIgnoreReceivers, fakeItemCount)
         } catch (e: NullPointerException) {
             bad("***End to End Test FAILED***: Unable to properly parse response json")
         }
     }
 
     private fun doMergeTest(environment: ReportStreamEnv) {
-        val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
+        val fakeItemCount = allIgnoreReceivers.size * 5 // 5 to each receiver
         echo("Merge test of: ${environment.endPoint} across $fourTargetCounties")
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -241,7 +245,83 @@ Examples:
             reportId
         }
         waitABit(30, environment)
-        examineMergeResults(reportIds[0], fourReceivers, fakeItemCount, 5)
+        examineMergeResults(reportIds[0], allIgnoreReceivers, fakeItemCount, 5)
+    }
+
+    /**
+     * Test weirdness in Staging wherein we have strange HL7 'send' numbers
+     *
+     * This test, when it fails, exposes a database connection exception in Staging.
+     *
+     */
+    private fun doDbConnectionTest(environment: ReportStreamEnv) {
+        val fakeItemCount = 40
+        echo("DBConnectionTest: test of many threads all doing sftp sends in ${environment.endPoint}, format HL7")
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            simpleRepSender,
+            fakeItemCount,
+            receivingStates,
+            "HL7",
+            dir,
+        )
+        echo("Created datafile $file")
+        // Now send it to the Hub.   Make numResends > 1 to create merges.
+        val numResends = 1
+        val reportIds = (1..numResends).map {
+            val (responseCode, json) =
+                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, key)
+            echo("Response to POST: $responseCode")
+            echo(json)
+            if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                bad("***DbConnection Test FAILED***:  response code $responseCode")
+                return
+            }
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
+            echo("Id of submitted report: $reportId")
+            reportId
+        }
+        waitABit(30, environment)
+        examineMergeResults(reportIds[0], listOf(hl7Receiver), fakeItemCount, numResends)
+    }
+
+    /**
+     * Test using the NULL transport.
+     */
+    private fun doNullTest(environment: ReportStreamEnv) {
+        val fakeItemCount = 40
+        echo(
+            "HL7_NULL Test: test of many threads all doing database interactions, but no sends. " +
+                "In ${environment.endPoint}, format HL7_NULL"
+        )
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            simpleRepSender,
+            fakeItemCount,
+            receivingStates,
+            "HL7_NULL",
+            dir,
+        )
+        echo("Created datafile $file")
+        // Now send it to the Hub.   Make numResends > 1 to create merges.
+        val numResends = 1
+        val reportIds = (1..numResends).map {
+            val (responseCode, json) =
+                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, key)
+            echo("Response to POST: $responseCode")
+            echo(json)
+            if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                bad("***DbConnection Test FAILED***:  response code $responseCode")
+                return
+            }
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
+            echo("Id of submitted report: $reportId")
+            reportId
+        }
+        waitABit(30, environment)
+        examineMergeResults(reportIds[0], listOf(hl7NullReceiver), fakeItemCount, numResends)
     }
 
     private fun doHugeTest(environment: ReportStreamEnv) {
@@ -268,7 +348,7 @@ Examples:
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit(20, environment)
+        waitABit(30, environment)
         examineLineageResults(reportId, listOf(csvReceiver), fakeItemCount)
     }
 
@@ -357,7 +437,7 @@ Examples:
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit(15, environment)
+        waitABit(25, environment)
         examineLineageResults(reportId, listOf(redoxReceiver), fakeItemCount)
     }
 
@@ -366,7 +446,7 @@ Examples:
         environment: ReportStreamEnv
     ) {
         echo("Test sending Strac data to: ${environment.endPoint} across $fourTargetCounties")
-        val fakeItemCount = 20 // hack:  you need use a multiple of # of targetCounties
+        val fakeItemCount = allIgnoreReceivers.size * 5 // 5 to each receiver
         val file = FileUtilities.createFakeFile(
             metadata,
             stracSender,
@@ -387,8 +467,8 @@ Examples:
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit(15, environment)
-        examineLineageResults(reportId, fourReceivers, fakeItemCount)
+        waitABit(25, environment)
+        examineLineageResults(reportId, allIgnoreReceivers, fakeItemCount)
     }
 
     fun examineLineageResults(
@@ -466,10 +546,13 @@ Examples:
         val stracSender = settings.findSender("$orgName.$stracSenderName")
             ?: error("Unable to find sender $stracSenderName for organization ${org.name}")
 
-        val fourReceivers = settings.receivers.filter { it.organizationName == orgName }
-        val csvReceiver = fourReceivers.filter { it.name == "CSV" }[0]
-        val redoxReceiver = fourReceivers.filter { it.name == "REDOX" }[0]
-        val fourTargetCounties = fourReceivers.map { it.name }.joinToString(",")
+        val allIgnoreReceivers = settings.receivers.filter { it.organizationName == orgName }
+        val csvReceiver = allIgnoreReceivers.filter { it.name == "CSV" }[0]
+        val hl7Receiver = allIgnoreReceivers.filter { it.name == "HL7" }[0]
+        val hl7BatchReceiver = allIgnoreReceivers.filter { it.name == "HL7_BATCH" }[0]
+        val redoxReceiver = allIgnoreReceivers.filter { it.name == "REDOX" }[0]
+        val hl7NullReceiver = allIgnoreReceivers.filter { it.name == "HL7_NULL" }[0]
+        val fourTargetCounties = allIgnoreReceivers.map { it.name }.joinToString(",")
 
         const val ANSI_RESET = "\u001B[0m"
         const val ANSI_BLACK = "\u001B[30m"
