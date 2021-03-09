@@ -39,30 +39,26 @@ const val REPORT_MAX_ERRORS = 100
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report {
-    enum class Format {
-        INTERNAL, // A format that serializes all elements of a report (A CSV today)
-        CSV, // A CSV format the follows the csvFields
-        HL7, // HL7 with one result per file
-        HL7_BATCH, // HL7 with BHS and FHS headers
-        REDOX; // Redox format
+    enum class Format(
+        val ext: String,
+        val mimeType: String,
+        val isSingleItemFormat: Boolean = false,
+    ) {
+        INTERNAL("internal", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
+        CSV("csv", "text/csv"), // A CSV format the follows the csvFields
+        HL7("hl7", "text/hl7", true), // HL7 with one result per file
+        HL7_BATCH("hl7", "text/hl7"), // HL7 with BHS and FHS headers
+        REDOX("redox", "text/json", true); // Redox format
         // FHIR
 
-        fun toExt(): String {
-            return when (this) {
-                INTERNAL -> "internal"
-                CSV -> "csv"
-                HL7 -> "hl7"
-                HL7_BATCH -> "hl7"
-                REDOX -> "redox"
-            }
-        }
-
-        fun isSingleItemFormat(): Boolean {
-            return when (this) {
-                REDOX -> true
-
-                HL7 -> true
-                else -> false
+        companion object {
+            // Default to CSV if weird or unknown
+            fun safeValueOf(formatStr: String?): Format {
+                return try {
+                    Format.valueOf(formatStr ?: "CSV")
+                } catch (e: IllegalArgumentException) {
+                    Format.CSV
+                }
             }
         }
     }
@@ -693,7 +689,7 @@ class Report {
             sendingFacility: String = ""
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-            val nameSuffix = fileFormat?.toExt() ?: Format.CSV.toExt()
+            val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
             return if (useAphlFormat) {
                 /*
                 APHL has a format that requires a different file name format that looks like this:
