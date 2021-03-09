@@ -241,8 +241,10 @@
           type: HL7
           schemaName: la/la-covid-19
           useBatchHeaders: true
+          receivingOrganization: laoph
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
+          useAphlNamingFormat: true
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -268,6 +270,7 @@
           type: HL7
           schemaName: oh/oh-covid-19
           useBatchHeaders: true
+          suppressQstForAoe: true
           receivingApplicationName: OHDOH
           receivingApplicationOID: 2.16.840.1.114222.4.1.3674
           receivingFacilityName: OHDOH

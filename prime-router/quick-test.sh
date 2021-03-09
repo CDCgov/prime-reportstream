@@ -277,7 +277,7 @@ fi
 if [ $RUN_OH -ne 0 ]
 then
   echo Generate fake OH data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema oh/oh-covid-19 --output-dir $outputdir --target-states OH --target-counties Ashtabula --output-format HL7_BATCH)
+  text=$(./prime data --input-fake 50 --input-schema oh/oh-covid-19 --output-dir $outputdir --target-states OH --target-counties Ashtabula --output-format HL7_BATCH --suppress-qst-for-aoe)
   parse_prime_output_for_filename "$text" "/oh.*\.hl7"
 fi
 
