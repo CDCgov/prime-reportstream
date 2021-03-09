@@ -28,6 +28,7 @@ class Metadata {
         StripNonNumericDataMapper(),
         StripNumericDataMapper(),
         SplitMapper(),
+        ZipCodeToCountyMapper(),
     )
 
     private var jurisdictionalFilters = listOf(

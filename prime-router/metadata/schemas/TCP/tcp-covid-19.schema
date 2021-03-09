@@ -37,12 +37,16 @@ elements:
       - display: Black or African American
         code: 2054-5
         version: 2.5.1
+      - display: Black
+        code: 2054-5
       - display: Native Hawaiian or Other Pacific Islander
         code: 2076-8
         version: 2.5.1
       - display: White
         code: 2106-3
         version: 2.5.1
+      - display: Caucasian
+        code: 2016-3
       - display: Other
         code: 2131-1
         version: 2.5.1
@@ -50,6 +54,8 @@ elements:
         code: UNK
         version: 2.5.1
         system: NULLFL
+      - display: N/A
+        code: N/A
       - display: Asked, but unknown
         code: ASKU
         version: 2.5.1
@@ -192,8 +198,8 @@ elements:
     type: TABLE
     table: zip-code-data
     tableColumn: county
-    mapper: lookup(patient_zip_code)
-    #csvFields: [{ name: Patient_county }] # <- uncomment this to see it show up in csv file
+    mapper: zipCodeToCounty(patient_zip_code)
+    csvFields: [{ name: Patient_county }] # <- uncomment this to see it show up in csv file
 
   - name: ordering_facility_state
     mapper: use(testing_lab_state)
