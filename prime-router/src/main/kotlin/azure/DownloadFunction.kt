@@ -174,9 +174,12 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
                 response = responsePage(request, authClaims)
             else {
                 val filename = Report.formExternalFilename(header)
+                // todo replace with Report.Format.toMimeType
                 val mimeType = when (header.reportFile.bodyFormat) {
-                    "CSV" -> "text/csv"
-                    "HL7" -> "text/hl7"
+                    Report.Format.CSV.name -> "text/csv"
+                    Report.Format.HL7.name -> "text/hl7"
+                    Report.Format.HL7_BATCH.name -> "text/hl7"
+                    Report.Format.INTERNAL.name -> "text/csv"
                     else -> "text/plain"
                 }
                 response = request
