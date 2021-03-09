@@ -170,6 +170,7 @@
           useBatchHeaders: true
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
+          useAphlNamingFormat: true
 
   - name: oh-doh
     description: Ohio Department of Health
