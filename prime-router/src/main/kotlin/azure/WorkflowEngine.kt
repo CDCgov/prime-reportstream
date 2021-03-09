@@ -13,7 +13,6 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
@@ -59,15 +58,24 @@ class WorkflowEngine(
     /**
      * Place a report into the workflow
      */
-    fun receiveReport(report: Report, txn: Configuration? = null) {
-        val (bodyFormat, bodyUrl) = blob.uploadBody(report)
+    fun receiveReport(
+        validatedRequest: ReportFunction.ValidatedRequest,
+        actionHistory: ActionHistory,
+        txn: Configuration? = null
+    ) {
+        if (validatedRequest.report == null) error("Cannot receive a null report")
+        val blobInfo = blob.uploadBody(validatedRequest.report)
         try {
-            val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, report.id, null)
-            db.insertTask(report, bodyFormat, bodyUrl, receiveEvent, txn)
-            report.bodyURL = bodyUrl
+            val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, validatedRequest.report.id, null)
+            db.insertTask(
+                validatedRequest.report, blobInfo.format.toString(), blobInfo.blobUrl, receiveEvent, txn
+            )
+            // todo bodyURL is no longer needed in report; its in 'blobInfo'
+            validatedRequest.report.bodyURL = blobInfo.blobUrl
+            actionHistory.trackExternalInputReport(validatedRequest, blobInfo)
         } catch (e: Exception) {
             // Clean up
-            blob.deleteBlob(bodyUrl)
+            blob.deleteBlob(blobInfo.blobUrl)
             throw e
         }
     }
@@ -75,14 +83,22 @@ class WorkflowEngine(
     /**
      * Place a report into the workflow (Note:  I moved queueing the message to after the Action is saved)
      */
-    fun dispatchReport(nextAction: Event, report: Report, txn: Configuration? = null) {
-        val (bodyFormat, bodyUrl) = blob.uploadBody(report)
+    fun dispatchReport(
+        nextAction: Event,
+        report: Report,
+        actionHistory: ActionHistory,
+        receiver: Receiver,
+        txn: Configuration? = null
+    ) {
+        val blobInfo = blob.uploadBody(report)
         try {
-            db.insertTask(report, bodyFormat, bodyUrl, nextAction, txn)
-            report.bodyURL = bodyUrl
+            db.insertTask(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
+            // todo remove this; its now tracked in BlobInfo
+            report.bodyURL = blobInfo.blobUrl
+            actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
         } catch (e: Exception) {
             // Clean up
-            blob.deleteBlob(bodyUrl)
+            blob.deleteBlob(blobInfo.blobUrl)
             throw e
         }
     }
@@ -102,12 +118,12 @@ class WorkflowEngine(
         db.transact { txn ->
             val reportId = messageEvent.reportId
             val task = db.fetchAndLockTask(reportId, txn)
-            val taskSources = db.fetchTaskSources(reportId, txn)
             val (organization, receiver) = findOrganizationAndReceiver(task.receiverName, txn)
             val reportFile = db.fetchReportFile(reportId, txn)
+            // todo remove this once things are permanently sane ;)
             ActionHistory.sanityCheckReport(task, reportFile, false)
             val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount, txn)
-            val header = createHeader(task, taskSources, reportFile, itemLineages, organization, receiver)
+            val header = createHeader(task, reportFile, itemLineages, organization, receiver)
             val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
             if (currentEventAction != messageEvent.eventAction) return@transact
@@ -126,8 +142,7 @@ class WorkflowEngine(
             )
             recordAction(actionHistory, txn)
         }
-        if (nextEvent != null)
-            queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
+        queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
     }
 
     /**
@@ -151,17 +166,16 @@ class WorkflowEngine(
                 txn
             )
             val ids = tasks.map { it.reportId }
-            val taskSources = db.fetchTaskSources(ids, txn)
             val reportFiles = ids
                 .map { db.fetchReportFile(it, txn) }
                 .map { (it.reportId as ReportId) to it }
                 .toMap()
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
+            // todo remove this check
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-            // taskSources seems erroneous.  All the sources for all Tasks are attached to each indiv. task. ?
-            // todo remove the !!
+            // todo Note that the sanity check means the !! is safe.
             val headers = tasks.map {
-                createHeader(it, taskSources, reportFiles[it.reportId]!!, null, organization, receiver)
+                createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
             }
 
             updateBlock(headers, txn)
@@ -188,12 +202,14 @@ class WorkflowEngine(
         val schema = metadata.findSchema(header.task.schemaName)
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
         val bytes = blob.downloadBlob(header.task.bodyUrl)
-        val sources = header.sources.map { DatabaseAccess.toSource(it) }
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV" -> {
                 val result = csvSerializer.readExternal(
-                    schema.name, ByteArrayInputStream(bytes), sources, header.receiver
+                    schema.name,
+                    ByteArrayInputStream(bytes),
+                    emptyList(),
+                    header.receiver
                 )
                 if (result.report == null || result.errors.isNotEmpty()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
@@ -204,7 +220,7 @@ class WorkflowEngine(
                 csvSerializer.readInternal(
                     schema.name,
                     ByteArrayInputStream(bytes),
-                    sources,
+                    emptyList(),
                     header.receiver,
                     header.reportFile.reportId
                 )
@@ -243,12 +259,18 @@ class WorkflowEngine(
         }
     }
 
+    fun fetchDownloadableReportFiles(
+        since: OffsetDateTime?,
+        organizationName: String,
+    ): List<ReportFile> {
+        return db.fetchDownloadableReportFiles(since, organizationName)
+    }
+
     /**
      * The header class provides the information needed to process a task.
      */
     data class Header(
         val task: Task,
-        val sources: List<TaskSource>,
         val reportFile: ReportFile,
         val itemLineages: List<ItemLineage>?, // ok to not have item-level lineage
         val organization: Organization?,
@@ -259,7 +281,6 @@ class WorkflowEngine(
 
     private fun createHeader(
         task: Task,
-        sources: List<TaskSource>,
         reportFile: ReportFile,
         itemLineages: List<ItemLineage>?,
         organization: Organization?,
@@ -272,27 +293,7 @@ class WorkflowEngine(
         val content = if (reportFile.bodyUrl != null)
             blob.downloadBlob(reportFile.bodyUrl)
         else null
-        return Header(task, sources, reportFile, itemLineages, organization, receiver, schema, content)
-    }
-
-    fun fetchDownloadableHeaders(
-        since: OffsetDateTime?,
-        organizationName: String,
-    ): List<Header> {
-        val tasks = db.fetchDownloadableTasks(since, organizationName)
-        val ids = tasks.map { it.reportId }
-        val taskSources = db.fetchTaskSources(ids)
-
-        val reportFiles = db.fetchDownloadableReportFiles(since, organizationName)
-//        val itemLineagesPerReport = ActionHistory.fetchItemLineagesForReports(reportFiles.values, create)
-        ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-
-        // todo fix the !!.  Right now the sanityCheck guarantees non-null.
-//        return tasks.map { Header(it, taskSources, reportFiles[it.reportId]!!, itemLineagesPerReport[it.reportId]) }
-        return tasks.map {
-            val (organization, receiver) = findOrganizationAndReceiver(it.receiverName)
-            createHeader(it, taskSources, reportFiles[it.reportId]!!, null, organization, receiver)
-        }
+        return Header(task, reportFile, itemLineages, organization, receiver, schema, content)
     }
 
     fun fetchHeader(
@@ -300,13 +301,12 @@ class WorkflowEngine(
         orgName: String
     ): Header {
         val task = db.fetchTask(reportId, orgName)
-        val taskSources = db.fetchTaskSources(reportId)
         val (organization, receiver) = findOrganizationAndReceiver(task.receiverName)
         val reportFile = db.fetchReportFile(reportId)
+        // todo remove this sanity check
         ActionHistory.sanityCheckReport(task, reportFile, false)
         val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount)
-
-        return createHeader(task, taskSources, reportFile, itemLineages, organization, receiver)
+        return createHeader(task, reportFile, itemLineages, organization, receiver)
     }
 
     /**
@@ -346,7 +346,7 @@ class WorkflowEngine(
          * should only be created once.
          */
         val metadata: Metadata by lazy {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot")
+            val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
             Metadata("$baseDir/metadata")
         }
 
@@ -355,7 +355,7 @@ class WorkflowEngine(
         }
 
         val settings: SettingsProvider by lazy {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot")
+            val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
             val settingsEnabled = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
             if (settingsEnabled.equals("true", ignoreCase = true)) {

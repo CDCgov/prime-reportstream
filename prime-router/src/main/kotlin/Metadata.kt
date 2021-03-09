@@ -22,6 +22,13 @@ class Metadata {
         Obx17Mapper(),
         Obx17TypeMapper(),
         Obx8Mapper(),
+        DateTimeOffsetMapper(),
+        CoalesceMapper(),
+        StripPhoneFormattingMapper(),
+        StripNonNumericDataMapper(),
+        StripNumericDataMapper(),
+        SplitMapper(),
+        ZipCodeToCountyMapper(),
     )
 
     private var jurisdictionalFilters = listOf(

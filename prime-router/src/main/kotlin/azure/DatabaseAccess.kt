@@ -2,16 +2,11 @@ package gov.cdc.prime.router.azure
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.ReportSource
-import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
-import gov.cdc.prime.router.azure.db.Tables.TASK_SOURCE
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
@@ -19,7 +14,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
@@ -115,25 +109,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .into(Task::class.java)
     }
 
-    fun fetchDownloadableTasks(
-        since: OffsetDateTime?,
-        organizationName: String,
-    ): List<Task> {
-        val cond = if (since == null) {
-            TASK.SENT_AT.isNotNull
-                .and(TASK.RECEIVER_NAME.like("$organizationName%"))
-        } else {
-            TASK.RECEIVER_NAME.like("$organizationName%")
-                .and(TASK.CREATED_AT.ge(since))
-                .and(TASK.SENT_AT.isNotNull)
-        }
-        return create
-            .selectFrom(TASK)
-            .where(cond)
-            .fetch()
-            .into(Task::class.java)
-    }
-
     fun fetchTask(reportId: ReportId, orgName: String): Task {
         return create
             .selectFrom(TASK)
@@ -159,9 +134,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         fun insert(txn: Configuration) {
             val task = createTaskRecord(report, bodyFormat, bodyUrl, nextAction)
             DSL.using(txn).executeInsert(task)
-            report.sources.forEach {
-                insertTaskSource(report, it, txn)
-            }
         }
 
         if (txn != null) {
@@ -237,7 +209,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         since: OffsetDateTime?,
         orgName: String,
         txn: DataAccessTransaction? = null,
-    ): Map<ReportId, ReportFile> {
+    ): List<ReportFile> {
         val ctx = if (txn != null) DSL.using(txn) else create
         val cond = if (since == null) {
             Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
@@ -252,82 +224,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .selectFrom(Tables.REPORT_FILE)
             .where(cond)
             .fetch()
-            .into(ReportFile::class.java).map { (it.reportId as ReportId) to it }.toMap()
-    }
-
-    /*
-     * Task Source queries
-     */
-
-    fun fetchTaskSources(reportId: ReportId, txn: DataAccessTransaction? = null): List<TaskSource> {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx
-            .selectFrom(TASK_SOURCE)
-            .where(TASK_SOURCE.REPORT_ID.eq(reportId))
-            .fetch()
-            .into(TaskSource::class.java)
-    }
-
-    fun fetchTaskSources(ids: List<ReportId>, txn: DataAccessTransaction? = null): List<TaskSource> {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx
-            .selectFrom(TASK_SOURCE)
-            .where(TASK_SOURCE.REPORT_ID.`in`(ids))
-            .fetch()
-            .into(TaskSource::class.java)
-    }
-
-    private fun insertTaskSource(report: Report, source: Source, txn: DataAccessTransaction) {
-        fun insertReportSource(report: Report, source: ReportSource) {
-            DSL.using(txn)
-                .insertInto(
-                    TASK_SOURCE,
-                    TASK_SOURCE.REPORT_ID,
-                    TASK_SOURCE.FROM_REPORT_ID,
-                    TASK_SOURCE.FROM_REPORT_ACTION,
-                ).values(
-                    report.id,
-                    source.id,
-                    source.action,
-                ).execute()
-        }
-
-        fun insertClientSource(report: Report, source: ClientSource) {
-            DSL.using(txn)
-                .insertInto(
-                    TASK_SOURCE,
-                    TASK_SOURCE.REPORT_ID,
-                    TASK_SOURCE.FROM_SENDER,
-                    TASK_SOURCE.FROM_SENDER_ORGANIZATION,
-                ).values(
-                    report.id,
-                    source.client,
-                    source.organization,
-                ).execute()
-        }
-
-        fun insertTestSource(report: Report) {
-            DSL.using(txn)
-                .insertInto(
-                    TASK_SOURCE,
-                    TASK_SOURCE.REPORT_ID
-                ).values(
-                    report.id,
-                ).execute()
-        }
-
-        when (source) {
-            is ReportSource -> insertReportSource(report, source)
-            is ClientSource -> insertClientSource(report, source)
-            is TestSource -> insertTestSource(report)
-            else -> TODO()
-        }
+            .into(ReportFile::class.java).toList()
     }
 
     /**
      * Settings queries
      */
-
     fun fetchSetting(type: SettingType, name: String, parentId: Int?, txn: DataAccessTransaction): Setting? {
         return DSL
             .using(txn)
@@ -602,20 +504,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         }
 
         val commonDataSource: DataSource get() = hikariDataSource
-
-        fun toSource(taskSource: TaskSource): Source {
-            return when {
-                taskSource.fromReportId != null -> {
-                    ReportSource(taskSource.fromReportId, taskSource.fromReportAction)
-                }
-                taskSource.fromSender != null -> {
-                    ClientSource(taskSource.fromSenderOrganization, taskSource.fromSender)
-                }
-                else -> {
-                    TestSource
-                }
-            }
-        }
 
         fun createTaskRecord(
             report: Report,

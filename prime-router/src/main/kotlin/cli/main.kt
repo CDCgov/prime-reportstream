@@ -40,14 +40,6 @@ sealed class InputSource {
     data class ListOfFilesSource(val commaSeparatedList: String) : InputSource() // supports merge.
 }
 
-class RouterCli : CliktCommand(
-    name = "prime",
-    help = "Tools and commands that support the PRIME Data Hub.",
-    printHelpOnEmptyArgs = true,
-) {
-    override fun run() = Unit
-}
-
 class ProcessData : CliktCommand(
     name = "data",
     help = """
@@ -70,7 +62,8 @@ class ProcessData : CliktCommand(
     transformations. For example, to generate 5 rows of test data using the
     Florida COVID-19 schema:
     > prime data --input-fake 5 --input-schema fl/fl-covid-19 --output florida-data.csv
-    """
+    """,
+    printHelpOnEmptyArgs = true,
 ) {
     // Input
     private val inputSource: InputSource? by mutuallyExclusiveOptions(
@@ -349,7 +342,12 @@ class ProcessData : CliktCommand(
 
         if (!validate) TODO("validation cannot currently be disabled")
         if (send) TODO("--send is not implemented")
-        if (synthesize) inputReport = inputReport.synthesizeData(synthesizeStrategies, targetStates, targetCounties)
+        if (synthesize) inputReport = inputReport.synthesizeData(
+            synthesizeStrategies,
+            targetStates,
+            targetCounties,
+            metadata
+        )
 
         // Transform reports
         val translator = Translator(metadata, fileSettings)
@@ -399,6 +397,14 @@ class ProcessData : CliktCommand(
             }
         }
     }
+}
+
+class RouterCli : CliktCommand(
+    name = "prime",
+    help = "Tools and commands that support the PRIME Data Hub.",
+    printHelpOnEmptyArgs = true,
+) {
+    override fun run() = Unit
 }
 
 fun listSchemas(metadata: Metadata) {
@@ -609,5 +615,5 @@ class CompareCsvFiles : CliktCommand(
 }
 
 fun main(args: Array<String>) = RouterCli()
-    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CompareCsvFiles())
+    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CompareCsvFiles(), TestReportStream())
     .main(args)

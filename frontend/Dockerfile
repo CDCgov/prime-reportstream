@@ -2,8 +2,9 @@ FROM node:15-buster-slim as static_site
 WORKDIR /usr/app
 COPY package*.json ./
 ENV NODE_ENV=production
-RUN npm ci
+RUN npm i
 COPY . ./
+RUN npm install
 RUN npm -s run build
 CMD npm -s run serve
 

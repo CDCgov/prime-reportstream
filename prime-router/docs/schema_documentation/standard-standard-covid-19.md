@@ -215,7 +215,7 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-3-1
+**HL7 Fields**: ORC-3-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
@@ -225,7 +225,7 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Type**: ID
 
-**HL7 Field**: ORC-3-1
+**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
@@ -234,6 +234,8 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 **Name**: filler_clia
 
 **Type**: ID_CLIA
+
+**HL7 Field**: OBR-3-3
 
 **Cardinality**: [0..1]
 
@@ -751,7 +753,8 @@ U|Unknown
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
 
 ---
@@ -810,7 +813,7 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Type**: HD
 
-**HL7 Field**: PID-3-4
+**HL7 Fields**: PID-3-6-2
 
 **Cardinality**: [0..1]
 
@@ -1724,7 +1727,7 @@ The reporting facility's name
 
 **Type**: ID_CLIA
 
-**HL7 Field**: MSH-4-2
+**HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
 
 **Cardinality**: [0..1]
 
@@ -1848,7 +1851,7 @@ WOOD|Swab, Wooden Shaft
 
 **Type**: EI
 
-**HL7 Fields**: SPM-2, OBR-3-1
+**HL7 Fields**: SPM-2
 
 **Cardinality**: [0..1]
 
@@ -2008,6 +2011,13 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 
@@ -2143,7 +2153,7 @@ The accession number of the specimen collected
 
 **Type**: ID_CLIA
 
-**HL7 Field**: OBX-23-10
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
 
 **Cardinality**: [1..1]
 
@@ -2521,6 +2531,20 @@ UNK|Unknown
 
 ---
 
+**Name**: ordered_test_encoding_version
+
+**Type**: TABLE
+
+**HL7 Field**: OBR-4-7
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
+
+---
+
 **Name**: ordering_facility_county
 
 **Type**: TABLE
@@ -2671,6 +2695,20 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 ---
 
+**Name**: test_kit_name_id_cwe_version
+
+**Type**: TABLE
+
+**HL7 Field**: OBX-17-7
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
+
+---
+
 **Name**: test_method_description
 
 **Type**: TEXT
@@ -2684,6 +2722,20 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 **Type**: TEXT
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: test_performed_system_version
+
+**Type**: TABLE
+
+**HL7 Field**: OBX-3-7
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
 
 ---
 

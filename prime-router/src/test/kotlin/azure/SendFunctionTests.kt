@@ -6,7 +6,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.db.tables.pojos.TaskSource
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import io.mockk.clearAllMocks
@@ -77,8 +76,10 @@ class SendFunctionTests {
 
     fun makeHeader(): WorkflowEngine.Header {
         return WorkflowEngine.Header(
-            task, emptyList<TaskSource>(), reportFile,
-            null, settings.findOrganization("az-phd"), settings.findReceiver("az-phd.elr-test"),
+            task, reportFile,
+            null,
+            settings.findOrganization("az-phd"),
+            settings.findReceiver("az-phd.elr-test"),
             metadata.findSchema("covid-19"), "hello".toByteArray()
         )
     }

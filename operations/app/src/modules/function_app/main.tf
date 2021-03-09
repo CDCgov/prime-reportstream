@@ -113,12 +113,12 @@ resource "azurerm_function_app" "function_app" {
     "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
 
     # Test/Staging-specific app settings
-    "PRIME__HL7__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
-    "PRIME__HL7__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
-    "PRIME__HL7_BATCH__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
-    "PRIME__HL7_BATCH__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
-    "PRIME__CSV__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
-    "PRIME__CSV__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
+    "IGNORE__HL7__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
+    "IGNORE__HL7__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
+    "IGNORE__HL7_BATCH__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
+    "IGNORE__HL7_BATCH__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
+    "IGNORE__CSV__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
+    "IGNORE__CSV__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
 
     # Production-specific app settings
     "FUNCTION_APP_EDIT_MODE" = (var.environment == "prod" ? "readOnly" : null)

@@ -132,4 +132,195 @@ class MapperTests {
         // assert
         assertEquals(expected, actual, "Expected: $expected. Actual: $actual")
     }
+
+    @Test
+    fun `test date time offset mapper with seconds`() {
+        // arrange
+        val mapper = DateTimeOffsetMapper()
+        val args = listOf(
+            "a",
+            "seconds",
+            "6"
+        )
+        val element = Element("a")
+        val values = listOf(
+            ElementAndValue(element, "202103020000-0600")
+        )
+
+        // act
+        val expected = "20210302000006.0000-0600"
+        val actual = mapper.apply(element, args, values)
+
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+    }
+
+    @Test
+    fun `test date time offset mapper with negative seconds`() {
+        // arrange
+        val mapper = DateTimeOffsetMapper()
+        val args = listOf(
+            "a",
+            "seconds",
+            "-6"
+        )
+        val element = Element("a")
+        val values = listOf(
+            ElementAndValue(element, "20210302000006.0000-0600")
+        )
+
+        // act
+        val expected = "20210302000000.0000-0600"
+        val actual = mapper.apply(element, args, values)
+
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+    }
+
+    @Test
+    fun `test date time offset mapper with minutes`() {
+        // arrange
+        val mapper = DateTimeOffsetMapper()
+        val args = listOf(
+            "a",
+            "minutes",
+            "1"
+        )
+        val element = Element("a")
+        val values = listOf(
+            ElementAndValue(element, "202103020000-0600")
+        )
+
+        // act
+        val expected = "20210302000100.0000-0600"
+        val actual = mapper.apply(element, args, values)
+
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+    }
+
+    @Test
+    fun `test date time offset mapper with negative minutes`() {
+        // arrange
+        val mapper = DateTimeOffsetMapper()
+        val args = listOf(
+            "a",
+            "minutes",
+            "-1"
+        )
+        val element = Element("a")
+        val values = listOf(
+            ElementAndValue(element, "20210302000100.0000-0600")
+        )
+
+        // act
+        val expected = "20210302000000.0000-0600"
+        val actual = mapper.apply(element, args, values)
+
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+    }
+
+    @Test
+    fun `test coalesce mapper`() {
+        // arrange
+        val mapper = CoalesceMapper()
+        val args = listOf("a", "b", "c")
+        val element = Element("target")
+        var values = listOf(
+            ElementAndValue(Element("a"), ""),
+            ElementAndValue(Element("b"), ""),
+            ElementAndValue(Element("c"), "c")
+        )
+        // act
+        var expected = "c"
+        var actual = mapper.apply(element, args, values)
+        // assert
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+
+        values = listOf(
+            ElementAndValue(Element("a"), ""),
+            ElementAndValue(Element("b"), "b"),
+            ElementAndValue(Element("c"), "c")
+        )
+        expected = "b"
+        actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test strip formatting mapper`() {
+        val mapper = StripPhoneFormattingMapper()
+        val args = listOf("patient_phone_number_raw")
+        val element = Element("patient_phone_number")
+        val values = listOf(
+            ElementAndValue(Element("patient_phone_number_raw"), "(850) 999-9999xHOME")
+        )
+        val expected = "8509999999:1:"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test strip numeric mapper`() {
+        val mapper = StripNumericDataMapper()
+        val args = listOf("patient_age_and_units")
+        val element = Element("patient_age")
+        val values = listOf(
+            ElementAndValue(Element("patient_age_and_units"), "99 years")
+        )
+        val expected = "years"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test strip non numeric mapper`() {
+        val mapper = StripNonNumericDataMapper()
+        val args = listOf("patient_age_and_units")
+        val element = Element("patient_age")
+        val values = listOf(
+            ElementAndValue(Element("patient_age_and_units"), "99 years")
+        )
+        val expected = "99"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test split mapper`() {
+        val mapper = SplitMapper()
+        val args = listOf("patient_name", "0")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "John Doe")
+        )
+        val expected = "John"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test zip code to county mapper`() {
+        val mapper = ZipCodeToCountyMapper()
+        val csv = """
+            zipcode,county
+            32303,Leon
+        """.trimIndent()
+        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val schema = Schema(
+            "test", topic = "test",
+            elements = listOf(
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val lookupElement = metadata.findSchema("test")?.findElement("a") ?: fail("Schema element missing")
+        val values = listOf(
+            ElementAndValue(Element("patient_zip_code"), "32303-4509")
+        )
+        val expected = "Leon"
+        val actual = mapper.apply(lookupElement, listOf("patient_zip_code"), values)
+        assertEquals(expected, actual, "Expected: $expected, Actual: $actual")
+    }
 }

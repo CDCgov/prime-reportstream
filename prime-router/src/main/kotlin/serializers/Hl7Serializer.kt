@@ -33,14 +33,12 @@ class Hl7Serializer(val metadata: Metadata) {
         val errors: List<String>,
         val warnings: List<String>,
     )
-    private val softwareVendorOrganization = "Centers for Disease Control and Prevention"
-    private val softwareProductName = "PRIME Data Hub"
-    private val hl7SegmentDelimiter: String = "\r"
 
+    private val hl7SegmentDelimiter: String = "\r"
     private val hapiContext = DefaultHapiContext()
     private val buildVersion: String
     private val buildDate: String
-    private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+    private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSZZZ")
 
     init {
         val buildProperties = Properties()
@@ -51,7 +49,7 @@ class Hl7Serializer(val metadata: Metadata) {
             buildVersion = buildProperties.getProperty("buildVersion", "0.0.0.0")
             buildDate = buildProperties.getProperty("buildDate", "20200101")
         }
-        hapiContext.modelClassFactory = CanonicalModelClassFactory("2.5.1")
+        hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
     }
 
     /**
@@ -165,7 +163,7 @@ class Hl7Serializer(val metadata: Metadata) {
         val warnings = mutableListOf<String>()
         // key of the map is the column header, list is the values in the column
         val mappedRows: MutableMap<String, MutableSet<String>> = mutableMapOf()
-        val mcf = CanonicalModelClassFactory("2.5.1")
+        val mcf = CanonicalModelClassFactory(HL7_SPEC_VERSION)
         hapiContext.modelClassFactory = mcf
         val parser = hapiContext.pipeParser
         val reg = "(\r|\n)".toRegex()
@@ -251,7 +249,7 @@ class Hl7Serializer(val metadata: Metadata) {
         val message = ORU_R01()
         message.initQuickstart("ORU", "R01", "D")
         buildMessage(message, report, row)
-        hapiContext.modelClassFactory = CanonicalModelClassFactory("2.5.1")
+        hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
         return hapiContext.pipeParser.encode(message)
     }
 
@@ -271,12 +269,12 @@ class Hl7Serializer(val metadata: Metadata) {
                 if (value.isNotBlank()) {
                     val units = report.getString(row, "${element.name}_units")
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, units)
+                    setAOE(terser, element, aoeSequence++, date, value, report, row, units)
                 }
             } else if (element.hl7Field == "AOE") {
                 if (value.isNotBlank()) {
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value)
+                    setAOE(terser, element, aoeSequence++, date, value, report, row)
                 }
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
@@ -360,6 +358,11 @@ class Hl7Serializer(val metadata: Metadata) {
                     terser.set(pathSpec, "") // Not at all sure what to do here.
                 }
             }
+            Element.Type.EMAIL -> {
+                if (value.isNotEmpty()) {
+                    setEmailComponent(terser, value, pathSpec, element)
+                }
+            }
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
             else -> terser.set(pathSpec, value)
         }
@@ -379,7 +382,7 @@ class Hl7Serializer(val metadata: Metadata) {
                     if (value.isNotEmpty()) {
                         terser.set("$pathSpec-1", value)
                         terser.set("$pathSpec-2", valueSet.toDisplayFromCode(value))
-                        terser.set("$pathSpec-3", valueSet.systemCode)
+                        terser.set("$pathSpec-3", valueSet.toSystemFromCode(value))
                         valueSet.toVersionFromCode(value)?.let {
                             terser.set("$pathSpec-7", it)
                         }
@@ -401,11 +404,47 @@ class Hl7Serializer(val metadata: Metadata) {
         val country = parts[1]
         val extension = parts[2]
 
-        terser.set(buildComponent(pathSpec, 2), if (element.nameContains("patient")) "PRN" else "WPN")
-        terser.set(buildComponent(pathSpec, 5), country)
-        terser.set(buildComponent(pathSpec, 6), areaCode)
-        terser.set(buildComponent(pathSpec, 7), local)
-        if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
+        if (element.nameContains("patient")) {
+            // PID-13 is repeatable, which means we could have more than one phone #
+            // or email etc, so we need to increment until we get empty for PID-13-2
+            var rep = 0
+            while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
+                rep += 1
+            }
+            // primary residence number
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
+            // it's a phone
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "PH")
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-5", country)
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-6", areaCode)
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-7", local)
+            if (extension.isNotEmpty()) terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-8", extension)
+        } else {
+            // work phone number
+            terser.set(buildComponent(pathSpec, 2), "WPN")
+            // it's a phone
+            terser.set(buildComponent(pathSpec, 3), "PH")
+            terser.set(buildComponent(pathSpec, 5), country)
+            terser.set(buildComponent(pathSpec, 6), areaCode)
+            terser.set(buildComponent(pathSpec, 7), local)
+            terser.set(buildComponent(pathSpec, 8), extension)
+        }
+    }
+
+    private fun setEmailComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
+        // PID-13 is repeatable, which means we could have more than one phone #
+        // or email etc, so we need to increment until we get empty for PID-13-2
+        var rep = 0
+        while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
+            rep += 1
+        }
+        if (element.nameContains("patient_email")) {
+            // this is an email address
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "NET")
+            // specifies it's an internet telecommunications type
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "Internet")
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-4", value)
+        }
     }
 
     private fun setPostalComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
@@ -419,11 +458,12 @@ class Hl7Serializer(val metadata: Metadata) {
         aoeRep: Int,
         date: String,
         value: String,
-        units: String? = null
+        report: Report,
+        row: Int,
+        units: String? = null,
     ) {
         terser.set(formPathSpec("OBX-1", aoeRep), (aoeRep + 1).toString())
         terser.set(formPathSpec("OBX-2", aoeRep), "CWE")
-
         val aoeQuestion = element.hl7AOEQuestion
             ?: error("Schema Error: missing hl7AOEQuestion for '${element.name}'")
         setCodeComponent(terser, aoeQuestion, formPathSpec("OBX-3", aoeRep), "covid-19/aoe")
@@ -441,7 +481,32 @@ class Hl7Serializer(val metadata: Metadata) {
 
         terser.set(formPathSpec("OBX-11", aoeRep), "F")
         terser.set(formPathSpec("OBX-14", aoeRep), date)
+        // some states want the observation date for the AOE questions as well
+        terser.set(formPathSpec("OBX-19", aoeRep), report.getString(row, "test_result_date"))
+        terser.set(formPathSpec("OBX-23-7", aoeRep), "XX")
+        // todo: many states can't accept the QST datapoint out at the end because it is nonstandard
+        // todo: we need to pass this in via the translation configuration
         terser.set(formPathSpec("OBX-29", aoeRep), "QST")
+        // all of these values must be set on the OBX AOE's for validation
+        terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
+        // set to a default value, but look below
+        // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
+        terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
+        terser.set(formPathSpec("OBX-15", aoeRep), report.getString(row, "testing_lab_clia"))
+        terser.set(formPathSpec("OBX-24-1", aoeRep), report.getStringByHl7Field(row, "OBX-24-1"))
+        terser.set(formPathSpec("OBX-24-2", aoeRep), report.getStringByHl7Field(row, "OBX-24-2"))
+        terser.set(formPathSpec("OBX-24-3", aoeRep), report.getStringByHl7Field(row, "OBX-24-3"))
+        terser.set(formPathSpec("OBX-24-4", aoeRep), report.getStringByHl7Field(row, "OBX-24-4"))
+        terser.set(formPathSpec("OBX-24-5", aoeRep), report.getStringByHl7Field(row, "OBX-24-5"))
+        terser.set(formPathSpec("OBX-24-9", aoeRep), report.getStringByHl7Field(row, "OBX-24-9"))
+        // check for the OBX-23-6 value. it needs to be split apart
+        val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner")
+        if (testingLabIdAssigner?.contains("^") == true) {
+            val testingLabIdAssignerParts = testingLabIdAssigner.split("^")
+            testingLabIdAssignerParts.forEachIndexed { index, s ->
+                terser.set(formPathSpec("OBX-23-6-${index + 1}", aoeRep), s)
+            }
+        }
     }
 
     private fun setNote(terser: Terser, value: String) {
@@ -450,19 +515,19 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set(formPathSpec("NTE-4-1"), "RE")
         terser.set(formPathSpec("NTE-4-2"), "Remark")
         terser.set(formPathSpec("NTE-4-3"), "HL70364")
-        terser.set(formPathSpec("NTE-4-7"), "2.5.1")
+        terser.set(formPathSpec("NTE-4-7"), HL7_SPEC_VERSION)
     }
 
     private fun setLiterals(terser: Terser) {
         // Value that NIST requires (although # is not part of 2.5.1)
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
-        terser.set("MSH-12", "2.5.1")
+        terser.set("MSH-12", HL7_SPEC_VERSION)
         terser.set("MSH-17", "USA")
 
-        terser.set("SFT-1", softwareVendorOrganization)
+        terser.set("SFT-1", SOFTWARE_VENDOR_ORGANIZATION)
         terser.set("SFT-2", buildVersion)
-        terser.set("SFT-3", softwareProductName)
+        terser.set("SFT-3", SOFTWARE_PRODUCT_NAME)
         terser.set("SFT-4", buildVersion)
         terser.set("SFT-6", buildDate)
 
@@ -476,6 +541,7 @@ class Hl7Serializer(val metadata: Metadata) {
 
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
+        terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
     }
 
     private fun createHeaders(report: Report): String {
@@ -565,5 +631,11 @@ class Hl7Serializer(val metadata: Metadata) {
         } else {
             eiFields.name
         }
+    }
+
+    companion object {
+        const val HL7_SPEC_VERSION: String = "2.5.1"
+        const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
+        const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
     }
 }
