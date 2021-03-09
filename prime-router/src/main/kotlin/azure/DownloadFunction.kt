@@ -93,7 +93,7 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
         return reportFiles.sortedByDescending {
             it.createdAt
         }.map {
-            val svc = WorkflowEngine().settings.findReceiver(it.receivingOrg)
+            val svc = WorkflowEngine().settings.findReceiver(it.receivingOrg + "." + it.receivingOrgSvc)
             val orgDesc = authClaims.organization.description
             val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
             TestResult(
@@ -174,9 +174,14 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
                 response = responsePage(request, authClaims)
             else {
                 val filename = Report.formExternalFilename(header)
+                val mimeType = when (header.reportFile.bodyFormat) {
+                    "CSV" -> "text/csv"
+                    "HL7" -> "text/hl7"
+                    else -> "text/plain"
+                }
                 response = request
                     .createResponseBuilder(HttpStatus.OK)
-                    .header("Content-Type", "text/csv")
+                    .header("Content-Type", mimeType)
                     .header("Content-Disposition", "attachment; filename=$filename")
                     .body(header.content)
                     .build()
