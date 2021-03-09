@@ -145,6 +145,8 @@ resource "azurerm_subnet" "gateway" {
   resource_group_name = var.resource_group
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes = ["10.0.4.0/24"]
+
+  service_endpoints = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
 }
 
 resource "azurerm_public_ip" "vpn_ip" {
@@ -167,4 +169,8 @@ output "container_subnet_id" {
 
 output "private_subnet_id" {
   value = azurerm_subnet.private.id
+}
+
+output "gateway_subnet_id" {
+  value = azurerm_subnet.gateway.id
 }

@@ -33,6 +33,11 @@ variable "private_subnet_id" {
     description = "Private Subnet ID"
 }
 
+variable "gateway_subnet_id" {
+    type = string
+    description = "VPN Gateway Subnet ID"
+}
+
 variable "app_config_key_vault_id" {
     type = string
     description = "Key Vault used for database user/pass"
