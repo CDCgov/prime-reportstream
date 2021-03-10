@@ -7,7 +7,7 @@ typealias RetryItems = List<String>
 
 data class RetryToken(
     var retryCount: Int,
-    val items: List<String>
+    val items: List<String>,
 ) {
     fun toJSON(): String {
         return mapper.writeValueAsString(this)

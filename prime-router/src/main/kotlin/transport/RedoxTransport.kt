@@ -5,16 +5,16 @@ import com.github.kittinunf.fuel.core.Headers.Companion.AUTHORIZATION
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
-import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
-import java.util.logging.Level
+import org.apache.logging.log4j.kotlin.Logging
+import java.io.Closeable
 
-class RedoxTransport() : ITransport {
+class RedoxTransport : ITransport, Logging {
     private val secretEnvName = "REDOX_SECRET"
     private val redoxTimeout = 1000
     private val redoxBaseUrl = "https://api.redoxengine.com"
@@ -24,26 +24,28 @@ class RedoxTransport() : ITransport {
     private val redoxSecret = "secret"
     private val redoxAccessToken = "accessToken"
     private val jsonMimeType = "application/json"
-    private val redoxMessageId = "messageId"
 
     enum class ResultStatus { SUCCESS, FAILURE, NOT_SENT }
     data class SendResult(val itemId: String, val status: ResultStatus, val redoxId: Int? = null)
 
+    override fun startSession(receiver: Receiver): Closeable? {
+        return null
+    }
+
     override fun send(
-        transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        context: ExecutionContext,
+        session: Any?,
         actionHistory: ActionHistory,
     ): RetryItems? {
-        val redoxTransportType = transportType as RedoxTransportType
+        val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
+        val redoxTransportType = receiver.transport as RedoxTransportType
         val (key, secret) = getKeyAndSecret(redoxTransportType)
         if (header.content == null)
             error("No content to send to redox for report ${header.reportFile.reportId}")
-        val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
         val messages = String(header.content).split("\n") // NDJSON content
-        val token = fetchToken(redoxTransportType, key, secret, context)
+        val token = fetchToken(redoxTransportType, key, secret)
         if (token == null) {
             actionHistory.trackActionResult("Failure: fetch redox token failed.  Requesting retry of allItems")
             return RetryToken.allItems
@@ -51,10 +53,10 @@ class RedoxTransport() : ITransport {
         val sendUrl = "${getBaseUrl(redoxTransportType)}$redoxEndpointPath"
         // DevNote: Redox access tokens live for many days
 
-        var attemptedCount: Int = 0
-        var successCount: Int = 0
+        var attemptedCount = 0
+        var successCount = 0
         val nextRetryItems = mutableListOf<String>()
-        val results = messages.mapIndexed() { index, message ->
+        val results = messages.mapIndexed { index, message ->
             val itemId = "${header.reportFile.reportId}-$index"
             val sendResult = when {
                 (retryItems == null) || RetryToken.isAllItems(retryItems) || retryItems.contains(index.toString()) -> {
@@ -79,7 +81,7 @@ class RedoxTransport() : ITransport {
         }
         val resultMsg = "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
         actionHistory.trackActionResult(resultMsg)
-        context.logger.log(Level.INFO, resultMsg)
+        logger.info(resultMsg)
         actionHistory.trackSentReport(receiver, sentReportId, null, sendUrl, resultMsg, successCount)
         val itemLineages = Report.createItemLineagesFromDb(header, sentReportId)
         if (itemLineages != null) {
@@ -119,8 +121,7 @@ class RedoxTransport() : ITransport {
     private fun fetchToken(
         redox: RedoxTransportType,
         key: String,
-        secret: String,
-        context: ExecutionContext
+        secret: String
     ): String? {
         val url = "${getBaseUrl(redox)}$redoxAuthPath"
         val (_, _, result) = Fuel
@@ -134,16 +135,16 @@ class RedoxTransport() : ITransport {
                 if (result.value.obj().has(redoxAccessToken)) {
                     result.value.obj().getString(redoxAccessToken)
                 } else {
-                    context.logger.log(Level.SEVERE, "Redox Auth call succeeded but token parsing failed")
+                    logger.error("Redox Auth call succeeded but token parsing failed")
                     null
                 }
             }
             is Result.Failure -> {
-                context.logger.log(Level.SEVERE, "Redox Auth call failed: ${result.error.message}")
+                logger.error("Redox Auth call failed: ${result.error.message}")
                 null
             }
             else -> {
-                context.logger.log(Level.SEVERE, "Redox Auth called failed")
+                logger.error("Redox Auth called failed")
                 null
             }
         }

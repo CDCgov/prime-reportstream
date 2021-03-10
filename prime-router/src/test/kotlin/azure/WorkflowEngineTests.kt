@@ -11,6 +11,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -230,4 +231,61 @@ class WorkflowEngineTests {
         }
         confirmVerified(accessSpy, blobMock, queueMock)
     }
+
+    @Test
+    fun `test handleReceiverEvent`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val report1 = Report(
+            one, listOf(listOf("1", "2"), listOf("3", "4")),
+            source = TestSource, destination = oneOrganization.receivers[0]
+        )
+        val bodyFormat = "CSV"
+        val bodyUrl = "http://anyblob.com"
+        val event = ReceiverEvent(Event.EventAction.SEND, "phd.elr")
+        val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
+        val actionHistoryMock = mockk<ActionHistory>()
+        mockkObject(ActionHistory.Companion)
+        val engine = makeEngine(metadata, settings)
+
+        every { accessSpy.fetchAndLockTasks(nextAction = eq(TaskAction.send), any(), any(), any(), any()) }
+            .returns(listOf(task))
+        every { accessSpy.fetchReportFile(eq(report1.id), any()) }.returns(
+            ReportFile().setReportId(report1.id).setItemCount(0)
+        )
+        every {
+            accessSpy.updateTask(
+                reportId = eq(report1.id),
+                eq(Event.EventAction.NONE.toTaskAction()),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }.returns(Unit)
+        every { queueMock.sendMessage(any()) }
+            .returns(Unit)
+        every { actionHistoryMock.saveToDb(any()) }.returns(Unit)
+        every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
+        every { ActionHistory.Companion.sanityCheckReport(any(), any(), any()) }.returns(Unit)
+
+        engine.handleReceiverEvent(event, 100, actionHistoryMock) { receiver, headers, _ ->
+            assertEquals(oneOrganization.receivers[0], receiver)
+            assertEquals(task, headers[0].task)
+            engine.successfulReceiverResult(headers)
+        }
+
+        verify(exactly = 1) {
+            accessSpy.transactReturning<WorkflowEngine.ReceiverResult>(block = any())
+            accessSpy.updateTask(reportId = any(), any(), any(), any(), any(), any())
+            accessSpy.fetchAndLockTasks(any(), any(), any(), any(), any())
+            accessSpy.fetchReportFile(reportId = any(), any())
+        }
+        verify(exactly = 0) {
+            queueMock.sendMessage(any())
+        }
+        confirmVerified(accessSpy, blobMock, queueMock)
+    }
+
 }

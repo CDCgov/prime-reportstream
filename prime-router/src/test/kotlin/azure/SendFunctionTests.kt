@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -13,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.verify
 import org.jooq.Configuration
+import org.jooq.JSON
 import org.junit.jupiter.api.BeforeEach
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -25,14 +27,14 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SendFunctionTests {
-    val context = mockkClass(ExecutionContext::class)
-    val metadata = Metadata(Metadata.defaultMetadataDirectory)
-    val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-local")
-    val logger = mockkClass(Logger::class)
-    val workflowEngine = mockkClass(WorkflowEngine::class)
-    val sftpTransport = mockkClass(SftpTransport::class)
-    val reportId = UUID.randomUUID()
-    val task = Task(
+    private val context = mockkClass(ExecutionContext::class)
+    private val metadata = Metadata(Metadata.defaultMetadataDirectory)
+    private val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-local")
+    private val logger = mockkClass(Logger::class)
+    private val workflowEngine = mockkClass(WorkflowEngine::class)
+    private val sftpTransport = mockkClass(SftpTransport::class)
+    private val reportId = UUID.randomUUID()
+    private val task = Task(
         reportId,
         TaskAction.send,
         null,
@@ -61,22 +63,25 @@ class SendFunctionTests {
         null, null, null, null, null, null, null, null, 0, null, null, null
     )
 
-    fun setupLogger() {
+    private fun setupLogger() {
         every { context.logger }.returns(logger)
         every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
         every { logger.info(any<String>()) }.returns(Unit)
     }
 
-    fun setupWorkflow() {
+    private fun setupWorkflow() {
         every { workflowEngine.metadata }.returns(metadata)
         every { workflowEngine.settings }.returns(settings)
         every { workflowEngine.readBody(any()) }.returns("body".toByteArray())
         every { workflowEngine.sftpTransport }.returns(sftpTransport)
     }
 
-    fun makeHeader(): WorkflowEngine.Header {
+    private fun makeHeader(retryToken: String? = null): WorkflowEngine.Header {
+        val newTask = Task(task)
+        newTask.retryToken = JSON.json(retryToken)
         return WorkflowEngine.Header(
-            task, reportFile,
+            newTask,
+            reportFile,
             null,
             settings.findOrganization("az-phd"),
             settings.findReceiver("az-phd.elr-test"),
@@ -92,123 +97,113 @@ class SendFunctionTests {
     @Test
     fun `Test with message`() {
         // Setup
-        var nextEvent: ReportEvent? = null
+        var receiverResult: WorkflowEngine.ReceiverResult? = null
         setupLogger()
         setupWorkflow()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = thirdArg() as
-                (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+        every { workflowEngine.handleReceiverEvent(any(), any(), any(), any()) }.answers {
+            val block = lastArg() as
+                (receiver: Receiver, headers: List<WorkflowEngine.Header>, txn: Configuration?) ->
+                WorkflowEngine.ReceiverResult
             val header = makeHeader()
-            nextEvent = block(header, null, null)
+            val receiver = header.receiver ?: error("missing receiver")
+            receiverResult = block(receiver, listOf(header), null)
         }
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
+        every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(null)
+        every { sftpTransport.startSession(any()) }.returns(null)
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId)
+        val event = ReceiverEvent(Event.EventAction.SEND, "az-phd.elr-test")
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
         // Verify
-        assertNotNull(nextEvent)
-        assertEquals(Event.EventAction.NONE, nextEvent!!.eventAction)
-        assertNull(nextEvent!!.retryToken)
+        assertNotNull(receiverResult)
+        assertEquals(1, receiverResult!!.retryTokens.size)
+        assertNull(receiverResult!!.retryTokens[0])
     }
 
     @Test
     fun `Test with sftp error`() {
         // Setup
-        var nextEvent: ReportEvent? = null
+        var receiverResult: WorkflowEngine.ReceiverResult? = null
         setupLogger()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = thirdArg() as
-                (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+        every { workflowEngine.handleReceiverEvent(any(), any(), any(), any()) }.answers {
+            val block = lastArg() as
+                (receiver: Receiver, headers: List<WorkflowEngine.Header>, txn: Configuration?) ->
+                WorkflowEngine.ReceiverResult
             val header = makeHeader()
-            nextEvent = block(header, null, null)
+            val receiver = header.receiver ?: error("missing receiver")
+            receiverResult = block(receiver, listOf(header), null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.startSession(any()) }.returns(null)
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId)
+        val event = ReceiverEvent(Event.EventAction.SEND, "az-phd.elr-test")
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        assertNotNull(nextEvent)
-        assertEquals(Event.EventAction.SEND, nextEvent!!.eventAction)
-        assertNotNull(nextEvent!!.retryToken)
-        assertEquals(1, nextEvent!!.retryToken?.retryCount)
+        assertNotNull(receiverResult)
+        assertEquals(1, receiverResult!!.retryTokens.size)
+        assertEquals(1, receiverResult!!.retryTokens[0]?.retryCount)
+        assertEquals(receiverResult!!.retryAction, Event.EventAction.SEND)
     }
 
     @Test
     fun `Test with third sftp error`() {
         // Setup
-        var nextEvent: ReportEvent? = null
+        var receiverResult: WorkflowEngine.ReceiverResult? = null
         setupLogger()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = thirdArg() as
-                (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val task = Task(
-                reportId,
-                TaskAction.send,
-                null,
-                null,
-                "az-phd.elr-test",
-                0,
-                "",
-                "",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
-            val header = makeHeader()
-            nextEvent = block(
-                header, RetryToken(2, RetryToken.allItems), null
-            )
+        every { workflowEngine.handleReceiverEvent(any(), any(), any(), any()) }.answers {
+            val block = lastArg() as
+                (receiver: Receiver, headers: List<WorkflowEngine.Header>, txn: Configuration?) ->
+                WorkflowEngine.ReceiverResult
+            val header = makeHeader(retryToken = RetryToken(2, listOf("*")).toJSON())
+            val receiver = header.receiver ?: error("missing receiver")
+            receiverResult = block(receiver, listOf(header), null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.startSession(any()) }.returns(null)
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId)
+        val event = ReceiverEvent(Event.EventAction.SEND, "az-phd.elr-test")
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        assertNotNull(nextEvent)
-        assertEquals(Event.EventAction.SEND, nextEvent!!.eventAction)
-        assertNotNull(nextEvent!!.retryToken)
-        assertEquals(3, nextEvent!!.retryToken?.retryCount)
-        assertTrue(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2)))
-        nextEvent!!.retryToken?.toJSON()?.let { assertTrue(it.contains("\"retryCount\":3")) }
+        assertNotNull(receiverResult)
+        assertNotNull(receiverResult!!.retryTokens[0])
+        assertEquals(3, receiverResult!!.retryTokens[0]?.retryCount)
+        assertTrue(receiverResult!!.retryActionAt!!.isAfter(OffsetDateTime.now().plusMinutes(2)))
+        receiverResult!!.retryTokens[0]?.toJSON()?.let { assertTrue(it.contains("\"retryCount\":3")) }
     }
 
     @Test
     fun `Test with 100th sftp error`() {
         // Setup
-        var nextEvent: ReportEvent? = null
+        var receiverResult: WorkflowEngine.ReceiverResult? = null
         setupLogger()
-        val reportId = UUID.randomUUID()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = thirdArg() as
-                (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val header = makeHeader()
-            // Should be high enough retry count that the next action should have an error
-            nextEvent = block(
-                header, RetryToken(100, RetryToken.allItems), null
-            )
+        every { workflowEngine.handleReceiverEvent(any(), any(), any(), any()) }.answers {
+            val block = lastArg() as
+                (receiver: Receiver, headers: List<WorkflowEngine.Header>, txn: Configuration?) ->
+                WorkflowEngine.ReceiverResult
+            val header = makeHeader(retryToken = RetryToken(99, listOf("*")).toJSON())
+            val receiver = header.receiver ?: error("missing receiver")
+            receiverResult = block(receiver, listOf(header), null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { sftpTransport.startSession(any()) }.returns(null)
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId)
+        val event = ReceiverEvent(Event.EventAction.SEND, "az-phd.elr-test")
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        assertNotNull(nextEvent)
-        assertEquals(Event.EventAction.SEND_ERROR, nextEvent!!.eventAction)
-        assertNull(nextEvent!!.retryToken)
+        assertNotNull(receiverResult)
+        assertNotNull(receiverResult!!.retryTokens[0])
+        assertEquals(100, receiverResult!!.retryTokens[0]?.retryCount)
+        assertTrue(receiverResult!!.retryActionAt!!.isAfter(OffsetDateTime.now().plusMinutes(2)))
+        assertEquals(Event.EventAction.SEND_ERROR, receiverResult!!.retryAction)
     }
 
     @Test

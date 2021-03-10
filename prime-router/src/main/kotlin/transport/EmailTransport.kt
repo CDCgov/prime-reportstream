@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.transport
 
-import com.microsoft.azure.functions.ExecutionContext
 import com.sendgrid.Method
 import com.sendgrid.Request
 import com.sendgrid.SendGrid
@@ -9,30 +8,33 @@ import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.EmailTransportType
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
+import org.apache.logging.log4j.kotlin.Logging
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
+import java.io.Closeable
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Calendar
-import java.util.logging.Level
 
-class EmailTransport : ITransport {
+class EmailTransport : ITransport, Logging {
+    override fun startSession(receiver: Receiver): Closeable? {
+        return null
+    }
 
     override fun send(
-        transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        context: ExecutionContext,
-        actionHistory: ActionHistory, // not used by emailer
+        session: Any?,
+        actionHistory: ActionHistory,
     ): RetryItems? {
 
-        val emailTransport = transportType as EmailTransportType
+        val emailTransport = header.receiver?.transport as EmailTransportType
         val content = buildContent(header)
         val mail = buildMail(content, emailTransport)
 
@@ -44,7 +46,7 @@ class EmailTransport : ITransport {
             request.setBody(mail.build())
             sg.api(request)
         } catch (ex: Exception) {
-            context.logger.log(Level.SEVERE, "Email/SendGrid exception", ex)
+            logger.error("Email/SendGrid exception", ex)
             return RetryToken.allItems
         }
         return null

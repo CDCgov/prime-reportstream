@@ -146,7 +146,8 @@ class WorkflowEngine(
     }
 
     /**
-     * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
+     * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction.
+     * Allow the update block
      *
      * @param messageEvent that was received
      * @param maxCount of headers to process
@@ -155,9 +156,10 @@ class WorkflowEngine(
     fun handleReceiverEvent(
         messageEvent: ReceiverEvent,
         maxCount: Int,
-        updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
+        actionHistory: ActionHistory,
+        updateBlock: (receivers: Receiver, headers: List<Header>, txn: Configuration?) -> ReceiverResult,
     ) {
-        db.transact { txn ->
+        val receiverResult = db.transactReturning { txn ->
             val tasks = db.fetchAndLockTasks(
                 messageEvent.eventAction.toTaskAction(),
                 messageEvent.at,
@@ -175,23 +177,60 @@ class WorkflowEngine(
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
             // todo Note that the sanity check means the !! is safe.
             val headers = tasks.map {
+                // DevNote: May need to fetch lineages here if needed in the future
                 createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
             }
 
-            updateBlock(headers, txn)
-
-            headers.forEach {
-                val currentAction = Event.EventAction.parseQueueMessage(it.task.nextAction.literal)
-                updateHeader(
-                    it.task.reportId,
-                    currentAction,
-                    Event.EventAction.NONE,
-                    nextActionAt = null,
-                    retryToken = null,
-                    txn
-                )
+            val receiverResult = updateBlock(receiver, headers, txn)
+            headers.zip(receiverResult.retryTokens).forEach { (header, retryToken) ->
+                val currentAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
+                if (retryToken == null) {
+                    // success
+                    updateHeader(
+                        header.task.reportId,
+                        currentAction,
+                        Event.EventAction.NONE,
+                        nextActionAt = null,
+                        retryToken = null,
+                        txn
+                    )
+                } else {
+                    val retryJson = retryToken.toJSON()
+                    updateHeader(
+                        header.task.reportId,
+                        currentAction,
+                        receiverResult.retryAction,
+                        receiverResult.retryActionAt,
+                        retryToken = retryJson,
+                        txn
+                    )
+                }
             }
+            recordAction(actionHistory, txn)
+            receiverResult
         }
+        if (receiverResult.retryTokens.find{it != null} != null) {
+            val nextEvent = ReceiverEvent(
+                receiverResult.retryAction, messageEvent.receiverName, receiverResult.retryActionAt
+            )
+            // Avoid race condition by doing after txn completes.
+            queue.sendMessage(nextEvent)
+        }
+    }
+
+    data class ReceiverResult(
+        // one per header
+        val retryTokens: List<RetryToken?>,
+        // next action for retry
+        val retryAction: Event.EventAction = Event.EventAction.NONE,
+        // time to retry
+        val retryActionAt: OffsetDateTime? = null,
+    )
+
+    fun successfulReceiverResult(
+        headers: List<Header>
+    ): ReceiverResult {
+        return ReceiverResult(arrayOfNulls<RetryToken?>(headers.size).toList())
     }
 
     /**
