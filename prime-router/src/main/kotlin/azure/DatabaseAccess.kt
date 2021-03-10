@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
@@ -109,16 +110,13 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .into(Task::class.java)
     }
 
-    fun fetchTask(reportId: ReportId, orgName: String): Task {
+    fun fetchTask(reportId: ReportId): Task {
         return create
             .selectFrom(TASK)
-            .where(
-                TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.like("$orgName%"))
-                    .and(TASK.SENT_AT.isNotNull)
-            )
+            .where(TASK.REPORT_ID.eq(reportId))
             .fetchOne()
             ?.into(Task::class.java)
-            ?: error("Could not find $reportId/$orgName that matches a task")
+            ?: error("Could not find $reportId that matches a task")
     }
 
     /**
@@ -166,11 +164,20 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * ActionHistory queries
      */
 
-    fun fetchReportFile(reportId: ReportId, txn: DataAccessTransaction? = null): ReportFile {
+    /**
+     * You should include org as a search criteria to enforce authorization to get that report.
+     */
+    fun fetchReportFile(reportId: ReportId, org: Organization? = null, txn: DataAccessTransaction? = null): ReportFile {
         val ctx = if (txn != null) DSL.using(txn) else create
+        val cond = if (org == null) {
+            Tables.REPORT_FILE.REPORT_ID.eq(reportId)
+        } else {
+            Tables.REPORT_FILE.REPORT_ID.eq(reportId)
+                .and(Tables.REPORT_FILE.RECEIVING_ORG.eq(org.name))
+        }
         return ctx
             .selectFrom(Tables.REPORT_FILE)
-            .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+            .where(cond)
             .fetchOne()
             ?.into(ReportFile::class.java)
             ?: error("Could not find $reportId in REPORT_FILE")

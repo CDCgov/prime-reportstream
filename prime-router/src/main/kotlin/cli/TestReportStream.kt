@@ -387,7 +387,7 @@ Examples:
     private fun doTooManyColumnsTest(
         environment: ReportStreamEnv
     ) {
-        echo("Testing a file with too .")
+        echo("Testing a file with too many columns.")
         val file = File("./src/test/csv_test_files/input/too-many-columns.csv")
         if (!file.exists()) {
             error("Unable to find file ${file.absolutePath} to do toomanycols test")

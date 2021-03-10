@@ -121,7 +121,7 @@ class WorkflowEngine(
             val reportId = messageEvent.reportId
             val task = db.fetchAndLockTask(reportId, txn)
             val (organization, receiver) = findOrganizationAndReceiver(task.receiverName, txn)
-            val reportFile = db.fetchReportFile(reportId, txn)
+            val reportFile = db.fetchReportFile(reportId, org = null, txn = txn)
             // todo remove this once things are permanently sane ;)
             ActionHistory.sanityCheckReport(task, reportFile, false)
             val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount, txn)
@@ -169,7 +169,7 @@ class WorkflowEngine(
             )
             val ids = tasks.map { it.reportId }
             val reportFiles = ids
-                .map { db.fetchReportFile(it, txn) }
+                .map { db.fetchReportFile(it, org = null, txn = txn) }
                 .map { (it.reportId as ReportId) to it }
                 .toMap()
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
@@ -300,11 +300,14 @@ class WorkflowEngine(
 
     fun fetchHeader(
         reportId: ReportId,
-        orgName: String
+        organization: Organization,
     ): Header {
-        val task = db.fetchTask(reportId, orgName)
-        val (organization, receiver) = findOrganizationAndReceiver(task.receiverName)
-        val reportFile = db.fetchReportFile(reportId)
+        val reportFile = db.fetchReportFile(reportId, organization)
+        val task = db.fetchTask(reportId)
+        val (org2, receiver) = findOrganizationAndReceiver(
+            reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
+        )
+        if (org2.name != organization.name) error("${org2.name} != ${organization.name}: Org Name Mismatch check fail")
         // todo remove this sanity check
         ActionHistory.sanityCheckReport(task, reportFile, false)
         val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount)

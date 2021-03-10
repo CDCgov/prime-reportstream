@@ -169,7 +169,7 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
         var response: HttpResponseMessage
         try {
             val reportId = ReportId.fromString(requestedFile)
-            val header = workflowEngine.fetchHeader(reportId, authClaims.organization.name)
+            val header = workflowEngine.fetchHeader(reportId, authClaims.organization)
             if (header.content == null || header.content.isEmpty())
                 response = responsePage(request, authClaims)
             else {
