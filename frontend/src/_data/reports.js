@@ -2,6 +2,16 @@ const moment = require('moment');
 const axios = require('axios')
 
 module.exports = async function() {
+
+    let config = {
+        headers: {'Access-Control-Allow-Origin': '*'}
+        }
+        
+        const response = await axios.get('http://localhost:7071/api/history/report', config);
+        console.log( response.data );
+        return response.data;
+}
+/*
     return [
         {
             sent: moment(),
@@ -102,3 +112,4 @@ module.exports = async function() {
         },     
     ]
 }
+*/
