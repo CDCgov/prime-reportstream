@@ -209,6 +209,10 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+When was this file created. This is only used for HL7 generation.
+
 ---
 
 **Name**: filler_name
@@ -2137,6 +2141,10 @@ The accession number of the specimen collected
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
+
 ---
 
 **Name**: testing_lab_id_assigner
@@ -2146,6 +2154,10 @@ The accession number of the specimen collected
 **HL7 Field**: OBX-23-6
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
 
 ---
 
@@ -2202,6 +2214,14 @@ The specimen-id from the testing lab
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The received date time for the specimen. This field is very important to many states for their HL7,
+but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
+setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
+be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
+
+
 ---
 
 **Name**: testing_lab_state
@@ -2216,6 +2236,10 @@ The specimen-id from the testing lab
 
 **Table Column**: State
 
+**Documentation**:
+
+The state for the testing lab
+
 ---
 
 **Name**: testing_lab_street
@@ -2225,6 +2249,10 @@ The specimen-id from the testing lab
 **HL7 Field**: OBX-24-1
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The street address for the testing lab
 
 ---
 
@@ -2236,6 +2264,10 @@ The specimen-id from the testing lab
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Street 2 field for the testing lab
+
 ---
 
 **Name**: testing_lab_zip_code
@@ -2246,6 +2278,10 @@ The specimen-id from the testing lab
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The postal code for the testing lab
+
 ---
 
 **Name**: testing_lab_phone_number
@@ -2253,6 +2289,10 @@ The specimen-id from the testing lab
 **Type**: TELEPHONE
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the testing lab
 
 ---
 
@@ -2494,6 +2534,11 @@ Code | Display
 Y|Yes
 N|No
 UNK|Unknown
+
+**Documentation**:
+
+Is the patient employed in a high risk setting? This AOE question doesn't have an HL7 conversion per the HHS, so it is not included in HL7 messages.
+
 
 ---
 
@@ -2756,6 +2801,10 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 **Type**: TEXT
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The country for the testing lab. Currently defaults to USA
 
 ---
 

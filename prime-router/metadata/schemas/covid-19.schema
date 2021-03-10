@@ -88,6 +88,8 @@ elements:
     valueSet: hl70136
     natFlatFileField: Employed_in_high_risk_setting
     hhsGuidanceField:
+    documentation: |
+      Is the patient employed in a high risk setting? This AOE question doesn't have an HL7 conversion per the HHS, so it is not included in HL7 messages.
 
   - name: equipment_instance_id
     type: ID
@@ -141,6 +143,7 @@ elements:
     natFlatFileField: File_created_date
     hhsGuidanceField:
     hl7Field: MSH-7
+    documentation: When was this file created. This is only used for HL7 generation.
 
   - name: filler_name
     type: TEXT
@@ -1027,17 +1030,20 @@ elements:
   - name: testing_lab_country
     type: TEXT
     default: USA
+    documentation: The country for the testing lab. Currently defaults to USA
 
   - name: testing_lab_id
     type: ID
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
+    documentation: Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
 
   - name: testing_lab_id_assigner
     type: HD
     mapper: ifPresent(testing_lab_clia, CLIA^2.16.840.1.113883.19.4.6^ISO)
     hl7Field: OBX-23-6
+    documentation: This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
 
   - name: testing_lab_clia
     type: ID_CLIA
@@ -1072,6 +1078,11 @@ elements:
     hhsGuidanceField:
     hl7Field: SPM-18-1
     mapper: offsetDateTime(specimen_collection_date_time, seconds, 6)
+    documentation: |
+      The received date time for the specimen. This field is very important to many states for their HL7,
+      but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
+      setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
+      be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
 
   - name: testing_lab_state
     type: TABLE
@@ -1080,30 +1091,35 @@ elements:
     natFlatFileField: Testing_lab_state
     hhsGuidanceField:
     hl7Field: OBX-24-4
+    documentation: The state for the testing lab
 
   - name: testing_lab_street
     type: STREET
     natFlatFileField: Testing_lab_street
     hhsGuidanceField:
     hl7Field: OBX-24-1
+    documentation: The street address for the testing lab
 
   - name: testing_lab_street2
     type: STREET_OR_BLANK
     natFlatFileField: Testing_lab_street2
     hhsGuidanceField:
     hl7Field: OBX-24-2
+    documentation: Street 2 field for the testing lab
 
   - name: testing_lab_zip_code
     type: POSTAL_CODE
     natFlatFileField: Testing_lab_zip_code
     hhsGuidanceField:
     hl7Field: OBX-24-5
+    documentation: The postal code for the testing lab
 
   - name: testing_lab_phone_number
     type: TELEPHONE
     natFlatFileField:
     hhsGuidanceField:
     hl7Field:
+    documentation: The phone number of the testing lab
 
   #- name: travel_history
   #  type: TEXT

@@ -49,6 +49,10 @@ An example of the ID is 03D2159846
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The street address for the testing lab
+
 ---
 
 **Name**: Lab_City
@@ -73,6 +77,10 @@ An example of the ID is 03D2159846
 
 **Table Column**: State
 
+**Documentation**:
+
+The state for the testing lab
+
 ---
 
 **Name**: Lab_Zip
@@ -83,6 +91,10 @@ An example of the ID is 03D2159846
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The postal code for the testing lab
+
 ---
 
 **Name**: Lab_Phone
@@ -90,6 +102,10 @@ An example of the ID is 03D2159846
 **Type**: TELEPHONE
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the testing lab
 
 ---
 

@@ -1065,6 +1065,10 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The street address for the testing lab
+
 ---
 
 **Name**: testing_lab_city
@@ -1089,6 +1093,10 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Table Column**: State
 
+**Documentation**:
+
+The state for the testing lab
+
 ---
 
 **Name**: testing_lab_zip_code
@@ -1098,6 +1106,10 @@ The name of the laboratory which performed the test, can be the same as the send
 **HL7 Field**: OBX-24-5
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The postal code for the testing lab
 
 ---
 
@@ -1119,6 +1131,10 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The country for the testing lab. Currently defaults to USA
+
 ---
 
 **Name**: testing_lab_phone_number
@@ -1126,6 +1142,10 @@ The name of the laboratory which performed the test, can be the same as the send
 **Type**: TELEPHONE
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the testing lab
 
 ---
 
