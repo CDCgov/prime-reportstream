@@ -8,9 +8,9 @@ variable "resource_group" {
     description = "Resource Group Name"
 }
 
-variable "name" {
+variable "resource_prefix" {
     type = string
-    description = "App Service Plan Name"
+    description = "Resource Prefix"
 }
 
 variable "location" {
