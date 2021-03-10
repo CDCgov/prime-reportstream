@@ -38,7 +38,7 @@ module "app_service_plan" {
     environment = var.environment
     resource_group = var.resource_group
     location = local.location
-    name = "${var.resource_prefix}-appserviceplan"
+    resource_prefix = var.resource_prefix
 }
 
 module "function_app" {
