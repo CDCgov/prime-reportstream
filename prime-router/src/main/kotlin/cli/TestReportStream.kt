@@ -67,6 +67,7 @@ Examples:
         huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."),
         toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"),
         toomanycols("Submit a file with more than $REPORT_MAX_ITEM_COLUMNS columns, which should error"),
+        badcsv("Submit badly formatted csv file - should get an error"),
         stracbasic("Basic strac test to REDOX only."),
         strac("Submit data in the strac schema format, wait, confirm via database queries"),
     }
@@ -146,6 +147,7 @@ Examples:
                 AwesomeTest.huge -> doHugeTest(environment)
                 AwesomeTest.toobig -> doTooManyItemsTest(environment)
                 AwesomeTest.toomanycols -> doTooManyColumnsTest(environment)
+                AwesomeTest.badcsv -> doBadCsvTest(environment)
                 AwesomeTest.stracbasic -> doStracBasicTest(environment)
                 AwesomeTest.strac -> doStracTest(environment)
                 else -> bad("Test $test not implemented")
@@ -195,7 +197,7 @@ Examples:
             simpleRepSender,
             fakeItemCount,
             receivingStates,
-            fourTargetCounties,
+            allTargetCounties,
             dir,
         )
         echo("Created datafile $file")
@@ -220,13 +222,13 @@ Examples:
 
     private fun doMergeTest(environment: ReportStreamEnv) {
         val fakeItemCount = allIgnoreReceivers.size * 5 // 5 to each receiver
-        echo("Merge test of: ${environment.endPoint} across $fourTargetCounties")
+        echo("Merge test of: ${environment.endPoint} across $allTargetCounties")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
             fakeItemCount,
             receivingStates,
-            fourTargetCounties,
+            allTargetCounties,
             dir,
         )
         echo("Created datafile $file")
@@ -385,17 +387,12 @@ Examples:
     private fun doTooManyColumnsTest(
         environment: ReportStreamEnv
     ) {
-        echo("Testing a file with too many columns.")
+        echo("Testing a file with too .")
         val file = File("./src/test/csv_test_files/input/too-many-columns.csv")
         if (!file.exists()) {
             error("Unable to find file ${file.absolutePath} to do toomanycols test")
         }
-        val sendingOrg = settings.findOrganization(orgName)
-            ?: error("Unable to find org $orgName in metadata")
-        val sender = settings.findSender(orgName + "." + simpleReportSenderName)
-            ?: error("Unable to find sender $simpleReportSenderName for organization ${sendingOrg.name}")
-        // Now send it to the Hub.
-        val (responseCode, json) = HttpUtilities.postReportFile(environment, file, sendingOrg.name, sender.name, key)
+        val (responseCode, json) = HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, key)
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -408,6 +405,46 @@ Examples:
             }
         } catch (e: Exception) {
             bad("***Too Many Columns Test FAILED***: Unable to find the expected error message")
+        }
+    }
+
+    private fun doBadCsvTest(environment: ReportStreamEnv) {
+        val filenames = listOf("not-a-csv-file.csv", "column-headers-only.csv", "completely-empty-file.csv")
+        filenames.forEach { filename ->
+            echo("Testing $filename")
+            val file = File("./src/test/csv_test_files/input/$filename")
+            if (!file.exists()) {
+                error("Unable to find file ${file.absolutePath} to do badcsv test")
+            }
+            val (responseCode, json) = HttpUtilities.postReportFile(
+                environment,
+                file,
+                org.name,
+                simpleRepSender.name,
+                key
+            )
+            echo("Response to POST: $responseCode")
+            echo(json)
+            if (responseCode >= 400) {
+                good("Test of Bad CSV file $filename passed: Failure HttpStatus code was returned.")
+            } else {
+                bad("***Test of Bad CSV file $filename FAILED: Expecting a failure HttpStatus. ***")
+            }
+            try {
+                val tree = jacksonObjectMapper().readTree(json)
+                if (tree["id"] == null || tree["id"].isNull) {
+                    good("Test of Bad CSV file $filename passed: No UUID was returned.")
+                } else {
+                    bad("***Test of Bad CSV file $filename FAILED: RS returned a valid UUID for a bad CSV. ***")
+                }
+                if (tree["errorCount"].intValue() > 0) {
+                    good("Test of Bad CSV file $filename passed: At least one error was returned.")
+                } else {
+                    bad("***Test of Bad CSV file $filename FAILED: No error***")
+                }
+            } catch (e: Exception) {
+                bad("***Test of Bad Csv file $filename FAILED***: Unexpected json returned")
+            }
         }
     }
 
@@ -445,14 +482,14 @@ Examples:
     private fun doStracTest(
         environment: ReportStreamEnv
     ) {
-        echo("Test sending Strac data to: ${environment.endPoint} across $fourTargetCounties")
+        echo("Test sending Strac data to: ${environment.endPoint} across $allTargetCounties")
         val fakeItemCount = allIgnoreReceivers.size * 5 // 5 to each receiver
         val file = FileUtilities.createFakeFile(
             metadata,
             stracSender,
             fakeItemCount,
             receivingStates,
-            fourTargetCounties,
+            allTargetCounties,
             dir,
         )
         echo("Created datafile $file")
@@ -552,7 +589,7 @@ Examples:
         val hl7BatchReceiver = allIgnoreReceivers.filter { it.name == "HL7_BATCH" }[0]
         val redoxReceiver = allIgnoreReceivers.filter { it.name == "REDOX" }[0]
         val hl7NullReceiver = allIgnoreReceivers.filter { it.name == "HL7_NULL" }[0]
-        val fourTargetCounties = allIgnoreReceivers.map { it.name }.joinToString(",")
+        val allTargetCounties = allIgnoreReceivers.map { it.name }.joinToString(",")
 
         const val ANSI_RESET = "\u001B[0m"
         const val ANSI_BLACK = "\u001B[30m"
