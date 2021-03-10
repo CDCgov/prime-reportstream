@@ -413,9 +413,7 @@ class SplitMapper : Mapper {
         }
         val splitElements = value.split(delimiter)
         val index = args[1].toInt()
-        if (index > splitElements.count()) error("Index $index exceeds count of split values in $value")
-
-        return splitElements[index].trim()
+        return splitElements.getOrNull(index)?.trim()
     }
 }
 
@@ -432,9 +430,7 @@ class SplitByCommaMapper : Mapper {
         val delimiter = ","
         val splitElements = value.split(delimiter)
         val index = args[1].toInt()
-        if (index > splitElements.count()) error("Index $index exceeds count of split values in $value")
-
-        return splitElements[index].trim()
+        return splitElements.getOrNull(index)?.trim()
     }
 }
 

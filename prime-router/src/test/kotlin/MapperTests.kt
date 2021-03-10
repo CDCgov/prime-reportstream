@@ -301,8 +301,20 @@ class MapperTests {
     }
 
     @Test
-    fun `test split by comma mapper`() {
+    fun `test split mapper with error condition`() {
         val mapper = SplitMapper()
+        val args = listOf("patient_name", "1")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "ThereAreNoSpacesHere")
+        )
+        val actual = mapper.apply(element, args, values)
+        assertNull(actual, "Expected null. Actual $actual")
+    }
+
+    @Test
+    fun `test split by comma mapper`() {
+        val mapper = SplitByCommaMapper()
         val args = listOf("patient_name", "2")
         val element = Element("patient_first_name")
         val values = listOf(
@@ -311,6 +323,18 @@ class MapperTests {
         val expected = "Mona"
         val actual = mapper.apply(element, args, values)
         assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test split by comma mapper error condition`() {
+        val mapper = SplitByCommaMapper()
+        val args = listOf("patient_name", "2")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "I have no commas")
+        )
+        val actual = mapper.apply(element, args, values)
+        assertNull(actual, "Expected null. Actual $actual")
     }
 
     @Test
