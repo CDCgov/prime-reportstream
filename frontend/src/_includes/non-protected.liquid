@@ -11,6 +11,7 @@ cdn_scripts:
     integrity: "sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh"
   - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds-init.min.js"
     integrity: "sha512-Zy/dqU71uCdMWS6VdSqc/+2RjOxbq/ySinrQyLG3wTVWSXtBQpK6/b2Ky6vT2JHuFsNm8yBZMJ8zeMQ/ji2qMA=="
+  - src: "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
 
 post_scripts:
   - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds.min.js"
@@ -31,25 +32,16 @@ local_styles:
 
   <meta name="robots" content="none" />
 
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
   {% for entry in cdn_styles %}
-    <link rel="stylesheet" type="text/css"
-      href="{{entry.href}}"
-      integrity="{{entry.integrity}}"
-      crossorigin="anonymous"/>
+    <link rel="stylesheet" type="text/css" href="{{entry.href}}" integrity="{{entry.integrity}}" crossorigin="anonymous"/>
   {% endfor %}
 
   {% for entry in local_styles %}
-    <link rel="stylesheet" type="text/css"
-      href="{{entry | url}}" />
+    <link rel="stylesheet" type="text/css" href="{{entry | url}}" />
   {% endfor %}
 
   {% for entry in cdn_scripts %}
-    <script
-      src="{{entry.src}}"
-      integrity="{{entry.integrity}}"
-      crossorigin="anonymous"></script>
+    <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
   {% endfor %}
 </head>
 
@@ -63,10 +55,7 @@ local_styles:
   {% include identifier %}
 
   {% for entry in post_scripts %}
-    <script
-      src="{{entry.src}}"
-      integrity="{{entry.integrity}}"
-      crossorigin="anonymous"></script>
+    <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
   {% endfor %}
 </body>
 </html>

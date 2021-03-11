@@ -33,7 +33,7 @@ title: "Download"
             <span class="text-red float-right">&#8595;{% comma card.change %} ({{card.pct_change}}%)</span>
             {% endif %}             
           </p>
-          <canvas id="{{card.id}}" width="200" height="200"></canvas>
+          <canvas id="{{card.id}}" width="200" height="100"></canvas>
         </div>  
       </div>
       </div>
@@ -49,16 +49,26 @@ title: "Download"
   
   var myLineChart = new Chart(ctx, {
     type: 'line',
-    data: {datasets: [{
-            data: [12, 19, 3, 5, 2, 3]
-    }],
-  },
+    data: {
+      labels: [1,2,3,4,5,6,7],
+      datasets: [{ 
+          data: [86,114,106,106,107,111,133],
+          borderColor: "#3e95cd",
+          backgroundColor: "#3e95cd",
+          fill: 'origin',
+          borderJoinStyle: "round"
+        }
+      ]
+    },
     options: {
         legend: {
             display: false,
         },
         scales: {
             yAxes: [{
+                display: false
+            }],
+            xAxes: [{
                 display: false
             }]
         }
@@ -66,11 +76,18 @@ title: "Download"
 });
 
 var myLineChart = new Chart(ctx2, {
-    type: 'line',
-    data: {datasets: [{
-            data: [12, 19, 3, 5, 2, 3]
-    }],
-  },
+  type: 'line',
+    data: {
+      labels: [1,2,3,4,5,6,7],
+      datasets: [{ 
+          data: [ 1, 2, 3, 4, 4, 4, 3 ],
+          borderColor: 'rgb(255, 204, 153)',
+          backgroundColor: 'rgb(255, 204, 153)',
+          fill: 'origin',
+          borderJoinStyle: "round"
+        }
+      ]
+    },
     options: {
         legend: {
             display: false,
@@ -78,23 +95,36 @@ var myLineChart = new Chart(ctx2, {
         scales: {
             yAxes: [{
                 display: false
+            }],
+            xAxes: [{
+                display: false
             }]
         }
     }
 });
 
 var myLineChart = new Chart(ctx3, {
-    type: 'line',
-    data:  {datasets: [{
-            data: [12, 19, 3, 5, 2, 3]
-    }],
-  },
+  type: 'line',
+    data: {
+      labels: [1,2,3,4,5,6,7],
+      datasets: [{ 
+          data: [ 1, 2, 4, 4, 4, 4, 4 ],
+          borderColor: 'rgb(153, 255, 153)',
+          backgroundColor: 'rgb(153, 255, 153)',
+          fill: 'origin',
+          borderJoinStyle: "round"
+        }
+      ]
+    },
     options: {
         legend: {
             display: false,
         },
         scales: {
             yAxes: [{
+                display: false
+            }],
+            xAxes: [{
                 display: false
             }]
         }

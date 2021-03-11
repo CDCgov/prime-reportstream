@@ -32,3 +32,22 @@ module.exports = async function() {
             data: [ 1, 2, 3, 4, 5, 4, 3 ]    
         }];
 }
+
+/*
+module.exports = async function() {
+
+    let config = {
+            headers: {'Access-Control-Allow-Origin': '*'}
+        };
+        
+
+        const response = await Promise.all( [
+            axios.get('http://localhost:7071/api/history/summary/positive', config).then( res => res.data ),
+            axios.get('http://localhost:7071/api/history/summary/tests', config).then( res => res.data ),
+            axios.get('http://localhost:7071/api/history/summary/facilities', config).then( res => res.data ),
+        ] );
+
+        console.log( response );
+        return response;
+};
+*/

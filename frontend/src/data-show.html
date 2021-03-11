@@ -53,6 +53,7 @@ title: "Download"
   <section class="grid-container margin-top-5">
     <div class="grid-col-12">
       <h2>Facilities</h2>
+      {% if report.facilities.length > 0 %}
       <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
         <thead>
           <tr>
@@ -75,12 +76,16 @@ title: "Download"
           {% endfor %}
         </tbody>
       </table>
+      {% else %}
+        No facilities were reported
+      {%endif%}
     </div>
 </section>
 
 <section class="grid-container margin-top-5">
     <div class="grid-col-12">
       <h2>Activities</h2>
+      {% if report.actions.length > 0 %}
       <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
         <thead>
           <tr>
@@ -99,6 +104,9 @@ title: "Download"
           {% endfor %}
         </tbody>
       </table>
+      {% else %}
+        No actions were reported
+      {%endif%}
     </div>
 </section>
 

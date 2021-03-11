@@ -79,8 +79,8 @@ class Report private constructor(
         var type: String? = null,
         var reportId: String? = null, 
         var expires: Long? = null,
-        var facilities: Array<Facility>? = null,
-        var actions: Array<Action>? = null ){
+        var facilities: Array<Facility>? = emptyArray<Facility>(),
+        var actions: Array<Action>? = emptyArray<Action>() ){
 
         fun sent( sent: String ) = apply { this.sent = sent }
         fun via( via: String ) = apply { this.via = via }
@@ -95,6 +95,41 @@ class Report private constructor(
         fun build() = Report( sent, via, positive, total, fileType, type, reportId, expires, facilities, actions )
     }
 
+}
+
+class Card private constructor(
+    val id: String?,
+    val title: String?,
+    val subtitle: String?,
+    val daily: Long?,
+    val last: Long?,
+    val positive: Boolean?,
+    val change: Long?,
+    val pct_change: Double?,
+    val data: Array<Long>? ){
+    
+    data class Builder(
+        var id: String? = null,
+        var title: String? = null,
+        var subtitle: String? = null,
+        var daily: Long? = null,
+        var last: Long? = null,
+        var positive: Boolean? = null,
+        var change: Long? = null,
+        var pct_change: Double? = null,
+        var data: Array<Long>? = emptyArray<Long>()){
+
+        fun id( id: String ) = apply { this.id = id }
+        fun title( title: String ) = apply {this.title = title}
+        fun subtitle( subtitle: String ) = apply {this.subtitle = subtitle}
+        fun daily( daily: Long ) = apply {this.daily = daily}
+        fun last( last: Long ) = apply {this.last = last}
+        fun positive( positive: Boolean ) = apply { this.positive = positive}
+        fun change( change: Long ) = apply {this.change = change}
+        fun pct_change( pct_change: Double ) = apply {this.pct_change = pct_change}
+        fun data( data: Array<Long>) = apply {this.data = data}
+        fun build() = Card( id, title, subtitle, daily, last, positive, change, pct_change, data )
+    }
 }
 
 class GetReports :
@@ -166,7 +201,77 @@ class GetSummaryPositive {
         context: ExecutionContext
     ): HttpResponseMessage {
         return request.createResponseBuilder(HttpStatus.OK)
-            .body("[{ \"title\": \"Case\"}]") 
+            .body(
+                Card.Builder()
+                    .id("positive-cases")
+                    .title("Cases")
+                    .subtitle("People tested positive")
+                    .daily(329L)
+                    .last(1294L)
+                    .positive(true)
+                    .change(-267L)
+                    .pct_change(20.6)
+            ) 
+            .header("Content-Type", "application/json")
+            .build();
+  
+    }
+}
+
+class GetSummaryTests {
+    @FunctionName("getSummaryTests")
+    @StorageAccount("AzureWebJobsStorage")
+    fun run(
+        @HttpTrigger(
+            name = "getSummaryTests",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/summary/tests"
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext
+    ): HttpResponseMessage {
+        return request.createResponseBuilder(HttpStatus.OK)
+            .body(
+                Card.Builder()
+                    .id("tests-administered")
+                    .title("Testing")
+                    .subtitle("Tests administered")
+                    .daily(2497L)
+                    .last(9348L)
+                    .positive(false)
+                    .change(-897L)
+                    .pct_change(9.6)
+            ) 
+            .header("Content-Type", "application/json")
+            .build();
+  
+    }
+}
+
+class GetSummaryFacilities {
+    @FunctionName("getSummaryFacilties")
+    @StorageAccount("AzureWebJobsStorage")
+    fun run(
+        @HttpTrigger(
+            name = "getSummaryFacilities",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/summary/facilities"
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext
+    ): HttpResponseMessage {
+        return request.createResponseBuilder(HttpStatus.OK)
+            .body( 
+                Card.Builder()
+                    .id("facilities")
+                    .title("Facilities")
+                    .subtitle("New testing locations")
+                    .daily(4L)
+                    .last(12L)
+                    .positive(true)
+                    .change(4L)
+                    .pct_change(15.9) 
+            ) 
             .header("Content-Type", "application/json")
             .build();
   
