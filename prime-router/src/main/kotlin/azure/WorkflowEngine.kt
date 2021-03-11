@@ -211,7 +211,7 @@ class WorkflowEngine(
             recordAction(actionHistory, txn)
             receiverResult
         }
-        if (receiverResult.retryTokens.find{it != null} != null) {
+        if (receiverResult.retryTokens.find { it != null } != null) {
             val nextEvent = ReceiverEvent(
                 receiverResult.retryAction, messageEvent.receiverName, receiverResult.retryActionAt
             )
