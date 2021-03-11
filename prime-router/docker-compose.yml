@@ -31,12 +31,16 @@ services:
       - AZ_PHD__ELR_PROD__PASS=pass
       - FL_PHD__ELR__USER=foo
       - FL_PHD__ELR__PASS=pass
+      - GU_DOH__ELR__USER=foo
+      - GU_DOH__ELR__PASS=pass
       - LA_DOH__ELR__USER=foo
       - LA_DOH__ELR__PASS=pass
       - MT_DOH__ELR__USER=foo
       - MT_DOH__ELR__PASS=pass
       - ND_DOH__ELR__USER=foo
       - ND_DOH__ELR__PASS=pass
+      - NM_DOH__ELR__USER=foo
+      - NM_DOH__ELR__PASS=pass
       - OH_DOH__ELR__USER=foo
       - OH_DOH__ELR__PASS=pass
       - PA_PHD__ELR__USER=foo
@@ -45,6 +49,8 @@ services:
       - TX_PHD__ELR_TEST__PASS=pass
       - TX_PHD__ELR_DEBUG__USER=foo
       - TX_PHD__ELR_DEBUG__PASS=pass
+      - VT_PHD__ELR__USER=foo
+      - VT_PHD__ELR__PASS=pass
       - IGNORE__HL7__USER=foo
       - IGNORE__HL7__PASS=pass
       - IGNORE__HL7_BATCH__USER=foo

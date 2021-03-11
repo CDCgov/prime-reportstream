@@ -4,59 +4,41 @@
 
 ---
 
-**Name**: PatientFirstName
+**Name**: Notes
 
-**Type**: PERSON_NAME
+**Type**: TEXT
 
-**HL7 Field**: PID-5-2
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PerformingFacilityName
+
+**Type**: TEXT
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-The patient's first name
+The name of the facility which the test was ordered from
 
 ---
 
-**Name**: PatientMiddleInitial
+**Name**: PatientCity
 
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-3
+**Type**: CITY
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: PatientLastName
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-1
-
-**Cardinality**: [1..1]
 
 **Documentation**:
 
-The patient's last name
-
----
-
-**Name**: PatientSuffix
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-4
-
-**Cardinality**: [0..1]
+The patient's city
 
 ---
 
 **Name**: PatientDOB
 
 **Type**: DATE
-
-**HL7 Field**: PID-7
 
 **Cardinality**: [0..1]
 
@@ -69,85 +51,43 @@ Other states may choose to define their own formats.
 
 ---
 
-**Name**: PatientAddress1
+**Name**: PatientEthnicity
 
-**Type**: STREET
+**Type**: CODE
 
-**HL7 Field**: PID-11-1
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+H|Hispanic or Latino
+N|Non Hispanic or Latino
+U|Unknown
+
+**Documentation**:
+
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+
+
+---
+
+**Name**: PatientFirstName
+
+**Type**: PERSON_NAME
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-The patient's street address
-
----
-
-**Name**: PatientCity
-
-**Type**: CITY
-
-**HL7 Field**: PID-11-3
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's city
-
----
-
-**Name**: PatientState
-
-**Type**: TABLE
-
-**HL7 Field**: PID-11-4
-
-**Cardinality**: [1..1]
-
-**Table**: fips-county
-
-**Table Column**: State
-
-**Documentation**:
-
-The patient's state
-
----
-
-**Name**: PatientZipCode
-
-**Type**: POSTAL_CODE
-
-**HL7 Field**: PID-11-5
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's zip code
-
----
-
-**Name**: PatientPhoneNumber
-
-**Type**: TELEPHONE
-
-**HL7 Field**: PID-13
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's phone number with area code
+The patient's first name
 
 ---
 
 **Name**: PatientGender
 
 **Type**: CODE
-
-**HL7 Field**: PID-8-1
 
 **Cardinality**: [0..1]
 
@@ -169,11 +109,41 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 ---
 
+**Name**: PatientLastName
+
+**Type**: PERSON_NAME
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+The patient's last name
+
+---
+
+**Name**: PatientMiddleInitial
+
+**Type**: PERSON_NAME
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PatientPhoneNumber
+
+**Type**: TELEPHONE
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's phone number with area code
+
+---
+
 **Name**: PatientRace
 
 **Type**: CODE
-
-**HL7 Field**: PID-10
 
 **Cardinality**: [0..1]
 
@@ -197,41 +167,55 @@ The patient's race. There is a common valueset defined for race values, but some
 
 ---
 
-**Name**: PatientEthnicity
+**Name**: PatientState
 
-**Type**: CODE
+**Type**: TABLE
 
-**HL7 Field**: PID-22
+**Cardinality**: [1..1]
 
-**Cardinality**: [0..1]
+**Table**: fips-county
 
-**Value Sets**
-
-Code | Display
----- | -------
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
+**Table Column**: State
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
-consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
-
+The patient's state
 
 ---
 
-**Name**: TestID
+**Name**: PatientAddress1
 
-**Type**: ID
-
-**HL7 Field**: SPM-2-1
+**Type**: STREET
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-The specimen-id from the testing lab
+The patient's street address
+
+---
+
+**Name**: PatientSuffix
+
+**Type**: PERSON_NAME
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The suffix for the patient's name, (i.e. Jr, Sr, etc)
+
+---
+
+**Name**: PatientZipCode
+
+**Type**: POSTAL_CODE
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's zip code
 
 ---
 
@@ -239,7 +223,12 @@ The specimen-id from the testing lab
 
 **Type**: DATETIME
 
-**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
+**HL7 Fields**
+
+- [OBR-7](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.7)
+- [OBR-8](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.8)
+- [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
+- [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
 
 **Cardinality**: [0..1]
 
@@ -256,8 +245,6 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Format**: $display
 
-**HL7 Field**: SPM-8
-
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -268,6 +255,10 @@ Code | Display
 71836000|Nasopharyngeal structure (body structure)
 45206002|Nasal structure (body structure)
 
+**Documentation**:
+
+Refers back to the specimen source site, which is then encoded into the SPM-8 segment
+
 ---
 
 **Name**: TestName
@@ -275,8 +266,6 @@ Code | Display
 **Type**: CODE
 
 **Format**: $display
-
-**HL7 Field**: SPM-4
 
 **Cardinality**: [0..1]
 
@@ -312,8 +301,6 @@ The specimen source, such as Blood or Serum
 
 **Format**: $display
 
-**HL7 Field**: OBX-5
-
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -345,26 +332,14 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 ---
 
-**Name**: Notes
+**Name**: TestID
 
-**Type**: TEXT
-
-**HL7 Field**: NTE-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: PerformingFacilityName
-
-**Type**: TEXT
-
-**HL7 Field**: ORC-21-1
+**Type**: ID
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-The name of the facility which the test was ordered from
+The specimen-id from the testing lab
 
 ---

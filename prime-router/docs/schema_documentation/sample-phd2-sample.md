@@ -4,13 +4,13 @@
 
 ---
 
-**Name**: lab
+**Name**: firstName
 
 **Cardinality**: [0..1]
 
 ---
 
-**Name**: firstName
+**Name**: lab
 
 **Cardinality**: [0..1]
 
@@ -22,25 +22,9 @@
 
 ---
 
-**Name**: state
+**Name**: observation
 
 **Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ssn
-
-**Type**: ID_SSN
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testTime
-
-**Type**: DATE
 
 **Cardinality**: [0..1]
 
@@ -54,9 +38,25 @@
 
 ---
 
-**Name**: observation
+**Name**: ssn
+
+**Type**: ID_SSN
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: state
 
 **Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testTime
+
+**Type**: DATE
 
 **Cardinality**: [0..1]
 

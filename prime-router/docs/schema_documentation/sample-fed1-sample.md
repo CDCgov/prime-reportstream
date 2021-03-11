@@ -10,17 +10,9 @@
 
 ---
 
-**Name**: state
+**Name**: observation
 
 **Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_time
-
-**Type**: DATE
 
 **Cardinality**: [0..1]
 
@@ -34,9 +26,17 @@
 
 ---
 
-**Name**: observation
+**Name**: state
 
 **Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_time
+
+**Type**: DATE
 
 **Cardinality**: [0..1]
 
