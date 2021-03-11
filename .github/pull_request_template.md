@@ -9,14 +9,20 @@ This PR ...
 - [ ] Ran `quickTest all`?
 - [ ] Downloaded a file from http://localhost:7071/api/download
 - [ ] Updated the release notes? 
-- [ ] Added a test?
-- [ ] Did you check for sensitive data, and remove any?
+- [ ] Added tests?
+- [ ] Did you check for sensitive data, and remove any? 
+- [ ] Does logging contain sensitive data?  
 - [ ] Are additional approvals needed for this change?
 - [ ] Are there potential vulnerabilities or licensing issues with any new dependencies introduced?
 
-## Fixes 
-- #issues in GitHub
+## Security
+*List potential security threats and mitigations in the PR*
+
+## Fixes
+*List GitHub issues this PR fixes*
+- #issue
 
 ## To Be Done
-- Stuff still to done
+*Create GitHub issues to track the work remaining, if any*
+- #issue 
 
