@@ -228,7 +228,6 @@ class ReportFunction {
                 .translator
                 .filterAndTranslateByReceiver(validatedRequest.report!!, validatedRequest.defaults)
                 .forEach { (report, receiver) ->
-                    val organization = workflowEngine.settings.findOrganization(receiver.organizationName)!!
                     sendToDestination(
                         report,
                         receiver,
