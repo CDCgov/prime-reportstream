@@ -2,6 +2,14 @@ terraform {
     required_version = ">= 0.14"
 }
 
+locals {
+  dns_zones_private = [
+    "privatelink.vaultcore.azure.net",
+    "vault.azure.net",
+    "vaultcore.azure.net"
+  ]
+}
+
 resource "azurerm_network_security_group" "nsg_public" {
   name = "${var.resource_prefix}-nsg.public"
   location = var.location
@@ -91,6 +99,78 @@ resource "azurerm_subnet_network_security_group_association" "private_private" {
 }
 
 
+## Private endpoints and DNS (used for the VNET and VPN)
+
+# This IP address of this container will be needed for the VPN configuration profile you download from the Azure console
+resource "azurerm_container_group" "dns" {
+  name = "${var.resource_prefix}-dns"
+  location = var.location
+  resource_group_name = var.resource_group
+  ip_address_type = "Private"
+  network_profile_id = azurerm_network_profile.dns_network_profile.id
+  os_type = "Linux"
+  restart_policy = "Always"
+
+  container {
+    name = "dnsmasq"
+    image = "andyshinn/dnsmasq:2.83"
+    cpu = "0.5"
+    memory = "1.0"
+
+    ports {
+      port = 53
+      protocol = "UDP" # Both TCP and UDP can not be configured at the same time
+    }
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
+
+resource "azurerm_network_profile" "dns_network_profile" {
+  name = "${var.resource_prefix}-dns-profile"
+  location = var.location
+  resource_group_name = var.resource_group
+
+  container_network_interface {
+    name = "${var.resource_prefix}-dns-network-interface"
+
+    ip_configuration {
+      name = "${var.resource_prefix}-dns-ip-config"
+      subnet_id = azurerm_subnet.container.id
+    }
+  }
+}
+
+# This subnet is where the private endpoints will exist
+# They need a dedicated subnet, since Azure requires full automatic management capabilities of the ACL
+resource "azurerm_subnet" "endpoint" {
+  name = "endpoint"
+  resource_group_name = var.resource_group
+  virtual_network_name = azurerm_virtual_network.virtual_network.name
+  address_prefixes = ["10.0.5.0/24"]
+  enforce_private_link_endpoint_network_policies = true
+}
+
+# This list includes both public and private CNAMES, but we want to create private DNS zones, as we're using them
+# for VNET / VPN resolution
+resource "azurerm_private_dns_zone" "dns_zone_private" {
+  for_each = toset(local.dns_zones_private)
+  name = each.value
+  resource_group_name = var.resource_group
+}
+
+# Associate the DNS zone with our VNET, so the VNET will resolve these addresses
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_private_link" {
+  for_each = azurerm_private_dns_zone.dns_zone_private
+  name = each.value.name
+  private_dns_zone_name = each.value.name
+  resource_group_name = var.resource_group
+  virtual_network_id = azurerm_virtual_network.virtual_network.id
+}
+
+
 ## VPN Access
 
 resource "azurerm_virtual_network_gateway" "vpn_gateway" {
@@ -106,6 +186,7 @@ resource "azurerm_virtual_network_gateway" "vpn_gateway" {
   }
 
   vpn_client_configuration {
+    # Clients connected to the VPN will receive an IP address in this space
     address_space = ["192.168.10.0/24"]
     vpn_client_protocols = ["OpenVPN"]
 
@@ -140,15 +221,15 @@ EOF
   }
 }
 
+# VPN gateways will receive an IP address in this subnet
 resource "azurerm_subnet" "gateway" {
   name = "GatewaySubnet" # This subnet must be named this. Azure expects this name for VPN gateways.
   resource_group_name = var.resource_group
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes = ["10.0.4.0/24"]
-
-  service_endpoints = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
 }
 
+# A public IP is needed so we can access the VPN over the internet
 resource "azurerm_public_ip" "vpn_ip" {
   name = "${var.resource_prefix}-vpn-ip"
   location = var.location
@@ -173,4 +254,11 @@ output "private_subnet_id" {
 
 output "gateway_subnet_id" {
   value = azurerm_subnet.gateway.id
+}
+
+output "endpoint_subnet_id" {
+  value = azurerm_subnet.endpoint.id
+
+  # Wait for the DNS zones to be created, or anything requiring this subnet will fail
+  depends_on = [azurerm_private_dns_zone.dns_zone_private]
 }

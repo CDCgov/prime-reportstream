@@ -18,17 +18,7 @@ variable "location" {
   description = "Network Location"
 }
 
-variable "public_subnet_id" {
+variable "endpoint_subnet_id" {
   type = string
-  description = "Public Subnet ID"
-}
-
-variable "private_subnet_id" {
-  type = string
-  description = "Private Subnet ID"
-}
-
-variable "gateway_subnet_id" {
-  type = string
-  description = "VPN Gateway Subnet ID"
+  description = "Private Endpoint Subnet ID"
 }

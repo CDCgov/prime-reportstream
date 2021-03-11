@@ -1,0 +1,70 @@
+terraform {
+  required_version = ">= 0.14"
+}
+
+locals {
+  # Create a list of common configuration options for each endpoint service
+  # You would link Microsoft would have constants for these, or automatically register them, but they do not
+  # Information on what constants to use is at the following URLS:
+  #   * https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-dns#azure-services-dns-zone-configuration
+  #   * https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-overview#private-link-resource
+  options = {
+    "key_vault": {
+      cnames_private = ["privatelink.vaultcore.azure.net"]
+      cnames_public = ["vault.azure.net", "vaultcore.azure.net"]
+      subresource_names = ["Vault"]
+    }
+  }
+
+  option = local.options[var.type] # Make options a little easier to reference
+  endpoint_name = "${var.name}-${var.type}"
+}
+
+resource "azurerm_private_endpoint" "endpoint" {
+  name = local.endpoint_name
+  location = var.location
+  resource_group_name = var.resource_group
+  subnet_id = var.endpoint_subnet_id
+
+  # Associate the endpoint with the service
+  private_service_connection {
+    name = local.endpoint_name
+    private_connection_resource_id = var.resource_id
+    is_manual_connection = false
+    subresource_names = local.option.subresource_names
+  }
+
+  # Automatically register the private endpoint in the private DNS zones
+  private_dns_zone_group {
+    name = local.endpoint_name
+    private_dns_zone_ids = [for dns_zone in data.azurerm_private_dns_zone.private_dns_cname : dns_zone.id]
+  }
+}
+
+# Create a CNAME for each public CNAME to point to the private link DNS entry
+resource "azurerm_private_dns_cname_record" "public_dns_to_private" {
+  for_each = data.azurerm_private_dns_zone.public_dns_cname
+  resource_group_name = var.resource_group
+  zone_name = each.value.name
+  name = var.name
+  record ="${var.name}.${local.option.cnames_private[0]}"
+  ttl = 60
+}
+
+# These are Azure's private link CNAMES
+data "azurerm_private_dns_zone" "private_dns_cname" {
+  for_each = toset(local.option.cnames_private)
+  name = each.value
+
+  # The subnet must exist before DNS exists
+  depends_on = [var.endpoint_subnet_id]
+}
+
+# These are Azure's public CNAMES for accessing the resource
+data "azurerm_private_dns_zone" "public_dns_cname" {
+  for_each = toset(local.option.cnames_public)
+  name = each.value
+
+  # The subnet must exist before DNS exists
+  depends_on = [var.endpoint_subnet_id]
+}

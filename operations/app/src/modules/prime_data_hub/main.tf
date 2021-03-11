@@ -77,9 +77,7 @@ module "key_vault" {
     resource_group = var.resource_group
     resource_prefix = var.resource_prefix
     location = local.location
-    public_subnet_id = module.network.public_subnet_id
-    private_subnet_id = module.network.private_subnet_id
-    gateway_subnet_id = module.network.gateway_subnet_id
+    endpoint_subnet_id = module.network.endpoint_subnet_id
 }
 
 module "front_door" {
