@@ -205,7 +205,9 @@ class HttpUtilities {
                 val response = try {
                     inputStream.bufferedReader().readText()
                 } catch (e: IOException) {
-                    return responseCode to responseMessage
+                    // HttpUrlStatus treats not-success codes as IOExceptions.
+                    // I found that the returned json is secretly still here:
+                    errorStream.bufferedReader().readText()
                 }
                 return responseCode to response
             }

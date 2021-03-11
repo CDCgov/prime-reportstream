@@ -43,6 +43,7 @@ data class Hl7Configuration
     val receivingFacilityName: String?,
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
+    val suppressQstForAoe: Boolean = false,
     override val useAphlNamingFormat: Boolean = false,
     override val receivingOrganization: String?
 ) : TranslatorConfiguration("HL7") {

@@ -349,6 +349,110 @@ class CoalesceMapper : Mapper {
     }
 }
 
+class StripPhoneFormattingMapper : Mapper {
+    override val name = "stripPhoneFormatting"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isEmpty()) error("StripFormatting mapper requires one or more arguments")
+        return listOf(args[0])
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) return null
+        val returnValue = values.firstOrNull()?.value ?: ""
+        val nonDigitRegex = "\\D".toRegex()
+        val cleanedNumber = nonDigitRegex.replace(returnValue, "")
+        return "$cleanedNumber:1:"
+    }
+}
+
+class StripNonNumericDataMapper : Mapper {
+    override val name = "stripNonNumeric"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) return null
+        val returnValue = values.firstOrNull()?.value ?: ""
+        val nonDigitRegex = "\\D".toRegex()
+        return nonDigitRegex.replace(returnValue, "").trim()
+    }
+}
+
+class StripNumericDataMapper : Mapper {
+    override val name = "stripNumeric"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) return null
+        val returnValue = values.firstOrNull()?.value ?: ""
+        val nonDigitRegex = "\\d".toRegex()
+        return nonDigitRegex.replace(returnValue, "").trim()
+    }
+}
+
+class SplitMapper : Mapper {
+    override val name = "split"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return listOf(args[0])
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) return null
+        val value = values.firstOrNull()?.value ?: ""
+        val delimiter = if (args.count() > 2) {
+            args[2]
+        } else {
+            " "
+        }
+        val splitElements = value.split(delimiter)
+        val index = args[1].toInt()
+        return splitElements.getOrNull(index)?.trim()
+    }
+}
+
+class SplitByCommaMapper : Mapper {
+    override val name = "splitByComma"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return listOf(args[0])
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) return null
+        val value = values.firstOrNull()?.value ?: ""
+        val delimiter = ","
+        val splitElements = value.split(delimiter)
+        val index = args[1].toInt()
+        return splitElements.getOrNull(index)?.trim()
+    }
+}
+
+class ZipCodeToCountyMapper : Mapper {
+    override val name = "zipCodeToCounty"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        val table = element.tableRef ?: error("Cannot perform lookup on a null table")
+        val zipCode = values.firstOrNull()?.value ?: return null
+        val cleanedZip = if (zipCode.contains("-")) {
+            zipCode.split("-").first()
+        } else {
+            zipCode
+        }
+        return table.lookupValue(indexColumn = "zipcode", indexValue = cleanedZip, "county")
+    }
+}
+
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
         val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&^]*)\\x29").find(field)

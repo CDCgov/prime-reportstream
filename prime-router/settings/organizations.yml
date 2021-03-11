@@ -22,6 +22,16 @@
         schemaName: strac/strac-covid-19
         format: CSV
 
+  - name: tcp
+    description: TCP Receiver organization via A6
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: tcp
+        topic: covid-19
+        schemaName: tcp/tcp-covid-19
+        format: CSV
+
   - name: az-phd
     description: Arizona PHD
     jurisdiction: STATE
@@ -140,6 +150,11 @@
           receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
           receivingFacilityName: NDDOH
           receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: la-doh
     description: Louisiana Department of Health
@@ -155,6 +170,7 @@
           useBatchHeaders: true
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
+          useAphlNamingFormat: true
 
   - name: oh-doh
     description: Ohio Department of Health
@@ -358,3 +374,17 @@
           type: REDOX
           apiKey: some_key
           baseUrl: http://redox:1080
+      - name: HL7_NULL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: tx/tx-covid-19
+          format: HL7
+        transport:
+          type: "NULL"

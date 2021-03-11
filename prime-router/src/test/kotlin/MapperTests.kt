@@ -247,4 +247,117 @@ class MapperTests {
         actual = mapper.apply(element, args, values)
         assertEquals(expected, actual, "Expected $expected. Actual $actual")
     }
+
+    @Test
+    fun `test strip formatting mapper`() {
+        val mapper = StripPhoneFormattingMapper()
+        val args = listOf("patient_phone_number_raw")
+        val element = Element("patient_phone_number")
+        val values = listOf(
+            ElementAndValue(Element("patient_phone_number_raw"), "(850) 999-9999xHOME")
+        )
+        val expected = "8509999999:1:"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test strip numeric mapper`() {
+        val mapper = StripNumericDataMapper()
+        val args = listOf("patient_age_and_units")
+        val element = Element("patient_age")
+        val values = listOf(
+            ElementAndValue(Element("patient_age_and_units"), "99 years")
+        )
+        val expected = "years"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test strip non numeric mapper`() {
+        val mapper = StripNonNumericDataMapper()
+        val args = listOf("patient_age_and_units")
+        val element = Element("patient_age")
+        val values = listOf(
+            ElementAndValue(Element("patient_age_and_units"), "99 years")
+        )
+        val expected = "99"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test split mapper`() {
+        val mapper = SplitMapper()
+        val args = listOf("patient_name", "0")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "John Doe")
+        )
+        val expected = "John"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test split mapper with error condition`() {
+        val mapper = SplitMapper()
+        val args = listOf("patient_name", "1")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "ThereAreNoSpacesHere")
+        )
+        val actual = mapper.apply(element, args, values)
+        assertNull(actual, "Expected null. Actual $actual")
+    }
+
+    @Test
+    fun `test split by comma mapper`() {
+        val mapper = SplitByCommaMapper()
+        val args = listOf("patient_name", "2")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "Antley, ARNP, Mona")
+        )
+        val expected = "Mona"
+        val actual = mapper.apply(element, args, values)
+        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+    }
+
+    @Test
+    fun `test split by comma mapper error condition`() {
+        val mapper = SplitByCommaMapper()
+        val args = listOf("patient_name", "2")
+        val element = Element("patient_first_name")
+        val values = listOf(
+            ElementAndValue(Element("patient_name"), "I have no commas")
+        )
+        val actual = mapper.apply(element, args, values)
+        assertNull(actual, "Expected null. Actual $actual")
+    }
+
+    @Test
+    fun `test zip code to county mapper`() {
+        val mapper = ZipCodeToCountyMapper()
+        val csv = """
+            zipcode,county
+            32303,Leon
+        """.trimIndent()
+        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val schema = Schema(
+            "test", topic = "test",
+            elements = listOf(
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val lookupElement = metadata.findSchema("test")?.findElement("a") ?: fail("Schema element missing")
+        val values = listOf(
+            ElementAndValue(Element("patient_zip_code"), "32303-4509")
+        )
+        val expected = "Leon"
+        val actual = mapper.apply(lookupElement, listOf("patient_zip_code"), values)
+        assertEquals(expected, actual, "Expected: $expected, Actual: $actual")
+    }
 }
