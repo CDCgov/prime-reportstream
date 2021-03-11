@@ -84,7 +84,9 @@ class ReportFunction {
                 }
                 else -> {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
+
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
+
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)
