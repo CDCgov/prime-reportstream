@@ -32,7 +32,11 @@ locals {
     "event_hub": {
       cnames_private = ["privatelink.servicebus.windows.net"]
       subresource_names = ["namespace"]
-    }
+    },
+    "function_app": {
+      cnames_private = ["privatelink.azurewebsites.net"]
+      subresource_names = ["sites"]
+    },
   }
 
   option = local.options[var.type] # Make options a little easier to reference

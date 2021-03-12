@@ -39,18 +39,14 @@ resource "azurerm_function_app" "function_app" {
       priority = 100
       virtual_network_subnet_id = var.public_subnet_id
     }
+
     ip_restriction {
       action = "Allow"
       name = "AllowFrontDoorTraffic"
       priority = 110
       service_tag = "AzureFrontDoor.Backend"
     }
-    ip_restriction {
-      action = "Allow"
-      name = "jduff"
-      priority = 120
-      ip_address = "108.51.58.151/32"
-    }
+
     scm_use_main_ip_restriction = true
 
     http2_enabled = true
@@ -119,7 +115,14 @@ resource "azurerm_function_app" "function_app" {
     "TX_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-user)"
     "TX_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-pass)"
 
+    # Route outbound traffic through the VNET
     "WEBSITE_VNET_ROUTE_ALL" = 1
+
+    # Route storage account access through the VNET
+    "WEBSITE_CONTENTOVERVNET" = 1
+
+    # Use the VNET DNS server (so we receive private endpoint URLs
+    "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
     "DOCKER_REGISTRY_SERVER_URL" = var.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user
@@ -153,6 +156,16 @@ resource "azurerm_function_app" "function_app" {
   tags = {
     environment = var.environment
   }
+}
+
+module "function_app_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_function_app.function_app.id
+  name = azurerm_function_app.function_app.name
+  type = "function_app"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = var.endpoint_subnet_id
 }
 
 resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {

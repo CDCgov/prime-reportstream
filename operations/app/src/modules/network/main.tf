@@ -9,7 +9,8 @@ locals {
     "privatelink.blob.core.windows.net",
     "privatelink.file.core.windows.net",
     "privatelink.azurecr.io",
-    "privatelink.servicebus.windows.net"
+    "privatelink.servicebus.windows.net",
+    "privatelink.azurewebsites.net"
   ]
 }
 

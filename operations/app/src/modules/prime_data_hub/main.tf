@@ -40,6 +40,7 @@ module "function_app" {
     storage_account_name = module.storage.storage_account_name
     storage_account_key = module.storage.storage_account_key
     public_subnet_id = module.network.public_subnet_id
+    endpoint_subnet_id = module.network.endpoint_subnet_id
     postgres_user = "${module.database.postgres_user}@${module.database.server_name}"
     postgres_password = module.database.postgres_pass
     postgres_url = "jdbc:postgresql://${module.database.server_name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
