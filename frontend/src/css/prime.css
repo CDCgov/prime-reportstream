@@ -69,6 +69,10 @@ main {
   background-color: #f0f0f0;
 }
 
+.rs-hero__flex-center {
+  align-items: center;
+}
+
 h3 img[src*="svg"] {
   vertical-align: text-top;
   margin-right: 5px;
