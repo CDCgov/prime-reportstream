@@ -4,9 +4,7 @@ terraform {
 
 locals {
   dns_zones_private = [
-    "privatelink.vaultcore.azure.net",
-    "vault.azure.net",
-    "vaultcore.azure.net"
+    "privatelink.vaultcore.azure.net"
   ]
 }
 
@@ -153,8 +151,6 @@ resource "azurerm_subnet" "endpoint" {
   enforce_private_link_endpoint_network_policies = true
 }
 
-# This list includes both public and private CNAMES, but we want to create private DNS zones, as we're using them
-# for VNET / VPN resolution
 resource "azurerm_private_dns_zone" "dns_zone_private" {
   for_each = toset(local.dns_zones_private)
   name = each.value

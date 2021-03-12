@@ -11,7 +11,6 @@ locals {
   options = {
     "key_vault": {
       cnames_private = ["privatelink.vaultcore.azure.net"]
-      cnames_public = ["vault.azure.net", "vaultcore.azure.net"]
       subresource_names = ["Vault"]
     }
   }
@@ -41,28 +40,9 @@ resource "azurerm_private_endpoint" "endpoint" {
   }
 }
 
-# Create a CNAME for each public CNAME to point to the private link DNS entry
-resource "azurerm_private_dns_cname_record" "public_dns_to_private" {
-  for_each = data.azurerm_private_dns_zone.public_dns_cname
-  resource_group_name = var.resource_group
-  zone_name = each.value.name
-  name = var.name
-  record ="${var.name}.${local.option.cnames_private[0]}"
-  ttl = 60
-}
-
 # These are Azure's private link CNAMES
 data "azurerm_private_dns_zone" "private_dns_cname" {
   for_each = toset(local.option.cnames_private)
-  name = each.value
-
-  # The subnet must exist before DNS exists
-  depends_on = [var.endpoint_subnet_id]
-}
-
-# These are Azure's public CNAMES for accessing the resource
-data "azurerm_private_dns_zone" "public_dns_cname" {
-  for_each = toset(local.option.cnames_public)
   name = each.value
 
   # The subnet must exist before DNS exists
