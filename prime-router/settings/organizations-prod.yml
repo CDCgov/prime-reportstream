@@ -156,7 +156,9 @@
     - name: elr
       organizationName: nd-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, ND)
+      deidentify: false
       translation:
         type: HL7
         schemaName: nd/nd-covid-19
@@ -184,7 +186,8 @@
     - name: elr
       organizationName: la-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, LA)" ]
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, LA)
       translation:
         type: HL7
         schemaName: la/la-covid-19
@@ -212,11 +215,13 @@
     - name: elr
       organizationName: oh-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)" ]
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, OH)
       translation:
         type: HL7
         schemaName: oh/oh-covid-19
         useBatchHeaders: true
+        suppressQstForAoe: true
         receivingApplicationName: OHDOH
         receivingApplicationOID: 2.16.840.1.114222.4.1.3674
         receivingFacilityName: OHDOH
@@ -241,7 +246,8 @@
     - name: elr
       organizationName: nm-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, NM)" ]
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, NM)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -259,7 +265,8 @@
     - name: elr
       organizationName: mt-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(patient_state, MT)" ]
+      jurisdictionalFilter:
+        - matches(patient_state, MT)
       translation:
         type: HL7
         schemaName: mt/mt-covid-19
