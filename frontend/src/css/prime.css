@@ -71,4 +71,5 @@ main {
 
 h3 img[src*="svg"] {
   vertical-align: text-top;
+  margin-right: 5px;
 }
