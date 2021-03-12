@@ -195,7 +195,7 @@ class WorkflowEngineTests {
         val engine = makeEngine(metadata, settings)
 
         every { accessSpy.fetchAndLockTask(reportId = eq(report1.id), any()) }.returns(task)
-        every { accessSpy.fetchReportFile(eq(report1.id), any()) }.returns(
+        every { accessSpy.fetchReportFile(eq(report1.id), null, any()) }.returns(
             ReportFile().setReportId(report1.id).setItemCount(0)
         )
         every { accessSpy.fetchItemLineagesForReport(eq(report1.id), any(), any()) }.returns(emptyList())
@@ -215,7 +215,7 @@ class WorkflowEngineTests {
         every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
         every { ActionHistory.Companion.sanityCheckReport(any(), any(), any()) }.returns(Unit)
 
-        engine.handleReportEvent(event, actionHistoryMock) { header, _, _ ->
+        engine.handleReportEvent(event) { header, _, _ ->
             assertEquals(task, header.task)
             nextAction
         }
@@ -226,7 +226,7 @@ class WorkflowEngineTests {
             accessSpy.updateTask(reportId = any(), any(), any(), any(), any(), any())
             accessSpy.fetchAndLockTask(reportId = any(), any())
             accessSpy.fetchItemLineagesForReport(reportId = any(), any(), any())
-            accessSpy.fetchReportFile(reportId = any(), any())
+            accessSpy.fetchReportFile(reportId = any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
     }

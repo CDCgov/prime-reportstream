@@ -476,3 +476,20 @@
         format: HL7
       transport:
         type: "NULL"
+    - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_FAIL)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19-hl7
+        format: CSV
+      transport:
+        type: SFTP
+        host: sftp_FAIL_BAD
+        port: 2222
+        filePath: ./upload_FAIL

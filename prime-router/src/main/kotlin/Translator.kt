@@ -71,7 +71,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
             if (mapping.missing.isNotEmpty()) {
                 error(
-                    "Error: To translate to ${toSchema.name}, these elements are missing: ${
+                    "Error: To translate to ${receiver.fullName}, ${toSchema.name}, these elements are missing: ${
                     mapping.missing.joinToString(
                         ", "
                     )

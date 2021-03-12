@@ -35,7 +35,9 @@ class SftpTransport : ITransport {
             val (user, pass) = lookupCredentials(receiver.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
-            uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, header.content)
+            val sshClient = connect(host, port, user, pass)
+            context.logger.log(Level.INFO, "Successfully connected to $sftpTransportType, ready to upload $fileName")
+            uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)
             actionHistory.trackActionResult(msg)
@@ -62,51 +64,98 @@ class SftpTransport : ITransport {
         } // let non-IO exceptions be caught by the caller
     }
 
-    private fun lookupCredentials(orgName: String): Pair<String, String> {
+    companion object {
+        fun lookupCredentials(receiverFullName: String): Pair<String, String> {
 
-        val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
+            val envVarLabel = receiverFullName.replace(".", "__").replace('-', '_').toUpperCase()
+            val userVarLabel = "${envVarLabel}__USER"
+            val passVarLabel = "${envVarLabel}__PASS"
+            val user = System.getenv(userVarLabel) ?: ""
+            val pass = System.getenv(passVarLabel) ?: ""
 
-        val user = System.getenv("${envVarLabel}__USER") ?: ""
-        val pass = System.getenv("${envVarLabel}__PASS") ?: ""
+            if (user.isBlank() || pass.isBlank())
+                error("Unable to find SFTP creds for $receiverFullName.  Looking for $userVarLabel, $passVarLabel")
 
-        if (user.isBlank() || pass.isBlank())
-            error("Unable to find SFTP credentials for $orgName")
-
-        return Pair(user, pass)
-    }
-
-    private fun uploadFile(
-        host: String,
-        port: String,
-        user: String,
-        pass: String,
-        path: String,
-        fileName: String,
-        contents: ByteArray
-    ) {
-        val sshClient = SSHClient()
-        try {
-            sshClient.addHostKeyVerifier(PromiscuousVerifier())
-            sshClient.connect(host, port.toInt())
-            sshClient.authPassword(user, pass)
-            val client = sshClient.newSFTPClient()
-            client.fileTransfer.preserveAttributes = false
-            client.use {
-                it.put(makeSourceFile(contents, fileName), "$path/$fileName")
-            }
-        } finally {
-            sshClient.disconnect()
+            return Pair(user, pass)
         }
-    }
 
-    private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
-        return object : InMemorySourceFile() {
-            override fun getName(): String { return fileName }
-            override fun getLength(): Long { return contents.size.toLong() }
-            override fun getInputStream(): InputStream { return contents.inputStream() }
-            override fun isDirectory(): Boolean { return false }
-            override fun isFile(): Boolean { return true }
-            override fun getPermissions(): Int { return 777 }
+        fun connect(
+            host: String,
+            port: String,
+            user: String,
+            pass: String,
+        ): SSHClient {
+            val sshClient = SSHClient()
+            try {
+                sshClient.addHostKeyVerifier(PromiscuousVerifier())
+                sshClient.connect(host, port.toInt())
+                sshClient.authPassword(user, pass)
+                return sshClient
+            } catch (t: Throwable) {
+                sshClient.disconnect()
+                throw t
+            }
+        }
+
+        /**
+         * Call this after you have already successfully connect()ed.
+         */
+        fun uploadFile(
+            sshClient: SSHClient,
+            path: String,
+            fileName: String,
+            contents: ByteArray
+        ) {
+            try {
+                val client = sshClient.newSFTPClient()
+                client.fileTransfer.preserveAttributes = false
+                client.use {
+                    it.put(makeSourceFile(contents, fileName), "$path/$fileName")
+                }
+            } finally {
+                sshClient.disconnect()
+            }
+        }
+
+        fun ls(sshClient: SSHClient, path: String): List<String> {
+            try {
+                val client = sshClient.newSFTPClient()
+                client.fileTransfer.preserveAttributes = false
+                client.use {
+                    val lsResponse = it.ls(path)
+                    return lsResponse.map { it.toString() }.toList()
+                }
+            } finally {
+                sshClient.disconnect()
+            }
+        }
+
+        private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
+            return object : InMemorySourceFile() {
+                override fun getName(): String {
+                    return fileName
+                }
+
+                override fun getLength(): Long {
+                    return contents.size.toLong()
+                }
+
+                override fun getInputStream(): InputStream {
+                    return contents.inputStream()
+                }
+
+                override fun isDirectory(): Boolean {
+                    return false
+                }
+
+                override fun isFile(): Boolean {
+                    return true
+                }
+
+                override fun getPermissions(): Int {
+                    return 777
+                }
+            }
         }
     }
 }
