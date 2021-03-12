@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
@@ -32,6 +33,8 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         message: String,
         context: ExecutionContext,
     ) {
+        val actionHistory = ActionHistory(TaskAction.send, context)
+        actionHistory.trackActionParams(message)
         try {
             context.logger.info("Started Send Function: $message")
             val event = Event.parseQueueMessage(message) as ReportEvent
@@ -39,9 +42,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 context.logger.warning("Send function received a $message")
                 return
             }
-            val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
-            actionHistory.trackActionParams(message)
-            workflowEngine.handleReportEvent(event, actionHistory) { header, retryToken, _ ->
+            workflowEngine.handleReportEvent(event) { header, retryToken, _ ->
                 val receiver = header.receiver
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
                 val inputReportId = header.reportFile.reportId
@@ -79,6 +80,18 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                                     actionHistory,
                                 )
                         }
+                        is NullTransportType -> {
+                            workflowEngine
+                                .nullTransport
+                                .send(
+                                    receiver.transport,
+                                    header,
+                                    sentReportId,
+                                    retryItems,
+                                    context,
+                                    actionHistory,
+                                )
+                        }
                         else -> null
                     }
                     if (nextRetry != null) {
@@ -87,9 +100,15 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 }
                 handleRetry(nextRetryItems, inputReportId, serviceName, retryToken, context, actionHistory)
             }
-            // For debugging and auditing purposes
         } catch (t: Throwable) {
-            context.logger.log(Level.SEVERE, "Send function exception for event: $message", t)
+            // For debugging and auditing purposes
+            val msg = "Send function exception for event: $message"
+            context.logger.log(Level.SEVERE, msg, t)
+            actionHistory.setActionType(TaskAction.send_error)
+            actionHistory.trackActionResult(msg)
+        } finally {
+            // Note this is operating in a different transaction than the one that did the fetch/lock of the report
+            workflowEngine.recordAction(actionHistory)
         }
     }
 

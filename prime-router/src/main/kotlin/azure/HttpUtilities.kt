@@ -14,7 +14,8 @@ import java.time.OffsetDateTime
 enum class ReportStreamEnv(val endPoint: String) {
     TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
     LOCAL("http://localhost:7071/api/reports"),
-    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports")
+    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports"),
+    PROD("not implemented"),
 }
 
 class HttpUtilities {
@@ -205,7 +206,9 @@ class HttpUtilities {
                 val response = try {
                     inputStream.bufferedReader().readText()
                 } catch (e: IOException) {
-                    return responseCode to responseMessage
+                    // HttpUrlStatus treats not-success codes as IOExceptions.
+                    // I found that the returned json is secretly still here:
+                    errorStream.bufferedReader().readText()
                 }
                 return responseCode to response
             }

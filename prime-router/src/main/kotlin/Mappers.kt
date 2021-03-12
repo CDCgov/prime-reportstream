@@ -406,11 +406,50 @@ class SplitMapper : Mapper {
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
         if (values.isEmpty()) return null
         val value = values.firstOrNull()?.value ?: ""
-        val splitElements = value.split(" ")
+        val delimiter = if (args.count() > 2) {
+            args[2]
+        } else {
+            " "
+        }
+        val splitElements = value.split(delimiter)
         val index = args[1].toInt()
-        if (index > splitElements.count()) error("Index $index exceeds count of split values in $value")
+        return splitElements.getOrNull(index)?.trim()
+    }
+}
 
-        return splitElements[index]
+class SplitByCommaMapper : Mapper {
+    override val name = "splitByComma"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return listOf(args[0])
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (values.isEmpty()) return null
+        val value = values.firstOrNull()?.value ?: ""
+        val delimiter = ","
+        val splitElements = value.split(delimiter)
+        val index = args[1].toInt()
+        return splitElements.getOrNull(index)?.trim()
+    }
+}
+
+class ZipCodeToCountyMapper : Mapper {
+    override val name = "zipCodeToCounty"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        val table = element.tableRef ?: error("Cannot perform lookup on a null table")
+        val zipCode = values.firstOrNull()?.value ?: return null
+        val cleanedZip = if (zipCode.contains("-")) {
+            zipCode.split("-").first()
+        } else {
+            zipCode
+        }
+        return table.lookupValue(indexColumn = "zipcode", indexValue = cleanedZip, "county")
     }
 }
 

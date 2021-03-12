@@ -37,12 +37,16 @@ elements:
       - display: Black or African American
         code: 2054-5
         version: 2.5.1
+      - display: Black
+        code: 2054-5
       - display: Native Hawaiian or Other Pacific Islander
         code: 2076-8
         version: 2.5.1
       - display: White
         code: 2106-3
         version: 2.5.1
+      - display: Caucasian
+        code: 2016-3
       - display: Other
         code: 2131-1
         version: 2.5.1
@@ -50,6 +54,8 @@ elements:
         code: UNK
         version: 2.5.1
         system: NULLFL
+      - display: N/A
+        code: N/A
       - display: Asked, but unknown
         code: ASKU
         version: 2.5.1
@@ -159,10 +165,10 @@ elements:
     mapper: split(patient_name, 1)
 
   - name: ordering_provider_first_name
-    mapper: split(ordering_provider, 0)
+    mapper: splitByComma(ordering_provider, 0)
 
   - name: ordering_provider_last_name
-    mapper: split(ordering_provider, 1)
+    mapper: splitByComma(ordering_provider, 2)
 
   - name: testing_lab_name
     default: TPCA Lab and Diagnostic Imaging Center
@@ -183,7 +189,7 @@ elements:
     default: Leon
 
   - name: testing_lab_phone_number
-    default: 8509426624
+    default: "8509426624:1:"
 
   - name: testing_lab_clia
     default: 10D0270039
@@ -192,5 +198,26 @@ elements:
     type: TABLE
     table: zip-code-data
     tableColumn: county
-    mapper: lookup(patient_zip_code)
-    #csvFields: [{ name: Patient_county }] # <- uncomment this to see it show up in csv file
+    mapper: zipCodeToCounty(patient_zip_code)
+    # csvFields: [{ name: Patient_county }] # <- uncomment this to see it show up in csv file
+
+  - name: ordering_facility_state
+    mapper: use(testing_lab_state)
+
+  - name: ordering_facility_street
+    mapper: use(testing_lab_street)
+
+  - name: ordering_facility_city
+    mapper: use(testing_lab_city)
+
+  - name: ordering_facility_zip_code
+    mapper: use(testing_lab_zip_code)
+
+  - name: ordering_facility_county
+    mapper: use(testing_lab_county)
+
+  - name: ordering_facility_phone_number
+    default: "8509426624:1:"
+
+  - name: message_id
+    mapper: use(specimen_id)

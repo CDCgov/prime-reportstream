@@ -139,7 +139,7 @@
         receivingFacilityOID: 2.16.840.1.114222.1.3645
       timing:
         operation: MERGE
-        numberPerDay: 1
+        numberPerDay: 12          # Twelve times a day starting at 02.00
         initialTime: 02:00
         timeZone: EASTERN
       transport:
@@ -167,7 +167,7 @@
         receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
       timing:
         operation: MERGE
-        numberPerDay: 1
+        numberPerDay: 12
         initialTime: 02:00
         timeZone: EASTERN
       transport:
@@ -189,11 +189,13 @@
         type: HL7
         schemaName: la/la-covid-19
         useBatchHeaders: true
+        receivingOrganization: LAOPH
         receivingApplicationName: LA-ELR
         receivingFacilityName: LADOH
+        useAphlNamingFormat: true
       timing:
         operation: MERGE
-        numberPerDay: 1
+        numberPerDay: 12
         initialTime: 02:00
         timeZone: EASTERN
       transport:
@@ -226,7 +228,7 @@
         filePath: CDC-ELR/TestFiles
       timing:
         operation: MERGE
-        numberPerDay: 1   # Once a day at 2pm EST
+        numberPerDay: 12   # Twelve times a day starting at 02.00
         initialTime: 02:00
         timeZone: EASTERN
 
@@ -280,7 +282,7 @@
         receivingFacilityName: TX-ELR
       timing:
         operation: MERGE
-        numberPerDay: 1   # Once a day at 2pm EST
+        numberPerDay: 12   #  Twelve times a day starting at 02.00
         initialTime: 12:00
         timeZone: CENTRAL
       transport:

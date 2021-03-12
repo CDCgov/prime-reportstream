@@ -107,10 +107,13 @@ ASKU|Asked, but unknown
 1002-5|American Indian or Alaska Native
 2028-9|Asian
 2054-5|Black or African American
+2054-5|Black or African American
 2076-8|Native Hawaiian or Other Pacific Islander
 2106-3|White
+2016-3|Caucasian
 2131-1|Other
 UNK|Unknown
+N/A|N/A
 ASKU|Asked, but unknown
 
 **Alt Value Sets**
@@ -120,10 +123,13 @@ Code | Display
 1002-5|American Indian or Alaska Native
 2028-9|Asian
 2054-5|Black or African American
+2054-5|Black
 2076-8|Native Hawaiian or Other Pacific Islander
 2106-3|White
+2016-3|Caucasian
 2131-1|Other
 UNK|Undefined
+N/A|N/A
 ASKU|Asked, but unknown
 
 **Documentation**:
@@ -728,5 +734,105 @@ An example of the ID is 03D2159846
 **Table**: zip-code-data
 
 **Table Column**: county
+
+---
+
+**Name**: ordering_facility_state
+
+**Type**: TABLE
+
+**HL7 Field**: ORC-22-4
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_street
+
+**Type**: STREET
+
+**HL7 Field**: ORC-22-1
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The address of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_city
+
+**Type**: CITY
+
+**HL7 Field**: ORC-22-3
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_zip_code
+
+**Type**: POSTAL_CODE
+
+**HL7 Field**: ORC-22-5
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The zip code of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_county
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: ordering_facility_phone_number
+
+**Type**: TELEPHONE
+
+**HL7 Field**: ORC-23
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+The phone number of the facility which the test was ordered from
+
+---
+
+**Name**: message_id
+
+**Type**: ID
+
+**HL7 Field**: MSH-10
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
 
 ---

@@ -180,10 +180,12 @@ class ReportFunction {
         }
 
         var report = createReport(engine, sender, content, defaultValues, errors, warnings)
+        var status = HttpStatus.OK
         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
             report = null
+            status = HttpStatus.BAD_REQUEST
         }
-        return ValidatedRequest(options, defaultValues, errors, warnings, report, HttpStatus.OK)
+        return ValidatedRequest(options, defaultValues, errors, warnings, report, status)
     }
 
     private fun createReport(

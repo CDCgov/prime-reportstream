@@ -18,6 +18,7 @@ import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -151,6 +152,10 @@ class ProcessData : CliktCommand(
         metavar = "<org name>",
         help = "Output using the APHL file format"
     )
+    private val suppressQstForAoe by option(
+        "--suppress-qst-for-aoe",
+        help = "Turns off the QST marker on AOE questions when converting to HL7"
+    ).flag(default = false)
 
     // Fake data configuration
     private val targetStates: String? by
@@ -228,7 +233,7 @@ class ProcessData : CliktCommand(
         reports
             .flatMap { (report, format) ->
                 // Some report formats only support one result per file
-                if (format.isSingleItemFormat()) {
+                if (format.isSingleItemFormat) {
                     val splitReports = report.split()
                     splitReports.map { Pair(it, format) }
                 } else {
@@ -388,11 +393,22 @@ class ProcessData : CliktCommand(
 
         // Output reports
         writeReportsToFile(outputReports) { report, format, stream ->
+            val hl7Configuration = Hl7Configuration(
+                useAphlNamingFormat = useAphlFileName,
+                suppressQstForAoe = suppressQstForAoe,
+                receivingApplicationName = receivingApplication,
+                receivingFacilityName = receivingFacility,
+                receivingOrganization = receivingOrganization,
+                receivingApplicationOID = "",
+                receivingFacilityOID = "",
+                messageProfileId = "",
+                useBatchHeaders = format == Report.Format.HL7_BATCH,
+            )
             when (format) {
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
                 Report.Format.CSV -> csvSerializer.write(report, stream)
-                Report.Format.HL7 -> hl7Serializer.write(report, stream)
-                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
+                Report.Format.HL7 -> hl7Serializer.write(report, stream, hl7Configuration)
+                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream, hl7Configuration)
                 Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
