@@ -4,7 +4,11 @@ terraform {
 
 locals {
   dns_zones_private = [
-    "privatelink.vaultcore.azure.net"
+    "privatelink.vaultcore.azure.net",
+    "privatelink.postgres.database.azure.com",
+    "privatelink.blob.core.windows.net",
+    "privatelink.azurecr.io",
+    "privatelink.servicebus.windows.net"
   ]
 }
 

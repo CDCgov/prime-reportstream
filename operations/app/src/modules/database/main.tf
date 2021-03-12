@@ -25,6 +25,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   auto_grow_enabled = (var.environment == "prod" ? true : false)
 
+  public_network_access_enabled = false
   ssl_enforcement_enabled = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
 
@@ -42,25 +43,14 @@ resource "azurerm_postgresql_server" "postgres_server" {
   }
 }
 
-resource "azurerm_postgresql_virtual_network_rule" "allow_public_subnet" {
-  name = "AllowPublicSubnet"
-  resource_group_name = var.resource_group
-  server_name = azurerm_postgresql_server.postgres_server.name
-  subnet_id = var.public_subnet_id
-}
-
-resource "azurerm_postgresql_virtual_network_rule" "allow_private_subnet" {
-  name = "AllowPrivateSubnet"
-  resource_group_name = var.resource_group
-  server_name = azurerm_postgresql_server.postgres_server.name
-  subnet_id = var.private_subnet_id
-}
-
-resource "azurerm_postgresql_virtual_network_rule" "allow_gateway_subnet" {
-  name = "AllowGatewaySubnet"
-  resource_group_name = var.resource_group
-  server_name = azurerm_postgresql_server.postgres_server.name
-  subnet_id = var.gateway_subnet_id
+module "client_config_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_postgresql_server.postgres_server.id
+  name = azurerm_postgresql_server.postgres_server.name
+  type = "postgres_server"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = var.endpoint_subnet_id
 }
 
 resource "azurerm_postgresql_database" "prime_data_hub_db" {

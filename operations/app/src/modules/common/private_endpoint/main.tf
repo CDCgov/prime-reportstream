@@ -12,6 +12,22 @@ locals {
     "key_vault": {
       cnames_private = ["privatelink.vaultcore.azure.net"]
       subresource_names = ["Vault"]
+    },
+    "postgres_server": {
+      cnames_private = ["privatelink.postgres.database.azure.com"]
+      subresource_names = ["postgresqlServer"]
+    },
+    "storage_account_blob": {
+      cnames_private = ["privatelink.blob.core.windows.net"]
+      subresource_names = ["blob", "blob_secondary"]
+    },
+    "container_registry": {
+      cnames_private = ["privatelink.azurecr.io"]
+      subresource_names = ["registry"]
+    },
+    "event_hub": {
+      cnames_private = ["privatelink.servicebus.windows.net"]
+      subresource_names = ["namespace"]
     }
   }
 

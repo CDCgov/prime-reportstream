@@ -66,6 +66,7 @@ module "database" {
     public_subnet_id = module.network.public_subnet_id
     private_subnet_id = module.network.private_subnet_id
     gateway_subnet_id = module.network.gateway_subnet_id
+    endpoint_subnet_id = module.network.endpoint_subnet_id
     eventhub_namespace_name = module.event_hub.eventhub_namespace_name
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
     app_config_key_vault_id = module.key_vault.app_config_key_vault_id
