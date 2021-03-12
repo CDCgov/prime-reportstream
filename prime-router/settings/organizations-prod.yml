@@ -192,7 +192,7 @@
         receivingOrganization: LAOPH
         receivingApplicationName: LA-ELR
         receivingFacilityName: LADOH
-        useAphlNamingFormat: true
+        nameFormat: APHL
       timing:
         operation: MERGE
         numberPerDay: 12
@@ -221,6 +221,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.3674
         receivingFacilityName: OHDOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+        nameFormat: OHIO
       transport:
         type: SFTP
         host: 156.63.28.72

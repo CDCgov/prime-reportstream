@@ -197,7 +197,7 @@
         receivingOrganization: LAOPH
         receivingApplicationName: LA-ELR
         receivingFacilityName: LADOH
-        useAphlNamingFormat: true
+        nameFormat: APHL
 
 - name: oh-doh
   description: Ohio Department of Health
@@ -216,6 +216,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.3674
         receivingFacilityName: OHDOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+        nameFormat: OHIO
 
 - name: nm-doh
   description: New Mexico Department of Health

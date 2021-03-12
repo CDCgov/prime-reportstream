@@ -14,7 +14,7 @@ interface TranslatorProperties {
     val format: Report.Format
     val schemaName: String
     val defaults: Map<String, String>
-    val useAphlNamingFormat: Boolean
+    val nameFormat: Report.NameFormat
     val receivingOrganization: String?
 }
 
@@ -44,7 +44,7 @@ data class Hl7Configuration
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
     val suppressQstForAoe: Boolean = false,
-    override val useAphlNamingFormat: Boolean = false,
+    override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?
 ) : TranslatorConfiguration("HL7") {
     @get:JsonIgnore
@@ -105,7 +105,7 @@ data class RedoxConfiguration
     }
 
     @get:JsonIgnore
-    override val useAphlNamingFormat: Boolean = false
+    override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD
 
     @get:JsonIgnore
     override val receivingOrganization: String? = null
@@ -119,6 +119,6 @@ data class CustomConfiguration
     override val schemaName: String,
     override val format: Report.Format,
     override val defaults: Map<String, String> = emptyMap(),
-    override val useAphlNamingFormat: Boolean = false,
+    override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?
 ) : TranslatorConfiguration("CUSTOM")
