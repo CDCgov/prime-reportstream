@@ -63,7 +63,7 @@ class FileUtilities {
             reports
                 .flatMap { (report, format) ->
                     // Some report formats only support one result per file
-                    if (format.isSingleItemFormat()) {
+                    if (format.isSingleItemFormat) {
                         val splitReports = report.split()
                         splitReports.map { Pair(it, format) }
                     } else {

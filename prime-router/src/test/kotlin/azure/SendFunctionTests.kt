@@ -95,13 +95,14 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         setupWorkflow()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = thirdArg() as
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             nextEvent = block(header, null, null)
         }
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -117,15 +118,15 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = thirdArg() as
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
-
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
@@ -142,8 +143,8 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = thirdArg() as
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val task = Task(
                 reportId,
@@ -169,6 +170,7 @@ class SendFunctionTests {
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -189,8 +191,8 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         val reportId = UUID.randomUUID()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
-            val block = thirdArg() as
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             // Should be high enough retry count that the next action should have an error
@@ -200,6 +202,7 @@ class SendFunctionTests {
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -216,6 +219,8 @@ class SendFunctionTests {
         // Setup
         every { context.logger }.returns(logger)
         every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
+
         // Invoke
         SendFunction(workflowEngine).run("", context)
         // Verify
