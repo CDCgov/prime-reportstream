@@ -10,109 +10,146 @@ local_styles:
     <div class="usa-navbar">
   <div class="usa-logo" id="basic-logo">
     <em class="usa-logo__text">
-      <img src="./css/logo.png" role="img" alt="Logo" style="width:32px;height:32px;vertical-align:middle;" /> 
+      {% comment %}
+      <img src="./css/logo.png" role="img" alt="Logo" style="width:32px;height:32px;vertical-align:middle;" />
+      {% endcomment %}
       <a href="/" title="Home" aria-label="Home">ReportStream</a>
     </em>
   </div>
   <button class="usa-menu-btn">Menu</button>
 </div>
 <nav aria-label="Primary navigation" class="usa-nav">
-  <a class="usa-button usa-button--outline" href="./data-index.html">Sign in</a>
+  <ul class="usa-nav__primary">
+    <li class="usa-nav__primary-item usa-nav__request-account margin-right-2">
+      <a href="mailto:support@prime.cdc.gov?subject=I'm interested in learning more about ReportStream">Request an account</a>
+    </li>
+    <li class="usa-nav__primary-item">
+      <a class="usa-button usa-button--outline" href="./data-index.html">Sign in</a>
+    </li>
+  </ul>
 </nav>
   </div>
 </header>
 
 <main id="main-content">
-  <section class="usa-hero"> 
-  <div class="grid-container margin-top-0">
-    <div class="grid-row grid-gap  margin-bottom-0">
-      <div class="tablet:grid-col-6 margin-bottom-10">
-        <h1 class="text-primary">ReportStream makes it easier to share public health data</h1>
-        <p class="text-black">ReportStream is a free, open-sourced data platform that makes it easier for public health data to be more easily transferred between senders and public health departments.</p>
-        <a class="usa-button" href="javascript:void(0)">Learn more</a>
-      </div>
-      <div class="tablet:grid-col-6 margin-bottom-15">
-        <img class="shadow-2" src="css/ScreenShot.png" />
-      </div>
-    </div>
-  </div>
-</section>
 
-<section class="grid-container usa-section margin-bottom-0">
-  <div class="grid-row grid-gap  margin-bottom-0">
-    <div class="tablet:grid-col-4">
-      <h2 class="font-heading margin-top-0 tablet:margin-bottom-0">For state public health departments</h2>
-      <p class="usa-prose">Get fast, complete COVID-19 electronic test results from your jurisdiction</p>
-    </div>
-    <div class="tablet:grid-col-8 usa-prose margin-bottom-0">
-      <p>
-        <ul>
-          <li><h4 class="margin-bottom-0">Support fewer connections</h4></li>
-          ReportStream’s model focuses on aggregating data from multiple sources and senders, which you receive together in a single feed at your preferred frequency and format.
-          <li><h4 class="margin-bottom-0 margin-top-0">Get valuable insights</h4></li>
-          ReportStream gives you insights about your data, such as reporting trends, and alerts you if there are any errors
-          <li><h4 class="margin-bottom-0 margin-top-0">Receive data from SimpleReport</h4></li>
-          If your jurisdiction is interested in receiving point-of-care tests results from  SimpleReport, you can get this data from ReportStream
-        </ul>
-        </p>
-    </div>
-  </div>
-  <hr />
-  <div class="grid-row grid-gap">
-    <div class="tablet:grid-col-4">
-      <h2 class="font-heading margin-top-0 tablet:margin-bottom-0">For local public health departments</h2>
-      <p class="usa-prose">Get access to COVID-19 electronic test results without building an ELR connection</p>
-    </div>
-    <div class="tablet:grid-col-8 usa-prose margin-top-0">
-      <p >
-        <ul >
-          <li><h4 class="margin-bottom-0">Receive faster data</h4></li>
-          Get direct access to data from senders connected with ReportStream, such as facilities using SimpleReport, in your jurisdiction
-          <li><h4 class="margin-bottom-0 margin-top-0">No ELR necessary</h4></li>
-          Receive data directly via a ReportStream web account
-        </ul>
-        </p>
-
-    </div>
-  </div>
-</section>
-
-<section class="grid-container usa-section">
-  <div class="grid-row grid-gap">
-    <div class="tablet:grid-col-6">
-      <h2 class="font-heading margin-top-0 tablet:margin-bottom-3">Documentation to help you get started with ReportStream</h2>
-      <div class="usa-prose">
-      <p>For states interested in making an ELR connection with ReportStream, please check out the following resources to learn more</p>
+  <section class="rs-hero">
+    <div class="grid-container usa-section margin-bottom-0">
+      <div class="grid-row grid-gap margin-bottom-0 rs-hero__flex-center">
+        <div class="tablet:grid-col-6">
+          <h1 class="text-primary">ReportStream makes it easier to share public health data</h1>
+          <p class="font-sans-lg text-primary line-height-sans-4">ReportStream is a free, open-sourced data platform that makes it easier for public health data to be more easily transferred between senders and public health departments.</p>
+        </div>
+        <div class="tablet:grid-col-6">
+          <img class="shadow-2" src="/assets/img/report-stream-application.png" alt="Screenshot of the ReportStream web application" />
+        </div>
       </div>
     </div>
-    <div class="tablet:grid-col-6">
-      <ul class="usa-collection">
-      <li class="usa-collection__item">
-        <img class="usa-collection__img" src="https://www.nationalstandard.com/wp-content/uploads/2017/10/55145034_s.jpg" alt="Alt text">
-        <div class="usa-collection__body">
-          <h3 class="usa-collection__heading">About ReportStream</h3>
-          <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+  </section>
+
+  <section class="grid-container usa-section margin-bottom-0 padding-bottom-0">
+    <div class="grid-row grid-gap margin-bottom-1">
+      <div class="tablet:grid-col-8">
+        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">State public health departments</h2>
+        <p class="font-sans-lg margin-top-1 text-base">Get fast, complete COVID-19 electronic test results from your jurisdiction</p>
+      </div>
+    </div>
+    <div class="grid-row grid-gap margin-bottom-6">
+      <div class="tablet:grid-col-4 margin-bottom-0">
+        <h3>
+          <img src="/assets/img/code.svg" aria-hidden="true" focusable="false" alt="Icon of computer code"/>
+          Support fewer connections
+        </h3>
+        <p class="usa-prose">ReportStream’s model focuses on aggregating data from multiple sources and senders, which you receive together in a single feed at your preferred frequency and format.</p>
+      </div>
+      <div class="tablet:grid-col-4 margin-bottom-0">
+        <h3>
+          <img src="/assets/img/insights.svg" aria-hidden="true" focusable="false" alt="Icon of a chart"/>
+          Get valuable insights
+        </h3>
+        <p class="usa-prose">ReportStream gives you insights about your data, such as reporting trends, and alerts you if there are any errors.</p>
+      </div>
+      <div class="tablet:grid-col-4 margin-bottom-0">
+        <h3>
+          <img src="/assets/img/content_copy.svg" aria-hidden="true" focusable="false" alt="Icon of multiple documents"/>
+          Receive data from <a href="https://simplereport.gov">SimpleReport</a>
+        </h3>
+        <p class="usa-prose">If your jurisdiction is interested in receiving point-of-care tests results from  <a href="https://simplereport.gov">SimpleReport</a>, you can get this data via ReportStream.</p>
+      </div>
+    </div>
+
+    <div class="grid-row grid-gap  margin-bottom-1 padding-top-2">
+      <div class="tablet:grid-col-8">
+        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">Local public health departments</h2>
+        <p class="font-sans-lg margin-top-1 text-base">Get access to COVID-19 electronic test results without building an Electronic Lab Reporting (ELR) connection</p>
+      </div>
+    </div>
+    <div class="grid-row grid-gap padding-bottom-6 border-bottom-1px border-base-lighter">
+      <div class="tablet:grid-col-4 margin-bottom-0">
+        <h3>
+          <img src="/assets/img/send.svg" aria-hidden="true" focusable="false" alt="Icon of a paper airplane"/>
+          Receive faster data
+        </h3>
+        <p class="usa-prose">Get direct access to data from senders connected with ReportStream, such as facilities using <a href="https://simplereport.gov">SimpleReport</a>, in your jurisdiction.</p>
+      </div>
+      <div class="tablet:grid-col-4 margin-bottom-0">
+        <h3>
+          <img src="/assets/img/cloud.svg" aria-hidden="true" focusable="false" alt="Icon of cloud computing"/>
+          No ELR necessary
+        </h3>
+        <p class="usa-prose">Receive data directly via a ReportStream web account.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid-container usa-section margin-top-0 padding-top-6">
+
+    <div class="grid-row grid-gap  margin-bottom-2 padding-top-2">
+      <div class="tablet:grid-col-8">
+        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">Documentation</h2>
+        <p class="usa-prose">For states interested in making an ELR connection with ReportStream, please check out the following resources to learn more.</p>
+      </div>
+    </div>
+    <ul class="usa-card-group">
+      <li class="tablet:grid-col-4 usa-card">
+        <div class="usa-card__container">
+          <div class="usa-card__body">
+            <img src="/assets/img/file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
+            <h3 class="usa-collection__heading">About ReportStream</h3>
+            <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+          </div>
         </div>
       </li>
-      <li class="usa-collection__item">
-        <img class="usa-collection__img" src="https://www.nationalstandard.com/wp-content/uploads/2017/10/55145034_s.jpg" alt="Alt text">
-        <div class="usa-collection__body">
-          <h3 class="usa-collection__heading">Onboarding guide</h3>
-          <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+      <li class="tablet:grid-col-4 usa-card">
+        <div class="usa-card__container">
+          <div class="usa-card__body">
+            <img src="/assets/img/file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
+            <h3 class="usa-collection__heading">Onboarding guide</h3>
+            <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+          </div>
         </div>
       </li>
-      <li class="usa-collection__item">
-        <img class="usa-collection__img" src="https://www.nationalstandard.com/wp-content/uploads/2017/10/55145034_s.jpg" alt="Alt text">
-        <div class="usa-collection__body">
-          <h3 class="usa-collection__heading">Technical Documentation</h3>
-          <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+      <li class="tablet:grid-col-4 usa-card">
+        <div class="usa-card__container">
+          <div class="usa-card__body">
+            <img src="/assets/img/file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
+            <h3 class="usa-collection__heading">Technical documentation</h3>
+            <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+          </div>
         </div>
-      </li>      
-      </ul>      
-    </div>
-  </div>
-</section>
+      </li>
+    </ul>
 
+    <div class="grid-row grid-gap  margin-bottom-2 padding-top-4">
+      <div class="tablet:grid-col-8">
+        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">Get started</h2>
+        <p class="usa-prose">Ready to bring ReportStream to your jurisdiction? <a href="mailto:support@prime.cdc.gov?subject=I'm interested in learning more about ReportStream">Contact the team at support@prime.cdc.gov</a>.
+        <p>
+        <a class="usa-button" href="javascript:void(0)">Get started with ReportStream</a>
+        </p>
+      </div>
+    </div>
+
+  </section>
 
 </main>
-
