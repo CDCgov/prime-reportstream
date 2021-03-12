@@ -7,6 +7,7 @@ This PR ...
 ## Checklist
 - [ ] Tested locally?
 - [ ] Ran `quickTest all`?
+- [ ] Ran `./prime test` against local Docker ReportStream container?
 - [ ] Downloaded a file from http://localhost:7071/api/download
 - [ ] Updated the release notes? 
 - [ ] Added a test?

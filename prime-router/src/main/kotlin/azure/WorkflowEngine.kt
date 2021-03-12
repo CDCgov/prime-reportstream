@@ -113,7 +113,6 @@ class WorkflowEngine(
      */
     fun handleReportEvent(
         messageEvent: ReportEvent,
-        actionHistory: ActionHistory,
         updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         lateinit var nextEvent: ReportEvent
@@ -142,7 +141,6 @@ class WorkflowEngine(
                 retryJson,
                 txn
             )
-            recordAction(actionHistory, txn)
         }
         queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
     }

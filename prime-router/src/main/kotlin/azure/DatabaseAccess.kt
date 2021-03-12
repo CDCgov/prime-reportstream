@@ -473,6 +473,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     companion object {
         /**
+         * Global var.  Set to false prior to the lazy init, to prevent flyway migrations
+         */
+        var isFlywayMigrationOK = true
+
+        /**
          * Create a connection pool
          *
          * Dev Note: Why a connection pool with a "stateless" Azure function? The
@@ -505,7 +510,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             val dataSource = HikariDataSource(config)
 
             val flyway = Flyway.configure().dataSource(dataSource).load()
-            flyway.migrate()
+            if (isFlywayMigrationOK) {
+                flyway.migrate()
+            }
 
             dataSource
         }
