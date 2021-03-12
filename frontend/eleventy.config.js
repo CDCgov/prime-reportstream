@@ -10,15 +10,16 @@ module.exports = function eleventy_config(cfg) {
   cfg.addFilter('as_literal',
     value => JSON.stringify(value) )
 
-  cfg.addLiquidShortcode("comma", 
+  cfg.addLiquidShortcode("comma",
     num => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") );
 
-  cfg.addLiquidShortcode("date", 
+  cfg.addLiquidShortcode("date",
     (date,fmt) => moment(date).format( fmt ) );
 
 
   cfg.addPassthroughCopy('src/js')
   cfg.addPassthroughCopy('src/css')
+  cfg.addPassthroughCopy('src/assets')
 
   _with_live_reloading(cfg)
 
