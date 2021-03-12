@@ -31,12 +31,6 @@ import java.net.HttpURLConnection
 import java.time.OffsetDateTime
 import kotlin.system.exitProcess
 
-/**
- * Global variable to tell all our code if we're running a commandline test or not.
- * Used to turn off flyway database migrations when true.
- */
-var isCommandLineTest: Boolean = false
-
 class TestReportStream : CliktCommand(
     name = "test",
     help = """Run tests of the Router functions
