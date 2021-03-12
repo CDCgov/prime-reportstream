@@ -23,9 +23,9 @@ variable "location" {
     description = "Storage Account Location"
 }
 
-variable "subnet_ids" {
-    type = list(string)
-    description = "List of VNet Subnet IDs"
+variable "endpoint_subnet_id" {
+    type = string
+    description = "Private Endpoint Subnet ID"
 }
 
 variable "eventhub_namespace_name" {

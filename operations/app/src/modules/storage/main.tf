@@ -11,7 +11,8 @@ resource "azurerm_storage_account" "storage_account" {
 
   network_rules {
     default_action = "Deny"
-    virtual_network_subnet_ids = var.subnet_ids
+    ip_rules = []
+    virtual_network_subnet_ids = []
   }
 
   lifecycle {
@@ -21,6 +22,26 @@ resource "azurerm_storage_account" "storage_account" {
   tags = {
     environment = var.environment
   }
+}
+
+module "storageaccount_blob_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_storage_account.storage_account.id
+  name = azurerm_storage_account.storage_account.name
+  type = "storage_account_blob"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = var.endpoint_subnet_id
+}
+
+module "storageaccount_file_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_storage_account.storage_account.id
+  name = azurerm_storage_account.storage_account.name
+  type = "storage_account_file"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = var.endpoint_subnet_id
 }
 
 module "storageaccount_access_log_event_hub_log" {

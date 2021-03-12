@@ -43,7 +43,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
   }
 }
 
-module "client_config_private_endpoint" {
+module "postgres_private_endpoint" {
   source = "../common/private_endpoint"
   resource_id = azurerm_postgresql_server.postgres_server.id
   name = azurerm_postgresql_server.postgres_server.name

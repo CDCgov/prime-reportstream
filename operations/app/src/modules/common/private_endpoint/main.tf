@@ -19,7 +19,11 @@ locals {
     },
     "storage_account_blob": {
       cnames_private = ["privatelink.blob.core.windows.net"]
-      subresource_names = ["blob", "blob_secondary"]
+      subresource_names = ["blob"]
+    },
+    "storage_account_file": {
+      cnames_private = ["privatelink.file.core.windows.net"]
+      subresource_names = ["file"]
     },
     "container_registry": {
       cnames_private = ["privatelink.azurecr.io"]
