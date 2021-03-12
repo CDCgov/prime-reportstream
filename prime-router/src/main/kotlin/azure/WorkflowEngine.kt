@@ -229,12 +229,6 @@ class WorkflowEngine(
         val retryActionAt: OffsetDateTime? = null,
     )
 
-    fun successfulReceiverResult(
-        headers: List<Header>
-    ): ReceiverResult {
-        return ReceiverResult(arrayOfNulls<RetryToken?>(headers.size).toList())
-    }
-
     /**
      * Create a report object from a header including loading the blob data associated with it
      */
@@ -417,6 +411,12 @@ class WorkflowEngine(
 
         val redoxSerializer: RedoxSerializer by lazy {
             RedoxSerializer(metadata)
+        }
+
+        fun successfulReceiverResult(
+            headers: List<Header>
+        ): ReceiverResult {
+            return ReceiverResult(arrayOfNulls<RetryToken?>(headers.size).toList())
         }
     }
 }

@@ -42,7 +42,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             context.logger.info("Started Send Function: $message")
             val event = Event.parseQueueMessage(message) as ReceiverEvent
             if (event.eventAction != Event.EventAction.SEND) {
-                context.logger.warning("Send function received a unhandled: $message")
+                context.logger.warning("Send function received an unhandled action: $message")
                 return
             }
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
@@ -75,17 +75,22 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                         )
                     }
                 } finally {
-                    if (session != null) session.close()
+                    session?.close()
                 }
-                val retryCount = nextRetryTokens.maxOf { it?.retryCount ?: 0 }
-                val retryAt = calculateRetryTime(retryCount)
-                val retryAction = if (retryCount >= maxRetryCount)
-                    Event.EventAction.SEND_ERROR else Event.EventAction.SEND
-                WorkflowEngine.ReceiverResult(
-                    nextRetryTokens,
-                    retryAction = retryAction,
-                    retryActionAt = retryAt
-                )
+                // Any retryTokens?
+                if (nextRetryTokens.find { it != null } != null) {
+                    val retryCount = nextRetryTokens.maxOf { it?.retryCount ?: 0 }
+                    val retryAt = calculateRetryTime(retryCount)
+                    val retryAction = if (retryCount >= maxRetryCount)
+                        Event.EventAction.SEND_ERROR else Event.EventAction.SEND
+                    WorkflowEngine.ReceiverResult(
+                        nextRetryTokens,
+                        retryAction = retryAction,
+                        retryActionAt = retryAt
+                    )
+                } else {
+                    WorkflowEngine.successfulReceiverResult(headers)
+                }
             }
             // For debugging and auditing purposes
         } catch (t: Throwable) {

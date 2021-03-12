@@ -84,7 +84,9 @@ class ReportFunction {
                 }
                 else -> {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
+
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
+
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)
@@ -230,15 +232,20 @@ class ReportFunction {
                 .translator
                 .filterAndTranslateByReceiver(validatedRequest.report!!, validatedRequest.defaults)
                 .forEach { (report, receiver) ->
-                    sendToDestination(
-                        report,
-                        receiver,
-                        context,
-                        workflowEngine,
-                        validatedRequest,
-                        actionHistory,
-                        txn
-                    )
+                    try {
+                        sendToDestination(
+                            report,
+                            receiver,
+                            context,
+                            workflowEngine,
+                            validatedRequest,
+                            actionHistory,
+                            txn
+                        )
+                    } catch (ex: Exception) {
+                        // Add context to the exception to aid debugging
+                        throw Exception("Exception trying to send (${report.id}) to ${receiver.fullName}", ex)
+                    }
                 }
         }
     }
@@ -272,13 +279,13 @@ class ReportFunction {
                 report
                     .split()
                     .forEach {
-                        val event = ReportEvent(Event.EventAction.SEND, it.id)
+                        val event = ReceiverEvent(Event.EventAction.SEND, receiver.fullName)
                         workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn)
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
-                val event = ReportEvent(Event.EventAction.SEND, report.id)
+                val event = ReceiverEvent(Event.EventAction.SEND, receiver.fullName)
                 workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }

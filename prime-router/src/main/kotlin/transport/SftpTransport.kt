@@ -20,7 +20,7 @@ import java.io.InputStream
 class SftpTransport : ITransport, Logging {
     override fun startSession(receiver: Receiver): Closeable? {
         val transport = receiver.transport as? SFTPTransportType ?: error("Internal Error: expected SFTPTransport")
-        val (user, password) = lookupCredentials(receiver.organizationName)
+        val (user, password) = lookupCredentials(receiver.fullName)
         return SftpSession(transport.host, transport.port, user, password)
     }
 

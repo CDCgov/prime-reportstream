@@ -273,7 +273,7 @@ class WorkflowEngineTests {
         engine.handleReceiverEvent(event, 100, actionHistoryMock) { receiver, headers, _ ->
             assertEquals(oneOrganization.receivers[0], receiver)
             assertEquals(task, headers[0].task)
-            engine.successfulReceiverResult(headers)
+            WorkflowEngine.successfulReceiverResult(headers)
         }
 
         verify(exactly = 1) {

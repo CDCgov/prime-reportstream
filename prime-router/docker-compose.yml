@@ -41,10 +41,10 @@ services:
       - OH_DOH__ELR__PASS=pass
       - PA_PHD__ELR__USER=foo
       - PA_PHD__ELR__PASS=pass
-      - TX_PHD__ELR_TEST__USER=foo
-      - TX_PHD__ELR_TEST__PASS=pass
-      - TX_PHD__ELR_DEBUG__USER=foo
-      - TX_PHD__ELR_DEBUG__PASS=pass
+      - TX_DOH__ELR__USER=foo
+      - TX_DOH__ELR__PASS=pass
+      - NM_DOH__ELR__USER=foo
+      - NM_DOH__ELR__PASS=pass
       - IGNORE__HL7__USER=foo
       - IGNORE__HL7__PASS=pass
       - IGNORE__HL7_BATCH__USER=foo

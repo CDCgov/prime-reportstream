@@ -36,11 +36,12 @@ class BatchFunction {
             val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
+            val sendEvent = ReceiverEvent(Event.EventAction.SEND, receiver.fullName)
 
             workflowEngine.handleReceiverEvent(event, maxBatchSize, actionHistory) { receiver, headers, txn ->
                 if (headers.isEmpty()) {
                     context.logger.info("Batch: empty batch")
-                    return@handleReceiverEvent workflowEngine.successfulReceiverResult(headers)
+                    return@handleReceiverEvent WorkflowEngine.successfulReceiverResult(headers)
                 } else {
                     context.logger.info("Batch contains ${headers.size} reports")
                 }
@@ -61,15 +62,14 @@ class BatchFunction {
                 }
                 outReports.forEach {
                     val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
-                    val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
-                    workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn)
+                    workflowEngine.dispatchReport(sendEvent, outReport, actionHistory, receiver, txn)
                 }
                 val msg = if (inReports.size == 1 && outReports.size == 1) "Success: No merging needed - batch of 1"
                 else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
                 actionHistory.trackActionResult(msg)
-                workflowEngine.successfulReceiverResult(headers)
+                WorkflowEngine.successfulReceiverResult(headers)
             }
-            actionHistory.queueMessages() // Must be done after txn, to avoid race condition
+            workflowEngine.queue.sendMessage(sendEvent)
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, "Batch function exception for event: $message", e)
         }
