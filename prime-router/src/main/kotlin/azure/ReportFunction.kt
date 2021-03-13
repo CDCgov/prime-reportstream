@@ -21,36 +21,41 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.logging.Level
 
+private const val CLIENT_PARAMETER = "client"
+private const val OPTION_PARAMETER = "option"
+private const val DEFAULT_PARAMETER = "default"
+private const val DEFAULT_SEPARATOR = ":"
+private const val ROUTE_TO_PARAMETER = "routeTo"
+private const val ROUTE_TO_SEPARATOR = ","
+
 /**
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
  */
 class ReportFunction {
-    private val clientParameter = "client"
-    private val optionParameter = "option"
-    private val defaultParameter = "default"
-    private val defaultSeparator = ":"
-    private val jsonMediaType = "application/json" // TODO: find a good media library
-
     enum class Options {
         None,
         ValidatePayload,
         CheckConnections,
         SkipSend,
         SkipInvalidItems,
+        SendImmediately,
     }
 
     data class ValidatedRequest(
-        val options: Options,
-        val defaults: Map<String, String>,
-        val errors: List<ResultDetail>,
-        val warnings: List<ResultDetail>,
-        val report: Report?,
-        val httpStatus: HttpStatus
+        val httpStatus: HttpStatus,
+        val errors: List<ResultDetail> = emptyList(),
+        val warnings: List<ResultDetail> = emptyList(),
+        val options: Options = Options.None,
+        val defaults: Map<String, String> = emptyMap(),
+        val routeTo: List<String> = emptyList(),
+        val report: Report? = null,
     )
 
     /**
-     * @see docs/openapi.yml
+     * POST a report to the router
+     *
+     * @see ../../../docs/openapi.yml
      */
     @FunctionName("reports")
     @StorageAccount("AzureWebJobsStorage")
@@ -108,15 +113,15 @@ class ReportFunction {
         if (sizeStatus != HttpStatus.OK) {
             errors.add(ResultDetail.report(errMsg))
             // If size is too big, we ignore the option.
-            return ValidatedRequest(Options.None, emptyMap(), errors, warnings, null, sizeStatus)
+            return ValidatedRequest(sizeStatus, errors, warnings)
         }
 
-        val optionsText = request.queryParameters.getOrDefault(optionParameter, "")
+        val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "")
         val options = if (optionsText.isNotBlank()) {
             try {
                 Options.valueOf(optionsText)
             } catch (e: IllegalArgumentException) {
-                errors.add(ResultDetail.param(optionParameter, "'$optionsText' is not valid"))
+                errors.add(ResultDetail.param(OPTION_PARAMETER, "'$optionsText' is not valid"))
                 Options.None
             }
         } else {
@@ -124,15 +129,22 @@ class ReportFunction {
         }
 
         if (options == Options.CheckConnections) {
-            return ValidatedRequest(options, emptyMap(), errors, warnings, null, HttpStatus.OK)
+            return ValidatedRequest(HttpStatus.OK, errors, warnings, options = options)
         }
 
-        val clientName = request.headers[clientParameter] ?: request.queryParameters.getOrDefault(clientParameter, "")
+        val receiverNamesText = request.queryParameters.getOrDefault(ROUTE_TO_PARAMETER, "")
+        val routeTo = if (receiverNamesText.isNotBlank()) receiverNamesText.split(ROUTE_TO_SEPARATOR) else emptyList()
+        val receiverNameErrors = routeTo
+            .filter { engine.settings.findReceiver(it) == null }
+            .map { ResultDetail.param(ROUTE_TO_PARAMETER, "Invalid receiver name: $it") }
+        errors.addAll(receiverNameErrors)
+
+        val clientName = request.headers[CLIENT_PARAMETER] ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
         if (clientName.isBlank())
-            errors.add(ResultDetail.param(clientParameter, "Expected a '$clientParameter' query parameter"))
+            errors.add(ResultDetail.param(CLIENT_PARAMETER, "Expected a '$CLIENT_PARAMETER' query parameter"))
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
-            errors.add(ResultDetail.param(clientParameter, "'$clientName' is not a valid"))
+            errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$clientName' is not a valid"))
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
@@ -148,13 +160,13 @@ class ReportFunction {
         }
 
         if (sender == null || schema == null || content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, emptyMap(), errors, warnings, null, HttpStatus.BAD_REQUEST)
+            return ValidatedRequest(HttpStatus.BAD_REQUEST, errors, warnings)
         }
 
-        val defaultValues = if (request.queryParameters.containsKey(defaultParameter)) {
-            val values = request.queryParameters.getOrDefault(defaultParameter, "").split(",")
+        val defaultValues = if (request.queryParameters.containsKey(DEFAULT_PARAMETER)) {
+            val values = request.queryParameters.getOrDefault(DEFAULT_PARAMETER, "").split(",")
             values.mapNotNull {
-                val parts = it.split(defaultSeparator)
+                val parts = it.split(DEFAULT_SEPARATOR)
                 if (parts.size != 2) {
                     errors.add(ResultDetail.report("'$it' is not a valid default"))
                     return@mapNotNull null
@@ -166,7 +178,7 @@ class ReportFunction {
                 }
                 val error = element.checkForError(parts[1])
                 if (error != null) {
-                    errors.add(ResultDetail.param(defaultParameter, error))
+                    errors.add(ResultDetail.param(DEFAULT_PARAMETER, error))
                     return@mapNotNull null
                 }
                 Pair(parts[0], parts[1])
@@ -176,7 +188,7 @@ class ReportFunction {
         }
 
         if (content.isEmpty() || errors.isNotEmpty()) {
-            return ValidatedRequest(options, defaultValues, errors, warnings, null, HttpStatus.BAD_REQUEST)
+            return ValidatedRequest(HttpStatus.BAD_REQUEST, errors, warnings)
         }
 
         var report = createReport(engine, sender, content, defaultValues, errors, warnings)
@@ -185,7 +197,7 @@ class ReportFunction {
             report = null
             status = HttpStatus.BAD_REQUEST
         }
-        return ValidatedRequest(options, defaultValues, errors, warnings, report, status)
+        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report)
     }
 
     private fun createReport(
@@ -228,9 +240,12 @@ class ReportFunction {
         workflowEngine.db.transact { txn ->
             workflowEngine
                 .translator
-                .filterAndTranslateByReceiver(validatedRequest.report!!, validatedRequest.defaults)
+                .filterAndTranslateByReceiver(
+                    validatedRequest.report!!,
+                    validatedRequest.defaults,
+                    validatedRequest.routeTo
+                )
                 .forEach { (report, receiver) ->
-                    val organization = workflowEngine.settings.findOrganization(receiver.organizationName)!!
                     sendToDestination(
                         report,
                         receiver,
@@ -261,7 +276,7 @@ class ReportFunction {
                 workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
-            receiver.timing != null -> {
+            receiver.timing != null && validatedRequest.options != Options.SendImmediately -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)

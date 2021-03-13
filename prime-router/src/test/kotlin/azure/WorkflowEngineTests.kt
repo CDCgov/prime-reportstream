@@ -153,11 +153,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackExternalInputReport(any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        val validatedRequest = ReportFunction.ValidatedRequest(
-            ReportFunction.Options.None,
-            emptyMap(),
-            emptyList(), emptyList(), report1, HttpStatus.OK
-        )
+        val validatedRequest = ReportFunction.ValidatedRequest(HttpStatus.OK, report = report1)
         engine.receiveReport(validatedRequest, actionHistory)
 
         verify(exactly = 1) {

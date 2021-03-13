@@ -8,7 +8,10 @@ import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
+import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.transport.ITransport
+import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -55,45 +58,14 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 } else {
                     val retryItems = retryToken?.items
                     val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
-                    val nextRetry = when (receiver.transport) {
-                        is SFTPTransportType -> {
-                            workflowEngine
-                                .sftpTransport
-                                .send(
-                                    receiver.transport,
-                                    header,
-                                    sentReportId,
-                                    retryItems,
-                                    context,
-                                    actionHistory,
-                                )
-                        }
-                        is RedoxTransportType -> {
-                            workflowEngine
-                                .redoxTransport
-                                .send(
-                                    receiver.transport,
-                                    header,
-                                    sentReportId,
-                                    retryItems,
-                                    context,
-                                    actionHistory,
-                                )
-                        }
-                        is NullTransportType -> {
-                            workflowEngine
-                                .nullTransport
-                                .send(
-                                    receiver.transport,
-                                    header,
-                                    sentReportId,
-                                    retryItems,
-                                    context,
-                                    actionHistory,
-                                )
-                        }
-                        else -> null
-                    }
+                    val nextRetry = getTransport(receiver.transport)?.send(
+                        receiver.transport,
+                        header,
+                        sentReportId,
+                        retryItems,
+                        context,
+                        actionHistory,
+                    )
                     if (nextRetry != null) {
                         nextRetryItems += nextRetry
                     }
@@ -109,6 +81,15 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         } finally {
             // Note this is operating in a different transaction than the one that did the fetch/lock of the report
             workflowEngine.recordAction(actionHistory)
+        }
+    }
+
+    private fun getTransport(transportType: TransportType): ITransport? {
+        return when (transportType) {
+            is SFTPTransportType -> workflowEngine.sftpTransport
+            is RedoxTransportType -> workflowEngine.redoxTransport
+            is NullTransportType -> NullTransport()
+            else -> null
         }
     }
 

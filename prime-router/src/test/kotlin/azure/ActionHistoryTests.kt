@@ -12,7 +12,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -58,9 +57,9 @@ class ActionHistoryTests {
         val one = Schema(name = "one", topic = "test", elements = listOf())
         val report1 = Report(one, listOf(), sources = listOf(ClientSource("myOrg", "myClient")))
         val incomingReport = ReportFunction.ValidatedRequest(
-            ReportFunction.Options.CheckConnections, mapOf(),
-            listOf<ResultDetail>(),
-            listOf<ResultDetail>(), report1, HttpStatus.OK
+            HttpStatus.OK,
+            options = ReportFunction.Options.CheckConnections,
+            report = report1,
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
@@ -80,9 +79,8 @@ class ActionHistoryTests {
 
         // must pass a valid report.   Here, its set to null.
         val incomingReport2 = ReportFunction.ValidatedRequest(
-            ReportFunction.Options.CheckConnections, mapOf(),
-            listOf<ResultDetail>(),
-            listOf<ResultDetail>(), null, HttpStatus.OK
+            HttpStatus.OK,
+            options = ReportFunction.Options.CheckConnections
         )
         assertFails { actionHistory1.trackExternalInputReport(incomingReport2, blobInfo1) }
     }
@@ -228,9 +226,8 @@ class ActionHistoryTests {
         val one = Schema(name = "schema1", topic = "topic1", elements = listOf())
         val report1 = Report(one, listOf(), sources = listOf(ClientSource("myOrg", "myClient")))
         val incomingReport = ReportFunction.ValidatedRequest(
-            ReportFunction.Options.None, mapOf(),
-            listOf<ResultDetail>(),
-            listOf<ResultDetail>(), report1, HttpStatus.OK
+            HttpStatus.OK,
+            report = report1,
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
