@@ -8,7 +8,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.credentials.CredentialManagement
+import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserPassCredential
 import net.schmizz.sshj.SSHClient
@@ -19,7 +19,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.logging.Level
 
-class SftpTransport : ITransport, CredentialManagement {
+class SftpTransport : ITransport {
     override fun send(
         transportType: TransportType,
         header: WorkflowEngine.Header,
@@ -68,15 +68,18 @@ class SftpTransport : ITransport, CredentialManagement {
     }
 
     companion object {
+        // This needs to be part of the SFTP instance, as it requires the credentialService, which is determined at runtime
         fun lookupCredentials(receiverFullName: String): Pair<String, String> {
-
-            val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
+            val credentialLabel = receiverFullName
+                .replace(".", "__")
+                .replace('-', '_')
+                .toUpperCase()
 
             // Assumes credential will be cast as UserPassCredential, if not return null, and thus the error case
-            val credential = credentialService.fetchCredential(
-                envVarLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
+            val credential = CredentialHelper.getCredentialService().fetchCredential(
+                credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
             ) as? UserPassCredential?
-                ?: error("Unable to find SFTP credentials for $orgName connectionId($envVarLabel)")
+                ?: error("Unable to find SFTP credentials for $receiverFullName connectionId($credentialLabel)")
 
             return Pair(credential.user, credential.pass)
         }

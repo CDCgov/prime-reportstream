@@ -1,5 +1,15 @@
 package gov.cdc.prime.router.credentials
 
+// Option to access credential service by static class
+class CredentialHelper() {
+    companion object {
+        fun getCredentialService(): CredentialService {
+            return credentialServiceForStorageMethod()
+        }
+    }
+}
+
+// Option to access credential service by interface
 interface CredentialManagement {
     @Suppress("unused")
     val credentialService: CredentialService
