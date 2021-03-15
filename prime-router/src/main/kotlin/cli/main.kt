@@ -143,10 +143,11 @@ class ProcessData : CliktCommand(
         metavar = "<path>",
         help = "write output files to this directory instead of the working directory. Ignored if --output is set."
     )
-    private val useAphlFileName by option(
-        "--output-aphl-filename",
+    private val nameFormat by option(
+        "--name-format",
+        metavar = "<file name format>",
         help = "Output using the APHL file format"
-    ).flag()
+    )
     private val receivingOrganization by option(
         "--output-receiving-org",
         metavar = "<org name>",
@@ -249,7 +250,7 @@ class ProcessData : CliktCommand(
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
-                        useAphlFileName || report.destination?.translation?.useAphlNamingFormat ?: false,
+                        getNameFormat(Report.NameFormat.STANDARD),
                         receivingOrganization ?: report.destination?.translation?.receivingOrganization
                     )
                     File(outputDir ?: ".", fileName)
@@ -283,6 +284,10 @@ class ProcessData : CliktCommand(
 
     private fun getOutputFormat(default: Report.Format): Report.Format {
         return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
+    }
+
+    private fun getNameFormat(default: Report.NameFormat): Report.NameFormat {
+        return if (nameFormat != null) Report.NameFormat.valueOf(nameFormat!!) else default
     }
 
     private fun getDefaultValues(): DefaultValues {
@@ -394,7 +399,7 @@ class ProcessData : CliktCommand(
         // Output reports
         writeReportsToFile(outputReports) { report, format, stream ->
             val hl7Configuration = Hl7Configuration(
-                useAphlNamingFormat = useAphlFileName,
+                nameFormat = getNameFormat(Report.NameFormat.STANDARD),
                 suppressQstForAoe = suppressQstForAoe,
                 receivingApplicationName = receivingApplication,
                 receivingFacilityName = receivingFacility,

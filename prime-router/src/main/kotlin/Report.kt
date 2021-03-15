@@ -39,6 +39,12 @@ const val REPORT_MAX_ERRORS = 100
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report {
+    enum class NameFormat {
+        STANDARD,
+        APHL,
+        OHIO,
+    }
+
     enum class Format(
         val ext: String,
         val mimeType: String,
@@ -117,7 +123,7 @@ class Report {
         schema.baseName,
         bodyFormat,
         createdDateTime,
-        destination?.translation?.useAphlNamingFormat ?: false,
+        destination?.translation?.nameFormat ?: NameFormat.STANDARD,
         destination?.translation?.receivingOrganization
     )
 
@@ -684,39 +690,46 @@ class Report {
             schemaName: String,
             fileFormat: Format?,
             createdDateTime: OffsetDateTime,
-            useAphlFormat: Boolean = false,
+            nameFormat: NameFormat = NameFormat.STANDARD,
             receivingOrganization: String? = null,
             sendingFacility: String = "cdcprime"
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
-            return if (useAphlFormat) {
-                /*
-                APHL has a format that requires a different file name format that looks like this:
-                <SO>_<SF>_<RO>_<SE>_<RE>_<OF>_<Timestamp>.extension
+            return when (nameFormat) {
+                NameFormat.APHL -> {
+                    /*
+                        APHL has a format that requires a different file name format that looks like this:
+                        <SO>_<SF>_<RO>_<SE>_<RE>_<OF>_<Timestamp>.extension
 
-                SO - sending organization
-                SF - sending facility
-                RO - receiving organization
-                SE - sending environment (test/prod)
-                RE - receiving environment (test/prod)
-                OF - original file name (optional)
-                Timestamp - creation ts of the file
-                Extension - HL7 for hl7, csv for csv, etc
+                        SO - sending organization
+                        SF - sending facility
+                        RO - receiving organization
+                        SE - sending environment (test/prod)
+                        RE - receiving environment (test/prod)
+                        OF - original file name (optional)
+                        Timestamp - creation ts of the file
+                        Extension - HL7 for hl7, csv for csv, etc
 
-                Examples:
-                OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
-                ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
+                        Examples:
+                        OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
+                        ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
                  */
-                val so = "cdcprime"
-                val se = "testing"
-                val re = "testing"
-                val ts = formatter.format(createdDateTime)
-                // have to escape with curly braces because Kotlin allows underscores in variable names
-                "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
-            } else {
-                val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-                "$namePrefix.$nameSuffix"
+                    val so = "cdcprime"
+                    val se = "testing"
+                    val re = "testing"
+                    val ts = formatter.format(createdDateTime)
+                    // have to escape with curly braces because Kotlin allows underscores in variable names
+                    "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
+                }
+                NameFormat.OHIO -> {
+                    val ts = formatter.format(createdDateTime)
+                    "CDCPRIME_$ts.hl7"
+                }
+                NameFormat.STANDARD -> {
+                    val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
+                    "$namePrefix.$nameSuffix"
+                }
             }
         }
 

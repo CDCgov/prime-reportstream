@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import java.time.Instant
+import java.time.ZoneId
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -83,8 +85,14 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
         )
 
+        val o = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now()).toString()
+        val offset = if (o == "Z") {
+            "+0000"
+        } else {
+            o.replace(":", "")
+        }
         val result3 = two.toNormalized("19980330", "yyyyMMdd")
-        assertEquals("199803300000-0600", result3)
+        assertEquals("199803300000$offset", result3)
 
         val three = Element(
             "a",
@@ -92,7 +100,7 @@ internal class ElementTests {
         )
 
         val result4 = three.toNormalized("2020-12-09", "yyyy-MM-dd")
-        assertEquals("202012090000-0600", result4)
+        assertEquals("202012090000$offset", result4)
     }
 
     @Test
