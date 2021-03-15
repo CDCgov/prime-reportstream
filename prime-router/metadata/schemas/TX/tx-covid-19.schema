@@ -244,14 +244,19 @@ elements:
 
   # AOE questions
   - name: pregnant
+    default: 261665006
 
   - name: employed_in_healthcare
+    default: UNK
 
   - name: first_test
+    default: UNK
 
   - name: hospitalized
+    default: UNK
 
   - name: icu
+    default: UNK
 
   - name: illness_onset_date
 
@@ -260,6 +265,8 @@ elements:
   - name: patient_age_units
 
   - name: resident_congregate_setting
+    default: UNK
 
   - name: symptomatic_for_disease
+    default: UNK
 
