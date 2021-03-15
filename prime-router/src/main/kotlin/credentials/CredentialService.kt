@@ -5,7 +5,7 @@ import org.apache.logging.log4j.kotlin.Logging
 abstract class CredentialService : Logging {
 
     companion object {
-        private val URL_SAFE_KEY_PATTERN = Regex("^[a-zA-Z0-9_-]*$")
+        private val URL_SAFE_KEY_PATTERN = Regex("^[a-zA-Z0-9-]*$")
     }
 
     /* Methods to implement in subclasses */

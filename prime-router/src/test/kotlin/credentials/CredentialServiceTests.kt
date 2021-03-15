@@ -39,7 +39,7 @@ internal class CredentialServiceTests : CredentialManagement {
                 )
                 fail("IllegalArgumentException not thrown for $it")
             } catch (e: IllegalArgumentException) {
-                assertEquals("connectionId must match: ^[a-zA-Z0-9_-]*\$", e.message)
+                assertEquals("connectionId must match: ^[a-zA-Z0-9-]*\$", e.message)
             }
         }
     }
@@ -58,14 +58,18 @@ internal class CredentialServiceTests : CredentialManagement {
                 credentialService.saveCredential(it, VALID_CREDENTIAL, "CredentialServiceTest")
                 fail("IllegalArgumentException not thrown for $it")
             } catch (e: IllegalArgumentException) {
-                assertEquals("connectionId must match: ^[a-zA-Z0-9_-]*\$", e.message)
+                assertEquals("connectionId must match: ^[a-zA-Z0-9-]*\$", e.message)
             }
         }
     }
 
     companion object {
-        private val VALID_CONNECTION_IDS = listOf("valid1", "35wtfsdfe4t4wr4w4343", "with_underscores-and-dashes")
-        private val INVALID_CONNECTION_IDS = listOf("slashes/are/not/allowed", "no spaces", "?andotherthings")
+        private val VALID_CONNECTION_IDS = listOf(
+            "valid1", "35wtfsdfe4t4wr4w4343", "with-dashes-in-name-"
+        )
+        private val INVALID_CONNECTION_IDS = listOf(
+            "slashes/are/not/allowed", "no spaces", "?andotherthings", "underscore_not-allowed"
+        )
         private val VALID_CREDENTIAL = UserPassCredential("user1", "pass1")
     }
 }
