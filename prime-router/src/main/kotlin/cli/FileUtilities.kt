@@ -90,7 +90,7 @@ class FileUtilities {
                     report.schema.baseName,
                     format,
                     report.createdDateTime,
-                    useAphlFormat = false,
+                    nameFormat = Report.NameFormat.STANDARD,
                     report.destination?.translation?.receivingOrganization,
                 )
                 File(outputDir ?: ".", fileName)

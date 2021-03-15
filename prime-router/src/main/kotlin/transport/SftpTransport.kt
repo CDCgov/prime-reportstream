@@ -8,6 +8,9 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.credentials.CredentialHelper
+import gov.cdc.prime.router.credentials.CredentialRequestReason
+import gov.cdc.prime.router.credentials.UserPassCredential
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
@@ -66,17 +69,18 @@ class SftpTransport : ITransport {
 
     companion object {
         fun lookupCredentials(receiverFullName: String): Pair<String, String> {
+            val credentialLabel = receiverFullName
+                .replace(".", "--")
+                .replace("_", "-")
+                .toUpperCase()
 
-            val envVarLabel = receiverFullName.replace(".", "__").replace('-', '_').toUpperCase()
-            val userVarLabel = "${envVarLabel}__USER"
-            val passVarLabel = "${envVarLabel}__PASS"
-            val user = System.getenv(userVarLabel) ?: ""
-            val pass = System.getenv(passVarLabel) ?: ""
+            // Assumes credential will be cast as UserPassCredential, if not return null, and thus the error case
+            val credential = CredentialHelper.getCredentialService().fetchCredential(
+                credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
+            ) as? UserPassCredential?
+                ?: error("Unable to find SFTP credentials for $receiverFullName connectionId($credentialLabel)")
 
-            if (user.isBlank() || pass.isBlank())
-                error("Unable to find SFTP creds for $receiverFullName.  Looking for $userVarLabel, $passVarLabel")
-
-            return Pair(user, pass)
+            return Pair(credential.user, credential.pass)
         }
 
         fun connect(

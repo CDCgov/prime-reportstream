@@ -28,7 +28,10 @@ import org.jooq.impl.DSL
 import java.io.File
 import java.lang.Thread.sleep
 import java.net.HttpURLConnection
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.OffsetDateTime
+import kotlin.io.path.exists
 import kotlin.system.exitProcess
 
 class TestReportStream : CliktCommand(
@@ -140,6 +143,10 @@ Examples:
     }
 
     override fun run() {
+        // Create directory if it does not exist
+        val dirPath = Paths.get(dir)
+        if (Files.notExists(dirPath)) Files.createDirectory(dirPath)
+
         DatabaseAccess.isFlywayMigrationOK = false
         if (list) {
             echo("Available options to --run <test1,test2> are:")

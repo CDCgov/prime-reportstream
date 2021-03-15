@@ -34,11 +34,13 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      */
     fun filterAndTranslateByReceiver(
         input: Report,
-        defaultValues: DefaultValues = emptyMap()
+        defaultValues: DefaultValues = emptyMap(),
+        limitReceiversTo: List<String> = emptyList()
     ): List<Pair<Report, Receiver>> {
         if (input.isEmpty()) return emptyList()
         return settings.receivers.filter { receiver ->
-            receiver.topic == input.schema.topic
+            receiver.topic == input.schema.topic &&
+                (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
             val mappedReport = translateByReceiver(input, receiver, defaultValues)
             if (mappedReport.itemCount == 0) return@mapNotNull null
