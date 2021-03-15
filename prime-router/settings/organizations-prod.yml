@@ -205,7 +205,7 @@
         type: SFTP
         host: 204.58.124.41
         port: 22
-        filePath: ./HL7
+        filePath: ./
 
 - name: oh-doh
   description: Ohio Department of Health
