@@ -57,7 +57,9 @@ class CredentialsCli : CredentialManagement, CliktCommand(
 
         persist?.let { credentialId ->
             credentialService.saveCredential(credentialId, credential, "CredentialsCli")
-            credentialService.fetchCredential(credentialId, "CredentialCli", CredentialRequestReason.PERSIST_VERIFY) ?: error("Failed to persist credential!")
+            credentialService.fetchCredential(
+                credentialId, "CredentialCli", CredentialRequestReason.PERSIST_VERIFY
+            ) ?: error("Failed to persist credential!")
         }
     }
 }

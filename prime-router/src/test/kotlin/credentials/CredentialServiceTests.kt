@@ -15,14 +15,18 @@ internal class CredentialServiceTests : CredentialManagement {
         val connectionId = "id1"
         credentialService.saveCredential(connectionId, VALID_CREDENTIAL, "CredentialServiceTest")
 
-        val retVal = credentialService.fetchCredential(connectionId, "CredentialServiceTest", CredentialRequestReason.AUTOMATED_TEST)
+        val retVal = credentialService.fetchCredential(
+            connectionId, "CredentialServiceTest", CredentialRequestReason.AUTOMATED_TEST
+        )
         assertEquals(VALID_CREDENTIAL, retVal, "Credential service did not return expected credential")
     }
 
     @Test
     fun `test fetchCredential handles valid connectionIds`() {
         VALID_CONNECTION_IDS.forEach {
-            credentialService.fetchCredential(it, "CredentialServiceTest", CredentialRequestReason.AUTOMATED_TEST)
+            credentialService.fetchCredential(
+                it, "CredentialServiceTest", CredentialRequestReason.AUTOMATED_TEST
+            )
         }
     }
 
@@ -30,7 +34,9 @@ internal class CredentialServiceTests : CredentialManagement {
     fun `test fetchCredential throws IllegalArgumentException with non-url safe connectionIds`() {
         INVALID_CONNECTION_IDS.forEach {
             try {
-                credentialService.fetchCredential(it, "CredentialServiceTest", CredentialRequestReason.AUTOMATED_TEST)
+                credentialService.fetchCredential(
+                    it, "CredentialServiceTest", CredentialRequestReason.AUTOMATED_TEST
+                )
                 fail("IllegalArgumentException not thrown for $it")
             } catch (e: IllegalArgumentException) {
                 assertEquals("connectionId must match: ^[a-zA-Z0-9_-]*\$", e.message)

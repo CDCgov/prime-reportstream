@@ -2,11 +2,18 @@ package gov.cdc.prime.router.credentials
 
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Method
-import io.mockk.*
+import io.mockk.every
+import io.mockk.spyk
+import io.mockk.unmockkObject
 import net.wussmann.kenneth.mockfuel.MockFuelClient
 import net.wussmann.kenneth.mockfuel.MockFuelStore
 import net.wussmann.kenneth.mockfuel.data.MockResponse
-import kotlin.test.*
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 internal class HashicorpVaultCredentialServiceTests {
 
@@ -36,7 +43,9 @@ internal class HashicorpVaultCredentialServiceTests {
             MockResponse(200, """{"data":{"@type":"UserPass","user":"user","pass":"pass"}}""".toByteArray())
         }
 
-        val credential = credentialService.fetchCredential(CONNECTION_ID, "HashicorpVaultCredentialServiceTests", CredentialRequestReason.AUTOMATED_TEST)
+        val credential = credentialService.fetchCredential(
+            CONNECTION_ID, "HashicorpVaultCredentialServiceTests", CredentialRequestReason.AUTOMATED_TEST
+        )
 
         mockFuelStore.verifyRequest {
             assertMethod(Method.GET)
@@ -55,7 +64,9 @@ internal class HashicorpVaultCredentialServiceTests {
             MockResponse(400)
         }
 
-        val credential = credentialService.fetchCredential(CONNECTION_ID, "HashicorpVaultCredentialServiceTests", CredentialRequestReason.AUTOMATED_TEST)
+        val credential = credentialService.fetchCredential(
+            CONNECTION_ID, "HashicorpVaultCredentialServiceTests", CredentialRequestReason.AUTOMATED_TEST
+        )
 
         mockFuelStore.verifyRequest {
             assertMethod(Method.GET)
@@ -72,7 +83,9 @@ internal class HashicorpVaultCredentialServiceTests {
             MockResponse(204)
         }
 
-        credentialService.saveCredential(CONNECTION_ID, VALID_CREDENTIAL, "HashicorpVaultCredentialServiceTests")
+        credentialService.saveCredential(
+            CONNECTION_ID, VALID_CREDENTIAL, "HashicorpVaultCredentialServiceTests"
+        )
 
         mockFuelStore.verifyRequest {
             assertMethod(Method.POST)

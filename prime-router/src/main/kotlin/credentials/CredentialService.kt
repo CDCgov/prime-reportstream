@@ -16,13 +16,17 @@ abstract class CredentialService : Logging {
     /* Base implementation for credentialService with validations */
 
     fun fetchCredential(connectionId: String, callerId: String, reason: CredentialRequestReason): Credential? {
-        require(URL_SAFE_KEY_PATTERN.matches(connectionId)) { "connectionId must match: ${URL_SAFE_KEY_PATTERN.pattern}" }
+        require(URL_SAFE_KEY_PATTERN.matches(connectionId)) {
+            "connectionId must match: ${URL_SAFE_KEY_PATTERN.pattern}"
+        }
         logger.info { "CREDENTIAL REQUEST: $callerId requested connectionId($connectionId) credential for $reason" }
         return fetchCredential(connectionId)
     }
 
     fun saveCredential(connectionId: String, credential: Credential, callerId: String) {
-        require(URL_SAFE_KEY_PATTERN.matches(connectionId)) { "connectionId must match: ${URL_SAFE_KEY_PATTERN.pattern}" }
+        require(URL_SAFE_KEY_PATTERN.matches(connectionId)) {
+            "connectionId must match: ${URL_SAFE_KEY_PATTERN.pattern}"
+        }
         logger.info { "CREDENTIAL UPDATE: $callerId updating connectionId($connectionId) credential..." }
         saveCredential(connectionId, credential)
         logger.info { "CREDENTIAL UPDATE: $callerId updated connectionId($connectionId) credential successfully." }

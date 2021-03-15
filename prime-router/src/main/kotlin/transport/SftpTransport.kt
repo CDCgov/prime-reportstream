@@ -70,14 +70,16 @@ class SftpTransport : ITransport, CredentialManagement {
     companion object {
         fun lookupCredentials(receiverFullName: String): Pair<String, String> {
 
-        val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
+            val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
 
-        // Assumes credential will be cast as UserPassCredential, if not return null, and thus the error case
-        val credential = credentialService.fetchCredential(envVarLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD) as? UserPassCredential?
-            ?: error("Unable to find SFTP credentials for $orgName connectionId($envVarLabel)")
+            // Assumes credential will be cast as UserPassCredential, if not return null, and thus the error case
+            val credential = credentialService.fetchCredential(
+                envVarLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
+            ) as? UserPassCredential?
+                ?: error("Unable to find SFTP credentials for $orgName connectionId($envVarLabel)")
 
-        return Pair(credential.user, credential.pass)
-    }
+            return Pair(credential.user, credential.pass)
+        }
 
         fun connect(
             host: String,

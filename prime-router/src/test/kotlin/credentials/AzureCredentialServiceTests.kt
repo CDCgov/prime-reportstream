@@ -4,8 +4,17 @@ import com.azure.core.credential.TokenCredential
 import com.azure.security.keyvault.secrets.SecretClient
 import com.azure.security.keyvault.secrets.SecretClientBuilder
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret
-import io.mockk.*
-import kotlin.test.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkClass
+import io.mockk.spyk
+import io.mockk.unmockkObject
+import io.mockk.verify
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.fail
 
 internal class AzureCredentialServiceTests {
 
@@ -32,7 +41,9 @@ internal class AzureCredentialServiceTests {
 
         val mockAzureCredential = mockkClass(TokenCredential::class)
 
-        val retVal = credentialService.initSecretClient(secretClientBuilder = secretClientBuilder, credential = mockAzureCredential)
+        val retVal = credentialService.initSecretClient(
+            secretClientBuilder = secretClientBuilder, credential = mockAzureCredential
+        )
         verify { secretClientBuilder.vaultUrl("https://$KEY_VAULT_NAME.vault.azure.net") }
         verify { secretClientBuilder.credential(mockAzureCredential) }
 
@@ -42,7 +53,9 @@ internal class AzureCredentialServiceTests {
     @Test
     fun `uses Key Vault to retrieve a secret`() {
         every { secretClient.getSecret(any()) } returns KeyVaultSecret("$CONNECTION_ID", VALID_CREDENTIAL_JSON)
-        val credential = credentialService.fetchCredential(CONNECTION_ID, CALLER_ID, CredentialRequestReason.AUTOMATED_TEST)
+        val credential = credentialService.fetchCredential(
+            CONNECTION_ID, CALLER_ID, CredentialRequestReason.AUTOMATED_TEST
+        )
         assertEquals(VALID_CREDENTIAL, credential, "Expected credential not returned")
     }
 
