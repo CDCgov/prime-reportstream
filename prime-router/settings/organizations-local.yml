@@ -211,6 +211,7 @@
         deidentify: false
         translation:
           type: HL7
+          schemaName: nd/nd-covid-19
           useBatchHeaders: true
           receivingApplicationName: Maven
           receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
@@ -244,7 +245,7 @@
           receivingOrganization: laoph
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
-          useAphlNamingFormat: true
+          nameFormat: APHL
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -275,6 +276,7 @@
           receivingApplicationOID: 2.16.840.1.114222.4.1.3674
           receivingFacilityName: OHDOH
           receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+          nameFormat: OHIO
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -347,13 +349,70 @@
       - name: elr
         organizationName: tx-doh
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, TX)" ]
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, TX)
         translation:
           type: HL7
           schemaName: tx/tx-covid-19
           useBatchHeaders: true
           receivingApplicationName: NEDSS
           receivingFacilityName: TX-ELR
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: gu-doh
+    description: Guam Department of Health
+    jurisdiction: STATE
+    stateCode: GU
+    receivers:
+      - name: elr
+        organizationName: gu-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, GU)
+        translation:
+          type: HL7
+          schemaName: gu/gu-covid-19
+          useBatchHeaders: true
+          receivingApplicationName: GUDOH
+          receivingFacilityName: GUDOH
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: CHAMORRO
+
+  - name: vt-doh
+    description: Vermont Department of Health
+    jurisdiction: STATE
+    stateCode: VT
+    receivers:
+      - name: elr
+        organizationName: vt-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, VT)
+        translation:
+          type: HL7
+          schemaName: vt/vt-covid-19
+          useBatchHeaders: true
+          receivingApplicationName: NBS
+          receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+          receivingFacilityName: VDH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.185
         transport:
           type: SFTP
           host: sftp
