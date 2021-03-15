@@ -86,6 +86,10 @@ resource "azurerm_function_app" "function_app" {
     "TX_DOH__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-user)"
     "TX_DOH__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-pass)"
 
+    # Manage client secrets via a KeyVault
+    "CREDENTIAL_STORAGE_METHOD": "AZURE"
+    "CREDENTIAL_KEY_VAULT_NAME": "${var.resource_prefix}-clientconfig"
+
     "WEBSITE_VNET_ROUTE_ALL" = 1
 
     "DOCKER_REGISTRY_SERVER_URL" = var.login_server
