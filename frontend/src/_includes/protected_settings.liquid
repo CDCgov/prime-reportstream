@@ -4,7 +4,7 @@ cdn_styles:
   - href: "https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css"
     integrity: "sha384-NHrrVHQI7Uja/X0/0SMVLSk+nFzWI8AwBi1LqSOu7PogLHanNl0fOq1tTdvgb9C7"
   - href: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/css/uswds.min.css"
-    integrity: "sha512-sL+HPuomAmkkQJsmqQN6RDNe926lTzNBQbRsEMq1dnGU1zI8Qke2pab7A5+kRr3nmYxuONtFhicbS5Y2uNkZWQ==" 
+    integrity: "sha512-sL+HPuomAmkkQJsmqQN6RDNe926lTzNBQbRsEMq1dnGU1zI8Qke2pab7A5+kRr3nmYxuONtFhicbS5Y2uNkZWQ=="
 
 cdn_scripts:
   - src: "https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js"
@@ -18,17 +18,14 @@ post_scripts:
     integrity: "sha512-ohEb4+2we68Bx+r0bzmujZwPVxjs+cD0lRykggDCj36aoqO9Tex8TaNO3gzBr8re+MVbbF5Av/d7VDQxUe+zlw=="
 local_styles:
   - "./css/prime.css"
-  
+
 data-index: "../data-index.html"
 current: "profile"
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Cache-Control" content="no-store" />
+  {% include head_tags_universal %}
 
   <script>
     let jwt = window.sessionStorage.getItem("jwt");
@@ -38,19 +35,7 @@ current: "profile"
 
   <title>CDC PRIME ReportStream</title>
 
-  <meta name="robots" content="none" />
-
-  {% for entry in cdn_styles %}
-    <link rel="stylesheet" type="text/css" href="{{entry.href}}" integrity="{{entry.integrity}}" crossorigin="anonymous"/>
-  {% endfor %}
-
-  {% for entry in local_styles %}
-    <link rel="stylesheet" type="text/css" href="{{entry | url}}" />
-  {% endfor %}
-
-  {% for entry in cdn_scripts %}
-    <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
-  {% endfor %}
+  {% include head_tags_styles_scripts %}
 </head>
 
 <body>
@@ -71,7 +56,7 @@ current: "profile"
   <div class="grid-row grid-gap">
     <div class="tablet:grid-col-4">
       <nav aria-label="Secondary navigation">
-        <ul class="usa-sidenav">          
+        <ul class="usa-sidenav">
           <li class="usa-sidenav__item">
           {% if current == "profile" %}
           <a href="./profile.html" class="usa-current">
@@ -83,7 +68,7 @@ current: "profile"
           <li class="usa-sidenav__item">
           {% if current == "organization" %}
             <a href="./organization.html" class="usa-current">
-          {% else %}  
+          {% else %}
             <a href="./organization.html">
           {%endif%}
             Organization</a>
@@ -120,8 +105,8 @@ current: "profile"
     </div>
   </div>
 </section>
-  
-</main> 
+
+</main>
 
 <section>
   {% include identifier %}
