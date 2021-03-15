@@ -68,7 +68,6 @@ class SftpTransport : ITransport {
     }
 
     companion object {
-        // This needs to be part of the SFTP instance, as it requires the credentialService, which is determined at runtime
         fun lookupCredentials(receiverFullName: String): Pair<String, String> {
             val credentialLabel = receiverFullName
                 .replace(".", "__")
