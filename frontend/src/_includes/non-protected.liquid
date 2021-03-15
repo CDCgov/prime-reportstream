@@ -1,0 +1,69 @@
+---
+permalink: "{{ page.filePathStem }}.html" # prefer named files, not blog-like permalinks
+cdn_styles:
+  - href: "https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css"
+    integrity: "sha384-NHrrVHQI7Uja/X0/0SMVLSk+nFzWI8AwBi1LqSOu7PogLHanNl0fOq1tTdvgb9C7"
+  - href: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/css/uswds.min.css"
+    integrity: "sha512-sL+HPuomAmkkQJsmqQN6RDNe926lTzNBQbRsEMq1dnGU1zI8Qke2pab7A5+kRr3nmYxuONtFhicbS5Y2uNkZWQ==" 
+
+cdn_scripts:
+  - src: "https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js"
+    integrity: "sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh"
+  - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds-init.min.js"
+    integrity: "sha512-Zy/dqU71uCdMWS6VdSqc/+2RjOxbq/ySinrQyLG3wTVWSXtBQpK6/b2Ky6vT2JHuFsNm8yBZMJ8zeMQ/ji2qMA=="
+
+post_scripts:
+  - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds.min.js"
+    integrity: "sha512-ohEb4+2we68Bx+r0bzmujZwPVxjs+cD0lRykggDCj36aoqO9Tex8TaNO3gzBr8re+MVbbF5Av/d7VDQxUe+zlw=="
+
+local_styles:
+  - "./css/prime.css"
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>CDC PRIME ReportStream</title>
+
+  <meta name="robots" content="none" />
+
+  {% for entry in cdn_styles %}
+    <link rel="stylesheet" type="text/css"
+      href="{{entry.href}}"
+      integrity="{{entry.integrity}}"
+      crossorigin="anonymous"/>
+  {% endfor %}
+
+  {% for entry in local_styles %}
+    <link rel="stylesheet" type="text/css"
+      href="{{entry | url}}" />
+  {% endfor %}
+
+  {% for entry in cdn_scripts %}
+    <script
+      src="{{entry.src}}"
+      integrity="{{entry.integrity}}"
+      crossorigin="anonymous"></script>
+  {% endfor %}
+</head>
+
+<body>
+  {% include gov_header %}
+
+  <main> 
+    {{ content }}
+  </main> 
+
+  {% include identifier %}
+
+  {% for entry in post_scripts %}
+    <script
+      src="{{entry.src}}"
+      integrity="{{entry.integrity}}"
+      crossorigin="anonymous"></script>
+  {% endfor %}
+</body>
+</html>

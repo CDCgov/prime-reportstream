@@ -22,6 +22,14 @@ class Metadata {
         Obx17Mapper(),
         Obx17TypeMapper(),
         Obx8Mapper(),
+        DateTimeOffsetMapper(),
+        CoalesceMapper(),
+        StripPhoneFormattingMapper(),
+        StripNonNumericDataMapper(),
+        StripNumericDataMapper(),
+        SplitMapper(),
+        ZipCodeToCountyMapper(),
+        SplitByCommaMapper(),
     )
 
     private var jurisdictionalFilters = listOf(
@@ -30,20 +38,17 @@ class Metadata {
         DoesNotMatch(),
     )
     private var valueSets = mapOf<String, ValueSet>()
-    private var organizationStore: List<Organization> = ArrayList()
-    private var organizationServiceStore: List<OrganizationService> = ArrayList()
-    private var organizationClientStore: List<OrganizationClient> = ArrayList()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
     /**
      * Load all parts of the metadata catalog from a directory and its sub-directories
      */
-    constructor(metadataPath: String, orgExt: String? = null) {
-        val organizationsFilename = "$organizationsBaseName${orgExt ?: ""}.yml"
+    constructor(
+        metadataPath: String
+    ) {
         val metadataDir = File(metadataPath)
         if (!metadataDir.isDirectory) error("Expected metadata directory")
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
-        loadOrganizations(metadataDir.toPath().resolve(organizationsFilename).toString())
         loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
     }
@@ -55,12 +60,10 @@ class Metadata {
         schema: Schema? = null,
         valueSet: ValueSet? = null,
         tableName: String? = null,
-        table: LookupTable? = null,
-        organization: Organization? = null,
+        table: LookupTable? = null
     ) {
         valueSet?.let { loadValueSets(it) }
         table?.let { loadLookupTable(tableName ?: "", it) }
-        organization?.let { loadOrganizations(it) }
         schema?.let { loadSchemas(it) }
     }
 
@@ -215,8 +218,8 @@ class Metadata {
     }
 
     /*
-      * ValueSet
-      */
+     * ValueSet
+     */
 
     fun loadValueSetCatalog(catalog: String): Metadata {
         val catalogDir = File(catalog)
@@ -258,91 +261,6 @@ class Metadata {
 
     private fun normalizeValueSetName(name: String): String {
         return name.toLowerCase()
-    }
-
-    /*
-     * Organizations
-     */
-
-    val organizations get() = this.organizationStore
-    val organizationClients get() = this.organizationClientStore
-    val organizationServices get() = this.organizationServiceStore
-
-    fun loadOrganizations(filePath: String): Metadata {
-        try {
-            return loadOrganizations(File(filePath).inputStream())
-        } catch (e: Exception) {
-            throw Exception("Error loading: $filePath", e)
-        }
-    }
-
-    fun loadOrganizations(organizationStream: InputStream): Metadata {
-        val list = mapper.readValue<List<Organization>>(organizationStream)
-        return loadOrganizationList(list)
-    }
-
-    fun loadOrganizations(vararg organizations: Organization): Metadata {
-        return loadOrganizationList(organizations.toList())
-    }
-
-    fun loadOrganizationList(organizations: List<Organization>): Metadata {
-        organizationStore = organizations
-        organizationClientStore = organizations.flatMap { it.clients }
-        organizationServiceStore = organizations.flatMap { it.services }
-        // Check values
-        val clientNames = mutableSetOf<String>()
-        organizationClientStore.forEach {
-            if (clientNames.contains(it.fullName))
-                error("Metadata Error: Duplicate ${it.fullName} in organization clients")
-            else
-                clientNames.add(it.fullName)
-        }
-        val serviceNames = mutableSetOf<String>()
-        organizationServiceStore.forEach {
-            if (serviceNames.contains(it.fullName))
-                error("Metadata Error: Duplicate ${it.fullName} in organization services")
-            else
-                serviceNames.add(it.fullName)
-        }
-        organizationServiceStore.forEach { service ->
-            service.batch?.let {
-                if (!it.isValid())
-                    error("Metadata Error: improper batch value for ${service.fullName}")
-            }
-        }
-        return this
-    }
-
-    fun findOrganization(name: String): Organization? {
-        if (name.isBlank()) return null
-        return this.organizations.find {
-            it.name.equals(name, ignoreCase = true)
-        }
-    }
-
-    fun findService(name: String): OrganizationService? {
-        if (name.isBlank()) return null
-        val (orgName, clientName) = parseName(name)
-        return findOrganization(orgName)?.services?.find {
-            it.name.equals(clientName, ignoreCase = true)
-        }
-    }
-
-    fun findClient(name: String): OrganizationClient? {
-        if (name.isBlank()) return null
-        val (orgName, clientName) = parseName(name)
-        return findOrganization(orgName)?.clients?.find {
-            it.name.equals(clientName, ignoreCase = true)
-        }
-    }
-
-    private fun parseName(name: String): Pair<String, String> {
-        val subNames = name.split('.')
-        return when (subNames.size) {
-            2 -> Pair(subNames[0], subNames[1])
-            1 -> Pair(subNames[0], "default")
-            else -> error("too many sub-names")
-        }
     }
 
     /*
@@ -396,6 +314,5 @@ class Metadata {
         const val schemasSubdirectory = "schemas"
         const val valuesetsSubdirectory = "valuesets"
         const val tableSubdirectory = "tables"
-        const val organizationsBaseName = "organizations"
     }
 }

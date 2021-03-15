@@ -1,0 +1,396 @@
+---
+#
+# Organizations
+#
+- name: simple_report
+  description: PRIME's POC testing app
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: simple_report
+      topic: covid-19
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
+
+- name: strac
+  description: STRAC POC testing app
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: strac
+      topic: covid-19
+      schemaName: strac/strac-covid-19
+      format: CSV
+
+- name: az-phd
+  description: Arizona PHD
+  jurisdiction: STATE
+  stateCode: AZ
+  receivers:
+    - name: elr-test
+      organizationName: az-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state,AZ)
+        - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
+      deidentify: false
+      timing:
+        operation: MERGE
+        numberPerDay: 1   # Once a day at 2pm EST
+        initialTime: 12:00
+        timeZone: ARIZONA
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19
+        format: CSV
+      transport:
+        type: SFTP
+        host: hssftp.azdhs.gov
+        port: 22
+        filePath: ./TEST/IN
+
+    - name: elr-hl7-test
+      organizationName: az-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state,AZ)
+        - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
+      deidentify: false
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: AZ.DOH.ELR
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.2.9.3
+        receivingFacilityName: AZDOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.142
+        messageProfileId: AZELRIG^ADHS^2.16.840.1.113883.9.31^ISO
+      timing:
+        operation: MERGE
+        numberPerDay: 1   # Once a day at 2pm EST
+        initialTime: 12:00
+        timeZone: ARIZONA
+      transport:
+        type: SFTP
+        host: hssftp.azdhs.gov
+        port: 22
+        filePath: ./TEST/IN
+
+    - name: elr-prod
+      organizationName: az-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state,AZ)
+        - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1   # Once a day at 2pm EST
+        initialTime: 12:00
+        timeZone: ARIZONA
+      transport:
+        type: SFTP
+        host: hssftp.azdhs.gov
+        port: 22
+        filePath: ./PROD/IN
+
+- name: pima-az-phd
+  description: Pima County, Arizona PHD
+  jurisdiction: COUNTY
+  stateCode: AZ
+  countyName: Pima
+  receivers:
+    - name: elr
+      organizationName: pima-az-phd
+      description: Electronic Lab Record
+      topic: covid-19
+      jurisdictionalFilter: [ "filterByCounty(AZ, Pima)" ]
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: az/pima-az-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1 # Once a day  NOTE:  In production, they want deliveries once a day at 8am MST.
+        initialTime: 08:00
+        timeZone: ARIZONA
+
+- name: fl-phd
+  description: Florida Department of Health
+  jurisdiction: STATE
+  stateCode: FL
+  receivers:
+    - name: elr
+      organizationName: fl-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
+      deidentify: false
+      translation:
+        type: HL7
+        schemaName: fl/fl-covid-19
+        useBatchHeaders: true
+        receivingApplicationName: FDOH-ELR
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.8.1.3
+        receivingFacilityName: FDOH
+        receivingFacilityOID: 2.16.840.1.114222.1.3645
+      timing:
+        operation: MERGE
+        numberPerDay: 12          # Twelve times a day starting at 02.00
+        initialTime: 02:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: ww12.doh.state.fl.us
+        port: 22
+        filePath: ./Prod/outbox
+
+- name: nd-doh
+  description: North Dakota Department of Health
+  jurisdiction: STATE
+  stateCode: ND
+  receivers:
+    - name: elr
+      organizationName: nd-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
+      translation:
+        type: HL7
+        schemaName: nd/nd-covid-19
+        useBatchHeaders: true
+        receivingApplicationName: Maven
+        receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
+        receivingFacilityName: NDDOH
+        receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+      timing:
+        operation: MERGE
+        numberPerDay: 12
+        initialTime: 02:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: mft.nd.gov
+        port: 22
+        filePath: /Home/dohdcmsg/nddoh_elr/hl7
+
+- name: la-doh
+  description: Louisiana Department of Health
+  jurisdiction: STATE
+  stateCode: LA
+  receivers:
+    - name: elr
+      organizationName: la-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, LA)" ]
+      translation:
+        type: HL7
+        schemaName: la/la-covid-19
+        useBatchHeaders: true
+        receivingOrganization: LAOPH
+        receivingApplicationName: LA-ELR
+        receivingFacilityName: LADOH
+        useAphlNamingFormat: true
+      timing:
+        operation: MERGE
+        numberPerDay: 12
+        initialTime: 02:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: 204.58.124.41
+        port: 22
+        filePath: ./HL7
+
+- name: oh-doh
+  description: Ohio Department of Health
+  jurisdiction: STATE
+  stateCode: OH
+  receivers:
+    - name: elr
+      organizationName: oh-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)" ]
+      translation:
+        type: HL7
+        schemaName: oh/oh-covid-19
+        useBatchHeaders: true
+        receivingApplicationName: OHDOH
+        receivingApplicationOID: 2.16.840.1.114222.4.1.3674
+        receivingFacilityName: OHDOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+      transport:
+        type: SFTP
+        host: 156.63.28.72
+        port: 4022
+        filePath: CDC-ELR/TestFiles
+      timing:
+        operation: MERGE
+        numberPerDay: 12   # Twelve times a day starting at 02.00
+        initialTime: 02:00
+        timeZone: EASTERN
+
+- name: nm-doh
+  description: New Mexico Department of Health
+  jurisdiction: STATE
+  stateCode: NM
+  receivers:
+    - name: elr
+      organizationName: nm-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, NM)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        schemaName: nm/nm-covid-19
+        receivingApplicationName: NMDOH
+        receivingApplicationOID: 2.16.840.1.113883.3.5364
+        receivingFacilityName: NMDOH
+        receivingFacilityOID: 2.16.840.1.113883.3.5364
+
+- name: mt-doh
+  description: Montana Department of Health
+  jurisdiction: STATE
+  stateCode: MT
+  receivers:
+    - name: elr
+      organizationName: mt-doh
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(patient_state, MT)" ]
+      translation:
+        type: HL7
+        schemaName: mt/mt-covid-19
+        useBatchHeaders: true
+
+- name: tx-doh
+  description: Texas Department of Health
+  jurisdiction: STATE
+  stateCode: TX
+  receivers:
+    - name: elr
+      organizationName: tx-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, TX)
+      translation:
+        type: HL7
+        schemaName: tx/tx-covid-19
+        useBatchHeaders: true
+        receivingApplicationName: NEDSS
+        receivingFacilityName: TX-ELR
+      timing:
+        operation: MERGE
+        numberPerDay: 12   #  Twelve times a day starting at 02.00
+        initialTime: 12:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp-edts.hhs.texas.gov
+        port: 22
+        filePath: ./
+
+- name: pa-phd
+  description: Pennsylvania Department of Health
+  jurisdiction: STATE
+  stateCode: PA
+  receivers:
+    - name: elr-bucks-prod
+      organizationName: pa-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: pa/pa-covid-19-redox
+        defaults:
+          processing_mode_code: P
+          redox_destination_id: fcafe93a-9e04-4e3f-9aac-203518f6c4c9
+          redox_destination_name: "CDC Bucks County PDH Destination (p)"
+          redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
+          redox_source_name: "Prime Data Hub (Prod)"
+        format: REDOX
+      transport:
+        type: REDOX
+        apiKey: 9e7f9bd1-a876-4f10-9d17-0833dc7bf60d # Redox prod
+
+    - name: elr-chester-prod
+      organizationName: pa-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: pa/pa-covid-19-redox
+        defaults:
+          processing_mode_code: P
+          redox_destination_id: 5e841ef0-447b-46d0-8a60-49ca4defaf00
+          redox_destination_name: "CDC Chester County PDH Destination (p)"
+          redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
+          redox_source_name: "Prime Data Hub (Prod)"
+        format: REDOX
+      transport:
+        type: REDOX
+        apiKey: 9e7f9bd1-a876-4f10-9d17-0833dc7bf60d # Redox prod
+
+    - name: elr-montgomery-prod
+      organizationName: pa-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: pa/pa-covid-19-redox
+        defaults:
+          processing_mode_code: P
+          redox_destination_id: bb2947af-28dd-470d-9997-7445eb42252f
+          redox_destination_name: "CDC Montgomery County PDH Destination (p)"
+          redox_source_id: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
+          redox_source_name: "Prime Data Hub (Prod)"
+        format: REDOX
+      transport:
+        type: REDOX
+        apiKey: 9e7f9bd1-a876-4f10-9d17-0833dc7bf60d # Redox prod
+
+- name: pa-chester-phd
+  description: Health Department - Chester County, Pennsylvania
+  jurisdiction: COUNTY
+  stateCode: CO
+  countyName: Chester
+  receivers:
+    - name: elr-chester-download
+      organizationName: pa-chester-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: strac/strac-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1 # Every day
+        initialTime: 00:00
+        timeZone: EASTERN
+
+- name: pa-montgomery-phd
+  description: Office of Public Health - Montgomery County, Pennsylvania
+  jurisdiction: COUNTY
+  stateCode: CO
+  countyName: Montgomery
+  receivers:
+    - name: elr-montgomery-download
+      organizationName: pa-montgomery-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: strac/strac-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1 # Every day
+        initialTime: 00:00
+        timeZone: EASTERN

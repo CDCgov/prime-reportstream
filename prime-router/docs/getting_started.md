@@ -69,7 +69,7 @@ In [`devenv-infrastructure.sh`](../devenv-infrastructure.sh)
 docker-compose -f ./docker-prime-infra.yml up --detach
 ```
 
-If you need need Flyway, you can install it via `apt` or `brew` as above.
+If you need Flyway, you can install it via `apt` or `brew` as above.
 
 
 
@@ -134,42 +134,6 @@ Docker-compose will build a `prime_dev` container with the output of the `mvn pa
 Looking at the log above, you may notice that container has a debug open at port `5005`. This configuration allows you to attach a Java debugger to debug your code.
 
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
-
-## Setup Azure to deploy your locally built container
-
-Each developer is given an Azure resource group in the project's Azure subscription. 
-The group's name follows the pattern of `prime-dev-<developer_name>`. 
-Use this resource group for your experiments and development. 
-Note: please shut stuff down after you are done to avoid running up a bill. 
-
-This section will show you how to set up a simple pipeline to build a container and deploy it to Azure semi-automatically. 
-This diagram illustrates the concepts: a local build, which is pushed to a private container registry, and then deployed automatically to an Azure function in the developer's resource group. 
-
-![deploy_pipeline](assets/deploy_pipeline.png)
-
-To set up the pipeline, first, login to Azure
-```
-az login
-```
-Next, set a `PRIME_DEV_NAME` environment variable with your dev name used in your resource group. 
-This name is usually your first name's intial and your last name. 
-I recommend setting this variable in your shell's profile, so you do not have to set it by hand. 
-```
-export PRIME_DEV_NAME rhawes
-```
-Now you are ready to create a deploy pipeline. To help you get going, we've created the `setup_resource_group.sh` script. 
-This script will take you step-by-step through the process of setting up your private container registry and building a container. 
-This [article](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-function-linux-custom-image?tabs=bash%2Cportal&pivots=programming-language-java) from Microsoft describes the process. 
-The article is long but goes through the process in detail. Note: you can stop the script at any point and just rerun the script from the beginning. 
-```
-bash setup_resource_group.sh
-```
-Now you can develop, build and push your Docker containers to your resource group in Azure. 
-```
-az acr login --name rhawesprimedevregistry
-docker build --tag rhawesprimedevregistry.azurecr.io/prime-data-hub . 
-docker push rhawesprimedevregistry.azurecr.io/prime-data-hub 
-```
 
 ## Using local configuration for organizations.yml
 

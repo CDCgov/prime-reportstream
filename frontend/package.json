@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "@11ty/eleventy": "^0.11.1",
+    "jshint": "^2.12.0",
+    "http-proxy-middleware": "^1.0.6"
+  },
+  "devDependencies": {
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "openapi-backend": "^3.9.0"
+  },
+  "scripts": {
+    "clean": "rm -rf ./_site",
+    "start": "npm -s run serve",
+    "prebuild": "npm -s run clean",
+    "prewatch": "npm -s run clean",
+    "preserve": "npm -s run clean",
+    "build": "eleventy --config eleventy.config.js",
+    "watch": "eleventy --watch --config eleventy.config.js",
+    "serve": "eleventy --serve --config eleventy.config.js",
+    "dryrun": "DEBUG=Eleventy* eleventy --dryrun --config eleventy.config.js",
+    "mock:watch": "watchexec -crn -w mock -- npm -s run mock:api",
+    "mock:api": "node ./mock/main.mjs"
+  }
+}

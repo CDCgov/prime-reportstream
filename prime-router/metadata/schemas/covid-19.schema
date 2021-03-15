@@ -18,7 +18,7 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-8
     mapper: obx8(test_result)
-    documentation: This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
+    documentation: This field is generated based on the normalcy status of the result. A = abnormal; N = normal
 
   - name: comment
     type: TEXT
@@ -145,15 +145,18 @@ elements:
   - name: filler_name
     type: TEXT
     natFlatFileField: Not Supported
-    hl7Field: ORC-3-1
+    hl7Field: ORC-3-2
+    hl7OutputFields: [ORC-3-2, OBR-3-2]
 
   - name: filler_order_id
     type: ID
-    hl7OutputFields: [ORC-3-1, OBR-3-1]
+    hl7Field: ORC-3-2
+    hl7OutputFields: [ ORC-3-2, SPM-2-2, OBR-3-2 ]
 
   - name: filler_clia
     type: ID_CLIA
     natFlatFileField: Not Supported
+    hl7Field: OBR-3-3
 
   - name: first_test
     type: CODE
@@ -240,6 +243,13 @@ elements:
     type: TEXT
     default: LN
     hl7Field: OBR-4-3
+
+  - name: ordered_test_encoding_version
+    type: TABLE
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: LOINC Version ID
+    mapper: lookup(equipment_model_name)
+    hl7Field: OBR-4-7
 
   - name: ordering_facility_city
     type: CITY
@@ -354,7 +364,7 @@ elements:
     natFlatFileField: Ordering_provider_id
     hhsGuidanceField: Ordering provider name; NPI
     hl7Field: ORC-12-1
-    hl7OutputFields: [ORC-12-1, OBR-16-1]
+    hl7OutputFields: [ ORC-12-1, OBR-16-1 ]
     documentation: The ordering provider’s National Provider Identifier
 
   - name: ordering_provider_id_authority
@@ -364,6 +374,7 @@ elements:
     mapper: ifPresent(ordering_provider_id, CMS^2.16.840.1.113883.3.249^ISO)
     hl7Field: ORC-12-9
     hl7OutputFields: [ORC-12-9, OBR-16-9]
+    documentation: Usually the OID for CMS
 
   - name: ordering_provider_id_authority_type
     type: TEXT
@@ -372,6 +383,7 @@ elements:
     mapper: ifPresent(ordering_provider_id, NPI)
     hl7Field: ORC-12-13
     hl7OutputFields: [ORC-12-13, OBR-16-13]
+    documentation: Usually NPI
 
   - name: ordering_provider_last_name
     type: PERSON_NAME
@@ -521,7 +533,8 @@ elements:
     hhsGuidanceField: Patient ethnicity
     hl7Field: PID-22
     documentation: |
-      The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+      The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+      consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
   - name: patient_first_name
     type: PERSON_NAME
@@ -555,6 +568,7 @@ elements:
     natFlatFileField: Patient_id_assigner
     hhsGuidanceField:
     hl7Field: PID-3-4
+    hl7OutputFields: [ PID-3-6-2 ]
 
   - name: patient_id_type
     type: TEXT
@@ -710,6 +724,7 @@ elements:
 
   - name: processing_mode_code
     type: CODE
+    default: D
     cardinality: ZERO_OR_ONE
     valueSet: hl70103
     hl7Field: MSH-11-1
@@ -729,7 +744,7 @@ elements:
   - name: message_profile_id
     type: EI
     hl7Field: MSH-21
-    default: PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+    default: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
     documentation: The message profile identifer
 
   # name: public_health_case_id
@@ -746,10 +761,12 @@ elements:
   - name: receiving_application
     type: HD
     hl7Field: MSH-5
+    documentation: The receiving application for the message (specified by the receiver)
 
   - name: receiving_facility
     type: HD
     hl7Field: MSH-6
+    documentation: The receiving facility for the message (specified by the receiver)
 
   - name: reference_range
     type: TEXT
@@ -763,12 +780,15 @@ elements:
     natFlatFileField: Reporting_facility_name
     hhsGuidanceField:
     hl7Field: MSH-4-1
+    documentation: The reporting facility's name
 
   - name: reporting_facility_clia
     type: ID_CLIA
     natFlatFileField: Reporting_facility_id
     hhsGuidanceField:
     hl7Field: MSH-4-2
+    hl7OutputFields: [ MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2 ]
+    documentation: The reporting facility's CLIA
 
   - name: resident_congregate_setting
     type: CODE
@@ -793,19 +813,12 @@ elements:
     natFlatFileField:
     hl7Field: MSH-3
 
-  - name: sending_facility
-    type: HD
-    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
-    default: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
-    natFlatFileField:
-    hl7Field: MSH-4
-
   - name: specimen_collection_date_time
     type: DATETIME
     natFlatFileField: Specimen_collection_date_time
     hhsGuidanceField: Test result date
     hl7Field: SPM-17-1
-    hl7OutputFields: [SPM-17-1, SPM-17-2, OBR-7, OBR-8, OBX-14]
+    hl7OutputFields: [SPM-17-1, OBR-7, OBR-8, OBX-14]
     documentation: |
       The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
 
@@ -826,16 +839,13 @@ elements:
     hl7Field: SPM-14
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14
 
+  # replaced by testing_lab_specimen_id?
   - name: specimen_id
     type: EI
-    hl7Field: SPM-2
+    hl7OutputFields: [SPM-2]
+    mapper: use(message_id)
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
-
-  - name: specimen_received_date_time
-    type: DATETIME
-    natFlatFileField: Specimen_received_date_time
-    hhsGuidanceField:
-    hl7Field: SPM-18
+    documentation: A unique code for this specimen
 
   - name: specimen_role
     type: CODE
@@ -858,13 +868,6 @@ elements:
     hhsGuidanceField: Specimen source
     hl7Field: SPM-4
     documentation: The specimen source, such as Blood or Serum
-
-  - name: specimen_recieved_date_time
-    type: DATETIME
-    mapper: use(specimen_collection_date_time)
-    hl7Field: SPM-18
-    documentation: |
-      Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
 
   - name: symptomatic_for_disease
     type: CODE
@@ -891,6 +894,14 @@ elements:
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: lookup(equipment_model_name)
+
+  - name: test_kit_name_id_cwe_version
+    type: TABLE
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: LOINC Version ID
+    reference: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
+    mapper: lookup(equipment_model_name)
+    hl7Field: OBX-17-7
 
   - name: test_method_description
     type: TEXT
@@ -926,6 +937,13 @@ elements:
   - name: test_performed_system
     type: TEXT
     default: LOINC
+
+  - name: test_performed_system_version
+    type: TABLE
+    table: LIVD-SARS-CoV-2-2021-01-20
+    mapper: lookup(equipment_model_name)
+    tableColumn: LOINC Version ID
+    hl7Field: OBX-3-7
 
   #- name: test_performed_number
   #  type: NUMBER
@@ -980,7 +998,8 @@ elements:
     type: ID
     natFlatFileField: Testing_lab_accession_number
     hhsGuidanceField:
-    hl7Field: OBR-3-1
+    #hl7Field: OBR-3-1
+    #hl7OutputFields: [OBR-3-1, SPM-2]
     documentation: The accession number of the specimen collected
 
   - name: testing_lab_city
@@ -1026,6 +1045,7 @@ elements:
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
+    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3 ]
     documentation: |
         CLIA Number from the laboratory that sends the message to DOH
 
@@ -1040,15 +1060,18 @@ elements:
 
   - name: testing_lab_specimen_id
     type: ID
+    mapper: use(message_id)
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
     hl7Field: SPM-2-1
+    documentation: The specimen-id from the testing lab
 
-  - name: testing_lab_specimen_recieved_datetime
+  - name: testing_lab_specimen_received_datetime
     type: DATETIME
     natFlatFileField: Testing_lab_specimen_id
     hhsGuidanceField:
-    hl7Field: SPM-2-1
+    hl7Field: SPM-18-1
+    mapper: offsetDateTime(specimen_collection_date_time, seconds, 6)
 
   - name: testing_lab_state
     type: TABLE

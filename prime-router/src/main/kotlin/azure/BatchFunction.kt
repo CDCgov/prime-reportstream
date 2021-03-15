@@ -4,7 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.OrganizationService
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import java.util.logging.Level
 
@@ -31,9 +31,9 @@ class BatchFunction {
                 context.logger.warning("Batch function received a $message")
                 return
             }
-            val receiver = workflowEngine.metadata.findService(event.receiverName)
+            val receiver = workflowEngine.settings.findReceiver(event.receiverName)
                 ?: error("Internal Error: receiver name ${event.receiverName}")
-            val maxBatchSize = receiver.batch?.maxReportCount ?: defaultBatchSize
+            val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
 
@@ -51,24 +51,27 @@ class BatchFunction {
                     actionHistory.trackExistingInputReport(it.task.reportId)
                     report
                 }
-                val outReports = when (receiver.batch?.operation) {
-                    OrganizationService.BatchOperation.MERGE -> listOf(Report.merge(inReports))
+                val mergedReports = when (receiver.timing?.operation) {
+                    Receiver.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
                 }
+                val outReports = when (receiver.format) {
+                    Report.Format.HL7 -> mergedReports.flatMap { it.split() }
+                    else -> mergedReports
+                }
                 outReports.forEach {
-                    val outReport = it.copy(destination = receiver)
+                    val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
                     val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
-                    workflowEngine.dispatchReport(outEvent, outReport, txn)
-                    actionHistory.trackCreatedReport(outEvent, outReport, receiver)
-                    context.logger.info("Batch: queued to send ${outEvent.toQueueMessage()}")
+                    workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn)
                 }
                 val msg = if (inReports.size == 1 && outReports.size == 1) "Success: No merging needed - batch of 1"
                 else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
                 actionHistory.trackActionResult(msg)
-                workflowEngine.recordAction(actionHistory, txn)
+                workflowEngine.recordAction(actionHistory, txn) // save to db
             }
+            actionHistory.queueMessages() // Must be done after txn, to avoid race condition
         } catch (e: Exception) {
-            context.logger.log(Level.SEVERE, "Batch exception", e)
+            context.logger.log(Level.SEVERE, "Batch function exception for event: $message", e)
         }
     }
 }

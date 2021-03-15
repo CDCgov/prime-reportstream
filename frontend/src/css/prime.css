@@ -1,0 +1,54 @@
+body {
+  display:flex;
+  min-height:100vh;
+  flex-direction:column
+}
+
+main{
+  flex:1;
+  width:100%
+}
+
+.prime-user-account{
+  margin-bottom:.75rem;
+  font-size:.88rem;
+  vertical-align:u-text("vertical-align");
+  line-height: 1.25rem;
+  text-align:right;
+}
+
+.prime-table {
+  width:100%;
+}
+
+.prime-table thead th {
+  border-bottom:2px solid;
+}
+
+.prime-table tbody td,.prime-table tbody th {
+  border-color:#dfe1e2
+}
+
+.prime-identifier {
+  background-color:#f0f0f0;
+  color:#1b1b1b;
+}
+
+.prime-identifier .prime-identifier__domain {
+  color:#565c65
+}
+
+.prime-identifier .prime-identifier__disclaimer a:link,
+.prime-identifier .prime-identifier__disclaimer a:visited,
+.prime-identifier .prime-identifier__disclaimer a:active {
+  color:#1b1b1b
+}
+
+.prime-identifier .prime-identifier__disclaimer a:hover {
+  color:#71767a
+}
+
+.usa-hero {
+  background-image: url("./corona.jpg");
+}
+

@@ -1,10 +1,16 @@
 package gov.cdc.prime.router
 
-import kotlin.test.*
+import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNotSame
+import kotlin.test.assertNull
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 class MetadataTests {
     @Test
-    fun `test loading actual metadata catalog`() {
+    fun `test loading metadata catalog`() {
         val metadata = Metadata("./metadata")
         assertNotNull(metadata)
     }
@@ -21,7 +27,7 @@ class MetadataTests {
     @Test
     fun `test loading basedOn schemas`() {
         val metadata = Metadata().loadSchemas(
-            Schema(Element("a", default = "foo"), name = "one", topic = "test",),
+            Schema(Element("a", default = "foo"), name = "one", topic = "test"),
             Schema(Element("a"), Element("b"), name = "two", topic = "test", basedOn = "one")
         )
         val two = metadata.findSchema("two")
@@ -31,7 +37,7 @@ class MetadataTests {
     @Test
     fun `test loading extends schemas`() {
         val metadata = Metadata().loadSchemas(
-            Schema(Element("a", default = "foo"), Element("b"), name = "one", topic = "test",),
+            Schema(Element("a", default = "foo"), Element("b"), name = "one", topic = "test"),
             Schema(Element("a"), name = "two", topic = "test", extends = "one")
         )
         val two = metadata.findSchema("two")
@@ -42,7 +48,7 @@ class MetadataTests {
     @Test
     fun `test loading multi-level schemas`() {
         val metadata = Metadata().loadSchemas(
-            Schema(Element("a", default = "foo"), Element("b"), name = "one", topic = "test",),
+            Schema(Element("a", default = "foo"), Element("b"), name = "one", topic = "test"),
             Schema(Element("a"), Element("c"), name = "two", topic = "test", basedOn = "one"),
             Schema(Element("a"), Element("d"), name = "three", topic = "test", extends = "two")
         )
@@ -78,27 +84,6 @@ class MetadataTests {
     }
 
     @Test
-    fun `test find client`() {
-        val metadata = Metadata()
-        metadata.loadOrganizations("./metadata/organizations.yml")
-        val client = metadata.findClient("simple_report")
-        assertNotNull(client)
-    }
-
-    @Test
-    fun `test duplicate service name`() {
-        val metadata = Metadata()
-        val org1 = Organization(
-            "test", "test",
-            services = listOf(
-                OrganizationService("service1", "topic1", "schema1"),
-                OrganizationService("service1", "topic1", "schema1")
-            )
-        )
-        assertFails { metadata.loadOrganizationList(listOf(org1)) }
-    }
-
-    @Test
     fun `test schema contamination`() {
         // arrange
         val valueSetA = ValueSet(
@@ -115,7 +100,10 @@ class MetadataTests {
             elements = listOf(
                 Element(
                     "a",
-                    altValues = listOf(ValueSet.Value("J", "Ja"), ValueSet.Value("N", "Nein")),
+                    altValues = listOf(
+                        ValueSet.Value("J", "Ja"),
+                        ValueSet.Value("N", "Nein")
+                    ),
                     csvFields = listOf(Element.CsvField("Ja Oder Nein", format = "\$code"))
                 )
             )
