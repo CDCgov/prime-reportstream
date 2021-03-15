@@ -46,14 +46,14 @@ Steps
 
     Within the account where you are invoking the `mvn azure-functions:run` you'll need to add a secret for each organization you are sending to as follows
 
-    * use the organization name in all caps, substitute a single underline (_) for a dash (-)
-    * use the service name afterward (all caps), preceeded by a double underline (__)
+    * use the organization name in all caps
+    * use the service name afterward (all caps), preceded by a double dash (--)
 
     For example - to set the above, use
     
     ```
         export $(cat ./.vault/env/.env.local | xargs)
-        ./prime create-credential --type=UserPass --persist=AZ_PHD__ELR
+        ./prime create-credential --type=UserPass --persist=AZ-PHD--ELR
     ```
 
 1. Run the functions locally and test as before
