@@ -71,6 +71,7 @@ class SftpTransport : ITransport {
         fun lookupCredentials(receiverFullName: String): Pair<String, String> {
             val credentialLabel = receiverFullName
                 .replace(".", "--")
+                .replace("_", "-")
                 .toUpperCase()
 
             // Assumes credential will be cast as UserPassCredential, if not return null, and thus the error case
