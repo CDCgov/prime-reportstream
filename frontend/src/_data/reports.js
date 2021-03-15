@@ -62,7 +62,7 @@ module.exports = async function() {
             sent: moment().add( -1, "days" ),
             via: "SFTP",
             positive: 910,
-            total: 4507,
+            total: 4790,
             fileType: "CSV",
             type: "Electronic Lab Report",
             reportId: "7205beah-9qhl-6ft2-16e5-238p",
@@ -88,7 +88,7 @@ module.exports = async function() {
             sent: moment().add( -2, "days" ),
             via: "SFTP",
             positive: 910,
-            total: 4507,
+            total: 4534,
             fileType: "CSV",
             type: "Electronic Lab Report",
             reportId: "7205beah-9qhl-6ft2-16e5-238p",
@@ -110,5 +110,108 @@ module.exports = async function() {
                 }
             ]
         },     
+        {
+            sent: moment().add( -3, "days" ),
+            via: "SFTP",
+            positive: 910,
+            total: 4103,
+            fileType: "CSV",
+            type: "Electronic Lab Report",
+            reportId: "7205beah-9qhl-6ft2-16e5-238p",
+            expires: 4,
+            facilities: [
+                {
+                    organization: "Cyberdyne",
+                    facility: "Encino, CA",
+                    CLIA: "1125879476",
+                    positive: 2497,
+                    total: 521
+                }
+            ],
+            actions: [
+                {
+                    date: new Date(),
+                    user: "E.Ripley",
+                    action: "Viewed file"
+                }
+            ]
+        },   
+        {
+            sent: moment().add( -4, "days" ),
+            via: "SFTP",
+            positive: 910,
+            total: 4342,
+            fileType: "CSV",
+            type: "Electronic Lab Report",
+            reportId: "7205beah-9qhl-6ft2-16e5-238p",
+            expires: 3,
+            facilities: [
+                {
+                    organization: "Cyberdyne",
+                    facility: "Encino, CA",
+                    CLIA: "1125879476",
+                    positive: 2497,
+                    total: 521
+                }
+            ],
+            actions: [
+                {
+                    date: new Date(),
+                    user: "E.Ripley",
+                    action: "Viewed file"
+                }
+            ]
+        },   
+        {
+            sent: moment().add( -5, "days" ),
+            via: "SFTP",
+            positive: 910,
+            total: 4789,
+            fileType: "CSV",
+            type: "Electronic Lab Report",
+            reportId: "7205beah-9qhl-6ft2-16e5-238p",
+            expires: 2,
+            facilities: [
+                {
+                    organization: "Cyberdyne",
+                    facility: "Encino, CA",
+                    CLIA: "1125879476",
+                    positive: 2497,
+                    total: 521
+                }
+            ],
+            actions: [
+                {
+                    date: new Date(),
+                    user: "E.Ripley",
+                    action: "Viewed file"
+                }
+            ]
+        },        {
+            sent: moment().add( -6, "days" ),
+            via: "SFTP",
+            positive: 910,
+            total: 4499,
+            fileType: "CSV",
+            type: "Electronic Lab Report",
+            reportId: "7205beah-9qhl-6ft2-16e5-238p",
+            expires: 1,
+            facilities: [
+                {
+                    organization: "Cyberdyne",
+                    facility: "Encino, CA",
+                    CLIA: "1125879476",
+                    positive: 2497,
+                    total: 521
+                }
+            ],
+            actions: [
+                {
+                    date: new Date(),
+                    user: "E.Ripley",
+                    action: "Viewed file"
+                }
+            ]
+        },  
     ]
 }

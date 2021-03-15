@@ -7,16 +7,17 @@
     "chart.js": "^2.9.4",
     "http-proxy-middleware": "^1.0.6",
     "jshint": "^2.12.0",
-    "moment": "^2.29.1"
+    "moment": "^2.29.1",
+    "rimraf": "^3.0.2",
+    "rm": "^0.1.8"
   },
   "devDependencies": {
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "morgan": "^1.10.0",
-    "openapi-backend": "^3.9.0"
+    "morgan": "^1.10.0"
   },
   "scripts": {
-    "clean": "rm -rf ./_site ./dist",
+    "clean": "rimraf ./_site ./dist",
     "start": "npm -s run serve",
     "prebuild": "npm -s run clean",
     "prewatch": "npm -s run clean",
@@ -24,8 +25,5 @@
     "build": "eleventy --config eleventy.config.js",
     "watch": "eleventy --watch --config eleventy.config.js",
     "serve": "eleventy --serve --config eleventy.config.js",
-    "dryrun": "DEBUG=Eleventy* eleventy --dryrun --config eleventy.config.js",
-    "mock:watch": "watchexec -crn -w mock -- npm -s run mock:api",
-    "mock:api": "node ./mock/main.mjs"
   }
 }
