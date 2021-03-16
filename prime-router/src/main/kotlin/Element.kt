@@ -51,6 +51,7 @@ data class Element(
     val cardinality: Cardinality? = null,
     val pii: Boolean? = null,
     val phi: Boolean? = null,
+    val maxLength: Int? = null, // used to truncate outgoing formatted String fields.  null == no length limit.
     val default: String? = null,
     val mapper: String? = null,
     val mapperRef: Mapper? = null, // set during fixup
@@ -186,6 +187,7 @@ data class Element(
             cardinality = this.cardinality ?: baseElement.cardinality,
             pii = this.pii ?: baseElement.pii,
             phi = this.phi ?: baseElement.phi,
+            maxLength = this.maxLength ?: baseElement.maxLength,
             mapper = this.mapper ?: baseElement.mapper,
             default = this.default ?: baseElement.default,
             reference = this.reference ?: baseElement.reference,
@@ -228,7 +230,7 @@ data class Element(
         format: String? = null
     ): String {
         if (normalizedValue.isEmpty()) return ""
-        return when (type) {
+        val formattedValue = when (type) {
             // sometimes you just need to send through an empty column
             Type.BLANK -> ""
             Type.DATE -> {
@@ -338,6 +340,28 @@ data class Element(
                 }
             }
             else -> normalizedValue
+        }
+        return truncateIfNeeded(formattedValue)
+    }
+
+    fun truncateIfNeeded(str: String): String {
+        if (maxLength == null) return str // no maxLength is very common
+        if (str.isEmpty()) return str
+        // Only TEXTy fields can be truncated, and only if a valid maxLength is set in the schema
+        return when (type) {
+            Type.TEXT,
+            Type.TEXT_OR_BLANK,
+            Type.STREET,
+            Type.STREET_OR_BLANK,
+            Type.CITY,
+            Type.PERSON_NAME,
+            Type.EMAIL -> {
+                if (str.length <= maxLength)
+                    str
+                else
+                    str.substring(0, maxLength)
+            }
+            else -> str
         }
     }
 
