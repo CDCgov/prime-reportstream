@@ -36,7 +36,7 @@ resource "azurerm_function_app" "function_app" {
     scm_use_main_ip_restriction = true
 
     http2_enabled = true
-    always_on = (var.environment == "prod" ? null : true)
+    always_on = true
     use_32_bit_worker_process = false
     linux_fx_version = "DOCKER|${var.login_server}/${var.resource_prefix}:latest"
   }
@@ -108,13 +108,6 @@ resource "azurerm_function_app" "function_app" {
     "IGNORE__HL7_BATCH__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
     "IGNORE__CSV__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
     "IGNORE__CSV__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
-
-    # Production-specific app settings
-    "FUNCTION_APP_EDIT_MODE" = (var.environment == "prod" ? "readOnly" : null)
-    "MACHINEKEY_DecryptionKey" = (var.environment == "prod" ? data.azurerm_function_app.app_data.app_settings.MACHINEKEY_DecryptionKey : null)
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = (var.environment == "prod" ? data.azurerm_function_app.app_data.app_settings.WEBSITE_CONTENTAZUREFILECONNECTIONSTRING : null)
-    "WEBSITE_CONTENTSHARE" = (var.environment == "prod" ? "${var.resource_prefix}-functionapp" : null)
-    "WEBSITE_HTTPLOGGING_RETENTION_DAYS" = (var.environment == "prod" ? 3 : null)
   }
 
   identity {
@@ -155,11 +148,6 @@ resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_pol
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
   app_service_id = azurerm_function_app.function_app.id
   subnet_id = var.public_subnet_id
-}
-
-data "azurerm_function_app" "app_data" {
-  name = "${var.resource_prefix}-functionapp"
-  resource_group_name = var.resource_group
 }
 
 module "functionapp_app_log_event_hub_log" {
