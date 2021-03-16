@@ -50,41 +50,9 @@ resource "azurerm_function_app" "function_app" {
     "OKTA_clientId" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-okta-client-id)"
     "OKTA_redirect" = var.okta_redirect_url
 
-    # Test and Prod both need each set of credentials for various means of testing configurations
-    # AZ
-    "AZ_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)"
-    "AZ_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)"
-    "AZ_PHD__ELR_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)"
-    "AZ_PHD__ELR_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)"
-
-    "AZ_PHD__ELR_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)"
-    "AZ_PHD__ELR_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)"
-    "AZ_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)"
-    "AZ_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)"
-
-    # FL
-    "FL_PHD__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-user)"
-    "FL_PHD__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-pass)"
-
-    # LA
-    "LA_DOH__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
-    "LA_DOH__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
-
-    # ND
-    "ND_DOH__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-user)"
-    "ND_DOH__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-pass)"
-
-    # OH
-    "OH_DOH__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-user)"
-    "OH_DOH__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-pass)"
-
-    # TX
-    "TX_DOH__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-user)"
-    "TX_DOH__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-pass)"
-
     # Manage client secrets via a KeyVault
-    "CREDENTIAL_STORAGE_METHOD": "AZURE"
-    "CREDENTIAL_KEY_VAULT_NAME": "${var.resource_prefix}-clientconfig"
+    "CREDENTIAL_STORAGE_METHOD" ="AZURE"
+    "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"
 
     # Route outbound traffic through the VNET
     "WEBSITE_VNET_ROUTE_ALL" = 1
@@ -103,14 +71,6 @@ resource "azurerm_function_app" "function_app" {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
     "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
-
-    # Test/Staging-specific app settings
-    "IGNORE__HL7__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
-    "IGNORE__HL7__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
-    "IGNORE__HL7_BATCH__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
-    "IGNORE__HL7_BATCH__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
-    "IGNORE__CSV__USER" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-user)" : null)
-    "IGNORE__CSV__PASS" = (var.environment != "prod" ? "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)" : null)
 
     # Production-specific app settings
     "FUNCTION_APP_EDIT_MODE" = (var.environment == "prod" ? "readOnly" : null)
