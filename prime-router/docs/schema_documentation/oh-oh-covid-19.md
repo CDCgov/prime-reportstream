@@ -2089,6 +2089,13 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 
@@ -2334,6 +2341,231 @@ The specimen-id from the testing lab
 **Name**: testing_lab_phone_number
 
 **Type**: TELEPHONE
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: pregnant
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 82810-3
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+77386006|Pregnant
+60001007|Not Pregnant
+261665006|Unknown
+
+**Documentation**:
+
+Is the patient pregnant?
+
+---
+
+**Name**: employed_in_healthcare
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95418-0
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient employed in health care?
+
+---
+
+**Name**: first_test
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95417-2
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is this the patient's first test for this condition?
+
+---
+
+**Name**: hospitalized
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 77974-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient hospitalized?
+
+---
+
+**Name**: icu
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95420-6
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient in the ICU?
+
+---
+
+**Name**: illness_onset_date
+
+**Type**: DATE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 65222-2
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age
+
+**Type**: NUMBER
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 30525-0
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age_units
+
+**Type**: CODE
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+min|minutes
+h|hours
+d|days
+wk|weeks
+mo|months
+a|years
+
+**Documentation**:
+
+Always filled when `patient_age` is filled
+
+---
+
+**Name**: resident_congregate_setting
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95421-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Does the patient reside in a congregate care setting?
+
+---
+
+**Name**: symptomatic_for_disease
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95419-8
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient symptomatic?
+
+---
+
+**Name**: blank_for_obx_23_11
+
+**Type**: TEXT
+
+**HL7 Field**: OBX-23-11
 
 **Cardinality**: [0..1]
 

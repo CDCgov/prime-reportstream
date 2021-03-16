@@ -22,6 +22,16 @@
         schemaName: strac/strac-covid-19
         format: CSV
 
+  - name: tcp
+    description: TCP Receiver organization via A6
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: tcp
+        topic: covid-19
+        schemaName: tcp/tcp-covid-19
+        format: CSV
+
   - name: az-phd
     description: Arizona PHD
     jurisdiction: STATE
@@ -177,6 +187,16 @@
         translation:
           type: HL7
           useBatchHeaders: true
+          schemaName: fl/fl-covid-19
+          receivingApplicationName: FDOH-ELR
+          receivingApplicationOID: 2.16.840.1.114222.4.3.3.8.1.3
+          receivingFacilityName: FDOH
+          receivingFacilityOID: 2.16.840.1.114222.1.3645
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: nd-doh
     description: North Dakota Department of Health
@@ -186,14 +206,27 @@
       - name: elr
         organizationName: nd-doh
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, ND)
+        deidentify: false
         translation:
           type: HL7
+          schemaName: nd/nd-covid-19
           useBatchHeaders: true
           receivingApplicationName: Maven
           receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
           receivingFacilityName: NDDOH
           receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: la-doh
     description: Louisiana Department of Health
@@ -203,12 +236,26 @@
       - name: elr
         organizationName: la-doh
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, LA)" ]
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, LA)
         translation:
           type: HL7
+          schemaName: la/la-covid-19
           useBatchHeaders: true
+          receivingOrganization: laoph
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
+          nameFormat: APHL
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: oh-doh
     description: Ohio Department of Health
@@ -218,14 +265,28 @@
       - name: elr
         organizationName: oh-doh
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, OH)" ]
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, OH)
         translation:
           type: HL7
+          schemaName: oh/oh-covid-19
           useBatchHeaders: true
+          suppressQstForAoe: true
           receivingApplicationName: OHDOH
           receivingApplicationOID: 2.16.840.1.114222.4.1.3674
           receivingFacilityName: OHDOH
           receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+          nameFormat: OHIO
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: nm-doh
     description: New Mexico Department of Health
@@ -238,11 +299,22 @@
         jurisdictionalFilter: [ "matches(ordering_facility_state, NM)" ]
         translation:
           type: HL7
+          schemaName: nm/nm-covid-19
           useBatchHeaders: true
           receivingApplicationName: NMDOH
           receivingApplicationOID: 2.16.840.1.113883.3.5364
           receivingFacilityName: NMDOH
           receivingFacilityOID: 2.16.840.1.113883.3.5364
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: mt-doh
     description: Montana Department of Health
@@ -252,10 +324,22 @@
       - name: elr
         organizationName: mt-doh
         topic: covid-19
-        jurisdictionalFilter: [ "matches(patient_state, MT)" ]
+        jurisdictionalFilter:
+          - matches(patient_state, MT)
         translation:
           type: HL7
+          schemaName: mt/mt-covid-19
           useBatchHeaders: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
 
   - name: tx-doh
     description: Texas Department of Health
@@ -265,12 +349,80 @@
       - name: elr
         organizationName: tx-doh
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, TX)" ]
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, TX)
         translation:
           type: HL7
+          schemaName: tx/tx-covid-19
           useBatchHeaders: true
           receivingApplicationName: NEDSS
           receivingFacilityName: TX-ELR
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: gu-doh
+    description: Guam Department of Health
+    jurisdiction: STATE
+    stateCode: GU
+    receivers:
+      - name: elr
+        organizationName: gu-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, GU)
+        translation:
+          type: HL7
+          schemaName: gu/gu-covid-19
+          useBatchHeaders: true
+          receivingApplicationName: GUDOH
+          receivingFacilityName: GUDOH
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: CHAMORRO
+
+  - name: vt-doh
+    description: Vermont Department of Health
+    jurisdiction: STATE
+    stateCode: VT
+    receivers:
+      - name: elr
+        organizationName: vt-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, VT)
+        translation:
+          type: HL7
+          schemaName: vt/vt-covid-19
+          useBatchHeaders: true
+          receivingApplicationName: NBS
+          receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+          receivingFacilityName: VDH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
 
   - name: pa-phd
     description: Pennsylvania Department of Health
@@ -405,7 +557,10 @@
           schemaName: tx/tx-covid-19
           format: HL7
         transport:
-          type: NULL
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
       - name: HL7_BATCH
         organizationName: ignore
         topic: covid-19
@@ -445,3 +600,36 @@
           type: REDOX
           apiKey: some_key
           baseUrl: http://redox:1080
+      - name: HL7_NULL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: tx/tx-covid-19
+          format: HL7
+        transport:
+          type: "NULL"
+      - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_FAIL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19-hl7
+          format: CSV
+        transport:
+          type: SFTP
+          host: sftp_FAIL_BAD
+          port: 2222
+          filePath: ./upload_FAIL
+
+

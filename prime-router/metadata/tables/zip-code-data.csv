@@ -4367,10 +4367,13 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32301,Leon,Tallahassee
 12,Florida,FL,32303,Leon,Tallahassee
 12,Florida,FL,32304,Leon,Tallahassee
+12,Florida,FL,32305,Leon,Tallahassee
 12,Florida,FL,32308,Leon,Tallahassee
+12,Florida,FL,32309,Leon,Tallahassee
 12,Florida,FL,32310,Leon,Tallahassee
 12,Florida,FL,32311,Leon,Tallahassee
 12,Florida,FL,32312,Leon,Tallahassee
+12,Florida,FL,32317,Leon,Tallahassee
 12,Florida,FL,32320,Franklin,Apalachicola
 12,Florida,FL,32321,Liberty,Bristol
 12,Florida,FL,32322,Franklin,Carrabelle
@@ -4393,6 +4396,7 @@ state_fips,state,state_abbr,zipcode,county,city
 12,Florida,FL,32347,Taylor,Perry
 12,Florida,FL,32350,Madison,Pinetta
 12,Florida,FL,32351,Gadsden,Quincy
+12,Florida,FL,32352,Gadsden,Quincy
 12,Florida,FL,32355,Wakulla,Saint marks
 12,Florida,FL,32356,Taylor,Salem
 12,Florida,FL,32357,Taylor,Shady grove

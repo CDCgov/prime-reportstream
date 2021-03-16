@@ -22,6 +22,16 @@
         schemaName: strac/strac-covid-19
         format: CSV
 
+  - name: tcp
+    description: TCP Receiver organization via A6
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: tcp
+        topic: covid-19
+        schemaName: tcp/tcp-covid-19
+        format: CSV
+
   - name: az-phd
     description: Arizona PHD
     jurisdiction: STATE
@@ -140,6 +150,11 @@
           receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
           receivingFacilityName: NDDOH
           receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: la-doh
     description: Louisiana Department of Health
@@ -155,6 +170,7 @@
           useBatchHeaders: true
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
+          nameFormat: APHL
 
   - name: oh-doh
     description: Ohio Department of Health
@@ -172,6 +188,7 @@
           receivingApplicationOID: 2.16.840.1.114222.4.1.3674
           receivingFacilityName: OHDOH
           receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+          nameFormat: OHIO
 
   - name: nm-doh
     description: New Mexico Department of Health
@@ -358,3 +375,36 @@
           type: REDOX
           apiKey: some_key
           baseUrl: http://redox:1080
+      - name: HL7_NULL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: tx/tx-covid-19
+          format: HL7
+        transport:
+          type: "NULL"
+      - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_FAIL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19-hl7
+          format: CSV
+        transport:
+          type: SFTP
+          host: sftp_FAIL_BAD
+          port: 2222
+          filePath: ./upload_FAIL
+
+

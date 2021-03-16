@@ -18,6 +18,11 @@ variable "location" {
     description = "Function App Location"
 }
 
+variable "app_service_plan_id" {
+    type = string
+    description = "App Service Plan ID"
+}
+
 variable "storage_account_name" {
     type = string
     description = "Storage Account Name"

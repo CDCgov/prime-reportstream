@@ -44,22 +44,21 @@ Steps
 
 1. Add the user/password
 
-    Within the account where you are invoking the `mvn azure-functions:run`you'll need to add environment variables for each organization you are sending to as follows
+    Within the account where you are invoking the `mvn azure-functions:run` you'll need to add a secret for each organization you are sending to as follows
 
-    * use the organization name in all caps, substitute a single underline (_) for a dash (-)
-    * use the service name afterward (all caps), preceeded by a double underline (__)
-    * user is the user name, password is the password
+    * use the organization name in all caps
+    * use the service name afterward (all caps), preceded by a double dash (--)
 
     For example - to set the above, use
     
     ```
-        export AZ_PHD__ELR__USER=foo 
-        export AZ_PHS__ELR__PASS=pass
+        export $(cat ./.vault/env/.env.local | xargs)
+        ./prime create-credential --type=UserPass --persist=AZ-PHD--ELR
     ```
 
 1. Run the functions locally and test as before
 
-    Note that if there isnt a service transport for the organization - SFTP will be skipped and the report will be directly moved to the 'sent' queue
+    Note that if there isn't a service transport for the organization - SFTP will be skipped and the report will be directly moved to the 'sent' queue
 
 ## Running in a container
 

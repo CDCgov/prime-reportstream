@@ -8,6 +8,9 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.credentials.CredentialHelper
+import gov.cdc.prime.router.credentials.CredentialRequestReason
+import gov.cdc.prime.router.credentials.UserPassCredential
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
@@ -35,7 +38,9 @@ class SftpTransport : ITransport {
             val (user, pass) = lookupCredentials(receiver.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
-            uploadFile(host, port, user, pass, sftpTransportType.filePath, fileName, header.content)
+            val sshClient = connect(host, port, user, pass)
+            context.logger.log(Level.INFO, "Successfully connected to $sftpTransportType, ready to upload $fileName")
+            uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)
             actionHistory.trackActionResult(msg)
@@ -62,51 +67,99 @@ class SftpTransport : ITransport {
         } // let non-IO exceptions be caught by the caller
     }
 
-    private fun lookupCredentials(orgName: String): Pair<String, String> {
+    companion object {
+        fun lookupCredentials(receiverFullName: String): Pair<String, String> {
+            val credentialLabel = receiverFullName
+                .replace(".", "--")
+                .replace("_", "-")
+                .toUpperCase()
 
-        val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
+            // Assumes credential will be cast as UserPassCredential, if not return null, and thus the error case
+            val credential = CredentialHelper.getCredentialService().fetchCredential(
+                credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
+            ) as? UserPassCredential?
+                ?: error("Unable to find SFTP credentials for $receiverFullName connectionId($credentialLabel)")
 
-        val user = System.getenv("${envVarLabel}__USER") ?: ""
-        val pass = System.getenv("${envVarLabel}__PASS") ?: ""
-
-        if (user.isBlank() || pass.isBlank())
-            error("Unable to find SFTP credentials for $orgName")
-
-        return Pair(user, pass)
-    }
-
-    private fun uploadFile(
-        host: String,
-        port: String,
-        user: String,
-        pass: String,
-        path: String,
-        fileName: String,
-        contents: ByteArray
-    ) {
-        val sshClient = SSHClient()
-        try {
-            sshClient.addHostKeyVerifier(PromiscuousVerifier())
-            sshClient.connect(host, port.toInt())
-            sshClient.authPassword(user, pass)
-            val client = sshClient.newSFTPClient()
-            client.fileTransfer.preserveAttributes = false
-            client.use {
-                it.put(makeSourceFile(contents, fileName), "$path/$fileName")
-            }
-        } finally {
-            sshClient.disconnect()
+            return Pair(credential.user, credential.pass)
         }
-    }
 
-    private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
-        return object : InMemorySourceFile() {
-            override fun getName(): String { return fileName }
-            override fun getLength(): Long { return contents.size.toLong() }
-            override fun getInputStream(): InputStream { return contents.inputStream() }
-            override fun isDirectory(): Boolean { return false }
-            override fun isFile(): Boolean { return true }
-            override fun getPermissions(): Int { return 777 }
+        fun connect(
+            host: String,
+            port: String,
+            user: String,
+            pass: String,
+        ): SSHClient {
+            val sshClient = SSHClient()
+            try {
+                sshClient.addHostKeyVerifier(PromiscuousVerifier())
+                sshClient.connect(host, port.toInt())
+                sshClient.authPassword(user, pass)
+                return sshClient
+            } catch (t: Throwable) {
+                sshClient.disconnect()
+                throw t
+            }
+        }
+
+        /**
+         * Call this after you have already successfully connect()ed.
+         */
+        fun uploadFile(
+            sshClient: SSHClient,
+            path: String,
+            fileName: String,
+            contents: ByteArray
+        ) {
+            try {
+                val client = sshClient.newSFTPClient()
+                client.fileTransfer.preserveAttributes = false
+                client.use {
+                    it.put(makeSourceFile(contents, fileName), "$path/$fileName")
+                }
+            } finally {
+                sshClient.disconnect()
+            }
+        }
+
+        fun ls(sshClient: SSHClient, path: String): List<String> {
+            try {
+                val client = sshClient.newSFTPClient()
+                client.fileTransfer.preserveAttributes = false
+                client.use {
+                    val lsResponse = it.ls(path)
+                    return lsResponse.map { it.toString() }.toList()
+                }
+            } finally {
+                sshClient.disconnect()
+            }
+        }
+
+        private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
+            return object : InMemorySourceFile() {
+                override fun getName(): String {
+                    return fileName
+                }
+
+                override fun getLength(): Long {
+                    return contents.size.toLong()
+                }
+
+                override fun getInputStream(): InputStream {
+                    return contents.inputStream()
+                }
+
+                override fun isDirectory(): Boolean {
+                    return false
+                }
+
+                override fun isFile(): Boolean {
+                    return true
+                }
+
+                override fun getPermissions(): Int {
+                    return 777
+                }
+            }
         }
     }
 }

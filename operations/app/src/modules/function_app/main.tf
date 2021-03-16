@@ -2,29 +2,11 @@ terraform {
     required_version = ">= 0.14"
 }
 
-resource "azurerm_app_service_plan" "service_plan" {
-  name = "${var.resource_prefix}-serviceplan"
-  location = var.location
-  resource_group_name = var.resource_group
-  kind = (var.environment == "prod" ? "elastic" : "Linux")
-  reserved = true
-  maximum_elastic_worker_count = (var.environment == "prod" ? 10 : 1)
-
-  sku {
-    tier = (var.environment == "prod" ? "ElasticPremium" : "PremiumV2")
-    size = (var.environment == "prod" ? "EP1" : "P2v2")
-  }
-
-  tags = {
-    environment = var.environment
-  }
-}
-
 resource "azurerm_function_app" "function_app" {
   name = "${var.resource_prefix}-functionapp"
   location = var.location
   resource_group_name = var.resource_group
-  app_service_plan_id = azurerm_app_service_plan.service_plan.id
+  app_service_plan_id = var.app_service_plan_id
   storage_account_name = var.storage_account_name
   storage_account_access_key = var.storage_account_key
   https_only = true
@@ -81,39 +63,28 @@ resource "azurerm_function_app" "function_app" {
     "AZ_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-az-phd-pass)"
 
     # FL
-    "FL_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-user)"
-    "FL_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-pass)"
-
-    "FL_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-user)"
-    "FL_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-pass)"
+    "FL_PHD__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-user)"
+    "FL_PHD__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-fl-phd-pass)"
 
     # LA
-    "LA_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
-    "LA_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
-
-    "LA_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
-    "LA_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
+    "LA_DOH__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-user)"
+    "LA_DOH__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-la-phd-pass)"
 
     # ND
-    "ND_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-user)"
-    "ND_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-pass)"
-
-    "ND_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-user)"
-    "ND_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-pass)"
+    "ND_DOH__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-user)"
+    "ND_DOH__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-nd-phd-pass)"
 
     # OH
-    "OH_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-user)"
-    "OH_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-pass)"
-
-    "OH_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-user)"
-    "OH_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-pass)"
+    "OH_DOH__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-user)"
+    "OH_DOH__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-oh-phd-pass)"
 
     # TX
-    "TX_PHD__ELR_HL7_TEST__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-user)"
-    "TX_PHD__ELR_HL7_TEST__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-pass)"
+    "TX_DOH__ELR__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-user)"
+    "TX_DOH__ELR__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-pass)"
 
-    "TX_PHD__ELR_HL7_PROD__USER" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-user)"
-    "TX_PHD__ELR_HL7_PROD__PASS" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-tx-phd-pass)"
+    # Manage client secrets via a KeyVault
+    "CREDENTIAL_STORAGE_METHOD": "AZURE"
+    "CREDENTIAL_KEY_VAULT_NAME": "${var.resource_prefix}-clientconfig"
 
     # Route outbound traffic through the VNET
     "WEBSITE_VNET_ROUTE_ALL" = 1
@@ -238,8 +209,4 @@ resource "azurerm_monitor_diagnostic_setting" "functionapp_app_log" {
       enabled = false
     }
   }
-}
-
-output "app_service_plan_id" {
-  value = azurerm_app_service_plan.service_plan.id
 }
