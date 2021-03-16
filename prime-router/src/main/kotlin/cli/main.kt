@@ -157,6 +157,16 @@ class ProcessData : CliktCommand(
         "--suppress-qst-for-aoe",
         help = "Turns off the QST marker on AOE questions when converting to HL7"
     ).flag(default = false)
+    private val reportingFacilityName by option(
+        "--reporting-facility-name",
+        metavar = "<reporting facility name>",
+        help = "The name of the reporting facility"
+    )
+    private val reportingFacilityId by option(
+        "--reporting-facility-id",
+        metavar = "<reporting facility ID>",
+        help = "The ID of the reporting facility"
+    )
 
     // Fake data configuration
     private val targetStates: String? by
@@ -408,6 +418,8 @@ class ProcessData : CliktCommand(
                 receivingFacilityOID = "",
                 messageProfileId = "",
                 useBatchHeaders = format == Report.Format.HL7_BATCH,
+                reportingFacilityId = reportingFacilityId,
+                reportingFacilityName = reportingFacilityName,
             )
             when (format) {
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)

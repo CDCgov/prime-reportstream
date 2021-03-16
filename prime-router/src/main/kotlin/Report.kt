@@ -382,7 +382,14 @@ class Report {
                             // shuffle all the DOBs
                             val dobs = table.column(it.name).asStringColumn().shuffled().map { dob ->
                                 // parse the date
-                                val parsedDate = LocalDate.parse(dob, DateTimeFormatter.ofPattern(Element.datePattern))
+                                val parsedDate = LocalDate.parse(
+                                    dob.ifEmpty {
+                                        LocalDate.now().format(
+                                            DateTimeFormatter.ofPattern(Element.datePattern)
+                                        )
+                                    },
+                                    DateTimeFormatter.ofPattern(Element.datePattern)
+                                )
                                 // get the year and date
                                 val year = parsedDate.year
                                 // fake a month

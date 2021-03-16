@@ -521,7 +521,7 @@ The phone number of the facility which the test was ordered from
 
 **Type**: ID
 
-**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
+**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-1
 
 **Cardinality**: [0..1]
 
