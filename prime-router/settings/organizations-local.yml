@@ -269,14 +269,16 @@
           - matches(ordering_facility_state, OH)
         translation:
           type: HL7
-          schemaName: oh/oh-covid-19
           useBatchHeaders: true
           suppressQstForAoe: true
           receivingApplicationName: OHDOH
           receivingApplicationOID: 2.16.840.1.114222.4.1.3674
           receivingFacilityName: OHDOH
           receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+          reportingFacilityName: CDC PRIME
+          reportingFacilityId: 36DSMP9999
           nameFormat: OHIO
+          suppressHl7Fields: OBX-23-11
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute

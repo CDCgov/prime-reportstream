@@ -775,6 +775,13 @@ elements:
     hl7Field: OBX-7
     documentation: The reference range of the lab result, such as “Negative” or “Normal”. For IgG, IgM and CT results that provide a value you MUST fill out this filed.
 
+  - name: reporting_facility
+    type: HD
+    hl7Field: MSH-4
+    documentation: |
+      The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+      aggregator
+
   - name: reporting_facility_name
     type: TEXT
     natFlatFileField: Reporting_facility_name
