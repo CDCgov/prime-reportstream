@@ -44,15 +44,16 @@ resource "azurerm_function_app" "function_app" {
 
     "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
 
-    "REDOX_SECRET" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-redox-secret)"
-
     "OKTA_baseUrl" = "hhs-prime.okta.com"
-    "OKTA_clientId" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-okta-client-id)"
     "OKTA_redirect" = var.okta_redirect_url
 
-    # Manage client secrets via a KeyVault
+    # Manage client secrets via a Key Vault
     "CREDENTIAL_STORAGE_METHOD" ="AZURE"
     "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"
+
+    # Manage app secrets via a Key Vault
+    "SECRET_STORAGE_METHOD" = "AZURE"
+    "SECRET_KEY_VAULT_NAME" = "${var.resource_prefix}-appconfig"
 
     # Route outbound traffic through the VNET
     "WEBSITE_VNET_ROUTE_ALL" = 1
