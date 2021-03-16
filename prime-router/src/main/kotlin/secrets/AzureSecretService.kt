@@ -5,7 +5,7 @@ import com.azure.identity.DefaultAzureCredentialBuilder
 import com.azure.security.keyvault.secrets.SecretClient
 import com.azure.security.keyvault.secrets.SecretClientBuilder
 
-internal object AzureSecretService : SecretService()  {
+internal object AzureSecretService : SecretService() {
     private val KEY_VAULT_NAME: String by lazy { System.getenv("SECRET_KEY_VAULT_NAME") ?: "" }
     private val secretClient by lazy { initSecretClient() }
 

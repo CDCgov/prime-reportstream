@@ -10,9 +10,9 @@ import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.unmockkObject
 import io.mockk.verify
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.AfterTest
 import kotlin.test.assertEquals
 
 internal class AzureSecretServiceTests {
@@ -42,7 +42,7 @@ internal class AzureSecretServiceTests {
         val retVal = secretService.initSecretClient(
             secretClientBuilder = secretClientBuilder, credential = mockAzureCredential
         )
-        verify { secretClientBuilder.vaultUrl("https://${KEY_VAULT_NAME}.vault.azure.net") }
+        verify { secretClientBuilder.vaultUrl("https://$KEY_VAULT_NAME.vault.azure.net") }
         verify { secretClientBuilder.credential(mockAzureCredential) }
 
         assertEquals(secretClient, retVal, "Expects mock secret client to be returned")
