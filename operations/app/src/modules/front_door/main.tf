@@ -4,8 +4,8 @@ terraform {
 
 locals {
     name = var.environment != "dev" ? "prime-data-hub-${var.environment}" : "prime-data-hub-${var.resource_prefix}"
-    functionapp_address = "${var.resource_prefix}-functionapp.privatelink.azurewebsites.net"
-    metabase_address = (var.environment == "test" || var.environment == "prod" ? "${var.resource_prefix}-metabase.privatelink.azurewebsites.net" : null)
+    functionapp_address = "${var.resource_prefix}-functionapp.azurewebsites.net"
+    metabase_address = (var.environment == "test" || var.environment == "prod" ? "${var.resource_prefix}-metabase.azurewebsites.net" : null)
     frontend_endpoints = var.https_cert_name != null ? ["DefaultFrontendEndpoint", var.https_cert_name] : ["DefaultFrontendEndpoint"]
 }
 
