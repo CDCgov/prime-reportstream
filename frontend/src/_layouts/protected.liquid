@@ -18,12 +18,23 @@ post_scripts:
     integrity: "sha512-ohEb4+2we68Bx+r0bzmujZwPVxjs+cD0lRykggDCj36aoqO9Tex8TaNO3gzBr8re+MVbbF5Av/d7VDQxUe+zlw=="
 
 local_styles:
-  - "./css/prime.css"
+  - "./assets/stylesheets/prime.css"
+
+data-index: "./data-index.html"
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
   {% include head_tags_universal %}
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    let jwt = window.sessionStorage.getItem("jwt");
+    if( !jwt )
+      window.location.replace( `http://localhost:8090/login.html?return=data-index.html`);
+  </script>
+
+  <script src="https://d3js.org/d3.v4.js"></script>
 
   <title>CDC PRIME ReportStream</title>
 
@@ -31,16 +42,20 @@ local_styles:
 </head>
 
 <body>
-  {% include uswds_gov_header %}
 
-  <main>
-    {{ content }}
-  </main>
+{% include uswds_gov_header %}
+{% include navbar %}
+<main>
+  {{ content }}
+</main>
 
+<section>
   {% include uswds_identifier %}
+</section>
 
   {% for entry in post_scripts %}
     <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
   {% endfor %}
+
 </body>
 </html>

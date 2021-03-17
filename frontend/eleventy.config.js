@@ -24,7 +24,9 @@ module.exports = function eleventy_config(cfg) {
   return {
     dir: {
       output: "./_site",
-      input: "./src"
+      input: "./src",
+      includes: "_includes",
+      layouts: "_layouts"
     }
   }
 }
