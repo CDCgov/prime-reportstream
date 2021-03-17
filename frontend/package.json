@@ -24,6 +24,6 @@
     "preserve": "npm -s run clean",
     "build": "eleventy --config eleventy.config.js",
     "watch": "eleventy --watch --config eleventy.config.js",
-    "serve": "eleventy --serve --config eleventy.config.js",
+    "serve": "eleventy --serve --config eleventy.config.js"
   }
 }
