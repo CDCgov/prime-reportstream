@@ -14,21 +14,21 @@ import gov.cdc.prime.router.transport.SftpTransport
 import org.apache.logging.log4j.kotlin.Logging
 
 /*
- * HealthCheck API
+ * Check API
  */
 
-class HealthCheckFunction : Logging {
+class CheckFunction : Logging {
 
-    @FunctionName("healthcheck")
-    fun healthcheck(
+    @FunctionName("check")
+    fun run(
         @HttpTrigger(
-            name = "healthcheck",
+            name = "check",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.FUNCTION,
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        logger.info("Entering healthcheck")
+        logger.info("Entering check api")
         val responseBody = mutableListOf<String>()
         var httpStatus = HttpStatus.OK
         try {
@@ -68,7 +68,7 @@ class HealthCheckFunction : Logging {
                 // Like Gen 18:31, if even one good sftp is found, that saves the overall run.
                 overallPass = true
             }
-            responseBody.add("\n")
+            responseBody.add("") // This will add a newline when the strings are returned.
         }
         return overallPass
     }
