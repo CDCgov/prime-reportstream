@@ -1,7 +1,5 @@
 ---
 layout: non-protected.liquid
-local_styles:
-  - "./css/prime.css"
 ---
 
 <body>
@@ -33,9 +31,9 @@ local_styles:
     var signInWidget= new OktaSignIn(config);
     signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile', 'simple_report'] } )
         .then( function( tokens ){
-            var jwt = tokens.accessToken.value; 
-            window.sessionStorage.setItem('jwt', jwt) ; 
+            var jwt = tokens.accessToken.value;
+            window.sessionStorage.setItem('jwt', jwt) ;
             window.location.replace(`//localhost:8090/data-index.html`);
-        }); 
+        });
 </script>
 </body>
