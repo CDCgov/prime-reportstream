@@ -16,6 +16,7 @@ cdn_scripts:
 post_scripts:
   - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds.min.js"
     integrity: "sha512-ohEb4+2we68Bx+r0bzmujZwPVxjs+cD0lRykggDCj36aoqO9Tex8TaNO3gzBr8re+MVbbF5Av/d7VDQxUe+zlw=="
+
 local_styles:
   - "./css/prime.css"
 
@@ -42,14 +43,14 @@ data-index: "./data-index.html"
 
 <body>
 
-{% include gov_header %}
+{% include uswds_gov_header %}
 {% include navbar %}
 <main>
   {{ content }}
 </main>
 
 <section>
-  {% include identifier %}
+  {% include uswds_identifier %}
 </section>
 
   {% for entry in post_scripts %}

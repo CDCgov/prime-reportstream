@@ -31,13 +31,13 @@ local_styles:
 </head>
 
 <body>
-  {% include gov_header %}
+  {% include uswds_gov_header %}
 
   <main>
     {{ content }}
   </main>
 
-  {% include identifier %}
+  {% include uswds_identifier %}
 
   {% for entry in post_scripts %}
     <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
