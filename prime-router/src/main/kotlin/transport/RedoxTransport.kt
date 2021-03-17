@@ -12,9 +12,10 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.secrets.SecretManagement
 import java.util.logging.Level
 
-class RedoxTransport() : ITransport {
+class RedoxTransport() : ITransport, SecretManagement {
     private val secretEnvName = "REDOX_SECRET"
     private val redoxTimeout = 1000
     private val redoxBaseUrl = "https://api.redoxengine.com"
@@ -111,7 +112,7 @@ class RedoxTransport() : ITransport {
 
     private fun getKeyAndSecret(redox: RedoxTransportType): Pair<String, String> {
         // Dev Note: The Redox API key doesn't change, while the secret can
-        val secret = System.getenv(secretEnvName) ?: ""
+        val secret = secretService.fetchSecret(secretEnvName) ?: ""
         if (secret.isBlank()) error("Unable to find $secretEnvName")
         return Pair(redox.apiKey, secret)
     }
