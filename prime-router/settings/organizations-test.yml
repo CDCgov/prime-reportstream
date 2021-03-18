@@ -169,7 +169,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-        timeZone: ARIZONA
+        timeZone: EASTERN
       transport:
         type: SFTP
         host: 10.0.2.4
@@ -197,7 +197,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-        timeZone: ARIZONA
+        timeZone: CENTRAL
       transport:
         type: SFTP
         host: 10.0.2.4
@@ -225,7 +225,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-        timeZone: ARIZONA
+        timeZone: CENTRAL
       transport:
         type: SFTP
         host: 10.0.2.4
@@ -250,12 +250,15 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.3674
         receivingFacilityName: OHDOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 36DSMP9999
         nameFormat: OHIO
+        suppressHl7Fields: OBX-23-11
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-        timeZone: ARIZONA
+        timeZone: EASTERN
       transport:
         type: SFTP
         host: 10.0.2.4
@@ -283,7 +286,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-        timeZone: ARIZONA
+        timeZone: MOUNTAIN
       transport:
         type: SFTP
         host: 10.0.2.4
@@ -303,6 +306,11 @@
         type: HL7
         schemaName: mt/mt-covid-19
         useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: MOUNTAIN
 
 - name: tx-doh
   description: Texas Department of Health
@@ -323,7 +331,7 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-        timeZone: ARIZONA
+        timeZone: CENTRAL
       transport:
         type: SFTP
         host: 10.0.2.4

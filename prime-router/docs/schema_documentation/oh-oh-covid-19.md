@@ -42,6 +42,12 @@ The receiving facility for the message (specified by the receiver)
 
 ---
 
+**Name**: report_facility
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: comment
 
 **Type**: TEXT
@@ -225,7 +231,7 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Type**: ID
 
-**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
+**HL7 Fields**: ORC-3-1, SPM-2-2, OBR-3-1
 
 **Cardinality**: [0..1]
 
