@@ -28,16 +28,10 @@ data-index: "./data-index.html"
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<<<<<<< HEAD:frontend/src/_includes/protected.liquid
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="Cache-Control" content="no-store" />
-=======
-  {% include head_tags_universal %}
-
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
->>>>>>> c9cc7ec11150d6319208b67c034f94fa801a4030:frontend/src/_layouts/protected.liquid
   <script>
     let token = window.sessionStorage.getItem("jwt");
     if( !token )
@@ -50,7 +44,6 @@ data-index: "./data-index.html"
     }
   </script>
 
-<<<<<<< HEAD:frontend/src/_includes/protected.liquid
   <title>CDC PRIME ReportStream</title>
 
   <meta name="robots" content="none" />
@@ -66,11 +59,6 @@ data-index: "./data-index.html"
   {% for entry in cdn_scripts %}
     <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
   {% endfor %}
-=======
-  <script src="https://d3js.org/d3.v4.js"></script>
-
-  {% include head_tags_styles_scripts %}
->>>>>>> c9cc7ec11150d6319208b67c034f94fa801a4030:frontend/src/_layouts/protected.liquid
 </head>
 
 <body>
