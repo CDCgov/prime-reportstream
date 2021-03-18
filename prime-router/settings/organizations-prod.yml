@@ -171,7 +171,7 @@
         operation: MERGE
         numberPerDay: 12
         initialTime: 02:00
-        timeZone: EASTERN
+        timeZone: CENTRAL
       transport:
         type: SFTP
         host: mft.nd.gov
@@ -200,12 +200,12 @@
         operation: MERGE
         numberPerDay: 12
         initialTime: 02:00
-        timeZone: EASTERN
+        timeZone: CENTRAL
       transport:
         type: SFTP
         host: 204.58.124.41
         port: 22
-        filePath: ./HL7
+        filePath: ./
 
 - name: oh-doh
   description: Ohio Department of Health
@@ -233,7 +233,7 @@
         type: SFTP
         host: 156.63.28.72
         port: 4022
-        filePath: CDC-ELR/TestFiles
+        filePath: CDC-ELR/ProdFiles
       timing:
         operation: MERGE
         numberPerDay: 12   # Twelve times a day starting at 02.00
@@ -258,6 +258,11 @@
         receivingApplicationOID: 2.16.840.1.113883.3.5364
         receivingFacilityName: NMDOH
         receivingFacilityOID: 2.16.840.1.113883.3.5364
+      timing:
+        operation: MERGE
+        numberPerDay: 12   # Twelve times a day starting at 02.00
+        initialTime: 02:00
+        timeZone: MOUNTAIN
 
 - name: mt-doh
   description: Montana Department of Health
@@ -273,6 +278,11 @@
         type: HL7
         schemaName: mt/mt-covid-19
         useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 12   # Twelve times a day starting at 02.00
+        initialTime: 02:00
+        timeZone: MOUNTAIN
 
 - name: tx-doh
   description: Texas Department of Health

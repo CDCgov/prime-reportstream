@@ -192,6 +192,11 @@
           receivingApplicationOID: 2.16.840.1.114222.4.3.3.8.1.3
           receivingFacilityName: FDOH
           receivingFacilityOID: 2.16.840.1.114222.1.3645
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
         transport:
           type: SFTP
           host: sftp
@@ -221,7 +226,7 @@
           operation: MERGE
           numberPerDay: 1440 # Every minute
           initialTime: 00:00
-          timeZone: EASTERN
+          timeZone: CENTRAL
         transport:
           type: SFTP
           host: sftp
@@ -250,7 +255,7 @@
           operation: MERGE
           numberPerDay: 1440 # Every minute
           initialTime: 00:00
-          timeZone: EASTERN
+          timeZone: CENTRAL
         transport:
           type: SFTP
           host: sftp
@@ -311,7 +316,7 @@
           operation: MERGE
           numberPerDay: 1440 # Every minute
           initialTime: 00:00
-          timeZone: EASTERN
+          timeZone: MOUNTAIN
         transport:
           type: SFTP
           host: sftp
@@ -341,7 +346,7 @@
           operation: MERGE
           numberPerDay: 1440 # Every minute
           initialTime: 00:00
-          timeZone: EASTERN
+          timeZone: MOUNTAIN
 
   - name: tx-doh
     description: Texas Department of Health
@@ -368,7 +373,7 @@
           operation: MERGE
           numberPerDay: 1440 # Every minute
           initialTime: 00:00
-          timeZone: EASTERN
+          timeZone: CENTRAL
 
   - name: gu-doh
     description: Guam Department of Health

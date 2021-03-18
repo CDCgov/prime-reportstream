@@ -78,7 +78,7 @@ class ReportFunction {
                     HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
                 }
                 validatedRequest.report == null -> {
-                    HttpUtilities.notOKResponse(
+                    HttpUtilities.httpResponse(
                         request,
                         createResponseBody(validatedRequest),
                         validatedRequest.httpStatus
