@@ -12,7 +12,7 @@ elements:
   - name: receiving_facility
     default: OHDOH^2.16.840.1.114222.4.1.3674^ISO
 
-  - name: report_facility
+  - name: reporting_facility
     default: CDC PRIME^36DSMP9999^CLIA
 
   - name: comment
