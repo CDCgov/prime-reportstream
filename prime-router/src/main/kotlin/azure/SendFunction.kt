@@ -22,11 +22,11 @@ import java.util.logging.Level
  */
 const val dataRetentionDays = 7L
 const val send = "send"
-const val maxRetryCount = 10
+const val maxRetryCount = 4
 const val maxDurationValue = 120L
 
 // index is retryCount, value is in minutes
-val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 8L, 4 to 15L, 5 to 30L)
+val retryDuration = mapOf(1 to 1L, 2 to 5L, 3 to 30L, 4 to 60L, 5 to 120L)
 
 class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
     @FunctionName(send)

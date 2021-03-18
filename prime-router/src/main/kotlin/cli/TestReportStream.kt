@@ -291,7 +291,7 @@ Examples:
             echo("Id of submitted report: $reportId")
             reportId
         }
-        waitABit(30, environment)
+        waitABit(60, environment)
         examineMergeResults(reportIds[0], allGoodReceivers, fakeItemCount, numResends)
     }
 
