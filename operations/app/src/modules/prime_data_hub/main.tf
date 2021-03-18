@@ -137,7 +137,7 @@ module "application_insights" {
     source = "../application_insights"
     environment = var.environment
     resource_group = var.resource_group
-    name = "${var.resource_prefix}-appinsights"
+    resource_prefix = var.resource_prefix
     location = local.location
 }
 
