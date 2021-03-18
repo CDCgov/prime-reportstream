@@ -42,9 +42,19 @@ The receiving facility for the message (specified by the receiver)
 
 ---
 
-**Name**: report_facility
+**Name**: reporting_facility
+
+**Type**: HD
+
+**HL7 Field**: MSH-4
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+aggregator
+
 
 ---
 
