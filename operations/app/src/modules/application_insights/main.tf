@@ -68,7 +68,7 @@ resource "azurerm_monitor_action_group" "action_group" {
 
 resource "azurerm_monitor_metric_alert" "severity0_alert" {
   count = (var.environment != "dev" ? 1 : 0)
-  name = "Critical Alert"
+  name = "CRITICAL"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
@@ -90,7 +90,7 @@ resource "azurerm_monitor_metric_alert" "severity0_alert" {
 
 resource "azurerm_monitor_metric_alert" "severity1_alert" {
   count = (var.environment != "dev" ? 1 : 0)
-  name = "Error Alert"
+  name = "ERROR"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
