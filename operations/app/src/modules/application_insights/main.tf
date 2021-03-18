@@ -35,12 +35,6 @@ resource "azurerm_monitor_action_group" "action_group" {
   resource_group_name = var.resource_group
   short_name = "ReportStream"
 
-  sms_receiver {
-    name = "cglodosky_-SMSAction-"
-    country_code = "1"
-    phone_number = "7155704677"
-  }
-
   dynamic "email_receiver" {
     for_each = local.devops
     content {
