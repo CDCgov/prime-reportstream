@@ -66,9 +66,9 @@ resource "azurerm_monitor_action_group" "action_group" {
 # Severity 3 - Informational
 # Severity 4 - Verbose
 
-resource "azurerm_monitor_metric_alert" "severity0_alert" {
+resource "azurerm_monitor_metric_alert" "availability_alert" {
   count = (var.environment != "dev" ? 1 : 0)
-  name = "CRITICAL"
+  name = "Degraded Availability"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
@@ -88,9 +88,9 @@ resource "azurerm_monitor_metric_alert" "severity0_alert" {
   }
 }
 
-resource "azurerm_monitor_metric_alert" "severity1_alert" {
+resource "azurerm_monitor_metric_alert" "exception_alert" {
   count = (var.environment != "dev" ? 1 : 0)
-  name = "ERROR"
+  name = "Exception(s) Raised"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
