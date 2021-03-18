@@ -377,4 +377,37 @@ internal class ElementTests {
         assertEquals(one.toNormalized("Y", "\$code"), "Y")
         assertEquals(one.checkForError("Y", "\$code"), null)
     }
+
+    @Test
+    fun `test truncate`() {
+        val uno = Element(
+            name = "uno",
+            type = Element.Type.TEXT,
+            maxLength = 2,
+        )
+        assertEquals("ab", uno.truncateIfNeeded("abcde"))
+        val dos = Element(
+            name = "dos",
+            type = Element.Type.ID_CLIA, // this type is never truncated.
+            maxLength = 2,
+        )
+        assertEquals("abcde", dos.truncateIfNeeded("abcde"))
+        val tres = Element(
+            name = "tres",
+            type = Element.Type.TEXT,
+            maxLength = 20, // max > actual strlen, nothing to truncate
+        )
+        assertEquals("abcde", tres.truncateIfNeeded("abcde"))
+        val cuatro = Element( // zilch is an ok valuer = Element(  // maxLength is null, don't truncate.
+            name = "cuatro",
+            type = Element.Type.TEXT,
+        )
+        assertEquals("abcde", cuatro.truncateIfNeeded("abcde"))
+        val cinco = Element(
+            name = "cinco",
+            type = Element.Type.TEXT,
+            maxLength = 0, // zilch is an ok value
+        )
+        assertEquals("", cinco.truncateIfNeeded("abcde"))
+    }
 }
