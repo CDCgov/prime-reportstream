@@ -5,6 +5,7 @@
 const PRIME_api = process.env.PRIME_api || "http://localhost:7071/api";
 
 const moment = require("moment");
+const yaml = require("js-yaml");
 
 module.exports = function eleventy_config(cfg) {
   cfg.addFilter("as_literal",
@@ -16,6 +17,8 @@ module.exports = function eleventy_config(cfg) {
   cfg.addLiquidShortcode("date",
     (date,fmt) => moment(date).format( fmt ) );
 
+  cfg.addDataExtension("yaml", contents => yaml.load(contents));
+
   cfg.addPassthroughCopy("src/assets");
   cfg.addPassthroughCopy("src/favicon.ico");
 
@@ -26,7 +29,8 @@ module.exports = function eleventy_config(cfg) {
       output: "./_site",
       input: "./src",
       includes: "_includes",
-      layouts: "_layouts"
+      layouts: "_layouts",
+      data: "_data"
     }
   }
 }
