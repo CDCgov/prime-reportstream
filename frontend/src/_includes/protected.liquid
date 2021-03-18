@@ -12,6 +12,9 @@ cdn_scripts:
   - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds-init.min.js"
     integrity: "sha512-Zy/dqU71uCdMWS6VdSqc/+2RjOxbq/ySinrQyLG3wTVWSXtBQpK6/b2Ky6vT2JHuFsNm8yBZMJ8zeMQ/ji2qMA=="
   - src: "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
+  - src: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+  - src: "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
+
 
 post_scripts:
   - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds.min.js"
@@ -28,14 +31,17 @@ data-index: "./data-index.html"
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="Cache-Control" content="no-store" />
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
-    let jwt = window.sessionStorage.getItem("jwt");
-    if( !jwt )
-      window.location.replace( `http://localhost:8090/login.html?return=data-index.html`);
+    let token = window.sessionStorage.getItem("jwt");
+    if( !token )
+      window.location.replace( `login.html?return=data-index.html`);
+    else{
+      var jwt = JSON.parse(atob(token.split('.')[1]));
+      window.org = jwt.organization[0];
+      window.user = jwt.sub;
+      window.jwt = token;
+    }
   </script>
-
-  <script src="https://d3js.org/d3.v4.js"></script>
 
   <title>CDC PRIME ReportStream</title>
 

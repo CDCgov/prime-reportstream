@@ -1,18 +1,18 @@
-const axios = require('axios')
-const moment = require('moment')
-
-module.exports = async function() {
-
-    /*
+function fetchReports() 
+{
+/*
     let config = {
-        headers: {'Access-Control-Allow-Origin': '*'}
+        headers: { 
+            'Access-Control-Allow-Origin': '*',
+            'Authorization': `Bearer ${window.jwt}`
+            }
         }
         
         const response = await axios.get('http://localhost:7071/api/history/report', config);
         console.log( response.data );
         return response.data;
 };*/
-    return [
+return [
         {
             sent: moment(),
             via: "SFTP",
@@ -215,3 +215,5 @@ module.exports = async function() {
         },  
     ]
 }
+
+let reports = fetchReports();
