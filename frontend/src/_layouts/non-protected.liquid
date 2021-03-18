@@ -18,41 +18,23 @@ post_scripts:
     integrity: "sha512-ohEb4+2we68Bx+r0bzmujZwPVxjs+cD0lRykggDCj36aoqO9Tex8TaNO3gzBr8re+MVbbF5Av/d7VDQxUe+zlw=="
 
 local_styles:
-  - "./css/prime.css"
+  - "./assets/stylesheets/prime.css"
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Cache-Control" content="no-store" />
-
-  <title>CDC PRIME ReportStream</title>
-
-  <meta name="robots" content="none" />
-
-  {% for entry in cdn_styles %}
-    <link rel="stylesheet" type="text/css" href="{{entry.href}}" integrity="{{entry.integrity}}" crossorigin="anonymous"/>
-  {% endfor %}
-
-  {% for entry in local_styles %}
-    <link rel="stylesheet" type="text/css" href="{{entry | url}}" />
-  {% endfor %}
-
-  {% for entry in cdn_scripts %}
-    <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
-  {% endfor %}
+  {% include head_tags_universal %}
+  {% include head_tags_styles_scripts %}
 </head>
 
 <body>
-  {% include gov_header %}
-
+  {% include uswds_gov_header %}
+  {% include navbar_non_protected %}
   <main>
     {{ content }}
   </main>
 
-  {% include identifier %}
+  {% include uswds_identifier %}
 
   {% for entry in post_scripts %}
     <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>

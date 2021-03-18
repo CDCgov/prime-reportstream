@@ -1,35 +1,6 @@
 ---
 layout: non-protected.liquid
-local_styles:
-  - "./css/prime.css"
 ---
-
-<div class="usa-overlay"></div>
-<header class="usa-header usa-header--basic">
-  <div class="usa-nav-container">
-    <div class="usa-navbar">
-  <div class="usa-logo" id="basic-logo">
-    <em class="usa-logo__text">
-      {% comment %}
-      <img src="./css/logo.png" role="img" alt="Logo" style="width:32px;height:32px;vertical-align:middle;" />
-      {% endcomment %}
-      <a href="/" title="Home" aria-label="Home">ReportStream</a>
-    </em>
-  </div>
-  <button class="usa-menu-btn">Menu</button>
-</div>
-<nav aria-label="Primary navigation" class="usa-nav">
-  <ul class="usa-nav__primary">
-    <li class="usa-nav__primary-item usa-nav__request-account margin-right-2">
-      <a href="mailto:support@prime.cdc.gov?subject=I'm interested in learning more about ReportStream">Request an account</a>
-    </li>
-    <li class="usa-nav__primary-item">
-      <a class="usa-button usa-button--outline" href="./data-index.html">Sign in</a>
-    </li>
-  </ul>
-</nav>
-  </div>
-</header>
 
 <main id="main-content">
 
@@ -37,119 +8,66 @@ local_styles:
     <div class="grid-container usa-section margin-bottom-0">
       <div class="grid-row grid-gap margin-bottom-0 rs-hero__flex-center">
         <div class="tablet:grid-col-6">
-          <h1 class="text-primary">ReportStream makes it easier to share public health data</h1>
-          <p class="font-sans-lg text-primary line-height-sans-4">ReportStream is a free, open-sourced data platform that makes it easier for public health data to be more easily transferred between senders and public health departments.</p>
+          <h1 class="text-primary">{{ content.index.title }}</h1>
+          <p class="font-sans-lg text-primary line-height-sans-4">{{ content.index.summary }}</p>
         </div>
         <div class="tablet:grid-col-6">
-          <img class="shadow-2" src="/assets/img/report-stream-application.png" alt="Screenshot of the ReportStream web application" />
+          <img class="shadow-2" src="{{ site.imgPath }}{{ content.index.heroImg }}" alt="{{ content.index.heroImgAlt }}" />
         </div>
       </div>
     </div>
   </section>
 
   <section class="grid-container usa-section margin-bottom-0 padding-bottom-0">
-    <div class="grid-row grid-gap margin-bottom-1">
-      <div class="tablet:grid-col-8">
-        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">State public health departments</h2>
-        <p class="font-sans-lg margin-top-1 text-base">Get fast, complete COVID-19 electronic test results from your jurisdiction</p>
+    {% for partner in content.index.partners %}
+      <div class="grid-row grid-gap margin-bottom-1">
+        <div class="tablet:grid-col-8">
+          <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">{{ partner.title }}</h2>
+          <p class="font-sans-lg margin-top-1 text-base">{{ partner.summary }}</p>
+        </div>
       </div>
-    </div>
-    <div class="grid-row grid-gap margin-bottom-6">
-      <div class="tablet:grid-col-4 margin-bottom-0">
-        <h3>
-          <img src="/assets/img/code.svg" aria-hidden="true" focusable="false" alt="Icon of computer code"/>
-          Support fewer connections
-        </h3>
-        <p class="usa-prose">ReportStream’s model focuses on aggregating data from multiple sources and senders, which you receive together in a single feed at your preferred frequency and format.</p>
+      <div class="grid-row grid-gap margin-bottom-6{% if forloop.last == true %} padding-bottom-6 border-bottom-1px border-base-lighter{% endif %}">
+        {% for feature in partner.features %}
+          <div class="tablet:grid-col-4 margin-bottom-0">
+            <h3>
+              <img src="{{ site.imgPath }}{{ feature.icon }}" aria-hidden="true" focusable="false" alt="Icon of {{ feature.iconDescription }}"/>
+              {{ feature.title }}
+            </h3>
+            <p class="usa-prose">{{ feature.summary }}</p>
+          </div>
+        {% endfor %}
       </div>
-      <div class="tablet:grid-col-4 margin-bottom-0">
-        <h3>
-          <img src="/assets/img/insights.svg" aria-hidden="true" focusable="false" alt="Icon of a chart"/>
-          Get valuable insights
-        </h3>
-        <p class="usa-prose">ReportStream gives you insights about your data, such as reporting trends, and alerts you if there are any errors.</p>
-      </div>
-      <div class="tablet:grid-col-4 margin-bottom-0">
-        <h3>
-          <img src="/assets/img/content_copy.svg" aria-hidden="true" focusable="false" alt="Icon of multiple documents"/>
-          Receive data from <a href="https://simplereport.gov">SimpleReport</a>
-        </h3>
-        <p class="usa-prose">If your jurisdiction is interested in receiving point-of-care tests results from  <a href="https://simplereport.gov">SimpleReport</a>, you can get this data via ReportStream.</p>
-      </div>
-    </div>
-
-    <div class="grid-row grid-gap  margin-bottom-1 padding-top-2">
-      <div class="tablet:grid-col-8">
-        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">Local public health departments</h2>
-        <p class="font-sans-lg margin-top-1 text-base">Get access to COVID-19 electronic test results without building an Electronic Lab Reporting (ELR) connection</p>
-      </div>
-    </div>
-    <div class="grid-row grid-gap padding-bottom-6 border-bottom-1px border-base-lighter">
-      <div class="tablet:grid-col-4 margin-bottom-0">
-        <h3>
-          <img src="/assets/img/send.svg" aria-hidden="true" focusable="false" alt="Icon of a paper airplane"/>
-          Receive faster data
-        </h3>
-        <p class="usa-prose">Get direct access to data from senders connected with ReportStream, such as facilities using <a href="https://simplereport.gov">SimpleReport</a>, in your jurisdiction.</p>
-      </div>
-      <div class="tablet:grid-col-4 margin-bottom-0">
-        <h3>
-          <img src="/assets/img/cloud.svg" aria-hidden="true" focusable="false" alt="Icon of cloud computing"/>
-          No ELR necessary
-        </h3>
-        <p class="usa-prose">Receive data directly via a ReportStream web account.</p>
-      </div>
-    </div>
+    {% endfor %}
   </section>
 
-  <section class="grid-container usa-section margin-top-0 padding-top-6">
-
+  <section class="grid-container usa-section margin-top-0 padding-top-0">
     <div class="grid-row grid-gap  margin-bottom-2 padding-top-2">
       <div class="tablet:grid-col-8">
-        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">Documentation</h2>
-        <p class="usa-prose">For states interested in making an ELR connection with ReportStream, please check out the following resources to learn more.</p>
+        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">{{ content.index.documentation.title }}</h2>
+        <p class="usa-prose">{{ content.index.documentation.summary }}</p>
       </div>
     </div>
     <ul class="usa-card-group">
-      <li class="tablet:grid-col-4 usa-card">
-        <div class="usa-card__container">
-          <div class="usa-card__body">
-            <img src="/assets/img/file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
-            <h3 class="usa-collection__heading">About ReportStream</h3>
-            <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
+      {% for file in content.index.documentation.files %}
+        <li class="tablet:grid-col-4 usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <img src="{{ site.imgPath }}file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
+              <h3 class="usa-collection__heading">About ReportStream</h3>
+              <a class="usa-link" href="{{ site.pdfPath }}{{ file.url }}">Download PDF</a>
+            </div>
           </div>
-        </div>
-      </li>
-      <li class="tablet:grid-col-4 usa-card">
-        <div class="usa-card__container">
-          <div class="usa-card__body">
-            <img src="/assets/img/file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
-            <h3 class="usa-collection__heading">Onboarding guide</h3>
-            <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
-          </div>
-        </div>
-      </li>
-      <li class="tablet:grid-col-4 usa-card">
-        <div class="usa-card__container">
-          <div class="usa-card__body">
-            <img src="/assets/img/file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
-            <h3 class="usa-collection__heading">Technical documentation</h3>
-            <a class="usa-link" href="https://www.performance.gov/presidents-winners-press-release/">Download PDF</a>
-          </div>
-        </div>
-      </li>
+        </li>
+      {% endfor %}
     </ul>
-
     <div class="grid-row grid-gap  margin-bottom-2 padding-top-4">
       <div class="tablet:grid-col-8">
-        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">Get started</h2>
-        <p class="usa-prose">Ready to bring ReportStream to your jurisdiction? <a href="mailto:support@prime.cdc.gov?subject=I'm interested in learning more about ReportStream">Contact the team at support@prime.cdc.gov</a>.
-        <p>
+        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">{{ content.index.cta.title }}</h2>
+        <p class="usa-prose">{{ content.index.cta.summary }}   <p>
         <a class="usa-button" href="javascript:void(0)">Get started with ReportStream</a>
         </p>
       </div>
     </div>
-
   </section>
 
 </main>
