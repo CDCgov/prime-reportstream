@@ -336,7 +336,7 @@ UNK|Unknown
 
 **Type**: ID
 
-**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-1
+**HL7 Fields**: ORC-3-1, SPM-2-2, OBR-3-1
 
 **Cardinality**: [0..1]
 
