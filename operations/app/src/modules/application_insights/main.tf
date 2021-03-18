@@ -58,6 +58,10 @@ resource "azurerm_monitor_action_group" "action_group" {
       use_common_alert_schema = true
     }
   }
+
+  tags = {
+    "environment" = var.environment
+  }
 }
 
 # Severity 0 - Critical 
@@ -86,6 +90,10 @@ resource "azurerm_monitor_metric_alert" "availability_alert" {
   action {
     action_group_id = azurerm_monitor_action_group.action_group[0].id
   }
+
+  tags = {
+    "environment" = var.environment
+  }
 }
 
 resource "azurerm_monitor_metric_alert" "exception_alert" {
@@ -108,6 +116,10 @@ resource "azurerm_monitor_metric_alert" "exception_alert" {
   action {
     action_group_id = azurerm_monitor_action_group.action_group[0].id
   }
+
+  tags = {
+    "environment" = var.environment
+  }
 }
 
 resource "azurerm_application_insights_web_test" "ping_test" {
@@ -126,7 +138,7 @@ resource "azurerm_application_insights_web_test" "ping_test" {
   configuration = <<XML
     <WebTest Name="" Id="" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="60" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="">
       <Items>
-        <Request Method="GET"  Version="1.1" Url="${local.ping_url}" ThinkTime="0" Timeout="60" ParseDependentRequests="False" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False"/>
+        <Request Method="GET" Version="1.1" Url="${local.ping_url}" ThinkTime="0" Timeout="60" ParseDependentRequests="False" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False"/>
       </Items>
     </WebTest>
     XML
