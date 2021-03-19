@@ -39,9 +39,9 @@ class SftpLegacyTransport : ITransport {
             val (user, pass) = lookupCredentials(receiver.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
-            val sshClient = SftpTransport.connect(host, port, user, pass)
+            val session = connect(host, port, user, pass)
             context.logger.log(Level.INFO, "Successfully connected to $sftpTransportType, ready to upload $fileName")
-            SftpTransport.uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
+            uploadFile(session, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp legacy upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)
             actionHistory.trackActionResult(msg)
