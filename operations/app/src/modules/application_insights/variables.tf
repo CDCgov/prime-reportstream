@@ -17,3 +17,8 @@ variable "resource_prefix" {
     type = string
     description = "Resource Prefix"
 }
+
+variable "key_vault_id" {
+    type = string
+    description = "Application Key Vault ID"
+}

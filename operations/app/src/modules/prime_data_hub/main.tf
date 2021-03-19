@@ -139,6 +139,7 @@ module "application_insights" {
     resource_group = var.resource_group
     resource_prefix = var.resource_prefix
     location = local.location
+    key_vault_id = module.key_vault.application_key_vault_id
 }
 
 module "event_hub" {

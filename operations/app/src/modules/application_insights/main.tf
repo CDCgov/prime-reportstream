@@ -35,6 +35,12 @@ resource "azurerm_monitor_action_group" "action_group" {
   resource_group_name = var.resource_group
   short_name = "ReportStream"
 
+  webhook_receiver {
+    name = "PagerDuty"
+    service_uri = data.azurerm_key_vault_secret.pagerduty_url.value
+    use_common_alert_schema = true
+  }
+
   dynamic "email_receiver" {
     for_each = local.devops
     content {
@@ -142,6 +148,11 @@ resource "azurerm_application_insights_web_test" "ping_test" {
     # This prevents terraform from seeing a tag change for each plan/apply
     "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/microsoft.insights/components/${var.resource_prefix}-appinsights" = "Resource"
   }
+}
+
+data "azurerm_key_vault_secret" "pagerduty_url" {
+    key_vault_id = var.key_vault_id
+    name = "pagerduty-integration-url"
 }
 
 output "instrumentation_key" {
