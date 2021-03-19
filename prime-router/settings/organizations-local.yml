@@ -173,6 +173,11 @@
           useBatchHeaders: false
           receivingApplicationName: NEDSS
           receivingFacilityName: TX-ELR
+        transport:
+          type: SFTP_LEGACY
+          host: sftp-edts.hhs.texas.gov
+          port: 22
+          filePath: ./USDS_IN
         
   - name: fl-phd
     description: Florida Department of Health
@@ -229,9 +234,9 @@
           timeZone: CENTRAL
         transport:
           type: SFTP
-          host: sftp
+          host: mft.nd.gov
           port: 22
-          filePath: ./upload
+          filePath: /Home/dohdcmsg/nddoh_elr/hl7
 
   - name: la-doh
     description: Louisiana Department of Health

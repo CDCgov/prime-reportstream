@@ -1,5 +1,8 @@
 package gov.cdc.prime.router.transport
 
+import com.jcraft.jsch.ChannelSftp
+import com.jcraft.jsch.JSch
+import com.jcraft.jsch.Session
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -11,16 +14,12 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserPassCredential
-import net.schmizz.sshj.SSHClient
-import net.schmizz.sshj.sftp.StatefulSFTPClient
-import net.schmizz.sshj.transport.verification.PromiscuousVerifier
-import net.schmizz.sshj.xfer.InMemorySourceFile
-import net.schmizz.sshj.xfer.LocalSourceFile
+import org.apache.logging.log4j.kotlin.KotlinLogger
+import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.io.InputStream
 import java.util.logging.Level
 
-class SftpTransport : ITransport {
+class SftpLegacyTransport : ITransport {
     override fun send(
         transportType: TransportType,
         header: WorkflowEngine.Header,
@@ -32,6 +31,7 @@ class SftpTransport : ITransport {
         val sftpTransportType = transportType as SFTPTransportType
         val host: String = sftpTransportType.host
         val port: String = sftpTransportType.port
+
         return try {
             if (header.content == null)
                 error("No content to sftp for report ${header.reportFile.reportId}")
@@ -39,10 +39,10 @@ class SftpTransport : ITransport {
             val (user, pass) = lookupCredentials(receiver.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
-            val sshClient = connect(host, port, user, pass)
+            val sshClient = SftpTransport.connect(host, port, user, pass)
             context.logger.log(Level.INFO, "Successfully connected to $sftpTransportType, ready to upload $fileName")
-            uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
-            val msg = "Success: sftp upload of $fileName to $sftpTransportType"
+            SftpTransport.uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
+            val msg = "Success: sftp legacy upload of $fileName to $sftpTransportType"
             context.logger.log(Level.INFO, msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
@@ -57,7 +57,7 @@ class SftpTransport : ITransport {
             null
         } catch (ioException: IOException) {
             val msg =
-                "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
+                "FAILED Sftp Legacy upload of inputReportId ${header.reportFile.reportId} to " +
                     "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})"
             context.logger.log(
                 Level.WARNING, msg, ioException
@@ -65,10 +65,12 @@ class SftpTransport : ITransport {
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
-        } // let non-IO exceptions be caught by the caller
+        } // let other exceptions bubble out
     }
 
     companion object {
+        private const val DEFAULT_TIMEOUT_IN_MS: Int = 120_000
+
         fun lookupCredentials(receiverFullName: String): Pair<String, String> {
             val credentialLabel = receiverFullName
                 .replace(".", "--")
@@ -84,94 +86,80 @@ class SftpTransport : ITransport {
             return Pair(credential.user, credential.pass)
         }
 
-        fun connect(
-            host: String,
-            port: String,
-            user: String,
-            pass: String,
-        ): SSHClient {
-            // create our client
-            val sshClient = SSHClient()
-            try {
-                sshClient.addHostKeyVerifier(PromiscuousVerifier())
-                sshClient.connect(host, port.toInt())
-                sshClient.authPassword(user, pass)
-                return sshClient
-            } catch (t: Throwable) {
-                sshClient.disconnect()
-                throw t
-            }
+        fun connect(user: String, pass: String, host: String, port: String, logger: KotlinLogger? = null): Session {
+            val jsch = JSch()
+            logger?.info("--->>> LEGACY SFTP: created jsch object")
+            val session = jsch.getSession(user, host, port.toInt())
+            logger?.info("--->>> LEGACY SFTP: got jsch session")
+            session.setPassword(pass)
+            session.setConfig("StrictHostKeyChecking", "no")
+            return session
         }
 
-        /**
-         * Call this after you have already successfully connect()ed.
-         */
         fun uploadFile(
-            sshClient: SSHClient,
+            session: Session,
             path: String,
             fileName: String,
-            contents: ByteArray
+            contents: ByteArray,
+            timeoutMs: Int? = null,
+            logger: KotlinLogger? = null
         ) {
             try {
-                val client = sshClient.newSFTPClient()
-                client.fileTransfer.preserveAttributes = false
-                client.use {
-                    it.put(makeSourceFile(contents, fileName), "$path/$fileName")
-                }
+                session.connect(timeoutMs ?: DEFAULT_TIMEOUT_IN_MS)
+                val sftp = session.openChannel("sftp")
+                logger?.info("--->>> LEGACY SFTP: opening sftp channel")
+                sftp.connect(timeoutMs ?: DEFAULT_TIMEOUT_IN_MS)
+                val sftpChannel = sftp as ChannelSftp
+                sftpChannel.cd(path)
+                val byteArrayStream = ByteArrayInputStream(contents)
+                sftp.put(byteArrayStream, fileName, 777)
             } finally {
-                sshClient.disconnect()
+                session.disconnect()
             }
         }
 
-        fun ls(sshClient: SSHClient, path: String): List<String> {
+        fun ls(
+            session: Session,
+            path: String? = null,
+            timeoutMs: Int? = null,
+            logger: KotlinLogger? = null
+        ): List<String> {
             try {
-                val client = sshClient.newSFTPClient()
-                client.use {
-                    val lsResponse = it.ls(path)
-                    return lsResponse.map { l -> l.toString() }.toList()
+                session.connect(timeoutMs ?: DEFAULT_TIMEOUT_IN_MS)
+                val sftp = session.openChannel("sftp")
+                logger?.info("--->>> LEGACY SFTP: opening sftp channel")
+                sftp.connect(timeoutMs ?: DEFAULT_TIMEOUT_IN_MS)
+                val sftpChannel = sftp as ChannelSftp
+                // if we don't pass in a path, use PWD
+                val dir = if (path.isNullOrEmpty()) {
+                    logger?.info("--->>> LEGACY SFTP: calling pwd")
+                    sftpChannel.pwd()
+                } else {
+                    logger?.info("--->>> LEGACY SFTP: using path $path")
+                    path
+                }
+                logger?.info("--->>> LEGACY SFTP: calling ls")
+                val ls = sftpChannel.ls(dir)
+                return ls.map {
+                    it.toString()
                 }
             } finally {
-                sshClient.disconnect()
+                logger?.info("--->>> LEGACY SFTP: disconnecting")
+                session.disconnect()
             }
         }
 
-        fun pwd(sshClient: SSHClient): String {
+        fun pwd(session: Session, timeoutMs: Int? = null, logger: KotlinLogger? = null): String {
             try {
-                val client = sshClient.newStatefulSFTPClient() as StatefulSFTPClient
-                sshClient.timeout = 120000
-                client.use {
-                    return it.pwd()
-                }
+                session.connect(timeoutMs ?: DEFAULT_TIMEOUT_IN_MS)
+                val sftp = session.openChannel("sftp")
+                logger?.info("--->>> LEGACY SFTP: opening sftp channel")
+                sftp.connect(120_000)
+                val sftpChannel = sftp as ChannelSftp
+                return sftpChannel.pwd()
             } finally {
-                sshClient.disconnect()
-            }
-        }
-
-        private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
-            return object : InMemorySourceFile() {
-                override fun getName(): String {
-                    return fileName
-                }
-
-                override fun getLength(): Long {
-                    return contents.size.toLong()
-                }
-
-                override fun getInputStream(): InputStream {
-                    return contents.inputStream()
-                }
-
-                override fun isDirectory(): Boolean {
-                    return false
-                }
-
-                override fun isFile(): Boolean {
-                    return true
-                }
-
-                override fun getPermissions(): Int {
-                    return 777
-                }
+                logger?.info("--->>> LEGACY SFTP: disconnecting")
+                session.disconnect()
             }
         }
     }
