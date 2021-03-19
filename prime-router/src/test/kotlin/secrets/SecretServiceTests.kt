@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.secrets
 
 import io.mockk.every
-import io.mockk.mockkStatic
+import io.mockk.spyk
 import org.junit.jupiter.api.Test
 import java.lang.IllegalArgumentException
 import kotlin.test.assertEquals
@@ -9,13 +9,14 @@ import kotlin.test.fail
 
 internal class SecretServiceTests : SecretManagement {
 
+    private val mockSecretService = spyk(EnvVarSecretService)
+
     override val secretService: SecretService
-        get() = EnvVarSecretService
+        get() = mockSecretService
 
     @Test
     fun `test fetch from envVar`() {
-        mockkStatic(System::class)
-        every { System.getenv("SECRET_SERVICE_TEST") } returns "value_expected"
+        every { mockSecretService.fetchEnvironmentVariable("SECRET_SERVICE_TEST") } returns "value_expected"
         assertEquals("value_expected", secretService.fetchSecret("SECRET_SERVICE_TEST"))
     }
 
