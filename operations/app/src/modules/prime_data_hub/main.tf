@@ -120,7 +120,7 @@ module "metabase" {
     location = local.location
     app_service_plan_id = module.app_service_plan.app_service_plan_id
     public_subnet_id = module.network.public_subnet_id
-    postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${module.database.postgres_user}&password=${module.database.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${module.database.postgres_user}@${module.database.server_name}&password=${module.database.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
     ai_instrumentation_key = module.application_insights.instrumentation_key
 }
 

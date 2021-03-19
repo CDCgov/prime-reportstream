@@ -270,6 +270,9 @@ class Hl7Serializer(val metadata: Metadata) {
     ) {
         // set up our configuration
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
+        val suppressAoe = hl7Config?.suppressAoe ?: false
+        // and we have some fields to suppress
+        val suppressedFields = hl7Config?.suppressHl7Fields?.split(",") ?: emptyList()
         // start processing
         var aoeSequence = 1
         val terser = Terser(message)
@@ -278,17 +281,22 @@ class Hl7Serializer(val metadata: Metadata) {
         report.schema.elements.forEach { element ->
             val value = report.getString(row, element.name) ?: return@forEach
 
+            if (suppressedFields.contains(element.hl7Field))
+                return@forEach
+
             if (element.hl7OutputFields != null) {
-                element.hl7OutputFields.forEach { hl7Field ->
+                element.hl7OutputFields.forEach outputFields@{ hl7Field ->
+                    if (suppressedFields.contains(hl7Field))
+                        return@outputFields
                     setComponent(terser, element, hl7Field, value)
                 }
-            } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER) {
+            } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
                 if (value.isNotBlank()) {
                     val units = report.getString(row, "${element.name}_units")
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
                     setAOE(terser, element, aoeSequence++, date, value, report, row, units, suppressQst)
                 }
-            } else if (element.hl7Field == "AOE") {
+            } else if (element.hl7Field == "AOE" && !suppressAoe) {
                 if (value.isNotBlank()) {
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
                     setAOE(terser, element, aoeSequence++, date, value, report, row, suppressQst = suppressQst)
@@ -304,6 +312,20 @@ class Hl7Serializer(val metadata: Metadata) {
             } else if (element.hl7Field != null) {
                 setComponent(terser, element, element.hl7Field, value)
             }
+        }
+        // make sure all fields we're suppressing are empty
+        suppressedFields.forEach {
+            val pathSpec = formPathSpec(it)
+            terser.set(pathSpec, "")
+        }
+        // check for reporting facility overrides
+        if (!hl7Config?.reportingFacilityName.isNullOrEmpty()) {
+            val pathSpec = formPathSpec("MSH-4-1")
+            terser.set(pathSpec, hl7Config?.reportingFacilityName)
+        }
+        if (!hl7Config?.reportingFacilityId.isNullOrEmpty()) {
+            val pathSpec = formPathSpec("MSH-4-2")
+            terser.set(pathSpec, hl7Config?.reportingFacilityId)
         }
     }
 
