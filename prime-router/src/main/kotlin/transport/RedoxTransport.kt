@@ -45,7 +45,7 @@ class RedoxTransport() : ITransport, SecretManagement {
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
         val messages = String(header.content).split("\n") // NDJSON content
         // All of these are needed in the large finally block below
-        val nextRetryItems = mutableListOf<String>()
+        var nextRetryItems = mutableListOf<String>()
         var attemptedCount: Int = 0
         var successCount: Int = 0
         val sendUrl = "${getBaseUrl(redoxTransportType)}$redoxEndpointPath"
@@ -70,12 +70,10 @@ class RedoxTransport() : ITransport, SecretManagement {
                     -> {
                         attemptedCount++
                         try {
-                            if (index == 2) throw Exception("JIM THREW THIS EXCEPTION!!!!!!! Blame him.")
                             sendItem(sendUrl, token, message, itemId)
                         } catch (t: Throwable) {
                             context.logger.log(
-                                Level.SEVERE,
-                                "Exception for redox item $itemId ${header.reportFile.reportId}", t
+                                Level.SEVERE, "Redox Exception for item $itemId, ${header.reportFile.reportId}", t
                             )
                             SendResult(itemId, ResultStatus.FAILURE)
                         }
@@ -96,11 +94,14 @@ class RedoxTransport() : ITransport, SecretManagement {
                 "Exception during REDOX send of reportId ${header.reportFile.reportId}: " +
                 "  ${t.localizedMessage}.  "
             context.logger.log(Level.WARNING, resultMsg, t)
-            // If even one redox message got through, we'll call that 'send' rather than send_error
-            if (successCount == 0) actionHistory.setActionType(TaskAction.send_error)
+            if (successCount == 0) {
+                nextRetryItems = RetryToken.allItems as MutableList<String>
+                // If even one redox message got through, we'll call that 'send' rather than send_error
+                actionHistory.setActionType(TaskAction.send_error)
+            }
         } finally {
             val statusStr = when {
-                attemptedCount == 0 -> "Weird"
+                attemptedCount == 0 -> "Failure prior to first send"
                 successCount == attemptedCount -> "Success"
                 successCount == 0 -> "Failure"
                 else -> "Partial Failure"

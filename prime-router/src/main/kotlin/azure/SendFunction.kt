@@ -28,6 +28,8 @@ const val maxDurationValue = 120L
 
 // index is retryCount, value is in minutes
 val retryDuration = mapOf(1 to 1L, 2 to 5L, 3 to 30L, 4 to 60L, 5 to 120L)
+// Use this for testing retries:
+// val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 1L, 4 to 1L, 5 to 1L)
 
 class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
     @FunctionName(send)
