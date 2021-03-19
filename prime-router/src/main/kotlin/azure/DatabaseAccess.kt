@@ -499,6 +499,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.addDataSourceProperty("cachePrepStmts", "true")
             config.addDataSourceProperty("prepStmtCacheSize", "250")
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+            config.addDataSourceProperty("maximumPoolSize", "20") // Default is 10
+            config.addDataSourceProperty("connectionTimeout", "60000") // Default is 30000 (30 seconds)
+
             // See this info why these are a good value
             //  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
             config.minimumIdle = 2
