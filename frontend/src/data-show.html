@@ -1,59 +1,62 @@
 ---
 layout: protected.liquid
 title: "Download"
+report: []
 ---
-{% assign report = reports[0] %}
+<script src="js/reports.js"></script>
+<script>
+let report = reports[0];
+</script>
 
-<section class="grid-container margin-bottom-5">
+<section class="grid-container">
   <h3 class="margin-bottom-0">
-    <span class="text-gray-30">Pima County, AZ</span>
+    <a href="data-index.html">COVID-19</a> > <span class="text-gray-30">Pima County, AZ</span>
   </h3>
   <h1 class="margin-top-0 margin-bottom-0">
-    <p class="margin-top-0 margin-bottom-0">COVID-19</p>
-    <p class="margin-top-0 margin-bottom-0">Test results
-    {% if report.fileType == "CSV" %}
-    <a class="usa-button usa-button--outline float-right" href="">CSV</a>
-    {% elsif report.fileType == "HL7" %}
-    <a class="usa-button usa-button--outline float-right" href="">HL7</a>
-    {% endif %}
-    </p>
+    <p class="margin-top-0 margin-bottom-0">Report #<span id="report.id">123456789</span>
+      <a id="report.fileType" class="usa-button usa-button--outline float-right" href=""></a>
+    </p>    
 </h1>
+<p>Sent on: <span id="report.sent"></span></p>
 </section>
 
 <section class="grid-container margin-top-0">
     <div class="grid-row grid-gap margin-top-0">
-      <div class="tablet:grid-col-4">
+      <div class="tablet:grid-col-3">
 
-            <h4 class="text-gray-30 margin-bottom-0">Date sent</h4>
-            <p class="text-bold margin-top-0">{% date report.sent "dddd, MMMM DD, YYYY" %}</p>
-            <h4 class="text-gray-30 margin-bottom-0">Time sent</h4>
-            <p class="text-bold margin-top-0">{% date report.sent "hh:mm A" %}</p>
-            <h4 class="text-gray-30 margin-bottom-0">Sent via</h4>
-            <p class="text-bold margin-top-0">{{ report.via }}</p>
+            <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
+            <p class="text-bold margin-top-0">report.sent</p>
+            <h4 class="text-gray-30 margin-bottom-0">Sending orgs</h4>
+            <p class="text-bold margin-top-0">report.sent</p>
         </div>
-      <div class="tablet:grid-col-4">
-            <h4 class="text-gray-30 margin-bottom-0">Total positive</h4>
-            <p class="text-bold margin-top-0">{% comma report.positive %}</p>
-            <h4 class="text-gray-30 margin-bottom-0">Total tests</h4>
-            <p class="text-bold margin-top-0">{% comma report.total %}</p>
+      <div class="tablet:grid-col-3">
             <h4 class="text-gray-30 margin-bottom-0">Facilities reporting</h4>
-            <p class="text-bold margin-top-0">{{ report.facilities.length }}</p>
+            <p class="text-bold margin-top-0">report.positive</p>
+            <h4 class="text-gray-30 margin-bottom-0">Positivity rate</h4>
+            <p class="text-bold margin-top-0">report.total</p>
       </div>
-      <div class="tablet:grid-col-4">
-            <h4 class="text-gray-30 margin-bottom-0">Type</h4>
-            <p class="text-bold margin-top-0">{{ report.type }}</p>
-            <h4 class="text-gray-30 margin-bottom-0">UUID</h4>
-            <p class="text-bold margin-top-0">{{ report.reportId }}</p>
+      <div class="tablet:grid-col-3">
+            <h4 class="text-gray-30 margin-bottom-0">Errors</h4>
+            <p class="text-bold margin-top-0">report.type</p>
             <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
-            <p class="text-bold margin-top-0">{{ report.expires }} days</p>
+            <p class="text-bold margin-top-0">report.expires days</p>
+      </div>
+      <div class="tablet:grid-col-3">
+        <h4 class="text-gray-30 margin-bottom-0">Corrections</h4>
+        <p class="text-bold margin-top-0">report.type</p>      
       </div>
     </div>
+    <script>
+      document.getElementById( "report.id").innerHTML = report.reportId;
+      document.getElementById( "report.sent").innerHTML = moment(report.sent).format( 'dddd MMM DD, YYYY hh:mm A' )
+      document.getElementById( "report.fileType").innerHTML = report.fileType == "HL7"? "HL7" : "CSV"
+    </script>
   </section>
 
+  <!--
   <section class="grid-container margin-top-5">
     <div class="grid-col-12">
       <h2>Facilities</h2>
-      {% if report.facilities.length > 0 %}
       <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
         <thead>
           <tr>
@@ -65,7 +68,6 @@ title: "Download"
           </tr>
         </thead>
         <tbody class="font-mono-2xs">
-          {% for facility in report.facilities %}
           <tr>
             <th data-title="date" scope="row">{{ facility.organization }}</th>
             <th data-title="receiver" scope="row">{{ facility.facility }}</th>
@@ -73,19 +75,14 @@ title: "Download"
             <th date-title="expires" scope="row">{{ facility.total }}</th>
             <th data-title="File" scope="row">{{ facility.positive }}</th>
           </tr>
-          {% endfor %}
         </tbody>
       </table>
-      {% else %}
-        No facilities were reported
-      {%endif%}
     </div>
 </section>
 
 <section class="grid-container margin-top-5">
     <div class="grid-col-12">
       <h2>Activities</h2>
-      {% if report.actions.length > 0 %}
       <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
         <thead>
           <tr>
@@ -95,19 +92,15 @@ title: "Download"
           </tr>
         </thead>
         <tbody class="font-mono-2xs">
-          {% for action in report.actions %}
           <tr>
             <th data-title="date" scope="row">{% date action.date "YYYY-MM-DD hh:mm" %}</th>
             <th data-title="receiver" scope="row">{{ action.user }}</th>
             <th data-title="Total tests" scope="row">{{ action.action }}</th>
           </tr>
-          {% endfor %}
         </tbody>
       </table>
-      {% else %}
         No actions were reported
-      {%endif%}
     </div>
 </section>
-
+-->
   

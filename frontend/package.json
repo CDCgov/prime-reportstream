@@ -2,20 +2,21 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "@11ty/eleventy": "^0.11.1",
     "axios": "^0.21.1",
     "chart.js": "^2.9.4",
+    "moment": "^2.29.1",
     "http-proxy-middleware": "^1.0.6",
     "jshint": "^2.12.0",
     "js-yaml": "^4.0.0",
-    "moment": "^2.29.1",
-    "rimraf": "^3.0.2",
-    "rm": "^0.1.8"
+    "rimraf": "^3.0.2"
   },
   "devDependencies": {
+    "@11ty/eleventy": "^0.11.1",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "rimraf": "^3.0.2",
+    "jshint": "^2.12.0"
   },
   "scripts": {
     "clean": "rimraf ./_site ./dist",

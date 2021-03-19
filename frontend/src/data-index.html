@@ -3,45 +3,46 @@ layout: protected.liquid
 title: "Download"
 ---
 
+<script src="js/cards.js"></script>
+
 <section class="grid-container margin-bottom-5">
   <h3 class="margin-bottom-0">
     <span class="text-gray-30">Pima County, AZ</span>
   </h3>
   <h1 class="margin-top-0 margin-bottom-0">
-    COVID-19 {{reportId}}
-  
+    COVID-19
     <a class="usa-button usa-button--outline float-right" href="/data-show.html">Latest Results</a>
 </h1>
 </section>
 
 <section class="grid-container margin-top-0">
   <div class="grid-row grid-gap margin-top-0">
-    {% for card in cards %}
-    <div class="tablet:grid-col-4">
-      <div class="usa-card__container">
-        <div class="usa-card__body">
-          <h4 class="text-gray-30 margin-bottom-0"><span id="card.title">{{card.title}}</span></h4>
-          <p class="text-bold margin-top-0"><span id="card.subtitle">{{card.subtitle}}</span></p>
-          <h4 class="text-gray-30 margin-bottom-0">Daily</h4>
-          <p class="text-bold margin-top-0">{% comma card.daily %}</p>
-          <h4 class="text-gray-30 margin-bottom-0">Last 7 days</h4>
-          <p class="text-bold margin-top-0">
-            {% comma card.last %}
-            {% if card.positive %}
-            <span class="text-green float-right">&#8593;{% comma card.change %} ({{card.pct_change}}%)</span>
-            {% else %}
-            <span class="text-red float-right">&#8595;{% comma card.change %} ({{card.pct_change}}%)</span>
-            {% endif %}             
-          </p>
-          <canvas id="{{card.id}}" width="200" height="100"></canvas>
-        </div>  
-      </div>
-      </div>
-      {% endfor %}
+    <script>
+      cards.forEach( card => {
+        document.write(
+          `<div class="tablet:grid-col-4">
+            <div class="usa-card__container">
+              <div class="usa-card__body">
+                <h4 class="text-gray-30 margin-bottom-0">${card.title}</h4>
+                <p class="text-bold margin-top-0">${card.subtitle}</p>
+                <h4 class="text-gray-30 margin-bottom-0">Daily</h4>
+                <p class="text-bold margin-top-0">${card.daily}</p>
+                <h4 class="text-gray-30 margin-bottom-0">Last 7 days</h4>
+                <p class="text-bold margin-top-0">
+                  ${card.last}
+                  <span class="float-right ${card.positive? "text-green" : "text-red"}">
+                    ${card.positive? "&#8593;" : "&#8595;"} ${card.change} (${card.pct_change}%)
+                  </span>
+                </p>
+                <canvas id="${card.id}" width="200" height="40"></canvas>
+              </div>  
+            </div>
+          </div>`
+      ) } );
+    </script>
   </div>
 </section>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
 <script>
   var ctx = 'positive-cases';
   var ctx2 = 'tests-administered';
@@ -53,6 +54,7 @@ title: "Download"
         },
         scales: {
             yAxes: [{
+                ticks: { beginAtZero: false },
                 display: false
             }],
             xAxes: [{
@@ -60,13 +62,15 @@ title: "Download"
             }]
         }
     }
+
+    var labels = ["2021-03-09", "2021-03-10","2021-03-11","2021-03-12","2021-03-13","2021-03-14","2021-03-15",]
   
   var myLineChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: [1,2,3,4,5,6,7],
+      labels: labels,
       datasets: [{ 
-          data: [86,114,106,106,107,111,107],
+          data: [106,114,106,106,107,111,107],
           borderColor: "#4682B4",
           backgroundColor: "#B0C4DE",
           fill: 'origin',
@@ -110,11 +114,12 @@ var myLineChart = new Chart(ctx3, {
 });
 </script>
 
-
+<script src="js/reports.js"></script>
 
 <section class="grid-container margin-top-5">
   <div class="grid-col-12">
     <h2>Previous <span>7</span> days</h2>
+
     <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
       <thead>
         <tr>
@@ -126,20 +131,29 @@ var myLineChart = new Chart(ctx3, {
         </tr>
       </thead>
       <tbody class="font-mono-2xs">
-        {% for report in reports %}
-        <tr>
-          <th data-title="date" scope="row">{% date report.sent "YYYY-MM-DD hh:mm:ss" %}</th>
-          <th data-title="receiver" scope="row">{{report.type}}</th>
-          <th data-title="Total tests" scope="row">{% comma report.total %}</th>
-          <th date-title="expires" scope="row">{{report.expires}} days</th>
-          <th data-title="File" scope="row"><span><a href=".">{{report.fileType}}</a></span>
-          </th>
-        </tr>
-        {% endfor %}
+        <script>
+          reports.forEach( report => {
+            document.write( 
+              `<tr>
+                <th data-title="date" scope="row">${report.sent}</th>
+                <th data-title="receiver" scope="row">${report.type}</th>
+                <th data-title="Total tests" scope="row">${report.total}</th>
+                <th date-title="expires" scope="row">${report.expires} days</th>
+                <th data-title="File" scope="row"><span><a href=".">${report.fileType}</a></span>
+                </th>
+              </tr>` );
+      } )
+        </script>
       </tbody>
     </table>
+
   </div>
 </section>
+
+<script type="module">
+  var con = document.getElementById( "emailUser");
+  con.innerHTML = window.user;
+</script>
 
 
 

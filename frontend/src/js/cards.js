@@ -1,7 +1,6 @@
-module.exports = async function() {
 
-    return [
-        {
+function fetchCards(){
+        return [{
             id: "tests-administered", 
             title: "Testing" ,
             subtitle: "Tests received",
@@ -35,6 +34,8 @@ module.exports = async function() {
         }];
 }
 
+let cards = fetchCards();
+
 /*
 
 module.exports = async function() {
@@ -54,3 +55,4 @@ module.exports = async function() {
         return response;
 };
 */
+
