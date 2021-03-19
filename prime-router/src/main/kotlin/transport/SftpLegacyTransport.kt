@@ -6,7 +6,7 @@ import com.jcraft.jsch.Session
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.SFTPTransportType
+import gov.cdc.prime.router.SFTPLegacyTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -28,7 +28,7 @@ class SftpLegacyTransport : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory,
     ): RetryItems? {
-        val sftpTransportType = transportType as SFTPTransportType
+        val sftpTransportType = transportType as SFTPLegacyTransportType
         val host: String = sftpTransportType.host
         val port: String = sftpTransportType.port
 
@@ -39,7 +39,7 @@ class SftpLegacyTransport : ITransport {
             val (user, pass) = lookupCredentials(receiver.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
-            val session = connect(host, port, user, pass)
+            val session = connect(user, pass, host, port)
             context.logger.log(Level.INFO, "Successfully connected to $sftpTransportType, ready to upload $fileName")
             uploadFile(session, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp legacy upload of $fileName to $sftpTransportType"

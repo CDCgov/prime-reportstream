@@ -7,6 +7,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.SFTPLegacyTransportType
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -87,6 +88,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
     private fun getTransport(transportType: TransportType): ITransport? {
         return when (transportType) {
             is SFTPTransportType -> workflowEngine.sftpTransport
+            is SFTPLegacyTransportType -> workflowEngine.legacySftpTransport
             is RedoxTransportType -> workflowEngine.redoxTransport
             is NullTransportType -> NullTransport()
             else -> null

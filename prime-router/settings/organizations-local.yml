@@ -175,9 +175,9 @@
           receivingFacilityName: TX-ELR
         transport:
           type: SFTP_LEGACY
-          host: sftp-edts.hhs.texas.gov
+          host: sftp
           port: 22
-          filePath: ./USDS_IN
+          filePath: ./upload
         
   - name: fl-phd
     description: Florida Department of Health
@@ -234,9 +234,9 @@
           timeZone: CENTRAL
         transport:
           type: SFTP
-          host: mft.nd.gov
+          host: sftp
           port: 22
-          filePath: /Home/dohdcmsg/nddoh_elr/hl7
+          filePath: ./upload
 
   - name: la-doh
     description: Louisiana Department of Health
@@ -397,7 +397,7 @@
           receivingApplicationName: GUDOH
           receivingFacilityName: GUDOH
         transport:
-          type: SFTP
+          type: SFTP_LEGACY
           host: sftp
           port: 22
           filePath: ./upload
