@@ -3,14 +3,14 @@
 # Put the settings in the organization.json and senders.json, and the receivers.json files
 # into the local settings service
 import json
+import os
 import requests
 import yaml
 import time
 import argparse
 
 parser = argparse.ArgumentParser(description='Put org file into a prime service')
-parser.add_argument('host', default='localhost')
-parser.add_argument('org_file', default='organizations-local.yml')
+parser.add_argument('--env', required=False, default='local')
 parser.add_argument('--wait', type=int, default=0)
 args = parser.parse_args()
 host = args.host
