@@ -3,18 +3,6 @@ terraform {
 }
 
 locals{
-  devops = {
-    "cglodosky" = "que3@cdc.gov"
-    "rhawes" = "qom6@cdc.gov"
-    "rheft" = "qwp3@cdc.gov"
-  }
-
-  developers = {
-    "jduff" = "qop5@cdc.gov"
-    "mreeves" = "qva8@cdc.gov"
-    "myoung" = "qtv1@cdc.gov"
-  }
-
   ping_url = (var.environment == "prod" ? "https://prime.cdc.gov" : "https://${var.environment}.prime.cdc.gov")
 }
 
@@ -39,24 +27,6 @@ resource "azurerm_monitor_action_group" "action_group" {
     name = "PagerDuty"
     service_uri = data.azurerm_key_vault_secret.pagerduty_url.value
     use_common_alert_schema = true
-  }
-
-  dynamic "email_receiver" {
-    for_each = local.devops
-    content {
-      name = "${email_receiver.key}_-EmailAction-"
-      email_address = email_receiver.value
-      use_common_alert_schema = true
-    }
-  }
-
-  dynamic "email_receiver" {
-    for_each = (var.environment == "prod" ? local.developers : {})
-    content {
-      name = "${email_receiver.key}_-EmailAction-"
-      email_address = email_receiver.value
-      use_common_alert_schema = true
-    }
   }
 
   tags = {
