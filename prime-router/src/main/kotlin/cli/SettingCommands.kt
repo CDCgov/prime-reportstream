@@ -21,6 +21,7 @@ import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers.Companion.AUTHORIZATION
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
+import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.DeepOrganization
@@ -36,11 +37,6 @@ private const val apiPath = "/api/settings"
 private const val dummyAccessToken = "dummy"
 private const val jsonMimeType = "application/json"
 
-// Must be configured in the Okta applications for this to work
-private const val oktaRedirectUrl = "http://localhost:9999/redirect"
-private const val oktaBaseUrl = "https://hhs-prime.okta.com"
-private const val oktaScope = "openid"
-
 /**
  * Base class to handle common stuff: authentication, calling, inputs and outputs
  */
@@ -52,7 +48,7 @@ abstract class SettingCommand(
         .choice("local", "test", "staging", "prod")
         .default("local", "local")
 
-    private val accessParam by option("--access", envvar = "PRIME_ACCESS_TOKEN")
+    // private val accessParam by option("--access", envvar = "PRIME_ACCESS_TOKEN")
 
     private val outStream by option("--output", help = "output file name", metavar = "file")
         .outputStream(createIfNotExist = true, truncateExisting = true)
@@ -65,18 +61,17 @@ abstract class SettingCommand(
         val name: String,
         val baseUrl: String,
         val useHttp: Boolean = false,
-        val authWithOkta: Boolean = true,
-        val oktaClientId: String = ""
+        val oktaApp: AuthorizationWorkflow.OktaApp? = null
     )
 
     enum class Operation { LIST, GET, PUT, }
     enum class SettingType { ORG, SENDER, RECEIVER }
 
     private val environments = listOf(
-        Environment("local", "localhost:7071", useHttp = true, authWithOkta = false),
-        Environment("test", "test.prime.cdc.gov", oktaClientId = "0oa6fm8j4G1xfrthd4h6"),
-        Environment("staging", "staging.prime.cdc.gov", oktaClientId = "0oa6fm8j4G1xfrthd4h6"),
-        Environment("prod", "prime.cdc.gov", oktaClientId = "0oa6kt4j3tOFz5SH84h6"),
+        Environment("local", "localhost:7071", useHttp = true),
+        Environment("test", "test.prime.cdc.gov", oktaApp = AuthorizationWorkflow.OktaApp.DH_TEST),
+        Environment("staging", "staging.prime.cdc.gov", oktaApp = AuthorizationWorkflow.OktaApp.DH_TEST),
+        Environment("prod", "prime.cdc.gov", oktaApp = AuthorizationWorkflow.OktaApp.DH_PROD),
     )
 
     val jsonMapper = jacksonObjectMapper()
@@ -95,9 +90,11 @@ abstract class SettingCommand(
     }
 
     fun getAccessToken(environment: Environment): String {
-        if (!environment.authWithOkta) return dummyAccessToken
-        if (accessParam != null) return accessParam!!
-        TODO()
+        if (environment.oktaApp == null) return dummyAccessToken
+        echo("About to launch a browser for user sign-in...")
+        val accessToken = AuthorizationWorkflow().launchSignIn(environment.oktaApp)
+        echo("Sign-in complete.")
+        return accessToken
     }
 
     fun put(
@@ -111,7 +108,7 @@ abstract class SettingCommand(
         val (_, response, result) = Fuel
             .put(path)
             .header(CONTENT_TYPE to jsonMimeType, AUTHORIZATION to "Bearer $sessionToken")
-            .body(payload)
+            .jsonBody(payload)
             .responseString()
         return when (result) {
             is Result.Failure -> throw result.getException()
