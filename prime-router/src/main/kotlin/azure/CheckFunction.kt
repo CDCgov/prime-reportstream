@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -26,7 +25,6 @@ class CheckFunction : Logging {
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.FUNCTION,
         ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext,
     ): HttpResponseMessage {
         logger.info("Entering check api")
         val responseBody = mutableListOf<String>()
@@ -91,8 +89,7 @@ class CheckFunction : Logging {
                 // todo add other types of transports as needed.
                 else -> {
                     responseBody.add(
-                        "**** ${receiver.fullName}: No test implemented for transport type " +
-                            "${receiver.transport?.type ?: "null"}"
+                        "**** ${receiver.fullName}: No test implemented for transport type ${receiver.transport.type}"
                     )
                     false
                 }

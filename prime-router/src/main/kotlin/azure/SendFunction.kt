@@ -16,6 +16,7 @@ import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Level
+import kotlin.random.Random
 
 /**
  * Azure Functions with HTTP Trigger. Write to blob.
@@ -27,6 +28,8 @@ const val maxDurationValue = 120L
 
 // index is retryCount, value is in minutes
 val retryDuration = mapOf(1 to 1L, 2 to 5L, 3 to 30L, 4 to 60L, 5 to 120L)
+// Use this for testing retries:
+// val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 1L, 4 to 1L, 5 to 1L)
 
 class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
     @FunctionName(send)
@@ -74,7 +77,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             }
         } catch (t: Throwable) {
             // For debugging and auditing purposes
-            val msg = "Send function exception for event: $message"
+            val msg = "Send function unrecoverable exception for event: $message"
             context.logger.log(Level.SEVERE, msg, t)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
@@ -117,10 +120,11 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             } else {
                 // retry using a back-off strategy
                 val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)
-                val nextRetryTime = OffsetDateTime.now().plusMinutes(waitMinutes)
+                val randomSeconds = Random.nextInt(-30, 31)
+                val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
                 val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
                 val msg = "Send Failed.  Will retry sending report: $reportId to $serviceName}" +
-                    " in $waitMinutes minutes, at $nextRetryTime"
+                    " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime"
                 context.logger.info(msg)
                 actionHistory.trackActionResult(msg)
                 ReportEvent(Event.EventAction.SEND, reportId, nextRetryTime, nextRetryToken)

@@ -15,7 +15,6 @@ import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
-import java.io.IOException
 import java.io.InputStream
 import java.util.logging.Level
 
@@ -54,13 +53,12 @@ class SftpTransport : ITransport {
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
-        } catch (ioException: IOException) {
+        } catch (t: Throwable) {
             val msg =
                 "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
-                    "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})"
-            context.logger.log(
-                Level.WARNING, msg, ioException
-            )
+                    "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
+                    ", Exception: ${t.localizedMessage}"
+            context.logger.log(Level.WARNING, msg, t)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
