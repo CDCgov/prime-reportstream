@@ -45,7 +45,8 @@ abstract class SettingCommand(
 ) : CliktCommand(name = name, help = help) {
     private val env by option(
         "-e", "--env",
-        help = "Use environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
+        envvar = "PRIME_ENVIRONMENT",
+        help = "Connect to <name> environment.\nChoose between [local|test|staging|prod]"
     )
         .choice("local", "test", "staging", "prod")
         .default("local", "local environment")
@@ -102,14 +103,19 @@ abstract class SettingCommand(
             .bearer(accessToken)
             .header(CONTENT_TYPE to jsonMimeType)
             .jsonBody(payload)
-            .responseString()
+            .responseJson()
         return when (result) {
-            is Result.Failure -> throw result.getException()
+            is Result.Failure ->
+                throw result.getException()
             is Result.Success ->
-                if (response.statusCode == HttpStatus.SC_OK)
-                    "No change: $settingName"
-                else
-                    "Updated: $settingName"
+                when (response.statusCode) {
+                    HttpStatus.SC_OK -> {
+                        val version = result.value.obj().getInt("version")
+                        "Success. Setting $settingName at version $version"
+                    }
+                    HttpStatus.SC_CREATED -> "Success. Created $settingName"
+                    else -> error("Unexpected successful status code")
+                }
         }
     }
 
@@ -291,7 +297,7 @@ abstract class SingleSettingCommandNoSettingName(
 
     private val useJson by option(
         "--json",
-        help = "Use JSON format instead of YAML"
+        help = "Use the JSON format instead of YAML"
     ).flag(default = false)
 
     override fun run() {
@@ -330,7 +336,12 @@ abstract class SingleSettingCommand(
     settingType: SettingType,
     operation: Operation
 ) : SingleSettingCommandNoSettingName(name, help, settingType, operation) {
-    override val settingName: String by option("-n", "--name", help = "setting name", metavar = "name")
+    override val settingName: String by option(
+        "-n", "--name", metavar = "name",
+        help = """
+            The full name of the setting 
+        """.trimIndent()
+    )
         .required()
 }
 
@@ -383,7 +394,7 @@ class DeleteOrganizationSetting : SingleSettingCommand(
  */
 class SenderSettings : CliktCommand(
     name = "sender",
-    help = "Fetch and update settings for an sender"
+    help = "Fetch and update settings for a sender"
 ) {
     init { subcommands(ListSenderSetting(), GetSenderSetting(), PutSenderSetting(), DeleteSenderSetting()) }
 
@@ -423,7 +434,7 @@ class DeleteSenderSetting : SingleSettingCommand(
  */
 class ReceiverSettings : CliktCommand(
     name = "receiver",
-    help = "Fetch and update settings for an receiver"
+    help = "Fetch and update settings for a receiver"
 ) {
     init { subcommands(ListReceiverSetting(), GetReceiverSetting(), PutReceiverSetting(), DeleteReceiverSetting()) }
 

@@ -54,7 +54,9 @@ class LoginCommand : OktaCommand(
     private var redirectResult: String? = null
     private var server: HttpServer? = null
 
-    private val env by option("--env", help = "Environment to run against", envvar = "PRIME_ENVIRONMENT")
+    private val env by option(
+        "--env", help = "Connect to <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
+    )
         .choice("local", "test", "staging", "prod")
         .default("local", "local")
 
@@ -246,13 +248,9 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             val accessTokenFile = AccessTokenFile(token, clientId, expiresAt)
 
             val directoryPath = primeFolderPath()
-            if (!Files.exists(directoryPath)) {
-                Files.createDirectory(directoryPath)
-            }
+            if (Files.notExists(directoryPath)) Files.createDirectory(directoryPath)
             val file = primeAccessFilePath().toFile()
-            if (file.exists()) {
-                file.delete()
-            }
+            if (file.exists()) file.delete()
             file.createNewFile()
             jsonMapper.writeValue(file, accessTokenFile)
             return accessTokenFile
