@@ -10,17 +10,16 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.subcommands
-import com.github.ajalt.clikt.parameters.arguments.argument
-import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.inputStream
 import com.github.ajalt.clikt.parameters.types.outputStream
 import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.Headers.Companion.AUTHORIZATION
 import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
+import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
@@ -44,35 +43,29 @@ abstract class SettingCommand(
     name: String,
     help: String,
 ) : CliktCommand(name = name, help = help) {
-    private val env by option("--env", help = "Environment to run against", envvar = "PRIME_ENVIRONMENT")
+    private val env by option(
+        "-e", "--env",
+        help = "Use environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
+    )
         .choice("local", "test", "staging", "prod")
-        .default("local", "local")
+        .default("local", "local environment")
 
-    // private val accessParam by option("--access", envvar = "PRIME_ACCESS_TOKEN")
-
-    private val outStream by option("--output", help = "output file name", metavar = "file")
+    private val outStream by option("-o", "--output", help = "Output to file", metavar = "file")
         .outputStream(createIfNotExist = true, truncateExisting = true)
         .default(System.out)
 
-    private val inStream by option("--input", help = "input file name", metavar = "file")
+    private val inStream by option("-i", "--input", help = "Input from file", metavar = "file")
         .inputStream()
 
     data class Environment(
         val name: String,
         val baseUrl: String,
         val useHttp: Boolean = false,
-        val oktaApp: AuthorizationWorkflow.OktaApp? = null
+        val oktaApp: OktaCommand.OktaApp? = null
     )
 
-    enum class Operation { LIST, GET, PUT, }
+    enum class Operation { LIST, GET, PUT, DELETE }
     enum class SettingType { ORG, SENDER, RECEIVER }
-
-    private val environments = listOf(
-        Environment("local", "localhost:7071", useHttp = true),
-        Environment("test", "test.prime.cdc.gov", oktaApp = AuthorizationWorkflow.OktaApp.DH_TEST),
-        Environment("staging", "staging.prime.cdc.gov", oktaApp = AuthorizationWorkflow.OktaApp.DH_TEST),
-        Environment("prod", "prime.cdc.gov", oktaApp = AuthorizationWorkflow.OktaApp.DH_PROD),
-    )
 
     val jsonMapper = jacksonObjectMapper()
     val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
@@ -91,15 +84,13 @@ abstract class SettingCommand(
 
     fun getAccessToken(environment: Environment): String {
         if (environment.oktaApp == null) return dummyAccessToken
-        echo("About to launch a browser for user sign-in...")
-        val accessToken = AuthorizationWorkflow().launchSignIn(environment.oktaApp)
-        echo("Sign-in complete.")
-        return accessToken
+        return OktaCommand.fetchAccessToken(environment.oktaApp)
+            ?: abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
     }
 
     fun put(
         environment: Environment,
-        sessionToken: String,
+        accessToken: String,
         settingType: SettingType,
         settingName: String,
         payload: String
@@ -107,7 +98,9 @@ abstract class SettingCommand(
         val path = formPath(environment, Operation.PUT, settingType, settingName)
         val (_, response, result) = Fuel
             .put(path)
-            .header(CONTENT_TYPE to jsonMimeType, AUTHORIZATION to "Bearer $sessionToken")
+            .authentication()
+            .bearer(accessToken)
+            .header(CONTENT_TYPE to jsonMimeType)
             .jsonBody(payload)
             .responseString()
         return when (result) {
@@ -120,11 +113,27 @@ abstract class SettingCommand(
         }
     }
 
-    fun get(environment: Environment, sessionToken: String, settingType: SettingType, settingName: String): String {
+    fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String) {
+        val path = formPath(environment, Operation.PUT, settingType, settingName)
+        val (_, _, result) = Fuel
+            .delete(path)
+            .authentication()
+            .bearer(accessToken)
+            .header(CONTENT_TYPE to jsonMimeType)
+            .responseString()
+        return when (result) {
+            is Result.Failure -> throw result.getException()
+            is Result.Success -> Unit
+        }
+    }
+
+    fun get(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
         val (_, _, result) = Fuel
             .get(path)
-            .header(CONTENT_TYPE to jsonMimeType, AUTHORIZATION to "Bearer $sessionToken")
+            .authentication()
+            .bearer(accessToken)
+            .header(CONTENT_TYPE to jsonMimeType)
             .responseString()
         return when (result) {
             is Result.Failure -> throw result.getException()
@@ -132,15 +141,48 @@ abstract class SettingCommand(
         }
     }
 
-    fun list(environment: Environment, sessionToken: String, settingType: SettingType, settingName: String): String {
+    fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         val (_, _, result) = Fuel
             .get(path)
-            .header(CONTENT_TYPE to jsonMimeType, AUTHORIZATION to "Bearer $sessionToken")
+            .authentication()
+            .bearer(accessToken)
+            .header(CONTENT_TYPE to jsonMimeType)
             .responseJson()
         return when (result) {
             is Result.Failure -> throw result.getException()
             is Result.Success -> "[${result.value.array().join(",\n")}]"
+        }
+    }
+
+    fun listNames(
+        environment: Environment,
+        accessToken: String,
+        settingType: SettingType,
+        settingName: String
+    ): List<String> {
+        val path = formPath(environment, Operation.LIST, settingType, settingName)
+        val (_, _, result) = Fuel
+            .get(path)
+            .authentication()
+            .bearer(accessToken)
+            .header(CONTENT_TYPE to jsonMimeType)
+            .responseJson()
+        return when (result) {
+            is Result.Failure -> throw result.getException()
+            is Result.Success -> {
+                val resultObjs = result.value.array()
+                val names = if (settingType == SettingType.ORG) {
+                    (0 until resultObjs.length())
+                        .map { resultObjs.getJSONObject(it) }
+                        .map { it.getString("name") }
+                } else {
+                    (0 until resultObjs.length())
+                        .map { resultObjs.getJSONObject(it) }
+                        .map { "${it.getString("organizationName")}.${it.getString("name")}" }
+                }
+                names.sorted()
+            }
         }
     }
 
@@ -216,50 +258,40 @@ abstract class SettingCommand(
                 yamlMapper.writeValueAsString(organization)
             }
             SettingType.SENDER -> {
-                val receiver = jsonMapper.readValue(output, SenderAPI::class.java)
-                return yamlMapper.writeValueAsString(receiver)
+                val sender = jsonMapper.readValue(output, SenderAPI::class.java)
+                return yamlMapper.writeValueAsString(sender)
             }
             SettingType.RECEIVER -> {
-                val receiver = jsonMapper.readValue(output, SenderAPI::class.java)
+                val receiver = jsonMapper.readValue(output, ReceiverAPI::class.java)
                 return yamlMapper.writeValueAsString(receiver)
             }
         }
     }
 
-    fun toYamlList(output: String, settingType: SettingType): String {
-        // DevNote: could be handled by inherited methods, but decided that keeping all these together was maintainable
-        return when (settingType) {
-            SettingType.ORG -> {
-                val organization = jsonMapper.readValue(output, Array<OrganizationAPI>::class.java)
-                yamlMapper.writeValueAsString(organization)
-            }
-            SettingType.SENDER -> {
-                val receivers = jsonMapper.readValue(output, Array<SenderAPI>::class.java)
-                return yamlMapper.writeValueAsString(receivers)
-            }
-            SettingType.RECEIVER -> {
-                val receivers = jsonMapper.readValue(output, Array<SenderAPI>::class.java)
-                return yamlMapper.writeValueAsString(receivers)
-            }
-        }
+    companion object {
+        val environments = listOf(
+            Environment("local", "localhost:7071", useHttp = true),
+            Environment("test", "test.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
+            Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
+            Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),
+        )
     }
 }
 
 /**
  * Handle a setting for a single entity. Includes the run method.
  */
-abstract class SingleSettingCommand(
+abstract class SingleSettingCommandNoSettingName(
     val name: String,
     val help: String,
     val settingType: SettingType,
-    val operation: Operation,
+    val operation: Operation
 ) : SettingCommand(name = name, help = help) {
-    val settingName by argument("name", help = "Name of setting")
-        .default("")
+    open val settingName: String = ""
 
-    private val useYaml by option(
-        "--yaml", "--yml",
-        help = "input and output in YAML format instead of JSON"
+    private val useJson by option(
+        "--json",
+        help = "Use JSON format instead of YAML"
     ).flag(default = false)
 
     override fun run() {
@@ -270,20 +302,36 @@ abstract class SingleSettingCommand(
         // Operations
         when (operation) {
             Operation.LIST -> {
-                val output = list(environment, accessToken, settingType, settingName)
-                if (useYaml) writeOutput(toYamlList(output, settingType)) else writeOutput(output)
+                if (settingType != SettingType.ORG && settingName.isBlank())
+                    abort("Missing organization name argument")
+                val output = listNames(environment, accessToken, settingType, settingName)
+                writeOutput(output.joinToString("\n"))
             }
             Operation.GET -> {
                 val output = get(environment, accessToken, settingType, settingName)
-                if (useYaml) writeOutput(toYaml(output, settingType)) else writeOutput(output)
+                if (useJson) writeOutput(output) else writeOutput(toYaml(output, settingType))
             }
             Operation.PUT -> {
-                val payload = if (useYaml) fromYaml(readInput(), settingType) else readInput()
+                val payload = if (useJson) readInput() else fromYaml(readInput(), settingType)
                 val output = put(environment, accessToken, settingType, settingName, payload)
                 writeOutput(output)
             }
+            Operation.DELETE -> {
+                delete(environment, accessToken, settingType, settingName)
+                writeOutput("Removed $settingName")
+            }
         }
     }
+}
+
+abstract class SingleSettingCommand(
+    name: String,
+    help: String,
+    settingType: SettingType,
+    operation: Operation
+) : SingleSettingCommandNoSettingName(name, help, settingType, operation) {
+    override val settingName: String by option("-n", "--name", help = "setting name", metavar = "name")
+        .required()
 }
 
 /**
@@ -293,14 +341,18 @@ class OrganizationSettings : CliktCommand(
     name = "organization",
     help = "Fetch and update settings for an organization"
 ) {
-    init { subcommands(ListOrganizationSetting(), GetOrganizationSetting(), PutOrganizationSetting()) }
+    init {
+        subcommands(
+            ListOrganizationSetting(), GetOrganizationSetting(), PutOrganizationSetting(), DeleteOrganizationSetting()
+        )
+    }
 
     override fun run() {}
 }
 
-class ListOrganizationSetting : SingleSettingCommand(
+class ListOrganizationSetting : SingleSettingCommandNoSettingName(
     name = "list",
-    help = "Fetch all organization settings",
+    help = "List the names of all organizations",
     settingType = SettingType.ORG,
     operation = Operation.LIST
 )
@@ -313,10 +365,17 @@ class GetOrganizationSetting : SingleSettingCommand(
 )
 
 class PutOrganizationSetting : SingleSettingCommand(
-    name = "put",
+    name = "set",
     help = "Update a organization",
     settingType = SettingType.ORG,
     operation = Operation.PUT
+)
+
+class DeleteOrganizationSetting : SingleSettingCommand(
+    name = "remove",
+    help = "Remove a organization",
+    settingType = SettingType.ORG,
+    operation = Operation.DELETE
 )
 
 /**
@@ -326,14 +385,14 @@ class SenderSettings : CliktCommand(
     name = "sender",
     help = "Fetch and update settings for an sender"
 ) {
-    init { subcommands(ListSenderSetting(), GetSenderSetting(), PutSenderSetting()) }
+    init { subcommands(ListSenderSetting(), GetSenderSetting(), PutSenderSetting(), DeleteSenderSetting()) }
 
     override fun run() {}
 }
 
 class ListSenderSetting : SingleSettingCommand(
     name = "list",
-    help = "Fetch all sender settings for an organization",
+    help = "List all sender names for an organization",
     settingType = SettingType.SENDER,
     operation = Operation.LIST
 )
@@ -346,10 +405,17 @@ class GetSenderSetting : SingleSettingCommand(
 )
 
 class PutSenderSetting : SingleSettingCommand(
-    name = "put",
+    name = "set",
     help = "Update a sender",
     settingType = SettingType.SENDER,
     operation = Operation.PUT
+)
+
+class DeleteSenderSetting : SingleSettingCommand(
+    name = "remove",
+    help = "Remove a sender",
+    settingType = SettingType.SENDER,
+    operation = Operation.DELETE
 )
 
 /**
@@ -359,14 +425,14 @@ class ReceiverSettings : CliktCommand(
     name = "receiver",
     help = "Fetch and update settings for an receiver"
 ) {
-    init { subcommands(ListReceiverSetting(), GetReceiverSetting(), PutReceiverSetting()) }
+    init { subcommands(ListReceiverSetting(), GetReceiverSetting(), PutReceiverSetting(), DeleteReceiverSetting()) }
 
     override fun run() {}
 }
 
 class ListReceiverSetting : SingleSettingCommand(
     name = "list",
-    help = "Fetch all receiver settings for an organization",
+    help = "Fetch receiver names for an organization",
     settingType = SettingType.RECEIVER,
     operation = Operation.LIST
 )
@@ -379,10 +445,17 @@ class GetReceiverSetting : SingleSettingCommand(
 )
 
 class PutReceiverSetting : SingleSettingCommand(
-    name = "put",
+    name = "set",
     help = "Update a receiver",
     settingType = SettingType.RECEIVER,
     operation = Operation.PUT
+)
+
+class DeleteReceiverSetting : SingleSettingCommand(
+    name = "remove",
+    help = "Remove a receiver",
+    settingType = SettingType.RECEIVER,
+    operation = Operation.DELETE
 )
 
 /**
@@ -398,7 +471,7 @@ class MultipleSettings : CliktCommand(
 }
 
 class PutMultipleSettings : SettingCommand(
-    name = "put",
+    name = "set",
     help = "set all settings from a 'organizations.yml' file"
 ) {
     override fun run() {
@@ -450,14 +523,14 @@ class GetMultipleSettings : SettingCommand(
 
     fun getAll(environment: Environment, accessToken: String): String {
         // get orgs
-        val orgsJson = list(environment, accessToken, SettingType.ORG, settingName = "")
+        val orgsJson = getMany(environment, accessToken, SettingType.ORG, settingName = "")
         val orgs = jsonMapper.readValue(orgsJson, Array<OrganizationAPI>::class.java)
 
         // get senders and receivers per org
         val deepOrgs = orgs.map { org ->
-            val sendersJson = list(environment, accessToken, SettingType.SENDER, org.name)
+            val sendersJson = getMany(environment, accessToken, SettingType.SENDER, org.name)
             val orgSenders = jsonMapper.readValue(sendersJson, Array<SenderAPI>::class.java).map { Sender(it) }
-            val receiversJson = list(environment, accessToken, SettingType.RECEIVER, org.name)
+            val receiversJson = getMany(environment, accessToken, SettingType.RECEIVER, org.name)
             val orgReceivers = jsonMapper.readValue(receiversJson, Array<ReceiverAPI>::class.java).map { Receiver(it) }
             DeepOrganization(org, orgSenders, orgReceivers)
         }
