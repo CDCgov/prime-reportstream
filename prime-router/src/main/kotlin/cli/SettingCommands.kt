@@ -45,18 +45,18 @@ abstract class SettingCommand(
 ) : CliktCommand(name = name, help = help) {
     private val env by option(
         "-e", "--env",
-        metavar = "name",
+        metavar = "<name>",
         envvar = "PRIME_ENVIRONMENT",
         help = "Connect to <name> environment.\nChoose between [local|test|staging|prod]"
     )
         .choice("local", "test", "staging", "prod")
         .default("local", "local environment")
 
-    private val outStream by option("-o", "--output", help = "Output to file", metavar = "file")
+    private val outStream by option("-o", "--output", help = "Output to file", metavar = "<file>")
         .outputStream(createIfNotExist = true, truncateExisting = true)
         .default(System.out)
 
-    private val inStream by option("-i", "--input", help = "Input from file", metavar = "file")
+    private val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
         .inputStream()
 
     data class Environment(
@@ -338,12 +338,10 @@ abstract class SingleSettingCommand(
     operation: Operation
 ) : SingleSettingCommandNoSettingName(name, help, settingType, operation) {
     override val settingName: String by option(
-        "-n", "--name", metavar = "name",
-        help = """
-            The full name of the setting 
-        """.trimIndent()
-    )
-        .required()
+        "-n", "--name",
+        metavar = "<name>",
+        help = "The full name of the setting"
+    ).required()
 }
 
 /**
