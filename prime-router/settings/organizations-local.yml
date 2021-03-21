@@ -173,6 +173,11 @@
           useBatchHeaders: false
           receivingApplicationName: NEDSS
           receivingFacilityName: TX-ELR
+        transport:
+          type: SFTP_LEGACY
+          host: sftp
+          port: 22
+          filePath: ./upload
         
   - name: fl-phd
     description: Florida Department of Health
@@ -392,7 +397,7 @@
           receivingApplicationName: GUDOH
           receivingFacilityName: GUDOH
         transport:
-          type: SFTP
+          type: SFTP_LEGACY
           host: sftp
           port: 22
           filePath: ./upload

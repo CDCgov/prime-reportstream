@@ -333,7 +333,7 @@
         initialTime: 00:00
         timeZone: CENTRAL
       transport:
-        type: SFTP
+        type: SFTP_LEGACY
         host: 10.0.2.4
         port: 22
         filePath: ./upload

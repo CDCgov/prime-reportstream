@@ -12,6 +12,7 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserPassCredential
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
@@ -87,6 +88,7 @@ class SftpTransport : ITransport {
             user: String,
             pass: String,
         ): SSHClient {
+            // create our client
             val sshClient = SSHClient()
             try {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
@@ -122,10 +124,21 @@ class SftpTransport : ITransport {
         fun ls(sshClient: SSHClient, path: String): List<String> {
             try {
                 val client = sshClient.newSFTPClient()
-                client.fileTransfer.preserveAttributes = false
                 client.use {
                     val lsResponse = it.ls(path)
-                    return lsResponse.map { it.toString() }.toList()
+                    return lsResponse.map { l -> l.toString() }.toList()
+                }
+            } finally {
+                sshClient.disconnect()
+            }
+        }
+
+        fun pwd(sshClient: SSHClient): String {
+            try {
+                val client = sshClient.newStatefulSFTPClient() as StatefulSFTPClient
+                sshClient.timeout = 120000
+                client.use {
+                    return it.pwd()
                 }
             } finally {
                 sshClient.disconnect()

@@ -306,7 +306,7 @@
         initialTime: 01:15
         timeZone: EASTERN
       transport:
-        type: SFTP
+        type: SFTP_LEGACY
         host: sftp-edts.hhs.texas.gov
         port: 22
         filePath: ./
