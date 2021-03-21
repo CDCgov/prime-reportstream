@@ -515,7 +515,7 @@
         host: 10.0.2.4
         port: 22
         filePath: ./upload
-    - name: REDOX
+    - name: REDOX     # NOTE:  No Redox transport available in Staging at this time.
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, REDOX)" ]
@@ -533,10 +533,6 @@
           redox_destination_name: "CDC Montgomery County PDH Destination (s) TEST ONLY"
           redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
           redox_source_name: "Prime Data Hub (Staging)"
-      transport:
-        type: REDOX      # Will fail.
-        apiKey: some_key
-        baseUrl: some_url
     - name: HL7_NULL
       organizationName: ignore
       topic: covid-19

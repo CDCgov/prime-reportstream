@@ -561,7 +561,7 @@
           initialTime: 00:00
         translation:
           type: CUSTOM
-          schemaName: tx/tx-covid-19
+          schemaName: fl/fl-covid-19
           format: HL7
         transport:
           type: SFTP
