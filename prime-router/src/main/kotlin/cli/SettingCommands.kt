@@ -45,6 +45,7 @@ abstract class SettingCommand(
 ) : CliktCommand(name = name, help = help) {
     private val env by option(
         "-e", "--env",
+        metavar = "name",
         envvar = "PRIME_ENVIRONMENT",
         help = "Connect to <name> environment.\nChoose between [local|test|staging|prod]"
     )
