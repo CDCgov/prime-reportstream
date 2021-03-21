@@ -85,7 +85,7 @@ Examples:
         toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)", TestStatus.SLOW),
         dbconnections("Test weird issue wherein many 'sends' cause db connection failures", TestStatus.FAILS),
         strac("Submit data in the strac schema format, wait, confirm via database queries", TestStatus.FAILS),
-        badsftp("Test ReportStream's response to sftp connection failures", TestStatus.DRAFT),
+        badsftp("Test ReportStream's response to sftp connection failures. Tests RETRY too!", TestStatus.DRAFT),
     }
 
     private val list by option(
@@ -399,6 +399,7 @@ Examples:
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
+        echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
         examineLineageResults(reportId, listOf(sftpFailReceiver), fakeItemCount)
     }
 

@@ -63,7 +63,7 @@ class SftpTransport : ITransport {
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
-        } // let non-IO exceptions be caught by the caller
+        }
     }
 
     companion object {
