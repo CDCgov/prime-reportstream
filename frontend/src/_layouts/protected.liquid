@@ -34,10 +34,11 @@ data-index: "./data-index.html"
   <meta http-equiv="Cache-Control" content="no-store" />
   <script>
     let token = window.sessionStorage.getItem("jwt");
-    if( !token )
+    var jwt = token? JSON.parse(atob(token.split('.')[1])): "";
+    if( !token && jwt.)
       window.location.replace( `login.html?return=data-index.html`);
     else{
-      var jwt = JSON.parse(atob(token.split('.')[1]));
+      
       window.org = jwt.organization[0];
       window.user = jwt.sub;
       window.jwt = token;

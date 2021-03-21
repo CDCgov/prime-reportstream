@@ -21,7 +21,7 @@ module.exports = function eleventy_config(cfg) {
 
   cfg.addPassthroughCopy("src/assets");
   cfg.addPassthroughCopy("src/favicon.ico");
-
+  cfg.addPassthroughCopy("src/js");
   _with_live_reloading(cfg);
 
   return {
