@@ -16,7 +16,6 @@ import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserPassCredential
 import org.apache.logging.log4j.kotlin.KotlinLogger
 import java.io.ByteArrayInputStream
-import java.io.IOException
 import java.util.logging.Level
 
 class SftpLegacyTransport : ITransport {
@@ -55,17 +54,16 @@ class SftpLegacyTransport : ITransport {
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
-        } catch (ioException: IOException) {
+        } catch (t: Throwable) {
             val msg =
                 "FAILED Sftp Legacy upload of inputReportId ${header.reportFile.reportId} to " +
-                    "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})"
-            context.logger.log(
-                Level.WARNING, msg, ioException
-            )
+                    "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
+                    ", Exception: ${t.localizedMessage}"
+            context.logger.log(Level.WARNING, msg, t)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
-        } // let other exceptions bubble out
+        }
     }
 
     companion object {
