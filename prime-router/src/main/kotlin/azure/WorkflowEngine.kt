@@ -360,8 +360,8 @@ class WorkflowEngine(
         val settings: SettingsProvider by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
-            val settingsEnabled = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
-            if (settingsEnabled.equals("true", ignoreCase = true)) {
+            val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
+            if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
                 SettingsFacade(metadata, databaseAccess)
             } else {
                 val ext = primeEnv?.let { "-$it" } ?: ""
