@@ -116,12 +116,15 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
   }
 
   notification {
-    email {
-      send_to_subscription_administrator = false
-      send_to_subscription_co_administrator = false
-      custom_emails = ["cglodosky@cdc.gov", "rhawes@cdc.gov", "rheft@cdc.gov"]
+    webhook {
+      service_uri = data.azurerm_key_vault_secret.pagerduty_url.value
     }
   }
+}
+
+data "azurerm_key_vault_secret" "pagerduty_url" {
+    key_vault_id = var.key_vault_id
+    name = "pagerduty-integration-url"
 }
 
 output "app_service_plan_id" {
