@@ -273,7 +273,7 @@
       organizationName: mt-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(patient_state, MT)
+        - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
         type: HL7
         schemaName: mt/mt-covid-19

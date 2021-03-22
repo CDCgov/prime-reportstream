@@ -96,4 +96,37 @@ class JurisdictionalFilterTests {
         val args1 = listOf("a", "b") // correct # args.
         assertFails { filter.getSelection(args1, table) } // However, table doesn't have the expected columns
     }
+
+    @Test
+    fun `test OrEquals`() {
+        val filter = OrEquals()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("A1", "a2", "X3", "X4")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3", "B4"))
+        )
+
+        val emptyArgs = listOf<String>()
+        assertFails { filter.getSelection(emptyArgs, table) }
+
+        val missingArgs = listOf("colA", "A1", "colB") // must have even number of args
+        assertFails { filter.getSelection(missingArgs, table) }
+
+        val args1 = listOf("colA", "A1", "colB", "B3")
+        val selection1 = filter.getSelection(args1, table)
+        val filteredTable1 = table.where(selection1)
+        assertEquals(2, filteredTable1.rowCount())
+        assertEquals("B1", filteredTable1.getString(0, "colB"))
+        assertEquals("B3", filteredTable1.getString(1, "colB"))
+
+        val args2 = listOf("colA", "(?i)A.*", "colB", ".*4") // test a regex
+        val selection2 = filter.getSelection(args2, table)
+        val filteredTable2 = table.where(selection2)
+        assertEquals(3, filteredTable2.rowCount())
+        assertEquals("B1", filteredTable2.getString(0, "colB"))
+        assertEquals("B2", filteredTable2.getString(1, "colB"))
+        assertEquals("B4", filteredTable2.getString(2, "colB"))
+
+        val args4 = listOf("colA", "([?:|") // malformed regex
+        assertFails { val selection4 = filter.getSelection(args4, table) }
+    }
 }

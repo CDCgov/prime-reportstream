@@ -218,10 +218,22 @@
       - name: elr
         organizationName: mt-doh
         topic: covid-19
-        jurisdictionalFilter: [ "matches(patient_state, MT)" ]
+        jurisdictionalFilter:
+          - orEquals(patient_state, MT, ordering_facility_state, MT)
         translation:
           type: HL7
+          schemaName: mt/mt-covid-19
           useBatchHeaders: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: MOUNTAIN
 
   - name: tx-doh
     description: Texas Department of Health
@@ -285,6 +297,27 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+
+
+  - name: md-doh
+    description: Maryland
+    jurisdiction: STATE
+    stateCode: MD
+    receivers:
+      - name: elr
+        organizationName: md-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(patient_state, MD, ordering_facility_state, MD)
+        translation:
+          type: HL7
+          schemaName: covid-19
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
 
   # 'ignore' is a test organization, designed to be safely usable across all our environments.
   # It has four receivers, each named _exactly_ the same as the format of data.
