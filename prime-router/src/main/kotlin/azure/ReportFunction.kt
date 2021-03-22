@@ -67,12 +67,12 @@ class ReportFunction {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        try {
-            val workflowEngine = WorkflowEngine()
-            val actionHistory = ActionHistory(TaskAction.receive, context)
-            actionHistory.trackActionParams(request)
+        val workflowEngine = WorkflowEngine()
+        val actionHistory = ActionHistory(TaskAction.receive, context)
+        actionHistory.trackActionParams(request)
+        val httpResponseMessage = try {
             val validatedRequest = validateRequest(workflowEngine, request)
-            val httpResponseMessage = when {
+            when {
                 validatedRequest.options == Options.CheckConnections -> {
                     workflowEngine.checkConnections()
                     HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
@@ -88,23 +88,23 @@ class ReportFunction {
                     HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
                 }
                 else -> {
+                    // Regular happy path workflow is here
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
-
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
-
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)
                 }
             }
-            actionHistory.trackActionResult(httpResponseMessage)
-            workflowEngine.recordAction(actionHistory)
-            actionHistory.queueMessages() // Must be done after creating db records.
-            return httpResponseMessage
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
-            return HttpUtilities.internalErrorResponse(request)
+            actionHistory.trackActionResult("Exception: ${e.message ?: e}")
+            HttpUtilities.internalErrorResponse(request)
         }
+        actionHistory.trackActionResult(httpResponseMessage)
+        workflowEngine.recordAction(actionHistory)
+        actionHistory.queueMessages() // Must be done after creating TASK record.
+        return httpResponseMessage
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {

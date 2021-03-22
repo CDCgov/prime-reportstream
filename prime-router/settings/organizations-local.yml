@@ -538,6 +538,11 @@
         topic: covid-19
         schemaName: primedatainput/pdi-covid-19
         format: CSV
+      - name: ignore-empty      # Use this to test sending data from the 'empty' schema
+        organizationName: ignore
+        topic: covid-19
+        schemaName: empty
+        format: CSV
     receivers:
       - name: CSV
         organizationName: ignore
