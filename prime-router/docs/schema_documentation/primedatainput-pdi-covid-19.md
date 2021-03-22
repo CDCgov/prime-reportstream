@@ -208,7 +208,7 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **Type**: ID
 
-**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
+**HL7 Fields**: ORC-3-1, SPM-2-2, OBR-3-1
 
 **Cardinality**: [0..1]
 
