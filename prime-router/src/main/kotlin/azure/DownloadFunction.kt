@@ -15,6 +15,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.secrets.SecretManagement
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -27,7 +28,7 @@ import java.util.Calendar
 import java.util.UUID
 import java.util.logging.Level
 
-class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
+class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : SecretManagement {
     val DAYS_TO_SHOW = 7L
     val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
     val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
@@ -76,7 +77,7 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
 
         val attr = mapOf(
             "OKTA_baseUrl" to System.getenv("OKTA_baseUrl"),
-            "OKTA_clientId" to System.getenv("OKTA_clientId"),
+            "OKTA_clientId" to secretService.fetchSecret("OKTA_clientId"),
             "OKTA_redirect" to System.getenv("OKTA_redirect")
         )
 
