@@ -10,13 +10,14 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import com.okta.jwt.JwtVerifiers
 import com.google.errorprone.annotations.CompatibleWith
 import gov.cdc.prime.router.Organization
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
+import java.util.Base64
+import org.json.JSONObject
  
 class Facility private constructor(
     val organization: String?,
@@ -146,16 +147,7 @@ class GetReports :
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        val authClaims = AuthClaims(
-            "myoung",
-            Organization(
-                "pima-az-phd",
-                "pima county",
-                Organization.Jurisdiction.COUNTY,
-                "AZ",
-                "Pima"
-            )
-        )
+        val authClaims = checkAuthenticated(request, context)
         return GetReports(request, authClaims)
     }
 }
@@ -174,51 +166,12 @@ class GetReportById :
         @BindingName("reportId") reportId: String,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        val authClaims = AuthClaims(
-            "myoung",
-            Organization(
-                "pima-az-phd",
-                "pima county",
-                Organization.Jurisdiction.COUNTY,
-                "AZ",
-                "Pima"
-            )
-        )
+        val authClaims = checkAuthenticated(request, context)
         return GetReportById(request, authClaims, reportId)
     }
 }
 
-class GetSummaryPositive {
-    @FunctionName("getSummaryPositive")
-    @StorageAccount("AzureWebJobsStorage")
-    fun run(
-        @HttpTrigger(
-            name = "getSummaryPositive",
-            methods = [HttpMethod.GET],
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "history/summary/positive"
-        ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext
-    ): HttpResponseMessage {
-        return request.createResponseBuilder(HttpStatus.OK)
-            .body(
-                Card.Builder()
-                    .id("positive-cases")
-                    .title("Cases")
-                    .subtitle("People tested positive")
-                    .daily(329L)
-                    .last(1294L)
-                    .positive(true)
-                    .change(-267L)
-                    .pct_change(20.6)
-            ) 
-            .header("Content-Type", "application/json")
-            .build();
-  
-    }
-}
-
-class GetSummaryTests {
+class GetSummaryTests: BaseHistoryFunction() {
     @FunctionName("getSummaryTests")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -230,64 +183,27 @@ class GetSummaryTests {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext
     ): HttpResponseMessage {
-        return request.createResponseBuilder(HttpStatus.OK)
-            .body(
-                Card.Builder()
-                    .id("tests-administered")
-                    .title("Testing")
-                    .subtitle("Tests administered")
-                    .daily(2497L)
-                    .last(9348L)
-                    .positive(false)
-                    .change(-897L)
-                    .pct_change(9.6)
-            ) 
-            .header("Content-Type", "application/json")
-            .build();
+        val authClaims = checkAuthenticated(request, context)
+        return GetSummaryTests( request, authClaims); 
   
     }
 }
 
-class GetSummaryFacilities {
-    @FunctionName("getSummaryFacilties")
-    @StorageAccount("AzureWebJobsStorage")
-    fun run(
-        @HttpTrigger(
-            name = "getSummaryFacilities",
-            methods = [HttpMethod.GET],
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "history/summary/facilities"
-        ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext
-    ): HttpResponseMessage {
-        return request.createResponseBuilder(HttpStatus.OK)
-            .body( 
-                Card.Builder()
-                    .id("facilities")
-                    .title("Facilities")
-                    .subtitle("New testing locations")
-                    .daily(4L)
-                    .last(12L)
-                    .positive(true)
-                    .change(4L)
-                    .pct_change(15.9) 
-            ) 
-            .header("Content-Type", "application/json")
-            .build();
-  
-    }
-}
 
 open class BaseHistoryFunction {
 
     val DAYS_TO_SHOW = 7L
     val workflowEngine = WorkflowEngine()
 
-    fun GetReports(request: HttpRequestMessage<String?>, authClaims: AuthClaims): HttpResponseMessage {
+    fun GetReports(request: HttpRequestMessage<String?>, authClaims: AuthClaims?): HttpResponseMessage {
+
+        if( authClaims == null ) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+
         val headers = workflowEngine.db.fetchDownloadableTasks(
             OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
         )
 
+        @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )
         var reports = headers.map {
             Report.Builder()
             .reportId( it.reportId.toString() )
@@ -300,7 +216,8 @@ open class BaseHistoryFunction {
             .expires( DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS), )
             .facilities( emptyArray<Facility>() )
             .actions( emptyArray<Action>() )
-            .build()        }
+            .build()        
+        }
 
 
         return request.createResponseBuilder(HttpStatus.OK)
@@ -311,10 +228,32 @@ open class BaseHistoryFunction {
 
     fun GetReportById(
         request: HttpRequestMessage<String?>,
-        authClaims: AuthClaims,
+        authClaims: AuthClaims?,
         reportId: String
     ): HttpResponseMessage {
+        if( authClaims == null ) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
         return request.createResponseBuilder(HttpStatus.NOT_IMPLEMENTED).build()
+    }
+
+    fun GetSummaryTests(
+        request: HttpRequestMessage<String?>,
+        authClaims: AuthClaims?
+    ) : HttpResponseMessage {
+        if( authClaims == null ) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+        return request.createResponseBuilder(HttpStatus.OK)
+        .body(
+            Card.Builder()
+                .id("tests-administered")
+                .title("Testing")
+                .subtitle("Tests administered")
+                .daily(2497L)
+                .last(9348L)
+                .positive(false)
+                .change(-897L)
+                .pct_change(9.6)
+        ) 
+        .header("Content-Type", "application/json")
+        .build();
     }
 
     data class AuthClaims(
@@ -325,27 +264,25 @@ open class BaseHistoryFunction {
     /**
      * returns null if not authorized, otherwise returns a set of claims.
      */
-    private fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
+    fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         var userName = ""
         var orgName = ""
-        val cookies = request.headers["cookie"] ?: ""
-        var jwtString = ""
-        cookies.replace(" ", "").split(";").forEach {
-            val cookie = it.split("=")
-            jwtString = if (cookie[0] == "jwt") cookie[1] else ""
-            if (jwtString.isNotBlank()) {
-                try {
-                    val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-                        .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
-                        .build()
-                    val jwt = jwtVerifier.decode(jwtString)
-                    userName = jwt.getClaims().get("sub").toString()
-                    val orgs = jwt.getClaims().get("organization")
-                    var org = if (orgs !== null) (orgs as List<String>)[0] else ""
-                    orgName = if (org.length > 3) org.substring(2) else ""
-                } catch (ex: Throwable) {
-                    System.out.println(ex)
-                }
+        var jwtToken = request.headers["authorization"] ?: ""
+
+        System.out.println( "jwtToken = ${jwtToken}")
+        jwtToken = jwtToken.substring(7);
+        System.out.println( "jwtToken (after split) = ${jwtToken}")
+
+        if (jwtToken.isNotBlank()) {
+            try {
+                val jwtClaims = JSONObject(String(Base64.getDecoder().decode(jwtToken.split('.')[1])))
+                userName = jwtClaims.getString("sub")
+                val orgs = jwtClaims.getJSONArray("organization")
+                @Suppress( "UNCHECKED_CAST")
+                var org = if (orgs !== null) orgs.getString(0) else ""
+                orgName = if (org.length > 3) org.substring(2) else ""
+            } catch (ex: Throwable) {
+                System.out.println(ex)
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
