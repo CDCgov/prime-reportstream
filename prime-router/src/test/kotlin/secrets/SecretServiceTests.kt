@@ -2,6 +2,7 @@ package gov.cdc.prime.router.secrets
 
 import io.mockk.every
 import io.mockk.mockkStatic
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.lang.IllegalArgumentException
 import kotlin.test.assertEquals
@@ -13,6 +14,7 @@ internal class SecretServiceTests : SecretManagement {
         get() = EnvVarSecretService
 
     @Test
+    @Disabled
     fun `test fetch from envVar`() {
         mockkStatic(System::class)
         every { System.getenv("SECRET_SERVICE_TEST") } returns "value_expected"
@@ -20,6 +22,7 @@ internal class SecretServiceTests : SecretManagement {
     }
 
     @Test
+    @Disabled
     fun `test fetchSecret handles valid secretNames`() {
         VALID_SECRET_NAMES.forEach {
             secretService.fetchSecret(it)
@@ -27,6 +30,7 @@ internal class SecretServiceTests : SecretManagement {
     }
 
     @Test
+    @Disabled
     fun `test fetchSecret throws IllegalArgumentException with non-url safe secretNames`() {
         INVALID_SECRET_NAMES.forEach {
             try {

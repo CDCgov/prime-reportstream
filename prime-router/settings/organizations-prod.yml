@@ -36,9 +36,9 @@
       deidentify: false
       timing:
         operation: MERGE
-        numberPerDay: 1   # Once a day at 2pm EST
-        initialTime: 12:00
-        timeZone: ARIZONA
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
       translation:
         type: CUSTOM
         schemaName: az/az-covid-19
@@ -66,9 +66,9 @@
         messageProfileId: AZELRIG^ADHS^2.16.840.1.113883.9.31^ISO
       timing:
         operation: MERGE
-        numberPerDay: 1   # Once a day at 2pm EST
-        initialTime: 12:00
-        timeZone: ARIZONA
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
       transport:
         type: SFTP
         host: hssftp.azdhs.gov
@@ -88,9 +88,9 @@
         format: CSV
       timing:
         operation: MERGE
-        numberPerDay: 1   # Once a day at 2pm EST
-        initialTime: 12:00
-        timeZone: ARIZONA
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
       transport:
         type: SFTP
         host: hssftp.azdhs.gov
@@ -115,9 +115,9 @@
         format: CSV
       timing:
         operation: MERGE
-        numberPerDay: 1 # Once a day  NOTE:  In production, they want deliveries once a day at 8am MST.
-        initialTime: 08:00
-        timeZone: ARIZONA
+        numberPerDay: 1   # Customer has asked for 8am AZ time. This is close, but allows a deploy window.
+        initialTime: 09:15
+        timeZone: EASTERN
 
 - name: fl-phd
   description: Florida Department of Health
@@ -139,8 +139,8 @@
         receivingFacilityOID: 2.16.840.1.114222.1.3645
       timing:
         operation: MERGE
-        numberPerDay: 12          # Twelve times a day starting at 02.00
-        initialTime: 02:00
+        numberPerDay: 12
+        initialTime: 01:15
         timeZone: EASTERN
       transport:
         type: SFTP
@@ -170,8 +170,8 @@
       timing:
         operation: MERGE
         numberPerDay: 12
-        initialTime: 02:00
-        timeZone: CENTRAL
+        initialTime: 01:15
+        timeZone: EASTERN
       transport:
         type: SFTP
         host: mft.nd.gov
@@ -199,8 +199,8 @@
       timing:
         operation: MERGE
         numberPerDay: 12
-        initialTime: 02:00
-        timeZone: CENTRAL
+        initialTime: 01:15
+        timeZone: EASTERN
       transport:
         type: SFTP
         host: 204.58.124.41
@@ -236,8 +236,8 @@
         filePath: CDC-ELR/ProdFiles
       timing:
         operation: MERGE
-        numberPerDay: 12   # Twelve times a day starting at 02.00
-        initialTime: 02:00
+        numberPerDay: 12
+        initialTime: 01:15
         timeZone: EASTERN
 
 - name: nm-doh
@@ -260,9 +260,9 @@
         receivingFacilityOID: 2.16.840.1.113883.3.5364
       timing:
         operation: MERGE
-        numberPerDay: 12   # Twelve times a day starting at 02.00
-        initialTime: 02:00
-        timeZone: MOUNTAIN
+        numberPerDay: 12
+        initialTime: 01:15
+        timeZone: EASTERN
 
 - name: mt-doh
   description: Montana Department of Health
@@ -280,9 +280,9 @@
         useBatchHeaders: true
       timing:
         operation: MERGE
-        numberPerDay: 12   # Twelve times a day starting at 02.00
-        initialTime: 02:00
-        timeZone: MOUNTAIN
+        numberPerDay: 12
+        initialTime: 01:15
+        timeZone: EASTERN
 
 - name: tx-doh
   description: Texas Department of Health
@@ -302,11 +302,11 @@
         receivingFacilityName: TX-ELR
       timing:
         operation: MERGE
-        numberPerDay: 12   #  Twelve times a day starting at 02.00
-        initialTime: 12:00
-        timeZone: CENTRAL
+        numberPerDay: 12
+        initialTime: 01:15
+        timeZone: EASTERN
       transport:
-        type: SFTP
+        type: SFTP_LEGACY
         host: sftp-edts.hhs.texas.gov
         port: 22
         filePath: ./

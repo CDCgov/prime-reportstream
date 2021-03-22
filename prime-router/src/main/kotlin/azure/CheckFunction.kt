@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -9,7 +8,9 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.SFTPLegacyTransportType
 import gov.cdc.prime.router.SFTPTransportType
+import gov.cdc.prime.router.transport.SftpLegacyTransport
 import gov.cdc.prime.router.transport.SftpTransport
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -26,7 +27,6 @@ class CheckFunction : Logging {
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.FUNCTION,
         ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext,
     ): HttpResponseMessage {
         logger.info("Entering check api")
         val responseBody = mutableListOf<String>()
@@ -88,17 +88,24 @@ class CheckFunction : Logging {
                     responseBody.add("**** ${receiver.fullName}: OK")
                     true
                 }
+                is SFTPLegacyTransportType -> {
+                    testLegacySftp(receiver.transport, receiver, responseBody)
+                    responseBody.add("**** ${receiver.fullName}: OK")
+                    true
+                }
                 // todo add other types of transports as needed.
                 else -> {
                     responseBody.add(
-                        "**** ${receiver.fullName}: No test implemented for transport type " +
-                            "${receiver.transport?.type ?: "null"}"
+                        "**** ${receiver.fullName}: No test implemented for transport type ${receiver.transport.type}"
                     )
                     false
                 }
             }
         } catch (t: Throwable) {
-            responseBody.add("${receiver.fullName}: ${t.localizedMessage}")
+            logger.info("Exception in health check: ${t.message}: ${t.cause?.message ?: "No root cause"}")
+            logger.info(t.stackTraceToString())
+            responseBody.add("${receiver.fullName}: ${t.localizedMessage}: ${t.cause?.message ?: "No root cause"}")
+            responseBody.add(t.stackTraceToString())
             responseBody.add("**** ${receiver.fullName}: FAILED")
             return false
         }
@@ -119,6 +126,26 @@ class CheckFunction : Logging {
         logger.info("What we got back from ls (first few lines): ")
         lsList.filterIndexed { index, _ -> index <= 5 }.forEach { logger.info(it) }
         val msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from $sftpTransportType"
+        logger.info(msg)
+        responseBody.add(msg)
+    }
+
+    private fun testLegacySftp(
+        legacySftpTransportType: SFTPLegacyTransportType,
+        receiver: Receiver,
+        responseBody: MutableList<String>
+    ) {
+        val host = legacySftpTransportType.host
+        val port = legacySftpTransportType.port
+        val path = legacySftpTransportType.filePath
+        val (user, pass) = SftpLegacyTransport.lookupCredentials(receiver.fullName)
+        val session = SftpLegacyTransport.connect(user, pass, host, port)
+        responseBody.add("${receiver.fullName}: Able to Connect to legacy sftp site.  Now trying an `ls`...")
+        val lsList: List<String> = SftpLegacyTransport.ls(session, path)
+        // Log what we found from ls, but don't return it.
+        logger.info("What we got back from ls (first few lines): ")
+        lsList.filterIndexed { index, _ -> index <= 5 }.forEach { logger.info(it) }
+        val msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from $legacySftpTransportType"
         logger.info(msg)
         responseBody.add(msg)
     }
