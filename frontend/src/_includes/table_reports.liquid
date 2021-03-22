@@ -1,0 +1,35 @@
+<script src="js/reports.js"></script>
+
+<section class="grid-container margin-top-5">
+  <div class="grid-col-12">
+    <h2>Previous <span>7</span> days</h2>
+
+    <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Type</th>
+          <th scope="col">Total tests</th>
+          <th scope="col">Expires</th>
+          <th scope="col">File</th>
+        </tr>
+      </thead>
+      <tbody class="font-mono-2xs">
+        <script>
+          reports.forEach( report => {
+            document.write( 
+              `<tr>
+                <th data-title="date" scope="row">${report.sent}</th>
+                <th data-title="receiver" scope="row">${report.type}</th>
+                <th data-title="Total tests" scope="row">${report.total}</th>
+                <th date-title="expires" scope="row">${report.expires} days</th>
+                <th data-title="File" scope="row"><span><a href=".">${report.fileType}</a></span>
+                </th>
+              </tr>` );
+      } )
+        </script>
+      </tbody>
+    </table>
+
+  </div>
+</section>

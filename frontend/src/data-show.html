@@ -3,10 +3,7 @@ layout: protected.liquid
 title: "Download"
 report: []
 ---
-<script src="js/reports.js"></script>
-<script>
-let report = reports[0];
-</script>
+
 
 <section class="grid-container">
   <h3 class="margin-bottom-0">
@@ -17,104 +14,8 @@ let report = reports[0];
       <a id="report.fileType" class="usa-button usa-button--outline float-right" href=""></a>
     </p>    
 </h1>
-<p>Sent on: <span id="report.sent"></span></p>
+<p><span class="text-bold">Sent on: </span><span id="report.sent"></span></p>
 </section>
 
-<section class="grid-container margin-top-0">
-    <div class="grid-row grid-gap margin-top-0">
-      <div class="tablet:grid-col-3">
-
-            <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
-            <p class="text-bold margin-top-0">report.sent</p>
-            <h4 class="text-gray-30 margin-bottom-0">Sending orgs</h4>
-            <p class="text-bold margin-top-0">report.sent</p>
-        </div>
-      <div class="tablet:grid-col-3">
-            <h4 class="text-gray-30 margin-bottom-0">Facilities reporting</h4>
-            <p class="text-bold margin-top-0">report.positive</p>
-            <h4 class="text-gray-30 margin-bottom-0">Positivity rate</h4>
-            <p class="text-bold margin-top-0">report.total</p>
-      </div>
-      <div class="tablet:grid-col-3">
-            <h4 class="text-gray-30 margin-bottom-0">Errors</h4>
-            <p class="text-bold margin-top-0">report.type</p>
-            <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
-            <p class="text-bold margin-top-0">report.expires days</p>
-      </div>
-      <div class="tablet:grid-col-3">
-        <h4 class="text-gray-30 margin-bottom-0">Corrections</h4>
-        <p class="text-bold margin-top-0">report.type</p>      
-      </div>
-    </div>
-    <script>
-      document.getElementById( "report.id").innerHTML = report.reportId;
-      document.getElementById( "report.sent").innerHTML = moment(report.sent).format( 'dddd MMM DD, YYYY hh:mm A' )
-      document.getElementById( "report.fileType").innerHTML = report.fileType == "HL7"? "HL7" : "CSV"
-    </script>
-  </section>
-
-  <section>
-    <ul class="usa-process-list">
-      <li class="usa-process-list__item">
-        <h4 class="usa-process-list__heading">Start a process</h4>
-        <p class="margin-top-05">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque.</p>
-        <ul>
-          <li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque, id pulvinar odio lorem non turpis.</li>
-          <li>Nullam sit amet enim. Suspendisse id velit vitae ligula volutpat condimentum.</li>
-          <li>Aliquam erat volutpat. Sed quis velit.</li>
-        </ul>
-      </li>
-      </ul>
-  </section>
-
-  <!--
-  <section class="grid-container margin-top-5">
-    <div class="grid-col-12">
-      <h2>Facilities</h2>
-      <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
-        <thead>
-          <tr>
-            <th scope="col">Organization</th>
-            <th scope="col">Facility</th>
-            <th scope="col">CLIA</th>
-            <th scope="col">Total tests</th>
-            <th scope="col">Total positive</th>
-          </tr>
-        </thead>
-        <tbody class="font-mono-2xs">
-          <tr>
-            <th data-title="date" scope="row">{{ facility.organization }}</th>
-            <th data-title="receiver" scope="row">{{ facility.facility }}</th>
-            <th data-title="Total tests" scope="row">{{ facility.CLIA }} </th>
-            <th date-title="expires" scope="row">{{ facility.total }}</th>
-            <th data-title="File" scope="row">{{ facility.positive }}</th>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-</section>
-
-<section class="grid-container margin-top-5">
-    <div class="grid-col-12">
-      <h2>Activities</h2>
-      <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
-        <thead>
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">User</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody class="font-mono-2xs">
-          <tr>
-            <th data-title="date" scope="row">{% date action.date "YYYY-MM-DD hh:mm" %}</th>
-            <th data-title="receiver" scope="row">{{ action.user }}</th>
-            <th data-title="Total tests" scope="row">{{ action.action }}</th>
-          </tr>
-        </tbody>
-      </table>
-        No actions were reported
-    </div>
-</section>
--->
+{% include details_report %}
   

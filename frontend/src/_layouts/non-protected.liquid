@@ -19,6 +19,7 @@ post_scripts:
 
 local_styles:
   - "./assets/stylesheets/prime.css"
+navbar: true
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -29,7 +30,9 @@ local_styles:
 
 <body>
   {% include uswds_gov_header %}
+  {% if navbar %}
   {% include navbar_non_protected %}
+  {% endif %}
   <main>
     {{ content }}
   </main>
@@ -41,3 +44,18 @@ local_styles:
   {% endfor %}
 </body>
 </html>
+
+<script>
+let token = window.sessionStorage.getItem("jwt");
+
+console.log( token )
+
+let claims = token? JSON.parse(atob(token.split('.')[1])): null;
+
+console.log( claims )
+
+if( token ){
+  document.getElementById( "emailUser").innerHTML = claims.sub
+  document.getElementById( "logout" ).innerHTML = 'Logout'
+}
+</script>
