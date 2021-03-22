@@ -65,6 +65,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>Jsch</id>
+            <url>http://jsch.sf.net/maven2/</url>
+        </repository>
     </repositories>
 
     <build>
@@ -552,6 +556,16 @@
             <groupId>com.hierynomus</groupId>
             <artifactId>sshj</artifactId>
             <version>0.30.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.68</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.45</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
