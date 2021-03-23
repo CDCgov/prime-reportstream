@@ -10,7 +10,7 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
-    "openapi-backend": "^3.9.0"
+    "openapi-backend": "^3.9.1"
   },
   "scripts": {
     "clean": "rm -rf ./_site",
