@@ -27,7 +27,7 @@ interface ITransport {
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        session: Any?,
+        session: Closeable?,
         actionHistory: ActionHistory,
     ): RetryItems?
 }
