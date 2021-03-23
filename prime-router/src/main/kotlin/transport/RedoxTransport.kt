@@ -106,7 +106,7 @@ class RedoxTransport() : ITransport, SecretManagement {
             }
             resultMsg = resultMsg + "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
             actionHistory.trackActionResult(resultMsg)
-            context.logger.log(Level.INFO, resultMsg)
+            context.logger.info(resultMsg)
             if (successCount > 0) {
                 // only create a child report in the history, if something actually worked.
                 actionHistory.trackSentReport(receiver, sentReportId, null, sendUrl, resultMsg, successCount)
@@ -121,8 +121,7 @@ class RedoxTransport() : ITransport, SecretManagement {
             }
         }
         if (nextRetryItems.isNotEmpty()) {
-            context.logger.log(
-                Level.INFO,
+            context.logger.info(
                 "The retry item list for ${header.reportFile.reportId} is: " +
                     nextRetryItems.joinToString(",")
             )
@@ -156,7 +155,7 @@ class RedoxTransport() : ITransport, SecretManagement {
         return Pair(redox.apiKey, secret)
     }
 
-    private fun fetchToken(
+    fun fetchToken(
         redox: RedoxTransportType,
         key: String,
         secret: String,
@@ -189,7 +188,7 @@ class RedoxTransport() : ITransport, SecretManagement {
         }
     }
 
-    private fun sendItem(
+    fun sendItem(
         sendUrl: String,
         token: String,
         message: String,
