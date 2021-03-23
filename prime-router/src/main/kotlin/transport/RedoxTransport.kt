@@ -56,10 +56,8 @@ class RedoxTransport() : ITransport, SecretManagement {
             // DevNote: Redox access tokens live for many days
             val token = fetchToken(redoxTransportType, key, secret, context)
             if (token == null) {
-                actionHistory.trackActionResult(
-                    "Failure: fetch redox token failed.  Requesting retry of allItems"
-                )
-                return RetryToken.allItems // finally block below will execute to record history
+                actionHistory.trackActionResult("Failure: fetch redox token failed.  Requesting retry.")
+                return retryItems ?: RetryToken.allItems // finally block below will still execute.
             }
             messages.forEachIndexed() { index, message ->
                 val itemId = "${header.reportFile.reportId}-$index"
@@ -122,7 +120,16 @@ class RedoxTransport() : ITransport, SecretManagement {
                 }
             }
         }
-        return if (nextRetryItems.isNotEmpty()) nextRetryItems else null
+        if (nextRetryItems.isNotEmpty()) {
+            context.logger.log(
+                Level.INFO,
+                "The retry item list for ${header.reportFile.reportId} is: " +
+                    nextRetryItems.joinToString(",")
+            )
+            return nextRetryItems
+        } else {
+            return null
+        }
     }
 
     /**
