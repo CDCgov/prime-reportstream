@@ -269,20 +269,6 @@ Examples:
         } catch (t: Throwable) {
             bad("***garbage Test FAILED***: Exception: $t")
         }
-/*        if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            bad("***end2end Test FAILED***:  response code $responseCode")
-            return
-        }
-        try {
-            val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
-            echo("Id of submitted report: $reportId")
-            waitABit(25, environment)
-            examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
-        } catch (e: NullPointerException) {
-            bad("***end2end Test FAILED***: Unable to properly parse response json")
-        }
-*/
     }
 
     // end2end
