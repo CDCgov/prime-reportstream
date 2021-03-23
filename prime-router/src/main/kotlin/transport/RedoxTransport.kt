@@ -56,10 +56,8 @@ class RedoxTransport() : ITransport, SecretManagement {
             // DevNote: Redox access tokens live for many days
             val token = fetchToken(redoxTransportType, key, secret, context)
             if (token == null) {
-                actionHistory.trackActionResult(
-                    "Failure: fetch redox token failed.  Requesting retry of allItems"
-                )
-                return RetryToken.allItems // finally block below will execute to record history
+                actionHistory.trackActionResult("Failure: fetch redox token failed.  Requesting retry.")
+                return retryItems ?: RetryToken.allItems // finally block below will still execute.
             }
             messages.forEachIndexed() { index, message ->
                 val itemId = "${header.reportFile.reportId}-$index"
@@ -95,7 +93,7 @@ class RedoxTransport() : ITransport, SecretManagement {
                 "  ${t.localizedMessage}.  "
             context.logger.log(Level.WARNING, resultMsg, t)
             if (successCount == 0) {
-                nextRetryItems = RetryToken.allItems as MutableList<String>
+                nextRetryItems = (retryItems ?: RetryToken.allItems) as MutableList<String>
                 // If even one redox message got through, we'll call that 'send' rather than send_error
                 actionHistory.setActionType(TaskAction.send_error)
             }
@@ -108,7 +106,7 @@ class RedoxTransport() : ITransport, SecretManagement {
             }
             resultMsg = resultMsg + "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
             actionHistory.trackActionResult(resultMsg)
-            context.logger.log(Level.INFO, resultMsg)
+            context.logger.info(resultMsg)
             if (successCount > 0) {
                 // only create a child report in the history, if something actually worked.
                 actionHistory.trackSentReport(receiver, sentReportId, null, sendUrl, resultMsg, successCount)
@@ -122,7 +120,15 @@ class RedoxTransport() : ITransport, SecretManagement {
                 }
             }
         }
-        return if (nextRetryItems.isNotEmpty()) nextRetryItems else null
+        if (nextRetryItems.isNotEmpty()) {
+            context.logger.info(
+                "The retry item list for ${header.reportFile.reportId} is: " +
+                    nextRetryItems.joinToString(",")
+            )
+            return nextRetryItems
+        } else {
+            return null
+        }
     }
 
     /**
@@ -149,7 +155,7 @@ class RedoxTransport() : ITransport, SecretManagement {
         return Pair(redox.apiKey, secret)
     }
 
-    private fun fetchToken(
+    fun fetchToken(
         redox: RedoxTransportType,
         key: String,
         secret: String,
@@ -182,7 +188,7 @@ class RedoxTransport() : ITransport, SecretManagement {
         }
     }
 
-    private fun sendItem(
+    fun sendItem(
         sendUrl: String,
         token: String,
         message: String,
