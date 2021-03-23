@@ -8,7 +8,8 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 // All credential classes must exist in this file to inherit from a sealed class
 // https://kotlinlang.org/docs/reference/sealed-classes.html
 
-data class UserPassCredential(val user: String, val pass: String) : Credential()
+data class UserPassCredential(val user: String, val pass: String) : Credential(), SftpCredential
+data class UserPpkCredential(val user: String, val key: String) : Credential(), SftpCredential
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -16,7 +17,8 @@ data class UserPassCredential(val user: String, val pass: String) : Credential()
     property = "@type"
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = UserPassCredential::class, name = "UserPass")
+    JsonSubTypes.Type(value = UserPassCredential::class, name = "UserPass"),
+    JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk")
 )
 sealed class Credential {
 
@@ -31,3 +33,5 @@ sealed class Credential {
         }
     }
 }
+
+interface SftpCredential
