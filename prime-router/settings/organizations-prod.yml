@@ -390,8 +390,8 @@
         format: CSV
       timing:
         operation: MERGE
-        numberPerDay: 1 # Every day
-        initialTime: 00:00
+        numberPerDay: 1 # Every day.   Strac often submits at 7:30am ET
+        initialTime: 08:30
         timeZone: EASTERN
 
 - name: pa-montgomery-phd
@@ -412,5 +412,5 @@
       timing:
         operation: MERGE
         numberPerDay: 1 # Every day
-        initialTime: 00:00
+        initialTime: 08:30
         timeZone: EASTERN
