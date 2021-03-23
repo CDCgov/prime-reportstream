@@ -16,18 +16,18 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
         <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
-        <kotlin.version>1.4.20</kotlin.version>
+        <kotlin.version>1.4.31</kotlin.version>
         <serialization.version>1.0.1</serialization.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
         <functions.version>1.4.0</functions.version>
-        <azure.functions.maven.plugin.version>1.9.0</azure.functions.maven.plugin.version>
+        <azure.functions.maven.plugin.version>1.9.2</azure.functions.maven.plugin.version>
         <functionAppName>prime-data-hub-router</functionAppName>
         <maven.plugin>3.1.0</maven.plugin>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
 
-        <jackson.version>2.11.3</jackson.version>
+        <jackson.version>2.12.2</jackson.version>
         <hapi.version>2.3</hapi.version>
         <jooq.version>3.14.7</jooq.version>
         <log4j.version>[2.13.2,)</log4j.version>
@@ -57,6 +57,17 @@
             </snapshots>
             <id>kotlinx</id>
             <url>https://kotlin.bintray.com/kotlinx</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>Jsch</id>
+            <url>http://jsch.sf.net/maven2/</url>
         </repository>
     </repositories>
 
@@ -244,7 +255,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -289,7 +300,7 @@
                 <!-- Specify the maven code generator plugin -->
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
-                <version>3.14.3</version>
+                <version>3.14.8</version>
                 <executions>
                     <execution>
                         <id>jooq-codegen</id>
@@ -388,6 +399,16 @@
             <artifactId>azure-storage-queue</artifactId>
             <version>12.7.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-security-keyvault-secrets</artifactId>
+            <version>4.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-identity</artifactId>
+            <version>1.2.2</version>
+        </dependency>
 
         <!-- Router Dependencies -->
         <dependency>
@@ -463,19 +484,19 @@
         <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
-            <version>3.5</version>
+            <version>8.12.19</version>
         </dependency> 
 
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
-            <version>3.0.11.RELEASE</version>
+            <version>3.0.12.RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>com.sendgrid</groupId>
             <artifactId>sendgrid-java</artifactId>
-            <version>4.7.1</version>
+            <version>4.7.2</version>
         </dependency>
 
         <dependency>
@@ -508,6 +529,22 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>com.github.KennethWussmann</groupId>
+            <artifactId>mock-fuel</artifactId>
+            <version>1.3.0</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib-jdk8</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.kittinunf.fuel</groupId>
+                    <artifactId>fuel</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20201115</version>
@@ -518,9 +555,19 @@
             <version>0.30.0</version>
         </dependency>
         <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.68</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.45</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.11</version>
+            <version>3.12.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -548,7 +595,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>3.4.5</version>
+            <version>4.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>

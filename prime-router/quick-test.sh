@@ -22,9 +22,11 @@ NC='\033[0m' # No Color
 # let's make it possible for run for different states
 RUN_AZ=0
 RUN_FL=0
+RUN_GU=0
 RUN_LA=0
 RUN_ND=0
 RUN_NM=0
+RUN_OH=0
 RUN_TX=0
 RUN_VT=0
 # always should run, but we'll leave this here for now in case that could change at some point
@@ -43,9 +45,11 @@ do
   case "$arg" in
     az | AZ) RUN_AZ=1;;
     fl | FL) RUN_FL=1;;
+    gu | GU) RUN_GU=1;;
     la | LA) RUN_LA=1;;
     nd | ND) RUN_ND=1;;
     nm | NM) RUN_NM=1;;
+    oh | OH) RUN_OH=1;;
     tx | TX) RUN_TX=1;;
     vt | VT) RUN_VT=1;;
     all | ALL) RUN_ALL=1;;
@@ -57,9 +61,11 @@ if [ $RUN_ALL -ne 0 ]
 then
   RUN_AZ=1
   RUN_FL=1
+  RUN_GU=1
   RUN_LA=1
   RUN_ND=1
   RUN_NM=1
+  RUN_OH=1
   RUN_TX=1
   RUN_VT=1
   RUN_STANDARD=1
@@ -224,16 +230,6 @@ then
   count_lines $merged_file , $total
 fi
 
-# run louisiana
-if [ $RUN_LA -ne 0 ]
-then
-  LA_FILE_SEARCH_STR="/cdcprime.*\.hl7"
-  echo Generate synthetic LA data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --output-aphl-filename --output-receiving-org=LAOPH --target-states LA --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "$LA_FILE_SEARCH_STR"
-fi
-
-
 # run florida
 if [ $RUN_FL -ne 0 ]
 then
@@ -244,12 +240,45 @@ then
   parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
 fi
 
+# run guam
+if [ $RUN_GU -ne 0 ]
+then
+  GU_FILE_SEARCH_STR="/gu.*\.hl7"
+  echo Generate fake Guam data
+  text=$(./prime data --input-fake 50 --input-schema gu/gu-covid-19 --output-dir $outputdir --target-states GU --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" $GU_FILE_SEARCH_STR
+fi
+
+# run louisiana
+if [ $RUN_LA -ne 0 ]
+then
+  LA_FILE_SEARCH_STR="/cdcprime.*\.hl7"
+  echo Generate synthetic LA data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --name-format APHL --output-receiving-org=LAOPH --target-states LA --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "$LA_FILE_SEARCH_STR"
+fi
+
 # run north dakota
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
   text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-states ND --target-counties Richland --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/nd.*\.hl7"
+fi
+
+# run nm
+if [ $RUN_NM -ne 0 ]
+then
+  echo Generate fake NM data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-states NM --target-counties Hidalgo --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/nm.*\.hl7"
+fi
+
+if [ $RUN_OH -ne 0 ]
+then
+  echo Generate fake OH data, HL7!
+  text=$(./prime data --input-fake 50 --input-schema oh/oh-covid-19 --output-dir $outputdir --name-format OHIO --target-states OH --target-counties Ashtabula --output-format HL7_BATCH --suppress-qst-for-aoe)
+  parse_prime_output_for_filename "$text" "/CDCPRIME.*\.hl7"
 fi
 
 # run tx
@@ -266,14 +295,6 @@ then
   echo Generate fake VT data, HL7!
   text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-states VT --target-counties Essex --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/vt.*\.hl7"
-fi
-
-# run nm
-if [ $RUN_NM -ne 0 ]
-then
-  echo Generate fake NM data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-states NM --target-counties Hidalgo --output-format HL7_BATCH)
-  parse_prime_output_for_filename "$text" "/nm.*\.hl7"
 fi
 
 exit 0

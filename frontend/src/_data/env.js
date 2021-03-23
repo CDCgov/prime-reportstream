@@ -16,4 +16,8 @@ for (let [key, value] of Object.entries(env)) {
   }
 }
 
+<<<<<<< HEAD
 module.exports = env ;
+=======
+module.exports = env 
+>>>>>>> master

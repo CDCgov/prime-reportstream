@@ -65,6 +65,7 @@ main {
   color:#71767a
 }
 
+<<<<<<< HEAD:frontend/src/assets/stylesheets/prime.css
 .rs-hero {
   background-color: #f0f0f0;
 }
@@ -77,3 +78,9 @@ h3 img[src*="svg"] {
   vertical-align: text-top;
   margin-right: 5px;
 }
+=======
+.usa-hero {
+  background-image: url("./corona.jpg");
+}
+
+>>>>>>> master:frontend/src/css/prime.css

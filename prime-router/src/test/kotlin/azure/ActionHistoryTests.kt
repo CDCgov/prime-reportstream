@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
@@ -11,7 +12,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -57,30 +57,32 @@ class ActionHistoryTests {
         val one = Schema(name = "one", topic = "test", elements = listOf())
         val report1 = Report(one, listOf(), sources = listOf(ClientSource("myOrg", "myClient")))
         val incomingReport = ReportFunction.ValidatedRequest(
-            ReportFunction.Options.CheckConnections, mapOf(),
-            listOf<ResultDetail>(),
-            listOf<ResultDetail>(), report1
+            HttpStatus.OK,
+            options = ReportFunction.Options.CheckConnections,
+            report = report1,
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        actionHistory1.trackExternalInputReport(incomingReport)
+        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        actionHistory1.trackExternalInputReport(incomingReport, blobInfo1)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id] !!
         assertEquals(reportFile.schemaName, "one")
         assertEquals(reportFile.schemaTopic, "test")
         assertEquals(reportFile.sendingOrg, "myOrg")
         assertEquals(reportFile.sendingOrgClient, "myClient")
+        assertEquals(reportFile.bodyUrl, "myUrl")
+        assertEquals(reportFile.blobDigest[1], 34)
         assertNull(reportFile.receivingOrg)
 
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackExternalInputReport(incomingReport) }
+        assertFails { actionHistory1.trackExternalInputReport(incomingReport, blobInfo1) }
 
         // must pass a valid report.   Here, its set to null.
         val incomingReport2 = ReportFunction.ValidatedRequest(
-            ReportFunction.Options.CheckConnections, mapOf(),
-            listOf<ResultDetail>(),
-            listOf<ResultDetail>(), null
+            HttpStatus.OK,
+            options = ReportFunction.Options.CheckConnections
         )
-        assertFails { actionHistory1.trackExternalInputReport(incomingReport2) }
+        assertFails { actionHistory1.trackExternalInputReport(incomingReport2, blobInfo1) }
     }
 
     @Test
@@ -102,8 +104,8 @@ class ActionHistoryTests {
             )
         val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
-
-        actionHistory1.trackCreatedReport(event1, report1, orgReceiver)
+        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        actionHistory1.trackCreatedReport(event1, report1, orgReceiver, blobInfo1)
 
         assertNotNull(actionHistory1.reportsOut[report1.id])
         val reportFile = actionHistory1.reportsOut[report1.id] !!
@@ -111,11 +113,13 @@ class ActionHistoryTests {
         assertEquals(reportFile.schemaTopic, "topic1")
         assertEquals(reportFile.receivingOrg, "myOrg")
         assertEquals(reportFile.receivingOrgSvc, "myService")
+        assertEquals(reportFile.bodyUrl, "myUrl")
+        assertEquals(reportFile.blobDigest[1], 34)
         assertNull(reportFile.sendingOrg)
         assertEquals(reportFile.itemCount, 0)
 
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackCreatedReport(event1, report1, orgReceiver) }
+        assertFails { actionHistory1.trackCreatedReport(event1, report1, orgReceiver, blobInfo1) }
     }
 
     @Test
@@ -162,6 +166,7 @@ class ActionHistoryTests {
         assertEquals("REDOX", reportFile.bodyFormat)
         assertNull(reportFile.sendingOrg)
         assertNull(reportFile.bodyUrl)
+        assertNull(reportFile.blobDigest)
         assertEquals(15, reportFile.itemCount)
         // not allowed to track the same report twice.
         assertFails { actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", 15) }
@@ -175,31 +180,36 @@ class ActionHistoryTests {
         val uuid = UUID.randomUUID()
         val reportFile1 = ReportFile()
         reportFile1.reportId = uuid
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+        // As of this writing, lineage is taken from the parent report obj, not the org/receiver obj.
         val org =
             DeepOrganization(
-                name = "myOrg",
+                name = "orgX",
                 description = "blah blah",
                 jurisdiction = Organization.Jurisdiction.FEDERAL,
                 receivers = listOf(
-                    Receiver("myService", "myOrg", "topic", "schema", format = Report.Format.HL7)
+                    Receiver("receiverX", "myOrg", "topic", "schema", format = Report.Format.HL7)
                 )
             )
         val schema = Schema("schema", "topic")
         val header = WorkflowEngine.Header(
-            Task(), emptyList(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray()
+            Task(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray()
         )
         val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()
-        actionHistory1.trackDownloadedReport(header, "filename1", uuid, uuid2, "bob", org)
+        actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob")
         assertNotNull(actionHistory1.reportsOut[uuid2])
         val reportFile2 = actionHistory1.reportsOut[uuid2] !!
+        assertEquals("myRcvr", reportFile2.receivingOrgSvc)
         assertEquals("myOrg", reportFile2.receivingOrg)
         assertEquals("filename1", reportFile2.externalName)
         assertEquals("bob", reportFile2.downloadedBy)
         assertNull(reportFile2.sendingOrg)
         assertNull(reportFile2.bodyUrl)
+        assertNull(reportFile2.blobDigest)
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackDownloadedReport(header, "filename1", uuid, uuid2, "bob", org) }
+        assertFails { actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob") }
     }
 
     /**
@@ -216,12 +226,12 @@ class ActionHistoryTests {
         val one = Schema(name = "schema1", topic = "topic1", elements = listOf())
         val report1 = Report(one, listOf(), sources = listOf(ClientSource("myOrg", "myClient")))
         val incomingReport = ReportFunction.ValidatedRequest(
-            ReportFunction.Options.None, mapOf(),
-            listOf<ResultDetail>(),
-            listOf<ResultDetail>(), report1
+            HttpStatus.OK,
+            report = report1,
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        actionHistory1.trackExternalInputReport(incomingReport)
+        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        actionHistory1.trackExternalInputReport(incomingReport, blobInfo1)
 
         // Not sure how to get a transaction obj, to pass to saveToDb. ?
 //        every { connection.transaction(any()) }.returns(Unit)

@@ -33,12 +33,21 @@ module "container_registry" {
     public_subnet_id = module.network.public_subnet_id
 }
 
+module "app_service_plan" {
+    source = "../app_service_plan"
+    environment = var.environment
+    resource_group = var.resource_group
+    location = local.location
+    resource_prefix = var.resource_prefix
+}
+
 module "function_app" {
     source = "../function_app"
     environment = var.environment
     resource_group = var.resource_group
     resource_prefix = var.resource_prefix
     location = local.location
+    app_service_plan_id = module.app_service_plan.app_service_plan_id
     storage_account_name = module.storage.storage_account_name
     storage_account_key = module.storage.storage_account_key
     public_subnet_id = module.network.public_subnet_id
@@ -109,9 +118,9 @@ module "metabase" {
     resource_prefix = var.resource_prefix
     name = "${var.resource_prefix}-metabase"
     location = local.location
-    app_service_plan_id = module.function_app.app_service_plan_id
+    app_service_plan_id = module.app_service_plan.app_service_plan_id
     public_subnet_id = module.network.public_subnet_id
-    postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${module.database.postgres_user}&password=${module.database.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${module.database.postgres_user}@${module.database.server_name}&password=${module.database.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
     ai_instrumentation_key = module.application_insights.instrumentation_key
 }
 
@@ -128,8 +137,9 @@ module "application_insights" {
     source = "../application_insights"
     environment = var.environment
     resource_group = var.resource_group
-    name = "${var.resource_prefix}-appinsights"
+    resource_prefix = var.resource_prefix
     location = local.location
+    key_vault_id = module.key_vault.application_key_vault_id
 }
 
 module "event_hub" {

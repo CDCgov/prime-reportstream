@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import java.time.Instant
+import java.time.ZoneId
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -83,8 +85,14 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
         )
 
+        val o = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now()).toString()
+        val offset = if (o == "Z") {
+            "+0000"
+        } else {
+            o.replace(":", "")
+        }
         val result3 = two.toNormalized("19980330", "yyyyMMdd")
-        assertEquals("199803300000-0600", result3)
+        assertEquals("199803300000$offset", result3)
 
         val three = Element(
             "a",
@@ -92,7 +100,7 @@ internal class ElementTests {
         )
 
         val result4 = three.toNormalized("2020-12-09", "yyyy-MM-dd")
-        assertEquals("202012090000-0600", result4)
+        assertEquals("202012090000$offset", result4)
     }
 
     @Test
@@ -368,5 +376,38 @@ internal class ElementTests {
         assertEquals(one.toFormatted("Y", "\$code"), "Y")
         assertEquals(one.toNormalized("Y", "\$code"), "Y")
         assertEquals(one.checkForError("Y", "\$code"), null)
+    }
+
+    @Test
+    fun `test truncate`() {
+        val uno = Element(
+            name = "uno",
+            type = Element.Type.TEXT,
+            maxLength = 2,
+        )
+        assertEquals("ab", uno.truncateIfNeeded("abcde"))
+        val dos = Element(
+            name = "dos",
+            type = Element.Type.ID_CLIA, // this type is never truncated.
+            maxLength = 2,
+        )
+        assertEquals("abcde", dos.truncateIfNeeded("abcde"))
+        val tres = Element(
+            name = "tres",
+            type = Element.Type.TEXT,
+            maxLength = 20, // max > actual strlen, nothing to truncate
+        )
+        assertEquals("abcde", tres.truncateIfNeeded("abcde"))
+        val cuatro = Element( // zilch is an ok valuer = Element(  // maxLength is null, don't truncate.
+            name = "cuatro",
+            type = Element.Type.TEXT,
+        )
+        assertEquals("abcde", cuatro.truncateIfNeeded("abcde"))
+        val cinco = Element(
+            name = "cinco",
+            type = Element.Type.TEXT,
+            maxLength = 0, // zilch is an ok value
+        )
+        assertEquals("", cinco.truncateIfNeeded("abcde"))
     }
 }

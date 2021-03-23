@@ -28,7 +28,7 @@
 
 **Type**: ID_CLIA
 
-**HL7 Field**: OBX-23-10
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
 
 **Cardinality**: [1..1]
 
@@ -243,7 +243,8 @@ U|Unknown
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
 
 ---
@@ -408,7 +409,7 @@ The zip code of the facility which the test was ordered from
 
 **Type**: PERSON_NAME
 
-**HL7 Field**: ORC-12-3
+**HL7 Fields**: ORC-12-3, OBR-16-3
 
 **Cardinality**: [0..1]
 
@@ -422,6 +423,8 @@ The first name of the provider who ordered the test
 
 **Type**: PERSON_NAME
 
+**HL7 Fields**: ORC-12-2, OBR-16-2
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -434,7 +437,7 @@ The last name of provider who ordered the test
 
 **Type**: TELEPHONE
 
-**HL7 Field**: ORC-14
+**HL7 Fields**: ORC-14, OBR-17
 
 **Cardinality**: [0..1]
 
@@ -452,6 +455,10 @@ The phone number of the provider
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The specimen-id from the testing lab
+
 ---
 
 **Name**: Collection_Date
@@ -460,7 +467,7 @@ The phone number of the provider
 
 **Format**: yyyyMMdd
 
-**HL7 Field**: SPM-17-1
+**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
 
@@ -588,6 +595,13 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 

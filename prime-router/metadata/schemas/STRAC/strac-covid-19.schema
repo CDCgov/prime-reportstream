@@ -2,7 +2,7 @@
 name: strac-covid-19
 description: STRAC POC COVID-19 flat file
 topic: covid-19
-trackingElement: message_id
+trackingElement: placer_order_id # placer_order_id is the internal STRAC id number
 basedOn: covid-19
 elements:
   #

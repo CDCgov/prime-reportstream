@@ -13,7 +13,12 @@ variable "location" {
     description = "Function App Location"
 }
 
-variable "name" {
+variable "resource_prefix" {
     type = string
-    description = "App Service Name"
+    description = "Resource Prefix"
+}
+
+variable "key_vault_id" {
+    type = string
+    description = "Application Key Vault ID"
 }

@@ -22,6 +22,14 @@ class Metadata {
         Obx17Mapper(),
         Obx17TypeMapper(),
         Obx8Mapper(),
+        DateTimeOffsetMapper(),
+        CoalesceMapper(),
+        StripPhoneFormattingMapper(),
+        StripNonNumericDataMapper(),
+        StripNumericDataMapper(),
+        SplitMapper(),
+        ZipCodeToCountyMapper(),
+        SplitByCommaMapper(),
     )
 
     private var jurisdictionalFilters = listOf(
@@ -184,6 +192,9 @@ class Metadata {
             Pair(ref, args)
         }
         val fullElement = if (baseElement != null) element.inheritFrom(baseElement) else element
+
+        if (fullElement.maxLength != null && fullElement.maxLength < 0)
+            error("Schema Error: maxLength ${fullElement.maxLength} for ${fullElement.name} must be >= 0")
 
         return fullElement.copy(
             valueSetRef = valueSetRef,

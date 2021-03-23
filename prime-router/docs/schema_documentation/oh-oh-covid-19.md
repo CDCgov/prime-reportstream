@@ -1,6 +1,6 @@
 
-### Schema:         la/la-covid-19-hl7
-#### Description:   LA COVID-19
+### Schema:         oh/oh-covid-19
+#### Description:   A schema for OH DOH to receive HL7 files
 
 ---
 
@@ -22,6 +22,10 @@
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The receiving application for the message (specified by the receiver)
+
 ---
 
 **Name**: receiving_facility
@@ -32,54 +36,25 @@
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The receiving facility for the message (specified by the receiver)
+
 ---
 
-**Name**: abnormal_flag
+**Name**: reporting_facility
 
-**Type**: CODE
+**Type**: HD
 
-**HL7 Field**: OBX-8
+**HL7 Field**: MSH-4
 
 **Cardinality**: [0..1]
 
-**Value Sets**
-
-Code | Display
----- | -------
-A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
-
 **Documentation**:
 
-This field contains a table lookup indicating the normalcy status of the result.  A = abnormal; N = normal
+The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+aggregator
+
 
 ---
 
@@ -90,24 +65,6 @@ This field contains a table lookup indicating the normalcy status of the result.
 **HL7 Field**: NTE-3
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: comment_source
-
-**Type**: CODE
-
-**HL7 Field**: NTE-2
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-L|Ancillary (filler) department is source of comment
-O|Other system is source of comment
-P|Orderer (placer) is source of comment
 
 ---
 
@@ -134,13 +91,21 @@ RE|Remark
 
 ---
 
-**Name**: date_result_released
+**Name**: comment_source
 
-**Type**: DATETIME
+**Type**: CODE
 
-**HL7 Field**: OBR-22
+**HL7 Field**: NTE-2
 
 **Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+L|Ancillary (filler) department is source of comment
+O|Other system is source of comment
+P|Orderer (placer) is source of comment
 
 ---
 
@@ -181,52 +146,6 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 **Documentation**:
 
 Device_id_type is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
-
----
-
-**Name**: employed_in_healthcare
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient employed in health care?
-
----
-
-**Name**: employed_in_high_risk_setting
-
-**Type**: CODE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
----
-
-**Name**: equipment_instance_id
-
-**Type**: ID
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -312,7 +231,7 @@ UNK|Unknown
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-3-1
+**HL7 Fields**: ORC-3-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
@@ -322,6 +241,8 @@ UNK|Unknown
 
 **Type**: ID
 
+**HL7 Fields**: ORC-3-1, SPM-2-2, OBR-3-1
+
 **Cardinality**: [0..1]
 
 ---
@@ -330,89 +251,7 @@ UNK|Unknown
 
 **Type**: ID_CLIA
 
-**Cardinality**: [0..1]
-
----
-
-**Name**: first_test
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is this the patient's first test for this condition?
-
----
-
-**Name**: flatfile_version_no
-
-**Type**: NUMBER
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: hospitalized
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient hospitalized?
-
----
-
-**Name**: icu
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient in the ICU?
-
----
-
-**Name**: illness_onset_date
-
-**Type**: DATE
-
-**HL7 Field**: AOE
+**HL7 Field**: OBR-3-3
 
 **Cardinality**: [0..1]
 
@@ -511,21 +350,17 @@ Z|No record of this patient
 
 ---
 
-**Name**: ordered_test_system
+**Name**: ordered_test_encoding_version
 
-**Type**: TEXT
+**Type**: TABLE
 
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordered_test_system_abbr
-
-**Type**: TEXT
-
-**HL7 Field**: OBR-4-3
+**HL7 Field**: OBR-4-7
 
 **Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
 
 ---
 
@@ -566,14 +401,6 @@ The city of the facility which the test was ordered from
 **Table**: fips-county
 
 **Table Column**: FIPS
-
----
-
-**Name**: ordering_facility_country
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -715,19 +542,11 @@ The city of the provider
 
 ---
 
-**Name**: ordering_provider_country
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: ordering_provider_first_name
 
 **Type**: PERSON_NAME
 
-**HL7 Field**: ORC-12-3
+**HL7 Fields**: ORC-12-3, OBR-16-3
 
 **Cardinality**: [0..1]
 
@@ -741,7 +560,7 @@ The first name of the provider who ordered the test
 
 **Type**: ID_NPI
 
-**HL7 Field**: ORC-12-1
+**HL7 Fields**: ORC-12-1, OBR-16-1
 
 **Cardinality**: [0..1]
 
@@ -755,9 +574,13 @@ The ordering provider’s National Provider Identifier
 
 **Type**: HD
 
-**HL7 Field**: ORC-12-9
+**HL7 Fields**: ORC-12-9, OBR-16-9
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+Usually the OID for CMS
 
 ---
 
@@ -765,15 +588,21 @@ The ordering provider’s National Provider Identifier
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-12-13
+**HL7 Fields**: ORC-12-13, OBR-16-13
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+Usually NPI
 
 ---
 
 **Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
+
+**HL7 Fields**: ORC-12-2, OBR-16-2
 
 **Cardinality**: [0..1]
 
@@ -787,17 +616,7 @@ The last name of provider who ordered the test
 
 **Type**: PERSON_NAME
 
-**HL7 Field**: ORC-12-4
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordering_provider_middle_initial
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: ORC-12-4
+**HL7 Fields**: ORC-12-4, OBR-16-4
 
 **Cardinality**: [0..1]
 
@@ -807,7 +626,7 @@ The last name of provider who ordered the test
 
 **Type**: TELEPHONE
 
-**HL7 Field**: ORC-14
+**HL7 Fields**: ORC-14, OBR-17
 
 **Cardinality**: [0..1]
 
@@ -877,39 +696,6 @@ The zip code of the provider
 
 ---
 
-**Name**: patient_age
-
-**Type**: NUMBER
-
-**HL7 Field**: AOE
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_age_units
-
-**Type**: CODE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-min|minutes
-h|hours
-d|days
-wk|weeks
-mo|months
-a|years
-
-**Documentation**:
-
-Always filled when `patient_age` is filled
-
----
-
 **Name**: patient_city
 
 **Type**: CITY
@@ -947,14 +733,6 @@ The patient's city
 **Table**: fips-county
 
 **Table Column**: FIPS
-
----
-
-**Name**: patient_country
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -1041,7 +819,8 @@ U|Unknown
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
 
 ---
@@ -1100,7 +879,7 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Type**: HD
 
-**HL7 Field**: PID-3-4
+**HL7 Fields**: PID-3-6-2
 
 **Cardinality**: [0..1]
 
@@ -1135,16 +914,6 @@ The patient's last name
 **Type**: TEXT
 
 **HL7 Field**: PID-5-7
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_middle_initial
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-3
 
 **Cardinality**: [0..1]
 
@@ -1857,7 +1626,7 @@ The patient's zip code
 
 **Type**: ID
 
-**HL7 Field**: ORC-2-1
+**HL7 Fields**: ORC-2-1, OBR-2-1
 
 **Cardinality**: [0..1]
 
@@ -1867,7 +1636,7 @@ The patient's zip code
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-2-2
+**HL7 Fields**: ORC-2-2, ORC-4-2, OBR-2-2
 
 **Cardinality**: [0..1]
 
@@ -1877,7 +1646,7 @@ The patient's zip code
 
 **Type**: ID_CLIA
 
-**HL7 Field**: ORC-2-3
+**HL7 Fields**: ORC-2-3, ORC-4-3, OBR-2-3
 
 **Cardinality**: [0..1]
 
@@ -1888,44 +1657,6 @@ The patient's zip code
 **Type**: ID
 
 **HL7 Field**: ORC-4-1
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: pregnant
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
-
-**Documentation**:
-
-Is the patient pregnant?
-
----
-
-**Name**: prime_patient_id
-
-**Type**: ID
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: prime_patient_id_assigner
-
-**Type**: HD
 
 **Cardinality**: [0..1]
 
@@ -1967,18 +1698,6 @@ unique id to track the usage of the message
 
 ---
 
-**Name**: previous_message_id
-
-**Type**: ID
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
-
----
-
 **Name**: message_profile_id
 
 **Type**: EI
@@ -1990,16 +1709,6 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 **Documentation**:
 
 The message profile identifer
-
----
-
-**Name**: reason_for_study
-
-**Type**: TEXT
-
-**HL7 Field**: OBR-31
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -2017,6 +1726,55 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 
 ---
 
+**Name**: abnormal_flag
+
+**Type**: CODE
+
+**HL7 Field**: OBX-8
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+A|Abnormal (applies to non-numeric results)
+>|Above absolute high-off instrument scale
+H|Above high normal
+HH|Above upper panic limits
+AC|Anti-complementary substances present
+<|Below absolute low-off instrument scale
+L|Below low normal
+LL|Below lower panic limits
+B|Better--use when direction not relevant
+TOX|Cytotoxic substance present
+DET|Detected
+IND|Indeterminate
+I|Intermediate. Indicates for microbiology susceptibilities only.
+MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
+NEG|Negative
+null|No range defined, or normal ranges don't apply
+NR|Non-reactive
+N|Normal (applies to non-numeric results)
+ND|Not Detected
+POS|Positive
+QCF|Quality Control Failure
+RR|Reactive
+R|Resistant. Indicates for microbiology susceptibilities only.
+D|Significant change down
+U|Significant change up
+S|Susceptible. Indicates for microbiology susceptibilities only.
+AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
+VS|Very susceptible. Indicates for microbiology susceptibilities only.
+WR|Weakly reactive
+W|Worse--use when direction not relevant
+
+**Documentation**:
+
+This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+
+---
+
 **Name**: reporting_facility_name
 
 **Type**: TEXT
@@ -2025,37 +1783,23 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The reporting facility's name
+
 ---
 
 **Name**: reporting_facility_clia
 
 **Type**: ID_CLIA
 
-**HL7 Field**: MSH-4-2
+**HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: resident_congregate_setting
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
 
 **Documentation**:
 
-Does the patient reside in a congregate care setting?
+The reporting facility's CLIA
 
 ---
 
@@ -2073,7 +1817,7 @@ Does the patient reside in a congregate care setting?
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-17-1
+**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
 
@@ -2173,13 +1917,17 @@ WOOD|Swab, Wooden Shaft
 
 **Type**: EI
 
-**HL7 Field**: SPM-2
+**HL7 Fields**: SPM-2
 
 **Cardinality**: [0..1]
 
 
 **Reference URL**:
 [https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
+
+**Documentation**:
+
+A unique code for this specimen
 
 ---
 
@@ -2260,80 +2008,17 @@ The specimen source, such as Blood or Serum
 
 ---
 
-**Name**: specimen_received_date_time
-
-**Type**: DATETIME
-
-**HL7 Field**: SPM-18
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Date and time the specimen was received. Default format is yyyyMMddHHmmsszz
-
-
----
-
-**Name**: symptomatic_for_disease
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient symptomatic?
-
----
-
-**Name**: test_kit_name_id
+**Name**: test_kit_name_id_cwe_version
 
 **Type**: TABLE
 
+**HL7 Field**: OBX-17-7
+
 **Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
 **Table**: LIVD-SARS-CoV-2-2021-01-20
 
-**Table Column**: Testkit Name ID
-
----
-
-**Name**: test_kit_name_id_type
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Testkit Name ID Type
-
----
-
-**Name**: test_method_description
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
+**Table Column**: LOINC Version ID
 
 ---
 
@@ -2383,11 +2068,17 @@ The LOINC description of the test performed as related to the LOINC code.
 
 ---
 
-**Name**: test_performed_system
+**Name**: test_performed_system_version
 
-**Type**: TEXT
+**Type**: TABLE
+
+**HL7 Field**: OBX-3-7
 
 **Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: LOINC Version ID
 
 ---
 
@@ -2414,6 +2105,13 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 
@@ -2445,7 +2143,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Type**: CODE
 
-**HL7 Field**: OBX-11-1
+**HL7 Fields**: OBX-11-1, OBR-25-1
 
 **Cardinality**: [0..1]
 
@@ -2493,8 +2191,6 @@ Z|No record of this patient
 
 **Type**: ID
 
-**HL7 Field**: OBR-3-1
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -2539,14 +2235,6 @@ The accession number of the specimen collected
 
 ---
 
-**Name**: testing_lab_country
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: testing_lab_id
 
 **Type**: ID
@@ -2571,7 +2259,7 @@ The accession number of the specimen collected
 
 **Type**: ID_CLIA
 
-**HL7 Field**: OBX-23-10
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
 
 **Cardinality**: [1..1]
 
@@ -2606,13 +2294,17 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The specimen-id from the testing lab
+
 ---
 
 **Name**: testing_lab_specimen_received_datetime
 
 **Type**: DATETIME
 
-**HL7 Field**: SPM-18
+**HL7 Field**: SPM-18-1
 
 **Cardinality**: [0..1]
 
@@ -2670,11 +2362,13 @@ The name of the laboratory which performed the test, can be the same as the send
 
 ---
 
-**Name**: value_type
+**Name**: pregnant
 
 **Type**: CODE
 
-**HL7 Field**: OBX-2
+**HL7 Field**: AOE
+
+**LOINC Code**: 82810-3
 
 **Cardinality**: [0..1]
 
@@ -2682,30 +2376,213 @@ The name of the laboratory which performed the test, can be the same as the send
 
 Code | Display
 ---- | -------
-AD|Address
-CE|Coded Entry
-CF|Coded Element With Formatted Values
-CK|Composite ID With Check Digit
-CN|Composite ID And Name
-CP|Composite Price
-CX|Extended Composite ID With Check Digit
-DT|Date
-ED|Encapsulated Data
-FT|Formatted Text (Display)
-MO|Money
-NM|Numeric
-PN|Person Name
-RP|Reference Pointer
-SN|Structured Numeric
-ST|String Data
-TM|Time
-TN|Telephone Number
-TS|Time Stamp (Date & Time)
-TX|Text Data (Display)
-XAD|Extended Address
-XCN|Extended Composite Name and Number For Persons
-XON|Extended Composite Name and Number For Organizations
-XPN|Extended Person Name
-XTN|Extended Telecommunications Number
+77386006|Pregnant
+60001007|Not Pregnant
+261665006|Unknown
+
+**Documentation**:
+
+Is the patient pregnant?
+
+---
+
+**Name**: employed_in_healthcare
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95418-0
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient employed in health care?
+
+---
+
+**Name**: first_test
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95417-2
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is this the patient's first test for this condition?
+
+---
+
+**Name**: hospitalized
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 77974-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient hospitalized?
+
+---
+
+**Name**: icu
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95420-6
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient in the ICU?
+
+---
+
+**Name**: illness_onset_date
+
+**Type**: DATE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 65222-2
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age
+
+**Type**: NUMBER
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 30525-0
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age_units
+
+**Type**: CODE
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+min|minutes
+h|hours
+d|days
+wk|weeks
+mo|months
+a|years
+
+**Documentation**:
+
+Always filled when `patient_age` is filled
+
+---
+
+**Name**: resident_congregate_setting
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95421-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Does the patient reside in a congregate care setting?
+
+---
+
+**Name**: symptomatic_for_disease
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95419-8
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient symptomatic?
+
+---
+
+**Name**: blank_for_obx_23_11
+
+**Type**: TEXT
+
+**HL7 Field**: OBX-23-11
+
+**Cardinality**: [0..1]
 
 ---

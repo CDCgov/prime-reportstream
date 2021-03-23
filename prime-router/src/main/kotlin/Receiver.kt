@@ -40,7 +40,7 @@ open class Receiver(
         format: Report.Format = Report.Format.CSV
     ) : this(
         name, organizationName, topic,
-        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), false, null)
+        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), Report.NameFormat.STANDARD, null)
     )
     @get:JsonIgnore
     val fullName: String get() = "$organizationName$fullNameSeparator$name"
