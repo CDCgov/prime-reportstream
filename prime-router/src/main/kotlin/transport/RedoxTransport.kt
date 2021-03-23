@@ -93,7 +93,7 @@ class RedoxTransport() : ITransport, SecretManagement {
                 "  ${t.localizedMessage}.  "
             context.logger.log(Level.WARNING, resultMsg, t)
             if (successCount == 0) {
-                nextRetryItems = RetryToken.allItems as MutableList<String>
+                nextRetryItems = (retryItems ?: RetryToken.allItems) as MutableList<String>
                 // If even one redox message got through, we'll call that 'send' rather than send_error
                 actionHistory.setActionType(TaskAction.send_error)
             }
