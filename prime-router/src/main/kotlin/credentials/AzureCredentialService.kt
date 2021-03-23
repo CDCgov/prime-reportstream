@@ -1,9 +1,12 @@
 package gov.cdc.prime.router.credentials
 
 import com.azure.core.credential.TokenCredential
+import com.azure.core.http.policy.ExponentialBackoff
+import com.azure.core.http.policy.RetryPolicy
 import com.azure.identity.DefaultAzureCredentialBuilder
 import com.azure.security.keyvault.secrets.SecretClient
 import com.azure.security.keyvault.secrets.SecretClientBuilder
+import java.time.Duration
 
 internal object AzureCredentialService : CredentialService() {
 
@@ -17,6 +20,7 @@ internal object AzureCredentialService : CredentialService() {
         return secretClientBuilder
             .vaultUrl("https://$KEY_VAULT_NAME.vault.azure.net")
             .credential(credential)
+            .retryPolicy(RetryPolicy(ExponentialBackoff(3, Duration.ofMillis(250L), Duration.ofSeconds(2))))
             .buildClient()
     }
 
