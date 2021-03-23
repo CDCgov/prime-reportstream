@@ -21,7 +21,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
-        <functions.version>1.4.0</functions.version>
+        <functions.version>1.4.2</functions.version>
         <azure.functions.maven.plugin.version>1.9.2</azure.functions.maven.plugin.version>
         <functionAppName>prime-data-hub-router</functionAppName>
         <maven.plugin>3.1.0</maven.plugin>
