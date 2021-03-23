@@ -761,7 +761,7 @@ Examples:
             if (secsElapsed > (60 - plusSecs) || env != ReportStreamEnv.LOCAL) {
                 // Uh oh, we are close to the top of the minute *now*, so 'receive' might not finish in time.
                 // Or, we are in Test or Staging, which don't execute on the top of the minute.
-                waitSecs += 60
+                waitSecs += 90
             }
             echo("Waiting $waitSecs seconds for the Hub to fully receive, batch, and send the data")
             for (i in 1..waitSecs) {
