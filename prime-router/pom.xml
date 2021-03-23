@@ -29,7 +29,7 @@
 
         <jackson.version>2.12.2</jackson.version>
         <hapi.version>2.3</hapi.version>
-        <jooq.version>3.14.7</jooq.version>
+        <jooq.version>3.14.8</jooq.version>
         <log4j.version>[2.13.2,)</log4j.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
