@@ -31,6 +31,7 @@ import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SenderAPI
 import org.apache.http.HttpStatus
+import java.io.InputStream
 
 private const val apiPath = "/api/settings"
 private const val dummyAccessToken = "dummy"
@@ -56,8 +57,7 @@ abstract class SettingCommand(
         .outputStream(createIfNotExist = true, truncateExisting = true)
         .default(System.out)
 
-    private val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
-        .inputStream()
+    open val inStream: InputStream? = null
 
     data class Environment(
         val name: String,
@@ -344,6 +344,22 @@ abstract class SingleSettingCommand(
     ).required()
 }
 
+abstract class SingleSettingWithInputCommand(
+    name: String,
+    help: String,
+    settingType: SettingType,
+    operation: Operation
+) : SingleSettingCommandNoSettingName(name, help, settingType, operation) {
+    override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
+        .inputStream()
+
+    override val settingName: String by option(
+        "-n", "--name",
+        metavar = "<name>",
+        help = "The full name of the setting"
+    ).required()
+}
+
 /**
  * Organization setting commands
  */
@@ -374,7 +390,7 @@ class GetOrganizationSetting : SingleSettingCommand(
     operation = Operation.GET
 )
 
-class PutOrganizationSetting : SingleSettingCommand(
+class PutOrganizationSetting : SingleSettingWithInputCommand(
     name = "set",
     help = "Update a organization",
     settingType = SettingType.ORG,
@@ -414,7 +430,7 @@ class GetSenderSetting : SingleSettingCommand(
     operation = Operation.GET
 )
 
-class PutSenderSetting : SingleSettingCommand(
+class PutSenderSetting : SingleSettingWithInputCommand(
     name = "set",
     help = "Update a sender",
     settingType = SettingType.SENDER,
@@ -454,7 +470,7 @@ class GetReceiverSetting : SingleSettingCommand(
     operation = Operation.GET
 )
 
-class PutReceiverSetting : SingleSettingCommand(
+class PutReceiverSetting : SingleSettingWithInputCommand(
     name = "set",
     help = "Update a receiver",
     settingType = SettingType.RECEIVER,
@@ -484,6 +500,9 @@ class PutMultipleSettings : SettingCommand(
     name = "set",
     help = "set all settings from a 'organizations.yml' file"
 ) {
+    override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
+        .inputStream()
+
     override fun run() {
         val environment = getEnvironment()
         val accessToken = getAccessToken(environment)

@@ -16,6 +16,6 @@
           format: CSV
         timing:
           operation: MERGE
-          numberPerDay: 1 # Every day
-          initialTime: 00:00
+          numberPerDay: 1440 # Every minute
+          initialTime: 03:05 # A little after the 12am EASTERN reports from simple report
           timeZone: PACIFIC
