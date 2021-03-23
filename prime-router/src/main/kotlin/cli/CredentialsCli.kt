@@ -6,9 +6,12 @@ import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.groups.required
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
+import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.file
 import gov.cdc.prime.router.credentials.CredentialManagement
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.credentials.UserPpkCredential
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
 
@@ -33,7 +36,8 @@ class CredentialsCli : CredentialManagement, CliktCommand(
 ) {
     val type by option(help = "Type of credential to create")
         .groupChoice(
-            "UserPass" to UserTypeCredentialOptions()
+            "UserPass" to UserPassCredentialOptions(),
+            "UserPpk" to UserPpkCredentialOptions()
         ).required()
     val persist by option(help = "credentialId to persist the secret under")
 
@@ -44,7 +48,8 @@ class CredentialsCli : CredentialManagement, CliktCommand(
 
     override fun run() {
         val credential = when (val it = type) {
-            is UserTypeCredentialOptions -> UserPassCredential(it.user, it.pass)
+            is UserPassCredentialOptions -> UserPassCredential(it.user, it.pass)
+            is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8))
             else -> error("--type option is unknown")
         }
 
@@ -66,7 +71,14 @@ class CredentialsCli : CredentialManagement, CliktCommand(
 
 sealed class CredentialConfig(name: String) : OptionGroup(name)
 
-class UserTypeCredentialOptions : CredentialConfig("Options for credential type 'UserPass'") {
+sealed class UserTypeCredentialOptions(name: String) : CredentialConfig(name)
+
+class UserPassCredentialOptions : CredentialConfig("Options for credential type 'UserPass'") {
     val user by option().prompt(default = "")
     val pass by option().prompt(default = "", requireConfirmation = true)
+}
+
+class UserPpkCredentialOptions : CredentialConfig("Options for credential type 'UserPpk'") {
+    val user by option("--ppk-user").prompt(default = "")
+    val file by option("--ppk-file").file(mustExist = true).required()
 }
