@@ -8,6 +8,7 @@ import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.SFTPLegacyTransportType
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -18,17 +19,20 @@ import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Level
+import kotlin.random.Random
 
 /**
  * Azure Functions with HTTP Trigger. Write to blob.
  */
 const val send = "send"
-const val maxRetryCount = 10
+const val maxRetryCount = 4
 const val maxDurationValue = 120L
 const val maxFilesPerSession = 100
 
 // index is retryCount, value is in minutes
-val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 8L, 4 to 15L, 5 to 30L)
+val retryDuration = mapOf(1 to 1L, 2 to 5L, 3 to 30L, 4 to 60L, 5 to 120L)
+// Use this for testing retries:
+// val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 1L, 4 to 1L, 5 to 1L)
 
 class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
     @FunctionName(send)
@@ -38,6 +42,8 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         message: String,
         context: ExecutionContext,
     ) {
+        val actionHistory = ActionHistory(TaskAction.send, context)
+        actionHistory.trackActionParams(message)
         try {
             context.logger.info("Started Send Function: $message")
             val event = Event.parseQueueMessage(message) as ReceiverEvent
@@ -92,9 +98,25 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     WorkflowEngine.successfulReceiverResult(headers)
                 }
             }
-            // For debugging and auditing purposes
         } catch (t: Throwable) {
-            context.logger.log(Level.SEVERE, "Send function exception for event: $message", t)
+            // For debugging and auditing purposes
+            val msg = "Send function unrecoverable exception for event: $message"
+            context.logger.log(Level.SEVERE, msg, t)
+            actionHistory.setActionType(TaskAction.send_error)
+            actionHistory.trackActionResult(msg)
+        } finally {
+            // Note this is operating in a different transaction than the one that did the fetch/lock of the report
+            workflowEngine.recordAction(actionHistory)
+        }
+    }
+
+    private fun getTransport(transportType: TransportType): ITransport? {
+        return when (transportType) {
+            is SFTPTransportType -> workflowEngine.sftpTransport
+            is SFTPLegacyTransportType -> workflowEngine.legacySftpTransport
+            is RedoxTransportType -> workflowEngine.redoxTransport
+            is NullTransportType -> NullTransport()
+            else -> null
         }
     }
 
@@ -115,15 +137,6 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             session,
             actionHistory,
         )
-    }
-
-    private fun getTransport(transportType: TransportType): ITransport? {
-        return when (transportType) {
-            is SFTPTransportType -> workflowEngine.sftpTransport
-            is RedoxTransportType -> workflowEngine.redoxTransport
-            is NullTransportType -> NullTransport()
-            else -> null
-        }
     }
 
     private fun formRetryToken(
@@ -159,6 +172,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
 
     private fun calculateRetryTime(nextRetryCount: Int): OffsetDateTime {
         val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)
-        return OffsetDateTime.now().plusMinutes(waitMinutes)
+        val randomSeconds = Random.nextInt(-30, 31)
+        return OffsetDateTime.now().plusMinutes(waitMinutes).plusSeconds(randomSeconds)
     }
 }

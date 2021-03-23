@@ -28,7 +28,10 @@ import org.jooq.impl.DSL
 import java.io.File
 import java.lang.Thread.sleep
 import java.net.HttpURLConnection
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.OffsetDateTime
+import kotlin.io.path.exists
 import kotlin.system.exitProcess
 
 class TestReportStream : CliktCommand(
@@ -49,7 +52,7 @@ export POSTGRES_PASSWORD=<SECRET>
 Examples:
 ```
  ./prime test --list        List detailed information about available tests
- ./prime test               Runs all the tests on localhost
+ ./prime test               Runs the set of tests labelled as '${TestStatus.GOODSTUFF.description}'
  ./prime test --run ping,end2end --env staging --key xxxxxxx       Runs the ping and end2end tests in azure Staging
 ```
 
@@ -57,31 +60,38 @@ Examples:
 ) {
     lateinit var db: DatabaseAccess
 
-    enum class AwesomeTest(val description: String) {
-        ping("Is the reports endpoint alive and listening?"),
-        end2end("Create Fake data, submit, wait, confirm sent via database lineage data"),
-        merge("Submit multiple files, wait, confirm via db that merge occurred"),
-        dbconnections("Test weird problem wherein many 'sends' cause db connection failures"),
-        hl7null("The NULL transport does db work, but no transport.  Uses HL7 format"),
-        // Note: 10,000 lines fake data generation took about 90 seconds on my laptop.  6Meg.
-        huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."),
-        toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"),
-        toomanycols("Submit a file with more than $REPORT_MAX_ITEM_COLUMNS columns, which should error"),
-        badcsv("Submit badly formatted csv file - should get an error"),
-        stracbasic("Basic strac test to REDOX only."),
-        strac("Submit data in the strac schema format, wait, confirm via database queries"),
+    enum class TestStatus(val description: String) {
+        DRAFT("Experimental"), // Tests that are experimental
+        FAILS("Always fails"), // For tests that just always fail, and we haven't fixed the issue yet.
+        SLOW("Good test, but slow"), // For tests that are crazy slow
+        GOODSTUFF("Part of Smoke test"), // Only Smoke the Good Stuff.
     }
 
-    private val dir by option(
-        "--dir",
-        help = "specify a working directory for generated files"
-    ).default("./target/csv_test_files")
+    enum class AwesomeTest(
+        val description: String,
+        val status: TestStatus,
+    ) {
+        ping("CheckConnections: Is the reports endpoint alive and listening?", TestStatus.GOODSTUFF),
+        end2end("Create Fake data, submit, wait, confirm sent via database lineage data", TestStatus.GOODSTUFF),
+        merge("Submit multiple files, wait, confirm via db that merge occurred", TestStatus.GOODSTUFF),
+        hl7null("The NULL transport does db work, but no transport.  Uses HL7 format", TestStatus.GOODSTUFF),
+        toomanycols(
+            "Submit a file with more than $REPORT_MAX_ITEM_COLUMNS columns, which should error",
+            TestStatus.GOODSTUFF
+        ),
+        badcsv("Submit badly formatted csv files - should get errors", TestStatus.GOODSTUFF),
+        stracbasic("Basic strac test to REDOX only.", TestStatus.GOODSTUFF),
+        huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow.", TestStatus.SLOW),
+        toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)", TestStatus.SLOW),
+        dbconnections("Test weird issue wherein many 'sends' cause db connection failures", TestStatus.FAILS),
+        strac("Submit data in the strac schema format, wait, confirm via database queries", TestStatus.FAILS),
+        badsftp("Test ReportStream's response to sftp connection failures. Tests RETRY too!", TestStatus.DRAFT),
+    }
 
-    private val key by option(
-        "--key",
-        metavar = "<secret>",
-        help = "Specify reports function access key"
-    )
+    private val list by option(
+        "--list",
+        help = "List available tests, then quit."
+    ).flag(default = false)
 
     private val run by option(
         "--run",
@@ -91,25 +101,59 @@ Examples:
        """
     )
 
-    private val list by option(
-        "--list",
-        help = "List available tests, then quit."
-    ).flag(default = false)
-
     private val env by option(
         "--env",
-        help = "Specify 'local, 'test', or 'staging'.  'local' will connect to ${ReportStreamEnv.LOCAL.endPoint}," +
+        help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.endPoint}," +
             " and 'test' will connect to ${ReportStreamEnv.TEST.endPoint}"
-    ).choice("test", "local", "staging").default("local").validate {
+    ).choice("test", "local", "staging", "prod").default("local").validate {
+        envSanityCheck()
         when (it) {
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
             "staging" ->
                 require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env staging" }
+            "prod" -> error("Sorry, prod is not implemented yet")
+        }
+    }
+
+    private val key by option(
+        "--key",
+        metavar = "<secret>",
+        help = "Specify reports function access key"
+    )
+
+    private val dir by option(
+        "--dir",
+        help = "specify a working directory for generated files.  Default is $defaultWorkingDir"
+    ).default(defaultWorkingDir)
+
+    // Avoid accidentally connecting to the wrong database.
+    private fun envSanityCheck() {
+        val dbEnv = System.getenv("POSTGRES_URL") ?: error("Missing database env var. For help:  ./prime --help")
+        val problem: Boolean = when (env) {
+            "staging" -> !dbEnv.contains("pdhstaging")
+            "test" -> !dbEnv.contains("pdhtest")
+            "local" -> !dbEnv.contains("localhost")
+            "prod" -> !dbEnv.contains("pdhprod")
+            else -> true
+        }
+        if (problem) {
+            echo("Error: --env is $env but database is set to $dbEnv")
+            exitProcess(-1)
         }
     }
 
     override fun run() {
-        if (list) doList()
+        // Create directory if it does not exist
+        val dirPath = Paths.get(dir)
+        if (Files.notExists(dirPath)) Files.createDirectory(dirPath)
+
+        DatabaseAccess.isFlywayMigrationOK = false
+        if (list) {
+            echo("Available options to --run <test1,test2> are:")
+            doList(AwesomeTest.values().toList())
+            exitProcess(0)
+        }
+        val environment = ReportStreamEnv.valueOf(env.toUpperCase())
         val tests = if (run != null) {
             run.toString().split(",").mapNotNull {
                 try {
@@ -120,46 +164,46 @@ Examples:
                 }
             }
         } else {
-            AwesomeTest.values().toList()
+            // No --run arg:  run the smoke tests.
+            AwesomeTest.values().filter { it.status == TestStatus.GOODSTUFF }.toList()
         }
-        doTests(tests)
+        ugly("Running the following tests, POSTing to ${environment.endPoint}:")
+        doList(tests)
+        doTests(tests, environment)
     }
 
-    private fun doList() {
-        echo("Available options to --run <test1,test2> are:")
-        val formatTemplate = "%-20s\t%s"
-        AwesomeTest.values().forEach {
-            echo(formatTemplate.format(it.name, it.description))
+    private fun doList(tests: List<AwesomeTest>) {
+        val formatTemplate = "%-20s%-20s\t%s"
+        tests.forEach {
+            echo(formatTemplate.format(it.name, it.status.description, it.description))
         }
-        exitProcess(0)
     }
 
-    private fun doTests(tests: List<AwesomeTest>) {
-        val environment = ReportStreamEnv.valueOf(env.toUpperCase())
-
+    private fun doTests(tests: List<AwesomeTest>, environment: ReportStreamEnv) {
         tests.forEach { test ->
             when (test) {
-                AwesomeTest.ping -> doCheckConnections(environment)
-                AwesomeTest.end2end -> doEndToEndTest(environment)
+                AwesomeTest.ping -> doPingTest(environment)
+                AwesomeTest.end2end -> doEnd2EndTest(environment)
                 AwesomeTest.merge -> doMergeTest(environment)
-                AwesomeTest.dbconnections -> doDbConnectionTest(environment)
-                AwesomeTest.hl7null -> doNullTest(environment)
-                AwesomeTest.huge -> doHugeTest(environment)
-                AwesomeTest.toobig -> doTooManyItemsTest(environment)
-                AwesomeTest.toomanycols -> doTooManyColumnsTest(environment)
+                AwesomeTest.hl7null -> doHL7NullTest(environment)
+                AwesomeTest.toomanycols -> doTooManyColsTest(environment)
                 AwesomeTest.badcsv -> doBadCsvTest(environment)
                 AwesomeTest.stracbasic -> doStracBasicTest(environment)
+                AwesomeTest.huge -> doHugeTest(environment)
+                AwesomeTest.toobig -> doTooBigTest(environment)
+                AwesomeTest.dbconnections -> doDbConnectionsTest(environment)
                 AwesomeTest.strac -> doStracTest(environment)
+                AwesomeTest.badsftp -> doBadSftpTest(environment)
                 else -> bad("Test $test not implemented")
             }
         }
     }
 
     // ping
-    private fun doCheckConnections(
+    private fun doPingTest(
         environment: ReportStreamEnv
     ) {
-        echo("CheckConnections of ${environment.endPoint}")
+        ugly("Starting ping Test: run CheckConnections of ${environment.endPoint}")
         val (responseCode, json) = HttpUtilities.postReportBytes(
             environment,
             "x".toByteArray(),
@@ -171,33 +215,33 @@ Examples:
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            echo("Test FAILED:  response code $responseCode")
+            echo("Ping/CheckConnections Test FAILED:  response code $responseCode")
             exitProcess(-1) // other tests won't work.
         }
         try {
             val tree = jacksonObjectMapper().readTree(json)
             if (tree["errorCount"].intValue() != 0 || tree["warningCount"].intValue() != 0) {
-                bad("***CheckConnections Test FAILED***")
+                bad("***Ping/CheckConnections Test FAILED***")
             } else {
-                good("Test passed: CheckConnections")
+                good("Test passed: Ping/CheckConnections")
             }
         } catch (e: NullPointerException) {
-            bad("***CheckConnections FAILED***: Unable to properly parse response json")
+            bad("***Ping/CheckConnections FAILED***: Unable to properly parse response json")
         }
     }
 
     // end2end
-    private fun doEndToEndTest(
+    private fun doEnd2EndTest(
         environment: ReportStreamEnv
     ) {
-        echo("EndToEndTest of: ${environment.endPoint}")
-        val fakeItemCount = allIgnoreReceivers.size * 5 // 5 to each receiver
+        ugly("Starting ${AwesomeTest.end2end} Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
+        val fakeItemCount = allGoodReceivers.size * 5 // 5 to each receiver
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
             fakeItemCount,
             receivingStates,
-            allTargetCounties,
+            allGoodCounties,
             dir,
         )
         echo("Created datafile $file")
@@ -206,7 +250,7 @@ Examples:
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            bad("***EndToEnd Test FAILED***:  response code $responseCode")
+            bad("***end2end Test FAILED***:  response code $responseCode")
             return
         }
         try {
@@ -214,26 +258,27 @@ Examples:
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
             waitABit(25, environment)
-            examineLineageResults(reportId, allIgnoreReceivers, fakeItemCount)
+            examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
         } catch (e: NullPointerException) {
-            bad("***End to End Test FAILED***: Unable to properly parse response json")
+            bad("***end2end Test FAILED***: Unable to properly parse response json")
         }
     }
 
     private fun doMergeTest(environment: ReportStreamEnv) {
-        val fakeItemCount = allIgnoreReceivers.size * 5 // 5 to each receiver
-        echo("Merge test of: ${environment.endPoint} across $allTargetCounties")
+        val fakeItemCount = allGoodReceivers.size * 5 // 5 to each receiver
+        val numResends = 5
+        ugly("Starting merge test:  Merge $numResends reports, each of which sends to $allGoodCounties")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
             fakeItemCount,
             receivingStates,
-            allTargetCounties,
+            allGoodCounties,
             dir,
         )
         echo("Created datafile $file")
         // Now send it to the Hub over and over
-        val reportIds = (1..5).map {
+        val reportIds = (1..numResends).map {
             val (responseCode, json) =
                 HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, key)
             echo("Response to POST: $responseCode")
@@ -246,8 +291,8 @@ Examples:
             echo("Id of submitted report: $reportId")
             reportId
         }
-        waitABit(30, environment)
-        examineMergeResults(reportIds[0], allIgnoreReceivers, fakeItemCount, 5)
+        waitABit(40, environment)
+        examineMergeResults(reportIds[0], allGoodReceivers, fakeItemCount, numResends)
     }
 
     /**
@@ -256,9 +301,9 @@ Examples:
      * This test, when it fails, exposes a database connection exception in Staging.
      *
      */
-    private fun doDbConnectionTest(environment: ReportStreamEnv) {
+    private fun doDbConnectionsTest(environment: ReportStreamEnv) {
         val fakeItemCount = 40
-        echo("DBConnectionTest: test of many threads all doing sftp sends in ${environment.endPoint}, format HL7")
+        ugly("Starting dbconnections Test: test of many threads attempting to sftp $fakeItemCount HL7s.")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -276,7 +321,7 @@ Examples:
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                bad("***DbConnection Test FAILED***:  response code $responseCode")
+                bad("***dbconnections Test FAILED***:  response code $responseCode")
                 return
             }
             val tree = jacksonObjectMapper().readTree(json)
@@ -291,12 +336,9 @@ Examples:
     /**
      * Test using the NULL transport.
      */
-    private fun doNullTest(environment: ReportStreamEnv) {
+    private fun doHL7NullTest(environment: ReportStreamEnv) {
         val fakeItemCount = 40
-        echo(
-            "HL7_NULL Test: test of many threads all doing database interactions, but no sends. " +
-                "In ${environment.endPoint}, format HL7_NULL"
-        )
+        ugly("Starting hl7null Test: test of many threads all doing database interactions, but no sends. ")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -314,7 +356,7 @@ Examples:
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                bad("***DbConnection Test FAILED***:  response code $responseCode")
+                bad("***hl7null Test FAILED***:  response code $responseCode")
                 return
             }
             val tree = jacksonObjectMapper().readTree(json)
@@ -326,9 +368,44 @@ Examples:
         examineMergeResults(reportIds[0], listOf(hl7NullReceiver), fakeItemCount, numResends)
     }
 
+    /**
+     * Test using the a receiver with a broken sftp site.  Note:  there are two failure modes here:
+     * - if the sftp auth stuff is set up, then RS get repeated IOException, and multiple retries.
+     * - if its NOT set up, then RS fails without retries.
+     *
+     * Either way, the lineage results for the 'send' step should be zero.
+     */
+    private fun doBadSftpTest(environment: ReportStreamEnv) {
+        val fakeItemCount = 40
+        ugly("Starting badsftp Test: test that our code handles sftp connectivity problems")
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            simpleRepSender,
+            fakeItemCount,
+            receivingStates,
+            sftpFailReceiver.name,
+            dir,
+        )
+        echo("Created datafile $file")
+        val (responseCode, json) =
+            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            bad("***badsftp Test FAILED***:  response code $responseCode")
+            return
+        }
+        val tree = jacksonObjectMapper().readTree(json)
+        val reportId = ReportId.fromString(tree["id"].textValue())
+        echo("Id of submitted report: $reportId")
+        waitABit(30, environment)
+        echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
+        examineLineageResults(reportId, listOf(sftpFailReceiver), fakeItemCount)
+    }
+
     private fun doHugeTest(environment: ReportStreamEnv) {
         val fakeItemCount = 10000
-        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is terrapin slow.")
+        ugly("Starting huge Test: Attempting to send a report with $fakeItemCount items. This is terrapin slow.")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -344,7 +421,7 @@ Examples:
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            bad("***EndToEnd Test FAILED***:  response code $responseCode")
+            bad("***Huge Test FAILED***:  response code $responseCode")
             return
         }
         val tree = jacksonObjectMapper().readTree(json)
@@ -354,9 +431,9 @@ Examples:
         examineLineageResults(reportId, listOf(csvReceiver), fakeItemCount)
     }
 
-    private fun doTooManyItemsTest(environment: ReportStreamEnv) {
+    private fun doTooBigTest(environment: ReportStreamEnv) {
         val fakeItemCount = REPORT_MAX_ITEMS + 1
-        echo("Attempting to send $fakeItemCount items to ${environment.endPoint}. This is slllooooowww.")
+        ugly("Starting toobig test: Attempting to send a report with $fakeItemCount items. This is slllooooowww.")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -375,19 +452,19 @@ Examples:
             val tree = jacksonObjectMapper().readTree(json)
             val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
             if (firstError["details"].textValue().contains("rows")) {
-                good("Too Big Test passed.")
+                good("toobig Test passed.")
             } else {
-                bad("***Too Big Test Test FAILED***: Did not find the error")
+                bad("***toobig Test Test FAILED***: Did not find the error")
             }
         } catch (e: Exception) {
-            bad("***Too Big Test Test FAILED***: Unable to find the expected error message")
+            bad("***toobig Test FAILED***: Unable to parse json response")
         }
     }
 
-    private fun doTooManyColumnsTest(
+    private fun doTooManyColsTest(
         environment: ReportStreamEnv
     ) {
-        echo("Testing a file with too .")
+        ugly("Starting toomanycols Test: submitting a file with too many columns.")
         val file = File("./src/test/csv_test_files/input/too-many-columns.csv")
         if (!file.exists()) {
             error("Unable to find file ${file.absolutePath} to do toomanycols test")
@@ -399,19 +476,19 @@ Examples:
             val tree = jacksonObjectMapper().readTree(json)
             val firstError = ((tree["errors"] as ArrayNode)[0]) as ObjectNode
             if (firstError["details"].textValue().contains("columns")) {
-                good("Test passed: Too many columns test.")
+                good("toomanycols Test passed.")
             } else {
-                bad("***Too Many Columns Test FAILED***:  did not find the error.")
+                bad("***toomanycols Test FAILED***:  did not find the error.")
             }
         } catch (e: Exception) {
-            bad("***Too Many Columns Test FAILED***: Unable to find the expected error message")
+            bad("***toomanycols Test FAILED***: Unable to parse json response")
         }
     }
 
     private fun doBadCsvTest(environment: ReportStreamEnv) {
-        val filenames = listOf("not-a-csv-file.csv", "column-headers-only.csv", "completely-empty-file.csv")
-        filenames.forEach { filename ->
-            echo("Testing $filename")
+        val filenames = listOf("not-a-csv-file.csv", /* "column-headers-only.csv", */ "completely-empty-file.csv")
+        filenames.forEachIndexed { i, filename ->
+            ugly("Starting badcsv file Test $i: submitting $filename")
             val file = File("./src/test/csv_test_files/input/$filename")
             if (!file.exists()) {
                 error("Unable to find file ${file.absolutePath} to do badcsv test")
@@ -426,24 +503,24 @@ Examples:
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode >= 400) {
-                good("Test of Bad CSV file $filename passed: Failure HttpStatus code was returned.")
+                good("badcsv Test $i of $filename passed: Failure HttpStatus code was returned.")
             } else {
-                bad("***Test of Bad CSV file $filename FAILED: Expecting a failure HttpStatus. ***")
+                bad("***badcsv Test $i of $filename FAILED: Expecting a failure HttpStatus. ***")
             }
             try {
                 val tree = jacksonObjectMapper().readTree(json)
                 if (tree["id"] == null || tree["id"].isNull) {
-                    good("Test of Bad CSV file $filename passed: No UUID was returned.")
+                    good("badcsv Test $i of $filename passed: No UUID was returned.")
                 } else {
-                    bad("***Test of Bad CSV file $filename FAILED: RS returned a valid UUID for a bad CSV. ***")
+                    bad("***badcsv Test $i of $filename FAILED: RS returned a valid UUID for a bad CSV. ***")
                 }
                 if (tree["errorCount"].intValue() > 0) {
-                    good("Test of Bad CSV file $filename passed: At least one error was returned.")
+                    good("badcsv Test $i of $filename passed: At least one error was returned.")
                 } else {
-                    bad("***Test of Bad CSV file $filename FAILED: No error***")
+                    bad("***badcsv Test $i of $filename FAILED: No error***")
                 }
             } catch (e: Exception) {
-                bad("***Test of Bad Csv file $filename FAILED***: Unexpected json returned")
+                bad("***badcsv Test $i of $filename FAILED***: Unexpected json returned")
             }
         }
     }
@@ -453,7 +530,7 @@ Examples:
         environment: ReportStreamEnv
     ) {
         val fakeItemCount = 100
-        echo("StracBasic Test: sending Strac data to: ${environment.endPoint} using ${redoxReceiver.name}")
+        ugly("Starting stracbasic Test: sending Strac data to the ${redoxReceiver.name} receiver only.")
         val file = FileUtilities.createFakeFile(
             metadata,
             stracSender,
@@ -482,14 +559,14 @@ Examples:
     private fun doStracTest(
         environment: ReportStreamEnv
     ) {
-        echo("Test sending Strac data to: ${environment.endPoint} across $allTargetCounties")
-        val fakeItemCount = allIgnoreReceivers.size * 5 // 5 to each receiver
+        ugly("Starting bigly strac Test: sending Strac data to all of these receivers: $allGoodCounties!")
+        val fakeItemCount = allGoodReceivers.size * 5 // 5 to each receiver
         val file = FileUtilities.createFakeFile(
             metadata,
             stracSender,
             fakeItemCount,
             receivingStates,
-            allTargetCounties,
+            allGoodCounties,
             dir,
         )
         echo("Created datafile $file")
@@ -505,7 +582,7 @@ Examples:
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
         waitABit(25, environment)
-        examineLineageResults(reportId, allIgnoreReceivers, fakeItemCount)
+        examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
     }
 
     fun examineLineageResults(
@@ -566,6 +643,7 @@ Examples:
     }
 
     companion object {
+        val defaultWorkingDir = "./target/csv_test_files"
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
 
@@ -583,13 +661,18 @@ Examples:
         val stracSender = settings.findSender("$orgName.$stracSenderName")
             ?: error("Unable to find sender $stracSenderName for organization ${org.name}")
 
-        val allIgnoreReceivers = settings.receivers.filter { it.organizationName == orgName }
-        val csvReceiver = allIgnoreReceivers.filter { it.name == "CSV" }[0]
-        val hl7Receiver = allIgnoreReceivers.filter { it.name == "HL7" }[0]
-        val hl7BatchReceiver = allIgnoreReceivers.filter { it.name == "HL7_BATCH" }[0]
-        val redoxReceiver = allIgnoreReceivers.filter { it.name == "REDOX" }[0]
-        val hl7NullReceiver = allIgnoreReceivers.filter { it.name == "HL7_NULL" }[0]
-        val allTargetCounties = allIgnoreReceivers.map { it.name }.joinToString(",")
+        val allGoodReceivers = settings.receivers.filter {
+            it.organizationName == orgName && !it.name.contains("FAIL")
+        }
+        val csvReceiver = allGoodReceivers.filter { it.name == "CSV" }[0]
+        val hl7Receiver = allGoodReceivers.filter { it.name == "HL7" }[0]
+        val hl7BatchReceiver = allGoodReceivers.filter { it.name == "HL7_BATCH" }[0]
+        val redoxReceiver = allGoodReceivers.filter { it.name == "REDOX" }[0]
+        val hl7NullReceiver = allGoodReceivers.filter { it.name == "HL7_NULL" }[0]
+        val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
+        val sftpFailReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "SFTP_FAIL"
+        }[0]
 
         const val ANSI_RESET = "\u001B[0m"
         const val ANSI_BLACK = "\u001B[30m"

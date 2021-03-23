@@ -4,6 +4,7 @@ description: Base schema for REDOX messages
 referenceUrl:
 topic: covid-19
 basedOn: covid-19
+trackingElement: placer_order_id
 elements:
   - name: redox_source_id
     redoxOutputFields: ["Meta.Source.ID"]

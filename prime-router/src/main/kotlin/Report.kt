@@ -39,30 +39,32 @@ const val REPORT_MAX_ERRORS = 100
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report {
-    enum class Format {
-        INTERNAL, // A format that serializes all elements of a report (A CSV today)
-        CSV, // A CSV format the follows the csvFields
-        HL7, // HL7 with one result per file
-        HL7_BATCH, // HL7 with BHS and FHS headers
-        REDOX; // Redox format
+    enum class NameFormat {
+        STANDARD,
+        APHL,
+        OHIO,
+    }
+
+    enum class Format(
+        val ext: String,
+        val mimeType: String,
+        val isSingleItemFormat: Boolean = false,
+    ) {
+        INTERNAL("internal", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
+        CSV("csv", "text/csv"), // A CSV format the follows the csvFields
+        HL7("hl7", "text/hl7", true), // HL7 with one result per file
+        HL7_BATCH("hl7", "text/hl7"), // HL7 with BHS and FHS headers
+        REDOX("redox", "text/json", true); // Redox format
         // FHIR
 
-        fun toExt(): String {
-            return when (this) {
-                INTERNAL -> "internal"
-                CSV -> "csv"
-                HL7 -> "hl7"
-                HL7_BATCH -> "hl7"
-                REDOX -> "redox"
-            }
-        }
-
-        fun isSingleItemFormat(): Boolean {
-            return when (this) {
-                REDOX -> true
-
-                HL7 -> true
-                else -> false
+        companion object {
+            // Default to CSV if weird or unknown
+            fun safeValueOf(formatStr: String?): Format {
+                return try {
+                    Format.valueOf(formatStr ?: "CSV")
+                } catch (e: IllegalArgumentException) {
+                    Format.CSV
+                }
             }
         }
     }
@@ -121,7 +123,7 @@ class Report {
         schema.baseName,
         bodyFormat,
         createdDateTime,
-        destination?.translation?.useAphlNamingFormat ?: false,
+        destination?.translation?.nameFormat ?: NameFormat.STANDARD,
         destination?.translation?.receivingOrganization
     )
 
@@ -380,7 +382,14 @@ class Report {
                             // shuffle all the DOBs
                             val dobs = table.column(it.name).asStringColumn().shuffled().map { dob ->
                                 // parse the date
-                                val parsedDate = LocalDate.parse(dob, DateTimeFormatter.ofPattern(Element.datePattern))
+                                val parsedDate = LocalDate.parse(
+                                    dob.ifEmpty {
+                                        LocalDate.now().format(
+                                            DateTimeFormatter.ofPattern(Element.datePattern)
+                                        )
+                                    },
+                                    DateTimeFormatter.ofPattern(Element.datePattern)
+                                )
                                 // get the year and date
                                 val year = parsedDate.year
                                 // fake a month
@@ -688,39 +697,46 @@ class Report {
             schemaName: String,
             fileFormat: Format?,
             createdDateTime: OffsetDateTime,
-            useAphlFormat: Boolean = false,
+            nameFormat: NameFormat = NameFormat.STANDARD,
             receivingOrganization: String? = null,
             sendingFacility: String = "cdcprime"
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-            val nameSuffix = fileFormat?.toExt() ?: Format.CSV.toExt()
-            return if (useAphlFormat) {
-                /*
-                APHL has a format that requires a different file name format that looks like this:
-                <SO>_<SF>_<RO>_<SE>_<RE>_<OF>_<Timestamp>.extension
+            val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
+            return when (nameFormat) {
+                NameFormat.APHL -> {
+                    /*
+                        APHL has a format that requires a different file name format that looks like this:
+                        <SO>_<SF>_<RO>_<SE>_<RE>_<OF>_<Timestamp>.extension
 
-                SO - sending organization
-                SF - sending facility
-                RO - receiving organization
-                SE - sending environment (test/prod)
-                RE - receiving environment (test/prod)
-                OF - original file name (optional)
-                Timestamp - creation ts of the file
-                Extension - HL7 for hl7, csv for csv, etc
+                        SO - sending organization
+                        SF - sending facility
+                        RO - receiving organization
+                        SE - sending environment (test/prod)
+                        RE - receiving environment (test/prod)
+                        OF - original file name (optional)
+                        Timestamp - creation ts of the file
+                        Extension - HL7 for hl7, csv for csv, etc
 
-                Examples:
-                OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
-                ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
+                        Examples:
+                        OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
+                        ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
                  */
-                val so = "cdcprime"
-                val se = "testing"
-                val re = "testing"
-                val ts = formatter.format(createdDateTime)
-                // have to escape with curly braces because Kotlin allows underscores in variable names
-                "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
-            } else {
-                val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-                "$namePrefix.$nameSuffix"
+                    val so = "cdcprime"
+                    val se = "testing"
+                    val re = "testing"
+                    val ts = formatter.format(createdDateTime)
+                    // have to escape with curly braces because Kotlin allows underscores in variable names
+                    "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
+                }
+                NameFormat.OHIO -> {
+                    val ts = formatter.format(createdDateTime)
+                    "CDCPRIME_$ts.hl7"
+                }
+                NameFormat.STANDARD -> {
+                    val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
+                    "$namePrefix.$nameSuffix"
+                }
             }
         }
 

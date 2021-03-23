@@ -14,7 +14,8 @@ import java.time.OffsetDateTime
 enum class ReportStreamEnv(val endPoint: String) {
     TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
     LOCAL("http://localhost:7071/api/reports"),
-    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports")
+    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports"),
+    PROD("not implemented"),
 }
 
 class HttpUtilities {
@@ -45,11 +46,11 @@ class HttpUtilities {
 
         /**
          * This alllows the validator to figure out specific failure, and pass it in here.
-         * Can be used for any failed response code.
+         * Can be used for any response code.
          & todo other generic failure response methods here could be removed, and replaced with this
          *      generic method, instead of having to create a new method for every HttpStatus code.
          */
-        fun notOKResponse(
+        fun httpResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
             httpStatus: HttpStatus,

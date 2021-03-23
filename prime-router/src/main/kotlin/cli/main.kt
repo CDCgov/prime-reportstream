@@ -143,10 +143,11 @@ class ProcessData : CliktCommand(
         metavar = "<path>",
         help = "write output files to this directory instead of the working directory. Ignored if --output is set."
     )
-    private val useAphlFileName by option(
-        "--output-aphl-filename",
+    private val nameFormat by option(
+        "--name-format",
+        metavar = "<file name format>",
         help = "Output using the APHL file format"
-    ).flag()
+    )
     private val receivingOrganization by option(
         "--output-receiving-org",
         metavar = "<org name>",
@@ -156,6 +157,16 @@ class ProcessData : CliktCommand(
         "--suppress-qst-for-aoe",
         help = "Turns off the QST marker on AOE questions when converting to HL7"
     ).flag(default = false)
+    private val reportingFacilityName by option(
+        "--reporting-facility-name",
+        metavar = "<reporting facility name>",
+        help = "The name of the reporting facility"
+    )
+    private val reportingFacilityId by option(
+        "--reporting-facility-id",
+        metavar = "<reporting facility ID>",
+        help = "The ID of the reporting facility"
+    )
 
     // Fake data configuration
     private val targetStates: String? by
@@ -233,7 +244,7 @@ class ProcessData : CliktCommand(
         reports
             .flatMap { (report, format) ->
                 // Some report formats only support one result per file
-                if (format.isSingleItemFormat()) {
+                if (format.isSingleItemFormat) {
                     val splitReports = report.split()
                     splitReports.map { Pair(it, format) }
                 } else {
@@ -249,7 +260,7 @@ class ProcessData : CliktCommand(
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
-                        useAphlFileName || report.destination?.translation?.useAphlNamingFormat ?: false,
+                        getNameFormat(Report.NameFormat.STANDARD),
                         receivingOrganization ?: report.destination?.translation?.receivingOrganization
                     )
                     File(outputDir ?: ".", fileName)
@@ -283,6 +294,10 @@ class ProcessData : CliktCommand(
 
     private fun getOutputFormat(default: Report.Format): Report.Format {
         return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
+    }
+
+    private fun getNameFormat(default: Report.NameFormat): Report.NameFormat {
+        return if (nameFormat != null) Report.NameFormat.valueOf(nameFormat!!) else default
     }
 
     private fun getDefaultValues(): DefaultValues {
@@ -394,7 +409,7 @@ class ProcessData : CliktCommand(
         // Output reports
         writeReportsToFile(outputReports) { report, format, stream ->
             val hl7Configuration = Hl7Configuration(
-                useAphlNamingFormat = useAphlFileName,
+                nameFormat = getNameFormat(Report.NameFormat.STANDARD),
                 suppressQstForAoe = suppressQstForAoe,
                 receivingApplicationName = receivingApplication,
                 receivingFacilityName = receivingFacility,
@@ -403,6 +418,8 @@ class ProcessData : CliktCommand(
                 receivingFacilityOID = "",
                 messageProfileId = "",
                 useBatchHeaders = format == Report.Format.HL7_BATCH,
+                reportingFacilityId = reportingFacilityId,
+                reportingFacilityName = reportingFacilityName,
             )
             when (format) {
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
@@ -631,5 +648,5 @@ class CompareCsvFiles : CliktCommand(
 }
 
 fun main(args: Array<String>) = RouterCli()
-    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CompareCsvFiles(), TestReportStream())
+    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CredentialsCli(), CompareCsvFiles(), TestReportStream())
     .main(args)

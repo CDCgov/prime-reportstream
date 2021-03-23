@@ -31,8 +31,6 @@ package gov.cdc.prime.router
  * @param referenceUrl is a link to a standard document used to create the schema
  * @param extends is a name of a schema that this schema extends.
  * @param basedOn is a name of a schema that this schema is based on
- * @param useAphlNamingFormat specifies if the file created based on this schema should follow the APHL AIMS file format
- * @param receivingOrganization is the organization that is receiving the file
  */
 data class Schema(
     val name: String,

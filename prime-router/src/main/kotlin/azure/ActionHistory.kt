@@ -137,6 +137,7 @@ class ActionHistory {
      * Always appends, to allow for actions that do a mix of work (eg, SEND)
      */
     fun trackActionParams(actionParams: String) {
+        if (actionParams.isNullOrEmpty()) return
         val tmp = if (action.actionParams.isNullOrBlank()) actionParams else "${action.actionParams}, $actionParams"
         // kluge to get the max size of the varchar
         val max = ACTION.ACTION_PARAMS.dataType.length()

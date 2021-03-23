@@ -7,37 +7,47 @@ import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.credentials.CredentialHelper
+import gov.cdc.prime.router.credentials.CredentialRequestReason
+import gov.cdc.prime.router.credentials.UserPassCredential
 import net.schmizz.sshj.SSHClient
-import net.schmizz.sshj.sftp.SFTPClient
+import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.Closeable
-import java.io.IOException
 import java.io.InputStream
+
+
+private const val sshClientTimeout = 120000 // milliseconds
 
 class SftpTransport : ITransport, Logging {
     override fun startSession(receiver: Receiver): Closeable? {
         val transport = receiver.transport as? SFTPTransportType ?: error("Internal Error: expected SFTPTransport")
         val (user, password) = lookupCredentials(receiver.fullName)
-        return SftpSession(transport.host, transport.port, user, password)
+        val session = SftpSession(transport.host, transport.port, user, password)
+        logger.info("Successfully connected to $transport, ready to upload")
+        return session
     }
 
-    class SftpSession(host: String, port: String, user: String, pass: String) : Closeable {
-        private val sshClient: SSHClient = SSHClient()
-        val client: SFTPClient
+    class SftpSession(val host: String, val port: String, val user: String, val pass: String) : Closeable {
+        val sshClient: SSHClient = SSHClient()
 
-        init {
-            sshClient.addHostKeyVerifier(PromiscuousVerifier())
-            sshClient.connect(host, port.toInt())
-            sshClient.authPassword(user, pass)
-            client = sshClient.newSFTPClient()
-            client.fileTransfer.preserveAttributes = false
+        fun connect() {
+            try {
+                sshClient.addHostKeyVerifier(PromiscuousVerifier())
+                sshClient.connect(host, port.toInt())
+                sshClient.authPassword(user, pass)
+                sshClient.timeout = sshClientTimeout
+            } catch (t: Throwable) {
+                sshClient.disconnect()
+                throw t
+            }
         }
 
         override fun close() {
-            client.close()
+            sshClient.close()
             sshClient.disconnect()
         }
     }
@@ -71,43 +81,88 @@ class SftpTransport : ITransport, Logging {
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
-        } catch (ioException: IOException) {
-            val msg = "FAILED Sftp upload of inputReportId $sentReportId to $sftpTransportType " +
-                "(orgService = ${receiver.fullName})"
-            logger.warn(msg, ioException)
+        } catch (t: Throwable) {
+            val msg =
+                "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
+                    "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
+                    ", Exception: ${t.localizedMessage}"
+            logger.warn(msg, t)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
-        } // let non-IO exceptions be caught by the caller
+        }
     }
 
-    private fun lookupCredentials(orgName: String): Pair<String, String> {
-        val envVarLabel = orgName.replace(".", "__").replace('-', '_').toUpperCase()
-        val user = System.getenv("${envVarLabel}__USER") ?: ""
-        val pass = System.getenv("${envVarLabel}__PASS") ?: ""
-        if (user.isBlank() || pass.isBlank())
-            error("Unable to find SFTP credentials for $orgName")
+    companion object {
+        fun lookupCredentials(receiverFullName: String): Pair<String, String> {
+            val credentialLabel = receiverFullName
+                .replace(".", "--")
+                .replace("_", "-")
+                .toUpperCase()
 
-        return Pair(user, pass)
-    }
+            // Assumes credential will be cast as UserPassCredential, if not return null, and thus the error case
+            val credential = CredentialHelper.getCredentialService().fetchCredential(
+                credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
+            ) as? UserPassCredential?
+                ?: error("Unable to find SFTP credentials for $receiverFullName connectionId($credentialLabel)")
 
-    private fun uploadFile(
-        session: SftpSession,
-        path: String,
-        fileName: String,
-        contents: ByteArray
-    ) {
-        session.client.put(makeSourceFile(contents, fileName), "$path/$fileName")
-    }
+            return Pair(credential.user, credential.pass)
+        }
 
-    private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
-        return object : InMemorySourceFile() {
-            override fun getName(): String { return fileName }
-            override fun getLength(): Long { return contents.size.toLong() }
-            override fun getInputStream(): InputStream { return contents.inputStream() }
-            override fun isDirectory(): Boolean { return false }
-            override fun isFile(): Boolean { return true }
-            override fun getPermissions(): Int { return 777 }
+        fun uploadFile(
+            session: SftpSession,
+            path: String,
+            fileName: String,
+            contents: ByteArray
+        ) {
+            val client = session.sshClient.newSFTPClient()
+            client.fileTransfer.preserveAttributes = false
+            client.use {
+                it.put(makeSourceFile(contents, fileName), "$path/$fileName")
+            }
+        }
+
+        fun ls(session: SftpSession, path: String): List<String> {
+            val client = session.sshClient.newSFTPClient()
+            client.use {
+                val lsResponse = it.ls(path)
+                return lsResponse.map { l -> l.toString() }.toList()
+            }
+        }
+
+        fun pwd(session: SftpSession): String {
+            val client = session.sshClient.newStatefulSFTPClient() as StatefulSFTPClient
+            client.use {
+                return it.pwd()
+            }
+        }
+
+        private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
+            return object : InMemorySourceFile() {
+                override fun getName(): String {
+                    return fileName
+                }
+
+                override fun getLength(): Long {
+                    return contents.size.toLong()
+                }
+
+                override fun getInputStream(): InputStream {
+                    return contents.inputStream()
+                }
+
+                override fun isDirectory(): Boolean {
+                    return false
+                }
+
+                override fun isFile(): Boolean {
+                    return true
+                }
+
+                override fun getPermissions(): Int {
+                    return 777
+                }
+            }
         }
     }
 }

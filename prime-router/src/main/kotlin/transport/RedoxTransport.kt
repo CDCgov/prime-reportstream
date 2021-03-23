@@ -13,8 +13,10 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.Closeable
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.secrets.SecretManagement
 
-class RedoxTransport : ITransport, Logging {
+class RedoxTransport() : ITransport, Logging, SecretManagement {
     private val secretEnvName = "REDOX_SECRET"
     private val redoxTimeout = 1000
     private val redoxBaseUrl = "https://api.redoxengine.com"
@@ -36,7 +38,7 @@ class RedoxTransport : ITransport, Logging {
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        session: Any?,
+        session: Closeable?,
         actionHistory: ActionHistory,
     ): RetryItems? {
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
@@ -45,53 +47,89 @@ class RedoxTransport : ITransport, Logging {
         if (header.content == null)
             error("No content to send to redox for report ${header.reportFile.reportId}")
         val messages = String(header.content).split("\n") // NDJSON content
-        val token = fetchToken(redoxTransportType, key, secret)
-        if (token == null) {
-            actionHistory.trackActionResult("Failure: fetch redox token failed.  Requesting retry of allItems")
-            return RetryToken.allItems
-        }
+        // All of these are needed in the large finally block below
+        var nextRetryItems = mutableListOf<String>()
+        var attemptedCount: Int = 0
+        var successCount: Int = 0
         val sendUrl = "${getBaseUrl(redoxTransportType)}$redoxEndpointPath"
-        // DevNote: Redox access tokens live for many days
-
-        var attemptedCount = 0
-        var successCount = 0
-        val nextRetryItems = mutableListOf<String>()
-        val results = messages.mapIndexed { index, message ->
-            val itemId = "${header.reportFile.reportId}-$index"
-            val sendResult = when {
-                (retryItems == null) || RetryToken.isAllItems(retryItems) || retryItems.contains(index.toString()) -> {
-                    attemptedCount++
-                    sendItem(sendUrl, token, message, itemId)
+        var resultMsg = ""
+        var results = mutableListOf<RedoxTransport.SendResult>()
+        try {
+            val (key, secret) = getKeyAndSecret(redoxTransportType)
+            // DevNote: Redox access tokens live for many days
+            val token = fetchToken(redoxTransportType, key, secret)
+            if (token == null) {
+                actionHistory.trackActionResult("Failure: fetch redox token failed.  Requesting retry.")
+                return retryItems ?: RetryToken.allItems // finally block below will still execute.
+            }
+            messages.forEachIndexed() { index, message ->
+                val itemId = "${header.reportFile.reportId}-$index"
+                val sendResult = when {
+                    (retryItems == null) ||
+                        RetryToken.isAllItems(retryItems)
+                        || retryItems.contains(index.toString())
+                    -> {
+                        attemptedCount++
+                        try {
+                            sendItem(sendUrl, token, message, itemId)
+                        } catch (t: Throwable) {
+                            logger.error("Redox Exception for item $itemId, ${header.reportFile.reportId}", t)
+                            SendResult(itemId, ResultStatus.FAILURE)
+                        }
+                    }
+                    else ->
+                        SendResult(itemId, ResultStatus.NOT_SENT)
                 }
-                else ->
-                    SendResult(itemId, ResultStatus.NOT_SENT)
+                when (sendResult.status) {
+                    ResultStatus.SUCCESS -> successCount++
+                    ResultStatus.FAILURE -> nextRetryItems.add(index.toString())
+                    else -> { /* do nothing */
+                    }
+                }
+                results.add(sendResult)
             }
-            when (sendResult.status) {
-                ResultStatus.SUCCESS -> successCount++
-                ResultStatus.FAILURE -> nextRetryItems.add(index.toString())
-                else -> { /* do nothing */ }
+        } catch (t: Throwable) {
+            resultMsg =
+                "Exception during REDOX send of reportId ${header.reportFile.reportId}: " +
+                    "  ${t.localizedMessage}.  "
+            logger.warn(resultMsg, t)
+            if (successCount == 0) {
+                nextRetryItems = (retryItems ?: RetryToken.allItems) as MutableList<String>
+                // If even one redox message got through, we'll call that 'send' rather than send_error
+                actionHistory.setActionType(TaskAction.send_error)
             }
-            sendResult
+        } finally {
+            val statusStr = when {
+                attemptedCount == 0 -> "Failure prior to first send"
+                successCount == attemptedCount -> "Success"
+                successCount == 0 -> "Failure"
+                else -> "Partial Failure"
+            }
+            resultMsg = resultMsg + "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
+            actionHistory.trackActionResult(resultMsg)
+            logger.info(resultMsg)
+            if (successCount > 0) {
+                // only create a child report in the history, if something actually worked.
+                actionHistory.trackSentReport(receiver, sentReportId, null, sendUrl, resultMsg, successCount)
+                val itemLineages = Report.createItemLineagesFromDb(header, sentReportId)
+                if (itemLineages != null) {
+                    Report.decorateItemLineagesWithTransportResults(
+                        itemLineages,
+                        createTransportResults(results, retryItems != null)
+                    )
+                    actionHistory.trackItemLineages(itemLineages)
+                }
+            }
         }
-        val statusStr = when {
-            attemptedCount == 0 -> "Weird"
-            successCount == attemptedCount -> "Success"
-            successCount == 0 -> "Failure"
-            else -> "Partial Failure"
-        }
-        val resultMsg = "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
-        actionHistory.trackActionResult(resultMsg)
-        logger.info(resultMsg)
-        actionHistory.trackSentReport(receiver, sentReportId, null, sendUrl, resultMsg, successCount)
-        val itemLineages = Report.createItemLineagesFromDb(header, sentReportId)
-        if (itemLineages != null) {
-            Report.decorateItemLineagesWithTransportResults(
-                itemLineages,
-                createTransportResults(results, retryItems != null)
+        if (nextRetryItems.isNotEmpty()) {
+            logger.info(
+                "The retry item list for ${header.reportFile.reportId} is: " +
+                    nextRetryItems.joinToString(",")
             )
-            actionHistory.trackItemLineages(itemLineages)
+            return nextRetryItems
+        } else {
+            return null
         }
-        return if (nextRetryItems.isNotEmpty()) nextRetryItems else null
     }
 
     /**
@@ -113,7 +151,7 @@ class RedoxTransport : ITransport, Logging {
 
     private fun getKeyAndSecret(redox: RedoxTransportType): Pair<String, String> {
         // Dev Note: The Redox API key doesn't change, while the secret can
-        val secret = System.getenv(secretEnvName) ?: ""
+        val secret = secretService.fetchSecret(secretEnvName) ?: ""
         if (secret.isBlank()) error("Unable to find $secretEnvName")
         return Pair(redox.apiKey, secret)
     }

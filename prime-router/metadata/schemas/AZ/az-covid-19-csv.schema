@@ -15,6 +15,7 @@ elements:
   # Nonstandard
   - name: organization_and_lab
     type: TEXT
+    maxLength: 50
     mapper: 'concat(organization_name, testing_lab_name)'
     csvFields:
     - name: Lab_Name
@@ -117,6 +118,7 @@ elements:
   # Nonstandard
   - name: organization_and_facility
     type: TEXT
+    maxLength:  50
     mapper: 'concat(organization_name, ordering_facility_name)'
     csvFields: [{name: Ordering_facility_name}]
 

@@ -170,7 +170,7 @@
           useBatchHeaders: true
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
-          useAphlNamingFormat: true
+          nameFormat: APHL
 
   - name: oh-doh
     description: Ohio Department of Health
@@ -188,6 +188,10 @@
           receivingApplicationOID: 2.16.840.1.114222.4.1.3674
           receivingFacilityName: OHDOH
           receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+          reportingFacilityName: CDC PRIME
+          reportingFacilityId: 36DSMP9999
+          nameFormat: OHIO
+          suppressHl7Fields: OBX-23-11
 
   - name: nm-doh
     description: New Mexico Department of Health
@@ -328,7 +332,7 @@
           initialTime: 00:00
         translation:
           type: CUSTOM
-          schemaName: tx/tx-covid-19
+          schemaName: fl/fl-covid-19
           format: HL7
         transport:
           type: SFTP
@@ -388,3 +392,41 @@
           format: HL7
         transport:
           type: "NULL"
+      - name: SFTP_LEGACY
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_LEGACY)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          useBatchHeaders: true
+          type: HL7
+          schemaName: tx/tx-covid-19
+          receivingApplicationName: NEDSS
+          receivingFacilityName: SFTP_LEGACY
+        transport:
+          type: SFTP_LEGACY
+          host: sftp
+          port: 22
+          filePath: ./upload
+      - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_FAIL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19-hl7
+          format: CSV
+        transport:
+          type: SFTP
+          host: sftp_FAIL_BAD
+          port: 2222
+          filePath: ./upload_FAIL
+
+

@@ -193,6 +193,9 @@ class Metadata {
         }
         val fullElement = if (baseElement != null) element.inheritFrom(baseElement) else element
 
+        if (fullElement.maxLength != null && fullElement.maxLength < 0)
+            error("Schema Error: maxLength ${fullElement.maxLength} for ${fullElement.name} must be >= 0")
+
         return fullElement.copy(
             valueSetRef = valueSetRef,
             tableRef = tableRef,

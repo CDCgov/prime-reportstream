@@ -110,7 +110,7 @@ class SendFunctionTests {
         }
         every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(null)
         every { sftpTransport.startSession(any()) }.returns(null)
-
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
         // Invoke
         val event = ReceiverEvent(Event.EventAction.SEND, "az-phd.elr-test")
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
@@ -136,6 +136,7 @@ class SendFunctionTests {
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
         every { sftpTransport.startSession(any()) }.returns(null)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
         val event = ReceiverEvent(Event.EventAction.SEND, "az-phd.elr-test")
@@ -164,6 +165,7 @@ class SendFunctionTests {
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
         every { sftpTransport.startSession(any()) }.returns(null)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
         val event = ReceiverEvent(Event.EventAction.SEND, "az-phd.elr-test")
@@ -193,6 +195,7 @@ class SendFunctionTests {
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
         every { sftpTransport.startSession(any()) }.returns(null)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
         val event = ReceiverEvent(Event.EventAction.SEND, "az-phd.elr-test")
@@ -211,6 +214,8 @@ class SendFunctionTests {
         // Setup
         every { context.logger }.returns(logger)
         every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
+
         // Invoke
         SendFunction(workflowEngine).run("", context)
         // Verify
