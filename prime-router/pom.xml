@@ -482,7 +482,7 @@
         <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
-            <version>8.12.19</version>
+            <version>8.12.20</version>
         </dependency> 
 
         <dependency>
