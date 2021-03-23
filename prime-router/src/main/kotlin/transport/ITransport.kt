@@ -6,6 +6,8 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import java.io.Closeable
 
+typealias TransportSession = Closeable
+
 interface ITransport {
     /**
      * The session is an optional part of the protocol. Sessions are started before the first send call to
@@ -13,7 +15,7 @@ interface ITransport {
      * The transport defines the content of the session and returns an closeable token for the session.
      * There can be multiple sessions executing at the same time.
      */
-    fun startSession(receiver: Receiver): Closeable?
+    fun startSession(receiver: Receiver): TransportSession?
 
     /**
      * Send the content on the specific transport. Return retry information, if needed. Null, if not.
@@ -27,7 +29,7 @@ interface ITransport {
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        session: Closeable?,
+        session: TransportSession?,
         actionHistory: ActionHistory,
     ): RetryItems?
 }

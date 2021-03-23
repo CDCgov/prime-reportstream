@@ -16,14 +16,13 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
 import org.apache.logging.log4j.kotlin.Logging
-import java.io.Closeable
 import java.io.InputStream
 
 
-private const val sshClientTimeout = 120000 // milliseconds
+private const val SSH_CLIENT_TIMEOUT = 120000 // milliseconds
 
 class SftpTransport : ITransport, Logging {
-    override fun startSession(receiver: Receiver): Closeable? {
+    override fun startSession(receiver: Receiver): TransportSession? {
         val transport = receiver.transport as? SFTPTransportType ?: error("Internal Error: expected SFTPTransport")
         val (user, password) = lookupCredentials(receiver.fullName)
         val session = SftpSession(transport.host, transport.port, user, password)
@@ -31,7 +30,7 @@ class SftpTransport : ITransport, Logging {
         return session
     }
 
-    class SftpSession(val host: String, val port: String, val user: String, val pass: String) : Closeable {
+    class SftpSession(val host: String, val port: String, val user: String, val pass: String) : TransportSession {
         val sshClient: SSHClient = SSHClient()
 
         fun connect() {
@@ -39,7 +38,7 @@ class SftpTransport : ITransport, Logging {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
                 sshClient.connect(host, port.toInt())
                 sshClient.authPassword(user, pass)
-                sshClient.timeout = sshClientTimeout
+                sshClient.timeout = SSH_CLIENT_TIMEOUT
             } catch (t: Throwable) {
                 sshClient.disconnect()
                 throw t
@@ -56,7 +55,7 @@ class SftpTransport : ITransport, Logging {
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        session: Any?,
+        session: TransportSession?,
         actionHistory: ActionHistory,
     ): RetryItems? {
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
@@ -84,7 +83,7 @@ class SftpTransport : ITransport, Logging {
         } catch (t: Throwable) {
             val msg =
                 "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
-                    "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
+                    "$sftpTransportType (orgService = ${header.receiver.fullName ?: "null"})" +
                     ", Exception: ${t.localizedMessage}"
             logger.warn(msg, t)
             actionHistory.setActionType(TaskAction.send_error)

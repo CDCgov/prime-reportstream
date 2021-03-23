@@ -16,6 +16,7 @@ import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
+import java.io.Closeable
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Level
@@ -125,7 +126,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         header: WorkflowEngine.Header,
         actionHistory: ActionHistory,
         retryToken: RetryToken?,
-        session: Any?,
+        session: Closeable?,
     ): RetryItems? {
         val retryItems = retryToken?.items
         val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
@@ -172,7 +173,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
 
     private fun calculateRetryTime(nextRetryCount: Int): OffsetDateTime {
         val waitMinutes = retryDuration.getOrDefault(nextRetryCount, maxDurationValue)
-        val randomSeconds = Random.nextInt(-30, 31)
+        val randomSeconds = Random.nextLong(-30, 31)
         return OffsetDateTime.now().plusMinutes(waitMinutes).plusSeconds(randomSeconds)
     }
 }

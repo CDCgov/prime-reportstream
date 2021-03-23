@@ -22,7 +22,7 @@ import java.nio.file.Path
 import java.util.Calendar
 
 class EmailTransport : ITransport, Logging {
-    override fun startSession(receiver: Receiver): Closeable? {
+    override fun startSession(receiver: Receiver): TransportSession? {
         return null
     }
 
@@ -30,7 +30,7 @@ class EmailTransport : ITransport, Logging {
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        session: Any?,
+        session: TransportSession?,
         actionHistory: ActionHistory,
     ): RetryItems? {
 

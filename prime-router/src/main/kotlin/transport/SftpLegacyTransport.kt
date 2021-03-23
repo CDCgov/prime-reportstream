@@ -3,11 +3,10 @@ package gov.cdc.prime.router.transport
 import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
-import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.SFTPLegacyTransportType
-import gov.cdc.prime.router.TransportType
+import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -15,19 +14,23 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserPassCredential
 import org.apache.logging.log4j.kotlin.KotlinLogger
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
-import java.util.logging.Level
 
-class SftpLegacyTransport : ITransport {
+class SftpLegacyTransport : ITransport, Logging {
+    override fun startSession(receiver: Receiver): TransportSession? {
+        TODO("Not yet implemented")
+    }
+
     override fun send(
-        transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        context: ExecutionContext,
+        session: TransportSession?,
         actionHistory: ActionHistory,
     ): RetryItems? {
-        val sftpTransportType = transportType as SFTPLegacyTransportType
+        val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
+        val sftpTransportType = receiver.transport as SFTPTransportType
         val host: String = sftpTransportType.host
         val port: String = sftpTransportType.port
 
@@ -39,10 +42,10 @@ class SftpLegacyTransport : ITransport {
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
             val session = connect(user, pass, host, port)
-            context.logger.log(Level.INFO, "Successfully connected to $sftpTransportType, ready to upload $fileName")
+            logger.info("Successfully connected to $sftpTransportType, ready to upload $fileName")
             uploadFile(session, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp legacy upload of $fileName to $sftpTransportType"
-            context.logger.log(Level.INFO, msg)
+            logger.info(msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
                 receiver,
@@ -59,7 +62,7 @@ class SftpLegacyTransport : ITransport {
                 "FAILED Sftp Legacy upload of inputReportId ${header.reportFile.reportId} to " +
                     "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
                     ", Exception: ${t.localizedMessage}"
-            context.logger.log(Level.WARNING, msg, t)
+            logger.info(msg, t)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems

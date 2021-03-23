@@ -30,7 +30,7 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
     enum class ResultStatus { SUCCESS, FAILURE, NOT_SENT }
     data class SendResult(val itemId: String, val status: ResultStatus, val redoxId: Int? = null)
 
-    override fun startSession(receiver: Receiver): Closeable? {
+    override fun startSession(receiver: Receiver): TransportSession? {
         return null
     }
 
@@ -38,7 +38,7 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        session: Closeable?,
+        session: TransportSession?,
         actionHistory: ActionHistory,
     ): RetryItems? {
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
