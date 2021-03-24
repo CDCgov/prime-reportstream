@@ -5,5 +5,19 @@ show_navbar: true
 show_menu: false
 ---
 <section class="grid-container">
-    <h1>Documentation</h1>
+    <h1>Getting started with ReportStream</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eleifend semper risus, a gravida quam efficitur sit amet. Nam maximus leo quam, non luctus dui tempor vel. Praesent a tortor a elit congue rhoncus non ut ante. Etiam consectetur neque vitae metus egestas lobortis. Pellentesque urna ligula, semper et commodo at, porta eget sapien. Quisque dignissim neque in justo rhoncus, non tristique ligula tincidunt. Sed ut rhoncus nisi. Curabitur gravida vel lectus eget efficitur. Integer tincidunt risus vitae nunc lacinia volutpat. Etiam nec est a ipsum pharetra accumsan ut a nisi. Morbi commodo viverra est non hendrerit. Aenean suscipit est ac risus eleifend vulputate.</p>
+    <ul class="usa-card-group">
+        {% for file in content.index.documentation.files %}
+          <li class="tablet:grid-col-4 usa-card">
+            <div class="usa-card__container">
+              <div class="usa-card__body">
+                <img src="{{ site.imgPath }}file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
+                <h3 class="usa-collection__heading">{{file.name}}</h3>
+                <a class="usa-link" href="{{ site.pdfPath }}{{ file.url }}">Download PDF</a>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
 </section>

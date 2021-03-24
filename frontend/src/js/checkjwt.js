@@ -8,4 +8,5 @@ else{
   window.org = claims.organization[0];
   window.user = claims.sub;
   window.jwt = token;
+  window.orgName = 'Pima County, AZ'
 }

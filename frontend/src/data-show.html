@@ -1,22 +1,12 @@
 ---
 layout: protected.liquid
 title: "Download"
-report: []
 protected: true
+show_navbar: true
+show_menu: false
 ---
 
-
-<section class="grid-container">
-  <h3 class="margin-bottom-0">
-    <a href="data-index.html">COVID-19</a> > <span class="text-gray-30">Pima County, AZ</span>
-  </h3>
-  <h1 class="margin-top-0 margin-bottom-0">
-    <p class="margin-top-0 margin-bottom-0">Report #<span id="report.id">123456789</span>
-      <a id="report.fileType" class="usa-button usa-button--outline float-right" href=""></a>
-    </p>    
-</h1>
-<p><span class="text-bold">Sent on: </span><span id="report.sent"></span></p>
-</section>
-
 {% include details_report %}
+{% include table_facilities %}
+{% include actions %}
   
