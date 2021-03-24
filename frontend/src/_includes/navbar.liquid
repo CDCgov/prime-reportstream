@@ -1,4 +1,12 @@
 <div class="usa-overlay"></div>
+
+<script>
+  var logout = () => {
+    window.sessionStorage.removeItem( "jwt" )
+    window.location.replace(`//localhost:8090`);
+  }
+</script>
+
 <header class="usa-header usa-header--basic">
   <div class="usa-nav-container">
     <div class="usa-navbar">
@@ -31,7 +39,7 @@
       <div class="prime-user-account margin-left-10">
         <span id="emailUser"></span>
         <br />
-        <a href="#" id="logout" onclick="false"></a>
+        <a href="#" id="logout" onclick="logout(); return false;"></a>
       </div>
     </nav>
   </div>
