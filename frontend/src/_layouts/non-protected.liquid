@@ -19,7 +19,7 @@ post_scripts:
 
 local_styles:
   - "./assets/stylesheets/prime.css"
-navbar: true
+show_navbar: true
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -29,15 +29,15 @@ navbar: true
 </head>
 
 <body>
-  {% include uswds_gov_header %}
-  {% if navbar %}
-  {% include navbar_non_protected %}
+  {% include banner %}
+  {% if show_navbar %}
+  {% include navbar %}
   {% endif %}
   <main>
     {{ content }}
   </main>
 
-  {% include uswds_identifier %}
+  {% include identifier %}
 
   {% for entry in post_scripts %}
     <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>

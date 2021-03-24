@@ -37,8 +37,8 @@ current: "profile"
 
 <body>
 
-{% include uswds_gov_header %}
-{% include navbar_protected %}
+{% include banner %}
+{% include navbar %}
 <main>
 <section class="grid-container margin-bottom-5">
   <h3 class="margin-bottom-0">
@@ -54,7 +54,7 @@ current: "profile"
 </main>
 
 <section>
-  {% include uswds_identifier %}
+  {% include identifier %}
 </section>
 
   {% for entry in post_scripts %}
