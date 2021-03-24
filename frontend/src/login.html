@@ -1,7 +1,8 @@
 ---
-layout: non-protected.liquid
+layout: protected.liquid
 title: Login
-navbar: false
+show_navbar: false
+protected: false
 ---
 
 <body>
@@ -35,7 +36,7 @@ navbar: false
         .then( function( tokens ){
             var jwt = tokens.accessToken.value;
             window.sessionStorage.setItem('jwt', jwt) ;
-            window.location.replace(`//localhost:8090/data-index.html`);
+            window.location.replace(`./data-index.html`);
         });
 </script>
 </body>

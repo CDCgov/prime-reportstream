@@ -14,7 +14,6 @@ cdn_scripts:
   - src: "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
   - src: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
   - src: "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
-  - src: "js/checkjwt.js"
 
 
 post_scripts:
@@ -30,34 +29,25 @@ data-index: "./data-index.html"
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Cache-Control" content="no-store" />
-
-  <title>CDC PRIME ReportStream</title>
-
-  <meta name="robots" content="none" />
-
-  {% for entry in cdn_styles %}
-    <link rel="stylesheet" type="text/css" href="{{entry.href}}" integrity="{{entry.integrity}}" crossorigin="anonymous"/>
-  {% endfor %}
-
-  {% for entry in local_styles %}
-    <link rel="stylesheet" type="text/css" href="{{entry | url}}" />
-  {% endfor %}
-
-  {% for entry in cdn_scripts %}
-    <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
-  {% endfor %}
+  {% include head_tags_universal %}
+  {% include head_tags_styles_scripts %}
+  {% if protected %}
+    <script src="js/checkjwt.js"></script>
+  {% endif %}
 </head>
 
 <body>
 
 {% include banner %}
-{% include navbar %}
+{% if show_navbar %}
+  {% include navbar %}
+{% endif %}
 <main>
+{% if show_menu %}
+  {% include menu_settings %}
+{% else %}
   {{ content }}
+{% endif %}
 </main>
 
 <section>
@@ -70,4 +60,3 @@ data-index: "./data-index.html"
 
 </body>
 </html>
-
