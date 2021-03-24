@@ -199,7 +199,7 @@ open class BaseHistoryFunction {
 
         if( authClaims == null ) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
 
-        val headers = workflowEngine.db.fetchDownloadableTasks(
+        val headers = workflowEngine.db.fetchDownloadableReportFiles(
             OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
         )
 
@@ -251,6 +251,7 @@ open class BaseHistoryFunction {
                 .positive(false)
                 .change(-897L)
                 .pct_change(9.6)
+                .data(emptyArray<Long>())
         ) 
         .header("Content-Type", "application/json")
         .build();
