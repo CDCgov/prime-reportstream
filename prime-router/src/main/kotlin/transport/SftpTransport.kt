@@ -96,7 +96,11 @@ class SftpTransport : ITransport {
                 sshClient.connect(host, port.toInt())
                 when (credential) {
                     is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
-                    is UserPpkCredential -> PuTTYKeyFile().init(StringReader(credential.key))
+                    is UserPpkCredential -> {
+                        val key = PuTTYKeyFile()
+                        key.init(StringReader(credential.key))
+                        sshClient.authPublickey(credential.user, key)
+                    }
                     else -> error("Unknown SftpCredential ${credential::class.simpleName}")
                 }
                 return sshClient
