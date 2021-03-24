@@ -49,7 +49,7 @@ class CredentialsCli : CredentialManagement, CliktCommand(
     override fun run() {
         val credential = when (val it = type) {
             is UserPassCredentialOptions -> UserPassCredential(it.user, it.pass)
-            is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8))
+            is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
             else -> error("--type option is unknown")
         }
 
@@ -71,14 +71,13 @@ class CredentialsCli : CredentialManagement, CliktCommand(
 
 sealed class CredentialConfig(name: String) : OptionGroup(name)
 
-sealed class UserTypeCredentialOptions(name: String) : CredentialConfig(name)
-
 class UserPassCredentialOptions : CredentialConfig("Options for credential type 'UserPass'") {
-    val user by option().prompt(default = "")
-    val pass by option().prompt(default = "", requireConfirmation = true)
+    val user by option(help = "SFTP username").prompt(default = "")
+    val pass by option(help = "SFTP password").prompt(default = "", requireConfirmation = true)
 }
 
 class UserPpkCredentialOptions : CredentialConfig("Options for credential type 'UserPpk'") {
-    val user by option("--ppk-user").prompt(default = "")
-    val file by option("--ppk-file").file(mustExist = true).required()
+    val user by option("--ppk-user", help = "Username to authenticate alongside the PPK").prompt(default = "")
+    val file by option("--ppk-file", help = "Path to the PPK file").file(mustExist = true).required()
+    val filePass by option("--ppk-file-pass", help = "Password to decrypt the PPK (optional)").prompt(default = "")
 }

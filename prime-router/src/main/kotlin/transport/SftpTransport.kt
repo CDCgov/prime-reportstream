@@ -17,8 +17,10 @@ import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
+import net.schmizz.sshj.userauth.password.PasswordUtils
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
+import org.apache.commons.lang3.StringUtils
 import java.io.InputStream
 import java.io.StringReader
 import java.util.logging.Level
@@ -98,7 +100,11 @@ class SftpTransport : ITransport {
                     is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
                     is UserPpkCredential -> {
                         val key = PuTTYKeyFile()
-                        key.init(StringReader(credential.key))
+                        val keyContents = StringReader(credential.key)
+                        when (StringUtils.isBlank(credential.keyPass)) {
+                            true -> key.init(keyContents)
+                            false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
+                        }
                         sshClient.authPublickey(credential.user, key)
                     }
                     else -> error("Unknown SftpCredential ${credential::class.simpleName}")

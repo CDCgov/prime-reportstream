@@ -9,7 +9,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 // https://kotlinlang.org/docs/reference/sealed-classes.html
 
 data class UserPassCredential(val user: String, val pass: String) : Credential(), SftpCredential
-data class UserPpkCredential(val user: String, val key: String) : Credential(), SftpCredential
+data class UserPpkCredential(val user: String, val key: String, val keyPass: String) : Credential(), SftpCredential
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
