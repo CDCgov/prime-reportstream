@@ -180,7 +180,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(cond)
             .fetchOne()
             ?.into(ReportFile::class.java)
-            ?: error("Could not find $reportId in REPORT_FILE")
+            ?: error(
+                "Could not find $reportId in REPORT_FILE" +
+                    if (org != null) { " associated with organization $org" } else ""
+            )
     }
 
     /**

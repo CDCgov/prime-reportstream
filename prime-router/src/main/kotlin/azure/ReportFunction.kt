@@ -273,7 +273,7 @@ class ReportFunction {
         val loggerMsg: String
         when {
             validatedRequest.options == Options.SkipSend -> {
-                // Note that SkipSend should really be called SkipTimingAndSend  ;)
+                // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
                 workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
