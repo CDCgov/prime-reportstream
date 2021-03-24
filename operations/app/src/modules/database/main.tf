@@ -42,6 +42,15 @@ resource "azurerm_postgresql_server" "postgres_server" {
   }
 }
 
+resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
+  server_name = azurerm_postgresql_server.postgres_server.name
+  resource_group_name = var.resource_group
+  login = "reportstream_pgsql_admin"
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  # pgsql_admin AAD group
+  object_id = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
+}
+
 resource "azurerm_postgresql_virtual_network_rule" "allow_public_subnet" {
   name = "AllowPublicSubnet"
   resource_group_name = var.resource_group
@@ -136,6 +145,8 @@ resource "azurerm_monitor_diagnostic_setting" "postgresql_db_log" {
     }
   }
 }
+
+data "azurerm_client_config" "current" {}
 
 output "server_name" {
   value = azurerm_postgresql_server.postgres_server.name
