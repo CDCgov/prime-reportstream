@@ -19,5 +19,5 @@
         timing:
           operation: MERGE
           numberPerDay: 1 # Every day
-          initialTime: 00:00
+          initialTime: 09:15
           timeZone: PACIFIC
