@@ -286,7 +286,7 @@
       timing:
         operation: MERGE
         numberPerDay: 1         # change to once a day for download site
-        initialTime: 01:15
+        initialTime: 09:15
         timeZone: EASTERN
     - name: elr-csv
       organizationName: mt-doh
@@ -300,7 +300,7 @@
       timing:
         operation: MERGE
         numberPerDay: 1
-        initialTime: 01:15
+        initialTime: 09:15
         timeZone: EASTERN
 
 - name: tx-doh
@@ -353,7 +353,7 @@
       timing:
         operation: MERGE
         numberPerDay: 12 # every two hours
-        initialTime: 00:00
+        initialTime: 01:15
         timeZone: EASTERN
 
 - name: vt-doh
@@ -380,8 +380,8 @@
         filePath: ./
       timing:
         operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
+        numberPerDay: 12 # Every two hours
+        initialTime: 01:15
         timeZone: EASTERN
 
 - name: pa-phd
