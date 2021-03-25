@@ -7,14 +7,17 @@
 \echo These reports only look at the outbound side of the Hub
 \echo
 \echo List of all downloads that occurred in the last week
-select item_count, receiving_org, receiving_org_svc, date_trunc('second',RF.created_at) CREATED,
-       A.action_name, RF.downloaded_by, RF.body_format
-from report_file RF
-join action A on A.action_id = RF.action_id
+select PARENT.report_id, PARENT.item_count, PARENT.receiving_org, PARENT.receiving_org_svc,
+       date_trunc('second',PARENT.created_at) READY_AT,
+       date_trunc('second', CHILD.created_at) DOWNLOADED, CHILD.downloaded_by, PARENT.body_format
+from report_file PARENT
+join report_lineage RL on PARENT.report_id = RL.parent_report_id
+join report_file CHILD on CHILD.report_id = RL.child_report_id
+join action A on A.action_id = CHILD.action_id
 where 
   A.action_name = 'download'
-  and RF.created_at > now() - interval '7 days'
-order by receiving_org, receiving_org_svc, RF.created_at
+  and CHILD.created_at > now() - interval '7 days'
+order by receiving_org, receiving_org_svc, CHILD.created_at
 ;
 
 \echo ALL Reports supposed to go out, from the last week

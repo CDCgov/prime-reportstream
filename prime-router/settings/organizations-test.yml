@@ -305,7 +305,7 @@
       organizationName: mt-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(patient_state, MT)
+        - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -318,7 +318,7 @@
       organizationName: mt-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(patient_state, MT)
+        - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
         type: CUSTOM
         format: CSV
@@ -538,6 +538,11 @@
       organizationName: ignore
       topic: covid-19
       schemaName: primedatainput/pdi-covid-19
+      format: CSV
+    - name: ignore-empty      # Use this to test sending data from the 'empty' schema
+      organizationName: ignore
+      topic: covid-19
+      schemaName: empty
       format: CSV
   receivers:
     - name: CSV

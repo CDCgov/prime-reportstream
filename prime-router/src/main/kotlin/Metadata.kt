@@ -36,6 +36,7 @@ class Metadata {
         FilterByCounty(),
         Matches(),
         DoesNotMatch(),
+        OrEquals(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
