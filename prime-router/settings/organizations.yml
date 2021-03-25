@@ -228,6 +228,15 @@
         translation:
           type: HL7
           useBatchHeaders: true
+      - name: elr-csv
+        organizationName: mt-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(patient_state, MT)
+        translation:
+          type: CUSTOM
+          format: CSV
+          schemaName: mt/mt-covid-19-csv
 
   - name: tx-doh
     description: Texas Department of Health

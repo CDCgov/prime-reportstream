@@ -314,6 +314,25 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
         timeZone: MOUNTAIN
+    - name: elr-csv
+      organizationName: mt-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(patient_state, MT)
+      translation:
+        type: CUSTOM
+        format: CSV
+        schemaName: mt/mt-covid-19-csv
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: MOUNTAIN
 
 - name: tx-doh
   description: Texas Department of Health
