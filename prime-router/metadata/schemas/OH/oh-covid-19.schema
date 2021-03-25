@@ -12,6 +12,9 @@ elements:
   - name: receiving_facility
     default: OHDOH^2.16.840.1.114222.4.1.3674^ISO
 
+  - name: reporting_facility
+    default: CDC PRIME^36DSMP9999^CLIA
+
   - name: comment
 
   - name: comment_type
@@ -241,4 +244,28 @@ elements:
   - name: testing_lab_phone_number
 
   # AOE questions
-  # Ohio doesn't want AOE questions
+  - name: pregnant
+
+  - name: employed_in_healthcare
+
+  - name: first_test
+
+  - name: hospitalized
+
+  - name: icu
+
+  - name: illness_onset_date
+
+  - name: patient_age
+
+  - name: patient_age_units
+
+  - name: resident_congregate_setting
+
+  - name: symptomatic_for_disease
+
+  # special fields
+  - name: blank_for_obx_23_11
+    type: TEXT
+    hl7Field: OBX-23-11
+    default: ""

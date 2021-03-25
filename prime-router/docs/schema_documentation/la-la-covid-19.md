@@ -294,8 +294,8 @@ When was this file created. This is only used for HL7 generation.
 
 **HL7 Fields**
 
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
 - [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
 
 **Cardinality**: [0..1]
@@ -2029,6 +2029,20 @@ The receiving facility for the message (specified by the receiver)
 **Documentation**:
 
 The reference range of the lab result, such as “Negative” or “Normal”. For IgG, IgM and CT results that provide a value you MUST fill out this filed.
+
+---
+
+**Name**: reporting_facility
+
+**Type**: HD
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+aggregator
+
 
 ---
 

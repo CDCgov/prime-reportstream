@@ -13,6 +13,11 @@ services:
         source: ./target
         target: /prime-data-hub-router
     entrypoint: [/prime-data-hub-router/start_func.sh]
+    env_file:
+      # On first run of docker-compose, create this file, it will get populated, but docker-compose doesn't allow optional env_file
+      # Example: touch .vault/env/.env.local
+      # https://github.com/docker/compose/pull/3955
+      - ./.vault/env/.env.local
     environment:
       # this storage account key is not a secret. It just looks like one.
       - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
@@ -21,6 +26,7 @@ services:
       - POSTGRES_URL=jdbc:postgresql://host.docker.internal:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
       - REDOX_SECRET=some_secret
+<<<<<<< HEAD
       - AZ_PHD__ELR__USER=foo
       - AZ_PHD__ELR__PASS=pass
       - AZ_PHD__ELR_TEST__USER=foo
@@ -59,11 +65,13 @@ services:
       - IGNORE__HL7_BATCH__PASS=pass
       - IGNORE__CSV__USER=foo
       - IGNORE__CSV__PASS=pass
+=======
+      - VAULT_API_ADDR=http://host.docker.internal:8200
+>>>>>>> master
       - SENDGRID_API_KEY=SnBfxpPsQkmOh0SfU3X_ng
       - OKTA_baseUrl=hhs-prime.okta.com
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
-      - FEATURE_FLAG_SETTINGS_ENABLED=true
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port
@@ -120,6 +128,9 @@ services:
       - .vault/env:/vault/env
       # Vault database persisted as a Docker volume
       - vault:/vault/file
+    ports:
+      # Vault API
+      - 8200:8200
     # Override the command with our custom init script
     command: "/vault/config/init.sh"
 

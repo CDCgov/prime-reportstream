@@ -11,6 +11,5 @@ enum class USTimeZone(val zoneId: String) {
     EAST_INDIANA("US/East-Indiana"),
     INDIANA_STARKE("US/Indiana-Starke"),
     MICHIGAN("US/Michigan"),
-    // Guam
-    CHAMORRO("Pacific/Guam")
+    CHAMORRO("Pacific/Guam"),
 }

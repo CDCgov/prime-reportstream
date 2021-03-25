@@ -51,6 +51,16 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 ---
 
+**Name**: blank_for_obx_23_11
+
+**Type**: TEXT
+
+**Default Value**: 
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: comment
 
 **Type**: TEXT
@@ -129,6 +139,28 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 **Documentation**:
 
 Device_id_type is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
+
+---
+
+**Name**: employed_in_healthcare
+
+**Type**: CODE
+
+**LOINC Code**: 95418-0
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient employed in health care?
 
 ---
 
@@ -235,9 +267,85 @@ When was this file created. This is only used for HL7 generation.
 
 **HL7 Fields**
 
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
 - [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: first_test
+
+**Type**: CODE
+
+**LOINC Code**: 95417-2
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is this the patient's first test for this condition?
+
+---
+
+**Name**: hospitalized
+
+**Type**: CODE
+
+**LOINC Code**: 77974-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient hospitalized?
+
+---
+
+**Name**: icu
+
+**Type**: CODE
+
+**LOINC Code**: 95420-6
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient in the ICU?
+
+---
+
+**Name**: illness_onset_date
+
+**Type**: DATE
+
+**LOINC Code**: 65222-2
 
 **Cardinality**: [0..1]
 
@@ -688,6 +796,39 @@ The street second address of the provider
 **Documentation**:
 
 The zip code of the provider
+
+---
+
+**Name**: patient_age
+
+**Type**: NUMBER
+
+**LOINC Code**: 30525-0
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age_units
+
+**Type**: CODE
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+min|minutes
+h|hours
+d|days
+wk|weeks
+mo|months
+a|years
+
+**Documentation**:
+
+Always filled when `patient_age` is filled
 
 ---
 
@@ -1665,6 +1806,28 @@ The ID number of the lab order from the placer
 
 ---
 
+**Name**: pregnant
+
+**Type**: CODE
+
+**LOINC Code**: 82810-3
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+77386006|Pregnant
+60001007|Not Pregnant
+261665006|Unknown
+
+**Documentation**:
+
+Is the patient pregnant?
+
+---
+
 **Name**: processing_mode_code
 
 **Type**: CODE
@@ -1727,6 +1890,22 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 
 ---
 
+**Name**: reporting_facility
+
+**Type**: HD
+
+**Default Value**: CDC PRIME^36DSMP9999^CLIA
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+aggregator
+
+
+---
+
 **Name**: reporting_facility_clia
 
 **Type**: ID_CLIA
@@ -1756,6 +1935,28 @@ The reporting facility's CLIA
 **Documentation**:
 
 The reporting facility's name
+
+---
+
+**Name**: resident_congregate_setting
+
+**Type**: CODE
+
+**LOINC Code**: 95421-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Does the patient reside in a congregate care setting?
 
 ---
 
@@ -1975,6 +2176,28 @@ Code | Display
 **Documentation**:
 
 The specimen source, such as Blood or Serum
+
+---
+
+**Name**: symptomatic_for_disease
+
+**Type**: CODE
+
+**LOINC Code**: 95419-8
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient symptomatic?
 
 ---
 

@@ -36,9 +36,9 @@
       deidentify: false
       timing:
         operation: MERGE
-        numberPerDay: 1   # Once a day at 2pm EST
-        initialTime: 12:00
-        timeZone: ARIZONA
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
       translation:
         type: CUSTOM
         schemaName: az/az-covid-19
@@ -66,9 +66,9 @@
         messageProfileId: AZELRIG^ADHS^2.16.840.1.113883.9.31^ISO
       timing:
         operation: MERGE
-        numberPerDay: 1   # Once a day at 2pm EST
-        initialTime: 12:00
-        timeZone: ARIZONA
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
       transport:
         type: SFTP
         host: hssftp.azdhs.gov
@@ -88,9 +88,9 @@
         format: CSV
       timing:
         operation: MERGE
-        numberPerDay: 1   # Once a day at 2pm EST
-        initialTime: 12:00
-        timeZone: ARIZONA
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
       transport:
         type: SFTP
         host: hssftp.azdhs.gov
@@ -115,9 +115,9 @@
         format: CSV
       timing:
         operation: MERGE
-        numberPerDay: 1 # Once a day  NOTE:  In production, they want deliveries once a day at 8am MST.
-        initialTime: 08:00
-        timeZone: ARIZONA
+        numberPerDay: 1   # Customer has asked for 8am AZ time. This is close, but allows a deploy window.
+        initialTime: 09:15
+        timeZone: EASTERN
 
 - name: fl-phd
   description: Florida Department of Health
@@ -139,8 +139,8 @@
         receivingFacilityOID: 2.16.840.1.114222.1.3645
       timing:
         operation: MERGE
-        numberPerDay: 12          # Twelve times a day starting at 02.00
-        initialTime: 02:00
+        numberPerDay: 12
+        initialTime: 01:15
         timeZone: EASTERN
       transport:
         type: SFTP
@@ -156,7 +156,9 @@
     - name: elr
       organizationName: nd-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, ND)" ]
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, ND)
+      deidentify: false
       translation:
         type: HL7
         schemaName: nd/nd-covid-19
@@ -168,7 +170,7 @@
       timing:
         operation: MERGE
         numberPerDay: 12
-        initialTime: 02:00
+        initialTime: 01:15
         timeZone: EASTERN
       transport:
         type: SFTP
@@ -184,7 +186,8 @@
     - name: elr
       organizationName: la-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, LA)" ]
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, LA)
       translation:
         type: HL7
         schemaName: la/la-covid-19
@@ -192,17 +195,17 @@
         receivingOrganization: LAOPH
         receivingApplicationName: LA-ELR
         receivingFacilityName: LADOH
-        useAphlNamingFormat: true
+        nameFormat: APHL
       timing:
         operation: MERGE
         numberPerDay: 12
-        initialTime: 02:00
+        initialTime: 01:15
         timeZone: EASTERN
       transport:
         type: SFTP
         host: 204.58.124.41
         port: 22
-        filePath: ./HL7
+        filePath: ./
 
 - name: oh-doh
   description: Ohio Department of Health
@@ -212,24 +215,29 @@
     - name: elr
       organizationName: oh-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, OH)" ]
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, OH)
       translation:
         type: HL7
-        schemaName: oh/oh-covid-19
         useBatchHeaders: true
+        suppressQstForAoe: true
         receivingApplicationName: OHDOH
         receivingApplicationOID: 2.16.840.1.114222.4.1.3674
         receivingFacilityName: OHDOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 36DSMP9999
+        nameFormat: OHIO
+        suppressHl7Fields: OBX-23-11
       transport:
         type: SFTP
         host: 156.63.28.72
         port: 4022
-        filePath: CDC-ELR/TestFiles
+        filePath: CDC-ELR/ProdFiles
       timing:
         operation: MERGE
-        numberPerDay: 12   # Twelve times a day starting at 02.00
-        initialTime: 02:00
+        numberPerDay: 12
+        initialTime: 01:15
         timeZone: EASTERN
 
 - name: nm-doh
@@ -240,7 +248,8 @@
     - name: elr
       organizationName: nm-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, NM)" ]
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, NM)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -249,6 +258,16 @@
         receivingApplicationOID: 2.16.840.1.113883.3.5364
         receivingFacilityName: NMDOH
         receivingFacilityOID: 2.16.840.1.113883.3.5364
+      transport:
+        type: SFTP
+        host: secure.lcfresearch.org
+        port: 22
+        filePath: ./
+      timing:
+        operation: MERGE
+        numberPerDay: 12
+        initialTime: 01:15
+        timeZone: EASTERN
 
 - name: mt-doh
   description: Montana Department of Health
@@ -258,11 +277,31 @@
     - name: elr
       organizationName: mt-doh
       topic: covid-19
-      jurisdictionalFilter: [ "matches(patient_state, MT)" ]
+      jurisdictionalFilter:
+        - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
         type: HL7
         schemaName: mt/mt-covid-19
         useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1         # change to once a day for download site
+        initialTime: 09:15
+        timeZone: EASTERN
+    - name: elr-csv
+      organizationName: mt-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(patient_state, MT, ordering_facility_state, MT)
+      translation:
+        type: CUSTOM
+        format: CSV
+        schemaName: mt/mt-covid-19-csv
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15
+        timeZone: EASTERN
 
 - name: tx-doh
   description: Texas Department of Health
@@ -282,14 +321,68 @@
         receivingFacilityName: TX-ELR
       timing:
         operation: MERGE
-        numberPerDay: 12   #  Twelve times a day starting at 02.00
-        initialTime: 12:00
-        timeZone: CENTRAL
+        numberPerDay: 12
+        initialTime: 01:15
+        timeZone: EASTERN
       transport:
-        type: SFTP
+        type: SFTP_LEGACY
         host: sftp-edts.hhs.texas.gov
         port: 22
+        filePath: ./USDS_IN
+
+- name: gu-doh
+  description: Guam Department of Health
+  jurisdiction: STATE
+  stateCode: GU
+  receivers:
+    - name: elr
+      organizationName: gu-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, GU)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: GUDOH
+        receivingFacilityName: GUDOH
+      transport:
+        type: SFTP
+        host: sftp-west.inductivehealth.com
+        port: 22
         filePath: ./
+      timing:
+        operation: MERGE
+        numberPerDay: 12 # every two hours
+        initialTime: 01:15
+        timeZone: EASTERN
+
+- name: vt-doh
+  description: Vermont Department of Health
+  jurisdiction: STATE
+  stateCode: VT
+  receivers:
+    - name: elr
+      organizationName: vt-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, VT)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NBS
+        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+        receivingFacilityName: VDH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.185
+      transport:
+        type: SFTP
+        host: gs-sftp.ahs.state.vt.us
+        port: 22
+        filePath: ./
+      timing:
+        operation: MERGE
+        numberPerDay: 12 # Every two hours
+        initialTime: 01:15
+        timeZone: EASTERN
 
 - name: pa-phd
   description: Pennsylvania Department of Health
@@ -370,8 +463,8 @@
         format: CSV
       timing:
         operation: MERGE
-        numberPerDay: 1 # Every day
-        initialTime: 00:00
+        numberPerDay: 1 # Every day.   Strac often submits at 7:30am ET
+        initialTime: 08:30
         timeZone: EASTERN
 
 - name: pa-montgomery-phd
@@ -392,5 +485,5 @@
       timing:
         operation: MERGE
         numberPerDay: 1 # Every day
-        initialTime: 00:00
+        initialTime: 08:30
         timeZone: EASTERN

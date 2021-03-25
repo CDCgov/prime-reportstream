@@ -153,8 +153,8 @@ elements:
 
   - name: filler_order_id
     type: ID
-    hl7Field: ORC-3-2
-    hl7OutputFields: [ ORC-3-2, SPM-2-2, OBR-3-2 ]
+    hl7Field: ORC-3-1
+    hl7OutputFields: [ ORC-3-1, SPM-2-2, OBR-3-1 ]
 
   - name: filler_clia
     type: ID_CLIA
@@ -789,6 +789,13 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-7
     documentation: The reference range of the lab result, such as “Negative” or “Normal”. For IgG, IgM and CT results that provide a value you MUST fill out this filed.
+
+  - name: reporting_facility
+    type: HD
+    hl7Field: MSH-4
+    documentation: |
+      The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+      aggregator
 
   - name: reporting_facility_name
     type: TEXT
