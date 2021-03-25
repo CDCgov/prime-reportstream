@@ -23,6 +23,38 @@ resource "azurerm_storage_account" "storage_account" {
   }
 }
 
+# Point-in-time restore, soft delete, versioning, and change feed were 
+# enabled in the portal as terraform does not currently support this.
+# At some point, this should be moved into an azurerm_template_deployment
+# resource.
+# These settings can be configured under the "Data protection" blade
+# for Blob service
+
+resource "azurerm_storage_management_policy" "retention_policy" {
+  storage_account_id = azurerm_storage_account.storage_account.id
+
+  rule {
+    name = "30dayretention"
+    enabled = true
+
+    filters {
+      prefix_match = ["reports/"]
+      blob_types = ["blockBlob", "appendBlob"]
+    }
+
+    actions {
+      base_blob {
+        delete_after_days_since_modification_greater_than = 30
+      }
+      snapshot {
+        delete_after_days_since_creation_greater_than = 30
+      }
+      # Terraform does not appear to support deletion of versions
+      # This needs to be manually checked in the policy and set to 30 days
+    }
+  }
+}
+
 module "storageaccount_access_log_event_hub_log" {
   source = "../event_hub_log"
   resource_type = "storage_account"
