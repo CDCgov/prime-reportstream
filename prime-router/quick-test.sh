@@ -29,6 +29,7 @@ RUN_NM=0
 RUN_OH=0
 RUN_TX=0
 RUN_VT=0
+RUN_MT=0
 # always should run, but we'll leave this here for now in case that could change at some point
 RUN_STANDARD=1
 RUN_ALL=0
@@ -52,6 +53,7 @@ do
     oh | OH) RUN_OH=1;;
     tx | TX) RUN_TX=1;;
     vt | VT) RUN_VT=1;;
+    mt | MT) RUN_MT=1;;
     all | ALL) RUN_ALL=1;;
     merge | MERGE) RUN_MERGE=1;;
   esac
@@ -68,6 +70,7 @@ then
   RUN_OH=1
   RUN_TX=1
   RUN_VT=1
+  RUN_MT=1
   RUN_STANDARD=1
   RUN_MERGE=1
 fi
@@ -295,6 +298,16 @@ then
   echo Generate fake VT data, HL7!
   text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-states VT --target-counties Essex --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/vt.*\.hl7"
+fi
+
+# run MT
+if [ $RUN_MT -ne 0 ]
+then
+  echo Generate fake MT data, HL7 and CSV
+  text=$(./prime data --input-fake 50 --input-schema mt/mt-covid-19 --output-dir $outputdir --target-states MT --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/mt.*\.hl7"
+  text=$(./prime data --input-fake 50 --input-schema mt/mt-covid-19-csv --output-dir $outputdir --target-states MT --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "/mt.*\.hl7"
 fi
 
 exit 0
