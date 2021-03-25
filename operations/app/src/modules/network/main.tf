@@ -90,6 +90,32 @@ resource "azurerm_subnet_network_security_group_association" "private_private" {
   network_security_group_id = azurerm_network_security_group.nsg_private.id
 }
 
+resource "azurerm_virtual_network" "virtual_network_2" {
+  name = "${var.resource_prefix}-vnet2"
+  location = "westus"
+  resource_group_name = var.resource_group
+  address_space = ["11.0.0.0/16"]
+
+  tags = {
+    environment = var.environment
+  }
+}
+
+resource "azurerm_subnet" "private2" {
+  name = "private"
+  resource_group_name = var.resource_group
+  virtual_network_name = azurerm_virtual_network.virtual_network_2.name
+  address_prefixes = ["11.0.3.0/24"]
+  service_endpoints = ["Microsoft.Sql"]
+}
+
+resource "azurerm_virtual_network_peering" "vnet_vnet2" {
+  name = "${var.resource_prefix}-peer-vnet-vnet2"
+  resource_group_name = var.resource_group
+  virtual_network_name = azurerm_virtual_network.virtual_network.name
+  remote_virtual_network_id = azurerm_virtual_network.virtual_network_2.id
+}
+
 output "public_subnet_id" {
   value = azurerm_subnet.public.id
 }
@@ -100,4 +126,8 @@ output "container_subnet_id" {
 
 output "private_subnet_id" {
   value = azurerm_subnet.private.id
+}
+
+output "private2_subnet_id" {
+  value = azurerm_subnet.private2.id
 }
