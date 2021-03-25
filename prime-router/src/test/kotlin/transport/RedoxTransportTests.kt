@@ -209,4 +209,51 @@ class RedoxTransportTests {
         assertEquals(1, retryItemsOut.size)
         assertEquals("1", retryItemsOut[0])
     }
+
+    @Test
+    fun `test exception partway doesnt messup retry`() {
+        val header = makeHeader()
+        setupLogger()
+        every { redox.secretService }.returns(secretService)
+        every { secretService.fetchSecret(any()) }.returns("dont_tell!")
+        every { redox.fetchToken(any(), any(), any(), any()) }.returns("my token")
+        // Item 1 throws an exception, all others fail.
+        every { redox.sendItem(any(), any(), any(), eq("$reportId-1")) }
+            .throws(Exception("x"))
+        every { redox.sendItem(any(), any(), any(), neq("$reportId-1")) }
+            .returns(RedoxTransport.SendResult("itemId1", RedoxTransport.ResultStatus.FAILURE, 1234))
+
+        // This is a retry after a retry.
+        val retryItemsIn = listOf("0", "1", "2", "3")
+        val retryItemsOut = redox.send(transportType, header, UUID.randomUUID(), retryItemsIn, context, actionHistory)
+        assertNotNull(retryItemsOut)
+        assertEquals(4, retryItemsOut.size)
+        assertEquals("0", retryItemsOut[0])
+        assertEquals("1", retryItemsOut[1])
+        assertEquals("2", retryItemsOut[2])
+        assertEquals("3", retryItemsOut[3])
+    }
+    @Test
+    fun `test complex situation`() {
+        val header = makeHeader()
+        setupLogger()
+        every { redox.secretService }.returns(secretService)
+        every { secretService.fetchSecret(any()) }.returns("dont_tell!")
+        every { redox.fetchToken(any(), any(), any(), any()) }.returns("my token")
+        // Item 0 throws an exception, item 1 succeeds, item 3 fails.  item 2 is not re-tried.
+        every { redox.sendItem(any(), any(), any(), eq("$reportId-0")) }
+            .throws(Exception("x"))
+        every { redox.sendItem(any(), any(), any(), eq("$reportId-1")) }
+            .returns(RedoxTransport.SendResult("itemId1", RedoxTransport.ResultStatus.SUCCESS, 1234))
+        every { redox.sendItem(any(), any(), any(), eq("$reportId-3")) }
+            .returns(RedoxTransport.SendResult("itemId1", RedoxTransport.ResultStatus.FAILURE, 1234))
+
+        // This is a retry after a retry, with a mix of responses.  Item 2 is not re-tried.
+        val retryItemsIn = listOf("0", "1", "3")
+        val retryItemsOut = redox.send(transportType, header, UUID.randomUUID(), retryItemsIn, context, actionHistory)
+        assertNotNull(retryItemsOut)
+        assertEquals(2, retryItemsOut.size)
+        assertEquals("0", retryItemsOut[0]) // exception
+        assertEquals("3", retryItemsOut[1]) // returned failure code
+    }
 }

@@ -278,7 +278,7 @@
       organizationName: mt-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(patient_state, MT)
+        - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
         type: HL7
         schemaName: mt/mt-covid-19
@@ -292,7 +292,7 @@
       organizationName: mt-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(patient_state, MT)
+        - orEquals(patient_state, MT, ordering_facility_state, MT)
       translation:
         type: CUSTOM
         format: CSV
@@ -463,8 +463,8 @@
         format: CSV
       timing:
         operation: MERGE
-        numberPerDay: 1 # Every day
-        initialTime: 00:00
+        numberPerDay: 1 # Every day.   Strac often submits at 7:30am ET
+        initialTime: 08:30
         timeZone: EASTERN
 
 - name: pa-montgomery-phd
@@ -485,5 +485,5 @@
       timing:
         operation: MERGE
         numberPerDay: 1 # Every day
-        initialTime: 00:00
+        initialTime: 08:30
         timeZone: EASTERN

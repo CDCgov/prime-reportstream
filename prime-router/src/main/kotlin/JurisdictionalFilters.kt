@@ -123,6 +123,39 @@ class FilterByCounty : JurisdictionalFilter {
     }
 }
 
+/**
+ * Do an "or" of any number of regex matching expressions.
+ * Pass args like this  or(elem1_name, regex1, elem2_name, regex2, ...)
+ * This filter is true if
+ *      (elem1.value matches regex1) || (elem2.value matches regex2) || ...
+ * If the elem name is missing, the filter is false; this is not an error.
+ * Example:
+ * jurisdictionalFilter:  orEquals(ordering_facility_state, PA, patient_state, PA)
+ */
+class OrEquals : JurisdictionalFilter {
+    override val name = "orEquals"
+
+    override fun getSelection(args: List<String>, table: Table): Selection {
+        if (args.isEmpty()) error("Expecting at least two args for filter $name.  Got none.")
+        if (args.size % 2 != 0)
+            error(
+                "Expecting a positive even number of args to filter $name: (col,val, col,val,...)." +
+                    " Instead got ${args.size} args"
+            )
+        val selection = Selection.withRange(0, 0)
+        for (i in args.indices step 2) {
+            val elemName = args[i]
+            val regexStr = args[i + 1]
+            val colSelection = if (table.columnNames().contains(elemName)) {
+                val elemColumn = table.stringColumn(elemName)
+                elemColumn.matchesRegex(regexStr)
+            } else null
+            colSelection?.let { selection.or(colSelection) }
+        }
+        return selection
+    }
+}
+
 object JurisdictionalFilters {
     /**
      * filterFunction must be of form "funName(arg1, arg2, etc)"
