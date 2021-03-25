@@ -2,6 +2,7 @@
 
 package gov.cdc.prime.router.cli
 
+import com.github.ajalt.clikt.completion.completionOption
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
@@ -648,5 +649,19 @@ class CompareCsvFiles : CliktCommand(
 }
 
 fun main(args: Array<String>) = RouterCli()
-    .subcommands(ProcessData(), ListSchemas(), GenerateDocs(), CredentialsCli(), CompareCsvFiles(), TestReportStream())
+    .completionOption()
+    .subcommands(
+        ProcessData(),
+        ListSchemas(),
+        GenerateDocs(),
+        CredentialsCli(),
+        CompareCsvFiles(),
+        TestReportStream(),
+        LoginCommand(),
+        LogoutCommand(),
+        OrganizationSettings(),
+        SenderSettings(),
+        ReceiverSettings(),
+        MultipleSettings(),
+    )
     .main(args)

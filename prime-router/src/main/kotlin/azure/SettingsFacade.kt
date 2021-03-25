@@ -177,15 +177,15 @@ class SettingsFacade(
             )
 
             // Now insert
-            val accessResult = when {
+            val (accessResult, resultMetadata) = when {
                 current == null -> {
                     // No existing setting, just add to the new setting to the table
                     db.insertSetting(setting, txn)
-                    AccessResult.CREATED
+                    Pair(AccessResult.CREATED, settingMetadata)
                 }
                 current.values == normalizedJson -> {
                     // Don't create a new version if the payload matches the current version
-                    AccessResult.SUCCESS
+                    Pair(AccessResult.SUCCESS, SettingMetadata(current.version, current.createdBy, current.createdAt))
                 }
                 else -> {
                     // Update existing setting by deactivate the current setting and inserting a new version
@@ -194,10 +194,10 @@ class SettingsFacade(
                     // If inserting an org, update all children settings to point to the new org
                     if (settingType == SettingType.ORGANIZATION)
                         db.updateOrganizationId(current.settingId, newId, txn)
-                    AccessResult.SUCCESS
+                    Pair(AccessResult.SUCCESS, settingMetadata)
                 }
             }
-            val outputJson = mapper.writeValueAsString(settingMetadata)
+            val outputJson = mapper.writeValueAsString(resultMetadata)
             Pair(accessResult, outputJson)
         }
     }
