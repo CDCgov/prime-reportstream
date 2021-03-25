@@ -1,6 +1,6 @@
 
-### Schema:         tcp/tcp-covid-19
-#### Description:   A COVID-19 schema for TCP working through A6
+### Schema:         tpca/tpca-covid-19
+#### Description:   A COVID-19 schema for TPCA working through A6
 
 ---
 

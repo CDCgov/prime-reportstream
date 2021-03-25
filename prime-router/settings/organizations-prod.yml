@@ -258,6 +258,11 @@
         receivingApplicationOID: 2.16.840.1.113883.3.5364
         receivingFacilityName: NMDOH
         receivingFacilityOID: 2.16.840.1.113883.3.5364
+      transport:
+        type: SFTP
+        host: secure.lcfresearch.org
+        port: 22
+        filePath: ./
       timing:
         operation: MERGE
         numberPerDay: 12
@@ -280,8 +285,22 @@
         useBatchHeaders: true
       timing:
         operation: MERGE
-        numberPerDay: 12
-        initialTime: 01:15
+        numberPerDay: 1         # change to once a day for download site
+        initialTime: 09:15
+        timeZone: EASTERN
+    - name: elr-csv
+      organizationName: mt-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(patient_state, MT, ordering_facility_state, MT)
+      translation:
+        type: CUSTOM
+        format: CSV
+        schemaName: mt/mt-covid-19-csv
+      timing:
+        operation: MERGE
+        numberPerDay: 1
+        initialTime: 09:15
         timeZone: EASTERN
 
 - name: tx-doh
@@ -309,7 +328,61 @@
         type: SFTP_LEGACY
         host: sftp-edts.hhs.texas.gov
         port: 22
+        filePath: ./USDS_IN
+
+- name: gu-doh
+  description: Guam Department of Health
+  jurisdiction: STATE
+  stateCode: GU
+  receivers:
+    - name: elr
+      organizationName: gu-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, GU)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: GUDOH
+        receivingFacilityName: GUDOH
+      transport:
+        type: SFTP
+        host: sftp-west.inductivehealth.com
+        port: 22
         filePath: ./
+      timing:
+        operation: MERGE
+        numberPerDay: 12 # every two hours
+        initialTime: 01:15
+        timeZone: EASTERN
+
+- name: vt-doh
+  description: Vermont Department of Health
+  jurisdiction: STATE
+  stateCode: VT
+  receivers:
+    - name: elr
+      organizationName: vt-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, VT)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NBS
+        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+        receivingFacilityName: VDH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.185
+      transport:
+        type: SFTP
+        host: gs-sftp.ahs.state.vt.us
+        port: 22
+        filePath: ./
+      timing:
+        operation: MERGE
+        numberPerDay: 12 # Every two hours
+        initialTime: 01:15
+        timeZone: EASTERN
 
 - name: pa-phd
   description: Pennsylvania Department of Health
