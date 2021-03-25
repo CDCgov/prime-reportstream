@@ -573,6 +573,8 @@ The patient's phone number with area code
 
 **Name**: Patient_role
 
+**Type**: TEXT
+
 **Cardinality**: [0..1]
 
 ---
@@ -801,6 +803,8 @@ An example of the ID is 03D2159846
 ---
 
 **Name**: Organization_name
+
+**Type**: TEXT
 
 **Cardinality**: [0..1]
 
