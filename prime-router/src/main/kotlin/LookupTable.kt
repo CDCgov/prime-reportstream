@@ -54,21 +54,30 @@ class LookupTable(
         }
     }
 
-    fun filter(filterColumn: String, filterValue: String, selectColumn: String): List<String> {
+    fun filter(
+        filterColumn: String,
+        filterValue: String,
+        selectColumn: String,
+        ignoreCase: Boolean = true
+    ): List<String> {
         val filterColumnNumber = headerIndex[filterColumn.toLowerCase()] ?: return emptyList()
         val selectColumnNumber = headerIndex[selectColumn.toLowerCase()] ?: return emptyList()
         return table
-            .filter { row -> row[filterColumnNumber] == filterValue }
+            .filter { row -> row[filterColumnNumber].equals(filterValue, ignoreCase) }
             .map { row -> row[selectColumnNumber] }
     }
 
-    fun filter(selectColumn: String, filters: Map<String, String>): List<String> {
+    fun filter(
+        selectColumn: String,
+        filters: Map<String, String>,
+        ignoreCase: Boolean = true
+    ): List<String> {
         val selectColumnNumber = headerIndex[selectColumn.toLowerCase()] ?: return emptyList()
         return table
             .filter { row ->
                 filters.all { (k, v) ->
                     val filterColumnNumber = headerIndex[k.toLowerCase()] ?: error("$k doesn't exist lookup table")
-                    row[filterColumnNumber] == v
+                    row[filterColumnNumber].equals(v, ignoreCase)
                 }
             }
             .map { row -> row[selectColumnNumber] }
