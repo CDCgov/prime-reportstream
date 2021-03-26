@@ -23,18 +23,43 @@ class LookupTable(
         return headerIndex.containsKey(column.toLowerCase())
     }
 
-    fun lookupValue(indexColumn: String, indexValue: String, lookupColumn: String): String? {
+    /**
+     * Performs a search of the table by looking through a column for a value
+     * and returning the result for the specified row and column.
+     *
+     * By default the search is case-insensitive, though you can pass in the flag
+     * to make it respect case.
+     * @param indexColumn The column to index looking for your value
+     * @param indexValue The value to look for in the index column
+     * @param lookupColumn The column to pull your value from based on the index
+     * @param ignoreCase Whether or not to perform a case insensitive search
+     * @return The value you're looking for in the table base on the index look up value
+     */
+    fun lookupValue(
+        indexColumn: String,
+        indexValue: String,
+        lookupColumn: String,
+        ignoreCase: Boolean = true
+    ): String? {
         val lcIndexColumn = indexColumn.toLowerCase()
         val lcLookupColumn = lookupColumn.toLowerCase()
         val colNumber = headerIndex[lcLookupColumn] ?: return null
-        val index = getIndex(listOf(lcIndexColumn))
-        val rowNumber = index[indexValue] ?: return null // Ok if the index value is not found
+        val index = getIndex(listOf(lcIndexColumn), ignoreCase)
+        // if the search is case-insensitive we will cast everything to lower case
+        // note, this probably only works for English, and US locales. Some languages,
+        // may not work correctly if we lower case without a locale
+        val indexLookupValue = if (ignoreCase)
+            indexValue.toLowerCase()
+        else
+            indexValue
+        val rowNumber = index[indexLookupValue] ?: return null // Ok if the index value is not found
         return table[rowNumber][colNumber]
     }
 
     fun lookupValues(
         indexValues: List<Pair<String, String>>,
-        lookupColumn: String
+        lookupColumn: String,
+        ignoreCase: Boolean = true
     ): String? {
         return when (indexValues.size) {
             1 -> lookupValue(indexValues[0].first, indexValues[0].second, lookupColumn)
@@ -43,11 +68,18 @@ class LookupTable(
                 val lcIndexSecondColumn = indexValues[1].first.toLowerCase()
                 val lcLookupColumn = lookupColumn.toLowerCase()
                 val colNumber = headerIndex[lcLookupColumn] ?: return null
-                val index = getIndex(listOf(lcIndexFirstColumn, lcIndexSecondColumn))
+                val index = getIndex(listOf(lcIndexFirstColumn, lcIndexSecondColumn), ignoreCase)
                 val indexValue = indexValues[0].second.replace(indexDelimiter, "") +
                     indexDelimiter +
                     indexValues[1].second.replace(indexDelimiter, "")
-                val rowNumber = index[indexValue] ?: return null // Ok if the index value is not found
+                // if the search is case-insensitive we will cast everything to lower case
+                // note, this probably only works for English, and US locales. Some languages,
+                // may not work correctly if we lower case without a locale
+                val indexLookupValue = if (ignoreCase)
+                    indexValue.toLowerCase()
+                else
+                    indexValue
+                val rowNumber = index[indexLookupValue] ?: return null // Ok if the index value is not found
                 return table[rowNumber][colNumber]
             }
             else -> null
@@ -84,7 +116,7 @@ class LookupTable(
     }
 
     @Synchronized
-    private fun getIndex(columnNames: List<String>): Map<String, Int> {
+    private fun getIndex(columnNames: List<String>, ignoreCase: Boolean = true): Map<String, Int> {
         val indexName = columnNames.joinToString(indexDelimiter)
         return if (columnIndex.containsKey(indexName)) {
             columnIndex[indexName]!!
@@ -92,7 +124,20 @@ class LookupTable(
             val index = table.slice(1 until table.size).mapIndexed { index, row ->
                 val values = columnNames.map { columnName ->
                     val column = headerIndex[columnName] ?: error("Internal Error: Lookup logic error")
-                    row[column].replace(indexDelimiter, "")
+                    // when we create the values to index map, we need to take the case into consideration
+                    // given the fact that we allow for user-submitted data that might not be in the case we
+                    // expect, it is better to default all of the keys to lower case instead of depending
+                    // on them casing according to our expectations.
+                    // For the cases where we use tables, there's no difference between a device name
+                    // purely on the basis of case, or a difference between counties on the basis of
+                    // case (santa clara and Santa Clara both refer to the same county for example)
+                    // That said, we do allow for passing through the flag just in case case matters
+                    val preppedValue = if (ignoreCase)
+                        row[column].replace(indexDelimiter, "").toLowerCase()
+                    else
+                        row[column].replace(indexDelimiter, "")
+
+                    preppedValue
                 }
                 values.joinToString(indexDelimiter) to index + 1
             }.toMap()
