@@ -107,7 +107,7 @@ abstract class SettingCommand(
             .responseJson()
         return when (result) {
             is Result.Failure ->
-                throw result.getException()
+                throw Exception("Error on put of $settingName", result.getException())
             is Result.Success ->
                 when (response.statusCode) {
                     HttpStatus.SC_OK -> {
@@ -129,7 +129,7 @@ abstract class SettingCommand(
             .header(CONTENT_TYPE to jsonMimeType)
             .responseString()
         return when (result) {
-            is Result.Failure -> throw result.getException()
+            is Result.Failure -> throw Exception("Error on delete of $settingName", result.getException())
             is Result.Success -> Unit
         }
     }
@@ -143,7 +143,7 @@ abstract class SettingCommand(
             .header(CONTENT_TYPE to jsonMimeType)
             .responseString()
         return when (result) {
-            is Result.Failure -> throw result.getException()
+            is Result.Failure -> throw Exception("Error getting $settingName)", result.getException())
             is Result.Success -> result.value
         }
     }
@@ -157,7 +157,7 @@ abstract class SettingCommand(
             .header(CONTENT_TYPE to jsonMimeType)
             .responseJson()
         return when (result) {
-            is Result.Failure -> throw result.getException()
+            is Result.Failure -> throw Exception("Error listing $settingName)", result.getException())
             is Result.Success -> "[${result.value.array().join(",\n")}]"
         }
     }
