@@ -89,4 +89,17 @@ class LookupTableTests {
         val listOfValues = table.filter("c", "a", "A", false)
         assertTrue(listOfValues.isEmpty())
     }
+
+    @Test
+    fun `test table lookup but don't ignoreCase`() {
+        val csv = """
+            a,b,c
+            1,2,A
+            3,4,B
+            5,6,C
+        """.trimIndent()
+        val table = LookupTable.read(ByteArrayInputStream(csv.toByteArray()))
+        val value = table.lookupValue("c", "c", "a", false)
+        assertTrue(value.isNullOrEmpty())
+    }
 }

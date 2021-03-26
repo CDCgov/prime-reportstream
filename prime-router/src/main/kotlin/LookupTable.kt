@@ -56,6 +56,17 @@ class LookupTable(
         return table[rowNumber][colNumber]
     }
 
+    /**
+     * Performs a search of the table by looking through a set of column for values
+     * and returning the result for the specified row and column.
+     *
+     * By default the search is case-insensitive, though you can pass in the flag
+     * to make it respect case.
+     * @param indexValues The values to look for in the index column
+     * @param lookupColumn The column to pull your value from based on the index
+     * @param ignoreCase Whether or not to perform a case insensitive search
+     * @return The value you're looking for in the table base on the index look up value
+     */
     fun lookupValues(
         indexValues: List<Pair<String, String>>,
         lookupColumn: String,
@@ -86,6 +97,9 @@ class LookupTable(
         }
     }
 
+    /**
+     * Takes the contents of the table and filters down the rows to match the filter value provided
+     */
     fun filter(
         filterColumn: String,
         filterValue: String,
@@ -99,6 +113,10 @@ class LookupTable(
             .map { row -> row[selectColumnNumber] }
     }
 
+    /**
+     * Takes the contents of the table and filters down the rows where all the filters match.
+     * This performs an implicit AND because all of the filters must match
+     */
     fun filter(
         selectColumn: String,
         filters: Map<String, String>,
@@ -115,6 +133,10 @@ class LookupTable(
             .map { row -> row[selectColumnNumber] }
     }
 
+    /**
+     * Given a list of column names, walks through each column name and maps out each value to
+     * its row in the column to speed lookup for another value in the same row but in a different column.
+     */
     @Synchronized
     private fun getIndex(columnNames: List<String>, ignoreCase: Boolean = true): Map<String, Int> {
         val indexName = columnNames.joinToString(indexDelimiter)
