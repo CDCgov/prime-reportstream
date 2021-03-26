@@ -146,7 +146,7 @@ class ReportFunction {
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "Expected a '$CLIENT_PARAMETER' query parameter"))
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
-            errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$clientName' is not a valid"))
+            errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"))
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
