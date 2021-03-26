@@ -10,6 +10,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -141,6 +142,47 @@ class WorkflowEngine(
                 nextEvent.eventAction,
                 nextEvent.at,
                 retryJson,
+                txn
+            )
+        }
+        queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
+    }
+
+    /**
+     * Atomic read and set: sanity checks on the state of the report to be resent plus setting the state.
+     */
+    fun resendEvent(reportId: ReportId, receiver: Receiver) {
+        // Send immediately.
+        val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
+        var msg: String? = null
+        db.transact { txn ->
+            val task = db.fetchAndLockTask(reportId, txn)
+            val organization = settings.findOrganization(receiver.organizationName)
+                ?: throw Exception("No such organization ${receiver.organizationName}")
+            val header = fetchHeader(reportId, organization) // exception if not found
+            val reportFile = header.reportFile
+            if (reportFile.nextAction != TaskAction.send) {
+                throw Exception("Cannot send $reportId. Its next action is ${reportFile.nextAction}")
+            }
+            if (reportFile.bodyUrl.isEmpty()) {
+                throw Exception("Cannot send $reportId.  Its not in the blob store.")
+            }
+            // The report might be old and the receiver has disappeared for some reason.
+            if (receiver.fullName != "${reportFile.receivingOrg}.${reportFile.receivingOrgSvc}") {
+                throw Exception("Cannot send $reportId. It is not associated with receiver ${receiver.fullName}")
+            }
+            if (header.task.nextActionAt != null && header.task.nextActionAt.isAfter(OffsetDateTime.now())) {
+                throw Exception(
+                    "Cannot send $reportId. Its already scheduled to ${header.task.nextAction}" +
+                        " at ${header.task.nextActionAt}"
+                )
+            }
+            updateHeader(
+                reportId,
+                Event.EventAction.RESEND,
+                nextEvent.eventAction,
+                nextEvent.at,
+                null,
                 txn
             )
         }
@@ -329,7 +371,9 @@ class WorkflowEngine(
             return when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
+                Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
                 Event.EventAction.BATCH -> Tables.TASK.BATCHED_AT
+                Event.EventAction.RESEND -> Tables.TASK.BATCHED_AT // overwrites prior date
                 Event.EventAction.SEND -> Tables.TASK.SENT_AT
                 Event.EventAction.WIPE -> Tables.TASK.WIPED_AT
 
@@ -362,8 +406,8 @@ class WorkflowEngine(
         val settings: SettingsProvider by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
-            val settingsEnabled = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
-            if (settingsEnabled.equals("true", ignoreCase = true)) {
+            val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
+            if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
                 SettingsFacade(metadata, databaseAccess)
             } else {
                 val ext = primeEnv?.let { "-$it" } ?: ""

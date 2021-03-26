@@ -1,0 +1,10 @@
+---
+name: empty
+description: Empty Schema.  For Testing error conditions.  Used by cli ./prime test
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+elements:
+  - name: message_id
+    cardinality: ONE
+    csvFields: [{name: Message_ID}]

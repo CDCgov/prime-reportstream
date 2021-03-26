@@ -67,12 +67,12 @@ class ReportFunction {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        try {
-            val workflowEngine = WorkflowEngine()
-            val actionHistory = ActionHistory(TaskAction.receive, context)
-            actionHistory.trackActionParams(request)
+        val workflowEngine = WorkflowEngine()
+        val actionHistory = ActionHistory(TaskAction.receive, context)
+        actionHistory.trackActionParams(request)
+        val httpResponseMessage = try {
             val validatedRequest = validateRequest(workflowEngine, request)
-            val httpResponseMessage = when {
+            when {
                 validatedRequest.options == Options.CheckConnections -> {
                     workflowEngine.checkConnections()
                     HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
@@ -88,23 +88,23 @@ class ReportFunction {
                     HttpUtilities.okResponse(request, createResponseBody(validatedRequest))
                 }
                 else -> {
+                    // Regular happy path workflow is here
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
-
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
-
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)
                 }
             }
-            actionHistory.trackActionResult(httpResponseMessage)
-            workflowEngine.recordAction(actionHistory)
-            actionHistory.queueMessages() // Must be done after creating db records.
-            return httpResponseMessage
         } catch (e: Exception) {
             context.logger.log(Level.SEVERE, e.message, e)
-            return HttpUtilities.internalErrorResponse(request)
+            actionHistory.trackActionResult("Exception: ${e.message ?: e}")
+            HttpUtilities.internalErrorResponse(request)
         }
+        actionHistory.trackActionResult(httpResponseMessage)
+        workflowEngine.recordAction(actionHistory)
+        actionHistory.queueMessages() // Must be done after creating TASK record.
+        return httpResponseMessage
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
@@ -146,7 +146,7 @@ class ReportFunction {
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "Expected a '$CLIENT_PARAMETER' query parameter"))
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
-            errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$clientName' is not a valid"))
+            errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"))
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
@@ -273,7 +273,7 @@ class ReportFunction {
         val loggerMsg: String
         when {
             validatedRequest.options == Options.SkipSend -> {
-                // Note that SkipSend should really be called SkipTimingAndSend  ;)
+                // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
                 workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
