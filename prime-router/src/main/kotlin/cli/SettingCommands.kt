@@ -553,6 +553,12 @@ class GetMultipleSettings : SettingCommand(
     name = "get",
     help = "get all settings from an environment in yaml format"
 ) {
+    val filter by option(
+        "-f", "--filter",
+        help = "filter the organizations, only returning those with names that start with <filter>",
+        metavar = "<filter>"
+    )
+
     override fun run() {
         val environment = getEnvironment()
         val accessToken = getAccessToken(environment)
@@ -563,7 +569,10 @@ class GetMultipleSettings : SettingCommand(
     fun getAll(environment: Environment, accessToken: String): String {
         // get orgs
         val orgsJson = getMany(environment, accessToken, SettingType.ORG, settingName = "")
-        val orgs = jsonMapper.readValue(orgsJson, Array<OrganizationAPI>::class.java)
+        var orgs = jsonMapper.readValue(orgsJson, Array<OrganizationAPI>::class.java)
+        if (filter != null) {
+            orgs = orgs.filter { it.name.startsWith(filter!!, ignoreCase = true) }.toTypedArray()
+        }
 
         // get senders and receivers per org
         val deepOrgs = orgs.map { org ->
