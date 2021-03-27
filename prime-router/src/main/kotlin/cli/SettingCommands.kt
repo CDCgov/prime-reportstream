@@ -106,8 +106,9 @@ abstract class SettingCommand(
             .jsonBody(payload)
             .responseJson()
         return when (result) {
-            is Result.Failure ->
-                throw result.getException()
+            is Result.Failure -> {
+                throw Exception("Error on put of $settingName: ${String(response.data)}", result.getException())
+            }
             is Result.Success ->
                 when (response.statusCode) {
                     HttpStatus.SC_OK -> {
@@ -121,43 +122,46 @@ abstract class SettingCommand(
     }
 
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String) {
-        val path = formPath(environment, Operation.PUT, settingType, settingName)
-        val (_, _, result) = Fuel
+        val path = formPath(environment, Operation.DELETE, settingType, settingName)
+        val (_, response, result) = Fuel
             .delete(path)
             .authentication()
             .bearer(accessToken)
             .header(CONTENT_TYPE to jsonMimeType)
             .responseString()
         return when (result) {
-            is Result.Failure -> throw result.getException()
+            is Result.Failure ->
+                throw Exception("Error on delete of $settingName: ${String(response.data)}", result.getException())
             is Result.Success -> Unit
         }
     }
 
     fun get(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
-        val (_, _, result) = Fuel
+        val (_, response, result) = Fuel
             .get(path)
             .authentication()
             .bearer(accessToken)
             .header(CONTENT_TYPE to jsonMimeType)
             .responseString()
         return when (result) {
-            is Result.Failure -> throw result.getException()
+            is Result.Failure ->
+                throw Exception("Error getting $settingName: ${String(response.data)}", result.getException())
             is Result.Success -> result.value
         }
     }
 
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
-        val (_, _, result) = Fuel
+        val (_, response, result) = Fuel
             .get(path)
             .authentication()
             .bearer(accessToken)
             .header(CONTENT_TYPE to jsonMimeType)
             .responseJson()
         return when (result) {
-            is Result.Failure -> throw result.getException()
+            is Result.Failure ->
+                throw Exception("Error listing $settingName: ${String(response.data)}", result.getException())
             is Result.Success -> "[${result.value.array().join(",\n")}]"
         }
     }
@@ -169,14 +173,15 @@ abstract class SettingCommand(
         settingName: String
     ): List<String> {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
-        val (_, _, result) = Fuel
+        val (_, response, result) = Fuel
             .get(path)
             .authentication()
             .bearer(accessToken)
             .header(CONTENT_TYPE to jsonMimeType)
             .responseJson()
         return when (result) {
-            is Result.Failure -> throw result.getException()
+            is Result.Failure ->
+                throw Exception("Error listing $settingName: ${String(response.data)}", result.getException())
             is Result.Success -> {
                 val resultObjs = result.value.array()
                 val names = if (settingType == SettingType.ORG) {
@@ -240,19 +245,27 @@ abstract class SettingCommand(
         throw PrintMessage(message, error = true)
     }
 
-    fun fromYaml(input: String, settingType: SettingType): String {
+    fun fromJson(input: String, settingType: SettingType): Pair<String, String> {
+        return readStructure(input, settingType, jsonMapper)
+    }
+
+    fun fromYaml(input: String, settingType: SettingType): Pair<String, String> {
+        return readStructure(input, settingType, yamlMapper)
+    }
+
+    private fun readStructure(input: String, settingType: SettingType, mapper: ObjectMapper): Pair<String, String> {
         return when (settingType) {
             SettingType.ORG -> {
-                val organization = yamlMapper.readValue(input, OrganizationAPI::class.java)
-                jsonMapper.writeValueAsString(organization)
+                val organization = mapper.readValue(input, OrganizationAPI::class.java)
+                Pair(organization.name, jsonMapper.writeValueAsString(organization))
             }
             SettingType.SENDER -> {
-                val sender = yamlMapper.readValue(input, SenderAPI::class.java)
-                jsonMapper.writeValueAsString(sender)
+                val sender = mapper.readValue(input, SenderAPI::class.java)
+                Pair(sender.fullName, jsonMapper.writeValueAsString(sender))
             }
             SettingType.RECEIVER -> {
-                val receiver = yamlMapper.readValue(input, ReceiverAPI::class.java)
-                jsonMapper.writeValueAsString(receiver)
+                val receiver = mapper.readValue(input, ReceiverAPI::class.java)
+                Pair(receiver.fullName, jsonMapper.writeValueAsString(receiver))
             }
         }
     }
@@ -319,8 +332,11 @@ abstract class SingleSettingCommandNoSettingName(
                 if (useJson) writeOutput(output) else writeOutput(toYaml(output, settingType))
             }
             Operation.PUT -> {
-                val payload = if (useJson) readInput() else fromYaml(readInput(), settingType)
-                val output = put(environment, accessToken, settingType, settingName, payload)
+                val (name, payload) = if (useJson)
+                    fromJson(readInput(), settingType)
+                else
+                    fromYaml(readInput(), settingType)
+                val output = put(environment, accessToken, settingType, name, payload)
                 writeOutput(output)
             }
             Operation.DELETE -> {
@@ -352,12 +368,6 @@ abstract class SingleSettingWithInputCommand(
 ) : SingleSettingCommandNoSettingName(name, help, settingType, operation) {
     override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
         .inputStream()
-
-    override val settingName: String by option(
-        "-n", "--name",
-        metavar = "<name>",
-        help = "The full name of the setting"
-    ).required()
 }
 
 /**
@@ -543,6 +553,12 @@ class GetMultipleSettings : SettingCommand(
     name = "get",
     help = "get all settings from an environment in yaml format"
 ) {
+    val filter by option(
+        "-f", "--filter",
+        help = "filter the organizations, only returning those with names that start with <filter>",
+        metavar = "<filter>"
+    )
+
     override fun run() {
         val environment = getEnvironment()
         val accessToken = getAccessToken(environment)
@@ -553,7 +569,10 @@ class GetMultipleSettings : SettingCommand(
     fun getAll(environment: Environment, accessToken: String): String {
         // get orgs
         val orgsJson = getMany(environment, accessToken, SettingType.ORG, settingName = "")
-        val orgs = jsonMapper.readValue(orgsJson, Array<OrganizationAPI>::class.java)
+        var orgs = jsonMapper.readValue(orgsJson, Array<OrganizationAPI>::class.java)
+        if (filter != null) {
+            orgs = orgs.filter { it.name.startsWith(filter!!, ignoreCase = true) }.toTypedArray()
+        }
 
         // get senders and receivers per org
         val deepOrgs = orgs.map { org ->
