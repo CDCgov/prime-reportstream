@@ -107,7 +107,7 @@ abstract class SettingCommand(
             .responseJson()
         return when (result) {
             is Result.Failure -> {
-                throw Exception("Error on put of $settingName: ${String(response.data)}", result.getException())
+                abort("Error on put of $settingName: ${response.responseMessage} ${String(response.data)}")
             }
             is Result.Success ->
                 when (response.statusCode) {
@@ -131,7 +131,7 @@ abstract class SettingCommand(
             .responseString()
         return when (result) {
             is Result.Failure ->
-                throw Exception("Error on delete of $settingName: ${String(response.data)}", result.getException())
+                abort("Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}")
             is Result.Success -> Unit
         }
     }
@@ -146,7 +146,7 @@ abstract class SettingCommand(
             .responseString()
         return when (result) {
             is Result.Failure ->
-                throw Exception("Error getting $settingName: ${String(response.data)}", result.getException())
+                abort("Error getting $settingName: ${response.responseMessage} ${String(response.data)}")
             is Result.Success -> result.value
         }
     }
@@ -161,7 +161,7 @@ abstract class SettingCommand(
             .responseJson()
         return when (result) {
             is Result.Failure ->
-                throw Exception("Error listing $settingName: ${String(response.data)}", result.getException())
+                abort("Error listing $settingName: ${response.responseMessage} ${String(response.data)}")
             is Result.Success -> "[${result.value.array().join(",\n")}]"
         }
     }
@@ -181,7 +181,7 @@ abstract class SettingCommand(
             .responseJson()
         return when (result) {
             is Result.Failure ->
-                throw Exception("Error listing $settingName: ${String(response.data)}", result.getException())
+                abort("Error listing $settingName: ${response.responseMessage} ${String(response.data)}")
             is Result.Success -> {
                 val resultObjs = result.value.array()
                 val names = if (settingType == SettingType.ORG) {
