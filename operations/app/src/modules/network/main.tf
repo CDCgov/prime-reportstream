@@ -94,7 +94,7 @@ resource "azurerm_virtual_network" "virtual_network_2" {
   name = "${var.resource_prefix}-vnet2"
   location = "westus"
   resource_group_name = var.resource_group
-  address_space = ["10.0.23.0/16"]
+  address_space = ["10.1.0.0/16"]
 
   tags = {
     environment = var.environment
@@ -105,7 +105,7 @@ resource "azurerm_subnet" "private2" {
   name = "private"
   resource_group_name = var.resource_group
   virtual_network_name = azurerm_virtual_network.virtual_network_2.name
-  address_prefixes = ["10.0.23.0/24"]
+  address_prefixes = ["10.1.23.0/24"]
   service_endpoints = ["Microsoft.Sql"]
 }
 
