@@ -337,7 +337,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(
                 SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type)
-            )
+            ).orderBy(SETTING.SETTING_ID)
             .fetch()
             .into(Setting::class.java)
     }
@@ -351,7 +351,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type),
                 SETTING.ORGANIZATION_ID.eq(organizationId)
-            )
+            ).orderBy(SETTING.SETTING_ID)
             .fetch()
             .into(Setting::class.java)
     }
