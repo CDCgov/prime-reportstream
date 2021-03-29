@@ -432,7 +432,7 @@
         <dependency>
             <groupId>com.github.doyaaaaaken</groupId>
             <artifactId>kotlin-csv-jvm</artifactId>
-            <version>0.13.0</version>
+            <version>0.15.1</version>
         </dependency>
         <dependency>
             <groupId>tech.tablesaw</groupId>
