@@ -24,7 +24,7 @@
       type: "CUSTOM"
     jurisdictionalFilter:
     - "matches(ordering_facility_state, IG)"
-    - "matches(ordering_facility_county, CSV)"
+    - "matches(ordering_facility_county, RECEIVER1)"
     deidentify: false
     timing:
       operation: "MERGE"
@@ -56,7 +56,7 @@
       type: "CUSTOM"
     jurisdictionalFilter:
     - "matches(ordering_facility_state, IG)"
-    - "matches(ordering_facility_county, REDOX)"
+    - "matches(ordering_facility_county, RECEIVER2)"
     deidentify: false
     timing:
       operation: "MERGE"
@@ -90,7 +90,7 @@
       type: "HL7"
     jurisdictionalFilter:
     - "matches(ordering_facility_state, IG)"
-    - "matches(ordering_facility_county, SFTP_LEGACY)"
+    - "matches(ordering_facility_county, RECEIVER3)"
     deidentify: false
     timing:
       operation: "MERGE"
