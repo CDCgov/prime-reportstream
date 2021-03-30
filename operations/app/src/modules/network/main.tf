@@ -104,7 +104,7 @@ resource "azurerm_virtual_network" "virtual_network_2" {
 resource "azurerm_subnet" "private2" {
   name = "private"
   resource_group_name = var.resource_group
-  virtual_network_name = azurerm_virtual_network.virutal_network_2.name
+  virtual_network_name = azurerm_virtual_network.virtual_network_2.name
   address_prefixes = ["10.1.3.0/24"]
   service_endpoints = ["Microsoft.Sql"]
 }
