@@ -23,7 +23,40 @@ resource "azurerm_postgresql_server" "postgres_server" {
   version = "11"
   storage_mb = 5120
 
-  auto_grow_enabled = (var.environment == "prod" ? true : false)
+  auto_grow_enabled = true
+
+  ssl_enforcement_enabled = true
+  ssl_minimal_tls_version_enforced = "TLS1_2"
+
+  threat_detection_policy {
+    enabled = true
+    email_account_admins = true
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    "environment" = var.environment
+  }
+}
+
+resource "azurerm_postgresql_server" "postgres_server_replica" {
+  name = "${var.name}-replica"
+  location = "westus"
+  resource_group_name = var.resource_group
+  administrator_login = data.azurerm_key_vault_secret.postgres_user.value
+  administrator_login_password = data.azurerm_key_vault_secret.postgres_pass.value
+
+  create_mode = "Replica"
+  creation_source_server_id = azurerm_postgresql_server.postgres_server.id
+
+  sku_name = "GP_Gen5_4"
+  version = "11"
+  storage_mb = 5120
+
+  auto_grow_enabled = true
 
   ssl_enforcement_enabled = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
@@ -63,6 +96,13 @@ resource "azurerm_postgresql_virtual_network_rule" "allow_private_subnet" {
   resource_group_name = var.resource_group
   server_name = azurerm_postgresql_server.postgres_server.name
   subnet_id = var.private_subnet_id
+}
+
+resource "azurerm_postgresql_virtual_network_rule" "allow_private2_subnet" {
+  name = "AllowPrivateSubnet"
+  resource_group_name = var.resource_group
+  server_name = azurerm_postgresql_server.postgres_server_replica.name
+  subnet_id = var.private2_subnet_id
 }
 
 resource "azurerm_postgresql_database" "prime_data_hub_db" {
