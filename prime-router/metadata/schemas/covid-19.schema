@@ -152,6 +152,7 @@ elements:
     type: ID
     hl7Field: ORC-3-1
     hl7OutputFields: [ ORC-3-1, SPM-2-2, OBR-3-1 ]
+    documentation: Accension number
 
   - name: filler_clia
     type: ID_CLIA
@@ -841,6 +842,7 @@ elements:
     hl7Field: SPM-10
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10
 
+  # should this also have a lookup into LIVD?
   - name: specimen_description
     type: TEXT
     hl7Field: SPM-14
