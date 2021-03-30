@@ -86,6 +86,16 @@ module "postgres_private_endpoint" {
   endpoint_subnet_id = var.endpoint_subnet_id
 }
 
+module "postgres_private2_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_postgresql_server.postgres_server_replica.id
+  name = azurerm_postgresql_server.postgres_server_replica.name
+  type = "postgres_server"
+  resource_group = var.resource_group
+  location = azurerm_postgresql_server.postgres_server_replica.location
+  endpoint_subnet_id = var.endpoint2_subnet_id
+}
+
 resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
   server_name = azurerm_postgresql_server.postgres_server.name
   resource_group_name = var.resource_group
@@ -93,13 +103,6 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
   tenant_id = data.azurerm_client_config.current.tenant_id
   # pgsql_admin AAD group
   object_id = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
-}
-
-resource "azurerm_postgresql_virtual_network_rule" "allow_private2_subnet" {
-  name = "AllowPrivateSubnet"
-  resource_group_name = var.resource_group
-  server_name = azurerm_postgresql_server.postgres_server_replica.name
-  subnet_id = var.private2_subnet_id
 }
 
 resource "azurerm_postgresql_database" "prime_data_hub_db" {

@@ -23,29 +23,15 @@ variable "location" {
     description = "Database Server Location"
 }
 
-variable "public_subnet_id" {
-    type = string
-    description = "Public Subnet ID"
-}
-
-variable "private_subnet_id" {
-    type = string
-    description = "Private Subnet ID"
-}
-
-variable "gateway_subnet_id" {
-    type = string
-    description = "VPN Gateway Subnet ID"
-}
 
 variable "endpoint_subnet_id" {
     type = string
     description = "Private Endpoint Subnet ID"
 }
 
-variable "private2_subnet_id" {
+variable "endpoint2_subnet_id" {
     type = string
-    description = "Private2 Subnet ID"
+    description = "Private Endpoint2 Subnet ID"
 }
 
 variable "app_config_key_vault_id" {

@@ -240,7 +240,7 @@ resource "azurerm_public_ip" "vpn_ip" {
 }
 
 
-## Outputs
+## Redundancy VNET
 
 resource "azurerm_virtual_network" "virtual_network_2" {
   name = "${var.resource_prefix}-vnet-peer"
@@ -268,6 +268,19 @@ resource "azurerm_virtual_network_peering" "virtual_network_peer" {
   remote_virtual_network_id = azurerm_virtual_network.virtual_network_2.id
 }
 
+# This subnet is where the private endpoints will exist
+# They need a dedicated subnet, since Azure requires full automatic management capabilities of the ACL
+resource "azurerm_subnet" "endpoint2" {
+  name = "endpoint"
+  resource_group_name = var.resource_group
+  virtual_network_name = azurerm_virtual_network.virtual_network_2.name
+  address_prefixes = ["10.1.5.0/24"]
+  enforce_private_link_endpoint_network_policies = true
+}
+
+
+## Outputs
+
 output "public_subnet_id" {
   value = azurerm_subnet.public.id
 }
@@ -290,6 +303,14 @@ output "endpoint_subnet_id" {
   # Wait for the DNS zones to be created, or anything requiring this subnet will fail
   depends_on = [azurerm_private_dns_zone.dns_zone_private]
 }
+
 output "private2_subnet_id" {
   value = azurerm_subnet.private2.id
+}
+
+output "endpoint2_subnet_id" {
+  value = azurerm_subnet.endpoint.id
+
+  # Wait for the DNS zones to be created, or anything requiring this subnet will fail
+  depends_on = [azurerm_private_dns_zone.dns_zone_private]
 }
