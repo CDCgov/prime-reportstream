@@ -104,7 +104,7 @@ resource "azurerm_virtual_network" "virtual_network_2" {
 resource "azurerm_subnet" "private2" {
   name = "private"
   resource_group_name = var.resource_group
-  virtual_network_name = azurerm_virtual_network.vnet_peer_1.name
+  virtual_network_name = azurerm_virtual_network.virutal_network_2.name
   address_prefixes = ["10.1.3.0/24"]
   service_endpoints = ["Microsoft.Sql"]
 }
@@ -113,7 +113,7 @@ resource "azurerm_virtual_network_peering" "virtual_network_peer" {
   name = "${var.resource_prefix}-peering-001"
   resource_group_name = var.resource_group
   virtual_network_name = azurerm_virtual_network.virtual_network.name
-  remote_virtual_network_id = azurerm_virtual_network.vnet_peer_1.id
+  remote_virtual_network_id = azurerm_virtual_network.virtual_network_2.id
 }
 
 output "public_subnet_id" {
