@@ -51,7 +51,8 @@ open class Receiver(
         copy.jurisdictionalFilter,
         copy.deidentify,
         copy.timing,
-        copy.description
+        copy.description,
+        copy.transport,
     )
 
     @get:JsonIgnore

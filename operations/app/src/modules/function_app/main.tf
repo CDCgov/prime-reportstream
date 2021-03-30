@@ -69,7 +69,7 @@ resource "azurerm_function_app" "function_app" {
 
     "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
 
-    "FEATURE_FLAG_SETTINGS_ENABLED" = false
+    "FEATURE_FLAG_SETTINGS_ENABLED" = true
   }
 
   identity {
