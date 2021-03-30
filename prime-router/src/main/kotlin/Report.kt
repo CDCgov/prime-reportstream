@@ -43,6 +43,7 @@ class Report {
         STANDARD,
         APHL,
         OHIO,
+        CUSTOM,
     }
 
     enum class Format(
@@ -699,8 +700,17 @@ class Report {
             createdDateTime: OffsetDateTime,
             nameFormat: NameFormat = NameFormat.STANDARD,
             receivingOrganization: String? = null,
-            sendingFacility: String = "cdcprime"
+            sendingFacility: String = "cdcprime",
+            processingModeCode: String = "T",
+            translationConfig: TranslatorConfiguration? = null,
         ): String {
+            fun mapProcessingModeCode(processingModeCode: String = "T"): String {
+                return when (processingModeCode.toLowerCase()) {
+                    "p" -> "production"
+                    "d" -> "development"
+                    else -> "testing"
+                }
+            }
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
             return when (nameFormat) {
@@ -723,8 +733,8 @@ class Report {
                         ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
                  */
                     val so = "cdcprime"
-                    val se = "testing"
-                    val re = "testing"
+                    val se = mapProcessingModeCode(processingModeCode)
+                    val re = mapProcessingModeCode(processingModeCode)
                     val ts = formatter.format(createdDateTime)
                     // have to escape with curly braces because Kotlin allows underscores in variable names
                     "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
@@ -736,6 +746,9 @@ class Report {
                 NameFormat.STANDARD -> {
                     val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                     "$namePrefix.$nameSuffix"
+                }
+                NameFormat.CUSTOM -> {
+                    TODO("Not done yet")
                 }
             }
         }

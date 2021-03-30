@@ -287,6 +287,8 @@
           reportingFacilityId: 36DSMP9999
           nameFormat: OHIO
           suppressHl7Fields: OBX-23-11
+          # turn off UNK and ASKU for this field
+          useBlankInsteadOfUnknown: patient_race
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute

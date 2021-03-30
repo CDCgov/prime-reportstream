@@ -272,7 +272,15 @@ class Hl7Serializer(val metadata: Metadata) {
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         // and we have some fields to suppress
-        val suppressedFields = hl7Config?.suppressHl7Fields?.split(",") ?: emptyList()
+        val suppressedFields = hl7Config
+            ?.suppressHl7Fields
+            ?.split(",")
+            ?.map { it.trim() } ?: emptyList()
+        // or maybe we're going to suppress UNK/ASKU for some fields
+        val blanksForUnknownFields = hl7Config
+            ?.useBlankInsteadOfUnknown
+            ?.split(",")
+            ?.map { it.toLowerCase().trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
         val terser = Terser(message)
@@ -283,6 +291,16 @@ class Hl7Serializer(val metadata: Metadata) {
 
             if (suppressedFields.contains(element.hl7Field))
                 return@forEach
+
+            // some fields need to be blank instead of passing in UNK
+            // so in this case we'll just go by field name and set the value to blank
+            if (blanksForUnknownFields.contains(element.name) &&
+                element.hl7Field != null &&
+                (value.equals("ASKU", true) || value.equals("UNK", true))
+            ) {
+                setComponent(terser, element, element.hl7Field, "")
+                return@forEach
+            }
 
             if (element.hl7OutputFields != null) {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
