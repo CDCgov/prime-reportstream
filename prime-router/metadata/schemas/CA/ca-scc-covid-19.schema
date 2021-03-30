@@ -67,6 +67,7 @@ elements:
         format: "$code"
 
   - name: "local_Language"
+    type: TEXT
     default: ""
     csvFields:
       - name: "Language"
@@ -96,6 +97,7 @@ elements:
       - name: "Patient Phone Number"
 
   - name: "local_OK_to_Contact_Patient"
+    type: TEXT
     default: ""
     csvFields:
       - name: "OK to Contact Patient"
@@ -109,6 +111,7 @@ elements:
       - name: "Provider Last Name"
 
   - name: "local_provider_facility_name"
+    type: TEXT
     mapper: "use(ordering_facility_name)"
     csvFields:
       - name: "Provider Facility Name"
@@ -189,6 +192,8 @@ elements:
       - name: "Test Code"
 
   - name: "local_test_result_code"
+    type: CODE
+    valueSet: covid-19/test_result
     mapper: "use(test_result)"
     csvFields:
       - name: "Result Code"
@@ -199,6 +204,7 @@ elements:
       - name: "Device Identifier"
 
   - name: "local_Notes"
+    type: TEXT
     default: ""
     csvFields:
       - name: "Notes"

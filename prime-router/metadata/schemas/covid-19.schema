@@ -152,7 +152,7 @@ elements:
     type: ID
     hl7Field: ORC-3-1
     hl7OutputFields: [ ORC-3-1, SPM-2-2, OBR-3-1 ]
-    documentation: Assension number
+    documentation: Accension number
 
   - name: filler_clia
     type: ID_CLIA
