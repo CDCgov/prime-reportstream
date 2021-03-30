@@ -281,7 +281,7 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>7.7.0</version>
+                <version>7.7.1</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -340,7 +340,7 @@
              <plugin>
                 <groupId>com.github.gantsign.maven</groupId>
                 <artifactId>ktlint-maven-plugin</artifactId>
-                <version>1.7.0</version>
+                <version>1.9.0</version>
                 <executions>
                     <execution>
                         <id>format and check</id>
@@ -432,7 +432,7 @@
         <dependency>
             <groupId>com.github.doyaaaaaken</groupId>
             <artifactId>kotlin-csv-jvm</artifactId>
-            <version>0.13.0</version>
+            <version>0.15.1</version>
         </dependency>
         <dependency>
             <groupId>tech.tablesaw</groupId>
