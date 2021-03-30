@@ -10,13 +10,19 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
+import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.credentials.UserPpkCredential
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
+import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
+import net.schmizz.sshj.userauth.password.PasswordUtils
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
-import java.io.IOException
+import org.apache.commons.lang3.StringUtils
 import java.io.InputStream
+import java.io.StringReader
 import java.util.logging.Level
 
 class SftpTransport : ITransport {
@@ -35,10 +41,10 @@ class SftpTransport : ITransport {
             if (header.content == null)
                 error("No content to sftp for report ${header.reportFile.reportId}")
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
-            val (user, pass) = lookupCredentials(receiver.fullName)
+            val credential = lookupCredentials(receiver.fullName)
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
-            val sshClient = connect(host, port, user, pass)
+            val sshClient = connect(host, port, credential)
             context.logger.log(Level.INFO, "Successfully connected to $sftpTransportType, ready to upload $fileName")
             uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
@@ -54,46 +60,55 @@ class SftpTransport : ITransport {
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
-        } catch (ioException: IOException) {
+        } catch (t: Throwable) {
             val msg =
                 "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
-                    "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})"
-            context.logger.log(
-                Level.WARNING, msg, ioException
-            )
+                    "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
+                    ", Exception: ${t.localizedMessage}"
+            context.logger.log(Level.WARNING, msg, t)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
-        } // let non-IO exceptions be caught by the caller
+        }
     }
 
     companion object {
-        fun lookupCredentials(receiverFullName: String): Pair<String, String> {
+        fun lookupCredentials(receiverFullName: String): SftpCredential {
             val credentialLabel = receiverFullName
                 .replace(".", "--")
                 .replace("_", "-")
                 .toUpperCase()
 
-            // Assumes credential will be cast as UserPassCredential, if not return null, and thus the error case
-            val credential = CredentialHelper.getCredentialService().fetchCredential(
+            // Assumes credential will be cast as SftpCredential, if not return null, and thus the error case
+            return CredentialHelper.getCredentialService().fetchCredential(
                 credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
-            ) as? UserPassCredential?
+            ) as? SftpCredential?
                 ?: error("Unable to find SFTP credentials for $receiverFullName connectionId($credentialLabel)")
-
-            return Pair(credential.user, credential.pass)
         }
 
         fun connect(
             host: String,
             port: String,
-            user: String,
-            pass: String,
+            credential: SftpCredential,
         ): SSHClient {
+            // create our client
             val sshClient = SSHClient()
             try {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
                 sshClient.connect(host, port.toInt())
-                sshClient.authPassword(user, pass)
+                when (credential) {
+                    is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
+                    is UserPpkCredential -> {
+                        val key = PuTTYKeyFile()
+                        val keyContents = StringReader(credential.key)
+                        when (StringUtils.isBlank(credential.keyPass)) {
+                            true -> key.init(keyContents)
+                            false -> key.init(keyContents, PasswordUtils.createOneOff(credential.keyPass.toCharArray()))
+                        }
+                        sshClient.authPublickey(credential.user, key)
+                    }
+                    else -> error("Unknown SftpCredential ${credential::class.simpleName}")
+                }
                 return sshClient
             } catch (t: Throwable) {
                 sshClient.disconnect()
@@ -124,10 +139,21 @@ class SftpTransport : ITransport {
         fun ls(sshClient: SSHClient, path: String): List<String> {
             try {
                 val client = sshClient.newSFTPClient()
-                client.fileTransfer.preserveAttributes = false
                 client.use {
                     val lsResponse = it.ls(path)
-                    return lsResponse.map { it.toString() }.toList()
+                    return lsResponse.map { l -> l.toString() }.toList()
+                }
+            } finally {
+                sshClient.disconnect()
+            }
+        }
+
+        fun pwd(sshClient: SSHClient): String {
+            try {
+                val client = sshClient.newStatefulSFTPClient() as StatefulSFTPClient
+                sshClient.timeout = 120000
+                client.use {
+                    return it.pwd()
                 }
             } finally {
                 sshClient.disconnect()

@@ -23,8 +23,11 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.ReportFunction
 import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.max
 import java.io.File
 import java.lang.Thread.sleep
 import java.net.HttpURLConnection
@@ -81,11 +84,12 @@ Examples:
         ),
         badcsv("Submit badly formatted csv files - should get errors", TestStatus.GOODSTUFF),
         stracbasic("Basic strac test to REDOX only.", TestStatus.GOODSTUFF),
+        garbage("Garbage in - Nice error message out", TestStatus.GOODSTUFF),
         huge("Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow.", TestStatus.SLOW),
         toobig("Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)", TestStatus.SLOW),
         dbconnections("Test weird issue wherein many 'sends' cause db connection failures", TestStatus.FAILS),
         strac("Submit data in the strac schema format, wait, confirm via database queries", TestStatus.FAILS),
-        badsftp("Test ReportStream's response to sftp connection failures", TestStatus.DRAFT),
+        badsftp("Test ReportStream's response to sftp connection failures. Tests RETRY too!", TestStatus.DRAFT),
     }
 
     private val list by option(
@@ -189,6 +193,7 @@ Examples:
                 AwesomeTest.toomanycols -> doTooManyColsTest(environment)
                 AwesomeTest.badcsv -> doBadCsvTest(environment)
                 AwesomeTest.stracbasic -> doStracBasicTest(environment)
+                AwesomeTest.garbage -> doGarbageTest(environment)
                 AwesomeTest.huge -> doHugeTest(environment)
                 AwesomeTest.toobig -> doTooBigTest(environment)
                 AwesomeTest.dbconnections -> doDbConnectionsTest(environment)
@@ -227,6 +232,42 @@ Examples:
             }
         } catch (e: NullPointerException) {
             bad("***Ping/CheckConnections FAILED***: Unable to properly parse response json")
+        }
+    }
+
+    // end2end
+    private fun doGarbageTest(
+        environment: ReportStreamEnv
+    ) {
+        ugly("Starting ${AwesomeTest.garbage} Test: send ${emptySender.fullName} data to $allGoodCounties")
+        val fakeItemCount = allGoodReceivers.size * 5 // 5 to each receiver
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            emptySender,
+            fakeItemCount,
+            receivingStates,
+            allGoodCounties,
+            dir,
+        )
+        echo("Created datafile $file")
+        // Now send it to the Hub.
+        val (responseCode, json) = HttpUtilities.postReportFile(environment, file, org.name, emptySender.name, key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        try {
+            db = WorkflowEngine().db
+            db.transact { txn ->
+                // Hack:  this gets most recent stored action.  Might be wrong action, if system is very active
+                val action = actionQuery(txn) ?: error("***garbage test failed: No related db action found in db")
+                echo("garbage: ReportStream stored Action History = ${action.actionResult}")
+                if (action.actionResult.contains("Exception")) {
+                    good("garbage: Test passed.")
+                } else {
+                    bad("***garbage Test FAILED***: No Exception recorded in Action History")
+                }
+            }
+        } catch (t: Throwable) {
+            bad("***garbage Test FAILED***: Exception: $t")
         }
     }
 
@@ -291,7 +332,7 @@ Examples:
             echo("Id of submitted report: $reportId")
             reportId
         }
-        waitABit(30, environment)
+        waitABit(40, environment)
         examineMergeResults(reportIds[0], allGoodReceivers, fakeItemCount, numResends)
     }
 
@@ -399,6 +440,7 @@ Examples:
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
+        echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
         examineLineageResults(reportId, listOf(sftpFailReceiver), fakeItemCount)
     }
 
@@ -642,23 +684,27 @@ Examples:
     }
 
     companion object {
-        val defaultWorkingDir = "./target/csv_test_files"
+        const val defaultWorkingDir = "./target/csv_test_files"
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
 
         // Here is test setup of organization, senders, and receivers.   All static.
-        val orgName = "ignore"
+        const val orgName = "ignore"
         val org = settings.findOrganization(orgName)
             ?: error("Unable to find org $orgName in metadata")
-        val receivingStates = "IG"
+        const val receivingStates = "IG"
 
-        val simpleReportSenderName = "ignore-simple-report"
+        const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender = settings.findSender("$orgName.$simpleReportSenderName")
             ?: error("Unable to find sender $simpleReportSenderName for organization ${org.name}")
 
-        val stracSenderName = "ignore-strac"
+        const val stracSenderName = "ignore-strac"
         val stracSender = settings.findSender("$orgName.$stracSenderName")
             ?: error("Unable to find sender $stracSenderName for organization ${org.name}")
+
+        const val emptySenderName = "ignore-empty"
+        val emptySender = settings.findSender("$orgName.$emptySenderName")
+            ?: error("Unable to find sender $emptySenderName for organization ${org.name}")
 
         val allGoodReceivers = settings.receivers.filter {
             it.organizationName == orgName && !it.name.contains("FAIL")
@@ -701,7 +747,7 @@ Examples:
             if (secsElapsed > (60 - plusSecs) || env != ReportStreamEnv.LOCAL) {
                 // Uh oh, we are close to the top of the minute *now*, so 'receive' might not finish in time.
                 // Or, we are in Test or Staging, which don't execute on the top of the minute.
-                waitSecs += 60
+                waitSecs += 90
             }
             echo("Waiting $waitSecs seconds for the Hub to fully receive, batch, and send the data")
             for (i in 1..waitSecs) {
@@ -744,6 +790,16 @@ Examples:
               and RF.report_id in
               (select report_descendants(?)) """
             return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+        }
+
+        // Find the most recent action taken in the system
+        fun actionQuery(
+            txn: DataAccessTransaction,
+        ): Action? {
+            val ctx = DSL.using(txn)
+            return ctx.selectFrom(ACTION)
+                .where(ACTION.ACTION_ID.eq(ctx.select(max(ACTION.ACTION_ID)).from(ACTION)))
+                .fetchOne()?.into(Action::class.java)
         }
     }
 }

@@ -44,7 +44,11 @@ data class Hl7Configuration
     val receivingFacilityName: String?,
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
+    val reportingFacilityName: String? = null,
+    val reportingFacilityId: String? = null,
     val suppressQstForAoe: Boolean = false,
+    val suppressHl7Fields: String? = null,
+    val suppressAoe: Boolean = false,
     override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?,
     @get:JsonIgnore
@@ -70,11 +74,18 @@ data class Hl7Configuration
             receivingFacilityName != null && receivingFacilityOID == null -> receivingFacilityName
             else -> ""
         }
+        val reportingFacility = when {
+            reportingFacilityName != null && reportingFacilityId != null ->
+                "$reportingFacilityName^$reportingFacilityId^CLIA"
+            reportingFacilityName != null && reportingFacilityId == null -> reportingFacilityName
+            else -> ""
+        }
         return mapOf(
             "processing_mode_code" to (if (useTestProcessingMode) "T" else "P"),
             "receiving_application" to receivingApplication,
             "receiving_facility" to receivingFacility,
             "message_profile_id" to (messageProfileId ?: ""),
+            "reporting_facility" to reportingFacility
         )
     }
 }

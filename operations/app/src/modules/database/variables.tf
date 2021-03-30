@@ -43,6 +43,11 @@ variable "endpoint_subnet_id" {
     description = "Private Endpoint Subnet ID"
 }
 
+variable "private2_subnet_id" {
+    type = string
+    description = "Private2 Subnet ID"
+}
+
 variable "app_config_key_vault_id" {
     type = string
     description = "Key Vault used for database user/pass"

@@ -242,6 +242,32 @@ resource "azurerm_public_ip" "vpn_ip" {
 
 ## Outputs
 
+resource "azurerm_virtual_network" "virtual_network_2" {
+  name = "${var.resource_prefix}-vnet-peer"
+  location = "westus"
+  resource_group_name = var.resource_group
+  address_space = ["10.1.0.0/16"]
+
+  tags = {
+    environment = var.environment
+  }
+}
+
+resource "azurerm_subnet" "private2" {
+  name = "private"
+  resource_group_name = var.resource_group
+  virtual_network_name = azurerm_virtual_network.virtual_network_2.name
+  address_prefixes = ["10.1.3.0/24"]
+  service_endpoints = ["Microsoft.Sql"]
+}
+
+resource "azurerm_virtual_network_peering" "virtual_network_peer" {
+  name = "${var.resource_prefix}-peering-001"
+  resource_group_name = var.resource_group
+  virtual_network_name = azurerm_virtual_network.virtual_network.name
+  remote_virtual_network_id = azurerm_virtual_network.virtual_network_2.id
+}
+
 output "public_subnet_id" {
   value = azurerm_subnet.public.id
 }
@@ -263,4 +289,7 @@ output "endpoint_subnet_id" {
 
   # Wait for the DNS zones to be created, or anything requiring this subnet will fail
   depends_on = [azurerm_private_dns_zone.dns_zone_private]
+}
+output "private2_subnet_id" {
+  value = azurerm_subnet.private2.id
 }

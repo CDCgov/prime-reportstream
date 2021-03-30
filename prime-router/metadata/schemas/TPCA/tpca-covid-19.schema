@@ -1,6 +1,6 @@
 ---
-name: tcp-covid-19
-description: A COVID-19 schema for TCP working through A6
+name: tpca-covid-19
+description: A COVID-19 schema for TPCA working through A6
 trackingElement: specimen_id
 topic: covid-19
 basedOn: covid-19
