@@ -245,6 +245,10 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Accension number
+
 ---
 
 **Name**: filler_clia

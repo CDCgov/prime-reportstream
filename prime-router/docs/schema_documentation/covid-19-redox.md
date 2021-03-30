@@ -525,6 +525,10 @@ The phone number of the facility which the test was ordered from
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Accension number
+
 ---
 
 **Name**: specimen_received_date_time

@@ -48,6 +48,10 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Accension number
+
 ---
 
 **Name**: Patient_last_name
