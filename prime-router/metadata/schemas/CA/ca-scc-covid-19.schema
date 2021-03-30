@@ -55,7 +55,7 @@ elements:
   - name: "patient_gender"
     csvFields:
       - name: "Patient Sex"
-        format: "$code" 
+        format: "$code"
 
   - name: "patient_race"
     csvFields:

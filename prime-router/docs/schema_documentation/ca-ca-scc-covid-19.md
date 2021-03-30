@@ -178,6 +178,8 @@ Other states may choose to define their own formats.
 
 **Type**: CODE
 
+**Format**: $code
+
 **HL7 Field**: PID-8-1
 
 **Cardinality**: [0..1]
