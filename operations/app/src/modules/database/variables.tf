@@ -23,7 +23,6 @@ variable "location" {
     description = "Database Server Location"
 }
 
-
 variable "endpoint_subnet_id" {
     type = string
     description = "Private Endpoint Subnet ID"

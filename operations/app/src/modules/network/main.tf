@@ -309,7 +309,7 @@ output "private2_subnet_id" {
 }
 
 output "endpoint2_subnet_id" {
-  value = azurerm_subnet.endpoint.id
+  value = azurerm_subnet.endpoint2.id
 
   # Wait for the DNS zones to be created, or anything requiring this subnet will fail
   depends_on = [azurerm_private_dns_zone.dns_zone_private]
