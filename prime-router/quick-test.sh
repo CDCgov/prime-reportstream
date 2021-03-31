@@ -30,6 +30,7 @@ RUN_OH=0
 RUN_TX=0
 RUN_VT=0
 RUN_MT=0
+RUN_CA=0
 # always should run, but we'll leave this here for now in case that could change at some point
 RUN_STANDARD=1
 RUN_ALL=0
@@ -54,6 +55,7 @@ do
     tx | TX) RUN_TX=1;;
     vt | VT) RUN_VT=1;;
     mt | MT) RUN_MT=1;;
+    ca | CA) RUN_CA=1;;
     all | ALL) RUN_ALL=1;;
     merge | MERGE) RUN_MERGE=1;;
   esac
@@ -71,6 +73,7 @@ then
   RUN_TX=1
   RUN_VT=1
   RUN_MT=1
+  RUN_CA=1
   RUN_STANDARD=1
   RUN_MERGE=1
 fi
@@ -308,6 +311,14 @@ then
   parse_prime_output_for_filename "$text" "/mt.*\.hl7"
   text=$(./prime data --input-fake 50 --input-schema mt/mt-covid-19-csv --output-dir $outputdir --target-states MT --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/mt.*\.hl7"
+fi
+
+# run vt
+if [ $RUN_CA -ne 0 ]
+then
+  echo Generate fake CA data, CSV!
+  text=$(./prime data --input-fake 50 --input-schema ca/ca-scc-covid-19 --output-dir $outputdir --target-states CA --target-counties 'Santa Clara' --output-format CSV)
+  parse_prime_output_for_filename "$text" "/ca.*\.csv"
 fi
 
 exit 0
