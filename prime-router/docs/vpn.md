@@ -17,6 +17,12 @@ You will be provided a VPN profile that is unique to you for each environment. T
 
 Once you receive your VPN profile, import the profile into the OpenVPN client of your choice.
 
+## Trouble Accessing Items in the Azure Portal?
+
+Some browsers like Firefox or Chrome have started defaulting to use custom DNS-over-HTTPS (DOH) providers. This will interfere with the VPN's DNS server. You will need to disable DOH on your browser. Directions below:
+
+https://learn.akamai.com/en-us/webhelp/enterprise-threat-protector/etp-client-configuration-guide/GUID-04D2A852-CB51-4210-9CE3-7F6ABB3B84E2.html
+
 # Generate a VPN Profile
 
 To generate keys for a VPN profile, follow the below steps. These steps [are derived from this Azure document](https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-certificates-point-to-site-linux).
