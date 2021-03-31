@@ -81,7 +81,7 @@ jobs:
         id: connect_vpn
         with:
           PING_URL: '127.0.0.1'
-          FILE_OVPN: '.github/vpn/config.ovpn'
+          FILE_OVPN: '.github/vpn/staging.ovpn'
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
           CA_CRT: ${{ secrets.CA_CRT}}
@@ -135,7 +135,7 @@ jobs:
         id: connect_vpn
         with:
           PING_URL: '127.0.0.1'
-          FILE_OVPN: '.github/vpn/config.ovpn'
+          FILE_OVPN: '.github/vpn/prod.ovpn'
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
           CA_CRT: ${{ secrets.CA_CRT}}
