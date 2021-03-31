@@ -155,6 +155,7 @@ jobs:
 
       - name: Deploy Azure Function App
         uses: Azure/functions-container-action@v1
+        id: deploy_azure
         with:
           app-name: ${{ env.PREFIX }}-functionapp
           image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
