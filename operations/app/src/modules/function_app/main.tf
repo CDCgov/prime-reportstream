@@ -29,6 +29,20 @@ resource "azurerm_function_app" "function_app" {
       service_tag = "AzureFrontDoor.Backend"
     }
 
+    ip_restriction {
+      action = "Allow"
+      name = "Ron IP"
+      priority = 120
+      ip_address = "165.225.48.88/32"
+    }
+
+    ip_restriction {
+      action = "Allow"
+      name = "Jim IP"
+      priority = 130
+      ip_address = "108.51.58.151/32"
+    }
+
     scm_use_main_ip_restriction = true
 
     http2_enabled = true
