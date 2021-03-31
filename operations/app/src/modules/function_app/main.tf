@@ -85,15 +85,16 @@ resource "azurerm_function_app" "function_app" {
   }
 }
 
-module "function_app_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_function_app.function_app.id
-  name = azurerm_function_app.function_app.name
-  type = "function_app"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
-}
+// DISABLED AS FRONT DOOR CAN NOT CONNECT - RKH
+//module "function_app_private_endpoint" {
+//  source = "../common/private_endpoint"
+//  resource_id = azurerm_function_app.function_app.id
+//  name = azurerm_function_app.function_app.name
+//  type = "function_app"
+//  resource_group = var.resource_group
+//  location = var.location
+//  endpoint_subnet_id = var.endpoint_subnet_id
+//}
 
 resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {
   # This is a hack. The function_app module has a bug where it does not export the values until after being updated.
