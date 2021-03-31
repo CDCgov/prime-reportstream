@@ -9,6 +9,7 @@ module "storage" {
     resource_prefix = var.resource_prefix
     name = "${var.resource_prefix}storageaccount"
     location = local.location
+    public_subnet_id = module.network.public_subnet_id
     endpoint_subnet_id = module.network.endpoint_subnet_id
     eventhub_namespace_name = module.event_hub.eventhub_namespace_name
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
