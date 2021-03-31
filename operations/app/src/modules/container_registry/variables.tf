@@ -18,7 +18,7 @@ variable "location" {
     description = "Container Registry Location"
 }
 
-variable "public_subnet_id" {
+variable "endpoint_subnet_id" {
     type = string
-    description = "Public Subnet ID"
+    description = "Private Endpoint Subnet ID"
 }
