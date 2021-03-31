@@ -11,6 +11,11 @@ resource "azurerm_container_registry" "container_registry" {
 
   network_rule_set {
     default_action = "Deny"
+
+    virtual_network {
+      action = "Allow"
+      subnet_id = var.public_subnet_id
+    }
   }
 
   tags = {

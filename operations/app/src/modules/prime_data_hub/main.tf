@@ -30,6 +30,7 @@ module "container_registry" {
     resource_group = var.resource_group
     name = "${var.resource_prefix}containerregistry"
     location = local.location
+    public_subnet_id = module.network.public_subnet_id
     endpoint_subnet_id = module.network.endpoint_subnet_id
 }
 
