@@ -51,7 +51,9 @@ internal class AzureSecretServiceTests {
 
     @Test
     fun `uses Key Vault to retrieve a secret`() {
-        every { secretClient.getSecret(any()) } returns KeyVaultSecret("functionapp-secret-name", "From Azure")
+        every {
+            secretClient.getSecret("functionapp-secret-name")
+        } returns KeyVaultSecret("functionapp-secret-name", "From Azure")
         val secret = secretService.fetchSecret("SECRET_NAME")
         assertEquals("From Azure", secret, "Expected secret not returned")
     }
