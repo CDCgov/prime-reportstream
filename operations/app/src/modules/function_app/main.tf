@@ -97,10 +97,6 @@ resource "azurerm_function_app" "function_app" {
   tags = {
     environment = var.environment
   }
-
-  lifecycle {
-    ignore_changes = [site_config[0].linux_fx_version]
-  }
 }
 
 // DISABLED AS FRONT DOOR CAN NOT CONNECT - RKH

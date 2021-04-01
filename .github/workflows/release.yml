@@ -69,7 +69,7 @@ jobs:
           path: prime-router/target
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
 
       - name: Install OpenVPN
         run: |
@@ -97,14 +97,10 @@ jobs:
         run: az acr login --name ${{ env.ACR_REPO }}
 
       - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
 
-      - name: Deploy Azure Function App
-        uses: Azure/functions-container-action@v1
-        id: deploy_azure
-        with:
-          app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+      - name: Restart Azure Functions App
+        run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
 
 
   deploy_release_prod:
@@ -127,7 +123,7 @@ jobs:
           path: prime-router/target
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
 
       - name: Install OpenVPN
         run: |
@@ -155,11 +151,7 @@ jobs:
         run: az acr login --name ${{ env.ACR_REPO }}
 
       - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
 
-      - name: Deploy Azure Function App
-        uses: Azure/functions-container-action@v1
-        id: deploy_azure
-        with:
-          app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+      - name: Restart Azure Functions App
+        run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
