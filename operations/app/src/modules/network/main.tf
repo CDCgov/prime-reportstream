@@ -8,7 +8,7 @@ locals {
     "privatelink.postgres.database.azure.com",
     "privatelink.blob.core.windows.net",
     "privatelink.file.core.windows.net",
-    "privatelink.azurecr.io",
+    #"privatelink.azurecr.io",
     "privatelink.servicebus.windows.net",
     "privatelink.azurewebsites.net"
   ]

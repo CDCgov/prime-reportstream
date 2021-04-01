@@ -43,20 +43,6 @@ resource "azurerm_function_app" "function_app" {
       ip_address = "108.51.58.151/32"
     }
 
-    ip_restriction {
-      action = "Allow"
-      name = "GitHub Action 1"
-      priority = 140
-      ip_address = "13.64.0.0/16"
-    }
-
-    ip_restriction {
-      action = "Allow"
-      name = "GitHub Action 2"
-      priority = 140
-      ip_address = "13.65.0.0/16"
-    }
-
     scm_use_main_ip_restriction = true
 
     http2_enabled = true

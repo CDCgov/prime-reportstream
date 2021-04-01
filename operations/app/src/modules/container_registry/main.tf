@@ -10,23 +10,11 @@ resource "azurerm_container_registry" "container_registry" {
   admin_enabled = true
 
   network_rule_set {
-    default_action = "Deny"
+    default_action = "Allow"
 
     virtual_network {
       action = "Allow"
       subnet_id = var.public_subnet_id
-    }
-
-    # GitHub Actions
-    ip_rule {
-      action = "Allow"
-      ip_range = "13.64.0.0/16"
-    }
-
-    # GitHub Actions
-    ip_rule {
-      action = "Allow"
-      ip_range = "13.65.0.0/16"
     }
   }
 
