@@ -428,8 +428,6 @@ class Hl7Serializer(val metadata: Metadata) {
             Element.Type.TELEPHONE -> {
                 if (value.isNotEmpty()) {
                     setTelephoneComponent(terser, value, pathSpec, element)
-                } else {
-                    terser.set(pathSpec, "") // Not at all sure what to do here.
                 }
             }
             Element.Type.EMAIL -> {
@@ -486,6 +484,7 @@ class Hl7Serializer(val metadata: Metadata) {
                 rep += 1
             }
             // primary residence number
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-1", "($areaCode)$local")
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
             // it's a phone
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "PH")

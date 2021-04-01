@@ -1054,7 +1054,7 @@ elements:
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
-    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3 ]
+    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3 ]
     documentation: |
         CLIA Number from the laboratory that sends the message to DOH
 
