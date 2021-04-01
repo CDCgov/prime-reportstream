@@ -43,6 +43,20 @@ resource "azurerm_function_app" "function_app" {
       ip_address = "108.51.58.151/32"
     }
 
+    ip_restriction {
+      action = "Allow"
+      name = "GitHub Action 1"
+      priority = 140
+      ip_address = "13.64.0.0/16"
+    }
+
+    ip_restriction {
+      action = "Allow"
+      name = "GitHub Action 2"
+      priority = 140
+      ip_address = "13.65.0.0/16"
+    }
+
     scm_use_main_ip_restriction = true
 
     http2_enabled = true
@@ -97,9 +111,14 @@ resource "azurerm_function_app" "function_app" {
   tags = {
     environment = var.environment
   }
+
+  lifecycle {
+    ignore_changes = [site_config[0].linux_fx_version]
+  }
 }
 
 // DISABLED AS FRONT DOOR CAN NOT CONNECT - RKH
+
 //module "function_app_private_endpoint" {
 //  source = "../common/private_endpoint"
 //  resource_id = azurerm_function_app.function_app.id
