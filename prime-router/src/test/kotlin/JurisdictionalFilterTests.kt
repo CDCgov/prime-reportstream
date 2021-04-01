@@ -87,14 +87,17 @@ class JurisdictionalFilterTests {
     }
 
     @Test
-    fun `test filterByCountyFails`() {
+    fun `test filterByCountyWithMissingColumns`() {
         val filter = FilterByCounty()
         val table = Table.create(
-            StringColumn.create("BOGUS"),
+            StringColumn.create("BOGUS", listOf("a", "b", "c", "d")),
+            StringColumn.create("BOGUS2", listOf("a", "b", "c", "d")),
         )
 
-        val args1 = listOf("a", "b") // correct # args.
-        assertFails { filter.getSelection(args1, table) } // However, table doesn't have the expected columns
+        val args1 = listOf("a", "a") // correct # args.
+        val selection = filter.getSelection(args1, table)
+        val filteredTable = table.where(selection)
+        assertEquals(0, filteredTable.rowCount())
     }
 
     @Test
