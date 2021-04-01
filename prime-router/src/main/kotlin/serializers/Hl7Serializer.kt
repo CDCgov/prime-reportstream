@@ -41,6 +41,13 @@ class Hl7Serializer(val metadata: Metadata) {
     private val buildVersion: String
     private val buildDate: String
     private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSZZZ")
+    private var hl7Config: Hl7Configuration? = null
+
+    private val hdFieldMaximumLength: Int? get() = if (hl7Config?.truncateHDNamespaceIds == true) {
+        HD_TRUNCATION_LIMIT
+    } else {
+        null
+    }
 
     init {
         val buildProperties = Properties()
@@ -74,13 +81,8 @@ class Hl7Serializer(val metadata: Metadata) {
     ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        val hl7Config = translatorConfig as? Hl7Configuration
-        val maximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
-            HD_TRUNCATION_LIMIT
-        } else {
-            null
-        }
-        outputStream.write(createHeaders(report, maximumLength).toByteArray())
+        this.hl7Config = translatorConfig as? Hl7Configuration?
+        outputStream.write(createHeaders(report).toByteArray())
         report.itemIndices.map {
             val message = createMessage(report, it, translatorConfig)
             outputStream.write(message.toByteArray())
@@ -259,14 +261,14 @@ class Hl7Serializer(val metadata: Metadata) {
 
     internal fun createMessage(report: Report, row: Int, translatorConfig: TranslatorConfiguration? = null): String {
         val message = ORU_R01()
-        val hl7Config = translatorConfig as? Hl7Configuration?
+        this.hl7Config = translatorConfig as? Hl7Configuration?
         val processingId = if (hl7Config?.useTestProcessingMode == true) {
             "T"
         } else {
             "P"
         }
         message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
-        buildMessage(message, report, row, processingId, hl7Config)
+        buildMessage(message, report, row, processingId, this.hl7Config)
         hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
         return hapiContext.pipeParser.encode(message)
     }
@@ -297,13 +299,7 @@ class Hl7Serializer(val metadata: Metadata) {
         setLiterals(terser)
         // serialize the rest of the elements
         report.schema.elements.forEach { element ->
-            // some fields will need to be truncated if they're HD
-            val truncationLength = if (element.type == Element.Type.HD && hl7Config?.truncateHDNamespaceIds == true) {
-                HD_TRUNCATION_LIMIT
-            } else {
-                null
-            }
-            val value = report.getString(row, element.name, truncationLength) ?: return@forEach
+            val value = report.getString(row, element.name) ?: return@forEach
 
             if (suppressedFields.contains(element.hl7Field))
                 return@forEach
@@ -389,7 +385,12 @@ class Hl7Serializer(val metadata: Metadata) {
         }
     }
 
-    private fun setComponent(terser: Terser, element: Element, hl7Field: String, value: String) {
+    private fun setComponent(
+        terser: Terser,
+        element: Element,
+        hl7Field: String,
+        value: String
+    ) {
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
             Element.Type.ID_CLIA -> {
@@ -400,7 +401,7 @@ class Hl7Serializer(val metadata: Metadata) {
             }
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
-                    val hd = Element.parseHD(value)
+                    val hd = Element.parseHD(value, hdFieldMaximumLength)
                     if (hd.universalId != null && hd.universalIdSystem != null) {
                         terser.set("$pathSpec-1", hd.name)
                         terser.set("$pathSpec-2", hd.universalId)
@@ -618,19 +619,19 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
     }
 
-    private fun createHeaders(report: Report, maximumLength: Int? = null): String {
+    private fun createHeaders(report: Report): String {
         val encodingCharacters = "^~\\&"
         val sendingApp = formatHD(
-            Element.parseHD(report.getString(0, "sending_application") ?: "", maximumLength)
+            Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
         )
         val sendingFacility = formatHD(
-            Element.parseHD(report.getString(0, "sending_application") ?: "", maximumLength)
+            Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
         )
         val receivingApp = formatHD(
-            Element.parseHD(report.getString(0, "receiving_application") ?: "", maximumLength)
+            Element.parseHD(report.getString(0, "receiving_application") ?: "", hdFieldMaximumLength)
         )
         val receivingFacility = formatHD(
-            Element.parseHD(report.getString(0, "receiving_facility") ?: "", maximumLength)
+            Element.parseHD(report.getString(0, "receiving_facility") ?: "", hdFieldMaximumLength)
         )
 
         return "FHS|$encodingCharacters|" +

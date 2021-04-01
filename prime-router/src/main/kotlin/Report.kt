@@ -42,6 +42,7 @@ class Report {
     enum class NameFormat {
         STANDARD,
         APHL,
+        APHL_LIGHT,
         OHIO,
         CUSTOM,
     }
@@ -730,6 +731,9 @@ class Report {
             }
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
+            val so = "CDCPRIME"
+            val ts = formatter.format(createdDateTime)
+            val re = mapProcessingModeCode(processingModeCode)
             return when (nameFormat) {
                 NameFormat.APHL -> {
                     /*
@@ -749,16 +753,18 @@ class Report {
                         OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
                         ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
                  */
-                    val so = "cdcprime"
                     val se = mapProcessingModeCode(processingModeCode)
-                    val re = mapProcessingModeCode(processingModeCode)
-                    val ts = formatter.format(createdDateTime)
                     // have to escape with curly braces because Kotlin allows underscores in variable names
                     "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
                 }
+                NameFormat.APHL_LIGHT -> {
+                    /*
+                    A lighter version of the APHL name format that removes duplicated data. NM prefers this
+                     */
+                    "${so}_${receivingOrganization ?: ""}_${re}_$ts.$nameSuffix".toLowerCase()
+                }
                 NameFormat.OHIO -> {
-                    val ts = formatter.format(createdDateTime)
-                    "CDCPRIME_$ts.hl7"
+                    "${so}_$ts.hl7"
                 }
                 NameFormat.STANDARD -> {
                     val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
