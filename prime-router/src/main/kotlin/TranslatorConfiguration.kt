@@ -52,6 +52,7 @@ data class Hl7Configuration
     val suppressAoe: Boolean = false,
     val defaultAoeToUnknown: Boolean = false,
     val useBlankInsteadOfUnknown: String? = null,
+    val truncateHDNamespaceIds: Boolean = false,
     override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?,
     // deprecated, please don't use

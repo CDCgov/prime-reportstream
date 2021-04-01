@@ -295,20 +295,37 @@ class Report {
         return table.rowCount() == 0
     }
 
-    fun getString(row: Int, column: Int): String? {
-        return table.getString(row, column)
+    fun getString(row: Int, column: Int, maxLength: Int? = null): String? {
+        return table.getString(row, column).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
-    fun getString(row: Int, colName: String): String? {
+    fun getString(row: Int, colName: String, maxLength: Int? = null): String? {
         val column = schema.findElementColumn(colName) ?: return null
-        return table.getString(row, column)
+        return table.getString(row, column).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
-    fun getStringByHl7Field(row: Int, hl7Field: String): String? {
-        val column = schema.elements.filter { it.hl7Field.equals(hl7Field, ignoreCase = true) }.firstOrNull()
-            ?: return null
+    fun getStringByHl7Field(row: Int, hl7Field: String, maxLength: Int? = null): String? {
+        val column = schema.elements.firstOrNull { it.hl7Field.equals(hl7Field, ignoreCase = true) } ?: return null
         val index = schema.findElementColumn(column.name) ?: return null
-        return table.getString(row, index)
+        return table.getString(row, index).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
     fun getRow(row: Int): List<String> {

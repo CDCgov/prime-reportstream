@@ -735,11 +735,18 @@ data class Element(
             return listOf(CsvField(name, format))
         }
 
-        fun parseHD(value: String): HDFields {
+        fun parseHD(value: String, maximumLength: Int? = null): HDFields {
             val parts = value.split(hdDelimiter)
+            val namespace = parts[0].let {
+                if (maximumLength == null || maximumLength > it.length) {
+                    it
+                } else {
+                    it.substring(0, maximumLength)
+                }
+            }
             return when (parts.size) {
-                3 -> HDFields(parts[0], parts[1], parts[2])
-                1 -> HDFields(parts[0], universalId = null, universalIdSystem = null)
+                3 -> HDFields(namespace, parts[1], parts[2])
+                1 -> HDFields(namespace, universalId = null, universalIdSystem = null)
                 else -> error("Internal Error: Invalid HD value '$value'")
             }
         }
