@@ -17,3 +17,8 @@ variable "resource_prefix" {
   type = string
   description = "Resource Prefix"
 }
+
+variable "endpoint_subnet_id" {
+  type = string
+  description = "Private Endpoint Subnet ID"
+}

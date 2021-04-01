@@ -1,0 +1,212 @@
+name: "ca-scc-covid-19"
+topic: "covid-19"
+description: "CSV download schema for Santa Clara County Public Health Department"
+trackingElement: filler_order_id
+basedOn: "covid-19"
+elements:
+  - name: "ordering_facility_name"
+    csvFields:
+      - name: "Facility Name"
+
+  - name: "testing_lab_clia"
+    csvFields:
+      - name: "Facility CLIA"
+
+  - name: "ordering_facility_street"
+    csvFields:
+      - name: "Facility Street Address"
+
+  - name: "ordering_facility_city"
+    csvFields:
+      - name: "Facility City"
+
+  - name: "ordering_facility_state"
+    csvFields:
+      - name: "Facility State"
+
+  - name: "ordering_facility_zip_code"
+    csvFields:
+      - name: "Facility Zip"
+
+  - name: "ordering_facility_phone_number"
+    csvFields:
+      - name: "Facility Phone"
+
+  - name: "patient_id"
+    csvFields:
+      - name: "Patient Identifier"
+
+  - name: "patient_first_name"
+    csvFields:
+      - name: "Patient First Name"
+
+  - name: "patient_middle_initial"
+    csvFields:
+      - name: "Patient Middle Initial"
+
+  - name: "patient_last_name"
+    csvFields:
+      - name: "Patient Last Name"
+
+  - name: "patient_dob"
+    csvFields:
+      - name: "Patient Date of Birth"
+
+  - name: "patient_gender"
+    csvFields:
+      - name: "Patient Sex"
+        format: "$code"
+
+  - name: "patient_race"
+    csvFields:
+      - name: "Race"
+        format: "$code"
+
+  - name: "patient_ethnicity"
+    csvFields:
+      - name: "Ethnicity"
+        format: "$code"
+
+  - name: "local_Language"
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: "Language"
+
+  - name: "patient_street"
+    csvFields:
+      - name: "Patient Street Address"
+
+  - name: "patient_city"
+    csvFields:
+      - name: "Patient City"
+
+  - name: "patient_state"
+    csvFields:
+      - name: "Patient State"
+
+  - name: "patient_zip_code"
+    csvFields:
+      - name: "Patient Zip"
+
+  - name: "patient_county"
+    csvFields:
+      - name: "Patient County"
+
+  - name: "patient_phone_number"
+    csvFields:
+      - name: "Patient Phone Number"
+
+  - name: "local_OK_to_Contact_Patient"
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: "OK to Contact Patient"
+
+  - name: "ordering_provider_first_name"
+    csvFields:
+      - name: "Provider First Name"
+
+  - name: "ordering_provider_last_name"
+    csvFields:
+      - name: "Provider Last Name"
+
+  - name: "local_provider_facility_name"
+    type: TEXT
+    mapper: "use(ordering_facility_name)"
+    csvFields:
+      - name: "Provider Facility Name"
+
+  - name: "ordering_provider_id"
+    csvFields:
+      - name: "Provider ID/ NPI"
+
+  - name: "ordering_provider_street"
+    csvFields:
+      - name: "Provider Street Address"
+
+  - name: "ordering_provider_city"
+    csvFields:
+      - name: "Provider City"
+
+  - name: "ordering_provider_state"
+    csvFields:
+      - name: "Provider State"
+
+  - name: "ordering_provider_zip_code"
+    csvFields:
+      - name: "Provider ZIP"
+
+  - name: "ordering_provider_phone_number"
+    csvFields:
+      - name: "Provider Phone Number"
+
+  - name: "specimen_id"
+    csvFields:
+      - name: "Specimen ID"
+
+  - name: "specimen_collection_date_time"
+    csvFields:
+      - name: "Specimen Collection Date"
+        format: yyyyMMdd
+      - name: "Specimen Received Date"
+        format: yyyyMMdd
+
+  - name: "order_test_date"
+    csvFields:
+      - name: "Date Test Ordered"
+
+  - name: "test_result_date"
+    csvFields:
+      - name: "Result Date"
+        format: yyyyMMdd
+
+  - name: "date_result_released"
+    csvFields:
+      - name: "Date Reported"
+
+  - name: "specimen_type"
+    csvFields:
+      - name: "Specimen Type"
+        format: $display
+
+  - name: "specimen_source_site_code"
+    csvFields:
+      - name: "Specimen Site"
+        format: $display
+
+  - name: "test_performed_name"
+    csvFields:
+      - name: "Test Name"
+
+  - name: "test_result"
+    csvFields:
+      - name: "Result"
+        format: $display
+
+  - name: "filler_order_id"
+    csvFields:
+      - name: "Accession Number"
+
+  - name: "test_performed_code"
+    csvFields:
+      - name: "Test Code"
+
+  - name: "local_test_result_code"
+    type: CODE
+    valueSet: covid-19/test_result
+    mapper: "use(test_result)"
+    csvFields:
+      - name: "Result Code"
+        format: $code
+
+  - name: "device_id"
+    csvFields:
+      - name: "Device Identifier"
+
+  - name: "local_Notes"
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: "Notes"
+

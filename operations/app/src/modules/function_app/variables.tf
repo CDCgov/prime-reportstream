@@ -39,6 +39,11 @@ variable "public_subnet_id" {
     description = "Public Subnet ID"
 }
 
+variable "endpoint_subnet_id" {
+    type = string
+    description = "Private Endpoint Subnet ID"
+}
+
 variable "postgres_user" {
     type = string
     description = "Database Server Username"

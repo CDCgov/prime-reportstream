@@ -326,6 +326,10 @@ UNK|Unknown
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Accension number
+
 ---
 
 **Name**: filler_clia
