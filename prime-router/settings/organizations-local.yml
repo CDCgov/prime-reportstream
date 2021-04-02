@@ -410,6 +410,7 @@
           useBatchHeaders: true
           receivingApplicationName: NEDSS
           receivingFacilityName: TX-ELR
+          defaultAoeToUnknown: true
         transport:
           type: SFTP_LEGACY
           host: sftp

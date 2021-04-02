@@ -253,11 +253,13 @@
       translation:
         type: HL7
         useBatchHeaders: true
-        schemaName: nm/nm-covid-19
+        receivingOrganization: elr
         receivingApplicationName: NMDOH
         receivingApplicationOID: 2.16.840.1.113883.3.5364
         receivingFacilityName: NMDOH
         receivingFacilityOID: 2.16.840.1.113883.3.5364
+        truncateHDNamespaceIds: true
+        nameFormat: APHL_LIGHT
       transport:
         type: SFTP
         host: secure.lcfresearch.org

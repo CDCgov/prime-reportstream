@@ -330,6 +330,12 @@ class Hl7Serializer(val metadata: Metadata) {
                 if (value.isNotBlank()) {
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
                     setAOE(terser, element, aoeSequence++, date, value, report, row, suppressQst = suppressQst)
+                } else {
+                    // if the value is null but we're defaulting
+                    if (this.hl7Config?.defaultAoeToUnknown == true) {
+                        val date = report.getString(row, "specimen_collection_date_time") ?: ""
+                        setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
+                    }
                 }
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
