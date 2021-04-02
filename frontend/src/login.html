@@ -11,8 +11,7 @@ protected: false
 <script type="text/javascript" th:inline="javascript">
 
     let OKTA_clientId = '0oa6fm8j4G1xfrthd4h6';
-    let OKTA_baseUrl = 'hhs-prime.okta.com';
-    let redirect = 'http://localhost:8090/download.html';
+
 
     var config = {
         logo: '//logo.clearbit.com/cdc.gov',
@@ -23,20 +22,20 @@ protected: false
             router: true, // Leave this set to true for the API demo
         },
         el: "#okta-login-container",
-        baseUrl: `https://${OKTA_baseUrl}`,
-        clientId: OKTA_clientId,
-        redirectUri: redirect,
+        baseUrl: `https://hhs-prime.okta.com`,
+        clientId: `${OKTA_clientId}`,
+        redirectUri: `${window.location.origin}/download.html`,
         authParams: {
-          issuer: `https://${OKTA_baseUrl}/oauth2/default`
+          issuer: `https://hhs-prime.okta.com/oauth2/default`
         }
     };
 
     var signInWidget= new OktaSignIn(config);
-    signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile', 'simple_report'] } )
+    signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile'] } )
         .then( function( tokens ){
             var jwt = tokens.accessToken.value;
             window.sessionStorage.setItem('jwt', jwt) ;
-            window.location.replace(`//localhost:8090/data-index.html`);
+            window.location.replace(`${window.location.origin}/data-index.html`);
         });
 </script>
 </body>

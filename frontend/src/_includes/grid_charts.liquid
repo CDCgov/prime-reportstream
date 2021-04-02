@@ -2,10 +2,16 @@
 <script src="js/cards.js"></script>
 
 <section class="grid-container margin-top-0">
-  <div class="grid-row grid-gap margin-top-0">
-    <script>
+  <div id="cards" class="grid-row grid-gap margin-top-0">
+  </div>
+</section>
+
+
+<script defer>
+  (async () => {
+    const cards = await fetchCards();
       cards.forEach( card => {
-        document.write(
+        document.getElementById( "cards").innerHTML +=
           `<div class="tablet:grid-col-6">
             <div class="usa-card__container">
               <div class="usa-card__body">
@@ -24,9 +30,8 @@
               </div>  
             </div>
           </div>`
-      ) } );
-    </script>
-  </div>
-</section>
+     } );
+  })();
+</script>
 
-<script src="js/chart-data.js"></script>
+<script src="js/chart-data.js" defer></script>

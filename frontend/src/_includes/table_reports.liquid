@@ -1,5 +1,3 @@
-<script src="js/reports.js"></script>
-
 <section class="grid-container margin-top-5">
   <div class="grid-col-12">
     <h2>Previous <span>7</span> days</h2>
@@ -14,10 +12,18 @@
           <th scope="col">File</th>
         </tr>
       </thead>
-      <tbody class="font-mono-2xs">
-        <script>
-          reports.forEach( report => {
-            document.write( 
+      <tbody id="tBody" class="font-mono-2xs">
+      </tbody>
+    </table>
+
+  </div>
+</section>
+
+<script defer>
+  (async () => {
+    const reports = await fetchReports();
+    reports.forEach( report => {
+     document.getElementById( "tBody").innerHTML +=                
               `<tr>
                 <th data-title="date" scope="row">${report.sent}</th>
                 <th data-title="receiver" scope="row">${report.type}</th>
@@ -25,11 +31,7 @@
                 <th date-title="expires" scope="row">${report.expires} days</th>
                 <th data-title="File" scope="row"><span><a href=".">${report.fileType}</a></span>
                 </th>
-              </tr>` );
-      } )
-        </script>
-      </tbody>
-    </table>
-
-  </div>
-</section>
+              </tr>`
+    })
+  })()
+</script>

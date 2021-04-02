@@ -33,15 +33,6 @@ npm install
 npm run serve
 ```
 
-##### Auto-reloading OpenAPI mock server
-
-```bash
-cd ./frontend/
-npm install
-npm run mock
-```
-
-
 ## CI/CD Integration
 
 The frontend is integrated into the GitHub actions build workflow by calling
@@ -63,11 +54,6 @@ performs a cursory validation on the output nginx server image.
 - [Eleventy](https://www.11ty.dev/docs/) is a static site generator
   - similar to [Jekyll](https://jekyllrb.com) using NPM/NodeJS tooling
   - using [liquid templating](https://www.11ty.dev/docs/languages/liquid/) for Jekyll familiarity
-- [OpenAPI](https://openapi.tools)
-  - [openapi-backend](https://github.com/anttiviljami/openapi-backend) for server mocks
-- [uhtml / lighterhtml / hyperhtml](https://github.com/WebReflection/uhtml#api-documentation)
-  for rendering data into DOM elements.
-
 
 ### Browser Support
 
@@ -98,11 +84,11 @@ Combined with mondern browsers providing a more secure client platform, few
 positive reasons remain to put effort into supporting the legacy IE11 browser.
 
 - Microsoft is actively migrating users from IE11 to Edge. (See research in thread)
-  - [*MS Teams* ended support 2020-11-30][a] (~ 8 weeks ago)
-  - [*MS 365* will stop support 2021-08-17][b] (~ 28 weeks)
-  - [*MS Edge Legacy* support stops on 2021-03-09][c] (~5 weeks)
-  - [Azure DevOps ended support 2020-12-31][d] (~ 3 weeks ago)
-  - [Azure Portal will stop support 2021-03-31][e] (~ 9 weeks)
+  - [*MS Teams* ended support 2020-11-30][a] 
+  - [*MS 365* will stop support 2021-08-17][b] 
+  - [*MS Edge Legacy* support stops on 2021-03-09][c] 
+  - [Azure DevOps ended support 2020-12-31][d] 
+  - [Azure Portal will stop support 2021-03-31][e]
 
 - Also [dropped support for IE11][z]: Zoom, SalesForce, Dropbox, GitHub, Zendesk, Atlassian, Slack, Bootstrap
 
