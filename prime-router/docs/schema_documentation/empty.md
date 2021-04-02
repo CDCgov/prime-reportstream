@@ -17,3 +17,33 @@
 unique id to track the usage of the message
 
 ---
+
+**Name**: Ordering_facility_county
+
+**Type**: TABLE
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
+**Name**: Ordering_facilty_state
+
+**Type**: TABLE
+
+**HL7 Field**: ORC-22-4
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state of the facility which the test was ordered from
+
+---

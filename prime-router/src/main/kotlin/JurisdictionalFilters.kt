@@ -97,14 +97,12 @@ class FilterByCounty : JurisdictionalFilter {
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.
         val countyRegex = "(?i).*${args[1]}.*"
 
-        // Dev Note: Assume that the patient_county has 1 and ordering_facility_county has 0 or 1 cardinality.
-        // If this assumption is no-longer true, then other places in the code will catch this
         val columnNames = table.columnNames()
         val patientSelection = if (columnNames.contains("patient_state") && columnNames.contains("patient_county")) {
             val patientState = table.stringColumn("patient_state")
             val patientCounty = table.stringColumn("patient_county")
             patientState.isEqualTo(args[0]).and(patientCounty.matchesRegex(countyRegex))
-        } else error("Schema Error: missing patient_state or patient_county columns")
+        } else null
 
         val facilitySelection = if (columnNames.contains("ordering_facility_state") &&
             columnNames.contains("ordering_facility_county")
@@ -116,10 +114,13 @@ class FilterByCounty : JurisdictionalFilter {
 
         // Overall, this is "true" if either the patient is in the county/state
         //   OR, if the facility is in the county/state.
-        return if (facilitySelection != null)
-            patientSelection.or(facilitySelection)
-        else
-            patientSelection
+        // If unable to find the right patient_* nor ordering_facility_* columns, filter is always false.
+        return when {
+            (facilitySelection != null && patientSelection != null) -> patientSelection.or(facilitySelection)
+            (facilitySelection != null) -> facilitySelection
+            (patientSelection != null) -> patientSelection
+            else -> Selection.withRange(0, 0)
+        }
     }
 }
 

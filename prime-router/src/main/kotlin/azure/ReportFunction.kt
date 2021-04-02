@@ -44,8 +44,8 @@ class ReportFunction {
 
     data class ValidatedRequest(
         val httpStatus: HttpStatus,
-        val errors: List<ResultDetail> = emptyList(),
-        val warnings: List<ResultDetail> = emptyList(),
+        val errors: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
+        val warnings: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
         val options: Options = Options.None,
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
@@ -245,7 +245,8 @@ class ReportFunction {
                 .filterAndTranslateByReceiver(
                     validatedRequest.report!!,
                     validatedRequest.defaults,
-                    validatedRequest.routeTo
+                    validatedRequest.routeTo,
+                    validatedRequest.warnings,
                 )
                 .forEach { (report, receiver) ->
                     sendToDestination(
