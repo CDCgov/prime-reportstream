@@ -217,6 +217,8 @@
           reportingFacilityId: 36DSMP9999
           nameFormat: OHIO
           suppressHl7Fields: OBX-23-11
+          # turn off UNK and ASKU for this field
+          useBlankInsteadOfUnknown: patient_race
 
   - name: nm-doh
     description: New Mexico Department of Health
@@ -238,6 +240,8 @@
           receivingFacilityOID: 2.16.840.1.113883.3.5364
           truncateHDNamespaceIds: true
           nameFormat: APHL_LIGHT
+          # turn off UNK and ASKU for this field
+          useBlankInsteadOfUnknown: patient_race
       - name: elr-csv
         organizationName: nm-doh
         topic: covid-19

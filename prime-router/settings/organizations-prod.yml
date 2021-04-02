@@ -226,6 +226,8 @@
         reportingFacilityId: 36DSMP9999
         nameFormat: OHIO
         suppressHl7Fields: OBX-23-11
+        # turn off UNK and ASKU for this field
+        useBlankInsteadOfUnknown: patient_race
       transport:
         type: SFTP
         host: 156.63.28.72
@@ -257,6 +259,8 @@
         receivingFacilityOID: 2.16.840.1.113883.3.5364
         truncateHDNamespaceIds: true
         nameFormat: APHL_LIGHT
+        # turn off UNK and ASKU for this field
+        useBlankInsteadOfUnknown: patient_race
       transport:
         type: SFTP
         host: secure.lcfresearch.org
