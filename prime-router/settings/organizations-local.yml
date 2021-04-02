@@ -351,6 +351,25 @@
           host: sftp
           port: 22
           filePath: ./upload
+      - name: elr-csv
+        organizationName: nm-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, NM)
+        translation:
+          type: CUSTOM
+          format: CSV
+          schemaName: nm/nm-covid-19-csv
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: MOUNTAIN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: mt-doh
     description: Montana Department of Health

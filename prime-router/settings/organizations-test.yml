@@ -298,6 +298,25 @@
         host: 10.0.2.4
         port: 22
         filePath: ./upload
+    - name: elr-csv
+      organizationName: nm-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, NM)
+      translation:
+        type: CUSTOM
+        format: CSV
+        schemaName: nm/nm-covid-19-csv
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: MOUNTAIN
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
 
 - name: mt-doh
   description: Montana Department of Health
@@ -352,6 +371,7 @@
         useBatchHeaders: true
         receivingApplicationName: NEDSS
         receivingFacilityName: TX-ELR
+        defaultAoeToUnknown: true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
