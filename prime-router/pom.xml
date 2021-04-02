@@ -44,6 +44,8 @@
         <pg.user>prime</pg.user>
         <pg.password>changeIT!</pg.password>
         <pg.url>jdbc:postgresql://localhost:5432/prime_data_hub</pg.url>
+
+        <fuzzy-csv.version>1.6.46</fuzzy-csv.version>
     </properties>
 
     <repositories>
@@ -68,6 +70,11 @@
         <repository>
             <id>Jsch</id>
             <url>http://jsch.sf.net/maven2/</url>
+        </repository>
+        <repository>
+            <name>JitPack.io</name>
+            <id>JitPack</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -611,6 +618,13 @@
             <groupId>org.jooq</groupId>
             <artifactId>jooq-kotlin</artifactId>
             <version>${jooq.version}</version>
+        </dependency>
+
+        <!-- CSV dependency -->
+        <dependency>
+            <groupId>com.github.kayr</groupId>
+            <artifactId>fuzzy-csv</artifactId>
+            <version>${fuzzy-csv.version}</version>
         </dependency>
     </dependencies>
 </project>
