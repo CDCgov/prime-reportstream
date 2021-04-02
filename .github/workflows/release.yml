@@ -9,33 +9,15 @@ defaults:
     working-directory: prime-router
 
 jobs:
-  release:
+  build_release:
+    name: Build Release
     runs-on: ubuntu-latest
-
+    env:
+      # These are for CI and not credentials of any system
+      POSTGRES_USER: prime
+      POSTGRES_PASSWORD: changeIT!
     steps:
       - uses: actions/checkout@v2
-      
-      - name: Set Environment Variables
-        run: |
-               if [ "$GITHUB_REF" == "refs/heads/production" ]
-               then
-                   echo "Deploying to the production environment."
-                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-prod
-                   echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
-                   echo >> $GITHUB_ENV PREFIX=pdhprod
-                   echo >> $GITHUB_ENV PRIME_ENVIRONMENT=prod
-                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
-                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
-               else
-                   echo "Deploying to the test environment."
-                   echo >> $GITHUB_ENV RESOURCE_GROUP=prime-data-hub-staging
-                   echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
-                   echo >> $GITHUB_ENV PREFIX=pdhstaging
-                   echo >> $GITHUB_ENV PRIME_ENVIRONMENT=test
-                   echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
-                   echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
-               fi
-               env
 
       - name: Setup PostgreSQL
         uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
@@ -44,7 +26,7 @@ jobs:
           postgresql db: prime_data_hub
           postgresql user: ${{ env.POSTGRES_USER }}
           postgresql password: ${{ env.POSTGRES_PASSWORD }}
-       
+
       - name: Setup JDK
         uses: actions/setup-java@v1.4.3
         with:
@@ -60,18 +42,115 @@ jobs:
       - name: Build Maven Package
         run: mvn -B clean package --file pom.xml -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: prime-router-build-${{ github.run_id }}
+          path: prime-router/target
+          retention-days: 7
+
+  deploy_release_staging:
+    name: "Deploy Release: STAGING"
+    needs: build_release
+    if: github.ref == 'refs/heads/master'
+    environment: staging
+    runs-on: ubuntu-latest
+    env:
+      RESOURCE_GROUP: prime-data-hub-staging
+      ACR_REPO: pdhstagingcontainerregistry.azurecr.io
+      PREFIX: pdhstaging
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: prime-router-build-${{ github.run_id }}
+          path: prime-router/target
+
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
-      
+
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get install openvpn
+          sudo apt install openvpn-systemd-resolved
+
+      - name: Connect VPN
+        uses: golfzaptw/action-connect-ovpn@master
+        id: connect_vpn
+        with:
+          PING_URL: '127.0.0.1'
+          FILE_OVPN: '.github/vpn/staging.ovpn'
+          TLS_KEY: ${{ secrets.TLS_KEY }}
+        env:
+          CA_CRT: ${{ secrets.CA_CRT}}
+          USER_CRT: ${{ secrets.USER_CRT }}
+          USER_KEY: ${{ secrets.USER_KEY }}
+
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-        
+
       - name: ACR Login
         run: az acr login --name ${{ env.ACR_REPO }}
-          
-      - name : Push Docker Image
+
+      - name: Push Docker Image
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+
+      - name: Restart Azure Functions App
+        run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
+
+
+  deploy_release_prod:
+    name: "Deploy Release: PROD"
+    needs: build_release
+    if: github.ref == 'refs/heads/production'
+    environment: prod
+    runs-on: ubuntu-latest
+    env:
+      RESOURCE_GROUP: prime-data-hub-prod
+      ACR_REPO: pdhprodcontainerregistry.azurecr.io
+      PREFIX: pdhprod
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: prime-router-build-${{ github.run_id }}
+          path: prime-router/target
+
+      - name: Build Docker Image
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get install openvpn
+          sudo apt install openvpn-systemd-resolved
+
+      - name: Connect VPN
+        uses: golfzaptw/action-connect-ovpn@master
+        id: connect_vpn
+        with:
+          PING_URL: '127.0.0.1'
+          FILE_OVPN: '.github/vpn/prod.ovpn'
+          TLS_KEY: ${{ secrets.TLS_KEY }}
+        env:
+          CA_CRT: ${{ secrets.CA_CRT}}
+          USER_CRT: ${{ secrets.USER_CRT }}
+          USER_KEY: ${{ secrets.USER_KEY }}
+
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: ACR Login
+        run: az acr login --name ${{ env.ACR_REPO }}
+
+      - name: Push Docker Image
         run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
 
       - name: Restart Azure Functions App
