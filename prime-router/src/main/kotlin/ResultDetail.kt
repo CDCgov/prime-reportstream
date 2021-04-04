@@ -10,7 +10,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val details: Str
      * @property REPORT scope for the detail
      * @property ITEM scope for the detail
      */
-    enum class DetailScope { PARAMETER, REPORT, ITEM }
+    enum class DetailScope { PARAMETER, REPORT, ITEM, TRANSLATION }
 
     override fun toString(): String {
         return "${scope.toString().toLowerCase()}${if (id.isBlank()) "" else " $id"}: $details"
@@ -27,6 +27,10 @@ data class ResultDetail(val scope: DetailScope, val id: String, val details: Str
 
         fun param(id: String, message: String): ResultDetail {
             return ResultDetail(DetailScope.PARAMETER, id, message)
+        }
+
+        fun translation(id: String, message: String): ResultDetail {
+            return ResultDetail(DetailScope.TRANSLATION, id, message)
         }
     }
 }
