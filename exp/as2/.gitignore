@@ -1,3 +1,4 @@
+# Don't checkin secrets
 *.jks
 *.key
 *.zip
