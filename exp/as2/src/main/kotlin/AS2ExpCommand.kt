@@ -7,7 +7,14 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.helger.as2lib.client.AS2Client
 import com.helger.as2lib.client.AS2ClientRequest
 import com.helger.as2lib.client.AS2ClientSettings
+import com.helger.as2lib.crypto.ECryptoAlgorithmCrypt
+import com.helger.as2lib.crypto.ECryptoAlgorithmSign
 import com.helger.security.keystore.EKeyStoreType
+import com.helger.commons.collection.CollectionHelper
+import java.io.File
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
+
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -21,12 +28,12 @@ import java.util.*
 // AS2 endpoints
 const val PROD_AS2_URL = "https://onehealthport-as2.axwaycloud.com/exchange/ZZOHP"
 const val TEST_AS2_URL = "https://uat-onehealthport-as2.axwaycloud.com/exchange/ZZOHPUAT"
-const val LOCAL_AS2_URL = "http://localhost:8080/pyas2/as2receive"
+const val LOCAL_AS2_URL = "http://localhost:8000/pyas2/as2receive"
 
 // AS2 Receiver IDS
 const val PROD_AS2ID = "ZZOHP"
 const val TEST_AS2ID = "ZZOHPUAT"
-const val LOCAL_AS2ID = "ZZOHP"
+const val LOCAL_AS2ID = "p1as2"
 
 // PRIME Sender IDS
 const val PROD_PRIME_AS2ID = "CDCPRIME"
@@ -47,19 +54,26 @@ class AS2ExpCommand: CliktCommand() {
     val payload by option("--payload", help="Payload file").file(mustExist = true).required()
     val keystore by option("--keystore", help="Keystore(.jks) file").file(mustExist = true).required()
     val keypass by option("--keypass", help="Keystore password").required()
+    val receiverCert by option("--cert").file(mustExist = true).required()
 
     override fun run() {
         val client = AS2Client()
         val settings = AS2ClientSettings()
-        settings.setKeyStore(EKeyStoreType.JKS, keystore, keypass)
+        settings.setKeyStore(EKeyStoreType.PKCS12, keystore, keypass)
         settings.setSenderData (LOCAL_PRIME_AS2ID, PRIME_SENDER_EMAIL, PRIME_KEY_ALIAS)
         settings.setReceiverData(LOCAL_AS2ID, OHP_KEY_ALIAS, LOCAL_AS2_URL)
+        settings.setPartnershipName("${settings.senderAS2ID}_${settings.receiverAS2ID}")
+
+        val receiverCert = readX509Certificate(receiverCert)
+        settings.receiverCertificate = receiverCert
+
+        // Encrypt and sign
+        settings.setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
 
         // Lot's options for a response. We will likely ignore, so don't request one
         settings.isMDNRequested = false
 
-        // Retry once
-        settings.retryCount = 1
+        //
         settings.connectTimeoutMS = 10_000
         settings.readTimeoutMS = 10_000
 
@@ -76,6 +90,17 @@ class AS2ExpCommand: CliktCommand() {
         val response = client.sendSynchronous(settings, request)
         echo("${response.asString}")
     }
+
+    private fun readX509Certificate (certificateFile: File): X509Certificate {
+        certificateFile.inputStream().use { input ->
+            val cf = CertificateFactory.getInstance ("X.509");
+            val c = cf.generateCertificates (input)
+            return CollectionHelper.getFirstElement (c) as X509Certificate
+        }
+    }
 }
+
+
+
 
 fun main(args: Array<String>) = AS2ExpCommand().main(args)
