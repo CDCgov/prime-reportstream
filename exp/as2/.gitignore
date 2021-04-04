@@ -1,0 +1,20 @@
+*.jks
+*.key
+*.zip
+*.pem
+*.p12
+*.crt
+*.cer
+*.csr
+
+# Build output
+**/target/**
+**/log/**
+**/build/**
+
+# IDE files
+**/.idea/**
+**/.gradle/**
+**/*.iml
+**/.run/**
+
