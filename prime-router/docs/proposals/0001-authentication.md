@@ -69,15 +69,15 @@ Settings are stored internal to ReportStream in a Postgres database, in the SETT
 
 To support FHIR Auth, we will add an add auth info to the existing Sender class, APISender, and the yml in the Settings table.  No database changes needed.  No API or CLI changes needed.
 The new auth info will include:
-- The Sender's JSON Web Key Set (JWKS)
+- The Sender's JSON Web Key Set (JWK Set)
 - (for a Phase 2:  Sender's Public Key URL)
 - Note: we will use the Sender's fullName (aka orgName.senderName) as the unique client_id, per the FHIR spec.
 
 We'll need to write a document for our Senders, explaining how to generate a public/private key, and how to keep the private key secure.   We'll need a process for rotating keys, if the Sender is not using the Public Key URL.   Since we have relatively few senders, I think there's not a high priority on automating that right now.  We will need to track contact information of the person at the Sender who is responsible for the keypair.  This may not be the same person who handles the actual test data/results.
 
-In this initial release, we will only support the current key, not current and successor keys.
+The sender can give us multiple keys in the JWK Set
 
-Note: We indend to support both styles, where the sender gives us the URL to get their public key, and the where the sender just gives us the public key in a JWK Set and we store it in settings.  We will do the JWK Set implementation first.
+In this initial release, we'll require submission to the settings API as properly formatted JWK Set.   However, in the future, we may want to just accept a base64 encoded public key submission, and do the conversion to a JWK as a convenience.
 
 ### Step Two: Signature Verification Step: Sender sends signed JWT.  If valid, response is the ReportStream token.
 
