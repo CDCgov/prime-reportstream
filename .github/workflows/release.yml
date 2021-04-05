@@ -49,9 +49,32 @@ jobs:
           path: prime-router/target
           retention-days: 7
 
+  build_frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run Build Script
+        run: bash ci_build.bash
+
+      - name: Save Static Website
+        uses: actions/upload-artifact@v2
+        with:
+          name: static_website-${{ github.run_id }}
+          path: frontend/dist
+          retention-days: 7
+
+      - name: Validate static website server
+        run: bash ci_validate.bash
+
   deploy_release_staging:
     name: "Deploy Release: STAGING"
-    needs: build_release
+    needs: [build_release, build_frontend]
     if: github.ref == 'refs/heads/master'
     environment: staging
     runs-on: ubuntu-latest
@@ -67,6 +90,12 @@ jobs:
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/target
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: static_website-${{ github.run_id }}
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
@@ -102,10 +131,16 @@ jobs:
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
 
+      - name: Upload Static Site
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s .
+
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
-    needs: build_release
+    needs: [build_release, build_frontend]
     if: github.ref == 'refs/heads/production'
     environment: prod
     runs-on: ubuntu-latest
@@ -121,6 +156,12 @@ jobs:
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/target
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: static_website-${{ github.run_id }}
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
@@ -155,3 +196,9 @@ jobs:
 
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
+
+      - name: Upload Static Site
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s .
