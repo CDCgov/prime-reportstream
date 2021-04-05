@@ -85,13 +85,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download Artifact
+      - name: Download Router Artifact
         uses: actions/download-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/target
 
-      - name: Download Artifact
+      - name: Download Frontend Artifact
         uses: actions/download-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
@@ -150,13 +150,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download Artifact
+      - name: Download Router Artifact
         uses: actions/download-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/target
 
-      - name: Download Artifact
+      - name: Download Frontend Artifact
         uses: actions/download-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
@@ -216,13 +216,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download Artifact
+      - name: Download Router Artifact
         uses: actions/download-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/target
 
-      - name: Download Artifact
+      - name: Download Frontend Artifact
         uses: actions/download-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
