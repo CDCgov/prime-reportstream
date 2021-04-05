@@ -4,17 +4,7 @@
     <h2>Activity</h2>
     <div>
         <div class="rb-container">
-            <ul class="rb">
-                <script>
-                report.actions.forEach( action => {
-                    document.write( `
-                    <li class="rb-item">
-                        <div class="timestamp">${moment(action.date).format( 'MMM DD, YYYY hh:mm A' )}</div>
-                        <div class="timestamp">${action.user}</div>
-                        <div class="item-title">${action.action}</div>
-                    </li>`
-                ) } )
-                </script>
+            <ul id="actions-list" class="rb">
             </ul>
         </div>
     </div>

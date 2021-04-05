@@ -1,5 +1,39 @@
 <script src="js/reports.js"></script>
-
+<script defer>
+  (async () => {
+    const reports = await fetchReports();
+    var report = reports[0];
+     document.getElementById( "details").innerHTML +=                
+              `<div class="tablet:grid-col-6">
+                    <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
+                    <p class="text-bold margin-top-0">${report.type}</p>
+                    <h4 class="text-gray-30 margin-bottom-0">Report date</h4>
+                    <p class="text-bold margin-top-0">${moment(report.sent).format( 'dddd, MMM DD, YYYY' )}</p>
+                    <h4 class="text-gray-30 margin-bottom-0">Report time</h4>
+                    <p class="text-bold margin-top-0">${moment(report.sent).format( 'hh:mm A' )}</p>
+            </div>
+            <div class="tablet:grid-col-6">
+                    <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
+                    <p class="text-bold margin-top-0">${report.total}</p>
+                    <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
+                    <p class="text-bold margin-top-0">${report.expires} days</p>
+            </div>`
+      document.getElementById( "report.id").innerHTML = report.reportId;
+      document.getElementById( "report.fileType").innerHTML = report.fileType == "HL7"? "HL7" : "CSV"
+      document.getElementById( "report.fileType2").innerHTML = "SFTP"
+      console.log( window.orgName );
+      document.getElementById( "org_name" ).innerHTML = window.orgName;  
+      report.actions.forEach( action => {
+        document.getElementById( "actions-list").innerHTML +=
+          `<li class="rb-item">
+                        <div class="timestamp">${moment(action.date).format( 'MMM DD, YYYY hh:mm A' )}</div>
+                        <div class="timestamp">${action.user}</div>
+                        <div class="item-title">${action.action}</div>
+                    </li>`
+      })
+          
+    })()
+</script>
 
 <section class="grid-container">
   <h3 class="margin-bottom-0">
@@ -17,36 +51,9 @@
 
 <section class="grid-container margin-top-0 margin-bottom-5">
     <hr />
-    <div class="grid-row grid-gap margin-top-0">
-        <script>
-            document.write (`
-            <div class="tablet:grid-col-6">
-                    <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
-                    <p class="text-bold margin-top-0">${report.type}</p>
-                    <h4 class="text-gray-30 margin-bottom-0">Report date</h4>
-                    <p class="text-bold margin-top-0">${moment(report.sent).format( 'dddd, MMM DD, YYYY' )}</p>
-                    <h4 class="text-gray-30 margin-bottom-0">Report time</h4>
-                    <p class="text-bold margin-top-0">${moment(report.sent).format( 'hh:mm A' )}</p>
-            </div>
-            <div class="tablet:grid-col-6">
-                    <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
-                    <p class="text-bold margin-top-0">${report.total}</p>
-                    <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
-                    <p class="text-bold margin-top-0">${report.expires} days</p>
-            </div>
-            `)
-        </script>
+    <div id="details" class="grid-row grid-gap margin-top-0">
     </div>
     <hr />
-    
-
-    <script>
-      document.getElementById( "report.id").innerHTML = report.reportId;
-      document.getElementById( "report.fileType").innerHTML = report.fileType == "HL7"? "HL7" : "CSV"
-      document.getElementById( "report.fileType2").innerHTML = "SFTP"
-      console.log( window.orgName );
-      document.getElementById( "org_name" ).innerHTML = window.orgName;
-    </script>
   </section>
 
   

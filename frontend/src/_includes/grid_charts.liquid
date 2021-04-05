@@ -17,9 +17,9 @@
               <div class="usa-card__body">
                 <h4 class="text-gray-30 margin-bottom-0">${card.title}</h4>
                 <p class="text-bold margin-top-0">${card.subtitle}</p>
-                <h4 class="text-gray-30 margin-bottom-0">Daily</h4>
+                <h4 class="text-gray-30 margin-bottom-0">Current</h4>
                 <p class="text-bold margin-top-0">${card.daily}</p>
-                <h4 class="text-gray-30 margin-bottom-0">Last 7 days</h4>
+                <h4 class="text-gray-30 margin-bottom-0">Last</h4>
                 <p class="text-bold margin-top-0">
                   ${card.last}
                   <span class="float-right ${card.positive? "text-green" : "text-red"}">
@@ -31,7 +31,40 @@
             </div>
           </div>`
      } );
+var ctx = 'summary-tests';
+
+var options = {
+      legend: {
+          display: false,
+      },
+      scales: {
+          yAxes: [{
+              ticks: { beginAtZero: false },
+              display: false
+          }],
+          xAxes: [{
+              display: false
+          }]
+      }
+  }
+
+var labels = ["2021-03-09", "2021-03-10","2021-03-11","2021-03-12","2021-03-13","2021-03-14","2021-03-15", "2021-03-16" ]
+
+var myLineChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [{ 
+        data: cards[0].data,
+        borderColor: "#4682B4",
+        backgroundColor: "#B0C4DE",
+        fill: 'origin',
+        borderJoinStyle: "round"
+      }
+    ]
+  },
+  options: options
+});
+
   })();
 </script>
-
-<script src="js/chart-data.js" defer></script>
