@@ -278,6 +278,10 @@ then
   echo Generate fake NM data, HL7!
   text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-states NM --target-counties Hidalgo --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "/nm.*\.hl7"
+
+  echo Generate fake NM data, CSV!
+  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19-csv --output-dir $outputdir --target-states NM --target-counties Hidalgo --output-format CSV)
+  parse_prime_output_for_filename "$text" "/nm.*\.csv"
 fi
 
 if [ $RUN_OH -ne 0 ]
