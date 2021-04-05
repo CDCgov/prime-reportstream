@@ -10,7 +10,7 @@ defaults:
 
 jobs:
   build_release:
-    name: Build Release
+    name: Build Router
     runs-on: ubuntu-latest
     env:
       # These are for CI and not credentials of any system
