@@ -44,6 +44,16 @@ module "storageaccount_file_private_endpoint" {
   endpoint_subnet_id = var.endpoint_subnet_id
 }
 
+module "storageaccount_queue_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_storage_account.storage_account.id
+  name = azurerm_storage_account.storage_account.name
+  type = "storage_account_queue"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = var.endpoint_subnet_id
+}
+
 # Point-in-time restore, soft delete, versioning, and change feed were
 # enabled in the portal as terraform does not currently support this.
 # At some point, this should be moved into an azurerm_template_deployment
