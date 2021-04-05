@@ -135,7 +135,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s .
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
 
   deploy_release_staging:
     name: "Deploy Release: STAGING"
@@ -200,7 +200,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s .
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
 
 
   deploy_release_prod:
@@ -266,4 +266,4 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s .
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
