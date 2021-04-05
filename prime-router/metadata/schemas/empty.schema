@@ -8,3 +8,11 @@ elements:
   - name: message_id
     cardinality: ONE
     csvFields: [{name: Message_ID}]
+
+  - name: ordering_facility_county
+    cardinality: ONE
+    csvFields: [{name: Ordering_facility_county}]
+
+  - name: ordering_facility_state
+    cardinality: ONE
+    csvFields: [{name: Ordering_facilty_state}]
