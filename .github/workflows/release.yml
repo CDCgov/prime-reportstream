@@ -2,7 +2,7 @@ name: Release to Azure
 
 on:
   push:
-    branches: [ master, production ]
+    branches: [ master, production, dev-rheft ]
 
 defaults:
   run:
@@ -10,7 +10,7 @@ defaults:
 
 jobs:
   build_release:
-    name: Build Release
+    name: "Release: Build Router"
     runs-on: ubuntu-latest
     env:
       # These are for CI and not credentials of any system
@@ -49,9 +49,97 @@ jobs:
           path: prime-router/target
           retention-days: 7
 
+  build_frontend_release:
+    name: "Release: Build Frontend"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run Build Script
+        run: bash ci_build.bash
+
+      - name: Save Static Website
+        uses: actions/upload-artifact@v2
+        with:
+          name: static_website-${{ github.run_id }}
+          path: frontend/dist
+          retention-days: 7
+
+      - name: Validate static website server
+        run: bash ci_validate.bash
+
+  deploy_release_dev:
+    name: "Deploy Release: DEV"
+    needs: [ build_release, build_frontend_release ]
+    if: github.ref == 'refs/heads/dev-rheft'
+    environment: staging
+    runs-on: ubuntu-latest
+    env:
+      RESOURCE_GROUP: prime-dev-rheft
+      ACR_REPO: rheftcontainerregistry.azurecr.io
+      PREFIX: rheft
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download Router Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: prime-router-build-${{ github.run_id }}
+          path: prime-router/target
+
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: static_website-${{ github.run_id }}
+          path: frontend/dist
+
+      - name: Build Docker Image
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get install openvpn
+          sudo apt install openvpn-systemd-resolved
+
+      - name: Connect VPN
+        uses: golfzaptw/action-connect-ovpn@master
+        id: connect_vpn
+        with:
+          PING_URL: '127.0.0.1'
+          FILE_OVPN: '.github/vpn/dev.ovpn'
+          TLS_KEY: ${{ secrets.TLS_KEY }}
+        env:
+          CA_CRT: ${{ secrets.CA_CRT}}
+          USER_CRT: ${{ secrets.USER_CRT }}
+          USER_KEY: ${{ secrets.USER_KEY }}
+
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: ACR Login
+        run: az acr login --name ${{ env.ACR_REPO }}
+
+      - name: Push Docker Image
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+
+      - name: Restart Azure Functions App
+        run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
+
+      - name: Upload Static Site
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+
   deploy_release_staging:
     name: "Deploy Release: STAGING"
-    needs: build_release
+    needs: [build_release, build_frontend_release]
     if: github.ref == 'refs/heads/master'
     environment: staging
     runs-on: ubuntu-latest
@@ -62,11 +150,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download Artifact
+      - name: Download Router Artifact
         uses: actions/download-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/target
+
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: static_website-${{ github.run_id }}
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
@@ -102,10 +196,16 @@ jobs:
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
 
+      - name: Upload Static Site
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
+
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
-    needs: build_release
+    needs: [build_release, build_frontend_release]
     if: github.ref == 'refs/heads/production'
     environment: prod
     runs-on: ubuntu-latest
@@ -116,11 +216,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download Artifact
+      - name: Download Router Artifact
         uses: actions/download-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
           path: prime-router/target
+
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: static_website-${{ github.run_id }}
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
@@ -155,3 +261,9 @@ jobs:
 
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
+
+      - name: Upload Static Site
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
