@@ -2,7 +2,7 @@ name: Release to Azure
 
 on:
   push:
-    branches: [ master, production, ronheft/static-storageaccount ]
+    branches: [ master, production, dev-rheft ]
 
 defaults:
   run:
@@ -75,7 +75,7 @@ jobs:
   deploy_release_dev:
     name: "Deploy Release: DEV"
     needs: [ build_release, build_frontend_release ]
-    if: github.ref == 'refs/heads/ronheft/static-storageaccount'
+    if: github.ref == 'refs/heads/dev-rheft'
     environment: staging
     runs-on: ubuntu-latest
     env:
