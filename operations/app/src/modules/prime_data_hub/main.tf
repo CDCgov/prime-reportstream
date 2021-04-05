@@ -99,7 +99,7 @@ module "front_door" {
     key_vault_id = module.key_vault.application_key_vault_id
     eventhub_namespace_name = module.event_hub.eventhub_namespace_name
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
-    https_cert_name = var.https_cert_name
+    https_cert_names = var.https_cert_names
 }
 
 module "sftp_container" {
