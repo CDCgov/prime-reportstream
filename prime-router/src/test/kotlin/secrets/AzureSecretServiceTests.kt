@@ -35,6 +35,7 @@ internal class AzureSecretServiceTests {
         val secretClientBuilder = mockkClass(SecretClientBuilder::class)
         every { secretClientBuilder.vaultUrl(any()) } returns secretClientBuilder
         every { secretClientBuilder.credential(any()) } returns secretClientBuilder
+        every { secretClientBuilder.retryPolicy(any()) } returns secretClientBuilder
         every { secretClientBuilder.buildClient() } returns secretClient
 
         val mockAzureCredential = mockkClass(TokenCredential::class)
@@ -50,7 +51,9 @@ internal class AzureSecretServiceTests {
 
     @Test
     fun `uses Key Vault to retrieve a secret`() {
-        every { secretClient.getSecret(any()) } returns KeyVaultSecret("functionapp-secret-name", "From Azure")
+        every {
+            secretClient.getSecret("functionapp-secret-name")
+        } returns KeyVaultSecret("functionapp-secret-name", "From Azure")
         val secret = secretService.fetchSecret("SECRET_NAME")
         assertEquals("From Azure", secret, "Expected secret not returned")
     }

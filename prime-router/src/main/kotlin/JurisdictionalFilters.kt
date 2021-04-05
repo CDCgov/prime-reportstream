@@ -97,14 +97,12 @@ class FilterByCounty : JurisdictionalFilter {
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.
         val countyRegex = "(?i).*${args[1]}.*"
 
-        // Dev Note: Assume that the patient_county has 1 and ordering_facility_county has 0 or 1 cardinality.
-        // If this assumption is no-longer true, then other places in the code will catch this
         val columnNames = table.columnNames()
         val patientSelection = if (columnNames.contains("patient_state") && columnNames.contains("patient_county")) {
             val patientState = table.stringColumn("patient_state")
             val patientCounty = table.stringColumn("patient_county")
             patientState.isEqualTo(args[0]).and(patientCounty.matchesRegex(countyRegex))
-        } else error("Schema Error: missing patient_state or patient_county columns")
+        } else null
 
         val facilitySelection = if (columnNames.contains("ordering_facility_state") &&
             columnNames.contains("ordering_facility_county")
@@ -116,10 +114,46 @@ class FilterByCounty : JurisdictionalFilter {
 
         // Overall, this is "true" if either the patient is in the county/state
         //   OR, if the facility is in the county/state.
-        return if (facilitySelection != null)
-            patientSelection.or(facilitySelection)
-        else
-            patientSelection
+        // If unable to find the right patient_* nor ordering_facility_* columns, filter is always false.
+        return when {
+            (facilitySelection != null && patientSelection != null) -> patientSelection.or(facilitySelection)
+            (facilitySelection != null) -> facilitySelection
+            (patientSelection != null) -> patientSelection
+            else -> Selection.withRange(0, 0)
+        }
+    }
+}
+
+/**
+ * Do an "or" of any number of regex matching expressions.
+ * Pass args like this  or(elem1_name, regex1, elem2_name, regex2, ...)
+ * This filter is true if
+ *      (elem1.value matches regex1) || (elem2.value matches regex2) || ...
+ * If the elem name is missing, the filter is false; this is not an error.
+ * Example:
+ * jurisdictionalFilter:  orEquals(ordering_facility_state, PA, patient_state, PA)
+ */
+class OrEquals : JurisdictionalFilter {
+    override val name = "orEquals"
+
+    override fun getSelection(args: List<String>, table: Table): Selection {
+        if (args.isEmpty()) error("Expecting at least two args for filter $name.  Got none.")
+        if (args.size % 2 != 0)
+            error(
+                "Expecting a positive even number of args to filter $name: (col,val, col,val,...)." +
+                    " Instead got ${args.size} args"
+            )
+        val selection = Selection.withRange(0, 0)
+        for (i in args.indices step 2) {
+            val elemName = args[i]
+            val regexStr = args[i + 1]
+            val colSelection = if (table.columnNames().contains(elemName)) {
+                val elemColumn = table.stringColumn(elemName)
+                elemColumn.matchesRegex(regexStr)
+            } else null
+            colSelection?.let { selection.or(colSelection) }
+        }
+        return selection
     }
 }
 

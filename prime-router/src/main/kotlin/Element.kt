@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
+import java.lang.Exception
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -440,11 +441,17 @@ data class Element(
                 }
             }
             Type.TELEPHONE -> {
-                val number = phoneNumberUtil.parse(formattedValue, "US")
-                return if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                return try {
+                    // parse can fail if the phone number is not correct, which feels like bad behavior
+                    // this then causes a report level failure, not an element level failure
+                    val number = phoneNumberUtil.parse(formattedValue, "US")
+                    if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                        "Invalid phone number '$formattedValue' for '$name'"
+                    else
+                        null
+                } catch (ex: Exception) {
                     "Invalid phone number '$formattedValue' for '$name'"
-                else
-                    null
+                }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf

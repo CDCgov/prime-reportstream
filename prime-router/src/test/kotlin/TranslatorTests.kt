@@ -85,7 +85,7 @@ class TranslatorTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val table1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), TestSource)
 
-        val result = translator.filterAndTranslateByReceiver(table1)
+        val result = translator.filterAndTranslateByReceiver(table1, warnings = mutableListOf<ResultDetail>())
 
         assertEquals(1, result.size)
         val (mappedTable, forReceiver) = result[0]

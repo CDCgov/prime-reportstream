@@ -10,6 +10,9 @@
     "jshint": "^2.12.0",
     "moment": "^2.29.1",
     "rimraf": "^3.0.2"
+    "@11ty/eleventy": "^0.12.1",
+    "jshint": "^2.12.0",
+    "http-proxy-middleware": "^1.1.0"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.12.1",

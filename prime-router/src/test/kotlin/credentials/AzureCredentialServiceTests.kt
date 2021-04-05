@@ -37,6 +37,7 @@ internal class AzureCredentialServiceTests {
         val secretClientBuilder = mockkClass(SecretClientBuilder::class)
         every { secretClientBuilder.vaultUrl(any()) } returns secretClientBuilder
         every { secretClientBuilder.credential(any()) } returns secretClientBuilder
+        every { secretClientBuilder.retryPolicy(any()) } returns secretClientBuilder
         every { secretClientBuilder.buildClient() } returns secretClient
 
         val mockAzureCredential = mockkClass(TokenCredential::class)

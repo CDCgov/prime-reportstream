@@ -35,16 +35,30 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     fun filterAndTranslateByReceiver(
         input: Report,
         defaultValues: DefaultValues = emptyMap(),
-        limitReceiversTo: List<String> = emptyList()
+        limitReceiversTo: List<String> = emptyList(),
+        warnings: MutableList<ResultDetail>? = null,
     ): List<Pair<Report, Receiver>> {
         if (input.isEmpty()) return emptyList()
         return settings.receivers.filter { receiver ->
             receiver.topic == input.schema.topic &&
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
-            val mappedReport = translateByReceiver(input, receiver, defaultValues)
-            if (mappedReport.itemCount == 0) return@mapNotNull null
-            Pair(mappedReport, receiver)
+            try {
+                val mappedReport = translateByReceiver(input, receiver, defaultValues)
+                if (mappedReport.itemCount == 0) return@mapNotNull null
+                Pair(mappedReport, receiver)
+            } catch (e: IllegalStateException) {
+                // catching individual translation exceptions enables overall work to continue
+                warnings?.let {
+                    warnings.add(
+                        ResultDetail(
+                            ResultDetail.DetailScope.TRANSLATION,
+                            "TO:${receiver.fullName}:${receiver.schemaName}", e.localizedMessage
+                        )
+                    )
+                }
+                return@mapNotNull null
+            }
         }
     }
 
