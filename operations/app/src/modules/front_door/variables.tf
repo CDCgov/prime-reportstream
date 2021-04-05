@@ -28,7 +28,7 @@ variable "eventhub_manage_auth_rule_id" {
   description = "Event Hub Manage Authorization Rule ID"
 }
 
-variable "https_cert_name" {
-  type = string
+variable "https_cert_names" {
+  type = list
   description = "The HTTPS cert to associate with the front door. Omitting will not associate a domain to the front door."
 }
