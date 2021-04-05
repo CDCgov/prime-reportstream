@@ -10,7 +10,7 @@ defaults:
 
 jobs:
   build_release:
-    name: Build Router
+    name: "Release: Build Router"
     runs-on: ubuntu-latest
     env:
       # These are for CI and not credentials of any system
@@ -50,7 +50,7 @@ jobs:
           retention-days: 7
 
   build_frontend_release:
-    name: Build Frontend
+    name: "Release: Build Frontend"
     runs-on: ubuntu-latest
     defaults:
       run:
