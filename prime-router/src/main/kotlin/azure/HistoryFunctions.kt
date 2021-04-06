@@ -189,7 +189,7 @@ class GetSummaryTests: BaseHistoryFunction() {
     @StorageAccount("AzureWebJobsStorage")
     fun run(
         @HttpTrigger(
-            name = "getSummaryTests",
+            name = "getSummaryTest",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "history/summary/tests"
@@ -197,6 +197,24 @@ class GetSummaryTests: BaseHistoryFunction() {
         context: ExecutionContext
     ): HttpResponseMessage {
         return GetSummaryTests( request, context); 
+  
+    }
+}
+
+class GetSummary: BaseHistoryFunction() {
+    @FunctionName("getSummary")
+    @StorageAccount("AzureWebJobsStorage")
+    fun run(
+        @HttpTrigger(
+            name = "getSummary",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/summary/{field}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("field") field: String,   
+        context: ExecutionContext
+    ): HttpResponseMessage {
+        return GetSummary( request, field, context); 
   
     }
 }
@@ -216,9 +234,11 @@ open class BaseHistoryFunction {
             )
 
             @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )
-            var reports = headers.map {
+            var reports = headers.sortedByDescending{ it.createdAt }.map {
 
-                var facilities = getFacilitiesForReportId(it.reportId.toString(), authClaims)
+                var facilities = arrayListOf<Facility>();
+                if( it.bodyFormat == "CSV")
+                    facilities = getFieldSummaryForReportId("Ordering_facility_name",it.reportId.toString(), authClaims)
 
                 ReportView.Builder()
                 .reportId( it.reportId.toString() )
@@ -289,6 +309,18 @@ open class BaseHistoryFunction {
         return response
     }
 
+    fun isToday( date: OffsetDateTime ) : Boolean {
+        return date.monthValue == OffsetDateTime.now().monthValue &&
+               date.dayOfMonth == OffsetDateTime.now().dayOfMonth &&
+               date.year == OffsetDateTime.now().year;
+    }
+
+    fun isYesterday( date: OffsetDateTime ) : Boolean {
+        var yesterday = OffsetDateTime.now().minusDays(1L);
+        return date.monthValue == yesterday.monthValue &&
+               date.dayOfMonth == yesterday.dayOfMonth &&
+               date.year == yesterday.year;
+    }
 
     fun GetSummaryTests(
         request: HttpRequestMessage<String?>,
@@ -296,24 +328,86 @@ open class BaseHistoryFunction {
     ) : HttpResponseMessage {
         val authClaims = checkAuthenticated(request, context)
         if( authClaims == null ) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
-        return request.createResponseBuilder(HttpStatus.OK)
-        .body(
-            CardView.Builder()
-                .id("tests-administered")
-                .title("Testing")
-                .subtitle("Tests administered")
-                .daily(2497L)
-                .last(9348L)
-                .positive(false)
-                .change(-897L)
-                .pct_change(9.6)
-                .data(emptyArray<Long>())
-        ) 
-        .header("Content-Type", "application/json")
-        .build();
+        var response: HttpResponseMessage;
+
+        try{
+            val headers = workflowEngine.db.fetchDownloadableReportFiles(
+                OffsetDateTime.now().minusDays(DAYS_TO_SHOW), 
+                authClaims.organization.name
+            )
+            var daily: Long = 0L
+            var last : Long = 0L;
+            var sum : Long = 0L;
+            var data : Array<Long> = arrayOf(0,0,0,0,0,0,0,0)
+
+            @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )
+            headers.sortedByDescending{ it.createdAt }.forEach {
+                if( isToday( it.createdAt ) ) daily += it.itemCount.toLong();
+                if( isYesterday( it.createdAt ) ) last += it.itemCount.toLong();                
+                sum += it.itemCount.toLong()
+                val expires: Int = (DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS)).toInt();
+                data.set(expires, data.get(expires) + it.itemCount.toLong()); 
+            }
+
+            val avg = sum / headers.size;
+
+            var card = CardView.Builder()
+                        .id( "summary-tests")
+                        .title("Summay tests")
+                        .subtitle("summary tests")
+                        .daily(daily)
+                        .last( last )
+                        .positive( daily > avg )
+                        .change( last - daily )
+                        .pct_change( if (last > 0) ((last-daily)/last).toDouble() * 100 else 0.0 )
+                        .data( data )
+                        .build();
+            response = request.createResponseBuilder(HttpStatus.OK)
+                        .body( card )
+                        .build();
+
+        } 
+        catch (ex: Exception) {
+            context.logger.log(Level.WARNING, "Exception during download of summary/tests", ex)
+            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                .body("File not found")
+                .header("Content-Type", "text/html")
+                .build()
+        }           
+        return response;
     }
 
-    fun getFacilitiesForReportId( reportId: String, authClaim: AuthClaims ): ArrayList<Facility> {
+    fun GetSummary(request: HttpRequestMessage<String?>, 
+                    field: String,
+                   context: ExecutionContext): HttpResponseMessage {
+        val authClaims = checkAuthenticated(request, context)
+        if( authClaims == null ) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+        var response: HttpResponseMessage;
+        try{
+            val headers = workflowEngine.db.fetchDownloadableReportFiles(
+                OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
+            )
+
+            @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )
+            var reports = headers.sortedByDescending{ it.createdAt }.map{
+                if( it.bodyFormat == "CSV") getFieldSummaryForReportId(field,it.reportId.toString(), authClaims) else arrayListOf()
+            }
+
+            response = request.createResponseBuilder(HttpStatus.OK)
+                .body( reports )
+                .header("Content-Type", "application/json")
+                .build()
+        }catch (ex: Exception) {
+            context.logger.log(Level.WARNING, "Exception during download of reports", ex)
+            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                .body("File not found")
+                .header("Content-Type", "text/html")
+                .build()
+        }
+        return response
+    }
+
+    fun getFieldSummaryForReportId( fieldName: String, reportId: String, authClaim: AuthClaims ): ArrayList<Facility> {
         var header: Header?
         var csv: FuzzyCSVTable? = null
         var facilties: ArrayList<Facility> = ArrayList<Facility>();
@@ -324,7 +418,7 @@ open class BaseHistoryFunction {
         if( header !== null )
             csv = FuzzyCSVTable.parseCsv( StringReader( String(header.content!!) ) );
         if( csv !== null ){
-            csv = csv.summarize( "Ordering_facility_name", count( "Ordering_facility_name").az( "Count" ) )
+            csv = csv.summarize( fieldName, count( fieldName ).az( "Count" ) )
             csv.forEach{
                 facilties.add( Facility.Builder()
                                 .facility( it.getAt(0).toString() )
@@ -349,8 +443,7 @@ open class BaseHistoryFunction {
         var orgName = ""
         var jwtToken = request.headers["authorization"] ?: ""
 
-        System.out.println( "jwtToken = ${jwtToken}" )
-        jwtToken = jwtToken.substring(7);
+        jwtToken = if( jwtToken.length > 7 ) jwtToken.substring(7) else "";
 
         if (jwtToken.isNotBlank()) {
             try {
