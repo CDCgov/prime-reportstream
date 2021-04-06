@@ -270,43 +270,13 @@ open class BaseHistoryFunction {
         val authClaims = checkAuthenticated(request, context)
         if( authClaims == null ) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
         var response: HttpResponseMessage
-        try {
-            val rId = ReportId.fromString(reportId)
-            val header = workflowEngine.fetchHeader(rId, authClaims.organization)
-            if (header.content == null || header.content.isEmpty())
-                response = request.createResponseBuilder(HttpStatus.NO_CONTENT).build()
-            else {
-                val filename = Report.formExternalFilename(header)
-                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
-                response = request
-                    .createResponseBuilder(HttpStatus.OK)
-                    .header("Content-Type", mimeType)
-                    .header("Content-Disposition", "attachment; filename=$filename")
-                    .body(header.content)
-                    .build()
-                val actionHistory = ActionHistory(TaskAction.download, context)
-                actionHistory.trackActionRequestResponse(request, response)
-                // Give the external report_file a new UUID, so we can track its history distinct from the
-                // internal blob.   This is going to be very confusing.
-                val externalReportId = UUID.randomUUID()
-                actionHistory.trackDownloadedReport(
-                    header,
-                    filename,
-                    externalReportId,
-                    authClaims.userName,
-                )
-                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
-                WorkflowEngine().recordAction(actionHistory)
-                return response
-            }
-        } catch (ex: Exception) {
-            context.logger.log(Level.WARNING, "Exception during download of $reportId", ex)
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                .body("File not found")
+
+            response = request.createResponseBuilder(HttpStatus.NOT_IMPLEMENTED)
+                .body("Not Implemented")
                 .header("Content-Type", "text/html")
                 .build()
-        }
-        return response
+
+                return response;
     }
 
     fun isToday( date: OffsetDateTime ) : Boolean {
