@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
@@ -116,6 +117,7 @@ class WorkflowEngine(
      */
     fun handleReportEvent(
         messageEvent: ReportEvent,
+        context: ExecutionContext? = null,
         updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         lateinit var nextEvent: ReportEvent
@@ -130,11 +132,19 @@ class WorkflowEngine(
             val header = createHeader(task, reportFile, itemLineages, organization, receiver)
             val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
-            if (currentEventAction != messageEvent.eventAction) return@transact
+            if (currentEventAction != messageEvent.eventAction) {
+                context?.let {
+                    context.logger.warning(
+                        "Weird error for $reportId: queue event = ${messageEvent.eventAction.name}, " +
+                            " but task.nextAction = ${currentEventAction.name} "
+                    )
+                }
+                return@transact
+            }
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
 
             nextEvent = updateBlock(header, retryToken, txn)
-
+            context?.let { context.logger.info("Finished updateBlock for $reportId") }
             val retryJson = nextEvent.retryToken?.toJSON()
             updateHeader(
                 header.task.reportId,
