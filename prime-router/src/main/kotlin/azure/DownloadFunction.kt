@@ -28,8 +28,7 @@ import java.util.Calendar
 import java.util.UUID
 import java.util.logging.Level
 
-class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : SecretManagement {
-    val DAYS_TO_SHOW = 7L
+class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : SecretManagement, BaseHistoryFunction() {
     val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
     val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
     val FILENOTFOUND_PAGE = "./assets/csv-download-site/nosuchfile__inline.html"
