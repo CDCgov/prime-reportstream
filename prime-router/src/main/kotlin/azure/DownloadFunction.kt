@@ -28,7 +28,7 @@ import java.util.Calendar
 import java.util.UUID
 import java.util.logging.Level
 
-class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : SecretManagement, BaseHistoryFunction() {
+class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
     val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
     val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
     val FILENOTFOUND_PAGE = "./assets/csv-download-site/nosuchfile__inline.html"
@@ -59,7 +59,7 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        var authClaims = checkAuthenticated(request, context)
+        var authClaims = checkAuthenticatedCookie(request, context)
         if (authClaims != null) {
             val file: String = request.queryParameters["file"] ?: ""
             if (file.isBlank())
@@ -224,7 +224,7 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
     /**
      * returns null if not authorized, otherwise returns a set of claims.
      */
-    private fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
+    fun checkAuthenticatedCookie(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         var userName = ""
         var orgName = ""
         val cookies = request.headers["cookie"] ?: ""
