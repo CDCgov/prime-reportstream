@@ -211,7 +211,7 @@ class WorkflowEngineTests {
         every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
         every { ActionHistory.Companion.sanityCheckReport(any(), any(), any()) }.returns(Unit)
 
-        engine.handleReportEvent(event) { header, _, _ ->
+        engine.handleReportEvent(event, null) { header, _, _ ->
             assertEquals(task, header.task)
             nextAction
         }

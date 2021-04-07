@@ -42,7 +42,9 @@ class Report {
     enum class NameFormat {
         STANDARD,
         APHL,
+        APHL_LIGHT,
         OHIO,
+        CUSTOM,
     }
 
     enum class Format(
@@ -294,20 +296,37 @@ class Report {
         return table.rowCount() == 0
     }
 
-    fun getString(row: Int, column: Int): String? {
-        return table.getString(row, column)
+    fun getString(row: Int, column: Int, maxLength: Int? = null): String? {
+        return table.getString(row, column).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
-    fun getString(row: Int, colName: String): String? {
+    fun getString(row: Int, colName: String, maxLength: Int? = null): String? {
         val column = schema.findElementColumn(colName) ?: return null
-        return table.getString(row, column)
+        return table.getString(row, column).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
-    fun getStringByHl7Field(row: Int, hl7Field: String): String? {
-        val column = schema.elements.filter { it.hl7Field.equals(hl7Field, ignoreCase = true) }.firstOrNull()
-            ?: return null
+    fun getStringByHl7Field(row: Int, hl7Field: String, maxLength: Int? = null): String? {
+        val column = schema.elements.firstOrNull { it.hl7Field.equals(hl7Field, ignoreCase = true) } ?: return null
         val index = schema.findElementColumn(column.name) ?: return null
-        return table.getString(row, index)
+        return table.getString(row, index).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
     fun getRow(row: Int): List<String> {
@@ -699,10 +718,22 @@ class Report {
             createdDateTime: OffsetDateTime,
             nameFormat: NameFormat = NameFormat.STANDARD,
             receivingOrganization: String? = null,
-            sendingFacility: String = "cdcprime"
+            sendingFacility: String = "cdcprime",
+            processingModeCode: String = "T",
+            translationConfig: TranslatorConfiguration? = null,
         ): String {
+            fun mapProcessingModeCode(processingModeCode: String = "T"): String {
+                return when (processingModeCode.toLowerCase()) {
+                    "p" -> "production"
+                    "d" -> "development"
+                    else -> "testing"
+                }
+            }
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
+            val so = "CDCPRIME"
+            val ts = formatter.format(createdDateTime)
+            val re = mapProcessingModeCode(processingModeCode)
             return when (nameFormat) {
                 NameFormat.APHL -> {
                     /*
@@ -722,20 +753,25 @@ class Report {
                         OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
                         ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
                  */
-                    val so = "cdcprime"
-                    val se = "testing"
-                    val re = "testing"
-                    val ts = formatter.format(createdDateTime)
+                    val se = mapProcessingModeCode(processingModeCode)
                     // have to escape with curly braces because Kotlin allows underscores in variable names
                     "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
                 }
+                NameFormat.APHL_LIGHT -> {
+                    /*
+                    A lighter version of the APHL name format that removes duplicated data. NM prefers this
+                     */
+                    "${so}_${receivingOrganization ?: ""}_${re}_$ts.$nameSuffix".toLowerCase()
+                }
                 NameFormat.OHIO -> {
-                    val ts = formatter.format(createdDateTime)
-                    "CDCPRIME_$ts.hl7"
+                    "${so}_$ts.hl7"
                 }
                 NameFormat.STANDARD -> {
                     val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                     "$namePrefix.$nameSuffix"
+                }
+                NameFormat.CUSTOM -> {
+                    TODO("Not done yet")
                 }
             }
         }

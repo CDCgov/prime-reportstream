@@ -22,6 +22,7 @@ import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
@@ -372,10 +373,11 @@ class ProcessData : CliktCommand(
 
         // Transform reports
         val translator = Translator(metadata, fileSettings)
+        val warnings = mutableListOf<ResultDetail>()
         val outputReports: List<Pair<Report, Report.Format>> = when {
             route ->
                 translator
-                    .filterAndTranslateByReceiver(inputReport, getDefaultValues())
+                    .filterAndTranslateByReceiver(inputReport, getDefaultValues(), emptyList(), warnings)
                     .map { it.first to getOutputFormat(it.second.format) }
             routeTo != null -> {
                 val pair = translator.translate(
@@ -405,6 +407,14 @@ class ProcessData : CliktCommand(
                 listOf(Pair(toReport, getOutputFormat(Report.Format.CSV)))
             }
             else -> listOf(Pair(inputReport, getOutputFormat(Report.Format.CSV)))
+        }
+
+        if (warnings.size > 0) {
+            echo("Problems occurred during translation to output schema:")
+            warnings.forEach {
+                echo("${it.scope} ${it.id}: ${it.details}")
+            }
+            echo()
         }
 
         // Output reports

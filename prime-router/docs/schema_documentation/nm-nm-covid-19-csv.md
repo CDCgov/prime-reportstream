@@ -1,10 +1,10 @@
 
-### Schema:         standard/standard-covid-19
-#### Description:   A standard file for ELR HL7 messags
+### Schema:         nm/nm-covid-19-csv
+#### Description:   New Mexico Flat File
 
 ---
 
-**Name**: sending_application
+**Name**: SendingApp
 
 **Type**: HD
 
@@ -14,369 +14,37 @@
 
 ---
 
-**Name**: receiving_application
+**Name**: RptFacName
 
 **Type**: HD
 
-**HL7 Field**: MSH-5
+**HL7 Field**: MSH-4
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-The receiving application for the message (specified by the receiver)
+The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+aggregator
+
 
 ---
 
-**Name**: receiving_facility
-
-**Type**: HD
-
-**HL7 Field**: MSH-6
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The receiving facility for the message (specified by the receiver)
-
----
-
-**Name**: comment
-
-**Type**: TEXT
-
-**HL7 Field**: NTE-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: comment_type
-
-**Type**: CODE
-
-**HL7 Field**: NTE-4
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-1R|Primary Reason
-2R|Secondary Reason
-AI|Ancillary Instructions
-DR|Duplicate/Interaction Reason
-GI|General Instructions
-GR|General Reason
-PI|Patient Instructions
-RE|Remark
-
----
-
-**Name**: comment_source
-
-**Type**: CODE
-
-**HL7 Field**: NTE-2
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-L|Ancillary (filler) department is source of comment
-O|Other system is source of comment
-P|Orderer (placer) is source of comment
-
----
-
-**Name**: device_id
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-17-1
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Documentation**:
-
-Device_id is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
-
----
-
-**Name**: device_id_type
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-17-3
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Documentation**:
-
-Device_id_type is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
-
----
-
-**Name**: equipment_model_id
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-18-1
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Equipment UID
-
----
-
-**Name**: equipment_model_id_type
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-18-3
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Equipment UID Type
-
----
-
-**Name**: equipment_model_name
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Model
-
----
-
-**Name**: equipment_manufacture
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Manufacturer
-
----
-
-**Name**: file_created_date
-
-**Type**: DATE
-
-**HL7 Field**: MSH-7
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: filler_name
-
-**Type**: TEXT
-
-**HL7 Fields**: ORC-3-2, OBR-3-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: filler_order_id
-
-**Type**: ID
-
-**HL7 Fields**: ORC-3-1, SPM-2-2, OBR-3-1
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Accension number
-
----
-
-**Name**: filler_clia
+**Name**: SenderCLIA
 
 **Type**: ID_CLIA
 
-**HL7 Field**: OBR-3-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: observation_result_status
-
-**Type**: CODE
-
-**HL7 Field**: OBX-11
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-C|Record coming over is a correction and thus replaces a final result
-D|Deletes the OBX record
-F|Final results; Can only be changed with a corrected result
-I|Specimen in lab; results pending
-N|Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.
-O|Order detail description only (no result)
-P|Preliminary results
-R|Results entered -- not verified
-S|Partial results
-U|Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final
-W|Post original as wrong, e.g., transmitted for wrong patient
-X|Results cannot be obtained for this observation
-
----
-
-**Name**: order_result_status
-
-**Type**: CODE
-
-**HL7 Field**: OBR-25
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
-
----
-
-**Name**: order_test_date
-
-**Type**: DATE
-
-**HL7 Field**: ORC-15
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordered_test_code
-
-**Type**: TABLE
-
-**HL7 Field**: OBR-4-1
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Test Ordered LOINC Code
-
----
-
-**Name**: ordered_test_name
-
-**Type**: TABLE
-
-**HL7 Field**: OBR-4-2
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Test Ordered LOINC Long Name
-
----
-
-**Name**: ordering_facility_city
-
-**Type**: CITY
-
-**HL7 Field**: ORC-22-3
+**HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-The city of the facility which the test was ordered from
+The reporting facility's CLIA
 
 ---
 
-**Name**: ordering_facility_county_code
-
-**Type**: TABLE
-
-**HL7 Field**: ORC-22-9
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: FIPS
-
----
-
-**Name**: ordering_facility_email
-
-**Type**: EMAIL
-
-**HL7 Field**: ORC-23-4
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordering_facility_name
+**Name**: OrdFacName
 
 **Type**: TEXT
 
@@ -390,21 +58,35 @@ The name of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_facility_phone_number
+**Name**: OrdFacAddrStreet
 
-**Type**: TELEPHONE
+**Type**: STREET
 
-**HL7 Field**: ORC-23
+**HL7 Field**: ORC-22-1
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
-The phone number of the facility which the test was ordered from
+The address of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_facility_state
+**Name**: OrdFacCity
+
+**Type**: CITY
+
+**HL7 Field**: ORC-22-3
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The city of the facility which the test was ordered from
+
+---
+
+**Name**: OrdFacState
 
 **Type**: TABLE
 
@@ -422,35 +104,7 @@ The state of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_facility_street
-
-**Type**: STREET
-
-**HL7 Field**: ORC-22-1
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The address of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_street2
-
-**Type**: STREET_OR_BLANK
-
-**HL7 Field**: ORC-22-2
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The secondary address of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_zip_code
+**Name**: OrdFacZip
 
 **Type**: POSTAL_CODE
 
@@ -464,257 +118,61 @@ The zip code of the facility which the test was ordered from
 
 ---
 
-**Name**: ordering_provider_city
+**Name**: DateTimeMessage
 
-**Type**: CITY
+**Type**: DATE
 
-**HL7 Field**: ORC-24-3
+**Format**: YYYYMMDD
 
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The city of the provider
-
----
-
-**Name**: ordering_provider_county_code
-
-**Type**: TABLE
-
-**HL7 Field**: ORC-24-9
+**HL7 Field**: MSH-7
 
 **Cardinality**: [0..1]
 
-**Table**: fips-county
-
-**Table Column**: County
-
 ---
 
-**Name**: ordering_provider_first_name
-
-**Type**: PERSON_NAME
-
-**HL7 Fields**: ORC-12-3, OBR-16-3
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The first name of the provider who ordered the test
-
----
-
-**Name**: ordering_provider_id
-
-**Type**: ID_NPI
-
-**HL7 Fields**: ORC-12-1, OBR-16-1
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ordering provider’s National Provider Identifier
-
----
-
-**Name**: ordering_provider_id_authority
-
-**Type**: HD
-
-**HL7 Fields**: ORC-12-9, OBR-16-9
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Usually the OID for CMS
-
----
-
-**Name**: ordering_provider_id_authority_type
+**Name**: PtID
 
 **Type**: TEXT
 
-**HL7 Fields**: ORC-12-13, OBR-16-13
+**HL7 Field**: PID-3-1
 
 **Cardinality**: [0..1]
 
-**Documentation**:
-
-Usually NPI
-
 ---
 
-**Name**: ordering_provider_last_name
+**Name**: PtFirstName
 
 **Type**: PERSON_NAME
 
-**HL7 Fields**: ORC-12-2, OBR-16-2
+**HL7 Field**: PID-5-2
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-The last name of provider who ordered the test
+The patient's first name
 
 ---
 
-**Name**: ordering_provider_middle_name
+**Name**: PtLastName
 
 **Type**: PERSON_NAME
 
-**HL7 Fields**: ORC-12-4, OBR-16-4
+**HL7 Field**: PID-5-1
 
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordering_provider_phone_number
-
-**Type**: TELEPHONE
-
-**HL7 Fields**: ORC-14, OBR-17
-
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-The phone number of the provider
+The patient's last name
 
 ---
 
-**Name**: ordering_provider_state
-
-**Type**: TABLE
-
-**HL7 Field**: ORC-24-4
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: State
-
-**Documentation**:
-
-The state of the provider
-
----
-
-**Name**: ordering_provider_street
-
-**Type**: STREET
-
-**HL7 Field**: ORC-24-1
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The street address of the provider
-
----
-
-**Name**: ordering_provider_street2
-
-**Type**: STREET_OR_BLANK
-
-**HL7 Field**: ORC-24-2
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The street second address of the provider
-
----
-
-**Name**: ordering_provider_zip_code
-
-**Type**: POSTAL_CODE
-
-**HL7 Field**: ORC-24-5
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The zip code of the provider
-
----
-
-**Name**: patient_city
-
-**Type**: CITY
-
-**HL7 Field**: PID-11-3
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's city
-
----
-
-**Name**: patient_county_code
-
-**Type**: TABLE
-
-**HL7 Field**: PID-11-9
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: FIPS
-
----
-
-**Name**: patient_email
-
-**Type**: EMAIL
-
-**HL7 Field**: PID-13-4
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_death_date
+**Name**: PtDOB
 
 **Type**: DATE
 
-**HL7 Field**: PID-29
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_died
-
-**Type**: CODE
-
-**HL7 Field**: PID-30-1
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
----
-
-**Name**: patient_dob
-
-**Type**: DATE
+**Format**: YYYYMMDD
 
 **HL7 Field**: PID-7
 
@@ -729,159 +187,7 @@ Other states may choose to define their own formats.
 
 ---
 
-**Name**: patient_drivers_license
-
-**Type**: ID_DLN
-
-**HL7 Field**: PID-20-1
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_ethnicity
-
-**Type**: CODE
-
-**HL7 Field**: PID-22
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
-
-**Documentation**:
-
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
-consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
-
-
----
-
-**Name**: patient_first_name
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-2
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's first name
-
----
-
-**Name**: patient_gender
-
-**Type**: CODE
-
-**HL7 Field**: PID-8-1
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-M|Male
-F|Female
-O|Other
-A|Ambiguous
-U|Unknown
-N|Not applicable
-
-**Documentation**:
-
-The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.
-
-
----
-
-**Name**: patient_id
-
-**Type**: TEXT
-
-**HL7 Field**: PID-3-1
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_id_assigner
-
-**Type**: HD
-
-**HL7 Fields**: PID-3-6-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_id_type
-
-**Type**: TEXT
-
-**HL7 Field**: PID-3-5
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_last_name
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-1
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-The patient's last name
-
----
-
-**Name**: patient_name_type_code
-
-**Type**: TEXT
-
-**HL7 Field**: PID-5-7
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_middle_name
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_phone_number
-
-**Type**: TELEPHONE
-
-**HL7 Field**: PID-13
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's phone number with area code
-
----
-
-**Name**: patient_race
+**Name**: PtRace
 
 **Type**: CODE
 
@@ -909,63 +215,31 @@ The patient's race. There is a common valueset defined for race values, but some
 
 ---
 
-**Name**: patient_state
+**Name**: PtEthnic
 
-**Type**: TABLE
+**Type**: CODE
 
-**HL7 Field**: PID-11-4
-
-**Cardinality**: [1..1]
-
-**Table**: fips-county
-
-**Table Column**: State
-
-**Documentation**:
-
-The patient's state
-
----
-
-**Name**: patient_street
-
-**Type**: STREET
-
-**HL7 Field**: PID-11-1
+**HL7 Field**: PID-22
 
 **Cardinality**: [0..1]
 
-**Documentation**:
+**Value Sets**
 
-The patient's street address
-
----
-
-**Name**: patient_street2
-
-**Type**: STREET_OR_BLANK
-
-**HL7 Field**: PID-11-2
-
-**Cardinality**: [0..1]
+Code | Display
+---- | -------
+H|Hispanic or Latino
+N|Non Hispanic or Latino
+U|Unknown
 
 **Documentation**:
 
-The patient's second address line
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+
 
 ---
 
-**Name**: patient_suffix
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-4
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_tribal_citizenship
+**Name**: PtTribe
 
 **Type**: CODE
 
@@ -1546,7 +820,61 @@ Code | Display
 
 ---
 
-**Name**: patient_zip_code
+**Name**: PtLanguage
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtAddrStreet
+
+**Type**: STREET
+
+**HL7 Field**: PID-11-1
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's street address
+
+---
+
+**Name**: PtAddrCity
+
+**Type**: CITY
+
+**HL7 Field**: PID-11-3
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's city
+
+---
+
+**Name**: PtAddrState
+
+**Type**: TABLE
+
+**HL7 Field**: PID-11-4
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The patient's state
+
+---
+
+**Name**: PtAddrZip
 
 **Type**: POSTAL_CODE
 
@@ -1560,51 +888,120 @@ The patient's zip code
 
 ---
 
-**Name**: placer_order_id
+**Name**: PtCounty
 
-**Type**: ID
+**Type**: TABLE_OR_BLANK
 
-**HL7 Fields**: ORC-2-1, OBR-2-1
+**Cardinality**: [1..1]
 
-**Cardinality**: [0..1]
+**Table**: fips-county
+
+**Table Column**: County
 
 ---
 
-**Name**: placer_name
+**Name**: PtPhone
+
+**Type**: TELEPHONE
+
+**HL7 Field**: PID-13
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's phone number with area code
+
+---
+
+**Name**: PtSSN
 
 **Type**: TEXT
 
-**HL7 Fields**: ORC-2-2, ORC-4-2, OBR-2-2
-
 **Cardinality**: [0..1]
 
 ---
 
-**Name**: placer_clia
+**Name**: OrdProvFirstName
 
-**Type**: ID_CLIA
+**Type**: PERSON_NAME
 
-**HL7 Fields**: ORC-2-3, ORC-4-3, OBR-2-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: placer_order_group_id
-
-**Type**: ID
-
-**HL7 Field**: ORC-4-1
+**HL7 Fields**: ORC-12-3, OBR-16-3
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+The first name of the provider who ordered the test
+
 ---
 
-**Name**: processing_mode_code
+**Name**: OrdProvLastName
+
+**Type**: PERSON_NAME
+
+**HL7 Fields**: ORC-12-2, OBR-16-2
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The last name of provider who ordered the test
+
+---
+
+**Name**: OrdProvPhone
+
+**Type**: TELEPHONE
+
+**HL7 Fields**: ORC-14, OBR-17
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the provider
+
+---
+
+**Name**: AccessionNum
+
+**Type**: EI
+
+**HL7 Fields**: SPM-2
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
+
+**Documentation**:
+
+A unique code for this specimen
+
+---
+
+**Name**: SpecCollDt
+
+**Type**: DATETIME
+
+**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
+
+
+---
+
+**Name**: SpecType
 
 **Type**: CODE
 
-**HL7 Field**: MSH-11-1
+**HL7 Field**: SPM-4
 
 **Cardinality**: [0..1]
 
@@ -1612,59 +1009,68 @@ The patient's zip code
 
 Code | Display
 ---- | -------
-D|Debugging
-P|Production
-T|Training
+445297001|Swab of internal nose
+258500001|Nasopharyngeal swab
+871810001|Mid-turbinate nasal swab
+697989009|Anterior nares swab
+258411007|Nasopharyngeal aspirate
+429931000124105|Nasal aspirate
+258529004|Throat swab
+119334006|Sputum specimen
+119342007|Saliva specimen
+258607008|Bronchoalveolar lavage fluid sample
+119364003|Serum specimen
+119361006|Plasma specimen
+440500007|Dried blood spot specimen
+258580003|Whole blood sample
+122555007|Venous blood specimen
 
 **Documentation**:
 
-P, D, or T for Production, Debugging, or Training
+The specimen source, such as Blood or Serum
 
 ---
 
-**Name**: message_id
+**Name**: ResultTestCode
 
-**Type**: ID
+**Type**: CODE
 
-**HL7 Field**: MSH-10
+**Format**: $code
 
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-unique id to track the usage of the message
-
----
-
-**Name**: message_profile_id
-
-**Type**: EI
-
-**HL7 Field**: MSH-21
+**HL7 Field**: OBX-5
 
 **Cardinality**: [0..1]
 
+**Value Sets**
+
+Code | Display
+---- | -------
+260373001|Detected
+260415000|Not detected
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+
 **Documentation**:
 
-The message profile identifer
+The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
 
 ---
 
-**Name**: reference_range
-
-**Type**: TEXT
-
-**HL7 Field**: OBX-7
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reference range of the lab result, such as “Negative” or “Normal”. For IgG, IgM and CT results that provide a value you MUST fill out this filed.
-
----
-
-**Name**: abnormal_flag
+**Name**: Result
 
 **Type**: CODE
 
@@ -1713,323 +1119,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 ---
 
-**Name**: reporting_facility_name
-
-**Type**: TEXT
-
-**HL7 Field**: MSH-4-1
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's name
-
----
-
-**Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
-**Name**: result_format
-
-**Type**: TEXT
-
-**HL7 Field**: OBX-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: specimen_collection_date_time
-
-**Type**: DATETIME
-
-**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
-
----
-
-**Name**: specimen_collection_method
-
-**Type**: CODE
-
-**HL7 Field**: SPM-7
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-ANP|Plates, Anaerobic
-BAP|Plates, Blood Agar
-BCAE|Blood Culture, Aerobic Bottle
-BCAN|Blood Culture, Anaerobic Bottle
-BCPD|Blood Culture, Pediatric Bottle
-BIO|Biopsy
-CAP|Capillary Specimen
-CATH|Catheterized
-CVP|Line, CVP
-EPLA|Environmental, Plate
-ESWA|Environmental, Swab
-FNA|Aspiration, Fine Needle
-KOFFP|Plate, Cough
-LNA|Line, Arterial
-LNV|Line, Venous
-MARTL|Martin-Lewis Agar
-ML11|Mod. Martin-Lewis Agar
-MLP|Plate, Martin-Lewis
-NYP|Plate, New York City
-PACE|Pace, Gen-Probe
-PIN|Pinworm Prep
-PNA|Aterial puncture
-PRIME|Pump Prime
-PUMP|Pump Specimen
-QC5|Quality Control For Micro
-SCLP|Scalp, Fetal Vein
-SCRAPS|Scrapings
-SHA|Shaving
-SWA|Swab
-SWD|Swab, Dacron tipped
-TMAN|Transport Media, Anaerobic
-TMCH|Transport Media, Chalamydia
-TMM4|Transport Media, M4
-TMMY|Transport Media, Mycoplasma
-TMOT|Transport Media
-TMP|Plate, Thayer-Martin
-TMPV|Transport Media, PVA
-TMSC|Transport Media, Stool Culture
-TMUP|Transport Media, Ureaplasma
-TMVI|Transport Media, Viral
-VENIP|Venipuncture
-WOOD|Swab, Wooden Shaft
-
----
-
-**Name**: specimen_collection_site
-
-**Type**: TEXT
-
-**HL7 Field**: SPM-10
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10) 
-
----
-
-**Name**: specimen_description
-
-**Type**: TEXT
-
-**HL7 Field**: SPM-14
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14](https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14) 
-
----
-
-**Name**: specimen_id
-
-**Type**: EI
-
-**HL7 Fields**: SPM-2
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
-
-**Documentation**:
-
-A unique code for this specimen
-
----
-
-**Name**: specimen_role
-
-**Type**: CODE
-
-**HL7 Field**: SPM-11
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-B|Blind sample
-E|Electronic QC
-F|Filer
-G|Group
-L|Pool
-O|Operator proficiency
-P|Patient
-Q|Control specimen
-R|Replicate
-V|Verifying collaborator
-
----
-
-**Name**: specimen_source_site_code
-
-**Type**: CODE
-
-**HL7 Field**: SPM-8
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-119297000|Blood specimen (specimen)
-71836000|Nasopharyngeal structure (body structure)
-45206002|Nasal structure (body structure)
-
----
-
-**Name**: specimen_type
-
-**Type**: CODE
-
-**HL7 Field**: SPM-4
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-445297001|Swab of internal nose
-258500001|Nasopharyngeal swab
-871810001|Mid-turbinate nasal swab
-697989009|Anterior nares swab
-258411007|Nasopharyngeal aspirate
-429931000124105|Nasal aspirate
-258529004|Throat swab
-119334006|Sputum specimen
-119342007|Saliva specimen
-258607008|Bronchoalveolar lavage fluid sample
-119364003|Serum specimen
-119361006|Plasma specimen
-440500007|Dried blood spot specimen
-258580003|Whole blood sample
-122555007|Venous blood specimen
-
-**Documentation**:
-
-The specimen source, such as Blood or Serum
-
----
-
-**Name**: test_performed_code
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-3-1
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Test Performed LOINC Code
-
-**Documentation**:
-
-The LOINC code of the test performed. This is a standardized coded value describing the test
-
----
-
-**Name**: test_performed_name
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-3-2
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Test Performed LOINC Long Name
-
-**Documentation**:
-
-The LOINC description of the test performed as related to the LOINC code.
-
----
-
-**Name**: test_performed_system_abbr
-
-**Type**: TEXT
-
-**HL7 Field**: OBX-3-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_result
-
-**Type**: CODE
-
-**HL7 Field**: OBX-5
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-260373001|Detected
-260415000|Not detected
-720735008|Presumptive positive
-10828004|Positive
-42425007|Equivocal
-260385009|Negative
-895231008|Not detected in pooled specimen
-462371000124108|Detected in pooled specimen
-419984006|Inconclusive
-125154007|Specimen unsatisfactory for evaluation
-455371000124106|Invalid result
-840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
-840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
-840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
-840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
-840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
-840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
-840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-
-**Documentation**:
-
-The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
-
----
-
-**Name**: test_result_date
+**Name**: TestResultDt
 
 **Type**: DATETIME
 
@@ -2039,276 +1129,15 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 ---
 
-**Name**: test_result_report_date
-
-**Type**: DATETIME
-
-**HL7 Field**: OBX-22
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_result_status
-
-**Type**: CODE
-
-**HL7 Fields**: OBX-11-1, OBR-25-1
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-A|Some, but not all, results available
-C|Corrected, final
-F|Final results
-I|No results available; specimen received, procedure incomplete
-M|Corrected, not final
-N|Procedure completed, results pending
-O|Order received; specimen not yet received
-P|Preliminary
-R|Results stored; not yet verified
-S|No results available; procedure scheduled, but not done
-X|No results available; Order canceled
-Y|No order on record for this test
-Z|No record of this patient
-
----
-
-**Name**: test_result_sub_id
-
-**Type**: ID
-
-**HL7 Field**: OBX-4
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_result_units
+**Name**: ResultNotes
 
 **Type**: TEXT
 
-**HL7 Field**: OBX-6
-
 **Cardinality**: [0..1]
 
 ---
 
-**Name**: testing_lab_accession_number
-
-**Type**: ID
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The accession number of the specimen collected
-
----
-
-**Name**: testing_lab_city
-
-**Type**: CITY
-
-**HL7 Field**: OBX-24-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_county_code
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-24-9
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: FIPS
-
----
-
-**Name**: testing_lab_id
-
-**Type**: ID
-
-**HL7 Field**: OBX-23-10
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_id_assigner
-
-**Type**: HD
-
-**HL7 Field**: OBX-23-6
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_clia
-
-**Type**: ID_CLIA
-
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-CLIA Number from the laboratory that sends the message to DOH
-
-An example of the ID is 03D2159846
-
-
----
-
-**Name**: testing_lab_name
-
-**Type**: TEXT
-
-**HL7 Field**: OBX-23-1
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the laboratory which performed the test, can be the same as the sending facility name
-
----
-
-**Name**: testing_lab_specimen_id
-
-**Type**: ID
-
-**HL7 Field**: SPM-2-1
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The specimen-id from the testing lab
-
----
-
-**Name**: testing_lab_specimen_received_datetime
-
-**Type**: DATETIME
-
-**HL7 Field**: SPM-18-1
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_state
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-24-4
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: State
-
----
-
-**Name**: testing_lab_street
-
-**Type**: STREET
-
-**HL7 Field**: OBX-24-1
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_street2
-
-**Type**: STREET_OR_BLANK
-
-**HL7 Field**: OBX-24-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_zip_code
-
-**Type**: POSTAL_CODE
-
-**HL7 Field**: OBX-24-5
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testing_lab_phone_number
-
-**Type**: TELEPHONE
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: pregnant
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 82810-3
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-77386006|Pregnant
-60001007|Not Pregnant
-261665006|Unknown
-
-**Documentation**:
-
-Is the patient pregnant?
-
----
-
-**Name**: employed_in_healthcare
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 95418-0
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient employed in health care?
-
----
-
-**Name**: first_test
+**Name**: FirstTest
 
 **Type**: CODE
 
@@ -2332,13 +1161,13 @@ Is this the patient's first test for this condition?
 
 ---
 
-**Name**: hospitalized
+**Name**: EmpHealthcare
 
 **Type**: CODE
 
 **HL7 Field**: AOE
 
-**LOINC Code**: 77974-4
+**LOINC Code**: 95418-0
 
 **Cardinality**: [0..1]
 
@@ -2352,106 +1181,11 @@ UNK|Unknown
 
 **Documentation**:
 
-Is the patient hospitalized?
+Is the patient employed in health care?
 
 ---
 
-**Name**: icu
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 95420-6
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Is the patient in the ICU?
-
----
-
-**Name**: illness_onset_date
-
-**Type**: DATE
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 65222-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_age
-
-**Type**: NUMBER
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 30525-0
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_age_units
-
-**Type**: CODE
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-min|minutes
-h|hours
-d|days
-wk|weeks
-mo|months
-a|years
-
-**Documentation**:
-
-Always filled when `patient_age` is filled
-
----
-
-**Name**: resident_congregate_setting
-
-**Type**: CODE
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 95421-4
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-Y|Yes
-N|No
-UNK|Unknown
-
-**Documentation**:
-
-Does the patient reside in a congregate care setting?
-
----
-
-**Name**: symptomatic_for_disease
+**Name**: Symptomatic
 
 **Type**: CODE
 
@@ -2475,19 +1209,13 @@ Is the patient symptomatic?
 
 ---
 
-**Name**: date_result_released
-
-**Type**: DATETIME
-
-**HL7 Field**: OBR-22
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: employed_in_high_risk_setting
+**Name**: Hospitalized
 
 **Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 77974-4
 
 **Cardinality**: [0..1]
 
@@ -2499,291 +1227,19 @@ Y|Yes
 N|No
 UNK|Unknown
 
----
-
-**Name**: equipment_instance_id
-
-**Type**: ID
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: flatfile_version_no
-
-**Type**: NUMBER
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordered_test_system
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordered_test_system_abbr
-
-**Type**: TEXT
-
-**HL7 Field**: OBR-4-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordered_test_encoding_version
-
-**Type**: TABLE
-
-**HL7 Field**: OBR-4-7
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: LOINC Version ID
-
----
-
-**Name**: ordering_facility_county
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
-
----
-
-**Name**: ordering_facility_country
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordering_provider_county
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
-
----
-
-**Name**: ordering_provider_country
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordering_provider_middle_initial
-
-**Type**: PERSON_NAME
-
-**HL7 Fields**: ORC-12-4, OBR-16-4
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_county
-
-**Type**: TABLE_OR_BLANK
-
-**Cardinality**: [1..1]
-
-**Table**: fips-county
-
-**Table Column**: County
-
----
-
-**Name**: patient_country
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_middle_initial
-
-**Type**: PERSON_NAME
-
-**HL7 Field**: PID-5-3
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: prime_patient_id
-
-**Type**: ID
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: prime_patient_id_assigner
-
-**Type**: HD
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: previous_message_id
-
-**Type**: ID
-
-**Cardinality**: [0..1]
-
 **Documentation**:
 
-pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
+Is the patient hospitalized?
 
 ---
 
-**Name**: reason_for_study
-
-**Type**: TEXT
-
-**HL7 Field**: OBR-31
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: reporting_facility
-
-**Type**: HD
-
-**HL7 Field**: MSH-4
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
-aggregator
-
-
----
-
-**Name**: test_kit_name_id
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Testkit Name ID
-
----
-
-**Name**: test_kit_name_id_type
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: Testkit Name ID Type
-
----
-
-**Name**: test_kit_name_id_cwe_version
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-17-7
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: LOINC Version ID
-
----
-
-**Name**: test_method_description
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_performed_system
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_performed_system_version
-
-**Type**: TABLE
-
-**HL7 Field**: OBX-3-7
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2-2021-01-20
-
-**Table Column**: LOINC Version ID
-
----
-
-**Name**: testing_lab_county
-
-**Type**: TABLE
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
-
----
-
-**Name**: testing_lab_country
-
-**Type**: TEXT
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: value_type
+**Name**: ICU
 
 **Type**: CODE
 
-**HL7 Field**: OBX-2
+**HL7 Field**: AOE
+
+**LOINC Code**: 95420-6
 
 **Cardinality**: [0..1]
 
@@ -2791,30 +1247,182 @@ aggregator
 
 Code | Display
 ---- | -------
-AD|Address
-CE|Coded Entry
-CF|Coded Element With Formatted Values
-CK|Composite ID With Check Digit
-CN|Composite ID And Name
-CP|Composite Price
-CX|Extended Composite ID With Check Digit
-DT|Date
-ED|Encapsulated Data
-FT|Formatted Text (Display)
-MO|Money
-NM|Numeric
-PN|Person Name
-RP|Reference Pointer
-SN|Structured Numeric
-ST|String Data
-TM|Time
-TN|Telephone Number
-TS|Time Stamp (Date & Time)
-TX|Text Data (Display)
-XAD|Extended Address
-XCN|Extended Composite Name and Number For Persons
-XON|Extended Composite Name and Number For Organizations
-XPN|Extended Person Name
-XTN|Extended Telecommunications Number
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Is the patient in the ICU?
+
+---
+
+**Name**: CongSetting
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 95421-4
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+**Documentation**:
+
+Does the patient reside in a congregate care setting?
+
+---
+
+**Name**: Pregnant
+
+**Type**: CODE
+
+**HL7 Field**: AOE
+
+**LOINC Code**: 82810-3
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+77386006|Pregnant
+60001007|Not Pregnant
+261665006|Unknown
+
+**Documentation**:
+
+Is the patient pregnant?
+
+---
+
+**Name**: PtEmailAdd
+
+**Type**: EMAIL
+
+**HL7 Field**: PID-13-4
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: Occupation
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtEmpName
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtEmpAddrStreet
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtEmpAddrCity
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtEmpAddrState
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtEmpAddrZip
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtEmpcounty
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtEmpPhone
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtSchoolName
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtSchAddrStreet
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtSchAddrCity
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtSchAddrState
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtSchAddrZip
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: PtSchcounty
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
 
 ---

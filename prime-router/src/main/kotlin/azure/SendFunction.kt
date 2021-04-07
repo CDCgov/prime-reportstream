@@ -49,7 +49,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 context.logger.warning("Send function received a $message")
                 return
             }
-            workflowEngine.handleReportEvent(event) { header, retryToken, _ ->
+            workflowEngine.handleReportEvent(event, context) { header, retryToken, _ ->
                 val receiver = header.receiver
                     ?: error("Internal Error: could not find ${header.task.receiverName}")
                 val inputReportId = header.reportFile.reportId
@@ -74,6 +74,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                         nextRetryItems += nextRetry
                     }
                 }
+                context.logger.info("For $inputReportId:  finished send().  Calling handleRetry.")
                 handleRetry(nextRetryItems, inputReportId, serviceName, retryToken, context, actionHistory)
             }
         } catch (t: Throwable) {
@@ -83,8 +84,10 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
         } finally {
-            // Note this is operating in a different transaction than the one that did the fetch/lock of the report
+            // Note this is operating in a different transaction than the one that did the fetch/lock of the repor
+            context.logger.info("About to save ActionHistory for $message")
             workflowEngine.recordAction(actionHistory)
+            context.logger.info("Done saving ActionHistory for $message")
         }
     }
 

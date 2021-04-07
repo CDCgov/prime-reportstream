@@ -257,6 +257,8 @@
         reportingFacilityId: 36DSMP9999
         nameFormat: OHIO
         suppressHl7Fields: OBX-23-11
+        # turn off UNK and ASKU for this field
+        useBlankInsteadOfUnknown: patient_race
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -281,13 +283,37 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingOrganization: elr
         receivingApplicationName: NMDOH
         receivingApplicationOID: 2.16.840.1.113883.3.5364
         receivingFacilityName: NMDOH
         receivingFacilityOID: 2.16.840.1.113883.3.5364
+        truncateHDNamespaceIds: true
+        nameFormat: APHL_LIGHT
+        # turn off UNK and ASKU for this field
+        useBlankInsteadOfUnknown: patient_race
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: MOUNTAIN
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
+    - name: elr-csv
+      organizationName: nm-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, NM)
+      translation:
+        type: CUSTOM
+        format: CSV
+        schemaName: nm/nm-covid-19-csv
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
         initialTime: 00:00
         timeZone: MOUNTAIN
       transport:
@@ -349,6 +375,7 @@
         useBatchHeaders: true
         receivingApplicationName: NEDSS
         receivingFacilityName: TX-ELR
+        defaultAoeToUnknown: true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

@@ -20,5 +20,5 @@ module "prime_data_hub" {
   resource_group = "prime-dev-${var.dev_name}"
   resource_prefix = var.dev_name
   okta_redirect_url = "https://prime-data-hub-${var.dev_name}.azurefd.net/download"
-  https_cert_name = null
+  https_cert_names = []
 }
