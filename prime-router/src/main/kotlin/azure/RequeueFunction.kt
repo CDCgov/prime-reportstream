@@ -62,7 +62,7 @@ class RequeueFunction : Logging {
             ?: return bad(request, "No such receiver fullname $fullName\n")
         // sanity checks throw exceptions inside here:
         workflowEngine.resendEvent(reportId, receiver, isFailedOnly, isTest, msgs)
-        return HttpUtilities.httpResponse(request, msgs.joinToString("\n")+"\n", HttpStatus.OK)
+        return HttpUtilities.httpResponse(request, msgs.joinToString("\n") + "\n", HttpStatus.OK)
     }
 
     fun bad(request: HttpRequestMessage<String?>, msg: String): HttpResponseMessage {
