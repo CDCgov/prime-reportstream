@@ -28,7 +28,8 @@ class RedoxTransport() : ITransport, SecretManagement {
     private val jsonMimeType = "application/json"
     private val redoxMessageId = "messageId"
 
-    enum class ResultStatus { SUCCESS, FAILURE, NOT_SENT }
+    enum class ResultStatus { SUCCESS, FAILURE, NOT_SENT, NEVER_ATTEMPTED }
+
     data class SendResult(val itemId: String, val status: ResultStatus, val redoxId: Int? = null)
 
     override fun send(
@@ -132,7 +133,7 @@ class RedoxTransport() : ITransport, SecretManagement {
     }
 
     /**
-     * Map redox results onto strings that we can store in the item_lineage table.
+     * Map redox send results onto strings that we can store in the item_lineage table.
      */
     private fun createTransportResults(results: List<SendResult>, isRetry: Boolean): List<String> {
         return results.map {
@@ -140,6 +141,7 @@ class RedoxTransport() : ITransport, SecretManagement {
                 ResultStatus.SUCCESS -> it.redoxId.toString()
                 ResultStatus.FAILURE -> if (isRetry) "RETRY_FAILURE" else "FAILURE"
                 ResultStatus.NOT_SENT -> "NOT_SENT" + if (isRetry) " (likely sent in prior attempt)" else "(bug!!)"
+                ResultStatus.NEVER_ATTEMPTED -> error("Should not reach here if redox tried to send this item")
             }
         }
     }
