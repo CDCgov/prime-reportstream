@@ -6,6 +6,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
 import gov.cdc.prime.router.azure.db.enums.SettingType
@@ -235,6 +236,19 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(cond)
             .fetch()
             .into(ReportFile::class.java).toList()
+    }
+
+    fun fetchChildReports(
+        parentReportId: UUID,
+        txn: DataAccessTransaction? = null,
+    ): List<ReportId> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(REPORT_LINEAGE.CHILD_REPORT_ID)
+            .from(REPORT_LINEAGE)
+            .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(parentReportId))
+            .fetch()
+            .into(ReportId::class.java).toList()
     }
 
     /**
