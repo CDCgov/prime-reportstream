@@ -30,5 +30,5 @@ module "prime_data_hub" {
   resource_group = "prime-data-hub-${local.target_env}"
   resource_prefix = "pdhprod"
   okta_redirect_url = "https://prime.cdc.gov/download"
-  https_cert_name = "prime-cdc-gov"
+  https_cert_names = ["prime-cdc-gov", "reportstream-cdc-gov"]
 }

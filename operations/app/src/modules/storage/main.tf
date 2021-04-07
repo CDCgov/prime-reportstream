@@ -153,10 +153,51 @@ resource "azurerm_monitor_diagnostic_setting" "storageaccount_access_log" {
   }
 }
 
+
+// Static website
+
+resource "azurerm_storage_account" "storage_public" {
+  resource_group_name = var.resource_group
+  name = "${var.resource_prefix}public"
+  location = var.location
+  account_tier = "Standard"
+  account_kind = "StorageV2"
+  account_replication_type = "GRS"
+  min_tls_version = "TLS1_2"
+  allow_blob_public_access = false
+
+  static_website {
+    index_document = "index.html"
+    error_404_document = "404.html"
+  }
+
+  network_rules {
+    default_action = "Allow"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
+
+
+
 output "storage_account_name" {
   value = azurerm_storage_account.storage_account.name
 }
 
 output "storage_account_key" {
   value = azurerm_storage_account.storage_account.primary_access_key
+}
+
+output "storage_account_public_id" {
+  value = azurerm_storage_account.storage_public.id
+}
+
+output "storage_web_endpoint" {
+  value = azurerm_storage_account.storage_public.primary_web_endpoint
 }
