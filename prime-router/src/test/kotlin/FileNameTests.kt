@@ -30,4 +30,20 @@ class FileNameTests {
         val actual = fileName.getFileName()
         assertEquals("cdcprime", actual)
     }
+
+    @Test
+    fun `test receiving organization element`() {
+        val config = Hl7Configuration(
+            receivingApplicationName = "receiving application",
+            receivingApplicationOID = "",
+            receivingFacilityName = "receiving facility",
+            receivingFacilityOID = "",
+            receivingOrganization = "cdcprime",
+            messageProfileId = null
+        )
+        val receivingOrg = ReceivingOrganization()
+        val expected = "cdcprime"
+        val actual = receivingOrg.getElementValue(translatorConfig = config)
+        assertEquals(expected, actual)
+    }
 }

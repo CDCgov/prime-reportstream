@@ -3,29 +3,44 @@ package gov.cdc.prime.router
 interface FileNameElement {
     val name: String
 
-    fun getElementValue(args: List<String>): String
+    fun getElementValue(args: List<String> = emptyList(), translatorConfig: TranslatorConfiguration? = null): String
 }
 
 class Literal : FileNameElement {
     override val name = "literal"
 
-    override fun getElementValue(args: List<String>): String {
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
         return args.getOrElse(0) { "" }
     }
 }
 
+class ReceivingOrganization : FileNameElement {
+    override val name = "receivingOrganization"
+
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
+        val hl7Config = translatorConfig as? Hl7Configuration?
+        return hl7Config?.receivingOrganization ?: ""
+    }
+}
+
 open class FileName(val elements: List<String>) {
-    fun getFileName(): String {
+    fun getFileName(
+        translatorConfig: TranslatorConfiguration? = null
+    ): String {
         val parsedElements = fixupFileNameElements(elements)
         return parsedElements.joinToString {
             val (elem, args) = it
-            elem.getElementValue(args)
+            elem.getElementValue(
+                args,
+                translatorConfig
+            )
         }
     }
 
     companion object {
         private val fileNameElements: List<FileNameElement> = listOf(
-            Literal()
+            Literal(),
+            ReceivingOrganization()
         )
 
         private fun findFileNameElement(elementName: String): FileNameElement {
