@@ -93,6 +93,19 @@ services:
     # Override the command with our custom init script
     command: "/vault/config/init.sh"
 
+  web_receiver:
+    image: nginx:latest
+    ports:
+      - "8090:80"
+    volumes:
+      - "../frontend/_site:/usr/share/nginx/html"
+    depends_on: 
+      - prime_dev
+    command: "'nginx' '-g' 'daemon off;'"
+    entrypoint: "/docker-entrypoint.sh"
+
 volumes:
   # For storing a local encrypted secrets database
   vault:
+
+

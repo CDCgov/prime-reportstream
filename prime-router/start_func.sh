@@ -34,4 +34,4 @@ cat <<EOT >> local.settings.json
 }
 EOT
 fi
-func host start --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+func host start --cors http://localhost:8090 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
