@@ -516,6 +516,10 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
       - name: elr-chester-local
         topic: covid-19
         organizationName: pa-phd
@@ -530,6 +534,10 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
       - name: elr-montgomery-local
         organizationName: pa-phd
         topic: covid-19
@@ -544,6 +552,10 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
       - name: elr-philadelphia-local
         organizationName: pa-phd
         topic: covid-19
@@ -559,6 +571,11 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+
 
   - name: pa-chester-phd
     description: Health Department - Chester County, Pennsylvania
