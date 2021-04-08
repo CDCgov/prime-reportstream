@@ -1,11 +1,28 @@
 package gov.cdc.prime.router
 
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+
+// a file name element should be a pure function, which does not modify
+// its inputs, and has a minimum amount of side effects (and by minimum) we
+// mean ideally 0.
+//
+// ALSO, these elements should not fail. If the value doesn't exist
+// or the arguments are empty, or the translation config is null, or any
+// of the inputs are bad, it should return an empty string and move on.
+// We do not want to fail the delivery of a file at this point for something
+// like this.
 interface FileNameElement {
     val name: String
 
     fun getElementValue(args: List<String> = emptyList(), translatorConfig: TranslatorConfiguration? = null): String
 }
 
+// a literal call, which just returns the first argument passed in
+// this is strictly not necessary, as the FileName logic below will actually
+// just pass through any bare strings it is sent, but maybe you want to make
+// it abundantly clear that you intend this value to be a literal value
+// and not some function call
 class Literal : FileNameElement {
     override val name = "literal"
 
@@ -14,6 +31,8 @@ class Literal : FileNameElement {
     }
 }
 
+// some of the receivers give us a value for the receiving organization. this is a standard
+// from the APHL file name format, and that comes from the translation config
 class ReceivingOrganization : FileNameElement {
     override val name = "receivingOrganization"
 
@@ -23,28 +42,57 @@ class ReceivingOrganization : FileNameElement {
     }
 }
 
+// returns the created date according to the provided format OR the format passed in.
+// if the format fails, it just returns an empty string and moves on
+class CreatedDate : FileNameElement {
+    private val defaultFormat = "yyyyMMddHHmmss"
+
+    override val name = "createdDate"
+
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
+        return try {
+            val formatter = DateTimeFormatter.ofPattern(args.firstOrNull() ?: defaultFormat)
+            val dt = OffsetDateTime.now()
+            formatter.format(dt)
+        } catch (_: Exception) {
+            ""
+        }
+    }
+}
+
 open class FileName(val elements: List<String>) {
+    private val fileName: StringBuilder = StringBuilder()
+
     fun getFileName(
         translatorConfig: TranslatorConfiguration? = null
     ): String {
         val parsedElements = fixupFileNameElements(elements)
-        return parsedElements.joinToString {
-            val (elem, args) = it
-            elem.getElementValue(
-                args,
-                translatorConfig
-            )
+        parsedElements.forEach {
+            when (it.first) {
+                is FileNameElement -> {
+                    val e = it.first as FileNameElement
+                    fileName.append(e.getElementValue(it.second, translatorConfig))
+                }
+                is String -> {
+                    fileName.append(it.first)
+                }
+                else -> {
+                }
+            }
         }
+        return fileName.toString()
     }
 
     companion object {
+        // this is the collection of file name elements that can be invoked
         private val fileNameElements: List<FileNameElement> = listOf(
             Literal(),
-            ReceivingOrganization()
+            ReceivingOrganization(),
+            CreatedDate(),
         )
 
-        private fun findFileNameElement(elementName: String): FileNameElement {
-            return fileNameElements.first {
+        private fun findFileNameElement(elementName: String): FileNameElement? {
+            return fileNameElements.firstOrNull {
                 it.name == elementName
             }
         }
@@ -52,15 +100,19 @@ open class FileName(val elements: List<String>) {
         fun parseFileNameElement(fileNameElement: String): Pair<String, List<String>> {
             // Using a permissive match in the (arg1, arg2) section, to allow most regexes to be passed as args.
             // Somehow this works with "(?i).*Pima.*", I guess because the \\x29 matches rightmost ')' char
+            // that said, this allows for the passing in of bare strings, so if the match fails, then we
+            // just pass through a pair of the failing value to an empty list
             val match = Regex("([a-zA-Z0-9]+)\\x28(.*)\\x29").find(fileNameElement)
-                ?: error("FileNameElement field $fileNameElement does not parse")
+                ?: return fileNameElement to emptyList()
             return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
         }
 
-        fun fixupFileNameElements(elements: List<String>): List<Pair<FileNameElement, List<String>>> {
+        fun fixupFileNameElements(elements: List<String>): List<Pair<Any, List<String>>> {
+            // given a list of elements in the file name template, try to cast each
+            // to a function, or to just the literal string
             return elements.map {
                 val parsedElement = parseFileNameElement(it)
-                Pair(findFileNameElement(parsedElement.first), parsedElement.second)
+                Pair(findFileNameElement(parsedElement.first) ?: it, parsedElement.second)
             }
         }
     }
