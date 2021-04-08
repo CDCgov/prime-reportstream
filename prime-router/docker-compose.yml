@@ -98,7 +98,7 @@ services:
     ports:
       - "8090:80"
     volumes:
-      - "../frontend/_site:/usr/share/nginx/html"
+      - "../frontend/dist:/usr/share/nginx/html"
     depends_on: 
       - prime_dev
     command: "'nginx' '-g' 'daemon off;'"
