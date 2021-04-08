@@ -199,8 +199,14 @@ Unit tests are run as part of the build.  To run the unit tests, run the followi
 mvn test
 ```
 
+### Data Conversion Quick Test
+The quick test is meant to test the data conversion and generation code.  Use the following command to run all quick tests.  On Windows OS, use Git Bash or similar Linux shell to run this command.
+```
+./quick-test.sh all
+```
+
 ### Local End-to-end Tests
-End-to-end tests check if the deployed system is configured correctly.  The test uses an organization called IGNORE for running the tests.  
+End-to-end tests check if the deployed system is configured correctly.  The test uses an organization called IGNORE for running the tests.  On Windows OS, use Git Bash or similar Linux shell to run these commands.
 1. Refer to the [SFTP-SETUP document](SFTP_SETUP.md) to setup a local SFTP server to receive the resulting data.
 1. Setup the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server and change the arguments for the --user and --pass as needed:
     ```bash 
