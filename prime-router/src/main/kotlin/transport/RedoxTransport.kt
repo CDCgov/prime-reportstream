@@ -52,6 +52,10 @@ class RedoxTransport() : ITransport, SecretManagement {
         val sendUrl = "${getBaseUrl(redoxTransportType)}$redoxEndpointPath"
         var resultMsg = ""
         var results = mutableListOf<RedoxTransport.SendResult>()
+        context.logger.info(
+            "The incoming retry item list for ${header.reportFile.reportId} is: " +
+                (retryItems?.joinToString(",") ?: "null")
+        )
         try {
             val (key, secret) = getKeyAndSecret(redoxTransportType)
             // DevNote: Redox access tokens live for many days
@@ -123,7 +127,7 @@ class RedoxTransport() : ITransport, SecretManagement {
         }
         if (nextRetryItems.isNotEmpty()) {
             context.logger.info(
-                "The retry item list for ${header.reportFile.reportId} is: " +
+                "The outgoing retry item list for ${header.reportFile.reportId} is: " +
                     nextRetryItems.joinToString(",")
             )
             return nextRetryItems
