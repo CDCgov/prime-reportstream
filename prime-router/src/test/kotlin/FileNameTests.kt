@@ -125,4 +125,12 @@ class FileNameTests {
         // assert
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun `test regexReplace file name element`() {
+        val element = RegexReplace()
+        val expected = "AcmeLabs"
+        val actual = element.getElementValue(listOf(" Acme_Labs-", "[ _-]+", ""))
+        assertEquals(expected, actual)
+    }
 }

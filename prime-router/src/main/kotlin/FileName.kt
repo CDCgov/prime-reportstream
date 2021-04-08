@@ -42,6 +42,20 @@ class ReceivingOrganization : FileNameElement {
     }
 }
 
+class RegexReplace : FileNameElement {
+    override val name = "regexReplace"
+
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
+        if (args.count() < 3) return ""
+        val lookupValue = args[0]
+        val regex = args[1]
+        val replacement = args[2]
+
+        val re = Regex(regex)
+        return re.replace(lookupValue, replacement)
+    }
+}
+
 // returns the created date according to the provided format OR the format passed in.
 // if the format fails, it just returns an empty string and moves on
 class CreatedDate : FileNameElement {
@@ -89,6 +103,7 @@ open class FileName(val elements: List<String>) {
             Literal(),
             ReceivingOrganization(),
             CreatedDate(),
+            RegexReplace()
         )
 
         private fun findFileNameElement(elementName: String): FileNameElement? {
