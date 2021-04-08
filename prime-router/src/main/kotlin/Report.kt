@@ -126,7 +126,8 @@ class Report {
         bodyFormat,
         createdDateTime,
         destination?.translation?.nameFormat ?: NameFormat.STANDARD,
-        destination?.translation?.receivingOrganization
+        destination?.translation?.receivingOrganization,
+        translationConfig = destination?.translation
     )
 
     /**

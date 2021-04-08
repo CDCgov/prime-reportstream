@@ -74,7 +74,11 @@ class CreatedDate : FileNameElement {
     }
 }
 
-open class FileName(val elements: List<String>) {
+open class FileName(
+    val elements: List<String>,
+    val lowerCase: Boolean? = null,
+    val upperCase: Boolean? = null
+) {
     private val fileName: StringBuilder = StringBuilder()
 
     fun getFileName(
@@ -94,7 +98,11 @@ open class FileName(val elements: List<String>) {
                 }
             }
         }
-        return fileName.toString()
+        return when {
+            (lowerCase == true) -> fileName.toString().toLowerCase()
+            (upperCase == true) -> fileName.toString().toUpperCase()
+            else -> fileName.toString()
+        }
     }
 
     companion object {

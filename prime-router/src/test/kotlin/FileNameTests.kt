@@ -133,4 +133,40 @@ class FileNameTests {
         val actual = element.getElementValue(listOf(" Acme_Labs-", "[ _-]+", ""))
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun `test lower case file name`() {
+        // arrange
+        val nameElementSerialized = """
+            ---
+                elements:
+                    - cdcprime_
+                    - receivingOrganization()
+                lowerCase: true
+        """.trimIndent()
+        val expected = "cdcprime_yoyodyne"
+        val fileName = createFileName(nameElementSerialized)
+        // act
+        val actual = fileName.getFileName(translatorConfig = config)
+        // assert
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `test upper case file name`() {
+        // arrange
+        val nameElementSerialized = """
+            ---
+                elements:
+                    - cdcprime_
+                    - receivingOrganization()
+                upperCase: true
+        """.trimIndent()
+        val expected = "CDCPRIME_YOYODYNE"
+        val fileName = createFileName(nameElementSerialized)
+        // act
+        val actual = fileName.getFileName(translatorConfig = config)
+        // assert
+        assertEquals(expected, actual)
+    }
 }
