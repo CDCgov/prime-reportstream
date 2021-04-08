@@ -127,7 +127,8 @@ class Report {
         createdDateTime,
         destination?.translation?.nameFormat ?: NameFormat.STANDARD,
         destination?.translation?.receivingOrganization,
-        translationConfig = destination?.translation
+        translationConfig = destination?.translation,
+        fileName = destination?.fileName
     )
 
     /**
@@ -722,6 +723,7 @@ class Report {
             sendingFacility: String = "cdcprime",
             processingModeCode: String = "T",
             translationConfig: TranslatorConfiguration? = null,
+            fileName: FileName? = null
         ): String {
             fun mapProcessingModeCode(processingModeCode: String = "T"): String {
                 return when (processingModeCode.toLowerCase()) {
@@ -772,7 +774,9 @@ class Report {
                     "$namePrefix.$nameSuffix"
                 }
                 NameFormat.CUSTOM -> {
-                    TODO("Not done yet")
+                    // get the custom name or default to the standard name
+                    fileName?.getFileName(translationConfig)
+                        ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}.$nameSuffix"
                 }
             }
         }

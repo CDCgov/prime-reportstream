@@ -65,7 +65,12 @@ class CreatedDate : FileNameElement {
 
     override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
         return try {
-            val formatter = DateTimeFormatter.ofPattern(args.firstOrNull() ?: defaultFormat)
+            val pattern = if (args.isEmpty() || args[0].isEmpty()) {
+                defaultFormat
+            } else {
+                args[0]
+            }
+            val formatter = DateTimeFormatter.ofPattern(pattern)
             val dt = OffsetDateTime.now()
             formatter.format(dt)
         } catch (_: Exception) {

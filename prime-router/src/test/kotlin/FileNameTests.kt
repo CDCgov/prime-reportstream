@@ -127,6 +127,25 @@ class FileNameTests {
     }
 
     @Test
+    fun `test createdDate file name element with no format`() {
+        // arrange
+        val expectedStartsWithFormat = "yyyyMMddHH"
+        val nameElementSerialized = """
+            ---
+                elements:
+                    - createdDate()
+        """.trimIndent()
+        val offsetDt = OffsetDateTime.now()
+        val expectedStartsWith = DateTimeFormatter.ofPattern(expectedStartsWithFormat)
+        val expected = expectedStartsWith.format(offsetDt)
+        val fileName = createFileName(nameElementSerialized)
+        // act
+        val actual = fileName.getFileName(translatorConfig = config)
+        // assert
+        assertTrue(actual.startsWith(expected), "Actual was: $actual")
+    }
+
+    @Test
     fun `test regexReplace file name element`() {
         val element = RegexReplace()
         val expected = "AcmeLabs"
@@ -163,6 +182,23 @@ class FileNameTests {
                 upperCase: true
         """.trimIndent()
         val expected = "CDCPRIME_YOYODYNE"
+        val fileName = createFileName(nameElementSerialized)
+        // act
+        val actual = fileName.getFileName(translatorConfig = config)
+        // assert
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `test file name with no case change`() {
+        // arrange
+        val nameElementSerialized = """
+            ---
+                elements:
+                    - CdcPrime_
+                    - receivingOrganization()
+        """.trimIndent()
+        val expected = "CdcPrime_yoyodyne"
         val fileName = createFileName(nameElementSerialized)
         // act
         val actual = fileName.getFileName(translatorConfig = config)

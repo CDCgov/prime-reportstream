@@ -30,6 +30,7 @@ open class Receiver(
     val timing: Timing? = null,
     val description: String = "",
     val transport: TransportType? = null,
+    val fileName: FileName? = null,
 ) {
     // Custom constructor
     constructor(
@@ -53,6 +54,7 @@ open class Receiver(
         copy.timing,
         copy.description,
         copy.transport,
+        copy.fileName
     )
 
     @get:JsonIgnore
