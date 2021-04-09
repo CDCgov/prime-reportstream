@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 // a file name element should be a pure function, which does not modify
 // its inputs, and has a minimum amount of side effects (and by minimum) we
@@ -42,6 +43,15 @@ class ReceivingOrganization : FileNameElement {
     }
 }
 
+class FileUuid : FileNameElement {
+    override val name: String
+        get() = "uuid"
+
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
+        return UUID.randomUUID().toString()
+    }
+}
+
 class RegexReplace : FileNameElement {
     override val name = "regexReplace"
 
@@ -79,7 +89,7 @@ class CreatedDate : FileNameElement {
     }
 }
 
-open class FileName(
+open class FileNameTemplate(
     val elements: List<String>,
     val lowerCase: Boolean? = null,
     val upperCase: Boolean? = null
@@ -116,7 +126,8 @@ open class FileName(
             Literal(),
             ReceivingOrganization(),
             CreatedDate(),
-            RegexReplace()
+            RegexReplace(),
+            FileUuid(),
         )
 
         private fun findFileNameElement(elementName: String): FileNameElement? {

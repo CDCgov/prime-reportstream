@@ -10,7 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class FileNameTests {
+class FileNameTemplateTests {
     private val literal = """
         ---
         elements:
@@ -26,7 +26,7 @@ class FileNameTests {
     )
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
-    private fun createFileName(yaml: String): FileName {
+    private fun createFileName(yaml: String): FileNameTemplate {
         val inputStream = yaml.byteInputStream()
         return mapper.readValue(inputStream)
     }
@@ -41,7 +41,7 @@ class FileNameTests {
 
     @Test
     fun `test reading literal name element from yaml`() {
-        val fileName = mapper.readValue<FileName>(literal)
+        val fileName = mapper.readValue<FileNameTemplate>(literal)
         val actual = fileName.getFileName()
         assertEquals("cdcprime", actual)
     }
