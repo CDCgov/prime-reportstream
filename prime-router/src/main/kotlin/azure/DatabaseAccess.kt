@@ -183,7 +183,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.into(ReportFile::class.java)
             ?: error(
                 "Could not find $reportId in REPORT_FILE" +
-                    if (org != null) { " associated with organization $org" } else ""
+                    if (org != null) { " associated with organization ${org.name}" } else ""
             )
     }
 
