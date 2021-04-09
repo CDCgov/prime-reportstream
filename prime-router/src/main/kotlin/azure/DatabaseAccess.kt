@@ -521,7 +521,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             // See this info why these are a good value
             //  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
             config.minimumIdle = 2
-            config.maximumPoolSize = 10
+            config.maximumPoolSize = 15
             // This strongly recommended to be set "be several seconds shorter than any database or infrastructure
             // imposed connection time limit". Not sure what value is but have observed that connection are closed
             // after about 10 minutes
