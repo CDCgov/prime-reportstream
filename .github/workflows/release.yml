@@ -102,6 +102,7 @@ jobs:
 
       - name: Install OpenVPN
         run: |
+          sudo apt-get update
           sudo apt-get install openvpn
           sudo apt install openvpn-systemd-resolved
 
@@ -167,6 +168,7 @@ jobs:
 
       - name: Install OpenVPN
         run: |
+          sudo apt-get update
           sudo apt-get install openvpn
           sudo apt install openvpn-systemd-resolved
 
@@ -233,6 +235,7 @@ jobs:
 
       - name: Install OpenVPN
         run: |
+          sudo apt-get update
           sudo apt-get install openvpn
           sudo apt install openvpn-systemd-resolved
 

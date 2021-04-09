@@ -157,7 +157,9 @@ Examples:
 
         val tests = if (run != null) {
             run.toString().split(",").mapNotNull { test ->
-                coolTestList.find { it.name.equals(test, ignoreCase = true) }
+                coolTestList.find {
+                    it.name.equals(test, ignoreCase = true)
+                } ?: echo("No such test: $test")
             }
         } else {
             // No --run arg:  run the smoke tests.

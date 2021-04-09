@@ -2,6 +2,8 @@ terraform {
     required_version = ">= 0.14"
 }
 
+data "azurerm_client_config" "current" {}
+
 resource "azurerm_storage_account" "storage_account" {
   resource_group_name = var.resource_group
   name = var.name
@@ -13,6 +15,11 @@ resource "azurerm_storage_account" "storage_account" {
     default_action = "Deny"
     ip_rules = []
     virtual_network_subnet_ids = [var.public_subnet_id, var.container_subnet_id]
+  }
+
+  # Required for customer-managed encryption
+  identity {
+    type = "SystemAssigned"
   }
 
   lifecycle {
@@ -84,6 +91,27 @@ resource "azurerm_storage_management_policy" "retention_policy" {
       # This needs to be manually checked in the policy and set to 30 days
     }
   }
+}
+
+# Grant the storage account Key Vault access, to access encryption keys
+resource "azurerm_key_vault_access_policy" "storage_policy" {
+  count = azurerm_storage_account.storage_account.identity.0.principal_id != null ? 1 : 0
+
+  key_vault_id = var.key_vault_id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azurerm_storage_account.storage_account.identity.0.principal_id
+
+  key_permissions = ["get", "unwrapkey", "wrapkey"]
+}
+
+resource "azurerm_storage_account_customer_managed_key" "storage_key" {
+  count = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
+  key_name = var.rsa_key_4096
+  key_vault_id = var.key_vault_id
+  key_version = null // Null allows automatic key rotation
+  storage_account_id = azurerm_storage_account.storage_account.id
+
+  depends_on = [azurerm_key_vault_access_policy.storage_policy]
 }
 
 module "storageaccount_access_log_event_hub_log" {
