@@ -18,7 +18,12 @@
       "headers": {
         "Content-Type": ["application/json"]
       },
-      "body": {"Meta":{"DataModel":"Results","EventType":"NewUnsolicited","Message":{"ID":5911323776},"Source":{"ID":"d89d4057-930f-4c5b-bb39-8cddb326e928","Name":"Prime Data Hub (Staging)"},"Destinations":[{"ID":"cd019512-8a58-40e5-a416-4e597404f9b8","Name":"CDC Pennsylvania Dept of Health Destination (s)"}]}}
+      "body": {"Meta":{"DataModel":"Results","EventType":"NewUnsolicited","Message":{"ID":5911323776},"Source":{"ID":"d89d4057-930f-4c5b-bb39-8cddb326e928","Name":"Prime Data Hub (Staging)"},"Destinations":[{"ID":"cd019512-8a58-40e5-a416-4e597404f9b8","Name":"CDC Pennsylvania Dept of Health Destination (s)"}]}},
+      "delay": {
+        "timeUnit": "SECONDS",
+        "value": 1
+      }
     }
   }
+
 ]

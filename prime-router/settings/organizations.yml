@@ -526,10 +526,10 @@
         organizationName: ignore
         topic: covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, REDOX)" ]
-        timing:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialTime: 00:00
+#        timing:
+#          operation: MERGE
+#          numberPerDay: 1440 # Every minute
+#          initialTime: 00:00
         translation:
           type: CUSTOM
           schemaName: pa/pa-covid-19-redox
