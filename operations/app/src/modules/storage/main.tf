@@ -95,6 +95,8 @@ resource "azurerm_storage_management_policy" "retention_policy" {
 
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_policy" {
+  count = azurerm_storage_account.storage_account.identity.0.principal_id != null ? 1 : 0
+
   key_vault_id = var.key_vault_id
   tenant_id = data.azurerm_client_config.current.tenant_id
   object_id = azurerm_storage_account.storage_account.identity.0.principal_id
