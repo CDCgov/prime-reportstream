@@ -222,8 +222,6 @@ resource "azurerm_monitor_diagnostic_setting" "postgresql_db_log" {
   }
 }
 
-data "azurerm_client_config" "current" {}
-
 output "server_name" {
   value = azurerm_postgresql_server.postgres_server.name
 }
