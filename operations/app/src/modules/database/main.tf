@@ -75,6 +75,11 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
     email_account_admins = true
   }
 
+  # Required for customer-managed encryption
+  identity {
+    type = "SystemAssigned"
+  }
+
   lifecycle {
     prevent_destroy = true
   }
@@ -104,7 +109,7 @@ module "postgres_private2_endpoint" {
   endpoint_subnet_id = var.endpoint2_subnet_id
 }
 
-# Grant the storage account Key Vault access, to access encryption keys
+# Grant the database Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "postgres_policy" {
   # This is a hack. The postgres module has a bug where it does not export the values until after being updated.
   # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
@@ -130,6 +135,34 @@ resource "azurerm_postgresql_server_key" "postgres_server_key" {
   count = length(data.azurerm_key_vault_key.postgres_server_encryption_key)
   server_id = azurerm_postgresql_server.postgres_server.id
   key_vault_key_id = data.azurerm_key_vault_key.postgres_server_encryption_key[0].id
+}
+
+# Grant the database Key Vault access, to access encryption keys
+resource "azurerm_key_vault_access_policy" "postgres_replica_policy" {
+  # This is a hack. The postgres module has a bug where it does not export the values until after being updated.
+  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
+  # The second deploy adds the Key Value access policy.
+  count = azurerm_postgresql_server.postgres_server_replica.identity.0.principal_id != null ? 1 : 0
+
+  key_vault_id = var.key_vault_id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azurerm_postgresql_server.postgres_server_replica.identity.0.principal_id
+
+  key_permissions = ["get", "unwrapkey", "wrapkey"]
+}
+
+data "azurerm_key_vault_key" "postgres_replica_server_encryption_key" {
+  count = var.rsa_key_2048 != null && var.rsa_key_2048 != "" && azurerm_postgresql_server.postgres_server_replica.identity.0.principal_id != null ? 1 : 0
+  key_vault_id = var.key_vault_id
+  name = var.rsa_key_2048
+
+  depends_on = [azurerm_key_vault_access_policy.postgres_replica_policy[0]]
+}
+
+resource "azurerm_postgresql_server_key" "postgres_replica_server_key" {
+  count = length(data.azurerm_key_vault_key.postgres_replica_server_encryption_key)
+  server_id = azurerm_postgresql_server.postgres_server_replica.id
+  key_vault_key_id = data.azurerm_key_vault_key.postgres_replica_server_encryption_key[0].id
 }
 
 resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
