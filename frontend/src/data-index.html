@@ -1,0 +1,33 @@
+---
+layout: protected.liquid
+title: "Download"
+protected: true
+show_navbar: true
+show_menu: false
+---
+
+
+<section class="grid-container margin-bottom-5">
+  <h3 class="margin-bottom-0">
+    <script>
+      document.write( `<span class="text-gray-30">${window.orgName}</span>` )
+    </script>
+  </h3>
+  <h1 class="margin-top-0 margin-bottom-0">
+    COVID-19
+    <a class="usa-button usa-button--outline float-right" href="/data-show.html">Latest Results</a>
+</h1>
+</section>
+
+{% include grid_charts %}
+
+{% include table_reports %}
+
+
+
+
+
+
+
+
+

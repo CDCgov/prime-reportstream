@@ -15,6 +15,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.secrets.SecretManagement
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
@@ -27,8 +28,7 @@ import java.util.Calendar
 import java.util.UUID
 import java.util.logging.Level
 
-class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
-    val DAYS_TO_SHOW = 7L
+class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
     val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
     val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
     val FILENOTFOUND_PAGE = "./assets/csv-download-site/nosuchfile__inline.html"
@@ -59,7 +59,7 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        var authClaims = checkAuthenticated(request, context)
+        var authClaims = checkAuthenticatedCookie(request, context)
         if (authClaims != null) {
             val file: String = request.queryParameters["file"] ?: ""
             if (file.isBlank())
@@ -76,7 +76,7 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
 
         val attr = mapOf(
             "OKTA_baseUrl" to System.getenv("OKTA_baseUrl"),
-            "OKTA_clientId" to System.getenv("OKTA_clientId"),
+            "OKTA_clientId" to secretService.fetchSecret("OKTA_clientId"),
             "OKTA_redirect" to System.getenv("OKTA_redirect")
         )
 
@@ -93,7 +93,7 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
         return reportFiles.sortedByDescending {
             it.createdAt
         }.map {
-            val svc = WorkflowEngine().settings.findReceiver(it.receivingOrg)
+            val svc = WorkflowEngine().settings.findReceiver(it.receivingOrg + "." + it.receivingOrgSvc)
             val orgDesc = authClaims.organization.description
             val receiver = if (svc !== null && svc.description.isNotBlank()) svc.description else orgDesc
             TestResult(
@@ -169,14 +169,15 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
         var response: HttpResponseMessage
         try {
             val reportId = ReportId.fromString(requestedFile)
-            val header = workflowEngine.fetchHeader(reportId, authClaims.organization.name)
+            val header = workflowEngine.fetchHeader(reportId, authClaims.organization)
             if (header.content == null || header.content.isEmpty())
                 response = responsePage(request, authClaims)
             else {
                 val filename = Report.formExternalFilename(header)
+                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
                 response = request
                     .createResponseBuilder(HttpStatus.OK)
-                    .header("Content-Type", "text/csv")
+                    .header("Content-Type", mimeType)
                     .header("Content-Disposition", "attachment; filename=$filename")
                     .body(header.content)
                     .build()
@@ -223,7 +224,7 @@ class DownloadFunction(private val workflowEngine: WorkflowEngine = WorkflowEngi
     /**
      * returns null if not authorized, otherwise returns a set of claims.
      */
-    private fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
+    fun checkAuthenticatedCookie(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         var userName = ""
         var orgName = ""
         val cookies = request.headers["cookie"] ?: ""

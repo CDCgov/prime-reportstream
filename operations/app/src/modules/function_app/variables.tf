@@ -18,6 +18,11 @@ variable "location" {
     description = "Function App Location"
 }
 
+variable "app_service_plan_id" {
+    type = string
+    description = "App Service Plan ID"
+}
+
 variable "storage_account_name" {
     type = string
     description = "Storage Account Name"
@@ -32,6 +37,11 @@ variable "storage_account_key" {
 variable "public_subnet_id" {
     type = string
     description = "Public Subnet ID"
+}
+
+variable "endpoint_subnet_id" {
+    type = string
+    description = "Private Endpoint Subnet ID"
 }
 
 variable "postgres_user" {

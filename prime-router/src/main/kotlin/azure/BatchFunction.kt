@@ -71,7 +71,7 @@ class BatchFunction {
             }
             actionHistory.queueMessages() // Must be done after txn, to avoid race condition
         } catch (e: Exception) {
-            context.logger.log(Level.SEVERE, "Batch exception", e)
+            context.logger.log(Level.SEVERE, "Batch function exception for event: $message", e)
         }
     }
 }

@@ -4,7 +4,7 @@ description: NM COVID-19
 referenceUrl:
 topic: covid-19
 trackingElement: message_id
-basedOn: covid-19
+extends: covid-19
 elements:
   # msh section
   - name: sending_application
@@ -242,6 +242,8 @@ elements:
   - name: testing_lab_zip_code
 
   - name: testing_lab_phone_number
+
+  - name: date_result_released
 
   # AOE questions
   - name: pregnant

@@ -10,6 +10,8 @@ open class Organization(
     val stateCode: String?,
     val countyName: String?,
 ) {
+    constructor(org: Organization) : this(org.name, org.description, org.jurisdiction, org.stateCode, org.countyName)
+
     enum class Jurisdiction {
         FEDERAL,
         STATE,
@@ -53,4 +55,7 @@ class DeepOrganization(
     countyName: String? = null,
     val senders: List<Sender> = emptyList(),
     val receivers: List<Receiver> = emptyList(),
-) : Organization(name, description, jurisdiction, stateCode, countyName)
+) : Organization(name, description, jurisdiction, stateCode, countyName) {
+    constructor(org: Organization, senders: List<Sender>, receivers: List<Receiver>) :
+        this(org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, senders, receivers)
+}

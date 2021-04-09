@@ -225,9 +225,13 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Type**: ID
 
-**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
+**HL7 Fields**: ORC-3-1, SPM-2-2, OBR-3-1
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
 
 ---
 
@@ -2089,6 +2093,13 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 
@@ -2236,7 +2247,7 @@ The accession number of the specimen collected
 
 **Type**: ID_CLIA
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
 
 **Cardinality**: [1..1]
 
@@ -2334,6 +2345,16 @@ The specimen-id from the testing lab
 **Name**: testing_lab_phone_number
 
 **Type**: TELEPHONE
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: date_result_released
+
+**Type**: DATETIME
+
+**HL7 Field**: OBR-22
 
 **Cardinality**: [0..1]
 
@@ -2551,5 +2572,249 @@ UNK|Unknown
 **Documentation**:
 
 Is the patient symptomatic?
+
+---
+
+**Name**: employed_in_high_risk_setting
+
+**Type**: CODE
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+Y|Yes
+N|No
+UNK|Unknown
+
+---
+
+**Name**: equipment_instance_id
+
+**Type**: ID
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: flatfile_version_no
+
+**Type**: NUMBER
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordered_test_system
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordered_test_system_abbr
+
+**Type**: TEXT
+
+**HL7 Field**: OBR-4-3
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_facility_country
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_provider_country
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_provider_middle_initial
+
+**Type**: PERSON_NAME
+
+**HL7 Fields**: ORC-12-4, OBR-16-4
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_country
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_middle_initial
+
+**Type**: PERSON_NAME
+
+**HL7 Field**: PID-5-3
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: prime_patient_id
+
+**Type**: ID
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: prime_patient_id_assigner
+
+**Type**: HD
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: previous_message_id
+
+**Type**: ID
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+pointer/link to the unique id of a previously submitted result.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
+
+---
+
+**Name**: reason_for_study
+
+**Type**: TEXT
+
+**HL7 Field**: OBR-31
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: reporting_facility
+
+**Type**: HD
+
+**HL7 Field**: MSH-4
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+aggregator
+
+
+---
+
+**Name**: test_kit_name_id
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: Testkit Name ID
+
+---
+
+**Name**: test_kit_name_id_type
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: Testkit Name ID Type
+
+---
+
+**Name**: test_method_description
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_performed_system
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_country
+
+**Type**: TEXT
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: value_type
+
+**Type**: CODE
+
+**HL7 Field**: OBX-2
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+AD|Address
+CE|Coded Entry
+CF|Coded Element With Formatted Values
+CK|Composite ID With Check Digit
+CN|Composite ID And Name
+CP|Composite Price
+CX|Extended Composite ID With Check Digit
+DT|Date
+ED|Encapsulated Data
+FT|Formatted Text (Display)
+MO|Money
+NM|Numeric
+PN|Person Name
+RP|Reference Pointer
+SN|Structured Numeric
+ST|String Data
+TM|Time
+TN|Telephone Number
+TS|Time Stamp (Date & Time)
+TX|Text Data (Display)
+XAD|Extended Address
+XCN|Extended Composite Name and Number For Persons
+XON|Extended Composite Name and Number For Organizations
+XPN|Extended Person Name
+XTN|Extended Telecommunications Number
 
 ---

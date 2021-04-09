@@ -30,7 +30,7 @@ module "prime_data_hub" {
   resource_group = "prime-data-hub-${local.target_env}"
   resource_prefix = "pdhstaging"
   okta_redirect_url = "https://staging.prime.cdc.gov/download"
-  https_cert_name = "staging-prime-cdc-gov"
+  https_cert_names = ["staging-prime-cdc-gov", "staging-reportstream-cdc-gov"]
   rsa_key_2048 = "pdhstaging-2048-key"
   rsa_key_4096 = "pdhstaging-4096-key"
 }

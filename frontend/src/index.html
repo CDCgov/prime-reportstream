@@ -1,0 +1,77 @@
+---
+layout: protected.liquid
+data-index: 'data-index.html'
+protected: false
+show_navbar: true
+show_menu: false
+---
+
+<main id="main-content">
+
+  <section class="rs-hero">
+    <div class="grid-container usa-section margin-bottom-0">
+      <div class="grid-row grid-gap margin-bottom-0 rs-hero__flex-center">
+        <div class="tablet:grid-col-6">
+          <h1 class="text-primary">{{ content.index.title }}</h1>
+          <p class="font-sans-lg text-primary line-height-sans-4">{{ content.index.summary }}</p>
+        </div>
+        <div class="tablet:grid-col-6">
+          <img class="shadow-2" src="{{ site.imgPath }}{{ content.index.heroImg }}" alt="{{ content.index.heroImgAlt }}" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid-container usa-section margin-bottom-0 padding-bottom-0">
+    {% for partner in content.index.partners %}
+      <div class="grid-row grid-gap margin-bottom-1">
+        <div class="tablet:grid-col-8">
+          <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">{{ partner.title }}</h2>
+          <p class="font-sans-lg margin-top-1 text-base">{{ partner.summary }}</p>
+        </div>
+      </div>
+      <div class="grid-row grid-gap margin-bottom-6{% if forloop.last == true %} padding-bottom-6 border-bottom-1px border-base-lighter{% endif %}">
+        {% for feature in partner.features %}
+          <div class="tablet:grid-col-4 margin-bottom-0">
+            <h3>
+              <img src="{{ site.imgPath }}{{ feature.icon }}" aria-hidden="true" focusable="false" alt="Icon of {{ feature.iconDescription }}"/>
+              {{ feature.title }}
+            </h3>
+            <p class="usa-prose">{{ feature.summary }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </section>
+
+  <section class="grid-container usa-section margin-top-0 padding-top-0">
+    <div class="grid-row grid-gap  margin-bottom-2 padding-top-2">
+      <div class="tablet:grid-col-8">
+        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">{{ content.index.documentation.title }}</h2>
+        <p class="usa-prose">{{ content.index.documentation.summary }}</p>
+      </div>
+    </div>
+    <ul class="usa-card-group">
+      {% for file in content.index.documentation.files %}
+        <li class="tablet:grid-col-4 usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <img src="{{ site.imgPath }}file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
+              <h3 class="usa-collection__heading">{{file.name}}</h3>
+              <a class="usa-link" href="{{ site.pdfPath }}{{ file.url }}">Download PDF</a>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="grid-row grid-gap  margin-bottom-2 padding-top-4">
+      <div class="tablet:grid-col-8">
+        <h2 class="font-sans-lg margin-top-0 tablet:margin-bottom-0">{{ content.index.cta.title }}</h2>
+        <p class="usa-prose">{{ content.index.cta.summary }}   <p>
+        <a class="usa-button" href="javascript:void(0)">Get started with ReportStream</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>

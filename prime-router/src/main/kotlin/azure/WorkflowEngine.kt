@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
@@ -10,14 +11,18 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
+import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RedoxTransport
+import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
+import gov.cdc.prime.router.transport.SftpLegacyTransport
 import gov.cdc.prime.router.transport.SftpTransport
 import org.jooq.Configuration
 import org.jooq.Field
@@ -45,7 +50,9 @@ class WorkflowEngine(
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess(),
     val sftpTransport: SftpTransport = SftpTransport(),
+    val legacySftpTransport: SftpLegacyTransport = SftpLegacyTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
+    val nullTransport: NullTransport = NullTransport(),
 ) {
     /**
      * Check the connections to Azure Storage and DB
@@ -111,7 +118,7 @@ class WorkflowEngine(
      */
     fun handleReportEvent(
         messageEvent: ReportEvent,
-        actionHistory: ActionHistory,
+        context: ExecutionContext? = null,
         updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         lateinit var nextEvent: ReportEvent
@@ -119,18 +126,26 @@ class WorkflowEngine(
             val reportId = messageEvent.reportId
             val task = db.fetchAndLockTask(reportId, txn)
             val (organization, receiver) = findOrganizationAndReceiver(task.receiverName, txn)
-            val reportFile = db.fetchReportFile(reportId, txn)
+            val reportFile = db.fetchReportFile(reportId, org = null, txn = txn)
             // todo remove this once things are permanently sane ;)
             ActionHistory.sanityCheckReport(task, reportFile, false)
             val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount, txn)
             val header = createHeader(task, reportFile, itemLineages, organization, receiver)
             val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
-            if (currentEventAction != messageEvent.eventAction) return@transact
+            if (currentEventAction != messageEvent.eventAction) {
+                context?.let {
+                    context.logger.warning(
+                        "Weird error for $reportId: queue event = ${messageEvent.eventAction.name}, " +
+                            " but task.nextAction = ${currentEventAction.name} "
+                    )
+                }
+                return@transact
+            }
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
 
             nextEvent = updateBlock(header, retryToken, txn)
-
+            context?.let { context.logger.info("Finished updateBlock for $reportId") }
             val retryJson = nextEvent.retryToken?.toJSON()
             updateHeader(
                 header.task.reportId,
@@ -140,9 +155,122 @@ class WorkflowEngine(
                 retryJson,
                 txn
             )
-            recordAction(actionHistory, txn)
         }
         queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
+    }
+
+    /**
+     * Atomic read and set: sanity checks on the state of the report to be resent plus setting the state.
+     */
+    fun resendEvent(
+        reportId: ReportId,
+        receiver: Receiver,
+        sendFailedOnly: Boolean,
+        isTest: Boolean,
+        msgs: MutableList<String>,
+    ) {
+        // Send immediately.
+        val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
+        db.transact { txn ->
+            val task = db.fetchAndLockTask(reportId, txn)
+            val organization = settings.findOrganization(receiver.organizationName)
+                ?: throw Exception("No such organization ${receiver.organizationName}")
+            val header = fetchHeader(reportId, organization) // exception if not found
+            val reportFile = header.reportFile
+            if (reportFile.nextAction != TaskAction.send) {
+                throw Exception("Cannot send $reportId. Its next action is ${reportFile.nextAction}")
+            }
+            if (reportFile.bodyUrl.isEmpty()) {
+                throw Exception("Cannot send $reportId.  Its not in the blob store.")
+            }
+            // The report might be old and the receiver has disappeared for some reason.
+            if (receiver.fullName != "${reportFile.receivingOrg}.${reportFile.receivingOrgSvc}") {
+                throw Exception("Cannot send $reportId. It is not associated with receiver ${receiver.fullName}")
+            }
+            if (header.task.nextActionAt != null && header.task.nextActionAt.isAfter(OffsetDateTime.now())) {
+                throw Exception(
+                    "Cannot send $reportId. Its already scheduled to ${header.task.nextAction}" +
+                        " at ${header.task.nextActionAt}"
+                )
+            }
+            val retryItems: RetryItems = if (sendFailedOnly) {
+                val itemDispositions = fetchItemDispositions(reportFile)
+                // Yet another delightful feature of kotlin: groupingBy
+                val counts = itemDispositions.values.groupingBy { it }.eachCount()
+                msgs.add(
+                    "Of ${reportFile.itemCount} items, " +
+                        "${counts[RedoxTransport.ResultStatus.SUCCESS] ?: 0 } were sent successfully, " +
+                        "${counts[RedoxTransport.ResultStatus.FAILURE] ?: 0} were attempted but failed, " +
+                        "${counts[RedoxTransport.ResultStatus.NEVER_ATTEMPTED] ?: 0} were never attempted."
+                )
+                itemDispositions.filter { (_, disp) ->
+                    disp != RedoxTransport.ResultStatus.SUCCESS
+                }.map { (key, _) -> key.toString() }
+            } else {
+                RetryToken.allItems
+            }
+            if (retryItems.isEmpty()) {
+                msgs.add("All Items in $reportId successfully sent.  Nothing to resend. DONE")
+            } else {
+                if (retryItems == RetryToken.allItems) {
+                    msgs.add("Will resend all (${reportFile.itemCount}) items in $reportId")
+                } else {
+                    msgs.add(
+                        "Will resend these failed/not-sent items in $reportId: ${retryItems.joinToString(",")}"
+                    )
+                }
+                if (!isTest) {
+                    updateHeader(
+                        reportId,
+                        Event.EventAction.RESEND,
+                        nextEvent.eventAction,
+                        nextEvent.at,
+                        RetryToken(1, retryItems).toJSON(),
+                        txn
+                    )
+                    msgs.add("$reportId has been queued to resend immediately to ${receiver.fullName}\n")
+                } else {
+                    msgs.add("Nothing sent.  This was just a test")
+                }
+            }
+        }
+        if (!isTest) queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
+    }
+
+    /**
+     * Given a batched report, look at its children 'sent' reports, and gather the disposition
+     * of every item in the batched report.   If there are no children,
+     * this will return a map with all item statuses == NEVER_ATTEMPTED
+     */
+    fun fetchItemDispositions(reportFile: ReportFile): Map<Int, RedoxTransport.ResultStatus> {
+        if (reportFile.nextAction != TaskAction.send) {
+            throw Exception("Cannot send ${reportFile.reportId}. Its next action is ${reportFile.nextAction}")
+        }
+        if (reportFile.bodyFormat != Report.Format.REDOX.name) {
+            throw Exception("SendFailed option only applies to REDOX reports.  This report is ${reportFile.bodyFormat}")
+        }
+        // Track what happened to each item.
+        val itemsDispositionMap = mutableMapOf<Int, RedoxTransport.ResultStatus>().apply {
+            // Initialize all to assume nothing was every done
+            for (i in 0 until reportFile.itemCount) this[i] = RedoxTransport.ResultStatus.NEVER_ATTEMPTED
+        }
+        val childReportIds = db.fetchChildReports(reportFile.reportId)
+        childReportIds.forEach { childId ->
+            val lineages = db.fetchItemLineagesForReport(childId, reportFile.itemCount)
+            lineages?.forEach { lineage ->
+                // Once a success, always a success
+                if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
+                    return@forEach
+                itemsDispositionMap[lineage.parentIndex] = when {
+                    lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ->
+                        RedoxTransport.ResultStatus.FAILURE
+                    lineage.transportResult.startsWith(RedoxTransport.ResultStatus.NOT_SENT.name) ->
+                        RedoxTransport.ResultStatus.FAILURE
+                    else -> RedoxTransport.ResultStatus.SUCCESS
+                }
+            }
+        }
+        return itemsDispositionMap
     }
 
     /**
@@ -167,7 +295,7 @@ class WorkflowEngine(
             )
             val ids = tasks.map { it.reportId }
             val reportFiles = ids
-                .map { db.fetchReportFile(it, txn) }
+                .map { db.fetchReportFile(it, org = null, txn = txn) }
                 .map { (it.reportId as ReportId) to it }
                 .toMap()
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
@@ -298,11 +426,14 @@ class WorkflowEngine(
 
     fun fetchHeader(
         reportId: ReportId,
-        orgName: String
+        organization: Organization,
     ): Header {
-        val task = db.fetchTask(reportId, orgName)
-        val (organization, receiver) = findOrganizationAndReceiver(task.receiverName)
-        val reportFile = db.fetchReportFile(reportId)
+        val reportFile = db.fetchReportFile(reportId, organization)
+        val task = db.fetchTask(reportId)
+        val (org2, receiver) = findOrganizationAndReceiver(
+            reportFile.receivingOrg + "." + reportFile.receivingOrgSvc
+        )
+        if (org2.name != organization.name) error("${org2.name} != ${organization.name}: Org Name Mismatch check fail")
         // todo remove this sanity check
         ActionHistory.sanityCheckReport(task, reportFile, false)
         val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount)
@@ -324,7 +455,9 @@ class WorkflowEngine(
             return when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
+                Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
                 Event.EventAction.BATCH -> Tables.TASK.BATCHED_AT
+                Event.EventAction.RESEND -> Tables.TASK.BATCHED_AT // overwrites prior date
                 Event.EventAction.SEND -> Tables.TASK.SENT_AT
                 Event.EventAction.WIPE -> Tables.TASK.WIPED_AT
 
@@ -357,8 +490,8 @@ class WorkflowEngine(
         val settings: SettingsProvider by lazy {
             val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
-            val settingsEnabled = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
-            if (settingsEnabled.equals("true", ignoreCase = true)) {
+            val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
+            if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
                 SettingsFacade(metadata, databaseAccess)
             } else {
                 val ext = primeEnv?.let { "-$it" } ?: ""

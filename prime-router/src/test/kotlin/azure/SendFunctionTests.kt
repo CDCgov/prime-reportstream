@@ -64,6 +64,7 @@ class SendFunctionTests {
     fun setupLogger() {
         every { context.logger }.returns(logger)
         every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
+        every { logger.warning(any<String>()) }.returns(Unit)
         every { logger.info(any<String>()) }.returns(Unit)
     }
 
@@ -95,13 +96,14 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         setupWorkflow()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
+        every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
             val block = thirdArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             nextEvent = block(header, null, null)
         }
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(null)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -117,7 +119,7 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
+        every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
             val block = thirdArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
@@ -125,7 +127,7 @@ class SendFunctionTests {
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
-
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
@@ -142,7 +144,7 @@ class SendFunctionTests {
         // Setup
         var nextEvent: ReportEvent? = null
         setupLogger()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
+        every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
             val block = thirdArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val task = Task(
@@ -169,6 +171,7 @@ class SendFunctionTests {
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -189,7 +192,7 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         val reportId = UUID.randomUUID()
-        every { workflowEngine.handleReportEvent(any(), any(), any()) }.answers {
+        every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
             val block = thirdArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
@@ -200,6 +203,7 @@ class SendFunctionTests {
         }
         setupWorkflow()
         every { sftpTransport.send(any(), any(), any(), any(), any(), any()) }.returns(RetryToken.allItems)
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId)
@@ -214,8 +218,9 @@ class SendFunctionTests {
     @Test
     fun `Test with a bad message`() {
         // Setup
-        every { context.logger }.returns(logger)
-        every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
+        setupLogger()
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
+
         // Invoke
         SendFunction(workflowEngine).run("", context)
         // Verify

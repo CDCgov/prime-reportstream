@@ -225,9 +225,13 @@ Device_id_type is a generated value for the OBX-17 field. It is based on the dev
 
 **Type**: ID
 
-**HL7 Fields**: ORC-3-2, SPM-2-2, OBR-3-2
+**HL7 Fields**: ORC-3-1, SPM-2-2, OBR-3-1
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
 
 ---
 
@@ -2079,6 +2083,13 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 
@@ -2226,7 +2237,7 @@ The accession number of the specimen collected
 
 **Type**: ID_CLIA
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
 
 **Cardinality**: [1..1]
 

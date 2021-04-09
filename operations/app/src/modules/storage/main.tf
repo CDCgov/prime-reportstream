@@ -9,11 +9,12 @@ resource "azurerm_storage_account" "storage_account" {
   name = var.name
   location = var.location
   account_tier = "Standard"
-  account_replication_type = "LRS"
+  account_replication_type = "GRS"
 
   network_rules {
     default_action = "Deny"
-    virtual_network_subnet_ids = var.subnet_ids
+    ip_rules = []
+    virtual_network_subnet_ids = [var.public_subnet_id, var.container_subnet_id]
   }
 
   # Required for customer-managed encryption
@@ -27,6 +28,68 @@ resource "azurerm_storage_account" "storage_account" {
   
   tags = {
     environment = var.environment
+  }
+}
+
+module "storageaccount_blob_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_storage_account.storage_account.id
+  name = azurerm_storage_account.storage_account.name
+  type = "storage_account_blob"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = var.endpoint_subnet_id
+}
+
+module "storageaccount_file_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_storage_account.storage_account.id
+  name = azurerm_storage_account.storage_account.name
+  type = "storage_account_file"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = var.endpoint_subnet_id
+}
+
+module "storageaccount_queue_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_storage_account.storage_account.id
+  name = azurerm_storage_account.storage_account.name
+  type = "storage_account_queue"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = var.endpoint_subnet_id
+}
+
+# Point-in-time restore, soft delete, versioning, and change feed were
+# enabled in the portal as terraform does not currently support this.
+# At some point, this should be moved into an azurerm_template_deployment
+# resource.
+# These settings can be configured under the "Data protection" blade
+# for Blob service
+
+resource "azurerm_storage_management_policy" "retention_policy" {
+  storage_account_id = azurerm_storage_account.storage_account.id
+
+  rule {
+    name = "30dayretention"
+    enabled = true
+
+    filters {
+      prefix_match = ["reports/"]
+      blob_types = ["blockBlob", "appendBlob"]
+    }
+
+    actions {
+      base_blob {
+        delete_after_days_since_modification_greater_than = 30
+      }
+      snapshot {
+        delete_after_days_since_creation_greater_than = 30
+      }
+      # Terraform does not appear to support deletion of versions
+      # This needs to be manually checked in the policy and set to 30 days
+    }
   }
 }
 
@@ -116,10 +179,51 @@ resource "azurerm_monitor_diagnostic_setting" "storageaccount_access_log" {
   }
 }
 
+
+// Static website
+
+resource "azurerm_storage_account" "storage_public" {
+  resource_group_name = var.resource_group
+  name = "${var.resource_prefix}public"
+  location = var.location
+  account_tier = "Standard"
+  account_kind = "StorageV2"
+  account_replication_type = "GRS"
+  min_tls_version = "TLS1_2"
+  allow_blob_public_access = false
+
+  static_website {
+    index_document = "index.html"
+    error_404_document = "404.html"
+  }
+
+  network_rules {
+    default_action = "Allow"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
+
+
+
 output "storage_account_name" {
   value = azurerm_storage_account.storage_account.name
 }
 
 output "storage_account_key" {
   value = azurerm_storage_account.storage_account.primary_access_key
+}
+
+output "storage_account_public_id" {
+  value = azurerm_storage_account.storage_public.id
+}
+
+output "storage_web_endpoint" {
+  value = azurerm_storage_account.storage_public.primary_web_endpoint
 }

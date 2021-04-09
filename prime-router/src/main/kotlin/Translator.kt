@@ -34,15 +34,31 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
      */
     fun filterAndTranslateByReceiver(
         input: Report,
-        defaultValues: DefaultValues = emptyMap()
+        defaultValues: DefaultValues = emptyMap(),
+        limitReceiversTo: List<String> = emptyList(),
+        warnings: MutableList<ResultDetail>? = null,
     ): List<Pair<Report, Receiver>> {
         if (input.isEmpty()) return emptyList()
         return settings.receivers.filter { receiver ->
-            receiver.topic == input.schema.topic
+            receiver.topic == input.schema.topic &&
+                (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
-            val mappedReport = translateByReceiver(input, receiver, defaultValues)
-            if (mappedReport.itemCount == 0) return@mapNotNull null
-            Pair(mappedReport, receiver)
+            try {
+                val mappedReport = translateByReceiver(input, receiver, defaultValues)
+                if (mappedReport.itemCount == 0) return@mapNotNull null
+                Pair(mappedReport, receiver)
+            } catch (e: IllegalStateException) {
+                // catching individual translation exceptions enables overall work to continue
+                warnings?.let {
+                    warnings.add(
+                        ResultDetail(
+                            ResultDetail.DetailScope.TRANSLATION,
+                            "TO:${receiver.fullName}:${receiver.schemaName}", e.localizedMessage
+                        )
+                    )
+                }
+                return@mapNotNull null
+            }
         }
     }
 
@@ -71,7 +87,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
             if (mapping.missing.isNotEmpty()) {
                 error(
-                    "Error: To translate to ${toSchema.name}, these elements are missing: ${
+                    "Error: To translate to ${receiver.fullName}, ${toSchema.name}, these elements are missing: ${
                     mapping.missing.joinToString(
                         ", "
                     )

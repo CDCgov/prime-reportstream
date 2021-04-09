@@ -14,8 +14,10 @@ interface TranslatorProperties {
     val format: Report.Format
     val schemaName: String
     val defaults: Map<String, String>
-    val useAphlNamingFormat: Boolean
+    val nameFormat: Report.NameFormat
     val receivingOrganization: String?
+    // deprecated, use nameFormat instead
+    val useAphlNamingFormat: Boolean
 }
 
 // Base JSON Type
@@ -43,8 +45,19 @@ data class Hl7Configuration
     val receivingFacilityName: String?,
     val receivingFacilityOID: String?,
     val messageProfileId: String?,
-    override val useAphlNamingFormat: Boolean = false,
-    override val receivingOrganization: String?
+    val reportingFacilityName: String? = null,
+    val reportingFacilityId: String? = null,
+    val suppressQstForAoe: Boolean = false,
+    val suppressHl7Fields: String? = null,
+    val suppressAoe: Boolean = false,
+    val defaultAoeToUnknown: Boolean = false,
+    val useBlankInsteadOfUnknown: String? = null,
+    val truncateHDNamespaceIds: Boolean = false,
+    override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
+    override val receivingOrganization: String?,
+    // deprecated, please don't use
+    @get:JsonIgnore
+    override val useAphlNamingFormat: Boolean = false
 ) : TranslatorConfiguration("HL7") {
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
@@ -66,11 +79,18 @@ data class Hl7Configuration
             receivingFacilityName != null && receivingFacilityOID == null -> receivingFacilityName
             else -> ""
         }
+        val reportingFacility = when {
+            reportingFacilityName != null && reportingFacilityId != null ->
+                "$reportingFacilityName^$reportingFacilityId^CLIA"
+            reportingFacilityName != null && reportingFacilityId == null -> reportingFacilityName
+            else -> ""
+        }
         return mapOf(
             "processing_mode_code" to (if (useTestProcessingMode) "T" else "P"),
             "receiving_application" to receivingApplication,
             "receiving_facility" to receivingFacility,
             "message_profile_id" to (messageProfileId ?: ""),
+            "reporting_facility" to reportingFacility
         )
     }
 }
@@ -104,6 +124,9 @@ data class RedoxConfiguration
     }
 
     @get:JsonIgnore
+    override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD
+
+    @get:JsonIgnore
     override val useAphlNamingFormat: Boolean = false
 
     @get:JsonIgnore
@@ -118,6 +141,9 @@ data class CustomConfiguration
     override val schemaName: String,
     override val format: Report.Format,
     override val defaults: Map<String, String> = emptyMap(),
-    override val useAphlNamingFormat: Boolean = false,
-    override val receivingOrganization: String?
+    override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
+    override val receivingOrganization: String?,
+    // deprecated - please don't use
+    @JsonIgnore
+    override val useAphlNamingFormat: Boolean = false
 ) : TranslatorConfiguration("CUSTOM")

@@ -23,13 +23,20 @@ class Metadata {
         Obx17TypeMapper(),
         Obx8Mapper(),
         DateTimeOffsetMapper(),
-        CoalesceMapper()
+        CoalesceMapper(),
+        StripPhoneFormattingMapper(),
+        StripNonNumericDataMapper(),
+        StripNumericDataMapper(),
+        SplitMapper(),
+        ZipCodeToCountyMapper(),
+        SplitByCommaMapper(),
     )
 
     private var jurisdictionalFilters = listOf(
         FilterByCounty(),
         Matches(),
         DoesNotMatch(),
+        OrEquals(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
@@ -186,6 +193,9 @@ class Metadata {
             Pair(ref, args)
         }
         val fullElement = if (baseElement != null) element.inheritFrom(baseElement) else element
+
+        if (fullElement.maxLength != null && fullElement.maxLength < 0)
+            error("Schema Error: maxLength ${fullElement.maxLength} for ${fullElement.name} must be >= 0")
 
         return fullElement.copy(
             valueSetRef = valueSetRef,

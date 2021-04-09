@@ -23,14 +23,14 @@ variable "location" {
     description = "Database Server Location"
 }
 
-variable "public_subnet_id" {
+variable "endpoint_subnet_id" {
     type = string
-    description = "Public Subnet ID"
+    description = "Private Endpoint Subnet ID"
 }
 
-variable "private_subnet_id" {
+variable "endpoint2_subnet_id" {
     type = string
-    description = "Private Subnet ID"
+    description = "Private Endpoint2 Subnet ID"
 }
 
 variable "app_config_key_vault_id" {
@@ -47,6 +47,7 @@ variable "eventhub_manage_auth_rule_id" {
     type = string
     description = "Event Hub Manage Authorization Rule ID"
 }
+
 variable "key_vault_id" {
     type = string
     description = "Key Vault used for data encryption"

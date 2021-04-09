@@ -150,8 +150,9 @@ elements:
 
   - name: filler_order_id
     type: ID
-    hl7Field: ORC-3-2
-    hl7OutputFields: [ ORC-3-2, SPM-2-2, OBR-3-2 ]
+    hl7Field: ORC-3-1
+    hl7OutputFields: [ ORC-3-1, SPM-2-2, OBR-3-1 ]
+    documentation: Accension number
 
   - name: filler_clia
     type: ID_CLIA
@@ -775,6 +776,13 @@ elements:
     hl7Field: OBX-7
     documentation: The reference range of the lab result, such as “Negative” or “Normal”. For IgG, IgM and CT results that provide a value you MUST fill out this filed.
 
+  - name: reporting_facility
+    type: HD
+    hl7Field: MSH-4
+    documentation: |
+      The reporting facility for the message, as specified by the receiver. This is typically used if PRIME is the
+      aggregator
+
   - name: reporting_facility_name
     type: TEXT
     natFlatFileField: Reporting_facility_name
@@ -834,6 +842,7 @@ elements:
     hl7Field: SPM-10
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10
 
+  # should this also have a lookup into LIVD?
   - name: specimen_description
     type: TEXT
     hl7Field: SPM-14
@@ -1045,7 +1054,7 @@ elements:
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
-    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3 ]
+    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3 ]
     documentation: |
         CLIA Number from the laboratory that sends the message to DOH
 

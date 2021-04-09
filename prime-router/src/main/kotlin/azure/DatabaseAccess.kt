@@ -2,9 +2,11 @@ package gov.cdc.prime.router.azure
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
 import gov.cdc.prime.router.azure.db.enums.SettingType
@@ -109,16 +111,13 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .into(Task::class.java)
     }
 
-    fun fetchTask(reportId: ReportId, orgName: String): Task {
+    fun fetchTask(reportId: ReportId): Task {
         return create
             .selectFrom(TASK)
-            .where(
-                TASK.REPORT_ID.eq(reportId).and(TASK.RECEIVER_NAME.like("$orgName%"))
-                    .and(TASK.SENT_AT.isNotNull)
-            )
+            .where(TASK.REPORT_ID.eq(reportId))
             .fetchOne()
             ?.into(Task::class.java)
-            ?: error("Could not find $reportId/$orgName that matches a task")
+            ?: error("Could not find $reportId that matches a task")
     }
 
     /**
@@ -166,14 +165,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * ActionHistory queries
      */
 
-    fun fetchReportFile(reportId: ReportId, txn: DataAccessTransaction? = null): ReportFile {
+    /**
+     * You should include org as a search criteria to enforce authorization to get that report.
+     */
+    fun fetchReportFile(reportId: ReportId, org: Organization? = null, txn: DataAccessTransaction? = null): ReportFile {
         val ctx = if (txn != null) DSL.using(txn) else create
+        val cond = if (org == null) {
+            Tables.REPORT_FILE.REPORT_ID.eq(reportId)
+        } else {
+            Tables.REPORT_FILE.REPORT_ID.eq(reportId)
+                .and(Tables.REPORT_FILE.RECEIVING_ORG.eq(org.name))
+        }
         return ctx
             .selectFrom(Tables.REPORT_FILE)
-            .where(Tables.REPORT_FILE.REPORT_ID.eq(reportId))
+            .where(cond)
             .fetchOne()
             ?.into(ReportFile::class.java)
-            ?: error("Could not find $reportId in REPORT_FILE")
+            ?: error(
+                "Could not find $reportId in REPORT_FILE" +
+                    if (org != null) { " associated with organization ${org.name}" } else ""
+            )
     }
 
     /**
@@ -225,6 +236,19 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(cond)
             .fetch()
             .into(ReportFile::class.java).toList()
+    }
+
+    fun fetchChildReports(
+        parentReportId: UUID,
+        txn: DataAccessTransaction? = null,
+    ): List<ReportId> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(REPORT_LINEAGE.CHILD_REPORT_ID)
+            .from(REPORT_LINEAGE)
+            .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(parentReportId))
+            .fetch()
+            .into(ReportId::class.java).toList()
     }
 
     /**
@@ -327,7 +351,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(
                 SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type)
-            )
+            ).orderBy(SETTING.SETTING_ID)
             .fetch()
             .into(Setting::class.java)
     }
@@ -341,7 +365,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type),
                 SETTING.ORGANIZATION_ID.eq(organizationId)
-            )
+            ).orderBy(SETTING.SETTING_ID)
             .fetch()
             .into(Setting::class.java)
     }
@@ -466,6 +490,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     companion object {
         /**
+         * Global var.  Set to false prior to the lazy init, to prevent flyway migrations
+         */
+        var isFlywayMigrationOK = true
+
+        /**
          * Create a connection pool
          *
          * Dev Note: Why a connection pool with a "stateless" Azure function? The
@@ -487,6 +516,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.addDataSourceProperty("cachePrepStmts", "true")
             config.addDataSourceProperty("prepStmtCacheSize", "250")
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+            config.addDataSourceProperty("maximumPoolSize", "20") // Default is 10
+            config.addDataSourceProperty("connectionTimeout", "60000") // Default is 30000 (30 seconds)
+
             // See this info why these are a good value
             //  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
             config.minimumIdle = 2
@@ -498,7 +530,9 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             val dataSource = HikariDataSource(config)
 
             val flyway = Flyway.configure().dataSource(dataSource).load()
-            flyway.migrate()
+            if (isFlywayMigrationOK) {
+                flyway.migrate()
+            }
 
             dataSource
         }
