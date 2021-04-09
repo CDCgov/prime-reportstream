@@ -151,20 +151,6 @@ resource "azurerm_key_vault_access_policy" "postgres_replica_policy" {
   key_permissions = ["get", "unwrapkey", "wrapkey"]
 }
 
-data "azurerm_key_vault_key" "postgres_replica_server_encryption_key" {
-  count = var.rsa_key_2048 != null && var.rsa_key_2048 != "" && azurerm_postgresql_server.postgres_server_replica.identity.0.principal_id != null ? 1 : 0
-  key_vault_id = var.key_vault_id
-  name = var.rsa_key_2048
-
-  depends_on = [azurerm_key_vault_access_policy.postgres_replica_policy[0]]
-}
-
-resource "azurerm_postgresql_server_key" "postgres_replica_server_key" {
-  count = length(data.azurerm_key_vault_key.postgres_replica_server_encryption_key)
-  server_id = azurerm_postgresql_server.postgres_server_replica.id
-  key_vault_key_id = data.azurerm_key_vault_key.postgres_replica_server_encryption_key[0].id
-}
-
 resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
   server_name = azurerm_postgresql_server.postgres_server.name
   resource_group_name = var.resource_group
