@@ -9,6 +9,10 @@ elements:
 #  - name: ordered_test_code
 #    csvFields: [{ name: testOrdered}]
 
+  # Edited. Added 'ordering_facility_state', because it lets us test mapping to many of our states
+  - name: ordering_facility_state
+    csvFields: [{ name: orderingFacilityState }]
+
   - name: test_result    # Edited.  Was 'patient_positive' to 'test_result'
     altValues:
       - display: Patient Tested Positive!
@@ -59,7 +63,7 @@ elements:
     csvFields: [{ name: patientUniqueId}]
 
   - name: patient_id_type    # Edited.  Added this, to complement patient_id.
-    csvFields: [{ name: patientUniqueId}]
+    csvFields: [{ name: patientUniqueIdType}]
 
   - name: patient_dob
     csvFields: [{ name: patientDob}]
@@ -94,7 +98,10 @@ elements:
   - name: order_test_date
     csvFields: [{ name: testOrderedDate}]
 
-  - name: specimen_id
+  #  Edited.  This was specimen_id, I changed to 'message_id', because our states tend to expect that.
+  # Need to figure out what to use for this.  Currently covid-19.schema expects a message_id
+  # Note this is a good example of where the external customer-facing name can be different, as needed.
+  - name: message_id
     csvFields: [{ name: specimenId}]
 
   - name: patient_race    # There was another one with csvField = patientRaceText.  Removed for now.
