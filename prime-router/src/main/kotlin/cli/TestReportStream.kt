@@ -159,7 +159,10 @@ Examples:
             run.toString().split(",").mapNotNull { test ->
                 coolTestList.find {
                     it.name.equals(test, ignoreCase = true)
-                } ?: echo("No such test: $test")
+                } ?: run {
+                    echo("$test: not found")
+                    null
+                }
             }
         } else {
             // No --run arg:  run the smoke tests.
@@ -196,17 +199,17 @@ Examples:
             Ping(),
             End2End(),
             Merge(),
+            Garbage(),
             Hl7Null(),
             TooManyCols(),
             BadCsv(),
-            StracBasic(),
             Strac(),
-            HammerTime(),
-            Garbage(),
             Huge(),
             TooBig(),
             DbConnections(),
             BadSftp(),
+            StracBasic(),
+            HammerTime(),
         )
     }
 }
@@ -224,12 +227,12 @@ abstract class CoolTest {
     fun examineLineageResults(
         reportId: ReportId,
         receivers: List<Receiver>,
-        totalRecords: Int,
+        totalItems: Int,
     ): Boolean {
         var passed = true
         db = WorkflowEngine().db
         db.transact { txn ->
-            val expected = totalRecords / receivers.size
+            val expected = totalItems / receivers.size
             receivers.forEach { receiver ->
                 val actionsList = mutableListOf(TaskAction.receive)
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
@@ -319,6 +322,7 @@ abstract class CoolTest {
         val hl7BatchReceiver = allGoodReceivers.filter { it.name == "HL7_BATCH" }[0]
         val redoxReceiver = allGoodReceivers.filter { it.name == "REDOX" }[0]
         val hl7NullReceiver = allGoodReceivers.filter { it.name == "HL7_NULL" }[0]
+        val sftpLegacyReceiver = allGoodReceivers.filter { it.name == "SFTP_LEGACY" }[0]
         val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
         val sftpFailReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "SFTP_FAIL"
@@ -487,14 +491,17 @@ class Merge : CoolTest() {
     override val status = TestStatus.GOODSTUFF
 
     override fun run(environment: ReportStreamEnv, items: Int, submits: Int, key: String?, dir: String): Boolean {
-        val fakeItemCount = allGoodReceivers.size * items
+        // Remove HL7 - it does not merge   TODO write a notMerging test for HL7, but its similar to end2end
+        val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver, redoxReceiver, sftpLegacyReceiver)
+        val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
+        val fakeItemCount = mergingReceivers.size * items
         ugly("Starting merge test:  Merge $submits reports, each of which sends to $allGoodCounties")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
             fakeItemCount,
             receivingStates,
-            allGoodCounties,
+            mergingCounties,
             dir,
         )
         echo("Created datafile $file")
@@ -512,7 +519,7 @@ class Merge : CoolTest() {
             reportId
         }
         waitABit(40, environment)
-        return examineMergeResults(reportIds[0], allGoodReceivers, fakeItemCount, submits)
+        return examineMergeResults(reportIds[0], mergingReceivers, fakeItemCount, submits)
     }
 }
 
@@ -525,7 +532,7 @@ class Hl7Null : CoolTest() {
     override val status = TestStatus.GOODSTUFF
 
     override fun run(environment: ReportStreamEnv, items: Int, submits: Int, key: String?, dir: String): Boolean {
-        val fakeItemCount = 40
+        val fakeItemCount = 100
         ugly("Starting hl7null Test: test of many threads all doing database interactions, but no sends. ")
         val file = FileUtilities.createFakeFile(
             metadata,
@@ -552,7 +559,7 @@ class Hl7Null : CoolTest() {
             reportId
         }
         waitABit(30, environment)
-        return examineMergeResults(reportIds[0], listOf(hl7NullReceiver), fakeItemCount, numResends)
+        return examineLineageResults(reportIds[0], listOf(hl7NullReceiver), fakeItemCount)
     }
 }
 
@@ -674,7 +681,7 @@ class Strac : CoolTest() {
             }
             // OK, fine, the others failed.   All our hope now rests on you, REDOX - don't let us down!
             waitABit(25, environment)
-            return passed && examineLineageResults(reportId, listOf(redoxReceiver), items)
+            return passed and examineLineageResults(reportId, listOf(redoxReceiver), items)
         } catch (e: Exception) {
             return bad("***strac Test FAILED***: Unexpected json returned")
         }
@@ -718,22 +725,24 @@ class HammerTime : CoolTest() {
 
     override fun run(environment: ReportStreamEnv, items: Int, submits: Int, key: String?, dir: String): Boolean {
         ugly("Starting load Test: $description")
+        val receiverToTest = hl7Receiver
         val file = FileUtilities.createFakeFile(
             metadata,
-            stracSender,
+            simpleRepSender,
             items,
             receivingStates,
-            redoxReceiver.name,
+            receiverToTest.name,
             dir,
         )
         echo("Created datafile $file")
         // Now send it to the Hub over and over
         var reportIds = mutableListOf<ReportId>()
         var passed = true
+        // submit in thread grouping somewhat smaller than our database pool size.
         for (i in 1..submits) {
             thread {
                 val (responseCode, json) =
-                    HttpUtilities.postReportFile(environment, file, org.name, stracSender.name, key)
+                    HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, key)
                 echo("Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     echo(json)
@@ -752,7 +761,7 @@ class HammerTime : CoolTest() {
         waitABit(5 * submits, environment)  // SWAG: wait 5 seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(redoxReceiver), items)
+                examineLineageResults(it, listOf(receiverToTest), items)
         }
         return passed
     }
