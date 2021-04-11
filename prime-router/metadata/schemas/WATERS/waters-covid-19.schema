@@ -5,11 +5,19 @@ topic: covid-19
 trackingElement: equipment_instance_id
 basedOn: covid-19
 elements:
-  - name: ordered_test_code
-    csvFields: [{ name: testOrdered}]
+#  I removed this - we can pull it from the equipment_model_name lookup
+#  - name: ordered_test_code
+#    csvFields: [{ name: testOrdered}]
 
   - name: test_result    # Edited.  Was 'patient_positive' to 'test_result'
-    csvFields: [{ name: testResult}]
+    altValues:
+      - display: Patient Tested Positive!
+        code: 260373001
+      - display: Patient Tested Negative!
+        code: 260415000
+      - display: Test Was Invalid
+        code: 455371000124106
+    csvFields: [{ name: testResult, format: $alt}]
 
   - name: test_result_date  # Edited.  Was 'patient_results' to 'test_result_date'
     csvFields: [{ name: testResultDate}]
@@ -23,7 +31,7 @@ elements:
   # Edited.  This appeared twice.  I eliminated one.  The other was csvField = 'deviceName'
   #  Note:  value here should come from LIVD table
   - name: equipment_model_name
-    csvFields: [{ name: deviceIdentifier}]
+    csvFields: [{ name: deviceIdentifier, format: $display}]
 
   - name: equipment_instance_id     # Edited.  Was 'kit_id'
     csvFields: [{ name: serialNumber}]
@@ -43,8 +51,9 @@ elements:
   - name: testing_lab_clia
     csvFields: [{ name: performingFacility}]
 
+  # Edited.  Done as a set of alternate values, to show how that works.
   - name: specimen_type
-    csvFields: [{ name: specimenSource}]
+    csvFields: [{ name: specimenSource, format: $display}]
 
   - name: patient_id    # Edited.  Was 'patient_dl'.
     csvFields: [{ name: patientUniqueId}]
@@ -89,13 +98,13 @@ elements:
     csvFields: [{ name: specimenId}]
 
   - name: patient_race    # There was another one with csvField = patientRaceText.  Removed for now.
-    csvFields: [{ name: patientRace}]
+    csvFields: [{ name: patientRace, format: $display}]
 
   - name: patient_ethnicity      # There was another one with csvField = patientEthnicityText.  Removed for now.
-    csvFields: [{ name: patientEthnicity}]
+    csvFields: [{ name: patientEthnicity, format: $display}]
 
   - name: patient_gender    # Edited.   Was patient_sex
-    csvFields: [{ name: patientSex}]
+    csvFields: [{ name: patientSex, format: $display}]
 
   - name: ordering_provider_zip_code
     csvFields: [{ name: orderingProviderZip}]
