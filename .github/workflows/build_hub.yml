@@ -27,6 +27,10 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
     runs-on: ubuntu-latest
+    env:
+      # These are for CI and not credentials of any system
+      POSTGRES_USER: prime
+      POSTGRES_PASSWORD: changeIT!
     defaults:
       run:
         working-directory: prime-router
@@ -41,14 +45,10 @@ jobs:
               echo "Building for the production environment."
               echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
               echo >> $GITHUB_ENV PREFIX=pdhprod
-              echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
-              echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
           else
               echo "Building for the test environment."
               echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
               echo >> $GITHUB_ENV PREFIX=pdhstaging
-              echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
-              echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
           fi
 
       - name: Setup PostgreSQL
