@@ -45,7 +45,7 @@
         <pg.password>changeIT!</pg.password>
         <pg.url>jdbc:postgresql://localhost:5432/prime_data_hub</pg.url>
 
-        <fuzzy-csv.version>1.6.46</fuzzy-csv.version>
+        <fuzzy-csv.version>1.6.48</fuzzy-csv.version>
     </properties>
 
     <repositories>
