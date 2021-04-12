@@ -40,7 +40,7 @@
         <flyway.user>prime</flyway.user>
         <flyway.password>changeIT!</flyway.password>
         <flyway.url>jdbc:postgresql://localhost:5432/prime_data_hub</flyway.url>
-        <okta-jwt.version>0.5.0</okta-jwt.version>
+        <okta-jwt.version>0.5.1</okta-jwt.version>
         <pg.user>prime</pg.user>
         <pg.password>changeIT!</pg.password>
         <pg.url>jdbc:postgresql://localhost:5432/prime_data_hub</pg.url>
@@ -288,7 +288,7 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>7.7.1</version>
+                <version>7.7.3</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -399,12 +399,12 @@
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-core</artifactId>
-            <version>1.14.1</version>
+            <version>1.15.0</version>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-core-http-netty</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.1</version>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
@@ -431,7 +431,7 @@
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-security-keyvault-secrets</artifactId>
-            <version>4.2.6</version>
+            <version>4.2.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.azure</groupId>
@@ -606,7 +606,7 @@
        <dependency>
             <groupId>com.hierynomus</groupId>
             <artifactId>sshj</artifactId>
-            <version>0.30.0</version>
+            <version>0.31.0</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -659,7 +659,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>7.3.0</version>
+            <version>7.7.3</version>
         </dependency>
         <dependency>
             <groupId>org.jooq</groupId>
