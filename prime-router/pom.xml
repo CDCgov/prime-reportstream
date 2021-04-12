@@ -40,7 +40,7 @@
         <flyway.user>prime</flyway.user>
         <flyway.password>changeIT!</flyway.password>
         <flyway.url>jdbc:postgresql://localhost:5432/prime_data_hub</flyway.url>
-        <okta-jwt.version>0.5.0</okta-jwt.version>
+        <okta-jwt.version>0.5.1</okta-jwt.version>
         <pg.user>prime</pg.user>
         <pg.password>changeIT!</pg.password>
         <pg.url>jdbc:postgresql://localhost:5432/prime_data_hub</pg.url>
