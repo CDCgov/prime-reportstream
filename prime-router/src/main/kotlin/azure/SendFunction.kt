@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.ExecutionContext
+import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
@@ -15,6 +16,7 @@ import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
+import java.util.Date
 import java.util.UUID
 import java.util.logging.Level
 import kotlin.random.Random
@@ -36,14 +38,21 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
     @FunctionName(send)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @QueueTrigger(name = "msg", queueName = send)
-        message: String,
+        @QueueTrigger(name = "msg", queueName = send) message: String,
         context: ExecutionContext,
+        @BindingName("Id") messageId: String? = null,
+        @BindingName("DequeueCount") dequeueCount: Int? = null,
+        @BindingName("NextVisibleTime") nextVisibleTime: Date? = null,
+        @BindingName("InsertionTime") insertionTime: Date? = null,
     ) {
         val actionHistory = ActionHistory(TaskAction.send, context)
         actionHistory.trackActionParams(message)
+        context.logger.info(
+            "Started Send Function: $message, id=$messageId," +
+                " dequeueCount=$dequeueCount, " +
+                " nextVisibleTime=$nextVisibleTime, insertionTime=$insertionTime"
+        )
         try {
-            context.logger.info("Started Send Function: $message")
             val event = Event.parseQueueMessage(message) as ReportEvent
             if (event.eventAction != Event.EventAction.SEND) {
                 context.logger.warning("Send function received a $message")

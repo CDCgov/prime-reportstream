@@ -1,12 +1,29 @@
 body {
   display:flex;
   min-height:100vh;
-  flex-direction:column
+  flex-direction:column;
 }
 
-main{
+main {
   flex:1;
   width:100%
+}
+
+.usa-logo {
+  margin: 2rem 0;
+}
+
+.usa-nav__primary {
+  list-style: none;
+}
+
+.usa-nav__request-account {
+  font-weight: normal;
+  text-decoration: underline;
+}
+
+.usa-nav__primary-item a.usa-button {
+  color: #005ea2;
 }
 
 .prime-user-account{
@@ -48,7 +65,15 @@ main{
   color:#71767a
 }
 
-.usa-hero {
-  background-image: url("./corona.jpg");
+.rs-hero {
+  background-color: #f0f0f0;
 }
 
+.rs-hero__flex-center {
+  align-items: center;
+}
+
+h3 img[src*="svg"] {
+  vertical-align: text-top;
+  margin-right: 5px;
+}

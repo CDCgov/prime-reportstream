@@ -159,6 +159,15 @@ resource "azurerm_frontdoor" "front_door" {
             forwarding_protocol = "HttpsOnly"
         }
     }
+
+  lifecycle {
+    ignore_changes = [
+      # The Azure endpoint does not support reconfiguring HTTPS profiles with latest at this time
+      frontend_endpoint[0].custom_https_configuration,
+      frontend_endpoint[1].custom_https_configuration,
+      frontend_endpoint[2].custom_https_configuration
+    ]
+  }
 }
 
 module "frontdoor_access_log_event_hub_log" {

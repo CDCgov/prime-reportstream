@@ -21,4 +21,6 @@ module "prime_data_hub" {
   resource_prefix = var.dev_name
   okta_redirect_url = "https://prime-data-hub-${var.dev_name}.azurefd.net/download"
   https_cert_names = []
+  rsa_key_2048 = var.dev_name == "rheft" ? "rkh-dev-2048-key" : null
+  rsa_key_4096 = var.dev_name == "rheft" ? "rkh-dev-4096-key" : null
 }

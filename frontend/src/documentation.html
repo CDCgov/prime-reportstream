@@ -1,0 +1,30 @@
+---
+layout: protected.liquid
+protected: false
+show_navbar: true
+documentation: true
+show_menu: true
+current: "getting started"
+---
+<section class="grid-container">
+    <h1>Getting started with ReportStream</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eleifend semper risus, a gravida quam efficitur sit amet. Nam maximus leo quam, non luctus dui tempor vel. Praesent a tortor a elit congue rhoncus non ut ante. Etiam consectetur neque vitae metus egestas lobortis. Pellentesque urna ligula, semper et commodo at, porta eget sapien. </p>
+        {% for file in content.index.documentation.files %}
+          <div class="tablet:grid-col-6 usa-card">
+            <div class="usa-card__container">
+              <div class="usa-card__body">
+                <img src="{{ site.imgPath }}file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
+                <h3 class="usa-collection__heading">{{file.name}}</h3>
+                <a class="usa-link" href="{{ site.pdfPath }}{{ file.url }}">Download PDF</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+</section>
+
+<section class="grid-container">
+  <h2>Documentation to help you get started with ReportStream or see if it is right for your jurisdiction</h2>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non efficitur risus. Pellentesque quis consequat libero. Curabitur dignissim euismod lectus, id tempor tellus pharetra eget. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc eu aliquam sapien, at finibus erat. Donec auctor, purus eu dapibus malesuada, quam mi volutpat dui, id egestas ex turpis tristique nulla. Vivamus sagittis nisl ac malesuada eleifend. Ut faucibus ipsum vel ex cursus, eget condimentum metus dapibus. Nulla non pulvinar est, finibus pretium nunc. In consequat ullamcorper metus, id ornare ligula tincidunt non.</p>
+  <p>Nullam sed elit laoreet, pellentesque sapien ut, laoreet libero. Fusce eu ipsum dapibus, lacinia diam ut, vulputate massa. Aenean elementum velit vitae nunc porttitor accumsan. Sed feugiat dictum neque, sit amet cursus diam vehicula a. Praesent ullamcorper orci nisl. Aenean accumsan scelerisque viverra. Mauris in mauris facilisis, maximus nisi et, hendrerit augue.</p>
+  <p>In hac habitasse platea dictumst. Aliquam sagittis orci vel sem posuere, a hendrerit quam tempor. Aliquam eu mattis tellus, eu luctus mi. Nulla quis orci non metus fermentum ullamcorper id sodales odio. Morbi nec hendrerit est. Curabitur at fringilla ipsum, eget ultrices arcu. Cras porttitor tortor ac orci pharetra porttitor. Donec et iaculis ex. Mauris et consequat arcu.</p>
+</section>
