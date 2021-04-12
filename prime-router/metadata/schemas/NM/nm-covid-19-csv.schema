@@ -156,15 +156,25 @@ elements:
   - name: specimen_type
     csvFields:
       - name: SpecType
+        format: $display
 
   - name: test_result
     csvFields:
       - name: ResultTestCode
         format: $code
-      - name: ResultTestDesc
-        format: $display
 
-  - name: abnormal_flag
+  - name: local_result_test_desc
+    type: TABLE
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: Component
+    mapper: lookup(equipment_model_name)
+    csvFields:
+      - name: ResultTestDesc
+
+  - name: local_test_result
+    type: CODE
+    valueSet: covid-19/test_result
+    mapper: use(test_result)
     csvFields:
       - name: Result
         format: $display
@@ -356,6 +366,8 @@ elements:
   # special fields
   - name: local_symptom_onset_date
     mapper: use(illness_onset_date)
+
+  - name: equipment_model_name
 
 
 
