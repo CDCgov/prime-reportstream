@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "dependencies": {
     "axios": "^0.21.1",
-    "chart.js": "^2.9.4",
+    "chart.js": "^3.1.0",
     "cypress": "^7.0.1",
     "js-yaml": "^4.0.0",
     "jshint": "^2.12.0",
