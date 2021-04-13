@@ -1,7 +1,7 @@
 ---
 name: waters-covid-19
 description: WATERS OTC,POC COVID-19 flat file
-topic: covid-19
+topic: covid-19-otc
 trackingElement: equipment_instance_id
 basedOn: covid-19
 elements:
