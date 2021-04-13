@@ -4,6 +4,24 @@
 
 ---
 
+**Name**: orderingFacilityState
+
+**Type**: TABLE
+
+**HL7 Field**: ORC-22-4
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The state of the facility which the test was ordered from
+
+---
+
 **Name**: testResult
 
 **Type**: CODE
@@ -230,7 +248,7 @@ The specimen source, such as Blood or Serum
 
 ---
 
-**Name**: patientUniqueId
+**Name**: patientUniqueIdType
 
 **Type**: TEXT
 
@@ -395,19 +413,15 @@ The reporting facility's name
 
 **Name**: specimenId
 
-**Type**: EI
+**Type**: ID
 
-**HL7 Fields**: SPM-2
+**HL7 Field**: MSH-10
 
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2) 
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-A unique code for this specimen
+unique id to track the usage of the message
 
 ---
 
