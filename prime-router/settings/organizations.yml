@@ -18,7 +18,7 @@
     senders:
       - name: default
         organizationName: waters
-        topic: covid-19
+        topic: covid-19-otc
         schemaName: waters/waters-covid-19
         format: CSV
 
