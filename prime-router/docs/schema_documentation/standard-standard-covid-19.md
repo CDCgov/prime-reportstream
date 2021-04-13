@@ -2157,7 +2157,7 @@ The accession number of the specimen collected
 
 **Type**: ID_CLIA
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
 
 **Cardinality**: [1..1]
 

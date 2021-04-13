@@ -13,9 +13,19 @@ variable "resource_prefix" {
     description = "Resource Prefix"
 }
 
-variable "https_cert_name" {
-    type = string
+variable "https_cert_names" {
+    type = list
     description = "The HTTPS cert to associate with the front door. Omitting will not associate a domain to the front door."
+}
+
+variable "rsa_key_2048" {
+    type = string
+    description = "Name of the 2048 length RSA key in the Key Vault. Omitting will use Azure-managed key instead of a customer-key."
+}
+
+variable "rsa_key_4096" {
+    type = string
+    description = "Name of the 2048 length RSA key in the Key Vault. Omitting will use Azure-managed key instead of a customer-key."
 }
 
 variable "okta_redirect_url" {

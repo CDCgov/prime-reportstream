@@ -1,0 +1,37 @@
+<section class="grid-container margin-bottom-5">
+  <div class="grid-row">
+    <div class="tablet:grid-col-3">
+      <nav aria-label="Secondary navigation">
+        <ul class="usa-sidenav">
+          <li class="usa-sidenav__item">
+          {% if current == "getting started" %}
+          <a href="./documentation.html" class="usa-current">
+          {% else %}
+          <a href="./documentation.html">
+          {% endif %}
+          Getting started</a>
+          </li>
+          <li class="usa-sidenav__item">
+          {% if current == "data retention" %}
+            <a href="./data_retention.html" class="usa-current">
+          {% else %}
+            <a href="./data_retention.html">
+          {%endif%}
+            Data retention</a>
+          </li>
+          <li class="usa-sidenav__item">
+          {% if current == "terms and conditions" %}
+            <a href="./terms_conditions.html" class="usa-current">
+          {%else%}
+            <a href="./terms_conditions.html">
+          {%endif%}
+          Terms and conditions</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="tablet:grid-col-9">
+    {{ content }}
+    </div>
+  </div>
+</section>

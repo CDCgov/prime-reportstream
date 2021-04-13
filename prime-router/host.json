@@ -6,7 +6,8 @@
   },
   "extensions": {
     "queues": {
-      "batchSize": 8
+      "batchSize": 8,
+      "newBatchThreshold": 4
     }
   }
 }

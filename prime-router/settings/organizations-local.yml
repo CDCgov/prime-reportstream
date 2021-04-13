@@ -308,6 +308,8 @@
           reportingFacilityId: 36DSMP9999
           nameFormat: OHIO
           suppressHl7Fields: OBX-23-11
+          # turn off UNK and ASKU for this field
+          useBlankInsteadOfUnknown: patient_race
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -332,13 +334,37 @@
         translation:
           type: HL7
           useBatchHeaders: true
+          receivingOrganization: elr
           receivingApplicationName: NMDOH
           receivingApplicationOID: 2.16.840.1.113883.3.5364
           receivingFacilityName: NMDOH
           receivingFacilityOID: 2.16.840.1.113883.3.5364
+          truncateHDNamespaceIds: true
+          nameFormat: APHL_LIGHT
+          # turn off UNK and ASKU for this field
+          useBlankInsteadOfUnknown: patient_race
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: MOUNTAIN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+      - name: elr-csv
+        organizationName: nm-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, NM)
+        translation:
+          type: CUSTOM
+          format: CSV
+          schemaName: nm/nm-covid-19-csv
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
           initialTime: 00:00
           timeZone: MOUNTAIN
         transport:
@@ -405,6 +431,7 @@
           useBatchHeaders: true
           receivingApplicationName: NEDSS
           receivingFacilityName: TX-ELR
+          defaultAoeToUnknown: true
         transport:
           type: SFTP_LEGACY
           host: sftp
@@ -470,6 +497,60 @@
           initialTime: 00:00
           timeZone: EASTERN
 
+  - name: nj-doh
+    description: New Jersey Department of Health
+    jurisdiction: STATE
+    stateCode: NJ
+    receivers:
+      - name: elr
+        organizationName: nj-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, NJ)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: NJELR
+          receivingFacilityName: NJ-ELR
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: mn-doh
+    description: Minnesota Department of Health
+    jurisdiction: STATE
+    stateCode: MN
+    receivers:
+      - name: elr
+        organizationName: mn-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, MN)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: MEDSS-ELR
+          receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
+          receivingFacilityName: MN DOH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3661
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
   - name: pa-phd
     description: Pennsylvania Department of Health
     jurisdiction: STATE
@@ -489,6 +570,10 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
       - name: elr-chester-local
         topic: covid-19
         organizationName: pa-phd
@@ -503,6 +588,10 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
       - name: elr-montgomery-local
         organizationName: pa-phd
         topic: covid-19
@@ -517,6 +606,10 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
       - name: elr-philadelphia-local
         organizationName: pa-phd
         topic: covid-19
@@ -532,6 +625,11 @@
             redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
             redox_source_name: "Prime Data Hub (Staging)"
           format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+
 
   - name: pa-chester-phd
     description: Health Department - Chester County, Pennsylvania

@@ -47,3 +47,12 @@ variable "eventhub_manage_auth_rule_id" {
     type = string
     description = "Event Hub Manage Authorization Rule ID"
 }
+variable "key_vault_id" {
+    type = string
+    description = "Key Vault used to encrypt blob storage"
+}
+
+variable "rsa_key_4096" {
+    type = string
+    description = "Name of the 2048 length RSA key in the Key Vault. Omitting will use Azure-managed key instead of a customer-key."
+}

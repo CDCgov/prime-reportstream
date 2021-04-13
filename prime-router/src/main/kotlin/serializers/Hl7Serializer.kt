@@ -41,6 +41,13 @@ class Hl7Serializer(val metadata: Metadata) {
     private val buildVersion: String
     private val buildDate: String
     private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSZZZ")
+    private var hl7Config: Hl7Configuration? = null
+
+    private val hdFieldMaximumLength: Int? get() = if (hl7Config?.truncateHDNamespaceIds == true) {
+        HD_TRUNCATION_LIMIT
+    } else {
+        null
+    }
 
     init {
         val buildProperties = Properties()
@@ -67,9 +74,14 @@ class Hl7Serializer(val metadata: Metadata) {
     /**
      * Write a report with BHS and FHS segments and multiple items
      */
-    fun writeBatch(report: Report, outputStream: OutputStream, translatorConfig: TranslatorConfiguration? = null) {
+    fun writeBatch(
+        report: Report,
+        outputStream: OutputStream,
+        translatorConfig: TranslatorConfiguration? = null
+    ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
+        this.hl7Config = translatorConfig as? Hl7Configuration?
         outputStream.write(createHeaders(report).toByteArray())
         report.itemIndices.map {
             val message = createMessage(report, it, translatorConfig)
@@ -249,14 +261,14 @@ class Hl7Serializer(val metadata: Metadata) {
 
     internal fun createMessage(report: Report, row: Int, translatorConfig: TranslatorConfiguration? = null): String {
         val message = ORU_R01()
-        val hl7Config = translatorConfig as? Hl7Configuration?
+        this.hl7Config = translatorConfig as? Hl7Configuration?
         val processingId = if (hl7Config?.useTestProcessingMode == true) {
             "T"
         } else {
             "P"
         }
         message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
-        buildMessage(message, report, row, processingId, hl7Config)
+        buildMessage(message, report, row, processingId, this.hl7Config)
         hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
         return hapiContext.pipeParser.encode(message)
     }
@@ -272,7 +284,15 @@ class Hl7Serializer(val metadata: Metadata) {
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         // and we have some fields to suppress
-        val suppressedFields = hl7Config?.suppressHl7Fields?.split(",") ?: emptyList()
+        val suppressedFields = hl7Config
+            ?.suppressHl7Fields
+            ?.split(",")
+            ?.map { it.trim() } ?: emptyList()
+        // or maybe we're going to suppress UNK/ASKU for some fields
+        val blanksForUnknownFields = hl7Config
+            ?.useBlankInsteadOfUnknown
+            ?.split(",")
+            ?.map { it.toLowerCase().trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
         val terser = Terser(message)
@@ -283,6 +303,16 @@ class Hl7Serializer(val metadata: Metadata) {
 
             if (suppressedFields.contains(element.hl7Field))
                 return@forEach
+
+            // some fields need to be blank instead of passing in UNK
+            // so in this case we'll just go by field name and set the value to blank
+            if (blanksForUnknownFields.contains(element.name) &&
+                element.hl7Field != null &&
+                (value.equals("ASKU", true) || value.equals("UNK", true))
+            ) {
+                setComponent(terser, element, element.hl7Field, "")
+                return@forEach
+            }
 
             if (element.hl7OutputFields != null) {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
@@ -300,6 +330,12 @@ class Hl7Serializer(val metadata: Metadata) {
                 if (value.isNotBlank()) {
                     val date = report.getString(row, "specimen_collection_date_time") ?: ""
                     setAOE(terser, element, aoeSequence++, date, value, report, row, suppressQst = suppressQst)
+                } else {
+                    // if the value is null but we're defaulting
+                    if (this.hl7Config?.defaultAoeToUnknown == true) {
+                        val date = report.getString(row, "specimen_collection_date_time") ?: ""
+                        setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
+                    }
                 }
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
@@ -355,7 +391,12 @@ class Hl7Serializer(val metadata: Metadata) {
         }
     }
 
-    private fun setComponent(terser: Terser, element: Element, hl7Field: String, value: String) {
+    private fun setComponent(
+        terser: Terser,
+        element: Element,
+        hl7Field: String,
+        value: String
+    ) {
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
             Element.Type.ID_CLIA -> {
@@ -366,7 +407,7 @@ class Hl7Serializer(val metadata: Metadata) {
             }
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
-                    val hd = Element.parseHD(value)
+                    val hd = Element.parseHD(value, hdFieldMaximumLength)
                     if (hd.universalId != null && hd.universalIdSystem != null) {
                         terser.set("$pathSpec-1", hd.name)
                         terser.set("$pathSpec-2", hd.universalId)
@@ -393,8 +434,6 @@ class Hl7Serializer(val metadata: Metadata) {
             Element.Type.TELEPHONE -> {
                 if (value.isNotEmpty()) {
                     setTelephoneComponent(terser, value, pathSpec, element)
-                } else {
-                    terser.set(pathSpec, "") // Not at all sure what to do here.
                 }
             }
             Element.Type.EMAIL -> {
@@ -451,6 +490,7 @@ class Hl7Serializer(val metadata: Metadata) {
                 rep += 1
             }
             // primary residence number
+            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-1", "($areaCode)$local")
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
             // it's a phone
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "PH")
@@ -586,10 +626,18 @@ class Hl7Serializer(val metadata: Metadata) {
 
     private fun createHeaders(report: Report): String {
         val encodingCharacters = "^~\\&"
-        val sendingApp = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
-        val sendingFacility = formatHD(Element.parseHD(report.getString(0, "sending_application") ?: ""))
-        val receivingApp = formatHD(Element.parseHD(report.getString(0, "receiving_application") ?: ""))
-        val receivingFacility = formatHD(Element.parseHD(report.getString(0, "receiving_facility") ?: ""))
+        val sendingApp = formatHD(
+            Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
+        )
+        val sendingFacility = formatHD(
+            Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
+        )
+        val receivingApp = formatHD(
+            Element.parseHD(report.getString(0, "receiving_application") ?: "", hdFieldMaximumLength)
+        )
+        val receivingFacility = formatHD(
+            Element.parseHD(report.getString(0, "receiving_facility") ?: "", hdFieldMaximumLength)
+        )
 
         return "FHS|$encodingCharacters|" +
             "$sendingApp|" +
@@ -674,6 +722,7 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     companion object {
+        const val HD_TRUNCATION_LIMIT = 20
         const val HL7_SPEC_VERSION: String = "2.5.1"
         const val MESSAGE_CODE = "ORU"
         const val MESSAGE_TRIGGER_EVENT = "R01"

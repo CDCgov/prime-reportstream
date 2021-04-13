@@ -1,0 +1,275 @@
+---
+name: nm-covid-19-csv
+description: New Mexico Flat File
+topic:  covid-19
+trackingElement: message_id
+basedOn: covid-19
+elements:
+  - name: sending_application
+    csvFields:
+      - name: SendingApp
+
+  - name: reporting_facility
+    csvFields:
+      - name: RptFacName
+
+  - name: reporting_facility_clia
+    csvFields:
+      - name: SenderCLIA
+
+  - name: ordering_facility_name
+    csvFields:
+      - name: OrdFacName
+
+  - name: ordering_facility_street
+    csvFields:
+      - name: OrdFacAddrStreet
+
+  - name: ordering_facility_city
+    csvFields:
+      - name: OrdFacCity
+
+  - name: ordering_facility_state
+    csvFields:
+      - name: OrdFacState
+
+  - name: ordering_facility_zip_code
+    csvFields:
+      - name: OrdFacZip
+
+  - name: file_created_date
+    csvFields:
+      - name: DateTimeMessage
+        format: YYYYMMDD
+
+  - name: patient_id
+    csvFields:
+      - name: PtID
+
+  - name: patient_first_name
+    csvFields:
+      - name: PtFirstName
+
+  - name: patient_last_name
+    csvFields:
+      - name: PtLastName
+
+  - name: patient_dob
+    csvFields:
+      - name: PtDOB
+        format: YYYYMMDD
+
+  - name: patient_race
+    csvFields:
+      - name: PtRace
+
+  - name: patient_ethnicity
+    csvFields:
+      - name: PtEthnic
+
+  - name: patient_tribal_citizenship
+    csvFields:
+      - name: PtTribe
+
+  - name: local_patient_language
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtLanguage
+
+  - name: patient_street
+    csvFields:
+      - name: PtAddrStreet
+
+  - name: patient_city
+    csvFields:
+      - name: PtAddrCity
+
+  - name: patient_state
+    csvFields:
+      - name: PtAddrState
+
+  - name: patient_zip_code
+    csvFields:
+      - name: PtAddrZip
+
+  - name: patient_county
+    csvFields:
+      - name: PtCounty
+
+  - name: patient_phone_number
+    csvFields:
+      - name: PtPhone
+
+  - name: local_patient_ssn
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtSSN
+
+  - name: ordering_provider_first_name
+    csvFields:
+      - name: OrdProvFirstName
+
+  - name: ordering_provider_last_name
+    csvFields:
+      - name: OrdProvLastName
+
+  - name: ordering_provider_phone_number
+    csvFields:
+      - name: OrdProvPhone
+
+  - name: specimen_id
+    csvFields:
+      - name: AccessionNum
+
+  - name: specimen_collection_date_time
+    csvFields:
+      - name: SpecCollDt
+
+  - name: specimen_type
+    csvFields:
+      - name: SpecType
+
+  - name: test_result
+    csvFields:
+      - name: ResultTestCode
+        format: $code
+      - name: ResultTestDesc
+        format: $display
+
+  - name: abnormal_flag
+    csvFields:
+      - name: Result
+
+  - name: test_result_date
+    csvFields:
+      - name: TestResultDt
+
+  - name: local_result_notes
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: ResultNotes
+
+  - name: first_test
+    csvFields:
+      - name: FirstTest
+
+  - name: employed_in_healthcare
+    csvFields:
+      - name: EmpHealthcare
+
+  - name: symptomatic_for_disease
+    csvFields:
+      - name: Symptomatic
+
+  - name: hospitalized
+    csvFields:
+      - name: Hospitalized
+
+  - name: icu
+    csvFields:
+      - name: ICU
+
+  - name: resident_congregate_setting
+    csvFields:
+      - name: CongSetting
+
+  - name: pregnant
+    csvFields:
+      - name: Pregnant
+
+  - name: patient_email
+    csvFields:
+      - name: PtEmailAdd
+
+  - name: local_patient_occupation
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: Occupation
+
+  - name: local_patient_employer_name
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtEmpName
+
+  - name: local_patient_employer_street
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtEmpAddrStreet
+
+  - name: local_patient_employer_city
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtEmpAddrCity
+
+  - name: local_patient_employer_state
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtEmpAddrState
+
+  - name: local_patient_employer_zip
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtEmpAddrZip
+
+  - name: local_patient_employer_county
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtEmpcounty
+
+  - name: local_patient_employer_phone
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtEmpPhone
+
+  - name: local_patient_school_name
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtSchoolName
+
+  - name: local_patient_school_street
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtSchAddrStreet
+
+  - name: local_patient_school_city
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtSchAddrCity
+
+  - name: local_patient_school_state
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtSchAddrState
+
+  - name: local_patient_school_zip
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtSchAddrZip
+
+  - name: local_patient_school_county
+    type: TEXT
+    default: ""
+    csvFields:
+      - name: PtSchcounty
+
+
+
+
+
+

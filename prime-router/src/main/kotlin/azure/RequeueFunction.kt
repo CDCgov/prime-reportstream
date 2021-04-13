@@ -31,11 +31,12 @@ class RequeueFunction : Logging {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.resend, context)
         actionHistory.trackActionParams(request)
+        var msgs = mutableListOf<String>()
         val response = try {
-            doResend(request, workflowEngine, actionHistory)
+            doResend(request, workflowEngine, msgs)
         } catch (t: Throwable) {
-            val msg: String = t.cause?.let { "${t.cause!!.localizedMessage}\n" } + t.localizedMessage
-            bad(request, msg + "\n")
+            msgs.add(t.cause?.let { "${t.cause!!.localizedMessage}\n" } ?: "" + t.localizedMessage)
+            bad(request, msgs.joinToString("\n") + "\n")
         }
         actionHistory.trackActionResult(response)
         workflowEngine.recordAction(actionHistory)
@@ -45,21 +46,23 @@ class RequeueFunction : Logging {
     fun doResend(
         request: HttpRequestMessage<String?>,
         workflowEngine: WorkflowEngine,
-        actionHistory: ActionHistory
+        msgs: MutableList<String>,
     ): HttpResponseMessage {
-        if (request.queryParameters.size != 2) return bad(request, "Expecting 2 parameters\n")
+        val isTest = ! request.queryParameters["test"].isNullOrEmpty()
+        if (isTest) msgs.add("Here is what would happen if this were NOT a test:")
+        if (request.queryParameters.size < 2 || request.queryParameters.size > 4)
+            return bad(request, "Expecting 2 to 4 parameters\n")
         val reportIdStr = request.queryParameters["reportId"]
             ?: return bad(request, "Missing option reportId\n")
         val reportId = UUID.fromString(reportIdStr)
         val fullName = request.queryParameters["receiver"]
             ?: return bad(request, "Missing option receiver\n")
+        val isFailedOnly = ! request.queryParameters["failedOnly"].isNullOrEmpty()
         val receiver = workflowEngine.settings.findReceiver(fullName)
             ?: return bad(request, "No such receiver fullname $fullName\n")
-        workflowEngine.resendEvent(reportId, receiver) // sanity checks throw exceptions
-        return HttpUtilities.httpResponse(
-            request, "Report $reportId queued to resend immediately to ${receiver.fullName}\n",
-            HttpStatus.OK
-        )
+        // sanity checks throw exceptions inside here:
+        workflowEngine.resendEvent(reportId, receiver, isFailedOnly, isTest, msgs)
+        return HttpUtilities.httpResponse(request, msgs.joinToString("\n") + "\n", HttpStatus.OK)
     }
 
     fun bad(request: HttpRequestMessage<String?>, msg: String): HttpResponseMessage {
