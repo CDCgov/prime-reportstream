@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import org.jooq.Meta
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
@@ -436,8 +437,29 @@ class Report {
             // if the element name is not mapping, it is handled as a pass through
             synthesizedColumn ?: table.column(it.name).copy()
         }
+        val table = Table.create(columns)
+        // unfortunate fact for how we do faking of rows, the four columns below
+        // would never match because the row context was new on each write of the
+        // column. because we synthesize the data here, we need to actually overwrite the
+        // values in each row because quality synthetic data matters
+        table.forEach {
+            val context = FakeReport.RowContext(
+                metadata::findLookupTable,
+                targetState,
+                schema.name,
+                targetCounty
+            )
+            if (table.columnNames().contains("patient_county"))
+                it.setString("patient_county", context.county)
+            if (table.columnNames().contains("patient_city"))
+                it.setString("patient_city", context.city)
+            if (table.columnNames().contains("patient_state"))
+                it.setString("patient_state", context.state)
+            if (table.columnNames().contains("patient_zip_code"))
+                it.setString("patient_zip_code", context.zipCode)
+        }
         // return the new copy of the report here
-        return Report(schema, Table.create(columns), fromThisReport("synthesizeData"))
+        return Report(schema, table, fromThisReport("synthesizeData"))
     }
 
     /**
