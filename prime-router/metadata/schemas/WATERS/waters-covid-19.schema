@@ -11,6 +11,7 @@ elements:
 
   # Edited. Added 'ordering_facility_state', because it lets us test mapping to many of our states
   - name: ordering_facility_state
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: orderingFacilityState }]
 
   - name: test_result    # Edited.  Was 'patient_positive' to 'test_result'
