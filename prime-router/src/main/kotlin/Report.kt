@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import org.jooq.Meta
+import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
@@ -379,6 +380,10 @@ class Report {
         targetCounty: String? = null,
         metadata: Metadata,
     ): Report {
+        fun maybeSetString(row: Row, columnName: String, value: String) {
+            if (row.columnNames().contains(columnName))
+                row.setString(columnName, value)
+        }
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
                 // we want to guard against the possibility that there are too few records
@@ -449,14 +454,10 @@ class Report {
                 schema.name,
                 targetCounty
             )
-            if (table.columnNames().contains("patient_county"))
-                it.setString("patient_county", context.county)
-            if (table.columnNames().contains("patient_city"))
-                it.setString("patient_city", context.city)
-            if (table.columnNames().contains("patient_state"))
-                it.setString("patient_state", context.state)
-            if (table.columnNames().contains("patient_zip_code"))
-                it.setString("patient_zip_code", context.zipCode)
+            maybeSetString(it, "patient_county", context.county)
+            maybeSetString(it, "patient_city", context.city)
+            maybeSetString(it, "patient_state", context.state)
+            maybeSetString(it, "patient_zip_code", context.zipCode)
         }
         // return the new copy of the report here
         return Report(schema, table, fromThisReport("synthesizeData"))

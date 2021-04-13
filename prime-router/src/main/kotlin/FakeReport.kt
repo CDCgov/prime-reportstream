@@ -217,7 +217,7 @@ class FakeReport(val metadata: Metadata) {
                 )
             )
         } ?: faker.address().zipCode().toString()
-        val city: String? = findLookupTable("zip-code-data")?.let {
+        val city: String = findLookupTable("zip-code-data")?.let {
             randomChoice(
                 it.filter(
                     "city",
@@ -228,7 +228,7 @@ class FakeReport(val metadata: Metadata) {
                     )
                 )
             )
-        }
+        } ?: faker.address().city().toString()
     }
 
     internal fun buildColumn(element: Element, context: RowContext): String {
