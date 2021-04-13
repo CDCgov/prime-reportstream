@@ -29,6 +29,8 @@ The inspiration to use the combination of Private Key JWT and hosted JWKS came f
 
 In this proposal, I'm encouraging that we adopt JWKS URLs because it has lower operational costs in the long term. Healthcare interoperability will work better if it adopts this standard. In the short-term, it involves more setup work. I realize that it may be something better suited as an option.
 
+Note:  an example implementation is the [Data at the Point of Care project](https://github.com/CMSgov/dpc-app/tree/master/dpc-api/src/main/java/gov/cms/dpc/api/auth)
+
 ## Initial Implementation Plan
 
 We are working on implementing FHIR-style Authentication for our api/reports endpoint.   Our human users will auth using Okta, so FHIR auth is only needed for server-to-server connections.
@@ -93,9 +95,9 @@ We'll support both RS384 and ES384 web signature algorithms.
 
 We will 
 1. lookup and validate the client ID
-2  validate the JWT signature against the public key we have stored in the settings table for that client_id, Key ID (`kid`).
+2  validate the JWT signature against the public key we have stored in the settings table for that client_id, Key ID (`kid`).  We'll use the [JJWT libraries](https://github.com/jwtk/jjwt) to do JWT verification. (?)
 2. check that the JWT has not been previously encountered within the max JWT lifetime (5 minutes)
-3. 
+
 We will then pull our ReportStream secret from our vault, and use it to create and sign a ReportStream token, for use by the Sender.   FHIR calls for a 5 minute end of life.
 
 ### Step Three: Actual API Usage :  Sender uses the token to submit data to `api/reports`
@@ -108,7 +110,7 @@ The ReportStream Token will be sent as a URL parameter, not a header. (?)
 
 ReportFunction will then validate the certificate, and allow or deny access.  If the time has expired, access will be denied.  Appropriate Http Status codes will be returned.  Note:  No JSON will be returned in these cases (?)
 
-For our initial release, there is only one access scope associated with the token - the only authorization scope is the ability to upload reports into the api/reports endpoint.
+For our initial release, there is only one scope associated with the token - the only scope is the ability to upload reports into the api/reports endpoint.
 
 Note: there are no refresh tokens with servert-to-server auths.   After 5 mins, sender must go back to step 2.
 
