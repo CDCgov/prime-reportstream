@@ -21,9 +21,10 @@
   },
   "scripts": {
     "clean": "rimraf ./dist",
-    "start": "npm -s run watch",
+    "start": "npm -s run serve",
     "prebuild": "npm -s run clean",
     "build": "eleventy --config eleventy.config.js",
-    "watch": "eleventy --watch --config eleventy.config.js"
+    "watch": "eleventy --watch --config eleventy.config.js",
+    "serve": "eleventy --serve --config eleventy.config.js"
   }
 }
