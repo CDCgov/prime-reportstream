@@ -3,7 +3,10 @@
 <script>
   var logout = () => {
     window.sessionStorage.removeItem( "jwt" )
-    window.location.replace(`//localhost:8090`);
+    window.location.replace(`${window.location.origin}`);
+      let signIn = document.getElementById("signIn");
+    if( signIn )
+      signIn.style.display = "block";
   }
 </script>
 
@@ -41,6 +44,7 @@
         <br />
         <a href="#" id="logout" onclick="logout(); return false;"></a>
       </div>
+
     </nav>
   </div>
 </header>
