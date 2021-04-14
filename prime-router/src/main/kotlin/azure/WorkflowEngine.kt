@@ -121,7 +121,7 @@ class WorkflowEngine(
         context: ExecutionContext? = null,
         updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
-        lateinit var nextEvent: ReportEvent
+        var nextEvent: ReportEvent? = null
         db.transact { txn ->
             val reportId = messageEvent.reportId
             val task = db.fetchAndLockTask(reportId, txn)
@@ -136,7 +136,7 @@ class WorkflowEngine(
             if (currentEventAction != messageEvent.eventAction) {
                 context?.let {
                     context.logger.warning(
-                        "Weird error for $reportId: queue event = ${messageEvent.eventAction.name}, " +
+                        "Weirdness for $reportId: queue event = ${messageEvent.eventAction.name}, " +
                             " but task.nextAction = ${currentEventAction.name} "
                     )
                 }
@@ -146,17 +146,17 @@ class WorkflowEngine(
 
             nextEvent = updateBlock(header, retryToken, txn)
             context?.let { context.logger.info("Finished updateBlock for $reportId") }
-            val retryJson = nextEvent.retryToken?.toJSON()
+            val retryJson = nextEvent!!.retryToken?.toJSON()
             updateHeader(
                 header.task.reportId,
                 currentEventAction,
-                nextEvent.eventAction,
-                nextEvent.at,
+                nextEvent!!.eventAction,
+                nextEvent!!.at,
                 retryJson,
                 txn
             )
         }
-        queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
+        if (nextEvent != null)  queue.sendMessage(nextEvent!!) // Avoid race condition by doing after txn completes.
     }
 
     /**

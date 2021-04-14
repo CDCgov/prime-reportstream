@@ -51,8 +51,9 @@ class BatchFunction {
                     actionHistory.trackExistingInputReport(it.task.reportId)
                     report
                 }
-                val mergedReports = when (receiver.timing?.operation) {
-                    Receiver.BatchOperation.MERGE -> listOf(Report.merge(inReports))
+                val mergedReports = when {
+                    receiver.format == Report.Format.HL7 -> inReports  // don't merge, when we are about to split
+                    receiver.timing?.operation == Receiver.BatchOperation.MERGE -> listOf(Report.merge(inReports))
                     else -> inReports
                 }
                 val outReports = when (receiver.format) {
