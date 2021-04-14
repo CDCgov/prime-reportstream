@@ -1,5 +1,3 @@
-<div class="usa-overlay"></div>
-
 <script>
   var logout = () => {
     window.sessionStorage.removeItem( "jwt" )
@@ -7,6 +5,7 @@
   }
 </script>
 
+<div class="usa-overlay"></div>
 <header class="usa-header usa-header--basic">
   <div class="usa-nav-container">
     <div class="usa-navbar">
@@ -15,32 +14,37 @@
           <a href="{{ '/' | url }}" title="Home" aria-label="Home">ReportStream</a>
         </em>
       </div>
+      <button class="usa-menu-btn">Menu</button>
     </div>
     <nav aria-label="Primary navigation" class="usa-nav">
-      <ul class="usa-nav__primary usa-accordion margin-right-15">
-        <li class="usa-nav__primary-item">
-          <a class="usa-nav__link" href="./data-index.html"><span>Daily data</span></a>
-        </li>
+      <button class="usa-nav__close"><img src="/assets/img/usa-icons/close.svg" role="img" alt="close"></button>
+      <ul class="usa-nav__primary">
+        {% if protected %}
+          <li class="usa-nav__primary-item">
+            <a class="usa-nav__link" href="./data-index.html"><span>Daily data</span></a>
+          </li>
 <!--
-        <li class="usa-nav__primary-item">
-          <a class="usa-nav__link" href="#"><span>Facilities</span></a>
-        </li>
+          <li class="usa-nav__primary-item">
+            <a class="usa-nav__link" href="#"><span>Facilities</span></a>
+          </li>
+          <li class="usa-nav__primary-item">
+            <a class="usa-nav__link" href="/settings/profile.html"><span>Settings</span></a>
+          </li>
 -->
+        {% endif %}
         <li class="usa-nav__primary-item">
           <a class="usa-nav__link" href="./documentation.html"><span>Documentation</span></a>
         </li>
-
-<!--
-        <li class="usa-nav__primary-item">
-          <a class="usa-nav__link" href="/settings/profile.html"><span>Settings</span></a>
-        </li>
--->
       </ul>
-      <div class="prime-user-account margin-left-10">
-        <span id="emailUser"></span>
-        <br />
-        <a href="#" id="logout" onclick="logout(); return false;"></a>
-      </div>
+      {% if protected %}
+        <div class="prime-user-account margin-left-10">
+          <span id="emailUser"></span>
+          <br />
+          <a href="#" id="logout" onclick="logout(); return false;"></a>
+        </div>
+      {% else %}
+        <a class="usa-button usa-button--outline" href="./data-index.html">Sign in</a>
+      {% endif %}
     </nav>
   </div>
 </header>

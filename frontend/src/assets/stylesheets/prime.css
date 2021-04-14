@@ -1,19 +1,70 @@
 body {
-  display:flex;
-  min-height:100vh;
-  flex-direction:column;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 main {
-  flex:1;
-  width:100%
+  flex: 1;
+  width: 100%
+}
+
+.usa-banner__inner, .usa-banner__header--expanded .usa-banner__inner {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.usa-banner__header--expanded .usa-banner__inner {
+
+}
+
+.usa-overlay {
+  z-index: 300;
 }
 
 .usa-logo {
-  margin: 2rem 0;
+  margin: 1rem 0;
+}
+
+.usa-header--basic .usa-nav-container {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+}
+
+.usa-header--basic .usa-navbar {
+  position: relative;
+  width: auto;
+}
+
+@media (min-width: 64em) {
+  .usa-header--basic .usa-nav-container {
+    max-width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (max-width: 63.99em) {
+  .usa-header--basic .usa-navbar {
+    align-items: center;
+    border-bottom: 1px solid #dfe1e2;
+    display: flex;
+  }
+}
+
+.usa-header--basic .usa-nav {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  display: flex;
+  padding: 0 0 0 .5rem;
+  width: 100%;
 }
 
 .usa-nav__primary {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   list-style: none;
 }
 
@@ -27,42 +78,42 @@ main {
 }
 
 .prime-user-account{
-  margin-bottom:.75rem;
-  font-size:.88rem;
-  vertical-align:u-text("vertical-align");
+  margin-bottom: .75rem;
+  font-size: .88rem;
+  vertical-align: u-text("vertical-align");
   line-height: 1.25rem;
-  text-align:right;
+  text-align: right;
 }
 
 .prime-table {
-  width:100%;
+  width: 100%;
 }
 
 .prime-table thead th {
-  border-bottom:2px solid;
+  border-bottom: 2px solid;
 }
 
 .prime-table tbody td,.prime-table tbody th {
-  border-color:#dfe1e2
+  border-color: #dfe1e2;
 }
 
 .prime-identifier {
-  background-color:#f0f0f0;
-  color:#1b1b1b;
+  background-color: #f0f0f0;
+  color: #1b1b1b;
 }
 
 .prime-identifier .prime-identifier__domain {
-  color:#565c65
+  color: #565c65;
 }
 
 .prime-identifier .prime-identifier__disclaimer a:link,
 .prime-identifier .prime-identifier__disclaimer a:visited,
 .prime-identifier .prime-identifier__disclaimer a:active {
-  color:#1b1b1b
+  color: #1b1b1b;
 }
 
 .prime-identifier .prime-identifier__disclaimer a:hover {
-  color:#71767a
+  color: #71767a;
 }
 
 .rs-hero {
