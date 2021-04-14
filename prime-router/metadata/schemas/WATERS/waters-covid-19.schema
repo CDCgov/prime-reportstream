@@ -34,9 +34,9 @@ elements:
     csvFields: [{ name: specimenCollectedDate}]
 
   # Edited.  This appeared twice.  I eliminated one.  The other was csvField = 'deviceName'
-  #  Note:  value here should come from LIVD table
+  #  Note:  value here must come from Column B, 'Model', LIVD table
   - name: equipment_model_name
-    csvFields: [{ name: deviceIdentifier, format: $display}]
+    csvFields: [{ name: equipmentModelName }]
 
   - name: equipment_instance_id     # Edited.  Was 'kit_id'
     csvFields: [{ name: serialNumber}]
