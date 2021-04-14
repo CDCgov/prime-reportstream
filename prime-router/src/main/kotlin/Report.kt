@@ -2,7 +2,6 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
-import org.jooq.Meta
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
@@ -380,7 +379,7 @@ class Report {
         targetCounty: String? = null,
         metadata: Metadata,
     ): Report {
-        fun maybeSetString(row: Row, columnName: String, value: String) {
+        fun safeSetStringInRow(row: Row, columnName: String, value: String) {
             if (row.columnNames().contains(columnName))
                 row.setString(columnName, value)
         }
@@ -454,10 +453,10 @@ class Report {
                 schema.name,
                 targetCounty
             )
-            maybeSetString(it, "patient_county", context.county)
-            maybeSetString(it, "patient_city", context.city)
-            maybeSetString(it, "patient_state", context.state)
-            maybeSetString(it, "patient_zip_code", context.zipCode)
+            safeSetStringInRow(it, "patient_county", context.county)
+            safeSetStringInRow(it, "patient_city", context.city)
+            safeSetStringInRow(it, "patient_state", context.state)
+            safeSetStringInRow(it, "patient_zip_code", context.zipCode)
         }
         // return the new copy of the report here
         return Report(schema, table, fromThisReport("synthesizeData"))
