@@ -32,27 +32,32 @@
           </div>`
      } );
 var ctx = 'summary-tests';
-
 var options = {
+    plugins: {
       legend: {
           display: false,
-      },
-      scales: {
-          yAxes: [{
-              ticks: { beginAtZero: false },
-              display: false
-          }],
-          xAxes: [{
-              display: false
-          }]
       }
+    },
+    scales: {
+        y: {
+            ticks: { beginAtZero: false },
+            display: false,
+        },
+        x: {
+            display: false,
+        }
+    }
   }
 
-var labels = ["2021-03-09", "2021-03-10","2021-03-11","2021-03-12","2021-03-13","2021-03-14","2021-03-15", "2021-03-16" ]
+var labels = [];
+for( var i = 7; i >= 0; i-- ){
+  labels.push( moment().subtract( i, 'days').format( "YYYY-MM-DD") )
+}
 
 var myLineChart = new Chart(ctx, {
   type: 'line',
   data: {
+
     labels: labels,
     datasets: [{ 
         data: cards[0].data,

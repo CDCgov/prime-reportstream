@@ -298,7 +298,7 @@ open class BaseHistoryFunction {
     ) : HttpResponseMessage {
         val authClaims = checkAuthenticated(request, context)
         if( authClaims == null ) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
-        var response: HttpResponseMessage;
+        var response: HttpResponseMessage
 
         try{
             val headers = workflowEngine.db.fetchDownloadableReportFiles(
