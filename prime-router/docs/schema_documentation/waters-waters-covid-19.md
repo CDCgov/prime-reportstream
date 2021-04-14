@@ -107,11 +107,9 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 ---
 
-**Name**: deviceIdentifier
+**Name**: equipmentModelName
 
 **Type**: TABLE
-
-**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -187,18 +185,15 @@ The ordering provider’s National Provider Identifier
 
 **Name**: performingFacility
 
-**Type**: ID_CLIA
+**Type**: TEXT
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
+**HL7 Field**: OBX-23-1
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
-CLIA Number from the laboratory that sends the message to DOH
-
-An example of the ID is 03D2159846
-
+The name of the laboratory which performed the test, can be the same as the sending facility name
 
 ---
 
