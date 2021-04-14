@@ -107,6 +107,10 @@ class Hl7Serializer(val metadata: Metadata) {
             val parsedMessage = convertMessageToMap(nextMessage.toString(), schema)
             errors.addAll(parsedMessage.errors)
             warnings.addAll(parsedMessage.warnings)
+            // there is a chance that there's an empty row (for example, an empty line)
+            // that won't parse. so we should skip that because it's not valid HL7
+            if (parsedMessage.row.isEmpty())
+                return
             rowResults.add(parsedMessage)
             nextMessage.clear()
             parsedMessage.row.forEach { (k, v) ->
@@ -169,7 +173,7 @@ class Hl7Serializer(val metadata: Metadata) {
             }
             // add the rows
             if (parsedValue.isNullOrEmpty()) {
-                warnings.add("Blank for $terserSpec")
+                warnings.add("Blank for $terserSpec - $elementName")
             }
             mergeIntoMappedRows(mappedRows, elementName, parsedValue ?: "")
         }
@@ -181,64 +185,74 @@ class Hl7Serializer(val metadata: Metadata) {
         hapiContext.modelClassFactory = mcf
         val parser = hapiContext.pipeParser
         val reg = "(\r|\n)".toRegex()
-        val cleanedMessage = reg.replace(message, "\r")
-        val hapiMsg = parser.parse(cleanedMessage)
-        val terser = Terser(hapiMsg)
-        schema.elements.forEach {
-            if (!mappedRows.containsKey(it.name))
-                mappedRows[it.name] = mutableSetOf()
-
-            if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty()) {
-                mappedRows[it.name]?.add("")
-                return@forEach
-            }
-
-            if (!it.hl7Field.isNullOrEmpty()) {
-                val terserSpec = if (it.hl7Field.startsWith("MSH")) {
-                    "/${it.hl7Field}"
-                } else if (it.hl7Field == "AOE") {
-                    val question = it.hl7AOEQuestion!!
-                    val countObservations = 10
-                    // todo: map each AOE by the AOE question ID
-                    for (c in 0 until countObservations) {
-                        var spec = "/.OBSERVATION($c)/OBX-3-1"
-                        val questionCode = try {
-                            terser.get(spec)
-                        } catch (e: HL7Exception) {
-                            // todo: convert to result detail, maybe
-                            errors.add("Exception for $spec: ${e.message}")
-                            null
-                        }
-                        if (questionCode?.startsWith(question) == true) {
-                            spec = "/.OBSERVATION($c)/OBX-5"
-                            queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
-                        }
-                    }
-                    "/.AOE"
-                } else {
-                    "/.${it.hl7Field}"
-                }
-
-                if (terserSpec != "/.AOE") {
-                    queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
-                } else {
-                    if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
-                }
-            } else {
-                it.hl7OutputFields?.forEach { h ->
-                    val terserSpec = if (h.startsWith("MSH")) {
-                        "/$h"
-                    } else {
-                        "/.$h"
-                    }
-                    queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
-                }
-            }
+        val cleanedMessage = reg.replace(message, "\r").trim()
+        // if the message is empty, return a row result that warns of empty data
+        if (cleanedMessage.isEmpty()) {
+            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty message"))
         }
+
+        try {
+            val hapiMsg = parser.parse(cleanedMessage)
+            val terser = Terser(hapiMsg)
+            schema.elements.forEach {
+                if (!mappedRows.containsKey(it.name))
+                    mappedRows[it.name] = mutableSetOf()
+
+                if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty()) {
+                    mappedRows[it.name]?.add("")
+                    return@forEach
+                }
+
+                if (!it.hl7Field.isNullOrEmpty()) {
+                    val terserSpec = if (it.hl7Field.startsWith("MSH")) {
+                        "/${it.hl7Field}"
+                    } else if (it.hl7Field == "AOE") {
+                        val question = it.hl7AOEQuestion!!
+                        val countObservations = 10
+                        // todo: map each AOE by the AOE question ID
+                        for (c in 0 until countObservations) {
+                            var spec = "/.OBSERVATION($c)/OBX-3-1"
+                            val questionCode = try {
+                                terser.get(spec)
+                            } catch (e: HL7Exception) {
+                                // todo: convert to result detail, maybe
+                                errors.add("Exception for $spec: ${e.message}")
+                                null
+                            }
+                            if (questionCode?.startsWith(question) == true) {
+                                spec = "/.OBSERVATION($c)/OBX-5"
+                                queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
+                            }
+                        }
+                        "/.AOE"
+                    } else {
+                        "/.${it.hl7Field}"
+                    }
+
+                    if (terserSpec != "/.AOE") {
+                        queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                    } else {
+                        if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
+                    }
+                } else {
+                    it.hl7OutputFields?.forEach { h ->
+                        val terserSpec = if (h.startsWith("MSH")) {
+                            "/$h"
+                        } else {
+                            "/.$h"
+                        }
+                        queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            errors.add("${e.localizedMessage} ${e.stackTraceToString()}")
+        }
+
         // convert sets to lists
-        val rows = mappedRows.keys.map {
-            it to (mappedRows[it]?.toList() ?: emptyList())
-        }.toMap()
+        val rows = mappedRows.keys.associateWith {
+            (mappedRows[it]?.toList() ?: emptyList())
+        }
 
         return RowResult(rows, errors, warnings)
     }
@@ -256,7 +270,11 @@ class Hl7Serializer(val metadata: Metadata) {
         val mappedRows = mapping.mappedRows
         errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
         warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
-        return ReadResult(Report(schema, mappedRows, source), errors, warnings)
+        mappedRows.forEach {
+            println("${it.key} -> ${it.value.joinToString()}")
+        }
+        val report = Report(schema, mappedRows, source)
+        return ReadResult(report, errors, warnings)
     }
 
     internal fun createMessage(report: Report, row: Int, translatorConfig: TranslatorConfiguration? = null): String {
@@ -500,6 +518,7 @@ class Hl7Serializer(val metadata: Metadata) {
             if (extension.isNotEmpty()) terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-8", extension)
         } else {
             // work phone number
+            terser.set(buildComponent(pathSpec, 1), "($areaCode)$local")
             terser.set(buildComponent(pathSpec, 2), "WPN")
             // it's a phone
             terser.set(buildComponent(pathSpec, 3), "PH")
