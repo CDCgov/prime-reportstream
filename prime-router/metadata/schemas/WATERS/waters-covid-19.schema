@@ -53,7 +53,8 @@ elements:
   - name: ordering_provider_id
     csvFields: [{ name: orderingProviderNpi}]
 
-  - name: testing_lab_clia
+  # Doublecheck this.  Is the 'performing facility' the same as the 'testing lab'?
+  - name: testing_lab_name
     csvFields: [{ name: performingFacility}]
 
   # Edited.  Done as a set of alternate values, to show how that works.
@@ -207,6 +208,8 @@ elements:
   - name: ordering_provider_first_name
     csvFields: [{ name: orderingProviderFname}]
 
+  #  Is the area code also included in the phone number?  If yes, then why do we need this?
+  #  If no, then we need to merge area code and the rest of the phone number
   - name: patient_phone_area_code   # Edited this.
     type: TEXT
     csvFields: [{ name: patientPhoneAreaCode}]
