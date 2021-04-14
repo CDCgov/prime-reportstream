@@ -30,6 +30,7 @@ class Metadata {
         SplitMapper(),
         ZipCodeToCountyMapper(),
         SplitByCommaMapper(),
+        TimestampMapper(),
     )
 
     private var jurisdictionalFilters = listOf(

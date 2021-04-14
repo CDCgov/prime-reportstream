@@ -1,7 +1,10 @@
 <script>
   var logout = () => {
     window.sessionStorage.removeItem( "jwt" )
-    window.location.replace(`//localhost:8090`);
+    window.location.replace(`${window.location.origin}`);
+      let signIn = document.getElementById("signIn");
+    if( signIn )
+      signIn.style.display = "block";
   }
 </script>
 
@@ -36,15 +39,15 @@
           <a class="usa-nav__link" href="./documentation.html"><span>Documentation</span></a>
         </li>
       </ul>
-      {% if protected %}
-        <div class="prime-user-account margin-left-10">
-          <span id="emailUser"></span>
-          <br />
-          <a href="#" id="logout" onclick="logout(); return false;"></a>
-        </div>
-      {% else %}
-        <a class="usa-button usa-button--outline" href="./data-index.html">Sign in</a>
-      {% endif %}
+      <div>
+        <a id="signIn" class="usa-button usa-button--outline" style="display: block" href="./data-index.html">Sign in</a>
+      </div>
+      <div class="prime-user-account margin-left-10">
+        <span id="emailUser"></span>
+        <br />
+        <a href="#" id="logout" onclick="logout(); return false;"></a>
+      </div>
+
     </nav>
   </div>
 </header>

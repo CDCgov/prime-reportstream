@@ -1,0 +1,18 @@
+# MN DOH ELR
+name: elr
+organizationName: mn-doh
+topic: covid-19
+jurisdictionalFilter:
+  - matches(ordering_facility_state, MN)
+translation:
+  type: HL7
+  useBatchHeaders: true
+  receivingApplicationName: MEDSS-ELR
+  receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
+  receivingFacilityName: MN DOH
+  receivingFacilityOID: 2.16.840.1.114222.4.1.3661
+timing:
+  operation: MERGE
+  numberPerDay: 1 # once a day
+  initialTime: 09:15
+  timeZone: EASTERN
