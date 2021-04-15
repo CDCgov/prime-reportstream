@@ -2,27 +2,29 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "@11ty/eleventy": "^0.12.1",
+    "axios": "^0.21.1",
+    "chart.js": "^3.1.0",
+    "cypress": "^7.0.1",
+    "js-yaml": "^4.0.0",
     "jshint": "^2.12.0",
-    "http-proxy-middleware": "^1.1.0"
+    "moment": "^2.29.1",
+    "http-proxy-middleware": "^1.1.1"
   },
   "devDependencies": {
+    "@11ty/eleventy": "^0.12.1",
     "express": "^4.17.1",
+    "js-yaml": "^4.0.0",
+    "jshint": "^2.12.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
-    "openapi-backend": "^3.9.1"
+    "rimraf": "^3.0.2"
   },
   "scripts": {
-    "clean": "rm -rf ./_site",
+    "clean": "rimraf ./dist",
     "start": "npm -s run serve",
     "prebuild": "npm -s run clean",
-    "prewatch": "npm -s run clean",
-    "preserve": "npm -s run clean",
     "build": "eleventy --config eleventy.config.js",
     "watch": "eleventy --watch --config eleventy.config.js",
-    "serve": "eleventy --serve --config eleventy.config.js",
-    "dryrun": "DEBUG=Eleventy* eleventy --dryrun --config eleventy.config.js",
-    "mock:watch": "watchexec -crn -w mock -- npm -s run mock:api",
-    "mock:api": "node ./mock/main.mjs"
+    "serve": "eleventy --serve --config eleventy.config.js"
   }
 }

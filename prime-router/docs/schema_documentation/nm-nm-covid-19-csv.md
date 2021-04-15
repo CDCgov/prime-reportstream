@@ -118,13 +118,21 @@ The zip code of the facility which the test was ordered from
 
 ---
 
+**Name**: OrdFacPhone
+
+**Type**: TELEPHONE
+
+**HL7 Field**: ORC-23
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+The phone number of the facility which the test was ordered from
+
+---
+
 **Name**: DateTimeMessage
-
-**Type**: DATE
-
-**Format**: YYYYMMDD
-
-**HL7 Field**: MSH-7
 
 **Cardinality**: [0..1]
 
@@ -172,7 +180,7 @@ The patient's last name
 
 **Type**: DATE
 
-**Format**: YYYYMMDD
+**Format**: yyyyMMdd
 
 **HL7 Field**: PID-7
 
@@ -187,9 +195,37 @@ Other states may choose to define their own formats.
 
 ---
 
+**Name**: PtSex
+
+**Type**: CODE
+
+**HL7 Field**: PID-8-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+M|Male
+F|Female
+O|Other
+A|Ambiguous
+U|Unknown
+N|Not applicable
+
+**Documentation**:
+
+The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.
+
+
+---
+
 **Name**: PtRace
 
 **Type**: CODE
+
+**Format**: $alt
 
 **HL7 Field**: PID-10
 
@@ -207,6 +243,25 @@ Code | Display
 2131-1|Other
 UNK|Unknown
 ASKU|Asked, but unknown
+1002-5|American Indian or Alaska Native
+2028-9|Asian
+2054-5|Black or African American
+2076-8|Native Hawaiian or Other Pacific Islander
+2106-3|White
+2131-1|Other
+UNK|Unknown
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+1002-5|AI
+2028-9|A
+2054-5|B
+2076-8|PI
+2106-3|W
+2131-1|Other
+UNK|U
 
 **Documentation**:
 
@@ -986,6 +1041,8 @@ A unique code for this specimen
 
 **Type**: DATETIME
 
+**Format**: yyyyMMdd
+
 **HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
@@ -1000,6 +1057,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **Name**: SpecType
 
 **Type**: CODE
+
+**Format**: $display
 
 **HL7 Field**: SPM-4
 
@@ -1070,11 +1129,23 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 ---
 
+**Name**: ResultTestDesc
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: Component
+
+---
+
 **Name**: Result
 
 **Type**: CODE
 
-**HL7 Field**: OBX-8
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -1082,46 +1153,32 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 Code | Display
 ---- | -------
-A|Abnormal (applies to non-numeric results)
->|Above absolute high-off instrument scale
-H|Above high normal
-HH|Above upper panic limits
-AC|Anti-complementary substances present
-<|Below absolute low-off instrument scale
-L|Below low normal
-LL|Below lower panic limits
-B|Better--use when direction not relevant
-TOX|Cytotoxic substance present
-DET|Detected
-IND|Indeterminate
-I|Intermediate. Indicates for microbiology susceptibilities only.
-MS|Moderately susceptible. Indicates for microbiology susceptibilities only.
-NEG|Negative
-null|No range defined, or normal ranges don't apply
-NR|Non-reactive
-N|Normal (applies to non-numeric results)
-ND|Not Detected
-POS|Positive
-QCF|Quality Control Failure
-RR|Reactive
-R|Resistant. Indicates for microbiology susceptibilities only.
-D|Significant change down
-U|Significant change up
-S|Susceptible. Indicates for microbiology susceptibilities only.
-AA|Very abnormal (applies to non-numeric units, analogous to panic limits for numeric units)
-VS|Very susceptible. Indicates for microbiology susceptibilities only.
-WR|Weakly reactive
-W|Worse--use when direction not relevant
-
-**Documentation**:
-
-This field is generated based on the normalcy status of the result. A = abnormal; N = normal
+260373001|Detected
+260415000|Not detected
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 ---
 
 **Name**: TestResultDt
 
 **Type**: DATETIME
+
+**Format**: yyyyMMdd
 
 **HL7 Field**: OBX-19
 
@@ -1141,6 +1198,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: CODE
 
+**Format**: $alt
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95417-2
@@ -1154,6 +1213,17 @@ Code | Display
 Y|Yes
 N|No
 UNK|Unknown
+Y|Yes
+N|No
+UNK|Unknown
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+Y|Y
+N|N
+UNK|U
 
 **Documentation**:
 
@@ -1164,6 +1234,8 @@ Is this the patient's first test for this condition?
 **Name**: EmpHealthcare
 
 **Type**: CODE
+
+**Format**: $alt
 
 **HL7 Field**: AOE
 
@@ -1178,6 +1250,17 @@ Code | Display
 Y|Yes
 N|No
 UNK|Unknown
+Y|Yes
+N|No
+UNK|Unknown
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+Y|Y
+N|N
+UNK|U
 
 **Documentation**:
 
@@ -1188,6 +1271,8 @@ Is the patient employed in health care?
 **Name**: Symptomatic
 
 **Type**: CODE
+
+**Format**: $alt
 
 **HL7 Field**: AOE
 
@@ -1202,6 +1287,17 @@ Code | Display
 Y|Yes
 N|No
 UNK|Unknown
+Y|Yes
+N|No
+UNK|Unknown
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+Y|Y
+N|N
+UNK|U
 
 **Documentation**:
 
@@ -1212,6 +1308,8 @@ Is the patient symptomatic?
 **Name**: Hospitalized
 
 **Type**: CODE
+
+**Format**: $alt
 
 **HL7 Field**: AOE
 
@@ -1226,6 +1324,17 @@ Code | Display
 Y|Yes
 N|No
 UNK|Unknown
+Y|Yes
+N|No
+UNK|Unknown
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+Y|Y
+N|N
+UNK|U
 
 **Documentation**:
 
@@ -1236,6 +1345,8 @@ Is the patient hospitalized?
 **Name**: ICU
 
 **Type**: CODE
+
+**Format**: $alt
 
 **HL7 Field**: AOE
 
@@ -1250,6 +1361,17 @@ Code | Display
 Y|Yes
 N|No
 UNK|Unknown
+Y|Yes
+N|No
+UNK|Unknown
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+Y|Y
+N|N
+UNK|U
 
 **Documentation**:
 
@@ -1260,6 +1382,8 @@ Is the patient in the ICU?
 **Name**: CongSetting
 
 **Type**: CODE
+
+**Format**: $alt
 
 **HL7 Field**: AOE
 
@@ -1274,6 +1398,17 @@ Code | Display
 Y|Yes
 N|No
 UNK|Unknown
+Y|Yes
+N|No
+UNK|Unknown
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+Y|Y
+N|N
+UNK|U
 
 **Documentation**:
 
@@ -1284,6 +1419,8 @@ Does the patient reside in a congregate care setting?
 **Name**: Pregnant
 
 **Type**: CODE
+
+**Format**: $alt
 
 **HL7 Field**: AOE
 
@@ -1298,6 +1435,17 @@ Code | Display
 77386006|Pregnant
 60001007|Not Pregnant
 261665006|Unknown
+Y|Y
+N|N
+UNK|U
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+Y|Y
+N|N
+UNK|U
 
 **Documentation**:
 
@@ -1424,5 +1572,27 @@ Is the patient pregnant?
 **Type**: TEXT
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: local_symptom_onset_date
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: equipment_model_name
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-01-20
+
+**Table Column**: Model
 
 ---

@@ -49,6 +49,16 @@ resource "azurerm_function_app" "function_app" {
     always_on = true
     use_32_bit_worker_process = false
     linux_fx_version = "DOCKER|${var.login_server}/${var.resource_prefix}:latest"
+
+    cors {
+      allowed_origins = [
+        "https://${var.resource_prefix}public.z13.web.core.windows.net",
+        "https://prime.cdc.gov",
+        "https://${var.environment}.prime.cdc.gov",
+        "https://reportstream.cdc.gov",
+        "https://${var.environment}.reportstream.cdc.gov",
+      ]
+    }
   }
 
   app_settings = {

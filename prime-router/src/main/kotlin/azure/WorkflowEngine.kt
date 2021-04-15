@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
+import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
@@ -52,6 +53,7 @@ class WorkflowEngine(
     val sftpTransport: SftpTransport = SftpTransport(),
     val legacySftpTransport: SftpLegacyTransport = SftpLegacyTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
+    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(),
     val nullTransport: NullTransport = NullTransport(),
 ) {
     /**
@@ -121,7 +123,7 @@ class WorkflowEngine(
         context: ExecutionContext? = null,
         updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
-        lateinit var nextEvent: ReportEvent
+        var nextEvent: ReportEvent? = null
         db.transact { txn ->
             val reportId = messageEvent.reportId
             val task = db.fetchAndLockTask(reportId, txn)
@@ -136,7 +138,7 @@ class WorkflowEngine(
             if (currentEventAction != messageEvent.eventAction) {
                 context?.let {
                     context.logger.warning(
-                        "Weird error for $reportId: queue event = ${messageEvent.eventAction.name}, " +
+                        "Weirdness for $reportId: queue event = ${messageEvent.eventAction.name}, " +
                             " but task.nextAction = ${currentEventAction.name} "
                     )
                 }
@@ -146,17 +148,17 @@ class WorkflowEngine(
 
             nextEvent = updateBlock(header, retryToken, txn)
             context?.let { context.logger.info("Finished updateBlock for $reportId") }
-            val retryJson = nextEvent.retryToken?.toJSON()
+            val retryJson = nextEvent!!.retryToken?.toJSON()
             updateHeader(
                 header.task.reportId,
                 currentEventAction,
-                nextEvent.eventAction,
-                nextEvent.at,
+                nextEvent!!.eventAction,
+                nextEvent!!.at,
                 retryJson,
                 txn
             )
         }
-        queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
+        if (nextEvent != null)  queue.sendMessage(nextEvent!!) // Avoid race condition by doing after txn completes.
     }
 
     /**
@@ -193,7 +195,22 @@ class WorkflowEngine(
                         " at ${header.task.nextActionAt}"
                 )
             }
-            val retryItems = if (sendFailedOnly) fetchItemsThatFailed(reportFile) else RetryToken.allItems
+            val retryItems: RetryItems = if (sendFailedOnly) {
+                val itemDispositions = fetchItemDispositions(reportFile)
+                // Yet another delightful feature of kotlin: groupingBy
+                val counts = itemDispositions.values.groupingBy { it }.eachCount()
+                msgs.add(
+                    "Of ${reportFile.itemCount} items, " +
+                        "${counts[RedoxTransport.ResultStatus.SUCCESS] ?: 0 } were sent successfully, " +
+                        "${counts[RedoxTransport.ResultStatus.FAILURE] ?: 0} were attempted but failed, " +
+                        "${counts[RedoxTransport.ResultStatus.NEVER_ATTEMPTED] ?: 0} were never attempted."
+                )
+                itemDispositions.filter { (_, disp) ->
+                    disp != RedoxTransport.ResultStatus.SUCCESS
+                }.map { (key, _) -> key.toString() }
+            } else {
+                RetryToken.allItems
+            }
             if (retryItems.isEmpty()) {
                 msgs.add("All Items in $reportId successfully sent.  Nothing to resend. DONE")
             } else {
@@ -201,7 +218,7 @@ class WorkflowEngine(
                     msgs.add("Will resend all (${reportFile.itemCount}) items in $reportId")
                 } else {
                     msgs.add(
-                        "Will resend these failed items in $reportId: ${retryItems.joinToString(",")}"
+                        "Will resend these failed/not-sent items in $reportId: ${retryItems.joinToString(",")}"
                     )
                 }
                 if (!isTest) {
@@ -222,31 +239,40 @@ class WorkflowEngine(
         if (!isTest) queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
     }
 
-    fun fetchItemsThatFailed(reportFile: ReportFile): RetryItems {
+    /**
+     * Given a batched report, look at its children 'sent' reports, and gather the disposition
+     * of every item in the batched report.   If there are no children,
+     * this will return a map with all item statuses == NEVER_ATTEMPTED
+     */
+    fun fetchItemDispositions(reportFile: ReportFile): Map<Int, RedoxTransport.ResultStatus> {
         if (reportFile.nextAction != TaskAction.send) {
             throw Exception("Cannot send ${reportFile.reportId}. Its next action is ${reportFile.nextAction}")
         }
         if (reportFile.bodyFormat != Report.Format.REDOX.name) {
             throw Exception("SendFailed option only applies to REDOX reports.  This report is ${reportFile.bodyFormat}")
         }
-        val successfulItemsMap = mutableMapOf<Int, Boolean>() // <itemNumber, true = successfully sent>
+        // Track what happened to each item.
+        val itemsDispositionMap = mutableMapOf<Int, RedoxTransport.ResultStatus>().apply {
+            // Initialize all to assume nothing was every done
+            for (i in 0 until reportFile.itemCount) this[i] = RedoxTransport.ResultStatus.NEVER_ATTEMPTED
+        }
         val childReportIds = db.fetchChildReports(reportFile.reportId)
         childReportIds.forEach { childId ->
             val lineages = db.fetchItemLineagesForReport(childId, reportFile.itemCount)
             lineages?.forEach { lineage ->
-                // We don't store a success code in item lineage -
-                // On success its a Redox ID. Hence the weird def of success here:
-                val success = !(
-                    lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ||
-                        lineage.transportResult.startsWith(RedoxTransport.ResultStatus.NOT_SENT.name)
-                    )
-                // items may have been tried multiple times.  Any one success is an overall success.
-                successfulItemsMap[lineage.parentIndex] = (successfulItemsMap[lineage.parentIndex] ?: false) || success
+                // Once a success, always a success
+                if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
+                    return@forEach
+                itemsDispositionMap[lineage.parentIndex] = when {
+                    lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ->
+                        RedoxTransport.ResultStatus.FAILURE
+                    lineage.transportResult.startsWith(RedoxTransport.ResultStatus.NOT_SENT.name) ->
+                        RedoxTransport.ResultStatus.FAILURE
+                    else -> RedoxTransport.ResultStatus.SUCCESS
+                }
             }
         }
-        // retryItems is a list of just the failures only.
-        // Note this might be a zero length list if everything succeeded.
-        return successfulItemsMap.filter { !it.value }.map { it.key.toString() }
+        return itemsDispositionMap
     }
 
     /**

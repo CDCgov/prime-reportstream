@@ -1,7 +1,8 @@
 ---
-layout: non-protected.liquid
-local_styles:
-  - "./css/prime.css"
+layout: protected.liquid
+title: Login
+show_navbar: false
+protected: false
 ---
 
 <body>
@@ -10,8 +11,7 @@ local_styles:
 <script type="text/javascript" th:inline="javascript">
 
     let OKTA_clientId = '0oa6fm8j4G1xfrthd4h6';
-    let OKTA_baseUrl = 'hhs-prime.okta.com';
-    let redirect = 'http://localhost:8080/download.html';
+
 
     var config = {
         logo: '//logo.clearbit.com/cdc.gov',
@@ -22,20 +22,20 @@ local_styles:
             router: true, // Leave this set to true for the API demo
         },
         el: "#okta-login-container",
-        baseUrl: `https://${OKTA_baseUrl}`,
-        clientId: OKTA_clientId,
-        redirectUri: redirect,
+        baseUrl: `https://hhs-prime.okta.com`,
+        clientId: `${OKTA_clientId}`,
+        redirectUri: `https://pdhstagingpublic.z13.web.core.windows.net`,
         authParams: {
-          issuer: `https://${OKTA_baseUrl}/oauth2/default`
+          issuer: `https://hhs-prime.okta.com/oauth2/default`
         }
     };
 
     var signInWidget= new OktaSignIn(config);
-    signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile', 'simple_report'] } )
+    signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile'] } )
         .then( function( tokens ){
-            var jwt = tokens.accessToken.value; 
-            window.sessionStorage.setItem('jwt', jwt) ; 
-            window.location.replace(`//localhost:8080/data-index.html`);
-        }); 
+            var jwt = tokens.accessToken.value;
+            window.sessionStorage.setItem('jwt', jwt) ;
+            window.location.replace(`${window.location.origin}/data-index.html`);
+        });
 </script>
 </body>

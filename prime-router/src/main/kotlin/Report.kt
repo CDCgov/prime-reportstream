@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
@@ -378,6 +379,10 @@ class Report {
         targetCounty: String? = null,
         metadata: Metadata,
     ): Report {
+        fun safeSetStringInRow(row: Row, columnName: String, value: String) {
+            if (row.columnNames().contains(columnName))
+                row.setString(columnName, value)
+        }
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
                 // we want to guard against the possibility that there are too few records
@@ -436,8 +441,25 @@ class Report {
             // if the element name is not mapping, it is handled as a pass through
             synthesizedColumn ?: table.column(it.name).copy()
         }
+        val table = Table.create(columns)
+        // unfortunate fact for how we do faking of rows, the four columns below
+        // would never match because the row context was new on each write of the
+        // column. because we synthesize the data here, we need to actually overwrite the
+        // values in each row because quality synthetic data matters
+        table.forEach {
+            val context = FakeReport.RowContext(
+                metadata::findLookupTable,
+                targetState,
+                schema.name,
+                targetCounty
+            )
+            safeSetStringInRow(it, "patient_county", context.county)
+            safeSetStringInRow(it, "patient_city", context.city)
+            safeSetStringInRow(it, "patient_state", context.state)
+            safeSetStringInRow(it, "patient_zip_code", context.zipCode)
+        }
         // return the new copy of the report here
-        return Report(schema, Table.create(columns), fromThisReport("synthesizeData"))
+        return Report(schema, table, fromThisReport("synthesizeData"))
     }
 
     /**
