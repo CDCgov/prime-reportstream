@@ -184,7 +184,9 @@ class GetReportById :
     }
 }
 
-class GetSummaryTests: BaseHistoryFunction() {
+class GetSummaryTests: 
+    BaseHistoryFunction() {
+    
     @FunctionName("getSummaryTests")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -197,7 +199,6 @@ class GetSummaryTests: BaseHistoryFunction() {
         context: ExecutionContext
     ): HttpResponseMessage {
         return GetSummaryTests( request, context); 
-  
     }
 }
 
