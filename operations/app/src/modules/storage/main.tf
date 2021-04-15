@@ -221,6 +221,7 @@ resource "azurerm_storage_account" "storage_partner" {
   location = var.location
   account_tier = "Standard"
   account_kind = "StorageV2"
+  is_hns_enabled = true # This enable Data Lake v2 for HHS Protect
   account_replication_type = "GRS"
   min_tls_version = "TLS1_2"
   allow_blob_public_access = false
