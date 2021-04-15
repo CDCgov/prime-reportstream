@@ -47,7 +47,7 @@ For this initial project, we are implementing FHIR style authentication for a `S
 ### Three Steps
 
 To make FHIR auth work, there are three main interactions that have to happen between ReportStream, and `Sender`s, following the FHIR Auth style.  Implementation details for these steps are found below.
-1. PreAuth 
+1. PreAuth / Setup
 2. Signature Verification
 3. Actual API usage.
 
@@ -63,7 +63,9 @@ Here is our token naming conventions, to avoid confusion:
 
 How will we implement each step?
 
-### Step One:  Sender Pre-authorization Step.   We need to pre-register information about the sender.
+Logging note:  we will never log token or public/private key values.
+
+### Step One:  Setup: Sender Pre-authorization Step.   We need to pre-register information about the sender.
 
 During the on-boarding of a new Organization, a PRIME team member will set up a new organization in our system via our `settings` API.  In addition, a new Group will be created in Okta for that Organization.  Obviously authorization to do this work will be using Okta token auth, which is already working, and outside the scope of this doc.
 
@@ -75,7 +77,7 @@ The new auth info will include:
 - (for a Phase 2:  Sender's Public Key URL)
 - Note: we will use the Sender's fullName (aka orgName.senderName) as the unique client_id, per the FHIR spec.
 
-We'll need to write a document for our Senders, explaining how to generate a public/private key, and how to keep the private key secure.   We'll need a process for rotating keys, if the Sender is not using the Public Key URL.   Since we have relatively few senders, I think there's not a high priority on automating that right now.  We will need to track contact information of the person at the Sender who is responsible for the keypair.  This may not be the same person who handles the actual test data/results.
+We'll need to write a document for our Senders, explaining how to generate a public/private key, and how to keep the private key secure.   Or better, we can write a web tool that immediately stores the public key on our side, and gives the customer the private key.  (Google APIs have a nice setup like this.)  We'll need a process for rotating keys, if the Sender is not using the Public Key URL.   Since we have relatively few senders, I think there's not a high priority on automating that right now.  We will need to track contact information of the person at the Sender who is responsible for the keypair.  This may not be the same person who handles the actual test data/results.
 
 The sender can give us multiple keys in the JWK Set
 
@@ -85,7 +87,7 @@ In this initial release, we'll require submission to the settings API as properl
 
 We'll need to document for our Senders how to generate the 'Sender Token', the signed JWT they send to us, generated using their private key.
 
-The Sender Token will be sent as a URL parameter, not a header. (? I'd rather do it as a header, but I think Rick prefers parameters)
+The Sender Token will be sent as a standard "Authorization: Bearer <token>" header. 
 
 We'll support both RS384 and ES384 web signature algorithms.
 
@@ -98,17 +100,17 @@ We will
 2  validate the JWT signature against the public key we have stored in the settings table for that client_id, Key ID (`kid`).  We'll use the [JJWT libraries](https://github.com/jwtk/jjwt) to do JWT verification. (?)
 2. check that the JWT has not been previously encountered within the max JWT lifetime (5 minutes)
 
-We will then pull our ReportStream secret from our vault, and use it to create and sign a ReportStream token, for use by the Sender.   FHIR calls for a 5 minute end of life.
+We will then pull our ReportStream shared secret from our vault, and use it to create and sign a ReportStream token, for use by the Sender.   FHIR calls for a 5 minute end of life.
 
 ### Step Three: Actual API Usage :  Sender uses the token to submit data to `api/reports`
 
 The current 'FUNCTION' level AuthorizationLevel will be changed to 'ANONYMOUS'. (See https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-http-webhook-trigger?tabs=csharp#secure-an-http-endpoint-in-production)
 
-The ReportFunction will check the ReportStream token upon entry to the function code.  That is, we will not implement a 'gateway' function in front or api/reports.   (And, as mentioned earlier, no dependency on Okta)
+The ReportFunction will check the ReportStream token upon entry to the function code.  That is, we will not implement a 'gateway' function in front or api/reports.   (And, as mentioned earlier, no dependency on Okta).  This check will simply be a validation of the signed JWT.  This will require pulling the ReportStream shared secret from the vault.  TBD whether this is a performance issue, or whether we'll have to make adjustments because of known rare connection failures to the vault.
 
-The ReportStream Token will be sent as a URL parameter, not a header. (?)
+The ReportStream Token will be sent as a standard "Authorization: Bearer <token>" header. 
 
-ReportFunction will then validate the certificate, and allow or deny access.  If the time has expired, access will be denied.  Appropriate Http Status codes will be returned.  Note:  No JSON will be returned in these cases (?)
+ReportFunction will then validate the certificate, and allow or deny access.  If the time has expired, access will be denied.  UNAUTHORIZED Http Status will be returned.  Note:  No JSON will be returned in these cases (?)
 
 For our initial release, there is only one scope associated with the token - the only scope is the ability to upload reports into the api/reports endpoint.
 
