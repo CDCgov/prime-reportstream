@@ -1,0 +1,26 @@
+  - name: ignore
+    description: FOR TESTING ONLY
+    jurisdiction: FEDERAL
+    senders:
+      - name: ignore-waters      # Use this to test sending waters data
+        organizationName: ignore
+        topic: covid-19-otc
+        schemaName: waters/waters-covid-19
+        format: CSV
+    receivers:
+      - name: BLOBSTORE
+        organizationName: ignore
+        topic: covid-19-otc
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: waters/waters-covid-19
+          format: CSV
+        transport:
+          type: BLOBSTORE
+          storageName: PartnerStorage
+          containerName: hhsprotect

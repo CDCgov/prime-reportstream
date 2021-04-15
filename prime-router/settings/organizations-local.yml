@@ -723,6 +723,11 @@
         topic: covid-19
         schemaName: primedatainput/pdi-covid-19
         format: CSV
+      - name: ignore-waters      # Use this to test sending waters data
+        organizationName: ignore
+        topic: covid-19-otc
+        schemaName: waters/waters-covid-19
+        format: CSV
       - name: ignore-empty      # Use this to test sending data from the 'empty' schema
         organizationName: ignore
         topic: covid-19
@@ -835,6 +840,22 @@
           host: sftp
           port: 22
           filePath: ./upload
+      - name: BLOBSTORE
+        organizationName: ignore
+        topic: covid-19-otc
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: waters/waters-covid-19
+          format: CSV
+        transport:
+          type: BLOBSTORE
+          storageName: PartnerStorage
+          containerName: hhsprotect
       - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
         organizationName: ignore
         topic: covid-19
