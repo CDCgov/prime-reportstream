@@ -221,13 +221,14 @@ resource "azurerm_storage_account" "storage_partner" {
   location = var.location
   account_tier = "Standard"
   account_kind = "StorageV2"
+  is_hns_enabled = true # This enable Data Lake v2 for HHS Protect
   account_replication_type = "GRS"
   min_tls_version = "TLS1_2"
   allow_blob_public_access = false
 
   network_rules {
     default_action = "Deny"
-    ip_rules = []
+    ip_rules = split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value)
     virtual_network_subnet_ids = [var.public_subnet_id]
   }
 
@@ -243,6 +244,11 @@ resource "azurerm_storage_account" "storage_partner" {
   tags = {
     environment = var.environment
   }
+}
+
+data "azurerm_key_vault_secret" "hhsprotect_ip_ingress" {
+  name = "hhsprotect-ip-ingress"
+  key_vault_id = var.key_vault_id
 }
 
 # Grant the storage account Key Vault access, to access encryption keys
