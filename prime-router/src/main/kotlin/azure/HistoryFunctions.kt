@@ -320,7 +320,7 @@ open class BaseHistoryFunction {
                 data.set(expires, data.get(expires) + it.itemCount.toLong()); 
             }
 
-            val avg = sum / headers.size;
+            val avg = if( headers.size >0 ) sum / headers.size else 0;
 
             var card = CardView.Builder()
                         .id( "summary-tests")
