@@ -321,3 +321,8 @@ output "storage_account_public_id" {
 output "storage_web_endpoint" {
   value = azurerm_storage_account.storage_public.primary_web_endpoint
 }
+
+output "storage_partner_blob_connection_string" {
+  value = azurerm_storage_account.storage_partner.primary_blob_connection_string
+  sensitive = true
+}
