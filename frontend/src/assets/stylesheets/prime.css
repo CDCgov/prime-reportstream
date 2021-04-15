@@ -174,3 +174,7 @@ h3 img[src*="svg"] {
   vertical-align: text-top;
   margin-right: 5px;
 }
+
+#okta-sign-in {
+  margin-top: 0;
+}
