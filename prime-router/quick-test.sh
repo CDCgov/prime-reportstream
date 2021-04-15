@@ -56,6 +56,7 @@ do
     vt | VT) RUN_VT=1;;
     mt | MT) RUN_MT=1;;
     ca | CA) RUN_CA=1;;
+    waters | WATERS) RUN_WATERS=1;;
     all | ALL) RUN_ALL=1;;
     merge | MERGE) RUN_MERGE=1;;
   esac
@@ -316,12 +317,24 @@ then
   parse_prime_output_for_filename "$text" "[/\\]mt.*\.hl7"
 fi
 
-# run vt
+# run CA
 if [ $RUN_CA -ne 0 ]
 then
   echo Generate fake CA data, CSV!
   text=$(./prime data --input-fake 50 --input-schema ca/ca-scc-covid-19 --output-dir $outputdir --target-states CA --target-counties 'Santa Clara' --output-format CSV)
   parse_prime_output_for_filename "$text" "[/\\]ca.*\.csv"
+fi
+
+# run Waters
+if [ $RUN_WATERS -ne 0 ]
+then
+  echo Generate fake WATERS data, CSV!
+  text=$(./prime data --input-fake 50 --input-schema waters/waters-covid-19 --output-dir $outputdir --target-states CA --target-counties 'Santa Clara' --output-format CSV)
+  parse_prime_output_for_filename "$text" "[/\\]waters.*\.csv"
+  actual_waters=$filename
+  echo Test sending WATERS data into its own Schema again:
+  text=$(./prime data --input-schema waters/waters-covid-19 --input $actual_waters --output-dir $outputdir)
+  parse_prime_output_for_filename "$text" "[/\\]waters.*\.csv"
 fi
 
 exit 0

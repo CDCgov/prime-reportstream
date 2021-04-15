@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
@@ -12,6 +13,7 @@ import gov.cdc.prime.router.SFTPLegacyTransportType
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
@@ -105,6 +107,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             is SFTPTransportType -> workflowEngine.sftpTransport
             is SFTPLegacyTransportType -> workflowEngine.legacySftpTransport
             is RedoxTransportType -> workflowEngine.redoxTransport
+            is BlobStoreTransportType -> workflowEngine.blobStoreTransport
             is NullTransportType -> NullTransport()
             else -> null
         }
