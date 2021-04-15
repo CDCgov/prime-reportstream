@@ -184,7 +184,9 @@ class GetReportById :
     }
 }
 
-class GetSummaryTests: BaseHistoryFunction() {
+class GetSummaryTests: 
+    BaseHistoryFunction() {
+    
     @FunctionName("getSummaryTests")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -197,7 +199,6 @@ class GetSummaryTests: BaseHistoryFunction() {
         context: ExecutionContext
     ): HttpResponseMessage {
         return GetSummaryTests( request, context); 
-  
     }
 }
 
@@ -319,7 +320,7 @@ open class BaseHistoryFunction {
                 data.set(expires, data.get(expires) + it.itemCount.toLong()); 
             }
 
-            val avg = sum / headers.size;
+            val avg = if( headers.size >0 ) sum / headers.size else 0;
 
             var card = CardView.Builder()
                         .id( "summary-tests")

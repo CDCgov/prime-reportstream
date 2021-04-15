@@ -17,7 +17,7 @@ partners:
         iconDescription: computer code
       - title: Get valuable insights
         summary: ReportStream gives you insights about your data, such as reporting trends, and alerts you if there are any errors.
-        icon: insights.svg
+        icon: assessment.svg
         iconDescription: a chart
       - title: Receive data from SimpleReport
         summary: >-
@@ -42,12 +42,12 @@ documentation:
   title: Documentation
   summary: For states interested in making an ELR connection with ReportStream, please check out the following resources to learn more.
   files:
-    - name: About ReportStream
+    - name: About PRIME
       type: pdf
-      url: foo.pdf
-    - name: Onboarding guide
+      url: PRIME-1-pager.pdf
+    - name: ELR integration guide
       type: pdf
-      url: foo.pdf
+      url: ReportStream-ELR-Onboarding-Guide-April-2021.pdf
     - name: Technical documentation
       type: pdf
       url: foo.pdf
