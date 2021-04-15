@@ -6,7 +6,8 @@ body {
 
 main {
   flex: 1;
-  width: 100%
+  width: 100%;
+  padding: 4rem 0;
 }
 
 .usa-banner__inner, .usa-banner__header--expanded .usa-banner__inner {
@@ -22,19 +23,10 @@ main {
   z-index: 300;
 }
 
-.usa-logo {
-  margin: 1rem 0;
-}
-
-.usa-header--basic .usa-nav-container {
-  align-items: center;
-  justify-content: space-between;
-  display: flex;
-}
-
-.usa-header--basic .usa-navbar {
-  position: relative;
-  width: auto;
+.usa-nav__primary {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style: none;
 }
 
 @media (min-width: 64em) {
@@ -42,30 +34,74 @@ main {
     max-width: 100%;
     padding-left: 2rem;
     padding-right: 2rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    align-content: flex-start;
   }
+
+  .usa-header--basic .usa-navbar {
+    width: auto;
+  }
+
+  .usa-header--basic .usa-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0;
+  }
+
+  .usa-header--basic .usa-nav__primary {
+    flex: 1;
+  }
+
+  .usa-nav__primary > .usa-nav__primary-item > a {
+    font-weight: normal;
+  }
+
+  .usa-nav__primary > .usa-nav__primary-item > a::after {
+    content: none;
+  }
+
+  .usa-nav__primary > .usa-nav__primary-item.is-current > a {
+    font-weight: 700;
+    color: rgba(0,0,0,.8);
+  }
+
+  .usa-nav__primary > .usa-nav__primary-item.is-current > a::after {
+    background-color: #005ea2;
+    border-radius: 0;
+    content: "";
+    display: block;
+    position: absolute;
+    height: .25rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: -0.25rem;
+  }
+
+  #signIn {
+    align-self: flex-end;
+  }
+
+}
+
+
+
+.usa-logo {
+  margin: 1rem 0;
 }
 
 @media (max-width: 63.99em) {
-  .usa-header--basic .usa-navbar {
-    align-items: center;
+  .usa-header--basic .usa-nav {
+    align-items: start;
     border-bottom: 1px solid #dfe1e2;
-    display: flex;
+    width: 15rem;
   }
-}
-
-.usa-header--basic .usa-nav {
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  display: flex;
-  padding: 0 0 0 .5rem;
-  width: 100%;
-}
-
-.usa-nav__primary {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  list-style: none;
+  .usa-header--basic .usa-navbar {
+    width: 100%;
+  }
 }
 
 .usa-nav__request-account {
@@ -78,7 +114,6 @@ main {
 }
 
 .prime-user-account{
-  margin-bottom: .75rem;
   font-size: .88rem;
   vertical-align: u-text("vertical-align");
   line-height: 1.25rem;
