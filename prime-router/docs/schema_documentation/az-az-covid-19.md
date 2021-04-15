@@ -24,6 +24,20 @@
 
 ---
 
+**Name**: Testing_Lab_Name
+
+**Type**: TEXT
+
+**HL7 Field**: OBX-23-1
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the laboratory which performed the test, can be the same as the sending facility name
+
+---
+
 **Name**: Lab_CLIA
 
 **Type**: ID_CLIA
