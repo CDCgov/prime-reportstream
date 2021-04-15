@@ -732,7 +732,7 @@ class StracBasic : CoolTest() {
 class Waters : CoolTest() {
     override val name = "waters"
     override val description = "Submit data in waters schema, send to BLOBSTORE only"
-    override val status = TestStatus.DRAFT
+    override val status = TestStatus.GOODSTUFF
 
     override fun run(environment: ReportStreamEnv, items: Int, submits: Int, key: String?, dir: String): Boolean {
         ugly("Starting Waters Test: sending Waters data to the ${blobstoreReceiver.name} receiver only.")

@@ -733,10 +733,9 @@
         initialTime: "00:00"
         timeZone: "EASTERN"
       transport:
-        host: "sftp"
-        port: "22"
-        filePath: "./upload"
-        type: "SFTP"
+        type: BLOBSTORE
+        storageName: PartnerStorage
+        containerName: hhsprotect
 
   # 'ignore' is a test organization, designed to be safely usable across all our environments.
   # It has four receivers, each named _exactly_ the same as the format of data.

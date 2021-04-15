@@ -14,15 +14,13 @@ elements:
     cardinality: ZERO_OR_ONE
     csvFields: [{ name: orderingFacilityState }]
 
+  # Added 'ordering_facility_county', because it lets us test mapping to many of our states
+  - name: ordering_facility_county
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: orderingFacilityCounty }]
+
   - name: test_result    # Edited.  Was 'patient_positive' to 'test_result'
-    altValues:
-      - display: Patient Tested Positive!
-        code: 260373001
-      - display: Patient Tested Negative!
-        code: 260415000
-      - display: Test Was Invalid
-        code: 455371000124106
-    csvFields: [{ name: testResult, format: $alt}]
+    csvFields: [{ name: testResult }]
 
   - name: test_result_date  # Edited.  Was 'patient_results' to 'test_result_date'
     csvFields: [{ name: testResultDate}]
@@ -57,9 +55,8 @@ elements:
   - name: testing_lab_name
     csvFields: [{ name: performingFacility}]
 
-  # Edited.  Done as a set of alternate values, to show how that works.
   - name: specimen_type
-    csvFields: [{ name: specimenSource, format: $display}]
+    csvFields: [{ name: specimenSource}]
 
   - name: patient_id    # Edited.  Was 'patient_dl'.
     csvFields: [{ name: patientUniqueId}]
@@ -107,13 +104,13 @@ elements:
     csvFields: [{ name: specimenId}]
 
   - name: patient_race    # There was another one with csvField = patientRaceText.  Removed for now.
-    csvFields: [{ name: patientRace, format: $display}]
+    csvFields: [{ name: patientRace}]
 
   - name: patient_ethnicity      # There was another one with csvField = patientEthnicityText.  Removed for now.
-    csvFields: [{ name: patientEthnicity, format: $display}]
+    csvFields: [{ name: patientEthnicity}]
 
   - name: patient_gender    # Edited.   Was patient_sex
-    csvFields: [{ name: patientSex, format: $display}]
+    csvFields: [{ name: patientSex}]
 
   - name: ordering_provider_zip_code
     csvFields: [{ name: orderingProviderZip}]
