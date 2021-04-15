@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
+import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
@@ -52,6 +53,7 @@ class WorkflowEngine(
     val sftpTransport: SftpTransport = SftpTransport(),
     val legacySftpTransport: SftpLegacyTransport = SftpLegacyTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
+    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(),
     val nullTransport: NullTransport = NullTransport(),
 ) {
     /**

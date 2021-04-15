@@ -210,6 +210,7 @@ Examples:
             BadSftp(),
             StracBasic(),
             HammerTime(),
+            Waters(),
         )
     }
 }
@@ -310,20 +311,30 @@ abstract class CoolTest {
         val stracSender = settings.findSender("$orgName.$stracSenderName")
             ?: error("Unable to find sender $stracSenderName for organization ${org.name}")
 
+        const val watersSenderName = "ignore-waters"
+        val watersSender = settings.findSender("$orgName.$watersSenderName")
+            ?: error("Unable to find sender $watersSenderName for organization ${org.name}")
+
         const val emptySenderName = "ignore-empty"
         val emptySender = settings.findSender("$orgName.$emptySenderName")
             ?: error("Unable to find sender $emptySenderName for organization ${org.name}")
 
         val allGoodReceivers = settings.receivers.filter {
-            it.organizationName == orgName && !it.name.contains("FAIL")
+            it.organizationName == orgName
+                && !it.name.contains("FAIL")
+                && !it.name.contains("BLOBSTORE")
         }
+        val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
+
         val csvReceiver = allGoodReceivers.filter { it.name == "CSV" }[0]
         val hl7Receiver = allGoodReceivers.filter { it.name == "HL7" }[0]
         val hl7BatchReceiver = allGoodReceivers.filter { it.name == "HL7_BATCH" }[0]
         val redoxReceiver = allGoodReceivers.filter { it.name == "REDOX" }[0]
         val hl7NullReceiver = allGoodReceivers.filter { it.name == "HL7_NULL" }[0]
         val sftpLegacyReceiver = allGoodReceivers.filter { it.name == "SFTP_LEGACY" }[0]
-        val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
+        val blobstoreReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "BLOBSTORE"
+        }[0]
         val sftpFailReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "SFTP_FAIL"
         }[0]
@@ -715,6 +726,36 @@ class StracBasic : CoolTest() {
         echo("Id of submitted report: $reportId")
         waitABit(25, environment)
         return examineLineageResults(reportId, listOf(redoxReceiver), items)
+    }
+}
+
+class Waters : CoolTest() {
+    override val name = "waters"
+    override val description = "Submit data in waters schema, send to BLOBSTORE only"
+    override val status = TestStatus.GOODSTUFF
+
+    override fun run(environment: ReportStreamEnv, items: Int, submits: Int, key: String?, dir: String): Boolean {
+        ugly("Starting Waters Test: sending Waters data to the ${blobstoreReceiver.name} receiver only.")
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            watersSender,
+            items,
+            receivingStates,
+            blobstoreReceiver.name,
+            dir,
+        )
+        echo("Created datafile $file")
+        val (responseCode, json) = HttpUtilities.postReportFile(environment, file, org.name, watersSender.name, key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            return bad("***Waters Test FAILED***:  response code $responseCode")
+        }
+        val tree = jacksonObjectMapper().readTree(json)
+        val reportId = ReportId.fromString(tree["id"].textValue())
+        echo("Id of submitted report: $reportId")
+        waitABit(25, environment)
+        return examineLineageResults(reportId, listOf(blobstoreReceiver), items)
     }
 }
 
