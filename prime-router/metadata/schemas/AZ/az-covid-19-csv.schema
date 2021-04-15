@@ -13,12 +13,15 @@ elements:
         format: $universalId
 
   # Nonstandard
-  - name: organization_and_lab
+  - name: organization_name
     type: TEXT
-    maxLength: 50
-    mapper: 'concat(organization_name, testing_lab_name)'
     csvFields:
     - name: Lab_Name
+
+  - name: testing_lab_name
+    type: TEXT
+    csvFields:
+    - name: Testing_Lab_Name
 
   - name: testing_lab_clia
     csvFields:
