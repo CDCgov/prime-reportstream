@@ -29,6 +29,10 @@ main {
   list-style: none;
 }
 
+.usa-logo {
+  margin: 1rem 0;
+}
+
 @media (min-width: 64em) {
   .usa-header--basic .usa-nav-container {
     max-width: 100%;
@@ -56,20 +60,24 @@ main {
     flex: 1;
   }
 
+  .usa-header--basic .usa-nav__link {
+    position: relative;
+  }
+
   .usa-nav__primary > .usa-nav__primary-item > a {
     font-weight: normal;
+    color: #2e2e2e;
   }
 
   .usa-nav__primary > .usa-nav__primary-item > a::after {
-    content: none;
+
   }
 
-  .usa-nav__primary > .usa-nav__primary-item.is-current > a {
-    font-weight: 700;
-    color: rgba(0,0,0,.8);
+  .usa-nav__primary > .usa-nav__primary-item.usa-current > a {
+    color: #0b4778;
   }
 
-  .usa-nav__primary > .usa-nav__primary-item.is-current > a::after {
+  .usa-nav__primary > .usa-current > a::after {
     background-color: #005ea2;
     border-radius: 0;
     content: "";
@@ -81,26 +89,30 @@ main {
     bottom: -0.25rem;
   }
 
-  #signIn {
-    align-self: flex-end;
+  .prime-user-account {
+    text-align: right;
   }
-
-}
-
-
-
-.usa-logo {
-  margin: 1rem 0;
 }
 
 @media (max-width: 63.99em) {
+  .usa-logo {
+    margin-left: 1rem;
+  }
   .usa-header--basic .usa-nav {
     align-items: start;
-    border-bottom: 1px solid #dfe1e2;
     width: 15rem;
   }
   .usa-header--basic .usa-navbar {
     width: 100%;
+    z-index: 200;
+    display: relative;
+  }
+  .usa-nav__primary {
+    width: 100%;
+  }
+  .prime-user-account {
+    text-align: left;
+    margin-bottom: 2rem;
   }
 }
 
@@ -117,7 +129,6 @@ main {
   font-size: .88rem;
   vertical-align: u-text("vertical-align");
   line-height: 1.25rem;
-  text-align: right;
 }
 
 .prime-table {

@@ -17,7 +17,7 @@ partners:
         iconDescription: computer code
       - title: Get valuable insights
         summary: ReportStream gives you insights about your data, such as reporting trends, and alerts you if there are any errors.
-        icon: insights.svg
+        icon: assessment.svg
         iconDescription: a chart
       - title: Receive data from SimpleReport
         summary: >-
