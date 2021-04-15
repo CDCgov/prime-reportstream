@@ -22,11 +22,21 @@ The state of the facility which the test was ordered from
 
 ---
 
+**Name**: orderingFacilityCounty
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
 **Name**: testResult
 
 **Type**: CODE
-
-**Format**: $alt
 
 **HL7 Field**: OBX-5
 
@@ -54,17 +64,6 @@ Code | Display
 840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
-260373001|Detected
-260415000|Not detected
-455371000124106|Invalid result
-
-**Alt Value Sets**
-
-Code | Display
----- | -------
-260373001|Patient Tested Positive!
-260415000|Patient Tested Negative!
-455371000124106|Test Was Invalid
 
 **Documentation**:
 
@@ -200,8 +199,6 @@ The name of the laboratory which performed the test, can be the same as the send
 **Name**: specimenSource
 
 **Type**: CODE
-
-**Format**: $display
 
 **HL7 Field**: SPM-4
 
@@ -424,8 +421,6 @@ unique id to track the usage of the message
 
 **Type**: CODE
 
-**Format**: $display
-
 **HL7 Field**: PID-10
 
 **Cardinality**: [0..1]
@@ -454,8 +449,6 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Type**: CODE
 
-**Format**: $display
-
 **HL7 Field**: PID-22
 
 **Cardinality**: [0..1]
@@ -479,8 +472,6 @@ consumers are free to define their own values. Please refer to the consumer-spec
 **Name**: patientSex
 
 **Type**: CODE
-
-**Format**: $display
 
 **HL7 Field**: PID-8-1
 
