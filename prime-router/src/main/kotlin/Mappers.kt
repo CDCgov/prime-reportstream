@@ -286,6 +286,32 @@ class Obx8Mapper : Mapper {
     }
 }
 
+class TimestampMapper : Mapper {
+    override val name = "timestamp"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return emptyList()
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        val tsFormat = if (args.isEmpty()) {
+            "yyyyMMddHHmmss.SSSSZZZ"
+        } else {
+            args[0]
+        }
+
+        val ts = OffsetDateTime.now()
+        return try {
+            val formatter = DateTimeFormatter.ofPattern(tsFormat)
+            formatter.format(ts)
+        }
+        catch (_: Exception) {
+            val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+            formatter.format(ts)
+        }
+    }
+}
+
 class DateTimeOffsetMapper : Mapper {
     private val expandedDateTimeFormatPattern = "yyyyMMddHHmmss.SSSSZZZ"
     private val formatter = DateTimeFormatter.ofPattern(expandedDateTimeFormatPattern)

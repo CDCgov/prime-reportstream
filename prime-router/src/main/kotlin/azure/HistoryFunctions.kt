@@ -209,12 +209,12 @@ class GetSummary: BaseHistoryFunction() {
             name = "getSummary",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "history/summary/{field}"
+            route = "history/summary/field/{field}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("field") field: String,   
         context: ExecutionContext
     ): HttpResponseMessage {
-        return GetSummary( request, field, context); 
+        return request.createResponseBuilder(HttpStatus.NOT_IMPLEMENTED).build()
   
     }
 }

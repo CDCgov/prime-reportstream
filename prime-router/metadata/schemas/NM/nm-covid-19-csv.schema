@@ -10,6 +10,7 @@ elements:
       - name: SendingApp
 
   - name: reporting_facility
+    default: "CDC PRIME"
     csvFields:
       - name: RptFacName
 
@@ -37,10 +38,14 @@ elements:
     csvFields:
       - name: OrdFacZip
 
-  - name: file_created_date
+  - name: ordering_facility_phone_number
+    csvFields:
+      - name: OrdFacPhone
+
+  - name: local_file_created_date
+    mapper: timestamp(yyyyMMdd)
     csvFields:
       - name: DateTimeMessage
-        format: YYYYMMDD
 
   - name: patient_id
     csvFields:
@@ -57,11 +62,31 @@ elements:
   - name: patient_dob
     csvFields:
       - name: PtDOB
-        format: YYYYMMDD
+        format: yyyyMMdd
+
+  - name: patient_gender
+    csvFields:
+      - name: PtSex
 
   - name: patient_race
     csvFields:
       - name: PtRace
+        format: $alt
+    altValues:
+      - display: AI
+        code: 1002-5
+      - display: A
+        code: 2028-9
+      - display: B
+        code: 2054-5
+      - display: PI
+        code: 2076-8
+      - display: W
+        code: 2106-3
+      - display: Other
+        code: 2131-1
+      - display: U
+        code: UNK
 
   - name: patient_ethnicity
     csvFields:
@@ -126,25 +151,38 @@ elements:
   - name: specimen_collection_date_time
     csvFields:
       - name: SpecCollDt
+        format: yyyyMMdd
 
   - name: specimen_type
     csvFields:
       - name: SpecType
+        format: $display
 
   - name: test_result
     csvFields:
       - name: ResultTestCode
         format: $code
-      - name: ResultTestDesc
-        format: $display
 
-  - name: abnormal_flag
+  - name: local_result_test_desc
+    type: TABLE
+    table: LIVD-SARS-CoV-2-2021-01-20
+    tableColumn: Component
+    mapper: lookup(equipment_model_name)
+    csvFields:
+      - name: ResultTestDesc
+
+  - name: local_test_result
+    type: CODE
+    valueSet: covid-19/test_result
+    mapper: use(test_result)
     csvFields:
       - name: Result
+        format: $display
 
   - name: test_result_date
     csvFields:
       - name: TestResultDt
+        format: yyyyMMdd
 
   - name: local_result_notes
     type: TEXT
@@ -155,30 +193,86 @@ elements:
   - name: first_test
     csvFields:
       - name: FirstTest
+        format: $alt
+    altValues:
+      - code: Y
+        display: Y
+      - code: N
+        display: N
+      - code: UNK
+        display: U
 
   - name: employed_in_healthcare
     csvFields:
       - name: EmpHealthcare
+        format: $alt
+    altValues:
+      - code: Y
+        display: Y
+      - code: N
+        display: N
+      - code: UNK
+        display: U
 
   - name: symptomatic_for_disease
     csvFields:
       - name: Symptomatic
+        format: $alt
+    altValues:
+      - code: Y
+        display: Y
+      - code: N
+        display: N
+      - code: UNK
+        display: U
 
   - name: hospitalized
     csvFields:
       - name: Hospitalized
+        format: $alt
+    altValues:
+      - code: Y
+        display: Y
+      - code: N
+        display: N
+      - code: UNK
+        display: U
 
   - name: icu
     csvFields:
       - name: ICU
+        format: $alt
+    altValues:
+      - code: Y
+        display: Y
+      - code: N
+        display: N
+      - code: UNK
+        display: U
 
   - name: resident_congregate_setting
     csvFields:
       - name: CongSetting
+        format: $alt
+    altValues:
+      - code: Y
+        display: Y
+      - code: N
+        display: N
+      - code: UNK
+        display: U
 
   - name: pregnant
     csvFields:
       - name: Pregnant
+        format: $alt
+    altValues:
+      - code: Y
+        display: Y
+      - code: N
+        display: N
+      - code: UNK
+        display: U
 
   - name: patient_email
     csvFields:
@@ -267,6 +361,13 @@ elements:
     default: ""
     csvFields:
       - name: PtSchcounty
+
+
+  # special fields
+  - name: local_symptom_onset_date
+    mapper: use(illness_onset_date)
+
+  - name: equipment_model_name
 
 
 
