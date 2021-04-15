@@ -102,3 +102,27 @@
         numberPerDay: 1
         initialTime: 09:15
         timeZone: EASTERN
+
+- name: ca-dph
+  description: California Department of Public Health
+  jurisdiction: STATE
+  stateCode: CA
+  receivers:
+    - name: elr
+      organizationName: ca-dph
+      topic: covid-19
+      jurisdictionalFilter:
+        - or(ordering_facility_state, CA, patient_state, CA)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: ecgpe.healthtechnologygroup.com
+        port: 22
+        filePath: ./in/simple/HL7
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
