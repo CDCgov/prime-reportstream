@@ -123,6 +123,6 @@
         filePath: ./in/simple/HL7
       timing:
         operation: MERGE
-        numberPerDay: 1440
-        initialTime: 00:00
+        numberPerDay: 1
+        initialTime: 09:15
         timeZone: EASTERN
