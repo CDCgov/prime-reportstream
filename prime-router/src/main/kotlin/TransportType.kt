@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(SFTPLegacyTransportType::class, name = "SFTP_LEGACY"),
     JsonSubTypes.Type(EmailTransportType::class, name = "EMAIL"),
     JsonSubTypes.Type(RedoxTransportType::class, name = "REDOX"),
+    JsonSubTypes.Type(BlobStoreTransportType::class, name = "BLOBSTORE"),
     JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
 )
 abstract class TransportType(val type: String)
@@ -47,6 +48,15 @@ data class RedoxTransportType
     val baseUrl: String?,
 ) :
     TransportType("REDOX")
+
+data class BlobStoreTransportType
+@JsonCreator constructor(
+    val storageName: String,   // this looks for an env var with this name. env var value is the connection string.
+    val containerName: String  // eg, hhsprotect
+) :
+    TransportType("BLOBSTORE")
+
+
 
 data class NullTransportType
 @JsonCreator constructor(
