@@ -7,7 +7,7 @@
       organizationName: wi-dph
       topic: covid-19
       jurisdictionalFilter:
-        - or(ordering_facility_state, WI, patient_state, WI)
+        - orEquals(ordering_facility_state, WI, patient_state, WI)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -26,7 +26,7 @@
       organizationName: tn-doh
       topic: covid-19
       jurisdictionalFilter:
-        - or(ordering_facility_state, TN, patient_state, TN)
+        - orEquals(ordering_facility_state, TN, patient_state, TN)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -49,7 +49,7 @@
       organizationName: ms-doh
       topic: covid-19
       jurisdictionalFilter:
-        - or(ordering_facility_state, MS, patient_state, MS)
+        - orEquals(ordering_facility_state, MS, patient_state, MS)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -70,7 +70,7 @@
       organizationName: nc-dph
       topic: covid-19
       jurisdictionalFilter:
-        - or(ordering_facility_state, NC, patient_state, NC)
+        - orEquals(ordering_facility_state, NC, patient_state, NC)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -93,7 +93,7 @@
       organizationName: de-dph
       topic: covid-19
       jurisdictionalFilter:
-        - or(ordering_facility_state, DE, patient_state, DE)
+        - orEquals(ordering_facility_state, DE, patient_state, DE)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -112,7 +112,7 @@
       organizationName: ca-dph
       topic: covid-19
       jurisdictionalFilter:
-        - or(ordering_facility_state, CA, patient_state, CA)
+        - orEquals(ordering_facility_state, CA, patient_state, CA)
       translation:
         type: HL7
         useBatchHeaders: true
