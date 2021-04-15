@@ -12,6 +12,16 @@
         schemaName: primedatainput/pdi-covid-19
         format: CSV
 
+  - name: waters
+    description: Test Sender from Waters
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: waters
+        topic: covid-19-otc
+        schemaName: waters/waters-covid-19
+        format: CSV
+
   - name: strac
     description: STRAC POC testing app
     jurisdiction: FEDERAL
@@ -479,6 +489,29 @@
           numberPerDay: 1440
           initialTime: 00:00
           timeZone: EASTERN
+
+  - name: "hhsprotect"
+    description: "HHS Protect"
+    jurisdiction: "FEDERAL"
+    receivers:
+    - name: "elr"
+      organizationName: "hhsprotect"
+      topic: "covid-19-otc"
+      translation:
+        type: "CUSTOM"
+        schemaName: "waters/waters-covid-19"
+        format: "CSV"
+      deidentify: true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+      transport:
+        host: "sftp"
+        port: "22"
+        filePath: "./upload"
+        type: "SFTP"
 
   # 'ignore' is a test organization, designed to be safely usable across all our environments.
   # It has receivers, each named exactly the same as the format of data or the transport mechanism

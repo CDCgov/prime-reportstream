@@ -1,0 +1,220 @@
+---
+name: waters-covid-19
+description: WATERS OTC,POC COVID-19 flat file
+topic: covid-19-otc
+trackingElement: equipment_instance_id
+basedOn: covid-19
+elements:
+#  I removed this - we can pull it from the equipment_model_name lookup
+#  - name: ordered_test_code
+#    csvFields: [{ name: testOrdered}]
+
+  # Edited. Added 'ordering_facility_state', because it lets us test mapping to many of our states
+  - name: ordering_facility_state
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: orderingFacilityState }]
+
+  - name: test_result    # Edited.  Was 'patient_positive' to 'test_result'
+    altValues:
+      - display: Patient Tested Positive!
+        code: 260373001
+      - display: Patient Tested Negative!
+        code: 260415000
+      - display: Test Was Invalid
+        code: 455371000124106
+    csvFields: [{ name: testResult, format: $alt}]
+
+  - name: test_result_date  # Edited.  Was 'patient_results' to 'test_result_date'
+    csvFields: [{ name: testResultDate}]
+
+  - name: test_result_report_date
+    csvFields: [{ name: testReportDate}]
+
+  - name: specimen_collection_date_time
+    csvFields: [{ name: specimenCollectedDate}]
+
+  # Edited.  This appeared twice.  I eliminated one.  The other was csvField = 'deviceName'
+  #  Note:  value here must come from Column B, 'Model', LIVD table
+  - name: equipment_model_name
+    csvFields: [{ name: equipmentModelName }]
+
+  - name: equipment_instance_id     # Edited.  Was 'kit_id'
+    csvFields: [{ name: serialNumber}]
+
+  - name: patient_age
+    csvFields: [{ name: patientAge}]
+
+  - name: patient_zip_code   # Edited.  Was patient_zip
+    csvFields: [{ name: patientZip}]
+
+  - name: patient_county
+    csvFields: [{ name: patientCounty}]
+
+  - name: ordering_provider_id
+    csvFields: [{ name: orderingProviderNpi}]
+
+  # Doublecheck this.  Is the 'performing facility' the same as the 'testing lab'?
+  - name: testing_lab_name
+    csvFields: [{ name: performingFacility}]
+
+  # Edited.  Done as a set of alternate values, to show how that works.
+  - name: specimen_type
+    csvFields: [{ name: specimenSource, format: $display}]
+
+  - name: patient_id    # Edited.  Was 'patient_dl'.
+    csvFields: [{ name: patientUniqueId}]
+
+  - name: patient_id_type    # Edited.  Added this, to complement patient_id.
+    csvFields: [{ name: patientUniqueIdType}]
+
+  - name: patient_dob
+    csvFields: [{ name: patientDob}]
+
+  - name: patient_last_name
+    csvFields: [{ name: patientNameLast}]
+
+  - name: patient_first_name
+    csvFields: [{ name: patientNameFirst}]
+
+  - name: patient_middle_name
+    csvFields: [{ name: patientNameMiddle}]
+
+  - name: patient_street
+    csvFields: [{ name: patientHomeAddress}]
+
+  - name: patient_street2
+    csvFields: [{ name: patientHomeAddress2}]
+
+  - name: patient_city
+    csvFields: [{ name: patientCity}]
+
+  - name: patient_state
+    csvFields: [{ name: patientState}]
+
+  - name: patient_phone_number    # Edited.  Was 'patient_callback_number'
+    csvFields: [{ name: patientPhone}]
+
+  - name: reporting_facility_name
+    csvFields: [{ name: reportingFacility}]
+
+  - name: order_test_date
+    csvFields: [{ name: testOrderedDate}]
+
+  #  Edited.  This was specimen_id, I changed to 'message_id', because our states tend to expect that.
+  # Need to figure out what to use for this.  Currently covid-19.schema expects a message_id
+  # Note this is a good example of where the external customer-facing name can be different, as needed.
+  - name: message_id
+    csvFields: [{ name: specimenId}]
+
+  - name: patient_race    # There was another one with csvField = patientRaceText.  Removed for now.
+    csvFields: [{ name: patientRace, format: $display}]
+
+  - name: patient_ethnicity      # There was another one with csvField = patientEthnicityText.  Removed for now.
+    csvFields: [{ name: patientEthnicity, format: $display}]
+
+  - name: patient_gender    # Edited.   Was patient_sex
+    csvFields: [{ name: patientSex, format: $display}]
+
+  - name: ordering_provider_zip_code
+    csvFields: [{ name: orderingProviderZip}]
+
+  - name: testing_lab_zip_code
+    csvFields: [{ name: performingFacilityZip}]
+
+  - name: ordering_provider_street
+    csvFields: [{ name: orderingProviderAddress}]
+
+  - name: ordering_provider_street2
+    csvFields: [{ name: orderingProviderAddress2}]
+
+  - name: ordering_provider_city
+    csvFields: [{ name: orderingProviderCity}]
+
+  - name: ordering_provider_state
+    csvFields: [{ name: orderingProviderState}]
+
+  - name: ordering_provider_phone_number
+    csvFields: [{ name: orderingProviderPhone}]
+
+  - name: first_test
+    csvFields: [{ name: firstTest}]
+
+  - name: previous_test_type
+    type: TEXT
+    csvFields: [{ name: previousTestType}]
+
+  - name: previous_test_date
+    type: DATE
+    csvFields: [{ name: previousTestDate}]
+
+  - name: previous_test_result
+    type: TEXT
+    csvFields: [{ name: previousTestResult}]
+
+  - name: employed_in_healthcare
+    csvFields: [{ name: healthcareEmployee}]
+
+    # Edited.  Was 'healthcareEmployeeType - as I thought patient_role was more general.
+    # Eg, Staff, Resident, Visitor, Student are the values used in SimpleReport.
+  - name: patient_role 
+    csvFields: [{name: Patient_role}]
+    type: TEXT
+
+  - name: symptomatic_for_disease
+    csvFields: [{ name: symptomatic}]
+
+  - name: symptoms_list   # Edited.  Was 'patient_symptom_onset'
+    type: TEXT
+    csvFields: [{ name: symptomsList}]
+
+  - name: hospitalized
+    csvFields: [{ name: hospitalized}]
+
+  - name: hospitalized_test_result    # Edited.  Was 'hospitalized_code'.  The example value was a 'test_result' valueset value.
+    type: CODE
+    valueSet: covid-19/test_result
+    documentation: The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
+    csvFields: [{ name: hospitalizedCode}]
+
+  - name: icu
+    csvFields: [{ name: symptomsIcu}]
+
+  - name: resident_congregate_setting
+    csvFields: [{ name: congregateResident}]
+
+  - name: site_of_care     # Edited name and now using the site_of_care valueset.
+    type: CODE
+    valueSet: site_of_care
+    csvFields: [{ name: congregateResidentType}]
+
+  - name: pregnant    # This appeared twice.  I eliminated one.  Edited.  was 'patient_pregnant'
+    csvFields: [{ name: pregnant}]
+
+  - name: patient_email
+    csvFields: [{ name: patientEmail}]
+
+  - name: ordered_test_name
+    csvFields: [{ name: testName}]
+
+  - name: abnormal_flag
+    csvFields: [{ name: testResultText}]
+
+  - name: test_performed_code
+    csvFields: [{ name: testPerformed}]
+
+  - name: ordering_provider_last_name
+    csvFields: [{ name: orderingProviderLname}]
+
+  - name: ordering_provider_first_name
+    csvFields: [{ name: orderingProviderFname}]
+
+  #  Is the area code also included in the phone number?  If yes, then why do we need this?
+  #  If no, then we need to merge area code and the rest of the phone number
+  - name: patient_phone_area_code   # Edited this.
+    type: TEXT
+    csvFields: [{ name: patientPhoneAreaCode}]
+
+  - name: ordering_provider_phone_area_code
+    type: TEXT
+    csvFields: [{ name: orderingProviderPhoneAreaCode}]
+
