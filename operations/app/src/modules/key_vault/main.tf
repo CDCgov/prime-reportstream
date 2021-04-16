@@ -5,14 +5,20 @@ terraform {
 locals {
   # These object ids correspond to developers with access
   # to key vault
-                     # Richard Teasley
-  dev_object_ids = [ "34232fe8-00ad-4bd0-9afb-eb9b3cc93ffe",
-                     # IAMB-Prod-KV
-                     "cd341fbc-26a3-405c-a350-c4237a27aa93",
-                     # Ron Heft
-                     "637fb7df-c200-4e0d-ba86-608576acb786",
-                     # Chris Glodosky
-                     "aabc25d7-dd99-42b9-8f3a-fd593b1f229a" ]
+  dev_object_ids = [
+    # Richard Teasley
+    "34232fe8-00ad-4bd0-9afb-eb9b3cc93ffe",
+    # IAMB-Prod-KV
+    "cd341fbc-26a3-405c-a350-c4237a27aa93",
+    # Ron Heft
+    "637fb7df-c200-4e0d-ba86-608576acb786",
+    # Maurice Reeves
+    "414537da-0ba5-4db1-93f6-dd828e9a480a",
+    # Jim Duff
+    "24669a80-a2d3-425a-8c80-92e05ea8341f",
+    # Chris Glodosky
+    "aabc25d7-dd99-42b9-8f3a-fd593b1f229a"
+  ]
 
   frontdoor_object_id = "270e4d1a-12bd-4564-8a4b-c9de1bbdbe95"
 }
