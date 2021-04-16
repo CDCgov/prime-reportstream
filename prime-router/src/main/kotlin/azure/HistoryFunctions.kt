@@ -215,8 +215,7 @@ class GetSummary: BaseHistoryFunction() {
         @BindingName("field") field: String,   
         context: ExecutionContext
     ): HttpResponseMessage {
-        return request.createResponseBuilder(HttpStatus.NOT_IMPLEMENTED).build()
-  
+        return GetSummary(request, field, context)
     }
 }
 
