@@ -66,6 +66,7 @@ class SendFunctionTests {
     private fun setupLogger() {
         every { context.logger }.returns(logger)
         every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
+        every { logger.warning(any<String>()) }.returns(Unit)
         every { logger.info(any<String>()) }.returns(Unit)
     }
 
@@ -212,8 +213,7 @@ class SendFunctionTests {
     @Test
     fun `Test with a bad message`() {
         // Setup
-        every { context.logger }.returns(logger)
-        every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
+        setupLogger()
         every { workflowEngine.recordAction(any()) }.returns(Unit)
 
         // Invoke

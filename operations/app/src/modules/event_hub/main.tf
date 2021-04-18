@@ -21,6 +21,16 @@ resource "azurerm_eventhub_namespace" "eventhub_namespace" {
   }
 }
 
+module "eventhub_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_eventhub_namespace.eventhub_namespace.id
+  name = azurerm_eventhub_namespace.eventhub_namespace.name
+  type = "event_hub"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = var.endpoint_subnet_id
+}
+
 resource "azurerm_eventhub_namespace_authorization_rule" "eventhub_manage_auth_rule" {
   name = "RootManageSharedAccessKey"
   namespace_name = azurerm_eventhub_namespace.eventhub_namespace.name

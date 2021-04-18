@@ -4,5 +4,8 @@
         "CFPB",
         "ISSO",
         "cybersecurity"
+    ],
+    "docker-compose.files": [
+        "./prime-router/docker-compose.yml"
     ]
 }

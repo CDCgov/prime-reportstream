@@ -9,11 +9,13 @@ module "storage" {
     resource_prefix = var.resource_prefix
     name = "${var.resource_prefix}storageaccount"
     location = local.location
-    subnet_ids = [module.network.public_subnet_id,
-                  module.network.container_subnet_id,
-                  module.network.private_subnet_id]
+    public_subnet_id = module.network.public_subnet_id
+    container_subnet_id = module.network.container_subnet_id
+    endpoint_subnet_id = module.network.endpoint_subnet_id
     eventhub_namespace_name = module.event_hub.eventhub_namespace_name
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
+    key_vault_id = module.key_vault.application_key_vault_id
+    rsa_key_4096 = var.rsa_key_4096
 }
 
 module "network" {
@@ -31,6 +33,7 @@ module "container_registry" {
     name = "${var.resource_prefix}containerregistry"
     location = local.location
     public_subnet_id = module.network.public_subnet_id
+    endpoint_subnet_id = module.network.endpoint_subnet_id
 }
 
 module "app_service_plan" {
@@ -39,6 +42,7 @@ module "app_service_plan" {
     resource_group = var.resource_group
     location = local.location
     resource_prefix = var.resource_prefix
+    key_vault_id = module.key_vault.application_key_vault_id
 }
 
 module "function_app" {
@@ -51,6 +55,7 @@ module "function_app" {
     storage_account_name = module.storage.storage_account_name
     storage_account_key = module.storage.storage_account_key
     public_subnet_id = module.network.public_subnet_id
+    endpoint_subnet_id = module.network.endpoint_subnet_id
     postgres_user = "${module.database.postgres_user}@${module.database.server_name}"
     postgres_password = module.database.postgres_pass
     postgres_url = "jdbc:postgresql://${module.database.server_name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
@@ -72,11 +77,13 @@ module "database" {
     resource_prefix = var.resource_prefix
     name = "${var.resource_prefix}-pgsql"
     location = local.location
-    public_subnet_id = module.network.public_subnet_id
-    private_subnet_id = module.network.private_subnet_id
+    endpoint_subnet_id = module.network.endpoint_subnet_id
+    endpoint2_subnet_id = module.network.endpoint2_subnet_id
     eventhub_namespace_name = module.event_hub.eventhub_namespace_name
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
     app_config_key_vault_id = module.key_vault.app_config_key_vault_id
+    key_vault_id = module.key_vault.application_key_vault_id
+    rsa_key_2048 = var.rsa_key_2048
 }
 
 module "key_vault" {
@@ -85,6 +92,7 @@ module "key_vault" {
     resource_group = var.resource_group
     resource_prefix = var.resource_prefix
     location = local.location
+    endpoint_subnet_id = module.network.endpoint_subnet_id
 }
 
 module "front_door" {
@@ -95,7 +103,7 @@ module "front_door" {
     key_vault_id = module.key_vault.application_key_vault_id
     eventhub_namespace_name = module.event_hub.eventhub_namespace_name
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
-    https_cert_name = var.https_cert_name
+    https_cert_names = var.https_cert_names
 }
 
 module "sftp_container" {
@@ -148,4 +156,5 @@ module "event_hub" {
     resource_group = var.resource_group
     resource_prefix = var.resource_prefix
     location = local.location
+    endpoint_subnet_id = module.network.endpoint_subnet_id
 }

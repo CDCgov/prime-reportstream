@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
@@ -42,7 +43,9 @@ class Report {
     enum class NameFormat {
         STANDARD,
         APHL,
+        APHL_LIGHT,
         OHIO,
+        CUSTOM,
     }
 
     enum class Format(
@@ -294,20 +297,37 @@ class Report {
         return table.rowCount() == 0
     }
 
-    fun getString(row: Int, column: Int): String? {
-        return table.getString(row, column)
+    fun getString(row: Int, column: Int, maxLength: Int? = null): String? {
+        return table.getString(row, column).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
-    fun getString(row: Int, colName: String): String? {
+    fun getString(row: Int, colName: String, maxLength: Int? = null): String? {
         val column = schema.findElementColumn(colName) ?: return null
-        return table.getString(row, column)
+        return table.getString(row, column).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
-    fun getStringByHl7Field(row: Int, hl7Field: String): String? {
-        val column = schema.elements.filter { it.hl7Field.equals(hl7Field, ignoreCase = true) }.firstOrNull()
-            ?: return null
+    fun getStringByHl7Field(row: Int, hl7Field: String, maxLength: Int? = null): String? {
+        val column = schema.elements.firstOrNull { it.hl7Field.equals(hl7Field, ignoreCase = true) } ?: return null
         val index = schema.findElementColumn(column.name) ?: return null
-        return table.getString(row, index)
+        return table.getString(row, index).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
     fun getRow(row: Int): List<String> {
@@ -359,6 +379,10 @@ class Report {
         targetCounty: String? = null,
         metadata: Metadata,
     ): Report {
+        fun safeSetStringInRow(row: Row, columnName: String, value: String) {
+            if (row.columnNames().contains(columnName))
+                row.setString(columnName, value)
+        }
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
                 // we want to guard against the possibility that there are too few records
@@ -417,8 +441,25 @@ class Report {
             // if the element name is not mapping, it is handled as a pass through
             synthesizedColumn ?: table.column(it.name).copy()
         }
+        val table = Table.create(columns)
+        // unfortunate fact for how we do faking of rows, the four columns below
+        // would never match because the row context was new on each write of the
+        // column. because we synthesize the data here, we need to actually overwrite the
+        // values in each row because quality synthetic data matters
+        table.forEach {
+            val context = FakeReport.RowContext(
+                metadata::findLookupTable,
+                targetState,
+                schema.name,
+                targetCounty
+            )
+            safeSetStringInRow(it, "patient_county", context.county)
+            safeSetStringInRow(it, "patient_city", context.city)
+            safeSetStringInRow(it, "patient_state", context.state)
+            safeSetStringInRow(it, "patient_zip_code", context.zipCode)
+        }
         // return the new copy of the report here
-        return Report(schema, Table.create(columns), fromThisReport("synthesizeData"))
+        return Report(schema, table, fromThisReport("synthesizeData"))
     }
 
     /**
@@ -699,10 +740,22 @@ class Report {
             createdDateTime: OffsetDateTime,
             nameFormat: NameFormat = NameFormat.STANDARD,
             receivingOrganization: String? = null,
-            sendingFacility: String = "cdcprime"
+            sendingFacility: String = "cdcprime",
+            processingModeCode: String = "T",
+            translationConfig: TranslatorConfiguration? = null,
         ): String {
+            fun mapProcessingModeCode(processingModeCode: String = "T"): String {
+                return when (processingModeCode.toLowerCase()) {
+                    "p" -> "production"
+                    "d" -> "development"
+                    else -> "testing"
+                }
+            }
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
+            val so = "CDCPRIME"
+            val ts = formatter.format(createdDateTime)
+            val re = mapProcessingModeCode(processingModeCode)
             return when (nameFormat) {
                 NameFormat.APHL -> {
                     /*
@@ -722,20 +775,25 @@ class Report {
                         OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
                         ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
                  */
-                    val so = "cdcprime"
-                    val se = "testing"
-                    val re = "testing"
-                    val ts = formatter.format(createdDateTime)
+                    val se = mapProcessingModeCode(processingModeCode)
                     // have to escape with curly braces because Kotlin allows underscores in variable names
                     "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
                 }
+                NameFormat.APHL_LIGHT -> {
+                    /*
+                    A lighter version of the APHL name format that removes duplicated data. NM prefers this
+                     */
+                    "${so}_${receivingOrganization ?: ""}_${re}_$ts.$nameSuffix".toLowerCase()
+                }
                 NameFormat.OHIO -> {
-                    val ts = formatter.format(createdDateTime)
-                    "CDCPRIME_$ts.hl7"
+                    "${so}_$ts.hl7"
                 }
                 NameFormat.STANDARD -> {
                     val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                     "$namePrefix.$nameSuffix"
+                }
+                NameFormat.CUSTOM -> {
+                    TODO("Not done yet")
                 }
             }
         }

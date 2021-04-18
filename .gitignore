@@ -94,3 +94,6 @@ prime-router/.vault/env/**
 
 # Python virtualenv files
 **/venv/**
+
+# Gradle files
+**/.gradle/**

@@ -27,7 +27,7 @@ resource "azurerm_container_group" "sftp_container" {
   
   container {
     name = var.name
-    image = "atmoz/sftp:latest"
+    image = "atmoz/sftp:alpine"
     cpu = 1.0
     memory = 1.5
     

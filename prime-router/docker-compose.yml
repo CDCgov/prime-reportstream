@@ -21,6 +21,7 @@ services:
     environment:
       # this storage account key is not a secret. It just looks like one.
       - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+      - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
       - POSTGRES_URL=jdbc:postgresql://host.docker.internal:5432/prime_data_hub
@@ -31,7 +32,6 @@ services:
       - OKTA_baseUrl=hhs-prime.okta.com
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
-      - FEATURE_FLAG_SETTINGS_ENABLED=true
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port
@@ -94,6 +94,19 @@ services:
     # Override the command with our custom init script
     command: "/vault/config/init.sh"
 
+  web_receiver:
+    image: nginx:latest
+    ports:
+      - "8090:80"
+    volumes:
+      - "../frontend/dist:/usr/share/nginx/html"
+    depends_on: 
+      - prime_dev
+    command: "'nginx' '-g' 'daemon off;'"
+    entrypoint: "/docker-entrypoint.sh"
+
 volumes:
   # For storing a local encrypted secrets database
   vault:
+
+

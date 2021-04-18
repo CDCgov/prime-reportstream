@@ -200,6 +200,10 @@ The zip code of the provider
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Accension number
+
 ---
 
 **Name**: patient_appt_datetime

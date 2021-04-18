@@ -212,6 +212,10 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Accension number
+
 ---
 
 **Name**: Test_result_status
@@ -689,7 +693,7 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Type**: ID_CLIA
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
 
 **Cardinality**: [1..1]
 

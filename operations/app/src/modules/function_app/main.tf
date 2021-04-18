@@ -21,24 +21,44 @@ resource "azurerm_function_app" "function_app" {
       priority = 100
       virtual_network_subnet_id = var.public_subnet_id
     }
+
     ip_restriction {
       action = "Allow"
       name = "AllowFrontDoorTraffic"
       priority = 110
       service_tag = "AzureFrontDoor.Backend"
     }
+
     ip_restriction {
       action = "Allow"
-      name = "jduff"
+      name = "Ron IP"
       priority = 120
+      ip_address = "165.225.48.88/32"
+    }
+
+    ip_restriction {
+      action = "Allow"
+      name = "Jim IP"
+      priority = 130
       ip_address = "108.51.58.151/32"
     }
+
     scm_use_main_ip_restriction = true
 
     http2_enabled = true
     always_on = true
     use_32_bit_worker_process = false
     linux_fx_version = "DOCKER|${var.login_server}/${var.resource_prefix}:latest"
+
+    cors {
+      allowed_origins = [
+        "https://${var.resource_prefix}public.z13.web.core.windows.net",
+        "https://prime.cdc.gov",
+        "https://${var.environment}.prime.cdc.gov",
+        "https://reportstream.cdc.gov",
+        "https://${var.environment}.reportstream.cdc.gov",
+      ]
+    }
   }
 
   app_settings = {
@@ -48,17 +68,25 @@ resource "azurerm_function_app" "function_app" {
 
     "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
 
-    "REDOX_SECRET" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-redox-secret)"
-
     "OKTA_baseUrl" = "hhs-prime.okta.com"
-    "OKTA_clientId" = "@Microsoft.KeyVault(VaultName=${var.resource_prefix}-appconfig;SecretName=functionapp-okta-client-id)"
     "OKTA_redirect" = var.okta_redirect_url
 
-    # Manage client secrets via a KeyVault
+    # Manage client secrets via a Key Vault
     "CREDENTIAL_STORAGE_METHOD" ="AZURE"
     "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"
 
+    # Manage app secrets via a Key Vault
+    "SECRET_STORAGE_METHOD" = "AZURE"
+    "SECRET_KEY_VAULT_NAME" = "${var.resource_prefix}-appconfig"
+
+    # Route outbound traffic through the VNET
     "WEBSITE_VNET_ROUTE_ALL" = 1
+
+    # Route storage account access through the VNET
+    "WEBSITE_CONTENTOVERVNET" = 1
+
+    # Use the VNET DNS server (so we receive private endpoint URLs
+    "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
     "DOCKER_REGISTRY_SERVER_URL" = var.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user
@@ -68,6 +96,8 @@ resource "azurerm_function_app" "function_app" {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
     "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
+
+    "FEATURE_FLAG_SETTINGS_ENABLED" = true
   }
 
   identity {
@@ -78,6 +108,18 @@ resource "azurerm_function_app" "function_app" {
     environment = var.environment
   }
 }
+
+// DISABLED AS FRONT DOOR CAN NOT CONNECT - RKH
+
+//module "function_app_private_endpoint" {
+//  source = "../common/private_endpoint"
+//  resource_id = azurerm_function_app.function_app.id
+//  name = azurerm_function_app.function_app.name
+//  type = "function_app"
+//  resource_group = var.resource_group
+//  location = var.location
+//  endpoint_subnet_id = var.endpoint_subnet_id
+//}
 
 resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {
   # This is a hack. The function_app module has a bug where it does not export the values until after being updated.

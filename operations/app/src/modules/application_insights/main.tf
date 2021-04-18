@@ -18,7 +18,7 @@ resource "azurerm_application_insights" "app_insights" {
 }
 
 resource "azurerm_monitor_action_group" "action_group" {
-  count = (var.environment != "dev" ? 1 : 0)
+  count = (var.environment == "prod" ? 1 : 0)
   name = "${var.resource_prefix}-actiongroup"
   resource_group_name = var.resource_group
   short_name = "ReportStream"
@@ -41,7 +41,7 @@ resource "azurerm_monitor_action_group" "action_group" {
 # Severity 4 - Verbose
 
 resource "azurerm_monitor_metric_alert" "availability_alert" {
-  count = (var.environment != "dev" ? 1 : 0)
+  count = (var.environment == "prod" ? 1 : 0)
   name = "Degraded Availability"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
@@ -67,7 +67,7 @@ resource "azurerm_monitor_metric_alert" "availability_alert" {
 }
 
 resource "azurerm_monitor_metric_alert" "exception_alert" {
-  count = (var.environment != "dev" ? 1 : 0)
+  count = (var.environment == "prod" ? 1 : 0)
   name = "Exception(s) Raised"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
@@ -93,7 +93,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert" {
 }
 
 resource "azurerm_application_insights_web_test" "ping_test" {
-  count = (var.environment != "dev" ? 1 : 0)
+  count = (var.environment == "prod" ? 1 : 0)
   name = "${var.resource_prefix}-pingfunctions"
   location = var.location
   resource_group_name = var.resource_group

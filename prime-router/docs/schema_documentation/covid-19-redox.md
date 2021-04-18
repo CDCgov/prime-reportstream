@@ -525,6 +525,10 @@ The phone number of the facility which the test was ordered from
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Accension number
+
 ---
 
 **Name**: specimen_received_date_time
@@ -1024,7 +1028,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: ID_CLIA
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
 
 **Cardinality**: [1..1]
 

@@ -196,9 +196,9 @@ class FakeReport(val metadata: Metadata) {
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
         // find our state
-        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA", "NM", "VT", "GU")
+        val state: String = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA", "NM", "VT", "GU")
         // find our county
-        val county = reportCounty ?: findLookupTable("fips-county")?.let {
+        val county: String = reportCounty ?: findLookupTable("fips-county")?.let {
             when (state) {
                 "AZ" -> randomChoice("Pima", "Yuma")
                 "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
@@ -217,7 +217,7 @@ class FakeReport(val metadata: Metadata) {
                 )
             )
         } ?: faker.address().zipCode().toString()
-        val city = findLookupTable("zip-code-data")?.let {
+        val city: String = findLookupTable("zip-code-data")?.let {
             randomChoice(
                 it.filter(
                     "city",
@@ -228,7 +228,7 @@ class FakeReport(val metadata: Metadata) {
                     )
                 )
             )
-        }
+        } ?: faker.address().city().toString()
     }
 
     internal fun buildColumn(element: Element, context: RowContext): String {

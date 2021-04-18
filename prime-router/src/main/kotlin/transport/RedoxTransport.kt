@@ -26,7 +26,8 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
     private val redoxAccessToken = "accessToken"
     private val jsonMimeType = "application/json"
 
-    enum class ResultStatus { SUCCESS, FAILURE, NOT_SENT }
+    enum class ResultStatus { SUCCESS, FAILURE, NOT_SENT, NEVER_ATTEMPTED }
+
     data class SendResult(val itemId: String, val status: ResultStatus, val redoxId: Int? = null)
 
     override fun startSession(receiver: Receiver): TransportSession? {
@@ -53,6 +54,10 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
         val sendUrl = "${getBaseUrl(redoxTransportType)}$redoxEndpointPath"
         var resultMsg = ""
         var results = mutableListOf<RedoxTransport.SendResult>()
+        context.logger.info(
+            "The incoming retry item list for ${header.reportFile.reportId} is: " +
+                (retryItems?.joinToString(",") ?: "null")
+        )
         try {
             val (key, secret) = getKeyAndSecret(redoxTransportType)
             // DevNote: Redox access tokens live for many days
@@ -122,7 +127,7 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
         }
         if (nextRetryItems.isNotEmpty()) {
             logger.info(
-                "The retry item list for ${header.reportFile.reportId} is: " +
+                "The outgoing retry item list for ${header.reportFile.reportId} is: " +
                     nextRetryItems.joinToString(",")
             )
             return nextRetryItems
@@ -132,7 +137,7 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
     }
 
     /**
-     * Map redox results onto strings that we can store in the item_lineage table.
+     * Map redox send results onto strings that we can store in the item_lineage table.
      */
     private fun createTransportResults(results: List<SendResult>, isRetry: Boolean): List<String> {
         return results.map {
@@ -140,6 +145,7 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
                 ResultStatus.SUCCESS -> it.redoxId.toString()
                 ResultStatus.FAILURE -> if (isRetry) "RETRY_FAILURE" else "FAILURE"
                 ResultStatus.NOT_SENT -> "NOT_SENT" + if (isRetry) " (likely sent in prior attempt)" else "(bug!!)"
+                ResultStatus.NEVER_ATTEMPTED -> error("Should not reach here if redox tried to send this item")
             }
         }
     }
@@ -155,7 +161,7 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
         return Pair(redox.apiKey, secret)
     }
 
-    private fun fetchToken(
+    fun fetchToken(
         redox: RedoxTransportType,
         key: String,
         secret: String
@@ -187,7 +193,7 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
         }
     }
 
-    private fun sendItem(
+    fun sendItem(
         sendUrl: String,
         token: String,
         message: String,
