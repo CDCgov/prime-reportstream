@@ -32,6 +32,7 @@ hs_err_pid*
 **/.idea/**
 **/*.iml
 **/.run/**
+**/.gradle/**
 
 # Play files
 **/result_files/*.csv

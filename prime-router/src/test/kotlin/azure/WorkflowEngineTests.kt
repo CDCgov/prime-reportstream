@@ -228,8 +228,12 @@ class WorkflowEngineTests {
         confirmVerified(accessSpy, blobMock, queueMock)
     }
 
+    /**
+     * This test simulates a receive event with a single report
+     */
     @Test
     fun `test handleReceiverEvent`() {
+        // Create the objects of the report
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -238,16 +242,16 @@ class WorkflowEngineTests {
             source = TestSource, destination = oneOrganization.receivers[0]
         )
         val bodyFormat = "CSV"
-        val bodyUrl = "http://anyblob.com"
+        val bodyUrl = "https://anyblob.com"
         val event = ReceiverEvent(Event.EventAction.SEND, "phd.elr")
         val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
+
+        // Setup mocks
         val actionHistoryMock = mockk<ActionHistory>()
         mockkObject(ActionHistory.Companion)
-        val engine = makeEngine(metadata, settings)
-
         every { accessSpy.fetchAndLockTasks(nextAction = eq(TaskAction.send), any(), any(), any(), any()) }
             .returns(listOf(task))
-        every { accessSpy.fetchReportFile(eq(report1.id), any()) }.returns(
+        every { accessSpy.fetchReportFile(eq(report1.id), any(), any()) }.returns(
             ReportFile().setReportId(report1.id).setItemCount(0)
         )
         every {
@@ -266,17 +270,20 @@ class WorkflowEngineTests {
         every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
         every { ActionHistory.Companion.sanityCheckReport(any(), any(), any()) }.returns(Unit)
 
+        // Simulate the event
+        val engine = makeEngine(metadata, settings)
         engine.handleReceiverEvent(event, 100, actionHistoryMock) { receiver, headers, _ ->
             assertEquals(oneOrganization.receivers[0], receiver)
             assertEquals(task, headers[0].task)
             WorkflowEngine.successfulReceiverResult(headers)
         }
 
+        // Verify everything
         verify(exactly = 1) {
             accessSpy.transactReturning<WorkflowEngine.ReceiverResult>(block = any())
             accessSpy.updateTask(reportId = any(), any(), any(), any(), any(), any())
             accessSpy.fetchAndLockTasks(any(), any(), any(), any(), any())
-            accessSpy.fetchReportFile(reportId = any(), any())
+            accessSpy.fetchReportFile(reportId = any(), any(), any())
         }
         verify(exactly = 0) {
             queueMock.sendMessage(any())

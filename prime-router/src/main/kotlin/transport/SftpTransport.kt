@@ -18,7 +18,6 @@ import net.schmizz.sshj.xfer.LocalSourceFile
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 
-
 private const val SSH_CLIENT_TIMEOUT = 120000 // milliseconds
 
 class SftpTransport : ITransport, Logging {

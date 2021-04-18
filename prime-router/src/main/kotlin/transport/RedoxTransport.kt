@@ -11,10 +11,9 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
-import org.apache.logging.log4j.kotlin.Logging
-import java.io.Closeable
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.secrets.SecretManagement
+import org.apache.logging.log4j.kotlin.Logging
 
 class RedoxTransport() : ITransport, Logging, SecretManagement {
     private val secretEnvName = "REDOX_SECRET"
@@ -91,7 +90,7 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
         } catch (t: Throwable) {
             resultMsg =
                 "Exception during REDOX send of reportId ${header.reportFile.reportId}: " +
-                    "  ${t.localizedMessage}.  "
+                "  ${t.localizedMessage}.  "
             logger.warn(resultMsg, t)
             if (successCount == 0) {
                 nextRetryItems = (retryItems ?: RetryToken.allItems) as MutableList<String>

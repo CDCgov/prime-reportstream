@@ -119,9 +119,10 @@ class CheckFunction : Logging {
         val port = sftpTransportType.port
         val path = sftpTransportType.filePath
         val (user, pass) = SftpTransport.lookupCredentials(receiver.fullName)
-        val sshClient = SftpTransport.connect(host, port, user, pass)
-        responseBody.add("${receiver.fullName}: Able to Connect to sftp site.  Now trying an `ls`...")
-        val lsList: List<String> = SftpTransport.ls(sshClient, path)
+        val lsList = SftpTransport.SftpSession(host, port, user, pass).use {
+            responseBody.add("${receiver.fullName}: Able to Connect to sftp site.  Now trying an `ls`...")
+            SftpTransport.ls(it, path)
+        }
         // Log what we found from ls, but don't return it.
         logger.info("What we got back from ls (first few lines): ")
         lsList.filterIndexed { index, _ -> index <= 5 }.forEach { logger.info(it) }

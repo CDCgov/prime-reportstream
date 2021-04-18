@@ -16,7 +16,6 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.StringTemplateResolver
-import java.io.Closeable
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Calendar

@@ -20,7 +20,7 @@ class NullTransport : ITransport, Logging {
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        session: Any?,
+        session: TransportSession?,
         actionHistory: ActionHistory,
     ): RetryItems? {
         if (header.content == null) error("No content for report ${header.reportFile.reportId}")
