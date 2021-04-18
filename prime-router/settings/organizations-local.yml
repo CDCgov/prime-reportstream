@@ -488,7 +488,7 @@
         organizationName: vt-doh
         topic: covid-19
         jurisdictionalFilter:
-          - matches(ordering_facility_state, VT)
+          - orEquals(ordering_facility_state, VT, patient_state, VT)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -496,6 +496,7 @@
           receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
           receivingFacilityName: VDH
           receivingFacilityOID: 2.16.840.1.114222.4.1.185
+          truncateHDNamespaceIds: true
         transport:
           type: SFTP
           host: sftp
@@ -704,6 +705,63 @@
         translation:
           type: HL7
           useBatchHeaders: true
+          truncateHDNamespaceIds: true
+          receivingApplicationName: CDPH CA REDIE
+          receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
+          receivingFacilityName: CDPH CA REDIE
+          receivingFacilityOID: 2.16.840.1.114222.4.3.3 .10.1.1
+          messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: ma-phd
+    description: Massachusetts Public Health Department
+    jurisdiction: STATE
+    stateCode: MA
+    receivers:
+      - name: elr
+        organizationName: ma-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orElse(ordering_facility_state, MA, patient_state, MA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: nh-dphs
+    description: New Hampshire Division of Public Health Services
+    jurisdiction: STATE
+    stateCode: NH
+    receivers:
+      - name: elr
+        organizationName: nh-dphs
+        topic: covid-19
+        jurisdictionalFilter:
+          - orElse(ordering_facility_state, NH, patient_state, NH)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
+          receivingFacilityName: NH_DHHS
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3669
         transport:
           type: SFTP
           host: sftp
