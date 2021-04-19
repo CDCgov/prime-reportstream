@@ -599,6 +599,11 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.kittinunf.result</groupId>
+            <artifactId>result</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20210307</version>

@@ -1,34 +1,36 @@
 package gov.cdc.prime.router.transport
 
-import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.BlobStoreTransportType
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import java.util.logging.Level
+import org.apache.logging.log4j.kotlin.Logging
 
-class BlobStoreTransport : ITransport {
+class BlobStoreTransport : ITransport, Logging {
+    override fun startSession(receiver: Receiver): TransportSession? {
+        return null
+    }
+
     override fun send(
-        transportType: TransportType,
         header: WorkflowEngine.Header,
         sentReportId: ReportId,
         retryItems: RetryItems?,
-        context: ExecutionContext,
-        actionHistory: ActionHistory,
+        session: TransportSession?,
+        actionHistory: ActionHistory
     ): RetryItems? {
-        val blobTransportType = transportType as BlobStoreTransportType
+        val blobTransportType = header.receiver?.transport as BlobStoreTransportType
         val envVar: String = blobTransportType.containerName
         val storageName: String = blobTransportType.storageName
         return try {
-            val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
+            val receiver = header.receiver
             val bodyUrl = header.reportFile.bodyUrl ?: error("Report ${header.reportFile.reportId} has no blob to copy")
-            context.logger.log(Level.INFO, "About to copy $bodyUrl to $envVar:$storageName")
-            var newUrl = WorkflowEngine().blob.copyBlob(bodyUrl,envVar, storageName)
+            logger.info("About to copy $bodyUrl to $envVar:$storageName")
+            val newUrl = WorkflowEngine().blob.copyBlob(bodyUrl,envVar, storageName)
             val msg = "Successfully copied $bodyUrl to $newUrl"
-            context.logger.log(Level.INFO, msg)
+            logger.info(msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
                 receiver,
@@ -45,11 +47,10 @@ class BlobStoreTransport : ITransport {
                 "FAILED Blob copy of inputReportId ${header.reportFile.reportId} to " +
                     "$blobTransportType ($envVar:$storageName)" +
                     ", Exception: ${t.localizedMessage}"
-            context.logger.log(Level.WARNING, msg, t)
+            logger.warn(msg, t)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
         }
     }
-
 }

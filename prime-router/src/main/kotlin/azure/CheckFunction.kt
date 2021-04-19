@@ -114,20 +114,22 @@ class CheckFunction : Logging {
     /**
      * Any normal return is success.  Any exception thrown is failure.
      */
-    fun testSftp(sftpTransportType: SFTPTransportType, receiver: Receiver, responseBody: MutableList<String>) {
+    private fun testSftp(sftpTransportType: SFTPTransportType, receiver: Receiver, responseBody: MutableList<String>) {
         val host = sftpTransportType.host
         val port = sftpTransportType.port
         val path = sftpTransportType.filePath
         val credential = SftpTransport.lookupCredentials(receiver.fullName)
-        val sshClient = SftpTransport.connect(host, port, credential)
-        responseBody.add("${receiver.fullName}: Able to Connect to sftp site.  Now trying an `ls`...")
-        val lsList: List<String> = SftpTransport.ls(sshClient, path)
-        // Log what we found from ls, but don't return it.
-        logger.info("What we got back from ls (first few lines): ")
-        lsList.filterIndexed { index, _ -> index <= 5 }.forEach { logger.info(it) }
-        val msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from $sftpTransportType"
-        logger.info(msg)
-        responseBody.add(msg)
+        val session = SftpTransport.SftpSession(host, port, credential)
+        session.use {
+            responseBody.add("${receiver.fullName}: Able to Connect to sftp site.  Now trying an `ls`...")
+            val lsList: List<String> = SftpTransport.ls(it.sshClient, path)
+            // Log what we found from ls, but don't return it.
+            logger.info("What we got back from ls (first few lines): ")
+            lsList.filterIndexed { index, _ -> index <= 5 }.forEach { logger.info(it) }
+            val msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from $sftpTransportType"
+            logger.info(msg)
+            responseBody.add(msg)
+        }
     }
 
     private fun testLegacySftp(
@@ -139,14 +141,13 @@ class CheckFunction : Logging {
         val port = legacySftpTransportType.port
         val path = legacySftpTransportType.filePath
         val (user, pass) = SftpLegacyTransport.lookupCredentials(receiver.fullName)
-        val session = SftpLegacyTransport.connect(user, pass, host, port)
-        responseBody.add("${receiver.fullName}: Able to Connect to legacy sftp site.  Now trying an `ls`...")
-        val lsList: List<String> = SftpLegacyTransport.ls(session, path)
-        // Log what we found from ls, but don't return it.
-        logger.info("What we got back from ls (first few lines): ")
-        lsList.filterIndexed { index, _ -> index <= 5 }.forEach { logger.info(it) }
-        val msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from $legacySftpTransportType"
-        logger.info(msg)
-        responseBody.add(msg)
+        val session = SftpLegacyTransport.SftpLegacySession(user, pass, host, port)
+        session.use {
+            responseBody.add("${receiver.fullName}: Able to Connect to legacy sftp site.  Now trying an `ls`...")
+            val lsList: List<String> = SftpLegacyTransport.ls(it.session, path)
+            val msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from $legacySftpTransportType"
+            logger.info(msg)
+            responseBody.add(msg)
+        }
     }
 }

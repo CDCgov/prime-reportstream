@@ -174,7 +174,7 @@ class WorkflowEngine(
         // Send immediately.
         val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
         db.transact { txn ->
-            val task = db.fetchAndLockTask(reportId, txn)
+            db.fetchAndLockTask(reportId, txn)
             val organization = settings.findOrganization(receiver.organizationName)
                 ?: throw Exception("No such organization ${receiver.organizationName}")
             val header = fetchHeader(reportId, organization) // exception if not found
@@ -259,16 +259,17 @@ class WorkflowEngine(
         val childReportIds = db.fetchChildReports(reportFile.reportId)
         childReportIds.forEach { childId ->
             val lineages = db.fetchItemLineagesForReport(childId, reportFile.itemCount)
-            lineages?.forEach { lineage ->
+            lineages?.forEach loop@{ lineage ->
                 // Once a success, always a success
                 if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
-                    return@forEach
+                    return@loop
                 itemsDispositionMap[lineage.parentIndex] = when {
                     lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ->
                         RedoxTransport.ResultStatus.FAILURE
                     lineage.transportResult.startsWith(RedoxTransport.ResultStatus.NOT_SENT.name) ->
                         RedoxTransport.ResultStatus.FAILURE
-                    else -> RedoxTransport.ResultStatus.SUCCESS
+                    else ->
+                        RedoxTransport.ResultStatus.SUCCESS
                 }
             }
         }

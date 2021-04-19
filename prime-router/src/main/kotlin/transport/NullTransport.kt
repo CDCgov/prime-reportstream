@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.transport
 
+import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -25,7 +26,7 @@ class NullTransport : ITransport, Logging {
     ): RetryItems? {
         if (header.content == null) error("No content for report ${header.reportFile.reportId}")
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
-        val transportType = receiver.transport as NullTransport
+        val transportType = receiver.transport as NullTransportType
         val fileName = Report.formExternalFilename(header)
         val msg = "Sending to Null Transport"
         actionHistory.trackActionResult(msg)

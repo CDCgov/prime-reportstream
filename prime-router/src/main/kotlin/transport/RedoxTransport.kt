@@ -15,7 +15,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.secrets.SecretManagement
 import org.apache.logging.log4j.kotlin.Logging
 
-class RedoxTransport() : ITransport, Logging, SecretManagement {
+class RedoxTransport : ITransport, Logging, SecretManagement {
     private val secretEnvName = "REDOX_SECRET"
     private val redoxTimeout = 1000
     private val redoxBaseUrl = "https://api.redoxengine.com"
@@ -43,18 +43,17 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
     ): RetryItems? {
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
         val redoxTransportType = receiver.transport as RedoxTransportType
-        val (key, secret) = getKeyAndSecret(redoxTransportType)
         if (header.content == null)
             error("No content to send to redox for report ${header.reportFile.reportId}")
         val messages = String(header.content).split("\n") // NDJSON content
         // All of these are needed in the large finally block below
         var nextRetryItems = mutableListOf<String>()
-        var attemptedCount: Int = 0
-        var successCount: Int = 0
+        var attemptedCount = 0
+        var successCount = 0
         val sendUrl = "${getBaseUrl(redoxTransportType)}$redoxEndpointPath"
         var resultMsg = ""
-        var results = mutableListOf<RedoxTransport.SendResult>()
-        context.logger.info(
+        val results = mutableListOf<SendResult>()
+        logger.info(
             "The incoming retry item list for ${header.reportFile.reportId} is: " +
                 (retryItems?.joinToString(",") ?: "null")
         )
@@ -66,13 +65,12 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
                 actionHistory.trackActionResult("Failure: fetch redox token failed.  Requesting retry.")
                 return retryItems ?: RetryToken.allItems // finally block below will still execute.
             }
-            messages.forEachIndexed() { index, message ->
+            messages.forEachIndexed { index, message ->
                 val itemId = "${header.reportFile.reportId}-$index"
                 val sendResult = when {
-                    (retryItems == null) ||
-                        RetryToken.isAllItems(retryItems)
-                        || retryItems.contains(index.toString())
-                    -> {
+                    retryItems == null ||
+                        RetryToken.isAllItems(retryItems) ||
+                        retryItems.contains(index.toString()) -> {
                         attemptedCount++
                         try {
                             sendItem(sendUrl, token, message, itemId)
@@ -109,7 +107,7 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
                 successCount == 0 -> "Failure"
                 else -> "Partial Failure"
             }
-            resultMsg = resultMsg + "$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
+            resultMsg = "$resultMsg$statusStr: $successCount of $attemptedCount items successfully sent to $sendUrl"
             actionHistory.trackActionResult(resultMsg)
             logger.info(resultMsg)
             if (successCount > 0) {
@@ -125,14 +123,14 @@ class RedoxTransport() : ITransport, Logging, SecretManagement {
                 }
             }
         }
-        if (nextRetryItems.isNotEmpty()) {
+        return if (nextRetryItems.isNotEmpty()) {
             logger.info(
                 "The outgoing retry item list for ${header.reportFile.reportId} is: " +
                     nextRetryItems.joinToString(",")
             )
-            return nextRetryItems
+            nextRetryItems
         } else {
-            return null
+            null
         }
     }
 

@@ -40,9 +40,9 @@ class EmailTransport : ITransport, Logging {
         try {
             val sg = SendGrid(System.getenv("SENDGRID_API_KEY"))
             val request = Request()
-            request.setMethod(Method.POST)
-            request.setEndpoint("mail/send")
-            request.setBody(mail.build())
+            request.method = Method.POST
+            request.endpoint = "mail/send"
+            request.body = mail.build()
             sg.api(request)
         } catch (ex: Exception) {
             logger.error("Email/SendGrid exception", ex)
@@ -51,21 +51,21 @@ class EmailTransport : ITransport, Logging {
         return null
     }
 
-    fun getTemplateEngine(): TemplateEngine {
+    private fun getTemplateEngine(): TemplateEngine {
         val templateEngine = TemplateEngine()
         val stringTemplateResolver = StringTemplateResolver()
         templateEngine.setTemplateResolver(stringTemplateResolver)
         return templateEngine
     }
 
-    fun getTemplateFromAttributes(htmlContent: String, attr: Map<String, Any>): String {
+    private fun getTemplateFromAttributes(htmlContent: String, attr: Map<String, Any>): String {
         val templateEngine = getTemplateEngine()
         val context = Context()
         attr.forEach { (k, v) -> context.setVariable(k, v) }
         return templateEngine.process(htmlContent, context)
     }
 
-    fun buildContent(header: WorkflowEngine.Header): Content {
+    private fun buildContent(header: WorkflowEngine.Header): Content {
         val htmlTemplate = Files.readString(Path.of("./assets/email-templates/test-results-ready__inline.html"))
 
         val attr = mapOf(
@@ -74,11 +74,10 @@ class EmailTransport : ITransport, Logging {
         )
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)
-        val content = Content("text/html", html)
-        return content
+        return Content("text/html", html)
     }
 
-    fun buildMail(content: Content, emailTransport: EmailTransportType): Mail {
+    private fun buildMail(content: Content, emailTransport: EmailTransportType): Mail {
         val subject = "COVID-19 Reporting:  Your test results are ready"
 
         val mail = Mail()
