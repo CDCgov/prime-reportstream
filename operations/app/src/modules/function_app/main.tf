@@ -88,6 +88,9 @@ resource "azurerm_function_app" "function_app" {
     # Use the VNET DNS server (so we receive private endpoint URLs
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
+    # HHS Protect Storage Account
+    "PartnerStore" = var.storage_partner_connection_string
+
     "DOCKER_REGISTRY_SERVER_URL" = var.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user
     "DOCKER_REGISTRY_SERVER_PASSWORD" = var.admin_password
