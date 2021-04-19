@@ -421,7 +421,14 @@ class SenderSettings : CliktCommand(
     name = "sender",
     help = "Fetch and update settings for a sender"
 ) {
-    init { subcommands(ListSenderSetting(), GetSenderSetting(), PutSenderSetting(), DeleteSenderSetting()) }
+    init {
+        subcommands(
+            ListSenderSetting(),
+            GetSenderSetting(),
+            PutSenderSetting(),
+            DeleteSenderSetting(),
+            TokenUrl(),
+        ) }
 
     override fun run() {}
 }

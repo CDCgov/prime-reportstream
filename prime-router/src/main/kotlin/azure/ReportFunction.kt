@@ -17,6 +17,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.logging.Level
@@ -32,7 +33,7 @@ private const val ROUTE_TO_SEPARATOR = ","
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
  */
-class ReportFunction {
+class ReportFunction: Logging {
     enum class Options {
         None,
         ValidatePayload,
@@ -67,6 +68,29 @@ class ReportFunction {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
+        return ingestReport(request, context)
+    }
+
+    /**
+     * POST a report to the router, using FHIR auth security
+     * This one is "/api/report".  The other one is "/api/reports"
+     */
+    @FunctionName("report")
+    @StorageAccount("AzureWebJobsStorage")
+    fun report(
+        @HttpTrigger(
+            name = "reqWithFHIRAuth",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        val claims = TokenAuthentication.checkAccessToken(request, "report")
+            ?: return HttpUtilities.unauthorizedResponse(request)
+        return ingestReport(request, context)
+    }
+
+    private fun ingestReport(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.receive, context)
         actionHistory.trackActionParams(request)
@@ -106,6 +130,7 @@ class ReportFunction {
         actionHistory.queueMessages() // Must be done after creating TASK record.
         return httpResponseMessage
     }
+
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors = mutableListOf<ResultDetail>()
