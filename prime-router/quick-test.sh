@@ -31,6 +31,11 @@ RUN_TX=0
 RUN_VT=0
 RUN_MT=0
 RUN_CA=0
+RUN_MI=0
+RUN_AL=0
+RUN_MA=0
+RUN_NH=0
+RUN_WATERS=0
 # always should run, but we'll leave this here for now in case that could change at some point
 RUN_STANDARD=1
 RUN_ALL=0
@@ -56,6 +61,10 @@ do
     vt | VT) RUN_VT=1;;
     mt | MT) RUN_MT=1;;
     ca | CA) RUN_CA=1;;
+    nh | NH) RUN_NH=1;;
+    ma | MA) RUN_MA=1;;
+    al | AL) RUN_AL=1;;
+    mi | MI) RUN_MI=1;;
     waters | WATERS) RUN_WATERS=1;;
     all | ALL) RUN_ALL=1;;
     merge | MERGE) RUN_MERGE=1;;
@@ -75,6 +84,11 @@ then
   RUN_VT=1
   RUN_MT=1
   RUN_CA=1
+  RUN_NH=1
+  RUN_AL=1
+  RUN_MI=1
+  RUN_MA=1
+  RUN_WATERS=1
   RUN_STANDARD=1
   RUN_MERGE=1
 fi
@@ -315,6 +329,38 @@ then
   parse_prime_output_for_filename "$text" "[/\\]mt.*\.hl7"
   text=$(./prime data --input-fake 50 --input-schema mt/mt-covid-19-csv --output-dir $outputdir --target-states MT --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\]mt.*\.hl7"
+fi
+
+# run NH
+if [ $RUN_NH -ne 0 ]
+then
+  echo Generate fake NH data, HL7
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states NH --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
+fi
+
+# run MA
+if [ $RUN_MA -ne 0 ]
+then
+  echo Generate fake MA data, HL7
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states MA --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
+fi
+
+# run AL
+if [ $RUN_AL -ne 0 ]
+then
+  echo Generate fake AL data, HL7
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states AL --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
+fi
+
+# run MI
+if [ $RUN_MI -ne 0 ]
+then
+  echo Generate fake MI data, HL7
+  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states MI --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
 fi
 
 # run CA
