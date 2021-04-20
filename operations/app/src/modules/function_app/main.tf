@@ -33,7 +33,7 @@ resource "azurerm_function_app" "function_app" {
       action = "Allow"
       name = "Ron IP"
       priority = 120
-      ip_address = "165.225.48.88/32"
+      ip_address = "165.225.48.87/31" # /31 is correct, can be 165.225.48.87 or 165.225.48.88
     }
 
     ip_restriction {
