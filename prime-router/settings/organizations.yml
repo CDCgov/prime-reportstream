@@ -554,7 +554,7 @@
         organizationName: ma-phd
         topic: covid-19
         jurisdictionalFilter:
-          - orElse(ordering_facility_state, MA, patient_state, MA)
+          - orEquals(ordering_facility_state, MA, patient_state, MA)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -568,7 +568,7 @@
         organizationName: nh-dphs
         topic: covid-19
         jurisdictionalFilter:
-          - orElse(ordering_facility_state, NH, patient_state, NH)
+          - orEquals(ordering_facility_state, NH, patient_state, NH)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -585,7 +585,7 @@
         organizationName: al-phd
         topic: covid-19
         jurisdictionalFilter:
-          - orElse(ordering_facility_state, AL, patient_state, AL)
+          - orEquals(ordering_facility_state, AL, patient_state, AL)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -599,7 +599,7 @@
         organizationName: mi-phd
         topic: covid-19
         jurisdictionalFilter:
-          - orElse(ordering_facility_state, MI, patient_state, MI)
+          - orEquals(ordering_facility_state, MI, patient_state, MI)
         translation:
           type: HL7
           useBatchHeaders: true
