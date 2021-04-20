@@ -72,7 +72,7 @@ class BlobAccess(
     fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
         val fromBlobClient = getBlobClient(fromBlobUrl)
         val blobContainer = getBlobContainer(toBlobContainer, toBlobConnEnvVar)
-        val toBlobClient = blobContainer.getBlobClient(fromBlobClient.blobName)
+        val toBlobClient = blobContainer.getBlobClient(fromBlobClient.blobName, toBlobConnEnvVar)
         toBlobClient.copyFromUrl(fromBlobUrl) // returns a uuid 'copy id'.  Not sure what use it it.
         return toBlobClient.blobUrl
     }
