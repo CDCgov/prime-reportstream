@@ -13,8 +13,16 @@ open class Sender(
     val format: Format,
     val topic: String,
     val schemaName: String,
+    val configuration: SenderConfiguration? = null,
 ) {
-    constructor(copy: Sender) : this(copy.name, copy.organizationName, copy.format, copy.topic, copy.schemaName)
+    constructor(copy: Sender) : this(
+        copy.name,
+        copy.organizationName,
+        copy.format,
+        copy.topic,
+        copy.schemaName,
+        copy.configuration,
+    )
 
     @get:JsonIgnore
     val fullName: String get() = "$organizationName$fullNameSeparator$name"

@@ -184,9 +184,23 @@ class ReportFunction {
                     return@mapNotNull null
                 }
                 Pair(parts[0], parts[1])
-            }.toMap()
+            }.toMap().toMutableMap()
         } else {
-            emptyMap()
+            mutableMapOf()
+        }
+
+        sender.configuration?.let {
+            if (!it.processingModeCode.isNullOrEmpty()) {
+                defaultValues["processing_mode_code"] = it.processingModeCode
+            }
+
+            if (!it.testingLabCLIA.isNullOrEmpty()) {
+                defaultValues["testing_lab_clia"] = it.testingLabCLIA
+            }
+
+            if (!it.testingLabName.isNullOrEmpty()) {
+                defaultValues["testing_lab_name"] = it.testingLabName
+            }
         }
 
         if (content.isEmpty() || errors.isNotEmpty()) {
