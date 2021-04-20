@@ -229,7 +229,7 @@ resource "azurerm_storage_account" "storage_partner" {
   network_rules {
     default_action = "Deny"
     ip_rules = split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value)
-    virtual_network_subnet_ids = [var.public_subnet_id]
+    virtual_network_subnet_ids = [var.public_subnet_id, var.endpoint_subnet_id]
   }
 
   # Required for customer-managed encryption
