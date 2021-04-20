@@ -13,7 +13,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 
-const val blobContainerName = "reports"
+const val defaultBlobContainerName = "reports"
 
 class BlobAccess(
     private val csvSerializer: CsvSerializer,
@@ -50,8 +50,13 @@ class BlobAccess(
         return Pair(report.bodyFormat, contentBytes)
     }
 
-    private fun uploadBlob(fileName: String, bytes: ByteArray): String {
-        val blobClient = getBlobContainer(blobContainerName).getBlobClient(fileName)
+    private fun uploadBlob(
+        fileName: String,
+        bytes: ByteArray,
+        blobContainerName: String = defaultBlobContainerName,
+        blobConnEnvVar: String = defaultConnEnvVar
+    ): String {
+        val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(fileName)
         blobClient.upload(
             ByteArrayInputStream(bytes),
             bytes.size.toLong()
@@ -69,13 +74,24 @@ class BlobAccess(
      * Returns the blobURL of the newly created copy.
      * Right now, only copies from our internal reports blob store.
      */
-    fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
+    fun copyBlob_OLD(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
         val fromBlobClient = getBlobClient(fromBlobUrl)
         val blobContainer = getBlobContainer(toBlobContainer, toBlobConnEnvVar)
         logger.info("Copying from blob ${fromBlobClient.blobName}")
         val toBlobClient = blobContainer.getBlobClient(fromBlobClient.blobName, toBlobConnEnvVar)
         toBlobClient.copyFromUrl(fromBlobUrl) // returns a uuid 'copy id'.  Not sure what use it it.
         return toBlobClient.blobUrl
+    }
+
+    fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
+        val fromBytes = this.downloadBlob(fromBlobUrl)
+        logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
+        val fromBlobClient = getBlobClient(fromBlobUrl)  // only used to get the filename.
+        val toFilename = fromBlobClient.blobName
+        logger.info("New blob filename will be $toFilename")
+        val toBlobUrl = uploadBlob(toFilename,fromBytes,toBlobContainer,toBlobConnEnvVar)
+        logger.info("New blob URL is $toBlobUrl")
+        return toBlobUrl
     }
 
     fun deleteBlob(blobUrl: String) {
@@ -89,7 +105,7 @@ class BlobAccess(
 
     fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
         val blobConnection = System.getenv(blobConnEnvVar)
-        logger.info("Env var $blobConnEnvVar is ${blobConnection.substring(0,75)}")
+        logger.error("getBlobContainer: Env var $blobConnEnvVar is ${blobConnection.substring(0,50)}")
         val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
         val containerClient = blobServiceClient.getBlobContainerClient(name)
         if (!containerClient.exists()) containerClient.create()
@@ -98,7 +114,7 @@ class BlobAccess(
 
     fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
         val blobConnection = System.getenv(blobConnEnvVar)
-        logger.info("Env var $blobConnEnvVar is ${blobConnection.substring(0,75)}")
+        logger.info("getBlobClient: Env var $blobConnEnvVar is ${blobConnection.substring(0,75)}")
         return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
     }
 
