@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
@@ -18,7 +19,7 @@ class BlobAccess(
     private val csvSerializer: CsvSerializer,
     private val hl7Serializer: Hl7Serializer,
     private val redoxSerializer: RedoxSerializer
-) {
+): Logging {
     private val defaultConnEnvVar = "AzureWebJobsStorage"
 
     // Basic info about a blob: its format, url in azure, and its sha256 hash
@@ -87,6 +88,7 @@ class BlobAccess(
 
     private fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
         val blobConnection = System.getenv(blobConnEnvVar)
+        logger.info("Env var $blobConnEnvVar is ${blobConnection.substring(0,50)}...")
         val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
         val containerClient = blobServiceClient.getBlobContainerClient(name)
         if (!containerClient.exists()) containerClient.create()
