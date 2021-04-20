@@ -118,7 +118,7 @@ class CardView private constructor(
     val title: String?,
     val subtitle: String?,
     val daily: Long?,
-    val last: Long?,
+    val last: Double?,
     val positive: Boolean?,
     val change: Long?,
     val pct_change: Double?,
@@ -129,7 +129,7 @@ class CardView private constructor(
         var title: String? = null,
         var subtitle: String? = null,
         var daily: Long? = null,
-        var last: Long? = null,
+        var last: Double? = null,
         var positive: Boolean? = null,
         var change: Long? = null,
         var pct_change: Double? = null,
@@ -139,7 +139,7 @@ class CardView private constructor(
         fun title( title: String ) = apply {this.title = title}
         fun subtitle( subtitle: String ) = apply {this.subtitle = subtitle}
         fun daily( daily: Long ) = apply {this.daily = daily}
-        fun last( last: Long ) = apply {this.last = last}
+        fun last( last: Double ) = apply {this.last = last}
         fun positive( positive: Boolean ) = apply { this.positive = positive}
         fun change( change: Long ) = apply {this.change = change}
         fun pct_change( pct_change: Double ) = apply {this.pct_change = pct_change}
@@ -147,6 +147,8 @@ class CardView private constructor(
         fun build() = CardView( id, title, subtitle, daily, last, positive, change, pct_change, data )
     }
 }
+
+data class FileReturn(val content: String, val filename: String, val mimetype: String);
 
 class GetReports :
     BaseHistoryFunction() {
@@ -246,7 +248,7 @@ open class BaseHistoryFunction {
                 .via( it.bodyFormat )
                 .total( it.itemCount.toLong() )
                 .fileType( it.bodyFormat )
-                .type( "Electronic Laboratory Results" )
+                .type( "ELR" )
                 .expires( DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS), )
                 .facilities(facilities)
                 .build()        
@@ -266,17 +268,36 @@ open class BaseHistoryFunction {
         return response
     }
 
-    fun GetReportById( request: HttpRequestMessage<String?>,  reportId: String, context: ExecutionContext ): HttpResponseMessage {
+    fun GetReportById( request: HttpRequestMessage<String?>,  reportIdIn: String, context: ExecutionContext ): HttpResponseMessage {
         val authClaims = checkAuthenticated(request, context)
         if( authClaims == null ) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
         var response: HttpResponseMessage
+        try {
+            val reportId = ReportId.fromString(reportIdIn)
+            val header = workflowEngine.fetchHeader(reportId, authClaims.organization)
+            if (header.content == null || header.content.isEmpty())
+                response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build();
+            else {
+                val filename = Report.formExternalFilename(header)
+                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 
-            response = request.createResponseBuilder(HttpStatus.NOT_IMPLEMENTED)
-                .body("Not Implemented")
+                val fileReturn = FileReturn( String(header.content), filename, mimeType);
+                return request
+                    .createResponseBuilder(HttpStatus.OK)
+                    .header("Content-Type", "application/json")
+                    .body( fileReturn )
+                    .build()
+            }
+        } catch (ex: Exception) {
+            context.logger.log(Level.WARNING, "Exception during download of $reportIdIn", ex)
+            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                .body("File $reportIdIn not found")
                 .header("Content-Type", "text/html")
                 .build()
+        }
+        return response
 
-                return response;
+
     }
 
     fun isToday( date: OffsetDateTime ) : Boolean {
@@ -306,30 +327,28 @@ open class BaseHistoryFunction {
                 authClaims.organization.name
             )
             var daily: Long = 0L
-            var last : Long = 0L;
-            var sum : Long = 0L;
+            var sum : Long = 0L
             var data : Array<Long> = arrayOf(0,0,0,0,0,0,0,0)
 
             @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )
             headers.sortedByDescending{ it.createdAt }.forEach {
                 if( isToday( it.createdAt ) ) daily += it.itemCount.toLong();
-                if( isYesterday( it.createdAt ) ) last += it.itemCount.toLong();                
-                sum += it.itemCount.toLong()
+                sum += it.itemCount.toLong();
                 val expires: Int = (DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS)).toInt();
                 data.set(expires, data.get(expires) + it.itemCount.toLong()); 
             }
 
-            val avg = if( headers.size >0 ) sum / headers.size else 0;
+            val avg: Double= if( headers.size >0 ) (sum / 7).toDouble() else 0.0;
 
             var card = CardView.Builder()
                         .id( "summary-tests")
-                        .title("Summay tests")
-                        .subtitle("summary tests")
+                        .title("Tests")
+                        .subtitle("Tests reported")
                         .daily(daily)
-                        .last( last )
-                        .positive( daily > avg )
-                        .change( last - daily )
-                        .pct_change( if (last > 0) ((last-daily)/last).toDouble() * 100 else 0.0 )
+                        .last( avg )
+                        .positive( true )
+                        .change( 0L )
+                        .pct_change( 0.0 )
                         .data( data )
                         .build();
             response = request.createResponseBuilder(HttpStatus.OK)
@@ -368,9 +387,9 @@ open class BaseHistoryFunction {
                 .header("Content-Type", "application/json")
                 .build()
         }catch (ex: Exception) {
-            context.logger.log(Level.WARNING, "Exception during download of reports", ex)
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                .body("File not found")
+            context.logger.log(Level.WARNING, "Exception during download of summry", ex)
+            response = request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Exception during GetSummary()")
                 .header("Content-Type", "text/html")
                 .build()
         }
