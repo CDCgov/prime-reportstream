@@ -87,18 +87,18 @@ class BlobAccess(
         BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
     }
 
-    private fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
+    fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
         val blobConnection = System.getenv(blobConnEnvVar)
-        logger.info("Env var $blobConnEnvVar is ${blobConnection.substring(0,75)}...")
+        logger.info("Env var $blobConnEnvVar is ${blobConnection.substring(0,75)}")
         val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
         val containerClient = blobServiceClient.getBlobContainerClient(name)
         if (!containerClient.exists()) containerClient.create()
         return containerClient
     }
 
-    private fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
+    fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
         val blobConnection = System.getenv(blobConnEnvVar)
-        logger.info("Env var $blobConnEnvVar is ${blobConnection.substring(0,75)}...")
+        logger.info("Env var $blobConnEnvVar is ${blobConnection.substring(0,75)}")
         return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
     }
 
