@@ -42,7 +42,7 @@
         schemaName: tpca/tpca-covid-19
         format: CSV
         configuration:
-          processingModeCode: Q
+          processingModeCode: T
 
   - name: az-phd
     description: Arizona PHD
