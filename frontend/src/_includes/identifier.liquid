@@ -13,6 +13,33 @@ if( !isValidBrowser )
   window.location.replace( 'unsupported-browser.html' );
 </script>
 
+<script>
+  let running = window.sessionStorage.getItem("idle-timer");
+  let jwt = window.sessionStorage.getItem( 'jwt' )
+
+  console.log( `running = ${running}`);
+  
+  if( !running && jwt ){    
+    console.log( 'starting timer' )
+    window.sessionStorage.setItem("idle-timer","true");
+    const instance = idleTimeout(
+  () => {
+    window.sessionStorage.clear()
+    window.location.assign(`./index.html`);
+  },
+  {
+    element: document,
+    timeout: 1000 * 60 * 15,
+    loop: false
+  }
+);
+  }
+  else {
+    if( instance )
+      instance.destroy();
+  }
+</script>
+
 <footer class="usa-identifier" aria-label="Agency identifier">
   <section class="usa-identifier__section usa-identifier__section--masthead"
     >
