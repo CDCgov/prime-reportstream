@@ -178,3 +178,7 @@ h3 img[src*="svg"] {
 #okta-sign-in {
   margin-top: 0;
 }
+
+.usa-prose > h1, .usa-prose > h2, .usa-intro {
+  font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
+}
