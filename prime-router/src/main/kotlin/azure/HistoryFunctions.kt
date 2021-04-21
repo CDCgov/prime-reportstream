@@ -52,16 +52,16 @@ class Facility private constructor(
 }
 
 class Action private constructor(
-    val date: Int?,
+    val date: String?,
     val user: String?,
     val action: String? ){
     
     data class Builder(
-        var date: Int? = null,
+        var date: String? = null,
         var user: String? = null,
         var action: String? = null ){
 
-        fun date( date: Int ) = apply { this.date = date }
+        fun date( date: String ) = apply { this.date = date }
         fun user( user: String ) = apply { this.user = user }
         fun action( action: String ) = apply { this.action = action }
         fun build() = Action( date, user, action )
@@ -242,6 +242,8 @@ open class BaseHistoryFunction {
                 if( it.bodyFormat == "CSV")
                     facilities = getFieldSummaryForReportId(arrayOf("Testing_lab_name","Testing_lab_CLIA"),it.reportId.toString(), authClaims)
 
+                var actions = getActionsForReportId( it.reportId.toString(), authClaims );
+
                 ReportView.Builder()
                 .reportId( it.reportId.toString() )
                 .sent( it.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) )
@@ -251,6 +253,7 @@ open class BaseHistoryFunction {
                 .type( "ELR" )
                 .expires( DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS), )
                 .facilities(facilities)
+                .actions(actions)
                 .build()        
             }
 
@@ -419,6 +422,28 @@ open class BaseHistoryFunction {
             }
         }
         return facilties;
+    }
+
+    fun getActionsForReportId( reportId: String, authClaim: AuthClaims): ArrayList<Action> {
+        var header: Header?
+        var actions: ArrayList<Action> = ArrayList<Action>();
+
+        try{
+            header = workflowEngine.fetchHeader( ReportId.fromString(reportId), authClaim.organization )
+        } catch (ex:Exception){ header = null }
+
+        /* 
+        if( header !== null && header.itemLineages !== null ){
+            header.itemLineages
+                actions.add( Action.Builder()
+                                .date( it.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) )
+                                .user( "USER" )
+                                .action( it.transportResult )
+                                .build() )                                   
+            }
+        }
+        */
+        return actions;
     }
 
     data class AuthClaims(
