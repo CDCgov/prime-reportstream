@@ -1,9 +1,9 @@
 ---
 title: ReportStream makes it easier to share public health data
 summary: >-
-  ReportStream is a free, open-sourced data platform that makes it easier for public health data to be more easily transferred between senders and public health departments
+  ReportStream is a free, open source data platform that makes it easier for public health data to be more easily transferred between senders and public health departments
 heroImg: report-stream-application.png
-heroImgAlt: Screenshot of the ReportStream web application
+heroImgAlt: Example screenshot of the ReportStream web application
 
 partners:
   - type: State

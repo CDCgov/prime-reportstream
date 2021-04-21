@@ -56,9 +56,7 @@ local_styles:
 {% endif %}
 </main>
 
-<section>
-  {% include identifier %}
-</section>
+{% include identifier %}
 
   {% for entry in post_scripts %}
     <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
