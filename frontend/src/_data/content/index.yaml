@@ -48,9 +48,9 @@ documentation:
     - name: ELR integration guide
       type: pdf
       url: ReportStream-ELR-Onboarding-Guide-April-2021.pdf
-    - name: Technical documentation
+    - name: Web receiver guide
       type: pdf
-      url: foo.pdf
+      url: ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf
 
 cta:
   title: Get started
