@@ -6,6 +6,7 @@
     if( signIn )
       signIn.style.display = "block";
   }
+    
 </script>
 
 <div class="usa-overlay"></div>
@@ -40,3 +41,12 @@
     </nav>
   </div>
 </header>
+
+<script>
+  let signIn = document.getElementById("signIn");
+  if( window.sessionStorage.getItem("jwt") )
+    signIn.style.display = "none";
+  else 
+    signIn.style.display = "block";    
+
+</script>
