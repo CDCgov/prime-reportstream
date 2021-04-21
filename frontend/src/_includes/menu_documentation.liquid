@@ -4,16 +4,32 @@
       <nav aria-label="Secondary navigation">
         <ul class="usa-sidenav">
           <li class="usa-sidenav__item">
-          {% if current == "getting started" %}
-          <a href="./documentation.html" class="usa-current">
+          {% if current == "about us" %}
+            <a href="./documentation.html" class="usa-current">
           {% else %}
-          <a href="./documentation.html">
+            <a href="./documentation.html">
           {% endif %}
-          Getting started</a>
+          About Us</a>
+          </li>
+          <li class="usa-sidenav__item">
+          {% if current == "elr guide" %}
+            <a href="./elr-guide.html" class="usa-current">
+          {% else %}
+            <a href="./elr-guide.html">
+          {% endif %}
+          ELR guide</a>
+          </li>
+          <li class="usa-sidenav__item">
+          {% if current == "web receiver guide" %}
+            <a href="./web-receiver-guide.html" class="usa-current">
+          {% else %}
+            <a href="./web-receiver-guide.html">
+          {%endif%}
+            Web receiver guide</a>
           </li>
           <li class="usa-sidenav__item">
           {% if current == "data retention" %}
-            <a href="./data_retention.html" class="usa-current">
+            <a href="./data-retention.html" class="usa-current">
           {% else %}
             <a href="./data_retention.html">
           {%endif%}
@@ -21,9 +37,9 @@
           </li>
           <li class="usa-sidenav__item">
           {% if current == "terms and conditions" %}
-            <a href="./terms_conditions.html" class="usa-current">
+            <a href="./terms-conditions.html" class="usa-current">
           {%else%}
-            <a href="./terms_conditions.html">
+            <a href="./terms-conditions.html">
           {%endif%}
           Terms and conditions</a>
           </li>
