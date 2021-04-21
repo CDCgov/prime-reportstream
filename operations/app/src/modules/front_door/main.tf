@@ -10,10 +10,10 @@ locals {
   metabase_address = (var.environment == "test" || var.environment == "prod" ? "${var.resource_prefix}-metabase.azurewebsites.net" : null)
   static_address = trimprefix(trimsuffix(var.storage_web_endpoint, "/"), "https://")
 
-  function_certs = [for cert in var.https_cert_names: cert if regex("^[[:alnum:]]*?-?prime.*$", cert)]
+  function_certs = [for cert in var.https_cert_names: cert if length(regexall("^[[:alnum:]]*?-?prime.*$", cert)) > 0]
   frontend_endpoints = (length(local.function_certs) > 0) ? concat(["DefaultFrontendEndpoint"], local.function_certs) : ["DefaultFrontendEndpoint"]
 
-  static_certs = [for cert in var.https_cert_names: cert if regex("^[[:alnum:]]*?-?reportstream.*$", cert)]
+  static_certs = [for cert in var.https_cert_names: cert if length(regexall("^[[:alnum:]]*?-?reportstream.*$", cert)) > 0]
   static_endpoints = local.static_certs
 
   metabase_env = var.environment == "test" || var.environment == "prod" ? [1] : []
