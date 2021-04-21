@@ -45,7 +45,7 @@
                     <h4 class="text-gray-30 margin-bottom-0">Report date</h4>
                     <p class="text-bold margin-top-0">${moment(report.sent).format( 'dddd, MMM DD, YYYY' )}</p>
                     <h4 class="text-gray-30 margin-bottom-0">Report time</h4>
-                    <p class="text-bold margin-top-0">${moment(report.sent).format( 'hh:mm A' )}</p>
+                    <p class="text-bold margin-top-0">${moment(report.sent).format( 'HH:mm' )}</p>
             </div>
             <div class="tablet:grid-col-6">
                     <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
@@ -78,7 +78,7 @@
       report.actions.forEach( action => {
         document.getElementById( "actions-list").innerHTML +=
           `<li class="rb-item">
-                        <div class="timestamp">${moment(action.date).format( 'MMM DD, YYYY hh:mm A' )}</div>
+                        <div class="timestamp">${moment(action.date).format( 'MMM DD, YYYY HH:mm' )}</div>
                         <div class="timestamp">${action.user}</div>
                         <div class="item-title">${action.action}</div>
                     </li>`
