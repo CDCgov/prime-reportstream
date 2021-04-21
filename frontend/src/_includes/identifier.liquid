@@ -1,25 +1,16 @@
-<div class="usa-identifier">
-  <section
-    class="usa-identifier__section usa-identifier__section--masthead"
-    aria-label="Agency identifier">
+<footer class="usa-identifier" aria-label="Agency identifier">
+  <section class="usa-identifier__section usa-identifier__section--masthead"
+    >
     <div class="usa-identifier__container"><div class="usa-identifier__logos">
-        <a href="javascript:void(0);" class="usa-identifier__logo">
-          <img
-            class="usa-identifier__logo-img"
-            
-            src="https://upload.wikimedia.org/wikipedia/commons/4/45/US-CDC-Logo.png"
-            
-            
-            alt="CDC logo"
-            
-            role="img">
+        <a href="{{ site.orgs.CDC.url }}" class="usa-identifier__logo">
+          <img class="usa-identifier__logo-img" src="{{ site.imgPath }}/cdc-logo.svg" alt="CDC logo" role="img">
         </a></div><div class="usa-identifier__identity" aria-label="Agency description">
         <p class="usa-identifier__identity-domain">cdc.gov</p>
-        <p class="usa-identifier__identity-disclaimer">An official website of the <a href="http://cdc.gov">Centers for Disease Control and Prevention</a></p>
+        <p class="usa-identifier__identity-disclaimer">An official website of the <a href="{{ site.orgs.CDC.url }}">{{ site.orgs.CDC.name }}</a></p>
       </div>
     </div>
   </section>
-  <nav class="usa-identifier__section usa-identifier__section--required-links" aria-label="Important links">
+  <nav class="usa-identifier__section usa-identifier__section--required-links" aria-label="Footer navigation">
     <div class="usa-identifier__container">
       <ul class="usa-identifier__required-links-list">
         <li class="usa-identifier__required-links-item">
@@ -52,4 +43,4 @@
       <a href="https://www.usa.gov/" class="usa-link">Visit USA.gov</a>
     </div>
   </section>
-  </div>
+</footer>
