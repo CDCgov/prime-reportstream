@@ -45,13 +45,13 @@
                     <h4 class="text-gray-30 margin-bottom-0">Report date</h4>
                     <p class="text-bold margin-top-0">${moment(report.sent).format( 'dddd, MMM DD, YYYY' )}</p>
                     <h4 class="text-gray-30 margin-bottom-0">Report time</h4>
-                    <p class="text-bold margin-top-0">${moment(report.sent).format( 'HH:mm' )}</p>
+                    <p class="text-bold margin-top-0">${moment(report.sent).format( 'HH:mm' )} UTC</p>
             </div>
             <div class="tablet:grid-col-6">
                     <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
                     <p class="text-bold margin-top-0">${report.total}</p>
                     <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
-                    <p class="text-bold margin-top-0">${report.expires} days</p>
+                    <p class="text-bold margin-top-0">${report.expires} ${report.expires>1? "days": "day"}</p>
             </div>`
       document.getElementById( "report.id").innerHTML = report.reportId;
       document.getElementById( "download").innerHTML += 
