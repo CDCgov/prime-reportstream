@@ -8,7 +8,7 @@
 
 **Type**: ID_CLIA
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3
 
 **Cardinality**: [0..1]
 
@@ -1111,7 +1111,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: TEXT
 
-**HL7 Field**: OBX-23-1
+**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2
 
 **Cardinality**: [0..1]
 

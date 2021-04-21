@@ -771,7 +771,7 @@ Z|No record of this patient
 
 **Type**: TEXT
 
-**HL7 Field**: OBX-23-1
+**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2
 
 **Cardinality**: [0..1]
 
