@@ -1,9 +1,9 @@
 ---
-title: ReportStream makes it easier to share public health data
+title: ReportStream makes it easier to collect public health data — for free
 summary: >-
-  ReportStream is a free, open-sourced data platform that makes it easier for public health data to be more easily transferred between senders and public health departments
+  ReportStream is an free, open source data platform that makes it easier for health departments to get faster, more accurate public health data from testing facilities
 heroImg: report-stream-application.png
-heroImgAlt: Screenshot of the ReportStream web application
+heroImgAlt: Example screenshot of the ReportStream web application
 
 partners:
   - type: State
@@ -48,13 +48,13 @@ documentation:
     - name: ELR integration guide
       type: pdf
       url: ReportStream-ELR-Onboarding-Guide-April-2021.pdf
-    - name: Technical documentation
+    - name: Web receiver guide
       type: pdf
-      url: foo.pdf
+      url: ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf
 
 cta:
-  title: Get started
+  title: Get started with reportstream
   summary: >-
-    Ready to bring ReportStream to your jurisdiction? <a href="mailto:support@prime.cdc.gov?subject=I'm interested in learning more about ReportStream">Contact the team at support@prime.cdc.gov</a>
-  buttonText: Get started with ReportStream
+    Ready to bring ReportStream to your jurisdiction?
+  buttonText: Contact us at support@prime.cdc.gov
   buttonUrl: mailto:support@prime.cdc.gov?subject=I'm interested in learning more about ReportStream

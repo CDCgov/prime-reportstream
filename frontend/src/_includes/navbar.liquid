@@ -6,7 +6,7 @@
     if( signIn )
       signIn.style.display = "block";
   }
-    
+
 </script>
 
 <div class="usa-overlay"></div>
@@ -36,7 +36,7 @@
       <div class="prime-user-account">
         <span id="emailUser"></span>
         <br />
-        <a href="#" id="logout" onclick="logout(); return false;"></a>
+        <a href="#" id="logout" class="usa-link" onclick="logout(); return false;"></a>
       </div>
     </nav>
   </div>
@@ -46,7 +46,7 @@
   let signIn = document.getElementById("signIn");
   if( window.sessionStorage.getItem("jwt") )
     signIn.style.display = "none";
-  else 
-    signIn.style.display = "block";    
+  else
+    signIn.style.display = "block";
 
 </script>
