@@ -527,7 +527,7 @@ class Merge : CoolTest() {
         val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver, redoxReceiver, sftpLegacyReceiver)
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
         val fakeItemCount = mergingReceivers.size * options.items
-        ugly("Starting merge test:  Merge $options.submits reports, each of which sends to $allGoodCounties")
+        ugly("Starting merge test:  Merge ${options.submits} reports, each of which sends to $allGoodCounties")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -1034,7 +1034,7 @@ class DbConnections : CoolTest() {
     override val status = TestStatus.FAILS
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting dbconnections Test: test of many threads attempting to sftp $options.items HL7s.")
+        ugly("Starting dbconnections Test: test of many threads attempting to sftp ${options.items} HL7s.")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
