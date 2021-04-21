@@ -67,7 +67,7 @@ class Hl7Serializer(val metadata: Metadata) {
     fun write(report: Report, outputStream: OutputStream, translatorConfig: TranslatorConfiguration? = null) {
         if (report.itemCount != 1)
             error("Internal Error: multiple item report cannot be written as a single HL7 message")
-        val message = createMessage(report, 0, translatorConfig)
+        val message = createMessage(report, 0)
         outputStream.write(message.toByteArray())
     }
 
@@ -77,14 +77,13 @@ class Hl7Serializer(val metadata: Metadata) {
     fun writeBatch(
         report: Report,
         outputStream: OutputStream,
-        translatorConfig: TranslatorConfiguration? = null
     ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        this.hl7Config = translatorConfig as? Hl7Configuration?
+        this.hl7Config = report.destination?.translation as? Hl7Configuration?
         outputStream.write(createHeaders(report).toByteArray())
         report.itemIndices.map {
-            val message = createMessage(report, it, translatorConfig)
+            val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
         }
         outputStream.write(createFooters(report).toByteArray())
@@ -259,16 +258,16 @@ class Hl7Serializer(val metadata: Metadata) {
         return ReadResult(Report(schema, mappedRows, source), errors, warnings)
     }
 
-    internal fun createMessage(report: Report, row: Int, translatorConfig: TranslatorConfiguration? = null): String {
+    internal fun createMessage(report: Report, row: Int): String {
         val message = ORU_R01()
-        this.hl7Config = translatorConfig as? Hl7Configuration?
+        this.hl7Config = report.destination?.translation as? Hl7Configuration?
         val processingId = if (hl7Config?.useTestProcessingMode == true) {
             "T"
         } else {
             "P"
         }
         message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
-        buildMessage(message, report, row, processingId, this.hl7Config)
+        buildMessage(message, report, row, processingId)
         hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
         return hapiContext.pipeParser.encode(message)
     }
@@ -278,9 +277,9 @@ class Hl7Serializer(val metadata: Metadata) {
         report: Report,
         row: Int,
         processingId: String = "T",
-        hl7Config: Hl7Configuration? = null,
     ) {
         // set up our configuration
+        val hl7Config = report.destination?.translation as? Hl7Configuration
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         // and we have some fields to suppress
@@ -604,21 +603,15 @@ class Hl7Serializer(val metadata: Metadata) {
         terser.set("MSH-16", "NE")
         terser.set("MSH-12", HL7_SPEC_VERSION)
         terser.set("MSH-17", "USA")
-
         terser.set("SFT-1", SOFTWARE_VENDOR_ORGANIZATION)
         terser.set("SFT-2", buildVersion)
         terser.set("SFT-3", SOFTWARE_PRODUCT_NAME)
         terser.set("SFT-4", buildVersion)
         terser.set("SFT-6", buildDate)
-
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
-
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
-
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-1", "1")
-
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-1", "1")
-
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
