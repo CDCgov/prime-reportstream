@@ -33,7 +33,7 @@ resource "azurerm_function_app" "function_app" {
       action = "Allow"
       name = "Ron IP"
       priority = 120
-      ip_address = "165.225.48.88/32"
+      ip_address = "165.225.48.87/31" # /31 is correct, can be 165.225.48.87 or 165.225.48.88
     }
 
     ip_restriction {
@@ -89,7 +89,7 @@ resource "azurerm_function_app" "function_app" {
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
     # HHS Protect Storage Account
-    "PartnerStore" = var.storage_partner_connection_string
+    "PartnerStorage" = var.storage_partner_connection_string
 
     "DOCKER_REGISTRY_SERVER_URL" = var.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user
