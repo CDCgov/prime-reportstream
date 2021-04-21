@@ -23,7 +23,7 @@
                 <p class="text-bold margin-top-0">
                   ${card.last}
                   <span class="float-right ${card.positive? "text-green" : "text-red"}">
-                    ${card.positive? "&#8593;" : "&#8595;"} ${card.change} (${card.pct_change}%)
+                    ${card.positive? "&#8593;" : "&#8595;"} ${card.change.toFixed(2)}
                   </span>
                 </p>
                 <canvas id="${card.id}" width="200" height="40"></canvas>
