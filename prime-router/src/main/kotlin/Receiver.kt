@@ -76,7 +76,7 @@ open class Receiver(
         val numberPerDay: Int = 1,
         val initialTime: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
-        val maxReportCount: Int = 100,
+        val maxReportCount: Int = 500,
     ) {
         /**
          * Calculate the next event time.
