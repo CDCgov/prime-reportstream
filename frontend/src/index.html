@@ -8,7 +8,7 @@ show_menu: false
 ---
 
 <section class="rs-hero" role="region">
-  <div class="grid-container usa-section margin-bottom-0">
+  <div class="grid-container usa-section margin-bottom-10">
     <div class="grid-row grid-gap margin-bottom-0 rs-hero__flex-center">
       <div class="tablet:grid-col-6">
         <h1>{{ content.index.title }}</h1>
@@ -22,8 +22,8 @@ show_menu: false
 </section>
 
 {% for partner in content.index.partners %}
-  <section class="grid-container usa-section margin-bottom-0 padding-bottom-0" role="region">
-    <div class="grid-row grid-gap margin-top-4 margin-bottom-1">
+  <section class="grid-container usa-section margin-y-0 padding-y-0" role="region">
+    <div class="grid-row grid-gap margin-bottom-0">
       <div class="tablet:grid-col-8">
         <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ partner.title }}</h2>
         <p class="font-sans-lg margin-top-1 text-base">{{ partner.summary }}</p>
