@@ -52,16 +52,16 @@ class Facility private constructor(
 }
 
 class Action private constructor(
-    val date: Int?,
+    val date: String?,
     val user: String?,
     val action: String? ){
     
     data class Builder(
-        var date: Int? = null,
+        var date: String? = null,
         var user: String? = null,
         var action: String? = null ){
 
-        fun date( date: Int ) = apply { this.date = date }
+        fun date( date: String ) = apply { this.date = date }
         fun user( user: String ) = apply { this.user = user }
         fun action( action: String ) = apply { this.action = action }
         fun build() = Action( date, user, action )
@@ -120,7 +120,7 @@ class CardView private constructor(
     val daily: Long?,
     val last: Double?,
     val positive: Boolean?,
-    val change: Long?,
+    val change: Double?,
     val pct_change: Double?,
     val data: Array<Long>? ){
     
@@ -131,7 +131,7 @@ class CardView private constructor(
         var daily: Long? = null,
         var last: Double? = null,
         var positive: Boolean? = null,
-        var change: Long? = null,
+        var change: Double? = null,
         var pct_change: Double? = null,
         var data: Array<Long>? = emptyArray<Long>()){
 
@@ -141,7 +141,7 @@ class CardView private constructor(
         fun daily( daily: Long ) = apply {this.daily = daily}
         fun last( last: Double ) = apply {this.last = last}
         fun positive( positive: Boolean ) = apply { this.positive = positive}
-        fun change( change: Long ) = apply {this.change = change}
+        fun change( change: Double ) = apply {this.change = change}
         fun pct_change( pct_change: Double ) = apply {this.pct_change = pct_change}
         fun data( data: Array<Long>) = apply {this.data = data}
         fun build() = CardView( id, title, subtitle, daily, last, positive, change, pct_change, data )
@@ -240,7 +240,9 @@ open class BaseHistoryFunction {
 
                 var facilities = arrayListOf<Facility>();
                 if( it.bodyFormat == "CSV")
-                    facilities = getFieldSummaryForReportId("Ordering_facility_name",it.reportId.toString(), authClaims)
+                    facilities = getFieldSummaryForReportId(arrayOf("Testing_lab_name","Testing_lab_CLIA"),it.reportId.toString(), authClaims)
+
+                var actions = getActionsForReportId( it.reportId.toString(), authClaims );
 
                 ReportView.Builder()
                 .reportId( it.reportId.toString() )
@@ -251,6 +253,7 @@ open class BaseHistoryFunction {
                 .type( "ELR" )
                 .expires( DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS), )
                 .facilities(facilities)
+                .actions(actions)
                 .build()        
             }
 
@@ -338,7 +341,9 @@ open class BaseHistoryFunction {
                 data.set(expires, data.get(expires) + it.itemCount.toLong()); 
             }
 
-            val avg: Double= if( headers.size >0 ) (sum / 7).toDouble() else 0.0;
+            var avg: Double = 0.0;
+            data.forEach { avg += it };
+            avg = avg / data.size;
 
             var card = CardView.Builder()
                         .id( "summary-tests")
@@ -347,8 +352,7 @@ open class BaseHistoryFunction {
                         .daily(daily)
                         .last( avg )
                         .positive( true )
-                        .change( 0L )
-                        .pct_change( 0.0 )
+                        .change( daily - avg )
                         .data( data )
                         .build();
             response = request.createResponseBuilder(HttpStatus.OK)
@@ -379,7 +383,7 @@ open class BaseHistoryFunction {
 
             @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )
             var reports = headers.sortedByDescending{ it.createdAt }.map{
-                if( it.bodyFormat == "CSV") getFieldSummaryForReportId(field,it.reportId.toString(), authClaims) else arrayListOf()
+                if( it.bodyFormat == "CSV") getFieldSummaryForReportId(arrayOf(field),it.reportId.toString(), authClaims) else arrayListOf()
             }
 
             response = request.createResponseBuilder(HttpStatus.OK)
@@ -396,7 +400,7 @@ open class BaseHistoryFunction {
         return response
     }
 
-    fun getFieldSummaryForReportId( fieldName: String, reportId: String, authClaim: AuthClaims ): ArrayList<Facility> {
+    fun getFieldSummaryForReportId( fieldName: Array<String>, reportId: String, authClaim: AuthClaims ): ArrayList<Facility> {
         var header: Header?
         var csv: FuzzyCSVTable? = null
         var facilties: ArrayList<Facility> = ArrayList<Facility>();
@@ -407,16 +411,39 @@ open class BaseHistoryFunction {
         if( header !== null )
             csv = FuzzyCSVTable.parseCsv( StringReader( String(header.content!!) ) );
         if( csv !== null ){
-            csv = csv.summarize( fieldName, count( fieldName ).az( "Count" ) )
+            csv = csv.summarize( *fieldName, count( fieldName[0] ).az( "Count" ) )
             csv.forEach{
                 facilties.add( Facility.Builder()
                                 .facility( it.getAt(0).toString() )
-                                .total( it.getAt(1).toString().toLong() )
+                                .CLIA( it.getAt(1).toString() )
+                                .total( it.getAt(2).toString().toLong() )
                                 .build()
                                 )
             }
         }
         return facilties;
+    }
+
+    fun getActionsForReportId( reportId: String, authClaim: AuthClaims): ArrayList<Action> {
+        var header: Header?
+        var actions: ArrayList<Action> = ArrayList<Action>();
+
+        try{
+            header = workflowEngine.fetchHeader( ReportId.fromString(reportId), authClaim.organization )
+        } catch (ex:Exception){ header = null }
+
+        /* 
+        if( header !== null && header.itemLineages !== null ){
+            header.itemLineages
+                actions.add( Action.Builder()
+                                .date( it.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) )
+                                .user( "USER" )
+                                .action( it.transportResult )
+                                .build() )                                   
+            }
+        }
+        */
+        return actions;
     }
 
     data class AuthClaims(
