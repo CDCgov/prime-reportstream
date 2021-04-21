@@ -46,7 +46,7 @@ local_styles:
 {% if show_navbar %}
   {% include navbar %}
 {% endif %}
-<main {% if title == "index" %}class="padding-y-0"{% endif %}>
+<main id="main-content" {% if title == "index" %}class="padding-y-0"{% endif %}>
 {% if show_menu and documentation %}
     {% include menu_documentation %}
 {% elsif show_menu %}
