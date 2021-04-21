@@ -1,3 +1,18 @@
+<script>
+const browser = bowser.getParser(window.navigator.userAgent);
+const isValidBrowser = browser.satisfies({
+    "edge": ">86.0",
+    "chrome": ">86.0",
+    "firefox": ">78.0",
+    "safari": ">14"
+});
+
+console.log( isValidBrowser );
+
+if( !isValidBrowser )
+  window.location.replace( 'unsupported-browser.html' );
+</script>
+
 <footer class="usa-identifier" aria-label="Agency identifier">
   <section class="usa-identifier__section usa-identifier__section--masthead"
     >
