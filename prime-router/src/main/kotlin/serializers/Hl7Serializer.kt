@@ -298,7 +298,13 @@ class Hl7Serializer(val metadata: Metadata) {
         setLiterals(terser)
         // serialize the rest of the elements
         report.schema.elements.forEach { element ->
-            val value = report.getString(row, element.name) ?: return@forEach
+            val value = report.getString(row, element.name).let {
+                if (it.isNullOrEmpty()) {
+                    element.default ?: ""
+                } else {
+                    it
+                }
+            }
 
             if (suppressedFields.contains(element.hl7Field))
                 return@forEach
@@ -371,7 +377,7 @@ class Hl7Serializer(val metadata: Metadata) {
         val args = element.mapperArgs ?: emptyList()
         val valueNames = mapper?.valueNames(element, args)
         report.schema.elements.forEach {
-            lookupValues[it.name] = report.getString(row, it.name) ?: ""
+            lookupValues[it.name] = report.getString(row, it.name) ?: element.default ?: ""
         }
         val valuesForMapper = valueNames?.map { elementName ->
             val valueElement = report.schema.findElement(elementName)
@@ -599,10 +605,19 @@ class Hl7Serializer(val metadata: Metadata) {
 
     private fun setLiterals(terser: Terser) {
         // Value that NIST requires (although # is not part of 2.5.1)
+        terser.set("MSH-12", HL7_SPEC_VERSION)
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
-        terser.set("MSH-12", HL7_SPEC_VERSION)
         terser.set("MSH-17", "USA")
+        terser.set("MSH-18", "UNICODE UTF-8")
+        terser.set("MSH-19", "")
+        terser.set("MSH-20", "")
+        /*
+        terser.set("MSH-21-1", "PHLabReport-NoAck")
+        terser.set("MSH-21-2", "ELR_Receiver")
+        terser.set("MSH-21-3", "2.16.840.1.113883.9.11")
+        terser.set("MSH-21-4", "ISO")
+         */
         terser.set("SFT-1", SOFTWARE_VENDOR_ORGANIZATION)
         terser.set("SFT-2", buildVersion)
         terser.set("SFT-3", SOFTWARE_PRODUCT_NAME)
