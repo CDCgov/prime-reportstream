@@ -32,8 +32,9 @@ Copy the value from `accessToken`. This will be your password and it will expire
 
 Using your PostgreSQL tool of choice, login with the following details:
 
-* User: `reportstream_pgsql_admin@dbservername`
-* Pasword: `<the accessToken from above>`
+* For write / schema access: `reportstream_pgsql_admin@dbservername`
+* For read-only access: `reportstream_pgsql_developer@dbservername`
+* Password: `<the accessToken from above>`
 
 Note: The tool pgAdmin is not supported at this time. [Microsoft notes access tokens are longer](https://docs.microsoft.com/en-us/azure/postgresql/howto-configure-sign-in-aad-authentication#connecting-to-azure-database-for-postgresql-using-azure-ad) than pgAdmin's char size for passwords.
 
