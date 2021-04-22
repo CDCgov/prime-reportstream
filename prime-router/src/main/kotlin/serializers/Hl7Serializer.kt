@@ -41,13 +41,6 @@ class Hl7Serializer(val metadata: Metadata) {
     private val buildVersion: String
     private val buildDate: String
     private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSZZZ")
-    private var hl7Config: Hl7Configuration? = null
-
-    private val hdFieldMaximumLength: Int? get() = if (hl7Config?.truncateHDNamespaceIds == true) {
-        HD_TRUNCATION_LIMIT
-    } else {
-        null
-    }
 
     init {
         val buildProperties = Properties()
@@ -67,7 +60,7 @@ class Hl7Serializer(val metadata: Metadata) {
     fun write(report: Report, outputStream: OutputStream, translatorConfig: TranslatorConfiguration? = null) {
         if (report.itemCount != 1)
             error("Internal Error: multiple item report cannot be written as a single HL7 message")
-        val message = createMessage(report, 0, translatorConfig)
+        val message = createMessage(report, 0)
         outputStream.write(message.toByteArray())
     }
 
@@ -77,14 +70,12 @@ class Hl7Serializer(val metadata: Metadata) {
     fun writeBatch(
         report: Report,
         outputStream: OutputStream,
-        translatorConfig: TranslatorConfiguration? = null
     ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        this.hl7Config = translatorConfig as? Hl7Configuration?
         outputStream.write(createHeaders(report).toByteArray())
         report.itemIndices.map {
-            val message = createMessage(report, it, translatorConfig)
+            val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
         }
         outputStream.write(createFooters(report).toByteArray())
@@ -259,16 +250,16 @@ class Hl7Serializer(val metadata: Metadata) {
         return ReadResult(Report(schema, mappedRows, source), errors, warnings)
     }
 
-    internal fun createMessage(report: Report, row: Int, translatorConfig: TranslatorConfiguration? = null): String {
+    internal fun createMessage(report: Report, row: Int): String {
         val message = ORU_R01()
-        this.hl7Config = translatorConfig as? Hl7Configuration?
+        val hl7Config = report.destination?.translation as? Hl7Configuration?
         val processingId = if (hl7Config?.useTestProcessingMode == true) {
             "T"
         } else {
             "P"
         }
         message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
-        buildMessage(message, report, row, processingId, this.hl7Config)
+        buildMessage(message, report, row, processingId)
         hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
         return hapiContext.pipeParser.encode(message)
     }
@@ -278,9 +269,9 @@ class Hl7Serializer(val metadata: Metadata) {
         report: Report,
         row: Int,
         processingId: String = "T",
-        hl7Config: Hl7Configuration? = null,
     ) {
         // set up our configuration
+        val hl7Config = report.destination?.translation as? Hl7Configuration
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         // and we have some fields to suppress
@@ -299,7 +290,13 @@ class Hl7Serializer(val metadata: Metadata) {
         setLiterals(terser)
         // serialize the rest of the elements
         report.schema.elements.forEach { element ->
-            val value = report.getString(row, element.name) ?: return@forEach
+            val value = report.getString(row, element.name).let {
+                if (it.isNullOrEmpty()) {
+                    element.default ?: ""
+                } else {
+                    it
+                }
+            }
 
             if (suppressedFields.contains(element.hl7Field))
                 return@forEach
@@ -310,7 +307,7 @@ class Hl7Serializer(val metadata: Metadata) {
                 element.hl7Field != null &&
                 (value.equals("ASKU", true) || value.equals("UNK", true))
             ) {
-                setComponent(terser, element, element.hl7Field, "")
+                setComponent(terser, element, element.hl7Field, "", report)
                 return@forEach
             }
 
@@ -318,7 +315,7 @@ class Hl7Serializer(val metadata: Metadata) {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
-                    setComponent(terser, element, hl7Field, value)
+                    setComponent(terser, element, hl7Field, value, report)
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
                 if (value.isNotBlank()) {
@@ -332,7 +329,7 @@ class Hl7Serializer(val metadata: Metadata) {
                     setAOE(terser, element, aoeSequence++, date, value, report, row, suppressQst = suppressQst)
                 } else {
                     // if the value is null but we're defaulting
-                    if (this.hl7Config?.defaultAoeToUnknown == true) {
+                    if (hl7Config?.defaultAoeToUnknown == true) {
                         val date = report.getString(row, "specimen_collection_date_time") ?: ""
                         setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
                     }
@@ -340,13 +337,13 @@ class Hl7Serializer(val metadata: Metadata) {
             } else if (element.hl7Field == "NTE-3") {
                 setNote(terser, value)
             } else if (element.hl7Field == "MSH-7") {
-                setComponent(terser, element, "MSH-7", formatter.format(report.createdDateTime))
+                setComponent(terser, element, "MSH-7", formatter.format(report.createdDateTime), report)
             } else if (element.hl7Field == "MSH-11") {
-                setComponent(terser, element, "MSH-11", processingId)
+                setComponent(terser, element, "MSH-11", processingId, report)
             } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
                 setComponentForTable(terser, element, report, row)
             } else if (element.hl7Field != null) {
-                setComponent(terser, element, element.hl7Field, value)
+                setComponent(terser, element, element.hl7Field, value, report)
             }
         }
         // make sure all fields we're suppressing are empty
@@ -372,7 +369,7 @@ class Hl7Serializer(val metadata: Metadata) {
         val args = element.mapperArgs ?: emptyList()
         val valueNames = mapper?.valueNames(element, args)
         report.schema.elements.forEach {
-            lookupValues[it.name] = report.getString(row, it.name) ?: ""
+            lookupValues[it.name] = report.getString(row, it.name) ?: element.default ?: ""
         }
         val valuesForMapper = valueNames?.map { elementName ->
             val valueElement = report.schema.findElement(elementName)
@@ -395,8 +392,15 @@ class Hl7Serializer(val metadata: Metadata) {
         terser: Terser,
         element: Element,
         hl7Field: String,
-        value: String
+        value: String,
+        report: Report
     ) {
+        val hl7Config = report.destination?.translation as? Hl7Configuration?
+        val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
+            HD_TRUNCATION_LIMIT
+        } else {
+            null
+        }
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
             Element.Type.ID_CLIA -> {
@@ -553,10 +557,10 @@ class Hl7Serializer(val metadata: Metadata) {
             Element.Type.NUMBER -> {
                 if (element.name != "patient_age") TODO("support other types of AOE numbers")
                 if (units == null) error("Schema Error: expected age units")
-                setComponent(terser, element, formPathSpec("OBX-5", aoeRep), value)
+                setComponent(terser, element, formPathSpec("OBX-5", aoeRep), value, report)
                 setCodeComponent(terser, units, formPathSpec("OBX-6", aoeRep), "patient_age_units")
             }
-            else -> setComponent(terser, element, formPathSpec("OBX-5", aoeRep), value)
+            else -> setComponent(terser, element, formPathSpec("OBX-5", aoeRep), value, report)
         }
 
         terser.set(formPathSpec("OBX-11", aoeRep), "F")
@@ -600,31 +604,40 @@ class Hl7Serializer(val metadata: Metadata) {
 
     private fun setLiterals(terser: Terser) {
         // Value that NIST requires (although # is not part of 2.5.1)
+        terser.set("MSH-12", HL7_SPEC_VERSION)
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
-        terser.set("MSH-12", HL7_SPEC_VERSION)
         terser.set("MSH-17", "USA")
-
+        terser.set("MSH-18", "UNICODE UTF-8")
+        terser.set("MSH-19", "")
+        terser.set("MSH-20", "")
+        /*
+        terser.set("MSH-21-1", "PHLabReport-NoAck")
+        terser.set("MSH-21-2", "ELR_Receiver")
+        terser.set("MSH-21-3", "2.16.840.1.113883.9.11")
+        terser.set("MSH-21-4", "ISO")
+         */
         terser.set("SFT-1", SOFTWARE_VENDOR_ORGANIZATION)
         terser.set("SFT-2", buildVersion)
         terser.set("SFT-3", SOFTWARE_PRODUCT_NAME)
         terser.set("SFT-4", buildVersion)
         terser.set("SFT-6", buildDate)
-
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
-
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
-
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-1", "1")
-
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM-1", "1")
-
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", "CWE")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-7", "XX")
     }
 
     private fun createHeaders(report: Report): String {
+        val hl7Config = report.destination?.translation as? Hl7Configuration?
+        val hdFieldMaximumLength = if (hl7Config?.truncateHDNamespaceIds == true) {
+            HD_TRUNCATION_LIMIT
+        } else {
+            null
+        }
         val encodingCharacters = "^~\\&"
         val sendingApp = formatHD(
             Element.parseHD(report.getString(0, "sending_application") ?: "", hdFieldMaximumLength)
