@@ -1,24 +1,28 @@
 ---
 permalink: "{{ page.filePathStem }}.html" # prefer named files, not blog-like permalinks
 cdn_styles:
-  - href: "https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css"
-    integrity: "sha384-NHrrVHQI7Uja/X0/0SMVLSk+nFzWI8AwBi1LqSOu7PogLHanNl0fOq1tTdvgb9C7"
-  - href: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/css/uswds.min.css"
-    integrity: "sha512-sL+HPuomAmkkQJsmqQN6RDNe926lTzNBQbRsEMq1dnGU1zI8Qke2pab7A5+kRr3nmYxuONtFhicbS5Y2uNkZWQ=="
+  - href: "https://global.oktacdn.com/okta-signin-widget/5.5.2/css/okta-sign-in.min.css"
+    integrity: "sha384-4AU/gyygVPVvyhusYR7zfD/dqlzjJ43STE4S8LYxeJtSgO43of15iAuMLhEUhqOt"
+  - href: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/css/uswds.min.css"
+    integrity: "sha384-WT15xkSvYhMfxLFeV9L2TsdadMbz0gCvu9NTc9oT3jeq/lEL64ZHF2diAnbRdPOl"
 
 cdn_scripts:
-  - src: "https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js"
-    integrity: "sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh"
-  - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds-init.min.js"
+  - src: "https://global.oktacdn.com/okta-signin-widget/5.5.2/js/okta-sign-in.min.js"
+    integrity: "sha384-/ChTOdf7wyPfhB76d9iGkmkHGb8GKebmTKNNXX8BQEjnl9f+WbMdgNjBSg3SJOEp"
+  - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/js/uswds-init.min.js"
     integrity: "sha512-Zy/dqU71uCdMWS6VdSqc/+2RjOxbq/ySinrQyLG3wTVWSXtBQpK6/b2Ky6vT2JHuFsNm8yBZMJ8zeMQ/ji2qMA=="
   - src: "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
+    integrity: "sha384-LQc6P0tjydf0IS2VO/iGZcRhIK1mYatxhr+EGHA361ABtAiPhLj0Y9H6zAqto47a"
   - src: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
-  - src: "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
-
+    integrity: "sha384-Uz1UHyakAAz121kPY0Nx6ZGzYeUTy9zAtcpdwVmFCEwiTGPA2K6zSGgkKJEQfMhK"
+  - src: "https://cdn.jsdelivr.net/npm/chart.js"
+    integrity: "sha384-/+iqJUd0dTB/2ceveEeW2ixZYSp3svjkH/0Bx9UxtkNpRmNFIb5qERuUw5Y52dh8"
+  - src: "https://cdn.jsdelivr.net/npm/downloadjs@1.4.7/download.min.js"
+    integrity: "sha384-fcq+FmM9tqGUeb2KuKl26ktwu/FxKAe200X+jtjXtbF3oCgVdr2GHQrC/+hZJJXg"
 
 post_scripts:
-  - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.10.0/js/uswds.min.js"
-    integrity: "sha512-ohEb4+2we68Bx+r0bzmujZwPVxjs+cD0lRykggDCj36aoqO9Tex8TaNO3gzBr8re+MVbbF5Av/d7VDQxUe+zlw=="
+  - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/js/uswds.min.js"
+    integrity: "sha512-WiP2mmg7ArMOV5qtm9TB85926NCnRhxwONQrZM1i2E7V2zwuOIrnqF/vmMfqhNdDJl7BP+5xFaXVzA6y5wTRtQ=="
   - src: "js/process-claims.js"
 
 local_styles:
@@ -42,19 +46,18 @@ local_styles:
 {% if show_navbar %}
   {% include navbar %}
 {% endif %}
-<main>
-{% if show_menu and documentation %}
-    {% include menu_documentation %}
-{% elsif show_menu %}
-  {% include menu_settings %}
-{% else %}
-  {{ content }}
-{% endif %}
+
+<main id="main-content" {% if title == "index" %}class="padding-y-0"{% endif %}>
+  {% if show_menu and documentation %}
+      {% include menu_documentation %}
+  {% elsif show_menu %}
+    {% include menu_settings %}
+  {% else %}
+    {{ content }}
+  {% endif %}
 </main>
 
-<section>
-  {% include identifier %}
-</section>
+{% include identifier %}
 
   {% for entry in post_scripts %}
     <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>

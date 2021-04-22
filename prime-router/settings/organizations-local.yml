@@ -155,22 +155,37 @@
           initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
           timeZone: EASTERN
 
-  - name: co-phd
-    description: Colorado Department of Health
-    jurisdiction: STATE
-    stateCode: CO
+  - name: "co-phd"
+    description: "Colorado Department of Public Health and Environment"
+    jurisdiction: "STATE"
+    stateCode: "CO"
     receivers:
-      - name: elr-redox-debug
-        organizationName: co-phd
-        topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, CO)" ]
-        translation:
-          type: REDOX
-          useTestProcessingMode: true
-          destinationId: 62d62d52-3771-4151-aff4-4a3d420a8b7a
-          destinationName: "Colorado Dept of Public Health (CDPHE)"
-          sourceId: d89d4057-930f-4c5b-bb39-8cddb326e928
-          sourceName: "Prime Data Hub (Staging)"
+    - name: "elr"
+      organizationName: "co-phd"
+      topic: "covid-19"
+      jurisdictionalFilter:
+      - "orEquals(patient_state, CO, ordering_facility_state, CO)"
+      translation:
+        schemaName: "co/co-covid-19-redox"
+        format: "REDOX"
+        defaults:
+          processing_mode_code: "P"
+          redox_source_name: "Prime Data Hub (Staging)"
+          redox_source_id: "d89d4057-930f-4c5b-bb39-8cddb326e928"
+          redox_destination_id: "62d62d52-3771-4151-aff4-4a3d420a8b7a"
+          redox_destination_name: "Colorado Dept of Public Health (CDPHE)"
+        nameFormat: "STANDARD"
+        type: "CUSTOM"
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+      transport:
+        type: REDOX
+        apiKey: some_key
+        baseUrl: http://redox:1080
 
   - name: tx-phd
     description: Texas Department of State Health Services
@@ -488,7 +503,7 @@
         organizationName: vt-doh
         topic: covid-19
         jurisdictionalFilter:
-          - matches(ordering_facility_state, VT)
+          - orEquals(ordering_facility_state, VT, patient_state, VT)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -496,6 +511,7 @@
           receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
           receivingFacilityName: VDH
           receivingFacilityOID: 2.16.840.1.114222.4.1.185
+          truncateHDNamespaceIds: true
         transport:
           type: SFTP
           host: sftp
@@ -542,7 +558,7 @@
         organizationName: mn-doh
         topic: covid-19
         jurisdictionalFilter:
-          - matches(ordering_facility_state, MN)
+          - orEquals(ordering_facility_state, MN, patient_state, MN)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -570,7 +586,7 @@
         organizationName: wi-dph
         topic: covid-19
         jurisdictionalFilter:
-          - or(ordering_facility_state, WI, patient_state, WI)
+          - orEquals(ordering_facility_state, WI, patient_state, WI)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -594,7 +610,7 @@
         organizationName: tn-doh
         topic: covid-19
         jurisdictionalFilter:
-          - or(ordering_facility_state, TN, patient_state, TN)
+          - orEquals(ordering_facility_state, TN, patient_state, TN)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -622,7 +638,7 @@
         organizationName: ms-doh
         topic: covid-19
         jurisdictionalFilter:
-          - or(ordering_facility_state, MS, patient_state, MS)
+          - orEquals(ordering_facility_state, MS, patient_state, MS)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -648,7 +664,7 @@
         organizationName: nc-dph
         topic: covid-19
         jurisdictionalFilter:
-          - or(ordering_facility_state, NC, patient_state, NC)
+          - orEquals(ordering_facility_state, NC, patient_state, NC)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -676,7 +692,7 @@
         organizationName: de-dph
         topic: covid-19
         jurisdictionalFilter:
-          - or(ordering_facility_state, DE, patient_state, DE)
+          - orEquals(ordering_facility_state, DE, patient_state, DE)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -700,10 +716,119 @@
         organizationName: ca-dph
         topic: covid-19
         jurisdictionalFilter:
-          - or(ordering_facility_state, CA, patient_state, CA)
+          - orEquals(ordering_facility_state, CA, patient_state, CA)
         translation:
           type: HL7
           useBatchHeaders: true
+          truncateHDNamespaceIds: true
+          receivingApplicationName: CDPH CA REDIE
+          receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
+          receivingFacilityName: CDPH CA REDIE
+          receivingFacilityOID: 2.16.840.1.114222.4.3.3 .10.1.1
+          messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: ma-phd
+    description: Massachusetts Public Health Department
+    jurisdiction: STATE
+    stateCode: MA
+    receivers:
+      - name: elr
+        organizationName: ma-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, MA, patient_state, MA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: nh-dphs
+    description: New Hampshire Division of Public Health Services
+    jurisdiction: STATE
+    stateCode: NH
+    receivers:
+      - name: elr
+        organizationName: nh-dphs
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NH, patient_state, NH)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
+          receivingFacilityName: NH_DHHS
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3669
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: al-phd
+    description: Alabama Public Health Department
+    jurisdiction: STATE
+    stateCode: AL
+    receivers:
+      - name: elr
+        organizationName: al-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, AL, patient_state, AL)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: mi-phd
+    description: Michigan Public Health Department
+    jurisdiction: STATE
+    stateCode: MI
+    receivers:
+      - name: elr
+        organizationName: mi-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, MI, patient_state, MI)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: MDSS
+          receivingApplicationOID: 2.16.840.1.114222.4.3.2.2.3.161.1.6377
+          receivingFacilityName: MDSS
+          receivingFacilityOID: 2.16.840.1.114222.4.3.2.2.3.161.1.6377
         transport:
           type: SFTP
           host: sftp

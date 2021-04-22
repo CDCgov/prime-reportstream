@@ -1,7 +1,7 @@
 ---
 layout: protected.liquid
 title: Login
-show_navbar: false
+show_navbar: true
 protected: false
 ---
 
@@ -12,6 +12,9 @@ protected: false
 
     let OKTA_clientId = '0oa6fm8j4G1xfrthd4h6';
 
+    console.log( `redirectUri = ${window.location.origin}` );
+
+    const redirectUri = window.location.origin;
 
     var config = {
         logo: '//logo.clearbit.com/cdc.gov',
@@ -24,7 +27,7 @@ protected: false
         el: "#okta-login-container",
         baseUrl: `https://hhs-prime.okta.com`,
         clientId: `${OKTA_clientId}`,
-        redirectUri: `https://pdhstagingpublic.z13.web.core.windows.net`,
+        redirectUri: redirectUri,
         authParams: {
           issuer: `https://hhs-prime.okta.com/oauth2/default`
         }
