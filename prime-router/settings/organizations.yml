@@ -216,6 +216,7 @@
           - matches(ordering_facility_state, LA)
         translation:
           type: HL7
+          useTestProcessingMode: false
           useBatchHeaders: true
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH

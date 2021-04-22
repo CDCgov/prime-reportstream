@@ -546,8 +546,14 @@ class Hl7Serializer(val metadata: Metadata) {
         units: String? = null,
         suppressQst: Boolean = false,
     ) {
+        // if the value type is a date, we need to specify that for the AOE questions
+        val valueType = if (element.type == Element.Type.DATE) {
+            "DT"
+        } else {
+            "CWE"
+        }
         terser.set(formPathSpec("OBX-1", aoeRep), (aoeRep + 1).toString())
-        terser.set(formPathSpec("OBX-2", aoeRep), "CWE")
+        terser.set(formPathSpec("OBX-2", aoeRep), valueType)
         val aoeQuestion = element.hl7AOEQuestion
             ?: error("Schema Error: missing hl7AOEQuestion for '${element.name}'")
         setCodeComponent(terser, aoeQuestion, formPathSpec("OBX-3", aoeRep), "covid-19/aoe")

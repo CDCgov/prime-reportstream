@@ -1,11 +1,7 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.output.TermUi.echo
-import gov.cdc.prime.router.FakeReport
-import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
@@ -85,6 +81,14 @@ class FileUtilities {
             val outputFile = if (outputFileName != null) {
                 File(outputFileName)
             } else {
+                // is this config HL7?
+                val hl7Config = report.destination?.translation as? Hl7Configuration?
+                // if it is, get the test processing mode
+                val processingMode = if (hl7Config?.useTestProcessingMode == false) {
+                    "P"
+                } else {
+                    "T"
+                }
                 val fileName = Report.formFilename(
                     report.id,
                     report.schema.baseName,
@@ -92,6 +96,7 @@ class FileUtilities {
                     report.createdDateTime,
                     nameFormat = Report.NameFormat.STANDARD,
                     report.destination?.translation?.receivingOrganization,
+                    processingMode
                 )
                 File(outputDir ?: ".", fileName)
             }

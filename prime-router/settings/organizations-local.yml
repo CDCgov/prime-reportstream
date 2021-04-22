@@ -300,6 +300,7 @@
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
           nameFormat: APHL
+          useTestProcessingMode: false
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
