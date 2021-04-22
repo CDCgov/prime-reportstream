@@ -245,15 +245,15 @@ open class BaseHistoryFunction {
                 var actions = getActionsForReportId( it.reportId.toString(), authClaims );
 
                 ReportView.Builder()
-                .reportId( it.reportId.toString() )
-                .sent( it.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) )
-                .via( it.bodyFormat )
-                .total( it.itemCount.toLong() )
-                .fileType( it.bodyFormat )
-                .type( "ELR" )
-                .expires( DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS), )
-                .facilities(facilities)
-                .actions(actions)
+                    .reportId( it.reportId.toString() )
+                    .sent( it.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) )
+                    .via( it.bodyFormat )
+                    .total( it.itemCount.toLong() )
+                    .fileType( it.bodyFormat )
+                    .type( "ELR" )
+                    .expires( DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS), )
+                    .facilities(facilities)
+                    .actions(actions)
                 .build()        
             }
 

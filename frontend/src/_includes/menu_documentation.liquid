@@ -31,10 +31,11 @@
           {% if current == "data retention" %}
             <a href="./data-retention.html" class="usa-current">
           {% else %}
-            <a href="./data_retention.html">
+            <a href="./data-retention.html">
           {%endif%}
             Data retention</a>
           </li>
+          {% comment %}
           <li class="usa-sidenav__item">
           {% if current == "terms and conditions" %}
             <a href="./terms-conditions.html" class="usa-current">
@@ -43,6 +44,7 @@
           {%endif%}
           Terms and conditions</a>
           </li>
+          {% endcomment %}
         </ul>
       </nav>
     </div>

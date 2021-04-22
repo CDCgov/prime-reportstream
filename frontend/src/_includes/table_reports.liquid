@@ -39,9 +39,9 @@
      document.getElementById( "tBody").innerHTML +=                
               `<tr>
                 <th data-title="reportId" scope="row"><a href="data-show.html?${report.reportId}">${report.reportId}</a></th>
-                <th data-title="date" scope="row">${report.sent}</th>
+                <th data-title="date" scope="row">${report.sent} UTC</th>
                 <th data-title="Total tests" scope="row">${report.total}</th>
-                <th date-title="expires" scope="row">${report.expires} days</th>
+                <th date-title="expires" scope="row">${report.expires} ${report.expires > 1 ?"days":"day"}</th>
                 <th data-title="File" scope="row"><span><a href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();">${report.fileType}</a></span>
                 </th>
               </tr>`

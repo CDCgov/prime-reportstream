@@ -1,6 +1,7 @@
 <script>
   var logout = () => {
     window.sessionStorage.removeItem( "jwt" )
+    window.sessionStorage.removeItem( "idle-timer" )
     window.location.replace(`${window.location.origin}`);
       let signIn = document.getElementById("signIn");
     if( signIn )
@@ -18,35 +19,38 @@
           <a href="{{ '/' | url }}" title="Home" aria-label="Home">ReportStream</a>
         </em>
       </div>
-      <button class="usa-menu-btn">Menu</button>
     </div>
     <nav aria-label="Primary navigation" class="usa-nav">
-      <button class="usa-nav__close"><img src="/assets/img/close.svg" role="img" alt="close"></button>
       <ul class="usa-nav__primary font-sans-md">
-        <li class="usa-nav__primary-item {% if title == "Download" %}usa-current{% endif %}">
+        <li id="navmenu" class="usa-nav__primary-item {% if title == "Download" %}usa-current{% endif %}">
           <a class="usa-nav__link" href="./data-index.html"><span>Daily data</span></a>
         </li>
-        <li class="usa-nav__primary-item {% if title == "documentation" %}usa-current{% endif %}">
+        <li class="usa-nav__primary-item {% if documentation %}usa-current{% endif %}">
           <a class="usa-nav__link" href="./documentation.html"><span>Documentation</span></a>
         </li>
       </ul>
-      <div>
-        <a id="signIn" class="usa-button usa-button--outline margin-x-0" href="./data-index.html">Sign in</a>
-      </div>
-      <div class="prime-user-account">
-        <span id="emailUser"></span>
-        <br />
-        <a href="#" id="logout" class="usa-link" onclick="logout(); return false;"></a>
-      </div>
     </nav>
+    {% unless hide_signin %}
+    <a id="signIn" class="usa-button usa-button--outline float-right" href="./data-index.html"><span>Sign&nbsp;in</span></a>
+    <div class="prime-user-account">
+      <span id="emailUser"></span>
+      <br />
+      <a href="#" id="logout" class="usa-link" onclick="logout(); return false;"></a>
+    </div>
+    {% endunless %}
   </div>
 </header>
 
 <script>
   let signIn = document.getElementById("signIn");
-  if( window.sessionStorage.getItem("jwt") )
-    signIn.style.display = "none";
-  else
-    signIn.style.display = "block";
+  let navMenu = document.getElementById("navmenu");
+  if( window.sessionStorage.getItem("jwt") ){
+    if( signIn ) signIn.style.display = "none";
+  }
+  else{
+    if( signIn ) signIn.style.display = "block";
+    navMenu.style.display = "none";
+  }
+
 
 </script>
