@@ -21,11 +21,11 @@
       </div>
     </div>
     <nav aria-label="Primary navigation" class="usa-nav">
-      <ul id="navmenu" class="usa-nav__primary font-sans-md">
-        <li class="usa-nav__primary-item {% if title == "Download" %}usa-current{% endif %}">
+      <ul class="usa-nav__primary font-sans-md">
+        <li id="navmenu" class="usa-nav__primary-item {% if title == "Download" %}usa-current{% endif %}">
           <a class="usa-nav__link" href="./data-index.html"><span>Daily data</span></a>
         </li>
-        <li class="usa-nav__primary-item {% if title == "documentation" %}usa-current{% endif %}">
+        <li class="usa-nav__primary-item {% if documentation %}usa-current{% endif %}">
           <a class="usa-nav__link" href="./documentation.html"><span>Documentation</span></a>
         </li>
       </ul>
@@ -36,7 +36,7 @@
       <span id="emailUser"></span>
       <br />
       <a href="#" id="logout" class="usa-link" onclick="logout(); return false;"></a>
-    </div>    
+    </div>
     {% endunless %}
   </div>
 </header>
