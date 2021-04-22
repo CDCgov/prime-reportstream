@@ -3,15 +3,15 @@
   "version": "0.0.0",
   "dependencies": {
     "axios": "^0.21.1",
-    "chart.js": "^3.1.0",
-    "cypress": "^7.0.1",
+    "chart.js": "^3.1.1",
+    "cypress": "^7.1.0",
     "moment": "^2.29.1",
-    "http-proxy-middleware": "^1.1.1"
+    "http-proxy-middleware": "^1.2.0"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.12.1",
     "express": "^4.17.1",
-    "js-yaml": "^4.0.0",
+    "js-yaml": "^4.1.0",
     "jshint": "^2.12.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
