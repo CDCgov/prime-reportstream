@@ -26,7 +26,7 @@
                   window.location.origin.includes( "staging" ) ? "https://staging.prime.cdc.gov" :
                   "https://prime.cdc.gov"
 
-    let config = { headers: { 'Authorization': `Bearer ${window.jwt}` } }                
+    let config = { headers: { 'Authorization': `Bearer ${window.jwt}` } }
 
     return axios.get(`${baseURL}/api/history/report/${reportId}`, config)
             .then( res => res.data )
@@ -38,7 +38,7 @@
     const reports = await fetchReports();
     console.log( window.location.search )
     var report = window.location.search == ""? reports[0] : reports.find( report => report.reportId == window.location.search.substring(1) );
-     document.getElementById( "details").innerHTML +=                
+     document.getElementById( "details").innerHTML +=
               `<div class="tablet:grid-col-6">
                     <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
                     <p class="text-bold margin-top-0">${report.type}</p>
@@ -53,26 +53,27 @@
                     <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
                     <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format( 'dddd, MMM DD, YYYY  HH:mm')}</p>
             </div>`
+
       document.getElementById( "report.id").innerHTML = report.reportId;
-      document.getElementById( "download").innerHTML += 
+      document.getElementById( "download").innerHTML +=
         `<a id="report.fileType" class="usa-button usa-button--outline float-right" href="#" onclick="requestFile2( \'${report.reportId}\');event.preventDefault();"></a>`
       document.getElementById( "report.fileType").innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH")? "HL7" : "CSV"
       const noFac = document.getElementById("nofacilities")
       const facTable = document.getElementById("facilitiestable")
       if( report.facilities.length > 0 ){
         noFac.style.display = "none"
-      }      
+      }
       else{
         facTable.style.display = "none";
       }
-        
+
       report.facilities.forEach( facility => {
-        document.getElementById( "tBodyFac").innerHTML += 
+        document.getElementById( "tBodyFac").innerHTML +=
           `<tr>
             <th data-title="facility" scope="row">${facility.facility}</th>
             <th data-title="clia" scope="row">${facility.CLIA}</th>
             <th data-title="facilityTotal" scope="row">${facility.total}</th>
-          </tr>`;  
+          </tr>`;
       })
       report.actions.forEach( action => {
         document.getElementById( "actions-list").innerHTML +=
@@ -82,24 +83,23 @@
                         <div class="item-title">${action.action}</div>
                     </li>`
       })
-          
+
     })()
 </script>
 
 <section class="grid-container">
   <h3 class="margin-bottom-0">
-    <a href="data-index.html">COVID-19</a> > <span class="text-gray-30" id="org_name"></span>
+    <a href="data-index.html">COVID-19</a> > <span class="text-gray-30" id="org_name"> Test</span>
   </h3>
   <h2 class="margin-top-0 margin-bottom-10">
     <p id="download" class="margin-top-0 margin-bottom-0">Report: <span id="report.id">This is the report ID</span></p>    
   </h2>
+
 </section>
 
 <section class="grid-container margin-top-0 margin-bottom-5">
-    <hr />
-    <div id="details" class="grid-row grid-gap margin-top-0">
-    </div>
-    <hr />
-  </section>
-
-  
+  <hr />
+  <div id="details" class="grid-row grid-gap margin-top-0">
+  </div>
+  <hr />
+</section>
