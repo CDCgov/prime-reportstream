@@ -18,8 +18,7 @@ elements:
   - name: ordering_facility_name
     csvFields: [{name: Ordering_Facility_Name}]
 
-  # Yes, PA wants the facility phone number mapped to provider
-  - name: ordering_provider_phone_number
+  - name: ordering_facility_phone_number
     csvFields: [{name: Ordering_Facility_Phone_Number}]
 
   - name: ordering_facility_street
