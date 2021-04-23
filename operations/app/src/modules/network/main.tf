@@ -14,6 +14,17 @@ resource "azurerm_network_security_group" "nsg_private" {
   resource_group_name = var.resource_group
 }
 
+resource "azurerm_virtual_network" "virtual_network" {
+  name = "${var.resource_prefix}-vnet"
+  location = var.location
+  resource_group_name = var.resource_group
+  address_space = ["10.0.0.0/16"]
+
+  tags = {
+    environment = var.environment
+  }
+}
+
 data "azurerm_virtual_network" "virtual_network" {
   name = "${var.resource_prefix}-vnet-peer-HUB"
   resource_group_name = var.resource_group
