@@ -13,8 +13,8 @@ resource "azurerm_storage_account" "storage_account" {
 
   network_rules {
     default_action = "Deny"
-    ip_rules = []
-    virtual_network_subnet_ids = [var.public_subnet_id, var.container_subnet_id, var.endpoint_subnet_id]
+    ip_rules = ["165.225.48.94"]
+    virtual_network_subnet_ids = [var.public_subnet_id, var.container_subnet_id]
   }
 
   # Required for customer-managed encryption
@@ -29,36 +29,6 @@ resource "azurerm_storage_account" "storage_account" {
   tags = {
     environment = var.environment
   }
-}
-
-module "storageaccount_blob_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_storage_account.storage_account.id
-  name = azurerm_storage_account.storage_account.name
-  type = "storage_account_blob"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
-}
-
-module "storageaccount_file_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_storage_account.storage_account.id
-  name = azurerm_storage_account.storage_account.name
-  type = "storage_account_file"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
-}
-
-module "storageaccount_queue_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_storage_account.storage_account.id
-  name = azurerm_storage_account.storage_account.name
-  type = "storage_account_queue"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
 }
 
 # Point-in-time restore, soft delete, versioning, and change feed were
@@ -229,7 +199,7 @@ resource "azurerm_storage_account" "storage_partner" {
   network_rules {
     default_action = "Deny"
     ip_rules = split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value)
-    virtual_network_subnet_ids = [var.public_subnet_id, var.endpoint_subnet_id]
+    virtual_network_subnet_ids = [var.public_subnet_id]
   }
 
   # Required for customer-managed encryption
@@ -268,16 +238,6 @@ resource "azurerm_storage_account_customer_managed_key" "storage_partner_key" {
   storage_account_id = azurerm_storage_account.storage_partner.id
 
   depends_on = [azurerm_key_vault_access_policy.storage_partner_policy]
-}
-
-module "storageaccountpartner_blob_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_storage_account.storage_partner.id
-  name = azurerm_storage_account.storage_partner.name
-  type = "storage_account_blob"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
 }
 
 resource "azurerm_storage_container" "storage_container_hhsprotect" {

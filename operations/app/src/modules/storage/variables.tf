@@ -33,11 +33,6 @@ variable "container_subnet_id" {
     description = "Container Subnet ID"
 }
 
-variable "endpoint_subnet_id" {
-    type = string
-    description = "Private Endpoint Subnet ID"
-}
-
 variable "eventhub_namespace_name" {
     type = string
     description = "Event hub to stream logs to"
