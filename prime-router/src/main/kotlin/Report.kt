@@ -126,8 +126,7 @@ class Report {
         schema.baseName,
         bodyFormat,
         createdDateTime,
-        destination?.translation?.nameFormat ?: NameFormat.STANDARD,
-        destination?.translation?.receivingOrganization
+        destination?.translation
     )
 
     /**
@@ -738,11 +737,35 @@ class Report {
             schemaName: String,
             fileFormat: Format?,
             createdDateTime: OffsetDateTime,
+            translationConfig: TranslatorConfiguration? = null
+        ): String {
+            val hl7Config = translationConfig as? Hl7Configuration?
+            val processingModeCode = if (hl7Config?.useTestProcessingMode == true) {
+                "T"
+            } else {
+                "P"
+            }
+            return formFilename(
+                id,
+                schemaName,
+                fileFormat,
+                createdDateTime,
+                hl7Config?.nameFormat ?: NameFormat.STANDARD,
+                hl7Config?.receivingOrganization,
+                "cdcprime",
+                processingModeCode
+            )
+        }
+
+        fun formFilename(
+            id: ReportId,
+            schemaName: String,
+            fileFormat: Format?,
+            createdDateTime: OffsetDateTime,
             nameFormat: NameFormat = NameFormat.STANDARD,
             receivingOrganization: String? = null,
             sendingFacility: String = "cdcprime",
             processingModeCode: String = "T",
-            translationConfig: TranslatorConfiguration? = null,
         ): String {
             fun mapProcessingModeCode(processingModeCode: String = "T"): String {
                 return when (processingModeCode.toLowerCase()) {
