@@ -7,7 +7,6 @@ const isValidBrowser = browser.satisfies({
     "safari": ">14"
 });
 
-console.log( isValidBrowser );
 
 if( !isValidBrowser )
   window.location.replace( 'unsupported-browser.html' );

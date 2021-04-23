@@ -39,24 +39,26 @@ hide_signin: true
         .then( function( tokens ){
             var jwt = tokens.accessToken.value;
             window.sessionStorage.setItem('jwt', jwt) ;
-            window.location.replace(`${window.location.origin}/data-index.html`);
             
             let running = window.sessionStorage.getItem("idle-timer");
-            let jwt = window.sessionStorage.getItem( 'jwt' )
 
-            if( !running && jwt ){    
-                console.log( 'starting timer' )
+            if( !running ){    
+                console.log( `setting timer` );
                 window.sessionStorage.setItem("idle-timer","true");
                 const instance = idleTimeout( () => {
+                    console.log( `timer expired` )
                     window.sessionStorage.clear()
-                    window.location.assign(`login.html`);
+                    window.location.replace(`login.html`);
                 },
                 {
                     element: document,
-                    timeout: 1000 * 60 * 15,
+                    timeout: 1000 * 60 * 1,
                     loop: false
                 });
             }
+
+            //window.location.replace(`${window.location.origin}/data-index.html`);
+
         });
 </script>
 </body>
