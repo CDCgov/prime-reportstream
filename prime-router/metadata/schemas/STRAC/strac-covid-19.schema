@@ -166,3 +166,11 @@ elements:
 
   - name: patient_id_type
     mapper: ifPresent(patient_id, PI)
+
+  # the kit_id is the serial number on the test kit
+  - name: message_id
+    mapper: use(filler_order_id)
+
+  # reporting facility and testing lab operate under the same CLIA with STRAC
+  - name: testing_lab_clia
+    mapper: use(reporting_facility_clia)
