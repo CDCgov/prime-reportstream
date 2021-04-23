@@ -41,6 +41,9 @@
      document.getElementById( "details").innerHTML +=
               `<div class="tablet:grid-col-6">
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> dbb9fd16be49870951cc7bb3d6e4d72355a41bcb
                     <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
                     <p class="text-bold margin-top-0">${report.type}</p>
                     <h4 class="text-gray-30 margin-bottom-0">Report date</h4>
@@ -54,6 +57,7 @@
                     <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
                     <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format( 'dddd, MMM DD, YYYY  HH:mm')}</p>
             </div>`
+<<<<<<< HEAD
 =======
                   <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
                   <p class="text-bold margin-top-0">${report.type}</p>
@@ -69,6 +73,9 @@
                   <p class="text-bold margin-top-0">${report.expires} ${report.expires>1? "days": "day"}</p>
                 </div>`
 >>>>>>> origin/master
+=======
+
+>>>>>>> dbb9fd16be49870951cc7bb3d6e4d72355a41bcb
       document.getElementById( "report.id").innerHTML = report.reportId;
       document.getElementById( "download").innerHTML +=
         `<a id="report.fileType" class="usa-button usa-button--outline float-right" href="#" onclick="requestFile2( \'${report.reportId}\');event.preventDefault();"></a>`
@@ -107,6 +114,7 @@
     <a href="data-index.html">COVID-19</a> > <span class="text-gray-30" id="org_name"> Test</span>
   </h3>
 <<<<<<< HEAD
+<<<<<<< HEAD
   <h2 class="margin-top-0 margin-bottom-10">
     <p id="download" class="margin-top-0 margin-bottom-0">Report: <span id="report.id">This is the report ID</span></p>    
   </h2>
@@ -118,6 +126,12 @@
   <span class="usa-tag bg-green">Delivered <span id="report.fileType2"></span></span>
 </p>
 >>>>>>> origin/master
+=======
+  <h2 class="margin-top-0 margin-bottom-10">
+    <p id="download" class="margin-top-0 margin-bottom-0">Report: <span id="report.id">This is the report ID</span></p>    
+  </h2>
+
+>>>>>>> dbb9fd16be49870951cc7bb3d6e4d72355a41bcb
 </section>
 
 <section class="grid-container margin-top-0 margin-bottom-5">
