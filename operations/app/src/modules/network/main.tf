@@ -35,12 +35,13 @@ resource "azurerm_subnet" "public" {
   name = "public"
   resource_group_name = var.resource_group
   virtual_network_name = data.azurerm_virtual_network.virtual_network.name
-  address_prefixes = ["172.17.4.0/30"]
+  address_prefixes = ["172.17.4.0/29"]
   service_endpoints = ["Microsoft.ContainerRegistry", 
                        "Microsoft.Storage",
                        "Microsoft.Sql",
                        "Microsoft.Web",
-                       "Microsoft.KeyVault"]
+                       "Microsoft.KeyVault",
+                       "Microsoft.EventHub"]
   delegation {
     name = "server_farms"
     service_delegation {
@@ -59,8 +60,8 @@ resource "azurerm_subnet" "container" {
   name = "container"
   resource_group_name = var.resource_group
   virtual_network_name = data.azurerm_virtual_network.virtual_network.name
-  address_prefixes = ["172.17.4.4/30"]
-  service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
+  address_prefixes = ["172.17.4.8/29"]
+  service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.EventHub"]
   delegation {
       name = "container_groups"
       service_delegation {
@@ -75,27 +76,6 @@ resource "azurerm_subnet_network_security_group_association" "container_public" 
   network_security_group_id = azurerm_network_security_group.nsg_public.id
 }
 
-resource "azurerm_subnet" "private" {
-  name = "private"
-  resource_group_name = var.resource_group
-  virtual_network_name = data.azurerm_virtual_network.virtual_network.name
-  address_prefixes = ["172.17.4.8/30"]
-  service_endpoints = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
-
-  delegation {
-    name = "server_farms"
-    service_delegation {
-      name = "Microsoft.Web/serverFarms"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-    }
-  }
-}
-
-resource "azurerm_subnet_network_security_group_association" "private_private" {
-  subnet_id = azurerm_subnet.private.id
-  network_security_group_id = azurerm_network_security_group.nsg_private.id
-}
-
 
 ## Outputs
 
@@ -105,8 +85,4 @@ output "public_subnet_id" {
 
 output "container_subnet_id" {
   value = azurerm_subnet.container.id
-}
-
-output "private_subnet_id" {
-  value = azurerm_subnet.private.id
 }

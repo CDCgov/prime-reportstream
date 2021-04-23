@@ -27,7 +27,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   auto_grow_enabled = true
 
-  public_network_access_enabled = false
+  public_network_access_enabled = true
   ssl_enforcement_enabled = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
 
@@ -51,10 +51,10 @@ resource "azurerm_postgresql_server" "postgres_server" {
 }
 
 resource "azurerm_postgresql_virtual_network_rule" "postgres_server_vnet" {
-  name = "${azurerm_postgresql_server.postgres_server.name}-vnet-private"
+  name = "${azurerm_postgresql_server.postgres_server.name}-vnet-public"
   resource_group_name = var.resource_group
   server_name = azurerm_postgresql_server.postgres_server.name
-  subnet_id = var.private_subnet_id
+  subnet_id = var.public_subnet_id
 }
 
 resource "azurerm_postgresql_server" "postgres_server_replica" {

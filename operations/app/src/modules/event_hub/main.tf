@@ -27,10 +27,6 @@ resource "azurerm_eventhub_namespace" "eventhub_namespace" {
     virtual_network_rule {
       subnet_id = var.container_subnet_id
     }
-
-    virtual_network_rule {
-      subnet_id = var.private_subnet_id
-    }
   }
 
   lifecycle {

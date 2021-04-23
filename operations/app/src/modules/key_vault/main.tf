@@ -39,7 +39,8 @@ resource "azurerm_key_vault" "application" {
   network_acls {
     bypass = "AzureServices"
     default_action = "Deny"
-    virtual_network_subnet_ids = [var.public_subnet_id, var.private_subnet_id]
+    ip_rules = ["165.225.48.94"]
+    virtual_network_subnet_ids = [var.public_subnet_id]
   }
 
   lifecycle {
@@ -121,7 +122,8 @@ resource "azurerm_key_vault" "app_config" {
   network_acls {
     bypass = "AzureServices"
     default_action = "Deny"
-    virtual_network_subnet_ids = [var.public_subnet_id, var.private_subnet_id]
+    ip_rules = ["165.225.48.94"]
+    virtual_network_subnet_ids = [var.public_subnet_id]
   }
 
   lifecycle {
@@ -168,7 +170,8 @@ resource "azurerm_key_vault" "client_config" {
   network_acls {
     bypass = "AzureServices"
     default_action = "Deny"
-    virtual_network_subnet_ids = [var.public_subnet_id, var.private_subnet_id]
+    ip_rules = ["165.225.48.94"]
+    virtual_network_subnet_ids = [var.public_subnet_id]
   }
 
   lifecycle {
