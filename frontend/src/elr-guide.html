@@ -6,9 +6,111 @@ documentation: true
 show_menu: true
 current: "elr guide"
 ---
-<div class="usa-prose">
-  <section class="grid-container">
-    <h1 class="margin-top-0">Electronic Lab Reporting (ELR) onboarding guide</h1>
-    <p>Coming soon</p>
-  </section>
-</div>
+<section class="margin-bottom-6">
+  <h1 class="margin-y-0">Electronic Laboratory Reporting (ELR) integration guide</h1>
+  <p class="usa-intro margin-top-0">Public health departments can build a direct connection with ReportStream to receive complete, well-structured COVID-19 ELR data. </p>
+</section>
+<section>
+  <h2>Benefits of building a direct connection</h2>
+  <ul>
+    <li>
+      <strong>Receive data from SimpleReport</strong><br />
+      If your jurisdiction is interested in receiving point-of-care tests results from  <a href="">SimpleReport</a>, you can access this data from the ReportStream connection.
+    </li>
+    <li>
+      <strong>Support fewer connections</strong><br />
+      ReportStream’s model focuses on aggregating data from multiple sources and senders, which you receive together in a single feed.
+    </li>
+    <li>
+      <strong>Get complete, timely data</strong><br />
+      ReportStream validates data from its senders, and transfers it to you at your preferred frequency and format.
+    </li>
+  </ul>
+</section>
+<section>
+  <h2>Integration overview</h2>
+  <p>Connecting with the ReportStream platform is very similar to setting up an ELR feed with a lab or hospital. Here is a sample timeline for an integration.</p>
+  <p>TABLE HERE</p>
+</section>
+<section>
+  <h2>Integration details</h2>
+  <p>The ReportStream team offers a standard set of configurations that enables a short turnaround time from kickoff to integration.</p>
+  <h3>Data schema</h3>
+  <ul>
+    <li>ReportStream’s value set follows the HHS guidance for COVID-19 Lab Data Reporting, including the COVID-19 “Ask On Entry” questions</li>
+    <li>Our standard way of submitting this data is via HL7 version 2.5.1</li>
+    <li>Sending the “Ask On Entry” questions are optional, and are sent via OBX fields</li>
+    <li>Other file formats such as CSV can be supported but may lead to a delay in integration</li>
+  </ul>
+  <h3>Data transport</h3>
+  <ul>
+    <li>ReportStream support SFTP connections as our standard connection type</li>
+    <li>Data can be sent real-time or batched in daily increments</li>
+    <li>Additional transport platforms such as VPN, PNIMS, SOAP, etc., can be supported but may lead to a delay in integration</li>
+  </ul>
+  <h3>Site registration process</h3>
+  <ul>
+    <li>ReportStream works as an aggregator and submits data on behalf of multiple senders and organizations collecting COVID-19 data (eg. long-term care facilities, schools, etc.)</li>
+    <li>ReportStream collects unique identifiers from each sender as they are registered to send, such as Organization/Site Name, CLIA, and Address. The sending facility information is generally included in the daily feed already.</li>
+    <li>To track new facilities and senders, ReportStream can optionally send a spreadsheet on a weekly cadence to an email address of your choice whenever there are new facilities.</li>
+    <li>Any custom requirements around site registration may lead to be a delay in integration.</li>
+  </ul>
+  <h3>Sample File Testing and Launch Process</h3>
+  <p>ReportStream can support sending a variety of data types for testing before launch.</p>
+  <ul>
+    <li>
+      Testing – Synthetic Data
+        <ul>
+          <li>ReportStream will always send one or more rounds of synthetic data in the standard data schema for your review
+</li>
+        </ul>
+    </li>
+    <li>
+      Testing – Patient Data
+        <ul>
+          <li>If required, ReportStream can also send patient data to your test servers</li>
+          <li>In certain cases, ReportStream will not have a live senders in your jurisdiction. In this case, we can wait for a live facility to move to production sign off</li>
+        </ul>
+    </li>
+    <li>
+      Production Signoff/Launch
+        <ul>
+          <li>For the first facility, we can send patient data to your testing server before moving onto production</li>
+          <li>For subsequent organizations/facilities, we will send data directly to production </li>
+        </ul>
+    </li>
+  </ul>
+  <h3>Local Jurisdictions</h3>
+  <ul>
+    <li>ReportStream has the ability to send data to state, county, city, territorial, and tribal public health departments</li>
+    <li>Once a state has been onboarded, then by default we send data to the state if 1) the patient is a resident or 2) the facility is present in the state</li>
+    <li>We also optionally make the data available to a local public health department based on these rules</li>
+  </ul>
+</section>
+<section>
+  <h2>Frequently asked questions</h2>
+  <p>
+    <strong>Who owns the data?</strong><br />
+    The ordering facilities own their own data. We submit on their behalf. We have a policy of transitory data retention.
+  </p>
+  <p>
+    <strong>Where does the data live?</strong><br />
+  The data is currently encrypted and routed through a CDC Cloud environment, where it is deleted after 14 days.
+  </p>
+  <p>
+    <strong>Can the ReportStream interface with senders other than SimpleReport? </strong><br />
+  Yes. We are currently prioritizing large, multi-state senders, but if you have other senders you’d like to re-direct to ReportStream, please get in contact with us regarding interfacing with additional senders.
+  </p>
+  <p>
+    <strong>Do you currently send data to NHSN?</strong><br />
+    Not currently.
+  </p>
+  <p>
+    <strong>Do you send data to APHL?</strong><br />
+    Not currently.
+  </p>
+</section>
+<section>
+  <h2>Onboarding checklist</h2>
+  <p>To begin the process of integrating ReportStream and your ELR connection, you will need to fill out the <a href="">ReportStream Intake Form</a>. This checklist helps you gather all of the information you will need prior to filling out the online form. Everything will be captured in the intake form unless explicitly mentioned otherwise.</p>
+</section>
