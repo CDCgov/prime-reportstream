@@ -39,7 +39,7 @@ resource "azurerm_key_vault" "application" {
   network_acls {
     bypass = "AzureServices"
     default_action = "Deny"
-    virtual_network_subnet_ids = [] // We're using a private endpoint, so none need to be associated
+    virtual_network_subnet_ids = [var.public_subnet_id, var.private_subnet_id]
   }
 
   lifecycle {
@@ -107,16 +107,6 @@ resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
   certificate_permissions = [ "Get" ]
 }
 
-module "application_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_key_vault.application.id
-  name = azurerm_key_vault.application.name
-  type = "key_vault"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
-}
-
 resource "azurerm_key_vault" "app_config" {
   name = "${var.resource_prefix}-appconfig" # Does not include "-keyvault" due to char limits (24)
   location = var.location
@@ -131,7 +121,7 @@ resource "azurerm_key_vault" "app_config" {
   network_acls {
     bypass = "AzureServices"
     default_action = "Deny"
-    virtual_network_subnet_ids = [] // We're using a private endpoint, so none need to be associated
+    virtual_network_subnet_ids = [var.public_subnet_id, var.private_subnet_id]
   }
 
   lifecycle {
@@ -164,16 +154,6 @@ resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
   certificate_permissions = []
 }
 
-module "app_config_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_key_vault.app_config.id
-  name = azurerm_key_vault.app_config.name
-  type = "key_vault"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
-}
-
 resource "azurerm_key_vault" "client_config" {
   name = "${var.resource_prefix}-clientconfig" # Does not include "-keyvault" due to char limits (24)
   location = var.location
@@ -188,7 +168,7 @@ resource "azurerm_key_vault" "client_config" {
   network_acls {
     bypass = "AzureServices"
     default_action = "Deny"
-    virtual_network_subnet_ids = [] // We're using a private endpoint, so none need to be associated
+    virtual_network_subnet_ids = [var.public_subnet_id, var.private_subnet_id]
   }
 
   lifecycle {
@@ -219,16 +199,6 @@ resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
   ]
 
   certificate_permissions = []
-}
-
-module "client_config_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_key_vault.client_config.id
-  name = azurerm_key_vault.client_config.name
-  type = "key_vault"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
 }
 
 
