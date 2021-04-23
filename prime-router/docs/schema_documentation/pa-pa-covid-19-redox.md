@@ -678,6 +678,17 @@ Y|No order on record for this test
 Z|No record of this patient
 C|Corrected, final
 F|Final results
+X|No results available; Order canceled
+A|Some, but not all, results available
+I|No results available; specimen received, procedure incomplete
+M|Corrected, not final
+N|Procedure completed, results pending
+O|Order received; specimen not yet received
+P|Preliminary
+R|Results stored; not yet verified
+S|No results available; procedure scheduled, but not done
+Y|No order on record for this test
+Z|No record of this patient
 
 **Alt Value Sets**
 
@@ -685,6 +696,17 @@ Code | Display
 ---- | -------
 C|Corrected
 F|Final
+X|Canceled
+A|Preliminary
+I|Unavailable
+M|Corrected
+N|Preliminary
+O|Preliminary
+P|Preliminary
+R|Preliminary
+S|Unavailable
+Y|Unavailable
+Z|Unavailable
 
 ---
 
