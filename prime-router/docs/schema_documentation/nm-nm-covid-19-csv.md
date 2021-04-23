@@ -250,6 +250,7 @@ ASKU|Asked, but unknown
 2106-3|White
 2131-1|Other
 UNK|Unknown
+ASKU|Asked, but unknown
 
 **Alt Value Sets**
 
@@ -262,6 +263,7 @@ Code | Display
 2106-3|W
 2131-1|Other
 UNK|U
+ASKU|U
 
 **Documentation**:
 

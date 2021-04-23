@@ -87,6 +87,8 @@ elements:
         code: 2131-1
       - display: U
         code: UNK
+      - display: U
+        code: ASKU
 
   - name: patient_ethnicity
     csvFields:

@@ -1,6 +1,7 @@
 ---
 layout: protected.liquid
-title: Download
+title: Daily data
+permalink: "{{ title | slug }}/"
 protected: true
 show_navbar: true
 show_menu: false
@@ -13,11 +14,12 @@ show_menu: false
   </h3>
   <h1 class="margin-top-0 margin-bottom-0">
     COVID-19
-    <a class="usa-button usa-button--outline float-right" href="/data-show.html">Latest Results</a>
-</h1>
+  </h1>
 </section>
 
+{% comment %}
 {% include grid_charts %}
+{% endcomment %}
 
 {% include table_reports %}
 
