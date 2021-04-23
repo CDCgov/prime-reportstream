@@ -1,7 +1,7 @@
 ---
 title: ReportStream makes it easier to collect public health data — for free
 summary: >-
-  ReportStream is an free, open source data platform that makes it easier for health departments to get faster, more accurate public health data from testing facilities
+  ReportStream is a free, open source data platform that makes it easier for health departments to get faster, more accurate public health data from testing facilities.
 heroImg: report-stream-application.png
 heroImgAlt: Example screenshot of the ReportStream web application
 
@@ -33,7 +33,7 @@ partners:
           Get direct access to data from senders connected with ReportStream, such as facilities using <a href="https://simplereport.gov">SimpleReport</a>, in your jurisdiction.
         icon: send.svg
         iconDescription: a paper airplane
-      - title: No ELR necessary
+      - title: No ELR connection necessary
         summary: Receive data directly via a ReportStream web account.
         icon: cloud.svg
         iconDescription: cloud computing
@@ -53,7 +53,7 @@ documentation:
       url: ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf
 
 cta:
-  title: Get started with reportstream
+  title: Get started with ReportStream
   summary: >-
     Ready to bring ReportStream to your jurisdiction?
   buttonText: Contact us at support@prime.cdc.gov

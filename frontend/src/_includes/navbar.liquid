@@ -23,15 +23,15 @@
     <nav aria-label="Primary navigation" class="usa-nav">
       <ul class="usa-nav__primary font-sans-md">
         <li id="navmenu" class="usa-nav__primary-item {% if title == "Download" %}usa-current{% endif %}">
-          <a class="usa-nav__link" href="./data-index.html"><span>Daily data</span></a>
+          <a class="usa-nav__link" href="/daily-data/"><span>Daily data</span></a>
         </li>
         <li class="usa-nav__primary-item {% if documentation %}usa-current{% endif %}">
-          <a class="usa-nav__link" href="./documentation.html"><span>Documentation</span></a>
+          <a class="usa-nav__link" href="{{ site.documentationPath }}"><span>Documentation</span></a>
         </li>
       </ul>
     </nav>
     {% unless hide_signin %}
-    <a id="signIn" class="usa-button usa-button--outline float-right" href="./data-index.html"><span>Sign&nbsp;in</span></a>
+    <a id="signIn" class="usa-button usa-button--outline float-right" href="/sign-in/"><span>Sign&nbsp;in</span></a>
     <div class="prime-user-account">
       <span id="emailUser"></span>
       <br />
