@@ -50,6 +50,13 @@ resource "azurerm_postgresql_server" "postgres_server" {
   }
 }
 
+resource "azurerm_postgresql_virtual_network_rule" "postgres_server_vnet" {
+  name = "${azurerm_postgresql_server.postgres_server.name}-vnet-private"
+  resource_group_name = var.resource_group
+  server_name = azurerm_postgresql_server.postgres_server.name
+  subnet_id = var.private_subnet_id
+}
+
 resource "azurerm_postgresql_server" "postgres_server_replica" {
   name = "${var.name}-replica"
   location = "westus"
@@ -87,26 +94,6 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   tags = {
     "environment" = var.environment
   }
-}
-
-module "postgres_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_postgresql_server.postgres_server.id
-  name = azurerm_postgresql_server.postgres_server.name
-  type = "postgres_server"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
-}
-
-module "postgres_private2_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_postgresql_server.postgres_server_replica.id
-  name = azurerm_postgresql_server.postgres_server_replica.name
-  type = "postgres_server"
-  resource_group = var.resource_group
-  location = azurerm_postgresql_server.postgres_server_replica.location
-  endpoint_subnet_id = var.endpoint2_subnet_id
 }
 
 # Grant the database Key Vault access, to access encryption keys

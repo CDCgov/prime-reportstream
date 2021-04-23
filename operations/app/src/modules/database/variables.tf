@@ -23,14 +23,9 @@ variable "location" {
     description = "Database Server Location"
 }
 
-variable "endpoint_subnet_id" {
+variable "private_subnet_id" {
     type = string
-    description = "Private Endpoint Subnet ID"
-}
-
-variable "endpoint2_subnet_id" {
-    type = string
-    description = "Private Endpoint2 Subnet ID"
+    description = "Private Subnet ID"
 }
 
 variable "app_config_key_vault_id" {
