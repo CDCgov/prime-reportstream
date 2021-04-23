@@ -12,6 +12,27 @@ resource "azurerm_eventhub_namespace" "eventhub_namespace" {
   maximum_throughput_units = var.environment == "prod" ? 10 : 0
   zone_redundant = true
 
+  network_rulesets {
+    default_action = "Deny"
+    trusted_service_access_enabled = true
+
+    ip_rule {
+      ip_mask = "165.225.48.94/32"
+    }
+
+    virtual_network_rule {
+      subnet_id = var.public_subnet_id
+    }
+
+    virtual_network_rule {
+      subnet_id = var.container_subnet_id
+    }
+
+    virtual_network_rule {
+      subnet_id = var.private_subnet_id
+    }
+  }
+
   lifecycle {
     prevent_destroy = true
   }
@@ -19,16 +40,6 @@ resource "azurerm_eventhub_namespace" "eventhub_namespace" {
   tags = {
     environment = var.environment
   }
-}
-
-module "eventhub_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_eventhub_namespace.eventhub_namespace.id
-  name = azurerm_eventhub_namespace.eventhub_namespace.name
-  type = "event_hub"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
 }
 
 resource "azurerm_eventhub_namespace_authorization_rule" "eventhub_manage_auth_rule" {
