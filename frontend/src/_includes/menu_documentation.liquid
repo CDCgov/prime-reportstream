@@ -1,5 +1,5 @@
 <section class="grid-container margin-bottom-5">
-  <div class="grid-row">
+  <div class="grid-row grid-gap">
     <div class="tablet:grid-col-3">
       <nav aria-label="Secondary navigation">
         <ul class="usa-sidenav">
@@ -9,7 +9,7 @@
           {% else %}
             <a href="./documentation.html">
           {% endif %}
-          About Us</a>
+          About us</a>
           </li>
           <li class="usa-sidenav__item">
           {% if current == "elr guide" %}
@@ -17,7 +17,7 @@
           {% else %}
             <a href="./elr-guide.html">
           {% endif %}
-          ELR guide</a>
+          ELR integration guide</a>
           </li>
           <li class="usa-sidenav__item">
           {% if current == "web receiver guide" %}
@@ -48,8 +48,8 @@
         </ul>
       </nav>
     </div>
-    <div class="tablet:grid-col-9">
-    {{ content }}
+    <div class="tablet:grid-col-9 usa-prose">
+      {{ content }}
     </div>
   </div>
 </section>
