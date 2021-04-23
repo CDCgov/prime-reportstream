@@ -22,8 +22,3 @@ variable "public_subnet_id" {
     type = string
     description = "Public Subnet ID"
 }
-
-variable "endpoint_subnet_id" {
-    type = string
-    description = "Private Endpoint Subnet ID"
-}
