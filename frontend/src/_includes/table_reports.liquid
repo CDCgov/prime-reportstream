@@ -1,12 +1,12 @@
 <section class="grid-container margin-top-5">
   <div class="grid-col-12">
-    <h2>Previous <span>7</span> days</h2>
+    <h2>Test results from the previous <span>7</span> days</h2>
 
     <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
       <thead>
         <tr>
+          <th scope="col">Report Id</th>
           <th scope="col">Date</th>
-          <th scope="col">Type</th>
           <th scope="col">Total tests</th>
           <th scope="col">Expires</th>
           <th scope="col">File</th>
@@ -20,17 +20,29 @@
 </section>
 
 <script defer>
+  function requestFile( reportId ){
+    let baseURL = window.location.origin.includes( "localhost") ? "http://localhost:7071" :
+                  window.location.origin.includes( "staging" ) ? "https://staging.prime.cdc.gov" :
+                  "https://prime.cdc.gov"
+
+    let config = { headers: { 'Authorization': `Bearer ${window.jwt}` } }
+
+    return axios.get(`${baseURL}/api/history/report/${reportId}`, config)
+            .then( res => res.data )
+            .then( csv => download( csv.content, csv.filename, csv.mimetype))
+
+  }
+
   (async () => {
     const reports = await fetchReports();
-    console.log( reports );
     reports.forEach( report => {
-     document.getElementById( "tBody").innerHTML +=                
+     document.getElementById( "tBody").innerHTML +=
               `<tr>
-                <th data-title="date" scope="row">${report.sent}</th>
-                <th data-title="receiver" scope="row">${report.type}</th>
+                <th data-title="reportId" scope="row"><a href="data-show.html?${report.reportId}" class="usa-link">${report.reportId}</a></th>
+                <th data-title="date" scope="row">${report.sent} UTC</th>
                 <th data-title="Total tests" scope="row">${report.total}</th>
-                <th date-title="expires" scope="row">${report.expires} days</th>
-                <th data-title="File" scope="row"><span><a href=".">${report.fileType}</a></span>
+                <th date-title="expires" scope="row">${report.expires} ${report.expires > 1 ?"days":"day"}</th>
+                <th data-title="File" scope="row"><span><a href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();" class="usa-link">${report.fileType}</a></span>
                 </th>
               </tr>`
     })
