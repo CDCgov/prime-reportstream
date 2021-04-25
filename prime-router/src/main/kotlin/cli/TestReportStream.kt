@@ -704,13 +704,14 @@ class Strac : CoolTest() {
             val tree = jacksonObjectMapper().readTree(json)
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
+            val expectedWarningCount = 0
             val warningCount = tree["warningCount"].intValue()
-            if (warningCount == allGoodReceivers.size - 1) {
+            if (warningCount == expectedWarningCount) {
                 good("First part of strac Test passed: $warningCount warnings were returned.")
             } else {
                 // Current expectation is that all non-REDOX counties fail.   If those issues get fixed,
                 // then we'll need to fix this test as well.
-                bad("***strac Test FAILED: Expecting ${allGoodReceivers.size - 1} warnings but got $warningCount***")
+                bad("***strac Test FAILED: Expecting ${expectedWarningCount} warnings but got $warningCount***")
                 passed = false
             }
             // OK, fine, the others failed.   All our hope now rests on you, REDOX - don't let us down!
