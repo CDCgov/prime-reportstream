@@ -57,6 +57,13 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+            <id>kotlinx</id>
+            <url>https://kotlin.bintray.com/kotlinx</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
