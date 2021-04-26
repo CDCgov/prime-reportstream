@@ -69,6 +69,20 @@ An example of the ID is 03D2159846
 
 ---
 
+**Name**: ordering_provider_phone_number
+
+**Type**: TELEPHONE
+
+**HL7 Fields**: ORC-14, OBR-17
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the provider
+
+---
+
 **Name**: ordering_facility_county
 
 **Type**: TABLE
@@ -831,20 +845,6 @@ The zip code of the provider
 **Type**: TEXT
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: ordering_provider_phone_number
-
-**Type**: TELEPHONE
-
-**HL7 Fields**: ORC-14, OBR-17
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The phone number of the provider
 
 ---
 

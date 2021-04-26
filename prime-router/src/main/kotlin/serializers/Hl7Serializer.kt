@@ -315,7 +315,20 @@ class Hl7Serializer(val metadata: Metadata) {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
-                    setComponent(terser, element, hl7Field, value, report)
+                    // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
+                    // text, but need to be truncated because they're the first part of an HD field. For example,
+                    // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
+                    val truncatedValue = if (
+                        value.length > HD_TRUNCATION_LIMIT &&
+                        element.type == Element.Type.TEXT &&
+                        hl7Field in HD_FIELDS &&
+                        hl7Config?.truncateHDNamespaceIds == true
+                    ) {
+                        value.substring(0, HD_TRUNCATION_LIMIT)
+                    } else {
+                        value
+                    }
+                    setComponent(terser, element, hl7Field, truncatedValue, report)
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
                 if (value.isNotBlank()) {
@@ -342,6 +355,18 @@ class Hl7Serializer(val metadata: Metadata) {
                 setComponent(terser, element, "MSH-11", processingId, report)
             } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
                 setComponentForTable(terser, element, report, row)
+            } else if (
+                element.type == Element.Type.TEXT && !element.hl7Field.isNullOrEmpty() && element.hl7Field in HD_FIELDS
+            ) {
+                // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
+                // text, but need to be truncated because they're the first part of an HD field. For example,
+                // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
+                val truncatedValue = if (value.length < HD_TRUNCATION_LIMIT) {
+                    value
+                } else {
+                    value.substring(0, HD_TRUNCATION_LIMIT)
+                }
+                setComponent(terser, element, element.hl7Field, truncatedValue, report)
             } else if (element.hl7Field != null) {
                 setComponent(terser, element, element.hl7Field, value, report)
             }
@@ -741,5 +766,6 @@ class Hl7Serializer(val metadata: Metadata) {
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
+        val HD_FIELDS = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2")
     }
 }
