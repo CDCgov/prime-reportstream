@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import FHIRAuth
 import com.fasterxml.jackson.annotation.JsonIgnore
 
 /**
@@ -13,6 +14,7 @@ open class Sender(
     val format: Format,
     val topic: String,
     val schemaName: String,
+    val fhirAuths: List<FHIRAuth>? = null,
 ) {
     constructor(copy: Sender) : this(copy.name, copy.organizationName, copy.format, copy.topic, copy.schemaName)
 
