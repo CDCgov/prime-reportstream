@@ -605,6 +605,10 @@
         translation:
           type: HL7
           useBatchHeaders: true
+          receivingApplicationName: ALNBS
+          receivingApplicationOID: 2.16.840.1.114222.4.5.1
+          receivingFacilityName: ALDOH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3636
 
   - name: mi-phd
     description: Michigan Public Health Department

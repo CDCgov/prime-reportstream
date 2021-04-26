@@ -513,6 +513,7 @@
           receivingFacilityName: VDH
           receivingFacilityOID: 2.16.840.1.114222.4.1.185
           truncateHDNamespaceIds: true
+          usePid14ForPatientEmail: true
         transport:
           type: SFTP
           host: sftp
@@ -802,6 +803,10 @@
         translation:
           type: HL7
           useBatchHeaders: true
+          receivingApplicationName: ALNBS
+          receivingApplicationOID: 2.16.840.1.114222.4.5.1
+          receivingFacilityName: ALDOH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3636
         transport:
           type: SFTP
           host: sftp

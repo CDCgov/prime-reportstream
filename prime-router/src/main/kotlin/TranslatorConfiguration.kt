@@ -53,6 +53,7 @@ data class Hl7Configuration
     val defaultAoeToUnknown: Boolean = false,
     val useBlankInsteadOfUnknown: String? = null,
     val truncateHDNamespaceIds: Boolean = false,
+    val usePid14ForPatientEmail: Boolean = false,
     override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?,
     // deprecated, please don't use
