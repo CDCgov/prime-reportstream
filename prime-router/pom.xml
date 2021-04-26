@@ -307,7 +307,7 @@
                 <!-- Specify the maven code generator plugin -->
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
-                <version>3.14.8</version>
+                <version>3.14.9</version>
                 <executions>
                     <execution>
                         <id>jooq-codegen</id>
