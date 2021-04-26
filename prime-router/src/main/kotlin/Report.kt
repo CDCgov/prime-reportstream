@@ -740,11 +740,7 @@ class Report {
             translationConfig: TranslatorConfiguration? = null
         ): String {
             val hl7Config = translationConfig as? Hl7Configuration?
-            val processingModeCode = if (hl7Config?.useTestProcessingMode == true) {
-                "T"
-            } else {
-                "P"
-            }
+            val processingModeCode = hl7Config?.processingModeCode ?: "P"
             return formFilename(
                 id,
                 schemaName,
