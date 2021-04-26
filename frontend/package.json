@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "dependencies": {
     "axios": "^0.21.1",
-    "chart.js": "^3.1.1",
+    "chart.js": "^3.2.0",
     "cypress": "^7.1.0",
     "moment": "^2.29.1",
     "http-proxy-middleware": "^1.2.0"
