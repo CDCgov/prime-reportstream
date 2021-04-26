@@ -20,6 +20,7 @@ hs_err_pid*
 
 # Build output
 **/target/**
+**/build/**
 **/log/**
 **/dependency-reduced-pom.xml
 

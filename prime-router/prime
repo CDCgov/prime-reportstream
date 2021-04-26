@@ -12,27 +12,15 @@
 
 set -e
 version=0.1-SNAPSHOT
+fat_jar=build/libs/prime-router-$version.jar
+lib_dir="build/libs"
 fat_jar_name=prime-router-$version-jar-with-dependencies.jar
 slim_jar_name=prime-router-$version.jar
-lib_name=azure-functions/prime-data-hub-router/lib
+lib_name=build/azure-functions/prime-data-hub-router/lib
 
 # find the jar
-if [ -f $fat_jar_name ]; then
-  jar=$fat_jar_name
-elif [ -f target/$fat_jar_name ]; then
-  jar=target/$fat_jar_name
-elif [ -f $slim_jar_name ]; then
-  jar=$slim_jar_name
-  if [ ! -d $lib_name ]; then
-    echo "Could not find a $lib_name directory"
-    exit 1
-  fi
-elif [ -f target/$slim_jar_name ]; then
-  jar=target/$slim_jar_name
-  if [ ! -d target/$lib_name ]; then
-    echo "Could not find a target/$lib_name directory"
-    exit 1
-  fi
+if [ -f $fat_jar ]; then
+  jar=$fat_jar
 else
   echo "Could not find a prime-data-hub-router*.jar file"
   exit 1

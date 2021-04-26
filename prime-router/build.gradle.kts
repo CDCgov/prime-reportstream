@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.jetbrains.kotlin.types.substituteAlternativesInPublicType
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -7,11 +8,26 @@ plugins {
     kotlin("jvm") version "1.4.32"
     id("org.flywaydb.flyway") version "7.8.1"
     id("nu.studer.jooq") version "5.2"
+    id("com.github.johnrengelman.shadow") version "6.1.0"
+    id("com.microsoft.azure.azurefunctions") version "1.5.1"
 }
 
 group = "gov.cdc.prime"
 version = "0.1-SNAPSHOT"
 description = "prime-router"
+val azureAppName = "prime-data-hub-router"
+
+// Set the Java compiler JVM target
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+// Set the Kotlin compiler JVM target
+val compileKotlin: KotlinCompile by tasks
+val compileTestKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions.jvmTarget = "1.8"
+compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
 
 // Local database information
 val dbUser ="prime"
@@ -19,12 +35,6 @@ val dbPassword ="changeIT!"
 val dbUrl ="jdbc:postgresql://localhost:5432/prime_data_hub"
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
-
-// Set the Kotlin compiler JVM target
-val compileKotlin: KotlinCompile by tasks
-val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "1.8"
-compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
 
 sourceSets.main {
     // Add the location of the generated database classes
@@ -51,6 +61,37 @@ tasks.processResources {
         val tokens = mapOf("version" to version, "timestamp" to formattedDate)
         filter(ReplaceTokens::class, mapOf("beginToken" to "@", "endToken" to "@", "tokens" to tokens))
     }
+}
+
+tasks.jar {
+    manifest {
+        /* We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
+        run by the ./prime script. It will be overwritten by the Azure host or the CLI fat jar package. */
+        attributes("Main-Class" to "gov.cdc.prime.router.cli.MainKt")
+    }
+}
+
+// The fat Jat is used for running local tests
+tasks.shadowJar {
+    archiveClassifier.set("")
+}
+
+azurefunctions {
+    appName = azureAppName
+//    setRuntime(closureOf<com.microsoft.azure.plugin.functions.gradle.configuration.GradleRuntimeConfiguration> {
+//        os = "linux"
+//        javaVersion = "11"
+//    })
+    setAppSettings(closureOf<MutableMap<String, String>> {
+        this.put("WEBSITE_RUN_FROM_PACKAGE", "1")
+        this.put("FUNCTIONS_EXTENSION_VERSION", "3")
+        this.put("FUNCTIONS_WORKER_RUNTIME", "java")
+    })
+}
+
+tasks.register("package") {
+    dependsOn(tasks.shadowJar)
+    dependsOn(tasks.azureFunctionsPackage)
 }
 
 // Configuration for Flyway migration tool

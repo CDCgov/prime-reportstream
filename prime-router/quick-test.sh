@@ -7,7 +7,7 @@
 
 # This runs prime in a variety of ways on csv files and compare outputs to actuals
 
-outputdir=target/csv_test_files
+outputdir=build/csv_test_files
 expecteddir=./src/test/csv_test_files/expected
 expected_pima=$expecteddir/simplereport-pima.csv
 expected_az=$expecteddir/simplereport-az.csv
