@@ -10,7 +10,7 @@ services:
         INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL}"
     volumes: # Attach the PWD into the image
       - type: bind
-        source: ./target
+        source: ./build
         target: /prime-data-hub-router
     entrypoint: [/prime-data-hub-router/start_func.sh]
     env_file:
@@ -50,7 +50,7 @@ services:
     ports:
         - "2222:22"
     volumes:
-      - ./target/sftp:/home/foo/upload        
+      - ./build/sftp:/home/foo/upload
     command: foo:pass:::upload     
 
   redox:

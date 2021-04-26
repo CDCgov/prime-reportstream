@@ -14,7 +14,7 @@ BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-outputdir=./target/csv_test_files
+outputdir=./build/csv_test_files
 starter_schema=primedatainput/pdi-covid-19
 database=prime_data_hub
 testfile1=$outputdir/prime1.csv

@@ -1,6 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.apache.tools.ant.filters.ReplaceTokens
-import org.jetbrains.kotlin.types.substituteAlternativesInPublicType
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -16,6 +15,7 @@ group = "gov.cdc.prime"
 version = "0.1-SNAPSHOT"
 description = "prime-router"
 val azureAppName = "prime-data-hub-router"
+val azureFunctionsDir = "azure-functions"
 
 // Set the Java compiler JVM target
 java {
@@ -43,14 +43,10 @@ sourceSets.main {
     resources.exclude("**/*.sql")
 }
 
-tasks.withType<JavaCompile>() {
-    options.encoding = "UTF-8"
-}
-
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
-    dependsOn(compileKotlin)
+    dependsOn("compileKotlin")
 }
 
 tasks.processResources {
@@ -71,11 +67,6 @@ tasks.jar {
     }
 }
 
-// The fat Jat is used for running local tests
-tasks.shadowJar {
-    archiveClassifier.set("")
-}
-
 azurefunctions {
     appName = azureAppName
 //    setRuntime(closureOf<com.microsoft.azure.plugin.functions.gradle.configuration.GradleRuntimeConfiguration> {
@@ -83,15 +74,52 @@ azurefunctions {
 //        javaVersion = "11"
 //    })
     setAppSettings(closureOf<MutableMap<String, String>> {
-        this.put("WEBSITE_RUN_FROM_PACKAGE", "1")
-        this.put("FUNCTIONS_EXTENSION_VERSION", "3")
-        this.put("FUNCTIONS_WORKER_RUNTIME", "java")
+        this["WEBSITE_RUN_FROM_PACKAGE"] = "1"
+        this["FUNCTIONS_EXTENSION_VERSION"] = "3"
+        this["FUNCTIONS_WORKER_RUNTIME"] = "java"
     })
 }
 
-tasks.register("package") {
-    dependsOn(tasks.shadowJar)
-    dependsOn(tasks.azureFunctionsPackage)
+tasks.azureFunctionsPackage {
+    dependsOn("test")
+}
+
+val azureResourcesTmpDir = File(rootProject.buildDir.path, "${azureFunctionsDir}-resources/${azureAppName}")
+val azureResourcesFinalDir = File(rootProject.buildDir.path, "${azureFunctionsDir}/${azureAppName}")
+tasks.register<Copy>("gatherAzureResources") {
+    from("./")
+    into(azureResourcesTmpDir)
+    include("metadata/**/*.yml")
+    include("metadata/**/*.schema")
+    include("metadata/**/*.valuesets")
+    include("metadata/**/*.csv")
+    include("settings/**/*.yml")
+    include("assets/**/*__inline.html")
+}
+
+tasks.register("copyAzureResources") {
+    dependsOn("gatherAzureResources")
+    doLast() {
+        // We need to use a regular copy, so Gradle does not delete the existing folder
+        org.apache.commons.io.FileUtils.copyDirectory(azureResourcesTmpDir, azureResourcesFinalDir)
+    }
+}
+
+val azureScriptsTmpDir = File(rootProject.buildDir.path, "${azureFunctionsDir}-scripts/${azureAppName}")
+val azureScriptsFinalDir = rootProject.buildDir
+tasks.register<Copy>("gatherAzureScripts") {
+    from("./")
+    into(azureScriptsTmpDir)
+    include("prime")
+    include("start_func.sh")
+}
+
+tasks.register("copyAzureScripts") {
+    dependsOn("gatherAzureScripts")
+    doLast() {
+        // We need to use a regular copy, so Gradle does not delete the existing folder
+        org.apache.commons.io.FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
+    }
 }
 
 // Configuration for Flyway migration tool
@@ -140,11 +168,26 @@ jooq {
 
 // Convenience tasks
 tasks.register("compile") {
-    dependsOn(tasks.compileKotlin)
+    dependsOn("compileKotlin")
 }
 
 tasks.register("migrate") {
-    dependsOn(tasks.flywayMigrate)
+    dependsOn("flywayMigrate")
+}
+
+tasks.register("packageAzure") {
+    dependsOn("azureFunctionsPackage")
+    dependsOn("copyAzureResources")
+    dependsOn("copyAzureScripts")
+}
+
+tasks.register("packageLocal") {
+    dependsOn("shadowJar")
+}
+
+tasks.register("package") {
+    dependsOn("packageLocal")
+    dependsOn("packageAzure")
 }
 
 repositories {
