@@ -16,18 +16,7 @@ version = "0.1-SNAPSHOT"
 description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
-
-// Set the Java compiler JVM target
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-// Set the Kotlin compiler JVM target
-val compileKotlin: KotlinCompile by tasks
-val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "1.8"
-compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
+val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 
 // Local database information
 val dbUser ="prime"
@@ -36,11 +25,26 @@ val dbUrl ="jdbc:postgresql://localhost:5432/prime_data_hub"
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
+// Set the compiler JVM target
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+val compileKotlin: KotlinCompile by tasks
+val compileTestKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions.jvmTarget = "1.8"
+compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
+
 sourceSets.main {
     // Add the location of the generated database classes
     java.srcDirs(jooqSourceDir)
     // Exclude SQL files from being copied to resulting package
     resources.exclude("**/*.sql")
+}
+
+tasks.clean {
+    // Delete the old Maven build folder
+    delete("target")
 }
 
 tasks.test {
@@ -63,16 +67,32 @@ tasks.jar {
     manifest {
         /* We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
         run by the ./prime script. It will be overwritten by the Azure host or the CLI fat jar package. */
-        attributes("Main-Class" to "gov.cdc.prime.router.cli.MainKt")
+        attributes("Main-Class" to primeMainClass)
     }
+}
+
+tasks.register<JavaExec>("primeCLI") {
+    group = rootProject.description ?: ""
+    description = "Run the Prime CLI tool.  Specify arguments with --args='<args>'"
+    main = primeMainClass
+    classpath = sourceSets["main"].runtimeClasspath
+    // Default arguments is to display the help
+    args = listOf("-h")
+    doFirst() {
+        println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
+    }
+}
+
+tasks.register<JavaExec>("testEnd2End") {
+    group = rootProject.description ?: ""
+    description = "Run the end to end tests.  Requires running a Docker instance"
+    main = primeMainClass
+    classpath = sourceSets["main"].runtimeClasspath
+    args = listOf("test", "--run", "end2end")
 }
 
 azurefunctions {
     appName = azureAppName
-//    setRuntime(closureOf<com.microsoft.azure.plugin.functions.gradle.configuration.GradleRuntimeConfiguration> {
-//        os = "linux"
-//        javaVersion = "11"
-//    })
     setAppSettings(closureOf<MutableMap<String, String>> {
         this["WEBSITE_RUN_FROM_PACKAGE"] = "1"
         this["FUNCTIONS_EXTENSION_VERSION"] = "3"
@@ -168,26 +188,23 @@ jooq {
 
 // Convenience tasks
 tasks.register("compile") {
+    group = rootProject.description ?: ""
+    description = "Compile the code"
     dependsOn("compileKotlin")
 }
 
 tasks.register("migrate") {
+    group = rootProject.description ?: ""
+    description = "Load the database with the latest schema"
     dependsOn("flywayMigrate")
 }
 
-tasks.register("packageAzure") {
+tasks.register("package") {
+    group = rootProject.description ?: ""
+    description = "Package the code and necessary files to run the Azure functions"
     dependsOn("azureFunctionsPackage")
     dependsOn("copyAzureResources")
     dependsOn("copyAzureScripts")
-}
-
-tasks.register("packageLocal") {
-    dependsOn("shadowJar")
-}
-
-tasks.register("package") {
-    dependsOn("packageLocal")
-    dependsOn("packageAzure")
 }
 
 repositories {
@@ -198,19 +215,7 @@ repositories {
     maven {
         url = uri("https://jitpack.io")
     }
-//    maven {
-//        url = uri("https://repo1.maven.org/maven2/")
-//    }
-//    maven {
-//        url = uri("http://jsch.sf.net/maven2/")
-//    }
-//
-//    maven {
-//        url = uri("https://repo.maven.apache.org/maven2/")
-//    }
 }
-
-
 
 dependencies {
     jooqGenerator("org.postgresql:postgresql:42.2.19")

@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# DEPRECATED: This script has been replaced by a Gradle task.  Run
+#   ./gradlew primeCLI --args='<args>'
+#
 # This script runs the CLI of the project. 
 #
 # It handles four different configurations in this order of preference
