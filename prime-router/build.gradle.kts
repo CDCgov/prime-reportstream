@@ -167,7 +167,7 @@ jooq {
     configurations {
         create("main") {  // name of the jOOQ configuration
             jooqConfiguration.apply {
-                logging = org.jooq.meta.jaxb.Logging.WARN
+                logging = org.jooq.meta.jaxb.Logging.INFO
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
                     url = dbUrl
@@ -197,6 +197,11 @@ jooq {
             }
         }
     }
+}
+
+// Set jOOQ task to participate in Gradle's incremental build feature
+tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
+    allInputsDeclared.set(true)
 }
 
 // Convenience tasks

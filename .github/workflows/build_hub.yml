@@ -65,13 +65,13 @@ jobs:
           distribution: 'adopt'
           java-version: 11
 
-      - name: Build Maven Package
+      - name: Build Prime Router Package
         run: bash ./gradlew clean package -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
 
-      - name: Save Build Target
+      - name: Save Build Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: build_target
@@ -108,7 +108,7 @@ jobs:
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          ./gradlew primeCLI --args='generate-docs'
+          bash ./gradlew primeCLI --args='generate-docs'
 
       - name: Check for Uncommited Docs
         id: check_changes
@@ -140,7 +140,7 @@ jobs:
           body: |
             The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
 
-            Please run `./prime generate-docs` to generate updated documentation, then commit the results.
+            Please run `./gradlew primeCLI --args='generate-docs'` to generate updated documentation, then commit the results.
 
             Expected changes in files:
 
