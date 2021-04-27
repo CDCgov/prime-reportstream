@@ -467,7 +467,7 @@ class Hl7Serializer(val metadata: Metadata) {
             }
             Element.Type.EMAIL -> {
                 if (value.isNotEmpty()) {
-                    setEmailComponent(terser, value, pathSpec, element)
+                    setEmailComponent(terser, value, element, hl7Config)
                 }
             }
             Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
@@ -539,19 +539,31 @@ class Hl7Serializer(val metadata: Metadata) {
         }
     }
 
-    private fun setEmailComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
-        // PID-13 is repeatable, which means we could have more than one phone #
-        // or email etc, so we need to increment until we get empty for PID-13-2
-        var rep = 0
-        while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
-            rep += 1
-        }
+    private fun setEmailComponent(terser: Terser, value: String, element: Element, hl7Config: Hl7Configuration?) {
+        // branch on element name. maybe we'll pass through ordering provider email information as well
         if (element.nameContains("patient_email")) {
-            // this is an email address
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "NET")
-            // specifies it's an internet telecommunications type
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "Internet")
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-4", value)
+            // for some state systems, they cannot handle repetition in the PID-13 field, despite what
+            // the HL7 specification calls for. In that case, the patient email is not imported. A common
+            // workaround is to shove the patient_email into PID-14 which is the business phone
+            if (hl7Config?.usePid14ForPatientEmail == true) {
+                // this is an email address
+                terser.set("/PATIENT_RESULT/PATIENT/PID-14-2", "NET")
+                // specifies it's an internet telecommunications type
+                terser.set("/PATIENT_RESULT/PATIENT/PID-14-3", "Internet")
+                terser.set("/PATIENT_RESULT/PATIENT/PID-14-4", value)
+            } else {
+                // PID-13 is repeatable, which means we could have more than one phone #
+                // or email etc, so we need to increment until we get empty for PID-13-2
+                var rep = 0
+                while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
+                    rep += 1
+                }
+                // this is an email address
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "NET")
+                // specifies it's an internet telecommunications type
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "Internet")
+                terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-4", value)
+            }
         }
     }
 
@@ -571,8 +583,14 @@ class Hl7Serializer(val metadata: Metadata) {
         units: String? = null,
         suppressQst: Boolean = false,
     ) {
+        // if the value type is a date, we need to specify that for the AOE questions
+        val valueType = if (element.type == Element.Type.DATE) {
+            "DT"
+        } else {
+            "CWE"
+        }
         terser.set(formPathSpec("OBX-1", aoeRep), (aoeRep + 1).toString())
-        terser.set(formPathSpec("OBX-2", aoeRep), "CWE")
+        terser.set(formPathSpec("OBX-2", aoeRep), valueType)
         val aoeQuestion = element.hl7AOEQuestion
             ?: error("Schema Error: missing hl7AOEQuestion for '${element.name}'")
         setCodeComponent(terser, aoeQuestion, formPathSpec("OBX-3", aoeRep), "covid-19/aoe")
