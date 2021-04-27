@@ -13,31 +13,6 @@ if( !isValidBrowser )
 </script>
 
 
-<<<<<<< HEAD
-  console.log( `running = ${running}`);
-
-  if( !running && jwt ){
-    console.log( 'starting timer' )
-    window.sessionStorage.setItem("idle-timer","true");
-    const instance = idleTimeout(
-  () => {
-    window.sessionStorage.clear()
-    window.location.assign(`./index.html`);
-  },
-  {
-    element: document,
-    timeout: 1000 * 60 * 15,
-    loop: false
-  }
-);
-  }
-  else {
-    if( instance )
-      instance.destroy();
-  }
-</script>
-=======
->>>>>>> 4105a5bb692999be21a2b1cda4fd5c47bf60334b
 
 <footer class="usa-identifier" aria-label="Agency identifier">
   <section class="usa-identifier__section usa-identifier__section--masthead"
