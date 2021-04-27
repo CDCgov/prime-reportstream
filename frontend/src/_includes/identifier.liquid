@@ -7,16 +7,13 @@ const isValidBrowser = browser.satisfies({
     "safari": ">14"
 });
 
-console.log( isValidBrowser );
 
 if( !isValidBrowser )
   window.location.replace( 'unsupported-browser.html' );
 </script>
 
-<script>
-  let running = window.sessionStorage.getItem("idle-timer");
-  let jwt = window.sessionStorage.getItem( 'jwt' )
 
+<<<<<<< HEAD
   console.log( `running = ${running}`);
 
   if( !running && jwt ){
@@ -39,6 +36,8 @@ if( !isValidBrowser )
       instance.destroy();
   }
 </script>
+=======
+>>>>>>> 4105a5bb692999be21a2b1cda4fd5c47bf60334b
 
 <footer class="usa-identifier" aria-label="Agency identifier">
   <section class="usa-identifier__section usa-identifier__section--masthead"

@@ -1,4 +1,4 @@
-<script src="js/reports.js"></script>
+<script src="../js/reports.js"></script>
 <script defer>
   async function fetchOrgName() {
     let config = {headers: { 'Authorization': `Bearer ${window.jwt}` } }
@@ -36,28 +36,24 @@
 
   (async () => {
     const reports = await fetchReports();
-    console.log( window.location.search )
     var report = window.location.search == ""? reports[0] : reports.find( report => report.reportId == window.location.search.substring(1) );
      document.getElementById( "details").innerHTML +=
               `<div class="tablet:grid-col-6">
-                  <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
-                  <p class="text-bold margin-top-0">${report.type}</p>
-                  <h4 class="text-gray-30 margin-bottom-0">Report date</h4>
-                  <p class="text-bold margin-top-0">${moment(report.sent).format( 'dddd, MMM DD, YYYY' )}</p>
-                  <h4 class="text-gray-30 margin-bottom-0">Report time</h4>
-                  <p class="text-bold margin-top-0">${moment(report.sent).format( 'HH:mm' )} UTC</p>
-                </div>
-                <div class="tablet:grid-col-6">
-                  <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
-                  <p class="text-bold margin-top-0">${report.total}</p>
-                  <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
-                  <p class="text-bold margin-top-0">${report.expires} ${report.expires>1? "days": "day"}</p>
-                </div>`
+                    <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
+                    <p class="text-bold margin-top-0">${report.type}</p>
+                    <h4 class="text-gray-30 margin-bottom-0">Report sent</h4>
+                    <p class="text-bold margin-top-0">${moment.utc(report.sent).local().format( 'dddd, MMM DD, YYYY  HH:mm' )}</p>
+            </div>
+            <div class="tablet:grid-col-6">
+                    <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
+                    <p class="text-bold margin-top-0">${report.total}</p>
+                    <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
+                    <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format( 'dddd, MMM DD, YYYY  HH:mm')}</p>
+            </div>`
       document.getElementById( "report.id").innerHTML = report.reportId;
       document.getElementById( "download").innerHTML +=
         `<a id="report.fileType" class="usa-button usa-button--outline float-right" href="#" onclick="requestFile2( \'${report.reportId}\');event.preventDefault();"></a>`
-      document.getElementById( "report.fileType").innerHTML = report.fileType == "HL7" || report.fileType == "HL7_BATCH"? "HL7" : "CSV"
-      document.getElementById( "report.fileType2").innerHTML = "SFTP"
+      document.getElementById( "report.fileType").innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH")? "HL7" : "CSV"
       const noFac = document.getElementById("nofacilities")
       const facTable = document.getElementById("facilitiestable")
       if( report.facilities.length > 0 ){
@@ -89,14 +85,11 @@
 
 <section class="grid-container">
   <h3 class="margin-bottom-0">
-    <a href="data-index.html">COVID-19</a> > <span class="text-gray-30" id="org_name"> Test</span>
+    <a href="/daily-data/">COVID-19</a> > <span class="text-gray-30" id="org_name"> Test</span>
   </h3>
-  <h2 class="margin-top-0 margin-bottom-0">
-    <p id="download" class="margin-top-0 margin-bottom-0">Report: <span id="report.id">This is the report ID</span></p>
-</h2>
-<p>
-  <span class="usa-tag bg-green">Delivered <span id="report.fileType2"></span></span>
-</p>
+  <h2 class="margin-top-0 margin-bottom-10">
+    <p id="download" class="margin-top-0 margin-bottom-0">Report: <span id="report.id">This is the report ID</span></p>    
+  </h2>
 </section>
 
 <section class="grid-container margin-top-0 margin-bottom-5">

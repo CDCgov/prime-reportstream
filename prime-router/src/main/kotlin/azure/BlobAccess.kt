@@ -42,7 +42,7 @@ class BlobAccess(
             Report.Format.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
             // HL7 needs some additional configuration we set on the translation in organization
             Report.Format.HL7 -> hl7Serializer.write(report, outputStream, report.destination?.translation)
-            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream, report.destination?.translation)
+            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
             Report.Format.CSV -> csvSerializer.write(report, outputStream)
             Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }

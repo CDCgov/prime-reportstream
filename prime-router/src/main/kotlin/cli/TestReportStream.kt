@@ -45,7 +45,7 @@ import kotlin.time.measureTime
 enum class TestStatus(val description: String) {
     DRAFT("Experimental"), // Tests that are experimental
     FAILS("Always fails"), // For tests that just always fail, and we haven't fixed the issue yet.
-    SLOW("Good test, but slow"), // For tests that are crazy slow
+    LOAD("Load Test"),
     GOODSTUFF("Part of Smoke test"), // Only Smoke the Good Stuff.
 }
 
@@ -216,7 +216,7 @@ Examples:
             TooBig(),
             DbConnections(),
             BadSftp(),
-            StracBasic(),
+            StracPack(),
             HammerTime(),
             Waters(),
             RepeatWaters(),
@@ -377,7 +377,7 @@ abstract class CoolTest {
         }
 
         /**
-         * A hack attempt to wait enough time, but not too long, for Hub to finish.
+         * A hack attempt to wait enough time, but not too long, for ReportStream to finish.
          * This assumes the batch/send executes on the minute boundary.
          */
         fun waitABit(plusSecs: Int, env: ReportStreamEnv, silent: Boolean = false) {
@@ -390,7 +390,7 @@ abstract class CoolTest {
                 // Or, we are in Test or Staging, which don't execute on the top of the minute.
                 waitSecs += 90
             }
-            echo("Waiting $waitSecs seconds for the Hub to fully receive, batch, and send the data")
+            echo("Waiting $waitSecs seconds for ReportStream to fully receive, batch, and send the data")
             for (i in 1..waitSecs) {
                 sleep(1000)
                 if (!silent) print(".")
@@ -496,7 +496,7 @@ class End2End : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -526,7 +526,7 @@ class Merge : CoolTest() {
         val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver, redoxReceiver, sftpLegacyReceiver)
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
         val fakeItemCount = mergingReceivers.size * options.items
-        ugly("Starting merge test:  Merge $options.submits reports, each of which sends to $allGoodCounties")
+        ugly("Starting merge test:  Merge ${options.submits} reports, each of which sends to $allGoodCounties")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -536,7 +536,7 @@ class Merge : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub over and over
+        // Now send it to ReportStream over and over
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
                 HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
@@ -574,7 +574,7 @@ class Hl7Null : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.   Make numResends > 1 to create merges.
+        // Now send it to ReportStream.   Make numResends > 1 to create merges.
         val numResends = 1
         val reportIds = (1..numResends).map {
             val (responseCode, json) =
@@ -691,7 +691,7 @@ class Strac : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, stracSender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -703,13 +703,14 @@ class Strac : CoolTest() {
             val tree = jacksonObjectMapper().readTree(json)
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
+            val expectedWarningCount = 0
             val warningCount = tree["warningCount"].intValue()
-            if (warningCount == allGoodReceivers.size - 1) {
+            if (warningCount == expectedWarningCount) {
                 good("First part of strac Test passed: $warningCount warnings were returned.")
             } else {
                 // Current expectation is that all non-REDOX counties fail.   If those issues get fixed,
                 // then we'll need to fix this test as well.
-                bad("***strac Test FAILED: Expecting ${allGoodReceivers.size - 1} warnings but got $warningCount***")
+                bad("***strac Test FAILED: Expecting ${expectedWarningCount} warnings but got $warningCount***")
                 passed = false
             }
             // OK, fine, the others failed.   All our hope now rests on you, REDOX - don't let us down!
@@ -721,13 +722,15 @@ class Strac : CoolTest() {
     }
 }
 
-class StracBasic : CoolTest() {
-    override val name = "stracbasic"
-    override val description = "Submit data in strac schema, send to REDOX only"
-    override val status = TestStatus.DRAFT
+class StracPack : CoolTest() {
+    override val name = "stracpack"   // no its not 'strackpack'
+    override val description = "Does '--submits X' simultaneous strac " +
+        "submissions, each with '--items Y' items. Redox only"
+    override val status = TestStatus.LOAD
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting stracbasic Test: sending Strac data to the ${redoxReceiver.name} receiver only.")
+        ugly("Starting stracpack Test: simultaneously submitting ${options.submits} batches " +
+            "of Strac ${options.items} items per batch to the ${redoxReceiver.name} receiver only.")
         val file = FileUtilities.createFakeFile(
             metadata,
             stracSender,
@@ -737,18 +740,35 @@ class StracBasic : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, stracSender.name, options.key)
-        echo("Response to POST: $responseCode")
-        echo(json)
-        if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            return bad("***StracBasic Test FAILED***:  response code $responseCode")
+        // Now send it to ReportStream over and over
+        var reportIds = mutableListOf<ReportId>()
+        var passed = true
+        // submit in thread grouping somewhat smaller than our database pool size.
+        for (i in 1..options.submits) {
+            thread {
+                val (responseCode, json) =
+                    HttpUtilities.postReportFile(environment, file, org.name, stracSender.name, options.key)
+                echo("$i: Response to POST: $responseCode")
+                if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                    echo(json)
+                    passed = bad("$i: ***StracPack Test FAILED***:  response code $responseCode")
+                } else {
+                    val tree = jacksonObjectMapper().readTree(json)
+                    val reportId = ReportId.fromString(tree["id"].textValue())
+                    echo("$i: Id of submitted report: $reportId")
+                    synchronized(reportIds) {
+                        reportIds.add(reportId)
+                    }
+                }
+            }
         }
-        val tree = jacksonObjectMapper().readTree(json)
-        val reportId = ReportId.fromString(tree["id"].textValue())
-        echo("Id of submitted report: $reportId")
-        waitABit(25, environment)
-        return examineLineageResults(reportId, listOf(redoxReceiver), options.items)
+        // Since we have to wait for the sends anyway, I didn't bother with a join here.
+        waitABit(5 * options.submits, environment)  // SWAG: wait extra seconds extra per file submitted
+        reportIds.forEach {
+            passed = passed and
+                examineLineageResults(it, listOf(redoxReceiver), options.items)
+        }
+        return passed
     }
 }
 
@@ -778,7 +798,7 @@ class Waters : CoolTest() {
         val tree = jacksonObjectMapper().readTree(json)
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
-        waitABit(25, environment, options.muted)
+        waitABit(60, environment, options.muted)
         if (file.exists()) file.delete()  // because of RepeatWaters
         return examineLineageResults(reportId, listOf(blobstoreReceiver), options.items)
     }
@@ -787,15 +807,15 @@ class Waters : CoolTest() {
 class RepeatWaters : CoolTest() {
     override val name = "repeatwaters"
     override val description = "Submit waters over and over, sending to BLOBSTORE"
-    override val status = TestStatus.DRAFT
+    override val status = TestStatus.LOAD
 
     @ExperimentalTime
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting $name Test: sending Waters data ${options.submits} times.")
         var allPassed = true
-        var totalItems = 0;
+        var totalItems = 0
         val sleepBetweenSubmitMillis = 360
-        val variationMillis = 1000
+        val variationMillis = 360
         val pace = (3600000 / sleepBetweenSubmitMillis) * options.items
         echo("Submitting at an expected pace of $pace items per hour")
         options.muted = true
@@ -813,7 +833,7 @@ class RepeatWaters : CoolTest() {
                 if (i < options.submits) {
                     val random = Random.nextInt(-variationMillis, variationMillis)
                     val sleepMillis = kotlin.math.max(sleepBetweenSubmitMillis + random, 0)
-                    echo("Sleeping for $sleepMillis milliseconds before next submit")
+                    echo("$i: Sleeping for $sleepMillis milliseconds before next submit")
                     sleep(sleepMillis.toLong())
                 }
             }
@@ -834,13 +854,14 @@ class RepeatWaters : CoolTest() {
  * This test can be used to hammer the reports endpoint, as it does all its submits in parallel.
  */
 class HammerTime : CoolTest() {
+    val receiverToTest = hl7Receiver
     override val name = "hammertime"
-    override val description = "Does '--submits X' file submissions in parallel, each with '--items Y' items."
-    override val status = TestStatus.DRAFT
+    override val description = "Does '--submits X' ${receiverToTest.name} " +
+        "submissions in parallel, each with '--items Y' items."
+    override val status = TestStatus.LOAD
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting load Test: $description")
-        val receiverToTest = hl7Receiver
+        ugly("Starting Hammertime Test: $description")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -850,7 +871,7 @@ class HammerTime : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub over and over
+        // Now send it to ReportStream over and over
         var reportIds = mutableListOf<ReportId>()
         var passed = true
         // submit in thread grouping somewhat smaller than our database pool size.
@@ -861,7 +882,7 @@ class HammerTime : CoolTest() {
                 echo("Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     echo(json)
-                    passed = bad("***Load Test FAILED***:  response code $responseCode")
+                    passed = bad("***Hammertime Test FAILED***:  response code $responseCode")
                 } else {
                     val tree = jacksonObjectMapper().readTree(json)
                     val reportId = ReportId.fromString(tree["id"].textValue())
@@ -900,7 +921,7 @@ class Garbage : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, emptySender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -932,7 +953,7 @@ class Garbage : CoolTest() {
 class Huge : CoolTest() {
     override val name = "huge"
     override val description = "Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."
-    override val status = TestStatus.SLOW
+    override val status = TestStatus.LOAD
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS
@@ -947,7 +968,7 @@ class Huge : CoolTest() {
             Report.Format.CSV
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -967,7 +988,7 @@ class Huge : CoolTest() {
 class TooBig : CoolTest() {
     override val name = "toobig"
     override val description = "Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"
-    override val status = TestStatus.SLOW
+    override val status = TestStatus.LOAD
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS + 1
@@ -982,7 +1003,7 @@ class TooBig : CoolTest() {
             Report.Format.CSV
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -1005,15 +1026,15 @@ class TooBig : CoolTest() {
  * Test weirdness in Staging wherein we have strange HL7 'send' numbers
  *
  * This test, when it fails, exposes a database connection exception in Staging.
- *
+ * I think this is actually passing now, but the query isn't quite right.
  */
 class DbConnections : CoolTest() {
     override val name = "dbconnections"
-    override val description = "Test weird issue wherein many 'sends' cause db connection failures"
-    override val status = TestStatus.FAILS
+    override val description = "Test issue wherein many 'sends' caused db connection failures"
+    override val status = TestStatus.DRAFT
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting dbconnections Test: test of many threads attempting to sftp $options.items HL7s.")
+        ugly("Starting dbconnections Test: test of many threads attempting to sftp ${options.items} HL7s.")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -1023,7 +1044,7 @@ class DbConnections : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.   Make numResends > 1 to create merges.
+        // Now send it to ReportStream.   Make numResends > 1 to create merges.
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
                 HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
@@ -1039,7 +1060,12 @@ class DbConnections : CoolTest() {
             reportId
         }
         waitABit(30, environment)
-        return examineMergeResults(reportIds[0], listOf(hl7Receiver), options.items, options.submits)
+        var passed = true
+        reportIds.forEach {
+            passed = passed and
+                examineLineageResults(it, listOf(hl7Receiver), options.items)
+        }
+        return passed
     }
 }
 
