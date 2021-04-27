@@ -49,8 +49,6 @@ compileKotlin.kotlinOptions.jvmTarget = "1.8"
 compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
 
 sourceSets.main {
-    // Add the location of the generated database classes
-    java.srcDirs(jooqSourceDir)
     // Exclude SQL files from being copied to resulting package
     resources.exclude("**/*.sql")
 }
