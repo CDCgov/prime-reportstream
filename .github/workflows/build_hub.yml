@@ -108,7 +108,7 @@ jobs:
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          bash ./gradlew primeCLI --args='generate-docs'
+          bash ./gradlew primeCLI --args='generate-docs' --exclude-task generateJooq
 
       - name: Check for Uncommited Docs
         id: check_changes
