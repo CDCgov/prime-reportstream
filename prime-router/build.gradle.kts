@@ -2,9 +2,9 @@
 Build script for Prime Router.
 
 Properties that can be overridden using the Gradle -P arguments:
-  pg.user - Postgres database username (defaults to prime)
-  pg.password - Postgres database password (defaults to changeIT!)
-  pg.url - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
+  DB_USER - Postgres database username (defaults to prime)
+  DB_PASSWORD - Postgres database password (defaults to changeIT!)
+  DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
 
   E.g. ./gradlew clean package -Pg.user=myuser -Dpg.password=mypassword
  */
@@ -30,9 +30,9 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 
 // Local database information
-val dbUser = (project.properties["pg.user"] ?: "prime") as String
-val dbPassword = (project.properties["pg.password"] ?: "changeIT!") as String
-val dbUrl = (project.properties["pg.url"] ?: "jdbc:postgresql://localhost:5432/prime_data_hub") as String
+val dbUser = (project.properties["DB_USER"] ?: "prime") as String
+val dbPassword = (project.properties["DB_PASSWORD"] ?: "changeIT!") as String
+val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://localhost:5432/prime_data_hub") as String
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
@@ -89,6 +89,7 @@ tasks.register<JavaExec>("primeCLI") {
     classpath = sourceSets["main"].runtimeClasspath
     // Default arguments is to display the help
     args = listOf("-h")
+    environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
     doFirst() {
         println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
     }
@@ -100,6 +101,7 @@ tasks.register<JavaExec>("testEnd2End") {
     main = primeMainClass
     classpath = sourceSets["main"].runtimeClasspath
     args = listOf("test", "--run", "end2end")
+    environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
 }
 
 azurefunctions {

@@ -216,24 +216,38 @@ The quick test is meant to test the data conversion and generation code.  Use th
 
 ### Local End-to-end Tests
 End-to-end tests check if the deployed system is configured correctly.  The test uses an organization called IGNORE for running the tests.  On Windows OS, use Git Bash or similar Linux shell to run these commands.
-1. Refer to the [SFTP-SETUP document](SFTP_SETUP.md) to setup a local SFTP server to receive the resulting data.
+1. Refer to the [SFTP-SETUP document](SFTP_SETUP.md) to setup a local SFTP server to receive the resulting data.  The SFTP server must be running for the send tests to work.
 1. Setup the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server and change the arguments for the --user and --pass as needed:
     ```bash 
     export $(cat ./.vault/env/.env.local | xargs)
-    ./prime create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass 
-    ./prime create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass 
-    ./prime create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass 
-    ./prime create-credential --type=UserPass --persist=IGNORE--SFTP-LEGACY --user foo --pass pass 
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass' 
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass' 
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass' 
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--SFTP-LEGACY --user foo --pass pass' 
     ```
 1. Run the Prime Router in the Docker container.
 1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:
     ```bash
-    export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
-    export POSTGRES_USER=prime
-    export POSTGRES_PASSWORD=changeIT!
     ./gradlew testEnd2End
     ```
 1. Verify that all tests are successful.
+
+### Changing the Database Properties
+You can change the default database properties used in the build script by setting the following properties:
+- DB_USER - Postgres database username (defaults to prime)
+- DB_PASSWORD - Postgres database password (defaults to changeIT!)
+- DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
+
+In the command line, you can set these properties as follows:
+```bash
+./gradlew testEnd2End -PDB_USER=prime -PDB_PASSWORD=mypassword
+```
+
+Or you can specify these properties via environment variables per the Gradle project properties environment ORG_GRADLE_PROJECT_<property>.  For example:
+```bash
+export ORG_GRADLE_PROJECT_DB_USER=prime
+export ORG_GRADLE_PROJECT_DB_PASSWORD=mypass
+```
 
 ## Using local configuration for organizations.yml
 
