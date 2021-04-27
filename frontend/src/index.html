@@ -14,6 +14,13 @@ show_menu: false
       <div class="tablet:grid-col-6">
         <h1>{{ content.index.title }}</h1>
         <p class="font-sans-lg line-height-sans-4">{{ content.index.summary }}</p>
+        {% if content.index.bullets %}
+          <ul class="usa-prose">
+            {% for bullet in content.index.bullets %}
+              <li>{{ bullet.content }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       </div>
       <div class="tablet:grid-col-6">
         <img class="shadow-2" src="{{ site.imgPath }}{{ content.index.heroImg }}" alt="{{ content.index.heroImgAlt }}" />
