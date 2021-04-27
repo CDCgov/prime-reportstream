@@ -93,6 +93,13 @@ data class Hl7Configuration
             "reporting_facility" to reportingFacility
         )
     }
+
+    @get:JsonIgnore
+    val processingModeCode: String get() = if (this.useTestProcessingMode) {
+        "T"
+    } else {
+        "P"
+    }
 }
 
 /**
