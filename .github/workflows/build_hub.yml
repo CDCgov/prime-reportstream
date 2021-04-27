@@ -66,7 +66,7 @@ jobs:
           java-version: 11
 
       - name: Build Maven Package
-        run: ./gradlew clean package -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
+        run: bash ./gradlew clean package -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
