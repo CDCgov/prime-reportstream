@@ -369,6 +369,8 @@
           nameFormat: APHL_LIGHT
           # turn off UNK and ASKU for this field
           useBlankInsteadOfUnknown: patient_race
+          # turn off OBX-17-1 as well
+          suppressHl7Fields: OBX-17-1
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -807,6 +809,7 @@
           receivingApplicationOID: 2.16.840.1.114222.4.5.1
           receivingFacilityName: ALDOH
           receivingFacilityOID: 2.16.840.1.114222.4.1.3636
+          convertTimestampToDateTime: MSH-7-1,SPM-18-1
         transport:
           type: SFTP
           host: sftp

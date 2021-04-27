@@ -284,6 +284,10 @@ class Hl7Serializer(val metadata: Metadata) {
             ?.useBlankInsteadOfUnknown
             ?.split(",")
             ?.map { it.toLowerCase().trim() } ?: emptyList()
+        val convertTimestampToDateTimeFields = hl7Config
+            ?.convertTimestampToDateTime
+            ?.split(",")
+            ?.map { it.trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
         val terser = Terser(message)
@@ -298,7 +302,7 @@ class Hl7Serializer(val metadata: Metadata) {
                 }
             }
 
-            if (suppressedFields.contains(element.hl7Field))
+            if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
 
             // some fields need to be blank instead of passing in UNK
@@ -328,7 +332,11 @@ class Hl7Serializer(val metadata: Metadata) {
                     } else {
                         value
                     }
-                    setComponent(terser, element, hl7Field, truncatedValue, report)
+                    if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
+                        setComponentForTable(terser, element, hl7Field, report, row)
+                    } else {
+                        setComponent(terser, element, hl7Field, truncatedValue, report)
+                    }
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
                 if (value.isNotBlank()) {
@@ -376,6 +384,19 @@ class Hl7Serializer(val metadata: Metadata) {
             val pathSpec = formPathSpec(it)
             terser.set(pathSpec, "")
         }
+        convertTimestampToDateTimeFields.forEach {
+            val pathSpec = formPathSpec(it)
+            val tsValue = terser.get(pathSpec)
+            if (!tsValue.isNullOrEmpty()) {
+                try {
+                    val dtFormatter = DateTimeFormatter.ofPattern("yyyMMddHHmmss")
+                    val parsedDate = OffsetDateTime.parse(tsValue, formatter).format(dtFormatter)
+                    terser.set(pathSpec, parsedDate)
+                } catch (_: Exception) {
+                    // for now do nothing
+                }
+            }
+        }
         // check for reporting facility overrides
         if (!hl7Config?.reportingFacilityName.isNullOrEmpty()) {
             val pathSpec = formPathSpec("MSH-4-1")
@@ -388,8 +409,12 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     private fun setComponentForTable(terser: Terser, element: Element, report: Report, row: Int) {
+        setComponentForTable(terser, element, element.hl7Field!!, report, row)
+    }
+
+    private fun setComponentForTable(terser: Terser, element: Element, hl7Field: String, report: Report, row: Int) {
         val lookupValues = mutableMapOf<String, String>()
-        val pathSpec = formPathSpec(element.hl7Field!!)
+        val pathSpec = formPathSpec(hl7Field)
         val mapper: Mapper? = element.mapperRef
         val args = element.mapperArgs ?: emptyList()
         val valueNames = mapper?.valueNames(element, args)
