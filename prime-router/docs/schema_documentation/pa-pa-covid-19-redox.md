@@ -1111,7 +1111,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: TEXT
 
-**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2
+**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1
 
 **Cardinality**: [0..1]
 
