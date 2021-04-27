@@ -199,6 +199,7 @@ jooq {
 
 // Set jOOQ task to participate in Gradle's incremental build feature
 tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
+    dependsOn("migrate")
     allInputsDeclared.set(true)
 }
 
