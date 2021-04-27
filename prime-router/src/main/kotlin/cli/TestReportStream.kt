@@ -45,7 +45,6 @@ import kotlin.time.measureTime
 enum class TestStatus(val description: String) {
     DRAFT("Experimental"), // Tests that are experimental
     FAILS("Always fails"), // For tests that just always fail, and we haven't fixed the issue yet.
-    SLOW("Good test, but slow"), // For tests that are crazy slow
     LOAD("Load Test"),
     GOODSTUFF("Part of Smoke test"), // Only Smoke the Good Stuff.
 }
@@ -378,7 +377,7 @@ abstract class CoolTest {
         }
 
         /**
-         * A hack attempt to wait enough time, but not too long, for Hub to finish.
+         * A hack attempt to wait enough time, but not too long, for ReportStream to finish.
          * This assumes the batch/send executes on the minute boundary.
          */
         fun waitABit(plusSecs: Int, env: ReportStreamEnv, silent: Boolean = false) {
@@ -391,7 +390,7 @@ abstract class CoolTest {
                 // Or, we are in Test or Staging, which don't execute on the top of the minute.
                 waitSecs += 90
             }
-            echo("Waiting $waitSecs seconds for the Hub to fully receive, batch, and send the data")
+            echo("Waiting $waitSecs seconds for ReportStream to fully receive, batch, and send the data")
             for (i in 1..waitSecs) {
                 sleep(1000)
                 if (!silent) print(".")
@@ -497,7 +496,7 @@ class End2End : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -537,7 +536,7 @@ class Merge : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub over and over
+        // Now send it to ReportStream over and over
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
                 HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
@@ -575,7 +574,7 @@ class Hl7Null : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.   Make numResends > 1 to create merges.
+        // Now send it to ReportStream.   Make numResends > 1 to create merges.
         val numResends = 1
         val reportIds = (1..numResends).map {
             val (responseCode, json) =
@@ -692,7 +691,7 @@ class Strac : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, stracSender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -741,7 +740,7 @@ class StracPack : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub over and over
+        // Now send it to ReportStream over and over
         var reportIds = mutableListOf<ReportId>()
         var passed = true
         // submit in thread grouping somewhat smaller than our database pool size.
@@ -815,8 +814,8 @@ class RepeatWaters : CoolTest() {
         ugly("Starting $name Test: sending Waters data ${options.submits} times.")
         var allPassed = true
         var totalItems = 0
-        val sleepBetweenSubmitMillis = 1000
-        val variationMillis = 1000
+        val sleepBetweenSubmitMillis = 360
+        val variationMillis = 360
         val pace = (3600000 / sleepBetweenSubmitMillis) * options.items
         echo("Submitting at an expected pace of $pace items per hour")
         options.muted = true
@@ -872,7 +871,7 @@ class HammerTime : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub over and over
+        // Now send it to ReportStream over and over
         var reportIds = mutableListOf<ReportId>()
         var passed = true
         // submit in thread grouping somewhat smaller than our database pool size.
@@ -922,7 +921,7 @@ class Garbage : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, emptySender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -954,7 +953,7 @@ class Garbage : CoolTest() {
 class Huge : CoolTest() {
     override val name = "huge"
     override val description = "Submit $REPORT_MAX_ITEMS line csv file, wait, confirm via db.  Slow."
-    override val status = TestStatus.SLOW
+    override val status = TestStatus.LOAD
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS
@@ -969,7 +968,7 @@ class Huge : CoolTest() {
             Report.Format.CSV
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -989,7 +988,7 @@ class Huge : CoolTest() {
 class TooBig : CoolTest() {
     override val name = "toobig"
     override val description = "Submit ${REPORT_MAX_ITEMS + 1} lines, which should be an error.  Slower ;)"
-    override val status = TestStatus.SLOW
+    override val status = TestStatus.LOAD
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS + 1
@@ -1004,7 +1003,7 @@ class TooBig : CoolTest() {
             Report.Format.CSV
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.
+        // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
         echo("Response to POST: $responseCode")
@@ -1027,12 +1026,12 @@ class TooBig : CoolTest() {
  * Test weirdness in Staging wherein we have strange HL7 'send' numbers
  *
  * This test, when it fails, exposes a database connection exception in Staging.
- *
+ * I think this is actually passing now, but the query isn't quite right.
  */
 class DbConnections : CoolTest() {
     override val name = "dbconnections"
-    override val description = "Test weird issue wherein many 'sends' cause db connection failures"
-    override val status = TestStatus.FAILS
+    override val description = "Test issue wherein many 'sends' caused db connection failures"
+    override val status = TestStatus.DRAFT
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting dbconnections Test: test of many threads attempting to sftp ${options.items} HL7s.")
@@ -1045,7 +1044,7 @@ class DbConnections : CoolTest() {
             options.dir,
         )
         echo("Created datafile $file")
-        // Now send it to the Hub.   Make numResends > 1 to create merges.
+        // Now send it to ReportStream.   Make numResends > 1 to create merges.
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
                 HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
@@ -1061,7 +1060,12 @@ class DbConnections : CoolTest() {
             reportId
         }
         waitABit(30, environment)
-        return examineMergeResults(reportIds[0], listOf(hl7Receiver), options.items, options.submits)
+        var passed = true
+        reportIds.forEach {
+            passed = passed and
+                examineLineageResults(it, listOf(hl7Receiver), options.items)
+        }
+        return passed
     }
 }
 
