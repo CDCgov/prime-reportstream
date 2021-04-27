@@ -29,7 +29,7 @@
 
         <jackson.version>2.12.3</jackson.version>
         <hapi.version>2.3</hapi.version>
-        <jooq.version>3.14.8</jooq.version>
+        <jooq.version>3.14.9</jooq.version>
         <log4j.version>[2.13.2,)</log4j.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
@@ -307,7 +307,7 @@
                 <!-- Specify the maven code generator plugin -->
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
-                <version>3.14.8</version>
+                <version>3.14.9</version>
                 <executions>
                     <execution>
                         <id>jooq-codegen</id>
@@ -649,7 +649,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.19</version>
+            <version>42.2.20</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -659,7 +659,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>7.7.3</version>
+            <version>7.8.1</version>
         </dependency>
         <dependency>
             <groupId>org.jooq</groupId>

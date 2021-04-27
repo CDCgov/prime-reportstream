@@ -1,8 +1,10 @@
 ---
 layout: protected.liquid
-title: Login
+title: Sign-in
+permalink: "{{ title | slug }}/"
 show_navbar: true
 protected: false
+hide_signin: true
 ---
 
 <body>
@@ -38,7 +40,7 @@ protected: false
         .then( function( tokens ){
             var jwt = tokens.accessToken.value;
             window.sessionStorage.setItem('jwt', jwt) ;
-            window.location.replace(`${window.location.origin}/data-index.html`);
+            window.location.replace(`${window.location.origin}/daily-data/`);
         });
 </script>
 </body>

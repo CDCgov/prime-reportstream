@@ -1,6 +1,7 @@
 ---
 layout: protected.liquid
-title: Download
+title: Daily data
+permalink: "{{ title | slug }}/"
 protected: true
 show_navbar: true
 show_menu: false
@@ -16,7 +17,9 @@ show_menu: false
   </h1>
 </section>
 
+{% comment %}
 {% include grid_charts %}
+{% endcomment %}
 
 {% include table_reports %}
 

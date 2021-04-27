@@ -1,53 +1,50 @@
 <section class="grid-container margin-bottom-5">
-  <div class="grid-row">
+  <div class="grid-row grid-gap">
     <div class="tablet:grid-col-3">
       <nav aria-label="Secondary navigation">
         <ul class="usa-sidenav">
           <li class="usa-sidenav__item">
-          {% if current == "about us" %}
-            <a href="./documentation.html" class="usa-current">
-          {% else %}
-            <a href="./documentation.html">
-          {% endif %}
-          About Us</a>
+            <a href="{{ site.documentationPath }}"
+              {% if current == "about us" %}
+                class="usa-current"
+              {% endif %}
+            >About</a>
           </li>
           <li class="usa-sidenav__item">
-          {% if current == "elr guide" %}
-            <a href="./elr-guide.html" class="usa-current">
-          {% else %}
-            <a href="./elr-guide.html">
-          {% endif %}
-          ELR guide</a>
+            <a href="{{ site.documentationPath }}elr-integration-guide/"
+              {% if current == "elr guide" %}
+                class="usa-current"
+              {% endif %}
+            >ELR integration guide</a>
           </li>
           <li class="usa-sidenav__item">
-          {% if current == "web receiver guide" %}
-            <a href="./web-receiver-guide.html" class="usa-current">
-          {% else %}
-            <a href="./web-receiver-guide.html">
-          {%endif%}
-            Web receiver guide</a>
+            <a href="{{ site.documentationPath }}web-receiver-guide/"
+              {% if current == "web receiver guide" %}
+                class="usa-current"
+              {% endif %}
+            >Web receiver guide</a>
+          </li>
+          {% comment %}
+          <li class="usa-sidenav__item">
+            <a href="{{ site.documentationPath }}data-retention/"
+              {% if current == "data retention" %}
+                class="usa-current"
+              {% endif %}
+            >Data retention</a>
           </li>
           <li class="usa-sidenav__item">
-          {% if current == "data retention" %}
-            <a href="./data-retention.html" class="usa-current">
-          {% else %}
-            <a href="./data_retention.html">
-          {%endif%}
-            Data retention</a>
+            <a href="./terms-conditions.html"
+              {% if current == "terms and conditions" %}
+                class="usa-current"
+              {% endif %}
+            >Terms and conditions</a>
           </li>
-          <li class="usa-sidenav__item">
-          {% if current == "terms and conditions" %}
-            <a href="./terms-conditions.html" class="usa-current">
-          {%else%}
-            <a href="./terms-conditions.html">
-          {%endif%}
-          Terms and conditions</a>
-          </li>
+          {% endcomment %}
         </ul>
       </nav>
     </div>
-    <div class="tablet:grid-col-9">
-    {{ content }}
+    <div class="tablet:grid-col-9 usa-prose rs-documentation">
+      {{ content }}
     </div>
   </div>
 </section>
