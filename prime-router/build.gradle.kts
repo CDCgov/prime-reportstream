@@ -1,3 +1,14 @@
+/*
+Build script for Prime Router.
+
+Properties that can be overridden using the Gradle -P arguments:
+  pg.user - Postgres database username (defaults to prime)
+  pg.password - Postgres database password (defaults to changeIT!)
+  pg.url - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
+
+  E.g. ./gradlew clean package -Pg.user=myuser -Dpg.password=mypassword
+ */
+
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.apache.tools.ant.filters.ReplaceTokens
 import java.time.LocalDateTime
@@ -19,11 +30,16 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 
 // Local database information
-val dbUser ="prime"
-val dbPassword ="changeIT!"
-val dbUrl ="jdbc:postgresql://localhost:5432/prime_data_hub"
+val dbUser = (project.properties["pg.user"] ?: "prime") as String
+val dbPassword = (project.properties["pg.password"] ?: "changeIT!") as String
+val dbUrl = (project.properties["pg.url"] ?: "jdbc:postgresql://localhost:5432/prime_data_hub") as String
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
+
+println(dbUser)
+println(dbPassword)
+println(dbUrl)
+defaultTasks("package")
 
 // Set the compiler JVM target
 java {

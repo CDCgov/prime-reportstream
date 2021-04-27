@@ -65,15 +65,8 @@ jobs:
           distribution: 'adopt'
           java-version: 11
 
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('prime-router/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
-
       - name: Build Maven Package
-        run: mvn -B clean package --file pom.xml -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
+        run: ./gradlew clean package -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
@@ -82,7 +75,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: build_target
-          path: prime-router/target
+          path: prime-router/build
 
   update_docs:
     name: Verify Router Docs
@@ -109,13 +102,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build_target
-          path: prime-router/target
+          path: prime-router/build
 
       - name: Generate New Docs
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          ./prime generate-docs
+          ./gradlew primeCLI --args='generate-docs'
 
       - name: Check for Uncommited Docs
         id: check_changes
