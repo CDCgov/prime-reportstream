@@ -50,13 +50,13 @@ The name of the facility which the test was ordered from
 
 **Type**: TELEPHONE
 
-**HL7 Fields**: ORC-14, OBR-17
+**HL7 Field**: ORC-23
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
-The phone number of the provider
+The phone number of the facility which the test was ordered from
 
 ---
 
@@ -771,7 +771,7 @@ Z|No record of this patient
 
 **Type**: TEXT
 
-**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2
+**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1
 
 **Cardinality**: [0..1]
 
@@ -798,5 +798,36 @@ The name of the laboratory which performed the test, can be the same as the send
 **HL7 Field**: PID-3-5
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: message_id
+
+**Type**: ID
+
+**HL7 Field**: MSH-10
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
+
+---
+
+**Name**: testing_lab_clia
+
+**Type**: ID_CLIA
+
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+CLIA Number from the laboratory that sends the message to DOH
+
+An example of the ID is 03D2159846
+
 
 ---
