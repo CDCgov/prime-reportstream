@@ -17,7 +17,7 @@ partners:
     features:
       - title: Support fewer connections
         summary: >-
-          ReportStream’s model focuses on aggregating data from multiple sources and senders, which you receive together in a single feed at your preferred frequency and format.
+          ReportStream's model focuses on aggregating data from multiple sources and senders, which you receive together in a single feed at your preferred frequency and format.
         icon: code.svg
         iconDescription: computer code
       - title: Get valuable insights
