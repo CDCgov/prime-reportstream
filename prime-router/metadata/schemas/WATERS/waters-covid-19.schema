@@ -33,6 +33,13 @@ elements:
     cardinality: ONE
     csvFields: [{ name: ordering_facility_state}]
 
+  # Not in Mark's example.
+  # Not required.
+  # Very important field for routing data to local jurisdictions
+  - name: ordering_facility_county
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: ordering_facility_county}]
+
   - name: test_result
     csvFields: [{ name: testResult }]
 
