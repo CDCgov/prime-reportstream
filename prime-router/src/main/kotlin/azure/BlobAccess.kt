@@ -105,7 +105,7 @@ class BlobAccess(
 
     fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
         val blobConnection = System.getenv(blobConnEnvVar)
-        logger.error("getBlobContainer: Env var $blobConnEnvVar is ${blobConnection.substring(0,50)}")
+        logger.info("getBlobContainer: Env var $blobConnEnvVar is ${blobConnection.substring(0,50)}")
         val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
         val containerClient = blobServiceClient.getBlobContainerClient(name)
         if (!containerClient.exists()) containerClient.create()
