@@ -6,9 +6,9 @@
       <thead>
         <tr>
           <th scope="col">Report Id</th>
-          <th scope="col">Date</th>
-          <th scope="col">Total tests</th>
+          <th scope="col">Date Sent</th>
           <th scope="col">Expires</th>
+          <th scope="col">Total tests</th>
           <th scope="col">File</th>
         </tr>
       </thead>
@@ -38,11 +38,11 @@
     reports.forEach( report => {
      document.getElementById( "tBody").innerHTML +=
               `<tr>
-                <th data-title="reportId" scope="row"><a href="data-show.html?${report.reportId}" class="usa-link">${report.reportId}</a></th>
-                <th data-title="date" scope="row">${report.sent} UTC</th>
+                <th data-title="reportId" scope="row"><a href="/report-details/?${report.reportId}" class="usa-link">${report.reportId}</a></th>
+                <th data-title="date" scope="row">${ moment.utc( report.sent ).local().format( 'YYYY-MM-DD HH:mm') }</th>
+                <th date-title="expires" scope="row">${moment.utc( report.expires ).local().format( 'YYYY-MM-DD HH:mm') }</th>
                 <th data-title="Total tests" scope="row">${report.total}</th>
-                <th date-title="expires" scope="row">${report.expires} ${report.expires > 1 ?"days":"day"}</th>
-                <th data-title="File" scope="row"><span><a href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();" class="usa-link">${report.fileType}</a></span>
+                <th data-title="File" scope="row"><span><a href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();">${report.fileType}</a></span>
                 </th>
               </tr>`
     })

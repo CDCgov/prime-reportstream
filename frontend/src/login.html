@@ -1,10 +1,10 @@
 ---
 layout: protected.liquid
-title: Sign-in
-permalink: "{{ title | slug }}/"
+title: Sign in
 show_navbar: true
 protected: false
 hide_signin: true
+permalink: "{{ title | slug }}/"
 ---
 
 <body>
@@ -13,8 +13,6 @@ hide_signin: true
 <script type="text/javascript" th:inline="javascript">
 
     let OKTA_clientId = '0oa6fm8j4G1xfrthd4h6';
-
-    console.log( `redirectUri = ${window.location.origin}` );
 
     const redirectUri = window.location.origin;
 
@@ -40,7 +38,11 @@ hide_signin: true
         .then( function( tokens ){
             var jwt = tokens.accessToken.value;
             window.sessionStorage.setItem('jwt', jwt) ;
+            
+          
+
             window.location.replace(`${window.location.origin}/daily-data/`);
+
         });
 </script>
 </body>
