@@ -45,9 +45,9 @@
                     <p class="text-bold margin-top-0">${moment.utc(report.sent).local().format( 'dddd, MMM DD, YYYY  HH:mm' )}</p>
             </div>
             <div class="tablet:grid-col-6">
-                    <h4 class="text-base margin-bottom-0">Total reporting</h4>
+                    <h4 class="text-base margin-bottom-0">Total tests reported</h4>
                     <p class="text-bold margin-top-0">${report.total}</p>
-                    <h4 class="text-base margin-bottom-0">Expires</h4>
+                    <h4 class="text-base margin-bottom-0">Download expires</h4>
                     <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format( 'dddd, MMM DD, YYYY  HH:mm')}</p>
             </div>`
       document.getElementById( "report.id").innerHTML = report.reportId;
