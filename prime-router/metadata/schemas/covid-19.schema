@@ -290,7 +290,7 @@ elements:
 
   - name: ordering_facility_phone_number
     type: TELEPHONE
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Ordering_facility_phone_number
     hhsGuidanceField:
     hl7Field: ORC-23
