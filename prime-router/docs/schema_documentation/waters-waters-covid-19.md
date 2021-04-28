@@ -72,6 +72,18 @@ The state of the facility which the test was ordered from
 
 ---
 
+**Name**: ordering_facility_county
+
+**Type**: TABLE
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
 **Name**: testResult
 
 **Type**: CODE
@@ -139,7 +151,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 ---
 
-**Name**: test_kit_name_id
+**Name**: deviceIdentifier
 
 **Type**: TABLE
 
@@ -155,7 +167,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 ---
 
-**Name**: equipment_model_name
+**Name**: deviceName
 
 **Type**: TABLE
 
