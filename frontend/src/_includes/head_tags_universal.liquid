@@ -9,6 +9,8 @@
 <title>
   {% if title and documentation %}
     {{ title }} | Documentation | CDC PRIME ReportStream
+  {% elsif title == "index" %}
+    CDC PRIME ReportStream
   {% elsif title %}
     {{ title }} | CDC PRIME ReportStream
   {% else %}

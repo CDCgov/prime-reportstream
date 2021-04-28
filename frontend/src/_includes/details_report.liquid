@@ -39,15 +39,15 @@
     var report = window.location.search == ""? reports[0] : reports.find( report => report.reportId == window.location.search.substring(1) );
      document.getElementById( "details").innerHTML +=
               `<div class="tablet:grid-col-6">
-                    <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
+                    <h4 class="text-base margin-bottom-0">Report type</h4>
                     <p class="text-bold margin-top-0">${report.type}</p>
-                    <h4 class="text-gray-30 margin-bottom-0">Report sent</h4>
+                    <h4 class="text-base margin-bottom-0">Report sent</h4>
                     <p class="text-bold margin-top-0">${moment.utc(report.sent).local().format( 'dddd, MMM DD, YYYY  HH:mm' )}</p>
             </div>
             <div class="tablet:grid-col-6">
-                    <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
+                    <h4 class="text-base margin-bottom-0">Total reporting</h4>
                     <p class="text-bold margin-top-0">${report.total}</p>
-                    <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
+                    <h4 class="text-base margin-bottom-0">Expires</h4>
                     <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format( 'dddd, MMM DD, YYYY  HH:mm')}</p>
             </div>`
       document.getElementById( "report.id").innerHTML = report.reportId;
@@ -84,11 +84,20 @@
 </script>
 
 <section class="grid-container">
-  <h3 class="margin-bottom-0">
-    <a href="/daily-data/">COVID-19</a> > <span class="text-gray-30" id="org_name"> Test</span>
-  </h3>
+  <nav class="usa-breadcrumb usa-breadcrumb--wrap" aria-label="Breadcrumbs">
+    <ol class="usa-breadcrumb__list">
+      <li class="usa-breadcrumb__list-item">
+        <a href="/daily-data/" class="usa-breadcrumb__link">
+          COVID-19
+        </a>
+      </li>
+      <li class="usa-breadcrumb__list-item usa-current" aria-current="page">
+        <span id="org_name"> </span>
+      </li>
+    </ol>
+  </nav>
   <h2 class="margin-top-0 margin-bottom-10">
-    <p id="download" class="margin-top-0 margin-bottom-0">Report: <span id="report.id">This is the report ID</span></p>    
+    <p id="download" class="margin-top-0 margin-bottom-0">Report: <span id="report.id">This is the report ID</span></p>
   </h2>
 </section>
 
