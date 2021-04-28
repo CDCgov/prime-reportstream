@@ -48,11 +48,13 @@ elements:
   # Must match LIVD column M, "Test Kit Name ID"
   - name: test_kit_name_id
     cardinality: ONE
+    csvFields: [{ name: deviceIdentifier}]
 
   # Must match LIVD column B, "Model"
   # Example:  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
   - name: equipment_model_name
     cardinality: ONE
+    csvFields: [{ name: deviceName}]
 
   # Hash by waters of value in patient_id.  Custom waters field.
   - name: patient_id_hash
