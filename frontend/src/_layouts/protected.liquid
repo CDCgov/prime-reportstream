@@ -16,8 +16,6 @@ cdn_scripts:
     integrity: "sha384-LQc6P0tjydf0IS2VO/iGZcRhIK1mYatxhr+EGHA361ABtAiPhLj0Y9H6zAqto47a"
   - src: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
     integrity: "sha384-Uz1UHyakAAz121kPY0Nx6ZGzYeUTy9zAtcpdwVmFCEwiTGPA2K6zSGgkKJEQfMhK"
-  - src: "https://cdn.jsdelivr.net/npm/chart.js"
-    integrity: "sha384-/+iqJUd0dTB/2ceveEeW2ixZYSp3svjkH/0Bx9UxtkNpRmNFIb5qERuUw5Y52dh8"
   - src: "https://cdn.jsdelivr.net/npm/downloadjs@1.4.7/download.min.js"
     integrity: "sha384-fcq+FmM9tqGUeb2KuKl26ktwu/FxKAe200X+jtjXtbF3oCgVdr2GHQrC/+hZJJXg"
   - src: "https://cdn.jsdelivr.net/npm/bowser@2.11.0/es5.min.js"
@@ -40,8 +38,8 @@ local_styles:
   {% include head_tags_universal %}
   {% include head_tags_styles_scripts %}
   {% if protected %}
-    <script src="js/checkjwt.js"></script>
-    <script src="js/reports.js"></script>
+    <script src="../js/checkjwt.js"></script>
+    <script src="../js/reports.js"></script>
   {% endif %}
 </head>
 

@@ -2,6 +2,11 @@
 title: ReportStream makes it easier to collect public health data — for free
 summary: >-
   ReportStream is a free, open source data platform that makes it easier for health departments to get faster, more accurate public health data from testing facilities.
+# bullets:
+#  - content: 100% free
+#  - content: Backed by the CDC
+#  - content: Secure data encryption
+#  - content: Aggregated, single connection
 heroImg: report-stream-application.png
 heroImgAlt: Example screenshot of the ReportStream web application
 
@@ -51,7 +56,15 @@ documentation:
     - name: Web receiver guide
       type: pdf
       url: ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf
-
+freeSecure:
+  - title: Free and created by the CDC
+    summary: Developed for testing sites and public health departments, ReportStream is 100% free.
+    icon: cdc-logo.svg
+    iconDescription: CDC logo
+  - title: Safe and secure
+    summary: Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.
+    icon: shield.svg
+    iconDescription: Icon of a shield
 cta:
   title: Get started with ReportStream
   summary: >-
