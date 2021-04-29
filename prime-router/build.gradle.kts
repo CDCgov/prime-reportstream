@@ -92,6 +92,7 @@ tasks.register<JavaExec>("primeCLI") {
     environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
     doFirst() {
         println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
+        println("Usage example: gradle primeCLI --args=\"data --input-fake 50 --input-schema waters/waters-covid-19 --output-dir ./ --target-states CA --target-counties 'Santa Clara' --output-format CSV\"")
     }
 }
 
