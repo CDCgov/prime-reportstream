@@ -60,7 +60,7 @@ unique id to track the usage of the message
 
 **HL7 Field**: ORC-22-4
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 

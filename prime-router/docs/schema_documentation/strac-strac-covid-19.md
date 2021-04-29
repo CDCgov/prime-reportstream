@@ -544,6 +544,21 @@ Code | Display
 260373001|Detected
 260415000|Not detected
 455371000124106|Invalid result
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Alt Value Sets**
 
@@ -552,6 +567,21 @@ Code | Display
 260373001|positive
 260415000|negative
 455371000124106|invalid
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 
