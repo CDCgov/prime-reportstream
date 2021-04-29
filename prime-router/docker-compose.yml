@@ -51,7 +51,7 @@ services:
         - "2222:22"
     volumes:
       - ./build/sftp:/home/foo/upload
-    command: foo:pass:::upload     
+    command: foo:pass:1001::upload
 
   redox:
     image: mockserver/mockserver:mockserver-5.11.1

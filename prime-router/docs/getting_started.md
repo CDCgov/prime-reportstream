@@ -192,7 +192,7 @@ touch .vault/env/.env.local
 ./gradlew package  
 PRIME_ENVIRONMENT=local docker-compose up
 ```
-Docker-compose will build a `prime_dev` container with the output of the `mvn package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
+Docker-compose will build a `prime_dev` container with the output of the `./gradlew package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
 
 ![Docker Compose](assets/docker_compose_log.png)
 
@@ -216,7 +216,6 @@ The quick test is meant to test the data conversion and generation code.  Use th
 
 ### Local End-to-end Tests
 End-to-end tests check if the deployed system is configured correctly.  The test uses an organization called IGNORE for running the tests.  On Windows OS, use Git Bash or similar Linux shell to run these commands.
-1. Refer to the [SFTP-SETUP document](SFTP_SETUP.md) to setup a local SFTP server to receive the resulting data.  The SFTP server must be running for the send tests to work.
 1. Setup the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server and change the arguments for the --user and --pass as needed:
     ```bash 
     export $(cat ./.vault/env/.env.local | xargs)
