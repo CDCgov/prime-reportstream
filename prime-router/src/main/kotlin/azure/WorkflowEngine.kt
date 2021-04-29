@@ -97,9 +97,17 @@ class WorkflowEngine(
         report: Report,
         actionHistory: ActionHistory,
         receiver: Receiver,
-        txn: Configuration? = null
+        txn: Configuration? = null,
+        context: ExecutionContext? = null
     ) {
-        val blobInfo = blob.uploadBody(report)
+        val blobInfo = try {
+            // formatting errors can occur down in here.
+            blob.uploadBody(report)
+        } catch (ex: Exception) {
+            context?.logger?.warning("Got exception while dispatching to schema ${report.schema.name}" +
+                ", and rcvr ${receiver.fullName}")
+            throw ex
+        }
         try {
             db.insertTask(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
             // todo remove this; its now tracked in BlobInfo

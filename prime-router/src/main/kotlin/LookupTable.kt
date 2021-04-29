@@ -98,6 +98,17 @@ class LookupTable(
     }
 
     /**
+     * Get the set of distinct values in a column in the table.
+     */
+    fun getDistinctValuesInColumn(selectColumn: String): Set<String> {
+        val selectColumnNumber = headerIndex[selectColumn.toLowerCase()] ?: return emptySet()
+        return table
+            .map { row -> row[selectColumnNumber] }
+            .filter { !it.equals(selectColumn) }   // terrible hack to remove the column header.
+            .toSet()
+    }
+
+    /**
      * Takes the contents of the table and filters down the rows to match the filter value provided
      */
     fun filter(

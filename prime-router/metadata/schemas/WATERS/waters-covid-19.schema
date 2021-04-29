@@ -30,7 +30,7 @@ elements:
   # I added this and made it required so we remember to discuss.
   # Very important field for routing data to states.
   - name: ordering_facility_state
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: ordering_facility_state}]
 
   # Not in Mark's example.
