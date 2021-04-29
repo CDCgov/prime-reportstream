@@ -40,13 +40,13 @@ defaultTasks("package")
 
 // Set the compiler JVM target
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "1.8"
-compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
+compileKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.jvmTarget = "11"
 
 sourceSets.main {
     // Exclude SQL files from being copied to resulting package
@@ -140,11 +140,13 @@ tasks.register("copyAzureResources") {
 
 val azureScriptsTmpDir = File(rootProject.buildDir.path, "${azureFunctionsDir}-scripts/${azureAppName}")
 val azureScriptsFinalDir = rootProject.buildDir
+val primeScriptName = "prime"
+val startFuncScriptName = "start_func.sh"
 tasks.register<Copy>("gatherAzureScripts") {
     from("./")
     into(azureScriptsTmpDir)
-    include("prime")
-    include("start_func.sh")
+    include(primeScriptName)
+    include(startFuncScriptName)
 }
 
 tasks.register("copyAzureScripts") {
@@ -152,6 +154,9 @@ tasks.register("copyAzureScripts") {
     doLast() {
         // We need to use a regular copy, so Gradle does not delete the existing folder
         org.apache.commons.io.FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
+        // Set the executable permission for running the scripts in Docker
+        File(azureScriptsTmpDir.path, primeScriptName).setExecutable(true);
+        File(azureScriptsTmpDir.path, startFuncScriptName).setExecutable(true);
     }
 }
 
@@ -229,15 +234,12 @@ tasks.register("package") {
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://kotlin.bintray.com/kotlinx")
-    }
-    maven {
         url = uri("https://jitpack.io")
     }
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.2.19")
+    jooqGenerator("org.postgresql:postgresql:42.2.20")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.32")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.4.32")
@@ -289,7 +291,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.8.0")
-    implementation("org.postgresql:postgresql:42.2.19")
+    implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.flywaydb:flyway-core:7.7.3")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
@@ -300,13 +302,13 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0"){
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
+    // kotlinx-coroutines-core is needed by mock-fuel
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3-native-mt")
+    testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
 }
-
-
-
-
