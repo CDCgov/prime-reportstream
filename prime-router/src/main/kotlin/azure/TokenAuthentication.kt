@@ -1,94 +1,35 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.secrets.SecretHelper
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.SigningKeyResolverAdapter
-import io.jsonwebtoken.io.Encoders
 import io.jsonwebtoken.security.Keys
 import org.apache.logging.log4j.kotlin.Logging
 import java.lang.RuntimeException
-import java.nio.file.Paths
 import java.security.Key
-import java.security.KeyPair
 import java.util.Date
 import javax.crypto.SecretKey
 import io.jsonwebtoken.io.Decoders
 
 
-
-
-/* Vocabulary note:
- * There are two different tokens, which we're calling the SenderToken and the AccessToken.
- * Upon validation of a SenderToken, ReportStream will return a short duration AccessToken, which can be used
- * to call one of our endpoints, assuming a valid 'scope' for that endpoint.
- *
- * The details:
- * Step 1:  The Sender signs a SenderToken using their private key.
- *          Implemented by generateSenderToken()
- * Step 2:  ReportStream checks the SenderToken using the corresponding public key it has in Settings.
- *          Implemented by checkSenderToken()
- * Step 3:  If validated, ReportStream returns a short-duration AccessToken, signed by the TokenSigningSecret
- *          Implemented by createAccessToken()
- * Step 4:  The Sender uses the AccessToken to make a request to a ReportStream endpoint.
- *
- * Step 5:  The called ReportStream endpoint checks the validity of the AccessToken signature, etc.
-            Implemented by checkAccessToken()
+/* Currently not implemented as a child of AuthenticationVerifier
+ * since this auth has a 'scope', not a PrincipalLevel
  */
-fun main(args: Array<String>) {
-    println("Code is running at " + Paths.get("").toAbsolutePath().toString())
-    val baseUrl = "http://localhost:7071/api/token"
-    val path = "./prime-router/"
-    val metadata = Metadata(path + Metadata.defaultMetadataDirectory)
-    val settings = FileSettings(path + FileSettings.defaultSettingsDirectory)
-    TokenAuthentication.tokenSigningSecret =  TokenAuthentication.generateTokenSigningSecret()
 
-    // Step 1: This is the sender
-    val sender = settings.findSender("ignore.ignore-waters")
-    val senderToken = SenderUtils.generateSenderToken(sender!!, baseUrl, TokenAuthentication.testKey.private)
-    println("The sender URL is " + SenderUtils.generateSenderUrl(baseUrl, senderToken))
-
-    // Step 2: ReportStream gets the token and checks it.
-    val accessToken = if (TokenAuthentication.checkSenderToken(senderToken, "report")) {
-        // Step 3:  Report stream creates a new accessToken
-        TokenAuthentication.createAccessToken("report")
-    } else null
-
-    // Step 4: Now the sender uses the accessToken to make a request
-
-    // Step 5: And ReportStream checks it:
-    val claims = TokenAuthentication.checkAccessToken(accessToken!!.accessToken, "report")
-    if (claims != null) {
-        println("The Sender's accessToken is valid")
-    } else {
-        println("UNAUTHORIZED.  The Sender's accessToken is not valid")
-    }
-}
-
-// Currently not a child of AuthenticationVerifier
-// since this auth has a 'scope', not a PrincipalLevel
-/**
- * Confirm that a token is a valid unexpired signed JWT
- */
 class TokenAuthentication {
     companion object: Logging {
         private val MAX_CLOCK_SKEW_SECONDS: Long = 60
-        private val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"
-        private val TOKEN_SIGNING_KEY_ALGORITHM = SignatureAlgorithm.HS384
 
-        val testKey: KeyPair = Keys.keyPairFor(SignatureAlgorithm.ES384)
-
-
-        fun checkSenderToken(jwsString: String, scope: String): Boolean {
+        fun checkSenderToken(jwsString: String, senderPublicKeyFinder: SigningKeyResolverAdapter): Boolean {
             return try {
                 val jws = Jwts.parserBuilder()
                     .setAllowedClockSkewSeconds(MAX_CLOCK_SKEW_SECONDS)
-                    .setSigningKeyResolver(FindSenderKeyInSettings(scope))
+                    .setSigningKeyResolver(senderPublicKeyFinder)
                     .build()
                     .parseClaimsJws(jwsString)
                 val jti = jws.body.id
@@ -101,15 +42,18 @@ class TokenAuthentication {
             }
         }
 
-        fun createAccessToken(scopeAuthorized: String): AccessToken {
-            val secret = lookupTokenSigningSecret()
-            val expiresSeconds = 300
+        fun createAccessToken(scopeAuthorized: String, lookup: ReportStreamSecretFinder): AccessToken {
+            val secret = lookup.getReportStreamTokenSigningSecret()
+            // Using Integer seconds to stay consistent with the JWT token spec, which uses seconds.
+            // Search for 'NumericDate' in https://tools.ietf.org/html/rfc7519#section-2
+            // This will break in 2038, which, actually, isn't that far off...
+            val expiresAtSeconds = ((System.currentTimeMillis()/1000) + 300).toInt()
             val token = Jwts.builder()
-                .setExpiration(Date(System.currentTimeMillis() + expiresSeconds * 1000))  // exp
+                .setExpiration(Date(expiresAtSeconds.toLong() * 1000))  // exp
                 // removed  .setId(UUID.randomUUID().toString())   // jti
                 .claim("scope", scopeAuthorized)
                 .signWith(secret).compact()
-            return AccessToken(token, "bearer", expiresSeconds, scopeAuthorized)
+            return AccessToken(token, "bearer", expiresAtSeconds, scopeAuthorized)
         }
 
         fun checkAccessToken(request: HttpRequestMessage<String?>, desiredScope: String): Claims? {
@@ -123,12 +67,18 @@ class TokenAuthentication {
                 logger.error("Request has Authorization header but no token.  Unauthorized")
                 return null
             }
-            return checkAccessToken(accessToken, desiredScope)
+            return checkAccessToken(accessToken, desiredScope, FindReportStreamSecretInVault())
         }
 
-        fun checkAccessToken(accessToken: String, desiredScope: String): Claims? {
+        /**
+         * lookup is a call back to get the ReportStream secret used to sign the token.  Using a callback
+         * makes this easy to test - can pass in a static test secret
+         * This does not need to be a public/private key.
+         */
+        fun checkAccessToken(accessToken: String, desiredScope: String,
+            lookup: ReportStreamSecretFinder): Claims? {
             try {
-                val secret = lookupTokenSigningSecret()
+                val secret = lookup.getReportStreamTokenSigningSecret()
                 val jws = Jwts.parserBuilder()
                     .setSigningKey(secret)
                     .build()
@@ -159,27 +109,6 @@ class TokenAuthentication {
                 return null
             }
         }
-
-        /**
-         * This is used during validation of a SenderToken.
-         *
-         * Implementation of a callback function used to find the public key for
-         * a given Sender, kid, and alg.   Lookup in the Settings table.
-         *
-         */
-        class FindSenderKeyInSettings(scope: String) : SigningKeyResolverAdapter() {
-            override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key {
-                if (jwsHeader == null) error("JWT has missing header")
-                val issuer = claims.issuer
-                val kid = jwsHeader.keyId
-                val alg = jwsHeader.algorithm
-                // this is a lookup to settings.
-                //     val sender = WorkflowEngine().settings.findSender(issuer) ?: error("No such sender $issuer")
-                // Need to map alg to kty
-                return TokenAuthentication.testKey.public
-            }
-        }
-
         /**
          * Prevent replay attacks
          */
@@ -191,27 +120,50 @@ class TokenAuthentication {
             return (Date().after(exp))   // no need to include clock skew, since we generated token ourselves
         }
 
-        var tokenSigningSecret: String? = null
-        fun lookupTokenSigningSecret(): SecretKey {
-            /* val secretServiceAgent = SecretHelper.getSecretService()
-            val secret = secretServiceAgent.fetchSecret(TOKEN_SIGNING_SECRET_NAME)
-                ?: error("Unable to find $TOKEN_SIGNING_SECRET_NAME") */
-            val secret =  tokenSigningSecret ?: error("tokenSigningSecret not set")
-            return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
-        }
 
-        fun generateTokenSigningSecret(): String {
-            return Encoders.BASE64.encode(Keys.secretKeyFor(TOKEN_SIGNING_KEY_ALGORITHM).encoded);
-        }
+        class FindReportStreamSecretInVault: ReportStreamSecretFinder {
+            private val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"
 
+            override fun getReportStreamTokenSigningSecret(): SecretKey {
+                val secretServiceAgent = SecretHelper.getSecretService()
+                val secret = secretServiceAgent.fetchSecret(TOKEN_SIGNING_SECRET_NAME)
+                    ?: error("Unable to find $TOKEN_SIGNING_SECRET_NAME")
+                return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
+            }
+        }
     }
-
-    data class AccessToken(
-        val accessToken: String,  // access_token - required - The access token issued by the authorization server.
-        val tokenType: String, // token_type	required - Fixed value: bearer.
-        val expiresIn: Int,// expires_in - required - lifetime in seconds of the access token. The recommended value is 300
-        val scope: String, // scope	required - Scope of access authorized. can be different from the scopes requested
-    )
-
-
 }
+
+data class AccessToken(
+    val accessToken: String,  // access_token - required - The access token issued by the authorization server.
+    val tokenType: String,    // token_type	required - Fixed value: bearer.
+    val expiresAtSeconds: Int,      //  unix time IN SECONDS, of expiration time.
+    val scope: String, // scope	required - Scope of access authorized. can be different from the scopes requested
+)
+
+interface ReportStreamSecretFinder {
+    fun getReportStreamTokenSigningSecret(): SecretKey
+}
+
+
+/**
+ * This is used during validation of a SenderToken.
+ *
+ * Implementation of a callback function used to find the public key for
+ * a given Sender, kid, and alg.   Lookup in the Settings table.
+ *
+ */
+class FindSenderKeyInSettings(scope: String) : SigningKeyResolverAdapter() {
+    override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key {
+        if (jwsHeader == null) error("JWT has missing header")
+        val issuer = claims.issuer
+        val kid = jwsHeader.keyId
+        val alg = jwsHeader.algorithm
+        // this is a lookup to settings.
+        //     val sender = WorkflowEngine().settings.findSender(issuer) ?: error("No such sender $issuer")
+        // Need to map alg to kty
+        // todo USELESS:  NEW KEY EVERY TIME!
+        return Keys.keyPairFor(SignatureAlgorithm.ES384).public
+    }
+}
+

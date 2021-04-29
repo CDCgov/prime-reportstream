@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import Jwk
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
@@ -64,74 +63,13 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
 
     val jwk = Jwk(kty ="ES", x = "x", y = "y", crv = "crv", kid = "myId", x5c = listOf("a", "b"))
 
-    @Test
-    fun `test convert to Jwk obj`() {
-        val obj: Jwk = jacksonObjectMapper().readValue(jwkString, Jwk::class.java)
-        assertNotNull(obj)
-        assertEquals("ES", obj.kty)
-        assertEquals("ignore.REDOX", obj.kid)
-        assertEquals(3, obj.x5c?.size)
-        assertEquals("c", obj.x5c?.get(2))
-    }
-
-    @Test
-    fun `test covert Jwk to JSON`() {
-        val json = jacksonObjectMapper().writeValueAsString(jwk)
-        assertNotNull(json)
-        val tree = jacksonObjectMapper().readTree(json)
-        assertEquals("ES", tree["kty"].textValue())
-        assertEquals("x", tree["x"].textValue())
-        assertEquals("b", (tree["x5c"] as ArrayNode)[1].textValue())
-    }
-
-    @Test
-    fun `test convert JSON String to RSAPublicKey`() {
-        val rsaPublicKey = JwkFactory.generateRSAPublicKeyFromJwtString(rsaPublicKeyStr)
-        assertNotNull(rsaPublicKey)
-        assertEquals("RSA",rsaPublicKey.algorithm)
-        assertNotNull(rsaPublicKey)  // lame test
-        assertEquals(BigInteger(exponent.decodeBase64()), rsaPublicKey.publicExponent)
-        // not so straightforward as this
-        // assertEquals(BigInteger(modulus.decodeBase64()), rsaPublicKey.modulus)
-    }
-
-    @Test
-    fun `test convert JSON String to ECPublicKey`() {
-        val ecPublicKey = JwkFactory.generateECPublicKeyFromJwtString(ecPublicKeyStr)
-        assertNotNull(ecPublicKey)
-        assertNotNull(ecPublicKey)
-        assertEquals("EC",ecPublicKey.algorithm)
-        assertNotNull(ecPublicKey.w)  // lame test
-        // not so straightforward as this
-        // assertEquals(BigInteger(affineX.decodeBase64()), ecPublicKey.w.affineX)
-    }
-
-    @Test
-    fun `test convert pem to JWK obj`() {
-        val jwk = JWK.parseFromPEMEncodedObjects(pemPublicESKey)
-        assertEquals(KeyType.EC, jwk.keyType)
-    }
-
-    @Test
-    fun `test convert pem to ECPublicKey`() {
-        // Step 1:   convert the .pem file into an internal jwk obj.
-        val jwk = JWK.parseFromPEMEncodedObjects(pemPublicESKey)
-        assertEquals(KeyType.EC, jwk.keyType)
-        // Step 2:  convert the jwk object to an ecpublicKey object
-        val ecPublicKey = JwkFactory.generateECPublicKeyFromJwkObj(jwk)
-        assertNotNull(ecPublicKey)
-        assertEquals("EC",ecPublicKey.algorithm)
-        assertNotNull(ecPublicKey.w)  // lame test
-    }
-
-    @Test
-    fun `test convert example FHIRAuth to obj`() {
-        // this jwkset is from the RFC specification for JWKs, so I thought it would be a nice test.
-        // See https://tools.ietf.org/html/rfc7517
-        val fhirAuthString = """
-       {"scope": "foobar",
-       "jwkSet": { "keys":
-        [
+    // this jwkset is from the RFC specification for JWKs, so I thought it would be a nice test.
+    // See https://tools.ietf.org/html/rfc7517
+    val niceExampleJwkSetString = """
+        { 
+         "scope": "foobar",
+         "keys":
+         [
          {"kty":"EC",
           "crv":"P-256",
           "x":"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
@@ -145,29 +83,106 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
           "kid":"2011-04-29"}
          ]
          }
-        }            
         """.trimIndent()
-        val jwkSet = JwkFactory.generateFHIRAuthFromJsonString(fhirAuthString)
-        assertEquals("foobar", jwkSet.scope)
-        val key1 = jwkSet.jwkSet.keys[0]
-        assertEquals("1", key1.keyID)
-        assertEquals(KeyType.EC, key1.keyType)
+
+    @Test
+    fun `test convert json string to Jwk obj`() {
+        val obj: Jwk = jacksonObjectMapper().readValue(jwkString, Jwk::class.java)
+        assertNotNull(obj)
+        assertEquals("ES", obj.kty)
+        assertEquals("ignore.REDOX", obj.kid)
+        assertEquals(3, obj.x5c?.size)
+        assertEquals("c", obj.x5c?.get(2))
     }
 
     @Test
-    fun `test convert string FHIRAuth to ECPublicKey`() {
-        val fhirAuthString = """
-            {  
-                "scope": "read:reports",
-                "jwkSet": { "keys": [  $ecPublicKeyStr ] }
-            }
-        """.trimIndent()
-        val fhirAuth = JwkFactory.generateFHIRAuthFromJsonString(fhirAuthString)
-        val ecPublicKey = JwkFactory.generateECPublicKeyFromJwkObj(fhirAuth.jwkSet.keys[0])
+    fun `test covert Jwk obj to json string`() {
+        val json = jacksonObjectMapper().writeValueAsString(jwk)
+        assertNotNull(json)
+        val tree = jacksonObjectMapper().readTree(json)
+        assertEquals("ES", tree["kty"].textValue())
+        assertEquals("x", tree["x"].textValue())
+        assertEquals("b", (tree["x5c"] as ArrayNode)[1].textValue())
+    }
+
+    @Test
+    fun `test convert JSON String to RSAPublicKey`() {
+        val rsaPublicKey = Jwk.generateRSAPublicKey(rsaPublicKeyStr)
+        assertNotNull(rsaPublicKey)
+        assertEquals("RSA",rsaPublicKey.algorithm)
+        assertNotNull(rsaPublicKey)  // lame test
+        assertEquals(BigInteger(exponent.decodeBase64()), rsaPublicKey.publicExponent)
+        // not so straightforward as this
+        // assertEquals(BigInteger(modulus.decodeBase64()), rsaPublicKey.modulus)
+    }
+
+    @Test
+    fun `test convert JSON String to ECPublicKey`() {
+        val ecPublicKey = Jwk.generateECPublicKey(ecPublicKeyStr)
+        assertNotNull(ecPublicKey)
+        assertNotNull(ecPublicKey)
+        assertEquals("EC",ecPublicKey.algorithm)
+        assertNotNull(ecPublicKey.w)  // lame test
+        // not so straightforward as this
+        // assertEquals(BigInteger(affineX.decodeBase64()), ecPublicKey.w.affineX)
+    }
+
+    @Test
+    fun `test convert pem to ECPublicKey`() {
+        // Step 1:   convert the .pem file into a nimbusds JWK obj.
+        val nimbusdsJwk = JWK.parseFromPEMEncodedObjects(pemPublicESKey)
+        assertEquals(KeyType.EC, nimbusdsJwk.keyType)
+        // Steps 2,3:  convert the JWK obj to a string, then use that to generate the public key obj
+        val ecPublicKey = Jwk.generateECPublicKey(nimbusdsJwk.toJSONString())
         assertNotNull(ecPublicKey)
         assertEquals("EC",ecPublicKey.algorithm)
         assertNotNull(ecPublicKey.w)  // lame test
     }
 
+    @Test
+    fun `test converting nice example JwkSet string to obj`() {
+        val jwkSet = jacksonObjectMapper().readValue(niceExampleJwkSetString, JwkSet::class.java)
+        assertEquals("foobar", jwkSet.scope)
+        assertEquals(2, jwkSet.keys.size)
+        val key1 = jwkSet.keys[0]
+        assertEquals("EC", key1.kty)
+        assertEquals("enc", key1.use)
+        assertEquals("1", key1.kid)
+        val key2 = jwkSet.keys[1]
+        assertEquals("RSA", key2.kty)
+        assertEquals("RS256", key2.alg)
+        assertEquals("2011-04-29", key2.kid)
+    }
 
+    @Test
+    fun `test converting nice example JwkSet string to RSA and EC public keys`() {
+        val jwkSet = jacksonObjectMapper().readValue(niceExampleJwkSetString, JwkSet::class.java)
+        assertEquals("foobar", jwkSet.scope)
+        assertEquals(2, jwkSet.keys.size)
+        val ecPublicKey = jwkSet.keys[0].toECPublicKey()
+        assertNotNull(ecPublicKey)
+        assertEquals("EC",ecPublicKey.algorithm)
+        assertNotNull(ecPublicKey.w)  // lame test
+        val rsaPublicKey = jwkSet.keys[1].toRSAPublicKey()
+        assertNotNull(rsaPublicKey)
+        assertEquals("RSA",rsaPublicKey.algorithm)
+        assertNotNull(rsaPublicKey)  // lame test
+        assertEquals(BigInteger(exponent.decodeBase64()), rsaPublicKey.publicExponent)
+
+    }
+
+    @Test
+    fun `test convert string FHIRAuth to ECPublicKey`() {
+        val jwkSetString = """
+            {  
+                "scope": "read:reports",
+                "keys": [  $ecPublicKeyStr ]
+            }
+        """.trimIndent()
+        val jwkSet = jacksonObjectMapper().readValue(jwkSetString, JwkSet::class.java)
+        val ecPublicKey = jwkSet.keys[0].toECPublicKey()
+        assertNotNull(ecPublicKey)
+        assertEquals("EC",ecPublicKey.algorithm)
+        assertNotNull(ecPublicKey.w)  // lame test
+    }
 }
