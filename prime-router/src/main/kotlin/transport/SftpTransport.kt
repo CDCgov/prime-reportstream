@@ -137,15 +137,20 @@ class SftpTransport : ITransport {
         }
 
         fun ls(sshClient: SSHClient, path: String): List<String> {
+            val lsResults = mutableListOf<String>()
             try {
-                val client = sshClient.newSFTPClient()
-                client.use {
-                    val lsResponse = it.ls(path)
-                    return lsResponse.map { l -> l.toString() }.toList()
+                sshClient.use { sshClient ->
+                    sshClient.newSFTPClient().use {
+                        it.ls(path).map { l -> lsResults.add(l.toString()) }
+                    }
                 }
+            } catch (_: java.util.concurrent.TimeoutException) {
+                // do nothing. some servers just take a long time to disconnect
             } finally {
                 sshClient.disconnect()
             }
+
+            return lsResults
         }
 
         fun pwd(sshClient: SSHClient): String {
