@@ -1,16 +1,3 @@
-{% if current == "elr guide" or current == "web receiver guide" %}
-<script src="../../js/checkBrowser.js"></script>
-{% else %}
-<script src="../js/checkBrowser.js"></script>
-{% endif %}
-
-{% if current == "elr guide" or current == "web receiver guide" %}
-<script src="../../js/idleTimer.js"></script>
-{% else %}
-<script src="../js/idleTimer.js"></script>
-{% endif %}
-
-
 <footer class="usa-identifier" aria-label="Agency identifier">
   <section class="usa-identifier__section usa-identifier__section--masthead">
     <div class="usa-identifier__container">
@@ -62,3 +49,10 @@
     </div>
   </section>
 </footer>
+<script>
+  {% unless protected == false %}
+  checkJWT();
+  {% endunless %}
+  signIn();
+  idleTimer();
+</script>

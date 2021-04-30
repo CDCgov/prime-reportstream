@@ -27,7 +27,7 @@
   },
   "jshintConfig": {
     "undef": true,
-    "unused": true,
+    "unused": false,
     "esversion": 8,
     "globals": {
       "window": true,
