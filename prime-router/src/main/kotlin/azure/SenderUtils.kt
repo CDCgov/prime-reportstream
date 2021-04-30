@@ -16,6 +16,7 @@ import java.io.FileReader
 import java.security.KeyFactory
 import java.security.interfaces.ECPrivateKey
 import java.security.spec.PKCS8EncodedKeySpec
+import kotlin.math.exp
 
 class SenderUtils {
 
@@ -25,14 +26,20 @@ class SenderUtils {
          * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
          * This is done by the Sender, not by ReportStream.   This method is here for testing, and as an example.
          */
-        fun generateSenderToken(sender: Sender, baseUrl: String, privateKey: PrivateKey): String {
+        fun generateSenderToken(
+            sender: Sender,
+            baseUrl: String,
+            privateKey: PrivateKey,
+            keyId: String,
+            expirationSecondsFromNow: Int = 300,
+        ): String {
             val jws = Jwts.builder()
-                .setHeaderParam("kid", "my key")  // kid
+                .setHeaderParam("kid", keyId)  // kid
                 .setHeaderParam("typ", "JWT")     // typ
                 .setIssuer(sender.fullName)        // iss
                 .setSubject(sender.fullName)       // sub
                 .setAudience(baseUrl)   // aud
-                .setExpiration(Date(System.currentTimeMillis() + 5 * 60 * 1000))  // exp
+                .setExpiration(Date(System.currentTimeMillis() + expirationSecondsFromNow * 1000))  // exp
                 .setId(UUID.randomUUID().toString())   // jti
                 .signWith(privateKey).compact()
             return jws

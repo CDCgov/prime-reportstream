@@ -8,8 +8,6 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.azure.SenderUtils
-import java.security.PrivateKey
-import gov.cdc.prime.router.azure.TokenAuthentication
 import java.io.File
 
 /**
@@ -104,7 +102,8 @@ class TokenUrl : SenderUtilsCommand(
             echo("Unable to find sender full name (sender.organization) $senderName")
             return
         }
-        val senderToken = SenderUtils.generateSenderToken(sender, environment.baseUrl, privateKey)
+        // note:  using the sender fullName as the kid here.
+        val senderToken = SenderUtils.generateSenderToken(sender, environment.baseUrl, privateKey,sender.fullName)
         val url = SenderUtils.generateSenderUrl(environment.baseUrl,senderToken)
         echo("Use this URL to get an access token from ReportStream:")
         echo(url)

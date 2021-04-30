@@ -19,6 +19,7 @@ import java.security.PublicKey
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
+import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.RSAPrivateKey
 
 /**
@@ -73,6 +74,10 @@ class Jwk(
         return generateECPublicKey(jacksonObjectMapper().writeValueAsString(this))
     }
 
+    fun toECrivateKey(): ECPrivateKey {
+        if (kty != "EC") error("Cannot convert key type $kty to ECPrivateKey")
+        return generateECPrivateKey(jacksonObjectMapper().writeValueAsString(this))
+    }
 
     fun toRSAPublicKey(): RSAPublicKey {
         if (kty != "RSA") error("Cannot convert key type $kty to RSAPublicKey")
@@ -89,6 +94,10 @@ class Jwk(
             return ECKey.parse(jwkString).toECPublicKey()
         }
 
+        fun generateECPrivateKey(jwkString: String): ECPrivateKey {
+            return ECKey.parse(jwkString).toECPrivateKey()
+        }
+
         fun generateRSAPublicKey(jwkString: String): RSAPublicKey {
             return RSAKey.parse(jwkString).toRSAPublicKey()
         }
@@ -99,9 +108,14 @@ class Jwk(
     }
 }
 
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class JwkSet(
+    // A scope is a space separated list of allowed scopes, per OpenID.
+    // The official JWK Set spec only calls for 'keys', but custom fields like this are allowed.
     val scope: String,
+    // Each scope has a list of keys associated with it.  Having a list of keys allows for
+    // overlapping key rotation
     val keys: List<Jwk>
 )
 

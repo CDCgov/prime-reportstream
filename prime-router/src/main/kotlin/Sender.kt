@@ -14,7 +14,7 @@ open class Sender(
     val format: Format,
     val topic: String,
     val schemaName: String,
-    val auths: List<JwkSet>? = null,
+    val auths: List<JwkSet>? = null,  // used to track server-to-server auths for this Sender
 ) {
     constructor(copy: Sender) : this(copy.name, copy.organizationName, copy.format, copy.topic, copy.schemaName)
 

@@ -27,6 +27,7 @@ class TokenAuthentication {
 
         fun checkSenderToken(jwsString: String, senderPublicKeyFinder: SigningKeyResolverAdapter): Boolean {
             return try {
+                // Note: this does an expired token check as well
                 val jws = Jwts.parserBuilder()
                     .setAllowedClockSkewSeconds(MAX_CLOCK_SKEW_SECONDS)
                     .setSigningKeyResolver(senderPublicKeyFinder)
@@ -34,15 +35,15 @@ class TokenAuthentication {
                     .parseClaimsJws(jwsString)
                 val jti = jws.body.id
                 val exp = jws.body.expiration
-                if (!isNewSenderToken(jti, exp)) error("JTI was previously used.   Auth denied.")
-                true
+                isNewSenderToken(jti, exp)   // return the value returned by this function
             } catch (ex: JwtException) {
-                println("Cannot accept the JWT: ${ex}")
+                logger.error("Cannot accept the JWT: ${ex}")
                 false
             }
         }
 
         fun createAccessToken(scopeAuthorized: String, lookup: ReportStreamSecretFinder): AccessToken {
+            if (scopeAuthorized.isEmpty() || scopeAuthorized.isBlank()) error("Empty or blank scope request")
             val secret = lookup.getReportStreamTokenSigningSecret()
             // Using Integer seconds to stay consistent with the JWT token spec, which uses seconds.
             // Search for 'NumericDate' in https://tools.ietf.org/html/rfc7519#section-2
@@ -96,7 +97,7 @@ class TokenAuthentication {
                     logger.error("Missing scope claim.  Unauthorized.")
                     return null
                 }
-                if (!scope.contains(desiredScope)) {
+                if (!scopeListContainsScope(scope, desiredScope)) {
                     logger.error("Sender has scope $scope, but wants $desiredScope.  Unauthorized")
                     return null
                 }
@@ -109,12 +110,23 @@ class TokenAuthentication {
                 return null
             }
         }
+
+        fun scopeListContainsScope(scopeList: String, desiredScope: String): Boolean {
+            if (desiredScope.isBlank() || desiredScope.isEmpty()) return false
+            // A scope is a set of strings separated by single spaces
+            val scopesTrial: List<String> = scopeList.split(" ")
+            return scopesTrial.contains(desiredScope)
+        }
+
         /**
          * Prevent replay attacks
          */
         fun isNewSenderToken(jti: String?, exp: Date): Boolean {
             // todo need to check for re-use.  NOT IMPLEMENTED!
-            return !isExpiredToken(exp)
+            //return !isExpiredToken(exp)
+            // Any token we've seen before within the last expiration_time + clock_Skew, is unauthorized.
+            // Use a min exp time of 5 minutes
+            return true
         }
         fun isExpiredToken(exp: Date): Boolean {
             return (Date().after(exp))   // no need to include clock skew, since we generated token ourselves
@@ -145,7 +157,6 @@ interface ReportStreamSecretFinder {
     fun getReportStreamTokenSigningSecret(): SecretKey
 }
 
-
 /**
  * This is used during validation of a SenderToken.
  *
@@ -162,6 +173,7 @@ class FindSenderKeyInSettings(scope: String) : SigningKeyResolverAdapter() {
         // this is a lookup to settings.
         //     val sender = WorkflowEngine().settings.findSender(issuer) ?: error("No such sender $issuer")
         // Need to map alg to kty
+        // Must also match on kid
         // todo USELESS:  NEW KEY EVERY TIME!
         return Keys.keyPairFor(SignatureAlgorithm.ES384).public
     }
