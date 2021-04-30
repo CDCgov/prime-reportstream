@@ -40,7 +40,8 @@ function checkJWT() {
     else {
         const signIn = document.getElementById("signIn");
         if (signIn) signIn.style.display = "block";
-        window.org = claims.organization[0];
+        const _org = claims.organization.filter( c => c !== "DHPrimeAdmins" );
+        window.org = (_org && _org.length > 0 )? _org[0] : null;
         window.user = claims.sub;
         window.jwt = token;
     }
@@ -186,7 +187,8 @@ function getBaseUrl() {
         if (logout) logout.innerHTML = 'Logout';
         const _signIn = document.getElementById("signIn");
         if (_signIn) _signIn.style.display = "block";
-        window.org = claims.organization[0];
+        const _org = claims.organization.filter( c => c !== "DHPrimeAdmins" );
+        window.org = (_org && _org.length > 0 )? _org[0] : null;
         window.user = claims.sub;
         window.jwt = token;
     }

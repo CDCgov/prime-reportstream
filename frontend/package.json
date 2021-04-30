@@ -32,7 +32,13 @@
     "globals": {
       "window": true,
       "document": true,
-      "axios": true
+      "axios": true,
+      "bowser": true,
+      "atob": true,
+      "moment": true,
+      "idleTimeout": true,
+      "OktaSignIn": true,
+      "download": true
     }
   }
 }
