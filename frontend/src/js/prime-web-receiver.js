@@ -1,6 +1,6 @@
 /**
  * Fetch all information for the display of the cards
- * 
+ *
  * @returns Array of card objects for the cardGrid
  */
 async function fetchCards() {
@@ -13,7 +13,7 @@ async function fetchCards() {
 }
 
 /**
- * 
+ *
  */
 function checkBrowser() {
     const browser = bowser.getParser(window.navigator.userAgent);
@@ -28,7 +28,7 @@ function checkBrowser() {
 }
 
 /**
- * 
+ *
  */
 function checkJWT() {
     const token = window.sessionStorage.getItem("jwt");
@@ -40,10 +40,10 @@ function checkJWT() {
     else {
         const signIn = document.getElementById("signIn");
         if (signIn) signIn.style.display = "block";
-        const _org = claims.organization.filter( c => c !== "DHPrimeAdmins" );        
+        const _org = claims.organization.filter( c => c !== "DHPrimeAdmins" );
         const _dropdown = document.getElementById( "dropdown" );
         if( _dropdown && claims.organization.includes( 'DHPrimeAdmins') ){
-            _dropdown.innerHTML += 
+            _dropdown.innerHTML +=
                 `<label class="usa-label" for="orgs"></label>
                  <div class="usa-combo-box">
                   <select class="usa-select" name="orgs" id="orgs">
@@ -51,9 +51,9 @@ function checkJWT() {
                 </div>
                 `;
 
-            
-        }        
-        
+
+        }
+
         window.org = (_org && _org.length > 0 )? _org[0] : null;
         window.orgs = claims.organization;
         window.user = claims.sub;
@@ -62,14 +62,14 @@ function checkJWT() {
 }
 
 /**
- * 
- * @returns 
+ *
+ * @returns
  */
 async function fetchOrgName() {
     const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } }
     const baseURL = getBaseUrl();
     if (window.org == undefined) return null;
- 
+
     return  Promise.all([
         axios.get(`${baseURL}/api/settings/organizations/${window.org.substring(2).replaceAll("_", "-")}`, config)
             .then(res => res.data)
@@ -79,7 +79,7 @@ async function fetchOrgName() {
 
 
 /**
- * 
+ *
  */
 function idleTimer() {
     const loggedIn = window.sessionStorage.getItem("jwt");
@@ -99,7 +99,7 @@ function idleTimer() {
 }
 
 /**
- * 
+ *
  */
 function login() {
     const OKTA_clientId = '0oa6fm8j4G1xfrthd4h6';
@@ -131,7 +131,7 @@ function login() {
 }
 
 /**
- * 
+ *
  */
 function logout() {
     window.sessionStorage.removeItem("jwt")
@@ -142,7 +142,7 @@ function logout() {
 }
 
 /**
- * 
+ *
  */
 async function fetchReports() {
     const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
@@ -152,7 +152,7 @@ async function fetchReports() {
 }
 
 /**
- * 
+ *
  */
 function requestFile(reportId) {
     let baseURL = getBaseUrl();
@@ -164,7 +164,7 @@ function requestFile(reportId) {
 }
 
 /**
- * 
+ *
  */
 function signIn() {
     const _signIn = document.getElementById("signIn");
@@ -178,8 +178,8 @@ function signIn() {
 }
 
 /**
- * 
- * @returns 
+ *
+ * @returns
  */
 function getBaseUrl() {
     if( window.location.origin.includes("localhost") ) return "http://localhost:7071";
@@ -235,20 +235,20 @@ function getBaseUrl() {
         if (reports && reports.length > 0){
             if ( window.location.search == "" ) report = reports[0];
             else report = reports.find(report => report.reportId == window.location.search.substring(1));
-        } 
+        }
         if (report != null){
             const details = document.getElementById("details");
             if (details) details.innerHTML +=
                 `<div class="tablet:grid-col-6">
-                            <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
+                            <h4 class="text-base margin-bottom-0">Report type</h4>
                             <p class="text-bold margin-top-0">${report.type}</p>
-                            <h4 class="text-gray-30 margin-bottom-0">Report sent</h4>
+                            <h4 class="text-base margin-bottom-0">Report sent</h4>
                             <p class="text-bold margin-top-0">${moment.utc(report.sent).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>
                     <div class="tablet:grid-col-6">
-                            <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
+                            <h4 class="text-base margin-bottom-0">Total tests reported</h4>
                             <p class="text-bold margin-top-0">${report.total}</p>
-                            <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
+                            <h4 class="text-base margin-bottom-0">Download expires</h4>
                             <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>`;
             const reportId = document.getElementById("report.id");
@@ -268,16 +268,16 @@ function getBaseUrl() {
                 `<div class="tablet:grid-col-6">
             <div class="usa-card__container">
               <div class="usa-card__body">
-                <h4 class="text-gray-30 margin-bottom-0">${card.title}</h4>
+                <h4 class="text-base margin-bottom-0">${card.title}</h4>
                 <h3 class="text-bold margin-top-0">${card.subtitle}</h3>
-                <h4 class="text-gray-30 margin-bottom-0">Last 24 hours</h4>
+                <h4 class="text-base margin-bottom-0">Last 24 hours</h4>
                 <p class="text-bold margin-top-0">${card.daily} &nbsp; &nbsp; &nbsp; <span class="text-heavy ${card.positive ? "text-green" : "text-red"}">
                     ${card.positive ? "&#8599;" : "&#8600;"} ${card.change.toFixed(2)}
                   </span></p>
-                <h4 class="text-gray-30 margin-bottom-0">Last 7 days (average)</h4>
+                <h4 class="text-base margin-bottom-0">Last 7 days (average)</h4>
                 <p class="text-bold margin-top-0">${card.last}</p>
                 <canvas id="${card.id}" width="200" height="40"></canvas>
-              </div>  
+              </div>
             </div>
           </div>`;
         });
