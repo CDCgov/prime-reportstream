@@ -7,7 +7,7 @@ async function fetchCards() {
     const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
     const baseURL = getBaseUrl();
 
-    return await Promise.all([
+    return Promise.all([
         axios.get(`${baseURL}/api/history/summary/tests`, config).then(res => res.data)
     ]);
 }
@@ -54,13 +54,12 @@ async function fetchOrgName() {
     const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } }
     const baseURL = getBaseUrl();
     if (window.org == undefined) return null;
-    const response = await Promise.all([
+ 
+    return  Promise.all([
         axios.get(`${baseURL}/api/settings/organizations/${window.org.substring(2).replaceAll("_", "-")}`, config)
             .then(res => res.data)
             .then(org => org.description)
     ]);
-
-    return response;
 }
 
 
@@ -72,7 +71,7 @@ function idleTimer() {
 
     if (loggedIn) {
         window.sessionStorage.setItem("idle-timer", "true");
-        const instance = idleTimeout(() => {
+        idleTimeout(() => {
             window.sessionStorage.clear()
             window.location.replace(`/sign-in/`);
         },
@@ -123,8 +122,8 @@ function logout() {
     window.sessionStorage.removeItem("jwt")
     window.sessionStorage.removeItem("idle-timer")
     window.location.replace(`${window.location.origin}`);
-    const signIn = document.getElementById("signIn");
-    if (signIn) signIn.style.display = "block";
+    const _signIn = document.getElementById("signIn");
+    if (_signIn) _signIn.style.display = "block";
 }
 
 /**
@@ -134,7 +133,7 @@ async function fetchReports() {
     const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
     const baseURL = getBaseUrl();
 
-    return await axios.get(`${baseURL}/api/history/report`, config).then(res => res.data);
+    return axios.get(`${baseURL}/api/history/report`, config).then(res => res.data);
 }
 
 /**
@@ -153,12 +152,12 @@ function requestFile(reportId) {
  * 
  */
 function signIn() {
-    let signIn = document.getElementById("signIn");
+    const _signIn = document.getElementById("signIn");
     let navMenu = document.getElementById("navmenu");
     if (window.sessionStorage.getItem("jwt")) {
-        if (signIn) signIn.style.display = "none";
+        if (_signIn) _signIn.style.display = "none";
     } else {
-        if (signIn) signIn.style.display = "block";
+        if (_signIn) _signIn.style.display = "block";
         if (navMenu) navMenu.style.display = "none";
     }
 }
@@ -168,10 +167,9 @@ function signIn() {
  * @returns 
  */
 function getBaseUrl() {
-    return window.location.origin.includes("localhost") ? "http://localhost:7071" :
-        window.location.origin.includes("staging") ? "https://staging.prime.cdc.gov" :
-            "https://prime.cdc.gov"
-
+    if( window.location.origin.includes("localhost") ) return "http://localhost:7071";
+    else if ( window.location.origin.includes("staging") ) return "https://staging.prime.cdc.gov";
+    else "https://prime.cdc.gov";
 }
 
 (async () => {
@@ -186,8 +184,8 @@ function getBaseUrl() {
         if (emailUser) emailUser.innerHTML = claims.sub;
         const logout = document.getElementById("logout");
         if (logout) logout.innerHTML = 'Logout';
-        const signIn = document.getElementById("signIn");
-        if (signIn) signIn.style.display = "block";
+        const _signIn = document.getElementById("signIn");
+        if (_signIn) _signIn.style.display = "block";
         window.org = claims.organization[0];
         window.user = claims.sub;
         window.jwt = token;
@@ -202,44 +200,48 @@ function getBaseUrl() {
 
         // reports
         const reports = await fetchReports();
-        reports.forEach(report => {
+        reports.forEach( _report => {
             const tBody = document.getElementById("tBody");
             if (tBody) tBody.innerHTML +=
                 `<tr>
-                <th data-title="reportId" scope="row"><a href="/report-details/?${report.reportId}" class="usa-link">${report.reportId}</a></th>
-                <th data-title="date" scope="row">${moment.utc(report.sent).local().format('YYYY-MM-DD HH:mm')}</th>
-                <th date-title="expires" scope="row">${moment.utc(report.expires).local().format('YYYY-MM-DD HH:mm')}</th>
-                <th data-title="Total tests" scope="row">${report.total}</th>
-                <th data-title="File" scope="row"><span><a href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();">${report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : report.fileType}</a></span>
+                <th data-title="reportId" scope="row"><a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a></th>
+                <th data-title="date" scope="row">${moment.utc(_report.sent).local().format('YYYY-MM-DD HH:mm')}</th>
+                <th date-title="expires" scope="row">${moment.utc(_report.expires).local().format('YYYY-MM-DD HH:mm')}</th>
+                <th data-title="Total tests" scope="row">${_report.total}</th>
+                <th data-title="File" scope="row"><span><a href="#" onclick="requestFile( \'${_report.reportId}\');event.preventDefault();">${_report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : _report.fileType}</a></span>
                 </th>
               </tr>`;
         });
 
         // report
-        var report = (reports && reports.length > 0) ? window.location.search == "" ? reports[0] : reports.find(report => report.reportId == window.location.search.substring(1)) : null;
-        if (report == null) return;
-        const details = document.getElementById("details");
-        if (details) details.innerHTML +=
-            `<div class="tablet:grid-col-6">
-                        <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
-                        <p class="text-bold margin-top-0">${report.type}</p>
-                        <h4 class="text-gray-30 margin-bottom-0">Report sent</h4>
-                        <p class="text-bold margin-top-0">${moment.utc(report.sent).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
-                </div>
-                <div class="tablet:grid-col-6">
-                        <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
-                        <p class="text-bold margin-top-0">${report.total}</p>
-                        <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
-                        <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
-                </div>`;
-        const reportId = document.getElementById("report.id");
-        if (reportId) reportId.innerHTML = report.reportId;
-        const download = document.getElementById("download");
-        if (download) download.innerHTML +=
-            `<a id="report.fileType" class="usa-button usa-button--outline float-right" href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();"></a>`;
-        const reportFileType = document.getElementById("report.fileType");
-        if (reportFileType) reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
-
+        let report = null;
+        if (reports && reports.length > 0){
+            if ( window.location.search == "" ) report = reports[0];
+            else report = reports.find(report => report.reportId == window.location.search.substring(1));
+        } 
+        if (report != null){
+            const details = document.getElementById("details");
+            if (details) details.innerHTML +=
+                `<div class="tablet:grid-col-6">
+                            <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
+                            <p class="text-bold margin-top-0">${report.type}</p>
+                            <h4 class="text-gray-30 margin-bottom-0">Report sent</h4>
+                            <p class="text-bold margin-top-0">${moment.utc(report.sent).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
+                    </div>
+                    <div class="tablet:grid-col-6">
+                            <h4 class="text-gray-30 margin-bottom-0">Total reporting</h4>
+                            <p class="text-bold margin-top-0">${report.total}</p>
+                            <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
+                            <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
+                    </div>`;
+            const reportId = document.getElementById("report.id");
+            if (reportId) reportId.innerHTML = report.reportId;
+            const download = document.getElementById("download");
+            if (download) download.innerHTML +=
+                `<a id="report.fileType" class="usa-button usa-button--outline float-right" href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();"></a>`;
+            const reportFileType = document.getElementById("report.fileType");
+            if (reportFileType) reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
+        }
         // charts
         /*
         const cards = await fetchCards();
@@ -289,7 +291,7 @@ function getBaseUrl() {
 
         const myLineChartHtml = document.getElementById(ctx);
         if (myLineChartHtml) {
-            var myLineChart = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'line',
                 data: {
 
