@@ -89,7 +89,7 @@ show_menu: false
     <div class="grid-row grid-gap  margin-bottom-2 padding-top-2">
       {% for item in content.index.freeSecure %}
         <div class="tablet:grid-col-6">
-          <img src="{{ site.imgPath }}{{ item.icon }}" aria-hidden="true" focusable="false" alt="Icon of {{ item.iconDescription }}" class="height-7"/>
+          <img src="{{ site.imgPath }}{{ item.icon }}" focusable="false" alt="Icon of {{ item.iconDescription }}" class="height-7"/>
           <h3 class="font-sans-lg">{{ item.title }}</h3>
           <p class="usa-prose">{{ item.summary }}</p>
         </div>

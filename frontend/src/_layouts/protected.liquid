@@ -61,6 +61,10 @@ local_styles:
   {% endif %}
 </main>
 
+{% if disclaimer %}
+  {% include disclaimer %}
+{% endif %}
+
 {% include identifier %}
 
   {% for entry in post_scripts %}
