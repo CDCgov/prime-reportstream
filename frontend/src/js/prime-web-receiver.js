@@ -53,7 +53,7 @@ function checkJWT() {
 async function fetchOrgName() {
     const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } }
     const baseURL = getBaseUrl();
-    if( window.org == undefined ) return null;
+    if (window.org == undefined) return null;
     const response = await Promise.all([
         axios.get(`${baseURL}/api/settings/organizations/${window.org.substring(2).replaceAll("_", "-")}`, config)
             .then(res => res.data)
@@ -177,46 +177,50 @@ function getBaseUrl() {
 (async () => {
 
     // checkJWT - no redirect
-    const _token = window.sessionStorage.getItem("jwt");
+    // user/logout
+    let token = window.sessionStorage.getItem("jwt");
+    let claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
 
-    const _claims = _token ? JSON.parse(atob(_token.split('.')[1])) : null;
-
-    if (_token && _claims ){
+    if (token && claims && moment().isBefore(moment.unix(claims.exp))) {
+        const emailUser = document.getElementById("emailUser");
+        if (emailUser) emailUser.innerHTML = claims.sub;
+        const logout = document.getElementById("logout");
+        if (logout) logout.innerHTML = 'Logout';
         const signIn = document.getElementById("signIn");
         if (signIn) signIn.style.display = "block";
-        window.org = _claims.organization[0];
-        window.user = _claims.sub;
-        window.jwt = _token;
-    }    
+        window.org = claims.organization[0];
+        window.user = claims.sub;
+        window.jwt = token;
+    }
 
     // orgName
     const orgName = await fetchOrgName();
 
-    if( orgName != null ){
-    const orgNameHtml = document.getElementById("orgName");
-    if(orgNameHtml) orgNameHtml.innerHTML += orgName;
+    if (orgName != null) {
+        const orgNameHtml = document.getElementById("orgName");
+        if (orgNameHtml) orgNameHtml.innerHTML += orgName;
 
-    // reports
-    const reports = await fetchReports();
-    reports.forEach( report => {
-     const tBody = document.getElementById( "tBody");
-     if( tBody ) tBody.innerHTML +=
-              `<tr>
+        // reports
+        const reports = await fetchReports();
+        reports.forEach(report => {
+            const tBody = document.getElementById("tBody");
+            if (tBody) tBody.innerHTML +=
+                `<tr>
                 <th data-title="reportId" scope="row"><a href="/report-details/?${report.reportId}" class="usa-link">${report.reportId}</a></th>
-                <th data-title="date" scope="row">${ moment.utc( report.sent ).local().format( 'YYYY-MM-DD HH:mm') }</th>
-                <th date-title="expires" scope="row">${moment.utc( report.expires ).local().format( 'YYYY-MM-DD HH:mm') }</th>
+                <th data-title="date" scope="row">${moment.utc(report.sent).local().format('YYYY-MM-DD HH:mm')}</th>
+                <th date-title="expires" scope="row">${moment.utc(report.expires).local().format('YYYY-MM-DD HH:mm')}</th>
                 <th data-title="Total tests" scope="row">${report.total}</th>
-                <th data-title="File" scope="row"><span><a href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();">${report.fileType == "HL7_BATCH"? "HL7(BATCH)" : report.fileType }</a></span>
+                <th data-title="File" scope="row"><span><a href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();">${report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : report.fileType}</a></span>
                 </th>
               </tr>`;
-    });
+        });
 
-    // report
-    var report = ( reports && reports.length > 0 )? window.location.search == "" ? reports[0] : reports.find(report => report.reportId == window.location.search.substring(1)) : null;
-    if( report == null ) return;
-    const details = document.getElementById("details");
-    if( details ) details.innerHTML +=
-        `<div class="tablet:grid-col-6">
+        // report
+        var report = (reports && reports.length > 0) ? window.location.search == "" ? reports[0] : reports.find(report => report.reportId == window.location.search.substring(1)) : null;
+        if (report == null) return;
+        const details = document.getElementById("details");
+        if (details) details.innerHTML +=
+            `<div class="tablet:grid-col-6">
                         <h4 class="text-gray-30 margin-bottom-0">Report type</h4>
                         <p class="text-bold margin-top-0">${report.type}</p>
                         <h4 class="text-gray-30 margin-bottom-0">Report sent</h4>
@@ -228,20 +232,21 @@ function getBaseUrl() {
                         <h4 class="text-gray-30 margin-bottom-0">Expires</h4>
                         <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                 </div>`;
-    const reportId = document.getElementById("report.id");
-    if( reportId ) reportId.innerHTML = report.reportId;
-    const download = document.getElementById("download");
-    if( download ) download.innerHTML +=
-        `<a id="report.fileType" class="usa-button usa-button--outline float-right" href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();"></a>`;
-    const reportFileType = document.getElementById("report.fileType");
-    if( reportFileType ) reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
-    
-    // charts
-    const cards = await fetchCards();
-    cards.forEach(card => {
-        const cards = document.getElementById("cards");
-        if( cards ) cards.innerHTML +=
-            `<div class="tablet:grid-col-6">
+        const reportId = document.getElementById("report.id");
+        if (reportId) reportId.innerHTML = report.reportId;
+        const download = document.getElementById("download");
+        if (download) download.innerHTML +=
+            `<a id="report.fileType" class="usa-button usa-button--outline float-right" href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();"></a>`;
+        const reportFileType = document.getElementById("report.fileType");
+        if (reportFileType) reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
+
+        // charts
+        /*
+        const cards = await fetchCards();
+        cards.forEach(card => {
+            const cards = document.getElementById("cards");
+            if (cards) cards.innerHTML +=
+                `<div class="tablet:grid-col-6">
             <div class="usa-card__container">
               <div class="usa-card__body">
                 <h4 class="text-gray-30 margin-bottom-0">${card.title}</h4>
@@ -256,62 +261,50 @@ function getBaseUrl() {
               </div>  
             </div>
           </div>`;
-    });
-    var ctx = 'summary-tests';
-    var options = {
-        plugins: {
-            legend: {
-                display: false,
-            }
-        },
-        scales: {
-            y: {
-                ticks: {
-                    beginAtZero: false
-                },
-                display: false,
+        });
+        var ctx = 'summary-tests';
+        var options = {
+            plugins: {
+                legend: {
+                    display: false,
+                }
             },
-            x: {
-                display: false,
+            scales: {
+                y: {
+                    ticks: {
+                        beginAtZero: false
+                    },
+                    display: false,
+                },
+                x: {
+                    display: false,
+                }
             }
         }
+
+        var labels = [];
+        for (var i = 7; i >= 0; i--) {
+            labels.push(moment().subtract(i, 'days').format("YYYY-MM-DD"))
+        }
+
+        const myLineChartHtml = document.getElementById(ctx);
+        if (myLineChartHtml) {
+            var myLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+
+                    labels: labels,
+                    datasets: [{
+                        data: cards[0].data,
+                        borderColor: "#4682B4",
+                        backgroundColor: "#B0C4DE",
+                        fill: 'origin',
+                        borderJoinStyle: "round"
+                    }]
+                },
+                options: options
+            });
+        }
+        */
     }
-
-    var labels = [];
-    for (var i = 7; i >= 0; i--) {
-        labels.push(moment().subtract(i, 'days').format("YYYY-MM-DD"))
-    }
-
-    const myLineChartHtml = document.getElementById( ctx );
-    if( myLineChartHtml ){
-        var myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-
-                labels: labels,
-                datasets: [{
-                    data: cards[0].data,
-                    borderColor: "#4682B4",
-                    backgroundColor: "#B0C4DE",
-                    fill: 'origin',
-                    borderJoinStyle: "round"
-                }]
-            },
-            options: options
-        });
-    }
-
-}
-
-    // user/logout
-    let token = window.sessionStorage.getItem("jwt");
-    let claims = token? JSON.parse(atob(token.split('.')[1])): null;
-
-    if( token && claims && moment().isBefore( moment.unix( claims.exp ) ) ){
-    const emailUser = document.getElementById( "emailUser");
-    if( emailUser ) emailUser.innerHTML = claims.sub;
-    const logout = document.getElementById( "logout" );
-    if( logout ) logout.innerHTML = 'Logout';
-    }
-
 })();
