@@ -1,4 +1,3 @@
-
 <script src="js/cards.js"></script>
 
 <section class="grid-container margin-top-0">
@@ -10,9 +9,9 @@
 <script defer>
   (async () => {
     const cards = await fetchCards();
-      cards.forEach( card => {
-        document.getElementById( "cards").innerHTML +=
-          `<div class="tablet:grid-col-6">
+    cards.forEach(card => {
+      document.getElementById("cards").innerHTML +=
+        `<div class="tablet:grid-col-6">
             <div class="usa-card__container">
               <div class="usa-card__body">
                 <h4 class="text-gray-30 margin-bottom-0">${card.title}</h4>
@@ -27,46 +26,47 @@
               </div>  
             </div>
           </div>`
-     } );
-var ctx = 'summary-tests';
-var options = {
-    plugins: {
-      legend: {
+    });
+    var ctx = 'summary-tests';
+    var options = {
+      plugins: {
+        legend: {
           display: false,
-      }
-    },
-    scales: {
+        }
+      },
+      scales: {
         y: {
-            ticks: { beginAtZero: false },
-            display: false,
+          ticks: {
+            beginAtZero: false
+          },
+          display: false,
         },
         x: {
-            display: false,
+          display: false,
         }
-    }
-  }
-
-var labels = [];
-for( var i = 7; i >= 0; i-- ){
-  labels.push( moment().subtract( i, 'days').format( "YYYY-MM-DD") )
-}
-
-var myLineChart = new Chart(ctx, {
-  type: 'line',
-  data: {
-
-    labels: labels,
-    datasets: [{ 
-        data: cards[0].data,
-        borderColor: "#4682B4",
-        backgroundColor: "#B0C4DE",
-        fill: 'origin',
-        borderJoinStyle: "round"
       }
-    ]
-  },
-  options: options
-});
+    }
+
+    var labels = [];
+    for (var i = 7; i >= 0; i--) {
+      labels.push(moment().subtract(i, 'days').format("YYYY-MM-DD"))
+    }
+
+    var myLineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+
+        labels: labels,
+        datasets: [{
+          data: cards[0].data,
+          borderColor: "#4682B4",
+          backgroundColor: "#B0C4DE",
+          fill: 'origin',
+          borderJoinStyle: "round"
+        }]
+      },
+      options: options
+    });
 
   })();
 </script>

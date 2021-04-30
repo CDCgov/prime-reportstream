@@ -16,32 +16,35 @@ show_menu: false
         <p class="font-sans-lg line-height-sans-4">{{ content.index.summary }}</p>
       </div>
       <div class="tablet:grid-col-6">
-        <img class="shadow-2" src="{{ site.imgPath }}{{ content.index.heroImg }}" alt="{{ content.index.heroImgAlt }}" />
+        <img class="shadow-2" src="{{ site.imgPath }}{{ content.index.heroImg }}"
+          alt="{{ content.index.heroImgAlt }}" />
       </div>
     </div>
   </div>
 </section>
 
 {% for partner in content.index.partners %}
-  <section class="grid-container usa-section margin-y-0 padding-y-0" role="region">
-    <div class="grid-row grid-gap margin-bottom-0">
-      <div class="tablet:grid-col-8">
-        <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ partner.title }}</h2>
-        <p class="font-sans-lg margin-top-1 text-base">{{ partner.summary }}</p>
-      </div>
+<section class="grid-container usa-section margin-y-0 padding-y-0" role="region">
+  <div class="grid-row grid-gap margin-bottom-0">
+    <div class="tablet:grid-col-8">
+      <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ partner.title }}</h2>
+      <p class="font-sans-lg margin-top-1 text-base">{{ partner.summary }}</p>
     </div>
-    <div class="grid-row grid-gap margin-bottom-8{% if forloop.last == true %} padding-bottom-8 border-bottom-1px border-base-lighter{% endif %}">
-      {% for feature in partner.features %}
-        <div class="tablet:grid-col-4 margin-bottom-0">
-          <h3>
-            <img src="{{ site.imgPath }}{{ feature.icon }}" aria-hidden="true" focusable="false" alt="Icon of {{ feature.iconDescription }}"/>
-            {{ feature.title }}
-          </h3>
-          <p class="usa-prose">{{ feature.summary }}</p>
-        </div>
-      {% endfor %}
+  </div>
+  <div
+    class="grid-row grid-gap margin-bottom-8{% if forloop.last == true %} padding-bottom-8 border-bottom-1px border-base-lighter{% endif %}">
+    {% for feature in partner.features %}
+    <div class="tablet:grid-col-4 margin-bottom-0">
+      <h3>
+        <img src="{{ site.imgPath }}{{ feature.icon }}" aria-hidden="true" focusable="false"
+          alt="Icon of {{ feature.iconDescription }}" />
+        {{ feature.title }}
+      </h3>
+      <p class="usa-prose">{{ feature.summary }}</p>
     </div>
-  </section>
+    {% endfor %}
+  </div>
+</section>
 {% endfor %}
 
 <section class="grid-container usa-section margin-y-0 padding-y-0" role="region">
@@ -53,15 +56,17 @@ show_menu: false
   </div>
   <ul class="usa-card-group">
     {% for file in content.index.documentation.files %}
-      <li class="tablet:grid-col-4 usa-card">
-        <div class="usa-card__container">
-          <div class="usa-card__body">
-            <img src="{{ site.imgPath }}file_present.svg" class="usa-icon--size-4 float-left margin-right-3" aria-hidden="true" focusable="false" alt="Icon of an attached document"/>
-            <h3 class="usa-collection__heading">{{file.name}}</h3>
-            <a class="usa-link" aria-label="Download PDF copy of '{{ file.name }}'" href="{{ site.pdfPath }}{{ file.url }}">Download PDF</a>
-          </div>
+    <li class="tablet:grid-col-4 usa-card">
+      <div class="usa-card__container">
+        <div class="usa-card__body">
+          <img src="{{ site.imgPath }}file_present.svg" class="usa-icon--size-4 float-left margin-right-3"
+            aria-hidden="true" focusable="false" alt="Icon of an attached document" />
+          <h3 class="usa-collection__heading">{{file.name}}</h3>
+          <a class="usa-link" aria-label="Download PDF copy of '{{ file.name }}'"
+            href="{{ site.pdfPath }}{{ file.url }}">Download PDF</a>
         </div>
-      </li>
+      </div>
+    </li>
     {% endfor %}
   </ul>
 </section>
@@ -70,8 +75,8 @@ show_menu: false
     <div class="tablet:grid-col-8">
       <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ content.index.cta.title }}</h2>
       <p class="usa-prose">{{ content.index.cta.summary }}<p>
-      <a class="usa-button" href="mailto:{{ content.index.cta.buttonUrl }}">{{ content.index.cta.buttonText }}</a>
-      </p>
+          <a class="usa-button" href="mailto:{{ content.index.cta.buttonUrl }}">{{ content.index.cta.buttonText }}</a>
+        </p>
     </div>
   </div>
 </section>
