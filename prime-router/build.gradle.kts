@@ -155,9 +155,6 @@ tasks.register("copyAzureScripts") {
     doLast() {
         // We need to use a regular copy, so Gradle does not delete the existing folder
         org.apache.commons.io.FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
-        // Set the executable permission for running the scripts in Docker
-        File(azureScriptsTmpDir.path, primeScriptName).setExecutable(true);
-        File(azureScriptsTmpDir.path, startFuncScriptName).setExecutable(true);
     }
 }
 
