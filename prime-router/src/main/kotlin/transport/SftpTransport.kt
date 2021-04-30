@@ -21,11 +21,13 @@ import net.schmizz.sshj.userauth.password.PasswordUtils
 import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
 import org.apache.commons.lang3.StringUtils
+import org.apache.logging.log4j.kotlin.Logging
+import org.apache.logging.log4j.kotlin.logger
 import java.io.InputStream
 import java.io.StringReader
 import java.util.logging.Level
 
-class SftpTransport : ITransport {
+class SftpTransport : ITransport, Logging {
     override fun send(
         transportType: TransportType,
         header: WorkflowEngine.Header,
@@ -139,30 +141,44 @@ class SftpTransport : ITransport {
         fun ls(sshClient: SSHClient, path: String): List<String> {
             val lsResults = mutableListOf<String>()
             try {
-                sshClient.use { sshClient ->
-                    sshClient.newSFTPClient().use {
-                        it.ls(path).map { l -> lsResults.add(l.toString()) }
+                try {
+                    sshClient.use { sshClient ->
+                        sshClient.newSFTPClient().use {
+                            it.ls(path).map { l -> lsResults.add(l.toString()) }
+                        }
                     }
+                } finally {
+                    sshClient.disconnect()
                 }
-            } catch (_: java.util.concurrent.TimeoutException) {
-                // do nothing. some servers just take a long time to disconnect
-            } finally {
-                sshClient.disconnect()
+            } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
+                // if the timeout happens on disconnect it gets wrapped up in the connectException
+                // and we need to check the root cause
+                if (ce.cause is java.util.concurrent.TimeoutException) {
+                    // do nothing. some servers just take a long time to disconnect
+                    logger().warn("Connection exception during ls: ${ce.localizedMessage}")
+                } else {
+                    throw ce
+                }
             }
 
             return lsResults
         }
 
         fun pwd(sshClient: SSHClient): String {
+            var pwd = ""
             try {
-                val client = sshClient.newStatefulSFTPClient() as StatefulSFTPClient
-                sshClient.timeout = 120000
-                client.use {
-                    return it.pwd()
+                sshClient.newStatefulSFTPClient().use { client ->
+                    val statefulClient = client as StatefulSFTPClient
+                    sshClient.timeout = 120000
+                    statefulClient.use {
+                        pwd = it.pwd()
+                    }
                 }
             } finally {
                 sshClient.disconnect()
             }
+
+            return pwd
         }
 
         private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
