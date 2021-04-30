@@ -23,11 +23,13 @@ show_menu: false
         {% endif %}
       </div>
       <div class="tablet:grid-col-6">
-        <img class="shadow-2" src="{{ site.imgPath }}{{ content.index.heroImg }}" alt="{{ content.index.heroImgAlt }}" />
+        <img class="shadow-2" src="{{ site.imgPath }}{{ content.index.heroImg }}"
+          alt="{{ content.index.heroImgAlt }}" />
       </div>
     </div>
   </div>
 </section>
+
 <div class="grid-container">
   {% for partner in content.index.partners %}
     <section class="usa-section margin-y-0 padding-y-0" role="region">
@@ -95,3 +97,4 @@ show_menu: false
     </div>
   </section>
 </div>
+
