@@ -40,8 +40,22 @@ function checkJWT() {
     else {
         const signIn = document.getElementById("signIn");
         if (signIn) signIn.style.display = "block";
-        const _org = claims.organization.filter( c => c !== "DHPrimeAdmins" );
+        const _org = claims.organization.filter( c => c !== "DHPrimeAdmins" );        
+        const _dropdown = document.getElementById( "dropdown" );
+        if( _dropdown && claims.organization.includes( 'DHPrimeAdmins') ){
+            _dropdown.innerHTML += 
+                `<label class="usa-label" for="orgs"></label>
+                 <div class="usa-combo-box">
+                  <select class="usa-select" name="orgs" id="orgs">
+                  </select>
+                </div>
+                `;
+
+            
+        }        
+        
         window.org = (_org && _org.length > 0 )? _org[0] : null;
+        window.orgs = claims.organization;
         window.user = claims.sub;
         window.jwt = token;
     }
@@ -170,7 +184,7 @@ function signIn() {
 function getBaseUrl() {
     if( window.location.origin.includes("localhost") ) return "http://localhost:7071";
     else if ( window.location.origin.includes("staging") ) return "https://staging.prime.cdc.gov";
-    else "https://prime.cdc.gov";
+    else return "https://prime.cdc.gov";
 }
 
 (async () => {
@@ -189,6 +203,7 @@ function getBaseUrl() {
         if (_signIn) _signIn.style.display = "block";
         const _org = claims.organization.filter( c => c !== "DHPrimeAdmins" );
         window.org = (_org && _org.length > 0 )? _org[0] : null;
+        window.orgs = claims.organization;
         window.user = claims.sub;
         window.jwt = token;
     }
