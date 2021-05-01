@@ -226,6 +226,7 @@ class CsvSerializerTests {
 
     @Test
     fun `test missing column`() {
+        // setup a malformed CSV
         val one = Schema(
             name = "one",
             topic = "test",
@@ -239,11 +240,38 @@ class CsvSerializerTests {
             1,2
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
+        // Run it
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
-        assertEquals(0, result.errors.size)
-        assertEquals(1, result.warnings.size)
-        assertEquals("", result.report?.getString(0, "b"))
-        assertEquals("1", result.report?.getString(0, "a"))
+        // Expect the converter to catch the error. Our serializer will error on malformed CSVs.
+        assertEquals(1, result.errors.size)
+        assertEquals(0, result.warnings.size)
+        assertNull(result.report)
+    }
+
+
+    @Test
+    fun `test missing row`() {
+        // setup a malformed CSV
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a")),
+                Element("b", csvFields = Element.csvFields("b"))
+            )
+        )
+        val csv = """
+            a,b
+            
+            1,2
+        """.trimIndent()
+        val csvConverter = CsvSerializer(Metadata(schema = one))
+        // Run it
+        val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        // Expect the converter to catch the error. Our serializer will error on malformed CSVs.
+        assertEquals(1, result.errors.size)
+        assertEquals(0, result.warnings.size)
+        assertNull(result.report)
     }
 
     @Test
