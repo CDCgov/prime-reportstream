@@ -239,8 +239,9 @@ open class BaseHistoryFunction {
             var reports = headers.sortedByDescending{ it.createdAt }.map {
 
                 var facilities = arrayListOf<Facility>();
-                if( it.bodyFormat == "CSV")
+                /*if( it.bodyFormat == "CSV")
                     facilities = getFieldSummaryForReportId(arrayOf("Testing_lab_name","Testing_lab_CLIA"),it.reportId.toString(), authClaims)
+                */
 
                 var actions = getActionsForReportId( it.reportId.toString(), authClaims );
 

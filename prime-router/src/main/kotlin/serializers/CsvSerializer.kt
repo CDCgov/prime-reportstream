@@ -2,6 +2,9 @@ package gov.cdc.prime.router.serializers
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
+import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
+import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Mapper
@@ -59,27 +62,40 @@ class CsvSerializer(val metadata: Metadata) {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
         var rows = mutableListOf<Map<String, String>>()
-        csvReader().open(input) {
-            readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
-                rows.add(row)
-                if (rows.size > REPORT_MAX_ITEMS) {
-                    errors.add(
-                        ResultDetail(
-                            ResultDetail.DetailScope.REPORT, "",
-                            "Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows"
-                        )
-                    )
-                    return@open
+        csvReader {
+            quoteChar = '"'
+            delimiter = ','
+            skipEmptyLine = false
+            skipMissMatchedRow = false
+        }.open(input) {
+            try {
+                readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
+                    rows.add(row)
+                    if (rows.size > REPORT_MAX_ITEMS) {
+                        errors.add(ResultDetail.report(
+                                "Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows"
+                            ))
+                        return@open
+                    }
+                    if (row.size > REPORT_MAX_ITEM_COLUMNS) {
+                        errors.add(ResultDetail.report(
+                                "Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS"
+                            ))
+                        return@open
+                    }
                 }
-                if (row.size > REPORT_MAX_ITEM_COLUMNS) {
-                    errors.add(
-                        ResultDetail(
-                            ResultDetail.DetailScope.REPORT, "",
-                            "Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS"
-                        )
-                    )
-                    return@open
-                }
+            } catch (ex: CSVFieldNumDifferentException) {
+                errors.add(
+                    ResultDetail.report("CSV file has an inconsistent number of columns on row: ${ex.csvRowNum}")
+                )
+            } catch (ex: CSVParseFormatException) {
+                errors.add(
+                    ResultDetail.report("General CSV parsing error on row: ${ex.rowNum}")
+                )
+            } catch (ex: MalformedCSVException) {
+                errors.add(
+                    ResultDetail.report("General CSV parsing error: ${ex.message}")
+                )
             }
         }
         if (errors.size > 0) {
@@ -95,8 +111,7 @@ class CsvSerializer(val metadata: Metadata) {
         warnings.addAll(csvMapping.warnings.map { ResultDetail.report(it) })
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
-                ResultDetail(
-                    ResultDetail.DetailScope.REPORT, "",
+                ResultDetail.report(
                     "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping further work."
                 )
             )
@@ -122,8 +137,7 @@ class CsvSerializer(val metadata: Metadata) {
         }
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
-                ResultDetail(
-                    ResultDetail.DetailScope.REPORT, "",
+                ResultDetail.report(
                     "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping."
                 )
             )
