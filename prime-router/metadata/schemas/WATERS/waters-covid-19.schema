@@ -74,8 +74,19 @@ elements:
   - name: patient_race
     csvFields: [{ name: patientRace}]
 
+  # ReportStream uses hl70189 (H,N,U), but Waters sends HHS (2135-2, 2186-5, UNK, ASKU)
+  # Simplest way to map them was with an alt table
   - name: patient_ethnicity
-    csvFields: [{ name: patientEthnicity}]
+    altValues:
+      - code: H
+        display: 2135-2
+      - code: N
+        display: 2186-5
+      - code: U
+        display: UNK
+      - code: U
+        display: ASKU
+    csvFields: [{ name: patientEthnicity, format: $alt}]
 
   - name: patient_gender
     csvFields: [{ name: patientSex}]
@@ -115,6 +126,7 @@ elements:
     csvFields: [{ name: patientHomeAddress2_pii}]
 
   - name: patient_last_name
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: patientNameLast_pii}]
 
   - name: patient_first_name
