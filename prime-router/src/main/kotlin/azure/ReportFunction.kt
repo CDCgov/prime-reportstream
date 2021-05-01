@@ -17,6 +17,10 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.tokens.DatabaseJtiCache
+import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
+import gov.cdc.prime.router.tokens.FindSenderKeyInSettings
+import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -85,7 +89,13 @@ class ReportFunction: Logging {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        val claims = TokenAuthentication.checkAccessToken(request, "report")
+        val workflowEngine = WorkflowEngine()
+        val tokenAuthentication = TokenAuthentication(
+            FindSenderKeyInSettings("report"),
+            FindReportStreamSecretInVault(),
+            DatabaseJtiCache(workflowEngine.db)
+        )
+        val claims = tokenAuthentication.checkAccessToken(request, "report")
             ?: return HttpUtilities.unauthorizedResponse(request)
         return ingestReport(request, context)
     }

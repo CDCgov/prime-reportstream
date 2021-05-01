@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.tokens
 
 import gov.cdc.prime.router.Sender
 import io.jsonwebtoken.Jwts
@@ -16,7 +16,6 @@ import java.io.FileReader
 import java.security.KeyFactory
 import java.security.interfaces.ECPrivateKey
 import java.security.spec.PKCS8EncodedKeySpec
-import kotlin.math.exp
 
 class SenderUtils {
 

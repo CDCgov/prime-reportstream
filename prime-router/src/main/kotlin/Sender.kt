@@ -1,7 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import gov.cdc.prime.router.azure.JwkSet
+import gov.cdc.prime.router.tokens.JwkSet
 
 /**
  * A `Sender` represents the agent that is sending reports to

@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.tokens
 
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

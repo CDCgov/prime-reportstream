@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.azure.SenderUtils
+import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
 
 /**

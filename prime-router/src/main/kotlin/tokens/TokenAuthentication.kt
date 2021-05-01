@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.tokens
 
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.secrets.SecretHelper
@@ -15,18 +15,22 @@ import java.security.Key
 import java.util.Date
 import javax.crypto.SecretKey
 import io.jsonwebtoken.io.Decoders
-
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 /* Currently not implemented as a child of AuthenticationVerifier
  * since this auth has a 'scope', not a PrincipalLevel
  */
 
-class TokenAuthentication {
-    companion object: Logging {
+class TokenAuthentication(
+    val senderPublicKeyFinder: SigningKeyResolverAdapter,
+    val lookup: ReportStreamSecretFinder,
+    val jtiCache: JtiCache,
+): Logging {
         private val MAX_CLOCK_SKEW_SECONDS: Long = 60
 
         fun checkSenderToken(jwsString: String, senderPublicKeyFinder: SigningKeyResolverAdapter): Boolean {
-            return try {
+            try {
                 // Note: this does an expired token check as well
                 val jws = Jwts.parserBuilder()
                     .setAllowedClockSkewSeconds(MAX_CLOCK_SKEW_SECONDS)
@@ -35,11 +39,21 @@ class TokenAuthentication {
                     .parseClaimsJws(jwsString)
                 val jti = jws.body.id
                 val exp = jws.body.expiration
-                isNewSenderToken(jti, exp)   // return the value returned by this function
+                if (jti == null) {
+                    logger.error("Sender Token has null JWT ID.  Rejecting.")
+                    return false
+                }
+                val expiresAt = exp.toInstant().atOffset(ZoneOffset.UTC)
+                if (expiresAt.isBefore(OffsetDateTime.now())) {
+                    logger.error("Sender Token has expired, at $expiresAt.  Rejecting.")
+                    return false
+                }
+                return isNewSenderToken(jti, expiresAt)  // check for replays
             } catch (ex: JwtException) {
-                logger.error("Cannot accept the JWT: ${ex}")
-                false
+                logger.error("Rejecting JWT: ${ex}")
+                return false
             }
+            return false
         }
 
         fun createAccessToken(scopeAuthorized: String, lookup: ReportStreamSecretFinder): AccessToken {
@@ -111,6 +125,17 @@ class TokenAuthentication {
             }
         }
 
+    /**
+     * Prevent replay attacks
+     */
+    fun isNewSenderToken(jti: String, exp: OffsetDateTime): Boolean {
+        // Do not need to account for sender's clock skew.   If sender's clock skews such that exp is
+        // too soon, we set expiration to a min time in JtiCache.  If sender's clock skews the other way,
+        // then that's no problem.
+        return jtiCache.isJTIOk(jti, exp)
+    }
+
+    companion object {
         fun scopeListContainsScope(scopeList: String, desiredScope: String): Boolean {
             if (desiredScope.isBlank() || desiredScope.isEmpty()) return false
             // A scope is a set of strings separated by single spaces
@@ -118,31 +143,20 @@ class TokenAuthentication {
             return scopesTrial.contains(desiredScope)
         }
 
-        /**
-         * Prevent replay attacks
-         */
-        fun isNewSenderToken(jti: String?, exp: Date): Boolean {
-            // todo need to check for re-use.  NOT IMPLEMENTED!
-            //return !isExpiredToken(exp)
-            // Any token we've seen before within the last expiration_time + clock_Skew, is unauthorized.
-            // Use a min exp time of 5 minutes
-            return true
-        }
         fun isExpiredToken(exp: Date): Boolean {
             return (Date().after(exp))   // no need to include clock skew, since we generated token ourselves
         }
+    }
+}
 
+class FindReportStreamSecretInVault: ReportStreamSecretFinder {
+    private val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"
 
-        class FindReportStreamSecretInVault: ReportStreamSecretFinder {
-            private val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"
-
-            override fun getReportStreamTokenSigningSecret(): SecretKey {
-                val secretServiceAgent = SecretHelper.getSecretService()
-                val secret = secretServiceAgent.fetchSecret(TOKEN_SIGNING_SECRET_NAME)
-                    ?: error("Unable to find $TOKEN_SIGNING_SECRET_NAME")
-                return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
-            }
-        }
+    override fun getReportStreamTokenSigningSecret(): SecretKey {
+        val secretServiceAgent = SecretHelper.getSecretService()
+        val secret = secretServiceAgent.fetchSecret(TOKEN_SIGNING_SECRET_NAME)
+            ?: error("Unable to find $TOKEN_SIGNING_SECRET_NAME")
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
     }
 }
 

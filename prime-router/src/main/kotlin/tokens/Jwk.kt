@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.tokens
 
 import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPublicKey
