@@ -51,7 +51,7 @@ class TestAuthenticationVerifier : AuthenticationVerifier {
 }
 
 class OktaAuthenticationVerifier : AuthenticationVerifier {
-    private val issuerBaseUrl: String = System.getenv(envVariableForOktaBaseUrl)
+    private val issuerBaseUrl: String = System.getenv(envVariableForOktaBaseUrl) ?: ""
 
     override val requiredHosts = emptyList<String>()
 
