@@ -27,6 +27,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
 import java.io.File
@@ -35,6 +36,7 @@ import java.net.HttpURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.system.exitProcess
@@ -220,6 +222,7 @@ Examples:
             HammerTime(),
             Waters(),
             RepeatWaters(),
+            Jti(),
         )
     }
 }
@@ -1106,5 +1109,56 @@ class BadSftp : CoolTest() {
         waitABit(30, environment)
         echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
         return examineLineageResults(reportId, listOf(sftpFailReceiver), options.items)
+    }
+}
+
+
+/**
+ * Exercise the database jticache
+ */
+class Jti : CoolTest() {
+    override val name = "jti"
+    override val description = "Test the JTI Cache"
+    override val status = TestStatus.DRAFT
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly("Starting jti Test: ${description}")
+        val db = WorkflowEngine().db
+        val jtiCache = DatabaseJtiCache(db)
+        var passed = true
+        val uuid1 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid1,OffsetDateTime.now())) {
+            echo("JTI-1 $uuid1 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        val uuid2 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid2,OffsetDateTime.now().plusMinutes(10))) {
+            echo("JTI-2 $uuid2 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        val uuid3 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid3,OffsetDateTime.now().minusMinutes(10))) {
+            echo("JTI-3 $uuid3 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        // Now send them all again.  All should return false
+        if (jtiCache.isJTIOk(uuid1,OffsetDateTime.now())) {
+            echo("JTI-1 $uuid1 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (jtiCache.isJTIOk(uuid2,OffsetDateTime.now())) {
+            echo("JTI-2 $uuid2 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (jtiCache.isJTIOk(uuid3,OffsetDateTime.now())) {
+            echo("JTI-3 $uuid3 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (passed) {
+            good("JTI Database Cache test passed")
+        } else {
+            bad("JTI Database Cache test ****FAILED***")
+        }
+        return passed
     }
 }

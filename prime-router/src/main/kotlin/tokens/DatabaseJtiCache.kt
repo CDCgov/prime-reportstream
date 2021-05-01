@@ -17,7 +17,7 @@ class DatabaseJtiCache(val db: DatabaseAccess): JtiCache() {
 
     override fun isPresentInCache(jti: String): Boolean {
         return db.transactReturning { txn ->
-            (db.fetchJti(jti, txn) == null)
+            (db.fetchJti(jti, txn) != null)
         }
     }
 }
