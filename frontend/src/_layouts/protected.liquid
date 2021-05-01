@@ -37,9 +37,10 @@ local_styles:
 <head>
   {% include head_tags_universal %}
   {% include head_tags_styles_scripts %}
-  {% if protected %}
-    <script src="../js/checkjwt.js"></script>
-    <script src="../js/reports.js"></script>
+  {% if current == "web receiver guide" or current == "elr guide" %}
+  <script src="../../js/prime-web-receiver.js"></script>
+  {% else %}
+  <script src="../../js/prime-web-receiver.js"></script>
   {% endif %}
 </head>
 
@@ -59,6 +60,10 @@ local_styles:
     {{ content }}
   {% endif %}
 </main>
+
+{% if disclaimer %}
+  {% include disclaimer %}
+{% endif %}
 
 {% include identifier %}
 
