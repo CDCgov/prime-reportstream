@@ -235,6 +235,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Type**: CODE
 
+**Format**: $alt
+
 **HL7 Field**: PID-22
 
 **Cardinality**: [0..1]
@@ -246,6 +248,19 @@ Code | Display
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Unknown
+H|Hispanic or Latino
+N|Non Hispanic or Latino
+U|Unknown
+U|Unknown
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+H|2135-2
+N|2186-5
+U|UNK
+U|ASKU
 
 **Documentation**:
 
@@ -408,7 +423,7 @@ The patient's second address line
 
 **HL7 Field**: PID-5-1
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
