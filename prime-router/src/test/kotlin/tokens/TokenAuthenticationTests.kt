@@ -12,6 +12,7 @@ import io.jsonwebtoken.io.Encoders
 import io.jsonwebtoken.security.Keys
 import java.math.BigInteger
 import java.security.Key
+import java.time.OffsetDateTime
 import java.util.Date
 import java.util.UUID
 import javax.crypto.SecretKey
@@ -94,7 +95,7 @@ class TokenAuthenticationTests {
         }
     }
 
-    val tokenAuthentication = TokenAuthentication(UseTestKey(), GetTestSecret(), MemoryJtiCache())
+    val tokenAuthentication = TokenAuthentication(MemoryJtiCache())
 
     @Test
     fun `test reading in Keys`() {
@@ -139,7 +140,8 @@ class TokenAuthenticationTests {
 
     @Test
     fun `test createAccessToken and checkAccessToken happy path`() {
-        val token = tokenAuthentication.createAccessToken("foobar", GetTestSecret())
+        val rslookup = GetTestSecret()  // callback to look up the Reportstream secret, using to sign token.
+        val token = tokenAuthentication.createAccessToken("foobar", rslookup)
         assertTrue(token.accessToken.isNotEmpty())
         // must expire later than now, but in less than 10 minutes
         val now: Int = (System.currentTimeMillis()/1000).toInt()
@@ -149,7 +151,6 @@ class TokenAuthenticationTests {
         assertEquals("bearer", token.tokenType)
 
         // Now read the token back in, and confirm its valid.
-        val rslookup = GetTestSecret()  // callback to look up the Reportstream secret, using to sign token.
         val claims = tokenAuthentication.checkAccessToken(token.accessToken, "foobar", rslookup)
         // if claims is non-null then the sender's accessToken is valid.
         assertNotNull(claims)
@@ -266,7 +267,7 @@ class TokenAuthenticationTests {
     @Test
     fun `test isNewSenderToken`() {
         val uuid1 = UUID.randomUUID().toString()
-        val exp1 = Date(System.currentTimeMillis() + 300 * 1000)
+        val exp1 = OffsetDateTime.now().plusSeconds(300)
         // First time it works
         assertTrue(tokenAuthentication.isNewSenderToken(uuid1, exp1))
         // Second time it fails
@@ -274,22 +275,22 @@ class TokenAuthenticationTests {
 
         val uuid2 = UUID.randomUUID().toString()
         // Very short expiration -
-        val exp2 = Date(System.currentTimeMillis() + 1 * 1000)
+        val exp2 = OffsetDateTime.now().plusSeconds(1)
         // First time it works
         assertTrue(tokenAuthentication.isNewSenderToken(uuid2, exp2))
         Thread.sleep(2 * 1000)
-        // Second time it fails, even if the original expired.
-        val exp2_1 = Date(System.currentTimeMillis() + 300 * 1000)
+        // Second time it fails, even if the original expired, due to the min timeout feature
+        val exp2_1 = OffsetDateTime.now().plusSeconds(300)
         assertFalse(tokenAuthentication.isNewSenderToken(uuid2, exp2_1))
     }
 
     @Test
     fun `test isExpiredToken`() {
         val exp1 = Date(System.currentTimeMillis() - 1)
-        assertTrue(tokenAuthentication.isExpiredToken(exp1))
+        assertTrue(TokenAuthentication.isExpiredToken(exp1))
 
         val exp2 = Date(System.currentTimeMillis() + 1000)
-        assertFalse(tokenAuthentication.isExpiredToken(exp2))
+        assertFalse(TokenAuthentication.isExpiredToken(exp2))
     }
 
     @Test

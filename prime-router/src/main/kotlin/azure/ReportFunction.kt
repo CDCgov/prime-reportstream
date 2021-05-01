@@ -90,11 +90,7 @@ class ReportFunction: Logging {
         context: ExecutionContext,
     ): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
-        val tokenAuthentication = TokenAuthentication(
-            FindSenderKeyInSettings("report"),
-            FindReportStreamSecretInVault(),
-            DatabaseJtiCache(workflowEngine.db)
-        )
+        val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))
         val claims = tokenAuthentication.checkAccessToken(request, "report")
             ?: return HttpUtilities.unauthorizedResponse(request)
         return ingestReport(request, context)

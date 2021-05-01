@@ -22,11 +22,7 @@ import java.time.ZoneOffset
  * since this auth has a 'scope', not a PrincipalLevel
  */
 
-class TokenAuthentication(
-    val senderPublicKeyFinder: SigningKeyResolverAdapter,
-    val lookup: ReportStreamSecretFinder,
-    val jtiCache: JtiCache,
-): Logging {
+class TokenAuthentication(val jtiCache: JtiCache): Logging {
         private val MAX_CLOCK_SKEW_SECONDS: Long = 60
 
         fun checkSenderToken(jwsString: String, senderPublicKeyFinder: SigningKeyResolverAdapter): Boolean {
