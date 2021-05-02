@@ -3,6 +3,7 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
@@ -116,7 +117,17 @@ class TokenUrl : SenderUtilsCommand(
 
 class AddPublicKey : SingleSettingCommand(
     name = "addkey",
-    help = "Add a public key to a sender",
+    help = """
+    Add a public key to an existing sender's setting
+
+    Generate Elliptic Curve private + public key pair for use with ES384 signatures:
+      openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
+      openssl ec -in my-es-keypair.pem -pubout -out my-es-public-key.pem
+
+    Generate RSA keyusing
+      openssl genrsa -out my-rsa-keypair.pem 2048
+            openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem
+    """.trimIndent(),
     settingType = SettingType.SENDER,
     operation = Operation.GET
 ) {
@@ -140,6 +151,11 @@ class AddPublicKey : SingleSettingCommand(
         metavar = "<desired scope>",
         help = "Specify desired authorization scope.  Example:  'report' to request access to the 'report' endpoint."
     ).required()
+
+    val doIt by option(
+        "--doit",
+        help = "Save the modified Sender setting to the database (default is to just print the modified setting)"
+    ).flag(default = false)
 
     override fun run() {
         val environment = getEnvironment()
@@ -167,11 +183,18 @@ class AddPublicKey : SingleSettingCommand(
         echo("*** Modified Sender, including new key *** ")
         if (useJson) writeOutput(newSenderJson) else writeOutput(toYaml(newSenderJson, settingType))
         echo("*** End Modified Sender, including new key *** ")
-        echo("""
-            Nothing has been updated or changed.
-            If you want to add the key permanently, paste the above modified yml into a file and run
-                ./prime setting set --input <filename>
+        if (!doIt) {
+            echo("""
+
+            Nothing has been updated or changed. 
+            To add the key permanently, review, then rerun this same command including the --doit option
         """.trimIndent())
+            return
+        }
+        val response = put(environment, accessToken, settingType, settingName,newSenderJson)
+        echo()
+        echo(response)
+        echo()
     }
 
 }
