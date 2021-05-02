@@ -69,7 +69,7 @@ class TokenAuthenticationTests {
         Sender.Format.CSV,
         "covid-19",
         "mySchema",
-        auths = null)
+        keys = null)
 
 
     // return the hardcoded public key used with this test.  This is the Sender's public key.

@@ -25,7 +25,7 @@ import java.time.ZoneOffset
 class TokenAuthentication(val jtiCache: JtiCache): Logging {
         private val MAX_CLOCK_SKEW_SECONDS: Long = 60
 
-        fun checkSenderToken(jwsString: String, senderPublicKeyFinder: SigningKeyResolverAdapter): Boolean {
+    fun checkSenderToken(jwsString: String, senderPublicKeyFinder: SigningKeyResolverAdapter): Boolean {
             try {
                 // Note: this does an expired token check as well
                 val jws = Jwts.parserBuilder()
@@ -132,6 +132,15 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
     }
 
     companion object {
+        // Should I turn this into a nice enum?   Its nice to just pass a string around
+        fun isValidScope(scope: String): Boolean {
+            return when (scope) {
+                "report" -> true
+                else -> false
+            }
+        }
+
+
         fun scopeListContainsScope(scopeList: String, desiredScope: String): Boolean {
             if (desiredScope.isBlank() || desiredScope.isEmpty()) return false
             // A scope is a set of strings separated by single spaces

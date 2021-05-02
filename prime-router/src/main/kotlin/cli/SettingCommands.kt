@@ -309,7 +309,7 @@ abstract class SingleSettingCommandNoSettingName(
 ) : SettingCommand(name = name, help = help) {
     open val settingName: String = ""
 
-    private val useJson by option(
+    val useJson by option(
         "--json",
         help = "Use the JSON format instead of YAML"
     ).flag(default = false)
@@ -428,6 +428,7 @@ class SenderSettings : CliktCommand(
             PutSenderSetting(),
             DeleteSenderSetting(),
             TokenUrl(),
+            AddPublicKey(),
         ) }
 
     override fun run() {}

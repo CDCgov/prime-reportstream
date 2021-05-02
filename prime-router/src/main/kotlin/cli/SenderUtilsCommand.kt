@@ -7,7 +7,10 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.tokens.SenderUtils
+import gov.cdc.prime.router.tokens.TokenAuthentication
 import java.io.File
 
 /**
@@ -57,7 +60,7 @@ abstract class SenderUtilsCommand(
 
 class TokenUrl : SenderUtilsCommand(
     name = "url",
-    help = "Use my private key to create a URL to request an access token from ReportStream"
+    help = "Use my private key to create a URL that can be used to request an access token from ReportStream"
 ) {
     val privateKeyFilename by option("--private-key",
         help = "Path to private key .pem file",
@@ -107,8 +110,71 @@ class TokenUrl : SenderUtilsCommand(
         val url = SenderUtils.generateSenderUrl(environment.baseUrl,senderToken)
         echo("Use this URL to get an access token from ReportStream:")
         echo(url)
-     }
+    }
 
- }
+}
+
+class AddPublicKey : SingleSettingCommand(
+    name = "addkey",
+    help = "Add a public key to a sender",
+    settingType = SettingType.SENDER,
+    operation = Operation.GET
+) {
+    val publicKeyFilename by option("--public-key",
+        help = "Path to public key .pem file",
+        metavar = "<public-pem-key-file>")
+        .required()
+
+    private val kid by option(
+        "--kid",
+        metavar = "<string key id>",
+        help = """
+            Specify desired key id for this key.
+            When sender makes a token req, the kid in jwt must match this kid.
+            If not set, use the scope value as the kid value
+        """.trimIndent()
+    )
+
+    private val scope by option(
+        "--scope",
+        metavar = "<desired scope>",
+        help = "Specify desired authorization scope.  Example:  'report' to request access to the 'report' endpoint."
+    ).required()
+
+    override fun run() {
+        val environment = getEnvironment()
+        val accessToken = getAccessToken(environment)
+        val publicKeyFile = File(publicKeyFilename)
+        if (! publicKeyFile.exists()) {
+            echo("Unable to fine pem file " + publicKeyFile.absolutePath)
+            return
+        }
+        if (!TokenAuthentication.isValidScope(scope)) {
+            echo("$scope is not a valid scope value")
+            return
+        }
+        val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
+        jwk.kid = if (kid.isNullOrEmpty()) scope else kid
+
+        val origSenderJson = get(environment, accessToken, settingType, settingName)
+        val origSender = Sender(jsonMapper.readValue(origSenderJson, SenderAPI::class.java))
+        val newSender = Sender(origSender, scope, jwk)
+        val newSenderJson = jsonMapper.writeValueAsString(newSender)
+
+        echo("*** Original Sender *** ")
+        if (useJson) writeOutput(origSenderJson) else writeOutput(toYaml(origSenderJson, settingType))
+        echo("*** End Original Sender *** ")
+        echo("*** Modified Sender, including new key *** ")
+        if (useJson) writeOutput(newSenderJson) else writeOutput(toYaml(newSenderJson, settingType))
+        echo("*** End Modified Sender, including new key *** ")
+        echo("""
+            Nothing has been updated or changed.
+            If you want to add the key permanently, paste the above modified yml into a file and run
+                ./prime setting set --input <filename>
+        """.trimIndent())
+    }
+
+}
+
 
 

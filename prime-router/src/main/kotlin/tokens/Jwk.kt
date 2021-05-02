@@ -50,7 +50,7 @@ class Jwk(
     val use: String? = null,    // Intended use.  eg, sig, enc.
     val keyOps: String? = null, // key_ops: Intended use operations.  eg, sign, verify, encrypt
     val alg: String? = null,
-    val kid: String? = null,    // key Id
+    var kid: String? = null,    // key Id
     val x5u: String? = null,    // URI ref to certificate
     val x5c: List<String>? = null, // PKIX certificates. JSON array of String
   val x5t: String? = null,    // certificate thumbprint
@@ -117,7 +117,11 @@ data class JwkSet(
     // Each scope has a list of keys associated with it.  Having a list of keys allows for
     // overlapping key rotation
     val keys: List<Jwk>
-)
+) {
+    fun filterByKid(kid: String): List<Jwk> {
+        return keys.filter { !it.kid.isNullOrEmpty() && kid == it.kid }
+    }
+}
 
 /*   DELETE THIS
 // This requires   @JsonDeserialize(contentUsing = PublicKeyDeserializer::class)
