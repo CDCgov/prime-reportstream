@@ -364,10 +364,12 @@ class Hl7Serializer(val metadata: Metadata) {
                 // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                 // text, but need to be truncated because they're the first part of an HD field. For example,
                 // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
-                val truncatedValue = if (value.length < HD_TRUNCATION_LIMIT) {
-                    value
-                } else {
+                val truncatedValue = if (
+                    value.length > HD_TRUNCATION_LIMIT
+                    && hl7Config?.truncateHDNamespaceIds == true) {
                     value.substring(0, HD_TRUNCATION_LIMIT)
+                } else {
+                    value
                 }
                 setComponent(terser, element, element.hl7Field, truncatedValue, report)
             } else if (element.hl7Field != null) {
