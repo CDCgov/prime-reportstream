@@ -1,4 +1,4 @@
-FROM node:15-buster-slim as static_site
+FROM node:16-buster-slim as static_site
 WORKDIR /usr/app
 COPY package*.json ./
 ENV NODE_ENV=production
