@@ -100,8 +100,13 @@ ${element.documentation}
         schema: Schema,
         outputDir: String = ".",
         outputFileName: String? = null,
-        includeTimestamps: Boolean = false
+        includeTimestamps: Boolean = false,
+        generateMarkupFile: Boolean = true,
+        generateHtmlFile: Boolean = false
     ) {
+        // Why are you even calling this
+        if (!generateMarkupFile && !generateHtmlFile) return;
+
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         val createDate = LocalDate.now().format(formatter)
         // change any slashes to dashes for the file name
@@ -114,20 +119,24 @@ ${element.documentation}
         }
 
         // Generate the markup file
-        val markupName = (outputFileName ?: schemaName) + if (includeTimestamps) {
-            "-$createDate.md"
-        } else {
-            ".md"
+        if(generateMarkupFile) {
+            val markupName = (outputFileName ?: schemaName) + if (includeTimestamps) {
+                "-$createDate.md"
+            } else {
+                ".md"
+            }
+            File(outputDir, markupName).writeText(mdText)
         }
-        File(outputDir, markupName).writeText(mdText)
 
         // Generate the HTML file
-        val htmlName = (outputFileName ?: schemaName) + if (includeTimestamps) {
-            "-$createDate.html"
-        } else {
-            ".html"
+        if(generateHtmlFile) {
+            val htmlName = (outputFileName ?: schemaName) + if (includeTimestamps) {
+                "-$createDate.html"
+            } else {
+                ".html"
+            }
+            File(outputDir, htmlName).writeText(convertMarkdownToHtml(mdText))
         }
-        File(outputDir, htmlName).writeText(convertMarkdownToHtml(mdText))
     }
 
     /**
