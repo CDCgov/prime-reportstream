@@ -272,7 +272,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.15.1")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.15.2")
     implementation("tech.tablesaw:tablesaw-core:0.38.2")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.1.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.3")
