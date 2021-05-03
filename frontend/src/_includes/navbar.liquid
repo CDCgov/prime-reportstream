@@ -1,15 +1,3 @@
-<script>
-  var logout = () => {
-    window.sessionStorage.removeItem( "jwt" )
-    window.sessionStorage.removeItem( "idle-timer" )
-    window.location.replace(`${window.location.origin}`);
-      let signIn = document.getElementById("signIn");
-    if( signIn )
-      signIn.style.display = "block";
-  }
-
-</script>
-
 <div class="usa-overlay"></div>
 <header class="usa-header usa-header--basic">
   <div class="usa-nav-container">
@@ -22,7 +10,7 @@
     </div>
     <nav aria-label="Primary navigation" class="usa-nav">
       <ul class="usa-nav__primary font-sans-md">
-        <li id="navmenu" class="usa-nav__primary-item {% if title == "Download" %}usa-current{% endif %}">
+        <li id="navmenu" class="usa-nav__primary-item {% if title == "Daily data" %}usa-current{% endif %}">
           <a class="usa-nav__link" href="/daily-data/"><span>Daily data</span></a>
         </li>
         <li class="usa-nav__primary-item {% if documentation %}usa-current{% endif %}">
@@ -41,16 +29,3 @@
   </div>
 </header>
 
-<script>
-  let signIn = document.getElementById("signIn");
-  let navMenu = document.getElementById("navmenu");
-  if( window.sessionStorage.getItem("jwt") ){
-    if( signIn ) signIn.style.display = "none";
-  }
-  else{
-    if( signIn ) signIn.style.display = "block";
-    navMenu.style.display = "none";
-  }
-
-
-</script>
