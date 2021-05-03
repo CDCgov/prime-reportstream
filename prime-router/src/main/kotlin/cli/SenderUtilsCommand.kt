@@ -96,10 +96,6 @@ class TokenUrl : SenderUtilsCommand(
             return
         }
         val privateKey = SenderUtils.readPrivateKeyPemFile(privateKeyFile)
-        if (privateKey == null) {
-            echo("Unable to read private key from pem file ${privateKeyFile.absolutePath}")
-            return
-        }
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         val sender = settings.findSender(senderName)
         if (sender == null) {
@@ -108,7 +104,7 @@ class TokenUrl : SenderUtilsCommand(
         }
         // note:  using the sender fullName as the kid here.
         val senderToken = SenderUtils.generateSenderToken(sender, environment.baseUrl, privateKey,sender.fullName)
-        val url = SenderUtils.generateSenderUrl(environment.baseUrl,senderToken)
+        val url = SenderUtils.generateSenderUrl(environment.baseUrl, senderToken, scope)
         echo("Use this URL to get an access token from ReportStream:")
         echo(url)
     }
@@ -142,7 +138,7 @@ class AddPublicKey : SingleSettingCommand(
         help = """
             Specify desired key id for this key.
             When sender makes a token req, the kid in jwt must match this kid.
-            If not set, use the scope value as the kid value
+            If not set, use the sender fullname as the kid value
         """.trimIndent()
     )
 
@@ -170,7 +166,7 @@ class AddPublicKey : SingleSettingCommand(
             return
         }
         val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
-        jwk.kid = if (kid.isNullOrEmpty()) scope else kid
+        jwk.kid = if (kid.isNullOrEmpty()) settingName else kid
 
         val origSenderJson = get(environment, accessToken, settingType, settingName)
         val origSender = Sender(jsonMapper.readValue(origSenderJson, SenderAPI::class.java))

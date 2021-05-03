@@ -7,18 +7,9 @@ import gov.cdc.prime.router.Sender
 import io.jsonwebtoken.Jwts
 import java.util.Date
 import java.util.UUID
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import java.net.URL
 import java.security.PrivateKey
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter
-import org.bouncycastle.openssl.PEMParser
-import org.bouncycastle.util.io.pem.PemObject
-import org.bouncycastle.util.io.pem.PemReader
 import java.io.File
-import java.io.FileReader
-import java.security.KeyFactory
-import java.security.interfaces.ECPrivateKey
-import java.security.spec.PKCS8EncodedKeySpec
 
 class SenderUtils {
 
@@ -46,19 +37,19 @@ class SenderUtils {
             return jws
         }
 
-        fun generateSenderUrlParameters(senderToken: String): Map<String, String> {
+        fun generateSenderUrlParameters(senderToken: String, scope: String): Map<String, String> {
             return mapOf<String, String>(
-                "scope" to "reports",
+                "scope" to scope,
                 "grant_type" to "client_credentials",
                 "client_assertion_type" to "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
                 "client_assertion" to senderToken,
             )
         }
 
-        fun generateSenderUrl(baseUrl: String, senderToken: String): URL {
+        fun generateSenderUrl(baseUrl: String, senderToken: String, scope: String): URL {
             return URL(
                 "http://localhost:7071/api/token?" +
-                    generateSenderUrlParameters(senderToken)
+                    generateSenderUrlParameters(senderToken, scope)
                         .map { "${it.key}=${it.value}" }.joinToString("&")
             )
         }
@@ -70,7 +61,7 @@ class SenderUtils {
 
         fun readPublicKeyPem(pem: String): Jwk {
             val nimbusdsJwk = JWK.parseFromPEMEncodedObjects(pem)
-            val jwk = jacksonObjectMapper().readValue(nimbusdsJwk.toJSONString(),Jwk::class.java)
+            val jwk = jacksonObjectMapper().readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
             // All the rest of this is sanity checks
             val prefix = "Cannot convert pemFile to EC Key. "
             if (jwk.kty == null) error("$prefix.  Key must have a kty keytype")
@@ -84,7 +75,27 @@ class SenderUtils {
             return jwk
         }
 
-        fun readPrivateKeyPemFile(pemFile: File): PrivateKey? {
+        fun readPrivateKeyPemFile(pemFile: File): PrivateKey {
+            if (!pemFile.exists()) error("Cannot file file ${pemFile.absolutePath}")
+            return readPrivateKeyPem(pemFile.readText())
+        }
+
+        fun readPrivateKeyPem(pem: String): PrivateKey {
+            val nimbusdsJwk = JWK.parseFromPEMEncodedObjects(pem)
+            val jwk = jacksonObjectMapper().readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
+            // All the rest of this is sanity checks
+            val prefix = "Cannot convert pemFile to EC Key. "
+            if (jwk.kty == null) error("$prefix.  Key must have a kty keytype")
+            if (jwk.d == null) error("$prefix This looks like a public key.  Key must be a private key.")
+            if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) error("$prefix. Key missing elliptic point (x,y) value")
+            if (nimbusdsJwk.keyType != KeyType.EC) error("$prefix keyType is  ${nimbusdsJwk.keyType}.  Expecting 'EC'.")
+            // actually generate an ECPublicKey obj, just to confirm it can be done.
+            val ecPrivateKey = jwk.toECprivateKey()
+            if (ecPrivateKey.algorithm != "EC") error("$prefix.  Alg is ${ecPrivateKey.algorithm}.  Expecting 'EC'.")
+            return ecPrivateKey
+        }
+/*
+            return jwk
             val factory: KeyFactory = KeyFactory.getInstance("EC")
             FileReader(pemFile).use { keyReader ->
                 PemReader(keyReader).use { pemReader ->
@@ -99,8 +110,6 @@ class SenderUtils {
                 val converter = JcaPEMKeyConverter()
                 val privateKeyInfo: PrivateKeyInfo = PrivateKeyInfo.getInstance(pemParser.readObject())
                 return converter.getPrivateKey(privateKeyInfo)  //  as RSAPrivateKey
-            }
-        }
+ */
     }
-
 }
