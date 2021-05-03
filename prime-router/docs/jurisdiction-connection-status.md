@@ -29,6 +29,7 @@
   * Alabama
   * Colorado
   * Guam
+  * Mississippi
   * Vermont
 
 
@@ -40,7 +41,6 @@
 * Current jurisdictions
   * California
   * Massachusetts
-  * Mississippi
   * New Hampshire
   * New Jersey
   * Washington
