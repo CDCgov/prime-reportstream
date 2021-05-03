@@ -74,7 +74,7 @@ Examples:
 """,
 ) {
 
-    val defaultWorkingDir = "./target/csv_test_files"
+    val defaultWorkingDir = "./build/csv_test_files"
 
     private val list by option(
         "--list",
