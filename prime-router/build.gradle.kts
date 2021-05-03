@@ -112,6 +112,14 @@ tasks.register<JavaExec>("testEnd2End") {
     environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
 }
 
+tasks.register<JavaExec>("generateDocs") {
+    group = rootProject.description ?: ""
+    description = "Generate the schema documentation in markup format"
+    main = primeMainClass
+    classpath = sourceSets["main"].runtimeClasspath
+    args = listOf("generate-docs")
+}
+
 azurefunctions {
     appName = azureAppName
     setAppSettings(closureOf<MutableMap<String, String>> {
