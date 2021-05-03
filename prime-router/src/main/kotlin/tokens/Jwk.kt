@@ -113,6 +113,9 @@ class Jwk(
 data class JwkSet(
     // A scope is a space separated list of allowed scopes, per OpenID.
     // The official JWK Set spec only calls for 'keys', but custom fields like this are allowed.
+    // Syntax for scopes:
+    // System scopes have the format system/(:resourceType|*).(read|write|*),
+    // which conveys the same access scope as the matching user format user/(:resourceType|*).(read|write|*).
     val scope: String,
     // Each scope has a list of keys associated with it.  Having a list of keys allows for
     // overlapping key rotation

@@ -91,7 +91,15 @@ class ReportFunction: Logging {
     ): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
         val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))
-        val claims = tokenAuthentication.checkAccessToken(request, "report")
+        val senderName = request.headers[CLIENT_PARAMETER]
+            ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
+        // todo - this code stolen from validateRequest.   consolidate
+        if (senderName.isBlank())
+            return HttpUtilities.bad(request,"Expected a '$CLIENT_PARAMETER' query parameter")
+        val sender = workflowEngine.settings.findSender(senderName)
+            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+
+        val claims = tokenAuthentication.checkAccessToken(request, "${sender.fullName}.report")
             ?: return HttpUtilities.unauthorizedResponse(request)
         return ingestReport(request, context)
     }

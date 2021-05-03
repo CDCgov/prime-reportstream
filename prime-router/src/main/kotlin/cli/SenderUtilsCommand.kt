@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.tokens.SenderUtils
 import gov.cdc.prime.router.tokens.TokenAuthentication
@@ -60,8 +61,8 @@ abstract class SenderUtilsCommand(
 }
 
 class TokenUrl : SenderUtilsCommand(
-    name = "url",
-    help = "Use my private key to create a URL that can be used to request an access token from ReportStream"
+    name = "reqtoken",
+    help = "Use my private key to request a token from ReportStream"
 ) {
     val privateKeyFilename by option("--private-key",
         help = "Path to private key .pem file",
@@ -105,8 +106,12 @@ class TokenUrl : SenderUtilsCommand(
         // note:  using the sender fullName as the kid here.
         val senderToken = SenderUtils.generateSenderToken(sender, environment.baseUrl, privateKey,sender.fullName)
         val url = SenderUtils.generateSenderUrl(environment.baseUrl, senderToken, scope)
-        echo("Use this URL to get an access token from ReportStream:")
+        echo("Using this URL to get an access token from ReportStream:")
         echo(url)
+
+        val (httpStatus, response) = HttpUtilities.postHttp(url.toString(),"".toByteArray())
+        echo("\nResponse status: $httpStatus")
+        echo("\n$response\n")
     }
 
 }
@@ -161,8 +166,8 @@ class AddPublicKey : SingleSettingCommand(
             echo("Unable to fine pem file " + publicKeyFile.absolutePath)
             return
         }
-        if (!TokenAuthentication.isValidScope(scope)) {
-            echo("$scope is not a valid scope value")
+        if (!TokenAuthentication.isWellFormedScope(scope)) {
+            echo("$scope is not a well formed scope value")
             return
         }
         val jwk = SenderUtils.readPublicKeyPemFile(publicKeyFile)
@@ -170,6 +175,12 @@ class AddPublicKey : SingleSettingCommand(
 
         val origSenderJson = get(environment, accessToken, settingType, settingName)
         val origSender = Sender(jsonMapper.readValue(origSenderJson, SenderAPI::class.java))
+
+        if (!TokenAuthentication.isValidScope(scope, origSender)) {
+            echo("Sender full name in scope must match $settingName.  Instead got: $scope")
+            return
+        }
+
         val newSender = Sender(origSender, scope, jwk)
         val newSenderJson = jsonMapper.writeValueAsString(newSender)
 

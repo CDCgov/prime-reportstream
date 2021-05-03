@@ -1,6 +1,11 @@
 package gov.cdc.prime.router.tokens
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
+import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.secrets.SecretHelper
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
@@ -58,17 +63,20 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
             // Using Integer seconds to stay consistent with the JWT token spec, which uses seconds.
             // Search for 'NumericDate' in https://tools.ietf.org/html/rfc7519#section-2
             // This will break in 2038, which, actually, isn't that far off...
-            val expiresAtSeconds = ((System.currentTimeMillis()/1000) + 300).toInt()
+            val expiresInSeconds = 300
+            val expiresAtSeconds = ((System.currentTimeMillis()/1000) + expiresInSeconds).toInt()
+            val expirationDate = Date(expiresAtSeconds.toLong() * 1000)
+            logger.info("Token for $scopeAuthorized will expire at $expirationDate")
             val token = Jwts.builder()
-                .setExpiration(Date(expiresAtSeconds.toLong() * 1000))  // exp
+                .setExpiration(expirationDate)  // exp
                 // removed  .setId(UUID.randomUUID().toString())   // jti
                 .claim("scope", scopeAuthorized)
                 .signWith(secret).compact()
-            return AccessToken(token, "bearer", expiresAtSeconds, scopeAuthorized)
+            return AccessToken(token, "bearer", expiresInSeconds, expiresAtSeconds, scopeAuthorized)
         }
 
         fun checkAccessToken(request: HttpRequestMessage<String?>, desiredScope: String): Claims? {
-            val bearerComponent = request.headers["Authorization"]
+            val bearerComponent = request.headers["authorization"]
             if (bearerComponent == null) {
                 logger.error("Missing Authorization header.  Unauthorized.")
                 return null
@@ -78,7 +86,8 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
                 logger.error("Request has Authorization header but no token.  Unauthorized")
                 return null
             }
-            return checkAccessToken(accessToken, desiredScope, FindReportStreamSecretInVault())
+            return checkAccessToken(accessToken, desiredScope, GetStaticSecret())
+//            return checkAccessToken(accessToken, desiredScope, FindReportStreamSecretInVault())
         }
 
         /**
@@ -131,13 +140,36 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
         return jtiCache.isJTIOk(jti, exp)
     }
 
-    companion object {
-        // Should I turn this into a nice enum?   Its nice to just pass a string around
-        fun isValidScope(scope: String): Boolean {
-            return when (scope) {
+    companion object: Logging {
+        // Should I turn this into a nice Scope class?   Its nice to just pass a string around
+        fun isWellFormedScope(scope: String): Boolean {
+            val splits = scope.split(".")
+            if (splits.size != 3) {
+                logger.warn("Scope should be org.sender.endpoint.  Instead got: $scope ")
+                return false
+            }
+            return true
+        }
+
+        fun isValidScope(scope: String, expectedSender: Sender): Boolean {
+            if (!isWellFormedScope(scope)) return false
+            val splits = scope.split(".")
+            if (splits[0] != expectedSender.organizationName) {
+                logger.warn("Expected organization ${expectedSender.organizationName}.Instead got: ${scope[0]}")
+                return false
+            }
+            if (splits[1] != expectedSender.name) {
+                logger.warn("Expected sender ${expectedSender.name}.Instead got: ${scope[1]}")
+                return false
+            }
+            return when (splits[2]) {
                 "report" -> true
                 else -> false
             }
+        }
+
+        fun generateValidScope(sender: Sender, endpoint: String): String {
+            return "${sender.fullName}.$endpoint"
         }
 
 
@@ -165,10 +197,21 @@ class FindReportStreamSecretInVault: ReportStreamSecretFinder {
     }
 }
 
+/**
+ * Defined per the FHIR standard
+ *    https://hl7.org/fhir/uv/bulkdata/authorization/index.html
+ */
+// todo get this to work:  @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 data class AccessToken(
-    val accessToken: String,  // access_token - required - The access token issued by the authorization server.
-    val tokenType: String,    // token_type	required - Fixed value: bearer.
-    val expiresAtSeconds: Int,      //  unix time IN SECONDS, of expiration time.
+    @JsonProperty("access_token")
+    val accessToken: String,   // access_token - required - The access token issued by the authorization server.
+    @JsonProperty("token_type")
+    val tokenType: String,     // token_type	required - Fixed value: bearer.
+    @JsonProperty("expires_in")
+    val expiresIn: Int,        // seconds until expiration, eg, 300
+    @JsonProperty("expires_at_seconds")
+    val expiresAtSeconds: Int, //  unix time IN SECONDS, of the expiration time.
+    @JsonProperty("scope")
     val scope: String, // scope	required - Scope of access authorized. can be different from the scopes requested
 )
 
@@ -181,20 +224,42 @@ interface ReportStreamSecretFinder {
  *
  * Implementation of a callback function used to find the public key for
  * a given Sender, kid, and alg.   Lookup in the Settings table.
- *
+ *  todo:  the FHIR spec calls for allowing a set of keys.  This callback only allows for one.
  */
-class FindSenderKeyInSettings(scope: String) : SigningKeyResolverAdapter() {
+class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter() {
     override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key {
         if (jwsHeader == null) error("JWT has missing header")
         val issuer = claims.issuer
         val kid = jwsHeader.keyId
         val alg = jwsHeader.algorithm
-        // this is a lookup to settings.
-        //     val sender = WorkflowEngine().settings.findSender(issuer) ?: error("No such sender $issuer")
-        // Need to map alg to kty
-        // Must also match on kid
-        // todo USELESS:  NEW KEY EVERY TIME!
-        return Keys.keyPairFor(SignatureAlgorithm.ES384).public
+        val sender = WorkflowEngine().settings.findSender(issuer) ?: error("No such sender fullName $issuer")
+        if (sender.keys == null) error("No auth keys associated with sender $issuer")
+        if (!TokenAuthentication.isValidScope(scope, sender)) error("Invalid scope for this sender: $scope")
+        sender.keys.forEach { jwkSet ->
+            if (jwkSet.scope == scope) {
+                jwkSet.keys.forEach { jwk ->
+                    if (jwk.kid == kid) {   // todo add alg test!   && jwk.alg == alg.  Or kty???
+                        return jwk.toECPublicKey()  // todo implement RSA
+                    }
+                }
+            }
+        }
+        error("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
     }
 }
+
+
+/**
+ * Return a ReportStream secret, used by ReportStream to sign a short-lived token
+ * This stores a secret in static memory.  For testing only.
+ */
+class GetStaticSecret: ReportStreamSecretFinder {
+    var tokenSigningSecret = "UVD4QOJ3H295Zi9Ayl3ySuoXNKiE8WYuOsaXOZfug3dwTUVBC1ZIKRPpG5LEyZDZ"
+
+    override fun getReportStreamTokenSigningSecret(): SecretKey {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenSigningSecret))
+    }
+}
+
+
 

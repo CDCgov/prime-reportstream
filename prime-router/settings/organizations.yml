@@ -16,11 +16,22 @@
     description: Test Sender from Waters
     jurisdiction: FEDERAL
     senders:
-      - name: default
-        organizationName: waters
-        topic: covid-19-otc
-        schemaName: waters/waters-covid-19
-        format: CSV
+      - name: "default"
+        organizationName: "waters"
+        format: "CSV"
+        topic: "covid-19-otc"
+        schemaName: "waters/waters-covid-19"
+        keys:
+        - scope: "waters.default.report"
+          keys:
+          - kty: "EC"
+            kid: "waters.default"
+            crv: "P-384"
+            x: "0ui2oKGxNqiUHZ2Y1gB-cJd7rWiz7kUJ99kq4EUVDX9YakeYxG7zHsV9wctMigyG"
+            "y": "VC30np-WPSceu42pxlDfiqIwX9oJ47VV_ekj3cLnA11N65PbblQdJKfS20D_PCuJ"
+
+
+
 
   - name: strac
     description: STRAC POC testing app

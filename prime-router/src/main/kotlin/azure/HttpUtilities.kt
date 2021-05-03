@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -20,7 +21,7 @@ enum class ReportStreamEnv(val endPoint: String) {
 }
 
 class HttpUtilities {
-    companion object {
+    companion object: Logging {
         const val jsonMediaType = "application/json"
 
         fun okResponse(
@@ -114,6 +115,19 @@ class HttpUtilities {
 
         fun errorJson(message: String): String {
             return """{"error": "$message"}"""
+        }
+
+        /**
+         * convenience method that combines logging, and generation of an HtttpResponse
+         * Not enforced, but meant to be used for unhappy outcomes
+         */
+        fun bad(
+            request: HttpRequestMessage<String?>,
+            msg: String,
+            status: HttpStatus = HttpStatus.BAD_REQUEST
+        ): HttpResponseMessage {
+            logger.error(msg)
+            return HttpUtilities.httpResponse(request, msg,status)
         }
 
         /**

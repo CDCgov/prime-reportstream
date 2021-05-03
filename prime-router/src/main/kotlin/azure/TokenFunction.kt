@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -12,6 +14,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
 import gov.cdc.prime.router.tokens.FindSenderKeyInSettings
+import gov.cdc.prime.router.tokens.GetStaticSecret
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -40,13 +43,15 @@ class TokenFunction: Logging {
         // &client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
         // &client_assertion=a.b.c
         val clientAssertion = request.queryParameters["client_assertion"]
-            ?: return HttpUtilities.unauthorizedResponse(request)
+            ?: return HttpUtilities.bad(request, "Missing client_assertion parameter", HttpStatus.UNAUTHORIZED)
         val scope = request.queryParameters["scope"]
-            ?: return HttpUtilities.unauthorizedResponse(request)
+            ?: return HttpUtilities.bad(request, "Missing scope parameter", HttpStatus.UNAUTHORIZED)
+        if (!TokenAuthentication.isWellFormedScope(scope))
+            return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)
         if (tokenAuthentication.checkSenderToken(clientAssertion, FindSenderKeyInSettings(scope))) {
-            val token = tokenAuthentication.createAccessToken(scope, FindReportStreamSecretInVault())
-            // return the token as the payload??????
-            return HttpUtilities.httpResponse(request, token.accessToken, HttpStatus.OK)
+            val token = tokenAuthentication.createAccessToken(scope, GetStaticSecret())
+            // Per https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens
+            return HttpUtilities.httpResponse(request, jacksonObjectMapper().writeValueAsString(token), HttpStatus.OK)
         } else {
             return HttpUtilities.unauthorizedResponse(request)
         }
