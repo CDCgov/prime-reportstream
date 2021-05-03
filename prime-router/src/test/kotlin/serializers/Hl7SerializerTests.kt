@@ -13,6 +13,7 @@ import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -145,6 +146,7 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
+    @Ignore
     fun `test reading HL7 batch and creating report instance`() {
         val inputFile = "$hl7TestFileDir/batch_message.hl7"
         val message = File(inputFile)

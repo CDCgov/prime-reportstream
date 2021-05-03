@@ -733,7 +733,7 @@ Code | Display
 
 **Type**: TABLE
 
-**HL7 Field**: OBX-17-1
+**HL7 Fields**: OBX-17-1, OBX-17-9
 
 **Cardinality**: [0..1]
 
