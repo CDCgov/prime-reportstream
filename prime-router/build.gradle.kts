@@ -293,7 +293,7 @@ dependencies {
     implementation("commons-io:commons-io:2.8.0")
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.flywaydb:flyway-core:7.7.3")
+    implementation("org.flywaydb:flyway-core:7.8.1")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
