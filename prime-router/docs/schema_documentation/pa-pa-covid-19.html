@@ -1,0 +1,213 @@
+<h3>Schema:         pa/pa-covid-19</h3>
+<h4>Description:   PA COVID-19 flat file</h4>
+<hr />
+<p><strong>Name</strong>: PatientFirstName</p>
+<p><strong>Type</strong>: PERSON_NAME</p>
+<p><strong>HL7 Field</strong>: PID-5-2</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's first name</p>
+<hr />
+<p><strong>Name</strong>: PatientMiddleInitial</p>
+<p><strong>Type</strong>: PERSON_NAME</p>
+<p><strong>HL7 Field</strong>: PID-5-3</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<hr />
+<p><strong>Name</strong>: PatientLastName</p>
+<p><strong>Type</strong>: PERSON_NAME</p>
+<p><strong>HL7 Field</strong>: PID-5-1</p>
+<p><strong>Cardinality</strong>: [1..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's last name</p>
+<hr />
+<p><strong>Name</strong>: PatientSuffix</p>
+<p><strong>Type</strong>: PERSON_NAME</p>
+<p><strong>HL7 Field</strong>: PID-5-4</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<hr />
+<p><strong>Name</strong>: PatientDOB</p>
+<p><strong>Type</strong>: DATE</p>
+<p><strong>HL7 Field</strong>: PID-7</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's date of birth. Default format is yyyyMMdd.</p>
+<p>Other states may choose to define their own formats.</p>
+<hr />
+<p><strong>Name</strong>: PatientAddress1</p>
+<p><strong>Type</strong>: STREET</p>
+<p><strong>HL7 Field</strong>: PID-11-1</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's street address</p>
+<hr />
+<p><strong>Name</strong>: PatientCity</p>
+<p><strong>Type</strong>: CITY</p>
+<p><strong>HL7 Field</strong>: PID-11-3</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's city</p>
+<hr />
+<p><strong>Name</strong>: PatientState</p>
+<p><strong>Type</strong>: TABLE</p>
+<p><strong>HL7 Field</strong>: PID-11-4</p>
+<p><strong>Cardinality</strong>: [1..1]</p>
+<p><strong>Table</strong>: fips-county</p>
+<p><strong>Table Column</strong>: State</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's state</p>
+<hr />
+<p><strong>Name</strong>: PatientZipCode</p>
+<p><strong>Type</strong>: POSTAL_CODE</p>
+<p><strong>HL7 Field</strong>: PID-11-5</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's zip code</p>
+<hr />
+<p><strong>Name</strong>: PatientPhoneNumber</p>
+<p><strong>Type</strong>: TELEPHONE</p>
+<p><strong>HL7 Field</strong>: PID-13</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's phone number with area code</p>
+<hr />
+<p><strong>Name</strong>: PatientGender</p>
+<p><strong>Type</strong>: CODE</p>
+<p><strong>HL7 Field</strong>: PID-8-1</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Value Sets</strong></p>
+<p>Code | Display
+---- | -------
+M|Male
+F|Female
+O|Other
+A|Ambiguous
+U|Unknown
+N|Not applicable</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's gender. There is a valueset defined based on the values in PID-8-1, but downstream consumers are free to define their own accepted values. Please refer to the consumer-specific schema if you have questions.</p>
+<hr />
+<p><strong>Name</strong>: PatientRace</p>
+<p><strong>Type</strong>: CODE</p>
+<p><strong>HL7 Field</strong>: PID-10</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Value Sets</strong></p>
+<p>Code | Display
+---- | -------
+1002-5|American Indian or Alaska Native
+2028-9|Asian
+2054-5|Black or African American
+2076-8|Native Hawaiian or Other Pacific Islander
+2106-3|White
+2131-1|Other
+UNK|Unknown
+ASKU|Asked, but unknown</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.</p>
+<hr />
+<p><strong>Name</strong>: PatientEthnicity</p>
+<p><strong>Type</strong>: CODE</p>
+<p><strong>HL7 Field</strong>: PID-22</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Value Sets</strong></p>
+<p>Code | Display
+---- | -------
+H|Hispanic or Latino
+N|Non Hispanic or Latino
+U|Unknown</p>
+<p><strong>Documentation</strong>:</p>
+<p>The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.</p>
+<hr />
+<p><strong>Name</strong>: TestID</p>
+<p><strong>Type</strong>: ID</p>
+<p><strong>HL7 Field</strong>: SPM-2-1</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The specimen-id from the testing lab</p>
+<hr />
+<p><strong>Name</strong>: SpecimenCollectedDate</p>
+<p><strong>Type</strong>: DATETIME</p>
+<p><strong>HL7 Fields</strong>: SPM-17-1, OBR-7, OBR-8, OBX-14</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The date which the specimen was collected. The default format is yyyyMMddHHmmsszz</p>
+<hr />
+<p><strong>Name</strong>: SpecimenSource</p>
+<p><strong>Type</strong>: CODE</p>
+<p><strong>Format</strong>: $display</p>
+<p><strong>HL7 Field</strong>: SPM-8</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Value Sets</strong></p>
+<p>Code | Display
+---- | -------
+119297000|Blood specimen (specimen)
+71836000|Nasopharyngeal structure (body structure)
+45206002|Nasal structure (body structure)</p>
+<hr />
+<p><strong>Name</strong>: TestName</p>
+<p><strong>Type</strong>: CODE</p>
+<p><strong>Format</strong>: $display</p>
+<p><strong>HL7 Field</strong>: SPM-4</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Value Sets</strong></p>
+<p>Code | Display
+---- | -------
+445297001|Swab of internal nose
+258500001|Nasopharyngeal swab
+871810001|Mid-turbinate nasal swab
+697989009|Anterior nares swab
+258411007|Nasopharyngeal aspirate
+429931000124105|Nasal aspirate
+258529004|Throat swab
+119334006|Sputum specimen
+119342007|Saliva specimen
+258607008|Bronchoalveolar lavage fluid sample
+119364003|Serum specimen
+119361006|Plasma specimen
+440500007|Dried blood spot specimen
+258580003|Whole blood sample
+122555007|Venous blood specimen</p>
+<p><strong>Documentation</strong>:</p>
+<p>The specimen source, such as Blood or Serum</p>
+<hr />
+<p><strong>Name</strong>: TestQualitativeResult</p>
+<p><strong>Type</strong>: CODE</p>
+<p><strong>Format</strong>: $display</p>
+<p><strong>HL7 Field</strong>: OBX-5</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Value Sets</strong></p>
+<p>Code | Display
+---- | -------
+260373001|Detected
+260415000|Not detected
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+455371000124106|Invalid result
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)</p>
+<p><strong>Documentation</strong>:</p>
+<p>The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.</p>
+<hr />
+<p><strong>Name</strong>: Notes</p>
+<p><strong>Type</strong>: TEXT</p>
+<p><strong>HL7 Field</strong>: NTE-3</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<hr />
+<p><strong>Name</strong>: PerformingFacilityName</p>
+<p><strong>Type</strong>: TEXT</p>
+<p><strong>HL7 Field</strong>: ORC-21-1</p>
+<p><strong>Cardinality</strong>: [0..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>The name of the facility which the test was ordered from</p>
+<hr />

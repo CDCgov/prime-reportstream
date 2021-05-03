@@ -1,0 +1,25 @@
+<h3>Schema:         empty</h3>
+<h4>Description:   Empty Schema.  For Testing error conditions.  Used by cli ./prime test</h4>
+<hr />
+<p><strong>Name</strong>: Message_ID</p>
+<p><strong>Type</strong>: ID</p>
+<p><strong>HL7 Field</strong>: MSH-10</p>
+<p><strong>Cardinality</strong>: [1..1]</p>
+<p><strong>Documentation</strong>:</p>
+<p>unique id to track the usage of the message</p>
+<hr />
+<p><strong>Name</strong>: Ordering_facility_county</p>
+<p><strong>Type</strong>: TABLE</p>
+<p><strong>Cardinality</strong>: [1..1]</p>
+<p><strong>Table</strong>: fips-county</p>
+<p><strong>Table Column</strong>: County</p>
+<hr />
+<p><strong>Name</strong>: Ordering_facilty_state</p>
+<p><strong>Type</strong>: TABLE</p>
+<p><strong>HL7 Field</strong>: ORC-22-4</p>
+<p><strong>Cardinality</strong>: [1..1]</p>
+<p><strong>Table</strong>: fips-county</p>
+<p><strong>Table Column</strong>: State</p>
+<p><strong>Documentation</strong>:</p>
+<p>The state of the facility which the test was ordered from</p>
+<hr />
