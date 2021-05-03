@@ -136,8 +136,6 @@ tasks.register("copyAzureResources") {
     doLast() {
         // We need to use a regular copy, so Gradle does not delete the existing folder
         org.apache.commons.io.FileUtils.copyDirectory(azureResourcesTmpDir, azureResourcesFinalDir)
-        File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true);
-        File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true);
     }
 }
 
@@ -157,6 +155,8 @@ tasks.register("copyAzureScripts") {
     doLast() {
         // We need to use a regular copy, so Gradle does not delete the existing folder
         org.apache.commons.io.FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
+        File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true);
+        File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true);
     }
 }
 
