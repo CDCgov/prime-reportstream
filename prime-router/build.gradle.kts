@@ -82,6 +82,13 @@ tasks.jar {
     }
 }
 
+// Just a nicer name to create the fat jar
+tasks.register("fatJar") {
+    group = rootProject.description ?: ""
+    description = "Generate the fat jar used to run the prime tool"
+    dependsOn("shadowJar")
+}
+
 tasks.register<JavaExec>("primeCLI") {
     group = rootProject.description ?: ""
     description = "Run the Prime CLI tool.  Specify arguments with --args='<args>'"
