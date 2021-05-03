@@ -39,7 +39,7 @@ function _with_live_reloading(cfg) {
   const { createProxyMiddleware } = require("http-proxy-middleware")
 
   cfg.setBrowserSyncConfig({
-    port: 8080,
+    port: 8090,
     // port: 7079,
 
     // see https://browsersync.io/docs/options
