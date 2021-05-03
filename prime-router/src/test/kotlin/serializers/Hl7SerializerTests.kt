@@ -146,7 +146,6 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
-    @Ignore
     fun `test reading HL7 batch and creating report instance`() {
         val inputFile = "$hl7TestFileDir/batch_message.hl7"
         val message = File(inputFile)

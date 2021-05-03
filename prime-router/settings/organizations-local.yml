@@ -220,7 +220,7 @@
           receivingApplicationName: NEDSS
           receivingFacilityName: TX-ELR
         transport:
-          type: SFTP_LEGACY
+          type: SFTP
           host: sftp
           port: 22
           filePath: ./upload

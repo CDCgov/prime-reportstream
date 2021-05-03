@@ -140,7 +140,10 @@ class Hl7Serializer(val metadata: Metadata) {
             val existingValues = mappedRows[key] ?: emptySet()
             // if the existing value doesn't exist, add it in
             if (!existingValues.contains(value)) {
-                mappedRows[key]?.add(value)
+                // making sure an empty value doesn't blow things up if we already
+                // have a value for that key
+                if (existingValues.isEmpty() || value.isNotEmpty())
+                    mappedRows[key]?.add(value)
             }
         }
         // query the terser and get a value
