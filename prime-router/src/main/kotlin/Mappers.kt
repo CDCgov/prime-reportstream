@@ -82,7 +82,7 @@ class MiddleInitialMapper : Mapper {
             if (values.size != 1) error("Found ${values.size} values.  Expecting 1 value. Args: $args, Values: $values")
             if (values.first().value.isEmpty())
                 return null
-            return values.first().value.substring(0..0).toUpperCase()
+            return values.first().value.substring(0..0).uppercase()
         }
     }
 }
@@ -347,7 +347,7 @@ class DateTimeOffsetMapper : Mapper {
             val unit = args[1]
             val offsetValue = args[2].toLong()
             val normalDate = parseDateTime(values[0].value)
-            val adjustedDateTime = when (unit.toLowerCase()) {
+            val adjustedDateTime = when (unit.lowercase()) {
                 "second", "seconds" -> normalDate.plusSeconds(offsetValue)
                 "minute", "minutes" -> normalDate.plusMinutes(offsetValue)
                 "day", "days" -> normalDate.plusDays(offsetValue)

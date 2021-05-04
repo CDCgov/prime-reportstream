@@ -30,7 +30,7 @@ data class ValueSet(
 
     val systemCode
         get() = when (system) {
-            SetSystem.HL7 -> name.toUpperCase()
+            SetSystem.HL7 -> name.uppercase()
             SetSystem.SNOMED_CT -> "SCT"
             SetSystem.LOINC -> "LN"
             SetSystem.UCUM -> "UCUM"
@@ -62,7 +62,7 @@ data class ValueSet(
     }
 
     fun toSystemFromCode(code: String): String? {
-        return values.find { code.equals(it.code, ignoreCase = true) }?.system?.toString()?.toUpperCase()
+        return values.find { code.equals(it.code, ignoreCase = true) }?.system?.toString()?.uppercase()
             ?: this.systemCode
     }
 
