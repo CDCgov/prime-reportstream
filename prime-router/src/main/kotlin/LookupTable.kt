@@ -102,9 +102,8 @@ class LookupTable(
      */
     fun getDistinctValuesInColumn(selectColumn: String): Set<String> {
         val selectColumnNumber = headerIndex[selectColumn.toLowerCase()] ?: return emptySet()
-        return table
+        return table.drop(1)
             .map { row -> row[selectColumnNumber] }
-            .filter { !it.equals(selectColumn) }   // terrible hack to remove the column header.
             .toSet()
     }
 
