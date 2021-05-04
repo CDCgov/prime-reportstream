@@ -19,7 +19,7 @@ class CsvFileTests {
     private val defaultSchema = "test-schema"
     private val inputPath = "./src/test/csv_test_files/input/"
     private val expectedResultsPath = "./src/test/csv_test_files/expected/"
-    private val outputPath = "./target/csv_test_files/"
+    private val outputPath = "./build/csv_test_files/"
     private val metadata: Metadata
     private val settings: FileSettings
     private val csvSerializer: CsvSerializer

@@ -130,8 +130,17 @@ docker-compose -f ./docker-prime-infra.yml up --detach
 Compile the project by running the following command: 
 
 ```
-mvn clean package
+./gradlew package
 ```
+
+Other gradle tasks you can run are:
+- clean - deletes the build artifacts
+- compile - compile the code
+- test - run the unit tests
+- package - package the build artifacts for deployment
+- primeCLI - run the prime CLI.  Specify arguments with --args='<args>'
+- migrate - load the database with the current schema
+- testEnd2End - run the end to end tests.  Requires the Docker container running
 
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
@@ -180,10 +189,10 @@ To orchestrate running the Azure function code and Azurite, Docker Compose is a 
 ```
 mkdir -p .vault/env
 touch .vault/env/.env.local
-mvn clean package  
+./gradlew package  
 PRIME_ENVIRONMENT=local docker-compose up
 ```
-Docker-compose will build a `prime_dev` container with the output of the `mvn package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
+Docker-compose will build a `prime_dev` container with the output of the `./gradlew package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
 
 ![Docker Compose](assets/docker_compose_log.png)
 
@@ -196,7 +205,7 @@ If you see any SSL errors during this step, follow the directions in [Getting Ar
 ### Unit Tests
 Unit tests are run as part of the build.  To run the unit tests, run the following command:
 ```
-mvn test
+./gradlew test
 ```
 
 ### Data Conversion Quick Test
@@ -207,23 +216,37 @@ The quick test is meant to test the data conversion and generation code.  Use th
 
 ### Local End-to-end Tests
 End-to-end tests check if the deployed system is configured correctly.  The test uses an organization called IGNORE for running the tests.  On Windows OS, use Git Bash or similar Linux shell to run these commands.
-1. Refer to the [SFTP-SETUP document](SFTP_SETUP.md) to setup a local SFTP server to receive the resulting data.
-1. Setup the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server and change the arguments for the --user and --pass as needed:
+1. Perform a one-time setup of the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server (default of foo/pass) and change the arguments for the --user and --pass as needed.  Note that running these commands multiple times will not break anything:
     ```bash 
     export $(cat ./.vault/env/.env.local | xargs)
-    ./prime create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass 
-    ./prime create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass 
-    ./prime create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass 
-    ./prime create-credential --type=UserPass --persist=IGNORE--SFTP-LEGACY --user foo --pass pass 
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass' 
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass' 
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass' 
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--SFTP-LEGACY --user foo --pass pass' 
     ```
+1. Run the Prime Router in the Docker container.
 1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:
     ```bash
-    export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
-    export POSTGRES_USER=prime
-    export POSTGRES_PASSWORD=changeIT!
-    ./prime test --run end2end
+    ./gradlew testEnd2End
     ```
 1. Verify that all tests are successful.
+
+### Changing the Database Properties
+You can change the default database properties used in the build script by setting the following properties:
+- DB_USER - Postgres database username (defaults to prime)
+- DB_PASSWORD - Postgres database password (defaults to changeIT!)
+- DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
+
+In the command line, you can set these properties as follows:
+```bash
+./gradlew testEnd2End -PDB_USER=prime -PDB_PASSWORD=mypassword
+```
+
+Or you can specify these properties via environment variables per the Gradle project properties environment ORG_GRADLE_PROJECT_<property>.  For example:
+```bash
+export ORG_GRADLE_PROJECT_DB_USER=prime
+export ORG_GRADLE_PROJECT_DB_PASSWORD=mypass
+```
 
 ## Using local configuration for organizations.yml
 
@@ -238,13 +261,13 @@ If your agency's network intercepts SSL requests, you might have to disable SSL 
 For Maven builds, you can add the parameter `-Dmaven.wagon.http.ssl.insecure=true` as follows:
 
 ```bash
-mvn clean package -Dmaven.wagon.http.ssl.insecure=true
+./gradlew package -Dmaven.wagon.http.ssl.insecure=true
 ```
 
 If you want to permanently set this, add the following to your `.bash_profile`:
 
 ```bash
-export MAVEN_OPTS="-Dmaven.wagon.http.ssl.insecure=true $MAVEN_OPTS"
+export GRADLE_OPTS="-Dmaven.wagon.http.ssl.insecure=true $GRADLE_OPTS"
 ```
 
 ### Docker Builds
