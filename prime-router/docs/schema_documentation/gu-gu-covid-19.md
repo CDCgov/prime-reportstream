@@ -422,7 +422,7 @@ The name of the facility which the test was ordered from
 
 **HL7 Field**: ORC-23
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 

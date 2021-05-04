@@ -69,7 +69,7 @@ class Action private constructor(
 }
 
 class ReportView private constructor( 
-    val sent: String?,
+    val sent: Long?,
     val via: String?,
     val positive: Long?,
     val total: Long?,
@@ -83,7 +83,7 @@ class ReportView private constructor(
     val actions: ArrayList<Action>? ){
     
     data class Builder(
-        var sent: String? = null,
+        var sent: Long? = null,
         var via: String? = null,
         var positive: Long? = null,
         var total: Long? = null, 
@@ -96,7 +96,7 @@ class ReportView private constructor(
         var facilities: ArrayList<Facility>? = ArrayList<Facility>(),
         var actions: ArrayList<Action>? = ArrayList<Action>() ){
 
-        fun sent( sent: String ) = apply { this.sent = sent }
+        fun sent( sent: Long ) = apply { this.sent = sent }
         fun via( via: String ) = apply { this.via = via }
         fun positive( positive: Long ) = apply { this.positive = positive }
         fun total( total: Long ) = apply{ this.total = total }
@@ -239,19 +239,20 @@ open class BaseHistoryFunction {
             var reports = headers.sortedByDescending{ it.createdAt }.map {
 
                 var facilities = arrayListOf<Facility>();
-                if( it.bodyFormat == "CSV")
+                /*if( it.bodyFormat == "CSV")
                     facilities = getFieldSummaryForReportId(arrayOf("Testing_lab_name","Testing_lab_CLIA"),it.reportId.toString(), authClaims)
+                */
 
                 var actions = getActionsForReportId( it.reportId.toString(), authClaims );
 
                 ReportView.Builder()
                     .reportId( it.reportId.toString() )
-                    .sent( it.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) )
+                    .sent( it.createdAt.toEpochSecond() * 1000 )
                     .via( it.bodyFormat )
                     .total( it.itemCount.toLong() )
                     .fileType( it.bodyFormat )
                     .type( "ELR" )
-                    .expires( DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS), )
+                    .expires( it.createdAt.plusDays( DAYS_TO_SHOW ).toEpochSecond() * 1000 )
                     .facilities(facilities)
                     .actions(actions)
                 .build()        

@@ -6,9 +6,9 @@
       <thead>
         <tr>
           <th scope="col">Report Id</th>
-          <th scope="col">Date</th>
-          <th scope="col">Total tests</th>
+          <th scope="col">Date Sent</th>
           <th scope="col">Expires</th>
+          <th scope="col">Total tests</th>
           <th scope="col">File</th>
         </tr>
       </thead>
@@ -18,33 +18,3 @@
 
   </div>
 </section>
-
-<script defer>
-  function requestFile( reportId ){
-    let baseURL = window.location.origin.includes( "localhost") ? "http://localhost:7071" :
-                  window.location.origin.includes( "staging" ) ? "https://staging.prime.cdc.gov" :
-                  "https://prime.cdc.gov"
-
-    let config = { headers: { 'Authorization': `Bearer ${window.jwt}` } }
-
-    return axios.get(`${baseURL}/api/history/report/${reportId}`, config)
-            .then( res => res.data )
-            .then( csv => download( csv.content, csv.filename, csv.mimetype))
-
-  }
-
-  (async () => {
-    const reports = await fetchReports();
-    reports.forEach( report => {
-     document.getElementById( "tBody").innerHTML +=
-              `<tr>
-                <th data-title="reportId" scope="row"><a href="data-show.html?${report.reportId}" class="usa-link">${report.reportId}</a></th>
-                <th data-title="date" scope="row">${report.sent} UTC</th>
-                <th data-title="Total tests" scope="row">${report.total}</th>
-                <th date-title="expires" scope="row">${report.expires} ${report.expires > 1 ?"days":"day"}</th>
-                <th data-title="File" scope="row"><span><a href="#" onclick="requestFile( \'${report.reportId}\');event.preventDefault();" class="usa-link">${report.fileType}</a></span>
-                </th>
-              </tr>`
-    })
-  })()
-</script>
