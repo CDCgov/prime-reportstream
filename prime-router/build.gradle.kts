@@ -248,26 +248,18 @@ repositories {
 dependencies {
     jooqGenerator("org.postgresql:postgresql:42.2.20")
 
+    // Make sure all Kotlin libs versions match, including the Gradle plugin
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
+
+    // Before changing an Azure lib version, check that all libs and their dependencies match
+    implementation("com.azure:azure-storage-blob:12.11.0")
+    implementation("com.azure:azure-storage-queue:12.9.0")
+    implementation("com.azure:azure-security-keyvault-secrets:4.2.7")
+    implementation("com.azure:azure-identity:1.2.5")
+
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.15.0")
-    implementation("com.azure:azure-core-http-netty:1.9.1")
-    implementation("com.azure:azure-storage-blob:12.10.2") {
-        exclude(group = "com.azure", module = "azure-core")
-    }
-    implementation("com.azure:azure-storage-queue:12.9.0") {
-        exclude(group = "com.azure", module = "azure-core")
-    }
-    implementation("com.azure:azure-security-keyvault-secrets:4.2.7") {
-        exclude(group = "com.azure", module = "azure-core")
-        exclude(group = "com.azure", module = "azure-core-http-netty")
-    }
-    implementation("com.azure:azure-identity:1.2.5") {
-        exclude(group = "com.azure", module = "azure-core")
-        exclude(group = "com.azure", module = "azure-core-http-netty")
-    }
     implementation("org.apache.logging.log4j:log4j-api:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
