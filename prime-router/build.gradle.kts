@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 plugins {
-    kotlin("jvm") version "1.4.32"
+    kotlin("jvm") version "1.5.0"
     id("org.flywaydb.flyway") version "7.8.1"
     id("nu.studer.jooq") version "5.2"
     id("com.github.johnrengelman.shadow") version "7.0.0"
