@@ -51,7 +51,7 @@ class TestAuthenticationVerifier : AuthenticationVerifier {
 }
 
 class OktaAuthenticationVerifier : AuthenticationVerifier {
-    val issuerBaseUrl = System.getenv(envVariableForOktaBaseUrl)
+    private val issuerBaseUrl: String = System.getenv(envVariableForOktaBaseUrl) ?: ""
 
     override val requiredHosts = emptyList<String>()
 
@@ -76,19 +76,19 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
         minimumLevel: PrincipalLevel,
         organizationName: String?
     ): Boolean {
-        if (organizationName == null && minimumLevel != PrincipalLevel.SYSTEM_ADMIN)
-            error("Internal Error: Expected checks without organizationName to be at the SYSTEM ADMIN level")
+        val groupName = organizationName?.replace('-', '_')
         val lookupMemberships = when (minimumLevel) {
             PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
-            PrincipalLevel.ORGANIZATION_ADMIN ->
+            PrincipalLevel.ORGANIZATION_ADMIN -> {
                 listOf(
-                    "$oktaGroupPrefix$organizationName$oktaAdminGroupSuffix",
+                    "$oktaGroupPrefix$groupName$oktaAdminGroupSuffix",
                     oktaSystemAdminGroup
                 )
+            }
             PrincipalLevel.USER ->
                 listOf(
-                    "$oktaGroupPrefix$organizationName",
-                    "$oktaGroupPrefix$organizationName$oktaAdminGroupSuffix",
+                    "$oktaGroupPrefix$groupName",
+                    "$oktaGroupPrefix$groupName$oktaAdminGroupSuffix",
                     oktaSystemAdminGroup
                 )
         }

@@ -149,7 +149,7 @@ class ReportFunction {
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"))
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
 
-        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
+        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
         } else if (sender != null && sender.format.mimeType != contentType) {

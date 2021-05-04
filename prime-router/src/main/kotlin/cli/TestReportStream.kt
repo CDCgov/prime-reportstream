@@ -74,7 +74,7 @@ Examples:
 """,
 ) {
 
-    val defaultWorkingDir = "./target/csv_test_files"
+    val defaultWorkingDir = "./build/csv_test_files"
 
     private val list by option(
         "--list",
@@ -157,7 +157,7 @@ Examples:
             printTestList(coolTestList)
             exitProcess(0)
         }
-        val environment = ReportStreamEnv.valueOf(env.toUpperCase())
+        val environment = ReportStreamEnv.valueOf(env.uppercase())
 
         val tests = if (run != null) {
             run.toString().split(",").mapNotNull { test ->
@@ -840,10 +840,10 @@ class RepeatWaters : CoolTest() {
             echo("Submits done.  Now waiting for checking results to complete")
             threads.forEach { it.join() }
         }
-        echo("$name Test took ${elapsed.inSeconds} seconds. Expected pace/hr: $pace.")
-        if (elapsed.inSeconds > 600) {
+        echo("$name Test took ${elapsed.inWholeSeconds} seconds. Expected pace/hr: $pace.")
+        if (elapsed.inWholeSeconds > 600) {
             // pace calculation is inaccurate for short times, due to the hack long wait at the end.
-            val actualPace = (totalItems / elapsed.inSeconds) * 3600
+            val actualPace = (totalItems / elapsed.inWholeSeconds) * 3600
             echo(" Actual pace: $actualPace")
         }
         return allPassed
