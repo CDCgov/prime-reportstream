@@ -283,7 +283,7 @@ class Hl7Serializer(val metadata: Metadata) {
         val blanksForUnknownFields = hl7Config
             ?.useBlankInsteadOfUnknown
             ?.split(",")
-            ?.map { it.toLowerCase().trim() } ?: emptyList()
+            ?.map { it.lowercase().trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
         val terser = Terser(message)

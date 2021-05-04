@@ -14,13 +14,13 @@ class LookupTable(
     val rowCount: Int get() = table.size - 1
 
     init {
-        headerRow = table[0].map { it.toLowerCase() }
+        headerRow = table[0].map { it.lowercase() }
         headerIndex = headerRow.mapIndexed { index, header -> header to index }.toMap()
         columnIndex = mutableMapOf()
     }
 
     fun hasColumn(column: String): Boolean {
-        return headerIndex.containsKey(column.toLowerCase())
+        return headerIndex.containsKey(column.lowercase())
     }
 
     /**
@@ -41,15 +41,15 @@ class LookupTable(
         lookupColumn: String,
         ignoreCase: Boolean = true
     ): String? {
-        val lcIndexColumn = indexColumn.toLowerCase()
-        val lcLookupColumn = lookupColumn.toLowerCase()
+        val lcIndexColumn = indexColumn.lowercase()
+        val lcLookupColumn = lookupColumn.lowercase()
         val colNumber = headerIndex[lcLookupColumn] ?: return null
         val index = getIndex(listOf(lcIndexColumn), ignoreCase)
         // if the search is case-insensitive we will cast everything to lower case
         // note, this probably only works for English, and US locales. Some languages,
         // may not work correctly if we lower case without a locale
         val indexLookupValue = if (ignoreCase)
-            indexValue.toLowerCase()
+            indexValue.lowercase()
         else
             indexValue
         val rowNumber = index[indexLookupValue] ?: return null // Ok if the index value is not found
@@ -75,9 +75,9 @@ class LookupTable(
         return when (indexValues.size) {
             1 -> lookupValue(indexValues[0].first, indexValues[0].second, lookupColumn)
             2 -> {
-                val lcIndexFirstColumn = indexValues[0].first.toLowerCase()
-                val lcIndexSecondColumn = indexValues[1].first.toLowerCase()
-                val lcLookupColumn = lookupColumn.toLowerCase()
+                val lcIndexFirstColumn = indexValues[0].first.lowercase()
+                val lcIndexSecondColumn = indexValues[1].first.lowercase()
+                val lcLookupColumn = lookupColumn.lowercase()
                 val colNumber = headerIndex[lcLookupColumn] ?: return null
                 val index = getIndex(listOf(lcIndexFirstColumn, lcIndexSecondColumn), ignoreCase)
                 val indexValue = indexValues[0].second.replace(indexDelimiter, "") +
@@ -87,7 +87,7 @@ class LookupTable(
                 // note, this probably only works for English, and US locales. Some languages,
                 // may not work correctly if we lower case without a locale
                 val indexLookupValue = if (ignoreCase)
-                    indexValue.toLowerCase()
+                    indexValue.lowercase()
                 else
                     indexValue
                 val rowNumber = index[indexLookupValue] ?: return null // Ok if the index value is not found
@@ -106,8 +106,8 @@ class LookupTable(
         selectColumn: String,
         ignoreCase: Boolean = true
     ): List<String> {
-        val filterColumnNumber = headerIndex[filterColumn.toLowerCase()] ?: return emptyList()
-        val selectColumnNumber = headerIndex[selectColumn.toLowerCase()] ?: return emptyList()
+        val filterColumnNumber = headerIndex[filterColumn.lowercase()] ?: return emptyList()
+        val selectColumnNumber = headerIndex[selectColumn.lowercase()] ?: return emptyList()
         return table
             .filter { row -> row[filterColumnNumber].equals(filterValue, ignoreCase) }
             .map { row -> row[selectColumnNumber] }
@@ -122,11 +122,11 @@ class LookupTable(
         filters: Map<String, String>,
         ignoreCase: Boolean = true
     ): List<String> {
-        val selectColumnNumber = headerIndex[selectColumn.toLowerCase()] ?: return emptyList()
+        val selectColumnNumber = headerIndex[selectColumn.lowercase()] ?: return emptyList()
         return table
             .filter { row ->
                 filters.all { (k, v) ->
-                    val filterColumnNumber = headerIndex[k.toLowerCase()] ?: error("$k doesn't exist lookup table")
+                    val filterColumnNumber = headerIndex[k.lowercase()] ?: error("$k doesn't exist lookup table")
                     row[filterColumnNumber].equals(v, ignoreCase)
                 }
             }
@@ -155,7 +155,7 @@ class LookupTable(
                     // case (santa clara and Santa Clara both refer to the same county for example)
                     // That said, we do allow for passing through the flag just in case case matters
                     val preppedValue = if (ignoreCase)
-                        row[column].replace(indexDelimiter, "").toLowerCase()
+                        row[column].replace(indexDelimiter, "").lowercase()
                     else
                         row[column].replace(indexDelimiter, "")
 
