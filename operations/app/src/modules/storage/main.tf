@@ -14,7 +14,7 @@ resource "azurerm_storage_account" "storage_account" {
   network_rules {
     default_action = "Deny"
     ip_rules = []
-    virtual_network_subnet_ids = [var.public_subnet_id, var.container_subnet_id]
+    virtual_network_subnet_ids = [var.public_subnet_id, var.container_subnet_id, var.endpoint_subnet_id]
   }
 
   # Required for customer-managed encryption
@@ -221,14 +221,15 @@ resource "azurerm_storage_account" "storage_partner" {
   location = var.location
   account_tier = "Standard"
   account_kind = "StorageV2"
+  is_hns_enabled = true # This enable Data Lake v2 for HHS Protect
   account_replication_type = "GRS"
   min_tls_version = "TLS1_2"
   allow_blob_public_access = false
 
   network_rules {
     default_action = "Deny"
-    ip_rules = []
-    virtual_network_subnet_ids = [var.public_subnet_id]
+    ip_rules = split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value)
+    virtual_network_subnet_ids = [var.public_subnet_id, var.endpoint_subnet_id]
   }
 
   # Required for customer-managed encryption
@@ -243,6 +244,11 @@ resource "azurerm_storage_account" "storage_partner" {
   tags = {
     environment = var.environment
   }
+}
+
+data "azurerm_key_vault_secret" "hhsprotect_ip_ingress" {
+  name = "hhsprotect-ip-ingress"
+  key_vault_id = var.key_vault_id
 }
 
 # Grant the storage account Key Vault access, to access encryption keys
@@ -320,4 +326,9 @@ output "storage_account_public_id" {
 
 output "storage_web_endpoint" {
   value = azurerm_storage_account.storage_public.primary_web_endpoint
+}
+
+output "storage_partner_connection_string" {
+  value = azurerm_storage_account.storage_partner.primary_connection_string
+  sensitive = true
 }

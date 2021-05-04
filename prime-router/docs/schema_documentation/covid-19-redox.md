@@ -589,6 +589,17 @@ Y|No order on record for this test
 Z|No record of this patient
 C|Corrected, final
 F|Final results
+X|No results available; Order canceled
+A|Some, but not all, results available
+I|No results available; specimen received, procedure incomplete
+M|Corrected, not final
+N|Procedure completed, results pending
+O|Order received; specimen not yet received
+P|Preliminary
+R|Results stored; not yet verified
+S|No results available; procedure scheduled, but not done
+Y|No order on record for this test
+Z|No record of this patient
 
 **Alt Value Sets**
 
@@ -596,6 +607,17 @@ Code | Display
 ---- | -------
 C|Corrected
 F|Final
+X|Canceled
+A|Preliminary
+I|Unavailable
+M|Corrected
+N|Preliminary
+O|Preliminary
+P|Preliminary
+R|Preliminary
+S|Unavailable
+Y|Unavailable
+Z|Unavailable
 
 ---
 
@@ -1028,7 +1050,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: ID_CLIA
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3
 
 **Cardinality**: [1..1]
 
@@ -1051,7 +1073,7 @@ An example of the ID is 03D2159846
 
 **Type**: TEXT
 
-**HL7 Field**: OBX-23-1
+**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1
 
 **Cardinality**: [0..1]
 

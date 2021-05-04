@@ -80,6 +80,8 @@ class MiddleInitialMapper : Mapper {
             return null
         } else {
             if (values.size != 1) error("Found ${values.size} values.  Expecting 1 value. Args: $args, Values: $values")
+            if (values.first().value.isEmpty())
+                return null
             return values.first().value.substring(0..0).toUpperCase()
         }
     }

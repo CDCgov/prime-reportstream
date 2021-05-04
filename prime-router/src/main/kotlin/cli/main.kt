@@ -256,14 +256,22 @@ class ProcessData : CliktCommand(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
-
+                    // is this config HL7?
+                    val hl7Config = report.destination?.translation as? Hl7Configuration?
+                    // if it is, get the test processing mode
+                    val processingMode = if (hl7Config?.useTestProcessingMode == false) {
+                        "P"
+                    } else {
+                        "T"
+                    }
                     val fileName = Report.formFilename(
                         report.id,
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
                         getNameFormat(Report.NameFormat.STANDARD),
-                        receivingOrganization ?: report.destination?.translation?.receivingOrganization
+                        receivingOrganization ?: report.destination?.translation?.receivingOrganization,
+                        processingMode
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -435,8 +443,12 @@ class ProcessData : CliktCommand(
             when (format) {
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
                 Report.Format.CSV -> csvSerializer.write(report, stream)
-                Report.Format.HL7 -> hl7Serializer.write(report, stream, hl7Configuration)
-                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream, hl7Configuration)
+                Report.Format.HL7 -> {
+                    hl7Serializer.write(report, stream)
+                }
+                Report.Format.HL7_BATCH -> {
+                    hl7Serializer.writeBatch(report, stream)
+                }
                 Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }

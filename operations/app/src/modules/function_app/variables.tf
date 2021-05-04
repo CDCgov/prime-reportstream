@@ -108,3 +108,8 @@ variable "client_config_key_vault_id" {
     type = string
     description = "Key Vault used for client credential secrets"
 }
+
+variable "storage_partner_connection_string" {
+    type = string
+    description = "Storage account to export data with HHS Protect"
+}
