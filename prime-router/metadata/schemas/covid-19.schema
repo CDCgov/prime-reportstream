@@ -53,7 +53,7 @@ elements:
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hhsGuidanceField: Device ID
-    hl7Field: OBX-17-1
+    hl7OutputFields: [ OBX-17-1, OBX-17-9 ]
     documentation: Device_id is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
 
   - name: device_id_type
