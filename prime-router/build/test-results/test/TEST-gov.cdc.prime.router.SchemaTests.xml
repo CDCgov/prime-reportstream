@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.SchemaTests" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:51" hostname="Technicians-MacBook-Pro.local" time="0.001">
+  <properties/>
+  <testcase name="create schema()" classname="gov.cdc.prime.router.SchemaTests" time="0.0"/>
+  <testcase name="find element()" classname="gov.cdc.prime.router.SchemaTests" time="0.001"/>
+  <testcase name="compare schemas()" classname="gov.cdc.prime.router.SchemaTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

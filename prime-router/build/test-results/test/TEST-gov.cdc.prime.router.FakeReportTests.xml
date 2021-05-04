@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.FakeReportTests" tests="11" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:27" hostname="Technicians-MacBook-Pro.local" time="0.952">
+  <properties/>
+  <testcase name="test concatenate mapper in fake data()" classname="gov.cdc.prime.router.FakeReportTests" time="0.006"/>
+  <testcase name="test blank column is blank()" classname="gov.cdc.prime.router.FakeReportTests" time="0.001"/>
+  <testcase name="test postal code matches pattern expected()" classname="gov.cdc.prime.router.FakeReportTests" time="0.001"/>
+  <testcase name="test row context getting expected zip code results()" classname="gov.cdc.prime.router.FakeReportTests" time="0.619"/>
+  <testcase name="test phone matches default pattern()" classname="gov.cdc.prime.router.FakeReportTests" time="0.0"/>
+  <testcase name="test passing state abbreviation into row context()" classname="gov.cdc.prime.router.FakeReportTests" time="0.018"/>
+  <testcase name="test use mapper in fake data()" classname="gov.cdc.prime.router.FakeReportTests" time="0.0"/>
+  <testcase name="test phone matches specified pattern()" classname="gov.cdc.prime.router.FakeReportTests" time="0.001"/>
+  <testcase name="test concatenate mapper with default delimiter in fake data()" classname="gov.cdc.prime.router.FakeReportTests" time="0.001"/>
+  <testcase name="test default date format matches()" classname="gov.cdc.prime.router.FakeReportTests" time="0.001"/>
+  <testcase name="test a coded fake()" classname="gov.cdc.prime.router.FakeReportTests" time="0.0"/>
+  <system-out><![CDATA[Rutland, Belmont, Hubbardton, Brandon, Castleton, Center rutland, Chittenden, Cuttingsville, Danby, East wallingford, Fair haven, Florence, Hydeville, Killington, Middletown sprin, Mount holly, North clarendon, Pawlet, Pittsfield, Pittsford, Poultney, Proctor, Wallingford, Wells, West pawlet, West rutland
+05701, 05730, 05732, 05733, 05735, 05736, 05737, 05738, 05739, 05742, 05743, 05744, 05750, 05751, 05757, 05758, 05759, 05761, 05762, 05763, 05764, 05765, 05773, 05774, 05775, 05777
+Cuttingsville - 05738
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

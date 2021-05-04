@@ -1,0 +1,11 @@
+{
+  "scriptFile" : "../prime-router-0.1-SNAPSHOT.jar",
+  "entryPoint" : "gov.cdc.prime.router.azure.BatchFunction.run",
+  "bindings" : [ {
+    "type" : "queueTrigger",
+    "direction" : "in",
+    "name" : "message",
+    "queueName" : "batch",
+    "connection" : "AzureWebJobsStorage"
+  } ]
+}

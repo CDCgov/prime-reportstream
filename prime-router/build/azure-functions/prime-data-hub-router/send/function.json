@@ -1,0 +1,11 @@
+{
+  "scriptFile" : "../prime-router-0.1-SNAPSHOT.jar",
+  "entryPoint" : "gov.cdc.prime.router.azure.SendFunction.run",
+  "bindings" : [ {
+    "type" : "queueTrigger",
+    "direction" : "in",
+    "name" : "msg",
+    "queueName" : "send",
+    "connection" : "AzureWebJobsStorage"
+  } ]
+}

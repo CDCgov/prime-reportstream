@@ -1,0 +1,16 @@
+{
+  "scriptFile" : "../prime-router-0.1-SNAPSHOT.jar",
+  "entryPoint" : "gov.cdc.prime.router.azure.GetReceiver.run",
+  "bindings" : [ {
+    "type" : "httpTrigger",
+    "direction" : "in",
+    "name" : "getReceivers",
+    "route" : "settings/organizations/{organizationName}/receivers",
+    "methods" : [ "GET" ],
+    "authLevel" : "ANONYMOUS"
+  }, {
+    "type" : "http",
+    "direction" : "out",
+    "name" : "$return"
+  } ]
+}

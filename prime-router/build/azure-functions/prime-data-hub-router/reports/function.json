@@ -1,0 +1,15 @@
+{
+  "scriptFile" : "../prime-router-0.1-SNAPSHOT.jar",
+  "entryPoint" : "gov.cdc.prime.router.azure.ReportFunction.run",
+  "bindings" : [ {
+    "type" : "httpTrigger",
+    "direction" : "in",
+    "name" : "req",
+    "methods" : [ "POST" ],
+    "authLevel" : "FUNCTION"
+  }, {
+    "type" : "http",
+    "direction" : "out",
+    "name" : "$return"
+  } ]
+}

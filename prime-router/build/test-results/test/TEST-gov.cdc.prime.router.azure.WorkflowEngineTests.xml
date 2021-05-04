@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.azure.WorkflowEngineTests" tests="4" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:39" hostname="Technicians-MacBook-Pro.local" time="0.376">
+  <properties/>
+  <testcase name="test receiveReport()" classname="gov.cdc.prime.router.azure.WorkflowEngineTests" time="0.21"/>
+  <testcase name="test handleReportEvent()" classname="gov.cdc.prime.router.azure.WorkflowEngineTests" time="0.152"/>
+  <testcase name="test dispatchReport with Error()" classname="gov.cdc.prime.router.azure.WorkflowEngineTests" time="0.008"/>
+  <testcase name="test dispatchReport()" classname="gov.cdc.prime.router.azure.WorkflowEngineTests" time="0.006"/>
+  <system-out><![CDATA[08:58:40.094 [Test worker][22] INFO  ca.uhn.hl7v2.util.Home - hapi.home is set to /Users/maurice/development/USDS/prime-data-hub/prime-router/.
+08:58:40.110 [Test worker][22] INFO  ca.uhn.hl7v2.VersionLogger - HAPI version is: 2.3
+08:58:40.114 [Test worker][22] INFO  ca.uhn.hl7v2.VersionLogger - Default Structure libraries found for HL7 versions 2.5.1, 
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

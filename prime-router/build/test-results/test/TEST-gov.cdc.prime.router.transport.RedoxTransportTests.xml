@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.transport.RedoxTransportTests" tests="8" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:33" hostname="Technicians-MacBook-Pro.local" time="3.927">
+  <properties/>
+  <testcase name="test send happy path()" classname="gov.cdc.prime.router.transport.RedoxTransportTests" time="0.559"/>
+  <testcase name="test partial sendItem failure()" classname="gov.cdc.prime.router.transport.RedoxTransportTests" time="0.018"/>
+  <testcase name="test exception partway doesnt messup retry()" classname="gov.cdc.prime.router.transport.RedoxTransportTests" time="0.013"/>
+  <testcase name="test complex situation()" classname="gov.cdc.prime.router.transport.RedoxTransportTests" time="0.013"/>
+  <testcase name="test send success on retry()" classname="gov.cdc.prime.router.transport.RedoxTransportTests" time="0.008"/>
+  <testcase name="test fetchSecret failure()" classname="gov.cdc.prime.router.transport.RedoxTransportTests" time="0.011"/>
+  <testcase name="test all sendItem calls fail()" classname="gov.cdc.prime.router.transport.RedoxTransportTests" time="0.007"/>
+  <testcase name="test fetchToken fails()" classname="gov.cdc.prime.router.transport.RedoxTransportTests" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.MapperTests" tests="20" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:51" hostname="Technicians-MacBook-Pro.local" time="0.007">
+  <properties/>
+  <testcase name="test zip code to county mapper()" classname="gov.cdc.prime.router.MapperTests" time="0.001"/>
+  <testcase name="test split mapper with error condition()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test strip non numeric mapper()" classname="gov.cdc.prime.router.MapperTests" time="0.001"/>
+  <testcase name="test coalesce mapper()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test date time offset mapper with negative minutes()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test concatenate mapper with custom delimiter()" classname="gov.cdc.prime.router.MapperTests" time="0.001"/>
+  <testcase name="test use()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test MiddleInitialMapper()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test date time offset mapper with minutes()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test ConcatenateMapper()" classname="gov.cdc.prime.router.MapperTests" time="0.001"/>
+  <testcase name="test date time offset mapper with negative seconds()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test LookupMapper with two()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test strip formatting mapper()" classname="gov.cdc.prime.router.MapperTests" time="0.001"/>
+  <testcase name="test LookupMapper()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test split by comma mapper error condition()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test split mapper()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test date time offset mapper with seconds()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test split by comma mapper()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test strip numeric mapper()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <testcase name="test ifPresent()" classname="gov.cdc.prime.router.MapperTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

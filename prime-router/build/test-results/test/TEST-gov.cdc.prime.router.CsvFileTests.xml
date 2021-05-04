@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.CsvFileTests" tests="2" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:29" hostname="Technicians-MacBook-Pro.local" time="0.364">
+  <properties/>
+  <testcase name="test the happy path()" classname="gov.cdc.prime.router.CsvFileTests" time="0.36"/>
+  <testcase name="test a csv file with column headers but no data()" classname="gov.cdc.prime.router.CsvFileTests" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

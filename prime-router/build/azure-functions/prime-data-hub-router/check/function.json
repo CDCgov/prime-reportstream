@@ -1,0 +1,15 @@
+{
+  "scriptFile" : "../prime-router-0.1-SNAPSHOT.jar",
+  "entryPoint" : "gov.cdc.prime.router.azure.CheckFunction.run",
+  "bindings" : [ {
+    "type" : "httpTrigger",
+    "direction" : "in",
+    "name" : "check",
+    "methods" : [ "GET" ],
+    "authLevel" : "FUNCTION"
+  }, {
+    "type" : "http",
+    "direction" : "out",
+    "name" : "$return"
+  } ]
+}

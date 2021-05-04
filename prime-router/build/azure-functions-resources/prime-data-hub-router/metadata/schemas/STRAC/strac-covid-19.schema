@@ -1,0 +1,176 @@
+---
+name: strac-covid-19
+description: STRAC POC COVID-19 flat file
+topic: covid-19
+trackingElement: placer_order_id # placer_order_id is the internal STRAC id number
+basedOn: covid-19
+elements:
+  #
+  # These are the CSV fields from the STRAC file
+  #
+
+  - name: reporting_facility_name
+    csvFields: [{name: reporting_facility_name}]
+
+  - name: reporting_facility_clia
+    csvFields: [{name: reporting_facility_CLIA}]
+
+  - name: ordering_facility_name
+    csvFields: [{name: Ordering_Facility_Name}]
+
+  - name: ordering_facility_phone_number
+    csvFields: [{name: Ordering_Facility_Phone_Number}]
+
+  - name: ordering_facility_street
+    csvFields: [{name: Ordering_Facility_Address}]
+
+  - name: ordering_facility_city
+    csvFields: [{name: Ordering_Facility_City}]
+
+  - name: ordering_facility_state
+    csvFields: [{name: Ordering_Facility_State}]
+
+  - name: ordering_facility_county
+    csvFields: [{name: Ordering_Facility_County}]
+
+  - name: ordering_facility_zip_code
+    csvFields: [{name: Ordering_Facility_ZIP, format: $zipFive}]
+
+  - name: ordering_provider_street
+    csvFields: [{name: Ordering_Provider_Address}]
+
+  - name: ordering_provider_state
+    csvFields: [{name: Ordering_Provider_State}]
+
+  - name: ordering_provider_zip_code
+    csvFields: [{name: Ordering_Provider_ZIP, format: $zipFive}]
+
+  - name: placer_order_id
+    type: ID
+    csvFields: [{name: id}]
+
+  - name: filler_order_id
+    type: ID
+    csvFields: [{name: kit_id}]
+
+  - name: strac_patient_appt_datetime
+    type: DATETIME
+    csvFields: [{name: patient_appt_datetime}]
+
+  - name: patient_first_name
+    csvFields: [{name: patient_first_name}]
+
+  - name: patient_last_name
+    csvFields: [{name: patient_last_name}]
+
+  - name: patient_street
+    csvFields: [{name: patient_address}]
+
+  - name: patient_street2
+    csvFields: [{name: patient_address2}]
+
+  - name: patient_phone_number
+    csvFields: [{name: patient_callback_number}]
+
+  - name: patient_city
+    csvFields: [{name: patient_city}]
+
+  - name: patient_county
+    csvFields: [{name: patient_county}]
+
+  - name: patient_drivers_license
+    csvFields: [{name: patient_dl}]
+
+  - name: patient_dob
+    csvFields: [{name: patient_dob}]
+
+  - name: patient_email
+    csvFields: [{name: patient_email}]
+
+  - name: patient_ethnicity
+    csvFields: [{name: patient_ethnicity}]
+
+  - name: pregnant
+    csvFields: [{name: patient_pregnant, format: $display}]
+
+  - name: patient_race
+    csvFields: [{name: patient_race, format: $code}]
+
+  - name: test_result_date
+    csvFields: [{name: patient_results}]
+
+  - name: patient_gender
+    csvFields: [{name: patient_sex}]
+
+  - name: patient_state
+    csvFields: [{name: patient_state}]
+
+  - name: illness_onset_date
+    csvFields: [{name: patient_symptom_onset}]
+
+  - name: patient_zip_code
+    csvFields: [{name: patient_zip, format: $zipFive}]
+
+  - name: test_result
+    altValues:
+      - display: positive
+        code: 260373001
+      - display: negative
+        code: 260415000
+      - display: invalid
+        code: 455371000124106
+    csvFields: [{name: patient_positive, format: $alt}]
+
+  # Base all LVID values on this mapper
+  - name: equipment_model_name
+    mapper:
+    default: BinaxNOW COVID-19 Ag Card
+    csvFields: [{name: equipment_model_name }]
+
+  #
+  # These are the mapping of these fields into
+  #
+  - name: ordered_test_code
+
+  - name: ordered_test_name
+
+  - name: ordered_test_system
+
+  - name: order_test_date
+    mapper: use(strac_patient_appt_datetime)
+
+  - name: reference_range
+    default: Not Detected
+
+  - name: specimen_type
+    default: 258500001
+
+  - name: specimen_collection_date_time
+    mapper: use(strac_patient_appt_datetime)
+
+  - name: specimen_received_date_time
+    mapper: use(strac_patient_appt_datetime)
+
+  - name: abnormal_flag
+
+  - name: test_result_status
+    default: F
+
+  - name: testing_lab_name
+    mapper: use(ordering_facility_name)
+
+  # To be compatible with Redox we must have an patient_id
+  # After some discussion, the placer_order_id was the best choice until STRAC provides a true patient_id
+  - name: patient_id
+    mapper: use(placer_order_id)
+
+  - name: patient_id_type
+    mapper: ifPresent(patient_id, PI)
+
+  # the kit_id is the serial number on the test kit
+  - name: message_id
+    mapper: use(filler_order_id)
+
+  # reporting facility and testing lab operate under the same CLIA with STRAC
+  - name: testing_lab_clia
+    mapper: use(reporting_facility_clia)

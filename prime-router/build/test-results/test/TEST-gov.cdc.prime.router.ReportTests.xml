@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.ReportTests" tests="17" skipped="1" failures="0" errors="0" timestamp="2021-05-04T12:58:40" hostname="Technicians-MacBook-Pro.local" time="3.531">
+  <properties/>
+  <testcase name="test synthesize data with empty strategy map()" classname="gov.cdc.prime.router.ReportTests" time="0.102"/>
+  <testcase name="test isEmpty()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test lineage insanity()" classname="gov.cdc.prime.router.ReportTests" time="0.002"/>
+  <testcase name="test filter()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test synthesize data with pass through strategy map()" classname="gov.cdc.prime.router.ReportTests" time="0.034"/>
+  <testcase name="test split item lineage()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test deidentify()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test merge()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test applyMapping with default()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test merge then split()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test merge item lineage()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test applyMapping()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test create with list()" classname="gov.cdc.prime.router.ReportTests" time="0.0"/>
+  <testcase name="test multiarg matches filter()" classname="gov.cdc.prime.router.ReportTests" time="0.002"/>
+  <testcase name="test synthesize data with blank strategy()" classname="gov.cdc.prime.router.ReportTests" time="0.029"/>
+  <testcase name="test item lineage after jurisdictional filter()" classname="gov.cdc.prime.router.ReportTests" time="0.001"/>
+  <testcase name="test synthesize data with shuffle strategy()" classname="gov.cdc.prime.router.ReportTests" time="0.001">
+    <skipped/>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

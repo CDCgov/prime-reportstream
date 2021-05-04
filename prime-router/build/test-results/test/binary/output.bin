@@ -1,0 +1,630 @@
+³Rutland, Belmont, Hubbardton, Brandon, Castleton, Center rutland, Chittenden, Cuttingsville, Danby, East wallingford, Fair haven, Florence, Hydeville, Killington, Middletown sprin, Mount holly, North clarendon, Pawlet, Pittsfield, Pittsford, Poultney, Proctor, Wallingford, Wells, West pawlet, West rutland
+µ05701, 05730, 05732, 05733, 05735, 05736, 05737, 05738, 05739, 05742, 05743, 05744, 05750, 05751, 05757, 05758, 05759, 05761, 05762, 05763, 05764, 05765, 05773, 05774, 05775, 05777
+Cuttingsville - 05738
+WV08:58:40.094 [Test worker][22] INFO  ca.uhn.hl7v2.util.Home - hapi.home is set to /Users/maurice/development/USDS/prime-data-hub/prime-router/.
+WVW08:58:40.110 [Test worker][22] INFO  ca.uhn.hl7v2.VersionLogger - HAPI version is: 2.3
+WV}08:58:40.114 [Test worker][22] INFO  ca.uhn.hl7v2.VersionLogger - Default Structure libraries found for HL7 versions 2.5.1, 
+’‘
+’‘*test reading HL7 batch message from file:
+’‘
+’‘abnormal_flag: N, N
+’‘comment: , 
+’‘comment_source: , 
+’‘comment_type: , 
+’‘;date_result_released: 202102090000-0600, 202102090000-0600
+’‘vdevice_id: CareStart COVID-19 Antigen test_Access Bio, Inc._EUA, CareStart COVID-19 Antigen test_Access Bio, Inc._EUA
+’‘device_id_type: 99ELR, 99ELR
+’‘employed_in_healthcare: Y, Y
+’‘"employed_in_high_risk_setting: , 
+’‘equipment_instance_id: , 
+’‘equipment_model_id: , 
+’‘equipment_model_id_type: , 
+’‘equipment_model_name: , 
+’‘equipment_manufacture: , 
+’‘2file_created_date: 20210210170737, 20210210170737
+’‘filler_name: , 
+’‘\filler_order_id: 73a6e9bd-aaec-418e-813a-0ad33366ca85, 4ba0f2c4-5f39-4716-9daa-d450573e7019
+’‘filler_clia: , 
+’‘first_test: Y, Y
+’‘flatfile_version_no: , 
+’‘hospitalized: , 
+’‘icu: , 
+’‘illness_onset_date: , 
+’‘ observation_result_status: F, F
+’‘order_result_status: F, F
+’‘$order_test_date: 20210209, 20210209
+’‘$ordered_test_code: 94558-4, 94558-4
+’‘¶ordered_test_name: SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay, SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay
+’‘ordered_test_system: , 
+’‘!ordered_test_system_abbr: LN, LN
+’‘"ordered_test_encoding_version: , 
+’‘3ordering_facility_city: Ormond Beach, Ormond Beach
+’‘ordering_facility_county: , 
+’‘,ordering_facility_county_code: 12127, 12127
+’‘ordering_facility_country: , 
+’‘Lordering_facility_email: jbrush@avantecenters.com, jbrush@avantecenters.com
+’‘Gordering_facility_name: Avante at Ormond Beach, Avante at Ormond Beach
+’‘#ordering_facility_phone_number: , 
+’‘ ordering_facility_state: FL, FL
+’‘Cordering_facility_street: 170 North King Road, 170 North King Road
+’‘ordering_facility_street2: , 
+’‘)ordering_facility_zip_code: 32174, 32174
+’‘ordering_provider_city: , 
+’‘ordering_provider_county: , 
+’‘"ordering_provider_county_code: , 
+’‘ordering_provider_country: , 
+’‘+ordering_provider_first_name: Husam, Husam
+’‘-ordering_provider_id: 1629082607, 1629082607
+’‘)ordering_provider_id_authority: CMS, CMS
+’‘.ordering_provider_id_authority_type: NPI, NPI
+’‘*ordering_provider_last_name: Eddin, Eddin
+’‘"ordering_provider_middle_name: , 
+’‘%ordering_provider_middle_initial: , 
+’‘#ordering_provider_phone_number: , 
+’‘ordering_provider_state: , 
+’‘ordering_provider_street: , 
+’‘ordering_provider_street2: , 
+’‘)ordering_provider_zip_code: 32174, 32174
+’‘patient_age: , 
+’‘patient_age_units: , 
+’‘0patient_city: South Rodneychester, North Taylor
+’‘patient_county: , 
+’‘"patient_county_code: 48077, 48077
+’‘patient_country: , 
+’‘Fpatient_email: roscoe.wilkinson@email.com, kenton.wilderman@email.com
+’‘patient_death_date: , 
+’‘patient_died: N, N
+’‘ patient_dob: 19580810, 19550206
+’‘patient_drivers_license: , 
+’‘patient_ethnicity: U, U
+’‘"patient_first_name: Kareem, Tyson
+’‘patient_gender: F, M
+’‘Wpatient_id: 2a14112c-ece1-4f82-915c-7b3a8d152eda, a40ea680-51bc-4a05-bf23-786dd08e64f2
+’‘Dpatient_id_assigner: Avante at Ormond Beach, Avante at Ormond Beach
+’‘patient_id_type: PI, PI
+’‘&patient_last_name: Buckridge, Keeling
+’‘patient_name_type_code: L, L
+’‘&patient_middle_initial: Millie, Chuck
+’‘#patient_middle_name: Millie, Chuck
+’‘3patient_phone_number: 7275555555:1:, 7275555555:1:
+’‘patient_race: 2106-3, 2106-3
+’‘patient_state: TX, TX
+’‘6patient_street: 688 Leighann Inlet, 97065 Mohr Island
+’‘patient_street2: , Street
+’‘patient_suffix: , 
+’‘patient_tribal_citizenship: , 
+’‘patient_zip_code: 67071, 69622
+’‘\placer_order_id: 73a6e9bd-aaec-418e-813a-0ad33366ca85, 4ba0f2c4-5f39-4716-9daa-d450573e7019
+’‘placer_name: , 
+’‘placer_clia: , 
+’‘placer_order_group_id: , 
+’‘pregnant: , 
+’‘prime_patient_id: , 
+’‘prime_patient_id_assigner: , 
+’‘processing_mode_code: P, P
+’‘message_id: 371784, 612092
+’‘previous_message_id: , 
+’‘7message_profile_id: PHLabReportNoAck, PHLabReportNoAck
+’‘reason_for_study: , 
+’‘,receiving_application: PRIME_DOH, PRIME_DOH
+’‘3receiving_facility: Prime Data Hub, Prime Data Hub
+’‘reference_range: , 
+’‘Creporting_facility: Avante at Ormond Beach, Avante at Ormond Beach
+’‘Hreporting_facility_name: Avante at Ormond Beach, Avante at Ormond Beach
+’‘0reporting_facility_clia: 10D0876999, 10D0876999
+’‘"resident_congregate_setting: N, N
+’‘result_format: CWE, CWE
+’‘bsending_application: CDC PRIME - Atlanta, Georgia (Dekalb), CDC PRIME - Atlanta, Georgia (Dekalb)
+’‘Dspecimen_collection_date_time: 202102090000-0600, 202102090000-0600
+’‘specimen_collection_method: , 
+’‘specimen_collection_site: , 
+’‘specimen_description: , 
+’‘Xspecimen_id: 0cba76f5-35e0-4a28-803a-2f31308aae9b, b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b
+’‘specimen_role: , 
+’‘.specimen_source_site_code: 71836000, 71836000
+’‘$specimen_type: 258500001, 258500001
+’‘symptomatic_for_disease: N, N
+’‘test_kit_name_id: , 
+’‘test_kit_name_id_type: , 
+’‘!test_kit_name_id_cwe_version: , 
+’‘test_method_description: , 
+’‘&test_performed_code: 94558-4, 94558-4
+’‘¸test_performed_name: SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay, SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay
+’‘#test_performed_system_abbr: LN, LN
+’‘test_performed_system: , 
+’‘"test_performed_system_version: , 
+’‘"test_result: 260415000, 260415000
+’‘7test_result_date: 202102090000-0600, 202102090000-0600
+’‘test_result_report_date: , 
+’‘test_result_status: F, F
+’‘test_result_sub_id: , 
+’‘test_result_units: , 
+’‘!testing_lab_accession_number: , 
+’‘-testing_lab_city: Ormond Beach, Ormond Beach
+’‘testing_lab_county: , 
+’‘&testing_lab_county_code: 12127, 12127
+’‘testing_lab_country: , 
+’‘'testing_lab_id: 10D0876999, 10D0876999
+’‘$testing_lab_id_assigner: CLIA, CLIA
+’‘)testing_lab_clia: 10D0876999, 10D0876999
+’‘Atesting_lab_name: Avante at Ormond Beach, Avante at Ormond Beach
+’‘dtesting_lab_specimen_id: 0cba76f5-35e0-4a28-803a-2f31308aae9b, b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b
+’‘Mtesting_lab_specimen_received_datetime: 202102090000-0600, 202102090000-0600
+’‘testing_lab_state: FL, FL
+’‘=testing_lab_street: 170 North King Road, 170 North King Road
+’‘testing_lab_street2: , 
+’‘#testing_lab_zip_code: 32174, 32174
+’‘testing_lab_phone_number: , 
+’‘value_type: CWE, CWE
+’‘Errors:
+’‘
+Warnings:
+’‘Blank for /.NTE-3
+’‘Blank for /.NTE-2
+’‘Blank for /.NTE-4
+’‘Blank for /.OBX-17-9
+’‘Blank for /.OBX-18-1
+’‘Blank for /.OBX-18-3
+’‘Blank for /.ORC-3-2
+’‘Blank for /.OBR-3-3
+’‘Blank for /.OBR-4-7
+’‘Blank for /.ORC-23
+’‘Blank for /.ORC-22-2
+’‘Blank for /.ORC-24-3
+’‘Blank for /.ORC-24-9
+’‘Blank for /.ORC-12-4
+’‘Blank for /.ORC-12-4
+’‘Blank for /.ORC-14
+’‘Blank for /.ORC-24-4
+’‘Blank for /.ORC-24-1
+’‘Blank for /.ORC-24-2
+’‘Blank for /.PID-29
+’‘Blank for /.PID-20-1
+’‘Blank for /.PID-11-2
+’‘Blank for /.PID-5-4
+’‘Blank for /.PID-39
+’‘Blank for /.ORC-2-2
+’‘Blank for /.ORC-2-3
+’‘Blank for /.ORC-4-1
+’‘Blank for /.OBR-31
+’‘Blank for /.OBX-7
+’‘Blank for /.SPM-7
+’‘Blank for /.SPM-10
+’‘Blank for /.SPM-14
+’‘Blank for /.SPM-11
+’‘Blank for /.OBX-17-7
+’‘Blank for /.OBX-3-7
+’‘Blank for /.OBX-22
+’‘Blank for /.OBX-4
+’‘Blank for /.OBX-6
+’‘Blank for /.OBX-24-2
+’‘Blank for /.NTE-3
+’‘Blank for /.NTE-2
+’‘Blank for /.NTE-4
+’‘Blank for /.OBX-17-9
+’‘Blank for /.OBX-18-1
+’‘Blank for /.OBX-18-3
+’‘Blank for /.ORC-3-2
+’‘Blank for /.OBR-3-3
+’‘Blank for /.OBR-4-7
+’‘Blank for /.ORC-23
+’‘Blank for /.ORC-22-2
+’‘Blank for /.ORC-24-3
+’‘Blank for /.ORC-24-9
+’‘Blank for /.ORC-12-4
+’‘Blank for /.ORC-12-4
+’‘Blank for /.ORC-14
+’‘Blank for /.ORC-24-4
+’‘Blank for /.ORC-24-1
+’‘Blank for /.ORC-24-2
+’‘Blank for /.PID-29
+’‘Blank for /.PID-20-1
+’‘Blank for /.PID-5-4
+’‘Blank for /.PID-39
+’‘Blank for /.ORC-2-2
+’‘Blank for /.ORC-2-3
+’‘Blank for /.ORC-4-1
+’‘Blank for /.OBR-31
+’‘Blank for /.OBX-7
+’‘Blank for /.SPM-7
+’‘Blank for /.SPM-10
+’‘Blank for /.SPM-14
+’‘Blank for /.SPM-11
+’‘Blank for /.OBX-17-7
+’‘Blank for /.OBX-3-7
+’‘Blank for /.OBX-22
+’‘Blank for /.OBX-4
+’‘Blank for /.OBX-6
+’‘Blank for /.OBX-24-2
+’“
+’“0test converting hl7 into mapped list of values:
+’“
+’“abnormal_flag: N
+’“
+comment: 
+’“comment_source: 
+’“comment_type: 
+’“(date_result_released: 202102090000-0600
+’“@device_id: CareStart COVID-19 Antigen test_Access Bio, Inc._EUA
+’“device_id_type: 99ELR
+’“employed_in_healthcare: Y
+’“ employed_in_high_risk_setting: 
+’“equipment_instance_id: 
+’“equipment_model_id: 
+’“equipment_model_id_type: 
+’“equipment_model_name: 
+’“equipment_manufacture: 
+’“"file_created_date: 20210210170737
+’“filler_name: 
+’“6filler_order_id: 73a6e9bd-aaec-418e-813a-0ad33366ca85
+’“filler_clia: 
+’“first_test: Y
+’“flatfile_version_no: 
+’“hospitalized: 
+’“icu: 
+’“illness_onset_date: 
+’“observation_result_status: F
+’“order_result_status: F
+’“order_test_date: 20210209
+’“ordered_test_code: 94558-4
+’“dordered_test_name: SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay
+’“ordered_test_system: 
+’“ordered_test_system_abbr: LN
+’“ ordered_test_encoding_version: 
+’“%ordering_facility_city: Ormond Beach
+’“ordering_facility_county: 
+’“%ordering_facility_county_code: 12127
+’“ordering_facility_country: 
+’“2ordering_facility_email: jbrush@avantecenters.com
+’“/ordering_facility_name: Avante at Ormond Beach
+’“!ordering_facility_phone_number: 
+’“ordering_facility_state: FL
+’“.ordering_facility_street: 170 North King Road
+’“ordering_facility_street2: 
+’“"ordering_facility_zip_code: 32174
+’“ordering_provider_city: 
+’“ordering_provider_county: 
+’“ ordering_provider_county_code: 
+’“ordering_provider_country: 
+’“$ordering_provider_first_name: Husam
+’“!ordering_provider_id: 1629082607
+’“$ordering_provider_id_authority: CMS
+’“)ordering_provider_id_authority_type: NPI
+’“#ordering_provider_last_name: Eddin
+’“ ordering_provider_middle_name: 
+’“#ordering_provider_middle_initial: 
+’“!ordering_provider_phone_number: 
+’“ordering_provider_state: 
+’“ordering_provider_street: 
+’“ordering_provider_street2: 
+’“"ordering_provider_zip_code: 32174
+’“patient_age: 
+’“patient_age_units: 
+’“"patient_city: South Rodneychester
+’“patient_county: 
+’“patient_county_code: 
+’“patient_country: 
+’“*patient_email: roscoe.wilkinson@email.com
+’“patient_death_date: 
+’“patient_died: N
+’“patient_dob: 19580810
+’“patient_drivers_license: 
+’“patient_ethnicity: U
+’“patient_first_name: Kareem
+’“patient_gender: F
+’“1patient_id: 2a14112c-ece1-4f82-915c-7b3a8d152eda
+’“,patient_id_assigner: Avante at Ormond Beach
+’“patient_id_type: PI
+’“patient_last_name: Buckridge
+’“patient_name_type_code: L
+’“patient_middle_initial: Millie
+’“patient_middle_name: Millie
+’“patient_phone_number: 
+’“patient_race: 2106-3
+’“patient_state: TX
+’“#patient_street: 688 Leighann Inlet
+’“patient_street2: 
+’“patient_suffix: 
+’“patient_tribal_citizenship: 
+’“patient_zip_code: 67071
+’“6placer_order_id: 73a6e9bd-aaec-418e-813a-0ad33366ca85
+’“placer_name: 
+’“placer_clia: 
+’“placer_order_group_id: 
+’“pregnant: 
+’“prime_patient_id: 
+’“prime_patient_id_assigner: 
+’“processing_mode_code: P
+’“message_id: 371784
+’“previous_message_id: 
+’“%message_profile_id: PHLabReportNoAck
+’“reason_for_study: 
+’“receiving_application: 
+’“receiving_facility: 
+’“reference_range: 
+’“+reporting_facility: Avante at Ormond Beach
+’“0reporting_facility_name: Avante at Ormond Beach
+’“$reporting_facility_clia: 10D0876999
+’“resident_congregate_setting: N
+’“result_format: CWE
+’“;sending_application: CDC PRIME - Atlanta, Georgia (Dekalb)
+’“1specimen_collection_date_time: 202102090000-0600
+’“specimen_collection_method: 
+’“specimen_collection_site: 
+’“specimen_description: 
+’“specimen_id: 
+’“specimen_role: 
+’“$specimen_source_site_code: 71836000
+’“specimen_type: 258500001
+’“symptomatic_for_disease: N
+’“test_kit_name_id: 
+’“test_kit_name_id_type: 
+’“test_kit_name_id_cwe_version: 
+’“test_method_description: 
+’“test_performed_code: 94558-4
+’“ftest_performed_name: SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay
+’“test_performed_system_abbr: LN
+’“test_performed_system: 
+’“ test_performed_system_version: 
+’“test_result: 260415000
+’“$test_result_date: 202102090000-0600
+’“test_result_report_date: 
+’“test_result_status: F
+’“test_result_sub_id: 
+’“test_result_units: 
+’“testing_lab_accession_number: 
+’“testing_lab_city: Ormond Beach
+’“testing_lab_county: 
+’“testing_lab_county_code: 12127
+’“testing_lab_country: 
+’“testing_lab_id: 10D0876999
+’“testing_lab_id_assigner: CLIA
+’“testing_lab_clia: 10D0876999
+’“)testing_lab_name: Avante at Ormond Beach
+’“testing_lab_specimen_id: 
+’“)testing_lab_specimen_received_datetime: 
+’“testing_lab_state: FL
+’“(testing_lab_street: 170 North King Road
+’“testing_lab_street2: 
+’“testing_lab_zip_code: 32174
+’“testing_lab_phone_number: 
+’“value_type: CWE
+’–ORU_R01 (start)
+’–ù   MSH - MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+’–s   [ { SFT } ] - SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+’–   PATIENT_RESULT (start)
+’–   {
+’–      PATIENT (start)
+’–      [
+’–¤         PID - PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+’–!         [ PD1 ] - Not populated
+’–%         [ { NTE } ] - Not populated
+’–%         [ { NK1 } ] - Not populated
+’–         VISIT (start)
+’–         [
+’–             PV1 - Not populated
+’–$            [ PV2 ] - Not populated
+’–         ]
+’–         VISIT (end)
+’–      ]
+’–      PATIENT (end)
+’–       ORDER_OBSERVATION (start)
+’–      {
+’–Õ         [ ORC ] - ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+’–¶         OBR - OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+’–%         [ { NTE } ] - Not populated
+’–         TIMING_QTY (start)
+’–         [{
+’–             TQ1 - Not populated
+’–(            [ { TQ2 } ] - Not populated
+’–         }]
+’–         TIMING_QTY (end)
+’–!         [ CTD ] - Not populated
+’–         OBSERVATION (start)
+’–         [{
+’–¸            OBX - OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+’–7            [ { NTE } ] - NTE|1|L|This is a comment|RE
+’–         }]
+’–         [{
+’–Ÿ            OBX - OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+’–(            [ { NTE } ] - Not populated
+’–         }]
+’–         [{
+’–            OBX - OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||Y^Yes^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+’–(            [ { NTE } ] - Not populated
+’–         }]
+’–         [{
+’–            OBX - OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+’–(            [ { NTE } ] - Not populated
+’–         }]
+’–         [{
+’–˜            OBX - OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600|||||||||||||||QST
+’–(            [ { NTE } ] - Not populated
+’–         }]
+’–         OBSERVATION (end)
+’–%         [ { FT1 } ] - Not populated
+’–%         [ { CTI } ] - Not populated
+’–         SPECIMEN (start)
+’–         [{
+’–°            SPM - SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600^202102090000-0600
+’–L            [ { NTE } ] (non-standard) - NTE|1|L|This is a final comment|RE
+’–(            [ { OBX } ] - Not populated
+’–         }]
+’–         SPECIMEN (end)
+’–      }
+’–      ORDER_OBSERVATION (end)
+’–   }
+’–   PATIENT_RESULT (end)
+’–   [ DSC ] - Not populated
+’–ORU_R01 (end)
+’–
+’—abnormal_flag: N
+’—
+comment: 
+’—comment_source: 
+’—comment_type: 
+’—(date_result_released: 202102090000-0600
+’—@device_id: CareStart COVID-19 Antigen test_Access Bio, Inc._EUA
+’—device_id_type: 99ELR
+’—employed_in_healthcare: Y
+’— employed_in_high_risk_setting: 
+’—equipment_instance_id: 
+’—equipment_model_id: 
+’—equipment_model_id_type: 
+’—equipment_model_name: 
+’—equipment_manufacture: 
+’—"file_created_date: 20210210170737
+’—filler_name: 
+’—6filler_order_id: 73a6e9bd-aaec-418e-813a-0ad33366ca85
+’—filler_clia: 
+’—first_test: Y
+’—flatfile_version_no: 
+’—hospitalized: 
+’—icu: 
+’—illness_onset_date: 
+’—observation_result_status: F
+’—order_result_status: F
+’—order_test_date: 20210209
+’—ordered_test_code: 94558-4
+’—dordered_test_name: SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay
+’—ordered_test_system: 
+’—ordered_test_system_abbr: LN
+’— ordered_test_encoding_version: 
+’—%ordering_facility_city: Ormond Beach
+’—ordering_facility_county: 
+’—%ordering_facility_county_code: 12127
+’—ordering_facility_country: 
+’—2ordering_facility_email: jbrush@avantecenters.com
+’—/ordering_facility_name: Avante at Ormond Beach
+’—!ordering_facility_phone_number: 
+’—ordering_facility_state: FL
+’—.ordering_facility_street: 170 North King Road
+’—ordering_facility_street2: 
+’—"ordering_facility_zip_code: 32174
+’—ordering_provider_city: 
+’—ordering_provider_county: 
+’— ordering_provider_county_code: 
+’—ordering_provider_country: 
+’—$ordering_provider_first_name: Husam
+’—!ordering_provider_id: 1629082607
+’—$ordering_provider_id_authority: CMS
+’—)ordering_provider_id_authority_type: NPI
+’—#ordering_provider_last_name: Eddin
+’— ordering_provider_middle_name: 
+’—#ordering_provider_middle_initial: 
+’—!ordering_provider_phone_number: 
+’—ordering_provider_state: 
+’—ordering_provider_street: 
+’—ordering_provider_street2: 
+’—"ordering_provider_zip_code: 32174
+’—patient_age: 
+’—patient_age_units: 
+’—"patient_city: South Rodneychester
+’—patient_county: 
+’—patient_county_code: 48077
+’—patient_country: 
+’—*patient_email: roscoe.wilkinson@email.com
+’—patient_death_date: 
+’—patient_died: N
+’—patient_dob: 19580810
+’—patient_drivers_license: 
+’—patient_ethnicity: U
+’—patient_first_name: Kareem
+’—patient_gender: F
+’—1patient_id: 2a14112c-ece1-4f82-915c-7b3a8d152eda
+’—,patient_id_assigner: Avante at Ormond Beach
+’—patient_id_type: PI
+’—patient_last_name: Buckridge
+’—patient_name_type_code: L
+’—patient_middle_initial: Millie
+’—patient_middle_name: Millie
+’—$patient_phone_number: 7275555555:1:
+’—patient_race: 2106-3
+’—patient_state: TX
+’—#patient_street: 688 Leighann Inlet
+’—patient_street2: 
+’—patient_suffix: 
+’—patient_tribal_citizenship: 
+’—patient_zip_code: 67071
+’—6placer_order_id: 73a6e9bd-aaec-418e-813a-0ad33366ca85
+’—placer_name: 
+’—placer_clia: 
+’—placer_order_group_id: 
+’—pregnant: N
+’—prime_patient_id: 
+’—prime_patient_id_assigner: 
+’—processing_mode_code: P
+’—message_id: 371784
+’—previous_message_id: 
+’—%message_profile_id: PHLabReportNoAck
+’—reason_for_study: 
+’—!receiving_application: PRIME_DOH
+’—#receiving_facility: Prime Data Hub
+’—reference_range: 
+’—+reporting_facility: Avante at Ormond Beach
+’—0reporting_facility_name: Avante at Ormond Beach
+’—$reporting_facility_clia: 10D0876999
+’—resident_congregate_setting: N
+’—result_format: CWE
+’—;sending_application: CDC PRIME - Atlanta, Georgia (Dekalb)
+’—1specimen_collection_date_time: 202102090000-0600
+’—specimen_collection_method: 
+’—specimen_collection_site: 
+’—specimen_description: 
+’—2specimen_id: b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b
+’—specimen_role: 
+’—$specimen_source_site_code: 71836000
+’—specimen_type: 258500001
+’—symptomatic_for_disease: N
+’—test_kit_name_id: 
+’—test_kit_name_id_type: 
+’—test_kit_name_id_cwe_version: 
+’—test_method_description: 
+’—test_performed_code: 94558-4
+’—ftest_performed_name: SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay
+’—test_performed_system_abbr: LN
+’—test_performed_system: 
+’— test_performed_system_version: 
+’—test_result: 260415000
+’—$test_result_date: 202102090000-0600
+’—test_result_report_date: 
+’—test_result_status: F
+’—test_result_sub_id: 
+’—test_result_units: 
+’—testing_lab_accession_number: 
+’—testing_lab_city: Ormond Beach
+’—testing_lab_county: 
+’—testing_lab_county_code: 12127
+’—testing_lab_country: 
+’—testing_lab_id: 10D0876999
+’—testing_lab_id_assigner: CLIA
+’—testing_lab_clia: 10D0876999
+’—)testing_lab_name: Avante at Ormond Beach
+’—>testing_lab_specimen_id: b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b
+’—:testing_lab_specimen_received_datetime: 202102090000-0600
+’—testing_lab_state: FL
+’—(testing_lab_street: 170 North King Road
+’—testing_lab_street2: 
+’—testing_lab_zip_code: 32174
+’—testing_lab_phone_number: 
+’—value_type: CWE
+ÙØç08:58:51.993 [Test worker][22] INFO  gov.cdc.prime.router.credentials.HashicorpVaultCredentialService - CREDENTIAL REQUEST: HashicorpVaultCredentialServiceTests requested connectionId(connection-id-1) credential for AUTOMATED_TEST
+ÙÚÕ08:58:52.123 [Test worker][22] INFO  gov.cdc.prime.router.credentials.HashicorpVaultCredentialService - CREDENTIAL UPDATE: HashicorpVaultCredentialServiceTests updating connectionId(connection-id-1) credential...
+ÙÚß08:58:52.132 [Test worker][22] INFO  gov.cdc.prime.router.credentials.HashicorpVaultCredentialService - CREDENTIAL UPDATE: HashicorpVaultCredentialServiceTests updated connectionId(connection-id-1) credential successfully.
+ÙÛç08:58:52.134 [Test worker][22] INFO  gov.cdc.prime.router.credentials.HashicorpVaultCredentialService - CREDENTIAL REQUEST: HashicorpVaultCredentialServiceTests requested connectionId(connection-id-1) credential for AUTOMATED_TEST
+ÝÜµ08:58:52.142 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL UPDATE: CredentialServiceTest updating connectionId(valid1) credential...
+ÝÜ¿08:58:52.142 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL UPDATE: CredentialServiceTest updated connectionId(valid1) credential successfully.
+ÝÜÃ08:58:52.142 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL UPDATE: CredentialServiceTest updating connectionId(35wtfsdfe4t4wr4w4343) credential...
+ÝÜÍ08:58:52.142 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL UPDATE: CredentialServiceTest updated connectionId(35wtfsdfe4t4wr4w4343) credential successfully.
+ÝÜÃ08:58:52.142 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL UPDATE: CredentialServiceTest updating connectionId(with-dashes-in-name-) credential...
+ÝÜÍ08:58:52.143 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL UPDATE: CredentialServiceTest updated connectionId(with-dashes-in-name-) credential successfully.
+ÝÞ²08:58:52.143 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL UPDATE: CredentialServiceTest updating connectionId(id1) credential...
+ÝÞ¼08:58:52.143 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL UPDATE: CredentialServiceTest updated connectionId(id1) credential successfully.
+ÝÞÄ08:58:52.143 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL REQUEST: CredentialServiceTest requested connectionId(id1) credential for AUTOMATED_TEST
+ÝáÇ08:58:52.145 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL REQUEST: CredentialServiceTest requested connectionId(valid1) credential for AUTOMATED_TEST
+ÝáÕ08:58:52.145 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL REQUEST: CredentialServiceTest requested connectionId(35wtfsdfe4t4wr4w4343) credential for AUTOMATED_TEST
+ÝáÕ08:58:52.145 [Test worker][22] INFO  gov.cdc.prime.router.credentials.MemoryCredentialService - CREDENTIAL REQUEST: CredentialServiceTest requested connectionId(with-dashes-in-name-) credential for AUTOMATED_TEST
+æåÃ08:58:52.187 [Test worker][22] INFO  gov.cdc.prime.router.credentials.AzureCredentialService - CREDENTIAL UPDATE: AzureCredentialServiceTests updating connectionId(connection-id-1) credential...
+æåÍ08:58:52.188 [Test worker][22] INFO  gov.cdc.prime.router.credentials.AzureCredentialService - CREDENTIAL UPDATE: AzureCredentialServiceTests updated connectionId(connection-id-1) credential successfully.
+æèÃ08:58:52.200 [Test worker][22] INFO  gov.cdc.prime.router.credentials.AzureCredentialService - CREDENTIAL UPDATE: AzureCredentialServiceTests updating connectionId(connection-id-1) credential...
+æéÕ08:58:52.203 [Test worker][22] INFO  gov.cdc.prime.router.credentials.AzureCredentialService - CREDENTIAL REQUEST: AzureCredentialServiceTests requested connectionId(connection-id-1) credential for AUTOMATED_TEST

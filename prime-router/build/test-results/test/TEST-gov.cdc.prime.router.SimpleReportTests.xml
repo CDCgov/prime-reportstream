@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.SimpleReportTests" tests="5" skipped="1" failures="0" errors="0" timestamp="2021-05-04T12:58:45" hostname="Technicians-MacBook-Pro.local" time="6.05">
+  <properties/>
+  <testcase name="test fake simplereport data()" classname="gov.cdc.prime.router.SimpleReportTests" time="1.824"/>
+  <testcase name="test fake pima data()" classname="gov.cdc.prime.router.SimpleReportTests" time="1.65"/>
+  <testcase name="test producing az data from simplereport()" classname="gov.cdc.prime.router.SimpleReportTests" time="0.175"/>
+  <testcase name="test fake FL data()" classname="gov.cdc.prime.router.SimpleReportTests" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="test internal read and write()" classname="gov.cdc.prime.router.SimpleReportTests" time="1.551"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,33 @@
+- name: fl/student_teacher_other
+  system: LOCAL
+  values:
+      - display: Student
+        code: Student
+      - display: Teacher
+        code: Teacher
+      - display: Other (Faculty Member)
+        code: Other (Faculty Member)
+      - display: No
+        code: N
+      - display: Unknown
+        code: U
+
+- name: fl/abnormal_flag
+  system: LOCAL
+  values:
+      - display: Abnormal
+        code: A
+      - display: Normal
+        code: N
+
+- name: fl/device_type
+  system: LOINC
+  values:
+      - display: Instrument Platform
+        code: DII
+      - display: Manual Kit
+        code: DIM
+      - display: Test kit/reagent
+        code: DIT
+      - display: In Vitro Diagnostic
+        code: EAU

@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+# DEPRECATED: This script has been replaced by a Gradle task.  Run
+#   ./gradlew primeCLI --args='<args>'
+#
+# This script runs the CLI of the project. 
+#
+# It handles four different configurations in this order of preference
+#  1. Where a fat jar (a jar with all dependencies) is present in the working directory
+#  2. Where a fat jar is present in a 'target' subdirectory
+#  3. Where a slim jar is present in the working directory and a 'azure-functions/prime-data-hub-router/lib' exists
+#  4. Where a slim jar is present in a 'target' subdirectory and the lib sub directory is also present
+#
+# This script should work on both a Mac and the Dev Docker container
+
+set -e
+version=0.1-SNAPSHOT
+fat_jar_name=prime-router-$version-all.jar
+slim_jar_name=prime-router-$version.jar
+lib_name=azure-functions/prime-data-hub-router/lib
+lib_dir=build/libs
+
+# find the jar
+if [ -f $fat_jar_name ]; then
+  jar=$fat_jar_name
+elif [ -f $lib_dir/$fat_jar_name ]; then
+  jar=$lib_dir/$fat_jar_name
+elif [ -f $slim_jar_name ]; then
+  jar=$slim_jar_name
+  if [ ! -d $lib_name ]; then
+    echo "Could not find a $lib_name directory"
+    exit 1
+  fi
+elif [ -f $lib_dir/$slim_jar_name ]; then
+  jar=$lib_dir/$slim_jar_name
+  if [ ! -d build/$lib_name ]; then
+    echo "Could not find a target/$lib_name directory"
+    exit 1
+  fi
+else
+  echo "Could not find a prime-data-hub-router*.jar file"
+  exit 1
+fi
+
+java -Dorg.slf4j.simpleLogger.defaultLogLevel=warn -jar $jar "$@"

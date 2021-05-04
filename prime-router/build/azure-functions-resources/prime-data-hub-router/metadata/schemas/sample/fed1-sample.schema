@@ -1,0 +1,13 @@
+---
+name: fed1-sample
+topic: sample
+elements:
+  - name: lab
+  - name: state
+    type: TEXT
+  - name: test_time
+    type: DATE
+  - name: specimen_id
+    type: ID
+  - name: observation
+    type: TEXT

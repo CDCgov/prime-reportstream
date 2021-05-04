@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.serializers.CsvSerializerTests" tests="18" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:44" hostname="Technicians-MacBook-Pro.local" time="0.015">
+  <properties/>
+  <testcase name="test read from csv()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.001"/>
+  <testcase name="test read from csv with defaults()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.0"/>
+  <testcase name="test write as csv with formatting()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.0"/>
+  <testcase name="test write as csv()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.001"/>
+  <testcase name="test read using altDisplay()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.0"/>
+  <testcase name="test read with different csvField name()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.001"/>
+  <testcase name="test read using default()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.0"/>
+  <testcase name="test missing column()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.003"/>
+  <testcase name="test cardinality and default()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.001"/>
+  <testcase name="test read from csv with dynamic defaults()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.001"/>
+  <testcase name="test cardinality and BLANK()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.001"/>
+  <testcase name="test empty()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.0"/>
+  <testcase name="test blank and default()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.0"/>
+  <testcase name="test read with missing csv_field()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.0"/>
+  <testcase name="test not matching column()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.0"/>
+  <testcase name="test cardinality()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.001"/>
+  <testcase name="test missing row()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.0"/>
+  <testcase name="test read with different csv header order()" classname="gov.cdc.prime.router.serializers.CsvSerializerTests" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

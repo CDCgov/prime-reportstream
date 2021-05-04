@@ -1,0 +1,17 @@
+---
+name: phd1-sample
+topic: sample
+elements:
+  - name: lab
+  - name: first_name
+    pii: true
+  - name: last_name
+    pii: true
+  - name: state
+    type: TEXT
+  - name: test_time
+    type: DATE
+  - name: specimen_id
+    type: ID
+  - name: observation
+    type: TEXT

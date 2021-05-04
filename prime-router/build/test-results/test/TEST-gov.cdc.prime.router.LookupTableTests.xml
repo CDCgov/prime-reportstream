@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.LookupTableTests" tests="10" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:26" hostname="Technicians-MacBook-Pro.local" time="1.522">
+  <properties/>
+  <testcase name="test table filter but don't ignoreCase()" classname="gov.cdc.prime.router.LookupTableTests" time="0.015"/>
+  <testcase name="test read table()" classname="gov.cdc.prime.router.LookupTableTests" time="0.001"/>
+  <testcase name="test zip code lookup()" classname="gov.cdc.prime.router.LookupTableTests" time="1.497"/>
+  <testcase name="test bad lookup()" classname="gov.cdc.prime.router.LookupTableTests" time="0.001"/>
+  <testcase name="test lookup()" classname="gov.cdc.prime.router.LookupTableTests" time="0.001"/>
+  <testcase name="test lookup second column()" classname="gov.cdc.prime.router.LookupTableTests" time="0.0"/>
+  <testcase name="test lookupValues()" classname="gov.cdc.prime.router.LookupTableTests" time="0.0"/>
+  <testcase name="test table filter ignoreCase()" classname="gov.cdc.prime.router.LookupTableTests" time="0.0"/>
+  <testcase name="test table lookup but don't ignoreCase()" classname="gov.cdc.prime.router.LookupTableTests" time="0.0"/>
+  <testcase name="test table filter()" classname="gov.cdc.prime.router.LookupTableTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

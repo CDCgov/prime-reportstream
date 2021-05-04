@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- This disables logging the jooq logo -->
+        <Logger name="org.jooq.Constants" level="warn" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="gov.cdc.prime.router.transport.RedoxTransport" level="info"></Logger>
+        <Logger name="gov.cdc.prime.router.credentials" level="info"></Logger>
+        <!-- Setting to debug enables logging queries -->
+        <Logger name="org.jooq" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- Example to turn on debugging in your favorite package
+        <Logger name="gov.cdc.prime.router.azure.DatabaseAccess" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        -->
+
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.azure.SettingFacadeTests" tests="9" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:37" hostname="Technicians-MacBook-Pro.local" time="0.215">
+  <properties/>
+  <testcase name="get orgs test()" classname="gov.cdc.prime.router.azure.SettingFacadeTests" time="0.101"/>
+  <testcase name="get receivers test()" classname="gov.cdc.prime.router.azure.SettingFacadeTests" time="0.017"/>
+  <testcase name="get senders test()" classname="gov.cdc.prime.router.azure.SettingFacadeTests" time="0.011"/>
+  <testcase name="get org test failure()" classname="gov.cdc.prime.router.azure.SettingFacadeTests" time="0.004"/>
+  <testcase name="get receiver test()" classname="gov.cdc.prime.router.azure.SettingFacadeTests" time="0.038"/>
+  <testcase name="get sender test failure2()" classname="gov.cdc.prime.router.azure.SettingFacadeTests" time="0.019"/>
+  <testcase name="get sender test failure()" classname="gov.cdc.prime.router.azure.SettingFacadeTests" time="0.009"/>
+  <testcase name="get org test()" classname="gov.cdc.prime.router.azure.SettingFacadeTests" time="0.005"/>
+  <testcase name="get sender test()" classname="gov.cdc.prime.router.azure.SettingFacadeTests" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

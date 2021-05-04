@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.ElementTests" tests="16" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:51" hostname="Technicians-MacBook-Pro.local" time="0.01">
+  <properties/>
+  <testcase name="test toNormalize dateTime()" classname="gov.cdc.prime.router.ElementTests" time="0.001"/>
+  <testcase name="test toFormatted zip()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test truncate()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test normalize and formatted round-trips()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test inherit from()" classname="gov.cdc.prime.router.ElementTests" time="0.001"/>
+  <testcase name="test schema element()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="create element()" classname="gov.cdc.prime.router.ElementTests" time="0.001"/>
+  <testcase name="compare elements()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test code format field()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test toFormatted dateTime()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test toFormatted phone()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test toNormalize altValues()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test normalize with multiple csvFields()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test toNormalized phone()" classname="gov.cdc.prime.router.ElementTests" time="0.004"/>
+  <testcase name="test toNormalize date()" classname="gov.cdc.prime.router.ElementTests" time="0.0"/>
+  <testcase name="test toNormalized zip()" classname="gov.cdc.prime.router.ElementTests" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

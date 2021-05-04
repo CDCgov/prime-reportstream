@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.MetadataTests" tests="10" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:29" hostname="Technicians-MacBook-Pro.local" time="1.038">
+  <properties/>
+  <testcase name="test find schemas()" classname="gov.cdc.prime.router.MetadataTests" time="0.001"/>
+  <testcase name="test valueset merging()" classname="gov.cdc.prime.router.MetadataTests" time="0.001"/>
+  <testcase name="test loading multi-level schemas()" classname="gov.cdc.prime.router.MetadataTests" time="0.001"/>
+  <testcase name="test loading two schemas()" classname="gov.cdc.prime.router.MetadataTests" time="0.0"/>
+  <testcase name="test schema contamination()" classname="gov.cdc.prime.router.MetadataTests" time="0.001"/>
+  <testcase name="load valueSets()" classname="gov.cdc.prime.router.MetadataTests" time="0.0"/>
+  <testcase name="test loading basedOn schemas()" classname="gov.cdc.prime.router.MetadataTests" time="0.0"/>
+  <testcase name="test loading extends schemas()" classname="gov.cdc.prime.router.MetadataTests" time="0.0"/>
+  <testcase name="load value set directory()" classname="gov.cdc.prime.router.MetadataTests" time="0.073"/>
+  <testcase name="test loading metadata catalog()" classname="gov.cdc.prime.router.MetadataTests" time="0.959"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

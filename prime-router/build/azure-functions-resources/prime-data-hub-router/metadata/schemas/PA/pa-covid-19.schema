@@ -1,0 +1,89 @@
+---
+name: pa-covid-19
+description: PA COVID-19 flat file
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+elements:
+  - name: patient_first_name
+    csvFields:
+    - name: PatientFirstName
+
+  - name: patient_middle_initial
+    csvFields:
+    - name: PatientMiddleInitial
+
+  - name: patient_last_name
+    csvFields:
+    - name: PatientLastName
+
+  - name: patient_suffix
+    csvFields:
+    - name: PatientSuffix
+
+  - name: patient_dob
+    csvFields:
+    - name: PatientDOB
+
+  - name: patient_street
+    csvFields:
+    - name: PatientAddress1
+
+  - name: patient_city
+    csvFields:
+    - name: PatientCity
+
+  - name: patient_state
+    csvFields:
+    - name: PatientState
+
+  - name: patient_zip_code
+    csvFields:
+    - name: PatientZipCode
+
+  - name: patient_phone_number
+    csvFields:
+    - name: PatientPhoneNumber
+
+  - name: patient_gender
+    csvFields:
+    - name: PatientGender
+
+  - name: patient_race
+    csvFields:
+    - name: PatientRace
+
+  - name: patient_ethnicity
+    csvFields:
+    - name: PatientEthnicity
+
+  - name: testing_lab_specimen_id
+    csvFields:
+    - name: TestID
+
+  - name: specimen_collection_date_time
+    csvFields:
+    - name: SpecimenCollectedDate
+
+  - name: specimen_source_site_code
+    csvFields:
+    - name: SpecimenSource
+      format: $display
+
+  - name: specimen_type
+    csvFields:
+    - name: TestName
+      format: $display
+
+  - name: test_result
+    csvFields:
+    - name: TestQualitativeResult
+      format: $display
+
+  - name: comment
+    csvFields:
+    - name: Notes
+
+  - name: ordering_facility_name
+    csvFields:
+    - name: PerformingFacilityName

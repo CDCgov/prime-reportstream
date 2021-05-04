@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.cdc.prime.router.FileSettingsTests" tests="10" skipped="0" failures="0" errors="0" timestamp="2021-05-04T12:58:44" hostname="Technicians-MacBook-Pro.local" time="0.05">
+  <properties/>
+  <testcase name="test loading a single organization()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.0"/>
+  <testcase name="test duplicate receiver name()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.001"/>
+  <testcase name="test loading test settings()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.013"/>
+  <testcase name="test find receiver()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.0"/>
+  <testcase name="test loading prod settings()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.006"/>
+  <testcase name="test loading local settings()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.011"/>
+  <testcase name="test loading a receiver()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.003"/>
+  <testcase name="test find sender()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.009"/>
+  <testcase name="test nextBatchTime()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.001"/>
+  <testcase name="test loading a sender and receiver()" classname="gov.cdc.prime.router.FileSettingsTests" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
