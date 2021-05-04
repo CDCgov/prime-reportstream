@@ -286,7 +286,7 @@ async function processReports(){
                 <th data-title="Total tests" scope="row">${_report.total}</th>
                 <th data-title="File" scope="row">
                     <span>
-                        <a href="javascript:requestFile( \'${_report.reportId}\');">
+                        <a href="javascript:requestFile( \'${_report.reportId}\');" class="usa-link">
                             ${_report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : _report.fileType}
                         </a>
                     </span>
