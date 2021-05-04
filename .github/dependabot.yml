@@ -50,7 +50,7 @@ updates:
     directory: "/prime-router"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "maven"
+  - package-ecosystem: "gradle"
     directory: "/prime-router"
     schedule:
       interval: "weekly"
