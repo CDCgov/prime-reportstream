@@ -220,7 +220,7 @@
           receivingApplicationName: NEDSS
           receivingFacilityName: TX-ELR
         transport:
-          type: SFTP_LEGACY
+          type: SFTP
           host: sftp
           port: 22
           filePath: ./upload
@@ -369,6 +369,7 @@
           nameFormat: APHL_LIGHT
           # turn off UNK and ASKU for this field
           useBlankInsteadOfUnknown: patient_race
+          suppressHl7Fields: OBX-17-1
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -459,7 +460,7 @@
           receivingFacilityName: TX-ELR
           defaultAoeToUnknown: true
         transport:
-          type: SFTP_LEGACY
+          type: SFTP
           host: sftp
           port: 22
           filePath: ./upload
