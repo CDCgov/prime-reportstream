@@ -24,20 +24,6 @@
 
 ---
 
-**Name**: Testing_Lab_Name
-
-**Type**: TEXT
-
-**HL7 Field**: OBX-23-1
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the laboratory which performed the test, can be the same as the sending facility name
-
----
-
 **Name**: Lab_CLIA
 
 **Type**: ID_CLIA
@@ -355,7 +341,13 @@ The patient's phone number with area code
 
 **Type**: TEXT
 
+**HL7 Field**: ORC-21-1
+
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The name of the facility which the test was ordered from
 
 ---
 
