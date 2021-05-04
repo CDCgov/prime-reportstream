@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 plugins {
-    kotlin("jvm") version "1.4.32"
+    kotlin("jvm") version "1.5.0"
     id("org.flywaydb.flyway") version "7.8.1"
     id("nu.studer.jooq") version "5.2"
     id("com.github.johnrengelman.shadow") version "7.0.0"
@@ -248,9 +248,9 @@ repositories {
 dependencies {
     jooqGenerator("org.postgresql:postgresql:42.2.20")
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.32")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.4.32")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.32")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.15.0")
     implementation("com.azure:azure-core-http-netty:1.9.1")

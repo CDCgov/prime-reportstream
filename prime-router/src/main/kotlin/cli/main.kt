@@ -210,13 +210,13 @@ class ProcessData : CliktCommand(
         metadata: Metadata,
         fileName: String
     ): Report {
-        val schemaName = inputSchema?.toLowerCase() ?: ""
+        val schemaName = inputSchema?.lowercase() ?: ""
         val schema = metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
         val csvSerializer = CsvSerializer(metadata)
-        return if (file.extension.toUpperCase() == "INTERNAL") {
+        return if (file.extension.uppercase() == "INTERNAL") {
             csvSerializer.readInternal(schema.name, file.inputStream(), listOf(FileSource(file.nameWithoutExtension)))
         } else {
             val result =
@@ -568,7 +568,7 @@ class GenerateDocs : CliktCommand(
                 println(it.name)
             }
         } else {
-            val schemaName = inputSchema?.toLowerCase() ?: ""
+            val schemaName = inputSchema?.lowercase() ?: ""
             var schema = metadata.findSchema(schemaName)
             if (schema == null) {
                 echo("$schemaName not found. Did you mean one of these?")

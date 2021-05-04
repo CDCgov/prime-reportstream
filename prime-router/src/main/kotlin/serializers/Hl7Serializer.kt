@@ -286,7 +286,7 @@ class Hl7Serializer(val metadata: Metadata) {
         val blanksForUnknownFields = hl7Config
             ?.useBlankInsteadOfUnknown
             ?.split(",")
-            ?.map { it.toLowerCase().trim() } ?: emptyList()
+            ?.map { it.lowercase().trim() } ?: emptyList()
         val convertTimestampToDateTimeFields = hl7Config
             ?.convertTimestampToDateTime
             ?.split(",")
