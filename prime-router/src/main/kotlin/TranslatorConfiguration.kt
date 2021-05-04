@@ -54,6 +54,7 @@ data class Hl7Configuration
     val useBlankInsteadOfUnknown: String? = null,
     val truncateHDNamespaceIds: Boolean = false,
     val usePid14ForPatientEmail: Boolean = false,
+    val convertTimestampToDateTime: String? = null,
     override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?,
     // deprecated, please don't use
