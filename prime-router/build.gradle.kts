@@ -18,7 +18,7 @@ plugins {
     kotlin("jvm") version "1.4.32"
     id("org.flywaydb.flyway") version "7.8.1"
     id("nu.studer.jooq") version "5.2"
-    id("com.github.johnrengelman.shadow") version "6.1.0"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
 }
 
