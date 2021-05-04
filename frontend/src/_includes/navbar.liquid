@@ -20,11 +20,15 @@
         </li>
       </ul>
       {% unless hide_signin %}
-        <a id="signIn" class="usa-button usa-button--outline" href="/sign-in/"><span>Sign&nbsp;in</span></a>
+        <span id="signInButton">
+          <a class="usa-button usa-button--outline" href="/sign-in/"><span>Sign&nbsp;in</span></a>
+        </span>
         <div class="prime-user-account">
           <span id="emailUser"></span>
           <br />
-          <a href="#" id="logout" class="usa-link" onclick="logout(); return false;"></a>
+          <a href="javascript:logout()" id="logout" class="usa-link"></a>
+          <br />
+          <span id="dropdown"></span>
         </div>
       {% endunless %}
     </nav>

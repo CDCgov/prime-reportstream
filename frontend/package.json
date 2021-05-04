@@ -38,7 +38,9 @@
       "moment": true,
       "idleTimeout": true,
       "OktaSignIn": true,
-      "download": true
+      "download": true,
+      "console": true,
+      "Chart": true
     }
   }
 }
