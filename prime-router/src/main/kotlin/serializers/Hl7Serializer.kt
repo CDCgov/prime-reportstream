@@ -140,7 +140,10 @@ class Hl7Serializer(val metadata: Metadata) {
             val existingValues = mappedRows[key] ?: emptySet()
             // if the existing value doesn't exist, add it in
             if (!existingValues.contains(value)) {
-                mappedRows[key]?.add(value)
+                // making sure an empty value doesn't blow things up if we already
+                // have a value for that key
+                if (existingValues.isEmpty() || value.isNotEmpty())
+                    mappedRows[key]?.add(value)
             }
         }
         // query the terser and get a value
@@ -283,7 +286,11 @@ class Hl7Serializer(val metadata: Metadata) {
         val blanksForUnknownFields = hl7Config
             ?.useBlankInsteadOfUnknown
             ?.split(",")
-            ?.map { it.toLowerCase().trim() } ?: emptyList()
+            ?.map { it.lowercase().trim() } ?: emptyList()
+        val convertTimestampToDateTimeFields = hl7Config
+            ?.convertTimestampToDateTime
+            ?.split(",")
+            ?.map { it.trim() } ?: emptyList()
         // start processing
         var aoeSequence = 1
         val terser = Terser(message)
@@ -298,7 +305,7 @@ class Hl7Serializer(val metadata: Metadata) {
                 }
             }
 
-            if (suppressedFields.contains(element.hl7Field))
+            if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
 
             // some fields need to be blank instead of passing in UNK
@@ -328,7 +335,11 @@ class Hl7Serializer(val metadata: Metadata) {
                     } else {
                         value
                     }
-                    setComponent(terser, element, hl7Field, truncatedValue, report)
+                    if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
+                        setComponentForTable(terser, element, hl7Field, report, row)
+                    } else {
+                        setComponent(terser, element, hl7Field, truncatedValue, report)
+                    }
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
                 if (value.isNotBlank()) {
@@ -361,10 +372,13 @@ class Hl7Serializer(val metadata: Metadata) {
                 // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                 // text, but need to be truncated because they're the first part of an HD field. For example,
                 // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
-                val truncatedValue = if (value.length < HD_TRUNCATION_LIMIT) {
-                    value
-                } else {
+                val truncatedValue = if (
+                    value.length > HD_TRUNCATION_LIMIT &&
+                    hl7Config?.truncateHDNamespaceIds == true
+                ) {
                     value.substring(0, HD_TRUNCATION_LIMIT)
+                } else {
+                    value
                 }
                 setComponent(terser, element, element.hl7Field, truncatedValue, report)
             } else if (element.hl7Field != null) {
@@ -375,6 +389,19 @@ class Hl7Serializer(val metadata: Metadata) {
         suppressedFields.forEach {
             val pathSpec = formPathSpec(it)
             terser.set(pathSpec, "")
+        }
+        convertTimestampToDateTimeFields.forEach {
+            val pathSpec = formPathSpec(it)
+            val tsValue = terser.get(pathSpec)
+            if (!tsValue.isNullOrEmpty()) {
+                try {
+                    val dtFormatter = DateTimeFormatter.ofPattern("yyyMMddHHmmss")
+                    val parsedDate = OffsetDateTime.parse(tsValue, formatter).format(dtFormatter)
+                    terser.set(pathSpec, parsedDate)
+                } catch (_: Exception) {
+                    // for now do nothing
+                }
+            }
         }
         // check for reporting facility overrides
         if (!hl7Config?.reportingFacilityName.isNullOrEmpty()) {
@@ -388,8 +415,12 @@ class Hl7Serializer(val metadata: Metadata) {
     }
 
     private fun setComponentForTable(terser: Terser, element: Element, report: Report, row: Int) {
+        setComponentForTable(terser, element, element.hl7Field!!, report, row)
+    }
+
+    private fun setComponentForTable(terser: Terser, element: Element, hl7Field: String, report: Report, row: Int) {
         val lookupValues = mutableMapOf<String, String>()
-        val pathSpec = formPathSpec(element.hl7Field!!)
+        val pathSpec = formPathSpec(hl7Field)
         val mapper: Mapper? = element.mapperRef
         val args = element.mapperArgs ?: emptyList()
         val valueNames = mapper?.valueNames(element, args)

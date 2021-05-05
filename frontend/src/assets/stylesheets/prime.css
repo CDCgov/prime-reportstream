@@ -24,6 +24,10 @@ main {
   z-index: 300;
 }
 
+.usa-nav__close {
+  cursor: pointer;
+}
+
 .usa-nav__primary {
   margin-top: 0;
   margin-bottom: 0;
@@ -106,14 +110,17 @@ main {
   .usa-header--basic .usa-navbar {
     width: 100%;
     z-index: 200;
-    display: relative;
+    position: relative;
+    border-bottom: none;
   }
   .usa-nav__primary {
     width: 100%;
   }
   .prime-user-account {
+    width: 100%;
     text-align: left;
     margin-bottom: 2rem;
+    margin-left: 1rem;
   }
 }
 

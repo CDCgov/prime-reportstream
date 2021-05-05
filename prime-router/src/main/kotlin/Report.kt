@@ -764,7 +764,7 @@ class Report {
             processingModeCode: String = "T",
         ): String {
             fun mapProcessingModeCode(processingModeCode: String = "T"): String {
-                return when (processingModeCode.toLowerCase()) {
+                return when (processingModeCode.lowercase()) {
                     "p" -> "production"
                     "d" -> "development"
                     else -> "testing"
@@ -796,13 +796,13 @@ class Report {
                  */
                     val se = mapProcessingModeCode(processingModeCode)
                     // have to escape with curly braces because Kotlin allows underscores in variable names
-                    "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
+                    "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".lowercase()
                 }
                 NameFormat.APHL_LIGHT -> {
                     /*
                     A lighter version of the APHL name format that removes duplicated data. NM prefers this
                      */
-                    "${so}_${receivingOrganization ?: ""}_${re}_$ts.$nameSuffix".toLowerCase()
+                    "${so}_${receivingOrganization ?: ""}_${re}_$ts.$nameSuffix".lowercase()
                 }
                 NameFormat.OHIO -> {
                     "${so}_$ts.hl7"
