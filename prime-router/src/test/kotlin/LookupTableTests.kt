@@ -102,4 +102,26 @@ class LookupTableTests {
         val value = table.lookupValue("c", "c", "a", false)
         assertTrue(value.isNullOrEmpty())
     }
+
+    @Test
+    fun `test zip code lookup`() {
+        // arrange
+        val metadata = Metadata("./metadata")
+        val zipCodeTable = metadata.findLookupTable("zip-code-data")
+        val state = "VT"
+        val county = "Rutland"
+        val zipCode = "05701"
+        // act
+        val matchingRows = zipCodeTable?.filter(
+            "city",
+            mapOf(
+                "state_abbr" to state,
+                "county" to county,
+                "zipcode" to zipCode
+            )
+        )
+        // assert
+        assertTrue(matchingRows?.isNotEmpty() == true)
+        assertTrue(matchingRows?.getOrElse(0) { null } == "Rutland")
+    }
 }

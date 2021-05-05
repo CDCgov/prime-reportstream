@@ -705,7 +705,7 @@ Is the patient symptomatic?
 
 **Type**: TEXT
 
-**HL7 Field**: OBX-23-1
+**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1
 
 **Cardinality**: [0..1]
 
@@ -719,7 +719,7 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Type**: ID_CLIA
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3
 
 **Cardinality**: [1..1]
 
@@ -908,7 +908,7 @@ The zip code of the facility which the test was ordered from
 
 **HL7 Field**: ORC-23
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 

@@ -124,7 +124,7 @@ The zip code of the facility which the test was ordered from
 
 **HL7 Field**: ORC-23
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -250,6 +250,7 @@ ASKU|Asked, but unknown
 2106-3|White
 2131-1|Other
 UNK|Unknown
+ASKU|Asked, but unknown
 
 **Alt Value Sets**
 
@@ -262,6 +263,7 @@ Code | Display
 2106-3|W
 2131-1|Other
 UNK|U
+ASKU|U
 
 **Documentation**:
 
@@ -1435,17 +1437,17 @@ Code | Display
 77386006|Pregnant
 60001007|Not Pregnant
 261665006|Unknown
-Y|Y
-N|N
-UNK|U
+77386006|Pregnant
+60001007|Not Pregnant
+261665006|Unknown
 
 **Alt Value Sets**
 
 Code | Display
 ---- | -------
-Y|Y
-N|N
-UNK|U
+77386006|Y
+60001007|N
+261665006|U
 
 **Documentation**:
 

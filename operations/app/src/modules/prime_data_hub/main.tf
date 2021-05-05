@@ -68,6 +68,7 @@ module "function_app" {
     eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
     app_config_key_vault_id = module.key_vault.app_config_key_vault_id
     client_config_key_vault_id = module.key_vault.client_config_key_vault_id
+    storage_partner_connection_string = module.storage.storage_partner_connection_string
 }
 
 module "database" {

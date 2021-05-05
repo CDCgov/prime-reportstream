@@ -101,6 +101,12 @@ class GenerateDocs : CliktCommand(
     private val outputHl7Elements by option(
         "--mapped-hl7-elements"
     ).flag(default = false)
+    private val generateHtml by option(
+        "--generate-html", help = "generate the HTML version of the documentation. Default is not to generate HTML."
+    ).flag("--no-generate-html", default = false)
+    private val generateMarkup by option(
+        "--generate-markup", help = "generate the markup version of the documentation.  Default is to generate markup."
+    ).flag("--no-generate-markup", default = true)
     private val outputFileName by option(
         "--output",
         metavar = "<path>",
@@ -115,7 +121,11 @@ class GenerateDocs : CliktCommand(
         .default(defaultOutputDir)
 
     fun generateSchemaDocumentation(metadata: Metadata) {
-        if (inputSchema.isNullOrBlank()) {
+        if (!generateMarkup && !generateHtml) {
+            println("Nothing generated.  You need to specify at least one type of output.")
+            return
+        }
+        else if (inputSchema.isNullOrBlank()) {
             println("Generating documentation for all schemas")
 
             // Clear the existing schema (we want to remove deleted schemas)
@@ -128,12 +138,14 @@ class GenerateDocs : CliktCommand(
                     it,
                     outputDir,
                     outputFileName,
-                    includeTimestamps
+                    includeTimestamps,
+                    generateMarkup,
+                    generateHtml
                 )
                 println(it.name)
             }
         } else {
-            val schemaName = inputSchema?.toLowerCase() ?: ""
+            val schemaName = inputSchema?.lowercase() ?: ""
             var schema = metadata.findSchema(schemaName)
             if (schema == null) {
                 echo("$schemaName not found. Did you mean one of these?")
@@ -145,7 +157,8 @@ class GenerateDocs : CliktCommand(
             if (outputHl7Elements) {
                 schema = buildMappedHl7Schema(schema)
             }
-            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps)
+            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps,
+                generateMarkup, generateHtml)
         }
     }
 

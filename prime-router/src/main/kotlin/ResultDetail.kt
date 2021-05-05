@@ -13,7 +13,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val details: Str
     enum class DetailScope { PARAMETER, REPORT, ITEM, TRANSLATION }
 
     override fun toString(): String {
-        return "${scope.toString().toLowerCase()}${if (id.isBlank()) "" else " $id"}: $details"
+        return "${scope.toString().lowercase()}${if (id.isBlank()) "" else " $id"}: $details"
     }
 
     companion object {

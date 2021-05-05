@@ -1,46 +1,34 @@
 <div class="usa-overlay"></div>
-
-<script>
-  var logout = () => {
-    window.sessionStorage.removeItem( "jwt" )
-    window.location.replace(`//localhost:8090`);
-  }
-</script>
-
 <header class="usa-header usa-header--basic">
   <div class="usa-nav-container">
     <div class="usa-navbar">
       <div class="usa-logo" id="basic-logo">
-        <em class="usa-logo__text">
+        <em class="usa-logo__text font-sans-md">
           <a href="{{ '/' | url }}" title="Home" aria-label="Home">ReportStream</a>
         </em>
       </div>
+      <button class="usa-menu-btn">Menu</button>
     </div>
     <nav aria-label="Primary navigation" class="usa-nav">
-      <ul class="usa-nav__primary usa-accordion margin-right-15">
-        <li class="usa-nav__primary-item">
-          <a class="usa-nav__link" href="./data-index.html"><span>Daily data</span></a>
+      <button class="usa-nav__close"><img src="/assets/img/close.svg" role="img" alt="close"></button>
+      <ul class="usa-nav__primary font-sans-md">
+        <li id="navmenu" class="usa-nav__primary-item {% if title == "Daily data" %}usa-current{% endif %}">
+          <a class="usa-nav__link" href="/daily-data/"><span>Daily data</span></a>
         </li>
-<!--
-        <li class="usa-nav__primary-item">
-          <a class="usa-nav__link" href="#"><span>Facilities</span></a>
+        <li class="usa-nav__primary-item {% if documentation %}usa-current{% endif %}">
+          <a class="usa-nav__link" href="{{ site.documentationPath }}"><span>Documentation</span></a>
         </li>
--->
-        <li class="usa-nav__primary-item">
-          <a class="usa-nav__link" href="./documentation.html"><span>Documentation</span></a>
-        </li>
-
-<!--
-        <li class="usa-nav__primary-item">
-          <a class="usa-nav__link" href="/settings/profile.html"><span>Settings</span></a>
-        </li>
--->
       </ul>
-      <div class="prime-user-account margin-left-10">
-        <span id="emailUser"></span>
-        <br />
-        <a href="#" id="logout" onclick="logout(); return false;"></a>
-      </div>
+      {% unless hide_signin %}
+        <span id="signInButton">
+          <a class="usa-button usa-button--outline" href="/sign-in/"><span>Sign&nbsp;in</span></a>
+        </span>
+        <div class="prime-user-account">
+          <span id="emailUser"></span>
+          <br />
+          <a href="javascript:logout()" id="logout" class="usa-link"></a>
+        </div>
+      {% endunless %}
     </nav>
   </div>
 </header>

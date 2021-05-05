@@ -450,7 +450,7 @@ class ProcessData : CliktCommand(
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
                 Report.Format.CSV -> csvSerializer.write(report, stream)
                 Report.Format.HL7 -> hl7Serializer.write(report, stream, hl7Configuration)
-                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream, hl7Configuration)
+                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
                 Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
