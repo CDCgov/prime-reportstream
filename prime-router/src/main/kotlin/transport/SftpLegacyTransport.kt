@@ -73,7 +73,7 @@ class SftpLegacyTransport : ITransport {
             val credentialLabel = receiverFullName
                 .replace(".", "--")
                 .replace("_", "-")
-                .toUpperCase()
+                .uppercase()
 
             // Assumes credential will be cast as UserPassCredential, if not return null, and thus the error case
             val credential = CredentialHelper.getCredentialService().fetchCredential(
