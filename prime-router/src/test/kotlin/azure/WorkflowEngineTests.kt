@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -251,9 +252,8 @@ class WorkflowEngineTests {
         mockkObject(ActionHistory.Companion)
         every { accessSpy.fetchAndLockTasks(nextAction = eq(TaskAction.send), any(), any(), any(), any()) }
             .returns(listOf(task))
-        every { accessSpy.fetchReportFile(eq(report1.id), any(), any()) }.returns(
-            ReportFile().setReportId(report1.id).setItemCount(0)
-        )
+        every { accessSpy.fetchReportFile(eq(report1.id), any(), any()) }
+            .returns(ReportFile().setReportId(report1.id).setItemCount(0))
         every {
             accessSpy.updateTask(
                 reportId = eq(report1.id),
@@ -264,8 +264,10 @@ class WorkflowEngineTests {
                 any()
             )
         }.returns(Unit)
-        every { queueMock.sendMessage(any()) }
-            .returns(Unit)
+        every { accessSpy.fetchItemLineagesForReport(eq(report1.id), any(), any()) }.returns(emptyList())
+
+        every { queueMock.sendMessage(any()) }.returns(Unit)
+
         every { actionHistoryMock.saveToDb(any()) }.returns(Unit)
         every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
         every { ActionHistory.Companion.sanityCheckReport(any(), any(), any()) }.returns(Unit)
@@ -284,6 +286,7 @@ class WorkflowEngineTests {
             accessSpy.updateTask(reportId = any(), any(), any(), any(), any(), any())
             accessSpy.fetchAndLockTasks(any(), any(), any(), any(), any())
             accessSpy.fetchReportFile(reportId = any(), any(), any())
+            accessSpy.fetchItemLineagesForReport(any(), any(), any())
         }
         verify(exactly = 0) {
             queueMock.sendMessage(any())

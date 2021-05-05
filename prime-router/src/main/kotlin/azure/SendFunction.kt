@@ -14,7 +14,6 @@ import gov.cdc.prime.router.SFTPLegacyTransportType
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryItems
@@ -83,7 +82,15 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                                 "Not sending $inputReportId to $serviceName: No transports defined"
                             )
                         } else {
-                            val nextRetry = sendReport(receiver, header, actionHistory, retryToken, session)
+                            val retryItems = retryToken?.items
+                            val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
+                            val nextRetry = getTransport(receiver.transport)?.send(
+                                header,
+                                sentReportId,
+                                retryItems,
+                                session,
+                                actionHistory
+                            )
                             if (nextRetry != null) {
                                 nextRetryItems += nextRetry
                             }
@@ -96,13 +103,15 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 // Any retryTokens?
                 if (nextRetryTokens.find { it != null } != null) {
                     val retryCount = nextRetryTokens.maxOf { it?.retryCount ?: 0 }
-                    val retryAt = calculateRetryTime(retryCount)
-                    val retryAction = if (retryCount >= maxRetryCount)
-                        Event.EventAction.SEND_ERROR else Event.EventAction.SEND
+                    val nextActionAt = calculateRetryTime(retryCount)
+                    val nextAction = if (retryCount >= maxRetryCount)
+                        Event.EventAction.SEND_ERROR
+                    else
+                        Event.EventAction.SEND
                     WorkflowEngine.ReceiverResult(
                         nextRetryTokens,
-                        retryAction = retryAction,
-                        retryActionAt = retryAt
+                        retryAction = nextAction,
+                        retryActionAt = nextActionAt
                     )
                 } else {
                     WorkflowEngine.successfulReceiverResult(headers)

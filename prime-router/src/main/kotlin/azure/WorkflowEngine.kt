@@ -301,15 +301,15 @@ class WorkflowEngine(
             val ids = tasks.map { it.reportId }
             val reportFiles = ids
                 .map { db.fetchReportFile(it, org = null, txn = txn) }
-                .map { (it.reportId as ReportId) to it }
-                .toMap()
+                .associateBy { (it.reportId as ReportId) }
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
-            // todo remove this check
+            // todo remove this check sanity rains
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
             // todo Note that the sanity check means the !! is safe.
             val headers = tasks.map {
-                // DevNote: May need to fetch lineages here if needed in the future
-                createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+                val reportFile = reportFiles[it.reportId]!!
+                val itemLineages = db.fetchItemLineagesForReport(it.reportId, reportFile.itemCount, txn)
+                createHeader(it, reportFile, itemLineages, organization, receiver)
             }
 
             val receiverResult = updateBlock(receiver, headers, txn)
