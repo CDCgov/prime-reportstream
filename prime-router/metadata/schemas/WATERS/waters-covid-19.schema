@@ -147,7 +147,7 @@ elements:
 
   # Need to override the mapper in covid-19.schema file.
   - name: specimen_id
-    mapper:
+    mapper: use(specimen_id)
     csvFields: [{ name: specimenId}]
 
   # Barcode or QR code.  Unique within one manufacturer.
