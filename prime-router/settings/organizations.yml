@@ -47,41 +47,11 @@
     jurisdiction: STATE
     stateCode: AZ
     receivers:
-      - name: elr-test
-        organizationName: az-phd
-        topic: covid-19
-        jurisdictionalFilter:
-          - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
-        timing:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialTime: 00:00
-          timeZone: ARIZONA
-        translation:
-          type: CUSTOM
-          schemaName: az/az-covid-19
-          format: CSV
-      - name: elr-hl7-test
-        organizationName: az-phd
-        topic: covid-19
-        jurisdictionalFilter:
-          - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
-        translation:
-          type: HL7
-          useBatchHeaders: true
-          receivingApplicationName: AZ.DOH.ELR
-          receivingApplicationOID: 2.16.840.1.114222.4.3.3.2.9.3
-          receivingFacilityName: AZDOH
-          receivingFacilityOID: 2.16.840.1.114222.4.1.142
-          messageProfileId: AZELRIG^ADHS^2.16.840.1.113883.9.31^ISO
       - name: elr-prod
         organizationName: az-phd
         topic: covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute

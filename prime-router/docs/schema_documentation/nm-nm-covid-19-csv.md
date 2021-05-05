@@ -1437,17 +1437,17 @@ Code | Display
 77386006|Pregnant
 60001007|Not Pregnant
 261665006|Unknown
-Y|Y
-N|N
-UNK|U
+77386006|Pregnant
+60001007|Not Pregnant
+261665006|Unknown
 
 **Alt Value Sets**
 
 Code | Display
 ---- | -------
-Y|Y
-N|N
-UNK|U
+77386006|Y
+60001007|N
+261665006|U
 
 **Documentation**:
 
