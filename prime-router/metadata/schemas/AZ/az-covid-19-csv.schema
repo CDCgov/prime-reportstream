@@ -114,8 +114,11 @@ elements:
     csvFields:
     - name: Patient_Phone_Number
 
-  - name: ordering_facility_name
+  # Nonstandard
+  - name: organization_and_facility
+    type: TEXT
     maxLength:  50
+    mapper: 'concat(organization_name, ordering_facility_name)'
     csvFields: [{name: Ordering_facility_name}]
 
   - name: ordering_facility_street
