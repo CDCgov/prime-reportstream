@@ -245,8 +245,13 @@ elements:
   - name: ordering_provider_street2
     csvFields: [{ name: orderingProviderAddress2}]
 
+  # Added to cover fact that ordering_facility_state is missing
+  - name: ordering_facility_state
+    mapper: use(ordering_provider_state)
+
 # Additional Fields not in IM sample, but maybe needed
 #
 #  - name: employed_in_healthcare
 #    csvFields: [{ name: healthcareEmployee}]
 #
+
