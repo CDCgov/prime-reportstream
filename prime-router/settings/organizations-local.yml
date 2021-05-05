@@ -544,6 +544,26 @@
         topic: covid-19
         jurisdictionalFilter:
           - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, P)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+      - name: elr-test
+        organizationName: wi-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, T)
         translation:
           type: HL7
           useBatchHeaders: true
