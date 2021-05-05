@@ -22,6 +22,16 @@
         schemaName: waters/waters-covid-19
         format: CSV
 
+  - name: im
+    description: Test Sender
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: im
+        topic: covid-19
+        schemaName: waters/im-covid-19
+        format: CSV
+
   - name: strac
     description: STRAC POC testing app
     jurisdiction: FEDERAL

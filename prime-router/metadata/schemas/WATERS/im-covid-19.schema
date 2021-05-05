@@ -1,7 +1,7 @@
 ---
 name: im-covid-19
 description: IM COVID-19 flat file
-topic: covid-19-otc
+topic: covid-19
 trackingElement: specimen_id
 basedOn: covid-19
 elements:
