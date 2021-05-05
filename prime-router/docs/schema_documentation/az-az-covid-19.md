@@ -341,13 +341,7 @@ The patient's phone number with area code
 
 **Type**: TEXT
 
-**HL7 Field**: ORC-21-1
-
 **Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the facility which the test was ordered from
 
 ---
 
