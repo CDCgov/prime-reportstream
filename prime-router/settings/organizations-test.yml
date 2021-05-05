@@ -55,8 +55,8 @@
         format: CSV
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
 
     - name: elr-hl7-test
@@ -81,8 +81,8 @@
         timeZone: ARIZONA
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
 
     - name: elr-prod
@@ -103,8 +103,8 @@
         timeZone: ARIZONA
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
 
 - name: pima-az-phd
@@ -176,8 +176,8 @@
         timeZone: EASTERN
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
 
 - name: nd-doh
@@ -203,8 +203,8 @@
         timeZone: CENTRAL
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
 
 - name: la-doh
@@ -231,8 +231,8 @@
         timeZone: CENTRAL
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
 
 - name: oh-doh
@@ -266,8 +266,8 @@
         timeZone: EASTERN
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
 
 - name: nm-doh
@@ -299,8 +299,8 @@
         timeZone: MOUNTAIN
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
     - name: elr-csv
       organizationName: nm-doh
@@ -318,8 +318,8 @@
         timeZone: MOUNTAIN
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
 
 - name: mt-doh
@@ -383,8 +383,8 @@
         timeZone: CENTRAL
       transport:
         type: SFTP_LEGACY
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
 
 - name: gu-doh
@@ -404,8 +404,8 @@
         receivingFacilityName: GUDOH
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
       timing:
         operation: MERGE
@@ -432,8 +432,8 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
       timing:
         operation: MERGE
@@ -458,8 +458,8 @@
         receivingFacilityName: NJ-ELR
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
       timing:
         operation: MERGE
@@ -486,8 +486,8 @@
         receivingFacilityOID: 2.16.840.1.114222.4.1.3661
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
       timing:
         operation: MERGE
@@ -640,8 +640,8 @@
         format: CSV
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
     - name: HL7
       organizationName: ignore
@@ -657,8 +657,8 @@
         format: HL7
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
     - name: HL7_BATCH
       organizationName: ignore
@@ -674,8 +674,8 @@
         format: HL7_BATCH
       transport:
         type: SFTP
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
     - name: REDOX     # NOTE:  No Redox transport available in Staging at this time.
       organizationName: ignore
@@ -725,8 +725,8 @@
         receivingFacilityName: SFTP_LEGACY
       transport:
         type: SFTP_LEGACY
-        host: 10.0.2.4
-        port: 22
+        host: 13.90.81.254
+        port: 2222
         filePath: ./upload
     - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
       organizationName: ignore
