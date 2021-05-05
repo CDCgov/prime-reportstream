@@ -129,6 +129,14 @@ tasks.register<JavaExec>("testEnd2End") {
     environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
 }
 
+tasks.register<JavaExec>("generateDocs") {
+    group = rootProject.description ?: ""
+    description = "Generate the schema documentation in markup format"
+    main = primeMainClass
+    classpath = sourceSets["main"].runtimeClasspath
+    args = listOf("generate-docs")
+}
+
 azurefunctions {
     appName = azureAppName
     setAppSettings(
@@ -321,6 +329,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.flywaydb:flyway-core:7.8.2")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
+    implementation("org.commonmark:commonmark:0.17.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

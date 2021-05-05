@@ -200,6 +200,11 @@ Looking at the log above, you may notice that container has a debug open at port
 
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
+## Updating Schema Documentation
+Run the following Gradle command to generate the schema documentation.  The documentation is written to `docs/schema-documentation`
+
+`./gradlew generateDocs`
+
 
 ## Testing
 ### Unit Tests
@@ -262,19 +267,6 @@ By default, the functions will pull their configuration for organizations from t
 
 If your agency's network intercepts SSL requests, you might have to disable SSL verifications to get around invalid certificate errors.
 
-### Maven Builds
-
-For Maven builds, you can add the parameter `-Dmaven.wagon.http.ssl.insecure=true` as follows:
-
-```bash
-./gradlew package -Dmaven.wagon.http.ssl.insecure=true
-```
-
-If you want to permanently set this, add the following to your `.bash_profile`:
-
-```bash
-export GRADLE_OPTS="-Dmaven.wagon.http.ssl.insecure=true $GRADLE_OPTS"
-```
 
 ### Docker Builds
 
