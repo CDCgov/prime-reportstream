@@ -10,6 +10,10 @@ receivers:
     translation:
       type: HL7
       useBatchHeaders: true
+      receivingApplicationName: vCMR
+      receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+      receivingFacilityName: WEDSS
+      receivingFacilityOID: 2.16.840.1.113883.3.33
     jurisdictionalFilter:
       - "orEquals(ordering_facility_state, WI, patient_state, WI)"
       - "matches(processing_mode_code, P)"
@@ -32,6 +36,10 @@ receivers:
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingApplicationName: vCMR
+        receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+        receivingFacilityName: WEDSS
+        receivingFacilityOID: 2.16.840.1.113883.3.33
       jurisdictionalFilter:
         - "orEquals(ordering_facility_state, WI, patient_state, WI)"
         - "matches(processing_mode_code, T)"

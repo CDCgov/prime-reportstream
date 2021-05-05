@@ -1433,6 +1433,10 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingApplicationName: vCMR
+        receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+        receivingFacilityName: WEDSS
+        receivingFacilityOID: 2.16.840.1.113883.3.33
       transport:
         type: SFTP
         host: 10.0.2.4
@@ -1452,6 +1456,10 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingApplicationName: vCMR
+        receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+        receivingFacilityName: WEDSS
+        receivingFacilityOID: 2.16.840.1.113883.3.33
       transport:
         type: SFTP
         host: 10.0.2.4
