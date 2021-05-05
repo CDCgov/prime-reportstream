@@ -7,7 +7,7 @@
 
 # This runs prime in a variety of ways on csv files and compare outputs to actuals
 
-outputdir=target/csv_test_files
+outputdir=build/csv_test_files
 expecteddir=./src/test/csv_test_files/expected
 expected_pima=$expecteddir/simplereport-pima.csv
 expected_az=$expecteddir/simplereport-az.csv
@@ -95,6 +95,15 @@ fi
 
 mkdir -p $outputdir
 
+function run_prime_cli {
+  # We need to pass the arguments as one string
+  args="$@"
+  output=$(./gradlew -q primeCLI --args="$args")
+  exit_value=$?
+  echo $output
+  return $exit_value
+}
+
 # Call this after calling .prime ... to generate output data.  Use this to parse the text output to extract the filename
 # Sets a global variable $filename to the last string that matches $match_string in the text $prime_output
 filename=0
@@ -107,7 +116,7 @@ function parse_prime_output_for_filename {
     if grep -q "Creating" <<< $name ; then
       ready=1
     fi
-    if [ $ready -eq 1 ] ; then 
+    if [ $ready -eq 1 ] ; then
       if grep -q $match_string <<< $name ; then
         # Force the removal of inserted whitespace and/or quotes in Windows with this echo.
         filename=`echo $name`
@@ -118,8 +127,8 @@ function parse_prime_output_for_filename {
 
   if [ -f $filename ] ; then
     printf "Data generation ${GREEN}TEST PASSED${NC}: successfully generated data file $filename\n"
-  else 
-    printf "${RED}*** ERROR ***: ./prime did not generate a file that matches $match_string${NC}\n"
+  else
+    printf "${RED}*** ERROR ***: prime did not generate a file that matches $match_string${NC}\n"
     printf "Output of Prime run is: $prime_output\n"
     exit
   fi
@@ -131,7 +140,7 @@ function compare_files {
   actual=$3
   diff $expected $actual >/dev/null
   retval=$?
-  if [ $retval -gt 0 ] ; then 
+  if [ $retval -gt 0 ] ; then
     printf "${RED}*** ERROR ***: DIFFERENCES FOUND for $schemaName.  Run this to see the diff:${NC}\n"
     printf "diff $expected $actual\n"
   else
@@ -155,7 +164,7 @@ function count_lines {
 if [ $RUN_STANDARD -ne 0 ]
 then
   echo First run our canned test file simplereport.csv thru the gauntlet
-  text=$(./prime data --input-schema $starter_schema --input ./src/test/csv_test_files/input/simplereport.csv --output-dir $outputdir --route)
+  text=$(run_prime_cli data --input-schema $starter_schema --input ./src/test/csv_test_files/input/simplereport.csv --output-dir $outputdir --route)
 fi
 
 # Note that we use both forward and back slash to be compatible with Windows and Linux/MAC paths.
@@ -178,26 +187,26 @@ then
   # Now read the data back in to their own schema and export again.
   # AZ again
   echo Test sending AZ data into its own Schema:
-  text=$(./prime data --input-schema az/az-covid-19 --input $actual_az --output-dir $outputdir)
+  text=$(run_prime_cli data --input-schema az/az-covid-19 --input $actual_az --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az2=$filename
   compare_files "AZ->AZ" $expected_az $actual_az2
 
   # Pima again
   echo Test sending Pima data into its own Schema:
-  text=$(./prime data --input-schema az/pima-az-covid-19 --input $actual_pima --output-dir $outputdir)
+  text=$(run_prime_cli data --input-schema az/pima-az-covid-19 --input $actual_pima --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima2=$filename
   compare_files "PIMA->PIMA" $expected_pima $actual_pima2
 
   echo And now generate some fake simplereport data
-  text=$(./prime data --input-fake 50 --input-schema $starter_schema --output-dir $outputdir)
+  text=$(run_prime_cli data --input-fake 50 --input-schema $starter_schema --output-dir $outputdir)
   parse_prime_output_for_filename "$text" "[/\\]pdi-covid-19"
   fake_data=$filename
 
   echo Now send that fake data thru the router.
   # Note that there's no actuals to compare to here.
-  text=$(./prime data --input-schema $starter_schema --input $fake_data --output-dir $outputdir --route)
+  text=$(run_prime_cli data --input-schema $starter_schema --input $fake_data --output-dir $outputdir --route)
   # Find the AZ file
   parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az3=$filename
@@ -208,14 +217,14 @@ then
   echo Now send _those_ results back in to their own schema and export again!
   # AZ again again.  This time we can compare the two actuals.
   echo Test sending AZ data generated from fake data into its own Schema:
-  text=$(./prime data --input-schema az/az-covid-19 --input $actual_az3 --output-dir $outputdir)
+  text=$(run_prime_cli data --input-schema az/az-covid-19 --input $actual_az3 --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $AZ_FILE_SEARCH_STR
   actual_az4=$filename
   compare_files "AZ->AZ" $actual_az3 $actual_az4
 
   # Pima again again.  Compare the two actuals
   echo Test sending Pima data generated from fake data into its own Schema:
-  text=$(./prime data --input-schema az/pima-az-covid-19 --input $actual_pima3 --output-dir $outputdir)
+  text=$(run_prime_cli data --input-schema az/pima-az-covid-19 --input $actual_pima3 --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $PIMA_FILE_SEARCH_STR
   actual_pima4=$filename
   compare_files "PIMA->PIMA" $actual_pima3 $actual_pima4
@@ -227,29 +236,29 @@ then
   numitems=5
   echo Merge testing.  First, generate some fake STRAC data
    # Hack: put some unique strings in each one, so we can count lines.
-  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties lilliput)
+  text=$(run_prime_cli data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties lilliput)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake1=$filename
 
   echo More fake STRAC data
-  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties brobdingnag)
+  text=$(run_prime_cli data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties brobdingnag)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake2=$filename
 
   echo 3rd file of fake STRAC data
-  text=$(./prime data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties houyhnhnm)
+  text=$(run_prime_cli data --input-fake $numitems --input-schema strac/strac-covid-19 --output-dir $outputdir --target-counties houyhnhnm)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   fake3=$filename
 
   echo Now testing merge:
-  text=$(./prime data --merge $fake1,$fake2,$fake3 --input-schema strac/strac-covid-19 --output-dir $outputdir )
+  text=$(run_prime_cli data --merge $fake1,$fake2,$fake3 --input-schema strac/strac-covid-19 --output-dir $outputdir)
   parse_prime_output_for_filename "$text" $STRAC_FILE_SEARCH_STR
   merged_file=$filename
 
   count_lines $merged_file brobdingnag $numitems
   count_lines $merged_file lilliput $numitems
   count_lines $merged_file houyhnhnm $numitems
-  let total=($numitems \* 3)+1 
+  let total=($numitems \* 3)+1
   # All the lines should have a comma
   count_lines $merged_file , $total
 fi
@@ -260,7 +269,7 @@ then
   FL_FILE_SEARCH_STR="[/\\]fl.*\.hl7"
   # FLORIDA, MAN
   echo Generate fake FL data
-  text=$(./prime data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-states FL --target-counties Broward --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema fl/fl-covid-19 --output-dir $outputdir --target-states FL --target-counties Broward --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" $FL_FILE_SEARCH_STR
 fi
 
@@ -269,7 +278,7 @@ if [ $RUN_GU -ne 0 ]
 then
   GU_FILE_SEARCH_STR="[/\\]gu.*\.hl7"
   echo Generate fake Guam data
-  text=$(./prime data --input-fake 50 --input-schema gu/gu-covid-19 --output-dir $outputdir --target-states GU --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema gu/gu-covid-19 --output-dir $outputdir --target-states GU --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" $GU_FILE_SEARCH_STR
 fi
 
@@ -278,7 +287,7 @@ if [ $RUN_LA -ne 0 ]
 then
   LA_FILE_SEARCH_STR="[/\\]cdcprime.*\.hl7"
   echo Generate synthetic LA data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --name-format APHL --output-receiving-org=LAOPH --target-states LA --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema la/la-covid-19 --output-dir $outputdir --name-format APHL --output-receiving-org=LAOPH --target-states LA --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "$LA_FILE_SEARCH_STR"
 fi
 
@@ -286,7 +295,7 @@ fi
 if [ $RUN_ND -ne 0 ]
 then
   echo Generate fake ND data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-states ND --target-counties Richland --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema nd/nd-covid-19 --output-dir $outputdir --target-states ND --target-counties Richland --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\]nd.*\.hl7"
 fi
 
@@ -294,14 +303,14 @@ fi
 if [ $RUN_NM -ne 0 ]
 then
   echo Generate fake NM data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-states NM --target-counties Hidalgo --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema nm/nm-covid-19 --output-dir $outputdir --target-states NM --target-counties Hidalgo --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\]nm.*\.hl7"
 fi
 
 if [ $RUN_OH -ne 0 ]
 then
   echo Generate fake OH data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema oh/oh-covid-19 --output-dir $outputdir --name-format OHIO --target-states OH --target-counties Ashtabula --output-format HL7_BATCH --suppress-qst-for-aoe)
+  text=$(run_prime_cli data --input-fake 50 --input-schema oh/oh-covid-19 --output-dir $outputdir --name-format OHIO --target-states OH --target-counties Ashtabula --output-format HL7_BATCH --suppress-qst-for-aoe)
   parse_prime_output_for_filename "$text" "[/\\]CDCPRIME.*\.hl7"
 fi
 
@@ -309,7 +318,7 @@ fi
 if [ $RUN_TX -ne 0 ]
 then
   echo Generate fake TX data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema tx/tx-covid-19 --output-dir $outputdir --target-states TX --target-counties Knox --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema tx/tx-covid-19 --output-dir $outputdir --target-states TX --target-counties Knox --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\]tx.*\.hl7"
 fi
 
@@ -317,7 +326,7 @@ fi
 if [ $RUN_VT -ne 0 ]
 then
   echo Generate fake VT data, HL7!
-  text=$(./prime data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-states VT --target-counties Essex --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema vt/vt-covid-19 --output-dir $outputdir --target-states VT --target-counties Essex --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\]vt.*\.hl7"
 fi
 
@@ -325,9 +334,9 @@ fi
 if [ $RUN_MT -ne 0 ]
 then
   echo Generate fake MT data, HL7 and CSV
-  text=$(./prime data --input-fake 50 --input-schema mt/mt-covid-19 --output-dir $outputdir --target-states MT --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema mt/mt-covid-19 --output-dir $outputdir --target-states MT --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\]mt.*\.hl7"
-  text=$(./prime data --input-fake 50 --input-schema mt/mt-covid-19-csv --output-dir $outputdir --target-states MT --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema mt/mt-covid-19-csv --output-dir $outputdir --target-states MT --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\]mt.*\.hl7"
 fi
 
@@ -335,7 +344,7 @@ fi
 if [ $RUN_NH -ne 0 ]
 then
   echo Generate fake NH data, HL7
-  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states NH --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states NH --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
 fi
 
@@ -343,7 +352,7 @@ fi
 if [ $RUN_MA -ne 0 ]
 then
   echo Generate fake MA data, HL7
-  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states MA --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states MA --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
 fi
 
@@ -351,7 +360,7 @@ fi
 if [ $RUN_AL -ne 0 ]
 then
   echo Generate fake AL data, HL7
-  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states AL --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states AL --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
 fi
 
@@ -359,7 +368,7 @@ fi
 if [ $RUN_MI -ne 0 ]
 then
   echo Generate fake MI data, HL7
-  text=$(./prime data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states MI --output-format HL7_BATCH)
+  text=$(run_prime_cli data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states MI --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
 fi
 
@@ -367,7 +376,7 @@ fi
 if [ $RUN_CA -ne 0 ]
 then
   echo Generate fake CA data, CSV!
-  text=$(./prime data --input-fake 50 --input-schema ca/ca-scc-covid-19 --output-dir $outputdir --target-states CA --target-counties 'Santa Clara' --output-format CSV)
+  text=$(run_prime_cli data --input-fake 50 --input-schema ca/ca-scc-covid-19 --output-dir $outputdir --target-states CA --target-counties "\'Santa Clara\'" --output-format CSV)
   parse_prime_output_for_filename "$text" "[/\\]ca.*\.csv"
 fi
 
@@ -375,11 +384,11 @@ fi
 if [ $RUN_WATERS -ne 0 ]
 then
   echo Generate fake WATERS data, CSV!
-  text=$(./prime data --input-fake 50 --input-schema waters/waters-covid-19 --output-dir $outputdir --target-states CA --target-counties 'Santa Clara' --output-format CSV)
+  text=$(run_prime_cli data --input-fake 50 --input-schema waters/waters-covid-19 --output-dir $outputdir --target-states CA --target-counties "\'Santa Clara\'" --output-format CSV)
   parse_prime_output_for_filename "$text" "[/\\]waters.*\.csv"
   actual_waters=$filename
   echo Test sending WATERS data into its own Schema again:
-  text=$(./prime data --input-schema waters/waters-covid-19 --input $actual_waters --output-dir $outputdir)
+  text=$(run_prime_cli data --input-schema waters/waters-covid-19 --input $actual_waters --output-dir $outputdir)
   parse_prime_output_for_filename "$text" "[/\\]waters.*\.csv"
 fi
 

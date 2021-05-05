@@ -1,5 +1,6 @@
 ---
 permalink: "{{ page.filePathStem }}.html" # prefer named files, not blog-like permalinks
+hide_signin: false
 cdn_styles:
   - href: "https://global.oktacdn.com/okta-signin-widget/5.5.2/css/okta-sign-in.min.css"
     integrity: "sha384-4AU/gyygVPVvyhusYR7zfD/dqlzjJ43STE4S8LYxeJtSgO43of15iAuMLhEUhqOt"
@@ -15,29 +16,35 @@ cdn_scripts:
     integrity: "sha384-LQc6P0tjydf0IS2VO/iGZcRhIK1mYatxhr+EGHA361ABtAiPhLj0Y9H6zAqto47a"
   - src: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
     integrity: "sha384-Uz1UHyakAAz121kPY0Nx6ZGzYeUTy9zAtcpdwVmFCEwiTGPA2K6zSGgkKJEQfMhK"
-  - src: "https://cdn.jsdelivr.net/npm/chart.js"
-    integrity: "sha384-/+iqJUd0dTB/2ceveEeW2ixZYSp3svjkH/0Bx9UxtkNpRmNFIb5qERuUw5Y52dh8"
   - src: "https://cdn.jsdelivr.net/npm/downloadjs@1.4.7/download.min.js"
     integrity: "sha384-fcq+FmM9tqGUeb2KuKl26ktwu/FxKAe200X+jtjXtbF3oCgVdr2GHQrC/+hZJJXg"
+  - src: "https://cdn.jsdelivr.net/npm/bowser@2.11.0/es5.min.js"
+    integrity: "sha384-R0OpnAeG8y80/p5oJlW9wxH8P9Jg8vBS4YV9TEDjALMf45FLrfWXYh/044JjB0Ah"
+  - src: "https://unpkg.com/idle-timeout/dist/idle-timeout.min.js"
+    integrity: "sha384-pnYyqArzZ7HO4tSicFts5wXMpqb02zmd7pD66LSQpCR0ZeIOotIOq6ohF0lQFc1S"
+  - src: "https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js" 
+    integrity: "sha384-BqW9ZnUhs8B3bGaZeNfcY6qQnTHMeMu5/NsLjEoGGzY5eXVsGlTxQC18eAn5bY9z"
 
 post_scripts:
   - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/js/uswds.min.js"
     integrity: "sha512-WiP2mmg7ArMOV5qtm9TB85926NCnRhxwONQrZM1i2E7V2zwuOIrnqF/vmMfqhNdDJl7BP+5xFaXVzA6y5wTRtQ=="
-  - src: "js/process-claims.js"
 
 local_styles:
-  - "./assets/stylesheets/prime.css"
-  - "./assets/stylesheets/actions.css"
+  - "/assets/stylesheets/prime.css"
+  - "/assets/stylesheets/actions.css"
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
   {% include head_tags_universal %}
   {% include head_tags_styles_scripts %}
-  {% if protected %}
-    <script src="js/checkjwt.js"></script>
-    <script src="js/reports.js"></script>
+  {% if current == "web receiver guide" or current == "elr guide" %}
+  <script src="../../js/prime-web-receiver-pre.js"></script>
+  {% else %}
+  <script src="../js/prime-web-receiver-pre.js"></script>
   {% endif %}
+  
+
 </head>
 
 <body>
@@ -49,7 +56,7 @@ local_styles:
 
 <main id="main-content" {% if title == "index" %}class="padding-y-0"{% endif %}>
   {% if show_menu and documentation %}
-      {% include menu_documentation %}
+    {% include menu_documentation %}
   {% elsif show_menu %}
     {% include menu_settings %}
   {% else %}
@@ -57,11 +64,23 @@ local_styles:
   {% endif %}
 </main>
 
+{% if disclaimer %}
+  {% include disclaimer %}
+{% endif %}
+
 {% include identifier %}
 
   {% for entry in post_scripts %}
     <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
   {% endfor %}
 
+
 </body>
+
+{% if current == "web receiver guide" or current == "elr guide" %}
+<script src="../../js/prime-web-receiver-post.js"></script>
+{% else %}
+<script src="../js/prime-web-receiver-post.js"></script>
+{% endif %}
+
 </html>

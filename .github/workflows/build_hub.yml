@@ -65,24 +65,17 @@ jobs:
           distribution: 'adopt'
           java-version: 11
 
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('prime-router/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
-
-      - name: Build Maven Package
-        run: mvn -B clean package --file pom.xml -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
+      - name: Build Prime Router Package
+        run: bash ./gradlew clean package -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
 
-      - name: Save Build Target
+      - name: Save Build Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: build_target
-          path: prime-router/target
+          path: prime-router/build
 
   update_docs:
     name: Verify Router Docs
@@ -109,13 +102,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build_target
-          path: prime-router/target
+          path: prime-router/build
 
       - name: Generate New Docs
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          ./prime generate-docs
+          # Need to skip DB source generation as we do not have a database but the source is part of the artifacts
+          bash ./gradlew primeCLI --args='generate-docs' --exclude-task generateJooq
 
       - name: Check for Uncommited Docs
         id: check_changes
@@ -147,7 +141,7 @@ jobs:
           body: |
             The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
 
-            Please run `./prime generate-docs` to generate updated documentation, then commit the results.
+            Please run `./gradlew primeCLI --args='generate-docs'` to generate updated documentation, then commit the results.
 
             Expected changes in files:
 

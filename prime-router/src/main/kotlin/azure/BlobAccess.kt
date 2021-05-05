@@ -42,7 +42,7 @@ class BlobAccess(
             Report.Format.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
             // HL7 needs some additional configuration we set on the translation in organization
             Report.Format.HL7 -> hl7Serializer.write(report, outputStream, report.destination?.translation)
-            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream, report.destination?.translation)
+            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
             Report.Format.CSV -> csvSerializer.write(report, outputStream)
             Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }
@@ -105,7 +105,6 @@ class BlobAccess(
 
     fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
         val blobConnection = System.getenv(blobConnEnvVar)
-        logger.error("getBlobContainer: Env var $blobConnEnvVar is ${blobConnection.substring(0,50)}")
         val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
         val containerClient = blobServiceClient.getBlobContainerClient(name)
         if (!containerClient.exists()) containerClient.create()
@@ -114,7 +113,6 @@ class BlobAccess(
 
     fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
         val blobConnection = System.getenv(blobConnEnvVar)
-        logger.info("getBlobClient: Env var $blobConnEnvVar is ${blobConnection.substring(0,75)}")
         return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
     }
 

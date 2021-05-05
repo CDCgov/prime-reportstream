@@ -50,13 +50,13 @@ The name of the facility which the test was ordered from
 
 **Type**: TELEPHONE
 
-**HL7 Fields**: ORC-14, OBR-17
+**HL7 Field**: ORC-23
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-The phone number of the provider
+The phone number of the facility which the test was ordered from
 
 ---
 
@@ -544,6 +544,21 @@ Code | Display
 260373001|Detected
 260415000|Not detected
 455371000124106|Invalid result
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Alt Value Sets**
 
@@ -552,6 +567,21 @@ Code | Display
 260373001|positive
 260415000|negative
 455371000124106|invalid
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 
@@ -771,7 +801,7 @@ Z|No record of this patient
 
 **Type**: TEXT
 
-**HL7 Field**: OBX-23-1
+**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1
 
 **Cardinality**: [0..1]
 
@@ -798,5 +828,36 @@ The name of the laboratory which performed the test, can be the same as the send
 **HL7 Field**: PID-3-5
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: message_id
+
+**Type**: ID
+
+**HL7 Field**: MSH-10
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
+
+---
+
+**Name**: testing_lab_clia
+
+**Type**: ID_CLIA
+
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+CLIA Number from the laboratory that sends the message to DOH
+
+An example of the ID is 03D2159846
+
 
 ---
