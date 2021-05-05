@@ -65,6 +65,15 @@ tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
     dependsOn("compileKotlin")
+    outputs.upToDateWhen { 
+        // Call gradle with the -Pforcetest option will force the unit tests to run
+        if (project.hasProperty("forcetest")) {
+            println("Rerunning unit tests...")
+            false
+        } else {
+            true
+        }
+    }
 }
 
 tasks.processResources {

@@ -208,6 +208,12 @@ Unit tests are run as part of the build.  To run the unit tests, run the followi
 ./gradlew test
 ```
 
+Sometimes you want to force the unit tests to run.   You can do that with the -Pforcetest option, like one of these examples:
+```
+./gradlew test -P forcetest
+./gradlew package -P forcetest
+```
+
 ### Data Conversion Quick Test
 The quick test is meant to test the data conversion and generation code.  Use the following command to run all quick tests.  On Windows OS, use Git Bash or similar Linux shell to run this command.
 ```
