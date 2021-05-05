@@ -322,6 +322,31 @@ async function processReport( reports ){
                             <h4 class="text-base margin-bottom-0">Download expires</h4>
                             <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>`;
+        const facilities = document.getElementById( "tBodyFac");
+        if( facilities ){
+            report.facilities.forEach( reportFacility => {
+                facilities.innerHTML += 
+                    `
+                    <tr>
+                        <td>${reportFacility.facility}</td>
+                        <td>${reportFacility.CLIA}</td>
+                        <td>${reportFacility.total}</td>
+                    </tr>
+                    `;
+            });
+        }
+       
+        const noFac = document.getElementById( 'nofacilities' );
+        const facTable = document.getElementById( 'facilitiestable');
+
+
+        if( report.facilities.length ){
+            if( noFac ) noFac.setAttribute( "hidden", "hidden" );    
+        }
+        else{
+            if( facTable ) facTable.setAttribute( "hidden", "hidden" );
+        }
+
         const reportId = document.getElementById("report.id");
         if (reportId) reportId.innerHTML = report.reportId;
         const download = document.getElementById("download");

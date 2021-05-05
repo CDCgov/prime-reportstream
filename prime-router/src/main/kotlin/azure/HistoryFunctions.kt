@@ -223,7 +223,7 @@ class GetSummary: BaseHistoryFunction() {
 
 open class BaseHistoryFunction {
 
-    val DAYS_TO_SHOW = 7L
+    val DAYS_TO_SHOW = 30L
     val workflowEngine = WorkflowEngine()
 
     fun GetReports(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
@@ -239,9 +239,12 @@ open class BaseHistoryFunction {
             var reports = headers.sortedByDescending{ it.createdAt }.map {
 
                 var facilities = arrayListOf<Facility>();
-                /*if( it.bodyFormat == "CSV")
-                    facilities = getFieldSummaryForReportId(arrayOf("Testing_lab_name","Testing_lab_CLIA"),it.reportId.toString(), authClaims)
-                */
+                if( it.bodyFormat == "CSV")
+                    try{ 
+                        facilities = getFieldSummaryForReportId(arrayOf("Testing_lab_name","Testing_lab_CLIA"),it.reportId.toString(), authClaims)
+                    }catch( ex: Exception ){
+                        context.logger.log( Level.WARNING, "Exception during getFieldSummaryForReportId", ex );
+                    }
 
                 var actions = getActionsForReportId( it.reportId.toString(), authClaims );
 
