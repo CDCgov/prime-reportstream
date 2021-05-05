@@ -342,8 +342,8 @@
         initialTime: 01:15
         timeZone: EASTERN
       transport:
-        type: SFTP_LEGACY
-        host: sftp-edts.hhs.texas.gov
+        type: SFTP
+        host: sftp.hhs.texas.gov
         port: 22
         filePath: ./USDS_IN
 

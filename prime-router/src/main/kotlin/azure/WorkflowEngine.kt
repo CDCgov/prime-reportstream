@@ -23,7 +23,6 @@ import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
-import gov.cdc.prime.router.transport.SftpLegacyTransport
 import gov.cdc.prime.router.transport.SftpTransport
 import org.jooq.Configuration
 import org.jooq.Field
@@ -51,7 +50,6 @@ class WorkflowEngine(
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess(),
     val sftpTransport: SftpTransport = SftpTransport(),
-    val legacySftpTransport: SftpLegacyTransport = SftpLegacyTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(),
     val nullTransport: NullTransport = NullTransport(),
@@ -158,7 +156,7 @@ class WorkflowEngine(
                 txn
             )
         }
-        if (nextEvent != null)  queue.sendMessage(nextEvent!!) // Avoid race condition by doing after txn completes.
+        if (nextEvent != null) queue.sendMessage(nextEvent!!) // Avoid race condition by doing after txn completes.
     }
 
     /**
