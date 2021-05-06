@@ -79,7 +79,7 @@ class SendFunctionTests {
 
     private fun makeHeader(retryToken: String? = null): WorkflowEngine.Header {
         val newTask = Task(task)
-        newTask.retryToken = JSON.json(retryToken)
+        newTask.retryToken = JSON.valueOf(retryToken)
         return WorkflowEngine.Header(
             newTask,
             reportFile,
