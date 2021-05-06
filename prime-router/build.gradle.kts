@@ -28,6 +28,7 @@ description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
+azurefunctions.appName = azureAppName
 
 // Local database information
 val dbUser = (project.properties["DB_USER"] ?: "prime") as String
@@ -140,17 +141,6 @@ tasks.register<JavaExec>("generateDocs") {
     main = primeMainClass
     classpath = sourceSets["main"].runtimeClasspath
     args = listOf("generate-docs")
-}
-
-azurefunctions {
-    appName = azureAppName
-    setAppSettings(
-        closureOf<MutableMap<String, String>> {
-            this["WEBSITE_RUN_FROM_PACKAGE"] = "1"
-            this["FUNCTIONS_EXTENSION_VERSION"] = "3"
-            this["FUNCTIONS_WORKER_RUNTIME"] = "java"
-        }
-    )
 }
 
 tasks.azureFunctionsPackage {
