@@ -18,8 +18,18 @@
     senders:
       - name: default
         organizationName: waters
-        topic: covid-19-otc
+        topic: covid-19
         schemaName: waters/waters-covid-19
+        format: CSV
+
+  - name: im
+    description: Test Sender
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: im
+        topic: covid-19
+        schemaName: waters/im-covid-19
         format: CSV
 
   - name: strac
@@ -47,57 +57,11 @@
     jurisdiction: STATE
     stateCode: AZ
     receivers:
-      - name: elr-test
-        organizationName: az-phd
-        topic: covid-19
-        jurisdictionalFilter:
-          - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
-        timing:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialTime: 00:00
-          timeZone: ARIZONA
-        transport:
-          type: SFTP
-          host: sftp
-          port: 22
-          filePath: ./upload
-        translation:
-          type: CUSTOM
-          schemaName: az/az-covid-19
-          format: CSV
-      - name: elr-hl7-test
-        organizationName: az-phd
-        topic: covid-19
-        jurisdictionalFilter:
-          - matches(ordering_facility_state,AZ)
-          - "doesNotMatch(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
-        deidentify: false
-        translation:
-          type: HL7
-          useBatchHeaders: true
-          receivingApplicationName: AZ.DOH.ELR
-          receivingApplicationOID: 2.16.840.1.114222.4.3.3.2.9.3
-          receivingFacilityName: AZDOH
-          receivingFacilityOID: 2.16.840.1.114222.4.1.142
-          messageProfileId: AZELRIG^ADHS^2.16.840.1.113883.9.31^ISO
-        timing:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialTime: 00:00
-          timeZone: ARIZONA
-        transport:
-          type: SFTP
-          host: sftp
-          port: 22
-          filePath: ./upload
       - name: elr-prod
         organizationName: az-phd
         topic: covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state,AZ)
-          - "matches(ordering_facility_name,Tucson Mountains,Tucson Foothills,Sierra Vista Canyons)"
         translation:
           type: CUSTOM
           schemaName: az/az-covid-19
@@ -452,7 +416,7 @@
         organizationName: tx-doh
         topic: covid-19
         jurisdictionalFilter:
-          - matches(ordering_facility_state, TX)
+          - orEquals(ordering_facility_state, TX, patient_state, TX)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -463,7 +427,7 @@
           type: SFTP
           host: sftp
           port: 22
-          filePath: ./upload
+          filePath: ./
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -590,9 +554,37 @@
         topic: covid-19
         jurisdictionalFilter:
           - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, P)
         translation:
           type: HL7
           useBatchHeaders: true
+          receivingApplicationName: vCMR
+          receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+          receivingFacilityName: WEDSS
+          receivingFacilityOID: 2.16.840.1.113883.3.33
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+      - name: elr-test
+        organizationName: wi-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, T)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: vCMR
+          receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+          receivingFacilityName: WEDSS
+          receivingFacilityOID: 2.16.840.1.113883.3.33
         transport:
           type: SFTP
           host: sftp
@@ -1007,7 +999,7 @@
     receivers:
     - name: "elr"
       organizationName: "hhsprotect"
-      topic: "covid-19-otc"
+      topic: "covid-19"
       translation:
         type: "CUSTOM"
         schemaName: "waters/waters-covid-19"
@@ -1043,7 +1035,7 @@
         format: CSV
       - name: ignore-waters      # Use this to test sending waters data
         organizationName: ignore
-        topic: covid-19-otc
+        topic: covid-19
         schemaName: waters/waters-covid-19
         format: CSV
       - name: ignore-empty      # Use this to test sending data from the 'empty' schema
@@ -1139,28 +1131,9 @@
           format: HL7
         transport:
           type: "NULL"
-      - name: SFTP_LEGACY
-        organizationName: ignore
-        topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_LEGACY)" ]
-        timing:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialTime: 00:00
-        translation:
-          useBatchHeaders: true
-          type: HL7
-          schemaName: tx/tx-covid-19
-          receivingApplicationName: NEDSS
-          receivingFacilityName: SFTP_LEGACY
-        transport:
-          type: SFTP_LEGACY
-          host: sftp
-          port: 22
-          filePath: ./upload
       - name: BLOBSTORE
         organizationName: ignore
-        topic: covid-19-otc
+        topic: covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
         timing:
           operation: MERGE

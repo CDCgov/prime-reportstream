@@ -65,6 +65,20 @@ tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
     dependsOn("compileKotlin")
+    // Run the test task if specified configuration files are changed
+    inputs.files(fileTree("./") {
+        include("settings/**/*.yml")
+        include("metadata/**/*")
+    })
+    outputs.upToDateWhen { 
+        // Call gradle with the -Pforcetest option will force the unit tests to run
+        if (project.hasProperty("forcetest")) {
+            println("Rerunning unit tests...")
+            false
+        } else {
+            true
+        }
+    }
 }
 
 tasks.processResources {
@@ -82,6 +96,7 @@ tasks.jar {
         /* We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
         run by the ./prime script. It will be overwritten by the Azure host or the CLI fat jar package. */
         attributes("Main-Class" to primeMainClass)
+        attributes("Multi-Release" to true)
     }
 }
 
@@ -117,6 +132,14 @@ tasks.register<JavaExec>("testEnd2End") {
     classpath = sourceSets["main"].runtimeClasspath
     args = listOf("test", "--run", "end2end")
     environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
+}
+
+tasks.register<JavaExec>("generateDocs") {
+    group = rootProject.description ?: ""
+    description = "Generate the schema documentation in markup format"
+    main = primeMainClass
+    classpath = sourceSets["main"].runtimeClasspath
+    args = listOf("generate-docs")
 }
 
 azurefunctions {
@@ -311,6 +334,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.flywaydb:flyway-core:7.8.2")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
+    implementation("org.commonmark:commonmark:0.17.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

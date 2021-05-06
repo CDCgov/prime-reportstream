@@ -23,7 +23,6 @@ import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
-import gov.cdc.prime.router.transport.SftpLegacyTransport
 import gov.cdc.prime.router.transport.SftpTransport
 import org.jooq.Configuration
 import org.jooq.Field
@@ -51,7 +50,6 @@ class WorkflowEngine(
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess(),
     val sftpTransport: SftpTransport = SftpTransport(),
-    val legacySftpTransport: SftpLegacyTransport = SftpLegacyTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(),
     val nullTransport: NullTransport = NullTransport(),
@@ -97,9 +95,17 @@ class WorkflowEngine(
         report: Report,
         actionHistory: ActionHistory,
         receiver: Receiver,
-        txn: Configuration? = null
+        txn: Configuration? = null,
+        context: ExecutionContext? = null
     ) {
-        val blobInfo = blob.uploadBody(report)
+        val blobInfo = try {
+            // formatting errors can occur down in here.
+            blob.uploadBody(report)
+        } catch (ex: Exception) {
+            context?.logger?.warning("Got exception while dispatching to schema ${report.schema.name}" +
+                ", and rcvr ${receiver.fullName}")
+            throw ex
+        }
         try {
             db.insertTask(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
             // todo remove this; its now tracked in BlobInfo
@@ -158,7 +164,7 @@ class WorkflowEngine(
                 txn
             )
         }
-        if (nextEvent != null)  queue.sendMessage(nextEvent!!) // Avoid race condition by doing after txn completes.
+        if (nextEvent != null) queue.sendMessage(nextEvent!!) // Avoid race condition by doing after txn completes.
     }
 
     /**

@@ -350,7 +350,6 @@ abstract class CoolTest {
         val hl7BatchReceiver = allGoodReceivers.filter { it.name == "HL7_BATCH" }[0]
         val redoxReceiver = allGoodReceivers.filter { it.name == "REDOX" }[0]
         val hl7NullReceiver = allGoodReceivers.filter { it.name == "HL7_NULL" }[0]
-        val sftpLegacyReceiver = allGoodReceivers.filter { it.name == "SFTP_LEGACY" }[0]
         val blobstoreReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "BLOBSTORE"
         }[0]
@@ -523,7 +522,7 @@ class Merge : CoolTest() {
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         // Remove HL7 - it does not merge   TODO write a notMerging test for HL7, but its similar to end2end
-        val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver, redoxReceiver, sftpLegacyReceiver)
+        val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver, redoxReceiver)
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
         val fakeItemCount = mergingReceivers.size * options.items
         ugly("Starting merge test:  Merge ${options.submits} reports, each of which sends to $allGoodCounties")

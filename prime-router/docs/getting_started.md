@@ -200,12 +200,23 @@ Looking at the log above, you may notice that container has a debug open at port
 
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
+## Updating Schema Documentation
+Run the following Gradle command to generate the schema documentation.  The documentation is written to `docs/schema-documentation`
+
+`./gradlew generateDocs`
+
 
 ## Testing
 ### Unit Tests
 Unit tests are run as part of the build.  To run the unit tests, run the following command:
 ```
 ./gradlew test
+```
+
+Sometimes you want to force the unit tests to run.   You can do that with the -Pforcetest option, like one of these examples:
+```
+./gradlew test -P forcetest
+./gradlew package -P forcetest
 ```
 
 ### Data Conversion Quick Test
@@ -222,7 +233,6 @@ End-to-end tests check if the deployed system is configured correctly.  The test
     ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass' 
     ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass' 
     ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass' 
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--SFTP-LEGACY --user foo --pass pass' 
     ```
 1. Run the Prime Router in the Docker container.
 1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:
@@ -256,19 +266,6 @@ By default, the functions will pull their configuration for organizations from t
 
 If your agency's network intercepts SSL requests, you might have to disable SSL verifications to get around invalid certificate errors.
 
-### Maven Builds
-
-For Maven builds, you can add the parameter `-Dmaven.wagon.http.ssl.insecure=true` as follows:
-
-```bash
-./gradlew package -Dmaven.wagon.http.ssl.insecure=true
-```
-
-If you want to permanently set this, add the following to your `.bash_profile`:
-
-```bash
-export GRADLE_OPTS="-Dmaven.wagon.http.ssl.insecure=true $GRADLE_OPTS"
-```
 
 ### Docker Builds
 
