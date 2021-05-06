@@ -1,0 +1,76 @@
+---
+layout: protected.liquid
+title: Security practices
+permalink: "{{ site.documentationPath}}{{ title | slug }}/"
+protected: false
+show_navbar: true
+documentation: true
+show_menu: true
+current: "security practices"
+---
+<section id="anchor-top">
+  <h1 class="margin-top-0">Security practices questions and answers</h1>
+  <a href="{{ site.pdfPath }}ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf"
+    class="usa-button usa-button--outline">Download this guide</a>
+</section>
+<hr class="margin-y-6" />
+<section>
+  <h2>What Security Audits, Certifications and Attestations does ReportStream have?</h2>
+  <p>As a project of the US Federal government, PRIME ReportStream follows the provisions of the Federal Information System Modernization Act of 2014.  FISMA requires federal agencies to implement information security plans to protect sensitive data.</p>
+  <p>FISMA and the National Institute of Standards and Technology (NIST) set the FISMA compliance guidelines. NIST is responsible for maintaining and updating the compliance documents as directed by FISMA. More specifically, NIST and the NIST SP 800-53 guideline:</p>
+  <ul>
+    <li>
+      Sets minimum requirements for information security plans and procedures.
+    </li>
+    <li>
+      Recommends types of security (systems, software, etc.) that agencies must implement and approves vendors.
+    </li>
+    <li>
+      Standardizes risk assessment process and sets varying standards of information security based on agency risk assessments.
+    </li>
+  </ul>
+  <p>As part of the FISMA process, PRIME ReportStream has a full authority to operate (ATO). This authority was granted by CDC’s Chief Information Officer/Authorizing Official after an extensive review process that includes documenting over 500 security controls, reviews by multiple teams, and penetration testing by third-parties.</p>
+  <p>The following link contains more information about the FISMA process and <a href="https://csrc.nist.gov/projects/risk-management" class="usa-link" target="_blank" rel="noopener">NIST guidance: NIST Risk Management Framework | CSRC</a></p>
+</section>
+<section>
+  <h2>Is ReportStream FedRAMP approved?</h2>
+  <p>Federal information systems like ReportStream are not in the scope of the Federal Risk and Authorization Management Program (FedRAMP), which is for vendors that sell cloud products or services to the Federal government.  However, as mentioned above, ReportStream follows the FISMA law and both FISMA and FedRAMP share the same NIST security guidelines and standards.     </p>
+
+  <h2>How is ReportStream hosted?</h2>
+  <p>The PRIME ReportStream service is hosted in a secured FedRAMP-accredited environment. </p>
+
+  <h2>Is data encrypted in transit?</h2>
+  <p>All data is encrypted in transit.  ReportStream also uses data-in-transit encryption for connections to send test results to states.</p>
+
+  <h2>Is data encrypted at rest? </h2>
+  <p>All data is encrypted when stored using facilities of the secured FedRAMP-accredited environment.</p>
+</section>
+<section>
+
+
+  <h4>Account management</h4>
+  <p>ReportStream will manually manage user accounts for your team. To add or remove team members, email us at <a
+      href="mailto:{{ site.orgs.RS.email }}" class="usa-link">{{ site.orgs.RS.email }}</a>.</p>
+
+    <h4>Password reset</h4>
+    <ul>
+      <li>If you forgot your password, follow the instructions under "Need help signing in?" on the login page at <a
+          href="/sign-in/" class="usa-link">reportsream.cdc.gov/sign-in</a>.</li>
+      <li>If you want to update your password, log out of the application and use the password reset process outlined
+        above.</li>
+    </ul>
+
+    <h4>Data retention</h4>
+    <p>Due to the presence of personally identifiable information or personal health information, ReportStream will not
+      be a permanent repository for reported test data.</p>
+    <p>Each day's report will be held for 30 days, and will be accessible through the application for the duration of
+      that period. After 30 days has passed for an individual report, the file will be permanently deleted and will
+      not be recoverable.</p>
+    <p>Please download data and ingest it into your systems as soon as possible.</p>
+
+    <h4>Support</h4>
+    <p>Do you have questions, problems, or bugs to report? Email the team at <a href="mailto:{{ site.orgs.RS.email }}"
+        class="usa-link">{{ site.orgs.RS.email }}</a> for help.</p>
+
+    <p class="margin-top-8"><a href="#anchor-top" class="usa-link">Back to top</a></p>
+</section>
