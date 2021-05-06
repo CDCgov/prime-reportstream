@@ -1,7 +1,7 @@
 ---
 name: waters-covid-19
 description: WATERS OTC,POC COVID-19 flat file
-topic: covid-19-otc
+topic: covid-19
 trackingElement: message_id
 basedOn: covid-19
 elements:
@@ -147,7 +147,7 @@ elements:
 
   # Need to override the mapper in covid-19.schema file.
   - name: specimen_id
-    mapper:
+    mapper: use(specimen_id)
     csvFields: [{ name: specimenId}]
 
   # Barcode or QR code.  Unique within one manufacturer.
