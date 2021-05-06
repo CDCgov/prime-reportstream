@@ -65,6 +65,11 @@ tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
     dependsOn("compileKotlin")
+    // Run the test task if specified configuration files are changed
+    inputs.files(fileTree("./") {
+        include("settings/**/*.yml")
+        include("metadata/**/*")
+    })
     outputs.upToDateWhen { 
         // Call gradle with the -Pforcetest option will force the unit tests to run
         if (project.hasProperty("forcetest")) {
