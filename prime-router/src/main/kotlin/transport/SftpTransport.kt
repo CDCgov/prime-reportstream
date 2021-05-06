@@ -138,16 +138,11 @@ class SftpTransport : ITransport, Logging {
             contents: ByteArray
         ) {
             try {
-                try {
-                    sshClient.newSFTPClient().use { client ->
-                        client.fileTransfer.preserveAttributes = false
-                        client.use {
-                            it.put(makeSourceFile(contents, fileName), "$path/$fileName")
-                        }
+                sshClient.newSFTPClient().use { client ->
+                    client.fileTransfer.preserveAttributes = false
+                    client.use {
+                        it.put(makeSourceFile(contents, fileName), "$path/$fileName")
                     }
-
-                } finally {
-                    sshClient.disconnect()
                 }
             } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
                 // if the timeout happens on disconnect it gets wrapped up in the connectException
