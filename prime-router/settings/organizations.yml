@@ -18,7 +18,7 @@
     senders:
       - name: default
         organizationName: waters
-        topic: covid-19-otc
+        topic: covid-19
         schemaName: waters/waters-covid-19
         format: CSV
 
@@ -731,7 +731,7 @@
     receivers:
     - name: "elr"
       organizationName: "hhsprotect"
-      topic: "covid-19-otc"
+      topic: "covid-19"
       translation:
         type: "CUSTOM"
         schemaName: "waters/waters-covid-19"
@@ -767,7 +767,7 @@
         format: CSV
       - name: ignore-waters      # Use this to test sending waters data
         organizationName: ignore
-        topic: covid-19-otc
+        topic: covid-19
         schemaName: waters/waters-covid-19
         format: CSV
       - name: ignore-empty      # Use this to test sending data from the 'empty' schema
@@ -863,25 +863,6 @@
           format: HL7
         transport:
           type: "NULL"
-      - name: SFTP_LEGACY
-        organizationName: ignore
-        topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_LEGACY)" ]
-        timing:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialTime: 00:00
-        translation:
-          useBatchHeaders: true
-          type: HL7
-          schemaName: tx/tx-covid-19
-          receivingApplicationName: NEDSS
-          receivingFacilityName: SFTP_LEGACY
-        transport:
-          type: SFTP_LEGACY
-          host: sftp
-          port: 22
-          filePath: ./upload
       - name: BLOBSTORE
         organizationName: ignore
         topic: covid-19
