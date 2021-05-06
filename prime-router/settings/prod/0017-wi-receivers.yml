@@ -54,5 +54,5 @@ receivers:
       transport:
         host: "slhsftp.slh.wisc.edu"
         port: "2022"
-        filePath: "./Wisconsin_Prime/prod/incoming"
+        filePath: "./Wisconsin_Prime/test/incoming"
         type: "SFTP"
