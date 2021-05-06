@@ -18,8 +18,18 @@
     senders:
       - name: default
         organizationName: waters
-        topic: covid-19-otc
+        topic: covid-19
         schemaName: waters/waters-covid-19
+        format: CSV
+
+  - name: im
+    description: Test Sender
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: im
+        topic: covid-19
+        schemaName: waters/im-covid-19
         format: CSV
 
   - name: strac
@@ -544,9 +554,37 @@
         topic: covid-19
         jurisdictionalFilter:
           - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, P)
         translation:
           type: HL7
           useBatchHeaders: true
+          receivingApplicationName: vCMR
+          receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+          receivingFacilityName: WEDSS
+          receivingFacilityOID: 2.16.840.1.113883.3.33
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+      - name: elr-test
+        organizationName: wi-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, T)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: vCMR
+          receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+          receivingFacilityName: WEDSS
+          receivingFacilityOID: 2.16.840.1.113883.3.33
         transport:
           type: SFTP
           host: sftp
@@ -961,7 +999,7 @@
     receivers:
     - name: "elr"
       organizationName: "hhsprotect"
-      topic: "covid-19-otc"
+      topic: "covid-19"
       translation:
         type: "CUSTOM"
         schemaName: "waters/waters-covid-19"
@@ -997,7 +1035,7 @@
         format: CSV
       - name: ignore-waters      # Use this to test sending waters data
         organizationName: ignore
-        topic: covid-19-otc
+        topic: covid-19
         schemaName: waters/waters-covid-19
         format: CSV
       - name: ignore-empty      # Use this to test sending data from the 'empty' schema
@@ -1095,7 +1133,7 @@
           type: "NULL"
       - name: BLOBSTORE
         organizationName: ignore
-        topic: covid-19-otc
+        topic: covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
         timing:
           operation: MERGE
