@@ -15,7 +15,6 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
-import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import java.io.Closeable
 import java.time.OffsetDateTime
@@ -62,56 +61,19 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 context.logger.warning("Send function received an unhandled action: $message")
                 return
             }
-            val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
             actionHistory.trackActionParams(message)
-            workflowEngine.handleReceiverEvent(event, maxFilesPerSession, actionHistory) { receiver, headers, txn ->
+            workflowEngine.handleReceiverEvent(event, maxFilesPerSession, actionHistory) { receiver, headers, _ ->
                 val nextRetryTokens = mutableListOf<RetryToken?>()
                 val type = receiver.transport
                 val session = if (type != null) getTransport(type)?.startSession(receiver) else null
-                session.use { session ->
+                session.use {
                     headers.forEach { header ->
-                        val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
-                        val inputReportId = header.reportFile.reportId
-                        actionHistory.trackExistingInputReport(inputReportId)
-                        val serviceName = receiver.fullName
-                        val nextRetryItems = mutableListOf<String>()
-                        if (receiver.transport == null) {
-                            actionHistory.setActionType(TaskAction.send_error)
-                            actionHistory.trackActionResult(
-                                "Not sending $inputReportId to $serviceName: No transports defined"
-                            )
-                        } else {
-                            val retryItems = retryToken?.items
-                            val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
-                            val nextRetry = getTransport(receiver.transport)?.send(
-                                header,
-                                sentReportId,
-                                retryItems,
-                                session,
-                                actionHistory
-                            )
-                            if (nextRetry != null) {
-                                nextRetryItems += nextRetry
-                            }
-                        }
-                        nextRetryTokens += formRetryToken(
-                            nextRetryItems, inputReportId, serviceName, retryToken, context, actionHistory
-                        )
+                        nextRetryTokens += sendReport(receiver, header, actionHistory, it, context)
                     }
                 }
                 // Any retryTokens?
                 if (nextRetryTokens.find { it != null } != null) {
-                    val retryCount = nextRetryTokens.maxOf { it?.retryCount ?: 0 }
-                    val nextActionAt = calculateRetryTime(retryCount)
-                    val nextAction = if (retryCount >= maxRetryCount)
-                        Event.EventAction.SEND_ERROR
-                    else
-                        Event.EventAction.SEND
-                    WorkflowEngine.ReceiverResult(
-                        nextRetryTokens,
-                        retryAction = nextAction,
-                        retryActionAt = nextActionAt
-                    )
+                    formReceiverResult(nextRetryTokens)
                 } else {
                     WorkflowEngine.successfulReceiverResult(headers)
                 }
@@ -144,18 +106,35 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         receiver: Receiver,
         header: WorkflowEngine.Header,
         actionHistory: ActionHistory,
-        retryToken: RetryToken?,
         session: Closeable?,
-    ): RetryItems? {
-        val retryItems = retryToken?.items
-        val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
-        if (receiver.transport == null) return null
-        return getTransport(receiver.transport)?.send(
-            header,
-            sentReportId,
-            retryItems,
-            session,
-            actionHistory,
+        context: ExecutionContext
+    ): RetryToken? {
+        val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
+        val inputReportId = header.reportFile.reportId
+        actionHistory.trackExistingInputReport(inputReportId)
+        val serviceName = receiver.fullName
+        val nextRetryItems = mutableListOf<String>()
+        if (receiver.transport == null) {
+            actionHistory.setActionType(TaskAction.send_error)
+            actionHistory.trackActionResult(
+                "Not sending $inputReportId to $serviceName: No transports defined"
+            )
+        } else {
+            val retryItems = retryToken?.items
+            val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
+            val nextRetry = getTransport(receiver.transport)?.send(
+                header,
+                sentReportId,
+                retryItems,
+                session,
+                actionHistory
+            )
+            if (nextRetry != null) {
+                nextRetryItems += nextRetry
+            }
+        }
+        return formRetryToken(
+            nextRetryItems, inputReportId, serviceName, retryToken, context, actionHistory
         )
     }
 
@@ -188,6 +167,20 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 RetryToken(nextRetryCount, nextRetryItems)
             }
         }
+    }
+
+    private fun formReceiverResult(nextRetryTokens: List<RetryToken?>): WorkflowEngine.ReceiverResult {
+        val retryCount = nextRetryTokens.maxOf { it?.retryCount ?: 0 }
+        val nextActionAt = calculateRetryTime(retryCount)
+        val nextAction = if (retryCount >= maxRetryCount)
+            Event.EventAction.SEND_ERROR
+        else
+            Event.EventAction.SEND
+        return WorkflowEngine.ReceiverResult(
+            nextRetryTokens,
+            retryAction = nextAction,
+            retryActionAt = nextActionAt
+        )
     }
 
     private fun calculateRetryTime(nextRetryCount: Int): OffsetDateTime {
