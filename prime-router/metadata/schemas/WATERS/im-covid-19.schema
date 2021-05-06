@@ -246,8 +246,10 @@ elements:
     csvFields: [{ name: orderingProviderAddress2}]
 
   # Added to cover fact that ordering_facility_state is missing
+  # All our states expect this column.
   - name: ordering_facility_state
-    mapper: use(ordering_provider_state)
+    type: BLANK
+#    mapper: use(ordering_provider_state)
 
 # Additional Fields not in IM sample, but maybe needed
 #
