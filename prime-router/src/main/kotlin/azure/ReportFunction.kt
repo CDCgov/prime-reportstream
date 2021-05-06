@@ -149,7 +149,7 @@ class ReportFunction {
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"))
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
 
-        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
+        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
         } else if (sender != null && sender.format.mimeType != contentType) {
@@ -281,7 +281,7 @@ class ReportFunction {
             validatedRequest.options == Options.SkipSend -> {
                 // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
-                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.timing != null && validatedRequest.options != Options.SendImmediately -> {
@@ -289,7 +289,7 @@ class ReportFunction {
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
                 val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
-                workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn)
+                workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.format == Report.Format.HL7 -> {
@@ -297,13 +297,13 @@ class ReportFunction {
                     .split()
                     .forEach {
                         val event = ReceiverEvent(Event.EventAction.SEND, receiver.fullName)
-                        workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn)
+                        workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn, context)
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
                 val event = ReceiverEvent(Event.EventAction.SEND, receiver.fullName)
-                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }

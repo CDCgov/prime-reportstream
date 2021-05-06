@@ -239,7 +239,7 @@ open class BaseFunction(
         return handleRequest(request, organizationName ?: settingName) { claims ->
             val (result, outputBody) = when (request.httpMethod) {
                 HttpMethod.PUT -> {
-                    if (request.headers[HttpHeaders.CONTENT_TYPE.toLowerCase()] != HttpUtilities.jsonMediaType)
+                    if (request.headers[HttpHeaders.CONTENT_TYPE.lowercase()] != HttpUtilities.jsonMediaType)
                         return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("invalid media type"))
                     val body = request.body
                         ?: return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
@@ -302,7 +302,7 @@ open class BaseFunction(
 
     private fun getAccessToken(request: HttpRequestMessage<String?>): String? {
         // RFC6750 defines the access token
-        val authorization = request.headers[HttpHeaders.AUTHORIZATION.toLowerCase()] ?: return null
+        val authorization = request.headers[HttpHeaders.AUTHORIZATION.lowercase()] ?: return null
         return authorization.substringAfter("Bearer ", "")
     }
 

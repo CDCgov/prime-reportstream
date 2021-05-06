@@ -53,6 +53,8 @@ data class Hl7Configuration
     val defaultAoeToUnknown: Boolean = false,
     val useBlankInsteadOfUnknown: String? = null,
     val truncateHDNamespaceIds: Boolean = false,
+    val usePid14ForPatientEmail: Boolean = false,
+    val convertTimestampToDateTime: String? = null,
     override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?,
     // deprecated, please don't use
@@ -92,6 +94,13 @@ data class Hl7Configuration
             "message_profile_id" to (messageProfileId ?: ""),
             "reporting_facility" to reportingFacility
         )
+    }
+
+    @get:JsonIgnore
+    val processingModeCode: String get() = if (this.useTestProcessingMode) {
+        "T"
+    } else {
+        "P"
     }
 }
 

@@ -8,6 +8,7 @@ main {
   flex: 1;
   width: 100%;
   padding: 4rem 0;
+  border-top: 1px solid #dfe1e2;
 }
 
 .usa-banner__inner, .usa-banner__header--expanded .usa-banner__inner {
@@ -21,6 +22,10 @@ main {
 
 .usa-overlay {
   z-index: 300;
+}
+
+.usa-nav__close {
+  cursor: pointer;
 }
 
 .usa-nav__primary {
@@ -105,14 +110,17 @@ main {
   .usa-header--basic .usa-navbar {
     width: 100%;
     z-index: 200;
-    display: relative;
+    position: relative;
+    border-bottom: none;
   }
   .usa-nav__primary {
     width: 100%;
   }
   .prime-user-account {
+    width: 100%;
     text-align: left;
     margin-bottom: 2rem;
+    margin-left: 1rem;
   }
 }
 
@@ -173,8 +181,30 @@ main {
 h3 img[src*="svg"] {
   vertical-align: text-top;
   margin-right: 5px;
+  float: left;
 }
 
 #okta-sign-in {
   margin-top: 0;
+}
+
+.usa-prose > h1, .usa-prose > h2, .usa-intro {
+  font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
+}
+
+.rs-documentation ul li {
+  margin-bottom: 0.75rem;
+}
+
+.rs-documentation ul li ul li ul {
+  margin-top: 0.5rem;
+}
+
+.rs-documentation h3 {
+  margin-bottom: 0;
+  margin-top: 2rem;
+}
+
+.rs-documentation h4 {
+  margin-bottom: 0.5rem;
 }

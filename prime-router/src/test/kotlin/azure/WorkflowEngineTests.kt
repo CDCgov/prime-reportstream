@@ -82,7 +82,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.dispatchReport(event, report1, actionHistory, receiver)
+        engine.dispatchReport(event, report1, actionHistory, receiver, context = null)
 
         verify(exactly = 1) {
             accessSpy.insertTask(
@@ -120,7 +120,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.dispatchReport(event, report1, actionHistory, receiver)
+        engine.dispatchReport(event, report1, actionHistory, receiver, context = null)
 
         verify(exactly = 1) {
             accessSpy.insertTask(

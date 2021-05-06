@@ -1,0 +1,102 @@
+- name: ma-phd
+  description: Massachusetts Public Health Department
+  jurisdiction: STATE
+  stateCode: MA
+  receivers:
+    - name: elr
+      organizationName: ma-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, MA, patient_state, MA)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
+- name: nh-dphs
+  description: New Hampshire Division of Public Health Services
+  jurisdiction: STATE
+  stateCode: NH
+  receivers:
+    - name: elr
+      organizationName: nh-dphs
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, NH, patient_state, NH)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
+        receivingFacilityName: NH_DHHS
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3669
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
+- name: al-phd
+  description: Alabama Public Health Department
+  jurisdiction: STATE
+  stateCode: AL
+  receivers:
+    - name: elr
+      organizationName: al-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, AL, patient_state, AL)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
+- name: mi-phd
+  description: Michigan Public Health Department
+  jurisdiction: STATE
+  stateCode: MI
+  receivers:
+    - name: elr
+      organizationName: mi-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, MI, patient_state, MI)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: MDSS
+        receivingApplicationOID: 2.16.840.1.114222.4.3.2.2.3.161.1.6377
+        receivingFacilityName: MDSS
+        receivingFacilityOID: 2.16.840.1.114222.4.3.2.2.3.161.1.6377
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN

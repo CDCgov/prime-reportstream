@@ -17,7 +17,7 @@ resource "azurerm_frontdoor" "front_door" {
     name = local.name
     resource_group_name = var.resource_group
     enforce_backend_pools_certificate_name_check = true
-    backend_pools_send_receive_timeout_seconds = 30
+    backend_pools_send_receive_timeout_seconds = 90
     friendly_name = local.name
 
     backend_pool_load_balancing {

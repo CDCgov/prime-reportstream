@@ -22,7 +22,7 @@ The name of the facility which the test was ordered from
 
 **Type**: ID_CLIA
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3
+**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3
 
 **Cardinality**: [1..1]
 
@@ -101,7 +101,7 @@ The zip code of the facility which the test was ordered from
 
 **HL7 Field**: ORC-23
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -733,7 +733,7 @@ Code | Display
 
 **Type**: TABLE
 
-**HL7 Field**: OBX-17-1
+**HL7 Fields**: OBX-17-1, OBX-17-9
 
 **Cardinality**: [0..1]
 

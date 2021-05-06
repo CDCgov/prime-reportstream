@@ -21,6 +21,7 @@ import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
+import org.apache.logging.log4j.kotlin.logger
 import java.io.InputStream
 import java.io.StringReader
 
@@ -118,7 +119,7 @@ class SftpTransport : ITransport, Logging {
             val credentialLabel = receiverFullName
                 .replace(".", "--")
                 .replace("_", "-")
-                .toUpperCase()
+                .uppercase()
 
             // Assumes credential will be cast as SftpCredential, if not return null, and thus the error case
             return CredentialHelper.getCredentialService().fetchCredential(
@@ -136,27 +137,71 @@ class SftpTransport : ITransport, Logging {
             fileName: String,
             contents: ByteArray
         ) {
-            val client = sshClient.newSFTPClient()
-            client.fileTransfer.preserveAttributes = false
-            client.use {
-                it.put(makeSourceFile(contents, fileName), "$path/$fileName")
+            try {
+                try {
+                    sshClient.newSFTPClient().use { client ->
+                        client.fileTransfer.preserveAttributes = false
+                        client.use {
+                            it.put(makeSourceFile(contents, fileName), "$path/$fileName")
+                        }
+                    }
+
+                } finally {
+                    sshClient.disconnect()
+                }
+            } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
+                // if the timeout happens on disconnect it gets wrapped up in the connectException
+                // and we need to check the root cause
+                if (ce.cause is java.util.concurrent.TimeoutException) {
+                    // do nothing. some servers just take a long time to disconnect
+                    logger().warn("Connection exception during ls: ${ce.localizedMessage}")
+                } else {
+                    throw ce
+                }
             }
         }
 
         fun ls(sshClient: SSHClient, path: String): List<String> {
-            val client = sshClient.newSFTPClient()
-            client.use {
-                val lsResponse = it.ls(path)
-                return lsResponse.map { l -> l.toString() }.toList()
+            val lsResults = mutableListOf<String>()
+            try {
+                try {
+                    sshClient.use { sshClient ->
+                        sshClient.newSFTPClient().use {
+                            it.ls(path).map { l -> lsResults.add(l.toString()) }
+                        }
+                    }
+                } finally {
+                    sshClient.disconnect()
+                }
+            } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
+                // if the timeout happens on disconnect it gets wrapped up in the connectException
+                // and we need to check the root cause
+                if (ce.cause is java.util.concurrent.TimeoutException) {
+                    // do nothing. some servers just take a long time to disconnect
+                    logger().warn("Connection exception during ls: ${ce.localizedMessage}")
+                } else {
+                    throw ce
+                }
             }
+
+            return lsResults
         }
 
         fun pwd(sshClient: SSHClient): String {
-            val client = sshClient.newStatefulSFTPClient() as StatefulSFTPClient
-            sshClient.timeout = 120000
-            client.use {
-                return it.pwd()
+            var pwd = ""
+            try {
+                sshClient.newStatefulSFTPClient().use { client ->
+                    val statefulClient = client as StatefulSFTPClient
+                    sshClient.timeout = 120000
+                    statefulClient.use {
+                        pwd = it.pwd()
+                    }
+                }
+            } finally {
+                sshClient.disconnect()
             }
+
+            return pwd
         }
 
         private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {

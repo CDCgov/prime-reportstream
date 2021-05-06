@@ -210,13 +210,13 @@ class ProcessData : CliktCommand(
         metadata: Metadata,
         fileName: String
     ): Report {
-        val schemaName = inputSchema?.toLowerCase() ?: ""
+        val schemaName = inputSchema?.lowercase() ?: ""
         val schema = metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
         val csvSerializer = CsvSerializer(metadata)
-        return if (file.extension.toUpperCase() == "INTERNAL") {
+        return if (file.extension.uppercase() == "INTERNAL") {
             csvSerializer.readInternal(schema.name, file.inputStream(), listOf(FileSource(file.nameWithoutExtension)))
         } else {
             val result =
@@ -256,14 +256,22 @@ class ProcessData : CliktCommand(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
-
+                    // is this config HL7?
+                    val hl7Config = report.destination?.translation as? Hl7Configuration?
+                    // if it is, get the test processing mode
+                    val processingMode = if (hl7Config?.useTestProcessingMode == false) {
+                        "P"
+                    } else {
+                        "T"
+                    }
                     val fileName = Report.formFilename(
                         report.id,
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
                         getNameFormat(Report.NameFormat.STANDARD),
-                        receivingOrganization ?: report.destination?.translation?.receivingOrganization
+                        receivingOrganization ?: report.destination?.translation?.receivingOrganization,
+                        processingMode
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -435,8 +443,12 @@ class ProcessData : CliktCommand(
             when (format) {
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
                 Report.Format.CSV -> csvSerializer.write(report, stream)
-                Report.Format.HL7 -> hl7Serializer.write(report, stream, hl7Configuration)
-                Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream, hl7Configuration)
+                Report.Format.HL7 -> {
+                    hl7Serializer.write(report, stream)
+                }
+                Report.Format.HL7_BATCH -> {
+                    hl7Serializer.writeBatch(report, stream)
+                }
                 Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
@@ -524,6 +536,12 @@ class GenerateDocs : CliktCommand(
     private val outputHl7Elements by option(
         "--mapped-hl7-elements"
     ).flag(default = false)
+    private val generateHtml by option(
+        "--generate-html", help = "generate the HTML version of the documentation. Default is not to generate HTML."
+    ).flag("--no-generate-html", default = false)
+    private val generateMarkup by option(
+        "--generate-markup", help = "generate the markup version of the documentation.  Default is to generate markup."
+    ).flag("--no-generate-markup", default = true)
     private val outputFileName by option(
         "--output",
         metavar = "<path>",
@@ -538,7 +556,11 @@ class GenerateDocs : CliktCommand(
         .default(defaultOutputDir)
 
     fun generateSchemaDocumentation(metadata: Metadata) {
-        if (inputSchema.isNullOrBlank()) {
+        if (!generateMarkup && !generateHtml) {
+            println("Nothing generated.  You need to specify at least one type of output.")
+            return
+        }
+        else if (inputSchema.isNullOrBlank()) {
             println("Generating documentation for all schemas")
 
             // Clear the existing schema (we want to remove deleted schemas)
@@ -551,12 +573,14 @@ class GenerateDocs : CliktCommand(
                     it,
                     outputDir,
                     outputFileName,
-                    includeTimestamps
+                    includeTimestamps,
+                    generateMarkup,
+                    generateHtml
                 )
                 println(it.name)
             }
         } else {
-            val schemaName = inputSchema?.toLowerCase() ?: ""
+            val schemaName = inputSchema?.lowercase() ?: ""
             var schema = metadata.findSchema(schemaName)
             if (schema == null) {
                 echo("$schemaName not found. Did you mean one of these?")
@@ -568,7 +592,8 @@ class GenerateDocs : CliktCommand(
             if (outputHl7Elements) {
                 schema = buildMappedHl7Schema(schema)
             }
-            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps)
+            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps,
+                generateMarkup, generateHtml)
         }
     }
 

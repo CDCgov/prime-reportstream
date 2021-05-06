@@ -7,9 +7,11 @@
 <meta name="robots" content="none" />
 
 <title>
-  {% if title %}
-    {{ title }} | CDC PRIME ReportStream
+  {% if title and documentation %}
+  {{ title }} | Documentation | CDC PRIME ReportStream
+  {% elsif title %}
+  {{ title }} | CDC PRIME ReportStream
   {% else %}
-    CDC PRIME ReportStream
+  CDC PRIME ReportStream
   {% endif %}
 </title>

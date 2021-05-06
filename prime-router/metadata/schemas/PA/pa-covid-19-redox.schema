@@ -32,6 +32,10 @@ elements:
     mapper: lookup(ordering_provider_state, ordering_provider_county)
     redoxOutputFields: ["Orders[0].Provider.Address.County"]
 
+  # Yes, PA wants the facility phone number mapped to provider
+  - name: ordering_provider_phone_number
+    mapper: use(ordering_facility_phone_number)
+
   - name: ordering_facility_county
     redoxOutputFields: []
 
