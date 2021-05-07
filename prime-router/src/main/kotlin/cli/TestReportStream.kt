@@ -507,6 +507,8 @@ class End2End : CoolTest() {
             val tree = jacksonObjectMapper().readTree(json)
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
+            val topic = tree["topic"].textValue()
+            echo("Topic for client org sender: $topic")
             waitABit(25, environment)
             return examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
         } catch (e: NullPointerException) {

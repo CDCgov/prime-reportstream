@@ -317,6 +317,7 @@ class ReportFunction {
             it.writeStartObject()
             if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
+                it.writeStringField("topic", result.report.schema.topic.toString())
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
