@@ -22,7 +22,7 @@ cdn_scripts:
     integrity: "sha384-R0OpnAeG8y80/p5oJlW9wxH8P9Jg8vBS4YV9TEDjALMf45FLrfWXYh/044JjB0Ah"
   - src: "https://unpkg.com/idle-timeout/dist/idle-timeout.min.js"
     integrity: "sha384-pnYyqArzZ7HO4tSicFts5wXMpqb02zmd7pD66LSQpCR0ZeIOotIOq6ohF0lQFc1S"
-  - src: "https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js" 
+  - src: "https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"
     integrity: "sha384-BqW9ZnUhs8B3bGaZeNfcY6qQnTHMeMu5/NsLjEoGGzY5eXVsGlTxQC18eAn5bY9z"
 
 post_scripts:
@@ -38,12 +38,12 @@ local_styles:
 <head>
   {% include head_tags_universal %}
   {% include head_tags_styles_scripts %}
-  {% if current == "web receiver guide" or current == "elr guide" %}
+  {% if current == "web receiver guide" or current == "elr guide" or current == "security practices" %}
   <script src="../../js/prime-web-receiver-pre.js"></script>
   {% else %}
   <script src="../js/prime-web-receiver-pre.js"></script>
   {% endif %}
-  
+
 
 </head>
 
@@ -77,7 +77,7 @@ local_styles:
 
 </body>
 
-{% if current == "web receiver guide" or current == "elr guide" %}
+{% if current == "web receiver guide" or current == "elr guide" or current == "security practices" %}
 <script src="../../js/prime-web-receiver-post.js"></script>
 {% else %}
 <script src="../js/prime-web-receiver-post.js"></script>
