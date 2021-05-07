@@ -479,6 +479,7 @@
           receivingFacilityOID: 2.16.840.1.114222.4.1.185
           truncateHDNamespaceIds: true
           usePid14ForPatientEmail: true
+          suppressHl7Fields: OBX-18
         transport:
           type: SFTP
           host: sftp
@@ -504,8 +505,11 @@
         translation:
           type: HL7
           useBatchHeaders: true
-          receivingApplicationName: NJELR
-          receivingFacilityName: NJ-ELR
+          receivingApplicationName: ELRS
+          receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+          receivingFacilityName: NJDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.1299
+          truncateHDNamespaceIds: true
         transport:
           type: SFTP
           host: sftp
@@ -525,8 +529,11 @@
         translation:
           type: HL7
           useBatchHeaders: true
-          receivingApplicationName: NJELR
-          receivingFacilityName: NJ-ELR
+          receivingApplicationName: ELRS
+          receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+          receivingFacilityName: NJDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.1299
+          truncateHDNamespaceIds: true
         transport:
           type: SFTP
           host: sftp

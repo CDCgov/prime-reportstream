@@ -430,6 +430,7 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        suppressHl7Fields: OBX-18
       transport:
         type: SFTP
         host: 10.0.2.4
@@ -450,12 +451,15 @@
       organizationName: nj-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(ordering_facility_state, NJ)
+        - matches(ordering_facility_state, NJ, patient_state, NJ)
       translation:
         type: HL7
         useBatchHeaders: true
-        receivingApplicationName: NJELR
-        receivingFacilityName: NJ-ELR
+        receivingApplicationName: ELRS
+        receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+        receivingFacilityName: NJDOH
+        receivingFacilityOID: 2.16.840.1.113883.3.1299
+        truncateHDNamespaceIds: true
       transport:
         type: SFTP
         host: 10.0.2.4

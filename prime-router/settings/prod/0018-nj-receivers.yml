@@ -13,8 +13,11 @@
       translation:
         type: HL7
         useBatchHeaders: true
-        receivingApplicationName: NJELR
-        receivingFacilityName: NJ-ELR
+        receivingApplicationName: ELRS
+        receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+        receivingFacilityName: NJDOH
+        receivingFacilityOID: 2.16.840.1.113883.3.1299
+        truncateHDNamespaceIds: true
       transport:
         type: SFTP
         host: njgov.moveitcloud.com
@@ -34,8 +37,11 @@
       translation:
         type: HL7
         useBatchHeaders: true
-        receivingApplicationName: NJELR
-        receivingFacilityName: NJ-ELR
+        receivingApplicationName: ELRS
+        receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+        receivingFacilityName: NJDOH
+        receivingFacilityOID: 2.16.840.1.113883.3.1299
+        truncateHDNamespaceIds: true
       transport:
         type: SFTP
         host: njgov.moveitcloud.com
