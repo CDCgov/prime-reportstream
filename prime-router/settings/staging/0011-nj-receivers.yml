@@ -25,7 +25,7 @@
         filePath: ./upload
       timing:
         operation: MERGE
-        numberPerDay: 1440
+        numberPerDay: 1440 # every minute
         initialTime: 00:00
         timeZone: EASTERN
     - name: elr-test
@@ -49,6 +49,6 @@
         filePath: ./upload
       timing:
         operation: MERGE
-        numberPerDay: 12
+        numberPerDay: 1440 # every minute
         initialTime: 00:00
         timeZone: EASTERN

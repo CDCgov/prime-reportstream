@@ -24,6 +24,6 @@
         filePath: ./
       timing:
         operation: MERGE
-        numberPerDay: 12 # Every two hours
-        initialTime: 01:15
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
         timeZone: EASTERN
