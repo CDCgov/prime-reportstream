@@ -473,10 +473,6 @@ class CsvSerializerTests {
 
     @Test
     fun `test using international characters`() {
-        val charset = Charsets.UTF_8
-        assertTrue(Charset.defaultCharset().equals(charset),
-            "Expecting default JVM charset to be $charset, but was ${Charset.defaultCharset()}")
-
         val one = Schema(
             name = "one",
             topic = "test",
@@ -489,9 +485,9 @@ class CsvSerializerTests {
         // Sample UTF-8 taken from https://www.kermitproject.org/utf8.html as a byte array, so we are not
         // restricted by the encoding of this code file
         val koreanString = String(byteArrayOf(-21, -126, -104, -21, -118, -108, 32, -20, -100, -96, -21, -90, -84, -21, -91, -68),
-            charset)
+            Charsets.UTF_8)
         val greekString = String(byteArrayOf(-50, -100, -49, -128, -50, -65, -49, -127, -49, -114),
-            charset)
+            Charsets.UTF_8)
 
         // Java strings are stored as UTF-16
         val csv = """
