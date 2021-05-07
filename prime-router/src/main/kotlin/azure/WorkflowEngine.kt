@@ -30,7 +30,12 @@ import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
 
 /**
- * A top-level object that contains all the helpers and accessors to power the workflow.
+ * A top-level object that contains all the helpers and accessors to power the main reporting workflow.
+ *
+ * The main sending and receiving workflow has handle spikes in work and retries. The implementation
+ * is more complicated because of this requirement. Queues and Queue Triggers are used to take advantage of
+ * Azure's autoscaling mechanisms.
+ *
  * Workflow objects are heavy-weight and should only be created once per function lifetime.
  *
  * @see gov.cdc.prime.router.Report
@@ -284,7 +289,7 @@ class WorkflowEngine(
 
     /**
      * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction.
-     * Allow the update block
+     * The function will not save action isues
      *
      * @param messageEvent that was received
      * @param maxCount of headers to process
@@ -293,7 +298,6 @@ class WorkflowEngine(
     fun handleReceiverEvent(
         messageEvent: ReceiverEvent,
         maxCount: Int,
-        actionHistory: ActionHistory,
         updateBlock: (receivers: Receiver, headers: List<Header>, txn: Configuration?) -> ReceiverResult,
     ) {
         val receiverResult = db.transactReturning { txn ->
@@ -318,7 +322,9 @@ class WorkflowEngine(
                 createHeader(it, reportFile, itemLineages, organization, receiver)
             }
 
+            // Call the updateBlock lambda
             val receiverResult = updateBlock(receiver, headers, txn)
+
             headers.zip(receiverResult.retryTokens).forEach { (header, retryToken) ->
                 val currentAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
                 if (retryToken == null) {
@@ -343,7 +349,6 @@ class WorkflowEngine(
                     )
                 }
             }
-            recordAction(actionHistory, txn)
             receiverResult
         }
         if (receiverResult.retryTokens.find { it != null } != null) {

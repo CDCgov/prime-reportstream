@@ -12,7 +12,6 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -36,12 +35,12 @@ import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class WorkflowEngineTests {
-    val dataProvider = MockDataProvider { emptyArray<MockResult>() }
-    val connection = MockConnection(dataProvider)
-    val accessSpy = spyk(DatabaseAccess(connection))
-    val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
-    val oneOrganization = DeepOrganization(
+    private val dataProvider = MockDataProvider { emptyArray<MockResult>() }
+    private val connection = MockConnection(dataProvider)
+    private val accessSpy = spyk(DatabaseAccess(connection))
+    private val blobMock = mockkClass(BlobAccess::class)
+    private val queueMock = mockkClass(QueueAccess::class)
+    private val oneOrganization = DeepOrganization(
         "phd", "test", Organization.Jurisdiction.FEDERAL,
         receivers = listOf(Receiver("elr", "phd", "topic", "one"))
     )
@@ -274,7 +273,7 @@ class WorkflowEngineTests {
 
         // Simulate the event
         val engine = makeEngine(metadata, settings)
-        engine.handleReceiverEvent(event, 100, actionHistoryMock) { receiver, headers, _ ->
+        engine.handleReceiverEvent(event, 100) { receiver, headers, _ ->
             assertEquals(oneOrganization.receivers[0], receiver)
             assertEquals(task, headers[0].task)
             WorkflowEngine.successfulReceiverResult(headers)

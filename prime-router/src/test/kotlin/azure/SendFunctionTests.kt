@@ -101,7 +101,7 @@ class SendFunctionTests {
         var receiverResult: WorkflowEngine.ReceiverResult? = null
         setupLogger()
         setupWorkflow()
-        every { workflowEngine.handleReceiverEvent(any(), any(), any(), any()) }.answers {
+        every { workflowEngine.handleReceiverEvent(any(), any(), any()) }.answers {
             val block = lastArg() as
                 (receiver: Receiver, headers: List<WorkflowEngine.Header>, txn: Configuration?) ->
                 WorkflowEngine.ReceiverResult
@@ -126,7 +126,7 @@ class SendFunctionTests {
         // Setup
         var receiverResult: WorkflowEngine.ReceiverResult? = null
         setupLogger()
-        every { workflowEngine.handleReceiverEvent(any(), any(), any(), any()) }.answers {
+        every { workflowEngine.handleReceiverEvent(any(), any(), any()) }.answers {
             val block = lastArg() as
                 (receiver: Receiver, headers: List<WorkflowEngine.Header>, txn: Configuration?) ->
                 WorkflowEngine.ReceiverResult
@@ -155,7 +155,7 @@ class SendFunctionTests {
         // Setup
         var receiverResult: WorkflowEngine.ReceiverResult? = null
         setupLogger()
-        every { workflowEngine.handleReceiverEvent(any(), any(), any(), any()) }.answers {
+        every { workflowEngine.handleReceiverEvent(any(), any(), any()) }.answers {
             val block = lastArg() as
                 (receiver: Receiver, headers: List<WorkflowEngine.Header>, txn: Configuration?) ->
                 WorkflowEngine.ReceiverResult
@@ -185,7 +185,7 @@ class SendFunctionTests {
         // Setup
         var receiverResult: WorkflowEngine.ReceiverResult? = null
         setupLogger()
-        every { workflowEngine.handleReceiverEvent(any(), any(), any(), any()) }.answers {
+        every { workflowEngine.handleReceiverEvent(any(), any(), any()) }.answers {
             val block = lastArg() as
                 (receiver: Receiver, headers: List<WorkflowEngine.Header>, txn: Configuration?) ->
                 WorkflowEngine.ReceiverResult

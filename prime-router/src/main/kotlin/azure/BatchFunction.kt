@@ -6,39 +6,42 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.util.logging.Level
 
-const val batch = "batch"
-const val defaultBatchSize = 100
+const val BATCH = "batch"
+const val DEFAULT_BATCH_SIZE = 100
 
 /**
  * Batch will find all the reports waiting to with a next "batch" action for a receiver name.
  * It will either send the reports directly or merge them together.
  */
-class BatchFunction {
-    @FunctionName(batch)
+class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
+    @FunctionName(BATCH)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @QueueTrigger(name = "message", queueName = batch)
+        @QueueTrigger(name = "message", queueName = BATCH)
         message: String,
         context: ExecutionContext,
     ) {
+        context.logger.info("Batch message: $message")
+        val event = Event.parseQueueMessage(message) as ReceiverEvent
+        if (event.eventAction != Event.EventAction.BATCH) {
+            context.logger.warning("Batch function received a $message")
+            return
+        }
+        val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
+        actionHistory.trackActionParams(message)
+
         try {
-            context.logger.info("Batch message: $message")
-            val workflowEngine = WorkflowEngine()
-            val event = Event.parseQueueMessage(message) as ReceiverEvent
-            if (event.eventAction != Event.EventAction.BATCH) {
-                context.logger.warning("Batch function received a $message")
-                return
-            }
             val receiver = workflowEngine.settings.findReceiver(event.receiverName)
                 ?: error("Internal Error: receiver name ${event.receiverName}")
-            val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
-            val actionHistory = ActionHistory(event.eventAction.toTaskAction(), context)
-            actionHistory.trackActionParams(message)
+            val maxBatchSize = receiver.timing?.maxReportCount ?: DEFAULT_BATCH_SIZE
+
+            // The send event is the nextEvent
             val sendEvent = ReceiverEvent(Event.EventAction.SEND, receiver.fullName)
 
-            workflowEngine.handleReceiverEvent(event, maxBatchSize, actionHistory) { receiver, headers, txn ->
+            workflowEngine.handleReceiverEvent(event, maxBatchSize) { _, headers, txn ->
                 if (headers.isEmpty()) {
                     context.logger.info("Batch: empty batch")
                     return@handleReceiverEvent WorkflowEngine.successfulReceiverResult(headers)
@@ -48,7 +51,6 @@ class BatchFunction {
                 val inReports = headers.map {
                     val report = workflowEngine.createReport(it)
                     // todo replace the use of Event.Header.Task with info from ReportFile.
-                    // todo also I think we don't need `sources` any more.
                     actionHistory.trackExistingInputReport(it.task.reportId)
                     report
                 }
@@ -72,7 +74,17 @@ class BatchFunction {
             }
             workflowEngine.queue.sendMessage(sendEvent)
         } catch (e: Exception) {
-            context.logger.log(Level.SEVERE, "Batch function exception for event: $message", e)
+            // For debugging and auditing purposes
+            val msg = "Batch function exception for event: $message"
+            context.logger.log(Level.SEVERE, msg, e)
+            actionHistory.setActionType(TaskAction.batch_error)
+            actionHistory.trackActionResult(msg)
+        } finally {
+            // Note this is operating in a different transaction than the one that did the fetch/lock of the report.
+            // This is done to record errors in action history when their main transaction errors
+            context.logger.info("About to save ActionHistory for $message")
+            workflowEngine.recordAction(actionHistory)
+            context.logger.info("Done saving ActionHistory for $message")
         }
     }
 }
