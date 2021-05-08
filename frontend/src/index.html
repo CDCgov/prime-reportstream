@@ -6,6 +6,7 @@ data-index: 'data-index.html'
 protected: false
 show_navbar: true
 show_menu: false
+hide-signin: false
 ---
 
 <section class="rs-hero" role="region">
@@ -80,7 +81,7 @@ show_menu: false
       <div class="tablet:grid-col-8">
         <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ content.index.cta.title }}</h2>
         <p class="font-sans-lg margin-top-1 margin-bottom-6 text-base">{{ content.index.cta.summary }}<p>
-        <a class="usa-button" href="mailto:{{ content.index.cta.buttonUrl }}">{{ content.index.cta.buttonText }}</a>
+        <a class="usa-button" href="mailto:{{ site.orgs.RS.email }}{{ content.index.cta.buttonUrlSubject }}">{{ content.index.cta.buttonText }} {{ site.orgs.RS.email }}</a>
         </p>
       </div>
     </div>
@@ -97,4 +98,3 @@ show_menu: false
     </div>
   </section>
 </div>
-

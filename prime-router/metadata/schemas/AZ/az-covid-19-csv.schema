@@ -12,11 +12,10 @@ elements:
       - name: Sending_Application_ID
         format: $universalId
 
-  # Nonstandard
-  - name: organization_and_lab
+  # Nonstandard.  Works from SimpleReport only.  Should be moved to covid-19.schema
+  - name: organization_name
+    maxLength:  50
     type: TEXT
-    maxLength: 50
-    mapper: 'concat(organization_name, testing_lab_name)'
     csvFields:
     - name: Lab_Name
 

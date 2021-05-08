@@ -11,19 +11,19 @@
     </style>
         <script type="text/javascript" th:inline="javascript">
             function removeItem(sKey, sPath, sDomain) {
-                document.cookie = encodeURIComponent(sKey) + 
-                            "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + 
-                            (sDomain ? "; domain=" + sDomain : "") + 
+                document.cookie = encodeURIComponent(sKey) +
+                            "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" +
+                            (sDomain ? "; domain=" + sDomain : "") +
                             (sPath ? "; path=" + sPath : "");
             }
-    
+
             function logout(){
                 removeItem("jwt","/")
                 window.location.reload() //replace("http://www.cdc.gov");
             }
 
             window.location.hash = " ";
-            window.location.hash = "  "; 
+            window.location.hash = "  ";
 
             window.onhashchange = function(){
                 window.location.hash = " ";
@@ -164,7 +164,7 @@
             </h1>
             <h2>Today's results</h2>
 
-            <span th:if="${todays.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
+            <span th:if="${todays.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:usds@cdc.gov">usds@cdc.gov</a>.</em></span>
             <table th:unless="${todays.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Today's results">
               <thead>
                 <tr>
@@ -199,7 +199,7 @@
 
           <div class="grid-col-12">
             <h2>Previous <span th:text="${days_to_show}"></span> days</h2>
-            <span th:if="${previous.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>.</em></span>
+            <span th:if="${previous.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:usds@cdc.gov">usds@cdc.gov</a>.</em></span>
             <table th:unless="${previous.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Previous results">
               <thead>
                 <tr>
@@ -227,7 +227,7 @@
                   </td>
                   <td data-title="UUID">
                     <span th:text="${result.file}"></span>
-                  </td>                  
+                  </td>
                 </tr>
                 <!-- {{ endfor }} -->
               </tbody>
@@ -264,7 +264,7 @@
               An official website of the <a href="https://cdc.gov" target="_blank" rel="noopener">Centers for Disease Control and Prevention</a>
             </p>
             <p>
-                <a href="mailto:support@prime.cdc.gov">support@prime.cdc.gov</a>
+                <a href="mailto:usds@cdc.gov">usds@cdc.gov</a>
             </p>
           </div>
         </div>

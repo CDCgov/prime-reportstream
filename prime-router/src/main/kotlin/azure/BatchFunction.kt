@@ -63,7 +63,7 @@ class BatchFunction {
                 outReports.forEach {
                     val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
                     val outEvent = ReportEvent(Event.EventAction.SEND, outReport.id)
-                    workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn)
+                    workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn, null)
                 }
                 val msg = if (inReports.size == 1 && outReports.size == 1) "Success: No merging needed - batch of 1"
                 else "Success: merged ${inReports.size} reports into ${outReports.size} reports"

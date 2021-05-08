@@ -1,7 +1,7 @@
 ---
 name: waters-covid-19
 description: WATERS OTC,POC COVID-19 flat file
-topic: covid-19-otc
+topic: covid-19
 trackingElement: message_id
 basedOn: covid-19
 elements:
@@ -30,7 +30,7 @@ elements:
   # I added this and made it required so we remember to discuss.
   # Very important field for routing data to states.
   - name: ordering_facility_state
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: ordering_facility_state}]
 
   # Not in Mark's example.
@@ -74,8 +74,19 @@ elements:
   - name: patient_race
     csvFields: [{ name: patientRace}]
 
+  # ReportStream uses hl70189 (H,N,U), but Waters sends HHS (2135-2, 2186-5, UNK, ASKU)
+  # Simplest way to map them was with an alt table
   - name: patient_ethnicity
-    csvFields: [{ name: patientEthnicity}]
+    altValues:
+      - code: H
+        display: 2135-2
+      - code: N
+        display: 2186-5
+      - code: U
+        display: UNK
+      - code: U
+        display: ASKU
+    csvFields: [{ name: patientEthnicity, format: $alt}]
 
   - name: patient_gender
     csvFields: [{ name: patientSex}]
@@ -115,6 +126,7 @@ elements:
     csvFields: [{ name: patientHomeAddress2_pii}]
 
   - name: patient_last_name
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: patientNameLast_pii}]
 
   - name: patient_first_name
@@ -135,7 +147,7 @@ elements:
 
   # Need to override the mapper in covid-19.schema file.
   - name: specimen_id
-    mapper:
+    mapper: use(specimen_id)
     csvFields: [{ name: specimenId}]
 
   # Barcode or QR code.  Unique within one manufacturer.

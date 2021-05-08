@@ -6,7 +6,7 @@
   senders:
     - name: default
       organizationName: waters
-      topic: covid-19-otc
+      topic: covid-19
       schemaName: waters/waters-covid-19
       format: CSV
 
@@ -16,7 +16,8 @@
   receivers:
   - name: "elr"
     organizationName: "hhsprotect"
-    topic: "covid-19-otc"
+    topic: covid-19
+    description: "HHSProtect in staging is currently set to receive everything, no filters, but deidentified"
     translation:
       type: "CUSTOM"
       schemaName: "waters/waters-covid-19"
@@ -38,13 +39,13 @@
   senders:
     - name: ignore-waters      # Use this to test sending waters data
       organizationName: ignore
-      topic: covid-19-otc
+      topic: covid-19
       schemaName: waters/waters-covid-19
       format: CSV
   receivers:
     - name: BLOBSTORE
       organizationName: ignore
-      topic: covid-19-otc
+      topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
       timing:
         operation: MERGE

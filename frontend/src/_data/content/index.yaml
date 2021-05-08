@@ -77,5 +77,6 @@ cta:
   title: Get started with ReportStream
   summary: >-
     Ready to bring ReportStream to your jurisdiction?
-  buttonText: Contact us at support@prime.cdc.gov
-  buttonUrl: mailto:support@prime.cdc.gov?subject=I'm interested in learning more about ReportStream
+  buttonText: Contact us at
+  # email address for above button is located in template
+  buttonUrlSubject: ?subject=I'm interested in learning more about ReportStream

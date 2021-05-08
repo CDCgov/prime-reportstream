@@ -294,7 +294,12 @@ class FakeReport(val metadata: Metadata) {
         targetCounties: String? = null
     ): Report {
         val counties = targetCounties?.split(",")
-        val states = targetStates?.split(",")
+        val states = if (targetStates.isNullOrEmpty()) {
+            metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
+                ?.toList()
+        } else {
+            targetStates?.split(",")
+        }
         val rows = (0 until count).map {
             buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties))
         }.toList()

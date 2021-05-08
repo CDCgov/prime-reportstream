@@ -76,7 +76,7 @@ Examples:
 """,
 ) {
 
-    val defaultWorkingDir = "./target/csv_test_files"
+    val defaultWorkingDir = "./build/csv_test_files"
 
     private val list by option(
         "--list",
@@ -159,7 +159,7 @@ Examples:
             printTestList(coolTestList)
             exitProcess(0)
         }
-        val environment = ReportStreamEnv.valueOf(env.toUpperCase())
+        val environment = ReportStreamEnv.valueOf(env.uppercase())
 
         val tests = if (run != null) {
             run.toString().split(",").mapNotNull { test ->
@@ -353,7 +353,6 @@ abstract class CoolTest {
         val hl7BatchReceiver = allGoodReceivers.filter { it.name == "HL7_BATCH" }[0]
         val redoxReceiver = allGoodReceivers.filter { it.name == "REDOX" }[0]
         val hl7NullReceiver = allGoodReceivers.filter { it.name == "HL7_NULL" }[0]
-        val sftpLegacyReceiver = allGoodReceivers.filter { it.name == "SFTP_LEGACY" }[0]
         val blobstoreReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "BLOBSTORE"
         }[0]
@@ -526,7 +525,7 @@ class Merge : CoolTest() {
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         // Remove HL7 - it does not merge   TODO write a notMerging test for HL7, but its similar to end2end
-        val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver, redoxReceiver, sftpLegacyReceiver)
+        val mergingReceivers = listOf<Receiver>(csvReceiver, hl7BatchReceiver, redoxReceiver)
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
         val fakeItemCount = mergingReceivers.size * options.items
         ugly("Starting merge test:  Merge ${options.submits} reports, each of which sends to $allGoodCounties")
@@ -843,10 +842,10 @@ class RepeatWaters : CoolTest() {
             echo("Submits done.  Now waiting for checking results to complete")
             threads.forEach { it.join() }
         }
-        echo("$name Test took ${elapsed.inSeconds} seconds. Expected pace/hr: $pace.")
-        if (elapsed.inSeconds > 600) {
+        echo("$name Test took ${elapsed.inWholeSeconds} seconds. Expected pace/hr: $pace.")
+        if (elapsed.inWholeSeconds > 600) {
             // pace calculation is inaccurate for short times, due to the hack long wait at the end.
-            val actualPace = (totalItems / elapsed.inSeconds) * 3600
+            val actualPace = (totalItems / elapsed.inWholeSeconds) * 3600
             echo(" Actual pace: $actualPace")
         }
         return allPassed
