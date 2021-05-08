@@ -1,8 +1,6 @@
 package gov.cdc.prime.router.tokens
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.PropertyNamingStrategy
-import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -11,7 +9,6 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.SigningKeyResolverAdapter
 import io.jsonwebtoken.security.Keys
 import org.apache.logging.log4j.kotlin.Logging
@@ -20,6 +17,7 @@ import java.security.Key
 import java.util.Date
 import javax.crypto.SecretKey
 import io.jsonwebtoken.io.Decoders
+import java.lang.IllegalArgumentException
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -52,6 +50,9 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
                 return isNewSenderToken(jti, expiresAt)  // check for replays
             } catch (ex: JwtException) {
                 logger.error("Rejecting JWT: ${ex}")
+                return false
+            } catch (e: IllegalArgumentException) {
+                logger.error("Rejecting JWT: ${e}")
                 return false
             }
             return false
@@ -155,11 +156,11 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
             if (!isWellFormedScope(scope)) return false
             val splits = scope.split(".")
             if (splits[0] != expectedSender.organizationName) {
-                logger.warn("Expected organization ${expectedSender.organizationName}.Instead got: ${scope[0]}")
+                logger.warn("Expected organization ${expectedSender.organizationName}. Instead got: ${splits[0]}")
                 return false
             }
             if (splits[1] != expectedSender.name) {
-                logger.warn("Expected sender ${expectedSender.name}.Instead got: ${scope[1]}")
+                logger.warn("Expected sender ${expectedSender.name}. Instead got: ${splits[1]}")
                 return false
             }
             return when (splits[2]) {
@@ -226,15 +227,24 @@ interface ReportStreamSecretFinder {
  * a given Sender, kid, and alg.   Lookup in the Settings table.
  *  todo:  the FHIR spec calls for allowing a set of keys.  This callback only allows for one.
  */
-class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter() {
-    override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key {
-        if (jwsHeader == null) error("JWT has missing header")
+class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), Logging {
+    var errorMsg: String? = null
+
+    fun fail(shortMsg: String): Key? {
+        errorMsg = "Error while requesting $scope: $shortMsg"
+        logger.error(errorMsg!!)
+        return null
+    }
+
+    override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key? {
+        errorMsg = null
+        if (jwsHeader == null) return fail("JWT has missing header")
         val issuer = claims.issuer
         val kid = jwsHeader.keyId
         val alg = jwsHeader.algorithm
-        val sender = WorkflowEngine().settings.findSender(issuer) ?: error("No such sender fullName $issuer")
-        if (sender.keys == null) error("No auth keys associated with sender $issuer")
-        if (!TokenAuthentication.isValidScope(scope, sender)) error("Invalid scope for this sender: $scope")
+        val sender = WorkflowEngine().settings.findSender(issuer) ?: return fail("No such sender fullName $issuer")
+        if (sender.keys == null) return fail("No auth keys associated with sender $issuer")
+        if (!TokenAuthentication.isValidScope(scope, sender)) return fail("Invalid scope for this sender: $scope")
         sender.keys.forEach { jwkSet ->
             if (jwkSet.scope == scope) {
                 jwkSet.keys.forEach { jwk ->
@@ -244,7 +254,7 @@ class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter() {
                 }
             }
         }
-        error("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
+        return fail("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
     }
 }
 

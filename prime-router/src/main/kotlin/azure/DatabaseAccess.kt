@@ -494,7 +494,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     fun deleteExpiredJtis(txn: DataAccessTransaction) {
-        DSL.using(txn).deleteFrom(JTI_CACHE).where(JTI_CACHE.EXPIRES_AT.lt(OffsetDateTime.now()))
+        DSL.using(txn).deleteFrom(JTI_CACHE).where(JTI_CACHE.EXPIRES_AT.lt(OffsetDateTime.now())).execute()
     }
 
     fun fetchJti(jti: String, txn: DataAccessTransaction): JtiCache? {

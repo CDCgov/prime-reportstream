@@ -224,7 +224,7 @@ class HttpUtilities {
                     // HttpUrlStatus treats not-success codes as IOExceptions.
                     // I found that the returned json is secretly still here:
                     errorStream?.bufferedReader()?.readText()
-                        ?: "Error stream is null! ${this.responseCode} - ${this.responseMessage}"
+                        ?: this.responseMessage
                 }
                 return responseCode to response
             }

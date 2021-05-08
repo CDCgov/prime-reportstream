@@ -48,11 +48,14 @@ class TokenFunction: Logging {
             ?: return HttpUtilities.bad(request, "Missing scope parameter", HttpStatus.UNAUTHORIZED)
         if (!TokenAuthentication.isWellFormedScope(scope))
             return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)
-        if (tokenAuthentication.checkSenderToken(clientAssertion, FindSenderKeyInSettings(scope))) {
+        val senderKeyFinder = FindSenderKeyInSettings(scope)
+        if (tokenAuthentication.checkSenderToken(clientAssertion, senderKeyFinder)) {
             val token = tokenAuthentication.createAccessToken(scope, GetStaticSecret())
             // Per https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens
             return HttpUtilities.httpResponse(request, jacksonObjectMapper().writeValueAsString(token), HttpStatus.OK)
         } else {
+            if (senderKeyFinder.errorMsg != null)
+                logger.error("Token request denied: ${senderKeyFinder.errorMsg} ")
             return HttpUtilities.unauthorizedResponse(request)
         }
     }
