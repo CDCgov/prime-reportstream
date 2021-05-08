@@ -88,7 +88,7 @@ class SftpTransport : ITransport, Logging {
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
             logger.info( "Successfully connected to $sftpTransportType, ready to upload $fileName")
-            uploadFile(sftpSession.sshClient, sftpTransportType.filePath, fileName, header.content)
+            uploadFile(sftpSession, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
             logger.info(msg)
             actionHistory.trackActionResult(msg)
@@ -132,17 +132,15 @@ class SftpTransport : ITransport, Logging {
          * Call this after you have already successfully connect()ed.
          */
         fun uploadFile(
-            sshClient: SSHClient,
+            session: SftpSession,
             path: String,
             fileName: String,
             contents: ByteArray
         ) {
             try {
-                sshClient.newSFTPClient().use { client ->
-                    client.fileTransfer.preserveAttributes = false
-                    client.use {
-                        it.put(makeSourceFile(contents, fileName), "$path/$fileName")
-                    }
+                session.sshClient.newSFTPClient().use { sftpClient ->
+                    sftpClient.fileTransfer.preserveAttributes = false
+                    sftpClient.put(makeSourceFile(contents, fileName), "$path/$fileName")
                 }
             } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
                 // if the timeout happens on disconnect it gets wrapped up in the connectException
@@ -156,17 +154,11 @@ class SftpTransport : ITransport, Logging {
             }
         }
 
-        fun ls(sshClient: SSHClient, path: String): List<String> {
+        fun ls(session: SftpSession, path: String): List<String> {
             val lsResults = mutableListOf<String>()
             try {
-                try {
-                    sshClient.use { sshClient ->
-                        sshClient.newSFTPClient().use {
-                            it.ls(path).map { l -> lsResults.add(l.toString()) }
-                        }
-                    }
-                } finally {
-                    sshClient.disconnect()
+                session.sshClient.newSFTPClient().use { sftpClient ->
+                    sftpClient.ls(path).map { l -> lsResults.add(l.toString()) }
                 }
             } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
                 // if the timeout happens on disconnect it gets wrapped up in the connectException
@@ -182,21 +174,12 @@ class SftpTransport : ITransport, Logging {
             return lsResults
         }
 
-        fun pwd(sshClient: SSHClient): String {
-            var pwd = ""
-            try {
-                sshClient.newStatefulSFTPClient().use { client ->
-                    val statefulClient = client as StatefulSFTPClient
-                    sshClient.timeout = 120000
-                    statefulClient.use {
-                        pwd = it.pwd()
-                    }
-                }
-            } finally {
-                sshClient.disconnect()
+        fun pwd(session: SftpSession): String {
+            session.sshClient.timeout = 120000
+            return session.sshClient.newStatefulSFTPClient().use { sftpClient ->
+                val statefulClient = sftpClient as StatefulSFTPClient
+                statefulClient.pwd()
             }
-
-            return pwd
         }
 
         private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
