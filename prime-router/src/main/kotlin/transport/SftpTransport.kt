@@ -13,6 +13,7 @@ import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.sftp.SFTPClient
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
@@ -32,6 +33,7 @@ class SftpTransport : ITransport, Logging {
         credential: SftpCredential,
     ): TransportSession, Logging {
         val sshClient: SSHClient = SSHClient()
+        val sftpClient: SFTPClient
 
         init {
             // create our client
@@ -51,6 +53,7 @@ class SftpTransport : ITransport, Logging {
                     }
                     else -> error("Unknown SftpCredential ${credential::class.simpleName}")
                 }
+                sftpClient = sshClient.newSFTPClient()
             } catch (t: Throwable) {
                 sshClient.disconnect()
                 throw t
@@ -58,6 +61,7 @@ class SftpTransport : ITransport, Logging {
         }
 
         override fun close() {
+            sftpClient.close()
             sshClient.disconnect()
             sshClient.close()
         }
@@ -138,10 +142,8 @@ class SftpTransport : ITransport, Logging {
             contents: ByteArray
         ) {
             try {
-                session.sshClient.newSFTPClient().use { sftpClient ->
-                    sftpClient.fileTransfer.preserveAttributes = false
-                    sftpClient.put(makeSourceFile(contents, fileName), "$path/$fileName")
-                }
+                session.sftpClient.fileTransfer.preserveAttributes = false
+                session.sftpClient.put(makeSourceFile(contents, fileName), "$path/$fileName")
             } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
                 // if the timeout happens on disconnect it gets wrapped up in the connectException
                 // and we need to check the root cause
@@ -157,9 +159,7 @@ class SftpTransport : ITransport, Logging {
         fun ls(session: SftpSession, path: String): List<String> {
             val lsResults = mutableListOf<String>()
             try {
-                session.sshClient.newSFTPClient().use { sftpClient ->
-                    sftpClient.ls(path).map { l -> lsResults.add(l.toString()) }
-                }
+                session.sftpClient.ls(path).map { l -> lsResults.add(l.toString()) }
             } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
                 // if the timeout happens on disconnect it gets wrapped up in the connectException
                 // and we need to check the root cause
