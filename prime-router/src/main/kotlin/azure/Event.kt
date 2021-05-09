@@ -4,6 +4,8 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAmount
+import java.time.temporal.TemporalUnit
 import java.util.UUID
 
 /**
@@ -122,6 +124,13 @@ class ReceiverEvent(
     val receiverName: String,
     at: OffsetDateTime? = null,
 ) : Event(eventAction, at) {
+
+    constructor(
+        eventAction: EventAction,
+        receiverName: String,
+        delay: TemporalAmount,
+    ) : this(eventAction, receiverName, OffsetDateTime.now().plus(delay))
+
     override fun toQueueMessage(): String {
         val afterClause = if (at == null) "" else "$messageDelimiter${DateTimeFormatter.ISO_DATE_TIME.format(at)}"
         return "$eventType$messageDelimiter$eventAction$messageDelimiter$receiverName$afterClause"

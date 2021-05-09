@@ -347,7 +347,7 @@ class ActionHistory {
     }
 
     private fun queueMessage(event: Event) {
-        WorkflowEngine().queue.sendMessage(event)
+        QueueAccess().sendMessage(event)
         context?.logger?.info("Queued event: ${event.toQueueMessage()}")
     }
 
