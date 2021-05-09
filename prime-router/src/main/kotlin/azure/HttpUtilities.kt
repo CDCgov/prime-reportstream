@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.azure.core.util.Base64Url
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -12,17 +13,18 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.time.OffsetDateTime
 
-enum class ReportStreamEnv(val endPoint: String) {
-    TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
-    LOCAL("http://localhost:7071/api/reports"),
-    STAGING("https://staging.prime.cdc.gov/api/reports"),
-//    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports"),
-    PROD("not implemented"),
+enum class ReportStreamEnv(val baseUrl: String) {
+    TEST("https://pdhtest-functionapp.azurewebsites.net"),
+    LOCAL("http://localhost:7071"),
+    STAGING("https://staging.prime.cdc.gov"),
+    PROD("not implemented")
 }
 
 class HttpUtilities {
     companion object: Logging {
         const val jsonMediaType = "application/json"
+
+        const val reportsEndpoint = "/api/reports"
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
@@ -198,7 +200,7 @@ class HttpUtilities {
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)
                 headers.add("x-functions-key" to key)
-            val url = environment.endPoint + if (option != null) "?option=$option" else ""
+            val url = environment.baseUrl + reportsEndpoint + if (option != null) "?option=$option" else ""
             return postHttp(url, bytes, headers)
         }
 

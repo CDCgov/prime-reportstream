@@ -197,7 +197,7 @@ class TokenAuthenticationTests {
         // Step 4: Now pretend the sender has used the accessToken to make a request to reportstream...
 
         // Step 5: ... and ReportStream checks it:
-        val claims = tokenAuthentication.checkAccessToken(accessToken!!.accessToken, "myScope", rslookup)
+        val claims = tokenAuthentication.checkAccessToken(accessToken.accessToken, "myScope", rslookup)
         // if claims is non-null then the sender's accessToken is valid.
         assertNotNull(claims)
         assertEquals(accessToken.expiresAtSeconds, claims["exp"])
@@ -297,7 +297,7 @@ class TokenAuthenticationTests {
     fun `test checkAccessToken happy path`() {
         val rslookup = GetTestSecret()  // callback to look up the Reportstream secret, using to sign RS token.
         val accessToken = tokenAuthentication.createAccessToken("myScope", rslookup)
-        val claims = tokenAuthentication.checkAccessToken(accessToken!!.accessToken, "myScope", rslookup)
+        val claims = tokenAuthentication.checkAccessToken(accessToken.accessToken, "myScope", rslookup)
         // if claims is non-null then the sender's accessToken is valid.
         assertNotNull(claims)
         assertEquals(accessToken.expiresAtSeconds, claims["exp"])
@@ -316,7 +316,7 @@ class TokenAuthenticationTests {
         val rslookup1 = GetTestSecret()
         val accessToken = tokenAuthentication.createAccessToken("MyScope", rslookup1)
         val rslookup2 = GetTestSecret()  // new/different secret
-        val claims = tokenAuthentication.checkAccessToken(accessToken!!.accessToken, "MyScope", rslookup2)
+        val claims = tokenAuthentication.checkAccessToken(accessToken.accessToken, "MyScope", rslookup2)
         // if claims is non-null then the sender's accessToken is valid.
         assertNull(claims)
     }

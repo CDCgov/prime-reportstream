@@ -4,6 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.cli.SenderUtilsCommand
 import io.jsonwebtoken.Jwts
 import java.util.Date
 import java.util.UUID
@@ -46,9 +48,9 @@ class SenderUtils {
             )
         }
 
-        fun generateSenderUrl(baseUrl: String, senderToken: String, scope: String): URL {
+        fun generateSenderUrl(environment: SenderUtilsCommand.Environment, senderToken: String, scope: String): URL {
             return URL(
-                "http://localhost:7071/api/token?" +
+                SenderUtilsCommand.formPath(environment, "token") + "?" +
                     generateSenderUrlParameters(senderToken, scope)
                         .map { "${it.key}=${it.value}" }.joinToString("&")
             )
@@ -64,7 +66,7 @@ class SenderUtils {
             val jwk = jacksonObjectMapper().readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
             // All the rest of this is sanity checks
             val prefix = "Cannot convert pemFile to EC Key. "
-            if (jwk.kty == null) error("$prefix.  Key must have a kty keytype")
+            if (jwk.kty.isNullOrEmpty()) error("$prefix.  Key must have a kty keytype")
             if (jwk.d != null) error("$prefix This looks like a private key.  Key must be a public key.")
             if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) error("$prefix. Key missing elliptic point (x,y) value")
             if (nimbusdsJwk.keyType != KeyType.EC) error("$prefix keyType is  ${nimbusdsJwk.keyType}.  Expecting 'EC'.")
@@ -85,7 +87,7 @@ class SenderUtils {
             val jwk = jacksonObjectMapper().readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
             // All the rest of this is sanity checks
             val prefix = "Cannot convert pemFile to EC Key. "
-            if (jwk.kty == null) error("$prefix.  Key must have a kty keytype")
+            if (jwk.kty.isNullOrEmpty()) error("$prefix.  Key must have a kty keytype")
             if (jwk.d == null) error("$prefix This looks like a public key.  Key must be a private key.")
             if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) error("$prefix. Key missing elliptic point (x,y) value")
             if (nimbusdsJwk.keyType != KeyType.EC) error("$prefix keyType is  ${nimbusdsJwk.keyType}.  Expecting 'EC'.")
@@ -94,22 +96,5 @@ class SenderUtils {
             if (ecPrivateKey.algorithm != "EC") error("$prefix.  Alg is ${ecPrivateKey.algorithm}.  Expecting 'EC'.")
             return ecPrivateKey
         }
-/*
-            return jwk
-            val factory: KeyFactory = KeyFactory.getInstance("EC")
-            FileReader(pemFile).use { keyReader ->
-                PemReader(keyReader).use { pemReader ->
-                    val pemObject: PemObject = pemReader.readPemObject()
-                    val content: ByteArray = pemObject.content
-                    val privKeySpec = PKCS8EncodedKeySpec(content)
-                    return factory.generatePrivate(privKeySpec) as ECPrivateKey
-                }
-            }
-            FileReader(pemFile).use { keyReader ->
-                val pemParser = PEMParser(keyReader)
-                val converter = JcaPEMKeyConverter()
-                val privateKeyInfo: PrivateKeyInfo = PrivateKeyInfo.getInstance(pemParser.readObject())
-                return converter.getPrivateKey(privateKeyInfo)  //  as RSAPrivateKey
- */
     }
 }

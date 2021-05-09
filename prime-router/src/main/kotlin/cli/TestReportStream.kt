@@ -108,8 +108,8 @@ Examples:
 
     private val env by option(
         "--env",
-        help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.endPoint}," +
-            " and 'test' will connect to ${ReportStreamEnv.TEST.endPoint}"
+        help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.baseUrl}," +
+            " and 'test' will connect to ${ReportStreamEnv.TEST.baseUrl}"
     ).choice("test", "local", "staging", "prod").default("local").validate {
         envSanityCheck()
         when (it) {
@@ -175,7 +175,7 @@ Examples:
             coolTestList.filter { it.status == TestStatus.GOODSTUFF }
         }
         if (tests.isNotEmpty()) {
-            CoolTest.ugly("Running the following tests, POSTing to ${environment.endPoint}:")
+            CoolTest.ugly("Running the following tests, POSTing to ${environment.baseUrl}:")
             printTestList(tests)
             runTests(tests, environment)
         } else {
@@ -453,7 +453,7 @@ class Ping : CoolTest() {
     override val status = TestStatus.GOODSTUFF
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting ping Test: run CheckConnections of ${environment.endPoint}")
+        ugly("Starting ping Test: run CheckConnections of ${environment.baseUrl}")
         val (responseCode, json) = HttpUtilities.postReportBytes(
             environment,
             "x".toByteArray(),

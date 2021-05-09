@@ -99,7 +99,7 @@ class ReportFunction: Logging {
         val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
 
-        val claims = tokenAuthentication.checkAccessToken(request, "${sender.fullName}.report")
+        tokenAuthentication.checkAccessToken(request, "${sender.fullName}.report")
             ?: return HttpUtilities.unauthorizedResponse(request)
         return ingestReport(request, context)
     }

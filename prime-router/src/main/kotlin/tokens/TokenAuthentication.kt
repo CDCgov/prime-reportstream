@@ -3,6 +3,7 @@ package gov.cdc.prime.router.tokens
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.secrets.SecretHelper
 import io.jsonwebtoken.Claims
@@ -26,9 +27,20 @@ import java.time.ZoneOffset
  */
 
 class TokenAuthentication(val jtiCache: JtiCache): Logging {
-        private val MAX_CLOCK_SKEW_SECONDS: Long = 60
+    private val MAX_CLOCK_SKEW_SECONDS: Long = 60
 
-    fun checkSenderToken(jwsString: String, senderPublicKeyFinder: SigningKeyResolverAdapter): Boolean {
+    fun logErr(actionHistory: ActionHistory?, msg: String) {
+        actionHistory?.let {
+            it.trackActionResult(msg)
+        }
+        logger.error(msg)
+    }
+
+    fun checkSenderToken(
+        jwsString: String,
+        senderPublicKeyFinder: SigningKeyResolverAdapter,
+        actionHistory: ActionHistory? = null,
+    ): Boolean {
             try {
                 // Note: this does an expired token check as well
                 val jws = Jwts.parserBuilder()
@@ -39,26 +51,30 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
                 val jti = jws.body.id
                 val exp = jws.body.expiration
                 if (jti == null) {
-                    logger.error("Sender Token has null JWT ID.  Rejecting.")
+                    logErr(actionHistory, "Sender Token has null JWT ID.  Rejecting.")
                     return false
                 }
                 val expiresAt = exp.toInstant().atOffset(ZoneOffset.UTC)
                 if (expiresAt.isBefore(OffsetDateTime.now())) {
-                    logger.error("Sender Token has expired, at $expiresAt.  Rejecting.")
+                    logErr(actionHistory, "Sender Token has expired, at $expiresAt.  Rejecting.")
                     return false
                 }
                 return isNewSenderToken(jti, expiresAt)  // check for replays
             } catch (ex: JwtException) {
-                logger.error("Rejecting JWT: ${ex}")
+                logErr(actionHistory, "Rejecting JWT: ${ex}")
                 return false
             } catch (e: IllegalArgumentException) {
-                logger.error("Rejecting JWT: ${e}")
+                logErr(actionHistory, "Rejecting JWT: ${e}")
                 return false
             }
             return false
         }
 
-        fun createAccessToken(scopeAuthorized: String, lookup: ReportStreamSecretFinder): AccessToken {
+        fun createAccessToken(
+            scopeAuthorized: String,
+            lookup: ReportStreamSecretFinder,
+            actionHistory: ActionHistory? = null,
+        ): AccessToken {
             if (scopeAuthorized.isEmpty() || scopeAuthorized.isBlank()) error("Empty or blank scope request")
             val secret = lookup.getReportStreamTokenSigningSecret()
             // Using Integer seconds to stay consistent with the JWT token spec, which uses seconds.
@@ -67,12 +83,14 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
             val expiresInSeconds = 300
             val expiresAtSeconds = ((System.currentTimeMillis()/1000) + expiresInSeconds).toInt()
             val expirationDate = Date(expiresAtSeconds.toLong() * 1000)
-            logger.info("Token for $scopeAuthorized will expire at $expirationDate")
             val token = Jwts.builder()
                 .setExpiration(expirationDate)  // exp
                 // removed  .setId(UUID.randomUUID().toString())   // jti
                 .claim("scope", scopeAuthorized)
                 .signWith(secret).compact()
+            actionHistory?.let {
+                it.trackActionResult("Token successfully created for $scopeAuthorized. Expires at $expirationDate")
+            }
             return AccessToken(token, "bearer", expiresInSeconds, expiresAtSeconds, scopeAuthorized)
         }
 
@@ -231,7 +249,7 @@ class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), 
     var errorMsg: String? = null
 
     fun fail(shortMsg: String): Key? {
-        errorMsg = "Error while requesting $scope: $shortMsg"
+        errorMsg = "Token Request Denied: Error while requesting $scope: $shortMsg"
         logger.error(errorMsg!!)
         return null
     }

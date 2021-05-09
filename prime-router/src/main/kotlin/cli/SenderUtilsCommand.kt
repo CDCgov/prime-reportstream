@@ -57,6 +57,16 @@ abstract class SenderUtilsCommand(
             Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),
         )
+
+        fun formPath(
+            environment: Environment,
+            endpoint: String,
+        ): String {
+            val protocol = if (environment.useHttp) "http" else "https"
+            return "$protocol://${environment.baseUrl}/api/$endpoint"
+        }
+
+
     }
 }
 
@@ -81,14 +91,6 @@ class TokenUrl : SenderUtilsCommand(
         help = "Specify full name of sender, as found in settings."
     ).required()
 
-    private fun formPath(
-        environment: Environment,
-        endpoint: String,
-    ): String {
-        val protocol = if (environment.useHttp) "http" else "https"
-        return "$protocol://${environment.baseUrl}/api/$endpoint"
-    }
-
     override fun run() {
         val environment = getEnvironment()
         val privateKeyFile = File(privateKeyFilename)
@@ -105,7 +107,7 @@ class TokenUrl : SenderUtilsCommand(
         }
         // note:  using the sender fullName as the kid here.
         val senderToken = SenderUtils.generateSenderToken(sender, environment.baseUrl, privateKey,sender.fullName)
-        val url = SenderUtils.generateSenderUrl(environment.baseUrl, senderToken, scope)
+        val url = SenderUtils.generateSenderUrl(environment, senderToken, scope)
         echo("Using this URL to get an access token from ReportStream:")
         echo(url)
 
