@@ -12,8 +12,8 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
+import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
 import gov.cdc.prime.router.tokens.FindSenderKeyInSettings
-import gov.cdc.prime.router.tokens.GetStaticSecret
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -49,7 +49,7 @@ class TokenFunction: Logging {
         actionHistory.trackActionParams(request)
         val senderKeyFinder = FindSenderKeyInSettings(scope)
         if (tokenAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, actionHistory)) {
-            val token = tokenAuthentication.createAccessToken(scope, GetStaticSecret(), actionHistory)
+            val token = tokenAuthentication.createAccessToken(scope, FindReportStreamSecretInVault(), actionHistory)
             workflowEngine.recordAction(actionHistory)
             // Per https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens
             return HttpUtilities.httpResponse(request, jacksonObjectMapper().writeValueAsString(token), HttpStatus.OK)

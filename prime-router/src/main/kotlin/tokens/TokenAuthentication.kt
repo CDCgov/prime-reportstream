@@ -6,10 +6,12 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.secrets.SecretHelper
+import gov.cdc.prime.router.secrets.SecretService
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.SigningKeyResolverAdapter
 import io.jsonwebtoken.security.Keys
 import org.apache.logging.log4j.kotlin.Logging
@@ -18,6 +20,7 @@ import java.security.Key
 import java.util.Date
 import javax.crypto.SecretKey
 import io.jsonwebtoken.io.Decoders
+import io.jsonwebtoken.io.Encoders
 import java.lang.IllegalArgumentException
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -105,8 +108,8 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
                 logger.error("Request has Authorization header but no token.  Unauthorized")
                 return null
             }
-            return checkAccessToken(accessToken, desiredScope, GetStaticSecret())
-//            return checkAccessToken(accessToken, desiredScope, FindReportStreamSecretInVault())
+// for testing only           return checkAccessToken(accessToken, desiredScope, GetStaticSecret())
+            return checkAccessToken(accessToken, desiredScope, FindReportStreamSecretInVault())
         }
 
         /**
@@ -205,17 +208,6 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
     }
 }
 
-class FindReportStreamSecretInVault: ReportStreamSecretFinder {
-    private val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"
-
-    override fun getReportStreamTokenSigningSecret(): SecretKey {
-        val secretServiceAgent = SecretHelper.getSecretService()
-        val secret = secretServiceAgent.fetchSecret(TOKEN_SIGNING_SECRET_NAME)
-            ?: error("Unable to find $TOKEN_SIGNING_SECRET_NAME")
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
-    }
-}
-
 /**
  * Defined per the FHIR standard
  *    https://hl7.org/fhir/uv/bulkdata/authorization/index.html
@@ -275,6 +267,35 @@ class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), 
         return fail("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
     }
 }
+
+class FindReportStreamSecretInVault() : ReportStreamSecretFinder {
+
+    override fun getReportStreamTokenSigningSecret(): SecretKey {
+        val secretServiceAgent = SecretHelper.getSecretService()
+        val secret = secretServiceAgent.fetchSecret(TOKEN_SIGNING_SECRET_NAME)
+            ?: error("Unable to find secret $TOKEN_SIGNING_SECRET_NAME.  Did you forget to create it?")
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
+    }
+
+    companion object {
+        const val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"
+        private val TOKEN_SIGNING_KEY_ALGORITHM = SignatureAlgorithm.HS384
+        // convenience method that knows how to generate the right kind of secret.
+        fun generateSecret(): String {
+            return Encoders.BASE64.encode(Keys.secretKeyFor(TOKEN_SIGNING_KEY_ALGORITHM).encoded)
+        }
+    }
+}
+
+/**
+ * Convenience function to generate a key to be used as a ReportStream secret
+ */
+fun main(args: Array<String>) {
+    println("Put this env var in your docker-compose file:")
+    println(FindReportStreamSecretInVault.TOKEN_SIGNING_SECRET_NAME + "=" +
+        FindReportStreamSecretInVault.generateSecret())
+}
+
 
 
 /**

@@ -84,13 +84,13 @@ class TokenAuthenticationTests {
     class GetTestSecret: ReportStreamSecretFinder {
         private val TOKEN_SIGNING_KEY_ALGORITHM = SignatureAlgorithm.HS384
         // Good for testing:  Each time you create a new GetTestSecret() obj, its a totally new secret.
-        val tokenSigningSecret = generateTokenSigningSecret()
+        val tokenSigningSecret = this.generateSecret()
 
         override fun getReportStreamTokenSigningSecret(): SecretKey {
             return Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenSigningSecret))
         }
 
-        private fun generateTokenSigningSecret(): String {
+        private fun generateSecret(): String {
             return Encoders.BASE64.encode(Keys.secretKeyFor(TOKEN_SIGNING_KEY_ALGORITHM).encoded)
         }
     }
