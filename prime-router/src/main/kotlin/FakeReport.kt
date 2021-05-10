@@ -131,7 +131,7 @@ class FakeDataService {
                 "fips-county" -> {
                     when {
                         element.nameContains("state") -> context.state
-                        element.nameContains("county") -> context.county
+                        element.nameContains("county") -> context.county ?: ""
                         else -> TODO("Add this column in a table")
                     }
                 }
@@ -144,7 +144,7 @@ class FakeDataService {
         // each element has a type, and depending on the type defined on the
         // element, we call into some of the functions above
         return when (element.type) {
-            Element.Type.CITY -> context.city
+            Element.Type.CITY -> context.city ?: faker.address().city()
             Element.Type.POSTAL_CODE -> context.zipCode
             Element.Type.TEXT -> createFakeText(element)
             Element.Type.BLANK -> ""
@@ -298,7 +298,7 @@ class FakeReport(val metadata: Metadata) {
             metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
                 ?.toList()
         } else {
-            targetStates.split(",")
+            targetStates?.split(",")
         }
         val rows = (0 until count).map {
             buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties))
