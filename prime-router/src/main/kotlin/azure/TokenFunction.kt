@@ -14,6 +14,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
 import gov.cdc.prime.router.tokens.FindSenderKeyInSettings
+import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -31,11 +32,9 @@ class TokenFunction: Logging {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        val workflowEngine = WorkflowEngine()
-        val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))
         // Exampling incoming URL
         // http://localhost:7071/api/token?
-        // scope=reports
+        // scope=strac.default.reports
         // &grant_type=client_credentials
         // &client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
         // &client_assertion=verylong.signed.jwtstring
@@ -43,11 +42,13 @@ class TokenFunction: Logging {
             ?: return HttpUtilities.bad(request, "Missing client_assertion parameter", HttpStatus.UNAUTHORIZED)
         val scope = request.queryParameters["scope"]
             ?: return HttpUtilities.bad(request, "Missing scope parameter", HttpStatus.UNAUTHORIZED)
-        if (!TokenAuthentication.isWellFormedScope(scope))
+        if (!Scope.isWellFormedScope(scope))
             return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)
+        val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.token_auth, context)
         actionHistory.trackActionParams(request)
         val senderKeyFinder = FindSenderKeyInSettings(scope)
+        val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))
         if (tokenAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, actionHistory)) {
             val token = tokenAuthentication.createAccessToken(scope, FindReportStreamSecretInVault(), actionHistory)
             workflowEngine.recordAction(actionHistory)

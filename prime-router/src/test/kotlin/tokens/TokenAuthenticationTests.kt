@@ -62,7 +62,6 @@ val differentRsaPublicKeyStr = """
 
 
 class TokenAuthenticationTests {
-
     val sender = Sender(
         "foo",
         "bar",
@@ -70,6 +69,8 @@ class TokenAuthenticationTests {
         "covid-19",
         "mySchema",
         keys = null)
+    val tokenAuthentication = TokenAuthentication(MemoryJtiCache())
+
 
 
     // return the hardcoded public key used with this test.  This is the Sender's public key.
@@ -94,8 +95,6 @@ class TokenAuthenticationTests {
             return Encoders.BASE64.encode(Keys.secretKeyFor(TOKEN_SIGNING_KEY_ALGORITHM).encoded)
         }
     }
-
-    val tokenAuthentication = TokenAuthentication(MemoryJtiCache())
 
     @Test
     fun `test reading in Keys`() {
@@ -265,23 +264,24 @@ class TokenAuthenticationTests {
     }
 
     @Test
-    fun `test isNewSenderToken`() {
+    fun `test MemoryJtiCache`() {
+        val jtiCache = MemoryJtiCache()
         val uuid1 = UUID.randomUUID().toString()
         val exp1 = OffsetDateTime.now().plusSeconds(300)
         // First time it works
-        assertTrue(tokenAuthentication.isNewSenderToken(uuid1, exp1))
+        assertTrue(jtiCache.isJTIOk(uuid1, exp1))
         // Second time it fails
-        assertFalse(tokenAuthentication.isNewSenderToken(uuid1, exp1))
+        assertFalse(jtiCache.isJTIOk(uuid1, exp1))
 
         val uuid2 = UUID.randomUUID().toString()
         // Very short expiration -
         val exp2 = OffsetDateTime.now().plusSeconds(1)
         // First time it works
-        assertTrue(tokenAuthentication.isNewSenderToken(uuid2, exp2))
+        assertTrue(jtiCache.isJTIOk(uuid2, exp2))
         Thread.sleep(2 * 1000)
         // Second time it fails, even if the original expired, due to the min timeout feature
         val exp2_1 = OffsetDateTime.now().plusSeconds(300)
-        assertFalse(tokenAuthentication.isNewSenderToken(uuid2, exp2_1))
+        assertFalse(jtiCache.isJTIOk(uuid2, exp2_1))
     }
 
     @Test
@@ -323,13 +323,13 @@ class TokenAuthenticationTests {
 
     @Test
     fun `test scopeListContainsScope`() {
-        assertTrue(TokenAuthentication.scopeListContainsScope("a", "a"))
-        assertTrue(TokenAuthentication.scopeListContainsScope("a:b c:d e:f", "a:b"))
-        assertFalse(TokenAuthentication.scopeListContainsScope("a:b c:d e:f", "a:b "))
-        assertFalse(TokenAuthentication.scopeListContainsScope("", ""))
-        assertFalse(TokenAuthentication.scopeListContainsScope("xx", "x"))
-        assertFalse(TokenAuthentication.scopeListContainsScope("x   x", ""))
-        assertFalse(TokenAuthentication.scopeListContainsScope("x   x", " "))
+        assertTrue(Scope.scopeListContainsScope("a", "a"))
+        assertTrue(Scope.scopeListContainsScope("a:b c:d e:f", "a:b"))
+        assertFalse(Scope.scopeListContainsScope("a:b c:d e:f", "a:b "))
+        assertFalse(Scope.scopeListContainsScope("", ""))
+        assertFalse(Scope.scopeListContainsScope("xx", "x"))
+        assertFalse(Scope.scopeListContainsScope("x   x", ""))
+        assertFalse(Scope.scopeListContainsScope("x   x", " "))
     }
 
 }

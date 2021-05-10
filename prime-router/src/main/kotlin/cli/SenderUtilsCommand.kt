@@ -11,6 +11,7 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.SenderAPI
+import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import java.io.File
@@ -65,7 +66,7 @@ class AddPublicKey : SingleSettingCommand(
             echo("Unable to fine pem file " + publicKeyFile.absolutePath)
             return
         }
-        if (!TokenAuthentication.isWellFormedScope(scope)) {
+        if (!Scope.isWellFormedScope(scope)) {
             echo("$scope is not a well formed scope value")
             return
         }
@@ -75,7 +76,7 @@ class AddPublicKey : SingleSettingCommand(
         val origSenderJson = get(environment, accessToken, settingType, settingName)
         val origSender = Sender(jsonMapper.readValue(origSenderJson, SenderAPI::class.java))
 
-        if (!TokenAuthentication.isValidScope(scope, origSender)) {
+        if (!Scope.isValidScope(scope, origSender)) {
             echo("Sender full name in scope must match $settingName.  Instead got: $scope")
             return
         }
