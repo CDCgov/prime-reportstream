@@ -11,6 +11,11 @@
         topic: covid-19
         schemaName: primedatainput/pdi-covid-19
         format: CSV
+      - name: hl7test
+        organizationName: simple_report
+        topic: covid-19
+        schemaName: covid-19
+        format: HL7
 
   - name: waters
     description: Test Sender from Waters
