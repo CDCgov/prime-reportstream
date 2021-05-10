@@ -2,12 +2,21 @@ package gov.cdc.prime.router.tokens
 
 import gov.cdc.prime.router.Sender
 import org.apache.logging.log4j.kotlin.Logging
+import java.lang.IllegalArgumentException
 
 /**
- * A set of helper functions related to validating scopes
+ * A set of helper functions related to validating scopes.
+ *
+ * In ReportStream, a scope is of the form senderFullname.detailedScope,
+ * that is, orgName.senderName.detailedScope
+ * Example:  strac.default.report
  */
 class Scope {
     companion object: Logging {
+        enum DetailedScope {
+            report,  // ability to submit a report
+        }
+
         fun isWellFormedScope(scope: String): Boolean {
             val splits = scope.split(".")
             if (splits.size != 3) {
@@ -28,14 +37,17 @@ class Scope {
                 logger.warn("Expected sender ${expectedSender.name}. Instead got: ${splits[1]}")
                 return false
             }
-            return when (splits[2]) {
-                "report" -> true
-                else -> false
+            try {
+                DetailedScope.valueOf(splits[2])
+            } catch (e: IllegalArgumentException) {
+                logger.warn("Invalid DetailedScope ${splits[2]}")
+                return false
             }
+            return true
         }
 
-        fun generateValidScope(sender: Sender, endpoint: String): String {
-            return "${sender.fullName}.$endpoint"
+        fun generateValidScope(sender: Sender, detailedScope: String): String {
+            return "${sender.fullName}.$detailedScope"
         }
 
         fun scopeListContainsScope(scopeList: String, desiredScope: String): Boolean {
