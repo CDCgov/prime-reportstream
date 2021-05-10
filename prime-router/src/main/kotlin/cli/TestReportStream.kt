@@ -1144,18 +1144,19 @@ class InternationalContent : CoolTest() {
     override val status = TestStatus.GOODSTUFF
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting $name Test: send ${simpleRepSender.fullName} data to ${csvReceiver.name}")
+        val receiverName = hl7Receiver.name
+        ugly("Starting $name Test: send ${simpleRepSender.fullName} data to ${receiverName}")
         val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
             1,
             receivingStates,
-            hl7Receiver.name,
+            receiverName,
             options.dir,
             // Use the Chinese locale since the fake data is mainly Chinese characters
             // https://github.com/DiUS/java-faker/blob/master/src/main/resources/zh-CN.yml
-            locale = Locale("zh_CN")
+            //locale = Locale("zh_CN")
         )
         echo("Created datafile $file")
         // Now send it to ReportStream.
@@ -1177,7 +1178,7 @@ class InternationalContent : CoolTest() {
             db = WorkflowEngine().db
             var asciiOnly = false
             db.transact { txn ->
-                val filename = sftpFilenameQuery(txn, reportId, hl7Receiver.name)
+                val filename = sftpFilenameQuery(txn, reportId, receiverName)
                 // If we get a file, test the contents to see if it is all ASCII only.
                 if (filename != null) {
                     val contents = File(SFTP_DIR, filename).inputStream().readBytes().toString(Charsets.UTF_8)
