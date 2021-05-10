@@ -11,6 +11,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
+import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
@@ -27,6 +28,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
 import java.io.File
@@ -42,6 +44,11 @@ import kotlin.system.exitProcess
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
+
+/**
+ * The local folder used by the dev Docker instance to save files uploaded to the SFTP server
+ */
+val SFTP_DIR = "build/sftp"
 
 enum class TestStatus(val description: String) {
     DRAFT("Experimental"), // Tests that are experimental
@@ -432,6 +439,24 @@ abstract class CoolTest {
               and RF.report_id in
               (select report_descendants(?)) """
             return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+        }
+
+        /**
+         * Fetch the one uploaded file to SFTP for a given [reportId] and [receivingOrgSvc].
+         * @return the filename of the uploaded file
+         */
+        fun sftpFilenameQuery(
+            txn: DataAccessTransaction,
+            reportId: ReportId,
+            receivingOrgSvc: String
+        ): String? {
+            val ctx = DSL.using(txn)
+            val sql = """select RF.external_name
+                from report_file as RF
+                join action as A ON A.action_id = RF.action_id
+                where RF.report_id in (select find_sent_reports(?)) AND RF.receiving_org_svc = ? 
+                order by A.action_id """
+            return ctx.fetchOne(sql, reportId, receivingOrgSvc)?.into(String::class.java)
         }
 
         // Find the most recent action taken in the system
@@ -1119,14 +1144,14 @@ class InternationalContent : CoolTest() {
     override val status = TestStatus.GOODSTUFF
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
+        ugly("Starting $name Test: send ${simpleRepSender.fullName} data to ${csvReceiver.name}")
         val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
-            fakeItemCount,
+            1,
             receivingStates,
-            allGoodCounties,
+            hl7Receiver.name,
             options.dir,
             // Use the Chinese locale since the fake data is mainly Chinese characters
             // https://github.com/DiUS/java-faker/blob/master/src/main/resources/zh-CN.yml
@@ -1142,13 +1167,34 @@ class InternationalContent : CoolTest() {
             return bad("***intcontent Test FAILED***:  response code $responseCode")
         }
         try {
+            // Read the response
             val tree = jacksonObjectMapper().readTree(json)
             val reportId = ReportId.fromString(tree["id"].textValue())
+
             echo("Id of submitted report: $reportId")
             waitABit(25, environment)
-            return examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
+            // Go to the database and get the SFTP filename that was sent
+            db = WorkflowEngine().db
+            var asciiOnly = false
+            db.transact { txn ->
+                val filename = sftpFilenameQuery(txn, reportId, hl7Receiver.name)
+                // If we get a file, test the contents to see if it is all ASCII only.
+                if (filename != null) {
+                    val contents = File(SFTP_DIR, filename).inputStream().readBytes().toString(Charsets.UTF_8)
+                    asciiOnly = CharMatcher.ascii().matchesAllOf(contents)
+                }
+            }
+            if(asciiOnly) {
+                return bad("***intcontent Test FAILED***: File contents are only ASCII characters")
+            } else {
+                return good("Test passed: for intcontent")
+            }
         } catch (e: NullPointerException) {
             return bad("***intcontent Test FAILED***: Unable to properly parse response json")
+        }
+        catch (e: DataAccessException) {
+            echo(e)
+            return bad("***intcontent Test FAILED***: There was an error fetching data from the database.")
         }
     }
 }
