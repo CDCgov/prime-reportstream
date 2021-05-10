@@ -35,6 +35,7 @@ import java.net.HttpURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
+import java.util.*
 import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.system.exitProcess
@@ -220,6 +221,7 @@ Examples:
             HammerTime(),
             Waters(),
             RepeatWaters(),
+            InternationalContent()
         )
     }
 }
@@ -1105,5 +1107,48 @@ class BadSftp : CoolTest() {
         waitABit(30, environment)
         echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
         return examineLineageResults(reportId, listOf(sftpFailReceiver), options.items)
+    }
+}
+
+/**
+ * Generate a report with international characters to verify we can handle them.
+ */
+class InternationalContent : CoolTest() {
+    override val name = "intcontent"
+    override val description = "Create Fake data that includes international characters, submit, wait, confirm sent via database lineage data"
+    override val status = TestStatus.GOODSTUFF
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
+        val fakeItemCount = allGoodReceivers.size * options.items
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            simpleRepSender,
+            fakeItemCount,
+            receivingStates,
+            allGoodCounties,
+            options.dir,
+            // Use the Chinese locale since the fake data is mainly Chinese characters
+            // https://github.com/DiUS/java-faker/blob/master/src/main/resources/zh-CN.yml
+            locale = Locale("zh_CN")
+        )
+        echo("Created datafile $file")
+        // Now send it to ReportStream.
+        val (responseCode, json) =
+            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            return bad("***intcontent Test FAILED***:  response code $responseCode")
+        }
+        try {
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
+            echo("Id of submitted report: $reportId")
+            waitABit(25, environment)
+            return examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
+        } catch (e: NullPointerException) {
+            return bad("***intcontent Test FAILED***: Unable to properly parse response json")
+        }
     }
 }
