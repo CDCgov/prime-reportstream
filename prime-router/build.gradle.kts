@@ -9,15 +9,15 @@ Properties that can be overridden using the Gradle -P arguments:
   E.g. ./gradlew clean package -Pg.user=myuser -Dpg.password=mypassword
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.0"
-    id("org.flywaydb.flyway") version "7.8.1"
-    id("nu.studer.jooq") version "5.2"
+    id("org.flywaydb.flyway") version "7.8.2"
+    id("nu.studer.jooq") version "5.2.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
 }
@@ -36,6 +36,8 @@ val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://localhost:5432/p
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
+val kotlinVersion = "1.5.0"
+
 defaultTasks("package")
 
 // Set the compiler JVM target
@@ -43,15 +45,11 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
+
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "11"
 compileTestKotlin.kotlinOptions.jvmTarget = "11"
-
-sourceSets.main {
-    // Exclude SQL files from being copied to resulting package
-    resources.exclude("**/*.sql")
-}
 
 tasks.clean {
     // Delete the old Maven build folder
@@ -62,6 +60,20 @@ tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
     dependsOn("compileKotlin")
+    // Run the test task if specified configuration files are changed
+    inputs.files(fileTree("./") {
+        include("settings/**/*.yml")
+        include("metadata/**/*")
+    })
+    outputs.upToDateWhen {
+        // Call gradle with the -Pforcetest option will force the unit tests to run
+        if (project.hasProperty("forcetest")) {
+            println("Rerunning unit tests...")
+            false
+        } else {
+            true
+        }
+    }
 }
 
 tasks.processResources {
@@ -79,6 +91,7 @@ tasks.jar {
         /* We put the CLI main class in the manifest at this step as a convenience to allow this jar to be
         run by the ./prime script. It will be overwritten by the Azure host or the CLI fat jar package. */
         attributes("Main-Class" to primeMainClass)
+        attributes("Multi-Release" to true)
     }
 }
 
@@ -97,9 +110,13 @@ tasks.register<JavaExec>("primeCLI") {
     // Default arguments is to display the help
     args = listOf("-h")
     environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
-    doFirst() {
+    doFirst {
         println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
-        println("Usage example: gradle primeCLI --args=\"data --input-fake 50 --input-schema waters/waters-covid-19 --output-dir ./ --target-states CA --target-counties 'Santa Clara' --output-format CSV\"")
+        println(
+            "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
+                "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
+                "--target-counties 'Santa Clara' --output-format CSV\""
+        )
     }
 }
 
@@ -112,21 +129,31 @@ tasks.register<JavaExec>("testEnd2End") {
     environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
 }
 
+tasks.register<JavaExec>("generateDocs") {
+    group = rootProject.description ?: ""
+    description = "Generate the schema documentation in markup format"
+    main = primeMainClass
+    classpath = sourceSets["main"].runtimeClasspath
+    args = listOf("generate-docs")
+}
+
 azurefunctions {
     appName = azureAppName
-    setAppSettings(closureOf<MutableMap<String, String>> {
-        this["WEBSITE_RUN_FROM_PACKAGE"] = "1"
-        this["FUNCTIONS_EXTENSION_VERSION"] = "3"
-        this["FUNCTIONS_WORKER_RUNTIME"] = "java"
-    })
+    setAppSettings(
+        closureOf<MutableMap<String, String>> {
+            this["WEBSITE_RUN_FROM_PACKAGE"] = "1"
+            this["FUNCTIONS_EXTENSION_VERSION"] = "3"
+            this["FUNCTIONS_WORKER_RUNTIME"] = "java"
+        }
+    )
 }
 
 tasks.azureFunctionsPackage {
     dependsOn("test")
 }
 
-val azureResourcesTmpDir = File(rootProject.buildDir.path, "${azureFunctionsDir}-resources/${azureAppName}")
-val azureResourcesFinalDir = File(rootProject.buildDir.path, "${azureFunctionsDir}/${azureAppName}")
+val azureResourcesTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-resources/$azureAppName")
+val azureResourcesFinalDir = File(rootProject.buildDir.path, "$azureFunctionsDir/$azureAppName")
 tasks.register<Copy>("gatherAzureResources") {
     from("./")
     into(azureResourcesTmpDir)
@@ -140,13 +167,13 @@ tasks.register<Copy>("gatherAzureResources") {
 
 tasks.register("copyAzureResources") {
     dependsOn("gatherAzureResources")
-    doLast() {
+    doLast {
         // We need to use a regular copy, so Gradle does not delete the existing folder
         org.apache.commons.io.FileUtils.copyDirectory(azureResourcesTmpDir, azureResourcesFinalDir)
     }
 }
 
-val azureScriptsTmpDir = File(rootProject.buildDir.path, "${azureFunctionsDir}-scripts/${azureAppName}")
+val azureScriptsTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-scripts/$azureAppName")
 val azureScriptsFinalDir = rootProject.buildDir
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
@@ -159,11 +186,11 @@ tasks.register<Copy>("gatherAzureScripts") {
 
 tasks.register("copyAzureScripts") {
     dependsOn("gatherAzureScripts")
-    doLast() {
+    doLast {
         // We need to use a regular copy, so Gradle does not delete the existing folder
         org.apache.commons.io.FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
-        File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true);
-        File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true);
+        File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true)
+        File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true)
     }
 }
 
@@ -177,7 +204,7 @@ flyway {
 // Database code generation configuration
 jooq {
     configurations {
-        create("main") {  // name of the jOOQ configuration
+        create("main") { // name of the jOOQ configuration
             jooqConfiguration.apply {
                 logging = org.jooq.meta.jaxb.Logging.INFO
                 jdbc.apply {
@@ -248,18 +275,17 @@ repositories {
 dependencies {
     jooqGenerator("org.postgresql:postgresql:42.2.20")
 
-    // Make sure all Kotlin libs versions match, including the Gradle plugin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.0")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+    implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
 
-    // Before changing an Azure lib version, check that all libs and their dependencies match
+// Before changing an Azure lib version, check that all libs and their dependencies match
     implementation("com.azure:azure-storage-blob:12.11.0")
     implementation("com.azure:azure-storage-queue:12.9.0")
     implementation("com.azure:azure-security-keyvault-secrets:4.2.7")
     implementation("com.azure:azure-identity:1.2.5")
 
-    implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("org.apache.logging.log4j:log4j-api:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-core:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
@@ -274,7 +300,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.21")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.22")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -294,12 +320,13 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.flywaydb:flyway-core:7.8.2")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
+    implementation("org.commonmark:commonmark:0.17.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0"){
+    testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0") {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")

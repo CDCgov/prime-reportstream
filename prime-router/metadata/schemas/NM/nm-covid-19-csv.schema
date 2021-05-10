@@ -269,11 +269,11 @@ elements:
       - name: Pregnant
         format: $alt
     altValues:
-      - code: Y
+      - code: 77386006
         display: Y
-      - code: N
+      - code: 60001007
         display: N
-      - code: UNK
+      - code: 261665006
         display: U
 
   - name: patient_email

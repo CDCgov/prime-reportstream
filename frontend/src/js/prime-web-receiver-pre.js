@@ -42,7 +42,7 @@ function checkJWT() {
 
 /**
  * Fetches the organization name based on the stored claim of org
- * 
+ *
  * @returns Promise, eventually a String organization name
  */
 async function fetchOrgName() {
@@ -61,7 +61,7 @@ async function fetchOrgName() {
 
 /**
  *  If the user is logged in, starts an idle timer that when expires
- *      after 15 min, clears session storage and redirects to the 
+ *      after 15 min, clears session storage and redirects to the
  *      sign-in page
  */
 function idleTimer() {
@@ -123,14 +123,14 @@ function logout() {
     window.sessionStorage.removeItem("oldOrg");
     window.location.replace(`${window.location.origin}`);
     const _signIn = document.getElementById("signInButton");
-    if (_signIn){ 
+    if (_signIn){
         _signIn.removeAttribute( "hidden" );
     }
 }
 
 
 /**
- * 
+ *
  */
 async function fetchReports() {
     const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
@@ -153,7 +153,7 @@ function requestFile(reportId) {
 
 /**
  *
- 
+
 function signIn() {
     const _signIn = document.getElementById("signIn");
     let _navMenu = document.getElementById("navmenu");
@@ -172,11 +172,11 @@ function signIn() {
  * @returns
  */
 function getBaseUrl() {
-    if (window.location.origin.includes("localhost")) 
+    if (window.location.origin.includes("localhost"))
         return "http://localhost:7071";
-    else if (window.location.origin.includes("staging")) 
+    else if (window.location.origin.includes("staging"))
         return "https://staging.prime.cdc.gov";
-    else 
+    else
         return "https://prime.cdc.gov";
 }
 
@@ -187,8 +187,8 @@ function changeOrg( event ){
     console.log( `event.value = ${event.value}`);
 }
 /**
- * 
- * @param {boolean} redirect 
+ *
+ * @param {boolean} redirect
  */
 function processJwtToken(){
     let token = window.sessionStorage.getItem("jwt");
@@ -200,12 +200,12 @@ function processJwtToken(){
         if (emailUser) emailUser.innerHTML = claims.sub;
         const logout = document.getElementById("logout");
         if (logout) logout.innerHTML = 'Logout';
-     
+
         const _signIn = document.getElementById("signInButton");
         if (_signIn) { _signIn.setAttribute( "hidden", "hidden"); }
 
-        const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");  
-        
+        const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");
+
         const oldOrg = window.sessionStorage.getItem( "oldOrg");
 
         window.org = oldOrg? oldOrg : (_org && _org.length > 0) ? _org[0] : null;
@@ -226,12 +226,12 @@ function processJwtToken(){
 
                 window.orgs.forEach( org => {
                     console.log( `${window.org} == ${org} ${window.org == org}` );
-                    if( _orgsId ) _orgsId.innerHTML += 
+                    if( _orgsId ) _orgsId.innerHTML +=
                         window.org == org? `<option value="${org}" selected="selected">${org.substring(2).replaceAll("_", "-").toUpperCase()}</option>` : `<option value="${org}">${org.substring(2).replaceAll("_", "-").toUpperCase()}</option>`;
-                });      
+                });
         }
         */
-    
+
     }
     else{
         const navmenu = document.getElementById( "navmenu" );
@@ -243,7 +243,7 @@ function processJwtToken(){
 }
 
 /**
- * 
+ *
  * @returns {string} organization name; possibly null
  */
 async function processOrgName(){
@@ -263,7 +263,7 @@ async function processOrgName(){
 }
 
 /**
- * 
+ *
  * @returns {Array<Report>} an array of the received reports; possibly empty
  */
 async function processReports(){
@@ -286,7 +286,7 @@ async function processReports(){
                 <th data-title="Total tests" scope="row">${_report.total}</th>
                 <th data-title="File" scope="row">
                     <span>
-                        <a href="javascript:requestFile( \'${_report.reportId}\');">
+                        <a href="javascript:requestFile( \'${_report.reportId}\');" class="usa-link">
                             ${_report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : _report.fileType}
                         </a>
                     </span>
@@ -297,8 +297,8 @@ async function processReports(){
 }
 
 /**
- * 
- * @param {Array<Report>} reports array 
+ *
+ * @param {Array<Report>} reports array
  * @returns {Report} selected report; possibly null
  */
 async function processReport( reports ){
@@ -311,32 +311,57 @@ async function processReport( reports ){
         const details = document.getElementById("details");
         if (details) details.innerHTML +=
             `<div class="tablet:grid-col-6">
-                            <h4 class="text-base margin-bottom-0">Report type</h4>
+                            <h4 class="text-base-darker text-normal margin-bottom-0">Report type</h4>
                             <p class="text-bold margin-top-0">${report.type}</p>
-                            <h4 class="text-base margin-bottom-0">Report sent</h4>
+                            <h4 class="text-base-darker text-normal margin-bottom-0">Report sent</h4>
                             <p class="text-bold margin-top-0">${moment.utc(report.sent).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>
                     <div class="tablet:grid-col-6">
-                            <h4 class="text-base margin-bottom-0">Total tests reported</h4>
+                            <h4 class="text-base-darker text-normal margin-bottom-0">Total tests reported</h4>
                             <p class="text-bold margin-top-0">${report.total}</p>
-                            <h4 class="text-base margin-bottom-0">Download expires</h4>
+                            <h4 class="text-base-darker text-normal margin-bottom-0">Download expires</h4>
                             <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>`;
+        const facilities = document.getElementById( "tBodyFac");
+        if( facilities ){
+            report.facilities.forEach( reportFacility => {
+                facilities.innerHTML += 
+                    `
+                    <tr>
+                        <td>${reportFacility.facility}</td>
+                        <td>${reportFacility.CLIA}</td>
+                        <td>${reportFacility.total}</td>
+                    </tr>
+                    `;
+            });
+        }
+       
+        const noFac = document.getElementById( 'nofacilities' );
+        const facTable = document.getElementById( 'facilitiestable');
+
+
+        if( report.facilities.length ){
+            if( noFac ) noFac.setAttribute( "hidden", "hidden" );    
+        }
+        else{
+            if( facTable ) facTable.setAttribute( "hidden", "hidden" );
+        }
+
         const reportId = document.getElementById("report.id");
         if (reportId) reportId.innerHTML = report.reportId;
         const download = document.getElementById("download");
         if (download) download.innerHTML +=
-            `<a id="report.fileType" 
-                class="usa-button usa-button--outline float-right" 
+            `<a id="report.fileType"
+                class="usa-button usa-button--outline float-right"
                 href="javascript:requestFile( \'${report.reportId}\');"</a>`;
         const reportFileType = document.getElementById("report.fileType");
         if (reportFileType) reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
-    } 
-    return report;   
+    }
+    return report;
 }
 
 /**
- * 
+ *
  */
 async function processCharts(){
     let cards = [];
@@ -410,5 +435,3 @@ async function processCharts(){
     }
 
 }
-
-

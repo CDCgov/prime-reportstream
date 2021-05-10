@@ -382,7 +382,7 @@
         initialTime: 00:00
         timeZone: CENTRAL
       transport:
-        type: SFTP_LEGACY
+        type: SFTP
         host: 10.0.2.4
         port: 22
         filePath: ./upload
@@ -709,25 +709,6 @@
         format: HL7
       transport:
         type: "NULL"
-    - name: SFTP_LEGACY
-      organizationName: ignore
-      topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_LEGACY)" ]
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-      translation:
-        useBatchHeaders: true
-        type: HL7
-        schemaName: tx/tx-covid-19
-        receivingApplicationName: NEDSS
-        receivingFacilityName: SFTP_LEGACY
-      transport:
-        type: SFTP_LEGACY
-        host: 10.0.2.4
-        port: 22
-        filePath: ./upload
     - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
       organizationName: ignore
       topic: covid-19
