@@ -33,10 +33,8 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
     /**
      *  convenience method to log in two places
      */
-    fun logErr(actionHistory: ActionHistory?, msg: String) {
-        actionHistory?.let {
-            it.trackActionResult(msg)
-        }
+    private fun logErr(actionHistory: ActionHistory?, msg: String) {
+        actionHistory?.trackActionResult(msg)
         logger.error(msg)
     }
 
@@ -69,10 +67,10 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
                 }
                 return jtiCache.isJTIOk(jti, expiresAt) // check for replay attacks
             } catch (ex: JwtException) {
-                logErr(actionHistory, "Rejecting JWT: ${ex}")
+                logErr(actionHistory, "Rejecting JWT: $ex")
                 return false
             } catch (e: IllegalArgumentException) {
-                logErr(actionHistory, "Rejecting JWT: ${e}")
+                logErr(actionHistory, "Rejecting JWT: $e")
                 return false
             }
             return false
@@ -96,9 +94,8 @@ class TokenAuthentication(val jtiCache: JtiCache): Logging {
                 .setExpiration(expirationDate)  // exp
                 .claim("scope", scopeAuthorized)
                 .signWith(secret).compact()
-            actionHistory?.let {
-                it.trackActionResult("Token successfully created for $scopeAuthorized. Expires at $expirationDate")
-            }
+            actionHistory?.trackActionResult(
+                "Token successfully created for $scopeAuthorized. Expires at $expirationDate")
             return AccessToken(token, "bearer", expiresInSeconds, expiresAtSeconds, scopeAuthorized)
         }
 

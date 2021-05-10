@@ -13,7 +13,7 @@ import java.lang.IllegalArgumentException
  */
 class Scope {
     companion object: Logging {
-        enum DetailedScope {
+        enum class DetailedScope {
             report,  // ability to submit a report
         }
 
