@@ -427,14 +427,9 @@ class Hl7Serializer(val metadata: Metadata) {
         report.schema.elements.forEach {
             lookupValues[it.name] = report.getString(row, it.name) ?: element.default ?: ""
         }
-        val valuesForMapper = valueNames?.map { elementName ->
-            val valueElement = report.schema.findElement(elementName)
-                ?: error(
-                    "Schema Error: Could not find element '$elementName' for mapper " +
-                        "'${mapper.name}' from '${element.name}'."
-                )
-            val value = lookupValues[elementName]
-                ?: error("Schema Error: No mapper input for $elementName")
+        val valuesForMapper = valueNames?.mapNotNull { elementName ->
+            val valueElement = report.schema.findElement(elementName) ?: return@mapNotNull null
+            val value = lookupValues[elementName] ?: return@mapNotNull null
             ElementAndValue(valueElement, value)
         }
         if (valuesForMapper == null) {
