@@ -204,7 +204,7 @@ Examples:
 
     private fun runTests(tests: List<CoolTest>, environment: ReportStreamEnv) {
         val failures = mutableListOf<CoolTest>()
-        val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir)
+        val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir, env = env)
         tests.forEach { test ->
             if (!test.run(environment,options))
                 failures.add(test)
@@ -245,7 +245,8 @@ data class CoolTestOptions (
     val key: String? = null,
     val dir: String,
     var muted: Boolean = false,  // if true, print out less stuff,
-    val sftpDir: String
+    val sftpDir: String,
+    val env: String
 )
 
 abstract class CoolTest {
@@ -1143,21 +1144,26 @@ class BadSftp : CoolTest() {
 }
 
 /**
- * Generate a report with international characters to verify we can handle them.
+ * Generate a report with international characters to verify we can handle them.  This test will send the
+ * report file and inspect the uploaded file to the SFTP server to make sure the international characters are
+ * present.  This test can only be run locally because of the testing of the uploaded files.
  */
 class InternationalContent : CoolTest() {
     override val name = "intcontent"
     override val description = "Create Fake data that includes international characters, submit, wait, confirm sent via database lineage data"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.DRAFT // Because this can only be run local to get access to the SFTP folder
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        if(options.env != "local") {
+            return bad("***intcontent Test FAILED***: This test can only be run locally as it needs access to the SFTP folder.")
+        }
+
         // Make sure we have access to the SFTP folder
         if (!Files.isDirectory(Paths.get(options.sftpDir))) {
             return bad("***intcontent Test FAILED***: The folder ${options.sftpDir} cannot be found.")
         }
         val receiverName = hl7Receiver.name
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to ${receiverName}")
-        val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
