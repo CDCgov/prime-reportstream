@@ -121,4 +121,8 @@ jobs:
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
 
+  update_docs:
+    name: Verify Router Docs
+    # Skip this deprecated job - This job needs to be removed once all other branches pull the latest build script
+    if: false
 
