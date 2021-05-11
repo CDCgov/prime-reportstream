@@ -29,7 +29,7 @@ deidentify: false
 timing:
   operation: "MERGE"
   numberPerDay: 12 # every two hours
-  initialTime: "09:30"
+  initialTime: "01:30"
   timeZone: "EASTERN"
   maxReportCount: 500
 description: ""

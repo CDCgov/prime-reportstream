@@ -481,8 +481,8 @@
         filePath: ./
       timing:
         operation: MERGE
-        numberPerDay: 1440
-        initialTime: 00:00
+        numberPerDay: 12
+        initialTime: 01:30
         timeZone: EASTERN
 
 - name: pa-phd
