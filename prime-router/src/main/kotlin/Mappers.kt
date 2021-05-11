@@ -221,7 +221,9 @@ class LIVDLookupMapper : Mapper {
     override fun valueNames(element: Element, args: List<String>): List<String> {
         if (args.isNotEmpty())
             error("Schema Error: livdLookup mapper does not expect args")
-        return listOf(DEVICE_ID, EQUIPMENT_MODEL_ID, TEST_KIT_NAME_ID, EQUIPMENT_MODEL_NAME)
+        // EQUIPMENT_MODEL_NAME is the more stable id so it goes first. Device_id will change as devices change from
+        // emergency use to fully authorized status in the LIVD table
+        return listOf(EQUIPMENT_MODEL_NAME, DEVICE_ID, EQUIPMENT_MODEL_ID, TEST_KIT_NAME_ID)
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {

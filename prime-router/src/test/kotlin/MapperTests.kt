@@ -71,7 +71,7 @@ class MapperTests {
 
     @Test
     fun `test livdLookup with DeviceId`() {
-        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-04-28.csv")
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-01-20.csv")
         val codeElement = Element(
             "ordered_test_code",
             tableRef = lookupTable,
@@ -81,11 +81,11 @@ class MapperTests {
         val mapper = LIVDLookupMapper()
 
         // Test with a EUA
-        val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag 2 Card_Abbott Diagnostics Scarborough, Inc._EUA")
+        val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abbott Diagnostics Scarborough, Inc._EUA")
         assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1)))
 
         // Test with a truncated device ID
-        val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag 2 Card_Abb#")
+        val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abb#")
         assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1a)))
 
         // Test with a ID NOW device id which is has a FDA number
@@ -99,7 +99,7 @@ class MapperTests {
 
     @Test
     fun `test livdLookup with Equipment Model Name`() {
-        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-04-28.csv")
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-01-20.csv")
         val codeElement = Element(
             "ordered_test_code",
             tableRef = lookupTable,
