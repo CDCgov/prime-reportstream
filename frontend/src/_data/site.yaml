@@ -9,16 +9,21 @@ orgs:
     url: https://cdc.gov
   PRIME:
     name: Pandemic Ready Interoperability Modernization Effort
-    email: support@prime.cdc.gov
+    email: usds@cdc.gov
   RS:
     name: ReportStream
-    url: https://prime.cdc.gov
-    email: support@prime.cdc.gov
+    url: https://reportstream.cdc.gov
+    email: usds@cdc.gov
   SR:
     name: SimpleReport
     url: https://simplereport.gov
-    email: support@prime.cdc.gov
+    email: support@simplereport.gov
   USDS:
     name: U.S. Digital Service
     url: https://usds.gov
     email: USDS@omb.eop.gov
+
+forms:
+  intakeElr:
+    name: ELR intake form
+    url: https://prime.powerappsportals.us/siw/

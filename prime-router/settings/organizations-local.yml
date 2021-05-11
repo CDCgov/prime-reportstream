@@ -479,6 +479,7 @@
           receivingFacilityOID: 2.16.840.1.114222.4.1.185
           truncateHDNamespaceIds: true
           usePid14ForPatientEmail: true
+          suppressHl7Fields: OBX-18
         transport:
           type: SFTP
           host: sftp
@@ -499,12 +500,40 @@
         organizationName: nj-doh
         topic: covid-19
         jurisdictionalFilter:
-          - matches(ordering_facility_state, NJ)
+          - orEquals(ordering_facility_state, NJ, patient_state, NJ)
+          - matches(processing_mode_code, P)
         translation:
           type: HL7
           useBatchHeaders: true
-          receivingApplicationName: NJELR
-          receivingFacilityName: NJ-ELR
+          receivingApplicationName: ELRS
+          receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+          receivingFacilityName: NJDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.1299
+          truncateHDNamespaceIds: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+      - name: elr-test
+        organizationName: nj-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NJ, patient_state, NJ)
+          - matches(processing_mode_code, T)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: ELRS
+          receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+          receivingFacilityName: NJDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.1299
+          truncateHDNamespaceIds: true
         transport:
           type: SFTP
           host: sftp
