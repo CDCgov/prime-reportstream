@@ -19,7 +19,7 @@ jobs:
           filters: |
             router:
               - 'prime-router/**'
-              - '.github/build_hub.yml'
+              - '.github/workflows/build_hub.yml'
       - id: fork_check
         run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
