@@ -77,39 +77,12 @@ jobs:
           name: build_target
           path: prime-router/build
 
-  update_docs:
-    name: Verify Router Docs
-    needs: build_router
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: prime-router
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          # Explicitly use the head_ref here (which is a branch name, rather
-          # than a commit hash) so we can commit and push back to it.
-          ref: ${{ github.head_ref }}
-
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: 11
-
-      - name: Restore Build Target
-        uses: actions/download-artifact@v2
-        with:
-          name: build_target
-          path: prime-router/build
-
       - name: Generate New Docs
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
           # Need to skip DB source generation as we do not have a database but the source is part of the artifacts
-          bash ./gradlew primeCLI --args='generate-docs' --exclude-task generateJooq
+          bash ./gradlew primeCLI --args='generate-docs'
 
       - name: Check for Uncommited Docs
         id: check_changes
