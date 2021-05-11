@@ -123,6 +123,7 @@ jobs:
 
   update_docs:
     name: Verify Router Docs
+    runs-on: ubuntu-latest
     # Skip this deprecated job - This job needs to be removed once all other branches pull the latest build script
     if: false
     steps:
