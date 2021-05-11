@@ -518,12 +518,10 @@ class End2End : CoolTest() {
                 passed = false
             }
             waitABit(25, environment)
-            passed = examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
+            return passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
         } catch (e: NullPointerException) {
-            bad("***end2end Test FAILED***: Unable to properly parse response json")
-            passed = false
+            return bad("***end2end Test FAILED***: Unable to properly parse response json")
         }
-        return passed
     }
 }
 
