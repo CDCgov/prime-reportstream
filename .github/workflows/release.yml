@@ -92,7 +92,7 @@ jobs:
           path: frontend/dist
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
 
       - name: Install OpenVPN
         run: |
@@ -121,7 +121,15 @@ jobs:
         run: az acr login --name ${{ env.ACR_REPO }}
 
       - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
+
+      - name: Deploy to Staging App Slot
+        uses: Azure/functions-container-action@v1
+        id: deploy-staging
+        with:
+          app-name: ${{ env.PREFIX }}-functionapp
+          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+          slot: staging
 
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
@@ -158,7 +166,7 @@ jobs:
           path: frontend/dist
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
 
       - name: Install OpenVPN
         run: |
@@ -187,7 +195,15 @@ jobs:
         run: az acr login --name ${{ env.ACR_REPO }}
 
       - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
+
+      - name: Deploy to Staging App Slot
+        uses: Azure/functions-container-action@v1
+        id: deploy-staging
+        with:
+          app-name: ${{ env.PREFIX }}-functionapp
+          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+          slot: staging
 
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
@@ -225,7 +241,7 @@ jobs:
           path: frontend/dist
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
 
       - name: Install OpenVPN
         run: |
@@ -254,7 +270,15 @@ jobs:
         run: az acr login --name ${{ env.ACR_REPO }}
 
       - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
+
+      - name: Deploy to Staging App Slot
+        uses: Azure/functions-container-action@v1
+        id: deploy-staging
+        with:
+          app-name: ${{ env.PREFIX }}-functionapp
+          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+          slot: staging
 
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
