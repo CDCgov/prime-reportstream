@@ -16,8 +16,8 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.0"
-    id("org.flywaydb.flyway") version "7.8.1"
-    id("nu.studer.jooq") version "5.2"
+    id("org.flywaydb.flyway") version "7.8.2"
+    id("nu.studer.jooq") version "5.2.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
 }
@@ -51,11 +51,6 @@ val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "11"
 compileTestKotlin.kotlinOptions.jvmTarget = "11"
 
-sourceSets.main {
-    // Exclude SQL files from being copied to resulting package
-    resources.exclude("**/*.sql")
-}
-
 tasks.clean {
     // Delete the old Maven build folder
     delete("target")
@@ -65,6 +60,11 @@ tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
     dependsOn("compileKotlin")
+    // Run the test task if specified configuration files are changed
+    inputs.files(fileTree("./") {
+        include("settings/**/*.yml")
+        include("metadata/**/*")
+    })
     outputs.upToDateWhen { 
         // Call gradle with the -Pforcetest option will force the unit tests to run
         if (project.hasProperty("forcetest")) {
@@ -279,8 +279,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.15.0")
-    implementation("com.azure:azure-core-http-netty:1.9.1")
+    implementation("com.azure:azure-core:1.16.0")
+    implementation("com.azure:azure-core-http-netty:1.9.2")
     implementation("com.azure:azure-storage-blob:12.10.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -309,7 +309,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.21")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.22")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")

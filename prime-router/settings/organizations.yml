@@ -23,7 +23,7 @@
     senders:
       - name: default
         organizationName: waters
-        topic: covid-19-otc
+        topic: covid-19
         schemaName: waters/waters-covid-19
         format: CSV
 
@@ -306,12 +306,30 @@
         organizationName: nj-doh
         topic: covid-19
         jurisdictionalFilter:
-          - matches(ordering_facility_state, NJ)
+          - orEquals(ordering_facility_state, NJ, patient_state, NJ)
+          - matches(processing_mode_code, P)
         translation:
           type: HL7
           useBatchHeaders: true
-          receivingApplicationName: NJELR
-          receivingFacilityName: NJ-ELR
+          receivingApplicationName: ELRS
+          receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+          receivingFacilityName: NJDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.1299
+          truncateHDNamespaceIds: true
+      - name: elr-test
+        organizationName: nj-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NJ, patient_state, NJ)
+          - matches(processing_mode_code, T)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: ELRS
+          receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+          receivingFacilityName: NJDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.1299
+          truncateHDNamespaceIds: true
 
   - name: mn-doh
     description: Minnesota Department of Health
@@ -381,6 +399,7 @@
           receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
           receivingFacilityName: VDH
           receivingFacilityOID: 2.16.840.1.114222.4.1.185
+          suppressHl7Fields: OBX-18
 
   - name: wi-dph
     description: Wisconsin Department of Public Health
@@ -392,9 +411,37 @@
         topic: covid-19
         jurisdictionalFilter:
           - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, P)
         translation:
           type: HL7
           useBatchHeaders: true
+          receivingApplicationName: vCMR
+          receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+          receivingFacilityName: WEDSS
+          receivingFacilityOID: 2.16.840.1.113883.3.33
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+      - name: elr-test
+        organizationName: wi-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, T)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: vCMR
+          receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+          receivingFacilityName: WEDSS
+          receivingFacilityOID: 2.16.840.1.113883.3.33
         transport:
           type: SFTP
           host: sftp
@@ -708,7 +755,7 @@
     receivers:
     - name: "elr"
       organizationName: "hhsprotect"
-      topic: "covid-19-otc"
+      topic: "covid-19"
       translation:
         type: "CUSTOM"
         schemaName: "waters/waters-covid-19"
@@ -744,7 +791,7 @@
         format: CSV
       - name: ignore-waters      # Use this to test sending waters data
         organizationName: ignore
-        topic: covid-19-otc
+        topic: covid-19
         schemaName: waters/waters-covid-19
         format: CSV
       - name: ignore-empty      # Use this to test sending data from the 'empty' schema

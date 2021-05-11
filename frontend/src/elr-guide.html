@@ -7,14 +7,13 @@ show_navbar: true
 documentation: true
 show_menu: true
 current: "elr guide"
-intake_form_url: https://airtable.com/shrGp8X54SqpeqNod
 ---
 
 <section id="anchor-top" class="margin-bottom-6">
   <h1 class="margin-top-0">Electronic Laboratory Reporting (ELR) integration guide</h1>
   <p class="usa-intro margin-top-0 margin-bottom-4">Public health departments can build a direct connection with
     ReportStream to receive complete, well-structured COVID-19 ELR data. </p>
-  <a href="{{ intake_form_url }}" target="_blank" rel="noopener" class="usa-button">ELR Intake Form</a>
+  <a href="{{ site.forms.intakeElr.url }}" target="_blank" rel="noopener" class="usa-button">ELR intake form</a>
   <a href="{{ site.pdfPath }}ReportStream-ELR-Onboarding-Guide-April-2021.pdf"
     class="usa-button usa-button--outline">Download this guide</a>
   <a href="mailto:{{ site.orgs.RS.email }}" class="usa-button usa-button--outline">Contact us</a>
@@ -24,7 +23,7 @@ intake_form_url: https://airtable.com/shrGp8X54SqpeqNod
   <h2>Benefits of building a direct connection</h2>
   <ul class="padding-bottom-1">
     <li>
-      <h3> Receive data from SimpleReport</h3>
+      <h3>Receive data from SimpleReport</h3>
       <p>If your jurisdiction is interested in receiving point-of-care tests results from <a
           href="https://simplereport.gov" target="_blank" rel="noopener"
           title="SimpleReport external link">SimpleReport</a>, you can access this data from the ReportStream
@@ -51,11 +50,11 @@ intake_form_url: https://airtable.com/shrGp8X54SqpeqNod
     <li class="usa-process-list__item">
       <h4 class="usa-process-list__heading">Kickoff and intake</h4>
       <ul class="margin-top-2">
-        <li><strong>Public Health Department (PHD)</strong> reviews the requirements for integrating with the
+        <li><strong>Public health department (PHD)</strong> reviews the requirements for integrating with the
           ReportStream team, including the data requirements, testing process, and new site registration process.</li>
-        <li><strong>PHD</strong> submits the <a href="{{ intake_form_url }}" target="_blank" rel="noopener"
-            class="usa-link">ReportStream Intake Form</a>.</li>
-        <li>After <strong>PHD</strong> has completed the Intake Form, the ReportStream team will review the information
+        <li><strong>PHD</strong> submits the <a href="{{ site.forms.intakeElr.url }}" target="_blank" rel="noopener"
+            class="usa-link">ReportStream intake form</a>.</li>
+        <li>After <strong>PHD</strong> has completed the intake form, the ReportStream team will review the information
           and reach out to start the process of establishing the integration.</li>
         <li>(Optional) Based on your configuration meeting with the ReportStream and your ELR team, it may be necessary
           to address custom requirements and outstanding questions.</li>
@@ -112,28 +111,28 @@ intake_form_url: https://airtable.com/shrGp8X54SqpeqNod
       email address of your choice whenever there are new facilities.</li>
     <li>Any custom requirements around site registration may lead to be a delay in integration.</li>
   </ul>
-  <h3>Sample File Testing and Launch Process</h3>
+  <h3>Sample file testing and launch process</h3>
   <p>ReportStream can support sending a variety of data types for testing before launch.</p>
   <ul>
     <li>
-      <h4>Testing – Synthetic Data</h4>
+      <h4>Testing – synthetic data</h4>
       <p>ReportStream will always send one or more rounds of synthetic data in the standard data schema for your review.
       </p>
     </li>
     <li>
-      <h4>Testing – Patient Data</h4>
+      <h4>Testing – patient data</h4>
       <p>If required, ReportStream can also send patient data to your test servers.</p>
       <p>In certain cases, ReportStream will not have a live senders in your jurisdiction. In this case, we can wait for
         a live facility to move to production sign off.</p>
     </li>
     <li>
-      <h4>Production Signoff/Launch</h4>
+      <h4>Production signoff/launch</h4>
       <p>For the first facility, we can send patient data to your testing server before moving onto production.</p>
       <p>For subsequent organizations/facilities, we will send data directly to production.</p>
     </li>
   </ul>
 
-  <h3>Local Jurisdictions</h3>
+  <h3>Local jurisdictions</h3>
   <ul>
     <li>ReportStream has the ability to send data to state, county, city, territorial, and tribal public health
       departments.</li>
@@ -174,42 +173,42 @@ intake_form_url: https://airtable.com/shrGp8X54SqpeqNod
 <hr class="margin-y-6" />
 <section>
   <h2>Onboarding checklist</h2>
-  <p><strong>To begin the process of integrating ReportStream and your ELR connection, <a href="{{ intake_form_url }}"
-        target="_blank" rel="noopener" class="usa-link">you will need to fill out the ReportStream Intake
-        Form</a>.</strong></p>
+  <p><strong>To begin the process of integrating ReportStream and your ELR connection, <a href="{{ site.forms.intakeElr.url }}"
+        target="_blank" rel="noopener" class="usa-link">you will need to fill out the ReportStream intake
+        form</a>.</strong></p>
   <p>The below outline will help you gather all of the information you will need prior to filling out the intake form
     online. Everything will be captured in the intake form unless explicitly mentioned otherwise.</p>
   <ul>
     <li>
-      <p><strong>Public Health Department Information</strong></p>
+      <p><strong>Public health department information</strong></p>
       <ul>
         <li>Full Name</li>
         <li>State/Territory Code</li>
       </ul>
     </li>
     <li>
-      <p><strong>Contact Information</strong></p>
+      <p><strong>Contact information</strong></p>
       <ul>
         <li>
-          ELR Contact Information
+          ELR Contact information
           <ul>
             <li>Name</li>
-            <li>Email Address</li>
-            <li>Phone Number</li>
+            <li>Email address</li>
+            <li>Phone number</li>
           </ul>
         </li>
         <li>
-          Secondary ELR Contact Information (Optional)
+          Secondary ELR contact information (optional)
           <ul>
             <li>Name</li>
-            <li>Email Address</li>
-            <li>Phone Number</li>
+            <li>Email address</li>
+            <li>Phone number</li>
           </ul>
         </li>
       </ul>
     </li>
     <li>
-      <p><strong>Data Requirements and Preferences</strong></p>
+      <p><strong>Data requirements and preferences</strong></p>
       <p>By default, ReportStream sends data as an HL7 file via SFTP. If your preferred data format/transport mechanism
         differs, there may be a delay in building our connection.</p>
       <ul>
@@ -268,7 +267,7 @@ intake_form_url: https://airtable.com/shrGp8X54SqpeqNod
       </ul>
     </li>
     <li>
-      <p><strong>Data Requirements and Preferences</strong></p>
+      <p><strong>Data requirements and preferences</strong></p>
       <p>ReportStream captures HHS's required fields, including Ask on Entry questions. Any other custom fields may lead
         to a delay in building our connection.</p>
       <ul>
@@ -278,7 +277,7 @@ intake_form_url: https://airtable.com/shrGp8X54SqpeqNod
       </ul>
     </li>
     <li>
-      <p><strong>Operation Preferences</strong></p>
+      <p><strong>Operation preferences</strong></p>
       <ul>
         <li>
           Confirm you have reviewed the ReportStream “New Site Registration Process” and your preference.
@@ -300,11 +299,11 @@ intake_form_url: https://airtable.com/shrGp8X54SqpeqNod
       </ul>
     </li>
     <li>
-      <p><strong>Local Jurisdictions</strong></p>
+      <p><strong>Local jurisdictions</strong></p>
       <p>Identify any local jurisdiction reporting requirements that are different from the state.</p>
     </li>
     <li>
-      <p><strong>Data Use/Custody</strong></p>
+      <p><strong>Data use/custody</strong></p>
       <p>If required, please upload any registration or data use agreements necessary for ReportStream to complete its
         integration with your ELR.</p>
       <p>Please note: CDC & ReportStream will not have access to the data routed to your health department – data will

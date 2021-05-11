@@ -19,6 +19,7 @@ jobs:
           filters: |
             router:
               - 'prime-router/**'
+              - '.github/workflows/build_hub.yml'
       - id: fork_check
         run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
@@ -68,48 +69,11 @@ jobs:
       - name: Build Prime Router Package
         run: bash ./gradlew clean package -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
 
-      - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
-
-      - name: Save Build Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: build_target
-          path: prime-router/build
-
-  update_docs:
-    name: Verify Router Docs
-    needs: build_router
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: prime-router
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          # Explicitly use the head_ref here (which is a branch name, rather
-          # than a commit hash) so we can commit and push back to it.
-          ref: ${{ github.head_ref }}
-
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: 11
-
-      - name: Restore Build Target
-        uses: actions/download-artifact@v2
-        with:
-          name: build_target
-          path: prime-router/build
-
       - name: Generate New Docs
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          # Need to skip DB source generation as we do not have a database but the source is part of the artifacts
-          bash ./gradlew primeCLI --args='generate-docs' --exclude-task generateJooq
+          bash ./gradlew primeCLI --args='generate-docs'
 
       - name: Check for Uncommited Docs
         id: check_changes
@@ -153,4 +117,17 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
+          
+      - name: Build Docker Image
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+
+  update_docs:
+    name: Verify Router Docs
+    runs-on: ubuntu-latest
+    # Skip this deprecated job - This job needs to be removed once all other branches pull the latest build script
+    if: false
+    steps:
+      - name: Deprecated Job
+        run: |
+            true
 
