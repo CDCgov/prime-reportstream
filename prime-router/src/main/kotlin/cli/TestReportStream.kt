@@ -109,7 +109,7 @@ Examples:
         "--env",
         help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.endPoint}," +
             " and 'test' will connect to ${ReportStreamEnv.TEST.endPoint}"
-    ).choice("test", "local", "staging", "prod").default("local").validate {
+    ).choice("rheft", "test", "local", "staging", "prod").default("local").validate {
         envSanityCheck()
         when (it) {
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
@@ -137,6 +137,7 @@ Examples:
             "staging" -> !dbEnv.contains("pdhstaging")
             "test" -> !dbEnv.contains("pdhtest")
             "local" -> !dbEnv.contains("localhost")
+            "rheft" -> !dbEnv.contains("rheft")
             "prod" -> !dbEnv.contains("pdhprod")
             else -> true
         }

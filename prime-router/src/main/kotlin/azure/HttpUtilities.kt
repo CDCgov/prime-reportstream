@@ -14,6 +14,7 @@ import java.time.OffsetDateTime
 enum class ReportStreamEnv(val endPoint: String) {
     TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
     LOCAL("http://localhost:7071/api/reports"),
+    RHEFT("https://rheft-functionapp.azurewebsites.net/api/reports"),
     STAGING("https://staging.prime.cdc.gov/api/reports"),
 //    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports"),
     PROD("not implemented"),
