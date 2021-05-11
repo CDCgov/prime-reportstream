@@ -28,6 +28,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import org.apache.commons.io.FileUtils
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
@@ -44,11 +45,6 @@ import kotlin.system.exitProcess
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
-
-/**
- * The local folder used by the dev Docker instance to save files uploaded to the SFTP server
- */
-val SFTP_DIR = "build/sftp"
 
 enum class TestStatus(val description: String) {
     DRAFT("Experimental"), // Tests that are experimental
@@ -83,6 +79,11 @@ Examples:
 ) {
 
     val defaultWorkingDir = "./build/csv_test_files"
+
+    /**
+     * The local folder used by the dev Docker instance to save files uploaded to the SFTP server
+     */
+    val SFTP_DIR = "build/sftp"
 
     private val list by option(
         "--list",
@@ -136,6 +137,11 @@ Examples:
         "--dir",
         help = "specify a working directory for generated files.  Default is $defaultWorkingDir"
     ).default(defaultWorkingDir)
+
+    private val sftpDir by option(
+        "--sftpdir",
+        help = "specify the folder where files were uploaded to the SFTP server.  Default is $SFTP_DIR"
+    ).default(SFTP_DIR)
 
     // Avoid accidentally connecting to the wrong database.
     private fun envSanityCheck() {
@@ -198,7 +204,7 @@ Examples:
 
     private fun runTests(tests: List<CoolTest>, environment: ReportStreamEnv) {
         val failures = mutableListOf<CoolTest>()
-        val options = CoolTestOptions(items, submits, key, dir)
+        val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir)
         tests.forEach { test ->
             if (!test.run(environment,options))
                 failures.add(test)
@@ -238,7 +244,8 @@ data class CoolTestOptions (
     val submits: Int = 5,
     val key: String? = null,
     val dir: String,
-    var muted: Boolean = false,  // if true, print out less stuff
+    var muted: Boolean = false,  // if true, print out less stuff,
+    val sftpDir: String
 )
 
 abstract class CoolTest {
@@ -1144,6 +1151,10 @@ class InternationalContent : CoolTest() {
     override val status = TestStatus.GOODSTUFF
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        // Make sure we have access to the SFTP folder
+        if (!Files.isDirectory(Paths.get(options.sftpDir))) {
+            return bad("***intcontent Test FAILED***: The folder ${options.sftpDir} cannot be found.")
+        }
         val receiverName = hl7Receiver.name
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to ${receiverName}")
         val fakeItemCount = allGoodReceivers.size * options.items
@@ -1156,7 +1167,7 @@ class InternationalContent : CoolTest() {
             options.dir,
             // Use the Chinese locale since the fake data is mainly Chinese characters
             // https://github.com/DiUS/java-faker/blob/master/src/main/resources/zh-CN.yml
-            //locale = Locale("zh_CN")
+            locale = Locale("zh_CN")
         )
         echo("Created datafile $file")
         // Now send it to ReportStream.
@@ -1181,7 +1192,7 @@ class InternationalContent : CoolTest() {
                 val filename = sftpFilenameQuery(txn, reportId, receiverName)
                 // If we get a file, test the contents to see if it is all ASCII only.
                 if (filename != null) {
-                    val contents = File(SFTP_DIR, filename).inputStream().readBytes().toString(Charsets.UTF_8)
+                    val contents = File(options.sftpDir, filename).inputStream().readBytes().toString(Charsets.UTF_8)
                     asciiOnly = CharMatcher.ascii().matchesAllOf(contents)
                 }
             }
