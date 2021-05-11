@@ -73,7 +73,6 @@ jobs:
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          # Need to skip DB source generation as we do not have a database but the source is part of the artifacts
           bash ./gradlew primeCLI --args='generate-docs'
 
       - name: Check for Uncommited Docs
