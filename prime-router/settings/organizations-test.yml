@@ -515,6 +515,7 @@
       transport:
         type: REDOX
         baseUrl: http://13.90.81.254:1080
+        apiKey: dummy
 
 - name: pa-phd
   description: Pennsylvania Department of Health
@@ -539,6 +540,7 @@
       transport:
         type: REDOX
         baseUrl: http://13.90.81.254:1080
+        apiKey: dummy
 
     - name: elr-chester-staging
       organizationName: pa-phd
@@ -558,6 +560,7 @@
       transport:
         type: REDOX
         baseUrl: http://13.90.81.254:1080
+        apiKey: dummy
 
     - name: elr-montgomery-staging
       organizationName: pa-phd
@@ -577,6 +580,7 @@
       transport:
         type: REDOX
         baseUrl: http://13.90.81.254:1080
+        apiKey: dummy
 
 - name: pa-chester-phd
   description: Health Department - Chester County, Pennsylvania
@@ -710,6 +714,7 @@
       transport:
         type: REDOX
         baseUrl: http://13.90.81.254:1080
+        apiKey: dummy
     - name: HL7_NULL
       organizationName: ignore
       topic: covid-19
