@@ -484,6 +484,7 @@ class End2End : CoolTest() {
     override val status = TestStatus.GOODSTUFF
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        var passed = true
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
         val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeFile(
@@ -498,17 +499,26 @@ class End2End : CoolTest() {
         // Now send it to ReportStream.
         val (responseCode, json) =
             HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
-        echo("Response to POST: $responseCode")
-        echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
-            return bad("***end2end Test FAILED***:  response code $responseCode")
+            bad("***end2end Test FAILED***:  response code $responseCode")
+            passed = false
+        } else {
+            good("Posting of report succeeded with response code $responseCode")
         }
+        echo(json)
         try {
             val tree = jacksonObjectMapper().readTree(json)
             val reportId = ReportId.fromString(tree["id"].textValue())
             echo("Id of submitted report: $reportId")
+            val topic = tree["topic"]
+            if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
+                good("'topic' is in response and correctly set to 'covid-19'")
+            } else {
+                bad("***end2end Test FAILED***: 'topic' is missing from response json")
+                passed = false
+            }
             waitABit(25, environment)
-            return examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
+            return passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
         } catch (e: NullPointerException) {
             return bad("***end2end Test FAILED***: Unable to properly parse response json")
         }
