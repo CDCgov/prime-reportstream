@@ -34,7 +34,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -48,7 +48,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -161,7 +161,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Testkit Name ID
 
@@ -177,7 +177,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Model
 

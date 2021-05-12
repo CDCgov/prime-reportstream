@@ -629,7 +629,7 @@ Z|Unavailable
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -651,7 +651,7 @@ Z|Unavailable
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -817,7 +817,7 @@ The phone number of the provider
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Documentation**:
 
@@ -833,7 +833,7 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Test Performed LOINC Code
 
@@ -859,7 +859,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -1171,7 +1171,7 @@ The name of the laboratory which performed the test, can be the same as the send
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Model
 
