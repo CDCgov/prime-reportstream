@@ -11,6 +11,11 @@
         topic: covid-19
         schemaName: primedatainput/pdi-covid-19
         format: CSV
+      - name: hl7test
+        organizationName: simple_report
+        topic: covid-19
+        schemaName: covid-19
+        format: HL7
 
   - name: waters
     description: Test Sender from Waters
@@ -591,6 +596,11 @@
         translation:
           type: HL7
           useBatchHeaders: true
+          receivingApplicationName: MA-MDPH
+          receivingApplicationOID: 2.16.840.1.113883.19.3.2
+          receivingFacilityName: MA-MDPH
+          receivingFacilityOID: 2.16.840.1.113883.19.3.2
+          truncateHDNamespaceIds: true
 
   - name: nh-dphs
     description: New Hampshire Division of Public Health Services
