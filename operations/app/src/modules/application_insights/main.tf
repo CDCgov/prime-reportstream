@@ -67,6 +67,32 @@ resource "azurerm_monitor_metric_alert" "availability_alert" {
   }
 }
 
+resource "azurerm_monitor_metric_alert" "exception_alert_critical" {
+  count = local.alerting_enabled
+  name = "Over 100 Exceptions Raised in the Last Hour"
+  resource_group_name = var.resource_group
+  scopes = [azurerm_application_insights.app_insights.id]
+  window_size = "PT1H"
+  frequency = "PT1M"
+  severity = 1
+
+  criteria {
+    metric_namespace = "microsoft.insights/components"
+    metric_name = "exceptions/count"
+    aggregation = "Count"
+    operator = "GreaterThan"
+    threshold = 99
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.action_group[0].id
+  }
+
+  tags = {
+    "environment" = var.environment
+  }
+}
+
 resource "azurerm_monitor_metric_alert" "exception_alert_error" {
   count = local.alerting_enabled
   name = "Over 10 Exceptions Raised in the Last Hour"
@@ -108,32 +134,6 @@ resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
     aggregation = "Count"
     operator = "GreaterThan"
     threshold = 0
-  }
-
-  action {
-    action_group_id = azurerm_monitor_action_group.action_group[0].id
-  }
-
-  tags = {
-    "environment" = var.environment
-  }
-}
-
-resource "azurerm_monitor_metric_alert" "exception_alert_critical" {
-  count = local.alerting_enabled
-  name = "Over 100 Exceptions Raised in the Last Hour"
-  resource_group_name = var.resource_group
-  scopes = [azurerm_application_insights.app_insights.id]
-  window_size = "PT1H"
-  frequency = "PT1M"
-  severity = 1
-
-  criteria {
-    metric_namespace = "microsoft.insights/components"
-    metric_name = "exceptions/count"
-    aggregation = "Count"
-    operator = "GreaterThan"
-    threshold = 99
   }
 
   action {
