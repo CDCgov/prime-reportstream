@@ -22,6 +22,11 @@ object DocumentationFactory {
         sb.appendLine("") // start with a blank line at the top 
         appendLabelAndData(sb, "Name", displayName)
         appendLabelAndData(sb, "Type", element.type?.name)
+		if (element.pii == true) {
+			appendLabelAndData(sb, "PII", "Yes")
+		} else {
+			appendLabelAndData(sb, "PII", "No")
+		}
         appendLabelAndData(sb, "Format", csvField?.format)
         if (element.hl7OutputFields != null)
             appendLabelAndData(sb, "HL7 Fields", element.hl7OutputFields.joinToString(", "))
