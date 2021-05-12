@@ -74,7 +74,7 @@ elements:
   - name: patient_race
     csvFields: [{ name: patientRace}]
 
-  # ReportStream uses hl70189 (H,N,U), but Waters sends HHS (2135-2, 2186-5, UNK, ASKU)
+  # ReportStream uses hl70189 (H,N,U), but Waters sends OMB (2135-2, 2186-5, UNK, ASKU)
   # Simplest way to map them was with an alt table
   - name: patient_ethnicity
     altValues:
