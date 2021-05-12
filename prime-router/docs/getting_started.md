@@ -178,7 +178,7 @@ A useful Azure tool to examine Azurite and Azure storage is (Storage Explorer)[h
 
 ## Function Development with Docker Compose
 ### Local SFTP Server
-You will need an SFTP server to receive data from the router.  For local tests, refer to the [SFTP-SETUP document](SFTP_SETUP.md) to setup a local SFTP server as a receiver of data.
+You will need an SFTP server to receive data from the router.  For local tests, refer to the [SFTP-SETUP document](SFTP-SETUP.md) to setup a local SFTP server as a receiver of data.
 
 ### Running the Router Locally
 The project's [README](../readme.md) file contains some steps to use the PRIME router in a CLI. However, for the POC app and most other users of the PRIME router will the router in the Microsoft Azure cloud. When hosted in Azure, the PRIME router uses Docker containers. The `DockerFile` describes how to build this container. 
