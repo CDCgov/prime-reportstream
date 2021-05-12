@@ -36,7 +36,7 @@ The EmailService will take in a Schedule element that consists of a body similar
 }
 ```
 
-See openapi.emailservice.yml for a detailed specification
+See [openapi.emailservice.yml](./openapi.emailservice.yml) for a detailed specification
 
 The EmailService will fire off emails based on:
 - If there are organizations, only for those organizations, otherwise, for every organization
