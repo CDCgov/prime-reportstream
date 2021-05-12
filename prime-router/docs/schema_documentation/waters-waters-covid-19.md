@@ -322,7 +322,7 @@ The patient's zip code
 
 **Type**: TABLE_OR_BLANK
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -336,7 +336,7 @@ The patient's zip code
 
 **HL7 Field**: PID-11-4
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -949,7 +949,7 @@ The phone number of the provider
 
 **HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
