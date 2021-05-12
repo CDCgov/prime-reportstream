@@ -22,3 +22,8 @@ This release adds the configured topic for the organization sender to the Json r
   "reportItemCount" : 25,
   "destinations" : [ {
 ```
+
+### Adds Reporting Facility Name to PID.3.4.1
+The PID.3.4.1 field should contain the name of the reporting facility that has assigned the patient their ID. This has been added.
+
+The field will also properly truncate if the state requires truncation of HD fields.
