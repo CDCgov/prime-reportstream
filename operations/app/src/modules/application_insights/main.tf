@@ -74,7 +74,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_critical" {
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
   frequency = "PT1M"
-  severity = 1
+  severity = 0
 
   criteria {
     metric_namespace = "microsoft.insights/components"
