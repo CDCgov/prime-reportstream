@@ -229,6 +229,21 @@ class ReportFunction {
                     null
                 }
             }
+            Sender.Format.HL7 -> {
+                try {
+                    val readResult = engine.hl7Serializer.readExternal(
+                        schemaName = sender.schemaName,
+                        input = ByteArrayInputStream(content.toByteArray()),
+                        ClientSource(organization = sender.organizationName, client = sender.name)
+                    )
+                    errors += readResult.errors
+                    warnings += readResult.warnings
+                    readResult.report
+                } catch (e: Exception) {
+                    errors.add(ResultDetail.report(e.message ?: ""))
+                    null
+                }
+            }
         }
     }
 

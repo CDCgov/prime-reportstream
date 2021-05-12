@@ -200,7 +200,7 @@ then
   compare_files "PIMA->PIMA" $expected_pima $actual_pima2
 
   echo And now generate some fake simplereport data
-  text=$(run_prime_cli data --input-fake 50 --input-schema $starter_schema --output-dir $outputdir)
+  text=$(run_prime_cli data --input-fake 50 --input-schema $starter_schema --output-dir $outputdir --target-states AZ --target-counties Pima)
   parse_prime_output_for_filename "$text" "[/\\]pdi-covid-19"
   fake_data=$filename
 
