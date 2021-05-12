@@ -50,7 +50,7 @@ abstract class SettingCommand(
         envvar = "PRIME_ENVIRONMENT",
         help = "Connect to <name> environment.\nChoose between [local|test|staging|prod]"
     )
-        .choice("local", "test", "staging", "prod")
+        .choice("local", "rheft", "test", "staging", "prod")
         .default("local", "local environment")
 
     private val outStream by option("-o", "--output", help = "Output to file", metavar = "<file>")
@@ -291,6 +291,7 @@ abstract class SettingCommand(
     companion object {
         val environments = listOf(
             Environment("local", "localhost:7071", useHttp = true),
+            Environment("rheft", "prime-data-hub-rheft.azurefd.net", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("test", "test.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),
