@@ -19,6 +19,8 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.time.format.DateTimeFormatter
+import java.time.Instant
 import java.util.logging.Level
 
 private const val CLIENT_PARAMETER = "client"
@@ -317,6 +319,8 @@ class ReportFunction {
             it.writeStartObject()
             if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
+                it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+                it.writeStringField("topic", result.report.schema.topic.toString())
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
