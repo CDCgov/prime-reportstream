@@ -44,6 +44,7 @@ resource "azurerm_monitor_action_group" "action_group" {
 resource "azurerm_monitor_metric_alert" "availability_alert" {
   count = local.alerting_enabled
   name = "Degraded Availability"
+  description = "Degraded Availability"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
@@ -70,6 +71,7 @@ resource "azurerm_monitor_metric_alert" "availability_alert" {
 resource "azurerm_monitor_metric_alert" "exception_alert_critical" {
   count = local.alerting_enabled
   name = "Over 100 Exceptions Raised in the Last Hour"
+  description = "Over 100 Exceptions Raised in the Last Hour"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
@@ -96,6 +98,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_critical" {
 resource "azurerm_monitor_metric_alert" "exception_alert_error" {
   count = local.alerting_enabled
   name = "Over 10 Exceptions Raised in the Last Hour"
+  description = "Over 10 Exceptions Raised in the Last Hour"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
@@ -122,6 +125,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_error" {
 resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
   count = local.alerting_enabled
   name = "One or More Exceptions Raised in the Last Hour"
+  description = "One or More Exceptions Raised in the Last Hour"
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
