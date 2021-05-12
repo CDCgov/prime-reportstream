@@ -47,7 +47,7 @@ resource "azurerm_monitor_metric_alert" "availability_alert" {
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
-  frequency = "PT30M"
+  frequency = "PT1M"
   severity = 0
 
   criteria {
@@ -73,7 +73,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_error" {
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
-  frequency = "PT30M"
+  frequency = "PT1M"
   severity = 1
 
   criteria {
@@ -99,7 +99,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
-  frequency = "PT30M"
+  frequency = "PT1M"
   severity = 2
 
   criteria {
@@ -125,7 +125,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_critical" {
   resource_group_name = var.resource_group
   scopes = [azurerm_application_insights.app_insights.id]
   window_size = "PT1H"
-  frequency = "PT30M"
+  frequency = "PT1M"
   severity = 1
 
   criteria {
