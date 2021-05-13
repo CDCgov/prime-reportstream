@@ -456,6 +456,13 @@ components:
         id:
           description: the id for the report assigned by the Hub
           type: string
+        timestamp:
+          description: the timestamp for this report submission
+          type: string
+          format: time-date
+        topic:
+          description: the topic configured for the client organization sender
+          type: string
         reportItemCount:
           description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
           type: integer

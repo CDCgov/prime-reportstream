@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
@@ -22,8 +23,9 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
+import org.apache.logging.log4j.kotlin.Logging
 
-class Hl7Serializer(val metadata: Metadata) {
+class Hl7Serializer(val metadata: Metadata): Logging {
     data class Hl7Mapping(
         val mappedRows: Map<String, List<String>>,
         val rows: List<RowResult>,
@@ -38,9 +40,16 @@ class Hl7Serializer(val metadata: Metadata) {
 
     private val hl7SegmentDelimiter: String = "\r"
     private val hapiContext = DefaultHapiContext()
+    private val modelClassFactory: ModelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
     private val buildVersion: String
     private val buildDate: String
     private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSZZZ")
+    private var hl7Config: Hl7Configuration? = null
+    private val hdFieldMaximumLength: Int? get() = if (hl7Config?.truncateHDNamespaceIds == true) {
+        HD_TRUNCATION_LIMIT
+    } else {
+        null
+    }
 
     init {
         val buildProperties = Properties()
@@ -51,7 +60,7 @@ class Hl7Serializer(val metadata: Metadata) {
             buildVersion = buildProperties.getProperty("buildVersion", "0.0.0.0")
             buildDate = buildProperties.getProperty("buildDate", "20200101")
         }
-        hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
+        hapiContext.modelClassFactory = modelClassFactory
     }
 
     /**
@@ -98,6 +107,10 @@ class Hl7Serializer(val metadata: Metadata) {
             val parsedMessage = convertMessageToMap(nextMessage.toString(), schema)
             errors.addAll(parsedMessage.errors)
             warnings.addAll(parsedMessage.warnings)
+            // there is a chance that there's an empty row (for example, an empty line)
+            // that won't parse. so we should skip that because it's not valid HL7
+            if (parsedMessage.row.isEmpty())
+                return
             rowResults.add(parsedMessage)
             nextMessage.clear()
             parsedMessage.row.forEach { (k, v) ->
@@ -163,7 +176,7 @@ class Hl7Serializer(val metadata: Metadata) {
             }
             // add the rows
             if (parsedValue.isNullOrEmpty()) {
-                warnings.add("Blank for $terserSpec")
+                warnings.add("Blank for $terserSpec - $elementName")
             }
             mergeIntoMappedRows(mappedRows, elementName, parsedValue ?: "")
         }
@@ -171,68 +184,80 @@ class Hl7Serializer(val metadata: Metadata) {
         val warnings = mutableListOf<String>()
         // key of the map is the column header, list is the values in the column
         val mappedRows: MutableMap<String, MutableSet<String>> = mutableMapOf()
-        val mcf = CanonicalModelClassFactory(HL7_SPEC_VERSION)
-        hapiContext.modelClassFactory = mcf
+        hapiContext.modelClassFactory = modelClassFactory
         val parser = hapiContext.pipeParser
         val reg = "(\r|\n)".toRegex()
-        val cleanedMessage = reg.replace(message, "\r")
-        val hapiMsg = parser.parse(cleanedMessage)
-        val terser = Terser(hapiMsg)
-        schema.elements.forEach {
-            if (!mappedRows.containsKey(it.name))
-                mappedRows[it.name] = mutableSetOf()
-
-            if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty()) {
-                mappedRows[it.name]?.add("")
-                return@forEach
-            }
-
-            if (!it.hl7Field.isNullOrEmpty()) {
-                val terserSpec = if (it.hl7Field.startsWith("MSH")) {
-                    "/${it.hl7Field}"
-                } else if (it.hl7Field == "AOE") {
-                    val question = it.hl7AOEQuestion!!
-                    val countObservations = 10
-                    // todo: map each AOE by the AOE question ID
-                    for (c in 0 until countObservations) {
-                        var spec = "/.OBSERVATION($c)/OBX-3-1"
-                        val questionCode = try {
-                            terser.get(spec)
-                        } catch (e: HL7Exception) {
-                            // todo: convert to result detail, maybe
-                            errors.add("Exception for $spec: ${e.message}")
-                            null
-                        }
-                        if (questionCode?.startsWith(question) == true) {
-                            spec = "/.OBSERVATION($c)/OBX-5"
-                            queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
-                        }
-                    }
-                    "/.AOE"
-                } else {
-                    "/.${it.hl7Field}"
-                }
-
-                if (terserSpec != "/.AOE") {
-                    queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
-                } else {
-                    if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
-                }
-            } else {
-                it.hl7OutputFields?.forEach { h ->
-                    val terserSpec = if (h.startsWith("MSH")) {
-                        "/$h"
-                    } else {
-                        "/.$h"
-                    }
-                    queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
-                }
-            }
+        val cleanedMessage = reg.replace(message, "\r").trim()
+        // if the message is empty, return a row result that warns of empty data
+        if (cleanedMessage.isEmpty()) {
+            logger.debug("Skipping empty message during parsing")
+            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty message"))
         }
+
+        try {
+            val hapiMsg = parser.parse(cleanedMessage)
+            val terser = Terser(hapiMsg)
+            schema.elements.forEach {
+                if (!mappedRows.containsKey(it.name))
+                    mappedRows[it.name] = mutableSetOf()
+
+                if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty()) {
+                    mappedRows[it.name]?.add("")
+                    return@forEach
+                }
+
+                if (!it.hl7Field.isNullOrEmpty()) {
+                    val terserSpec = when {
+                        it.hl7Field.startsWith("MSH") -> "/${it.hl7Field}"
+                        (it.hl7Field == "AOE") -> {
+                            val question = it.hl7AOEQuestion!!
+                            val countObservations = 10
+                            // todo: map each AOE by the AOE question ID
+                            for (c in 0 until countObservations) {
+                                var spec = "/.OBSERVATION($c)/OBX-3-1"
+                                val questionCode = try {
+                                    terser.get(spec)
+                                } catch (e: HL7Exception) {
+                                    // todo: convert to result detail, maybe
+                                    errors.add("Exception for $spec: ${e.message}")
+                                    null
+                                }
+                                if (questionCode?.startsWith(question) == true) {
+                                    spec = "/.OBSERVATION($c)/OBX-5"
+                                    queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
+                                }
+                            }
+                            "/.AOE"
+                        }
+                        else -> "/.${it.hl7Field}"
+                    }
+
+                    if (terserSpec != "/.AOE") {
+                        queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                    } else {
+                        if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
+                    }
+                } else {
+                    it.hl7OutputFields?.forEach { h ->
+                        val terserSpec = if (h.startsWith("MSH")) {
+                            "/$h"
+                        } else {
+                            "/.$h"
+                        }
+                        queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
+            logger.error(msg)
+            errors.add(msg)
+        }
+
         // convert sets to lists
-        val rows = mappedRows.keys.map {
-            it to (mappedRows[it]?.toList() ?: emptyList())
-        }.toMap()
+        val rows = mappedRows.keys.associateWith {
+            (mappedRows[it]?.toList() ?: emptyList())
+        }
 
         return RowResult(rows, errors, warnings)
     }
@@ -250,7 +275,11 @@ class Hl7Serializer(val metadata: Metadata) {
         val mappedRows = mapping.mappedRows
         errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
         warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
-        return ReadResult(Report(schema, mappedRows, source), errors, warnings)
+        mappedRows.forEach {
+            logger.info("${it.key} -> ${it.value.joinToString()}")
+        }
+        val report = Report(schema, mappedRows, source)
+        return ReadResult(report, errors, warnings)
     }
 
     internal fun createMessage(report: Report, row: Int): String {
@@ -263,7 +292,7 @@ class Hl7Serializer(val metadata: Metadata) {
         }
         message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
         buildMessage(message, report, row, processingId)
-        hapiContext.modelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
+        hapiContext.modelClassFactory = modelClassFactory
         return hapiContext.pipeParser.encode(message)
     }
 
@@ -555,6 +584,7 @@ class Hl7Serializer(val metadata: Metadata) {
             if (extension.isNotEmpty()) terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-8", extension)
         } else {
             // work phone number
+            terser.set(buildComponent(pathSpec, 1), "($areaCode)$local")
             terser.set(buildComponent(pathSpec, 2), "WPN")
             // it's a phone
             terser.set(buildComponent(pathSpec, 3), "PH")
