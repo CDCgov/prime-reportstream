@@ -59,6 +59,12 @@ local_styles:
     {% include menu_documentation %}
   {% elsif show_menu %}
     {% include menu_settings %}
+  {% elsif copy_only %}
+    <div class="grid-container margin-bottom-5">
+      <div class=" grid-col-9 usa-prose">
+        {{ content }}
+      </div>
+    </div>
   {% else %}
     {{ content }}
   {% endif %}
