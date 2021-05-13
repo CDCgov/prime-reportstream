@@ -20,6 +20,10 @@ resource "azurerm_eventhub_namespace" "eventhub_namespace" {
       ip_mask = "165.225.48.94/32"
     }
 
+    ip_rule {
+      ip_mask = "165.225.48.87/32"
+    }
+
     virtual_network_rule {
       subnet_id = var.public_subnet_id
     }
