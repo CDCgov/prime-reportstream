@@ -8,6 +8,8 @@
 
 **Type**: HD
 
+**PII**: No
+
 **HL7 Field**: MSH-3
 
 **Cardinality**: [0..1]
@@ -17,6 +19,8 @@
 **Name**: RptFacName
 
 **Type**: HD
+
+**PII**: No
 
 **HL7 Field**: MSH-4
 
@@ -34,6 +38,8 @@ aggregator
 
 **Type**: ID_CLIA
 
+**PII**: No
+
 **HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
 
 **Cardinality**: [0..1]
@@ -47,6 +53,8 @@ The reporting facility's CLIA
 **Name**: OrdFacName
 
 **Type**: TEXT
+
+**PII**: No
 
 **HL7 Field**: ORC-21-1
 
@@ -62,6 +70,8 @@ The name of the facility which the test was ordered from
 
 **Type**: STREET
 
+**PII**: No
+
 **HL7 Field**: ORC-22-1
 
 **Cardinality**: [0..1]
@@ -76,6 +86,8 @@ The address of the facility which the test was ordered from
 
 **Type**: CITY
 
+**PII**: No
+
 **HL7 Field**: ORC-22-3
 
 **Cardinality**: [0..1]
@@ -89,6 +101,8 @@ The city of the facility which the test was ordered from
 **Name**: OrdFacState
 
 **Type**: TABLE
+
+**PII**: No
 
 **HL7 Field**: ORC-22-4
 
@@ -108,6 +122,8 @@ The state of the facility which the test was ordered from
 
 **Type**: POSTAL_CODE
 
+**PII**: No
+
 **HL7 Field**: ORC-22-5
 
 **Cardinality**: [0..1]
@@ -122,6 +138,8 @@ The zip code of the facility which the test was ordered from
 
 **Type**: TELEPHONE
 
+**PII**: No
+
 **HL7 Field**: ORC-23
 
 **Cardinality**: [0..1]
@@ -134,6 +152,8 @@ The phone number of the facility which the test was ordered from
 
 **Name**: DateTimeMessage
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -141,6 +161,8 @@ The phone number of the facility which the test was ordered from
 **Name**: PtID
 
 **Type**: TEXT
+
+**PII**: No
 
 **HL7 Field**: PID-3-1
 
@@ -151,6 +173,8 @@ The phone number of the facility which the test was ordered from
 **Name**: PtFirstName
 
 **Type**: PERSON_NAME
+
+**PII**: Yes
 
 **HL7 Field**: PID-5-2
 
@@ -166,6 +190,8 @@ The patient's first name
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **HL7 Field**: PID-5-1
 
 **Cardinality**: [1..1]
@@ -179,6 +205,8 @@ The patient's last name
 **Name**: PtDOB
 
 **Type**: DATE
+
+**PII**: Yes
 
 **Format**: yyyyMMdd
 
@@ -198,6 +226,8 @@ Other states may choose to define their own formats.
 **Name**: PtSex
 
 **Type**: CODE
+
+**PII**: No
 
 **HL7 Field**: PID-8-1
 
@@ -224,6 +254,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Name**: PtRace
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $alt
 
@@ -276,6 +308,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Type**: CODE
 
+**PII**: No
+
 **HL7 Field**: PID-22
 
 **Cardinality**: [0..1]
@@ -299,6 +333,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 **Name**: PtTribe
 
 **Type**: CODE
+
+**PII**: No
 
 **HL7 Field**: PID-39
 
@@ -881,6 +917,8 @@ Code | Display
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -888,6 +926,8 @@ Code | Display
 **Name**: PtAddrStreet
 
 **Type**: STREET
+
+**PII**: Yes
 
 **HL7 Field**: PID-11-1
 
@@ -903,6 +943,8 @@ The patient's street address
 
 **Type**: CITY
 
+**PII**: Yes
+
 **HL7 Field**: PID-11-3
 
 **Cardinality**: [0..1]
@@ -916,6 +958,8 @@ The patient's city
 **Name**: PtAddrState
 
 **Type**: TABLE
+
+**PII**: No
 
 **HL7 Field**: PID-11-4
 
@@ -935,6 +979,8 @@ The patient's state
 
 **Type**: POSTAL_CODE
 
+**PII**: No
+
 **HL7 Field**: PID-11-5
 
 **Cardinality**: [0..1]
@@ -949,6 +995,8 @@ The patient's zip code
 
 **Type**: TABLE_OR_BLANK
 
+**PII**: No
+
 **Cardinality**: [1..1]
 
 **Table**: fips-county
@@ -960,6 +1008,8 @@ The patient's zip code
 **Name**: PtPhone
 
 **Type**: TELEPHONE
+
+**PII**: Yes
 
 **HL7 Field**: PID-13
 
@@ -975,6 +1025,8 @@ The patient's phone number with area code
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -982,6 +1034,8 @@ The patient's phone number with area code
 **Name**: OrdProvFirstName
 
 **Type**: PERSON_NAME
+
+**PII**: No
 
 **HL7 Fields**: ORC-12-3, OBR-16-3
 
@@ -997,6 +1051,8 @@ The first name of the provider who ordered the test
 
 **Type**: PERSON_NAME
 
+**PII**: No
+
 **HL7 Fields**: ORC-12-2, OBR-16-2
 
 **Cardinality**: [0..1]
@@ -1011,6 +1067,8 @@ The last name of provider who ordered the test
 
 **Type**: TELEPHONE
 
+**PII**: Yes
+
 **HL7 Fields**: ORC-14, OBR-17
 
 **Cardinality**: [0..1]
@@ -1024,6 +1082,8 @@ The phone number of the provider
 **Name**: AccessionNum
 
 **Type**: EI
+
+**PII**: No
 
 **HL7 Fields**: SPM-2
 
@@ -1043,6 +1103,8 @@ A unique code for this specimen
 
 **Type**: DATETIME
 
+**PII**: No
+
 **Format**: yyyyMMdd
 
 **HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
@@ -1059,6 +1121,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **Name**: SpecType
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -1095,6 +1159,8 @@ The specimen source, such as Blood or Serum
 **Name**: ResultTestCode
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $code
 
@@ -1135,6 +1201,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Table**: LIVD-SARS-CoV-2-2021-01-20
@@ -1146,6 +1214,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Name**: Result
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -1180,6 +1250,8 @@ Code | Display
 
 **Type**: DATETIME
 
+**PII**: No
+
 **Format**: yyyyMMdd
 
 **HL7 Field**: OBX-19
@@ -1192,6 +1264,8 @@ Code | Display
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -1199,6 +1273,8 @@ Code | Display
 **Name**: FirstTest
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $alt
 
@@ -1237,6 +1313,8 @@ Is this the patient's first test for this condition?
 
 **Type**: CODE
 
+**PII**: No
+
 **Format**: $alt
 
 **HL7 Field**: AOE
@@ -1273,6 +1351,8 @@ Is the patient employed in health care?
 **Name**: Symptomatic
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $alt
 
@@ -1311,6 +1391,8 @@ Is the patient symptomatic?
 
 **Type**: CODE
 
+**PII**: No
+
 **Format**: $alt
 
 **HL7 Field**: AOE
@@ -1347,6 +1429,8 @@ Is the patient hospitalized?
 **Name**: ICU
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $alt
 
@@ -1385,6 +1469,8 @@ Is the patient in the ICU?
 
 **Type**: CODE
 
+**PII**: No
+
 **Format**: $alt
 
 **HL7 Field**: AOE
@@ -1421,6 +1507,8 @@ Does the patient reside in a congregate care setting?
 **Name**: Pregnant
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $alt
 
@@ -1459,6 +1547,8 @@ Is the patient pregnant?
 
 **Type**: EMAIL
 
+**PII**: Yes
+
 **HL7 Field**: PID-13-4
 
 **Cardinality**: [0..1]
@@ -1469,6 +1559,8 @@ Is the patient pregnant?
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -1476,6 +1568,8 @@ Is the patient pregnant?
 **Name**: PtEmpName
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -1485,6 +1579,8 @@ Is the patient pregnant?
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -1492,6 +1588,8 @@ Is the patient pregnant?
 **Name**: PtEmpAddrCity
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -1501,6 +1599,8 @@ Is the patient pregnant?
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -1508,6 +1608,8 @@ Is the patient pregnant?
 **Name**: PtEmpAddrZip
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -1517,6 +1619,8 @@ Is the patient pregnant?
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -1524,6 +1628,8 @@ Is the patient pregnant?
 **Name**: PtEmpPhone
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -1533,6 +1639,8 @@ Is the patient pregnant?
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -1540,6 +1648,8 @@ Is the patient pregnant?
 **Name**: PtSchAddrStreet
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -1549,6 +1659,8 @@ Is the patient pregnant?
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -1556,6 +1668,8 @@ Is the patient pregnant?
 **Name**: PtSchAddrState
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -1565,6 +1679,8 @@ Is the patient pregnant?
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -1573,11 +1689,15 @@ Is the patient pregnant?
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
 
 **Name**: local_symptom_onset_date
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -1586,6 +1706,8 @@ Is the patient pregnant?
 **Name**: equipment_model_name
 
 **Type**: TABLE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
