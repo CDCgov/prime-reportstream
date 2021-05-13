@@ -79,6 +79,11 @@ data class Schema(
         return elementIndex[name]
     }
 
+    fun findElementByCsvName(name: String): Element? {
+        elements?.forEach{ e -> e.csvFields?.forEach { if (name.equals(it.name, true)) return e } }
+        return null
+    }
+
     fun containsElement(name: String): Boolean {
         return elementIndex[name] != null
     }
