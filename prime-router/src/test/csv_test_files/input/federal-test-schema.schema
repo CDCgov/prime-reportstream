@@ -1,6 +1,6 @@
 ---
 name: federal-test-schema
-topic: covid-19
+topic: CsvFileTests-topic
 elements:
   - name: lab
     csvFields: [{name: lab}]

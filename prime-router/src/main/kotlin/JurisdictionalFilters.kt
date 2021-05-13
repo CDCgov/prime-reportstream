@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Table
 import tech.tablesaw.selection.Selection
 
@@ -23,7 +24,7 @@ import tech.tablesaw.selection.Selection
  * Hoping we implement some geospatial searches someday.
  *
  */
-interface JurisdictionalFilter {
+interface JurisdictionalFilter : Logging {
     /**
      * Name of the filter function
      */
@@ -64,7 +65,7 @@ class Matches : JurisdictionalFilter {
 
 /**
  * Implements the opposite of the matches filter.
- * Regexes have a hard time with "not", and this just seemed clearner
+ * Regexes have a hard time with "not", and this just seemed clearer
  * and more obvious to the user what's going on.
  * does_not_match(columnName, val, val, ...)
  *
@@ -157,7 +158,107 @@ class OrEquals : JurisdictionalFilter {
     }
 }
 
+
+/**
+ * A filter that filter nothing -- allows all data through
+ */
+class AllowAll : JurisdictionalFilter {
+    override val name = "allowAll"
+
+    override fun getSelection(args: List<String>, table: Table): Selection {
+        if (args.isNotEmpty()) error("Expecting no args for filter $name.  Got ${args.joinToString(",")}")
+        return Selection.withRange(0, table.rowCount())
+    }
+}
+
+
+/**
+ * Implements a quality check match.  If a row has valid data for all the columns, the row is selected.
+ * If any column name does not exist, nothing passes thru the filter.
+ * hasValidDataFor(columnName1, columnName2, columnName3, ...)
+ * If no columns are passed, all rows are selected.  So, any number of args is acceptable.
+ */
+class HasValidDataFor : JurisdictionalFilter {
+    override val name = "hasValidDataFor"
+
+    override fun getSelection(args: List<String>, table: Table): Selection {
+        var selection = Selection.withRange(0, table.rowCount())
+
+        val columnNames = table.columnNames()
+        args.forEach {
+            if (columnNames.contains(it)) {
+                selection = selection.andNot(table.stringColumn(it).isEmptyString)
+            } else {
+                logger.warn("Report does not contain column $it.  All data in this report will fail the quality check")
+                return Selection.withRange(0, 0)
+            }
+        }
+        return selection
+    }
+}
+
+/**
+ * Implements a quality check match.  If a row has valid data for all the columnsm, the row is selected.
+ * If any column name does not exist, nothing passes thru the filter.
+ * hasValidDataFor(columnName1, columnName2, columnName3, ...)
+ * If no columns are passed, all rows are selected.  So, any number of args is acceptable.
+ */
+class HasAtLeastOneOf : JurisdictionalFilter {
+    override val name = "hasAtLeastOneOf"
+
+    override fun getSelection(args: List<String>, table: Table): Selection {
+        if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
+        var selection = Selection.withRange(0, 0)
+        val columnNames = table.columnNames()
+        var atLeastOneColumnFound = false
+        args.forEach {
+            if (columnNames.contains(it)) {
+                selection = selection.or(table.stringColumn(it).isNotMissing)
+                atLeastOneColumnFound = true
+            }
+        }
+        if (!atLeastOneColumnFound) {
+            logger.warn("Report does not contain any of these columns: ${args.joinToString(",")}" +
+                ".  All data in this report will fail the quality check")
+        }
+        return selection
+    }
+}
+
+
+
+
 object JurisdictionalFilters {
+
+    // covid-19 default quality check consists of two filters
+    val defaultCovid19QualityCheck = listOf(
+        "hasValidDataFor(" +
+            "message_id," +
+            "equipment_model_name," +
+            "specimen_type," +
+            "test_result," +
+            "testing_lab_clia," +
+            "patient_last_name," +
+            "patient_first_name," +
+            //  "patient_dob," +    // our src/test/csv-file-tests/input/simplereport.csv test has missing dob.
+            "patient_id" +
+        ")",
+        "hasAtLeastOneOf(" +
+            "order_test_date," +
+            "specimen_collection_date_time," +
+            "test_result_date" +
+        ")",
+    )
+
+    /**
+     * Map from topic-name to a list of filter-function-strings
+     */
+    val defaultQualityFilters: Map<String,List<String>> = mapOf(
+        "covid-19" to defaultCovid19QualityCheck,
+        "CsvFileTests-topic" to listOf("hasValidDataFor(lab,state,test_time,specimen_id,observation)"),
+    )
+
+
     /**
      * filterFunction must be of form "funName(arg1, arg2, etc)"
      */

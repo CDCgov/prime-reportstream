@@ -132,4 +132,111 @@ class JurisdictionalFilterTests {
         val args4 = listOf("colA", "([?:|") // malformed regex
         assertFails { val selection4 = filter.getSelection(args4, table) }
     }
+
+    @Test
+    fun `test HasValidDataFor`() {
+        val filter = HasValidDataFor()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("A1", "A2", "", "A4")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3", "B4")),
+            StringColumn.create("colC", listOf("C1", "C2", "C3", null))
+        )
+
+        val emptyArgs = listOf<String>()
+        var selection = filter.getSelection(emptyArgs, table)
+        var filteredTable = table.where(selection)
+        assertEquals(4, filteredTable.rowCount())
+
+        val junkColName = listOf("quux")
+        selection = filter.getSelection(junkColName, table)
+        filteredTable = table.where(selection)
+        assertEquals(0, filteredTable.rowCount())
+
+        val oneGoodoneBadColName = listOf("quux", "colB")
+        selection = filter.getSelection(oneGoodoneBadColName, table)
+        filteredTable = table.where(selection)
+        assertEquals(0, filteredTable.rowCount())
+
+        val oneGoodColName = listOf("colB")
+        selection = filter.getSelection(oneGoodColName, table)
+        filteredTable = table.where(selection)
+        assertEquals(4, filteredTable.rowCount())
+
+        val colWithEmpty = listOf("colA")
+        selection = filter.getSelection(colWithEmpty, table)
+        filteredTable = table.where(selection)
+        assertEquals(3, filteredTable.rowCount())
+        assertEquals("A1", filteredTable.getString(0, "colA"))
+        assertEquals("A2", filteredTable.getString(1, "colA"))
+        assertEquals("A4", filteredTable.getString(2, "colA"))
+
+        val colWithNull = listOf("colC")
+        selection = filter.getSelection(colWithNull, table)
+        filteredTable = table.where(selection)
+        assertEquals(3, filteredTable.rowCount())
+        assertEquals("C1", filteredTable.getString(0, "colC"))
+        assertEquals("C2", filteredTable.getString(1, "colC"))
+        assertEquals("C3", filteredTable.getString(2, "colC"))
+
+        val allCols = listOf("colA", "colB", "colC")
+        selection =  filter.getSelection(allCols, table)
+        filteredTable = table.where(selection)
+        assertEquals(2, filteredTable.rowCount())
+        assertEquals("C1", filteredTable.getString(0, "colC"))
+        assertEquals("C2", filteredTable.getString(1, "colC"))
+    }
+
+    @Test
+    fun `test HasAtLeastOneOf`() {
+        val filter = HasAtLeastOneOf()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("A1", "A2", "", "A4")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3", "B4")),
+            StringColumn.create("colC", listOf("C1", "C2", "C3", null))
+        )
+
+        val emptyArgs = listOf<String>()
+        assertFails{ filter.getSelection(emptyArgs, table) }
+
+        val junkColNames = listOf("foo", "bar", "baz")
+        var selection =  filter.getSelection(junkColNames, table)
+        var filteredTable = table.where(selection)
+        assertEquals(0, filteredTable.rowCount())
+
+        val oneGoodColName = listOf("foo", "bar", "colB")
+        selection =  filter.getSelection(oneGoodColName, table)
+        filteredTable = table.where(selection)
+        assertEquals(4, filteredTable.rowCount())
+
+        val colWithEmptyString = listOf("foo", "colA")
+        selection =  filter.getSelection(colWithEmptyString, table)
+        filteredTable = table.where(selection)
+        assertEquals(3, filteredTable.rowCount())
+        assertEquals("A1", filteredTable.getString(0, "colA"))
+        assertEquals("A2", filteredTable.getString(1, "colA"))
+        assertEquals("A4", filteredTable.getString(2, "colA"))
+
+        val colWithNull = listOf("colC")
+        selection =  filter.getSelection(colWithNull, table)
+        filteredTable = table.where(selection)
+        assertEquals(3, filteredTable.rowCount())
+        assertEquals("C1", filteredTable.getString(0, "colC"))
+        assertEquals("C2", filteredTable.getString(1, "colC"))
+        assertEquals("C3", filteredTable.getString(2, "colC"))
+
+        val allCols = listOf("colA", "colB", "colC")
+        selection =  filter.getSelection(allCols, table)
+        filteredTable = table.where(selection)
+        assertEquals(4, filteredTable.rowCount())
+
+        // First row does not exist for colA nor colB. No colC at all.
+        val table2 = Table.create(
+            StringColumn.create("colA", listOf("", "A2")),
+            StringColumn.create("colB", listOf(null, "B2")),
+        )
+        selection =  filter.getSelection(allCols, table2)
+        filteredTable = table.where(selection)
+        assertEquals(1, filteredTable.rowCount())
+        assertEquals("A2", filteredTable.getString(0, "colA"))
+    }
 }
