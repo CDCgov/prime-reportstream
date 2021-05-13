@@ -28,7 +28,6 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
-import org.apache.commons.io.FileUtils
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
@@ -38,7 +37,7 @@ import java.net.HttpURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.Locale
 import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.system.exitProcess

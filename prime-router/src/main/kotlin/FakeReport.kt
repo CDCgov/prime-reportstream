@@ -3,7 +3,8 @@ package gov.cdc.prime.router
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
+import java.util.Random
 import java.util.concurrent.TimeUnit
 
 /*
