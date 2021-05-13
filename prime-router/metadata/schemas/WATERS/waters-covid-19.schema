@@ -260,3 +260,6 @@ elements:
     type: DATETIME
     csvFields: [{ name: TXNTIMESTAMP}]
 
+  - name: waters_submitter
+    type: TEXT
+    csvFields: [{ name: TxInitiator }]
