@@ -47,6 +47,8 @@ class DocumentationTests {
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -62,6 +64,8 @@ class DocumentationTests {
 **Name**: a
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
