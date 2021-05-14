@@ -12,6 +12,8 @@ All infrastructure operations must be done behind the environment-specific VPN. 
 
 ## Run Terraform interactively
 
+Ensure you have the intended git branch checked out and navigate to the `./operations` directory in your CLI. For production deploys, always deploy from the `master` branch.
+
 ```
 docker-compose run {dev,test,staging,prod}
 ```
@@ -19,7 +21,7 @@ docker-compose run {dev,test,staging,prod}
 Running the above command will drop you into an interactive bash terminal for the designated environment.
 
 
-## Login to Azure CLI
+## Login to Azure CLI (on first run and after token expiration)
 
 ```
 az login
@@ -30,13 +32,13 @@ az login
 This only needs to be on first run and after your Azure credentials expire. The state of your login will be persisted in a Docker volume.
 
 
-## Set the default Azure subscription
+## Set the default Azure subscription (on first run only)
 
 If you have access to multiple Azure subscriptions, ensure you set the intended subscription as the default, or you will see errors from Terraform:
 
 ```
 az account list
-az account set {subscription-id}
+az account set -s {subscription-id}
 ```
 
 
@@ -59,6 +61,36 @@ Review the above plan, then apply it to the environment
 ```
 terraform apply plan.out
 ```
+
+### Caveats
+
+The Azure Terraform module has several known quirks that result in unexpected additions to the Terraform plan:
+
+* Postgres Server Key (`module.prime_data_hub.module.database.azurerm_postgresql_server_key.postgres_server_key[0]`)
+  * Our Postgres encryption key is managed by the CDC
+  * Whenever the CDC rotates the key, Terraform thinks a change needs to be applied
+  * No change is actually applied when Terraform applies the plan, so there is no harm in accepting this change
+* Front Door configuration (`module.prime_data_hub.module.front_door.azurerm_frontdoor.front_door`)
+  * The API Terraform uses to return the Front Door configuration does not return the configuration in a stable order
+  * This causes Terraform to *think* there are changes that need to be applied, when there are actually none
+  * There is no harm in accepting Terraform's suggested changes, but Front Door can take 30+ minutes to deploy, so it advised to use resource targeting to avoid this issue (more on this in the next section)
+* Function App configuration (`module.prime_data_hub.module.function_app.azurerm_function_app.function_app`)
+  * The Function App is not run on a private endpoint, since the Front Door does not support private endpoints at this time
+  * Due to this, we are manually whitelisting developer IPs in the firewall configuration
+  * Terraform will suggest removing or adding IPs to the configuration
+  * There is no harm in accepting Terraform's suggested changes, but developers will have to re-add their IP to the firewall the next time they access the Function App
+    
+#### Work Around for Caveats: Resource Targeting
+
+To work around unexpected plan changes, we are leveraging resource targeting to apply only the section of the plan we care about. We typically apply by an entire module at a time. For example, to generate a plan for the Key Vault module:
+
+```
+terraform plan -out plan.out -target module.prime_data_hub.module.key_vault
+```
+
+#### Future Fixes to the Known Caveats
+
+In addition to bug fixes that are being applied to the upstream Azure modules, we are planning to break out our Terraform state into modules that are run independently of each other, to avoid these quirks.
 
 
 ## Terraform development
