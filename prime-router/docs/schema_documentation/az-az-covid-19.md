@@ -113,7 +113,7 @@ An example of the ID is 03D2159846
 
 **Type**: TEXT
 
-**PII**: No
+**PII**: Yes
 
 **HL7 Field**: PID-3-1
 

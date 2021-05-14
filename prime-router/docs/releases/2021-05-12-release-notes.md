@@ -45,3 +45,7 @@ A basic Quality check on certain fields is now applied to Covid-19 data before s
         "hasAtLeastOneOf(patient_phone_number,patient_email)"
 ```
 
+### Adds Reporting Facility Name to PID.3.4.1
+The PID.3.4.1 field should contain the name of the reporting facility that has assigned the patient their ID. This has been added.
+
+The field will also properly truncate if the state requires truncation of HD fields.

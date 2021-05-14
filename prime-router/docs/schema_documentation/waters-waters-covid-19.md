@@ -362,7 +362,7 @@ The patient's zip code
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -378,7 +378,7 @@ The patient's zip code
 
 **HL7 Field**: PID-11-4
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -533,7 +533,7 @@ The patient's phone number with area code
 
 **Type**: TEXT
 
-**PII**: No
+**PII**: Yes
 
 **HL7 Field**: PID-3-1
 
@@ -1065,7 +1065,7 @@ The phone number of the provider
 
 **HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -1109,6 +1109,16 @@ aggregator
 **Name**: TXNTIMESTAMP
 
 **Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: TxInitiator
+
+**Type**: TEXT
 
 **PII**: No
 

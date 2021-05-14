@@ -64,7 +64,7 @@ The patient's first name
 
 **Type**: TEXT
 
-**PII**: No
+**PII**: Yes
 
 **HL7 Field**: PID-3-1
 
@@ -761,7 +761,7 @@ Is the patient symptomatic?
 
 **PII**: No
 
-**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1
+**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1, PID-3-4-1
 
 **Cardinality**: [0..1]
 
@@ -1202,7 +1202,7 @@ The phone number of the provider
 
 **PII**: No
 
-**HL7 Field**: MSH-4-1
+**HL7 Fields**: MSH-4-1, PID-3-4-1
 
 **Cardinality**: [0..1]
 

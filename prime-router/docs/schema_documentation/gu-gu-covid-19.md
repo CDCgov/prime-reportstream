@@ -959,7 +959,7 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Type**: TEXT
 
-**PII**: No
+**PII**: Yes
 
 **HL7 Field**: PID-3-1
 
@@ -1917,7 +1917,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **PII**: No
 
-**HL7 Field**: MSH-4-1
+**HL7 Fields**: MSH-4-1, PID-3-4-1
 
 **Cardinality**: [0..1]
 
@@ -2472,7 +2472,7 @@ An example of the ID is 03D2159846
 
 **PII**: No
 
-**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1
+**HL7 Fields**: ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1, PID-3-4-1
 
 **Cardinality**: [0..1]
 
