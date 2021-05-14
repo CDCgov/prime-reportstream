@@ -927,7 +927,7 @@ class HammerTime : CoolTest() {
 class Garbage : CoolTest() {
     override val name = "garbage"
     override val description = "Garbage in - Nice error message out"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.FAILS // new quality checks now prevent any data from flowing to other checks
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting $name Test: send ${emptySender.fullName} data to $allGoodCounties")
