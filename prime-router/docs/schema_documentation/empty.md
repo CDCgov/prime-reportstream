@@ -53,3 +53,13 @@ unique id to track the usage of the message
 The state of the facility which the test was ordered from
 
 ---
+
+**Name**: blankField
+
+**Type**: BLANK
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
