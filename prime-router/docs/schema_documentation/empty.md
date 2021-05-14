@@ -8,6 +8,8 @@
 
 **Type**: ID
 
+**PII**: No
+
 **HL7 Field**: MSH-10
 
 **Cardinality**: [1..1]
@@ -22,6 +24,8 @@ unique id to track the usage of the message
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [1..1]
 
 **Table**: fips-county
@@ -33,6 +37,8 @@ unique id to track the usage of the message
 **Name**: Ordering_facilty_state
 
 **Type**: TABLE
+
+**PII**: No
 
 **HL7 Field**: ORC-22-4
 
