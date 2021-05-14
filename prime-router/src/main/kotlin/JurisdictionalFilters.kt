@@ -205,10 +205,8 @@ class HasValidDataFor : JurisdictionalFilter {
 }
 
 /**
- * Implements a quality check match.  If a row has valid data for all the columnsm, the row is selected.
- * If any column name does not exist, nothing passes thru the filter.
- * hasValidDataFor(columnName1, columnName2, columnName3, ...)
- * If no columns are passed, all rows are selected.  So, any number of args is acceptable.
+ * hasAtLeastOneOf(columnName1, columnName2, columnName3, ...)
+ * Implements a quality check match.  If a row has valid data for any of the columns, the row is selected.
  */
 class HasAtLeastOneOf : JurisdictionalFilter {
     override val name = "hasAtLeastOneOf"
