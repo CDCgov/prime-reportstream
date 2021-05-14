@@ -22,3 +22,30 @@ This release adds the configured topic for the organization sender to the Json r
   "reportItemCount" : 25,
   "destinations" : [ {
 ```
+
+### Addition of Quality Check
+
+A basic Quality check on certain fields is now applied to Covid-19 data before sending it to downstream public health departments.
+```
+       // valid human and valid test
+        "hasValidDataFor(" +
+            "message_id," +
+            "equipment_model_name," +
+            "specimen_type," +
+            "test_result," +
+            "patient_last_name," +
+            "patient_first_name," +
+            "patient_dob" +
+        ")",
+        // has valid location (for contact tracing)
+        "hasAtLeastOneOf(patient_street,patient_zip_code)",
+        // has valid date (for relevance/urgency)
+        "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
+        // able to conduct contact tracing
+        "hasAtLeastOneOf(patient_phone_number,patient_email)"
+```
+
+### Adds Reporting Facility Name to PID.3.4.1
+The PID.3.4.1 field should contain the name of the reporting facility that has assigned the patient their ID. This has been added.
+
+The field will also properly truncate if the state requires truncation of HD fields.

@@ -944,6 +944,33 @@
           host: sftp_FAIL_BAD
           port: 2222
           filePath: ./upload_FAIL
+      - name: QUALITY_PASS
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS)" ]
+        qualityFilter: [ "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)", "hasAtLeastOneOf(message_id,blankField)" ]
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
+      - name: QUALITY_ALL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
+        qualityFilter: [ "allowAll()" ]
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
+      - name: QUALITY_FAIL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
+        qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
 
 # all the rest
 

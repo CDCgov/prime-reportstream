@@ -70,6 +70,55 @@ class MapperTests {
     }
 
     @Test
+    fun `test livdLookup with DeviceId`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-01-20.csv")
+        val codeElement = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code"
+        )
+        val deviceElement = Element("device_id")
+        val mapper = LIVDLookupMapper()
+
+        // Test with a EUA
+        val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abbott Diagnostics Scarborough, Inc._EUA")
+        assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+
+        // Test with a truncated device ID
+        val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abb#")
+        assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+
+        // Test with a ID NOW device id which is has a FDA number
+        val ev2 = ElementAndValue(deviceElement, "10811877011269_DII")
+        assertEquals("94534-5", mapper.apply(codeElement, emptyList(), listOf(ev2)))
+
+        // With GUDID DI
+        val ev3 = ElementAndValue(deviceElement, "10811877011269")
+        assertEquals("94534-5", mapper.apply(codeElement, emptyList(), listOf(ev3)))
+    }
+
+    @Test
+    fun `test livdLookup with Equipment Model Name`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-01-20.csv")
+        val codeElement = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Ordered LOINC Code"
+        )
+        val modelElement = Element("equipment_model_name")
+        val mapper = LIVDLookupMapper()
+
+        // Test with a EUA
+        val ev1 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card")
+        assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+
+        // Test with a ID NOW device id
+        val ev2 = ElementAndValue(modelElement, "ID NOW")
+        assertEquals("94534-5", mapper.apply(codeElement, emptyList(), listOf(ev2)))
+    }
+
+
+    @Test
     fun `test ifPresent`() {
         val element = Element("a")
         val mapper = IfPresentMapper()

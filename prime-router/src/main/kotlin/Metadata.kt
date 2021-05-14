@@ -18,6 +18,7 @@ class Metadata {
         UseMapper(),
         IfPresentMapper(),
         LookupMapper(),
+        LIVDLookupMapper(),
         ConcatenateMapper(),
         Obx17Mapper(),
         Obx17TypeMapper(),
@@ -38,6 +39,9 @@ class Metadata {
         Matches(),
         DoesNotMatch(),
         OrEquals(),
+        HasValidDataFor(),
+        HasAtLeastOneOf(),
+        AllowAll(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
