@@ -589,7 +589,7 @@ elements:
   # TODO Figure out how to encode patient id (PID-3) like AZ and others want
   - name: patient_id
     type: TEXT
-    pii: false
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_id
     hhsGuidanceField:

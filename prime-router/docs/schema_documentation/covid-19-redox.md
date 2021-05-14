@@ -75,7 +75,7 @@ P, D, or T for Production, Debugging, or Training
 
 **Type**: TEXT
 
-**PII**: No
+**PII**: Yes
 
 **HL7 Field**: PID-3-1
 

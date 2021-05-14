@@ -907,7 +907,7 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Type**: TEXT
 
-**PII**: No
+**PII**: Yes
 
 **HL7 Field**: PID-3-1
 

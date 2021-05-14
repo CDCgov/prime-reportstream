@@ -971,7 +971,7 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Type**: TEXT
 
-**PII**: No
+**PII**: Yes
 
 **HL7 Field**: PID-3-1
 

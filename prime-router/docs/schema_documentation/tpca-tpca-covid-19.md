@@ -8,7 +8,7 @@
 
 **Type**: TEXT
 
-**PII**: No
+**PII**: Yes
 
 **HL7 Field**: PID-3-1
 

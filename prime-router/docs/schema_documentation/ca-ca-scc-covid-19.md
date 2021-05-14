@@ -127,7 +127,7 @@ The phone number of the facility which the test was ordered from
 
 **Type**: TEXT
 
-**PII**: No
+**PII**: Yes
 
 **HL7 Field**: PID-3-1
 
