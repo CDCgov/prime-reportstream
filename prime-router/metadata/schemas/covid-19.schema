@@ -511,6 +511,7 @@ elements:
     type: TEXT
     pii: false
     default: USA
+    hl7Field: PID-11-6
 
   - name: patient_email
     type: EMAIL

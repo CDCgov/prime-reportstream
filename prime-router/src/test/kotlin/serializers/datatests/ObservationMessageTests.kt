@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.PipeParser
+import ca.uhn.hl7v2.util.Terser
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -117,6 +118,8 @@ class ObservationMessageTests {
             } else {
                 fail("The expected data file $expectedResultAbsolutePath was not found for this test.")
             }
+            println("PASSED: $testFilename")
+            println("--------------------------------------------------------")
         }
 
         /**
@@ -126,10 +129,9 @@ class ObservationMessageTests {
             // TODO SUPPORT BATCH HL7
             // A sanity check on the data before we start
             val hapiMsg = parser.parse(File(hl7AbsolutePath).readText())
-            val oruMsg = hapiMsg as ORU_R01
-            val msh = oruMsg.getMSH()
-            assertEquals("ORU", msh.messageType.messageCode.toString())
-            assertEquals("R01", msh.messageType.triggerEvent.toString())
+            val terser = Terser(hapiMsg)
+            assertEquals("ORU", terser.get("/MSH-9-1"))
+            assertEquals("R01", terser.get("/MSH-9-2"))
         }
 
         /**
@@ -143,12 +145,12 @@ class ObservationMessageTests {
             assertNotNull(result.report)
 
             if(result.errors.isNotEmpty()) {
-                println("HL7 file $filename has ${result.errors.size} errors:")
-                result.errors.forEach {println("   ERROR: ${it.details}")}
+                println("HL7 file $filename has ${result.errors.size} HL7 decoding errors:")
+                result.errors.forEach {println("   SCHEMA ERROR: ${it.details}")}
             }
             if(result.warnings.isNotEmpty()) {
-                println("HL7 file $filename has ${result.warnings.size} warnings:")
-                result.warnings.forEach {println("   WARNING: ${it.details}")}
+                println("HL7 file $filename has ${result.warnings.size} HL7 decoding warnings:")
+                result.warnings.forEach {println("   SCHEMA WARNING: ${it.details}")}
             }
             assertTrue(result.errors.isEmpty(), "There were data errors in the HL7 file.")
             return result.report!!
@@ -195,18 +197,18 @@ class ObservationMessageTests {
                     // We want to error on differences when the expected data is not empty.
                     if(expectedRow[j].trim().isNotEmpty() && actualRow[j].trim() != expectedRow[j].trim()) {
                         numErrors++
-                        println("  ERROR: Data value does not match for in report $i column #$j, '$colName'.  " +
+                        println("   DATA ERROR: Data value does not match in report $i column #${j+1}, '$colName'.  " +
                             "Expected: '${expectedRow[j].trim()}', Actual: '${actualRow[j].trim()}'")
                     }
                     else if(expectedRow[j].trim().isEmpty() && actualRow[j].trim().isNotEmpty()){
                         numWarnings++
-                        println("  WARNING: Actual data has value in report $i column #$j, '$colName', but no expected value.  " +
+                        println("   DATA WARNING: Actual data has value in report $i column #$${j+1}, '$colName', but no expected value.  " +
                             "Actual: '${actualRow[j].trim()}'")
                     }
                 }
             }
             assertTrue(numErrors == 0,
-                "There were $numErrors incorrect data values detected with $numWarnings warnings.")
+                "There were $numErrors incorrect data value(s) detected with $numWarnings warning(s).")
         }
     }
 

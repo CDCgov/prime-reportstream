@@ -207,36 +207,52 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 }
 
                 if (!it.hl7Field.isNullOrEmpty()) {
-                    val terserSpec = when {
-                        it.hl7Field.startsWith("MSH") -> "/${it.hl7Field}"
-                        (it.hl7Field == "AOE") -> {
-                            val question = it.hl7AOEQuestion!!
-                            val countObservations = 10
-                            // todo: map each AOE by the AOE question ID
-                            for (c in 0 until countObservations) {
-                                var spec = "/.OBSERVATION($c)/OBX-3-1"
-                                val questionCode = try {
-                                    terser.get(spec)
-                                } catch (e: HL7Exception) {
-                                    // todo: convert to result detail, maybe
-                                    errors.add("Exception for $spec: ${e.message}")
-                                    null
-                                }
-                                if (questionCode?.startsWith(question) == true) {
-                                    spec = "/.OBSERVATION($c)/OBX-5"
-                                    queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
+                    when {
+                        it.type == Element.Type.TELEPHONE -> {
+                            var phoneNumber = decodeXTNPhoneNumber(terser, it)
+                            if(phoneNumber.isNotBlank()) {
+                                var checkResult = it.checkForError(phoneNumber)
+                                if (!checkResult.isNullOrBlank()) {
+                                    phoneNumber = ""
+                                    warnings.add("Phone number in ${it.hl7Field} is incorrectly formmatted: $checkResult")
                                 }
                             }
-                            "/.AOE"
+                            mappedRows[it.name]?.add(phoneNumber)
                         }
-                        else -> "/.${it.hl7Field}"
+                        else -> {
+                            val terserSpec = when {
+                                it.hl7Field.startsWith("MSH") -> "/${it.hl7Field}"
+                                (it.hl7Field == "AOE") -> {
+                                    val question = it.hl7AOEQuestion!!
+                                    val countObservations = 10
+                                    // todo: map each AOE by the AOE question ID
+                                    for (c in 0 until countObservations) {
+                                        var spec = "/.OBSERVATION($c)/OBX-3-1"
+                                        val questionCode = try {
+                                            terser.get(spec)
+                                        } catch (e: HL7Exception) {
+                                            // todo: convert to result detail, maybe
+                                            errors.add("Exception for $spec: ${e.message}")
+                                            null
+                                        }
+                                        if (questionCode?.startsWith(question) == true) {
+                                            spec = "/.OBSERVATION($c)/OBX-5"
+                                            queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
+                                        }
+                                    }
+                                    "/.AOE"
+                                }
+                                else -> "/.${it.hl7Field}"
+                            }
+
+                            if (terserSpec != "/.AOE") {
+                                queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                            } else {
+                                if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
+                            }
+                        }
                     }
 
-                    if (terserSpec != "/.AOE") {
-                        queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
-                    } else {
-                        if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
-                    }
                 } else {
                     it.hl7OutputFields?.forEach { h ->
                         val terserSpec = if (h.startsWith("MSH")) {
@@ -276,7 +292,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
         warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
         mappedRows.forEach {
-            logger.info("${it.key} -> ${it.value.joinToString()}")
+            logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
         val report = Report(schema, mappedRows, source)
         return ReadResult(report, errors, warnings)
@@ -836,6 +852,46 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         } else {
             eiFields.name
         }
+    }
+
+    /**
+     * Decode an XTN (e.g. phone number) component of an HL7 message.
+     * @param terser the HL7 terser
+     * @param element the element to decode
+     * @return the phone number or empty string
+     */
+    private fun decodeXTNPhoneNumber(terser: Terser, element: Element): String {
+        var decodedPhoneNumber = ""
+
+        // Telephone are XTN types in HL7
+        var deprecatedPhoneNumber = ""
+        var countryCode = ""
+        var areaCode = ""
+        var localNumber = ""
+        var extension = ""
+        var equipType = ""
+        try {
+            deprecatedPhoneNumber = terser.get("/.${element.hl7Field}-1") ?: ""
+            equipType = terser.get("/.${element.hl7Field}-3") ?: ""
+            countryCode = terser.get("/.${element.hl7Field}-5") ?: ""
+            areaCode = terser.get("/.${element.hl7Field}-6") ?: ""
+            localNumber = terser.get("/.${element.hl7Field}-7") ?: ""
+            extension = terser.get("/.${element.hl7Field}-8") ?: ""
+        } catch (e: HL7Exception) {
+            logger.error("Exception for ${element.hl7Field}", e)
+        }
+
+        // Make sure we only grab a phone number if the type is specified
+        if(equipType.isNullOrEmpty() || equipType == "PH") {
+            // Use the deprecated phone number if nothing else is available.
+            if(countryCode.isBlank() && areaCode.isBlank() && localNumber.isBlank()) {
+                decodedPhoneNumber = deprecatedPhoneNumber
+            } else {
+                decodedPhoneNumber = "$countryCode$areaCode$localNumber"
+            }
+        }
+
+        return decodedPhoneNumber
     }
 
     companion object {
