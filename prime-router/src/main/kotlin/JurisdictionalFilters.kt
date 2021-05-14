@@ -36,7 +36,7 @@ interface JurisdictionalFilter : Logging {
      * @return the Selection object to be used to filter the
      * tablesaw table.
      */
-    fun getSelection(args: List<String>, table: Table): Selection
+    fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection
 }
 
 /**
@@ -47,8 +47,9 @@ interface JurisdictionalFilter : Logging {
 class Matches : JurisdictionalFilter {
     override val name = "matches"
 
-    override fun getSelection(args: List<String>, table: Table): Selection {
-        if (args.size < 2) error("Expecting two or more args to filter $name:  (columnName, regex [, regex, regex])")
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
+        if (args.size < 2) error("For ${receiver.fullName}: Expecting two or more args to filter $name:" +
+            " (columnName, regex [, regex, regex])")
         val columnName = args[0]
         val values = args.subList(1, args.size)
         val columnNames = table.columnNames()
@@ -74,8 +75,9 @@ class Matches : JurisdictionalFilter {
 class DoesNotMatch : JurisdictionalFilter {
     override val name = "doesNotMatch"
 
-    override fun getSelection(args: List<String>, table: Table): Selection {
-        if (args.size < 2) error("Expecting two or more args to filter $name:  (columnName, value, value, ...)")
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
+        if (args.size < 2) error("For ${receiver.fullName}: Expecting two or more args to filter $name:" +
+            " (columnName, value, value, ...)")
         val columnName = args[0]
         // val pattern = args[1]
         val values = args.subList(1, args.size)
@@ -93,8 +95,9 @@ class DoesNotMatch : JurisdictionalFilter {
 class FilterByCounty : JurisdictionalFilter {
     override val name = "filterByCounty"
 
-    override fun getSelection(args: List<String>, table: Table): Selection {
-        if (args.size != 2) error("Expecting two args to filter $name:  (TwoLetterState, County)")
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
+        if (args.size != 2) error("For ${receiver.fullName}: Expecting two args to filter $name:" +
+            "  (TwoLetterState, County)")
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.
         val countyRegex = "(?i).*${args[1]}.*"
 
@@ -137,11 +140,11 @@ class FilterByCounty : JurisdictionalFilter {
 class OrEquals : JurisdictionalFilter {
     override val name = "orEquals"
 
-    override fun getSelection(args: List<String>, table: Table): Selection {
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
         if (args.isEmpty()) error("Expecting at least two args for filter $name.  Got none.")
         if (args.size % 2 != 0)
             error(
-                "Expecting a positive even number of args to filter $name: (col,val, col,val,...)." +
+                "For ${receiver.fullName}: Expecting a positive even number of args to filter $name: (col,val, col,val,...)." +
                     " Instead got ${args.size} args"
             )
         val selection = Selection.withRange(0, 0)
@@ -165,8 +168,11 @@ class OrEquals : JurisdictionalFilter {
 class AllowAll : JurisdictionalFilter {
     override val name = "allowAll"
 
-    override fun getSelection(args: List<String>, table: Table): Selection {
-        if (args.isNotEmpty()) error("Expecting no args for filter $name.  Got ${args.joinToString(",")}")
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
+        // On empty args (eg, "allowAll()"), our regex returns args of size 1, with a single empty string.
+        // Didn't bother trying to fix the regex.
+        if (args.size > 1) error("For rcvr ${receiver.fullName} Expecting no args for filter $name." +
+            " Got ${args.joinToString(",")}")
         return Selection.withRange(0, table.rowCount())
     }
 }
@@ -181,7 +187,7 @@ class AllowAll : JurisdictionalFilter {
 class HasValidDataFor : JurisdictionalFilter {
     override val name = "hasValidDataFor"
 
-    override fun getSelection(args: List<String>, table: Table): Selection {
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
         var selection = Selection.withRange(0, table.rowCount())
 
         val columnNames = table.columnNames()
@@ -189,7 +195,8 @@ class HasValidDataFor : JurisdictionalFilter {
             if (columnNames.contains(it)) {
                 selection = selection.andNot(table.stringColumn(it).isEmptyString)
             } else {
-                logger.warn("Report does not contain column $it.  All data in this report will fail the quality check")
+                logger.warn("Report for ${receiver.fullName} does not contain column $it." +
+                    "  All data in this report will fail the quality check")
                 return Selection.withRange(0, 0)
             }
         }
@@ -206,7 +213,7 @@ class HasValidDataFor : JurisdictionalFilter {
 class HasAtLeastOneOf : JurisdictionalFilter {
     override val name = "hasAtLeastOneOf"
 
-    override fun getSelection(args: List<String>, table: Table): Selection {
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
         if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
         var selection = Selection.withRange(0, 0)
         val columnNames = table.columnNames()
@@ -218,7 +225,8 @@ class HasAtLeastOneOf : JurisdictionalFilter {
             }
         }
         if (!atLeastOneColumnFound) {
-            logger.warn("Report does not contain any of these columns: ${args.joinToString(",")}" +
+            logger.warn("Report for ${receiver.fullName} does not contain any of these columns:" +
+                " ${args.joinToString(",")}" +
                 ".  All data in this report will fail the quality check")
         }
         return selection
@@ -229,25 +237,25 @@ class HasAtLeastOneOf : JurisdictionalFilter {
 
 
 object JurisdictionalFilters {
-
-    // covid-19 default quality check consists of two filters
+    // covid-19 default quality check consists of these filters
+    // todo move this to a GLOBAL Setting in the settings table
     val defaultCovid19QualityCheck = listOf(
+        // valid human and valid test
         "hasValidDataFor(" +
             "message_id," +
             "equipment_model_name," +
             "specimen_type," +
             "test_result," +
-            "testing_lab_clia," +
             "patient_last_name," +
             "patient_first_name," +
-            //  "patient_dob," +    // our src/test/csv-file-tests/input/simplereport.csv test has missing dob.
-            "patient_id" +
+            "patient_dob" +
         ")",
-        "hasAtLeastOneOf(" +
-            "order_test_date," +
-            "specimen_collection_date_time," +
-            "test_result_date" +
-        ")",
+        // has valid location (for contact tracing)
+        "hasAtLeastOneOf(patient_street,patient_zip_code)",
+        // has valid date (for relevance/urgency)
+        "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
+        // able to conduct contact tracing
+        "hasAtLeastOneOf(patient_phone_number,patient_email)",
     )
 
     /**
