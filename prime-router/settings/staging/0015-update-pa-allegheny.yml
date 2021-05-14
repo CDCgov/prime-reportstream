@@ -1,3 +1,4 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0015-update-pa-allegheny.yml
 ---
 - name: pa-phd
   description: Pennsylvania Department of Health
@@ -7,7 +8,9 @@
     - name: elr-allegheny-staging
       organizationName: pa-phd
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Allegheny)" ]
+      jurisdictionalFilter:
+          - "matches(ordering_facility_state, PA)"
+          - "matches(ordering_facility_county, Allegheny)"
       deidentify: false
       translation:
         type: CUSTOM
@@ -19,7 +22,9 @@
           redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
           redox_source_name: "Prime Data Hub (Staging)"
         format: REDOX
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
+        nameFormat: STANDARD
+      qualityFilter: [ ]
+      # Normally this doesn't send, but when want it to.
+      # transport:
+      #  type: REDOX
+      #  apiKey: e54eae82-c7e3-4969-913a-94abbed941a6 # staging
