@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.serializers.datatests
 
 import ca.uhn.hl7v2.DefaultHapiContext
-import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.PipeParser
 import ca.uhn.hl7v2.util.Terser
@@ -23,15 +22,19 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
- * Runs data comparison tests for HL7 ORU R01 messages.
+ * Runs data comparison tests for HL7 ORU R01 messages based on files in the test folder.
+ * This test takes each HL7 file and compares its data to the internal.csv companion file in the
+ * same test folder.  For example:  for a file named CareEvolution-20200415-0001.hl7 the data will
+ * be compared to the file CareEvolution-20200415-0001.internal.csv.  Internal CSV files can have an
+ * optional header row and follow the internal schema used by the the ReportStream router.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ObservationMessageTests {
 
     /**
-     * The folder from the classpath for the test files
+     * The folder from the classpath that contains the test files
      */
-    private val TEST_FILE_DIR = "/test_data_files/hl7"
+    private val testFileDir = "/test_data_files/Hl7_ORU-R01"
 
     /**
      * Generate individual unit tests for each test file in the test folder.
@@ -39,9 +42,9 @@ class ObservationMessageTests {
      */
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
-        var dynamicTests = ArrayList<DynamicTest>()
+        val dynamicTests = ArrayList<DynamicTest>()
 
-        val testFiles = getTestFiles(TEST_FILE_DIR)
+        val testFiles = getTestFiles(testFileDir)
         testFiles.forEach {
             dynamicTests.add(DynamicTest.dynamicTest("Test ${FilenameUtils.getBaseName(it)}", FileTest(it)))
         }
@@ -54,17 +57,21 @@ class ObservationMessageTests {
      * @return a list of absolute pathnames to the test files
      */
     private fun getTestFiles(path: String): List<String> {
-        var files = ArrayList<String>()
-        val fullDirPath = this.javaClass.getResource(path).path
-        val dir = File(fullDirPath)
-        if(dir.exists()) {
-            val filenames = dir.list(SuffixFileFilter(".hl7"))
-            filenames.forEach { files.add("$fullDirPath/$it") }
-            if(files.isEmpty()) fail("There are no HL7 files present in $fullDirPath")
+        val files = ArrayList<String>()
+        val fullDirPath = this.javaClass.getResource(path)?.path
+        if(!fullDirPath.isNullOrBlank()) {
+            val dir = File(fullDirPath)
+            if(dir.exists()) {
+                val filenames = dir.list(SuffixFileFilter(".hl7"))
+                filenames?.forEach { files.add("$fullDirPath/$it") }
+                if(files.isEmpty()) fail("There are no HL7 files present in $fullDirPath")
+            } else {
+                fail("Directory $path does not exist in the classpath.")
+            }
+            files.forEach { println(it) }
         } else {
-            fail("Directory $path does not exist in the classpath.")
+            fail("Unable to obtain the path to the test files.")
         }
-        files.forEach { println(it) }
         return files
     }
 
@@ -73,11 +80,11 @@ class ObservationMessageTests {
      * (e.g. HL7 batch files have multiple reports) and verifies all data elements match the expected values in the
      * related .internal file that exists in the same folder as the HL7 test file.
      */
-    class FileTest(val hl7AbsolutePath: String): Executable {
+    class FileTest(private val hl7AbsolutePath: String): Executable {
         /**
          * The schema to use.
          */
-        private val SCHEMA_NAME = "covid-19"
+        private val schemaName = "covid-19"
 
         /**
          * The HAPI HL7 parser.
@@ -139,7 +146,7 @@ class ObservationMessageTests {
          * @return the HL7 report
          */
         private fun getReport(): Report {
-            val result = serializer.readExternal(SCHEMA_NAME, File(hl7AbsolutePath).inputStream(), TestSource)
+            val result = serializer.readExternal(schemaName, File(hl7AbsolutePath).inputStream(), TestSource)
             val filename = FilenameUtils.getName(hl7AbsolutePath)
             assertNotNull(result)
             assertNotNull(result.report)

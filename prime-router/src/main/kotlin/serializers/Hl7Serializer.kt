@@ -863,26 +863,24 @@ class Hl7Serializer(val metadata: Metadata): Logging {
     private fun decodeXTNPhoneNumber(terser: Terser, element: Element): String {
         var decodedPhoneNumber = ""
 
-        // Telephone are XTN types in HL7
+        // Telephone is of XTN type in HL7
         var deprecatedPhoneNumber = ""
         var countryCode = ""
         var areaCode = ""
         var localNumber = ""
-        var extension = ""
         var equipType = ""
-        try {
-            deprecatedPhoneNumber = terser.get("/.${element.hl7Field}-1") ?: ""
-            equipType = terser.get("/.${element.hl7Field}-3") ?: ""
-            countryCode = terser.get("/.${element.hl7Field}-5") ?: ""
-            areaCode = terser.get("/.${element.hl7Field}-6") ?: ""
-            localNumber = terser.get("/.${element.hl7Field}-7") ?: ""
-            extension = terser.get("/.${element.hl7Field}-8") ?: ""
-        } catch (e: HL7Exception) {
-            logger.error("Exception for ${element.hl7Field}", e)
-        }
+
+        // Note: Let the calling function catch any HL7 exception
+        deprecatedPhoneNumber = terser.get("/.${element.hl7Field}-1") ?: ""
+        equipType = terser.get("/.${element.hl7Field}-3") ?: ""
+        countryCode = terser.get("/.${element.hl7Field}-5") ?: ""
+        areaCode = terser.get("/.${element.hl7Field}-6") ?: ""
+        localNumber = terser.get("/.${element.hl7Field}-7") ?: ""
+
+        // TODO How to handle extensions
 
         // Make sure we only grab a phone number if the type is specified
-        if(equipType.isNullOrEmpty() || equipType == "PH") {
+        if(equipType.isEmpty() || equipType == "PH") {
             // Use the deprecated phone number if nothing else is available.
             if(countryCode.isBlank() && areaCode.isBlank() && localNumber.isBlank()) {
                 decodedPhoneNumber = deprecatedPhoneNumber
