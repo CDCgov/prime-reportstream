@@ -1,6 +1,6 @@
 # Quality Filters
 
-This proposal discusses the idea of each Receiver having one or more data QualityFilters, just like they now have JurisdictionalFilters.
+This proposal discusses the idea of each Receiving having one or more data QualityFilters, just like they now have JurisdictionalFilters.
 
 These would be used to filter out data that does not meet the state's standards.
 
@@ -17,27 +17,28 @@ To support this, I've implemented two new filters:
 
 A key idea is the Default Filter - if a state does not specify an alternative, we do some basic filtering on their behalf.
 
-Based on some analysis (below), I propose the following Default Quality Filter for topic 'covid-19':
-```
-            "hasValidDataFor(" +
-                "message_id," +
-                "equipment_model_name," +
-                "specimen_type," +
-                "test_result," +
-                "testing_lab_clia," +
-                "patient_last_name," +
-                "patient_first_name," +
-                "patient_id" +
-                ")",
-            // AND, the data must have at least one date field:
-            "hasAtLeastOneOf(" +
-                "order_test_date," +
-                "specimen_collection_date_time," +
-                "test_result_date"
-```
+Based on some analysis (below), we propose the following Default Quality Filter for topic 'covid-19':
+ ```
+        // valid human and valid test
+         "hasValidDataFor(" +
+             "message_id," +
+             "equipment_model_name," +
+             "specimen_type," +
+             "test_result," +
+             "patient_last_name," +
+             "patient_first_name," +
+             "patient_dob" +
+         ")",
+         // has valid location (for contact tracing)
+         "hasAtLeastOneOf(patient_street,patient_zip_code)",
+         // has valid date (for relevance/urgency)
+         "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
+         // able to conduct contact tracing
+         "hasAtLeastOneOf(patient_phone_number,patient_email)"
+ ```
 
-Important Note:  Any state can override the default with a hand-crafted quality check, or with no quality check.
-There is a filter called `allowAll` that allows all the data thru the quality check step.
+Important Note:  Any state can override the default with a hand-crafted quality check, or with no quality check
+There is a filter called allowAll that allows all the data thru the quality check step.
 
 Examples:
 ```
@@ -56,8 +57,8 @@ qualityFilter:
 
 ## ANALYSIS
 
-The purpose of the exercise is to figure out the Default Covid 19 QualityFilter - the bare minimum set of required covid-19 fields,
-such that the data is forwarded to any state.
+The purpose of the exercise is to figure out the bare minimum set of required covid-19 fields.
+in order to send that data forward to any state.
 
 I started by looking only at the fields that currently exist in all three schemas:  SimpleReport, Strac, and Waters.
 There are just under 30 fields that appear in all three(!), so that makes a much easier starting point.
