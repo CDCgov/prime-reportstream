@@ -18,6 +18,7 @@ class Metadata {
         UseMapper(),
         IfPresentMapper(),
         LookupMapper(),
+        LIVDLookupMapper(),
         ConcatenateMapper(),
         Obx17Mapper(),
         Obx17TypeMapper(),

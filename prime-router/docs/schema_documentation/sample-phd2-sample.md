@@ -6,17 +6,23 @@
 
 **Name**: lab
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
 
 **Name**: firstName
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 ---
 
 **Name**: lastName
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -26,6 +32,8 @@
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -33,6 +41,8 @@
 **Name**: ssn
 
 **Type**: ID_SSN
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -42,6 +52,8 @@
 
 **Type**: DATE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -50,6 +62,8 @@
 
 **Type**: ID
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -57,6 +71,8 @@
 **Name**: observation
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 

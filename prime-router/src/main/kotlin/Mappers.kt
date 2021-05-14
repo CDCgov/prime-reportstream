@@ -196,6 +196,130 @@ class LookupMapper : Mapper {
 }
 
 /**
+ * This is a lookup mapper specialized for the LIVD table. The LIVD table has multiple columns
+ * which could be used for lookup. Different senders send different information, so this mapper
+ * incorporates business logic to do this lookup based on the available information.
+ *
+ * This function uses covid-19 schema elements in the following order:
+ * - device_id - From OBX-17.1 and OBX-17.3, may be a FDA GUDID or a textual description
+ * - equipment_model_id - From OBX-18.1, matches column 0
+ * - test_kit_name_id - matches column M
+ * - equipment_model_name - From STRAC, SimpleReport, and many CSVs, matches on column B
+ *
+ * Example Usage
+ *
+ *   - name: test_performed_system_version
+ *     type: TABLE
+ *     table: LIVD-SARS-CoV-2-2021-01-20        # Specific version of the LIVD table to use
+ *     tableColumn: LOINC Version ID            # Column in the table to map
+ *     mapper: livdLookup()
+ *
+ */
+class LIVDLookupMapper : Mapper {
+    override val name = "livdLookup"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isNotEmpty())
+            error("Schema Error: livdLookup mapper does not expect args")
+        // EQUIPMENT_MODEL_NAME is the more stable id so it goes first. Device_id will change as devices change from
+        // emergency use to fully authorized status in the LIVD table
+        return listOf(EQUIPMENT_MODEL_NAME, DEVICE_ID, EQUIPMENT_MODEL_ID, TEST_KIT_NAME_ID)
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        values.forEach {
+            val result = when (it.element.name) {
+                DEVICE_ID -> lookupByDeviceId(element, it.value)
+                EQUIPMENT_MODEL_ID -> lookupByEquipmentUid(element, it.value)
+                TEST_KIT_NAME_ID -> lookupByTestkitId(element, it.value)
+                EQUIPMENT_MODEL_NAME -> lookupByEquipmentModelName(element, it.value)
+                else -> null
+            }
+            if (result != null) return result
+        }
+        return null
+    }
+
+    companion object {
+        private val standard99ELRTypes = listOf("EUA", "DII", "DIT", "DIM", "MNT", "MNI", "MNM")
+        const val LIVD_TESTKIT_NAME_ID = "Testkit Name ID"
+        const val LIVD_EQUIPMENT_UID = "Equipment UID"
+        const val LIVD_MODEL = "Model"
+
+        const val DEVICE_ID = "device_id"
+        const val EQUIPMENT_MODEL_ID = "equipment_model_id"
+        const val EQUIPMENT_MODEL_NAME = "equipment_model_name"
+        const val TEST_KIT_NAME_ID = "test_kit_name_id"
+
+        private fun lookupByDeviceId(element: Element, deviceId: String): String? {
+            /*
+             Dev Note:
+
+             From the LIVD implementation notes says that device_id is not well defined:
+              "The Device Identifier (DI) may be a Test Kit Name Identifier or the Equipment (IVD) Identifier
+               or a combination of the two. "
+
+             This note discusses many of the forms for the device_id
+               https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#
+               ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
+             */
+
+            if (deviceId.isBlank()) return null
+
+            // Device Id may be 99ELR type
+            val suffix = deviceId.substringAfterLast('_', "")
+            if (standard99ELRTypes.contains(suffix)) {
+                val value = deviceId.substringBeforeLast('_', "")
+                return lookup(element, value, LIVD_TESTKIT_NAME_ID)
+                    ?: lookup(element, value, LIVD_EQUIPMENT_UID)
+            }
+
+            // truncated 99ELR type
+            if (deviceId.endsWith("#")) {
+                val value = deviceId.substringBeforeLast('#', "")
+                return lookupPrefix(element, value, LIVD_TESTKIT_NAME_ID)
+                    ?: lookupPrefix(element, value, LIVD_EQUIPMENT_UID)
+            }
+
+            // May be the DI from a GUDID either test-kit or equipment
+            return lookup(element, deviceId, LIVD_TESTKIT_NAME_ID)
+                ?: lookup(element, deviceId, LIVD_EQUIPMENT_UID)
+        }
+
+        private fun lookupByEquipmentUid(element: Element, value: String): String? {
+            if (value.isBlank()) return null
+            return lookup(element, value, LIVD_EQUIPMENT_UID)
+        }
+
+        private fun lookupByTestkitId(element: Element, value: String): String? {
+            if (value.isBlank()) return null
+            return lookup(element, value, LIVD_TESTKIT_NAME_ID)
+        }
+
+        private fun lookupByEquipmentModelName(element: Element, value: String): String? {
+            if (value.isBlank()) return null
+            return lookup(element, value, LIVD_MODEL)
+        }
+
+        private fun lookup(element: Element, lookup: String, onColumn: String): String? {
+            val lookupTable = element.tableRef
+                ?: error("Schema Error: could not find table '${element.table}'")
+            val lookupColumn = element.tableColumn
+                ?: error("Schema Error: no tableColumn for element '${element.name}'")
+            return lookupTable.lookupValue(onColumn, lookup, lookupColumn)
+        }
+
+        private fun lookupPrefix(element: Element, lookup: String, onColumn: String): String? {
+            val lookupTable = element.tableRef
+                ?: error("Schema Error: could not find table '${element.table}'")
+            val lookupColumn = element.tableColumn
+                ?: error("Schema Error: no tableColumn for element '${element.name}'")
+            return lookupTable.lookupPrefixValue(onColumn, lookup, lookupColumn)
+        }
+    }
+}
+
+/**
  * The obx17 mapper is specific to the LIVD table and the DeviceID field. Do not use in other places.
  *
  * @See <a href=https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification>HHS Submission Guidance</a>Do not use it for other fields and tables.

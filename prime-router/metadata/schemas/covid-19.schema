@@ -101,7 +101,7 @@ elements:
     tableColumn: Equipment UID
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Instrument_model_id
     hhsGuidanceField:
     hl7Field: OBX-18-1
@@ -112,7 +112,7 @@ elements:
     tableColumn: Equipment UID Type
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: OBX-18-3
@@ -123,6 +123,7 @@ elements:
     tableColumn: Model
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
+    mapper: livdLookup()
     natFlatFileField: Instrument_model_name
     hhsGuidanceField:
 
@@ -132,7 +133,7 @@ elements:
     tableColumn: Manufacturer
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Instrument_model_name
     hhsGuidanceField:
 
@@ -222,7 +223,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Test Ordered LOINC Code
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
     hl7Field: OBR-4-1
@@ -231,7 +232,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Test Ordered LOINC Long Name
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
     hl7Field: OBR-4-2
@@ -249,7 +250,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: LOINC Version ID
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     hl7Field: OBR-4-7
 
   - name: ordering_facility_city
@@ -942,7 +943,7 @@ elements:
     tableColumn: Testkit Name ID
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Test_kit_model_name
 
   - name: test_kit_name_id_type
@@ -951,14 +952,14 @@ elements:
     tableColumn: Testkit Name ID Type
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
 
   - name: test_kit_name_id_cwe_version
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: LOINC Version ID
     reference: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     hl7Field: OBX-17-7
 
   - name: test_method_description
@@ -971,7 +972,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Test Performed LOINC Code
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3-1
@@ -981,7 +982,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Test Performed LOINC Long Name
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3-2
@@ -999,7 +1000,7 @@ elements:
   - name: test_performed_system_version
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     tableColumn: LOINC Version ID
     hl7Field: OBX-3-7
 
