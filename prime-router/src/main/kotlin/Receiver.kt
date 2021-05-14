@@ -14,7 +14,8 @@ import java.time.ZoneId
  * @param organizationName of the receiver
  * @param topic defines the set of schemas that can translate to each other
  * @param translation configuration to translate
- * @param jurisdictionalFilter defines the set of elements and regexs that filter the topic
+ * @param jurisdictionalFilter defines the set of elements and regexs that filter the data for this receiver
+ * @param qualityFilter defines the set of elements and regexs that do qualiyt filtering on the data for this receiver
  * @param deidentify transform
  * @param timing defines how to delay reports to the org. If null, then send immediately
  * @param description of the receiver
@@ -26,6 +27,7 @@ open class Receiver(
     val topic: String,
     val translation: TranslatorConfiguration,
     val jurisdictionalFilter: List<String> = emptyList(),
+    val qualityFilter: List<String> = emptyList(),
     val deidentify: Boolean = false,
     val timing: Timing? = null,
     val description: String = "",
@@ -49,6 +51,7 @@ open class Receiver(
         copy.topic,
         copy.translation,
         copy.jurisdictionalFilter,
+        copy.qualityFilter,
         copy.deidentify,
         copy.timing,
         copy.description,

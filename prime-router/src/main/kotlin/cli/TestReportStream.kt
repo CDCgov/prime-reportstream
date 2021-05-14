@@ -28,6 +28,7 @@ import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.exp
 import org.jooq.impl.DSL.max
 import java.io.File
 import java.lang.Thread.sleep
@@ -208,6 +209,7 @@ Examples:
             End2End(),
             Merge(),
             Garbage(),
+            QualityFilter(),
             Hl7Null(),
             TooManyCols(),
             BadCsv(),
@@ -342,6 +344,7 @@ abstract class CoolTest {
             it.organizationName == orgName
                 && !it.name.contains("FAIL")
                 && !it.name.contains("BLOBSTORE")
+                && !it.name.contains("QUALITY")
         }
         val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
 
@@ -355,6 +358,15 @@ abstract class CoolTest {
         }[0]
         val sftpFailReceiver = settings.receivers.filter {
             it.organizationName == orgName && it.name == "SFTP_FAIL"
+        }[0]
+        val qualityGoodReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "QUALITY_PASS"
+        }[0]
+        val qualityAllReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "QUALITY_ALL"
+        }[0]
+        val qualityFailReceiver = settings.receivers.filter {
+            it.organizationName == orgName && it.name == "QUALITY_FAIL"
         }[0]
 
         const val ANSI_RESET = "\u001B[0m"
@@ -915,7 +927,7 @@ class HammerTime : CoolTest() {
 class Garbage : CoolTest() {
     override val name = "garbage"
     override val description = "Garbage in - Nice error message out"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.FAILS // new quality checks now prevent any data from flowing to other checks
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting $name Test: send ${emptySender.fullName} data to $allGoodCounties")
@@ -958,6 +970,100 @@ class Garbage : CoolTest() {
         return passed
     }
 }
+
+
+class QualityFilter : CoolTest() {
+    override val name = "qualityfilter"
+    override val description = "Test the QualityFilter feature"
+    override val status = TestStatus.GOODSTUFF
+
+    /**
+     * In the returned json, check the itemCount associated with receiver.name in the list of destinations.
+     */
+    fun checkJsonItemCountForReceiver(receiver: Receiver, expectedCount: Int, json: String): Boolean {
+        try {
+            echo(json)
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
+            echo("Id of submitted report: $reportId")
+            val destinations = tree["destinations"] as ArrayNode
+            for (i in 0 until destinations.size()) {
+                val dest = destinations[i] as ObjectNode
+                if (dest["service"].textValue() == receiver.name) {
+                    if (dest["itemCount"].intValue() == expectedCount) {
+                        return good("Test Passed: For ${receiver.name} expected $expectedCount and found $expectedCount")
+                    } else {
+                        return bad("***Test FAILED***; For ${receiver.name} expected $expectedCount but got ${dest["itemCount"].intValue()}")
+                    }
+                }
+            }
+            if (expectedCount == 0)
+                return good("Test Passed: No data went to ${receiver.name} dest")
+            else
+                return bad("***Test FAILED***: No data went to ${receiver.name} dest")
+        } catch (e: Exception) {
+            return bad("***$name Test FAILED***: Unexpected json returned for ${receiver.name}")
+        }
+    }
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly("Starting $name Test")
+        ugly("Test the allowAll QualityFilter")
+        val fakeItemCount = options.items
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            emptySender,
+            fakeItemCount,
+            receivingStates,
+            qualityAllReceiver.name,  // Has the 'allowAll' quality filter
+            options.dir,
+        )
+        echo("Created datafile $file")
+        // Now send it to ReportStream.
+        val (responseCode, json) =
+            HttpUtilities.postReportFile(environment, file, org.name, emptySender.name, options.key)
+        echo("Response to POST: $responseCode")
+        var passed = checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, json)
+
+        // First test done, now the second test, QUALITY_PASS
+        ugly("Test a QualityFilter that allows all data through")
+        val file2 = FileUtilities.createFakeFile(
+            metadata,
+            emptySender,
+            fakeItemCount,
+            receivingStates,
+            qualityGoodReceiver.name,
+            options.dir,
+        )
+        echo("Created datafile $file2")
+        // Now send it to ReportStream.
+        val (responseCode2, json2) =
+            HttpUtilities.postReportFile(environment, file2, org.name, emptySender.name, options.key)
+        echo("Response to POST: $responseCode2")
+        passed = passed and checkJsonItemCountForReceiver(qualityGoodReceiver, fakeItemCount, json2)
+
+        // Third test
+        ugly("Test a QualityFilter that allows NO data through.")
+        val file3 = FileUtilities.createFakeFile(
+            metadata,
+            emptySender,
+            fakeItemCount,
+            receivingStates,
+            qualityFailReceiver.name,
+            options.dir,
+        )
+        echo("Created datafile $file2")
+        // Now send it to ReportStream.
+        val (responseCode3, json3) =
+            HttpUtilities.postReportFile(environment, file3, org.name, emptySender.name, options.key)
+        echo("Response to POST: $responseCode3")
+        passed = passed and checkJsonItemCountForReceiver(qualityFailReceiver, 0, json3)
+
+        return passed
+    }
+}
+
+
 
 class Huge : CoolTest() {
     override val name = "huge"
