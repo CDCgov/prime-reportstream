@@ -472,14 +472,9 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         report.schema.elements.forEach {
             lookupValues[it.name] = report.getString(row, it.name) ?: element.default ?: ""
         }
-        val valuesForMapper = valueNames?.map { elementName ->
-            val valueElement = report.schema.findElement(elementName)
-                ?: error(
-                    "Schema Error: Could not find element '$elementName' for mapper " +
-                        "'${mapper.name}' from '${element.name}'."
-                )
-            val value = lookupValues[elementName]
-                ?: error("Schema Error: No mapper input for $elementName")
+        val valuesForMapper = valueNames?.mapNotNull { elementName ->
+            val valueElement = report.schema.findElement(elementName) ?: return@mapNotNull null
+            val value = lookupValues[elementName] ?: return@mapNotNull null
             ElementAndValue(valueElement, value)
         }
         if (valuesForMapper == null) {
@@ -899,6 +894,6 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
-        val HD_FIELDS = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2")
+        val HD_FIELDS = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "PID-3-4-1")
     }
 }
