@@ -733,6 +733,25 @@
           operation: MERGE
           numberPerDay: 1440 # Every minute
           initialTime: 00:00
+      - name: elr-allegheny-debug
+        organizationName: pa-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Allegheny)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: eb6c3769-75a4-4d10-9de0-8095cdc7f10f
+            redox_destination_name: "CDC Allegheny County PDH Destination (s)"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Data Hub (Staging)"
+          format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
 
   - name: md-doh
     description: Maryland
