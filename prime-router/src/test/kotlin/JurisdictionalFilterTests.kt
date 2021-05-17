@@ -10,7 +10,6 @@ import assertk.assertions.support.show
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class JurisdictionalFilterTests {
 
@@ -85,9 +84,9 @@ class JurisdictionalFilterTests {
         val args3 = listOf("AZ", "Pima")
         val selection3 = filter.getSelection(args3, table, rcvr)
         val filteredTable3 = table.where(selection3)
-        assertEquals(2, filteredTable3.rowCount())
-        assertEquals("Baltimore City", filteredTable3.getString(0, "patient_county"))
-        assertEquals("Pima", filteredTable3.getString(1, "patient_county"))
+        assertThat(filteredTable3).hasRowCount(2)
+        assertThat(filteredTable3.getString(0, "patient_county")).isEqualTo("Baltimore City")
+        assertThat(filteredTable3.getString(1, "patient_county")).isEqualTo("Pima")
 
         val args4 = listOf("MD") // wrong num args
         assertThat { filter.getSelection(args4, table, rcvr) }.isFailure()
@@ -103,7 +102,7 @@ class JurisdictionalFilterTests {
         val args1 = listOf("a", "a") // correct # args.
         val selection = filter.getSelection(args1, table, rcvr)
         val filteredTable = table.where(selection)
-        assertThat(filteredTable.rowCount()).isEqualTo(0)
+        assertThat(filteredTable).hasRowCount(0)
     }
 
     @Test
@@ -123,17 +122,17 @@ class JurisdictionalFilterTests {
         val args1 = listOf("colA", "A1", "colB", "B3")
         val selection1 = filter.getSelection(args1, table, rcvr)
         val filteredTable1 = table.where(selection1)
-        assertEquals(2, filteredTable1.rowCount())
-        assertEquals("B1", filteredTable1.getString(0, "colB"))
-        assertEquals("B3", filteredTable1.getString(1, "colB"))
+        assertThat(filteredTable1).hasRowCount(2)
+        assertThat(filteredTable1.getString(0, "colB")).isEqualTo("B1")
+        assertThat(filteredTable1.getString(1, "colB")).isEqualTo("B3")
 
         val args2 = listOf("colA", "(?i)A.*", "colB", ".*4") // test a regex
         val selection2 = filter.getSelection(args2, table, rcvr)
         val filteredTable2 = table.where(selection2)
-        assertEquals(3, filteredTable2.rowCount())
-        assertEquals("B1", filteredTable2.getString(0, "colB"))
-        assertEquals("B2", filteredTable2.getString(1, "colB"))
-        assertEquals("B4", filteredTable2.getString(2, "colB"))
+        assertThat(filteredTable2).hasRowCount(3)
+        assertThat(filteredTable2.getString(0, "colB")).isEqualTo("B1")
+        assertThat(filteredTable2.getString(1, "colB")).isEqualTo("B2")
+        assertThat(filteredTable2.getString(2, "colB")).isEqualTo("B4")
 
         val args4 = listOf("colA", "([?:|") // malformed regex
         assertThat { filter.getSelection(args4, table, rcvr) }.isFailure()
@@ -151,45 +150,45 @@ class JurisdictionalFilterTests {
         val emptyArgs = listOf<String>()
         var selection = filter.getSelection(emptyArgs, table, rcvr)
         var filteredTable = table.where(selection)
-        assertEquals(4, filteredTable.rowCount())
+        assertThat(filteredTable).hasRowCount(4)
 
         val junkColName = listOf("quux")
         selection = filter.getSelection(junkColName, table, rcvr)
         filteredTable = table.where(selection)
-        assertEquals(0, filteredTable.rowCount())
+        assertThat(filteredTable).hasRowCount(0)
 
         val oneGoodoneBadColName = listOf("quux", "colB")
         selection = filter.getSelection(oneGoodoneBadColName, table, rcvr)
         filteredTable = table.where(selection)
-        assertEquals(0, filteredTable.rowCount())
+        assertThat(filteredTable).hasRowCount(0)
 
         val oneGoodColName = listOf("colB")
         selection = filter.getSelection(oneGoodColName, table, rcvr)
         filteredTable = table.where(selection)
-        assertEquals(4, filteredTable.rowCount())
+        assertThat(filteredTable).hasRowCount(4)
 
         val colWithEmpty = listOf("colA")
         selection = filter.getSelection(colWithEmpty, table, rcvr)
         filteredTable = table.where(selection)
-        assertEquals(3, filteredTable.rowCount())
-        assertEquals("A1", filteredTable.getString(0, "colA"))
-        assertEquals("A2", filteredTable.getString(1, "colA"))
-        assertEquals("A4", filteredTable.getString(2, "colA"))
+        assertThat(filteredTable).hasRowCount(3)
+        assertThat(filteredTable.getString(0, "colA")).isEqualTo("A1")
+        assertThat(filteredTable.getString(1, "colA")).isEqualTo("A2")
+        assertThat(filteredTable.getString(2, "colA")).isEqualTo("A4")
 
         val colWithNull = listOf("colC")
         selection = filter.getSelection(colWithNull, table, rcvr)
         filteredTable = table.where(selection)
-        assertEquals(3, filteredTable.rowCount())
-        assertEquals("C1", filteredTable.getString(0, "colC"))
-        assertEquals("C2", filteredTable.getString(1, "colC"))
-        assertEquals("C3", filteredTable.getString(2, "colC"))
+        assertThat(filteredTable).hasRowCount(3)
+        assertThat(filteredTable.getString(0, "colC")).isEqualTo("C1")
+        assertThat(filteredTable.getString(1, "colC")).isEqualTo("C2")
+        assertThat(filteredTable.getString(2, "colC")).isEqualTo("C3")
 
         val allCols = listOf("colA", "colB", "colC")
         selection = filter.getSelection(allCols, table, rcvr)
         filteredTable = table.where(selection)
-        assertEquals(2, filteredTable.rowCount())
-        assertEquals("C1", filteredTable.getString(0, "colC"))
-        assertEquals("C2", filteredTable.getString(1, "colC"))
+        assertThat(filteredTable).hasRowCount(2)
+        assertThat(filteredTable.getString(0, "colC")).isEqualTo("C1")
+        assertThat(filteredTable.getString(1, "colC")).isEqualTo("C2")
     }
 
     @Test
@@ -207,33 +206,33 @@ class JurisdictionalFilterTests {
         val junkColNames = listOf("foo", "bar", "baz")
         var selection = filter.getSelection(junkColNames, table, rcvr)
         var filteredTable = table.where(selection)
-        assertEquals(0, filteredTable.rowCount())
+        assertThat(filteredTable).hasRowCount(0)
 
         val oneGoodColName = listOf("foo", "bar", "colB")
         selection = filter.getSelection(oneGoodColName, table, rcvr)
         filteredTable = table.where(selection)
-        assertEquals(4, filteredTable.rowCount())
+        assertThat(filteredTable).hasRowCount(4)
 
         val colWithEmptyString = listOf("foo", "colA")
         selection = filter.getSelection(colWithEmptyString, table, rcvr)
         filteredTable = table.where(selection)
-        assertEquals(3, filteredTable.rowCount())
-        assertEquals("A1", filteredTable.getString(0, "colA"))
-        assertEquals("A2", filteredTable.getString(1, "colA"))
-        assertEquals("A4", filteredTable.getString(2, "colA"))
+        assertThat(filteredTable).hasRowCount(3)
+        assertThat(filteredTable.getString(0, "colA")).isEqualTo("A1")
+        assertThat(filteredTable.getString(1, "colA")).isEqualTo("A2")
+        assertThat(filteredTable.getString(2, "colA")).isEqualTo("A4")
 
         val colWithNull = listOf("colC")
         selection = filter.getSelection(colWithNull, table, rcvr)
         filteredTable = table.where(selection)
-        assertEquals(3, filteredTable.rowCount())
-        assertEquals("C1", filteredTable.getString(0, "colC"))
-        assertEquals("C2", filteredTable.getString(1, "colC"))
-        assertEquals("C3", filteredTable.getString(2, "colC"))
+        assertThat(filteredTable).hasRowCount(3)
+        assertThat(filteredTable.getString(0, "colC")).isEqualTo("C1")
+        assertThat(filteredTable.getString(1, "colC")).isEqualTo("C2")
+        assertThat(filteredTable.getString(2, "colC")).isEqualTo("C3")
 
         val allCols = listOf("colA", "colB", "colC")
         selection = filter.getSelection(allCols, table, rcvr)
         filteredTable = table.where(selection)
-        assertThat(filteredTable.rowCount()).isEqualTo(4)
+        assertThat(filteredTable).hasRowCount(4)
 
         // First row does not exist for colA nor colB. No colC at all.
         val table2 = Table.create(
@@ -242,7 +241,7 @@ class JurisdictionalFilterTests {
         )
         selection = filter.getSelection(allCols, table2, rcvr)
         filteredTable = table.where(selection)
-        assertThat(filteredTable.rowCount()).isEqualTo(1)
+        assertThat(filteredTable).hasRowCount(1)
         assertThat(filteredTable.getString(0, "colA")).isEqualTo("A2")
     }
 
@@ -261,7 +260,7 @@ class JurisdictionalFilterTests {
         val emptyArgs = listOf<String>()
         val selection = filter.getSelection(emptyArgs, table, rcvr)
         val filteredTable = table.where(selection)
-        assertThat(filteredTable.rowCount()).isEqualTo(4)
+        assertThat(filteredTable).hasRowCount(4)
     }
 
     companion object {
