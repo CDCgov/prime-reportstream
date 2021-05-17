@@ -4,11 +4,14 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -157,5 +160,68 @@ NTE|1|L|This is a final comment|RE"""
         assertTrue(report.itemCount == 2)
         val hospitalized = (0 until report.itemCount).map { report.getString(it, "hospitalized") }
         assertEquals(setOf(""), hospitalized.toSet())
+    }
+
+    @Test
+    fun `test XTN phone decoding`() {
+        val metadata = Metadata("./metadata")
+        val serializer = Hl7Serializer(metadata)
+        val terser = mockk<Terser>()
+        val element = Element(name = "ordering_facility_phone_number", hl7Field = "PID-13")
+
+        // No phone number
+        every { terser.get("/.${element.hl7Field}-1") } returns ""
+        every { terser.get("/.${element.hl7Field}-2") } returns ""
+        every { terser.get("/.${element.hl7Field}-3") } returns ""
+        every { terser.get("/.${element.hl7Field}-4") } returns ""
+        every { terser.get("/.${element.hl7Field}-5") } returns ""
+        every { terser.get("/.${element.hl7Field}-6") } returns ""
+        every { terser.get("/.${element.hl7Field}-7") } returns ""
+        var phoneNumber = serializer.decodeXTNPhoneNumber(terser, element)
+        assertEquals("", phoneNumber)
+
+        // Phone number in deprecated component
+        every { terser.get("/.${element.hl7Field}-1") } returns "5555555555"
+        every { terser.get("/.${element.hl7Field}-2") } returns ""
+        every { terser.get("/.${element.hl7Field}-3") } returns ""
+        every { terser.get("/.${element.hl7Field}-4") } returns ""
+        every { terser.get("/.${element.hl7Field}-5") } returns ""
+        every { terser.get("/.${element.hl7Field}-6") } returns ""
+        every { terser.get("/.${element.hl7Field}-7") } returns ""
+        phoneNumber = serializer.decodeXTNPhoneNumber(terser, element)
+        assertEquals("5555555555", phoneNumber)
+
+        // Phone number in newer components.  Will ignore phone number in deprecated component
+        every { terser.get("/.${element.hl7Field}-1") } returns "4444444444"
+        every { terser.get("/.${element.hl7Field}-2") } returns ""
+        every { terser.get("/.${element.hl7Field}-3") } returns "PH" //Phone
+        every { terser.get("/.${element.hl7Field}-4") } returns ""
+        every { terser.get("/.${element.hl7Field}-5") } returns "555"
+        every { terser.get("/.${element.hl7Field}-6") } returns "666"
+        every { terser.get("/.${element.hl7Field}-7") } returns "7777"
+        phoneNumber = serializer.decodeXTNPhoneNumber(terser, element)
+        assertEquals("5556667777", phoneNumber)
+
+        // A Fax number is not used
+        every { terser.get("/.${element.hl7Field}-1") } returns ""
+        every { terser.get("/.${element.hl7Field}-2") } returns ""
+        every { terser.get("/.${element.hl7Field}-3") } returns "FX" //Fax
+        every { terser.get("/.${element.hl7Field}-4") } returns ""
+        every { terser.get("/.${element.hl7Field}-5") } returns "555"
+        every { terser.get("/.${element.hl7Field}-6") } returns "666"
+        every { terser.get("/.${element.hl7Field}-7") } returns "7777"
+        phoneNumber = serializer.decodeXTNPhoneNumber(terser, element)
+        assertEquals("", phoneNumber)
+
+        // Test null handling
+        every { terser.get("/.${element.hl7Field}-1") } returns null
+        every { terser.get("/.${element.hl7Field}-2") } returns null
+        every { terser.get("/.${element.hl7Field}-3") } returns null
+        every { terser.get("/.${element.hl7Field}-4") } returns null
+        every { terser.get("/.${element.hl7Field}-5") } returns null
+        every { terser.get("/.${element.hl7Field}-6") } returns null
+        every { terser.get("/.${element.hl7Field}-7") } returns null
+        phoneNumber = serializer.decodeXTNPhoneNumber(terser, element)
+        assertEquals("", phoneNumber)
     }
 }

@@ -855,7 +855,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
      * @param element the element to decode
      * @return the phone number or empty string
      */
-    private fun decodeXTNPhoneNumber(terser: Terser, element: Element): String {
+    internal fun decodeXTNPhoneNumber(terser: Terser, element: Element): String {
         var decodedPhoneNumber = ""
 
         // Telephone is of XTN type in HL7
