@@ -129,3 +129,8 @@ variable "storage_partner_connection_string" {
     type = string
     description = "Storage account to export data with HHS Protect"
 }
+
+variable "storage_partner_candidate_connection_string" {
+    type = string
+    description = "Storage account to export data with HHS Protect for the candidate slot"
+}

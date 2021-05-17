@@ -34,9 +34,6 @@ locals {
     # Use the VNET DNS server (so we receive private endpoint URLs)
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
-    # HHS Protect Storage Account
-    "PartnerStorage" = var.storage_partner_connection_string
-
     "DOCKER_REGISTRY_SERVER_URL" = var.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user
     "DOCKER_REGISTRY_SERVER_PASSWORD" = var.admin_password
@@ -111,6 +108,9 @@ resource "azurerm_function_app" "function_app" {
 
   app_settings = merge(local.all_app_settings, {
     "POSTGRES_URL" = var.postgres_url
+
+    # HHS Protect Storage Account
+    "PartnerStorage" = var.storage_partner_connection_string
   })
 
   identity {
@@ -160,6 +160,9 @@ resource "azurerm_function_app_slot" "candidate" {
 
   app_settings = merge(local.all_app_settings, {
     "POSTGRES_URL" = var.postgres_url_candidate
+
+    # HHS Protect Storage Account
+    "PartnerStorage" = var.storage_partner_candidate_connection_string
   })
 
   identity {

@@ -72,6 +72,7 @@ module "function_app" {
     app_config_key_vault_id = module.key_vault.app_config_key_vault_id
     client_config_key_vault_id = module.key_vault.client_config_key_vault_id
     storage_partner_connection_string = module.storage.storage_partner_connection_string
+    storage_partner_candidate_connection_string = module.storage.storage_partner_candidate_connection_string
 }
 
 module "database" {
