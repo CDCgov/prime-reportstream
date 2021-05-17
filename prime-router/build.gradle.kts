@@ -301,7 +301,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.15.2")
     implementation("tech.tablesaw:tablesaw-core:0.38.2")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.1.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
@@ -329,7 +329,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.flywaydb:flyway-core:7.8.2")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
-    implementation("org.commonmark:commonmark:0.17.1")
+    implementation("org.commonmark:commonmark:0.17.2")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
