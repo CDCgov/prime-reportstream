@@ -1,9 +1,12 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.exists
+import assertk.assertions.isEmpty
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.serializers.CsvSerializer
 import org.apache.commons.io.FileUtils
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -27,7 +30,7 @@ class SimpleReportTests {
         outputDirectory.mkdirs()
 
         val expectedDir = File(expectedResultsPath)
-        assertTrue(expectedDir.exists())
+        assertThat(expectedDir).exists()
 
         metadata = Metadata(Metadata.defaultMetadataDirectory)
         settings = FileSettings(FileSettings.defaultSettingsDirectory)
@@ -39,15 +42,15 @@ class SimpleReportTests {
      * Returns a list of Pairs.  Each pair is created report File based on the routing,
      *   and the OrganizationService, as useful metadata about the File.
      */
-    fun readAndRoute(filePath: String, schemaName: String): MutableList<Pair<File, Receiver>> {
+    private fun readAndRoute(filePath: String, schemaName: String): MutableList<Pair<File, Receiver>> {
         val file = File(filePath)
-        assertTrue(file.exists())
+        assertThat(file).exists()
         val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
 
         // 1) Ingest the file
         val fileSource = FileSource(filePath)
         val readResult = csvSerializer.readExternal(schema.name, file.inputStream(), fileSource)
-        assertTrue(readResult.errors.isEmpty())
+        assertThat(readResult.errors).isEmpty()
         // I removed this test- at this time, the SimpleReport parsing does return an empty column warning.
         //        assertTrue(readResult.warnings.isEmpty())
         val inputReport = readResult.report ?: fail()
@@ -73,7 +76,7 @@ class SimpleReportTests {
         return outputFiles
     }
 
-    fun createFakeFile(schemaName: String, numRows: Int, useInternal: Boolean = false): File {
+    private fun createFakeFile(schemaName: String, numRows: Int, useInternal: Boolean = false): File {
         val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
         // 1) Create the fake file
         val fakeReport = FakeReport(metadata).build(
@@ -92,7 +95,7 @@ class SimpleReportTests {
             csvSerializer.writeInternal(fakeReport, fakeReportFile.outputStream())
         else
             csvSerializer.write(fakeReport, fakeReportFile.outputStream())
-        assertTrue(fakeReportFile.exists())
+        assertThat(fakeReportFile).exists()
         return fakeReportFile
     }
 
@@ -100,21 +103,22 @@ class SimpleReportTests {
      * Read in a CSV file, then write it right back out again, in the same schema.
      * The idea is: It shouldn't change.
      */
-    fun readAndWrite(inputFilePath: String, schemaName: String): File {
+    private fun readAndWrite(inputFilePath: String, schemaName: String): File {
         val inputFile = File(inputFilePath)
-        assertTrue(inputFile.exists())
+        assertThat(inputFile).exists()
         val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
 
         // 1) Ingest the file
         val inputFileSource = FileSource(inputFilePath)
         val readResult = csvSerializer.readExternal(schema.name, inputFile.inputStream(), inputFileSource)
-        assertTrue(readResult.warnings.isEmpty() && readResult.errors.isEmpty())
+        assertThat(readResult.warnings).isEmpty()
+        assertThat(readResult.errors).isEmpty()
         val inputReport = readResult.report ?: fail()
 
         // 2) Write the input report back out to a new file
         val outputFile = File(outputPath, inputReport.name)
         csvSerializer.write(inputReport, outputFile.outputStream())
-        assertTrue(outputFile.exists())
+        assertThat(outputFile).exists()
         return outputFile
     }
 
@@ -122,9 +126,9 @@ class SimpleReportTests {
      * Read in a CSV file, then write it right back out again, in the same schema.
      * The idea is: It shouldn't change.
      */
-    fun readAndWriteInternal(inputFilePath: String, schemaName: String): File {
+    private fun readAndWriteInternal(inputFilePath: String, schemaName: String): File {
         val inputFile = File(inputFilePath)
-        assertTrue(inputFile.exists())
+        assertThat(inputFile).exists()
         val schema = metadata.findSchema(schemaName) ?: error("$schemaName not found.")
 
         // 1) Ingest the file
@@ -139,15 +143,14 @@ class SimpleReportTests {
         // 2) Write the input report back out to a new file
         val outputFile = File(outputPath, inputReport.name)
         csvSerializer.writeInternal(inputReport, outputFile.outputStream())
-        assertTrue(outputFile.exists())
+        assertThat(outputFile).exists()
         return outputFile
     }
 
     @Test
     fun `test producing az data from simplereport`() {
-        val filePath = inputPath + "simplereport.csv"
-        val outputFiles = readAndRoute(filePath, "primedatainput/pdi-covid-19")
-        outputFiles.forEach { (reportFile, orgSvc) ->
+        val filePath = "${inputPath}simplereport.csv"
+        readAndRoute(filePath, "primedatainput/pdi-covid-19").forEach { (reportFile, orgSvc) ->
             when (orgSvc.fullName) {
                 "az-phd.elr-test" -> {
                     val expectedResultsFile = File(expectedResultsPath, "simplereport-az.csv")
@@ -178,128 +181,120 @@ class SimpleReportTests {
     }
 
     @Test
-    @Ignore
-    fun `test fake FL data`() {
-        val schemaName = "fl/fl-covid-19"
-        val fakeReportFile = createFakeFile(schemaName, 100)
-        // Run the data thru its own schema and back out again
-        val fakeReportFile2 = readAndWrite(fakeReportFile.absolutePath, schemaName)
-        compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2, recordId = "Medical Record Number")
-    }
-
-    @Test
     fun `test internal read and write`() {
         val schemaName = "az/pima-az-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100, useInternal = true)
         // Run the data thru its own schema and back out again
         val fakeReportFile2 = readAndWriteInternal(fakeReportFile.absolutePath, schemaName)
-        assertTrue(FileUtils.contentEquals(fakeReportFile, fakeReportFile2))
+        assertThat(FileUtils.contentEquals(fakeReportFile, fakeReportFile2)).isTrue()
     }
 
-    private fun compareTestResultsToExpectedResults(
-        testFile: File,
-        expectedResultsFile: File,
-        compareKeys: Boolean = true,
-        compareLines: Boolean = true,
-        recordId: String = "Patient_ID"
-    ) {
-        assertTrue(testFile.exists())
-        assertTrue(expectedResultsFile.exists())
-        // A bit of a hack:  diff the two files.
-        val testFileLines = testFile.readLines()
-        val expectedResultsLines = expectedResultsFile.readLines()
+    companion object {
+        private fun convertFileToMap(
+            lines: List<String>,
+            recordId: String = "Patient_ID",
+            skipHeader: Boolean = true,
+            delimiter: String = ","
+        ): Map<String, Any?> {
+            val expectedLines = mutableMapOf<String, Any?>()
+            val headerLine = lines[0]
+            var recordIdIndex = 0
+            var skippedHeader = false
 
-        val testLines = convertFileToMap(testFileLines, recordId = recordId)
-        val expectedLines = convertFileToMap(expectedResultsLines, recordId = recordId)
-        val headerRow = expectedResultsLines[0].split(",")
+            for (expectedResultsLine in lines) {
+                // if a header is passed in and we need to skip it, then check our control values
+                if (skipHeader && !skippedHeader) {
+                    // while we're in the header, find our record id index, which will be our map key
+                    val headerValues = headerLine.split(",")
+                    recordIdIndex = headerValues.indexOf(recordId)
+                    // reset our control variable
+                    skippedHeader = true
+                    continue
+                }
 
-        if (compareKeys) {
-            // let's first compare the keys
-            compareKeysOfMaps(expectedLines, testLines)
+                val splitLine = expectedResultsLine.split(delimiter)
+                if (!expectedLines.containsKey(splitLine[recordIdIndex])) {
+                    expectedLines[splitLine[recordIdIndex]] = splitLine
+                } // TODO: should we throw an error if we are adding the same key twice?
+            }
+
+            // remove mutability and return
+            return expectedLines.toMap()
         }
 
-        if (compareLines) {
-            // let's compare our lines now
-            compareLinesOfMaps(expectedLines, testLines, headerRow)
-        }
-    }
+        private fun compareLinesOfMaps(
+            expected: Map<String, Any?>,
+            actual: Map<String, Any?>,
+            headerRow: List<String>? = null
+        ) {
+            val linesInError = mutableListOf<String>()
 
-    private fun compareKeysOfMaps(expected: Map<String, Any?>, actual: Map<String, Any?>) {
-        val actualKeys = actual.keys.toSet()
-        val expectedKeys = expected.keys.toSet()
+            for (expectedKey in expected.keys) {
+                if (!actual.keys.contains(expectedKey)) fail("Key $expectedKey missing in actual dataset")
 
-        assertTrue(
-            actualKeys.minus(expectedKeys).count() == 0,
-            "There are keys in actual that are not in expected: " +
-                "${actualKeys.minus(expectedKeys).joinToString { "," }}"
-        )
-        assertTrue(
-            expectedKeys.minus(actualKeys).count() == 0,
-            "There are keys in expected that are not present in actual:" +
-                " ${expectedKeys.minus(actualKeys).joinToString { "," }}"
-        )
-    }
+                val actualLines: List<String>? = actual[expectedKey] as? List<String>
+                val expectedLines: List<String>? = expected[expectedKey] as? List<String>
 
-    private fun compareLinesOfMaps(
-        expected: Map<String, Any?>,
-        actual: Map<String, Any?>,
-        headerRow: List<String>? = null
-    ) {
-        val linesInError = mutableListOf<String>()
+                if (actualLines == null) fail("Cast failed for actual values")
+                if (expectedLines == null) fail("Cast failed for expected values")
 
-        for (expectedKey in expected.keys) {
-            if (!actual.keys.contains(expectedKey)) fail("Key $expectedKey missing in actual dataset")
-
-            val actualLines: List<String>? = actual[expectedKey] as? List<String>
-            val expectedLines: List<String>? = expected[expectedKey] as? List<String>
-
-            if (actualLines == null) fail("Cast failed for actual values")
-            if (expectedLines == null) fail("Cast failed for expected values")
-
-            for ((i, v) in expectedLines.withIndex()) {
-                if (v != actualLines[i]) {
-                    val header = headerRow?.get(i) ?: "$i"
-                    val message = "Patient_ID $expectedKey differed at $header. " +
-                        "Expected '$v' but found '${actualLines[i]}'."
-                    linesInError.add(message)
-                    println(message)
+                for ((i, v) in expectedLines.withIndex()) {
+                    if (v != actualLines[i]) {
+                        val header = headerRow?.get(i) ?: "$i"
+                        val message = "Patient_ID $expectedKey differed at $header. " +
+                            "Expected '$v' but found '${actualLines[i]}'."
+                        linesInError.add(message)
+                        println(message)
+                    }
                 }
             }
+
+            val errorMessages = linesInError.joinToString(",")
+            assertTrue(linesInError.count() == 0, "Errors found in comparison of CSV files: $errorMessages")
         }
 
-        val errorMessages = linesInError.joinToString(",")
-        assertTrue(linesInError.count() == 0, "Errors found in comparison of CSV files: $errorMessages")
-    }
+        private fun compareKeysOfMaps(expected: Map<String, Any?>, actual: Map<String, Any?>) {
+            val actualKeys = actual.keys.toSet()
+            val expectedKeys = expected.keys.toSet()
+            assertTrue(
+                actualKeys.minus(expectedKeys).count() == 0,
+                "There are keys in actual that are not in expected: " +
+                    actualKeys.minus(expectedKeys).joinToString { "," }
+            )
+            assertTrue(
+                expectedKeys.minus(actualKeys).count() == 0,
+                "There are keys in expected that are not present in actual:" +
+                    " ${expectedKeys.minus(actualKeys).joinToString { "," }}"
+            )
+        }
 
-    private fun convertFileToMap(
-        lines: List<String>,
-        recordId: String = "Patient_ID",
-        skipHeader: Boolean = true,
-        delimiter: String = ","
-    ): Map<String, Any?> {
-        val expectedLines = mutableMapOf<String, Any?>()
-        val headerLine = lines[0]
-        var recordIdIndex = 0
-        var skippedHeader = false
+        fun compareTestResultsToExpectedResults(
+            testFile: File,
+            expectedResultsFile: File,
+            compareKeys: Boolean = true,
+            compareLines: Boolean = true,
+            recordId: String = "Patient_ID"
+        ) {
+            assertThat(testFile).exists()
+            assertThat(testFile).exists()
+            assertThat(expectedResultsFile).exists()
+            // A bit of a hack:  diff the two files.
+            val testFileLines = testFile.readLines()
+            val expectedResultsLines = expectedResultsFile.readLines()
 
-        for (expectedResultsLine in lines) {
-            // if a header is passed in and we need to skip it, then check our control values
-            if (skipHeader && !skippedHeader) {
-                // while we're in the header, find our record id index, which will be our map key
-                val headerValues = headerLine.split(",")
-                recordIdIndex = headerValues.indexOf(recordId)
-                // reset our control variable
-                skippedHeader = true
-                continue
+            val testLines = convertFileToMap(testFileLines, recordId = recordId)
+            val expectedLines = convertFileToMap(expectedResultsLines, recordId = recordId)
+            val headerRow = expectedResultsLines[0].split(",")
+
+            if (compareKeys) {
+                // let's first compare the keys
+                compareKeysOfMaps(expectedLines, testLines)
             }
 
-            val splitLine = expectedResultsLine.split(delimiter)
-            if (!expectedLines.containsKey(splitLine[recordIdIndex])) {
-                expectedLines[splitLine[recordIdIndex]] = splitLine
-            } // TODO: should we throw an error if we are adding the same key twice?
+            if (compareLines) {
+                // let's compare our lines now
+                compareLinesOfMaps(expectedLines, testLines, headerRow)
+            }
         }
-
-        // remove mutability and return
-        return expectedLines.toMap()
     }
 }

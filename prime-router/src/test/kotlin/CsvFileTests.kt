@@ -1,11 +1,15 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.exists
+import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import gov.cdc.prime.router.serializers.CsvSerializer
 import org.junit.jupiter.api.TestInstance
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -27,10 +31,8 @@ class CsvFileTests {
     init {
         val outputDirectory = File(outputPath)
         outputDirectory.mkdirs()
-
         val expectedDir = File(expectedResultsPath)
-        assertTrue(expectedDir.exists())
-
+        assertThat(expectedDir).exists()
         metadata = Metadata()
         loadTestSchemas(metadata)
         settings = FileSettings()
@@ -51,7 +53,7 @@ class CsvFileTests {
     private fun transformFileAndTest(fileName: String) {
         val file = File(fileName)
         val baseName = file.name
-        assertTrue(file.exists())
+        assertThat(file).exists()
         val schema = metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
 
         // 1) Ingest the file
@@ -60,7 +62,7 @@ class CsvFileTests {
         val inputReport = result.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
         val outputReports = Translator(metadata, settings).translateByReceiver(inputReport)
-        assertEquals(2, outputReports.size)
+        assertThat(outputReports).hasSize(2)
         // 3) Write transformed objs to files, and check they are correct
 
         outputReports
@@ -73,7 +75,6 @@ class CsvFileTests {
                 outputFile.outputStream().use {
                     csvSerializer.write(report, it)
                 }
-
                 compareTestResultsToExpectedResults(outputFile.absolutePath, "$prefix$baseName")
             }
     }
@@ -92,15 +93,16 @@ class CsvFileTests {
     private fun loadTestOrganizations(settings: FileSettings) {
         val loadingStream = File(inputPath + "test-organizations.yml").inputStream()
         settings.loadOrganizations(loadingStream)
-        assertEquals(2, settings.receivers.size)
-        assertEquals(2, settings.findReceiver("federal-test.receiver")?.jurisdictionalFilter?.size)
+        assertThat(settings.receivers).hasSize(2)
+        assertThat(settings.findReceiver("federal-test.receiver")?.jurisdictionalFilter).isNotNull()
+        assertThat(settings.findReceiver("federal-test.receiver")?.jurisdictionalFilter!!).hasSize(2)
     }
 
     private fun loadTestSchemas(metadata: Metadata) {
         metadata.loadSchemaCatalog(inputPath)
         val schema = metadata.findSchema(defaultSchema)
-        assertNotNull(schema)
-        assertEquals(7, schema.elements.size)
-        assertEquals("lab", schema.elements[0].name)
+        assertThat(schema).isNotNull()
+        assertThat(schema!!.elements).hasSize(7)
+        assertThat(schema.elements[0].name).isEqualTo("lab")
     }
 }
