@@ -248,12 +248,10 @@ object JurisdictionalFilters {
             "patient_first_name," +
             "patient_dob" +
         ")",
-        // has valid location (for contact tracing)
-        "hasAtLeastOneOf(patient_street,patient_zip_code)",
+        // has minimal valid location or other contact info (for contact tracing)
+        "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)",
         // has valid date (for relevance/urgency)
         "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
-        // able to conduct contact tracing
-        "hasAtLeastOneOf(patient_phone_number,patient_email)",
     )
 
     /**
