@@ -288,7 +288,19 @@ data class Element(
             }
             Type.TELEPHONE -> {
                 // normalized telephone always has 3 values national:country:extension
-                val parts = normalizedValue.split(phoneDelimiter)
+                val parts = if (normalizedValue.contains(phoneDelimiter)) {
+                    normalizedValue.split(phoneDelimiter)
+                } else {
+                    // remove parens from HL7 formatting
+                    listOf(
+                        normalizedValue
+                            .replace("(", "")
+                            .replace(")", ""),
+                        "1",    // country code
+                        ""      // extension
+                    )
+                }
+
                 (format ?: defaultPhoneFormat)
                     .replace(countryCodeToken, parts[1])
                     .replace(areaCodeToken, parts[0].substring(0, 3))

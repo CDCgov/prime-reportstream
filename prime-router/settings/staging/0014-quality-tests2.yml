@@ -1,0 +1,11 @@
+# 
+---
+name: QUALITY_ALL
+organizationName: ignore
+topic: covid-19
+jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
+qualityFilter: [ "allowAll()" ]
+translation:
+  type: CUSTOM
+  schemaName: empty
+  format: CSV

@@ -304,14 +304,9 @@ class CsvSerializer(val metadata: Metadata) {
         fun useMapper(element: Element): String? {
             val (mapper, args) = csvMapping.useMapper[element.name] ?: return null
             val valueNames = mapper.valueNames(element, args)
-            val valuesForMapper = valueNames.map { elementName ->
-                val valueElement = schema.findElement(elementName)
-                    ?: error(
-                        "Schema Error: Could not find element '$elementName' for mapper " +
-                            "'${mapper.name}' from '${element.name}'."
-                    )
-                val value = lookupValues[elementName]
-                    ?: error("Schema Error: No mapper input for $elementName")
+            val valuesForMapper = valueNames.mapNotNull { elementName ->
+                val valueElement = schema.findElement(elementName) ?: return@mapNotNull null
+                val value = lookupValues[elementName] ?: return@mapNotNull null
                 ElementAndValue(valueElement, value)
             }
             return mapper.apply(element, args, valuesForMapper)
