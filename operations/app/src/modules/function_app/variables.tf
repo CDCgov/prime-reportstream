@@ -34,6 +34,17 @@ variable "storage_account_key" {
     sensitive = true
 }
 
+variable "storage_account_candidate_name" {
+    type = string
+    description = "Storage Account Name for Candidate Slot"
+}
+
+variable "storage_account_candidate_key" {
+    type = string
+    description = "Storage Account Key for Candidate Slot"
+    sensitive = true
+}
+
 variable "public_subnet_id" {
     type = string
     description = "Public Subnet ID"
