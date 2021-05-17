@@ -19,6 +19,7 @@ jobs:
           filters: |
             frontend:
               - 'frontend/**'
+              - '.github/workflows/build_frontend.yml'
       - id: fork_check
         run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 

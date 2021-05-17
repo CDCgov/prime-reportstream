@@ -1,0 +1,11 @@
+---
+name: QUALITY_FAIL
+organizationName: ignore
+topic: covid-19
+jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
+qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
+translation:
+  type: CUSTOM
+  schemaName: empty
+  format: CSV
+
