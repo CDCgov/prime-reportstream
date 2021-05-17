@@ -11,7 +11,6 @@ locals {
   all_app_settings = {
     "POSTGRES_USER" = var.postgres_user
     "POSTGRES_PASSWORD" = var.postgres_password
-    "POSTGRES_URL" = var.postgres_url
 
     "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
 
@@ -110,7 +109,9 @@ resource "azurerm_function_app" "function_app" {
     }
   }
 
-  app_settings = local.all_app_settings
+  app_settings = merge(local.all_app_settings, {
+    "POSTGRES_URL" = var.postgres_url
+  })
 
   identity {
     type = "SystemAssigned"
@@ -157,7 +158,9 @@ resource "azurerm_function_app_slot" "candidate" {
     linux_fx_version = "DOCKER|${var.login_server}/${var.resource_prefix}:latest"
   }
 
-  app_settings = local.all_app_settings
+  app_settings = merge(local.all_app_settings, {
+    "POSTGRES_URL" = var.postgres_url_candidate
+  })
 
   identity {
     type = "SystemAssigned"

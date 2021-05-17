@@ -72,6 +72,11 @@ variable "postgres_url" {
     description = "Database Server URL"
 }
 
+variable "postgres_url_candidate" {
+    type = string
+    description = "Database Server URL for the Candidate slot"
+}
+
 variable "login_server" {
     type = string
     description = "Container Registry Login Server"
