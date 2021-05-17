@@ -202,6 +202,17 @@ NTE|1|L|This is a final comment|RE"""
         phoneNumber = serializer.decodeXTNPhoneNumber(terser, element)
         assertEquals("5556667777", phoneNumber)
 
+        // No type assumed to be a phone number
+        every { terser.get("/.${element.hl7Field}-1") } returns ""
+        every { terser.get("/.${element.hl7Field}-2") } returns ""
+        every { terser.get("/.${element.hl7Field}-3") } returns ""
+        every { terser.get("/.${element.hl7Field}-4") } returns ""
+        every { terser.get("/.${element.hl7Field}-5") } returns "555"
+        every { terser.get("/.${element.hl7Field}-6") } returns "666"
+        every { terser.get("/.${element.hl7Field}-7") } returns "7777"
+        phoneNumber = serializer.decodeXTNPhoneNumber(terser, element)
+        assertEquals("5556667777", phoneNumber)
+
         // A Fax number is not used
         every { terser.get("/.${element.hl7Field}-1") } returns ""
         every { terser.get("/.${element.hl7Field}-2") } returns ""
