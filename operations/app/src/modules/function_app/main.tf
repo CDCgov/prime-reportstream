@@ -5,7 +5,7 @@ terraform {
 locals {
   slots = {
     active: azurerm_function_app.function_app
-    staging: azurerm_function_app_slot.staging
+    candidate: azurerm_function_app_slot.candidate
   }
 
   all_app_settings = {
@@ -121,9 +121,9 @@ resource "azurerm_function_app" "function_app" {
   }
 }
 
-resource "azurerm_function_app_slot" "staging" {
+resource "azurerm_function_app_slot" "candidate" {
   function_app_name = azurerm_function_app.function_app.name
-  name = "staging"
+  name = "candidate"
   location = var.location
   resource_group_name = var.resource_group
   app_service_plan_id = var.app_service_plan_id
@@ -185,8 +185,8 @@ resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vn
   subnet_id = var.public_subnet_id
 }
 
-resource "azurerm_app_service_slot_virtual_network_swift_connection" "staging_slot_vnet_integration" {
-  slot_name = azurerm_function_app_slot.staging.name
+resource "azurerm_app_service_slot_virtual_network_swift_connection" "candidate_slot_vnet_integration" {
+  slot_name = azurerm_function_app_slot.candidate.name
   app_service_id = azurerm_function_app.function_app.id
   subnet_id = var.public_subnet_id
 }
