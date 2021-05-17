@@ -276,7 +276,6 @@ class SimpleReportTests {
             recordId: String = "Patient_ID"
         ) {
             assertThat(testFile).exists()
-            assertThat(testFile).exists()
             assertThat(expectedResultsFile).exists()
             // A bit of a hack:  diff the two files.
             val testFileLines = testFile.readLines()

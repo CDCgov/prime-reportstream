@@ -1,11 +1,18 @@
 package gov.cdc.prime.router
 
+import assertk.Assert
+import assertk.all
 import assertk.assertThat
 import assertk.assertions.exists
 import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.prop
+import assertk.assertions.support.expected
+import assertk.assertions.support.show
 import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.ReadResult
 import org.junit.jupiter.api.TestInstance
 import java.io.File
 import kotlin.test.Test
@@ -59,6 +66,11 @@ class CsvFileTests {
         // 1) Ingest the file
         val result = csvSerializer.readExternal(schema.name, file.inputStream(), TestSource)
         assertTrue(result.warnings.isEmpty() && result.errors.isEmpty())
+        assertThat(result).all {
+            prop("warnings") { ReadResult::warnings.call(it) }.isEmpty()
+            prop("errors") { ReadResult::errors.call(it) }.isEmpty()
+        }
+        assertThat(result).hasNoWarnings().hasNoErrors()
         val inputReport = result.report ?: fail()
         // 2) Create transformed objects, according to the receiver table rules
         val outputReports = Translator(metadata, settings).translateByReceiver(inputReport)
@@ -94,8 +106,9 @@ class CsvFileTests {
         val loadingStream = File(inputPath + "test-organizations.yml").inputStream()
         settings.loadOrganizations(loadingStream)
         assertThat(settings.receivers).hasSize(2)
-        assertThat(settings.findReceiver("federal-test.receiver")?.jurisdictionalFilter).isNotNull()
-        assertThat(settings.findReceiver("federal-test.receiver")?.jurisdictionalFilter!!).hasSize(2)
+        assertThat(
+            settings.findReceiver("federal-test.receiver")?.jurisdictionalFilter
+        ).isNotNull().hasSize(2)
     }
 
     private fun loadTestSchemas(metadata: Metadata) {
@@ -104,5 +117,23 @@ class CsvFileTests {
         assertThat(schema).isNotNull()
         assertThat(schema!!.elements).hasSize(7)
         assertThat(schema.elements[0].name).isEqualTo("lab")
+    }
+
+    companion object {
+        private fun Assert<ReadResult>.hasNoWarnings(): Assert<ReadResult> = transform { actual ->
+            if (actual.warnings.count() == 0) {
+                actual
+            } else {
+                expected("expected: ReadResult to have no warnings, but it had ${show(actual.warnings.count())}")
+            }
+        }
+
+        private fun Assert<ReadResult>.hasNoErrors(): Assert<ReadResult> = transform { actual ->
+            if (actual.errors.count() == 0) {
+                actual
+            } else {
+                expected("expected: ReadResult to have no errors, but it had ${show(actual.errors.count())}")
+            }
+        }
     }
 }
