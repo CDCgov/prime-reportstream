@@ -46,7 +46,7 @@ entering:
     brew install azure-functions-core-tools@3
     ```
 
-3. Install the [Docker Desktop](https://www.docker.com/get-started) or the equivalent. 
+3. Install the [Docker Desktop](https://www.docker.com/get-started) or the equivalent.
 
 #### Windows OS
 Install the following applications in your Windows workstation.  Note that you will require administrator privileges to install them
@@ -70,10 +70,10 @@ brew install postgresql@11
 brew install flyway
 brew services start postgresql@11
 
-Add /usr/local/opt/postgresql@11/bin to your PATH 
+Add /usr/local/opt/postgresql@11/bin to your PATH
 
 # Run createuser.  When prompted set the password as changeIT!
-createuser -P prime 
+createuser -P prime
 createdb --owner=prime prime_data_hub
 ```
 
@@ -113,13 +113,13 @@ docker-compose -f ./docker-prime-infra.yml up --detach
 ```
 
 ## Clone the Repository    
-1. Use your favorite Git tool to clone the [PRIME DATA hub repository](https://github.com/CDCgov/prime-data-hub)
-    - On Git Bash, use the command: 
+1. Use your favorite Git tool to clone the [PRIME ReportStream repository](https://github.com/CDCgov/prime-data-hub)
+    - On Git Bash, use the command:
         ```
         git clone https://github.com/CDCgov/prime-data-hub.git
         ```
     - On other tools, you can clone from the URL https://github.com/CDCgov/prime-data-hub.git
-1. Change the working directory to the `prime-router` directory. 
+1. Change the working directory to the `prime-router` directory.
     ```
     cd <your_path>/prime-router
     ```
@@ -127,7 +127,7 @@ docker-compose -f ./docker-prime-infra.yml up --detach
 
 ## Compiling
 
-Compile the project by running the following command: 
+Compile the project by running the following command:
 
 ```
 ./gradlew package
@@ -160,12 +160,12 @@ createdb --owner=prime prime_data_hub
 flyway -user=prime -password=changeIT! -url=jdbc:postgresql://localhost:5432/prime_data_hub -locations=filesystem:./src/main/resources/db/migration migrate
 ```
 
-Use any other tools that you want to develop the code. Be productive. Modify this document if you have a practice that will be useful. 
+Use any other tools that you want to develop the code. Be productive. Modify this document if you have a practice that will be useful.
 
 Some useful tools for Kotlin/Java development include:
 - [KTLint](https://ktlint.github.io/) the Kotlin linter that we use to format our KT code
 - [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
-- [JetBrains IntelliJ](https://www.jetbrains.com/idea/download/#section=mac) 
+- [JetBrains IntelliJ](https://www.jetbrains.com/idea/download/#section=mac)
 
 If you are using IntelliJ, you can configure it to follow standard Kotlin conventions by
 ```
@@ -174,14 +174,14 @@ brew install ktlint
 ktlint applyToIDEAProject
 ```
 
-A useful Azure tool to examine Azurite and Azure storage is (Storage Explorer)[https://azure.microsoft.com/en-us/features/storage-explorer/] from Microsoft. 
+A useful Azure tool to examine Azurite and Azure storage is (Storage Explorer)[https://azure.microsoft.com/en-us/features/storage-explorer/] from Microsoft.
 
 ## Function Development with Docker Compose
 ### Local SFTP Server
 You will need an SFTP server to receive data from the router.  For local tests, refer to the [SFTP-SETUP document](SFTP-SETUP.md) to setup a local SFTP server as a receiver of data.
 
 ### Running the Router Locally
-The project's [README](../readme.md) file contains some steps to use the PRIME router in a CLI. However, for the POC app and most other users of the PRIME router will the router in the Microsoft Azure cloud. When hosted in Azure, the PRIME router uses Docker containers. The `DockerFile` describes how to build this container. 
+The project's [README](../readme.md) file contains some steps to use the PRIME router in a CLI. However, for the POC app and most other users of the PRIME router will the router in the Microsoft Azure cloud. When hosted in Azure, the PRIME router uses Docker containers. The `DockerFile` describes how to build this container.
 
 Developers can also run the router locally with the same Azure runtime and libraries to help develop and debug Azure code. In this case, a developer can use a local Azure storage emulator, called Azurite.
 
@@ -228,11 +228,11 @@ The quick test is meant to test the data conversion and generation code.  Use th
 ### Local End-to-end Tests
 End-to-end tests check if the deployed system is configured correctly.  The test uses an organization called IGNORE for running the tests.  On Windows OS, use Git Bash or similar Linux shell to run these commands.
 1. Perform a one-time setup of the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server (default of foo/pass) and change the arguments for the --user and --pass as needed.  Note that running these commands multiple times will not break anything:
-    ```bash 
+    ```bash
     export $(cat ./.vault/env/.env.local | xargs)
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass' 
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass' 
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass' 
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass'
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass'
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass'
     ```
 1. Run the Prime Router in the Docker container.
 1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:
