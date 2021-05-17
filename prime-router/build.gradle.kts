@@ -329,7 +329,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.flywaydb:flyway-core:7.8.2")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
-    implementation("org.commonmark:commonmark:0.17.1")
+    implementation("org.commonmark:commonmark:0.17.2")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
