@@ -6,6 +6,7 @@ import assertk.assertThat
 import assertk.assertions.isNotNull
 import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
+import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isSameAs
 import assertk.assertions.prop
 import assertk.assertions.support.appendName
@@ -159,7 +160,9 @@ class MetadataTests {
         val elementName = "a"
         val parent = metadata.findSchema("base_schema")
         assertThat(parent).isNotNull()
-        assertTrue(parent!!.findElement(elementName)?.csvFields.isNullOrEmpty())
+            .hasElement(elementName)
+            .prop("csvFields") { Element::csvFields.call(it) }
+            .isNullOrEmpty()
         // the first child element
         val child = metadata.findSchema("child_schema")
         assertThat(child).isNotNull()
