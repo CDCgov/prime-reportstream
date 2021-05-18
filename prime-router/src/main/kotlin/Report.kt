@@ -337,10 +337,10 @@ class Report {
         }
     }
 
-    fun filter(filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>): Report {
+    fun filter(filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>, receiver: Receiver): Report {
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
-            val filterFnSelection = filterFn.getSelection(fnArgs, table)
+            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver)
             combinedSelection.and(filterFnSelection)
         }
         val filteredTable = table.where(combinedSelection)

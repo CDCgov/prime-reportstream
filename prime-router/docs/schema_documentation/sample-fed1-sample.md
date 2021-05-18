@@ -6,6 +6,8 @@
 
 **Name**: lab
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -13,6 +15,8 @@
 **Name**: state
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -22,6 +26,8 @@
 
 **Type**: DATE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -30,6 +36,8 @@
 
 **Type**: ID
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -37,6 +45,8 @@
 **Name**: observation
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 

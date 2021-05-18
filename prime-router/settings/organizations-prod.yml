@@ -456,6 +456,35 @@
         initialTime: 01:15
         timeZone: EASTERN
 
+- name: ma-phd
+  description: Massachusetts Public Health Department
+  jurisdiction: STATE
+  stateCode: MA
+  receivers:
+    - name: elr
+      organizationName: ma-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, MA, patient_state, MA)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: MA-MDPH
+        receivingApplicationOID: 2.16.840.1.113883.19.3.2
+        receivingFacilityName: MA-MDPH
+        receivingFacilityOID: 2.16.840.1.113883.19.3.2
+        truncateHDNamespaceIds: true
+      transport:
+        type: SFTP
+        host: sftp-dph.ehs.mass.gov
+        port: 22
+        filePath: ./
+      timing:
+        operation: MERGE
+        numberPerDay: 12
+        initialTime: 01:30
+        timeZone: EASTERN
+
 - name: pa-phd
   description: Pennsylvania Department of Health
   jurisdiction: STATE

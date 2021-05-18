@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import java.io.File
 import java.io.InputStream
 
 class LookupTable(
@@ -54,6 +55,26 @@ class LookupTable(
             indexValue
         val rowNumber = index[indexLookupValue] ?: return null // Ok if the index value is not found
         return table[rowNumber][colNumber]
+    }
+
+    /**
+     * Performs a search of the table by looking the indexColumn for value that starts with indexValue
+     * and returning the result for the matched row at the lookupColumn.
+     */
+    fun lookupPrefixValue(
+        indexColumn: String,
+        indexValue: String,
+        lookupColumn: String,
+        ignoreCase: Boolean = true
+    ): String? {
+        val indexColIndex = headerIndex[indexColumn.lowercase()] ?: return null
+        val lookupColIndex = headerIndex[lookupColumn.lowercase()] ?: return null
+        val findValue = if (ignoreCase) indexValue.lowercase() else indexValue
+        for (row in table) {
+            val rowsValue = if (ignoreCase) row[indexColIndex].lowercase() else row[indexColIndex]
+            if (rowsValue.startsWith(findValue)) return row[lookupColIndex]
+        }
+        return null
     }
 
     /**
@@ -179,6 +200,10 @@ class LookupTable(
     }
 
     companion object {
+        fun read(fileName: String): LookupTable {
+            return read(File(fileName).inputStream())
+        }
+
         fun read(inputStream: InputStream): LookupTable {
             val table = csvReader().readAll(inputStream)
             return LookupTable(table)

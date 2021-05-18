@@ -8,6 +8,8 @@
 
 **Type**: ID
 
+**PII**: No
+
 **HL7 Field**: MSH-10
 
 **Cardinality**: [1..1]
@@ -22,6 +24,8 @@ unique id to track the usage of the message
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [1..1]
 
 **Table**: fips-county
@@ -34,6 +38,8 @@ unique id to track the usage of the message
 
 **Type**: TABLE
 
+**PII**: No
+
 **HL7 Field**: ORC-22-4
 
 **Cardinality**: [1..1]
@@ -45,5 +51,15 @@ unique id to track the usage of the message
 **Documentation**:
 
 The state of the facility which the test was ordered from
+
+---
+
+**Name**: blankField
+
+**Type**: BLANK
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---

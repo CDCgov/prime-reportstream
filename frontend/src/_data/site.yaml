@@ -13,7 +13,7 @@ orgs:
   RS:
     name: ReportStream
     url: https://reportstream.cdc.gov
-    email: usds@cdc.gov
+    email: reportstream@cdc.gov
   SR:
     name: SimpleReport
     url: https://simplereport.gov

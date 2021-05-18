@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import org.apache.logging.log4j.kotlin.Logging
+
 /**
  * The translator converts reports from one schema to another.
  * The object can be reused for multiple translations.
@@ -7,7 +9,7 @@ package gov.cdc.prime.router
  * Dev Note: This glue code was originally in the Report class and then
  * in the Metadata class.
  */
-class Translator(private val metadata: Metadata, private val settings: SettingsProvider) {
+class Translator(private val metadata: Metadata, private val settings: SettingsProvider) : Logging {
     /**
      * A mapping defines how to translate from one schema to another
      */
@@ -63,28 +65,54 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     }
 
     /**
-     * This does both the filtering by jurisdiction, and also the translation.
+     * This does both the filtering by jurisdiction, by qualityFilter, and also the translation.
      */
     private fun translateByReceiver(input: Report, receiver: Receiver, defaultValues: DefaultValues): Report {
-        // Filter according to receiver patterns
-        val filterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
+        // Filter according to this receiver's desired JurisdictionalFilter patterns
+        val jurisFilterAndArgs = receiver.jurisdictionalFilter.map { filterSpec ->
             val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
             val filterFn = metadata.findJurisdictionalFilter(fnName)
                 ?: error("JurisdictionalFilter $fnName is not found")
             Pair(filterFn, fnArgs)
         }
-        val filteredReport = input.filter(filterAndArgs)
+        val jurisFilteredReport = input.filter(jurisFilterAndArgs,receiver)
 
         // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
-        if (filteredReport.isEmpty()) return buildEmptyReport(receiver, input)
+        if (jurisFilteredReport.isEmpty()) return buildEmptyReport(receiver, input)
+
+        // Now filter according to this receiver's desired qualityFilter, or default filter if none found.
+        val qualityFilter = when {
+            receiver.qualityFilter.isNotEmpty() -> receiver.qualityFilter
+            JurisdictionalFilters.defaultQualityFilters[receiver.topic] != null ->
+                JurisdictionalFilters.defaultQualityFilters[receiver.topic]!!
+            else -> {
+                logger.info("No default quality filter found for topic ${receiver.topic}. Not doing qual filtering")
+                emptyList<String>()
+            }
+        }
+        val qualityFilterAndArgs = qualityFilter.map { filterSpec ->
+            val (fnName, fnArgs) = JurisdictionalFilters.parseJurisdictionalFilter(filterSpec)
+            val filterFn = metadata.findJurisdictionalFilter(fnName)
+                ?: error("qualityFilter $fnName is not found in list of JurisdictionalFilters")
+            Pair(filterFn, fnArgs)
+        }
+        val qualityFilteredReport = jurisFilteredReport.filter(qualityFilterAndArgs, receiver)
+        if (qualityFilteredReport.itemCount != jurisFilteredReport.itemCount) {
+            logger.warn("Data quality problem in report ${input.id}, receiver ${receiver.fullName}: " +
+                "There were ${jurisFilteredReport.itemCount} rows prior to quality filtering, and " +
+                "${qualityFilteredReport.itemCount} rows after quality filtering.")
+        }
+
+        // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
+        if (qualityFilteredReport.isEmpty()) return buildEmptyReport(receiver, input)
 
         // Apply mapping to change schema
-        val toReport: Report = if (receiver.schemaName != filteredReport.schema.name) {
+        val toReport: Report = if (receiver.schemaName != qualityFilteredReport.schema.name) {
             val toSchema = metadata.findSchema(receiver.schemaName)
                 ?: error("${receiver.schemaName} schema is missing from catalog")
             val receiverDefaults = receiver.translation.defaults
             val defaults = if (receiverDefaults.isNotEmpty()) receiverDefaults.plus(defaultValues) else defaultValues
-            val mapping = buildMapping(toSchema, filteredReport.schema, defaults)
+            val mapping = buildMapping(toSchema, qualityFilteredReport.schema, defaults)
             if (mapping.missing.isNotEmpty()) {
                 error(
                     "Error: To translate to ${receiver.fullName}, ${toSchema.name}, these elements are missing: ${
@@ -94,9 +122,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                     }"
                 )
             }
-            filteredReport.applyMapping(mapping)
+            qualityFilteredReport.applyMapping(mapping)
         } else {
-            filteredReport
+            qualityFilteredReport
         }
 
         // Transform reports

@@ -16,8 +16,8 @@ locals {
     "414537da-0ba5-4db1-93f6-dd828e9a480a",
     # Jim Duff
     "24669a80-a2d3-425a-8c80-92e05ea8341f",
-    # Chris Glodosky
-    "aabc25d7-dd99-42b9-8f3a-fd593b1f229a"
+    # Rick Hawes
+    "96c8ed83-c3df-4a04-9dfe-7cd8487e342e"
   ]
 
   frontdoor_object_id = "270e4d1a-12bd-4564-8a4b-c9de1bbdbe95"
