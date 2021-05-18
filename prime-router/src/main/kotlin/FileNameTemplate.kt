@@ -114,8 +114,8 @@ open class FileNameTemplate(
             }
         }
         return when {
-            (lowerCase == true) -> fileName.toString().toLowerCase()
-            (upperCase == true) -> fileName.toString().toUpperCase()
+            (lowerCase == true) -> fileName.toString().lowercase()
+            (upperCase == true) -> fileName.toString().uppercase()
             else -> fileName.toString()
         }
     }
