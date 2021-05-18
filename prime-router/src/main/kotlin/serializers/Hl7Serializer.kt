@@ -209,7 +209,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 if (!it.hl7Field.isNullOrEmpty()) {
                     when {
                         it.type == Element.Type.TELEPHONE -> {
-                            var phoneNumber = decodeXTNPhoneNumber(terser, it)
+                            var phoneNumber = decodeXTNPhoneNumber(terser, it.hl7Field)
                             if(phoneNumber.isNotBlank()) {
                                 var checkResult = it.checkForError(phoneNumber)
                                 if (!checkResult.isNullOrBlank()) {
@@ -850,41 +850,48 @@ class Hl7Serializer(val metadata: Metadata): Logging {
     }
 
     /**
-     * Decode an XTN (e.g. phone number) component of an HL7 message.
+     * Get a phone number from an XTN (e.g. phone number) field of an HL7 message.
      * @param terser the HL7 terser
-     * @param element the element to decode
+     * @param hl7Field the field with the phone number
      * @return the phone number or empty string
      */
-    internal fun decodeXTNPhoneNumber(terser: Terser, element: Element): String {
-        var decodedPhoneNumber = ""
+    internal fun decodeXTNPhoneNumber(terser: Terser, hl7Field: String): String {
+        var phoneNumber = ""
 
-        // Telephone is of XTN type in HL7
-        var deprecatedPhoneNumber = ""
-        var countryCode = ""
-        var areaCode = ""
-        var localNumber = ""
-        var equipType = ""
-
-        // Note: Let the calling function catch any HL7 exception
-        deprecatedPhoneNumber = terser.get("/.${element.hl7Field}-1") ?: ""
-        equipType = terser.get("/.${element.hl7Field}-3") ?: ""
-        countryCode = terser.get("/.${element.hl7Field}-5") ?: ""
-        areaCode = terser.get("/.${element.hl7Field}-6") ?: ""
-        localNumber = terser.get("/.${element.hl7Field}-7") ?: ""
-
-        // TODO How to handle extensions
-
-        // Make sure we only grab a phone number if the type is specified
-        if(equipType.isEmpty() || equipType == "PH") {
-            // Use the deprecated phone number if nothing else is available.
-            if(countryCode.isBlank() && areaCode.isBlank() && localNumber.isBlank()) {
-                decodedPhoneNumber = deprecatedPhoneNumber
-            } else {
-                decodedPhoneNumber = "$countryCode$areaCode$localNumber"
+        // Get the field values by going through the terser segment.  This method gives us an
+        // array with a maximum number of repetitions, but it may return multiple array elements even if
+        // there is no data
+        var maxNumValues = 0
+        val fieldParts = hl7Field.split("-")
+        if(fieldParts.size > 1) {
+            val segment = terser.getSegment("/.${fieldParts[0]}")
+            val fieldNumber = fieldParts[1].toIntOrNull()
+            if(segment != null && fieldNumber != null) {
+                maxNumValues = segment.getField(fieldNumber)?.size ?: 0
             }
         }
 
-        return decodedPhoneNumber
+        // Now lets loop through the values until we find a valis phone number
+        for(repetition in 0..(maxNumValues - 1)) {
+            val deprecatedPhoneNumber = terser.get("/.$hl7Field($repetition)-1") ?: ""
+            val equipType = terser.get("/.$hl7Field($repetition)-3") ?: ""
+            val countryCode = terser.get("/.$hl7Field($repetition)-5") ?: ""
+            val areaCode = terser.get("/.$hl7Field($repetition)-6") ?: ""
+            val localNumber = terser.get("/.$hl7Field($repetition)-7") ?: ""
+            if(countryCode.isNotBlank() || areaCode.isNotBlank() || localNumber.isNotBlank()) {
+                // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                if(equipType.isEmpty() || equipType == "PH") {
+                    phoneNumber = "$countryCode$areaCode$localNumber"
+                    break
+                }
+            }
+            else if(deprecatedPhoneNumber.isNotBlank()) {
+                phoneNumber = deprecatedPhoneNumber
+                break
+            }
+        }
+
+        return phoneNumber
     }
 
     companion object {

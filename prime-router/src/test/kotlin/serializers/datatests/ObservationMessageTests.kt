@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.serializers.datatests
 
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.PipeParser
 import ca.uhn.hl7v2.util.Terser
@@ -117,7 +118,6 @@ class ObservationMessageTests {
 
             println("Testing file $testFilename ...")
             if(File(expectedResultAbsolutePath).exists()) {
-                verifyMsgType()
                 val report = getReport()
                 val expectedResult = readExpectedResult(expectedResultAbsolutePath)
                 compareToExpected(report, expectedResult)
@@ -127,18 +127,6 @@ class ObservationMessageTests {
             }
             println("PASSED: $testFilename")
             println("--------------------------------------------------------")
-        }
-
-        /**
-         * Verify we have an ORU R01 HL7 report
-         */
-        private fun verifyMsgType() {
-            // TODO SUPPORT BATCH HL7
-            // A sanity check on the data before we start
-            val hapiMsg = parser.parse(File(hl7AbsolutePath).readText())
-            val terser = Terser(hapiMsg)
-            assertEquals("ORU", terser.get("/MSH-9-1"))
-            assertEquals("R01", terser.get("/MSH-9-2"))
         }
 
         /**
