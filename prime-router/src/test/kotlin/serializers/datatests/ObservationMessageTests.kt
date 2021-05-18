@@ -1,10 +1,8 @@
 package gov.cdc.prime.router.serializers.datatests
 
 import ca.uhn.hl7v2.DefaultHapiContext
-import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.PipeParser
-import ca.uhn.hl7v2.util.Terser
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
