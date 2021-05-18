@@ -25,6 +25,10 @@ locals {
       cnames_private = ["privatelink.file.core.windows.net"]
       subresource_names = ["file"]
     },
+    "storage_account_queue": {
+      cnames_private = ["privatelink.queue.core.windows.net"]
+      subresource_names = ["queue"]
+    },
     "container_registry": {
       cnames_private = ["privatelink.azurecr.io"]
       subresource_names = ["registry"]

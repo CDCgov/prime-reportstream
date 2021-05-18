@@ -1,9 +1,11 @@
 # Setting up SFTP for Testing
 
 ## Creating a Local SFTP Server using Docker
+Note that the docker-compose script already starts an SFTP server container.
+
 A simple and quick option is to create a local SFTP server using a Docker container.  With Docker installed and running, run the following commands to create a docker container instance with an SFTP server:
 ```
-docker run -p 22:22 -d atmoz/sftp foo:pass:::upload
+docker run -p 22:22 -d atmoz/sftp foo:pass:1001::upload
 ```
 This will create an sftp server running on localhost port 22 with a user/password of foo/pass and will store all of the files in the (container's) /home/foo/upload directory.  If you want to mount the target SFTP folder to your host then add the -v option like in the following command, where the sftp folder in the current folder is used:
 

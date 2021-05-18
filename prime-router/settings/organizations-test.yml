@@ -382,7 +382,7 @@
         initialTime: 00:00
         timeZone: CENTRAL
       transport:
-        type: SFTP_LEGACY
+        type: SFTP
         host: 10.0.2.4
         port: 22
         filePath: ./upload
@@ -430,6 +430,118 @@
         receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
         receivingFacilityName: VDH
         receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        suppressHl7Fields: OBX-18
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
+- name: nj-doh
+  description: New Jersey Department of Health
+  jurisdiction: STATE
+  stateCode: NJ
+  receivers:
+    - name: elr
+      organizationName: nj-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, NJ, patient_state, NJ)
+        - matches(processing_mode_code, P)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: ELRS
+        receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+        receivingFacilityName: NJDOH
+        receivingFacilityOID: 2.16.840.1.113883.3.1299
+        truncateHDNamespaceIds: true
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-test
+      organizationName: nj-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, NJ, patient_state, NJ)
+        - matches(processing_mode_code, T)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: ELRS
+        receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+        receivingFacilityName: NJDOH
+        receivingFacilityOID: 2.16.840.1.113883.3.1299
+        truncateHDNamespaceIds: true
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
+- name: mn-doh
+  description: Minnesota Department of Health
+  jurisdiction: STATE
+  stateCode: MN
+  receivers:
+    - name: elr
+      organizationName: mn-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, MN)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: MEDSS-ELR
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
+        receivingFacilityName: MN DOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3661
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+
+- name: ma-phd
+  description: Massachusetts Public Health Department
+  jurisdiction: STATE
+  stateCode: MA
+  receivers:
+    - name: elr
+      organizationName: ma-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, MA, patient_state, MA)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: MA-MDPH
+        receivingApplicationOID: 2.16.840.1.113883.19.3.2
+        receivingFacilityName: MA-MDPH
+        receivingFacilityOID: 2.16.840.1.113883.19.3.2
+        truncateHDNamespaceIds: true
       transport:
         type: SFTP
         host: 10.0.2.4
@@ -655,25 +767,6 @@
         format: HL7
       transport:
         type: "NULL"
-    - name: SFTP_LEGACY
-      organizationName: ignore
-      topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_LEGACY)" ]
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-      translation:
-        useBatchHeaders: true
-        type: HL7
-        schemaName: tx/tx-covid-19
-        receivingApplicationName: NEDSS
-        receivingFacilityName: SFTP_LEGACY
-      transport:
-        type: SFTP_LEGACY
-        host: 10.0.2.4
-        port: 22
-        filePath: ./upload
     - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
       organizationName: ignore
       topic: covid-19
@@ -691,3 +784,30 @@
         host: sftp_FAIL_BAD
         port: 2222
         filePath: ./upload_FAIL
+    - name: QUALITY_PASS
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS)" ]
+      qualityFilter: [ "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)", "hasAtLeastOneOf(message_id,blankField)" ]
+      translation:
+        type: CUSTOM
+        schemaName: empty
+        format: CSV
+    - name: QUALITY_ALL
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
+      qualityFilter: [ "allowAll()" ]
+      translation:
+        type: CUSTOM
+        schemaName: empty
+        format: CSV
+    - name: QUALITY_FAIL
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
+      qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
+      translation:
+        type: CUSTOM
+        schemaName: empty
+        format: CSV

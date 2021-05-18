@@ -37,7 +37,7 @@ class SendFunctionTests {
         TaskAction.send,
         null,
         null,
-        "az-phd.elr-test",
+        "ignore.CSV",
         0,
         "",
         "",
@@ -56,8 +56,8 @@ class SendFunctionTests {
         null,
         null,
         null,
-        "az-phd",
-        "elr-test",
+        "ignore",
+        "CSV",
         null, null, null, null, null, null, null, null, 0, null, null, null
     )
 
@@ -79,8 +79,8 @@ class SendFunctionTests {
         return WorkflowEngine.Header(
             task, reportFile,
             null,
-            settings.findOrganization("az-phd"),
-            settings.findReceiver("az-phd.elr-test"),
+            settings.findOrganization("ignore"),
+            settings.findReceiver("ignore.CSV"),
             metadata.findSchema("covid-19"), "hello".toByteArray()
         )
     }
@@ -152,7 +152,7 @@ class SendFunctionTests {
                 TaskAction.send,
                 null,
                 null,
-                "az-phd.elr-test",
+                "ignore.CSV",
                 0,
                 "",
                 "",

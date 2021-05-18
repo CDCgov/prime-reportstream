@@ -179,6 +179,28 @@ elements:
         code: C
       - display: Final
         code: F
+      - display: Canceled
+        code: X
+      - display: Preliminary
+        code: A
+      - display: Unavailable
+        code: I
+      - display: Corrected
+        code: M
+      - display: Preliminary
+        code: N
+      - display: Preliminary
+        code: O
+      - display: Preliminary
+        code: P
+      - display: Preliminary
+        code: R
+      - display: Unavailable
+        code: S
+      - display: Unavailable
+        code: Y
+      - display: Unavailable
+        code: Z
 
   - name: ordered_test_code
     redoxOutputFields: ["Orders[0].Procedure.Code"]

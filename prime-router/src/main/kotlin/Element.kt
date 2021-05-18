@@ -177,6 +177,10 @@ data class Element(
             type == Type.TABLE_OR_BLANK ||
             type == Type.BLANK
 
+    // Creates a field mapping string showing the external CSV header name(s)
+    // and the corresponding internal field name
+    val fieldMapping get() = "'${this.csvFields?.joinToString { it -> it.name }}' ('${this.name}')"
+
     fun inheritFrom(baseElement: Element): Element {
         return Element(
             name = this.name,
@@ -256,12 +260,12 @@ data class Element(
                     // TODO Revisit: there may be times that normalizedValue is not an altValue
                     altDisplayToken ->
                         toAltDisplay(normalizedValue)
-                            ?: error("Schema Error: '$normalizedValue' is not in altValues set for '$name")
+                            ?: error("Schema Error: '$normalizedValue' is not in altValues set for $fieldMapping")
                     codeToken ->
                         toCode(normalizedValue)
                             ?: error(
                                 "Schema Error: " +
-                                    "'$normalizedValue' is not in valueSet '$valueSet' for '$name'/'$format'. " +
+                                    "'$normalizedValue' is not in valueSet '$valueSet' for $fieldMapping/'$format'. " +
                                     "\nAvailable values are " +
                                     "${valueSetRef?.values?.joinToString { "${it.code} -> ${it.display}" }}" +
                                     "\nAlt values (${altValues?.count()}) are " +
@@ -269,12 +273,12 @@ data class Element(
                             )
                     caretToken -> {
                         val display = valueSetRef?.toDisplayFromCode(normalizedValue)
-                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for $fieldMapping")
                         "$normalizedValue^$display^${valueSetRef.systemCode}"
                     }
                     displayToken -> {
                         valueSetRef?.toDisplayFromCode(normalizedValue)
-                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for '$name'")
+                            ?: error("Internal Error: '$normalizedValue' cannot be formatted for $fieldMapping")
                     }
                     systemToken -> {
                         // Very confusing, but this special case is in the HHS Guidance Confluence page
@@ -288,7 +292,19 @@ data class Element(
             }
             Type.TELEPHONE -> {
                 // normalized telephone always has 3 values national:country:extension
-                val parts = normalizedValue.split(phoneDelimiter)
+                val parts = if (normalizedValue.contains(phoneDelimiter)) {
+                    normalizedValue.split(phoneDelimiter)
+                } else {
+                    // remove parens from HL7 formatting
+                    listOf(
+                        normalizedValue
+                            .replace("(", "")
+                            .replace(")", ""),
+                        "1",    // country code
+                        ""      // extension
+                    )
+                }
+
                 (format ?: defaultPhoneFormat)
                     .replace(countryCodeToken, parts[1])
                     .replace(areaCodeToken, parts[0].substring(0, 3))
@@ -326,7 +342,7 @@ data class Element(
                     hdNameToken -> hdFields.name
                     hdUniversalIdToken -> hdFields.universalId ?: ""
                     hdSystemToken -> hdFields.universalIdSystem ?: ""
-                    else -> error("Schema Error: unsupported HD format for output: '$format' in '$name'")
+                    else -> error("Schema Error: unsupported HD format for output: '$format' in $fieldMapping")
                 }
             }
             Type.EI -> {
@@ -337,7 +353,7 @@ data class Element(
                     eiNamespaceIdToken -> eiFields.namespace ?: ""
                     eiUniversalIdToken -> eiFields.universalId ?: ""
                     eiSystemToken -> eiFields.universalIdSystem ?: ""
-                    else -> error("Schema Error: unsupported EI format for output: '$format' in '$name'")
+                    else -> error("Schema Error: unsupported EI format for output: '$format' in $fieldMapping")
                 }
             }
             else -> normalizedValue
@@ -370,7 +386,7 @@ data class Element(
      * Take a formatted value and check to see if can be stored in a report.
      */
     fun checkForError(formattedValue: String, format: String? = null): String? {
-        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return "Blank value for element '$name'"
+        if (formattedValue.isBlank() && !isOptional && !canBeBlank) return "Blank value for element $fieldMapping"
         return when (type) {
             Type.DATE -> {
                 try {
@@ -383,7 +399,7 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date: '$formattedValue' for element '$name'"
+                    "Invalid date: '$formattedValue' for element $fieldMapping"
                 }
             }
             Type.DATETIME -> {
@@ -415,28 +431,28 @@ data class Element(
                     LocalDate.parse(formattedValue, formatter)
                     null
                 } catch (e: DateTimeParseException) {
-                    "Invalid date: '$formattedValue' for element '$name'"
+                    "Invalid date: '$formattedValue' for element $fieldMapping"
                 }
             }
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
                     if (toAltCode(formattedValue) != null) null else
-                        "Invalid code: '$formattedValue' is not a display value in altValues set for '$name'"
+                        "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping"
                 } else {
-                    if (valueSetRef == null) error("Schema Error: missing value set for $name")
+                    if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
                             if (valueSetRef.toCodeFromDisplay(formattedValue) != null) null else
-                                "Invalid code: '$formattedValue' not a display value for element '$name'"
+                                "Invalid code: '$formattedValue' not a display value for element $fieldMapping"
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
                             if (values.find { it.code == formattedValue } != null) null else
-                                "Invalid code: '$formattedValue' is not a code value for element '$name'"
+                                "Invalid code: '$formattedValue' is not a code value for element $fieldMapping"
                         }
                         else ->
                             if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
-                                "Invalid Code: '$formattedValue' does not match any codes for '$name'"
+                                "Invalid Code: '$formattedValue' does not match any codes for $fieldMapping"
                     }
                 }
             }
@@ -446,17 +462,17 @@ data class Element(
                     // this then causes a report level failure, not an element level failure
                     val number = phoneNumberUtil.parse(formattedValue, "US")
                     if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                        "Invalid phone number '$formattedValue' for '$name'"
+                        "Invalid phone number '$formattedValue' for $fieldMapping"
                     else
                         null
                 } catch (ex: Exception) {
-                    "Invalid phone number '$formattedValue' for '$name'"
+                    "Invalid phone number '$formattedValue' for $fieldMapping"
                 }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    "Invalid postal code '$formattedValue'"
+                    "Invalid postal code '$formattedValue' for $fieldMapping"
                 else
                     null
             }
@@ -470,7 +486,7 @@ data class Element(
                         val parts = formattedValue.split(hdDelimiter)
                         if (parts.size == 1 || parts.size == 3) null else "Invalid HD format"
                     }
-                    else -> "Unsupported HD format for input: '$format' in '$name'"
+                    else -> "Unsupported HD format for input: '$format' in $fieldMapping"
                 }
             }
             Type.EI -> {
@@ -483,7 +499,7 @@ data class Element(
                         val parts = formattedValue.split(eiDelimiter)
                         if (parts.size == 1 || parts.size == 4) null else "Invalid EI format"
                     }
-                    else -> "Unsupported EI format for input: '$format' in '$name'"
+                    else -> "Unsupported EI format for input: '$format' in $fieldMapping"
                 }
             }
 
@@ -507,7 +523,7 @@ data class Element(
                     val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
                     LocalDate.parse(formattedValue, formatter)
                 } catch (e: DateTimeParseException) {
-                    error("Invalid date: '$formattedValue' for element '$name'")
+                    error("Invalid date: '$formattedValue' for element $fieldMapping")
                 }
                 normalDate.format(dateFormatter)
             }
@@ -538,7 +554,7 @@ data class Element(
                     val zoneOffset = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now())
                     OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
                 } catch (e: DateTimeParseException) {
-                    error("Invalid date: '$formattedValue' for element '$name'")
+                    error("Invalid date: '$formattedValue' for element $fieldMapping")
                 }
                 normalDateTime.format(datetimeFormatter)
             }
@@ -548,30 +564,30 @@ data class Element(
                     altDisplayToken ->
                         toAltCode(formattedValue)
                             ?: error(
-                                "Invalid code: '$formattedValue' is not a display value in altValues set for '$name'"
+                                "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping"
                             )
                     codeToken ->
                         toCode(formattedValue)
-                            ?: error("Invalid code '$formattedValue' is not a display value in valueSet for '$name")
+                            ?: error("Invalid code '$formattedValue' is not a display value in valueSet for $fieldMapping")
                     displayToken ->
                         valueSetRef?.toCodeFromDisplay(formattedValue)
-                            ?: error("Invalid code: '$formattedValue' not a display value for element '$name'")
+                            ?: error("Invalid code: '$formattedValue' is not a display value for element $fieldMapping")
                     else ->
                         valueSetRef?.toNormalizedCode(formattedValue)
-                            ?: error("Invalid Code: '$formattedValue' does not match any codes for '$name'")
+                            ?: error("Invalid Code: '$formattedValue' does not match any codes for $fieldMapping")
                 }
             }
             Type.TELEPHONE -> {
                 val number = phoneNumberUtil.parse(formattedValue, "US")
                 if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                    error("Invalid phone number '$formattedValue' for '$name'")
+                    error("Invalid phone number '$formattedValue' for $fieldMapping")
                 val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(formattedValue))
-                    error("Input Error: invalid postal code '$formattedValue'")
+                    error("Input Error: invalid postal code '$formattedValue' for $fieldMapping")
                 formattedValue.replace(" ", "")
             }
             Type.HD -> {
@@ -672,7 +688,7 @@ data class Element(
 
     fun toAltDisplay(code: String): String? {
         if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
-        if (altValues == null) error("Schema Error: missing alt values for '$name'")
+        if (altValues == null) error("Schema Error: missing alt values for $fieldMapping")
         val altValue = altValues.find { code.equals(it.code, ignoreCase = true) }
             ?: altValues.find { "*" == it.code }
         return altValue?.display
@@ -680,7 +696,7 @@ data class Element(
 
     fun toAltCode(altDisplay: String): String? {
         if (!isCodeType) error("Internal Error: asking for an altDisplay for a non-code type")
-        if (altValues == null) error("Schema Error: missing alt values for '$name'")
+        if (altValues == null) error("Schema Error: missing alt values for $fieldMapping")
         val altValue = altValues.find { altDisplay.equals(it.display, ignoreCase = true) }
             ?: altValues.find { "*" == it.display }
         return altValue?.code
@@ -689,7 +705,7 @@ data class Element(
     fun toCode(code: String): String? {
         if (!isCodeType) error("Internal Error: asking for codeValue for a non-code type")
         // if there are alt values, use those, otherwise, use the valueSet
-        val values = valueSetRef?.values ?: error("Unable to find a value set for $name.")
+        val values = valueSetRef?.values ?: error("Unable to find a value set for $fieldMapping.")
         val codeValue = values.find {
             code.equals(it.code, ignoreCase = true) || code.equals(it.replaces, ignoreCase = true)
         } ?: values.find { "*" == it.code }

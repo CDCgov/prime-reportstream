@@ -33,7 +33,7 @@ resource "azurerm_function_app" "function_app" {
       action = "Allow"
       name = "Ron IP"
       priority = 120
-      ip_address = "165.225.48.88/32"
+      ip_address = "165.225.48.87/31" # /31 is correct, can be 165.225.48.87 or 165.225.48.88
     }
 
     ip_restriction {
@@ -49,6 +49,16 @@ resource "azurerm_function_app" "function_app" {
     always_on = true
     use_32_bit_worker_process = false
     linux_fx_version = "DOCKER|${var.login_server}/${var.resource_prefix}:latest"
+
+    cors {
+      allowed_origins = [
+        "https://${var.resource_prefix}public.z13.web.core.windows.net",
+        "https://prime.cdc.gov",
+        "https://${var.environment}.prime.cdc.gov",
+        "https://reportstream.cdc.gov",
+        "https://${var.environment}.reportstream.cdc.gov",
+      ]
+    }
   }
 
   app_settings = {
@@ -77,6 +87,9 @@ resource "azurerm_function_app" "function_app" {
 
     # Use the VNET DNS server (so we receive private endpoint URLs
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
+
+    # HHS Protect Storage Account
+    "PartnerStorage" = var.storage_partner_connection_string
 
     "DOCKER_REGISTRY_SERVER_URL" = var.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user

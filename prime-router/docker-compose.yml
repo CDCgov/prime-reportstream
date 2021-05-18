@@ -10,7 +10,7 @@ services:
         INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL}"
     volumes: # Attach the PWD into the image
       - type: bind
-        source: ./target
+        source: ./build
         target: /prime-data-hub-router
     entrypoint: [/prime-data-hub-router/start_func.sh]
     env_file:
@@ -21,6 +21,7 @@ services:
     environment:
       # this storage account key is not a secret. It just looks like one.
       - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+      - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
       - POSTGRES_URL=jdbc:postgresql://host.docker.internal:5432/prime_data_hub
@@ -49,8 +50,8 @@ services:
     ports:
         - "2222:22"
     volumes:
-      - ./target/sftp:/home/foo/upload        
-    command: foo:pass:::upload     
+      - ./build/sftp:/home/foo/upload
+    command: foo:pass:1001::upload
 
   redox:
     image: mockserver/mockserver:mockserver-5.11.1
@@ -93,6 +94,19 @@ services:
     # Override the command with our custom init script
     command: "/vault/config/init.sh"
 
+  web_receiver:
+    image: nginx:latest
+    ports:
+      - "8090:80"
+    volumes:
+      - "../frontend/dist:/usr/share/nginx/html"
+    depends_on: 
+      - prime_dev
+    command: "'nginx' '-g' 'daemon off;'"
+    entrypoint: "/docker-entrypoint.sh"
+
 volumes:
   # For storing a local encrypted secrets database
   vault:
+
+

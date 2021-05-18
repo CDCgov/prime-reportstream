@@ -49,14 +49,14 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 TRANSLATE,
                 BATCH,
                 SEND,
-                WIPE -> this.toString().toLowerCase()
+                WIPE -> this.toString().lowercase()
                 else -> null
             }
         }
 
         companion object {
             fun parseQueueMessage(action: String): EventAction {
-                return when (action.toLowerCase()) {
+                return when (action.lowercase()) {
                     "receive" -> RECEIVE
                     "translate" -> TRANSLATE
                     "batch" -> BATCH

@@ -119,8 +119,8 @@ class FakeDataService {
         fun createFakeTableValue(element: Element): String {
             val lookupTable = element.tableRef
                 ?: error("LookupTable ${element.table} is not available")
-            return when (element.table) {
-                "LIVD-SARS-CoV-2-2021-01-20" -> {
+            return when {
+                element.table?.startsWith("LIVD-SARS-CoV-2") == true -> {
                     if (element.tableColumn == null) return ""
                     lookupTable.lookupValue("Model", context.equipmentModel, element.tableColumn)
                         ?: error(
@@ -128,7 +128,7 @@ class FakeDataService {
                                 "to ${element.tableColumn}"
                         )
                 }
-                "fips-county" -> {
+                element.table == "fips-county" -> {
                     when {
                         element.nameContains("state") -> context.state
                         element.nameContains("county") -> context.county ?: ""
@@ -196,9 +196,9 @@ class FakeReport(val metadata: Metadata) {
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
         // find our state
-        val state = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA", "NM", "VT", "GU")
+        val state: String = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA", "NM", "VT", "GU")
         // find our county
-        val county = reportCounty ?: findLookupTable("fips-county")?.let {
+        val county: String = reportCounty ?: findLookupTable("fips-county")?.let {
             when (state) {
                 "AZ" -> randomChoice("Pima", "Yuma")
                 "PA" -> randomChoice("Bucks", "Chester", "Montgomery")
@@ -217,7 +217,7 @@ class FakeReport(val metadata: Metadata) {
                 )
             )
         } ?: faker.address().zipCode().toString()
-        val city = findLookupTable("zip-code-data")?.let {
+        val city: String = findLookupTable("zip-code-data")?.let {
             randomChoice(
                 it.filter(
                     "city",
@@ -228,7 +228,7 @@ class FakeReport(val metadata: Metadata) {
                     )
                 )
             )
-        }
+        } ?: faker.address().city().toString()
     }
 
     internal fun buildColumn(element: Element, context: RowContext): String {
@@ -294,7 +294,12 @@ class FakeReport(val metadata: Metadata) {
         targetCounties: String? = null
     ): Report {
         val counties = targetCounties?.split(",")
-        val states = targetStates?.split(",")
+        val states = if (targetStates.isNullOrEmpty()) {
+            metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
+                ?.toList()
+        } else {
+            targetStates?.split(",")
+        }
         val rows = (0 until count).map {
             buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties))
         }.toList()

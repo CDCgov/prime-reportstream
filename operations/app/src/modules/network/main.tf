@@ -8,6 +8,7 @@ locals {
     "privatelink.postgres.database.azure.com",
     "privatelink.blob.core.windows.net",
     "privatelink.file.core.windows.net",
+    "privatelink.queue.core.windows.net",
     #"privatelink.azurecr.io",
     "privatelink.servicebus.windows.net",
     "privatelink.azurewebsites.net"
@@ -155,6 +156,7 @@ resource "azurerm_subnet" "endpoint" {
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes = ["10.0.5.0/24"]
   enforce_private_link_endpoint_network_policies = true
+  service_endpoints = ["Microsoft.Storage"]
 }
 
 resource "azurerm_private_dns_zone" "dns_zone_private" {

@@ -1,12 +1,12 @@
 package gov.cdc.prime.router
 
 import java.io.File
-import java.lang.Appendable
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.text.StringBuilder
+import org.commonmark.parser.Parser
+import org.commonmark.renderer.html.HtmlRenderer
 
 // a singleton instance to let us build documentation off of a schema or off of an element
 object DocumentationFactory {
@@ -22,6 +22,7 @@ object DocumentationFactory {
         sb.appendLine("") // start with a blank line at the top 
         appendLabelAndData(sb, "Name", displayName)
         appendLabelAndData(sb, "Type", element.type?.name)
+		appendLabelAndData(sb, "PII", if (element.pii == true) "Yes" else "No")
         appendLabelAndData(sb, "Format", csvField?.format)
         if (element.hl7OutputFields != null)
             appendLabelAndData(sb, "HL7 Fields", element.hl7OutputFields.joinToString(", "))
@@ -100,25 +101,54 @@ ${element.documentation}
         schema: Schema,
         outputDir: String = ".",
         outputFileName: String? = null,
-        includeTimestamps: Boolean = false
+        includeTimestamps: Boolean = false,
+        generateMarkupFile: Boolean = true,
+        generateHtmlFile: Boolean = false
     ) {
+        // Why are you even calling this
+        if (!generateMarkupFile && !generateHtmlFile) return;
+
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         val createDate = LocalDate.now().format(formatter)
         // change any slashes to dashes for the file name
         val schemaName = schema.name.replace("/", "-")
 
-        val oName = (outputFileName ?: schemaName) + if (includeTimestamps) {
-            "-$createDate.md"
-        } else {
-            ".md"
-        }
-
+        val mdText = getSchemaDocumentation(schema)
         val path = Paths.get(outputDir)
         if (!Files.exists(path)) {
             Files.createDirectory(path)
         }
 
-        File(outputDir, oName).writeText(getSchemaDocumentation(schema))
+        // Generate the markup file
+        if(generateMarkupFile) {
+            val markupName = (outputFileName ?: schemaName) + if (includeTimestamps) {
+                "-$createDate.md"
+            } else {
+                ".md"
+            }
+            File(outputDir, markupName).writeText(mdText)
+        }
+
+        // Generate the HTML file
+        if(generateHtmlFile) {
+            val htmlName = (outputFileName ?: schemaName) + if (includeTimestamps) {
+                "-$createDate.html"
+            } else {
+                ".html"
+            }
+            File(outputDir, htmlName).writeText(convertMarkdownToHtml(mdText))
+        }
+    }
+
+    /**
+     * Convert [markdown] text to HTML.
+     * @return HTML text
+     */
+    private fun convertMarkdownToHtml(markdown : String) : String {
+        val parser = Parser.builder().build()
+        val document = parser.parse(markdown)
+        val renderer = HtmlRenderer.builder().build()
+        return renderer.render(document)
     }
 
     private fun appendLabelAndData(appendable: Appendable, label: String, value: Any?) {

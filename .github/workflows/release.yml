@@ -28,25 +28,19 @@ jobs:
           postgresql password: ${{ env.POSTGRES_PASSWORD }}
 
       - name: Setup JDK
-        uses: actions/setup-java@v1.4.3
+        uses: actions/setup-java@v2
         with:
-           java-version: 11
+          distribution: 'adopt'
+          java-version: 11
 
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('prime-router/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
-
-      - name: Build Maven Package
-        run: mvn -B clean package --file pom.xml -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
+      - name: Build Prime Router Package
+        run: bash ./gradlew clean package -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
-          path: prime-router/target
+          path: prime-router/build
           retention-days: 7
 
   build_frontend_release:
@@ -89,7 +83,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
-          path: prime-router/target
+          path: prime-router/build
 
       - name: Download Frontend Artifact
         uses: actions/download-artifact@v2
@@ -102,6 +96,7 @@ jobs:
 
       - name: Install OpenVPN
         run: |
+          sudo apt-get update
           sudo apt-get install openvpn
           sudo apt install openvpn-systemd-resolved
 
@@ -154,7 +149,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
-          path: prime-router/target
+          path: prime-router/build
 
       - name: Download Frontend Artifact
         uses: actions/download-artifact@v2
@@ -167,6 +162,7 @@ jobs:
 
       - name: Install OpenVPN
         run: |
+          sudo apt-get update
           sudo apt-get install openvpn
           sudo apt install openvpn-systemd-resolved
 
@@ -220,7 +216,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: prime-router-build-${{ github.run_id }}
-          path: prime-router/target
+          path: prime-router/build
 
       - name: Download Frontend Artifact
         uses: actions/download-artifact@v2
@@ -233,6 +229,7 @@ jobs:
 
       - name: Install OpenVPN
         run: |
+          sudo apt-get update
           sudo apt-get install openvpn
           sudo apt install openvpn-systemd-resolved
 
