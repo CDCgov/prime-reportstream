@@ -872,7 +872,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         }
 
         // Now lets loop through the values until we find a valid phone number
-        for(repetition in 0..(maxNumValues - 1)) {
+        for(repetition in 0 until maxNumValues) {
             val deprecatedPhoneNumber = terser.get("/.$hl7Field($repetition)-1") ?: ""
             val equipType = terser.get("/.$hl7Field($repetition)-3") ?: ""
             val countryCode = terser.get("/.$hl7Field($repetition)-5") ?: ""
