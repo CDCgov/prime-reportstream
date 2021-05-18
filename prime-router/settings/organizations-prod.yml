@@ -263,7 +263,7 @@
         useBlankInsteadOfUnknown: patient_race
       transport:
         type: SFTP
-        host: secure.lcfresearch.org
+        host: sftp.syncronys.org
         port: 22
         filePath: ./
       timing:
