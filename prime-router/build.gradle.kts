@@ -263,6 +263,7 @@ tasks.register("package") {
     dependsOn("azureFunctionsPackage")
     dependsOn("copyAzureResources")
     dependsOn("copyAzureScripts")
+    dependsOn("fatJar")
 }
 
 repositories {
