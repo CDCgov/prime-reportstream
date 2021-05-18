@@ -886,7 +886,9 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 }
             }
             else if(deprecatedPhoneNumber.isNotBlank()) {
-                phoneNumber = deprecatedPhoneNumber
+                // The deprecated component could have formatting, so remove it if present
+                val re = Regex("[^0-9]")
+                phoneNumber = re.replace(deprecatedPhoneNumber, "")
                 break
             }
         }

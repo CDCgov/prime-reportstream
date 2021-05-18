@@ -199,12 +199,12 @@ NTE|1|L|This is a final comment|RE"""
 
         // Phone number in deprecated component
         every { mockSegment.getField(any()) } returns arrayOf(mockFieldType)
-        every { mockTerser.get("/.$hl7Field(0)-1") } returns "5555555555"
+        every { mockTerser.get("/.$hl7Field(0)-1") } returns "(555)5555555"
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, hl7Field)
         assertEquals("5555555555", phoneNumber)
 
         // Phone number in newer components.  Will ignore phone number in deprecated component
-        every { mockTerser.get("/.$hl7Field(0)-1") } returns "4444444444"
+        every { mockTerser.get("/.$hl7Field(0)-1") } returns "(444)4444444"
         every { mockTerser.get("/.$hl7Field(0)-3") } returns "PH" //Phone
         every { mockTerser.get("/.$hl7Field(0)-5") } returns "1"
         every { mockTerser.get("/.$hl7Field(0)-6") } returns "666"
