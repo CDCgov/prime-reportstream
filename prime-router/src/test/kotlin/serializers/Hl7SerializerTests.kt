@@ -238,10 +238,12 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTerser.get("/.$hl7Field(0)-6") } returns null
         every { mockTerser.get("/.$hl7Field(0)-7") } returns null
         every { mockTerser.get("/.$hl7Field(1)-1") } returns null
-        every { mockTerser.get("/.$hl7Field(1)-3") } returns "FX" //Fax
-        every { mockTerser.get("/.$hl7Field(1)-5") } returns "1"
-        every { mockTerser.get("/.$hl7Field(1)-6") } returns "666"
-        every { mockTerser.get("/.$hl7Field(1)-7") } returns "5555555"
+        every { mockTerser.get("/.$hl7Field(1)-2") } returns "NET"
+        every { mockTerser.get("/.$hl7Field(1)-3") } returns "Internet" //Fax
+        every { mockTerser.get("/.$hl7Field(1)-4") } returns "dummyemail@cdc.local" //Fax
+        every { mockTerser.get("/.$hl7Field(1)-5") } returns null
+        every { mockTerser.get("/.$hl7Field(1)-6") } returns null
+        every { mockTerser.get("/.$hl7Field(1)-7") } returns null
         every { mockTerser.get("/.$hl7Field(2)-1") } returns null
         every { mockTerser.get("/.$hl7Field(2)-3") } returns "PH" //Phone
         every { mockTerser.get("/.$hl7Field(2)-5") } returns "1"
