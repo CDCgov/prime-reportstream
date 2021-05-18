@@ -10,6 +10,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.transport.SftpTransport
+import java.util.UUID
 import org.apache.logging.log4j.kotlin.Logging
 
 /*
@@ -17,12 +18,17 @@ import org.apache.logging.log4j.kotlin.Logging
  */
 
 class CheckFunction : Logging {
+    // data structure for sftp file
+    data class SftpFile(
+        val name: String,
+        val contents: String,
+    )
 
     @FunctionName("check")
     fun run(
         @HttpTrigger(
             name = "check",
-            methods = [HttpMethod.GET],
+            methods = [HttpMethod.GET, HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION,
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
@@ -35,9 +41,30 @@ class CheckFunction : Logging {
             }
             val receiverFullName = request.queryParameters["sftpcheck"]
                 ?: return HttpUtilities.badRequestResponse(request, "Missing option sftpcheck")
+            /**
+             * The query parameter is not added unless it has a value, treating
+             * sendfile as a flag in the URI. When the sendfile flag is present,
+             * an empty file is created on a GET request but POST will use the
+             * request body as the file contents. The file name is generated as
+             * hello-{UUID}.txt with details in as StfpFile instance.
+             */
+            val sftpFile : SftpFile? = when {
+                "&sendfile" !in request.uri.query -> null
+                request.httpMethod == HttpMethod.POST -> SftpFile(
+                    "hello-${UUID.randomUUID()}.txt",
+                    request?.body ?: ""
+                )
+                else -> SftpFile("hello-${UUID.randomUUID()}.txt", "")
+            }
+            // size check on the sftp file contents, fails if more than 100K chars in length
+            sftpFile?. let {
+                if (sftpFile.contents.length > 100000) {
+                    return HttpUtilities.badRequestResponse(request, "Test upload file exceeds 100K size limit")
+                }
+            }
             val settings = WorkflowEngine.settings
             if (receiverFullName == "all") {
-                if (!testAllTransports(settings.receivers, responseBody)) {
+                if (!testAllTransports(settings.receivers, sftpFile, responseBody)) {
                     httpStatus = HttpStatus.INTERNAL_SERVER_ERROR // everything bombed.
                 }
             } else {
@@ -47,7 +74,7 @@ class CheckFunction : Logging {
                 if (receiver.transport == null) {
                     return HttpUtilities.badRequestResponse(request, "$receiverFullName: no transport defined")
                 }
-                httpStatus = if (testTransport(receiver, responseBody)) HttpStatus.OK else HttpStatus.BAD_REQUEST
+                httpStatus = if (testTransport(receiver, sftpFile, responseBody)) HttpStatus.OK else HttpStatus.BAD_REQUEST
             }
         } catch (t: Throwable) {
             responseBody.add(t.localizedMessage)
@@ -59,10 +86,10 @@ class CheckFunction : Logging {
     /**
      * Return true if even one sftp worked; return false if all failed.
      */
-    private fun testAllTransports(receivers: Collection<Receiver>, responseBody: MutableList<String>): Boolean {
+    private fun testAllTransports(receivers: Collection<Receiver>, sftpFile: SftpFile?, responseBody: MutableList<String>): Boolean {
         var overallPass = false
         receivers.forEach { receiver ->
-            if (testTransport(receiver, responseBody)) {
+            if (testTransport(receiver, sftpFile, responseBody)) {
                 // Like Gen 18:31, if even one good sftp is found, that saves the overall run.
                 overallPass = true
             }
@@ -74,7 +101,7 @@ class CheckFunction : Logging {
     /**
      * Returns true on success, false on fail.
      */
-    fun testTransport(receiver: Receiver, responseBody: MutableList<String>): Boolean {
+    fun testTransport(receiver: Receiver, sftpFile: SftpFile?, responseBody: MutableList<String>): Boolean {
         if (receiver.transport == null) {
             responseBody.add("**** ${receiver.fullName}:  no transport defined.")
             return false
@@ -82,7 +109,7 @@ class CheckFunction : Logging {
         try {
             return when (receiver.transport) {
                 is SFTPTransportType -> {
-                    testSftp(receiver.transport, receiver, responseBody)
+                    testSftp(receiver.transport, receiver, sftpFile, responseBody)
                     responseBody.add("**** ${receiver.fullName}: OK")
                     true
                 }
@@ -107,19 +134,46 @@ class CheckFunction : Logging {
     /**
      * Any normal return is success.  Any exception thrown is failure.
      */
-    fun testSftp(sftpTransportType: SFTPTransportType, receiver: Receiver, responseBody: MutableList<String>) {
+    fun testSftp(sftpTransportType: SFTPTransportType, receiver: Receiver, sftpFile: SftpFile?, responseBody: MutableList<String>) {
         val host = sftpTransportType.host
         val port = sftpTransportType.port
         val path = sftpTransportType.filePath
+        logger.info("SFTP Transport $sftpTransportType")
+        responseBody.add("${receiver.fullName}: SFTP Transport: $sftpTransportType")
         val credential = SftpTransport.lookupCredentials(receiver.fullName)
-        val sshClient = SftpTransport.connect(host, port, credential)
-        responseBody.add("${receiver.fullName}: Able to Connect to sftp site.  Now trying an `ls`...")
+        var sshClient = SftpTransport.connect(host, port, credential)
+        responseBody.add("${receiver.fullName}: Able to Connect to sftp site")
+        sftpFile?. let {
+            logger.info("Attempting to upload ${it.name} to $sftpTransportType")
+            SftpTransport.uploadFile(sshClient, path, it.name, it.contents.toByteArray())
+            responseBody.add("${receiver.fullName}: Uploaded file '${sftpFile.name}' to SFTP transport")
+            // the client connection is closed in the SftpTransport methods
+            sshClient = SftpTransport.connect(host, port, credential)
+        }
+        logger.info("Now trying an `ls` on $path")
         val lsList: List<String> = SftpTransport.ls(sshClient, path)
         // Log what we found from ls, but don't return it.
         logger.info("What we got back from ls (first few lines): ")
         lsList.filterIndexed { index, _ -> index <= 5 }.forEach { logger.info(it) }
-        val msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from $sftpTransportType"
+        var msg = "${receiver.fullName}: Success: ls returned ${lsList.size} rows of info from SFTP Transport"
         logger.info(msg)
         responseBody.add(msg)
+        sftpFile?. let {
+            logger.info("Checking for uploaded file in `ls` results")
+            msg = if (lsList.filter { it.endsWith("$path/${sftpFile.name}")}.isEmpty()) {
+                "${receiver.fullName}: Couldn't find file '${sftpFile.name}' in `ls` results: ${lsList.toString()}"
+            } else {
+                "${receiver.fullName}: Found uploaded file '${sftpFile.name}' in `ls` results"
+            }
+            logger.info(msg)
+            responseBody.add(msg)
+            msg = "${receiver.fullName}: Removing '${sftpFile.name}' from SFTP transport"
+            logger.info(msg)
+            responseBody.add(msg)
+            SftpTransport.rm(SftpTransport.connect(host, port, credential), path, sftpFile.name)
+            msg = "${receiver.fullName}: Success: removed '${sftpFile.name}' from SFTP Transport"
+            logger.info(msg)
+            responseBody.add(msg)
+        }
     }
 }

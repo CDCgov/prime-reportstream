@@ -177,6 +177,29 @@ class SftpTransport : ITransport, Logging {
             return lsResults
         }
 
+        fun rm(sshClient: SSHClient, path: String, fileName: String) {
+            try {
+                try {
+                    sshClient.use { sshClient ->
+                        sshClient.newSFTPClient().use {
+                            it.rm("$path/$fileName")
+                        }
+                    }
+                } finally {
+                    sshClient.disconnect()
+                }
+            } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
+                // if the timeout happens on disconnect it gets wrapped up in the connectException
+                // and we need to check the root cause
+                if (ce.cause is java.util.concurrent.TimeoutException) {
+                    // do nothing. some servers just take a long time to disconnect
+                    logger().warn("Connection exception during ls: ${ce.localizedMessage}")
+                } else {
+                    throw ce
+                }
+            }
+        }
+
         fun pwd(sshClient: SSHClient): String {
             var pwd = ""
             try {
