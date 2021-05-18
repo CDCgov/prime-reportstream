@@ -871,14 +871,14 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             }
         }
 
-        // Now lets loop through the values until we find a valis phone number
+        // Now lets loop through the values until we find a valid phone number
         for(repetition in 0..(maxNumValues - 1)) {
             val deprecatedPhoneNumber = terser.get("/.$hl7Field($repetition)-1") ?: ""
             val equipType = terser.get("/.$hl7Field($repetition)-3") ?: ""
             val countryCode = terser.get("/.$hl7Field($repetition)-5") ?: ""
             val areaCode = terser.get("/.$hl7Field($repetition)-6") ?: ""
             val localNumber = terser.get("/.$hl7Field($repetition)-7") ?: ""
-            if(countryCode.isNotBlank() || areaCode.isNotBlank() || localNumber.isNotBlank()) {
+            if(areaCode.isNotBlank() || localNumber.isNotBlank()) {
                 // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
                 if(equipType.isEmpty() || equipType == "PH") {
                     phoneNumber = "$countryCode$areaCode$localNumber"
