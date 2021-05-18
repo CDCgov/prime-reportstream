@@ -170,16 +170,17 @@ class MetadataTests {
         assertEquals("\$code", childElement!!.csvFields?.first()?.format)
         // sibling uses extends
         val sibling = metadata.findSchema("sibling_schema")
-        assertNotNull(sibling)
-        val siblingElement = sibling.findElement(elementName)
-        assertThat(siblingElement)
+        assertThat(sibling)
+            .isNotNull()
+            .hasElement(elementName)
             .isNotNull()
             .csvFieldsHasSize(1)
+        val siblingElement = sibling!!.findElement(elementName)
         assertNull(siblingElement!!.csvFields?.first()?.format)
         // twin uses basedOn instead of extends
         val twin = metadata.findSchema("twin_schema")
-        assertNotNull(twin)
-        assertThat(twin.findElement(elementName)).all {
+        assertThat(twin).isNotNull()
+        assertThat(twin!!.findElement(elementName)).all {
             isNotNull()
             prop("csvFields") { Element::csvFields.call(it) }.hasSize(1)
             prop("csvFields") { Element::csvFields.call(it) }.given {
@@ -227,6 +228,11 @@ class MetadataTests {
     }
 
     companion object {
+        // below are a set of extension functions that assertK can use to run assertions on our code.
+        // these come in two flavors:
+        // - given, which just checks a value and returns Unit, meaning you cannot chain assertions
+        // - transform, which not only checks your assertion, but returns a value wrapped in Assertion<> so you
+        //   you can chain assertions.
         private fun Assert<List<*>?>.hasSize(expected: Int) = given { actual ->
             if (actual?.size == expected) return
             expected("size:${show(expected)} but was ${show(actual?.size?.toString() ?: "null")}")
