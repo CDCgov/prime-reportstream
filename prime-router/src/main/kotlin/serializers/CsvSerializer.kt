@@ -171,7 +171,7 @@ class CsvSerializer(val metadata: Metadata) {
                         if (element.csvFields != null) {
                             element.csvFields.map { field ->
                                 val value = report.getString(row, element.name)
-                                    ?: error("Internal Error: table is missing '${element.name} column")
+                                    ?: error("Internal Error: table is missing ${element.fieldMapping} column")
                                 element.toFormatted(value, field.format)
                             }
                         } else {
@@ -246,8 +246,8 @@ class CsvSerializer(val metadata: Metadata) {
         val missingRequiredHeaders = requiredHeaders - actualHeaders
         val missingOptionalHeaders = optionalHeaders - actualHeaders
         val ignoredHeaders = actualHeaders - requiredHeaders - optionalHeaders - headersWithDefault
-        val errors = missingRequiredHeaders.map { "Missing '$it' header" }
-        val warnings = missingOptionalHeaders.map { "Missing '$it' header" } +
+        val errors = missingRequiredHeaders.map { "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header" }
+        val warnings = missingOptionalHeaders.map { "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header" } +
             ignoredHeaders.map { "Unexpected '$it' header is ignored" }
 
         return CsvMapping(useCsv, useMapper, useDefault, errors, warnings)
@@ -304,14 +304,9 @@ class CsvSerializer(val metadata: Metadata) {
         fun useMapper(element: Element): String? {
             val (mapper, args) = csvMapping.useMapper[element.name] ?: return null
             val valueNames = mapper.valueNames(element, args)
-            val valuesForMapper = valueNames.map { elementName ->
-                val valueElement = schema.findElement(elementName)
-                    ?: error(
-                        "Schema Error: Could not find element '$elementName' for mapper " +
-                            "'${mapper.name}' from '${element.name}'."
-                    )
-                val value = lookupValues[elementName]
-                    ?: error("Schema Error: No mapper input for $elementName")
+            val valuesForMapper = valueNames.mapNotNull { elementName ->
+                val valueElement = schema.findElement(elementName) ?: return@mapNotNull null
+                val value = lookupValues[elementName] ?: return@mapNotNull null
                 ElementAndValue(valueElement, value)
             }
             return mapper.apply(element, args, valuesForMapper)
@@ -335,7 +330,7 @@ class CsvSerializer(val metadata: Metadata) {
             }
             if (value.isBlank() && !element.canBeBlank) {
                 when (element.cardinality) {
-                    Element.Cardinality.ONE -> errors += "Empty value for '${element.name}'"
+                    Element.Cardinality.ONE -> errors += "Empty value for ${element.fieldMapping}"
                     Element.Cardinality.ZERO_OR_ONE -> {
                     }
                 }

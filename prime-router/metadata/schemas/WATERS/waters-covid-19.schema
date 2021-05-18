@@ -74,7 +74,7 @@ elements:
   - name: patient_race
     csvFields: [{ name: patientRace}]
 
-  # ReportStream uses hl70189 (H,N,U), but Waters sends HHS (2135-2, 2186-5, UNK, ASKU)
+  # ReportStream uses hl70189 (H,N,U), but Waters sends OMB (2135-2, 2186-5, UNK, ASKU)
   # Simplest way to map them was with an alt table
   - name: patient_ethnicity
     altValues:
@@ -104,10 +104,12 @@ elements:
     csvFields: [{ name: PatStID}]
 
   - name: patient_county
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: patientCounty}]
 
   # Very important field for routing data to states.
   - name: patient_state
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: patientState}]
 
   - name: patient_city
@@ -242,6 +244,7 @@ elements:
 
   # We are expecting a CLIA number here
   - name: testing_lab_clia
+    cardinality: ZERO_OR_ONE
     csvFields: [{ name: performingFacility}]
 
   # Expecting an ISO heirarchic designator here.
@@ -257,3 +260,6 @@ elements:
     type: DATETIME
     csvFields: [{ name: TXNTIMESTAMP}]
 
+  - name: waters_submitter
+    type: TEXT
+    csvFields: [{ name: TxInitiator }]

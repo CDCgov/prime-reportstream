@@ -29,7 +29,7 @@
                 window.location.hash = " ";
             }
         </script>
-    <title>CDC PRIME Data Hub - Download</title>
+    <title>CDC PRIME ReportStream - Download</title>
   </head>
   <body>
     <section class="usa-banner" aria-label="Official government website">
@@ -130,7 +130,7 @@
         <div class="usa-navbar">
           <div class="usa-logo" id="basic-logo">
             <em class="usa-logo__text">
-                <a th:href="@{${OKTA_redirect}}" title="Home" aria-label="Home">PRIME Data Hub</a>
+                <a th:href="@{${OKTA_redirect}}" title="Home" aria-label="Home">PRIME ReportStream</a>
             </em>
           </div>
         </div>
@@ -164,7 +164,7 @@
             </h1>
             <h2>Today's results</h2>
 
-            <span th:if="${todays.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:usds@cdc.gov">usds@cdc.gov</a>.</em></span>
+            <span th:if="${todays.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:reportstream@cdc.gov">reportstream@cdc.gov</a>.</em></span>
             <table th:unless="${todays.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Today's results">
               <thead>
                 <tr>
@@ -199,7 +199,7 @@
 
           <div class="grid-col-12">
             <h2>Previous <span th:text="${days_to_show}"></span> days</h2>
-            <span th:if="${previous.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:usds@cdc.gov">usds@cdc.gov</a>.</em></span>
+            <span th:if="${previous.isEmpty()}"><em>No data is available. If you think this might be in error, contact <a href="mailto:reportstream@cdc.gov">reportstream@cdc.gov</a>.</em></span>
             <table th:unless="${previous.isEmpty()}" class="usa-table usa-table--borderless prime-table" summary="Previous results">
               <thead>
                 <tr>
@@ -264,7 +264,7 @@
               An official website of the <a href="https://cdc.gov" target="_blank" rel="noopener">Centers for Disease Control and Prevention</a>
             </p>
             <p>
-                <a href="mailto:usds@cdc.gov">usds@cdc.gov</a>
+                <a href="mailto:reportstream@cdc.gov">reportstream@cdc.gov</a>
             </p>
           </div>
         </div>

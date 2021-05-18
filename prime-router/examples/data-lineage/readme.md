@@ -1,6 +1,6 @@
 # Exploring Data Lineage
 
-This example explores data lineage operations supported by the database design of PRIME Data Hub.
+This example explores data lineage operations supported by the database design of PRIME ReportStream.
 
 For more information about the design and genesis of these features, see [docs/proposals/0003-lineage/](../../docs/proposals/0003-lineage/).
 
@@ -131,4 +131,3 @@ psql prime_data_hub prime \
 ```
 
 See [./lineage-cousins.sql](./lineage-cousins.sql)
-
