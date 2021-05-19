@@ -35,8 +35,13 @@
       deidentify: false
       timing:
         operation: "MERGE"
-        numberPerDay: 12
-        initialTime: "01:15"
+        numberPerDay: 1440
+        initialTime: "00:00"
         timeZone: "EASTERN"
         maxReportCount: 100
       description: ""
+      transport: !<SFTP>
+        host: "10.0.2.4"
+        port: "22"
+        filePath: "./upload"
+        type: "SFTP"
