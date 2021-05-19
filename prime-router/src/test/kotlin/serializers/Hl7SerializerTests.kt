@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v21.datatype.TS
+import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
@@ -170,9 +171,11 @@ NTE|1|L|This is a final comment|RE"""
         val serializer = Hl7Serializer(metadata)
         val mockTerser = mockk<Terser>()
         val mockSegment = mockk<Segment>()
-        val mockFieldType = mockk<Type>()
+        val emptyPhoneField = mockk<XTN>()
+        val emailField = mockk<XTN>()
+        val phoneField = mockk<XTN>()
+        val deprecatedPhoneField = mockk<XTN>()
         val element = Element("phone", Element.Type.TELEPHONE, hl7Field = "PID-13")
-        val hl7Field = element.hl7Field!!
 
         // Bad field value
         every { mockTerser.getSegment(any()) } returns null
@@ -190,70 +193,65 @@ NTE|1|L|This is a final comment|RE"""
         assertEquals("", phoneNumber)
 
         // No phone number
-        every { mockSegment.getField(any()) } returns arrayOf(mockFieldType) // This is only to get the number of reps
+        every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField) // This is only to get the number of reps
         every { mockTerser.get(any()) } returns ""
+        every { emptyPhoneField.areaCityCode.isEmpty } returns true
+        every { emptyPhoneField.localNumber.isEmpty } returns true
+        every { emptyPhoneField.telephoneNumber.isEmpty } returns true
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
         assertEquals("", phoneNumber)
 
         // Multiple repetitions with no phone number
-        every { mockSegment.getField(any()) } returns arrayOf(mockFieldType, mockFieldType, mockFieldType)
+        every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emptyPhoneField, emptyPhoneField)
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
         assertEquals("", phoneNumber)
 
         // Phone number in deprecated component
-        every { mockSegment.getField(any()) } returns arrayOf(mockFieldType)
-        every { mockTerser.get("/.$hl7Field(0)-1") } returns "(555)5555555"
+        every { deprecatedPhoneField.areaCityCode.isEmpty } returns true
+        every { deprecatedPhoneField.localNumber.isEmpty } returns true
+        every { deprecatedPhoneField.telephoneNumber.isEmpty } returns false
+        every { deprecatedPhoneField.telephoneNumber.value } returns "(555)5555555"
+        every { mockSegment.getField(any()) } returns arrayOf(deprecatedPhoneField)
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
         assertEquals("5555555555:1:", phoneNumber)
 
         // Phone number in newer components.  Will ignore phone number in deprecated component
-        every { mockTerser.get("/.$hl7Field(0)-1") } returns "(444)4444444"
-        every { mockTerser.get("/.$hl7Field(0)-3") } returns "PH" //Phone
-        every { mockTerser.get("/.$hl7Field(0)-5") } returns "1"
-        every { mockTerser.get("/.$hl7Field(0)-6") } returns "666"
-        every { mockTerser.get("/.$hl7Field(0)-7") } returns "7777777"
+        every { mockSegment.getField(any()) } returns arrayOf(phoneField)
+        every { phoneField.areaCityCode.isEmpty } returns false
+        every { phoneField.localNumber.isEmpty } returns false
+        every { phoneField.telephoneNumber.value } returns "(555)5555555"
+        every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
+        every { phoneField.telecommunicationEquipmentType.value } returns "PH"
+        every { phoneField.countryCode.value } returns "1"
+        every { phoneField.areaCityCode.value } returns "666"
+        every { phoneField.localNumber.value } returns "7777777"
+        every { phoneField.extension.value } returns "9999"
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
-        assertEquals("6667777777:1:", phoneNumber)
+        assertEquals("6667777777:1:9999", phoneNumber)
 
         // No type assumed to be a phone number
-        every { mockTerser.get("/.$hl7Field(0)-1") } returns null
-        every { mockTerser.get("/.$hl7Field(0)-3") } returns null
-        every { mockTerser.get("/.$hl7Field(0)-5") } returns "1"
-        every { mockTerser.get("/.$hl7Field(0)-6") } returns "666"
-        every { mockTerser.get("/.$hl7Field(0)-7") } returns "7777777"
+        every { phoneField.telecommunicationEquipmentType.isEmpty } returns true
+        every { phoneField.telecommunicationEquipmentType.value } returns null
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
-        assertEquals("6667777777:1:", phoneNumber)
+        assertEquals("6667777777:1:9999", phoneNumber)
 
         // A Fax number is not used
-        every { mockTerser.get("/.$hl7Field(0)-1") } returns null
-        every { mockTerser.get("/.$hl7Field(0)-3") } returns "FX" //Fax
-        every { mockTerser.get("/.$hl7Field(0)-5") } returns "1"
-        every { mockTerser.get("/.$hl7Field(0)-6") } returns "666"
-        every { mockTerser.get("/.$hl7Field(0)-7") } returns "7777777"
+        every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
+        every { phoneField.telecommunicationEquipmentType.value } returns "FX"
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
         assertEquals("", phoneNumber)
 
         // Test repetitions.  The first repetition for the XTN type can be empty when there is no primary phone number
-        every { mockSegment.getField(any()) } returns arrayOf(mockFieldType, mockFieldType, mockFieldType)
-        every { mockTerser.get("/.$hl7Field(0)-1") } returns null
-        every { mockTerser.get("/.$hl7Field(0)-3") } returns null //Fax
-        every { mockTerser.get("/.$hl7Field(0)-5") } returns null
-        every { mockTerser.get("/.$hl7Field(0)-6") } returns null
-        every { mockTerser.get("/.$hl7Field(0)-7") } returns null
-        every { mockTerser.get("/.$hl7Field(1)-1") } returns null
-        every { mockTerser.get("/.$hl7Field(1)-2") } returns "NET"
-        every { mockTerser.get("/.$hl7Field(1)-3") } returns "Internet" //Fax
-        every { mockTerser.get("/.$hl7Field(1)-4") } returns "dummyemail@cdc.local" //Fax
-        every { mockTerser.get("/.$hl7Field(1)-5") } returns null
-        every { mockTerser.get("/.$hl7Field(1)-6") } returns null
-        every { mockTerser.get("/.$hl7Field(1)-7") } returns null
-        every { mockTerser.get("/.$hl7Field(2)-1") } returns null
-        every { mockTerser.get("/.$hl7Field(2)-3") } returns "PH" //Phone
-        every { mockTerser.get("/.$hl7Field(2)-5") } returns "1"
-        every { mockTerser.get("/.$hl7Field(2)-6") } returns "666"
-        every { mockTerser.get("/.$hl7Field(2)-7") } returns "7777777"
+        every { phoneField.telecommunicationEquipmentType.value } returns "PH"
+        every { emailField.areaCityCode.isEmpty } returns true
+        every { emailField.localNumber.isEmpty } returns true
+        every { emailField.telephoneNumber.isEmpty } returns true
+        every { emailField.emailAddress.value } returns "dummyemail@cdc.local"
+        every { emailField.telecommunicationEquipmentType.value } returns "Internet"
+        every { emailField.telecommunicationUseCode.value } returns "NET"
+        every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emailField, phoneField)
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
-        assertEquals("6667777777:1:", phoneNumber)
+        assertEquals("6667777777:1:9999", phoneNumber)
     }
 
     @Test

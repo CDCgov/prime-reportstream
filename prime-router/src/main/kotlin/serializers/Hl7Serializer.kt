@@ -2,6 +2,7 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
@@ -861,34 +862,31 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         // Get the field values by going through the terser segment.  This method gives us an
         // array with a maximum number of repetitions, but it may return multiple array elements even if
         // there is no data
-        var maxNumValues = 0
+        var phoneFields = arrayOf<Type>()
         val fieldParts = hl7Field?.split("-")
         if(fieldParts != null && fieldParts.size > 1) {
             val segment = terser.getSegment("/.${fieldParts[0]}")
             val fieldNumber = fieldParts[1].toIntOrNull()
             if(segment != null && fieldNumber != null) {
-                maxNumValues = segment.getField(fieldNumber)?.size ?: 0
+                phoneFields = segment.getField(fieldNumber) ?: emptyArray()
             }
         }
 
-        // Now lets loop through the values until we find a valid phone number
-        for(repetition in 0 until maxNumValues) {
-            val deprecatedPhoneNumber = terser.get("/.$hl7Field($repetition)-1") ?: ""
-            val equipType = terser.get("/.$hl7Field($repetition)-3") ?: ""
-            val countryCode = terser.get("/.$hl7Field($repetition)-5") ?: ""
-            val areaCode = terser.get("/.$hl7Field($repetition)-6") ?: ""
-            val localNumber = terser.get("/.$hl7Field($repetition)-7") ?: ""
-            val extension = terser.get("/.$hl7Field($repetition)-8") ?: ""
-            if(areaCode.isNotBlank() || localNumber.isNotBlank()) {
-                // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                if(equipType.isEmpty() || equipType == "PH") {
-                    phoneNumber = "$areaCode$localNumber:$countryCode:$extension"
+        for(index in 0 until phoneFields.size)
+        {
+            val phone = phoneFields[index]
+            if(phone is XTN) {
+                if(!phone.areaCityCode.isEmpty || !phone.localNumber.isEmpty) {
+                    // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                    if(phone.telecommunicationEquipmentType.isEmpty || phone.telecommunicationEquipmentType.value == "PH") {
+                        phoneNumber = "${phone.areaCityCode.value}${phone.localNumber.value}:${phone.countryCode.value}:${phone.extension.value}"
+                        break
+                    }
+                }
+                else if(!phone.telephoneNumber.isEmpty) {
+                    phoneNumber = element.toNormalized(phone.telephoneNumber.value)
                     break
                 }
-            }
-            else if(deprecatedPhoneNumber.isNotBlank()) {
-                phoneNumber = element.toNormalized(deprecatedPhoneNumber)
-                break
             }
         }
 
