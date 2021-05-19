@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.TS
+import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.ModelClassFactory
@@ -212,12 +213,10 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 if (!it.hl7Field.isNullOrEmpty()) {
                     when {
                         it.type == Element.Type.TELEPHONE -> {
-                            var phoneNumber = checkValue(it, decodeXTNPhoneNumber(terser, it), errors, warnings)
-                            mappedRows[it.name]?.add(phoneNumber)
+                            mappedRows[it.name]?.add(decodeXTNPhoneNumber(terser, it))
                         }
                         it.type == Element.Type.DATETIME -> {
-                            var dateTime = checkValue(it, decodeHl7DateTime(terser, it.hl7Field), errors, warnings)
-                            mappedRows[it.name]?.add(dateTime)
+                            mappedRows[it.name]?.add(decodeHl7DateTime(terser, it.hl7Field))
                         }
                         else -> {
                             val terserSpec = when {
@@ -923,26 +922,6 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             }
         }
         return dateTime
-    }
-
-    /**
-     * Check the format of a value and generate warnings and errors as appropriate.
-     * @param element the element to check
-     * @param value the value to check
-     * @param errorList the list of errors for this message
-     * @param warningList the list of warnings for this message
-     * @return the formatted value of empty string if the check was not successful
-     */
-    internal fun checkValue(element: Element, value: String, errorList:MutableList<String>,
-                            warningList: MutableList<String>): String {
-        if(value.isNotBlank()) {
-            var checkResult = element.checkForError(value)
-            if (!checkResult.isNullOrBlank()) {
-                warningList.add("Value in ${element.hl7Field} of $value is incorrectly formmatted: $checkResult")
-                return ""
-            }
-        }
-        return value
     }
 
     companion object {
