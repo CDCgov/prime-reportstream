@@ -209,14 +209,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 if (!it.hl7Field.isNullOrEmpty()) {
                     when {
                         it.type == Element.Type.TELEPHONE -> {
-                            var phoneNumber = decodeXTNPhoneNumber(terser, it.hl7Field)
-                            if(phoneNumber.isNotBlank()) {
-                                var checkResult = it.checkForError(phoneNumber)
-                                if (!checkResult.isNullOrBlank()) {
-                                    phoneNumber = ""
-                                    warnings.add("Phone number in ${it.hl7Field} is incorrectly formmatted: $checkResult")
-                                }
-                            }
+                            var phoneNumber = decodeXTNPhoneNumber(terser, it)
                             mappedRows[it.name]?.add(phoneNumber)
                         }
                         else -> {
@@ -855,15 +848,16 @@ class Hl7Serializer(val metadata: Metadata): Logging {
      * @param hl7Field the field with the phone number
      * @return the phone number or empty string
      */
-    internal fun decodeXTNPhoneNumber(terser: Terser, hl7Field: String): String {
+    internal fun decodeXTNPhoneNumber(terser: Terser, element: Element): String {
         var phoneNumber = ""
+        val hl7Field = element.hl7Field
 
         // Get the field values by going through the terser segment.  This method gives us an
         // array with a maximum number of repetitions, but it may return multiple array elements even if
         // there is no data
         var maxNumValues = 0
-        val fieldParts = hl7Field.split("-")
-        if(fieldParts.size > 1) {
+        val fieldParts = hl7Field?.split("-")
+        if(fieldParts != null && fieldParts.size > 1) {
             val segment = terser.getSegment("/.${fieldParts[0]}")
             val fieldNumber = fieldParts[1].toIntOrNull()
             if(segment != null && fieldNumber != null) {
@@ -878,17 +872,16 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             val countryCode = terser.get("/.$hl7Field($repetition)-5") ?: ""
             val areaCode = terser.get("/.$hl7Field($repetition)-6") ?: ""
             val localNumber = terser.get("/.$hl7Field($repetition)-7") ?: ""
+            val extension = terser.get("/.$hl7Field($repetition)-8") ?: ""
             if(areaCode.isNotBlank() || localNumber.isNotBlank()) {
                 // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
                 if(equipType.isEmpty() || equipType == "PH") {
-                    phoneNumber = "$countryCode$areaCode$localNumber"
+                    phoneNumber = "$areaCode$localNumber:$countryCode:$extension"
                     break
                 }
             }
             else if(deprecatedPhoneNumber.isNotBlank()) {
-                // The deprecated component could have formatting, so remove it if present
-                val re = Regex("[^0-9]")
-                phoneNumber = re.replace(deprecatedPhoneNumber, "")
+                phoneNumber = element.toNormalized(deprecatedPhoneNumber)
                 break
             }
         }
