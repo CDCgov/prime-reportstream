@@ -11,7 +11,10 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.transport.SftpTransport
 import java.util.UUID
+import net.schmizz.sshj.sftp.RemoteResourceFilter
+import net.schmizz.sshj.sftp.RemoteResourceInfo
 import org.apache.logging.log4j.kotlin.Logging
+
 
 /*
  * Check API
@@ -23,6 +26,15 @@ class CheckFunction : Logging {
         val name: String,
         val contents: String,
     )
+
+    class TestFileFilter(val fileName: String) : RemoteResourceFilter {
+        override fun accept(resource: RemoteResourceInfo?): Boolean {
+            resource?. let {
+                return resource.isRegularFile && resource.name == fileName
+            }
+            return false
+        }
+    }
 
     @FunctionName("check")
     fun run(
@@ -145,9 +157,13 @@ class CheckFunction : Logging {
         responseBody.add("${receiver.fullName}: Able to Connect to sftp site")
         sftpFile?. let {
             logger.info("Attempting to upload ${it.name} to $sftpTransportType")
+            if (SftpTransport.ls(sshClient, path, TestFileFilter(it.name)).isNotEmpty()) {
+                throw Exception("File ${sftpFile.name} already exists on SFTP server. Aborting upload.")
+            }
+            // the client connection is closed in the SftpTransport methods
+            sshClient = SftpTransport.connect(host, port, credential)
             SftpTransport.uploadFile(sshClient, path, it.name, it.contents.toByteArray())
             responseBody.add("${receiver.fullName}: Uploaded file '${sftpFile.name}' to SFTP transport")
-            // the client connection is closed in the SftpTransport methods
             sshClient = SftpTransport.connect(host, port, credential)
         }
         logger.info("Now trying an `ls` on $path")
@@ -159,11 +175,12 @@ class CheckFunction : Logging {
         logger.info(msg)
         responseBody.add(msg)
         sftpFile?. let {
-            logger.info("Checking for uploaded file in `ls` results")
-            msg = if (lsList.filter { it.endsWith("$path/${sftpFile.name}")}.isEmpty()) {
-                "${receiver.fullName}: Couldn't find file '${sftpFile.name}' in `ls` results: ${lsList.toString()}"
+            logger.info("Checking for uploaded file on SFTP Transport")
+            sshClient = SftpTransport.connect(host, port, credential)
+            msg = if (SftpTransport.ls(sshClient, path, TestFileFilter(it.name)).isEmpty()) {
+                "${receiver.fullName}: Couldn't find file '${sftpFile.name}' on SFTP Transport"
             } else {
-                "${receiver.fullName}: Found uploaded file '${sftpFile.name}' in `ls` results"
+                "${receiver.fullName}: Found uploaded file '${sftpFile.name}' on SFTP Transport"
             }
             logger.info(msg)
             responseBody.add(msg)

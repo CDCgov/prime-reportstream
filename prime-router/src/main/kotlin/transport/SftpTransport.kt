@@ -14,6 +14,7 @@ import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
@@ -152,12 +153,16 @@ class SftpTransport : ITransport, Logging {
         }
 
         fun ls(sshClient: SSHClient, path: String): List<String> {
+            return ls(sshClient, path, null)
+        }
+
+        fun ls(sshClient: SSHClient, path: String, resourceFilter: RemoteResourceFilter?): List<String> {
             val lsResults = mutableListOf<String>()
             try {
                 try {
                     sshClient.use { sshClient ->
                         sshClient.newSFTPClient().use {
-                            it.ls(path).map { l -> lsResults.add(l.toString()) }
+                            it.ls(path, resourceFilter).map { l -> lsResults.add(l.toString()) }
                         }
                     }
                 } finally {
