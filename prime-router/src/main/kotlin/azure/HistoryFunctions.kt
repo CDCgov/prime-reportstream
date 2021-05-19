@@ -243,7 +243,7 @@ open class BaseHistoryFunction {
                     try{ 
                         facilities = getFieldSummaryForReportId(arrayOf("Testing_lab_name","Testing_lab_CLIA"),it.reportId.toString(), authClaims)
                     }catch( ex: Exception ){
-                        //context.logger.log( Level.INFO, "Exception during getFieldSummaryForReportId - TestingLabName was not found - no facilities data will be published" );
+                        //context.logger.info( "Exception during getFieldSummaryForReportId - TestingLabName was not found - no facilities data will be published" );
                     }
 
                 var actions = getActionsForReportId( it.reportId.toString(), authClaims );
@@ -266,7 +266,7 @@ open class BaseHistoryFunction {
                 .header("Content-Type", "application/json")
                 .build()
         }catch (ex: Exception) {
-            context.logger.log(Level.INFO, "Exception during creating of reports list - file not found")
+            context.logger.info("Exception during creating of reports list - file not found")
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
                 .body("File not found")
                 .header("Content-Type", "text/html")
@@ -296,7 +296,7 @@ open class BaseHistoryFunction {
                     .build()
             }
         } catch (ex: Exception) {
-            context.logger.log(Level.WARNING, "Exception during download of $reportIdIn - file not found", ex)
+            context.logger.warning("Exception during download of $reportIdIn - file not found")
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
                 .body("File $reportIdIn not found")
                 .header("Content-Type", "text/html")
@@ -365,7 +365,7 @@ open class BaseHistoryFunction {
 
         } 
         catch (ex: Exception) {
-            context.logger.log(Level.INFO, "Exception during download of summary/tests")
+            context.logger.info("Exception during download of summary/tests")
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
                 .body("File not found")
                 .header("Content-Type", "text/html")
@@ -395,7 +395,7 @@ open class BaseHistoryFunction {
                 .header("Content-Type", "application/json")
                 .build()
         }catch (ex: Exception) {
-            context.logger.log(Level.INFO, "Exception during download of summary")
+            context.logger.info("Exception during download of summary")
             response = request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Exception during GetSummary()")
                 .header("Content-Type", "text/html")
