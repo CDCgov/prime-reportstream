@@ -47,10 +47,10 @@ class SftpTransport : ITransport, Logging {
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
             val sshClient = connect(host, port, credential)
-            context.logger.log(Level.INFO, "Successfully connected to $sftpTransportType, ready to upload $fileName")
+            context.logger.info("Successfully connected to $sftpTransportType, ready to upload $fileName")
             uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
-            context.logger.log(Level.INFO, msg)
+            context.logger.info(msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
                 receiver,
@@ -67,7 +67,7 @@ class SftpTransport : ITransport, Logging {
                 "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
                     "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
                     ", Exception: ${t.localizedMessage}"
-            context.logger.log(Level.WARNING, msg, t)
+            context.logger.warning(msg)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
