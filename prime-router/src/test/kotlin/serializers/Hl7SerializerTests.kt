@@ -3,6 +3,7 @@ package gov.cdc.prime.router.serializers
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.Type
+import ca.uhn.hl7v2.model.v21.datatype.TS
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
@@ -253,5 +254,30 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTerser.get("/.$hl7Field(2)-7") } returns "7777777"
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
         assertEquals("16667777777", phoneNumber)
+    }
+
+    @Test
+    fun `test TS date time decoding`() {
+        val metadata = Metadata("./metadata")
+        val serializer = Hl7Serializer(metadata)
+        val mockTerser = mockk<Terser>()
+        val mockSegment = mockk<Segment>()
+        val mockTS = mockk<TS>()
+        val hl7Field = "OBX-14"
+
+        // Bad field value
+        every { mockTerser.getSegment(any()) } returns null
+        var dateTime = serializer.decodeHl7DateTime(mockTerser, "OBX-Blah")
+        assertEquals("", dateTime)
+
+        // Segment not found
+        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        assertEquals("", dateTime)
+
+//        var tsValue = TS()
+//        tsValue.value = "2021"
+//        every { mockSegment.getField(any(), any()) } returns tsValue
+//        dateTime = serializer.decodeTSDateTime(mockTerser, hl7Field)
+//        println(dateTime)
     }
 }
