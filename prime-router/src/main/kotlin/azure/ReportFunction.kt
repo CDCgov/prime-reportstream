@@ -19,6 +19,8 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.time.format.DateTimeFormatter
+import java.time.Instant
 import java.util.logging.Level
 
 private const val CLIENT_PARAMETER = "client"
@@ -149,7 +151,7 @@ class ReportFunction {
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"))
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
 
-        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
+        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
         } else if (sender != null && sender.format.mimeType != contentType) {
@@ -227,6 +229,21 @@ class ReportFunction {
                     null
                 }
             }
+            Sender.Format.HL7 -> {
+                try {
+                    val readResult = engine.hl7Serializer.readExternal(
+                        schemaName = sender.schemaName,
+                        input = ByteArrayInputStream(content.toByteArray()),
+                        ClientSource(organization = sender.organizationName, client = sender.name)
+                    )
+                    errors += readResult.errors
+                    warnings += readResult.warnings
+                    readResult.report
+                } catch (e: Exception) {
+                    errors.add(ResultDetail.report(e.message ?: ""))
+                    null
+                }
+            }
         }
     }
 
@@ -276,7 +293,7 @@ class ReportFunction {
             validatedRequest.options == Options.SkipSend -> {
                 // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
-                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.timing != null && validatedRequest.options != Options.SendImmediately -> {
@@ -284,7 +301,7 @@ class ReportFunction {
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
                 val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
-                workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn)
+                workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.format == Report.Format.HL7 -> {
@@ -292,13 +309,13 @@ class ReportFunction {
                     .split()
                     .forEach {
                         val event = ReportEvent(Event.EventAction.SEND, it.id)
-                        workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn)
+                        workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn, context)
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
                 val event = ReportEvent(Event.EventAction.SEND, report.id)
-                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }
@@ -317,6 +334,8 @@ class ReportFunction {
             it.writeStartObject()
             if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
+                it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+                it.writeStringField("topic", result.report.schema.topic.toString())
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")

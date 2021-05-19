@@ -16,6 +16,7 @@ interface TranslatorProperties {
     val defaults: Map<String, String>
     val nameFormat: Report.NameFormat
     val receivingOrganization: String?
+    // deprecated, use nameFormat instead
     val useAphlNamingFormat: Boolean
 }
 
@@ -49,8 +50,14 @@ data class Hl7Configuration
     val suppressQstForAoe: Boolean = false,
     val suppressHl7Fields: String? = null,
     val suppressAoe: Boolean = false,
+    val defaultAoeToUnknown: Boolean = false,
+    val useBlankInsteadOfUnknown: String? = null,
+    val truncateHDNamespaceIds: Boolean = false,
+    val usePid14ForPatientEmail: Boolean = false,
+    val convertTimestampToDateTime: String? = null,
     override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?,
+    // deprecated, please don't use
     @get:JsonIgnore
     override val useAphlNamingFormat: Boolean = false
 ) : TranslatorConfiguration("HL7") {
@@ -87,6 +94,13 @@ data class Hl7Configuration
             "message_profile_id" to (messageProfileId ?: ""),
             "reporting_facility" to reportingFacility
         )
+    }
+
+    @get:JsonIgnore
+    val processingModeCode: String get() = if (this.useTestProcessingMode) {
+        "T"
+    } else {
+        "P"
     }
 }
 
@@ -138,5 +152,7 @@ data class CustomConfiguration
     override val defaults: Map<String, String> = emptyMap(),
     override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?,
+    // deprecated - please don't use
+    @JsonIgnore
     override val useAphlNamingFormat: Boolean = false
 ) : TranslatorConfiguration("CUSTOM")

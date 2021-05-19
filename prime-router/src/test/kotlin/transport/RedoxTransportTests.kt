@@ -76,8 +76,8 @@ class RedoxTransportTests {
         return WorkflowEngine.Header(
             task, reportFile,
             null,
-            settings.findOrganization("az-phd"),
-            settings.findReceiver("az-phd.elr-test"),
+            settings.findOrganization("ignore"),
+            settings.findReceiver("ignore.REDOX"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
         )

@@ -395,22 +395,40 @@ class ActionHistory {
     }
 
     /**
-     * Automatically generate parent/child relationships based on what's in the reports* collections.
-     * For now, assume that every parent report played a hand in creating every child report.
-     * This is a lovely simplification, because it means that the functions don't have to
-     * worry about lineage tracking at all.
+     * Use the detailed item lineage to exactly/correctly generate the report parent/child relationships.
+     *
      */
     private fun generateReportLineages(actionId: Long) {
-        reportsIn.keys.forEach { parentId ->
-            reportsOut.keys.forEach { childId ->
-                reportLineages.add(ReportLineage(null, actionId, parentId, childId, null))
-            }
+        // Extract the distinct parent/child report pairs from the Item Lineage
+        val parentChildReports = itemLineages.map { Pair(it.parentReportId, it.childReportId) }.toSet()
+        parentChildReports.forEach {
+            reportLineages.add(ReportLineage(null, actionId, it.first, it.second, null))
         }
-        reportsReceived.keys.forEach { parentId ->
-            reportsOut.keys.forEach { childId ->
-                reportLineages.add(ReportLineage(null, actionId, parentId, childId, null))
-            }
+
+        // If an action has no children, it has no lineage.
+        if (reportsOut.size == 0 && parentChildReports.size == 0) return // no lineage assoc with this action.
+
+        // sanity should prevail, at least in ReportStream, if not in general
+        if (reportsOut.size > 0 && parentChildReports.size == 0)
+            error("There are child reports (${reportsOut.keys.joinToString(",")}) but no item lineages")
+        if (reportsOut.size == 0 && parentChildReports.size > 0)
+            error("There are item lineages (${parentChildReports.joinToString(",")}) but no child reports")
+        // compare the set of reportIds from the item lineage vs the set from report lineage.  Should be identical.
+        val parentReports = parentChildReports.map { it.first}.toSet()
+        val childReports = parentChildReports.map { it.second}.toSet()
+        var parentReports2 = mutableSetOf<ReportId>()
+        parentReports2.addAll(reportsReceived.keys)
+        parentReports2.addAll(reportsIn.keys)
+        val childReports2 = reportsOut.keys
+        if (!parentReports.equals(parentReports2)) {
+            error("parent reports from items (${parentReports.joinToString(",")}) != from reports" +
+                "(${parentReports2.joinToString(",")})")
         }
+        if (!childReports.equals(childReports2)) {
+            error("child reports from items (${childReports.joinToString(",")} != from reports" +
+                "(${childReports2.joinToString(",")})")
+        }
+        context?.logger?.info("There are ${reportLineages.size} parent->child report-level relationships")
     }
 
     private fun insertReportLineages(txn: Configuration) {

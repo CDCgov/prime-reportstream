@@ -18,6 +18,7 @@ class Metadata {
         UseMapper(),
         IfPresentMapper(),
         LookupMapper(),
+        LIVDLookupMapper(),
         ConcatenateMapper(),
         Obx17Mapper(),
         Obx17TypeMapper(),
@@ -30,6 +31,7 @@ class Metadata {
         SplitMapper(),
         ZipCodeToCountyMapper(),
         SplitByCommaMapper(),
+        TimestampMapper(),
     )
 
     private var jurisdictionalFilters = listOf(
@@ -37,6 +39,9 @@ class Metadata {
         Matches(),
         DoesNotMatch(),
         OrEquals(),
+        HasValidDataFor(),
+        HasAtLeastOneOf(),
+        AllowAll(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
@@ -163,7 +168,7 @@ class Metadata {
     }
 
     private fun normalizeSchemaName(name: String): String {
-        return name.toLowerCase()
+        return name.lowercase()
     }
 
     /**
@@ -264,7 +269,7 @@ class Metadata {
     }
 
     private fun normalizeValueSetName(name: String): String {
-        return name.toLowerCase()
+        return name.lowercase()
     }
 
     /*
@@ -287,7 +292,7 @@ class Metadata {
     }
 
     fun loadLookupTable(name: String, table: LookupTable): Metadata {
-        lookupTableStore = lookupTableStore.plus(name.toLowerCase() to table)
+        lookupTableStore = lookupTableStore.plus(name.lowercase() to table)
         return this
     }
 
@@ -297,7 +302,7 @@ class Metadata {
     }
 
     fun findLookupTable(name: String): LookupTable? {
-        return lookupTableStore[name.toLowerCase()]
+        return lookupTableStore[name.lowercase()]
     }
 
     private fun readAllTables(catalogDir: File, block: (String, LookupTable) -> Unit) {

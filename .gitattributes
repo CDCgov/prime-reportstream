@@ -10,4 +10,5 @@
 *.json text eol=lf
 *.yml text eol=lf
 *.csv text eol=lf
+*.hl7 text eol=lf
 

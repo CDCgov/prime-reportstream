@@ -1,0 +1,259 @@
+---
+name: im-covid-19
+description: IM COVID-19 flat file
+topic: covid-19
+trackingElement: specimen_id
+basedOn: covid-19
+elements:
+
+  # eg, 94531-1
+  - name: ordered_test_code
+    csvFields: [{ name: testOrdered}]
+
+  # Should be the name that matches to ordered_test_code in LIVD table
+  # They are sending "SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection"
+  - name: ordered_test_name
+    csvFields: [{ name: testName}]
+
+  # Custom.  Eg, "LN"
+  - name: test_coding_system
+    type: TEXT
+    csvFields: [{ name: testCodingSystem}]
+
+  - name: test_result
+    csvFields: [{ name: testResult }]
+
+  # Custom.  Redundant with test_result, which we'll use, and ignore this.
+  # eg, "Detected"
+  - name: test_result_text
+    type: TEXT
+    csvFields: [{ name: testResultText }]
+
+  # eg, 94558-4
+  - name: test_performed_code
+    csvFields: [{ name: testPerformed }]
+    
+  # Custom. eg, SCT
+  - name: test_result_coding_system
+    type: TEXT
+    csvFields: [{ name: testResultCodingSystem }]
+
+  - name: test_result_date
+    csvFields: [{ name: testResultDate}]
+
+  - name: test_result_report_date
+    csvFields: [{ name: testReportDate}]
+
+  - name: order_test_date
+    csvFields: [{ name: testOrderedDate}]
+
+  - name: specimen_collection_date_time
+    csvFields: [{ name: specimenCollectedDate}]
+
+  # Must match LIVD column M, "Test Kit Name ID"
+  # They are sending "00382902560821".  Does not match livd table right now.
+  - name: test_kit_name_id
+    csvFields: [{ name: deviceIdentifier}]
+
+  # Must match LIVD column B, "Model"
+  # Example:  "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+  # Currently sending: ""BD Veritor SARSCoV2"
+  - name: equipment_model_name
+    cardinality: ONE
+    csvFields: [{ name: deviceName}]
+
+  # They are sending a UUID.
+  # Need to override the mapper in covid-19.schema file.
+  - name: specimen_id
+    mapper: use(specimen_id)
+    csvFields: [{ name: specimenId}]
+
+  - name: message_id
+    mapper: use(specimen_id)
+
+  - name: patient_age
+    csvFields: [{ name: patientAge}]
+
+  - name: patient_dob
+    csvFields: [{ name: patientDob, format: MM/dd/yy}]
+
+  - name: patient_race
+    csvFields: [{ name: patientRace}]
+
+  # Custom.  Will use the code, not this.
+  # eg, "Native Hawaiian or Other Pacific Islander"
+  - name: patient_race_text
+    type: TEXT
+    csvFields: [{ name: patientRaceText}]
+
+  # ReportStream uses hl70189 (H,N,U), but Waters sends HHS (2135-2, 2186-5, UNK, ASKU)
+  # Simplest way to map them was with an alt table
+  - name: patient_ethnicity
+    altValues:
+      - code: H
+        display: 2135-2
+      - code: N
+        display: 2186-5
+      - code: U
+        display: UNK
+      - code: U
+        display: ASKU
+    csvFields: [{ name: patientEthnicity, format: $alt}]
+
+  # Custom.  We'll use the code.  Can ignore this
+  # Eg, "Not-Hispanic"
+  - name: patient_ethnicity_text
+    type: TEXT
+    csvFields: [{ name: patientEthnicityText}]
+
+  - name: patient_gender
+    csvFields: [{ name: patientSex}]
+
+  - name: patient_zip_code 
+    csvFields: [{ name: patientZip}]
+
+  #  eg, "1265050918"
+  - name: ordering_provider_id
+    csvFields: [{ name: orderingProviderNpi}]
+
+  - name: ordering_provider_last_name
+    csvFields: [{ name: orderingProviderLname}]
+
+  - name: ordering_provider_first_name
+    csvFields: [{ name: orderingProviderFname}]
+
+  - name: ordering_provider_zip_code
+    csvFields: [{ name: orderingProviderZip}]
+
+  # We are expecting a CLIA number here
+  # They send, eg, "10D2218834"
+  - name: testing_lab_clia
+    csvFields: [{ name: performingFacility}]
+
+  - name: testing_lab_zip_code
+    csvFields: [{ name: performingFacilityZip}]
+
+  - name: patient_last_name
+    cardinality: ZERO_OR_ONE
+    csvFields: [{ name: patientNameLast}]
+
+  - name: patient_first_name
+    csvFields: [{ name: patientNameFirst}]
+
+  - name: patient_middle_name
+    csvFields: [{ name: patientNameMiddle}]
+
+  # Unhashed version of patient ID
+  - name: patient_id
+    csvFields: [{ name: patientUniqueId}]
+
+  - name: patient_street
+    csvFields: [{ name: patientHomeAddress}]
+
+  - name: patient_city
+    csvFields: [{ name: patientCity}]
+
+  # Very important field for routing data to states.
+  - name: patient_state
+    csvFields: [{ name: patientState}]
+
+  - name: patient_county
+    csvFields: [{ name: patientCounty}]
+
+  - name: patient_phone_number
+    csvFields: [{ name: patientPhone}]
+
+  # Custom.  We'll assume area code is in patient_phone_number.
+  - name: patient_phone_number_area_code
+    type: TEXT
+    csvFields: [{ name: patientPhoneArea}]
+
+  - name: ordering_provider_street
+    csvFields: [{ name: orderingProviderAddress}]
+
+  - name: ordering_provider_city
+    csvFields: [{ name: orderingProviderCity}]
+
+  - name: ordering_provider_state
+    csvFields: [{ name: orderingProviderState}]
+
+  - name: ordering_provider_phone_number
+    csvFields: [{ name: orderingProviderPhone}]
+
+  # Custom.
+  - name: ordering_provider_phone_number_area_code
+    type: TEXT
+    csvFields: [{ name: orderingProviderPhoneArea}]
+
+  - name: first_test
+    csvFields: [{ name: firstTest}]
+
+  - name: symptomatic_for_disease
+    csvFields: [{ name: symptomatic}]
+
+  # Custom waters field
+  # Format for each symptom is symtomCode^date;  
+  # We are just treating this as a string for now.
+  - name: symptoms_list
+    type: TEXT
+    csvFields: [{ name: symptomsList}]
+
+  - name: hospitalized
+    csvFields: [{ name: hospitalized}]
+
+  - name: icu
+    csvFields: [{ name: symptomsIcu}]
+
+  - name: resident_congregate_setting
+    csvFields: [{ name: congregateResident}]
+
+  # Custom waters field
+  - name: site_of_care
+    type: CODE
+    valueSet: site_of_care
+    csvFields: [{ name: congregateResidentType}]
+
+  - name: pregnant
+    csvFields: [{ name: pregnant}]
+
+  # Custom.  Redundant with code.  We won't use this.
+  - name: pregnantText
+    type: TEXT
+    csvFields: [{ name: pregnantText}]
+
+  - name: patient_email
+    csvFields: [{ name: patientEmail}]
+
+  # Expecting an ISO heirarchic designator here.
+  # If that's wrong, change this to 'reporting_facility_name'
+  # eg, "1265050918" (same value as in ordering_provider_npi)
+  - name: reporting_facility
+    csvFields: [{ name: reportingFacility}]
+
+  # These last fields were not in the json but were in the .csv:
+
+  # Barcode or QR code.  Unique within one manufacturer.
+  - name: equipment_instance_id
+    csvFields: [{ name: serialNumber}]
+
+  - name: specimen_type
+    csvFields: [{ name: specimenSource}]
+
+  - name: patient_street2
+    csvFields: [{ name: patientHomeAddress2}]
+
+  - name: ordering_provider_street2
+    csvFields: [{ name: orderingProviderAddress2}]
+
+  # Added to cover fact that ordering_facility_state is missing
+  # All our states expect this column.
+  - name: ordering_facility_state
+    type: BLANK
+#    mapper: use(ordering_provider_state)
+
+# Additional Fields not in IM sample, but maybe needed
+#
+#  - name: employed_in_healthcare
+#    csvFields: [{ name: healthcareEmployee}]
+#
+

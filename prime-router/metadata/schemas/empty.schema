@@ -16,3 +16,7 @@ elements:
   - name: ordering_facility_state
     cardinality: ONE
     csvFields: [{name: Ordering_facilty_state}]
+
+  - name: blank_field
+    type: BLANK
+    csvFields: [{name: blankField}]

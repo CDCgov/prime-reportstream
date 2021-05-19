@@ -30,5 +30,7 @@ module "prime_data_hub" {
   resource_group = "prime-data-hub-${local.target_env}"
   resource_prefix = "pdhtest"
   okta_redirect_url = "https://test.prime.cdc.gov/download"
-  https_cert_name = "test-prime-cdc-gov"
+  https_cert_names = ["test-prime-cdc-gov", "test-reportstream-cdc-gov"]
+  rsa_key_2048 = "pdhtest-2048-key"
+  rsa_key_4096 = "pdhtest-key"
 }

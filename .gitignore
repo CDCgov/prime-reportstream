@@ -12,6 +12,7 @@
 
 # Package Files #
 *.jar
+!gradle-wrapper.jar
 *.war
 
 
@@ -20,6 +21,7 @@ hs_err_pid*
 
 # Build output
 **/target/**
+**/build/**
 **/log/**
 **/dependency-reduced-pom.xml
 
@@ -36,6 +38,8 @@ hs_err_pid*
 # Play files
 **/result_files/*.csv
 **/routed_files/*.csv
+**/result_files/*.hl7
+**/routed_files/*.hl7
 Test*.csv
 Test*.json
 **/Xperiment.kt
@@ -49,11 +53,9 @@ Test*.json
 *~
 
 prime-router/fake-pdi-covid-19.csv
-*.hl7
 prime-router/id_file
 prime-router/.classpath
 prime-router/.project
-prime-router/local.settings.json
 
 # VS Code
 **/.vscode/**
@@ -93,3 +95,6 @@ prime-router/.vault/env/**
 
 # Python virtualenv files
 **/venv/**
+
+# Gradle files
+**/.gradle/**

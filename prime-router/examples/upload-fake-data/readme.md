@@ -1,19 +1,19 @@
 # Uploading Fake Data
 
-1. Compile and Run PRIME Data Hub
+1. Compile and Run PRIME ReportStream
 2. Generate fake CSV data
 3. Post CSV data to PRIME Web API
 4. Examine
 
-### Compile and Run PRIME Data Hub
+### Compile and Run PRIME ReportStream
 
 ```bash
 # from the `prime-router/` directory
 
-# run infrastructure like PostgreSQL 
+# run infrastructure like PostgreSQL
 bash devenv-infrastructure.sh
 
-# build and run PRIME Data Hub
+# build and run PRIME ReportStream
 docker-compose up -d
 
 # optionally, follow logs of `prime_dev` container
@@ -77,4 +77,3 @@ View the local download page: [http://localhost:7071/api/download](http://localh
 Inspect the local devenv PostgreSQL database using `psql` or
 using [`adminer`](http://localhost:8080/?pgsql=db_pgsql&username=prime&db=prime_data_hub&ns=public).
 Connection details can be found in [docker-infrastructure.yml](../../docker-infrastructure.yml)
-

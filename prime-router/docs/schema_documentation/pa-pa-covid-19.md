@@ -8,6 +8,8 @@
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **HL7 Field**: PID-5-2
 
 **Cardinality**: [0..1]
@@ -22,6 +24,8 @@ The patient's first name
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **HL7 Field**: PID-5-3
 
 **Cardinality**: [0..1]
@@ -31,6 +35,8 @@ The patient's first name
 **Name**: PatientLastName
 
 **Type**: PERSON_NAME
+
+**PII**: Yes
 
 **HL7 Field**: PID-5-1
 
@@ -46,6 +52,8 @@ The patient's last name
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **HL7 Field**: PID-5-4
 
 **Cardinality**: [0..1]
@@ -55,6 +63,8 @@ The patient's last name
 **Name**: PatientDOB
 
 **Type**: DATE
+
+**PII**: Yes
 
 **HL7 Field**: PID-7
 
@@ -73,6 +83,8 @@ Other states may choose to define their own formats.
 
 **Type**: STREET
 
+**PII**: Yes
+
 **HL7 Field**: PID-11-1
 
 **Cardinality**: [0..1]
@@ -87,6 +99,8 @@ The patient's street address
 
 **Type**: CITY
 
+**PII**: Yes
+
 **HL7 Field**: PID-11-3
 
 **Cardinality**: [0..1]
@@ -100,6 +114,8 @@ The patient's city
 **Name**: PatientState
 
 **Type**: TABLE
+
+**PII**: No
 
 **HL7 Field**: PID-11-4
 
@@ -119,6 +135,8 @@ The patient's state
 
 **Type**: POSTAL_CODE
 
+**PII**: No
+
 **HL7 Field**: PID-11-5
 
 **Cardinality**: [0..1]
@@ -133,6 +151,8 @@ The patient's zip code
 
 **Type**: TELEPHONE
 
+**PII**: Yes
+
 **HL7 Field**: PID-13
 
 **Cardinality**: [0..1]
@@ -146,6 +166,8 @@ The patient's phone number with area code
 **Name**: PatientGender
 
 **Type**: CODE
+
+**PII**: No
 
 **HL7 Field**: PID-8-1
 
@@ -172,6 +194,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Name**: PatientRace
 
 **Type**: CODE
+
+**PII**: No
 
 **HL7 Field**: PID-10
 
@@ -201,6 +225,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Type**: CODE
 
+**PII**: No
+
 **HL7 Field**: PID-22
 
 **Cardinality**: [0..1]
@@ -225,6 +251,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Type**: ID
 
+**PII**: No
+
 **HL7 Field**: SPM-2-1
 
 **Cardinality**: [0..1]
@@ -238,6 +266,8 @@ The specimen-id from the testing lab
 **Name**: SpecimenCollectedDate
 
 **Type**: DATETIME
+
+**PII**: No
 
 **HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
@@ -253,6 +283,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **Name**: SpecimenSource
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -273,6 +305,8 @@ Code | Display
 **Name**: TestName
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -309,6 +343,8 @@ The specimen source, such as Blood or Serum
 **Name**: TestQualitativeResult
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -349,6 +385,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Type**: TEXT
 
+**PII**: No
+
 **HL7 Field**: NTE-3
 
 **Cardinality**: [0..1]
@@ -358,6 +396,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Name**: PerformingFacilityName
 
 **Type**: TEXT
+
+**PII**: No
 
 **HL7 Field**: ORC-21-1
 
