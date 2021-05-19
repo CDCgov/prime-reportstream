@@ -203,7 +203,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockSegment.getField(any()) } returns arrayOf(mockFieldType)
         every { mockTerser.get("/.$hl7Field(0)-1") } returns "(555)5555555"
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
-        assertEquals("5555555555", phoneNumber)
+        assertEquals("5555555555:1:", phoneNumber)
 
         // Phone number in newer components.  Will ignore phone number in deprecated component
         every { mockTerser.get("/.$hl7Field(0)-1") } returns "(444)4444444"
@@ -212,7 +212,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTerser.get("/.$hl7Field(0)-6") } returns "666"
         every { mockTerser.get("/.$hl7Field(0)-7") } returns "7777777"
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
-        assertEquals("16667777777", phoneNumber)
+        assertEquals("6667777777:1:", phoneNumber)
 
         // No type assumed to be a phone number
         every { mockTerser.get("/.$hl7Field(0)-1") } returns null
@@ -221,7 +221,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTerser.get("/.$hl7Field(0)-6") } returns "666"
         every { mockTerser.get("/.$hl7Field(0)-7") } returns "7777777"
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
-        assertEquals("16667777777", phoneNumber)
+        assertEquals("6667777777:1:", phoneNumber)
 
         // A Fax number is not used
         every { mockTerser.get("/.$hl7Field(0)-1") } returns null
@@ -252,6 +252,6 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTerser.get("/.$hl7Field(2)-6") } returns "666"
         every { mockTerser.get("/.$hl7Field(2)-7") } returns "7777777"
         phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
-        assertEquals("16667777777", phoneNumber)
+        assertEquals("6667777777:1:", phoneNumber)
     }
 }
