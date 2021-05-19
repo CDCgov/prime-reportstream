@@ -20,7 +20,7 @@ import java.time.ZoneId
  * @param timing defines how to delay reports to the org. If null, then send immediately
  * @param description of the receiver
  * @param transport that the org wishes to receive
- * @param fileName a template that defines what the file name should look like
+ * @param fileNameTemplate a template that defines what the file name should look like
  */
 open class Receiver(
     val name: String,
@@ -33,7 +33,7 @@ open class Receiver(
     val timing: Timing? = null,
     val description: String = "",
     val transport: TransportType? = null,
-    val fileName: FileNameTemplate? = null,
+    val fileNameTemplate: FileNameTemplate? = null,
 ) {
     // Custom constructor
     constructor(
@@ -58,7 +58,7 @@ open class Receiver(
         copy.timing,
         copy.description,
         copy.transport,
-        copy.fileName
+        copy.fileNameTemplate
     )
 
     @get:JsonIgnore

@@ -326,7 +326,7 @@
         topic: covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state, NM)
-        fileName:
+        fileNameTemplate:
           lowerCase: true
           elements:
             - cdcprime_

@@ -129,7 +129,7 @@ class Report {
         destination?.translation?.nameFormat ?: NameFormat.STANDARD,
         destination?.translation?.receivingOrganization,
         translationConfig = destination?.translation,
-        fileNameTemplate = destination?.fileName,
+        fileNameTemplate = destination?.fileNameTemplate,
     )
 
     /**

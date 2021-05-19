@@ -10,7 +10,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.spyk
-import org.jooq.JSON
+import org.jooq.JSONB
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -23,16 +23,16 @@ import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SettingFacadeTests {
-    val dataProvider = MockDataProvider { emptyArray<MockResult>() }
-    val connection = MockConnection(dataProvider)
-    val accessSpy = spyk(DatabaseAccess(connection))
+    private val dataProvider = MockDataProvider { emptyArray<MockResult>() }
+    private val connection = MockConnection(dataProvider)
+    private val accessSpy = spyk(DatabaseAccess(connection))
 
-    val testOrg = Setting(
+    private val testOrg = Setting(
         1,
         SettingType.ORGANIZATION,
         "test",
         null,
-        JSON.valueOf(
+        JSONB.valueOf(
             """{"name":"test","description":"Arizona PHD","jurisdiction":""" +
                 """"STATE","stateCode":"CA","countyName":null,"meta":null}")"""
         ),
@@ -42,12 +42,12 @@ class SettingFacadeTests {
         "todo",
         OffsetDateTime.now()
     )
-    val defaultSender = Setting(
+    private val defaultSender = Setting(
         2,
         SettingType.SENDER,
         "test",
         1,
-        JSON.valueOf(
+        JSONB.valueOf(
             """{"name":"default","organizationName":"test","format":"CSV","topic":"covid-19"""" +
                 ""","schemaName":"primedatainput/pdi-covid-19","meta":null}"""
         ),
@@ -57,12 +57,12 @@ class SettingFacadeTests {
         "todo",
         OffsetDateTime.now()
     )
-    val elrReceiver = Setting(
+    private val elrReceiver = Setting(
         3,
         SettingType.RECEIVER,
         "elr-test",
         1,
-        JSON.valueOf(
+        JSONB.valueOf(
             """{"name":"elr-test","organizationName":"test","topic":"covid-19","translation":""" +
                 """{"schemaName":"az/az-covid-19","format":"CSV","defaults":{},"type":"CUSTOM"},""" +
                 """"jurisdictionalFilter":["matches(ordering_facility_state,AZ)",""" +
@@ -78,7 +78,7 @@ class SettingFacadeTests {
         OffsetDateTime.now()
     )
 
-    fun setupOrgDatabaseAccess() {
+    private fun setupOrgDatabaseAccess() {
         every {
             accessSpy.fetchSetting(SettingType.ORGANIZATION, "test", null, any())
         }.returns(testOrg)
@@ -94,7 +94,7 @@ class SettingFacadeTests {
         }.returns(listOf(defaultSender))
     }
 
-    fun setupSenderDatabaseAccess() {
+    private fun setupSenderDatabaseAccess() {
         setupOrgDatabaseAccess()
         every {
             accessSpy.fetchSetting(SettingType.SENDER, "default", "test", any())
@@ -110,7 +110,7 @@ class SettingFacadeTests {
         }.returns(null)
     }
 
-    fun setupReceiverDatabaseAccess() {
+    private fun setupReceiverDatabaseAccess() {
         setupOrgDatabaseAccess()
         every {
             accessSpy.fetchSettings(SettingType.RECEIVER, txn = any())
@@ -129,7 +129,7 @@ class SettingFacadeTests {
         }.returns(null)
     }
 
-    fun testMetadata(): Metadata {
+    private fun testMetadata(): Metadata {
         return Metadata(
             schema = Schema("primedatainput/pdi-covid-19", "covid-19")
         )
