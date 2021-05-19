@@ -1,0 +1,20 @@
+---
+- name: md-phd
+  description: Maryland Department of Health
+  jurisdiction: STATE
+  stateCode: MD
+  receivers:
+    - name: elr
+      organizationName: md-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, MD, patient_state, MD)
+      deidentify: false
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 12
+        initialTime: 01:30
+        timeZone: EASTERN
