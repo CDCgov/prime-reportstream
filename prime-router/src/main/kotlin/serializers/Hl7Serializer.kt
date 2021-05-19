@@ -879,7 +879,8 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 if(!phone.areaCityCode.isEmpty || !phone.localNumber.isEmpty) {
                     // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
                     if(phone.telecommunicationEquipmentType.isEmpty || phone.telecommunicationEquipmentType.value == "PH") {
-                        phoneNumber = "${phone.areaCityCode.value}${phone.localNumber.value}:${phone.countryCode.value}:${phone.extension.value}"
+                        phoneNumber = "${phone.areaCityCode.value?:""}${phone.localNumber.value?:""}:" +
+                            "${phone.countryCode.value?:""}:${phone.extension.value?:""}"
                         break
                     }
                 }
