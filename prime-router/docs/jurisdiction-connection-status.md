@@ -1,48 +1,37 @@
-## Last updated: May 3, 2021
+## Supported Jurisdictions
 
-## Status Definitions and Currrent List
+## Last updated: May 19, 2021
 
+ReportStream is currently live and in development in the following jurisdictions:  
 
 ### Live
 * Definition 
-  * ReportStream is approved to send live, clinical data to the jurisdiction 
-* Sender expectations 
-  * Senders that have a live connection with ReportStream can assume their data will be sent to these properly routed to these jurisdictions as long as their facilities have been properly reported 
-* Current jurisdictions
-  * Arizona 
-  * Florida
-  * Louisiana
-  * Montana
-  * North Dakota 
-  * Ohio
-  * Pennsylvania
-  * Texas
-
-
-### Configured 
-* Definition 
-  * ReportStream has completed technical work and is waiting on a sender and/or final jurisdiction approval 
-* Sender expectations 
-  * Senders that have a live connection with ReportStream may expect that their data will begin to be sent to these jurisdictions in the next 1-2 weeks, as long as their facilities have been properly reported 
-  * Senders must continue to dual report to the state 
+  * ReportStream is approved to send live, clinical data to the jurisdiction
 * Current jurisdictions
   * Alabama
-  * Colorado
-  * Guam
-  * Mississippi
-  * Vermont
+  * Arizona 
+  * Colorado 
+  * Louisiana 
+  * Mississippi 
+  * Montana 
+  * New Mexico 
+  * North Dakota 
+  * Ohio 
+  * Pennsylvania 
+  * Texas 
+  * Vermont 
 
 
-### Building 
+### In development 
 * Definition 
-  * ReportStream has approval from the state to build a connection and is actively working on the integration 
-* Sender expectations 
-  * Senders that have a live connection with ReportStream should expect to continue to report data manually to the state 
+  * ReportStream has approval from the jurisdiction to build a connection and is actively working on the integration
 * Current jurisdictions
-  * California
-  * Massachusetts
-  * New Hampshire
-  * New Jersey
-  * Washington
-  * Wisconsin
+  * California 
+  * Massachusetts 
+  * New Hampshire 
+  * New Jersey 
+  * Guam
+  * Washington 
+  * Wisconsin 
 
+Note: When ReportStream is “Live” with a state, each sender may still need to register their facility information with the state before sending production data to the state. 
