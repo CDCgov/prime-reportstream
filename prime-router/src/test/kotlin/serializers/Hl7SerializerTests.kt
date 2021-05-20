@@ -267,53 +267,65 @@ NTE|1|L|This is a final comment|RE"""
         val mockDR = mockk<DR>()
         val mockDTM = mockk<DTM>()
         val now = Date()
-        val hl7Field = "OBX-14"
+        val element = Element("field", hl7Field = "OBX-14")
+        val warnings = mutableListOf<String>()
 
         // Segment not found
         every { mockTerser.getSegment(any()) } returns null
-        var dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        var dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals("", dateTime)
 
         // Bad field value
         every { mockTerser.getSegment(any()) } returns mockSegment
-        dateTime = serializer.decodeHl7DateTime(mockTerser, "OBX-Blah")
+        dateTime = serializer.decodeHl7DateTime(mockTerser, Element("field", hl7Field = "OBX-Blah"), warnings)
         assertEquals("", dateTime)
 
         // No field value
         every { mockSegment.getField(any(), any()) } returns null
-        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals("", dateTime)
 
         // Field value is TS, but no time
         every { mockSegment.getField(any(), any()) } returns mockTS
         every { mockTS.time } returns null
-        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals("", dateTime)
 
         // Field value is TS has a time
         every { mockTS.time } returns mockDTM
         every { mockTS.time.valueAsDate } returns now
-        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        every { mockTS.time.value } returns SimpleDateFormat(Element.datetimePattern).format(now)
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals(SimpleDateFormat(Element.datetimePattern).format(now), dateTime)
 
         // Field value is DS, but no range
         every { mockSegment.getField(any(), any()) } returns mockDR
         every { mockDR.rangeStartDateTime } returns null
-        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals("", dateTime)
 
         // Field value is DS has a range, but with no time
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns null
-        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals("", dateTime)
 
         // Field value is DS and has a time
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns mockDTM
         every { mockDR.rangeStartDateTime.time.valueAsDate } returns now
-        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        every { mockDR.rangeStartDateTime.time.value } returns SimpleDateFormat(Element.datetimePattern).format(now)
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals(SimpleDateFormat(Element.datetimePattern).format(now), dateTime)
+
+        // Generate a warning for not having the timezone offsets
+        every { mockDR.rangeStartDateTime } returns mockTS
+        every { mockDR.rangeStartDateTime.time } returns mockDTM
+        every { mockDR.rangeStartDateTime.time.valueAsDate } returns now
+        every { mockDR.rangeStartDateTime.time.value } returns SimpleDateFormat("yyyyMMddHHmm").format(now)
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 1)
     }
 
     @Test

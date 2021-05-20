@@ -217,7 +217,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                             mappedRows[it.name]?.add(decodeHl7PhoneNumber(terser, it))
                         }
                         it.type == Element.Type.DATETIME -> {
-                            mappedRows[it.name]?.add(decodeHl7DateTime(terser, it.hl7Field))
+                            mappedRows[it.name]?.add(decodeHl7DateTime(terser, it, warnings))
                         }
                         else -> {
                             val terserSpec = when {
@@ -852,7 +852,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
     /**
      * Get a phone number from an XTN (e.g. phone number) field of an HL7 message.
      * @param terser the HL7 terser
-     * @param hl7Field the field with the phone number
+     * @param element the element to decode
      * @return the phone number or empty string
      */
     internal fun decodeHl7PhoneNumber(terser: Terser, element: Element): String {
@@ -890,27 +890,35 @@ class Hl7Serializer(val metadata: Metadata): Logging {
     /**
      * Get a date time from a TS date time field of an HL7 message.
      * @param terser the HL7 terser
-     * @param hl7Field the field with the date time
+     * @param element the element to decode
+     * @param warnings the list of warnings
      * @return the date time or empty string
      */
-    internal fun decodeHl7DateTime(terser: Terser, hl7Field: String): String {
+    internal fun decodeHl7DateTime(terser: Terser, element: Element, warnings: MutableList<String>): String {
         var dateTime = ""
-        val fieldParts = hl7Field.split("-")
-        if(fieldParts.size > 1) {
+        val fieldParts = element.hl7Field?.split("-")
+        if(fieldParts != null && fieldParts.size > 1) {
             val segment = terser.getSegment("/.${fieldParts[0]}")
             val fieldNumber = fieldParts[1].toIntOrNull()
             if(segment != null && fieldNumber != null) {
-                var date = when (val value = segment.getField(fieldNumber, 0)) {
+                val dtm = when (val value = segment.getField(fieldNumber, 0)) {
                     // Timestamp
-                    is TS -> value.time?.valueAsDate
+                    is TS -> value.time
                     // Date range. For getting a date time, use the start of the range
-                    is DR -> value.rangeStartDateTime?.time?.valueAsDate
+                    is DR -> value.rangeStartDateTime?.time
                     else -> null
                 }
-                if(date != null) {
-                    dateTime = SimpleDateFormat(Element.datetimePattern).format(date)
-                }
 
+                dtm?.let {
+                    if(it.valueAsDate != null) {
+                        // Check to see if we have all the precision we want including the time zone offset
+                        val r = Regex("TS\\[[0-9]{14}-[0-9]{4}")
+                        if (!r.matches(it.value)) {
+                            warnings.add("Timestamp for ${element.hl7Field} - ${element.name} missing timezone offset")
+                        }
+                        dateTime = SimpleDateFormat(Element.datetimePattern).format(it.valueAsDate)
+                    }
+                }
             }
         }
         return dateTime
