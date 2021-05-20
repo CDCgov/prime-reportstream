@@ -38,10 +38,10 @@ const val LOCAL_AS2ID = "p1as2"
 // PRIME Sender IDS
 const val PROD_PRIME_AS2ID = "CDCPRIME"
 const val TEST_PRIME_AS2ID = "CDCPRIMETEST"
-const val LOCAL_PRIME_AS2ID = "CDCPRIME"
+const val LOCAL_PRIME_AS2ID = "CDCPRIMETEST"
 
 // PRIME sender email
-const val PRIME_SENDER_EMAIL = "prime@cdc.gov"
+const val PRIME_SENDER_EMAIL = "reportstream@cdc.gov"
 const val HL7_MIME_TYPE = "text/x-hl7-ft"
 const val CONTENT_DESCRIPTION = "COVID-19 Electronic Lab Results"
 
@@ -71,7 +71,7 @@ class AS2ExpCommand: CliktCommand() {
         settings.setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
 
         // Lot's options for a response. We will likely ignore, so don't request one
-        settings.isMDNRequested = false
+        settings.isMDNRequested = true
 
         //
         settings.connectTimeoutMS = 10_000
@@ -99,8 +99,5 @@ class AS2ExpCommand: CliktCommand() {
         }
     }
 }
-
-
-
 
 fun main(args: Array<String>) = AS2ExpCommand().main(args)
