@@ -1,6 +1,9 @@
 package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.model.Type
+import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser

@@ -188,7 +188,7 @@ class ObservationMessageTests {
                     val colName = actual.schema.elements[j].name
 
                     // We want to error on differences when the expected data is not empty.
-                    if(expectedRow[j].trim().isNotEmpty() && actualRow[j].trim() != expectedRow[j].trim()) {
+                    if(!expectedRow[j].isNullOrBlank() && actualRow[j].trim() != expectedRow[j].trim()) {
                         numErrors++
                         println("   DATA ERROR: Data value does not match in report $i column #${j+1}, '$colName'.  " +
                             "Expected: '${expectedRow[j].trim()}', Actual: '${actualRow[j].trim()}'")
