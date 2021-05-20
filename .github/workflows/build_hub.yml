@@ -73,6 +73,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
         with:
+          # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/**/*.xml
 
       - name: Generate New Docs
