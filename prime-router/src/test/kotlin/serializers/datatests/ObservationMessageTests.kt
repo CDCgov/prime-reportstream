@@ -8,13 +8,17 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import net.jcip.annotations.NotThreadSafe
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.filefilter.SuffixFileFilter
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.function.Executable
 import java.io.File
+import java.util.TimeZone
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -28,12 +32,36 @@ import kotlin.test.fail
  * optional header row and follow the internal schema used by the the ReportStream router.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// This keeps this test class from running in parallel with other test classes and letting the time zone change
+// affect other tests
+@NotThreadSafe
 class ObservationMessageTests {
 
     /**
      * The folder from the classpath that contains the test files
      */
     private val testFileDir = "/test_data_files/Hl7_ORU-R01"
+
+    /**
+     * The original timezone of the JVM
+     */
+    private val origDefaultTimeZone = TimeZone.getDefault()
+
+    /**
+     * Set the default timezone to GMT to match the build and deployment environments.
+     */
+    @BeforeAll
+    fun setDefaultTimeZone() {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT0"))
+    }
+
+    /**
+     * Reset the timezone back to the original
+     */
+    @AfterAll
+    fun resetDefaultTimezone() {
+        TimeZone.setDefault(origDefaultTimeZone)
+    }
 
     /**
      * Generate individual unit tests for each test file in the test folder.
@@ -73,6 +101,9 @@ class ObservationMessageTests {
      * Perform the unit test for the given HL7 [hl7AbsolutePath].  This test will compare the number of provided reports
      * (e.g. HL7 batch files have multiple reports) and verifies all data elements match the expected values in the
      * related .internal file that exists in the same folder as the HL7 test file.
+     *
+     * Limitations: Date times in the HL7 data without a speficied time zone are bound by the JVM default timezone and hence
+     * will generate an error against the GMT0 expected result.  GMT is the timezone of the build and deployment environments.
      */
     class FileTest(private val hl7AbsolutePath: String): Executable {
         /**
