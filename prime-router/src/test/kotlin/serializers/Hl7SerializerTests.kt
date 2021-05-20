@@ -21,7 +21,11 @@ import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -266,9 +270,12 @@ NTE|1|L|This is a final comment|RE"""
         val mockTS = mockk<TS>()
         val mockDR = mockk<DR>()
         val mockDTM = mockk<DTM>()
-        val now = Date()
+        val now = ZonedDateTime.now()
+        val nowAsDate = Date.from(now.toInstant());
         val element = Element("field", hl7Field = "OBX-14")
         val warnings = mutableListOf<String>()
+        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern);
+        val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
         // Segment not found
         every { mockTerser.getSegment(any()) } returns null
@@ -293,10 +300,10 @@ NTE|1|L|This is a final comment|RE"""
 
         // Field value is TS has a time
         every { mockTS.time } returns mockDTM
-        every { mockTS.time.valueAsDate } returns now
-        every { mockTS.time.value } returns SimpleDateFormat(Element.datetimePattern).format(now)
+        every { mockTS.time.valueAsDate } returns nowAsDate
+        every { mockTS.time.value } returns dateFormatterWithTimeZone.format(now)
         dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
-        assertEquals(SimpleDateFormat(Element.datetimePattern).format(now), dateTime)
+        assertEquals(dateFormatterWithTimeZone.format(now), dateTime)
 
         // Field value is DS, but no range
         every { mockSegment.getField(any(), any()) } returns mockDR
@@ -313,16 +320,16 @@ NTE|1|L|This is a final comment|RE"""
         // Field value is DS and has a time
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns mockDTM
-        every { mockDR.rangeStartDateTime.time.valueAsDate } returns now
-        every { mockDR.rangeStartDateTime.time.value } returns SimpleDateFormat(Element.datetimePattern).format(now)
+        every { mockDR.rangeStartDateTime.time.valueAsDate } returns nowAsDate
+        every { mockDR.rangeStartDateTime.time.value } returns dateFormatterWithTimeZone.format(now)
         dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
-        assertEquals(SimpleDateFormat(Element.datetimePattern).format(now), dateTime)
+        assertEquals(dateFormatterWithTimeZone.format(now), dateTime)
 
         // Generate a warning for not having the timezone offsets
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns mockDTM
-        every { mockDR.rangeStartDateTime.time.valueAsDate } returns now
-        every { mockDR.rangeStartDateTime.time.value } returns SimpleDateFormat("yyyyMMddHHmm").format(now)
+        every { mockDR.rangeStartDateTime.time.valueAsDate } returns nowAsDate
+        every { mockDR.rangeStartDateTime.time.value } returns dateFormatterNoTimeZone.format(now)
         warnings.clear()
         serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertTrue(warnings.size == 1)

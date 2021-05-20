@@ -29,6 +29,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 import org.apache.logging.log4j.kotlin.Logging
 import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
 
 class Hl7Serializer(val metadata: Metadata): Logging {
     data class Hl7Mapping(
@@ -916,7 +917,8 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                         if (!r.matches(it.value)) {
                             warnings.add("Timestamp for ${element.hl7Field} - ${element.name} missing timezone offset")
                         }
-                        dateTime = SimpleDateFormat(Element.datetimePattern).format(it.valueAsDate)
+                        dateTime = DateTimeFormatter.ofPattern(Element.datetimePattern).
+                            format(ZonedDateTime.ofInstant(it.valueAsDate.toInstant(), ZoneId.systemDefault()))
                     }
                 }
             }
