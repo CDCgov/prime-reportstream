@@ -67,7 +67,7 @@ jobs:
           java-version: 11
 
       - name: Build Prime Router Package
-        run: bash ./gradlew clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
+        run: bash ./gradlew clean package -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
 
       - name: Generate New Docs
         run: |
