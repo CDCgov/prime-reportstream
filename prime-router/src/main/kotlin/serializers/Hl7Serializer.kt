@@ -2,6 +2,7 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
@@ -855,6 +856,28 @@ class Hl7Serializer(val metadata: Metadata): Logging {
      * @return the phone number or empty string
      */
     internal fun decodeHl7PhoneNumber(terser: Terser, element: Element): String {
+
+        /**
+         * Extract a phone number from a value [xtnValue] of an XTN HL7 field.
+         * @return a normalized phone number or empty if no phone number was found
+         */
+        fun getPhoneNumber(xtnValue: Type): String {
+            var strValue = ""
+            if(xtnValue != null && xtnValue is XTN) {
+                // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
+                if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
+                    // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                    if (xtnValue.telecommunicationEquipmentType.isEmpty || xtnValue.telecommunicationEquipmentType.value == "PH") {
+                        strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
+                            "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
+                    }
+                } else if (!xtnValue.telephoneNumber.isEmpty) {
+                    strValue = element.toNormalized(xtnValue.telephoneNumber.value)
+                }
+            }
+            return strValue
+        }
+
         var phoneNumber = ""
 
         // Get the field values by going through the terser segment.  This method gives us an
@@ -865,19 +888,10 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             val segment = terser.getSegment("/.${fieldParts[0]}")
             val fieldNumber = fieldParts[1].toIntOrNull()
             if(segment != null && fieldNumber != null) {
-                segment.getField(fieldNumber)?.map {
-                    if(phoneNumber.isBlank() && it is XTN) {
-                        // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
-                        if(!it.areaCityCode.isEmpty || !it.localNumber.isEmpty) {
-                            // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                            if(it.telecommunicationEquipmentType.isEmpty || it.telecommunicationEquipmentType.value == "PH") {
-                                phoneNumber = "${it.areaCityCode.value?:""}${it.localNumber.value?:""}:" +
-                                    "${it.countryCode.value?:""}:${it.extension.value?:""}"
-                            }
-                        }
-                        else if(!it.telephoneNumber.isEmpty) {
-                            phoneNumber = element.toNormalized(it.telephoneNumber.value)
-                        }
+                segment.getField(fieldNumber)?.forEach {
+                    // The first phone number wins
+                    if(phoneNumber.isBlank()) {
+                        phoneNumber = getPhoneNumber(it)
                     }
                 }
             }
