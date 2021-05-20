@@ -765,7 +765,25 @@
           - orEquals(patient_state, MD, ordering_facility_state, MD)
         translation:
           type: HL7
-          schemaName: covid-19
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: md-phd
+    description: Maryland Public Health Department
+    jurisdiction: STATE
+    stateCode: MD
+    receivers:
+      - name: elr
+        organizationName: md-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(patient_state, MD, ordering_facility_state, MD)
+        translation:
+          type: HL7
           useBatchHeaders: true
         timing:
           operation: MERGE
