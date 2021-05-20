@@ -67,13 +67,13 @@ jobs:
           java-version: 11
 
       - name: Build Prime Router Package
-        run: bash ./gradlew clean package -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
+        run: bash ./gradlew clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
         
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
         with:
-          files: build/test-results/**/*.xml
+          files: prime-router/build/test-results/**/*.xml
 
       - name: Generate New Docs
         run: |
