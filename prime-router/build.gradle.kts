@@ -28,6 +28,7 @@ description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
+azurefunctions.appName = azureAppName
 
 // Local database information
 val dbUser = (project.properties["DB_USER"] ?: "prime") as String
@@ -135,17 +136,6 @@ tasks.register<JavaExec>("generateDocs") {
     main = primeMainClass
     classpath = sourceSets["main"].runtimeClasspath
     args = listOf("generate-docs")
-}
-
-azurefunctions {
-    appName = azureAppName
-    setAppSettings(
-        closureOf<MutableMap<String, String>> {
-            this["WEBSITE_RUN_FROM_PACKAGE"] = "1"
-            this["FUNCTIONS_EXTENSION_VERSION"] = "3"
-            this["FUNCTIONS_WORKER_RUNTIME"] = "java"
-        }
-    )
 }
 
 tasks.azureFunctionsPackage {
@@ -331,6 +321,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:7.8.2")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.17.2")
+    implementation("com.google.guava:guava:30.1.1-jre")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

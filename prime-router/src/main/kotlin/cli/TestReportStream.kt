@@ -11,6 +11,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
+import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.REPORT_MAX_ITEMS
@@ -27,6 +28,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.exp
 import org.jooq.impl.DSL.max
@@ -36,6 +38,7 @@ import java.net.HttpURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
+import java.util.Locale
 import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.system.exitProcess
@@ -76,6 +79,11 @@ Examples:
 ) {
 
     val defaultWorkingDir = "./build/csv_test_files"
+
+    /**
+     * The local folder used by the dev Docker instance to save files uploaded to the SFTP server
+     */
+    val SFTP_DIR = "build/sftp"
 
     private val list by option(
         "--list",
@@ -129,6 +137,11 @@ Examples:
         "--dir",
         help = "specify a working directory for generated files.  Default is $defaultWorkingDir"
     ).default(defaultWorkingDir)
+
+    private val sftpDir by option(
+        "--sftpdir",
+        help = "specify the folder where files were uploaded to the SFTP server.  Default is $SFTP_DIR"
+    ).default(SFTP_DIR)
 
     // Avoid accidentally connecting to the wrong database.
     private fun envSanityCheck() {
@@ -191,7 +204,7 @@ Examples:
 
     private fun runTests(tests: List<CoolTest>, environment: ReportStreamEnv) {
         val failures = mutableListOf<CoolTest>()
-        val options = CoolTestOptions(items, submits, key, dir)
+        val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir, env = env)
         tests.forEach { test ->
             if (!test.run(environment,options))
                 failures.add(test)
@@ -222,6 +235,7 @@ Examples:
             HammerTime(),
             Waters(),
             RepeatWaters(),
+            InternationalContent()
         )
     }
 }
@@ -231,7 +245,9 @@ data class CoolTestOptions (
     val submits: Int = 5,
     val key: String? = null,
     val dir: String,
-    var muted: Boolean = false,  // if true, print out less stuff
+    var muted: Boolean = false,  // if true, print out less stuff,
+    val sftpDir: String,
+    val env: String
 )
 
 abstract class CoolTest {
@@ -442,6 +458,24 @@ abstract class CoolTest {
               and RF.report_id in
               (select report_descendants(?)) """
             return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+        }
+
+        /**
+         * Fetch the one uploaded file to SFTP for a given [reportId] and [receivingOrgSvc].
+         * @return the filename of the uploaded file
+         */
+        fun sftpFilenameQuery(
+            txn: DataAccessTransaction,
+            reportId: ReportId,
+            receivingOrgSvc: String
+        ): String? {
+            val ctx = DSL.using(txn)
+            val sql = """select RF.external_name
+                from report_file as RF
+                join action as A ON A.action_id = RF.action_id
+                where RF.report_id in (select find_sent_reports(?)) AND RF.receiving_org_svc = ? 
+                order by A.action_id """
+            return ctx.fetchOne(sql, reportId, receivingOrgSvc)?.into(String::class.java)
         }
 
         // Find the most recent action taken in the system
@@ -1221,5 +1255,79 @@ class BadSftp : CoolTest() {
         waitABit(30, environment)
         echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
         return examineLineageResults(reportId, listOf(sftpFailReceiver), options.items)
+    }
+}
+
+/**
+ * Generate a report with international characters to verify we can handle them.  This test will send the
+ * report file and inspect the uploaded file to the SFTP server to make sure the international characters are
+ * present.  This test can only be run locally because of the testing of the uploaded files.
+ */
+class InternationalContent : CoolTest() {
+    override val name = "intcontent"
+    override val description = "Create Fake data that includes international characters, submit, wait, confirm sent via database lineage data"
+    override val status = TestStatus.DRAFT // Because this can only be run local to get access to the SFTP folder
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        if(options.env != "local") {
+            return bad("***intcontent Test FAILED***: This test can only be run locally as it needs access to the SFTP folder.")
+        }
+
+        // Make sure we have access to the SFTP folder
+        if (!Files.isDirectory(Paths.get(options.sftpDir))) {
+            return bad("***intcontent Test FAILED***: The folder ${options.sftpDir} cannot be found.")
+        }
+        val receiverName = hl7Receiver.name
+        ugly("Starting $name Test: send ${simpleRepSender.fullName} data to ${receiverName}")
+        val file = FileUtilities.createFakeFile(
+            metadata,
+            simpleRepSender,
+            1,
+            receivingStates,
+            receiverName,
+            options.dir,
+            // Use the Chinese locale since the fake data is mainly Chinese characters
+            // https://github.com/DiUS/java-faker/blob/master/src/main/resources/zh-CN.yml
+            locale = Locale("zh_CN")
+        )
+        echo("Created datafile $file")
+        // Now send it to ReportStream.
+        val (responseCode, json) =
+            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            return bad("***intcontent Test FAILED***:  response code $responseCode")
+        }
+        try {
+            // Read the response
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
+
+            echo("Id of submitted report: $reportId")
+            waitABit(25, environment)
+            // Go to the database and get the SFTP filename that was sent
+            db = WorkflowEngine().db
+            var asciiOnly = false
+            db.transact { txn ->
+                val filename = sftpFilenameQuery(txn, reportId, receiverName)
+                // If we get a file, test the contents to see if it is all ASCII only.
+                if (filename != null) {
+                    val contents = File(options.sftpDir, filename).inputStream().readBytes().toString(Charsets.UTF_8)
+                    asciiOnly = CharMatcher.ascii().matchesAllOf(contents)
+                }
+            }
+            if(asciiOnly) {
+                return bad("***intcontent Test FAILED***: File contents are only ASCII characters")
+            } else {
+                return good("Test passed: for intcontent")
+            }
+        } catch (e: NullPointerException) {
+            return bad("***intcontent Test FAILED***: Unable to properly parse response json")
+        }
+        catch (e: DataAccessException) {
+            echo(e)
+            return bad("***intcontent Test FAILED***: There was an error fetching data from the database.")
+        }
     }
 }

@@ -2,6 +2,8 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.Type
+import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.ModelClassFactory
@@ -207,36 +209,45 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 }
 
                 if (!it.hl7Field.isNullOrEmpty()) {
-                    val terserSpec = when {
-                        it.hl7Field.startsWith("MSH") -> "/${it.hl7Field}"
-                        (it.hl7Field == "AOE") -> {
-                            val question = it.hl7AOEQuestion!!
-                            val countObservations = 10
-                            // todo: map each AOE by the AOE question ID
-                            for (c in 0 until countObservations) {
-                                var spec = "/.OBSERVATION($c)/OBX-3-1"
-                                val questionCode = try {
-                                    terser.get(spec)
-                                } catch (e: HL7Exception) {
-                                    // todo: convert to result detail, maybe
-                                    errors.add("Exception for $spec: ${e.message}")
-                                    null
-                                }
-                                if (questionCode?.startsWith(question) == true) {
-                                    spec = "/.OBSERVATION($c)/OBX-5"
-                                    queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
-                                }
-                            }
-                            "/.AOE"
+                    when {
+                        it.type == Element.Type.TELEPHONE -> {
+                            var phoneNumber = decodeXTNPhoneNumber(terser, it)
+                            mappedRows[it.name]?.add(phoneNumber)
                         }
-                        else -> "/.${it.hl7Field}"
+                        else -> {
+                            val terserSpec = when {
+                                it.hl7Field.startsWith("MSH") -> "/${it.hl7Field}"
+                                (it.hl7Field == "AOE") -> {
+                                    val question = it.hl7AOEQuestion!!
+                                    val countObservations = 10
+                                    // todo: map each AOE by the AOE question ID
+                                    for (c in 0 until countObservations) {
+                                        var spec = "/.OBSERVATION($c)/OBX-3-1"
+                                        val questionCode = try {
+                                            terser.get(spec)
+                                        } catch (e: HL7Exception) {
+                                            // todo: convert to result detail, maybe
+                                            errors.add("Exception for $spec: ${e.message}")
+                                            null
+                                        }
+                                        if (questionCode?.startsWith(question) == true) {
+                                            spec = "/.OBSERVATION($c)/OBX-5"
+                                            queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
+                                        }
+                                    }
+                                    "/.AOE"
+                                }
+                                else -> "/.${it.hl7Field}"
+                            }
+
+                            if (terserSpec != "/.AOE") {
+                                queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                            } else {
+                                if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
+                            }
+                        }
                     }
 
-                    if (terserSpec != "/.AOE") {
-                        queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
-                    } else {
-                        if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
-                    }
                 } else {
                     it.hl7OutputFields?.forEach { h ->
                         val terserSpec = if (h.startsWith("MSH")) {
@@ -276,7 +287,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
         warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
         mappedRows.forEach {
-            logger.info("${it.key} -> ${it.value.joinToString()}")
+            logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
         val report = Report(schema, mappedRows, source)
         return ReadResult(report, errors, warnings)
@@ -831,6 +842,51 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         } else {
             eiFields.name
         }
+    }
+
+    /**
+     * Get a phone number from an XTN (e.g. phone number) field of an HL7 message.
+     * @param terser the HL7 terser
+     * @param hl7Field the field with the phone number
+     * @return the phone number or empty string
+     */
+    internal fun decodeXTNPhoneNumber(terser: Terser, element: Element): String {
+        var phoneNumber = ""
+        val hl7Field = element.hl7Field
+
+        // Get the field values by going through the terser segment.  This method gives us an
+        // array with a maximum number of repetitions, but it may return multiple array elements even if
+        // there is no data
+        var phoneFields = arrayOf<Type>()
+        val fieldParts = hl7Field?.split("-")
+        if(fieldParts != null && fieldParts.size > 1) {
+            val segment = terser.getSegment("/.${fieldParts[0]}")
+            val fieldNumber = fieldParts[1].toIntOrNull()
+            if(segment != null && fieldNumber != null) {
+                phoneFields = segment.getField(fieldNumber) ?: emptyArray()
+            }
+        }
+
+        for(index in 0 until phoneFields.size)
+        {
+            val phone = phoneFields[index]
+            if(phone is XTN) {
+                if(!phone.areaCityCode.isEmpty || !phone.localNumber.isEmpty) {
+                    // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                    if(phone.telecommunicationEquipmentType.isEmpty || phone.telecommunicationEquipmentType.value == "PH") {
+                        phoneNumber = "${phone.areaCityCode.value?:""}${phone.localNumber.value?:""}:" +
+                            "${phone.countryCode.value?:""}:${phone.extension.value?:""}"
+                        break
+                    }
+                }
+                else if(!phone.telephoneNumber.isEmpty) {
+                    phoneNumber = element.toNormalized(phone.telephoneNumber.value)
+                    break
+                }
+            }
+        }
+
+        return phoneNumber
     }
 
     companion object {
