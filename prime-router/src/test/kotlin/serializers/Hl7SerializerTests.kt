@@ -302,19 +302,27 @@ NTE|1|L|This is a final comment|RE"""
         dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals(dateFormatterWithTimeZone.format(now), dateTime)
 
-        // Field value is DS, but no range
+        // Generate a warning for not having the timezone offsets
+        every { mockTS.time } returns mockDTM
+        every { mockTS.time.valueAsDate } returns nowAsDate
+        every { mockTS.time.value } returns dateFormatterNoTimeZone.format(now)
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 1)
+
+        // Field value is DR, but no range
         every { mockSegment.getField(any(), any()) } returns mockDR
         every { mockDR.rangeStartDateTime } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals("", dateTime)
 
-        // Field value is DS has a range, but with no time
+        // Field value is DR has a range, but with no time
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertEquals("", dateTime)
 
-        // Field value is DS and has a time
+        // Field value is DR and has a time
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns mockDTM
         every { mockDR.rangeStartDateTime.time.valueAsDate } returns nowAsDate
