@@ -2,8 +2,10 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
-import ca.uhn.hl7v2.model.Type
+import ca.uhn.hl7v2.model.v251.datatype.DR
+import ca.uhn.hl7v2.model.v251.datatype.DTM
 import ca.uhn.hl7v2.model.v251.datatype.XTN
+import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
@@ -18,8 +20,9 @@ import io.mockk.mockk
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
+import java.util.Date
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -261,22 +264,56 @@ NTE|1|L|This is a final comment|RE"""
         val mockTerser = mockk<Terser>()
         val mockSegment = mockk<Segment>()
         val mockTS = mockk<TS>()
+        val mockDR = mockk<DR>()
+        val mockDTM = mockk<DTM>()
+        val now = Date()
         val hl7Field = "OBX-14"
 
-        // Bad field value
+        // Segment not found
         every { mockTerser.getSegment(any()) } returns null
-        var dateTime = serializer.decodeHl7DateTime(mockTerser, "OBX-Blah")
+        var dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
         assertEquals("", dateTime)
 
-        // Segment not found
+        // Bad field value
+        every { mockTerser.getSegment(any()) } returns mockSegment
+        dateTime = serializer.decodeHl7DateTime(mockTerser, "OBX-Blah")
+        assertEquals("", dateTime)
+
+        // No field value
+        every { mockSegment.getField(any(), any()) } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
         assertEquals("", dateTime)
 
-//        var tsValue = TS()
-//        tsValue.value = "2021"
-//        every { mockSegment.getField(any(), any()) } returns tsValue
-//        dateTime = serializer.decodeTSDateTime(mockTerser, hl7Field)
-//        println(dateTime)
+        // Field value is TS, but no time
+        every { mockSegment.getField(any(), any()) } returns mockTS
+        every { mockTS.time } returns null
+        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        assertEquals("", dateTime)
+
+        // Field value is TS has a time
+        every { mockTS.time } returns mockDTM
+        every { mockTS.time.valueAsDate } returns now
+        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        assertEquals(SimpleDateFormat(Element.datetimePattern).format(now), dateTime)
+
+        // Field value is DS, but no range
+        every { mockSegment.getField(any(), any()) } returns mockDR
+        every { mockDR.rangeStartDateTime } returns null
+        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        assertEquals("", dateTime)
+
+        // Field value is DS has a range, but with no time
+        every { mockDR.rangeStartDateTime } returns mockTS
+        every { mockDR.rangeStartDateTime.time } returns null
+        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        assertEquals("", dateTime)
+
+        // Field value is DS has a time
+        every { mockDR.rangeStartDateTime } returns mockTS
+        every { mockDR.rangeStartDateTime.time } returns mockDTM
+        every { mockDR.rangeStartDateTime.time.valueAsDate } returns now
+        dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
+        assertEquals(SimpleDateFormat(Element.datetimePattern).format(now), dateTime)
     }
 
     @Test

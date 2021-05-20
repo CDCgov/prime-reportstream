@@ -41,14 +41,9 @@ class ObservationMessageTests {
      */
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
-        val dynamicTests = ArrayList<DynamicTest>()
-
-        val testFiles = getTestFiles(testFileDir)
-        testFiles.forEach {
-            dynamicTests.add(DynamicTest.dynamicTest("Test ${FilenameUtils.getBaseName(it)}", FileTest(it)))
+        return getTestFiles(testFileDir).map {
+            DynamicTest.dynamicTest("Test ${FilenameUtils.getBaseName(it)}", FileTest(it))
         }
-        println("Testing ${testFiles.size} files ...")
-        return dynamicTests
     }
 
     /**

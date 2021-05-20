@@ -857,36 +857,29 @@ class Hl7Serializer(val metadata: Metadata): Logging {
      */
     internal fun decodeXTNPhoneNumber(terser: Terser, element: Element): String {
         var phoneNumber = ""
-        val hl7Field = element.hl7Field
 
         // Get the field values by going through the terser segment.  This method gives us an
         // array with a maximum number of repetitions, but it may return multiple array elements even if
         // there is no data
-        var phoneFields = arrayOf<Type>()
-        val fieldParts = hl7Field?.split("-")
+        val fieldParts = element.hl7Field?.split("-")
         if(fieldParts != null && fieldParts.size > 1) {
             val segment = terser.getSegment("/.${fieldParts[0]}")
             val fieldNumber = fieldParts[1].toIntOrNull()
             if(segment != null && fieldNumber != null) {
-                phoneFields = segment.getField(fieldNumber) ?: emptyArray()
-            }
-        }
-
-        for(index in 0 until phoneFields.size)
-        {
-            val phone = phoneFields[index]
-            if(phone is XTN) {
-                if(!phone.areaCityCode.isEmpty || !phone.localNumber.isEmpty) {
-                    // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                    if(phone.telecommunicationEquipmentType.isEmpty || phone.telecommunicationEquipmentType.value == "PH") {
-                        phoneNumber = "${phone.areaCityCode.value?:""}${phone.localNumber.value?:""}:" +
-                            "${phone.countryCode.value?:""}:${phone.extension.value?:""}"
-                        break
+                segment.getField(fieldNumber)?.map {
+                    if(phoneNumber.isBlank() && it is XTN) {
+                        // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
+                        if(!it.areaCityCode.isEmpty || !it.localNumber.isEmpty) {
+                            // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                            if(it.telecommunicationEquipmentType.isEmpty || it.telecommunicationEquipmentType.value == "PH") {
+                                phoneNumber = "${it.areaCityCode.value?:""}${it.localNumber.value?:""}:" +
+                                    "${it.countryCode.value?:""}:${it.extension.value?:""}"
+                            }
+                        }
+                        else if(!it.telephoneNumber.isEmpty) {
+                            phoneNumber = element.toNormalized(it.telephoneNumber.value)
+                        }
                     }
-                }
-                else if(!phone.telephoneNumber.isEmpty) {
-                    phoneNumber = element.toNormalized(phone.telephoneNumber.value)
-                    break
                 }
             }
         }
