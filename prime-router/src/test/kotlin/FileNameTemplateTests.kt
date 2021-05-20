@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.mockk.every
+import io.mockk.mockkClass
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertTrue
 
 class FileNameTemplateTests {
@@ -204,5 +207,38 @@ class FileNameTemplateTests {
         val actual = fileName.getFileName(translatorConfig = config)
         // assert
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `test schema base name simple case`() {
+        val config = mockkClass(TranslatorConfiguration::class)
+        every { config.schemaName }.returns("covid-19")
+        SchemaBaseName().run {
+            assertEquals("covid-19", this.getElementValue(emptyList(), config))
+        }
+    }
+
+    @Test
+    fun `test schema base name complex case`() {
+        val config = mockkClass(TranslatorConfiguration::class)
+        every { config.schemaName }.returns("/dir1/sub-dir/complex-covid-19")
+        SchemaBaseName().run {
+            assertEquals("complex-covid-19", this.getElementValue(emptyList(), config))
+        }
+    }
+
+    @Test
+    fun `test schema base name error case`() {
+        val config: TranslatorConfiguration? = null
+        SchemaBaseName().run {
+            assertFails { this.getElementValue(emptyList(), config) }
+        }
+    }
+
+    @Test
+    fun `load file name templates from metadata`() {
+        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        assertTrue(metadata.fileNameTemplates.isNotEmpty())
+        assertTrue(metadata.fileNameTemplates.containsKey("standard"))
     }
 }

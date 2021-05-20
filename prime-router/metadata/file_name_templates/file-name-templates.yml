@@ -1,0 +1,17 @@
+---
+- name: standard
+  lowerCase: true
+  elements:
+    - schemaBaseName()
+    - "-"
+    - uuid()
+    - createdDate()
+
+- name: nm_file_name
+  lowerCase: true
+  elements:
+    - cdcprime_
+    - receivingOrganization()
+    - _test_
+    - createdDate()
+    - .hl7

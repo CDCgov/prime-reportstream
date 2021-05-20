@@ -327,6 +327,7 @@
         jurisdictionalFilter:
           - matches(ordering_facility_state, NM)
         fileNameTemplate:
+          name: nm_file_name
           lowerCase: true
           elements:
             - cdcprime_

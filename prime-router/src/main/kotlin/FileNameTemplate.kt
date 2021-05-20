@@ -66,6 +66,14 @@ class RegexReplace : FileNameElement {
     }
 }
 
+class SchemaBaseName : FileNameElement {
+    override val name = "schemaBaseName"
+
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
+        return Schema.formBaseName(translatorConfig?.schemaName ?: error("Translation config shouldn't be null"))
+    }
+}
+
 // returns the created date according to the provided format OR the format passed in.
 // if the format fails, it just returns an empty string and moves on
 class CreatedDate : FileNameElement {
@@ -92,7 +100,8 @@ class CreatedDate : FileNameElement {
 open class FileNameTemplate(
     val elements: List<String>,
     val lowerCase: Boolean? = null,
-    val upperCase: Boolean? = null
+    val upperCase: Boolean? = null,
+    val name: String? = null
 ) {
     private val fileName: StringBuilder = StringBuilder()
 
@@ -128,6 +137,7 @@ open class FileNameTemplate(
             CreatedDate(),
             RegexReplace(),
             FileUuid(),
+            SchemaBaseName(),
         )
 
         private fun findFileNameElement(elementName: String): FileNameElement? {

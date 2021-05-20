@@ -13,6 +13,7 @@ import java.io.InputStream
  */
 class Metadata {
     private var schemaStore = mapOf<String, Schema>()
+    private var fileNameTemplatesStore = mapOf<String, FileNameTemplate>()
     private var mappers = listOf(
         MiddleInitialMapper(),
         UseMapper(),
@@ -57,6 +58,7 @@ class Metadata {
         loadValueSetCatalog(metadataDir.toPath().resolve(valuesetsSubdirectory).toString())
         loadLookupTables(metadataDir.toPath().resolve(tableSubdirectory).toString())
         loadSchemaCatalog(metadataDir.toPath().resolve(schemasSubdirectory).toString())
+        loadFileNameTemplates(metadataDir.toPath().resolve(fileNameTemplatesSubdirectory).toString())
     }
 
     /**
@@ -315,6 +317,35 @@ class Metadata {
         }
     }
 
+    /*
+        file name templates
+    */
+    val fileNameTemplates get() = fileNameTemplatesStore
+
+    fun loadFileNameTemplates(filePath: String): Metadata {
+        val catalogDir = File(filePath)
+        if (catalogDir.exists()) {
+            fileNameTemplatesStore = readAllFileNameTemplates(catalogDir).associateBy {
+                it.name?.lowercase() ?: "Error: any file name template loaded into metadata MUST have a unique name"
+            }
+        }
+        return this
+    }
+
+    private fun readAllFileNameTemplates(catalogDir: File): List<FileNameTemplate> {
+        // read the file name template files in the director
+        val files = File(catalogDir.absolutePath).listFiles() ?: emptyArray()
+        return files.flatMap { readFileNameTemplates(it) }
+    }
+
+    private fun readFileNameTemplates(file: File): List<FileNameTemplate> {
+        try {
+            return mapper.readValue(file.inputStream())
+        } catch (e: Exception) {
+            throw Exception("Error reading '${file.name}'", e)
+        }
+    }
+
     companion object {
         const val schemaExtension = ".schema"
         const val valueSetExtension = ".valuesets"
@@ -323,5 +354,6 @@ class Metadata {
         const val schemasSubdirectory = "schemas"
         const val valuesetsSubdirectory = "valuesets"
         const val tableSubdirectory = "tables"
+        const val fileNameTemplatesSubdirectory = "./file_name_templates"
     }
 }
