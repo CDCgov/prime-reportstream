@@ -2929,6 +2929,8 @@ UNK|Unknown
 
 **PII**: No
 
+**HL7 Field**: PID-11-6
+
 **Cardinality**: [0..1]
 
 ---
