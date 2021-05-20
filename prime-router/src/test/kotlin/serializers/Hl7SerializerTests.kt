@@ -308,7 +308,7 @@ NTE|1|L|This is a final comment|RE"""
         dateTime = serializer.decodeHl7DateTime(mockTerser, hl7Field)
         assertEquals("", dateTime)
 
-        // Field value is DS has a time
+        // Field value is DS and has a time
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns mockDTM
         every { mockDR.rangeStartDateTime.time.valueAsDate } returns now
