@@ -2,7 +2,6 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
-import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
@@ -28,7 +27,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import org.apache.logging.log4j.kotlin.Logging
-import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 
 class Hl7Serializer(val metadata: Metadata): Logging {
