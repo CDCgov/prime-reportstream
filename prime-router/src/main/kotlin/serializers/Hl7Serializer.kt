@@ -214,7 +214,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 if (!it.hl7Field.isNullOrEmpty()) {
                     when {
                         it.type == Element.Type.TELEPHONE -> {
-                            mappedRows[it.name]?.add(decodeXTNPhoneNumber(terser, it))
+                            mappedRows[it.name]?.add(decodeHl7PhoneNumber(terser, it))
                         }
                         it.type == Element.Type.DATETIME -> {
                             mappedRows[it.name]?.add(decodeHl7DateTime(terser, it.hl7Field))
@@ -855,7 +855,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
      * @param hl7Field the field with the phone number
      * @return the phone number or empty string
      */
-    internal fun decodeXTNPhoneNumber(terser: Terser, element: Element): String {
+    internal fun decodeHl7PhoneNumber(terser: Terser, element: Element): String {
         var phoneNumber = ""
 
         // Get the field values by going through the terser segment.  This method gives us an
