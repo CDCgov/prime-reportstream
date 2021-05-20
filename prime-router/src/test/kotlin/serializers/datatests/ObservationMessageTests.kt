@@ -172,8 +172,9 @@ class ObservationMessageTests {
             assertEquals(actual.itemCount, expectedSize,"Number of reports does not match.")
 
             // Now check the data in each report.
-            var numErrors = 0
-            var numWarnings = 0
+            val errorMsgs = ArrayList<String>()
+            val warningMsgs = ArrayList<String>()
+
             for(i in 0 until actual.itemCount) {
                 val actualRow = actual.getRow(i)
                 val expectedRowIndex = if(expectedHasHeader) i + 1 else i
@@ -184,19 +185,21 @@ class ObservationMessageTests {
 
                     // We want to error on differences when the expected data is not empty.
                     if(!expectedRow[j].isNullOrBlank() && actualRow[j].trim() != expectedRow[j].trim()) {
-                        numErrors++
-                        println("   DATA ERROR: Data value does not match in report $i column #${j+1}, '$colName'.  " +
+                        errorMsgs.add("   DATA ERROR: Data value does not match in report $i column #${j+1}, '$colName'.  " +
                             "Expected: '${expectedRow[j].trim()}', Actual: '${actualRow[j].trim()}'")
                     }
                     else if(expectedRow[j].trim().isEmpty() && actualRow[j].trim().isNotEmpty()){
-                        numWarnings++
-                        println("   DATA WARNING: Actual data has value in report $i column #$${j+1}, '$colName', but no expected value.  " +
+                        warningMsgs.add("   DATA WARNING: Actual data has value in report $i column #$${j+1}, '$colName', but no expected value.  " +
                             "Actual: '${actualRow[j].trim()}'")
                     }
                 }
             }
-            assertTrue(numErrors == 0,
-                "There were $numErrors incorrect data value(s) detected with $numWarnings warning(s).")
+            // Add the errors and warnings to the assert message, so they show up in the build results.
+            assertTrue(errorMsgs.size == 0,
+                "There were ${errorMsgs.size} incorrect data value(s) detected with ${warningMsgs.size} warning(s)\n" +
+                errorMsgs.joinToString("\n") + warningMsgs.joinToString("\n"))
+            // Print the warning messages if any
+            if(errorMsgs.size == 0 && warningMsgs.size > 0)  println(warningMsgs.joinToString("\n"))
         }
     }
 
