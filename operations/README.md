@@ -1,6 +1,6 @@
-# PRIME Data Hub Operations
+# PRIME ReportStream Operations
 
-The PRIME Data Hub uses Terraform to manage our Azure development environment. All Azure configuration should be done through Terraform to ensure consistency between environments.
+PRIME ReportStream uses Terraform to manage our Azure development environment. All Azure configuration should be done through Terraform to ensure consistency between environments.
 
 To ensure our Terraform state is managed with consistent Terraform versions, we are running Terraform through a Docker image. Terraform should not be used outside of this Docker image to ensure the Terraform core, plugins, and other versions all remain identical.
 
@@ -79,7 +79,7 @@ The Azure Terraform module has several known quirks that result in unexpected ad
   * Due to this, we are manually whitelisting developer IPs in the firewall configuration
   * Terraform will suggest removing or adding IPs to the configuration
   * There is no harm in accepting Terraform's suggested changes, but developers will have to re-add their IP to the firewall the next time they access the Function App
-    
+
 #### Work Around for Caveats: Resource Targeting
 
 To work around unexpected plan changes, we are leveraging resource targeting to apply only the section of the plan we care about. We typically apply by an entire module at a time. For example, to generate a plan for the Key Vault module:

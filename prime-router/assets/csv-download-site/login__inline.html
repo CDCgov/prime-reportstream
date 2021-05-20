@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="none" />
 
-    <title>CDC Prime Data Hub - Login</title>
+    <title>CDC Prime ReportStream - Login</title>
     <script src="https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js"
       integrity="sha384-pVjuWLMDJj0Bp6nDaWi8nJtFz+GfVP3hxebF4f6z81KDsRK/+DfCoLK/6ZjHWaoh" crossorigin="anonymous"></script>
     <link href="https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css" type="text/css" rel="stylesheet"
@@ -35,20 +35,20 @@
           issuer: "https://"+[[${OKTA_baseUrl}]]+"/oauth2/default"
         }
     };
-    
+
     function createCookie(name,value,min) {
         if (min) {
-            var date = new Date(); 
-            date.setTime(date.getTime()+(min*60*1000));   
-            var expires = ";expires="+date.toUTCString(); 
+            var date = new Date();
+            date.setTime(date.getTime()+(min*60*1000));
+            var expires = ";expires="+date.toUTCString();
         } else var expires = "";
-        document.cookie = name+"="+value+expires+";path=/"; 
+        document.cookie = name+"="+value+expires+";path=/";
     }
 
     var signInWidget= new OktaSignIn(config);
     signInWidget.showSignInToGetTokens( { scopes: ['openid', 'email', 'profile', 'simple_report'] } )
         .then( function( tokens ){
-            var token = tokens.accessToken.value; 
+            var token = tokens.accessToken.value;
             createCookie("jwt", token,5)
             window.location.replace([[${OKTA_redirect}]]);
         })

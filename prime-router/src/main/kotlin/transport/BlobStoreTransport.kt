@@ -25,10 +25,10 @@ class BlobStoreTransport : ITransport {
         return try {
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
             val bodyUrl = header.reportFile.bodyUrl ?: error("Report ${header.reportFile.reportId} has no blob to copy")
-            context.logger.log(Level.INFO, "About to copy $bodyUrl to $envVar:$storageName")
+            context.logger.info("About to copy $bodyUrl to $envVar:$storageName")
             var newUrl = WorkflowEngine().blob.copyBlob(bodyUrl,envVar, storageName)
             val msg = "Successfully copied $bodyUrl to $newUrl"
-            context.logger.log(Level.INFO, msg)
+            context.logger.info(msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
                 receiver,
@@ -45,7 +45,7 @@ class BlobStoreTransport : ITransport {
                 "FAILED Blob copy of inputReportId ${header.reportFile.reportId} to " +
                     "$blobTransportType ($envVar:$storageName)" +
                     ", Exception: ${t.localizedMessage}"
-            context.logger.log(Level.WARNING, msg, t)
+            context.logger.warning( msg )
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
