@@ -24,14 +24,11 @@ class FileNameTemplateTests {
         elements:
           - literal(cdcprime)
     """.trimIndent()
-    private val config = Hl7Configuration(
-        receivingApplicationName = "receiving application",
-        receivingApplicationOID = "",
-        receivingFacilityName = "receiving facility",
-        receivingFacilityOID = "",
-        receivingOrganization = "yoyodyne",
-        messageProfileId = null
-    )
+    private val config = mockkClass(Hl7Configuration::class).also {
+        every { it.receivingApplicationName }.returns("receiving application")
+        every { it.receivingFacilityName }.returns("receiving facility")
+        every { it.receivingOrganization }.returns("yoyodyne")
+    }
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
     private fun createFileName(yaml: String): FileNameTemplate {
