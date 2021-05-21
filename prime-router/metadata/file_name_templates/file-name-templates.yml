@@ -8,16 +8,6 @@
     - createdDate()
 
 
-- name: nm_file_name
-  lowerCase: true
-  elements:
-    - cdcprime_
-    - receivingOrganization()
-    - _test_
-    - createdDate()
-    - .hl7
-
-
 - name: ohio
   upperCase: true
   elements:
@@ -30,8 +20,11 @@
   elements:
     - cdcprime_
     - receivingOrganization()
-    - prod_
+    - "_"
+    - processingModeCode()
+    - "_"
     - createdDate()
+
 
 - name: aphl
   lowerCase: true

@@ -1,13 +1,11 @@
 package gov.cdc.prime.router
 
 import assertk.Assert
-import assertk.all
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import assertk.assertions.prop
 import assertk.assertions.startsWith
 import assertk.assertions.support.expected
 import assertk.assertions.support.show
@@ -19,6 +17,7 @@ import io.mockk.every
 import io.mockk.mockkClass
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class FileNameTemplateTests {
@@ -33,10 +32,19 @@ class FileNameTemplateTests {
         every { it.receivingOrganization }.returns("yoyodyne")
     }
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
+    private val metadata = Metadata(Metadata.defaultMetadataDirectory)
+    private val dateFormat = "yyyyMMdd"
+    private val formatter = DateTimeFormatter.ofPattern(dateFormat)
+    private var formattedDate: String? = null
 
     private fun createFileName(yaml: String): FileNameTemplate {
         val inputStream = yaml.byteInputStream()
         return mapper.readValue(inputStream)
+    }
+
+    @BeforeTest
+    private fun setFormattedDate() {
+        formattedDate = formatter.format(OffsetDateTime.now())
     }
 
     @Test
@@ -273,7 +281,6 @@ class FileNameTemplateTests {
     @Test
     fun `test APHL name format`() {
         val key = "aphl"
-        val metadata = Metadata(Metadata.defaultMetadataDirectory)
         assertThat(metadata.fileNameTemplates).containsKey(key)
         val aphlNameFormat = metadata.fileNameTemplates[key]
         assertThat(aphlNameFormat).isNotNull()
@@ -283,7 +290,34 @@ class FileNameTemplateTests {
         }
         val fileName = aphlNameFormat?.getFileName(translationConfig)
             ?: assertk.fail("error getting file name")
-        assertThat(fileName).startsWith("cdcprime_cdcprime_laoph_production_production_")
+        assertThat(fileName).startsWith("cdcprime_cdcprime_laoph_production_production_$formattedDate")
+    }
+
+    @Test
+    fun `test Ohio name format`() {
+        val key = "ohio"
+        assertThat(metadata.fileNameTemplates).containsKey(key)
+        val ohioNameFormat = metadata.fileNameTemplates[key]
+        val fileName = ohioNameFormat?.getFileName(null)
+            ?: assertk.fail("error getting Ohio name")
+        assertThat(fileName).startsWith("CDCPRIME_$formattedDate")
+    }
+
+    @Test
+    fun `test aphl light name format`() {
+        // arrange
+        val key = "aphl_light"
+        val config = mockkClass(Hl7Configuration::class).also {
+            every { it.processingModeCode }.returns("P")
+            every { it.receivingOrganization }.returns("laoph")
+        }
+        assertThat(metadata.fileNameTemplates).containsKey(key)
+        // act
+        val aphlNameFormat = metadata.fileNameTemplates[key]
+        val fileName = aphlNameFormat?.getFileName(config)
+            ?: assertk.fail("error getting aphl light file name")
+        // assert
+        assertThat(fileName).startsWith("cdcprime_laoph_production_$formattedDate")
     }
 
     companion object {
