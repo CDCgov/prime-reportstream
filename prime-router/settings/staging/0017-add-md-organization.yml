@@ -1,0 +1,42 @@
+---
+- name: "md-phd"
+  description: "Maryland Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "MD"
+  countyName: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "md-phd"
+      topic: "covid-19"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        reportingFacilityName: null
+        reportingFacilityId: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, MD, patient_state, MD)"
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+      description: ""

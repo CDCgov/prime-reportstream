@@ -62,11 +62,13 @@ tasks.test {
     useJUnitPlatform()
     dependsOn("compileKotlin")
     // Run the test task if specified configuration files are changed
-    inputs.files(fileTree("./") {
-        include("settings/**/*.yml")
-        include("metadata/**/*")
-    })
-    outputs.upToDateWhen { 
+    inputs.files(
+        fileTree("./") {
+            include("settings/**/*.yml")
+            include("metadata/**/*")
+        }
+    )
+    outputs.upToDateWhen {
         // Call gradle with the -Pforcetest option will force the unit tests to run
         if (project.hasProperty("forcetest")) {
             println("Rerunning unit tests...")
@@ -75,6 +77,10 @@ tasks.test {
             true
         }
     }
+}
+
+tasks.withType<Test>().configureEach {
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 }
 
 tasks.processResources {
@@ -337,5 +343,6 @@ dependencies {
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
 }
