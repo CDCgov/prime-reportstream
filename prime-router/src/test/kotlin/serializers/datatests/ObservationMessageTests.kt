@@ -8,13 +8,17 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import net.jcip.annotations.NotThreadSafe
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.filefilter.SuffixFileFilter
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.function.Executable
 import java.io.File
+import java.util.TimeZone
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -28,6 +32,9 @@ import kotlin.test.fail
  * optional header row and follow the internal schema used by the the ReportStream router.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// This keeps this test class from running in parallel with other test classes and letting the time zone change
+// affect other tests
+@NotThreadSafe
 class ObservationMessageTests {
 
     /**
@@ -36,19 +43,35 @@ class ObservationMessageTests {
     private val testFileDir = "/test_data_files/Hl7_ORU-R01"
 
     /**
+     * The original timezone of the JVM
+     */
+    private val origDefaultTimeZone = TimeZone.getDefault()
+
+    /**
+     * Set the default timezone to GMT to match the build and deployment environments.
+     */
+    @BeforeAll
+    fun setDefaultTimeZone() {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT0"))
+    }
+
+    /**
+     * Reset the timezone back to the original
+     */
+    @AfterAll
+    fun resetDefaultTimezone() {
+        TimeZone.setDefault(origDefaultTimeZone)
+    }
+
+    /**
      * Generate individual unit tests for each test file in the test folder.
      * @return a list of dynamic unit tests
      */
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
-        val dynamicTests = ArrayList<DynamicTest>()
-
-        val testFiles = getTestFiles(testFileDir)
-        testFiles.forEach {
-            dynamicTests.add(DynamicTest.dynamicTest("Test ${FilenameUtils.getBaseName(it)}", FileTest(it)))
+        return getTestFiles(testFileDir).map {
+            DynamicTest.dynamicTest("Test ${FilenameUtils.getBaseName(it)}", FileTest(it))
         }
-        println("Testing ${testFiles.size} files ...")
-        return dynamicTests
     }
 
     /**
@@ -78,6 +101,9 @@ class ObservationMessageTests {
      * Perform the unit test for the given HL7 [hl7AbsolutePath].  This test will compare the number of provided reports
      * (e.g. HL7 batch files have multiple reports) and verifies all data elements match the expected values in the
      * related .internal file that exists in the same folder as the HL7 test file.
+     *
+     * Limitations: Date times in the HL7 data without a speficied time zone are bound by the JVM default timezone and hence
+     * will generate an error against the GMT0 expected result.  GMT is the timezone of the build and deployment environments.
      */
     class FileTest(private val hl7AbsolutePath: String): Executable {
         /**
@@ -177,8 +203,9 @@ class ObservationMessageTests {
             assertEquals(actual.itemCount, expectedSize,"Number of reports does not match.")
 
             // Now check the data in each report.
-            var numErrors = 0
-            var numWarnings = 0
+            val errorMsgs = ArrayList<String>()
+            val warningMsgs = ArrayList<String>()
+
             for(i in 0 until actual.itemCount) {
                 val actualRow = actual.getRow(i)
                 val expectedRowIndex = if(expectedHasHeader) i + 1 else i
@@ -189,19 +216,21 @@ class ObservationMessageTests {
 
                     // We want to error on differences when the expected data is not empty.
                     if(!expectedRow[j].isNullOrBlank() && actualRow[j].trim() != expectedRow[j].trim()) {
-                        numErrors++
-                        println("   DATA ERROR: Data value does not match in report $i column #${j+1}, '$colName'.  " +
+                        errorMsgs.add("   DATA ERROR: Data value does not match in report $i column #${j+1}, '$colName'.  " +
                             "Expected: '${expectedRow[j].trim()}', Actual: '${actualRow[j].trim()}'")
                     }
                     else if(expectedRow[j].trim().isEmpty() && actualRow[j].trim().isNotEmpty()){
-                        numWarnings++
-                        println("   DATA WARNING: Actual data has value in report $i column #$${j+1}, '$colName', but no expected value.  " +
+                        warningMsgs.add("   DATA WARNING: Actual data has value in report $i column #$${j+1}, '$colName', but no expected value.  " +
                             "Actual: '${actualRow[j].trim()}'")
                     }
                 }
             }
-            assertTrue(numErrors == 0,
-                "There were $numErrors incorrect data value(s) detected with $numWarnings warning(s).")
+            // Add the errors and warnings to the assert message, so they show up in the build results.
+            assertTrue(errorMsgs.size == 0,
+                "There were ${errorMsgs.size} incorrect data value(s) detected with ${warningMsgs.size} warning(s)\n" +
+                errorMsgs.joinToString("\n") + warningMsgs.joinToString("\n"))
+            // Print the warning messages if any
+            if(errorMsgs.size == 0 && warningMsgs.size > 0)  println(warningMsgs.joinToString("\n"))
         }
     }
 

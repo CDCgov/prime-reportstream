@@ -2,7 +2,9 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
-import ca.uhn.hl7v2.model.Type
+import ca.uhn.hl7v2.model.v251.datatype.DR
+import ca.uhn.hl7v2.model.v251.datatype.DTM
+import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
@@ -18,8 +20,10 @@ import io.mockk.mockk
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -179,17 +183,17 @@ NTE|1|L|This is a final comment|RE"""
 
         // Bad field value
         every { mockTerser.getSegment(any()) } returns null
-        var phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, Element("phone", Element.Type.TELEPHONE, hl7Field = "PID-BLAH"))
+        var phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, Element("phone", Element.Type.TELEPHONE, hl7Field = "PID-BLAH"))
         assertEquals("", phoneNumber)
 
         // Segment not found
-        phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
+        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element)
         assertEquals("", phoneNumber)
 
         // No phone number due to zero repetitions
         every { mockTerser.getSegment(any()) } returns mockSegment
         every { mockSegment.getField(any()) } returns emptyArray()
-        phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
+        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element)
         assertEquals("", phoneNumber)
 
         // No phone number
@@ -198,12 +202,12 @@ NTE|1|L|This is a final comment|RE"""
         every { emptyPhoneField.areaCityCode.isEmpty } returns true
         every { emptyPhoneField.localNumber.isEmpty } returns true
         every { emptyPhoneField.telephoneNumber.isEmpty } returns true
-        phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
+        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element)
         assertEquals("", phoneNumber)
 
         // Multiple repetitions with no phone number
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emptyPhoneField, emptyPhoneField)
-        phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
+        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element)
         assertEquals("", phoneNumber)
 
         // Phone number in deprecated component
@@ -212,7 +216,7 @@ NTE|1|L|This is a final comment|RE"""
         every { deprecatedPhoneField.telephoneNumber.isEmpty } returns false
         every { deprecatedPhoneField.telephoneNumber.value } returns "(555)5555555"
         every { mockSegment.getField(any()) } returns arrayOf(deprecatedPhoneField)
-        phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
+        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element)
         assertEquals("5555555555:1:", phoneNumber)
 
         // Phone number in newer components.  Will ignore phone number in deprecated component
@@ -226,19 +230,19 @@ NTE|1|L|This is a final comment|RE"""
         every { phoneField.areaCityCode.value } returns "666"
         every { phoneField.localNumber.value } returns "7777777"
         every { phoneField.extension.value } returns "9999"
-        phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
+        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element)
         assertEquals("6667777777:1:9999", phoneNumber)
 
         // No type assumed to be a phone number
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns true
         every { phoneField.telecommunicationEquipmentType.value } returns null
-        phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
+        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element)
         assertEquals("6667777777:1:9999", phoneNumber)
 
         // A Fax number is not used
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
         every { phoneField.telecommunicationEquipmentType.value } returns "FX"
-        phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
+        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element)
         assertEquals("", phoneNumber)
 
         // Test repetitions.  The first repetition for the XTN type can be empty when there is no primary phone number
@@ -250,8 +254,105 @@ NTE|1|L|This is a final comment|RE"""
         every { emailField.telecommunicationEquipmentType.value } returns "Internet"
         every { emailField.telecommunicationUseCode.value } returns "NET"
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emailField, phoneField)
-        phoneNumber = serializer.decodeXTNPhoneNumber(mockTerser, element)
+        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element)
         assertEquals("6667777777:1:9999", phoneNumber)
+    }
+
+    @Test
+    fun `test TS date time decoding`() {
+        val metadata = Metadata("./metadata")
+        val serializer = Hl7Serializer(metadata)
+        val mockTerser = mockk<Terser>()
+        val mockSegment = mockk<Segment>()
+        val mockTS = mockk<TS>()
+        val mockDR = mockk<DR>()
+        val mockDTM = mockk<DTM>()
+        val now = ZonedDateTime.now()
+        val nowAsDate = Date.from(now.toInstant());
+        val element = Element("field", hl7Field = "OBX-14")
+        val warnings = mutableListOf<String>()
+        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern);
+        val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+        // Segment not found
+        every { mockTerser.getSegment(any()) } returns null
+        var dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertEquals("", dateTime)
+
+        // Bad field value
+        every { mockTerser.getSegment(any()) } returns mockSegment
+        dateTime = serializer.decodeHl7DateTime(mockTerser, Element("field", hl7Field = "OBX-Blah"), warnings)
+        assertEquals("", dateTime)
+
+        // No field value
+        every { mockSegment.getField(any(), any()) } returns null
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertEquals("", dateTime)
+
+        // Field value is TS, but no time
+        every { mockSegment.getField(any(), any()) } returns mockTS
+        every { mockTS.time } returns null
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertEquals("", dateTime)
+
+        // Field value is TS has a time
+        every { mockTS.time } returns mockDTM
+        every { mockTS.time.valueAsDate } returns nowAsDate
+        every { mockTS.time.value } returns dateFormatterWithTimeZone.format(now)
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertEquals(dateFormatterWithTimeZone.format(now), dateTime)
+
+        // Generate a warning for not having the timezone offsets
+        every { mockTS.time } returns mockDTM
+        every { mockTS.time.valueAsDate } returns nowAsDate
+        every { mockTS.time.value } returns dateFormatterNoTimeZone.format(now)
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 1)
+
+        // Field value is DR, but no range
+        every { mockSegment.getField(any(), any()) } returns mockDR
+        every { mockDR.rangeStartDateTime } returns null
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertEquals("", dateTime)
+
+        // Field value is DR has a range, but with no time
+        every { mockDR.rangeStartDateTime } returns mockTS
+        every { mockDR.rangeStartDateTime.time } returns null
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertEquals("", dateTime)
+
+        // Field value is DR and has a time
+        every { mockDR.rangeStartDateTime } returns mockTS
+        every { mockDR.rangeStartDateTime.time } returns mockDTM
+        every { mockDR.rangeStartDateTime.time.valueAsDate } returns nowAsDate
+        every { mockDR.rangeStartDateTime.time.value } returns dateFormatterWithTimeZone.format(now)
+        dateTime = serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertEquals(dateFormatterWithTimeZone.format(now), dateTime)
+
+        // Generate a warning for not having the timezone offsets
+        every { mockDR.rangeStartDateTime } returns mockTS
+        every { mockDR.rangeStartDateTime.time } returns mockDTM
+        every { mockDR.rangeStartDateTime.time.valueAsDate } returns nowAsDate
+        every { mockDR.rangeStartDateTime.time.value } returns dateFormatterNoTimeZone.format(now)
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 1)
+
+        // Test a bit more the regex for the warning
+        fun testForWarning(dateString: String, numExpectedWarnings: Int) {
+            every { mockDR.rangeStartDateTime.time.value } returns dateString
+            warnings.clear()
+            serializer.decodeHl7DateTime(mockTerser, element, warnings)
+            assertEquals(warnings.size, numExpectedWarnings)
+        }
+
+        testForWarning("TS[202101011200]", 1)
+        testForWarning("TS[202101011200.0000]", 1)
+        testForWarning("TS[2021010112-0400]", 1)
+        testForWarning("DR[202101011200.0000-4000]", 0)
+        testForWarning("TS[202101011200.0000+4000]", 0)
+        testForWarning("DR[202101011259+4000]", 0)
     }
 
     @Test
