@@ -1,5 +1,13 @@
 package gov.cdc.prime.router
 
+import assertk.Assert
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isNotEmpty
+import assertk.assertions.startsWith
+import assertk.assertions.support.expected
+import assertk.assertions.support.show
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -9,9 +17,6 @@ import io.mockk.mockkClass
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
-import kotlin.test.assertTrue
 
 class FileNameTemplateTests {
     private val literal = """
@@ -39,14 +44,14 @@ class FileNameTemplateTests {
         val literalElement = Literal()
         val expected = "cdcprime"
         val actual = literalElement.getElementValue(listOf(expected))
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
     fun `test reading literal name element from yaml`() {
         val fileName = mapper.readValue<FileNameTemplate>(literal)
         val actual = fileName.getFileName()
-        assertEquals("cdcprime", actual)
+        assertThat(actual).isEqualTo("cdcprime")
     }
 
     @Test
@@ -54,7 +59,7 @@ class FileNameTemplateTests {
         val receivingOrg = ReceivingOrganization()
         val expected = "yoyodyne"
         val actual = receivingOrg.getElementValue(translatorConfig = config)
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -71,7 +76,7 @@ class FileNameTemplateTests {
         // act
         val actual = fileName.getFileName(translatorConfig = config)
         // assert
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -88,7 +93,7 @@ class FileNameTemplateTests {
         // act
         val actual = fileName.getFileName(translatorConfig = config)
         // assert
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -99,7 +104,7 @@ class FileNameTemplateTests {
         val expectedStartsWith = DateTimeFormatter.ofPattern(expectedStartsWithFormat)
         val expected = expectedStartsWith.format(offsetDt)
         val actual = element.getElementValue()
-        assertTrue(actual.startsWith(expected))
+        assertThat(actual).startsWith(expected)
     }
 
     @Test
@@ -107,7 +112,7 @@ class FileNameTemplateTests {
         val element = CreatedDate()
         val expected = ""
         val actual = element.getElementValue(listOf("As formats go, I'm bogus"))
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -126,7 +131,7 @@ class FileNameTemplateTests {
         // act
         val actual = fileName.getFileName(translatorConfig = config)
         // assert
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -145,7 +150,7 @@ class FileNameTemplateTests {
         // act
         val actual = fileName.getFileName(translatorConfig = config)
         // assert
-        assertTrue(actual.startsWith(expected), "Actual was: $actual")
+        assertThat(actual).startsWith(expected)
     }
 
     @Test
@@ -153,7 +158,7 @@ class FileNameTemplateTests {
         val element = RegexReplace()
         val expected = "AcmeLabs"
         val actual = element.getElementValue(listOf(" Acme_Labs-", "[ _-]+", ""))
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -171,7 +176,7 @@ class FileNameTemplateTests {
         // act
         val actual = fileName.getFileName(translatorConfig = config)
         // assert
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -189,7 +194,7 @@ class FileNameTemplateTests {
         // act
         val actual = fileName.getFileName(translatorConfig = config)
         // assert
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -206,7 +211,7 @@ class FileNameTemplateTests {
         // act
         val actual = fileName.getFileName(translatorConfig = config)
         // assert
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -214,7 +219,7 @@ class FileNameTemplateTests {
         val config = mockkClass(TranslatorConfiguration::class)
         every { config.schemaName }.returns("covid-19")
         SchemaBaseName().run {
-            assertEquals("covid-19", this.getElementValue(emptyList(), config))
+            assertThat(this.getElementValue(emptyList(), config)).isEqualTo("covid-19")
         }
     }
 
@@ -223,7 +228,7 @@ class FileNameTemplateTests {
         val config = mockkClass(TranslatorConfiguration::class)
         every { config.schemaName }.returns("/dir1/sub-dir/complex-covid-19")
         SchemaBaseName().run {
-            assertEquals("complex-covid-19", this.getElementValue(emptyList(), config))
+            assertThat(this.getElementValue(emptyList(), config)).isEqualTo("complex-covid-19")
         }
     }
 
@@ -231,15 +236,17 @@ class FileNameTemplateTests {
     fun `test schema base name error case`() {
         val config: TranslatorConfiguration? = null
         SchemaBaseName().run {
-            assertFails { this.getElementValue(emptyList(), config) }
+            assertThat {
+                this.getElementValue(emptyList(), config)
+            }.isFailure()
         }
     }
 
     @Test
     fun `load file name templates from metadata`() {
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
-        assertTrue(metadata.fileNameTemplates.isNotEmpty())
-        assertTrue(metadata.fileNameTemplates.containsKey("standard"))
+        assertThat(metadata.fileNameTemplates).isNotEmpty()
+        assertThat(metadata.fileNameTemplates).containsKey("standard")
     }
 
     @Test
@@ -247,19 +254,26 @@ class FileNameTemplateTests {
         ProcessingModeCode().run {
             val hl7Config1 = mockkClass(Hl7Configuration::class)
             every { hl7Config1.processingModeCode }.returns("t")
-            assertEquals("testing", this.getElementValue(emptyList(), hl7Config1))
+            assertThat(this.getElementValue(emptyList(), hl7Config1)).isEqualTo("testing")
 
             val hl7Config2 = mockkClass(Hl7Configuration::class)
             every { hl7Config2.processingModeCode }.returns("p")
-            assertEquals("production", this.getElementValue(emptyList(), hl7Config2))
+            assertThat(this.getElementValue(emptyList(), hl7Config2)).isEqualTo("production")
 
             val hl7Config3 = mockkClass(Hl7Configuration::class)
             every { hl7Config3.processingModeCode }.returns("d")
-            assertEquals("development", this.getElementValue(emptyList(), hl7Config3))
+            assertThat(this.getElementValue(emptyList(), hl7Config3)).isEqualTo("development")
 
             val hl7Config4 = mockkClass(Hl7Configuration::class)
             every { hl7Config4.processingModeCode }.returns("junk data")
-            assertEquals("testing", this.getElementValue(emptyList(), hl7Config4))
+            assertThat(this.getElementValue(emptyList(), hl7Config4)).isEqualTo("testing")
+        }
+    }
+
+    companion object {
+        private fun Assert<Map<String, *>>.containsKey(expected: String) = given { actual ->
+            if (actual.containsKey(expected)) return@given
+            expected("containsKey:${show(expected)} but key doesn't exist in map")
         }
     }
 }
