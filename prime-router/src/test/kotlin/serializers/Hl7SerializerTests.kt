@@ -21,7 +21,7 @@ import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.time.ZonedDateTime
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import kotlin.test.Test
@@ -83,7 +83,7 @@ NTE|1|L|This is a final comment|RE"""
         context.modelClassFactory = mcf
         val parser = context.pipeParser
         // act
-        val reg = "(\r|\n)".toRegex()
+        val reg = "[\r\n]".toRegex()
         val cleanedMessage = reg.replace(sampleHl7Message, "\r")
         val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
@@ -267,12 +267,12 @@ NTE|1|L|This is a final comment|RE"""
         val mockTS = mockk<TS>()
         val mockDR = mockk<DR>()
         val mockDTM = mockk<DTM>()
-        val now = ZonedDateTime.now()
-        val nowAsDate = Date.from(now.toInstant());
+        val now = OffsetDateTime.now()
+        val nowAsDate = Date.from(now.toInstant())
         val element = Element("field", hl7Field = "OBX-14")
         val warnings = mutableListOf<String>()
-        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern);
-        val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern)
+        val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
 
         // Segment not found
         every { mockTerser.getSegment(any()) } returns null
@@ -382,7 +382,7 @@ NTE|1|L|This is a final comment|RE"""
         context.modelClassFactory = mcf
         val parser = context.pipeParser
         // act
-        val reg = "(\r|\n)".toRegex()
+        val reg = "[\r\n]6a".toRegex()
         val cleanedMessage = reg.replace(intMessage, "\r")
         val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)

@@ -24,11 +24,10 @@ import gov.cdc.prime.router.ValueSet
 import java.io.InputStream
 import java.io.OutputStream
 import java.time.OffsetDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import org.apache.logging.log4j.kotlin.Logging
-import java.time.ZonedDateTime
+import java.time.ZoneId
 
 class Hl7Serializer(val metadata: Metadata): Logging {
     data class Hl7Mapping(
@@ -103,7 +102,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
         val rowResults = mutableListOf<RowResult>()
-        val reg = "(\r|\n)".toRegex()
+        val reg = "[\r\n]".toRegex()
         val cleanedMessage = reg.replace(message, "\r")
         val messageLines = cleanedMessage.split("\r")
         val nextMessage = StringBuilder()
@@ -150,7 +149,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         return Hl7Mapping(mappedRows, rowResults, errors, warnings)
     }
 
-    fun convertMessageToMap(message: String, schema: Schema): Hl7Serializer.RowResult {
+    fun convertMessageToMap(message: String, schema: Schema): RowResult {
         // safely merge into the set. might not be necessary
         fun mergeIntoMappedRows(mappedRows: MutableMap<String, MutableSet<String>>, key: String, value: String) {
             if (!mappedRows.containsKey(key)) error("Map doesn't contain key $key")
@@ -191,7 +190,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         val mappedRows: MutableMap<String, MutableSet<String>> = mutableMapOf()
         hapiContext.modelClassFactory = modelClassFactory
         val parser = hapiContext.pipeParser
-        val reg = "(\r|\n)".toRegex()
+        val reg = "[\r\n]".toRegex()
         val cleanedMessage = reg.replace(message, "\r").trim()
         // if the message is empty, return a row result that warns of empty data
         if (cleanedMessage.isEmpty()) {
@@ -212,11 +211,11 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 }
 
                 if (!it.hl7Field.isNullOrEmpty()) {
-                    when {
-                        it.type == Element.Type.TELEPHONE -> {
+                    when (it.type) {
+                        Element.Type.TELEPHONE -> {
                             mappedRows[it.name]?.add(decodeHl7PhoneNumber(terser, it))
                         }
-                        it.type == Element.Type.DATETIME -> {
+                        Element.Type.DATETIME -> {
                             mappedRows[it.name]?.add(decodeHl7DateTime(terser, it, warnings))
                         }
                         else -> {
@@ -863,7 +862,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
          */
         fun getPhoneNumber(xtnValue: Type): String {
             var strValue = ""
-            if(xtnValue != null && xtnValue is XTN) {
+            if(xtnValue is XTN) {
                 // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
                 if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
                     // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
@@ -925,13 +924,13 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 dtm?.let {
                     if(it.valueAsDate != null) {
                         // Check to see if we have all the precision we want including the time zone offset
-                        val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.{0,1}[0-9]{0,4}[+-][0-9]{4}\\]\$")
+                        val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                         if (!r.matches(it.value)) {
                             warnings.add("Timestamp for ${element.hl7Field} - ${element.name} needs to provide more precision. " +
                                 "Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ")
                         }
                         dateTime = DateTimeFormatter.ofPattern(Element.datetimePattern).
-                            format(ZonedDateTime.ofInstant(it.valueAsDate.toInstant(), ZoneId.systemDefault()))
+                            format(OffsetDateTime.ofInstant(it.valueAsDate.toInstant(), ZoneId.systemDefault()))
                     }
                 }
             }
