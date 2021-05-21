@@ -4,8 +4,8 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DTM
-import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.datatype.TS
+import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
@@ -340,30 +340,19 @@ NTE|1|L|This is a final comment|RE"""
         assertTrue(warnings.size == 1)
 
         // Test a bit more the regex for the warning
-        every { mockDR.rangeStartDateTime.time.value } returns "TS[202101011200]"
-        warnings.clear()
-        serializer.decodeHl7DateTime(mockTerser, element, warnings)
-        assertTrue(warnings.size == 1)
-        every { mockDR.rangeStartDateTime.time.value } returns "TS[202101011200.0000]"
-        warnings.clear()
-        serializer.decodeHl7DateTime(mockTerser, element, warnings)
-        assertTrue(warnings.size == 1)
-        every { mockDR.rangeStartDateTime.time.value } returns "TS[2021010112-0400]"
-        warnings.clear()
-        serializer.decodeHl7DateTime(mockTerser, element, warnings)
-        assertTrue(warnings.size == 1)
-        every { mockDR.rangeStartDateTime.time.value } returns "DR[202101011200.0000-4000]"
-        warnings.clear()
-        serializer.decodeHl7DateTime(mockTerser, element, warnings)
-        assertTrue(warnings.size == 0)
-        every { mockDR.rangeStartDateTime.time.value } returns "TS[202101011200.0000+4000]"
-        warnings.clear()
-        serializer.decodeHl7DateTime(mockTerser, element, warnings)
-        assertTrue(warnings.size == 0)
-        every { mockDR.rangeStartDateTime.time.value } returns "DR[202101011259+4000]"
-        warnings.clear()
-        serializer.decodeHl7DateTime(mockTerser, element, warnings)
-        assertTrue(warnings.size == 0)
+        fun testForWarning(dateString: String, numExpectedWarnings: Int) {
+            every { mockDR.rangeStartDateTime.time.value } returns dateString
+            warnings.clear()
+            serializer.decodeHl7DateTime(mockTerser, element, warnings)
+            assertEquals(warnings.size, numExpectedWarnings)
+        }
+
+        testForWarning("TS[202101011200]", 1)
+        testForWarning("TS[202101011200.0000]", 1)
+        testForWarning("TS[2021010112-0400]", 1)
+        testForWarning("DR[202101011200.0000-4000]", 0)
+        testForWarning("TS[202101011200.0000+4000]", 0)
+        testForWarning("DR[202101011259+4000]", 0)
     }
 
     @Test
