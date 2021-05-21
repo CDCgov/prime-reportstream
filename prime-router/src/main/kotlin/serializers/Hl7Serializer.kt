@@ -925,9 +925,10 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 dtm?.let {
                     if(it.valueAsDate != null) {
                         // Check to see if we have all the precision we want including the time zone offset
-                        val r = Regex("(TS|DR)\\[[0-9]{14}[+-][0-9]{4}\\]")
+                        val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.{0,1}[0-9]{0,4}[+-][0-9]{4}\\]\$")
                         if (!r.matches(it.value)) {
-                            warnings.add("Timestamp for ${element.hl7Field} - ${element.name} missing timezone offset")
+                            warnings.add("Timestamp for ${element.hl7Field} - ${element.name} needs to provide more precision. " +
+                                "Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ")
                         }
                         dateTime = DateTimeFormatter.ofPattern(Element.datetimePattern).
                             format(ZonedDateTime.ofInstant(it.valueAsDate.toInstant(), ZoneId.systemDefault()))

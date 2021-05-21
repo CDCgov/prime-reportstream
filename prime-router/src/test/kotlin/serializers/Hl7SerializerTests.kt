@@ -338,6 +338,32 @@ NTE|1|L|This is a final comment|RE"""
         warnings.clear()
         serializer.decodeHl7DateTime(mockTerser, element, warnings)
         assertTrue(warnings.size == 1)
+
+        // Test a bit more the regex for the warning
+        every { mockDR.rangeStartDateTime.time.value } returns "TS[202101011200]"
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 1)
+        every { mockDR.rangeStartDateTime.time.value } returns "TS[202101011200.0000]"
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 1)
+        every { mockDR.rangeStartDateTime.time.value } returns "TS[2021010112-0400]"
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 1)
+        every { mockDR.rangeStartDateTime.time.value } returns "DR[202101011200.0000-4000]"
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 0)
+        every { mockDR.rangeStartDateTime.time.value } returns "TS[202101011200.0000+4000]"
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 0)
+        every { mockDR.rangeStartDateTime.time.value } returns "DR[202101011259+4000]"
+        warnings.clear()
+        serializer.decodeHl7DateTime(mockTerser, element, warnings)
+        assertTrue(warnings.size == 0)
     }
 
     @Test
