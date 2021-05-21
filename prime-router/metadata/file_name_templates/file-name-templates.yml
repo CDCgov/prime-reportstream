@@ -7,6 +7,7 @@
     - uuid()
     - createdDate()
 
+
 - name: nm_file_name
   lowerCase: true
   elements:
@@ -15,3 +16,20 @@
     - _test_
     - createdDate()
     - .hl7
+
+
+- name: ohio
+  upperCase: true
+  elements:
+    - cdcprime_
+    - createdDate()
+
+
+- name: aphl_light
+  lowerCase: true
+  elements:
+    - cdcprime_
+    - receivingOrganization()
+    - prod_
+    - createdDate()
+

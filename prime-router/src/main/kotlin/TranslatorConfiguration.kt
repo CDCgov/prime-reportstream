@@ -38,6 +38,7 @@ abstract class TranslatorConfiguration(val type: String) : TranslatorProperties
  */
 data class Hl7Configuration
 @JsonCreator constructor(
+    // deprecated, please don't use
     val useTestProcessingMode: Boolean = false,
     val useBatchHeaders: Boolean = true,
     val receivingApplicationName: String?,
@@ -55,6 +56,8 @@ data class Hl7Configuration
     val truncateHDNamespaceIds: Boolean = false,
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
+    // pass this around as a property now
+    val processingModeCode: String? = null,
     override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
     override val receivingOrganization: String?,
     // deprecated, please don't use
@@ -88,19 +91,12 @@ data class Hl7Configuration
             else -> ""
         }
         return mapOf(
-            "processing_mode_code" to (if (useTestProcessingMode) "T" else "P"),
+            "processing_mode_code" to (processingModeCode ?: "P"),
             "receiving_application" to receivingApplication,
             "receiving_facility" to receivingFacility,
             "message_profile_id" to (messageProfileId ?: ""),
             "reporting_facility" to reportingFacility
         )
-    }
-
-    @get:JsonIgnore
-    val processingModeCode: String get() = if (this.useTestProcessingMode) {
-        "T"
-    } else {
-        "P"
     }
 }
 

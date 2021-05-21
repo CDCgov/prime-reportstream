@@ -74,6 +74,19 @@ class SchemaBaseName : FileNameElement {
     }
 }
 
+class ProcessingModeCode : FileNameElement {
+    override val name: String get() = "processingModeCode"
+
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
+        val hl7Config = translatorConfig as? Hl7Configuration?
+        return when (hl7Config?.processingModeCode?.lowercase()) {
+            "p" -> "production"
+            "d" -> "development"
+            else -> "testing"
+        }
+    }
+}
+
 // returns the created date according to the provided format OR the format passed in.
 // if the format fails, it just returns an empty string and moves on
 class CreatedDate : FileNameElement {
@@ -138,6 +151,7 @@ open class FileNameTemplate(
             RegexReplace(),
             FileUuid(),
             SchemaBaseName(),
+            ProcessingModeCode(),
         )
 
         private fun findFileNameElement(elementName: String): FileNameElement? {

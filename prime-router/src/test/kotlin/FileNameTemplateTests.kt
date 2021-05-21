@@ -241,4 +241,25 @@ class FileNameTemplateTests {
         assertTrue(metadata.fileNameTemplates.isNotEmpty())
         assertTrue(metadata.fileNameTemplates.containsKey("standard"))
     }
+
+    @Test
+    fun `get processing mode from translation config`() {
+        ProcessingModeCode().run {
+            val hl7Config1 = mockkClass(Hl7Configuration::class)
+            every { hl7Config1.processingModeCode }.returns("t")
+            assertEquals("testing", this.getElementValue(emptyList(), hl7Config1))
+
+            val hl7Config2 = mockkClass(Hl7Configuration::class)
+            every { hl7Config2.processingModeCode }.returns("p")
+            assertEquals("production", this.getElementValue(emptyList(), hl7Config2))
+
+            val hl7Config3 = mockkClass(Hl7Configuration::class)
+            every { hl7Config3.processingModeCode }.returns("d")
+            assertEquals("development", this.getElementValue(emptyList(), hl7Config3))
+
+            val hl7Config4 = mockkClass(Hl7Configuration::class)
+            every { hl7Config4.processingModeCode }.returns("junk data")
+            assertEquals("testing", this.getElementValue(emptyList(), hl7Config4))
+        }
+    }
 }
