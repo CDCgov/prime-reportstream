@@ -33,3 +33,15 @@
     - prod_
     - createdDate()
 
+- name: aphl
+  lowerCase: true
+  elements:
+    - cdcprime_cdcprime_
+    - receivingOrganization()
+    - "_"
+    - processingModeCode()
+    - "_"
+    - processingModeCode()
+    - "_"
+    - createdDate()
+

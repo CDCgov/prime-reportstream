@@ -1,10 +1,13 @@
 package gov.cdc.prime.router
 
 import assertk.Assert
+import assertk.all
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
+import assertk.assertions.prop
 import assertk.assertions.startsWith
 import assertk.assertions.support.expected
 import assertk.assertions.support.show
@@ -265,6 +268,22 @@ class FileNameTemplateTests {
             every { hl7Config4.processingModeCode }.returns("junk data")
             assertThat(this.getElementValue(emptyList(), hl7Config4)).isEqualTo("testing")
         }
+    }
+
+    @Test
+    fun `test APHL name format`() {
+        val key = "aphl"
+        val metadata = Metadata(Metadata.defaultMetadataDirectory)
+        assertThat(metadata.fileNameTemplates).containsKey(key)
+        val aphlNameFormat = metadata.fileNameTemplates[key]
+        assertThat(aphlNameFormat).isNotNull()
+        val translationConfig = mockkClass(Hl7Configuration::class).also {
+            every { it.receivingOrganization }.returns("laoph")
+            every { it.processingModeCode }.returns("P")
+        }
+        val fileName = aphlNameFormat?.getFileName(translationConfig)
+            ?: assertk.fail("error getting file name")
+        assertThat(fileName).startsWith("cdcprime_cdcprime_laoph_production_production_")
     }
 
     companion object {
