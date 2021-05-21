@@ -1,39 +1,40 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFails
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
 
 internal class ElementTests {
 
     @Test
     fun `create element`() {
         val elem1 = Element(name = "first", type = Element.Type.NUMBER)
-        assertNotNull(elem1)
+        assertThat(elem1).isNotNull()
     }
 
     @Test
     fun `compare elements`() {
         val elem1 = Element(name = "first", type = Element.Type.NUMBER)
         val elem2 = Element(name = "first", type = Element.Type.NUMBER)
-        assertEquals(elem1, elem2)
+        assertThat(elem1).isEqualTo(elem2)
 
         val elem3 = Element(name = "first", type = Element.Type.TEXT)
-        assertNotEquals(elem1, elem3)
+        assertThat(elem1).isNotEqualTo(elem3)
     }
 
     @Test
     fun `test schema element`() {
         val elem1 = Element(name = "first", type = Element.Type.NUMBER)
         val elem2 = Element(name = "first", type = Element.Type.NUMBER)
-        assertEquals(elem1, elem2)
-
+        assertThat(elem1).isEqualTo(elem2)
         val elem3 = Element(name = "first", type = Element.Type.TEXT)
-        assertNotEquals(elem1, elem3)
+        assertThat(elem1).isNotEqualTo(elem3)
     }
 
     @Test
@@ -49,10 +50,12 @@ internal class ElementTests {
             ),
             csvFields = Element.csvFields("b", format = "\$alt")
         )
-        val noResult = one.toNormalized("Non", "\$alt")
-        assertEquals("N", noResult)
-        val yesResult = one.toNormalized("Oui", "\$alt")
-        assertEquals("Y", yesResult)
+        one.toNormalized("Non", "\$alt").run {
+            assertThat(this).isEqualTo("N")
+        }
+        one.toNormalized("Oui", "\$alt").run {
+            assertThat(this).isEqualTo("Y")
+        }
     }
 
     @Test
@@ -62,10 +65,12 @@ internal class ElementTests {
             type = Element.Type.DATE,
         )
         // Iso formatted should work
-        val result1 = one.toNormalized("1998-03-30")
-        assertEquals("19980330", result1)
-        val result2 = one.toNormalized("1998-30-03", "yyyy-dd-MM")
-        assertEquals("19980330", result2)
+        one.toNormalized("1998-03-30").run {
+            assertThat(this).isEqualTo("19980330")
+        }
+        one.toNormalized("1998-30-03", "yyyy-dd-MM").run {
+            assertThat(this).isEqualTo("19980330")
+        }
     }
 
     @Test
@@ -75,32 +80,32 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
         )
         // Iso formatted should work
-        val result1 = one.toNormalized("1998-03-30T12:00Z")
-        assertEquals("199803301200+0000", result1)
-        val result2 = one.toNormalized("199803300000+0000")
-        assertEquals("199803300000+0000", result2)
-
+        one.toNormalized("1998-03-30T12:00Z").run {
+            assertThat(this).isEqualTo("199803301200+0000")
+        }
+        one.toNormalized("199803300000+0000").run {
+            assertThat(this).isEqualTo("199803300000+0000")
+        }
         val two = Element(
             "a",
             type = Element.Type.DATETIME,
         )
-
         val o = ZoneId.of(USTimeZone.CENTRAL.zoneId).rules.getOffset(Instant.now()).toString()
         val offset = if (o == "Z") {
             "+0000"
         } else {
             o.replace(":", "")
         }
-        val result3 = two.toNormalized("19980330", "yyyyMMdd")
-        assertEquals("199803300000$offset", result3)
-
+        two.toNormalized("19980330", "yyyyMMdd").run {
+            assertThat(this).isEqualTo("199803300000$offset")
+        }
         val three = Element(
             "a",
             type = Element.Type.DATETIME,
         )
-
-        val result4 = three.toNormalized("2020-12-09", "yyyy-MM-dd")
-        assertEquals("202012090000$offset", result4)
+        three.toNormalized("2020-12-09", "yyyy-MM-dd").run {
+            assertThat(this).isEqualTo("202012090000$offset")
+        }
     }
 
     @Test
@@ -110,18 +115,21 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
         )
         // Iso formatted should work
-        val result1 = one.toFormatted("199803301200")
-        assertEquals("199803301200", result1)
-        val result2 = one.toFormatted("199803300000")
-        assertEquals("199803300000", result2)
+        one.toFormatted("199803301200").run {
+            assertThat(this).isEqualTo("199803301200")
+        }
+        one.toFormatted("199803300000").run {
+            assertThat(this).isEqualTo("199803300000")
+        }
 
         val two = Element(
             "a",
             type = Element.Type.DATETIME,
         )
         // Other formats should work too, including sans the time.
-        val result3 = two.toFormatted("202012090000+0000", "yyyy-MM-dd")
-        assertEquals("2020-12-09", result3)
+        two.toFormatted("202012090000+0000", "yyyy-MM-dd").run {
+            assertThat(this).isEqualTo("2020-12-09")
+        }
     }
 
     @Test
@@ -131,16 +139,22 @@ internal class ElementTests {
             type = Element.Type.POSTAL_CODE,
             csvFields = Element.csvFields("zip")
         )
-        val result1 = one.toNormalized("99999")
-        assertEquals("99999", result1)
-        val result2 = one.toNormalized("99999-9999")
-        assertEquals("99999-9999", result2)
+        one.toNormalized("99999").run {
+            assertThat(this).isEqualTo("99999")
+        }
+        val result2 = one.toNormalized("99999-9999").run {
+            assertThat(this).isEqualTo("99999-9999")
+        }
         // format should not affect normalization
-        val result4 = one.toNormalized("999999999", "\$zipFive")
-        assertEquals("999999999", result4)
-        val result5 = one.toNormalized("KY1-6666") // Cayman zipcode
-        assertEquals("KY1-6666", result5)
-        one.toNormalized("KX33-77777") // Letters and numbers, but a made up zipcode
+        one.toNormalized("999999999", "\$zipFive").run {
+            assertThat(this).isEqualTo("999999999")
+        }
+        one.toNormalized("KY1-6666").run {
+            assertThat(this).isEqualTo("KY1-6666")
+        } // Cayman zipcode
+        one.toNormalized("KX33-77777").run {
+            assertThat(this).isEqualTo("KX33-77777")
+        } // Letters and numbers, but a made up zipcode
         assertFails {
             one.toNormalized("%%%%XXXX") // Unreasonable
         }
@@ -153,21 +167,28 @@ internal class ElementTests {
             type = Element.Type.TELEPHONE,
             csvFields = Element.csvFields("phone")
         )
-        val result1 = one.toNormalized("5559938322")
-        assertEquals("5559938322:1:", result1)
-        val result2 = one.toNormalized("1(555)-968-5052")
-        assertEquals("5559685052:1:", result2)
-        val result3 = one.toNormalized("555-968-5052")
-        assertEquals("5559685052:1:", result3)
-        val result4 = one.toNormalized("+1(555)-968-5052")
-        assertEquals("5559685052:1:", result4)
-        val result5 = one.toNormalized("968-5052")
-        assertEquals("0009685052:1:", result5)
-        val result6 = one.toNormalized("+1(555)-968-5052 x5555")
-        assertEquals("5559685052:1:5555", result6)
+        one.toNormalized("5559938322").run {
+            assertThat(this).isEqualTo("5559938322:1:")
+        }
+        one.toNormalized("1(555)-968-5052").run {
+            assertThat(this).isEqualTo("5559685052:1:")
+        }
+        one.toNormalized("555-968-5052").run {
+            assertThat(this).isEqualTo("5559685052:1:")
+        }
+        one.toNormalized("+1(555)-968-5052").run {
+            assertThat(this).isEqualTo("5559685052:1:")
+        }
+        one.toNormalized("968-5052").run {
+            assertThat(this).isEqualTo("0009685052:1:")
+        }
+        one.toNormalized("+1(555)-968-5052 x5555").run {
+            assertThat(this).isEqualTo("5559685052:1:5555")
+        }
         // MX phone number
-        val result7 = one.toNormalized("+52-65-8888-8888")
-        assertEquals("6588888888:52:", result7)
+        one.toNormalized("+52-65-8888-8888").run {
+            assertThat(this).isEqualTo("6588888888:52:")
+        }
     }
 
     @Test
@@ -177,12 +198,15 @@ internal class ElementTests {
             type = Element.Type.TELEPHONE,
             csvFields = Element.csvFields("phone")
         )
-        val result1 = one.toFormatted("5559938322:1:")
-        assertEquals("5559938322", result1)
-        val result2 = one.toFormatted("5559938322:1:", "\$country-\$area-\$exchange-\$subscriber")
-        assertEquals("1-555-993-8322", result2)
-        val result3 = one.toFormatted("5559938322:1:", "(\$area)\$exchange-\$subscriber")
-        assertEquals("(555)993-8322", result3)
+        one.toFormatted("5559938322:1:").run {
+            assertThat(this).isEqualTo("5559938322")
+        }
+        one.toFormatted("5559938322:1:", "\$country-\$area-\$exchange-\$subscriber").run {
+            assertThat(this).isEqualTo("1-555-993-8322")
+        }
+        one.toFormatted("5559938322:1:", "(\$area)\$exchange-\$subscriber").run {
+            assertThat(this).isEqualTo("(555)993-8322")
+        }
     }
 
     @Test
@@ -192,24 +216,33 @@ internal class ElementTests {
             type = Element.Type.POSTAL_CODE,
             csvFields = Element.csvFields("zip")
         )
-        val result1 = one.toFormatted("99999")
-        assertEquals("99999", result1)
-        val result1a = one.toFormatted("99999-9999")
-        assertEquals("99999-9999", result1a)
-        val result2 = one.toFormatted("99999-9999", "\$zipFivePlusFour")
-        assertEquals("99999-9999", result2)
-        val result3 = one.toFormatted("99999-9999", "\$zipFive")
-        assertEquals("99999", result3)
-        val result4 = one.toFormatted("999999999", "\$zipFive")
-        assertEquals("99999", result4)
-        val result5 = one.toFormatted("999999999", "\$zipFivePlusFour")
-        assertEquals("99999-9999", result5)
-        val result6 = one.toFormatted("99999", "\$zipFivePlusFour")
-        assertEquals("99999", result6)
-        val result7 = one.toFormatted("KY1-5555", "\$zipFivePlusFour")
-        assertEquals("KY1-5555", result7)
-        val result8 = one.toFormatted("XZ5555", "\$zipFivePlusFour")
-        assertEquals("XZ5555", result8)
+        one.toFormatted("99999").run {
+            assertThat(this).isEqualTo("99999")
+        }
+        one.toFormatted("99999-9999").run {
+            assertThat(this).isEqualTo("99999-9999")
+        }
+        one.toFormatted("99999-9999", "\$zipFivePlusFour").run {
+            assertThat(this).isEqualTo("99999-9999")
+        }
+        one.toFormatted("99999-9999", "\$zipFive").run {
+            assertThat(this).isEqualTo("99999")
+        }
+        one.toFormatted("999999999", "\$zipFive").run {
+            assertThat(this).isEqualTo("99999")
+        }
+        one.toFormatted("999999999", "\$zipFivePlusFour").run {
+            assertThat(this).isEqualTo("99999-9999")
+        }
+        one.toFormatted("99999", "\$zipFivePlusFour").run {
+            assertThat(this).isEqualTo("99999")
+        }
+        one.toFormatted("KY1-5555", "\$zipFivePlusFour").run {
+            assertThat(this).isEqualTo("KY1-5555")
+        }
+        one.toFormatted("XZ5555", "\$zipFivePlusFour").run {
+            assertThat(this).isEqualTo("XZ5555")
+        }
     }
 
     @Test
@@ -220,12 +253,16 @@ internal class ElementTests {
             csvFields = Element.csvFields("sampleField"),
             documentation = "I am the parent element"
         )
-
-        var child = Element("child")
-        child = child.inheritFrom(parent)
-
-        assertEquals(parent.documentation, child.documentation, "Documentation value didn't carry over from parent")
-        assertEquals(parent.type, child.type, "Element type didn't carry over from parent")
+        // instead of using var, just call run and transmogrify the child then and there
+        val child = Element("child").run { inheritFrom(parent) }
+        assertThat(
+            parent.documentation,
+            name = "Documentation value didn't carry over from parent"
+        ).isEqualTo(child.documentation)
+        assertThat(
+            parent.type,
+            name = "Element type didn't carry over from parent"
+        ).isEqualTo(child.type)
     }
 
     @Test
@@ -235,20 +272,24 @@ internal class ElementTests {
             type = Element.Type.POSTAL_CODE,
             csvFields = Element.csvFields("zip")
         )
-        assertEquals(
-            "94040",
+        assertThat(
+            "94040"
+        ).isEqualTo(
             postal.toFormatted(postal.toNormalized("94040"))
         )
-        assertEquals(
-            "94040-6000",
+        assertThat(
+            "94040-6000"
+        ).isEqualTo(
             postal.toFormatted(postal.toNormalized("94040-6000"))
         )
-        assertEquals(
-            "94040",
+        assertThat(
+            "94040"
+        ).isEqualTo(
             postal.toFormatted(postal.toNormalized("94040-3600", Element.zipFiveToken), Element.zipFiveToken)
         )
-        assertEquals(
-            "94040-3600",
+        assertThat(
+            "94040-3600"
+        ).isEqualTo(
             postal.toFormatted(
                 postal.toNormalized("94040-3600", Element.zipFivePlusFourToken),
                 Element.zipFivePlusFourToken
@@ -260,12 +301,14 @@ internal class ElementTests {
             type = Element.Type.TELEPHONE,
             csvFields = Element.csvFields("phone")
         )
-        assertEquals(
-            "6509999999",
+        assertThat(
+            "6509999999"
+        ).isEqualTo(
             telephone.toFormatted(telephone.toNormalized("6509999999"))
         )
-        assertEquals(
-            "6509999999",
+        assertThat(
+            "6509999999"
+        ).isEqualTo(
             telephone.toFormatted(telephone.toNormalized("+16509999999"))
         )
 
@@ -274,12 +317,14 @@ internal class ElementTests {
             type = Element.Type.DATE,
             csvFields = Element.csvFields("date")
         )
-        assertEquals(
-            "20201220",
+        assertThat(
+            "20201220"
+        ).isEqualTo(
             date.toFormatted(date.toNormalized("20201220"))
         )
-        assertEquals(
-            "20201220",
+        assertThat(
+            "20201220"
+        ).isEqualTo(
             date.toFormatted(date.toNormalized("2020-12-20"))
         )
 
@@ -288,12 +333,14 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
             csvFields = Element.csvFields("datetime")
         )
-        assertEquals(
-            "202012200000+0000",
+        assertThat(
+            "202012200000+0000"
+        ).isEqualTo(
             datetime.toFormatted(datetime.toNormalized("202012200000+0000"))
         )
-        assertEquals(
-            "202012200000+0000",
+        assertThat(
+            "202012200000+0000"
+        ).isEqualTo(
             datetime.toFormatted(datetime.toNormalized("2020-12-20T00:00Z"))
         )
 
@@ -302,12 +349,12 @@ internal class ElementTests {
             type = Element.Type.HD,
             csvFields = Element.csvFields("hd")
         )
-        assertEquals(
-            "HDName",
+        assertThat(
+            "HDName"
+        ).isEqualTo(
             hd.toFormatted(hd.toNormalized("HDName"))
         )
-        assertEquals(
-            "HDName^0.0.0.0.0.1^ISO",
+        assertThat("HDName^0.0.0.0.0.1^ISO").isEqualTo(
             postal.toFormatted(hd.toNormalized("HDName^0.0.0.0.0.1^ISO"))
         )
 
@@ -316,14 +363,16 @@ internal class ElementTests {
             type = Element.Type.EI,
             csvFields = Element.csvFields("ei")
         )
-        assertEquals(
-            "EIName",
-            ei.toFormatted(ei.toNormalized("EIName"))
-        )
-        assertEquals(
-            "EIName^EINamespace^0.0.0.0.0.1^ISO",
-            postal.toFormatted(ei.toNormalized("EIName^EINamespace^0.0.0.0.0.1^ISO"))
-        )
+        assertThat("EIName")
+            .isEqualTo(
+                ei.toFormatted(ei.toNormalized("EIName"))
+            )
+        assertThat("EIName^EINamespace^0.0.0.0.0.1^ISO")
+            .isEqualTo(
+                postal.toFormatted(
+                    ei.toNormalized("EIName^EINamespace^0.0.0.0.0.1^ISO")
+                )
+            )
     }
 
     @Test
@@ -342,12 +391,12 @@ internal class ElementTests {
                 Element.SubValue("sending_oid", "0.0.0.011", "\$universalId")
             )
         )
-        assertEquals("happy^0.0.0.011^ISO", normalized)
+        assertThat("happy^0.0.0.011^ISO").isEqualTo(normalized)
 
         val sendingAppName = sendingApp.toFormatted(normalized, Element.hdNameToken)
-        assertEquals("happy", sendingAppName)
+        assertThat("happy").isEqualTo(sendingAppName)
         val sendingOid = sendingApp.toFormatted(normalized, Element.hdUniversalIdToken)
-        assertEquals("0.0.0.011", sendingOid)
+        assertThat("0.0.0.011").isEqualTo(sendingOid)
     }
 
     @Test
@@ -373,41 +422,46 @@ internal class ElementTests {
             )
         )
         // because something is a
-        assertEquals(one.toFormatted("Y", "\$code"), "Y")
-        assertEquals(one.toNormalized("Y", "\$code"), "Y")
-        assertEquals(one.checkForError("Y", "\$code"), null)
+        assertThat(one.toFormatted("Y", "\$code")).isEqualTo("Y")
+        assertThat(one.toNormalized("Y", "\$code")).isEqualTo("Y")
+        assertThat(one.checkForError("Y", "\$code")).isNull()
     }
 
     @Test
     fun `test truncate`() {
-        val uno = Element(
+        Element(
             name = "uno",
             type = Element.Type.TEXT,
             maxLength = 2,
-        )
-        assertEquals("ab", uno.truncateIfNeeded("abcde"))
-        val dos = Element(
+        ).run {
+            assertThat("ab").isEqualTo(this.truncateIfNeeded("abcde"))
+        }
+        Element(
             name = "dos",
             type = Element.Type.ID_CLIA, // this type is never truncated.
             maxLength = 2,
-        )
-        assertEquals("abcde", dos.truncateIfNeeded("abcde"))
-        val tres = Element(
+        ).run {
+            assertThat("abcde").isEqualTo(this.truncateIfNeeded("abcde"))
+        }
+        Element(
             name = "tres",
             type = Element.Type.TEXT,
             maxLength = 20, // max > actual strlen, nothing to truncate
-        )
-        assertEquals("abcde", tres.truncateIfNeeded("abcde"))
-        val cuatro = Element( // zilch is an ok valuer = Element(  // maxLength is null, don't truncate.
+        ).run {
+            assertThat("abcde").isEqualTo(this.truncateIfNeeded("abcde"))
+        }
+        Element( // zilch is an ok valuer = Element(  // maxLength is null, don't truncate.
             name = "cuatro",
             type = Element.Type.TEXT,
-        )
-        assertEquals("abcde", cuatro.truncateIfNeeded("abcde"))
-        val cinco = Element(
+        ).run {
+            assertThat("abcde").isEqualTo(this.truncateIfNeeded("abcde"))
+        }
+        Element(
             name = "cinco",
             type = Element.Type.TEXT,
             maxLength = 0, // zilch is an ok value
-        )
-        assertEquals("", cinco.truncateIfNeeded("abcde"))
+        ).run {
+            assertThat("").isEqualTo(this.truncateIfNeeded("abcde"))
+        }
     }
 }
