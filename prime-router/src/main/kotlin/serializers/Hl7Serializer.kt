@@ -103,8 +103,8 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         val warnings = mutableListOf<String>()
         val rowResults = mutableListOf<RowResult>()
         val reg = "[\r\n]".toRegex()
-        val cleanedMessage = reg.replace(message, "\r")
-        val messageLines = cleanedMessage.split("\r")
+        val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
+        val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
         val nextMessage = StringBuilder()
 
         fun deconstructStringMessage() {
@@ -168,10 +168,10 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             terser: Terser,
             terserSpec: String,
             elementName: String,
-            mappedRows: MutableMap<String, MutableSet<String>>,
+            mappedRows: MutableMap<String, MutableSet<String>>?,
             errors: MutableList<String>,
             warnings: MutableList<String>
-        ) {
+        ): String {
             val parsedValue = try {
                 terser.get(terserSpec)
             } catch (e: HL7Exception) {
@@ -182,7 +182,8 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             if (parsedValue.isNullOrEmpty()) {
                 warnings.add("Blank for $terserSpec - $elementName")
             }
-            mergeIntoMappedRows(mappedRows, elementName, parsedValue ?: "")
+            mappedRows?.let {mergeIntoMappedRows(mappedRows, elementName, parsedValue ?: "")}
+            return parsedValue ?: ""
         }
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
@@ -191,7 +192,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         hapiContext.modelClassFactory = modelClassFactory
         val parser = hapiContext.pipeParser
         val reg = "[\r\n]".toRegex()
-        val cleanedMessage = reg.replace(message, "\r").trim()
+        val cleanedMessage = reg.replace(message, hl7SegmentDelimiter).trim()
         // if the message is empty, return a row result that warns of empty data
         if (cleanedMessage.isEmpty()) {
             logger.debug("Skipping empty message during parsing")
@@ -202,66 +203,63 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             val hapiMsg = parser.parse(cleanedMessage)
             val terser = Terser(hapiMsg)
             schema.elements.forEach {
-                if (!mappedRows.containsKey(it.name))
-                    mappedRows[it.name] = mutableSetOf()
+                // If there is a value for the key, then we are adding to it.
+                val value = if(mappedRows.containsKey(it.name) && mappedRows[it.name] != null) mappedRows[it.name]!! else mutableSetOf()
 
-                if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty()) {
-                    mappedRows[it.name]?.add("")
-                    return@forEach
-                }
-
-                if (!it.hl7Field.isNullOrEmpty()) {
-                    when (it.type) {
-                        Element.Type.TELEPHONE -> {
-                            mappedRows[it.name]?.add(decodeHl7PhoneNumber(terser, it))
-                        }
-                        Element.Type.DATETIME -> {
-                            mappedRows[it.name]?.add(decodeHl7DateTime(terser, it, warnings))
-                        }
-                        else -> {
-                            val terserSpec = when {
-                                it.hl7Field.startsWith("MSH") -> "/${it.hl7Field}"
-                                (it.hl7Field == "AOE") -> {
-                                    val question = it.hl7AOEQuestion!!
-                                    val countObservations = 10
-                                    // todo: map each AOE by the AOE question ID
-                                    for (c in 0 until countObservations) {
-                                        var spec = "/.OBSERVATION($c)/OBX-3-1"
-                                        val questionCode = try {
-                                            terser.get(spec)
-                                        } catch (e: HL7Exception) {
-                                            // todo: convert to result detail, maybe
-                                            errors.add("Exception for $spec: ${e.message}")
-                                            null
-                                        }
-                                        if (questionCode?.startsWith(question) == true) {
-                                            spec = "/.OBSERVATION($c)/OBX-5"
-                                            queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
-                                        }
-                                    }
-                                    "/.AOE"
-                                }
-                                else -> "/.${it.hl7Field}"
+                when {
+                    // No field was specified, so ignore
+                    it.hl7Field.isNullOrEmpty() -> {
+                        value.add("")
+                    }
+                    // Decode a phone number
+                    it.type == Element.Type.TELEPHONE -> {
+                        value.add(decodeHl7PhoneNumber(terser, it))
+                    }
+                    // Decode a timestamp
+                    it.type == Element.Type.DATETIME -> {
+                        value.add(decodeHl7DateTime(terser, it, warnings))
+                    }
+                    // Decode an AOE question
+                    it.hl7Field == "AOE" -> {
+                        val question = it.hl7AOEQuestion!!
+                        val countObservations = 10
+                        // todo: map each AOE by the AOE question ID
+                        for (c in 0 until countObservations) {
+                            var spec = "/.OBSERVATION($c)/OBX-3-1"
+                            val questionCode = try {
+                                terser.get(spec)
+                            } catch (e: HL7Exception) {
+                                // todo: convert to result detail, maybe
+                                errors.add("Exception for $spec: ${e.message}")
+                                null
                             }
-
-                            if (terserSpec != "/.AOE") {
-                                queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
-                            } else {
-                                if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
+                            if (questionCode?.startsWith(question) == true) {
+                                spec = "/.OBSERVATION($c)/OBX-5"
+                                //value.add(queryTerserForValue(terser, spec, it.name, null, errors, warnings))
+                                value.add(queryTerserForValue(terser, spec, it.name, null, errors, warnings))
                             }
                         }
+                        // If no AOE answer found, then set the value to empty
+                        if (value.isEmpty()) value.add("")
                     }
-
-                } else {
-                    it.hl7OutputFields?.forEach { h ->
-                        val terserSpec = if (h.startsWith("MSH")) {
-                            "/$h"
-                        } else {
-                            "/.$h"
-                        }
-                        queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                    // No special case here, so get a value from an HL7 field
+                    else -> {
+                        value.add(
+                            queryTerserForValue(
+                                terser,
+                                getTerserSpec(it.hl7Field),
+                                it.name,
+                                null,
+                                errors,
+                                warnings
+                            )
+                        )
                     }
                 }
+
+                // Now that we have the value, check if we need to run it through a mapper
+                //TODO RUN MAPPER
+                mappedRows[it.name] = value
             }
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
@@ -882,9 +880,11 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         // Get the field values by going through the terser segment.  This method gives us an
         // array with a maximum number of repetitions, but it may return multiple array elements even if
         // there is no data
-        val fieldParts = element.hl7Field?.split("-")
+        val fieldParts = element.hl7Field?.let {
+            getTerserSpec(it).split("-")
+        }
         if(fieldParts != null && fieldParts.size > 1) {
-            val segment = terser.getSegment("/.${fieldParts[0]}")
+            val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
             if(segment != null && fieldNumber != null) {
                 segment.getField(fieldNumber)?.forEach {
@@ -908,9 +908,11 @@ class Hl7Serializer(val metadata: Metadata): Logging {
      */
     internal fun decodeHl7DateTime(terser: Terser, element: Element, warnings: MutableList<String>): String {
         var dateTime = ""
-        val fieldParts = element.hl7Field?.split("-")
+        val fieldParts = element.hl7Field?.let {
+            getTerserSpec(it).split("-")
+        }
         if(fieldParts != null && fieldParts.size > 1) {
-            val segment = terser.getSegment("/.${fieldParts[0]}")
+            val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
             if(segment != null && fieldNumber != null) {
                 val dtm = when (val value = segment.getField(fieldNumber, 0)) {
@@ -936,6 +938,18 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             }
         }
         return dateTime
+    }
+
+    /**
+     * Gets the HAPI Terser spec from the provided [hl7Field] string.
+     * @returns the HAPI Terser spec
+     */
+    internal fun getTerserSpec(hl7Field: String): String {
+        return if (hl7Field.isNotBlank() && hl7Field.startsWith("MSH")) {
+            "/$hl7Field"
+        } else {
+            "/.$hl7Field"
+        }
     }
 
     companion object {

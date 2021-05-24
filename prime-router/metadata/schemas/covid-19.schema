@@ -53,6 +53,7 @@ elements:
     reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hhsGuidanceField: Device ID
+    hl7Field: OBX-17-1
     hl7OutputFields: [ OBX-17-1, OBX-17-9 ]
     documentation: Device_id is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
 
@@ -400,7 +401,7 @@ elements:
     pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     natFlatFileField: Ordering_provider_last_name
     hhsGuidanceField:
-    hl7Field:
+    hl7Field: ORC-12-2
     hl7OutputFields: [ORC-12-2, OBR-16-2]
     documentation: The last name of provider who ordered the test
 

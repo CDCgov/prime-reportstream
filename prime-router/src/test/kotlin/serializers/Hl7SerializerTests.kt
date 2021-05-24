@@ -382,7 +382,7 @@ NTE|1|L|This is a final comment|RE"""
         context.modelClassFactory = mcf
         val parser = context.pipeParser
         // act
-        val reg = "[\r\n]6a".toRegex()
+        val reg = "[\r\n]".toRegex()
         val cleanedMessage = reg.replace(intMessage, "\r")
         val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
