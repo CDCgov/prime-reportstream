@@ -17,7 +17,7 @@ The EmailService should:
 
 ## Proposal
 
-The EmailService will run as a HTTP triggered service presenting a REST-ful API to manage EmailSchedules.  It will have capabilities to LIST, CREATE, DELETE, and UPDATE EmailSchedules.  When an EmailSchedule is created, the EmailService will programatically create and launch a time-trigger based Azure function based on the 'schedule' element within the supplied message for building the desired email and notifying SendGrid.  For 'send-immediate' messages, no function will be created - but the email will be sent.
+The EmailService will run as a HTTP triggered service presenting a REST-ful API to manage EmailSchedules.  It will have capabilities to LIST, CREATE, DELETE, and UPDATE EmailSchedules.  When an EmailSchedule is created, the EmailServiceEngine a time-trigger based Azure function will wake up and based on the 'schedule' element within the supplied message for building the desired email will notifying SendGrid.  
 
 The email service will store its relevant data within the Postgres database, with the exception of templates which will be maintained on the SendGrid site (with references to them in Postgres).
 
@@ -27,8 +27,6 @@ The EmailService will take in a Schedule element that consists of a body similar
     "template": "template.name", // the name of the template
     "schedule": "chron string for scheduling", // optional, no schedule means send immediate
     "organization" : "optional organization to send to", // ex. DHpima_az_doh, DHmt_doh, etc.
-    "recipient": [ "optional", "optional" ], //optional array of recipients emails
-    "excluding": [ "optional"], // a list of recipients to exclude, otherwise everybody within the organization receives
     "parameters": {
         "param1": "value for param1",
         ...
@@ -38,15 +36,30 @@ The EmailService will take in a Schedule element that consists of a body similar
 
 See [openapi.emailservice.yml](./openapi.emailservice.yml) for a detailed specification
 
-The EmailService will fire off emails based on:
-- If there are organizations, only for those organizations, otherwise, for every organization
-- If there are recipients, only for those recipients, otherwise, for every recipient, with the exception of anyone listed in "excluding"
+### EmailServiceEngine
+The EmailServiceEngine is the portion of the system that will periodically awaken and dispatch to SendGrid based on:
+
+- Retrieve a list of templates that need to be sent
+- For each template - it will fetch (and cache) the listing of organizations to send this to
+- For each organization, it will fetch the listing of emails (users) to send to
+- emails will have a claim (opt-out) that lists the types of templates that they wish to opt out of
+- organizations & emails will be cached
+- Once obtained - per organization, the template/emails will be dispatched to SendGrid
 
 The EmailService will record all of its actions to a logging table.
 
 The EmailService will require an HttpHeader Authentication with a valid JWT token.
 
+### OptOut
+With each email sent, the message will allow for a link to unsubscribe and/or manage optout -- The link will go to a page that will allow for setting/changing the types of emails that the user wants to optout of...
+
+projected types are
+- Daily / Weekly
+- Marketing
+- Alerts
+
 ### Special parameter values
+Special parameters are included automatically with each call to sendgrid
 
 | Parameter | Description |
 | --------  | ------------|
