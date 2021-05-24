@@ -7,7 +7,7 @@ terraform {
   required_providers {
     azurerm = {
       source = "hashicorp/azurerm"
-      version = "= 2.45.1" # This version must also be changed in other environments
+      version = "2.60.0" # This version must also be changed in other environments
     }
   }
   backend "azurerm" {
