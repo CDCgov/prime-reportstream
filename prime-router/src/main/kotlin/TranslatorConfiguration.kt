@@ -16,8 +16,6 @@ interface TranslatorProperties {
     val defaults: Map<String, String>
     val nameFormat: String
     val receivingOrganization: String?
-    // deprecated, use nameFormat instead
-    val useAphlNamingFormat: Boolean
 }
 
 // Base JSON Type
@@ -60,9 +58,6 @@ data class Hl7Configuration
     val processingModeCode: String? = null,
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
-    // deprecated, please don't use
-    @get:JsonIgnore
-    override val useAphlNamingFormat: Boolean = false
 ) : TranslatorConfiguration("HL7") {
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
@@ -132,9 +127,6 @@ data class RedoxConfiguration
     override val nameFormat: String = "standard"
 
     @get:JsonIgnore
-    override val useAphlNamingFormat: Boolean = false
-
-    @get:JsonIgnore
     override val receivingOrganization: String? = null
 }
 
@@ -148,7 +140,4 @@ data class CustomConfiguration
     override val defaults: Map<String, String> = emptyMap(),
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
-    // deprecated - please don't use
-    @JsonIgnore
-    override val useAphlNamingFormat: Boolean = false
 ) : TranslatorConfiguration("CUSTOM")

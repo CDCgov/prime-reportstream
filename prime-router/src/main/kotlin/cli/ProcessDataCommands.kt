@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.DefaultValues
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSettings
@@ -272,13 +273,19 @@ class ProcessData : CliktCommand(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
-
+                    // generate a translation config if we don't have
+                    val translationConfig = report.destination?.translation ?: CustomConfiguration(
+                        report.schema.baseName,
+                        format,
+                        receivingOrganization = null,
+                        nameFormat = nameFormat ?: "standard"
+                    )
                     val fileName = Report.formFilename(
                         report.id,
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
-                        report.destination?.translation,
+                        translationConfig,
                         metadata
                     )
                     File(outputDir ?: ".", fileName)
