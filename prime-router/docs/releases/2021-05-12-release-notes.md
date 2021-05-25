@@ -10,6 +10,12 @@
 
 ## For this release
 
+### LVID table update
+
+The LVID table has been updated to the April 28, 2021 version. 
+This update should add support multiple new SARS COV-2 tests. 
+A review of the update shows that current tests that 
+current ReportStream senders use are not affected. 
 ### Changes to api/reports response
 
 This release adds the configured topic for the organization sender to the Json response along with an ISO-8601 timestamp. The openapi.yml was updated to reflect the changes as well.
