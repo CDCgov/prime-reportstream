@@ -13,6 +13,7 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Translator
@@ -430,23 +431,36 @@ class ProcessData : CliktCommand(
 
         // Output reports
         writeReportsToFile(outputReports, metadata) { report, format, stream ->
-            val hl7Configuration = Hl7Configuration(
-                nameFormat = nameFormat ?: "standard",
-                suppressQstForAoe = suppressQstForAoe,
-                receivingApplicationName = receivingApplication,
-                receivingFacilityName = receivingFacility,
-                receivingOrganization = receivingOrganization,
-                receivingApplicationOID = "",
-                receivingFacilityOID = "",
-                messageProfileId = "",
-                useBatchHeaders = format == Report.Format.HL7_BATCH,
-                reportingFacilityId = reportingFacilityId,
-                reportingFacilityName = reportingFacilityName,
-            )
             when (format) {
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
                 Report.Format.CSV -> csvSerializer.write(report, stream)
-                Report.Format.HL7 -> hl7Serializer.write(report, stream, hl7Configuration)
+                Report.Format.HL7 -> {
+                    val hl7Configuration = Hl7Configuration(
+                        nameFormat = nameFormat ?: "standard",
+                        suppressQstForAoe = suppressQstForAoe,
+                        receivingApplicationName = receivingApplication,
+                        receivingFacilityName = receivingFacility,
+                        receivingOrganization = receivingOrganization,
+                        receivingApplicationOID = "",
+                        receivingFacilityOID = "",
+                        messageProfileId = "",
+                        useBatchHeaders = format == Report.Format.HL7_BATCH,
+                        reportingFacilityId = reportingFacilityId,
+                        reportingFacilityName = reportingFacilityName,
+                    )
+                    val reportWithTranslation = if (report.destination?.translation == null) {
+                        val destination = Receiver(
+                            "emptyReceiver",
+                            "",
+                            "covid-19",
+                            hl7Configuration
+                        )
+                        report.copy(destination, Report.Format.HL7_BATCH)
+                    } else {
+                        report
+                    }
+                    hl7Serializer.write(reportWithTranslation, stream)
+                }
                 Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
                 Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
