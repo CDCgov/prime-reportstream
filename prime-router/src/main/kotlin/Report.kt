@@ -723,13 +723,12 @@ class Report {
             translationConfig: TranslatorConfiguration? = null,
             metadata: Metadata
         ): String {
-            val hl7Config = translationConfig as? Hl7Configuration?
             return formFilename(
                 id,
                 schemaName,
                 fileFormat,
                 createdDateTime,
-                hl7Config?.nameFormat ?: "standard",
+                translationConfig?.nameFormat ?: "standard",
                 translationConfig,
                 metadata = metadata
             )
@@ -746,9 +745,8 @@ class Report {
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
-            val hl7Configuration = translationConfig as? Hl7Configuration?
             val fileName = metadata.fileNameTemplates[nameFormat].run {
-                this?.getFileName(hl7Configuration)
+                this?.getFileName(translationConfig)
                     ?: "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
             }
             return "$fileName.$nameSuffix"

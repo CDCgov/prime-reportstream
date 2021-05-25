@@ -321,7 +321,11 @@ class Metadata {
     */
     val fileNameTemplates get() = fileNameTemplatesStore
 
-    fun loadFileNameTemplates(filePath: String): Metadata {
+    fun findFileNameTemplate(name: String): FileNameTemplate? {
+        return fileNameTemplatesStore[name.lowercase()]
+    }
+
+    private fun loadFileNameTemplates(filePath: String): Metadata {
         val catalogDir = File(filePath)
         if (catalogDir.exists()) {
             fileNameTemplatesStore = readAllFileNameTemplates(catalogDir).associateBy {
@@ -354,9 +358,18 @@ class Metadata {
         const val valuesetsSubdirectory = "valuesets"
         const val tableSubdirectory = "tables"
         const val fileNameTemplatesSubdirectory = "./file_name_templates"
-
+        @Volatile private var defaultMetadata: Metadata? = null
+        // I am probably threadsafe. If things go bananas verify I'm not the cause
+        // this is instead of doing everything with DI because doing DI right in Azure
+        // with existing DI libraries was extremely complex and beyond the scope
+        // of this work. And probably hard to get right. And honestly not necessary. Probably.
+        // honestly, the case could be made to make Metadata a singleton and then this code
+        // can go away, but that is also beyond the scope of this work right now
         fun provideMetadata(): Metadata {
-            return Metadata(defaultMetadataDirectory)
+            return defaultMetadata ?: synchronized(this) {
+                val newInstance = defaultMetadata ?: Metadata(defaultMetadataDirectory).also { defaultMetadata = it }
+                newInstance
+            }
         }
     }
 }

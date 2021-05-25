@@ -435,6 +435,7 @@ class ProcessData : CliktCommand(
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
                 Report.Format.CSV -> csvSerializer.write(report, stream)
                 Report.Format.HL7 -> {
+                    // create a default hl7 config
                     val hl7Configuration = Hl7Configuration(
                         nameFormat = nameFormat ?: "standard",
                         suppressQstForAoe = suppressQstForAoe,
@@ -448,10 +449,11 @@ class ProcessData : CliktCommand(
                         reportingFacilityId = reportingFacilityId,
                         reportingFacilityName = reportingFacilityName,
                     )
+                    // and create a report with a new destination
                     val reportWithTranslation = if (report.destination?.translation == null) {
                         val destination = Receiver(
                             "emptyReceiver",
-                            "",
+                            "emptyOrganization",
                             "covid-19",
                             hl7Configuration
                         )
