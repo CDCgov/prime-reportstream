@@ -30,14 +30,14 @@ elements:
   - name: device_id
     type: TEXT
     mapper: split(device_id, 0, _)
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hl7Field: OBX-17-1
 
   - name: device_id_type
     type: TEXT
     mapper: none()
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hl7Field: OBX-17-3
 
@@ -61,7 +61,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Equipment UID
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     hl7Field: OBX-18-1
@@ -70,7 +70,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Equipment UID Type
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     hl7Field: OBX-18-3
@@ -79,7 +79,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Model
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     
@@ -87,7 +87,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Manufacturer
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     
@@ -681,7 +681,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Testkit Name ID
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     
@@ -689,7 +689,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-01-20
     tableColumn: Testkit Name ID Type
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
 

@@ -45,7 +45,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     mapper: obx17()
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hhsGuidanceField: Device ID
     documentation: Device_id is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
@@ -54,7 +54,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     mapper: obx17Type()
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hhsGuidanceField: Device ID
     documentation: Device_id_type is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
@@ -88,7 +88,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Equipment UID
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField: Instrument_model_id
@@ -98,7 +98,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Equipment UID Type
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField:
@@ -108,7 +108,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Model
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField: Instrument_model_name
@@ -118,7 +118,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Manufacturer
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField: Instrument_model_name
@@ -810,7 +810,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Testkit Name ID
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField: Test_kit_model_name
@@ -819,7 +819,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Testkit Name ID Type
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
 
