@@ -253,7 +253,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 }
             }
 
-            // Second, we process the mappers for elements that do not have a value.
+            // Second, we process the mappers an only overwrite data values if the mapper returns a non-blank string
             schema.elements.forEach {
                 if (it.mapperRef != null) {
                     // This gets the requiredvalue names, then gets the value from mappedRows that has the data
@@ -267,6 +267,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                             null
                         }
                     }
+                    // Only overwrite an existing value if the mapper returns a non-blank string
                     val value = it.mapperRef.apply(it, args, valuesForMapper)
                     if(!value.isNullOrBlank()) {
                         mappedRows[it.name] = mutableSetOf(value)

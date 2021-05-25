@@ -549,11 +549,12 @@ class StripNumericDataMapper : Mapper {
 }
 
 /**
- * Split a string based on a provided delimiter and obtain the string at specified split index.
+ * Split a string based on a provided delimiter and obtain the string at the specified split index.
  * Arguments:
  *   element (required)
  *   index to extract (required)
  *   delimiter (optional) - defaults to space
+ * Returns: a string
  */
 class SplitMapper : Mapper {
     override val name = "split"
@@ -613,7 +614,9 @@ class ZipCodeToCountyMapper : Mapper {
 }
 
 /**
- * This mapper has no operation and is meant to override mappers set on parent schemas, so no mapper runs.
+ * This mapper performs no operation and is meant to override mappers set on parent schemas, so no mapper runs.
+ * Arguments: None
+ * Returns: null
  */
 class NoMapper : Mapper {
     override val name = "none"
@@ -625,7 +628,7 @@ class NoMapper : Mapper {
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return ""
+        return null
     }
 }
 
