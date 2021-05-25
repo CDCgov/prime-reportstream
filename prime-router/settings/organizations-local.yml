@@ -143,7 +143,7 @@
           redox_source_id: "d89d4057-930f-4c5b-bb39-8cddb326e928"
           redox_destination_id: "62d62d52-3771-4151-aff4-4a3d420a8b7a"
           redox_destination_name: "Colorado Dept of Public Health (CDPHE)"
-        nameFormat: "STANDARD"
+        nameFormat: "standard"
         type: "CUSTOM"
       deidentify: false
       timing:
@@ -268,7 +268,7 @@
           receivingOrganization: laoph
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
-          nameFormat: APHL
+          nameFormat: aphl
           useTestProcessingMode: false
         timing:
           operation: MERGE
@@ -301,7 +301,7 @@
           receivingFacilityOID: 2.16.840.1.114222.4.1.3674
           reportingFacilityName: CDC PRIME
           reportingFacilityId: 36DSMP9999
-          nameFormat: OHIO
+          nameFormat: ohio
           suppressHl7Fields: OBX-23-11
           # turn off UNK and ASKU for this field
           useBlankInsteadOfUnknown: patient_race
@@ -326,15 +326,6 @@
         topic: covid-19
         jurisdictionalFilter:
           - matches(ordering_facility_state, NM)
-        fileNameTemplate:
-          name: nm_file_name
-          lowerCase: true
-          elements:
-            - cdcprime_
-            - receivingOrganization()
-            - _test_
-            - createdDate()
-            - .hl7
         translation:
           type: HL7
           useBatchHeaders: true
@@ -344,7 +335,7 @@
           receivingFacilityName: NMDOH
           receivingFacilityOID: 2.16.840.1.113883.3.5364
           truncateHDNamespaceIds: true
-          nameFormat: CUSTOM
+          nameFormat: aphl_light
           # turn off UNK and ASKU for this field
           useBlankInsteadOfUnknown: patient_race
           suppressHl7Fields: OBX-17-1
