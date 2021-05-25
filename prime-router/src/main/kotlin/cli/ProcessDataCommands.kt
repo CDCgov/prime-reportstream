@@ -250,6 +250,7 @@ class ProcessData : CliktCommand(
 
     private fun writeReportsToFile(
         reports: List<Pair<Report, Report.Format>>,
+        metadata: Metadata,
         writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
@@ -276,8 +277,8 @@ class ProcessData : CliktCommand(
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
-                        getNameFormat(Report.NameFormat.STANDARD),
-                        receivingOrganization ?: report.destination?.translation?.receivingOrganization
+                        report.destination?.translation,
+                        metadata
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -310,10 +311,6 @@ class ProcessData : CliktCommand(
 
     private fun getOutputFormat(default: Report.Format): Report.Format {
         return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
-    }
-
-    private fun getNameFormat(default: Report.NameFormat): Report.NameFormat {
-        return if (nameFormat != null) Report.NameFormat.valueOf(nameFormat!!) else default
     }
 
     private fun getDefaultValues(): DefaultValues {
@@ -432,9 +429,9 @@ class ProcessData : CliktCommand(
         }
 
         // Output reports
-        writeReportsToFile(outputReports) { report, format, stream ->
+        writeReportsToFile(outputReports, metadata) { report, format, stream ->
             val hl7Configuration = Hl7Configuration(
-                nameFormat = getNameFormat(Report.NameFormat.STANDARD),
+                nameFormat = nameFormat ?: "standard",
                 suppressQstForAoe = suppressQstForAoe,
                 receivingApplicationName = receivingApplication,
                 receivingFacilityName = receivingFacility,

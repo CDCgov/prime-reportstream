@@ -75,7 +75,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 ?: error("JurisdictionalFilter $fnName is not found")
             Pair(filterFn, fnArgs)
         }
-        val jurisFilteredReport = input.filter(jurisFilterAndArgs,receiver)
+        val jurisFilteredReport = input.filter(jurisFilterAndArgs, receiver)
 
         // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
         if (jurisFilteredReport.isEmpty()) return buildEmptyReport(receiver, input)
@@ -137,7 +137,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     fun buildEmptyReport(receiver: Receiver, from: Report): Report {
         val toSchema = metadata.findSchema(receiver.schemaName)
             ?: error("${receiver.schemaName} schema is missing from catalog")
-        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
+        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")), metadata = metadata)
     }
 
     /**

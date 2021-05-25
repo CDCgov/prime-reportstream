@@ -241,16 +241,6 @@ class FileNameTemplateTests {
     }
 
     @Test
-    fun `test schema base name error case`() {
-        val config: TranslatorConfiguration? = null
-        SchemaBaseName().run {
-            assertThat {
-                this.getElementValue(emptyList(), config)
-            }.isFailure()
-        }
-    }
-
-    @Test
     fun `load file name templates from metadata`() {
         val metadata = Metadata(Metadata.defaultMetadataDirectory)
         assertThat(metadata.fileNameTemplates).isNotEmpty()

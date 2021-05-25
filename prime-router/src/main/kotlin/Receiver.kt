@@ -44,7 +44,7 @@ open class Receiver(
         format: Report.Format = Report.Format.CSV
     ) : this(
         name, organizationName, topic,
-        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), Report.NameFormat.STANDARD, null)
+        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null)
     )
 
     constructor(copy: Receiver) : this(

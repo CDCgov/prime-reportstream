@@ -19,15 +19,15 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.ValueSet
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-import org.apache.logging.log4j.kotlin.Logging
 
-class Hl7Serializer(val metadata: Metadata): Logging {
+class Hl7Serializer(val metadata: Metadata) : Logging {
     data class Hl7Mapping(
         val mappedRows: Map<String, List<String>>,
         val rows: List<RowResult>,
@@ -68,7 +68,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
     /**
      * Write a report with a single item
      */
-    fun write(report: Report, outputStream: OutputStream, translatorConfig: TranslatorConfiguration? = null) {
+    fun write(report: Report, outputStream: OutputStream) {
         if (report.itemCount != 1)
             error("Internal Error: multiple item report cannot be written as a single HL7 message")
         val message = createMessage(report, 0)
@@ -247,7 +247,6 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                             }
                         }
                     }
-
                 } else {
                     it.hl7OutputFields?.forEach { h ->
                         val terserSpec = if (h.startsWith("MSH")) {
@@ -289,7 +288,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = Report(schema, mappedRows, source)
+        val report = Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 
@@ -859,27 +858,25 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         // there is no data
         var phoneFields = arrayOf<Type>()
         val fieldParts = hl7Field?.split("-")
-        if(fieldParts != null && fieldParts.size > 1) {
+        if (fieldParts != null && fieldParts.size > 1) {
             val segment = terser.getSegment("/.${fieldParts[0]}")
             val fieldNumber = fieldParts[1].toIntOrNull()
-            if(segment != null && fieldNumber != null) {
+            if (segment != null && fieldNumber != null) {
                 phoneFields = segment.getField(fieldNumber) ?: emptyArray()
             }
         }
 
-        for(index in 0 until phoneFields.size)
-        {
+        for (index in 0 until phoneFields.size) {
             val phone = phoneFields[index]
-            if(phone is XTN) {
-                if(!phone.areaCityCode.isEmpty || !phone.localNumber.isEmpty) {
+            if (phone is XTN) {
+                if (!phone.areaCityCode.isEmpty || !phone.localNumber.isEmpty) {
                     // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                    if(phone.telecommunicationEquipmentType.isEmpty || phone.telecommunicationEquipmentType.value == "PH") {
-                        phoneNumber = "${phone.areaCityCode.value?:""}${phone.localNumber.value?:""}:" +
-                            "${phone.countryCode.value?:""}:${phone.extension.value?:""}"
+                    if (phone.telecommunicationEquipmentType.isEmpty || phone.telecommunicationEquipmentType.value == "PH") {
+                        phoneNumber = "${phone.areaCityCode.value ?: ""}${phone.localNumber.value ?: ""}:" +
+                            "${phone.countryCode.value ?: ""}:${phone.extension.value ?: ""}"
                         break
                     }
-                }
-                else if(!phone.telephoneNumber.isEmpty) {
+                } else if (!phone.telephoneNumber.isEmpty) {
                     phoneNumber = element.toNormalized(phone.telephoneNumber.value)
                     break
                 }

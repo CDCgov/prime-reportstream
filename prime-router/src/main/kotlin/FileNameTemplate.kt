@@ -70,7 +70,7 @@ class SchemaBaseName : FileNameElement {
     override val name = "schemaBaseName"
 
     override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
-        return Schema.formBaseName(translatorConfig?.schemaName ?: error("Translation config shouldn't be null"))
+        return Schema.formBaseName(translatorConfig?.schemaName ?: "")
     }
 }
 

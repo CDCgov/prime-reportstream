@@ -14,7 +14,7 @@ interface TranslatorProperties {
     val format: Report.Format
     val schemaName: String
     val defaults: Map<String, String>
-    val nameFormat: Report.NameFormat
+    val nameFormat: String
     val receivingOrganization: String?
     // deprecated, use nameFormat instead
     val useAphlNamingFormat: Boolean
@@ -58,7 +58,7 @@ data class Hl7Configuration
     val convertTimestampToDateTime: String? = null,
     // pass this around as a property now
     val processingModeCode: String? = null,
-    override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
+    override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
     // deprecated, please don't use
     @get:JsonIgnore
@@ -129,7 +129,7 @@ data class RedoxConfiguration
     }
 
     @get:JsonIgnore
-    override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD
+    override val nameFormat: String = "standard"
 
     @get:JsonIgnore
     override val useAphlNamingFormat: Boolean = false
@@ -146,7 +146,7 @@ data class CustomConfiguration
     override val schemaName: String,
     override val format: Report.Format,
     override val defaults: Map<String, String> = emptyMap(),
-    override val nameFormat: Report.NameFormat = Report.NameFormat.STANDARD,
+    override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
     // deprecated - please don't use
     @JsonIgnore

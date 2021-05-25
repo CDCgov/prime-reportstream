@@ -34,7 +34,6 @@ class Metadata {
         SplitByCommaMapper(),
         TimestampMapper(),
     )
-
     private var jurisdictionalFilters = listOf(
         FilterByCounty(),
         Matches(),
@@ -355,5 +354,9 @@ class Metadata {
         const val valuesetsSubdirectory = "valuesets"
         const val tableSubdirectory = "tables"
         const val fileNameTemplatesSubdirectory = "./file_name_templates"
+
+        fun provideMetadata(): Metadata {
+            return Metadata(defaultMetadataDirectory)
+        }
     }
 }
