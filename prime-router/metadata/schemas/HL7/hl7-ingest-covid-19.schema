@@ -1,15 +1,7 @@
 ---
-# This is set of standard data elements for covid-19 topic
-#
-# Conventions:
-# - Sort by element name
-# - Use the HL7 message name with _ instead of space and lower cased
-# - Use ID instead of Identifier
-# - Avoid abbreviations. Use street1, phone_number, zip_code, ...
-#
 name: hl7-ingest-covid-19
 topic: covid-19
-description: collection of standard elements, not an actual schema
+description: Schema for ingesting HL7 messages
 basedOn: covid-19
 elements:
   - name: abnormal_flag
