@@ -392,4 +392,13 @@ NTE|1|L|This is a final comment|RE"""
             terser.get("/.PID-5-1")
         )
     }
+
+    @Test
+    fun `test terser spec generator`() {
+        val metadata = Metadata("./metadata")
+        val serializer = Hl7Serializer(metadata)
+        assertEquals("/MSH-1-1", serializer.getTerserSpec("MSH-1-1"))
+        assertEquals("/.PID-1", serializer.getTerserSpec("PID-1"))
+        assertEquals("/.", serializer.getTerserSpec(""))
+    }
 }

@@ -102,7 +102,7 @@ class ObservationMessageTests {
      * (e.g. HL7 batch files have multiple reports) and verifies all data elements match the expected values in the
      * related .internal file that exists in the same folder as the HL7 test file.
      *
-     * Limitations: Date times in the HL7 data without a speficied time zone are bound by the JVM default timezone and hence
+     * Limitations: Date times in the HL7 data without a specified time zone are bound by the JVM default timezone and hence
      * will generate an error against the GMT0 expected result.  GMT is the timezone of the build and deployment environments.
      */
     class FileTest(private val hl7AbsolutePath: String): Executable {
@@ -194,7 +194,7 @@ class ObservationMessageTests {
             var expectedHasHeader = false
             var expectedSize = expected.size
             val firstColName = actual.schema.elements[0].name
-            if(expected.size > 0 && expected[0][0] == firstColName) {
+            if(expected.isNotEmpty() && expected[0][0] == firstColName) {
                 expectedHasHeader = true
                 expectedSize--
             }
@@ -215,7 +215,7 @@ class ObservationMessageTests {
                     val colName = actual.schema.elements[j].name
 
                     // We want to error on differences when the expected data is not empty.
-                    if(!expectedRow[j].isNullOrBlank() && actualRow[j].trim() != expectedRow[j].trim()) {
+                    if(expectedRow[j].isNotBlank() && actualRow[j].trim() != expectedRow[j].trim()) {
                         errorMsgs.add("   DATA ERROR: Data value does not match in report $i column #${j+1}, '$colName'.  " +
                             "Expected: '${expectedRow[j].trim()}', Actual: '${actualRow[j].trim()}'")
                     }
