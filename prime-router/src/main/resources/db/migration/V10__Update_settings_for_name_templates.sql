@@ -60,8 +60,3 @@ WHERE
     AND s.values::JSONB#>'{translation,nameFormat}' IS NULL
     AND s.is_active = TRUE
 ;
-
-
-/*
- * Set the name format to lower case
- */
