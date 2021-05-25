@@ -109,7 +109,7 @@ class ObservationMessageTests {
         /**
          * The schema to use.
          */
-        private val schemaName = "covid-19"
+        private val schemaName = "hl7/hl7-ingest-covid-19"
 
         /**
          * The HAPI HL7 parser.
@@ -228,7 +228,7 @@ class ObservationMessageTests {
             // Add the errors and warnings to the assert message, so they show up in the build results.
             assertTrue(errorMsgs.size == 0,
                 "There were ${errorMsgs.size} incorrect data value(s) detected with ${warningMsgs.size} warning(s)\n" +
-                errorMsgs.joinToString("\n") + warningMsgs.joinToString("\n"))
+                errorMsgs.joinToString("\n") + "\n" + warningMsgs.joinToString("\n"))
             // Print the warning messages if any
             if(errorMsgs.size == 0 && warningMsgs.size > 0)  println(warningMsgs.joinToString("\n"))
         }

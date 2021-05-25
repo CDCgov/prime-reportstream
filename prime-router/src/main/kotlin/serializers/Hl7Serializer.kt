@@ -168,7 +168,6 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             terser: Terser,
             terserSpec: String,
             elementName: String,
-            mappedRows: MutableMap<String, MutableSet<String>>?,
             errors: MutableList<String>,
             warnings: MutableList<String>
         ): String {
@@ -182,7 +181,6 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             if (parsedValue.isNullOrEmpty()) {
                 warnings.add("Blank for $terserSpec - $elementName")
             }
-            mappedRows?.let {mergeIntoMappedRows(mappedRows, elementName, parsedValue ?: "")}
             return parsedValue ?: ""
         }
         val errors = mutableListOf<String>()
@@ -202,22 +200,27 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         try {
             val hapiMsg = parser.parse(cleanedMessage)
             val terser = Terser(hapiMsg)
-            schema.elements.forEach {
-                // If there is a value for the key, then we are adding to it.
-                val value = if(mappedRows.containsKey(it.name) && mappedRows[it.name] != null) mappedRows[it.name]!! else mutableSetOf()
 
+            // First, extract any data elements from the HL7 message.
+            schema.elements.forEach {
+                // If there is no value for the key, then initialize it.
+                if(!mappedRows.containsKey(it.name) || mappedRows[it.name] == null) {
+                    mappedRows[it.name] = mutableSetOf()
+                }
+
+                var value = ""
                 when {
                     // No field was specified, so ignore
                     it.hl7Field.isNullOrEmpty() -> {
-                        value.add("")
+                        // No action here.  Keep the value empty
                     }
                     // Decode a phone number
                     it.type == Element.Type.TELEPHONE -> {
-                        value.add(decodeHl7PhoneNumber(terser, it))
+                        value = decodeHl7PhoneNumber(terser, it)
                     }
                     // Decode a timestamp
                     it.type == Element.Type.DATETIME -> {
-                        value.add(decodeHl7DateTime(terser, it, warnings))
+                        value = decodeHl7DateTime(terser, it, warnings)
                     }
                     // Decode an AOE question
                     it.hl7Field == "AOE" -> {
@@ -235,31 +238,49 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                             }
                             if (questionCode?.startsWith(question) == true) {
                                 spec = "/.OBSERVATION($c)/OBX-5"
-                                //value.add(queryTerserForValue(terser, spec, it.name, null, errors, warnings))
-                                value.add(queryTerserForValue(terser, spec, it.name, null, errors, warnings))
+                                value = queryTerserForValue(terser, spec, it.name, errors, warnings)
                             }
                         }
-                        // If no AOE answer found, then set the value to empty
-                        if (value.isEmpty()) value.add("")
                     }
                     // No special case here, so get a value from an HL7 field
                     else -> {
-                        value.add(
-                            queryTerserForValue(
-                                terser,
-                                getTerserSpec(it.hl7Field),
-                                it.name,
-                                null,
-                                errors,
-                                warnings
-                            )
-                        )
+                        value = queryTerserForValue(terser, getTerserSpec(it.hl7Field), it.name,
+                                errors, warnings)
+                    }
+                }
+                if(value.isNotBlank()) {
+                    mappedRows[it.name]!!.add(value)
+                }
+            }
+
+            // Second, we process the mappers for elements that do not have a value.
+            schema.elements.forEach {
+                if (it.mapperRef != null) {
+                    // This gets the requiredvalue names, then gets the value from mappedRows that has the data
+                    val args = it.mapperArgs ?: emptyList()
+                    val valueNames = it.mapperRef?.valueNames(it, args)
+                    val valuesForMapper = valueNames?.mapNotNull { elementName ->
+                        val valueElement = schema.findElement(elementName)
+                        if(valueElement != null && mappedRows.containsKey(elementName) && !mappedRows[elementName].isNullOrEmpty()) {
+                            ElementAndValue(valueElement, mappedRows[elementName]!!.first())
+                        } else {
+                            null
+                        }
+                    }
+                    val value = it.mapperRef.apply(it, args, valuesForMapper)
+                    if(!value.isNullOrBlank()) {
+                        mappedRows[it.name] = mutableSetOf(value)
                     }
                 }
 
-                // Now that we have the value, check if we need to run it through a mapper
-                //TODO RUN MAPPER
-                mappedRows[it.name] = value
+                // Finally, add a default value or empty string to elements that still do not have a value.
+                if(mappedRows[it.name].isNullOrEmpty()) {
+                    if(!it.default.isNullOrBlank()) {
+                        mappedRows[it.name]!!.add(it.default)
+                    } else {
+                        mappedRows[it.name]?.add("")
+                    }
+                }
             }
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
