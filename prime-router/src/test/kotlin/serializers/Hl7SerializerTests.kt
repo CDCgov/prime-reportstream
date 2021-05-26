@@ -33,6 +33,7 @@ import kotlin.test.fail
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Hl7SerializerTests {
     private val hl7TestFileDir = "./src/test/hl7_test_files/"
+    private val hl7SchemaName = "hl7/hl7-ingest-covid-19"
     private val testReport: Report
     private val context = DefaultHapiContext()
     private val serializer: Hl7Serializer
@@ -43,7 +44,7 @@ class Hl7SerializerTests {
     init {
         val metadata = Metadata("./metadata")
         val inputStream = File("./src/test/unit_test_files/fake-pdi-covid-19.csv").inputStream()
-        covid19Schema = metadata.findSchema("hl7/hl7-ingest-covid-19") ?: fail("Could not find target schema")
+        covid19Schema = metadata.findSchema(hl7SchemaName) ?: fail("Could not find target schema")
         csvSerializer = CsvSerializer(metadata)
         serializer = Hl7Serializer(metadata)
         testReport = csvSerializer.readExternal("primedatainput/pdi-covid-19", inputStream, TestSource).report ?: fail()
@@ -160,7 +161,7 @@ NTE|1|L|This is a final comment|RE"""
         val inputFile = "$hl7TestFileDir/batch_message.hl7"
         val message = File(inputFile)
         val source = FileSource(inputFile)
-        val readResult = serializer.readExternal("hl7/hl7-ingest-covid-19", message.inputStream(), source)
+        val readResult = serializer.readExternal(hl7SchemaName, message.inputStream(), source)
         val report = readResult.report ?: fail("Report was null and should not be")
         assertEquals("South Rodneychester", report.getString(0, "patient_city"))
         assertEquals("North Taylor", report.getString(1, "patient_city"))
