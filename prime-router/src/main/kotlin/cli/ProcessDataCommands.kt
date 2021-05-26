@@ -212,12 +212,12 @@ class ProcessData : CliktCommand(
         metadata: Metadata,
         fileName: String
     ): Report {
-        val schemaName = inputSchema?.toLowerCase() ?: ""
+        val schemaName = inputSchema?.lowercase() ?: ""
         val schema = metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
-        return when (file.extension.toLowerCase()) {
+        return when (file.extension.lowercase()) {
             "hl7" -> {
                 val hl7Serializer = Hl7Serializer(metadata)
                 val result =  hl7Serializer.readExternal(
@@ -229,7 +229,7 @@ class ProcessData : CliktCommand(
             }
             else -> {
                 val csvSerializer = CsvSerializer(metadata)
-                return if (file.extension.toUpperCase() == "INTERNAL") {
+                return if (file.extension.uppercase() == "INTERNAL") {
                     csvSerializer.readInternal(
                         schema.name,
                         file.inputStream(),
