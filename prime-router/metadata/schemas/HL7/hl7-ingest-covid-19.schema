@@ -30,6 +30,11 @@ elements:
     hl7OutputFields: [ORC-12-13, OBR-16-13]
     documentation: Usually NPI
 
+  - name: patient_middle_initial
+    type: PERSON_NAME
+    mapper: middleInitial(patient_middle_name)
+    hl7Field: ""
+
   - name: patient_id_assigner
     type: HD
     mapper: none()
