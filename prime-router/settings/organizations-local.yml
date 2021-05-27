@@ -27,14 +27,14 @@
         schemaName: waters/waters-covid-19
         format: CSV
 
-  - name: im
+  - name: direct
     description: Test Sender
     jurisdiction: FEDERAL
     senders:
       - name: default
-        organizationName: im
+        organizationName: direct
         topic: covid-19
-        schemaName: waters/im-covid-19
+        schemaName: waters/direct-covid-19
         format: CSV
 
   - name: strac
@@ -1049,6 +1049,31 @@
           numberPerDay: 1440
           initialTime: 00:00
           timeZone: EASTERN
+
+  - name: md-phd
+    description: Maryland Public Health Department
+    jurisdiction: STATE
+    stateCode: MD
+    receivers:
+      - name: elr
+        organizationName: md-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(patient_state, MD, ordering_facility_state, MD)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
 
   - name: "hhsprotect"
     description: "HHS Protect"
