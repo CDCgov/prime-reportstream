@@ -247,6 +247,12 @@ elements:
     cardinality: ZERO_OR_ONE
     csvFields: [{ name: performingFacility}]
 
+  # Copy from testing_lab_clia
+  - name: reporting_facility_clia
+    cardinality: ZERO_OR_ONE
+    mapper: use(testing_lab_clia)
+    csvFields: [{ name: reportingFacilityCLIA}]
+
   # Expecting an ISO heirarchic designator here.
   # If that's wrong, change this to 'reporting_facility_name'
   - name: reporting_facility
