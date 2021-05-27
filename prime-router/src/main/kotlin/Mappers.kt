@@ -618,7 +618,7 @@ class ZipCodeToCountyMapper : Mapper {
  * Arguments: None
  * Returns: null
  */
-class NoMapper : Mapper {
+class NullMapper : Mapper {
     override val name = "none"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
