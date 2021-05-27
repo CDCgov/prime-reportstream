@@ -329,6 +329,8 @@ dependencies {
     implementation("org.commonmark:commonmark:0.17.2")
     implementation("com.google.guava:guava:30.1.1-jre")
 
+    implementation("com.cronutils:cron-utils:9.1.5")
+
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
 
