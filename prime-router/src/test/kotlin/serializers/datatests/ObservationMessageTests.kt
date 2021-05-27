@@ -195,6 +195,7 @@ class ObservationMessageTests {
          *
          * Warnings are generated when:
          *  1. An actual value exists, but no expected value.
+         *  2. There are more columns in the actual data than the expected data
          *
          */
         private fun compareToExpected(actual: Report, expected: List<List<String>>) {
@@ -213,6 +214,13 @@ class ObservationMessageTests {
             // Now check the data in each report.
             val errorMsgs = ArrayList<String>()
             val warningMsgs = ArrayList<String>()
+
+            // Check to see if actual has more columns.  Less columns is checked later on a column by column basis
+            if(expected[0].size < actual.schema.elements.size) {
+                warningMsgs.add(
+                    "   DATA WARNING: Actual record(s) has more columns than expected record(s)"
+                )
+            }
 
             val expectedHeaders = expected[0]
             for (i in 0 until actual.itemCount) {
