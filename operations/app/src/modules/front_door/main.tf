@@ -18,6 +18,7 @@ locals {
 
   metabase_env = var.environment == "test" || var.environment == "prod" ? [1] : []
   static_env = length(local.static_endpoints) > 0 ? [1] : []
+  dev_env = length(local.static_endpoints) == 0 ? [1] : []
 }
 
 // TODO: Terraform does not support Azure's rules engine yet
@@ -118,10 +119,32 @@ resource "azurerm_frontdoor" "front_door" {
     accepted_protocols = ["Https"]
     patterns_to_match = ["/", "/download"]
 
-    forwarding_configuration {
-      backend_pool_name = "functions"
-      forwarding_protocol = "HttpsOnly"
-      custom_forwarding_path = "/api/download"
+    # Redirect to the new download site in environments with it deployed
+    dynamic "redirect_configuration" {
+      for_each = local.static_env
+      content {
+        redirect_protocol = "MatchRequest"
+        redirect_type = "TemporaryRedirect"
+
+        # Convert test-reportstream-gov to test.reportstream.gov
+        custom_host = replace(local.static_endpoints[0], "-", ".")
+
+        # Clear any existing URL paths
+        custom_path = "/"
+        custom_query_string = ""
+        custom_fragment = ""
+      }
+    }
+
+    # Use the old download site if it's not deployed
+    # (this also applies to the dev environment, which does not have a cert)
+    dynamic "forwarding_configuration" {
+      for_each = local.dev_env
+      content {
+        backend_pool_name = "functions"
+        forwarding_protocol = "HttpsOnly"
+        custom_forwarding_path = "/api/download"
+      }
     }
   }
 
