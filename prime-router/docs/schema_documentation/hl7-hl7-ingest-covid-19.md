@@ -4,6 +4,146 @@
 
 ---
 
+**Name**: device_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**: OBX-17-9
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-04-28
+
+**Documentation**:
+
+Device_id is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
+
+---
+
+**Name**: device_id_type
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Field**: OBX-17-3
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2-2021-04-28
+
+**Documentation**:
+
+Device_id_type is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
+
+---
+
+**Name**: ordering_provider_id_authority
+
+**Type**: HD
+
+**PII**: No
+
+**HL7 Fields**: ORC-12-9, OBR-16-9
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Usually the OID for CMS
+
+---
+
+**Name**: ordering_provider_id_authority_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**: ORC-12-13, OBR-16-13
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Usually NPI
+
+---
+
+**Name**: patient_id_assigner
+
+**Type**: HD
+
+**PII**: No
+
+**HL7 Fields**: PID-3-6-2
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: message_profile_id
+
+**Type**: EI
+
+**PII**: No
+
+**HL7 Field**: MSH-21
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer
+
+---
+
+**Name**: sending_application
+
+**Type**: HD
+
+**PII**: No
+
+**HL7 Field**: MSH-3
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_id_assigner
+
+**Type**: HD
+
+**PII**: No
+
+**HL7 Field**: OBX-23-6
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_specimen_received_datetime
+
+**Type**: DATETIME
+
+**PII**: No
+
+**HL7 Field**: SPM-18-1
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: abnormal_flag
 
 **Type**: CODE
@@ -121,50 +261,6 @@ RE|Remark
 **HL7 Field**: OBR-22
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: device_id
-
-**Type**: TABLE
-
-**PII**: No
-
-**HL7 Fields**: OBX-17-1, OBX-17-9
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-04-28
-
-**Documentation**:
-
-Device_id is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
-
----
-
-**Name**: device_id_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Field**: OBX-17-3
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
-
-**Table**: LIVD-SARS-CoV-2-2021-04-28
-
-**Documentation**:
-
-Device_id_type is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
 
 ---
 
@@ -849,38 +945,6 @@ The ordering provider’s National Provider Identifier
 
 ---
 
-**Name**: ordering_provider_id_authority
-
-**Type**: HD
-
-**PII**: No
-
-**HL7 Fields**: ORC-12-9, OBR-16-9
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Usually the OID for CMS
-
----
-
-**Name**: ordering_provider_id_authority_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**: ORC-12-13, OBR-16-13
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Usually NPI
-
----
-
 **Name**: ordering_provider_last_name
 
 **Type**: PERSON_NAME
@@ -1254,18 +1318,6 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **PII**: Yes
 
 **HL7 Field**: PID-3-1
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_id_assigner
-
-**Type**: HD
-
-**PII**: No
-
-**HL7 Fields**: PID-3-6-2
 
 **Cardinality**: [0..1]
 
@@ -2192,22 +2244,6 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 ---
 
-**Name**: message_profile_id
-
-**Type**: EI
-
-**PII**: No
-
-**HL7 Field**: MSH-21
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The message profile identifer
-
----
-
 **Name**: reason_for_study
 
 **Type**: TEXT
@@ -2351,18 +2387,6 @@ Does the patient reside in a congregate care setting?
 **PII**: No
 
 **HL7 Field**: OBX-2
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: sending_application
-
-**Type**: HD
-
-**PII**: No
-
-**HL7 Field**: MSH-3
 
 **Cardinality**: [0..1]
 
@@ -2940,18 +2964,6 @@ The accession number of the specimen collected
 
 ---
 
-**Name**: testing_lab_id_assigner
-
-**Type**: HD
-
-**PII**: No
-
-**HL7 Field**: OBX-23-6
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: testing_lab_clia
 
 **Type**: ID_CLIA
@@ -3000,18 +3012,6 @@ The name of the laboratory which performed the test, can be the same as the send
 **Documentation**:
 
 The specimen-id from the testing lab
-
----
-
-**Name**: testing_lab_specimen_received_datetime
-
-**Type**: DATETIME
-
-**PII**: No
-
-**HL7 Field**: SPM-18-1
-
-**Cardinality**: [0..1]
 
 ---
 
