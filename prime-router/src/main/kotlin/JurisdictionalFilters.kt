@@ -247,11 +247,13 @@ object JurisdictionalFilters {
             "patient_last_name," +
             "patient_first_name," +
             "patient_dob" +
-        ")",
+            ")",
         // has minimal valid location or other contact info (for contact tracing)
         "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)",
         // has valid date (for relevance/urgency)
         "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
+        // has a valid CLIA
+        "hasAtLeastOneOf(testing_lab_clia,reporting_facility_clia)",
     )
 
     /**

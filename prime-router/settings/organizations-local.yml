@@ -27,14 +27,14 @@
         schemaName: waters/waters-covid-19
         format: CSV
 
-  - name: im
+  - name: direct
     description: Test Sender
     jurisdiction: FEDERAL
     senders:
       - name: default
-        organizationName: im
+        organizationName: direct
         topic: covid-19
-        schemaName: waters/im-covid-19
+        schemaName: waters/direct-covid-19
         format: CSV
 
   - name: strac
