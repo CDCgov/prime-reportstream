@@ -237,29 +237,38 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             val terser = Terser(hapiMsg)
 
             // First, extract any data elements from the HL7 message.
-            schema.elements.forEach {
+            schema.elements.forEach { element ->
                 // If there is no value for the key, then initialize it.
-                if (!mappedRows.containsKey(it.name) || mappedRows[it.name] == null) {
-                    mappedRows[it.name] = mutableSetOf()
+                if (!mappedRows.containsKey(element.name) || mappedRows[element.name] == null) {
+                    mappedRows[element.name] = mutableSetOf()
                 }
 
-                val value = when {
-                    // No field was specified, so ignore
-                    it.hl7Field.isNullOrEmpty() -> ""
-                    // Decode a phone number
-                    it.type == Element.Type.TELEPHONE -> decodeHl7PhoneNumber(terser, it)
-                    // Decode a timestamp
-                    it.type == Element.Type.DATETIME -> decodeHl7DateTime(terser, it, warnings)
-                    // Decode an AOE question
-                    it.hl7Field == "AOE" -> decodeAOEQuestion(it, terser, errors, warnings)
-                    // No special case here, so get a value from an HL7 field
-                    else -> queryTerserForValue(
-                        terser, getTerserSpec(it.hl7Field), it.name,
-                        errors, warnings
-                    )
+                // Make a list of all the HL7 primary and alternate fields to look into.
+                // Note that the hl7Fields list will be empty if no fields is specified
+                val hl7Fields = ArrayList<String>()
+                if (!element.hl7Field.isNullOrEmpty()) hl7Fields.add(element.hl7Field)
+                if (!element.hl7OutputFields.isNullOrEmpty()) hl7Fields.addAll(element.hl7OutputFields)
+                var value = ""
+                for(i in 0 until hl7Fields.size) {
+                    val hl7Field = hl7Fields.get(i)
+                    value = when {
+                        // Decode a phone number
+                        element.type == Element.Type.TELEPHONE -> decodeHl7PhoneNumber(terser, element, hl7Field)
+                        // Decode a timestamp
+                        element.type == Element.Type.DATETIME -> decodeHl7DateTime(terser, element, hl7Field, warnings)
+                        // Decode an AOE question
+                        hl7Field == "AOE" -> decodeAOEQuestion(element, terser, errors, warnings)
+                        // No special case here, so get a value from an HL7 field
+                        else -> queryTerserForValue(
+                            terser, getTerserSpec(hl7Field), element.name,
+                            errors, warnings
+                        )
+                    }
+                    if (value.isNotBlank()) break
                 }
+
                 if (value.isNotBlank()) {
-                    mappedRows[it.name]!!.add(value)
+                    mappedRows[element.name]!!.add(value)
                 }
             }
 
@@ -271,7 +280,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     val valueNames = it.mapperRef.valueNames(it, args)
                     val valuesForMapper = valueNames.mapNotNull { elementName ->
                         val valueElement = schema.findElement(elementName)
-                        if (valueElement != null && mappedRows.containsKey(elementName) && !mappedRows[elementName].isNullOrEmpty()) {
+                        if (valueElement != null && mappedRows.containsKey(elementName) &&
+                            !mappedRows[elementName].isNullOrEmpty()
+                        ) {
                             ElementAndValue(valueElement, mappedRows[elementName]!!.first())
                         } else {
                             null
@@ -884,7 +895,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
      * @param element the element to decode
      * @return the phone number or empty string
      */
-    internal fun decodeHl7PhoneNumber(terser: Terser, element: Element): String {
+    internal fun decodeHl7PhoneNumber(terser: Terser, element: Element, hl7Field: String): String {
 
         /**
          * Extract a phone number from a value [xtnValue] of an XTN HL7 field.
@@ -896,7 +907,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
                 if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
                     // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                    if (xtnValue.telecommunicationEquipmentType.isEmpty || xtnValue.telecommunicationEquipmentType.value == "PH") {
+                    if (xtnValue.telecommunicationEquipmentType.isEmpty ||
+                        xtnValue.telecommunicationEquipmentType.value == "PH"
+                    ) {
                         strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
                             "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
                     }
@@ -912,9 +925,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         // Get the field values by going through the terser segment.  This method gives us an
         // array with a maximum number of repetitions, but it may return multiple array elements even if
         // there is no data
-        val fieldParts = element.hl7Field?.let {
-            getTerserSpec(it).split("-")
-        }
+        val fieldParts = getTerserSpec(hl7Field).split("-")
         if (fieldParts != null && fieldParts.size > 1) {
             val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
@@ -938,11 +949,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
      * @param warnings the list of warnings
      * @return the date time or empty string
      */
-    internal fun decodeHl7DateTime(terser: Terser, element: Element, warnings: MutableList<String>): String {
+    internal fun decodeHl7DateTime(terser: Terser, element: Element, hl7Field: String, warnings: MutableList<String>): String {
         var dateTime = ""
-        val fieldParts = element.hl7Field?.let {
-            getTerserSpec(it).split("-")
-        }
+        val fieldParts = getTerserSpec(hl7Field).split("-")
         if (fieldParts != null && fieldParts.size > 1) {
             val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
@@ -960,8 +969,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         // Check to see if we have all the precision we want including the time zone offset
                         val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                         if (!r.matches(it.value)) {
-                            warnings.add("Timestamp for ${element.hl7Field} - ${element.name} needs to provide more " +
-                                "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
+                            warnings.add(
+                                "Timestamp for $hl7Field - ${element.name} needs to provide more " +
+                                    "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
                             )
                         }
                         dateTime = DateTimeFormatter.ofPattern(Element.datetimePattern)

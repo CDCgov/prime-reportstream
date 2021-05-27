@@ -216,7 +216,7 @@ class ObservationMessageTests {
             val warningMsgs = ArrayList<String>()
 
             // Check to see if actual has more columns.  Less columns is checked later on a column by column basis
-            if(expected[0].size < actual.schema.elements.size) {
+            if (expected[0].size < actual.schema.elements.size) {
                 warningMsgs.add(
                     "   DATA WARNING: Actual record(s) has more columns than expected record(s)"
                 )
@@ -234,16 +234,21 @@ class ObservationMessageTests {
                     val actualValueIndex = actual.schema.findElementColumn(expectedHeaders[j])
                     if (actualValueIndex != null) {
                         // We want to error on differences when the expected data is not empty.
-                        if (expectedRow[j].isNotBlank() && actualRow[actualValueIndex].trim() != expectedRow[j].trim()) {
+                        if (expectedRow[j].isNotBlank() &&
+                            actualRow[actualValueIndex].trim() != expectedRow[j].trim()
+                        ) {
                             errorMsgs.add(
-                                "   DATA ERROR: Data value does not match in report $i column #${j + 1}, '${expectedHeaders[j]}'.  " +
-                                    "Expected: '${expectedRow[j].trim()}', Actual: '${actualRow[j].trim()}'"
+                                "   DATA ERROR: Data value does not match in report $i column #${j + 1}, " +
+                                    "'${expectedHeaders[j]}'. Expected: '${expectedRow[j].trim()}', " +
+                                    "Actual: '${actualRow[actualValueIndex].trim()}'"
                             )
-                        } else if (expectedRow[j].trim().isEmpty() && actualRow[actualValueIndex].trim().isNotEmpty()) {
+                        } else if (expectedRow[j].trim().isEmpty() &&
+                            actualRow[actualValueIndex].trim().isNotEmpty()
+                        ) {
                             warningMsgs.add(
-                                "   DATA WARNING: Actual data has value in report $i column #$${j + 1}, " +
-                                    "'${expectedHeaders[j]}', but no expected value.  " +
-                                    "Actual: '${actualRow[j].trim()}'"
+                                "   DATA WARNING: Actual data has value in report $i for column " +
+                                    "'${expectedHeaders[j]}' - column #${j + 1}, but no expected value.  " +
+                                    "Actual: '${actualRow[actualValueIndex].trim()}'"
                             )
                         }
                     } else {
