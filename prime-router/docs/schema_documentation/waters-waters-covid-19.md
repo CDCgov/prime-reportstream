@@ -978,8 +978,6 @@ An example of the ID is 03D2159846
 
 **PII**: No
 
-**HL7 Fields**: MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2
-
 **Cardinality**: [0..1]
 
 **Documentation**:

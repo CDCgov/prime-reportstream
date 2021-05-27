@@ -10,8 +10,6 @@
 
 **PII**: No
 
-**HL7 Field**: OBR-4-1
-
 **Cardinality**: [0..1]
 
 **Table**: LIVD-SARS-CoV-2-2021-04-28
@@ -29,8 +27,6 @@ eg, 94531-1
 **Type**: TABLE
 
 **PII**: No
-
-**HL7 Field**: OBR-4-2
 
 **Cardinality**: [0..1]
 
@@ -63,8 +59,6 @@ Custom.  Eg, "LN"
 **Type**: CODE
 
 **PII**: No
-
-**HL7 Field**: OBX-5
 
 **Cardinality**: [0..1]
 
@@ -117,8 +111,6 @@ eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value
 
 **PII**: No
 
-**HL7 Field**: OBX-3-1
-
 **Cardinality**: [0..1]
 
 **Table**: LIVD-SARS-CoV-2-2021-04-28
@@ -151,8 +143,6 @@ eg, SCT.   Custom
 
 **PII**: No
 
-**HL7 Field**: OBX-19
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -166,8 +156,6 @@ eg, 20210111
 **Type**: DATETIME
 
 **PII**: No
-
-**HL7 Field**: OBX-22
 
 **Cardinality**: [0..1]
 
@@ -183,8 +171,6 @@ eg, 20210112
 
 **PII**: No
 
-**HL7 Field**: ORC-15
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -198,8 +184,6 @@ eg, 20210108
 **Type**: DATETIME
 
 **PII**: No
-
-**HL7 Fields**: SPM-17-1, OBR-7, OBR-8, OBX-14
 
 **Cardinality**: [0..1]
 
@@ -259,8 +243,6 @@ Required.  Must match LIVD column B, "Model". eg,  "BD Veritor System for Rapid 
 
 **PII**: No
 
-**HL7 Fields**: SPM-2
-
 **Cardinality**: [0..1]
 
 
@@ -293,8 +275,6 @@ Barcode or QR code.  Unique within one manufacturer.
 
 **PII**: No
 
-**HL7 Field**: MSH-10
-
 **Cardinality**: [1..1]
 
 **Documentation**:
@@ -309,10 +289,6 @@ ReportStream copies value from the specimenId
 
 **PII**: No
 
-**HL7 Field**: AOE
-
-**LOINC Code**: 30525-0
-
 **Cardinality**: [0..1]
 
 ---
@@ -322,8 +298,6 @@ ReportStream copies value from the specimenId
 **Type**: DATE
 
 **PII**: Yes
-
-**HL7 Field**: PID-7
 
 **Cardinality**: [0..1]
 
@@ -341,8 +315,6 @@ Other states may choose to define their own formats.
 **Type**: CODE
 
 **PII**: No
-
-**HL7 Field**: PID-10
 
 **Cardinality**: [0..1]
 
@@ -387,8 +359,6 @@ Custom.    ReportStream uses patientRace code, not this text value.
 **PII**: No
 
 **Format**: $alt
-
-**HL7 Field**: PID-22
 
 **Cardinality**: [0..1]
 
@@ -439,8 +409,6 @@ Custom. ReportStream uses the patientEthnicity code, not this text value.
 
 **PII**: No
 
-**HL7 Field**: PID-8-1
-
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -466,8 +434,6 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 **Type**: POSTAL_CODE
 
 **PII**: No
-
-**HL7 Field**: PID-11-5
 
 **Cardinality**: [0..1]
 
@@ -497,8 +463,6 @@ The patient's zip code
 
 **PII**: No
 
-**HL7 Fields**: ORC-12-1, OBR-16-1
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -512,8 +476,6 @@ eg, "1265050918"
 **Type**: PERSON_NAME
 
 **PII**: No
-
-**HL7 Fields**: ORC-12-2, OBR-16-2
 
 **Cardinality**: [0..1]
 
@@ -529,8 +491,6 @@ The last name of provider who ordered the test
 
 **PII**: No
 
-**HL7 Fields**: ORC-12-3, OBR-16-3
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -544,8 +504,6 @@ The first name of the provider who ordered the test
 **Type**: POSTAL_CODE
 
 **PII**: No
-
-**HL7 Field**: ORC-24-5
 
 **Cardinality**: [0..1]
 
@@ -561,8 +519,6 @@ The zip code of the provider
 
 **PII**: No
 
-**HL7 Fields**: OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3
-
 **Cardinality**: [1..1]
 
 **Documentation**:
@@ -577,8 +533,6 @@ Expecting a CLIA number here.  eg, "10D2218834"
 
 **PII**: No
 
-**HL7 Field**: OBX-24-5
-
 **Cardinality**: [0..1]
 
 ---
@@ -588,8 +542,6 @@ Expecting a CLIA number here.  eg, "10D2218834"
 **Type**: CODE
 
 **PII**: No
-
-**HL7 Field**: SPM-4
 
 **Cardinality**: [0..1]
 
@@ -625,8 +577,6 @@ The specimen source, such as Blood or Serum
 
 **PII**: Yes
 
-**HL7 Field**: PID-5-1
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -640,8 +590,6 @@ Not required, but generally data will not flow to states if last/first name prov
 **Type**: PERSON_NAME
 
 **PII**: Yes
-
-**HL7 Field**: PID-5-2
 
 **Cardinality**: [0..1]
 
@@ -657,8 +605,6 @@ The patient's first name
 
 **PII**: Yes
 
-**HL7 Field**: PID-5-3
-
 **Cardinality**: [0..1]
 
 ---
@@ -669,8 +615,6 @@ The patient's first name
 
 **PII**: Yes
 
-**HL7 Field**: PID-3-1
-
 **Cardinality**: [0..1]
 
 ---
@@ -680,8 +624,6 @@ The patient's first name
 **Type**: STREET
 
 **PII**: Yes
-
-**HL7 Field**: PID-11-1
 
 **Cardinality**: [0..1]
 
@@ -697,8 +639,6 @@ The patient's street address
 
 **PII**: Yes
 
-**HL7 Field**: PID-11-2
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -713,8 +653,6 @@ The patient's second address line
 
 **PII**: Yes
 
-**HL7 Field**: PID-11-3
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -728,8 +666,6 @@ The patient's city
 **Type**: TABLE
 
 **PII**: No
-
-**HL7 Field**: PID-11-4
 
 **Cardinality**: [1..1]
 
@@ -748,8 +684,6 @@ Extremely important field for routing data to states.
 **Type**: TELEPHONE
 
 **PII**: Yes
-
-**HL7 Field**: PID-13
 
 **Cardinality**: [0..1]
 
@@ -779,8 +713,6 @@ Custom. Not currently used. ReportStream assumes area code is in patientPhone
 
 **PII**: Yes
 
-**HL7 Field**: ORC-24-1
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -794,8 +726,6 @@ The street address of the provider
 **Type**: STREET_OR_BLANK
 
 **PII**: Yes
-
-**HL7 Field**: ORC-24-2
 
 **Cardinality**: [0..1]
 
@@ -811,8 +741,6 @@ The street second address of the provider
 
 **PII**: Yes
 
-**HL7 Field**: ORC-24-3
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -826,8 +754,6 @@ The city of the provider
 **Type**: TABLE
 
 **PII**: No
-
-**HL7 Field**: ORC-24-4
 
 **Cardinality**: [0..1]
 
@@ -846,8 +772,6 @@ The state of the provider
 **Type**: TELEPHONE
 
 **PII**: Yes
-
-**HL7 Fields**: ORC-14, OBR-17
 
 **Cardinality**: [0..1]
 
@@ -876,10 +800,6 @@ Custom.  Not currently used. ReportStream assumes area code is in orderingProvid
 **Type**: CODE
 
 **PII**: No
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 95417-2
 
 **Cardinality**: [0..1]
 
@@ -967,10 +887,6 @@ Custom field.  Example - 260415000
 **Type**: CODE
 
 **PII**: No
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 95418-0
 
 **Cardinality**: [0..1]
 
@@ -1507,10 +1423,6 @@ Custom.  eg, 6816002
 
 **PII**: No
 
-**HL7 Field**: AOE
-
-**LOINC Code**: 95419-8
-
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1546,10 +1458,6 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 **Type**: CODE
 
 **PII**: No
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 77974-4
 
 **Cardinality**: [0..1]
 
@@ -1610,10 +1518,6 @@ Custom.  eg, 840539006, same valueset as testResult
 
 **PII**: No
 
-**HL7 Field**: AOE
-
-**LOINC Code**: 95420-6
-
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1635,10 +1539,6 @@ Is the patient in the ICU?
 **Type**: CODE
 
 **PII**: No
-
-**HL7 Field**: AOE
-
-**LOINC Code**: 95421-4
 
 **Cardinality**: [0..1]
 
@@ -1696,10 +1596,6 @@ Custom field
 
 **PII**: No
 
-**HL7 Field**: AOE
-
-**LOINC Code**: 82810-3
-
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -1736,8 +1632,6 @@ Custom.  ReportStream uses the 'pregnant' code, not this text value.
 
 **PII**: Yes
 
-**HL7 Field**: PID-13-4
-
 **Cardinality**: [0..1]
 
 ---
@@ -1747,8 +1641,6 @@ Custom.  ReportStream uses the 'pregnant' code, not this text value.
 **Type**: HD
 
 **PII**: No
-
-**HL7 Field**: MSH-4
 
 **Cardinality**: [0..1]
 
@@ -1763,8 +1655,6 @@ Expecting an ISO heirarchic designator here. eg, "1265050918" (same value as in 
 **Type**: TABLE
 
 **PII**: No
-
-**HL7 Field**: ORC-22-4
 
 **Cardinality**: [0..1]
 
