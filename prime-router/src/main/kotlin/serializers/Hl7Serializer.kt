@@ -249,8 +249,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 if (!element.hl7Field.isNullOrEmpty()) hl7Fields.add(element.hl7Field)
                 if (!element.hl7OutputFields.isNullOrEmpty()) hl7Fields.addAll(element.hl7OutputFields)
                 var value = ""
-                for(i in 0 until hl7Fields.size) {
-                    val hl7Field = hl7Fields.get(i)
+                for (i in 0 until hl7Fields.size) {
+                    val hl7Field = hl7Fields[i]
                     value = when {
                         // Decode a phone number
                         element.type == Element.Type.TELEPHONE -> decodeHl7PhoneNumber(terser, element, hl7Field)
@@ -272,12 +272,12 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 }
             }
 
-            // Second, we process the mappers an only overwrite data values if the mapper returns a non-null string
-            schema.elements.forEach {
-                if (it.mapperRef != null) {
+            // Second, we process the mappers if we have no value from an HL7 field
+            schema.elements.forEach { element ->
+                if (element.mapperRef != null && mappedRows[element.name]!!.isEmpty()) {
                     // This gets the requiredvalue names, then gets the value from mappedRows that has the data
-                    val args = it.mapperArgs ?: emptyList()
-                    val valueNames = it.mapperRef.valueNames(it, args)
+                    val args = element.mapperArgs ?: emptyList()
+                    val valueNames = element.mapperRef.valueNames(element, args)
                     val valuesForMapper = valueNames.mapNotNull { elementName ->
                         val valueElement = schema.findElement(elementName)
                         if (valueElement != null && mappedRows.containsKey(elementName) &&
@@ -289,18 +289,18 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         }
                     }
                     // Only overwrite an existing value if the mapper returns a string
-                    val value = it.mapperRef.apply(it, args, valuesForMapper)
+                    val value = element.mapperRef.apply(element, args, valuesForMapper)
                     if (value != null) {
-                        mappedRows[it.name] = mutableSetOf(value)
+                        mappedRows[element.name] = mutableSetOf(value)
                     }
                 }
 
                 // Finally, add a default value or empty string to elements that still have a null value.
-                if (mappedRows[it.name].isNullOrEmpty()) {
-                    if (!it.default.isNullOrBlank()) {
-                        mappedRows[it.name]!!.add(it.default)
+                if (mappedRows[element.name].isNullOrEmpty()) {
+                    if (!element.default.isNullOrBlank()) {
+                        mappedRows[element.name]!!.add(element.default)
                     } else {
-                        mappedRows[it.name]?.add("")
+                        mappedRows[element.name]?.add("")
                     }
                 }
             }
@@ -926,7 +926,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         // array with a maximum number of repetitions, but it may return multiple array elements even if
         // there is no data
         val fieldParts = getTerserSpec(hl7Field).split("-")
-        if (fieldParts != null && fieldParts.size > 1) {
+        if (fieldParts.size > 1) {
             val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
             if (segment != null && fieldNumber != null) {
@@ -949,10 +949,15 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
      * @param warnings the list of warnings
      * @return the date time or empty string
      */
-    internal fun decodeHl7DateTime(terser: Terser, element: Element, hl7Field: String, warnings: MutableList<String>): String {
+    internal fun decodeHl7DateTime(
+        terser: Terser,
+        element: Element,
+        hl7Field: String,
+        warnings: MutableList<String>
+    ): String {
         var dateTime = ""
         val fieldParts = getTerserSpec(hl7Field).split("-")
-        if (fieldParts != null && fieldParts.size > 1) {
+        if (fieldParts.size > 1) {
             val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
             if (segment != null && fieldNumber != null) {

@@ -635,7 +635,6 @@ elements:
     mapper: middleInitial(patient_middle_name)
     natFlatFileField: Patient_middle_name
     hhsGuidanceField: Patient name
-    hl7Field: PID-5-3
 
   - name: patient_middle_name
     type: PERSON_NAME
