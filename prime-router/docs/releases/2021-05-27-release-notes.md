@@ -45,3 +45,18 @@ Important Notes
 - "supplied" means: The column name must be present (for CSV data), and a valid value must be present.
 
 ```
+
+### Error and Warning Message Improvements
+
+If there are problems with a data submission to ReportStream's reports endpoint, it returns detailed warning and error messages.   The submission continues even if there are warnings, but the entire submission will fail if there are any errors.
+
+In this release we have improved the messages to give better detail about the field with problems, giving both the column-name in the csv, and the internal ReportStream name for that field as well, for reference.
+
+### Unicode
+
+ReportStream CSV submissions now support the UTF-8 character set.
+
+### Updated LIVD Table
+
+ReportStream is updated to use the latest Covid LIVD table from HHS
+
