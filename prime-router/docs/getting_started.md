@@ -167,7 +167,7 @@ Some useful tools for Kotlin/Java development include:
 - [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
 - [JetBrains IntelliJ](https://www.jetbrains.com/idea/download/#section=mac)
 
-If you are using IntelliJ, you can configure it to follow standard Kotlin conventions by
+If you are using IntelliJ, you can install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions by
 ```
 cd prime_router
 brew install ktlint

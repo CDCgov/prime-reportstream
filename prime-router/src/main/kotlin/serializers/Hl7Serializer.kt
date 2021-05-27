@@ -21,15 +21,15 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.ValueSet
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-import org.apache.logging.log4j.kotlin.Logging
-import java.time.ZoneId
 
-class Hl7Serializer(val metadata: Metadata): Logging {
+class Hl7Serializer(val metadata: Metadata) : Logging {
     data class Hl7Mapping(
         val mappedRows: Map<String, List<String>>,
         val rows: List<RowResult>,
@@ -191,8 +191,12 @@ class Hl7Serializer(val metadata: Metadata): Logging {
          * @param warnings the list of warnings for this message decoding
          * @return the value from the HL7 message or an empty string if no value found
          */
-        fun decodeAOEQuestion(element: Element, terser: Terser, errors: MutableList<String>,
-                              warnings: MutableList<String>): String {
+        fun decodeAOEQuestion(
+            element: Element,
+            terser: Terser,
+            errors: MutableList<String>,
+            warnings: MutableList<String>
+        ): String {
             var value = ""
             val question = element.hl7AOEQuestion!!
             val countObservations = 10
@@ -235,7 +239,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             // First, extract any data elements from the HL7 message.
             schema.elements.forEach {
                 // If there is no value for the key, then initialize it.
-                if(!mappedRows.containsKey(it.name) || mappedRows[it.name] == null) {
+                if (!mappedRows.containsKey(it.name) || mappedRows[it.name] == null) {
                     mappedRows[it.name] = mutableSetOf()
                 }
 
@@ -249,10 +253,12 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                     // Decode an AOE question
                     it.hl7Field == "AOE" -> decodeAOEQuestion(it, terser, errors, warnings)
                     // No special case here, so get a value from an HL7 field
-                    else -> queryTerserForValue(terser, getTerserSpec(it.hl7Field), it.name,
-                                errors, warnings)
+                    else -> queryTerserForValue(
+                        terser, getTerserSpec(it.hl7Field), it.name,
+                        errors, warnings
+                    )
                 }
-                if(value.isNotBlank()) {
+                if (value.isNotBlank()) {
                     mappedRows[it.name]!!.add(value)
                 }
             }
@@ -265,7 +271,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                     val valueNames = it.mapperRef.valueNames(it, args)
                     val valuesForMapper = valueNames.mapNotNull { elementName ->
                         val valueElement = schema.findElement(elementName)
-                        if(valueElement != null && mappedRows.containsKey(elementName) && !mappedRows[elementName].isNullOrEmpty()) {
+                        if (valueElement != null && mappedRows.containsKey(elementName) && !mappedRows[elementName].isNullOrEmpty()) {
                             ElementAndValue(valueElement, mappedRows[elementName]!!.first())
                         } else {
                             null
@@ -273,14 +279,14 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                     }
                     // Only overwrite an existing value if the mapper returns a string
                     val value = it.mapperRef.apply(it, args, valuesForMapper)
-                    if(value != null) {
+                    if (value != null) {
                         mappedRows[it.name] = mutableSetOf(value)
                     }
                 }
 
                 // Finally, add a default value or empty string to elements that still have a null value.
-                if(mappedRows[it.name].isNullOrEmpty()) {
-                    if(!it.default.isNullOrBlank()) {
+                if (mappedRows[it.name].isNullOrEmpty()) {
+                    if (!it.default.isNullOrBlank()) {
                         mappedRows[it.name]!!.add(it.default)
                     } else {
                         mappedRows[it.name]?.add("")
@@ -886,7 +892,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
          */
         fun getPhoneNumber(xtnValue: Type): String {
             var strValue = ""
-            if(xtnValue is XTN) {
+            if (xtnValue is XTN) {
                 // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
                 if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
                     // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
@@ -909,13 +915,13 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         val fieldParts = element.hl7Field?.let {
             getTerserSpec(it).split("-")
         }
-        if(fieldParts != null && fieldParts.size > 1) {
+        if (fieldParts != null && fieldParts.size > 1) {
             val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
-            if(segment != null && fieldNumber != null) {
+            if (segment != null && fieldNumber != null) {
                 segment.getField(fieldNumber)?.forEach {
                     // The first phone number wins
-                    if(phoneNumber.isBlank()) {
+                    if (phoneNumber.isBlank()) {
                         phoneNumber = getPhoneNumber(it)
                     }
                 }
@@ -937,10 +943,10 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         val fieldParts = element.hl7Field?.let {
             getTerserSpec(it).split("-")
         }
-        if(fieldParts != null && fieldParts.size > 1) {
+        if (fieldParts != null && fieldParts.size > 1) {
             val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
-            if(segment != null && fieldNumber != null) {
+            if (segment != null && fieldNumber != null) {
                 val dtm = when (val value = segment.getField(fieldNumber, 0)) {
                     // Timestamp
                     is TS -> value.time
@@ -950,15 +956,16 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 }
 
                 dtm?.let {
-                    if(it.valueAsDate != null) {
+                    if (it.valueAsDate != null) {
                         // Check to see if we have all the precision we want including the time zone offset
                         val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                         if (!r.matches(it.value)) {
-                            warnings.add("Timestamp for ${element.hl7Field} - ${element.name} needs to provide more precision. " +
-                                "Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ")
+                            warnings.add("Timestamp for ${element.hl7Field} - ${element.name} needs to provide more " +
+                                "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
+                            )
                         }
-                        dateTime = DateTimeFormatter.ofPattern(Element.datetimePattern).
-                            format(OffsetDateTime.ofInstant(it.valueAsDate.toInstant(), ZoneId.systemDefault()))
+                        dateTime = DateTimeFormatter.ofPattern(Element.datetimePattern)
+                            .format(OffsetDateTime.ofInstant(it.valueAsDate.toInstant(), ZoneId.systemDefault()))
                     }
                 }
             }
