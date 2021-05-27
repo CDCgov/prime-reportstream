@@ -305,7 +305,7 @@ class FakeReport(val metadata: Metadata, val locale : Locale? = null) {
         val rows = (0 until count).map {
             buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties))
         }.toList()
-        return Report(schema, rows, listOf(source))
+        return Report(schema, rows, listOf(source), metadata = metadata)
     }
 
     companion object {

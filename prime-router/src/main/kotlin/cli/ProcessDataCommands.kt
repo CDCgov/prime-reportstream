@@ -7,12 +7,14 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.DefaultValues
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Translator
@@ -212,15 +214,15 @@ class ProcessData : CliktCommand(
         metadata: Metadata,
         fileName: String
     ): Report {
-        val schemaName = inputSchema?.toLowerCase() ?: ""
+        val schemaName = inputSchema?.lowercase() ?: ""
         val schema = metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
-        return when (file.extension.toLowerCase()) {
+        return when (file.extension.lowercase()) {
             "hl7" -> {
                 val hl7Serializer = Hl7Serializer(metadata)
-                val result =  hl7Serializer.readExternal(
+                val result = hl7Serializer.readExternal(
                     schemaName,
                     file.inputStream(),
                     FileSource(file.nameWithoutExtension)
@@ -229,7 +231,7 @@ class ProcessData : CliktCommand(
             }
             else -> {
                 val csvSerializer = CsvSerializer(metadata)
-                return if (file.extension.toUpperCase() == "INTERNAL") {
+                return if (file.extension.uppercase() == "INTERNAL") {
                     csvSerializer.readInternal(
                         schema.name,
                         file.inputStream(),
@@ -250,6 +252,7 @@ class ProcessData : CliktCommand(
 
     private fun writeReportsToFile(
         reports: List<Pair<Report, Report.Format>>,
+        metadata: Metadata,
         writeBlock: (report: Report, format: Report.Format, outputStream: OutputStream) -> Unit
     ) {
         if (outputDir == null && outputFileName == null) return
@@ -270,14 +273,20 @@ class ProcessData : CliktCommand(
                 val outputFile = if (outputFileName != null) {
                     File(outputFileName!!)
                 } else {
-
+                    // generate a translation config if we don't have
+                    val translationConfig = report.destination?.translation ?: CustomConfiguration(
+                        report.schema.baseName,
+                        format,
+                        receivingOrganization = null,
+                        nameFormat = nameFormat ?: "standard"
+                    )
                     val fileName = Report.formFilename(
                         report.id,
                         report.schema.baseName,
                         format,
                         report.createdDateTime,
-                        getNameFormat(Report.NameFormat.STANDARD),
-                        receivingOrganization ?: report.destination?.translation?.receivingOrganization
+                        translationConfig,
+                        metadata
                     )
                     File(outputDir ?: ".", fileName)
                 }
@@ -310,10 +319,6 @@ class ProcessData : CliktCommand(
 
     private fun getOutputFormat(default: Report.Format): Report.Format {
         return if (forcedFormat != null) Report.Format.valueOf(forcedFormat!!) else default
-    }
-
-    private fun getNameFormat(default: Report.NameFormat): Report.NameFormat {
-        return if (nameFormat != null) Report.NameFormat.valueOf(nameFormat!!) else default
     }
 
     private fun getDefaultValues(): DefaultValues {
@@ -432,24 +437,39 @@ class ProcessData : CliktCommand(
         }
 
         // Output reports
-        writeReportsToFile(outputReports) { report, format, stream ->
-            val hl7Configuration = Hl7Configuration(
-                nameFormat = getNameFormat(Report.NameFormat.STANDARD),
-                suppressQstForAoe = suppressQstForAoe,
-                receivingApplicationName = receivingApplication,
-                receivingFacilityName = receivingFacility,
-                receivingOrganization = receivingOrganization,
-                receivingApplicationOID = "",
-                receivingFacilityOID = "",
-                messageProfileId = "",
-                useBatchHeaders = format == Report.Format.HL7_BATCH,
-                reportingFacilityId = reportingFacilityId,
-                reportingFacilityName = reportingFacilityName,
-            )
+        writeReportsToFile(outputReports, metadata) { report, format, stream ->
             when (format) {
                 Report.Format.INTERNAL -> csvSerializer.writeInternal(report, stream)
                 Report.Format.CSV -> csvSerializer.write(report, stream)
-                Report.Format.HL7 -> hl7Serializer.write(report, stream, hl7Configuration)
+                Report.Format.HL7 -> {
+                    // create a default hl7 config
+                    val hl7Configuration = Hl7Configuration(
+                        nameFormat = nameFormat ?: "standard",
+                        suppressQstForAoe = suppressQstForAoe,
+                        receivingApplicationName = receivingApplication,
+                        receivingFacilityName = receivingFacility,
+                        receivingOrganization = receivingOrganization,
+                        receivingApplicationOID = "",
+                        receivingFacilityOID = "",
+                        messageProfileId = "",
+                        useBatchHeaders = format == Report.Format.HL7_BATCH,
+                        reportingFacilityId = reportingFacilityId,
+                        reportingFacilityName = reportingFacilityName,
+                    )
+                    // and create a report with a new destination
+                    val reportWithTranslation = if (report.destination?.translation == null) {
+                        val destination = Receiver(
+                            "emptyReceiver",
+                            "emptyOrganization",
+                            "covid-19",
+                            hl7Configuration
+                        )
+                        report.copy(destination, Report.Format.HL7_BATCH)
+                    } else {
+                        report
+                    }
+                    hl7Serializer.write(reportWithTranslation, stream)
+                }
                 Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
                 Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
