@@ -38,7 +38,6 @@ resource "azurerm_frontdoor" "front_door" {
   frontend_endpoint {
     name = "DefaultFrontendEndpoint"
     host_name = "${local.name}.azurefd.net"
-    custom_https_provisioning_enabled = false
   }
 
   dynamic "frontend_endpoint" {
@@ -46,15 +45,6 @@ resource "azurerm_frontdoor" "front_door" {
     content {
       name = frontend_endpoint.value
       host_name = replace(frontend_endpoint.value, "-", ".")
-      // This will change test-prime-cdc-gov to test.prime.cdc.gov
-      custom_https_provisioning_enabled = true
-
-      custom_https_configuration {
-        certificate_source = "AzureKeyVault"
-        azure_key_vault_certificate_secret_name = frontend_endpoint.value
-        azure_key_vault_certificate_secret_version = "Latest"
-        azure_key_vault_certificate_vault_id = var.key_vault_id
-      }
     }
   }
 
@@ -279,14 +269,23 @@ resource "azurerm_frontdoor" "front_door" {
       }
     }
   }
+}
 
-  lifecycle {
-    ignore_changes = [
-      # The Azure endpoint does not support reconfiguring HTTPS profiles with latest at this time
-      frontend_endpoint[0].custom_https_configuration,
-      frontend_endpoint[1].custom_https_configuration,
-      frontend_endpoint[2].custom_https_configuration
-    ]
+resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https" {
+  frontend_endpoint_id = azurerm_frontdoor.front_door.frontend_endpoints["DefaultFrontendEndpoint"]
+  custom_https_provisioning_enabled = false
+}
+
+resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" {
+  for_each = toset(var.https_cert_names)
+
+  frontend_endpoint_id = azurerm_frontdoor.front_door.frontend_endpoints[each.value]
+  custom_https_provisioning_enabled = true
+
+  custom_https_configuration {
+    certificate_source = "AzureKeyVault"
+    azure_key_vault_certificate_secret_name = each.value
+    azure_key_vault_certificate_vault_id = var.key_vault_id
   }
 }
 
