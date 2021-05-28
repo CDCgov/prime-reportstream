@@ -9,6 +9,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
+import gov.cdc.prime.router.azure.db.Tables.TEST_DATA
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
@@ -16,6 +17,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.db.tables.pojos.TestData
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
@@ -482,6 +484,15 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
             .fetchOne()
             ?.getValue(DSL.max(SETTING.VERSION)) ?: -1
+    }
+
+    fun saveTestData(testData: List<TestData>, txn: DataAccessTransaction) {
+        testData.forEach {
+            DSL
+                .using(txn)
+                .insertInto(TEST_DATA)
+                .set(TEST_DATA.TRACKING_ID, it.trackingId)
+        }
     }
 
     /**
