@@ -27,12 +27,22 @@
         schemaName: waters/waters-covid-19
         format: CSV
 
-  - name: direct
-    description: Test Sender
+  - name: safehealth
+    description: SAFE - Safe Health Systems
     jurisdiction: FEDERAL
     senders:
       - name: default
-        organizationName: direct
+        organizationName: safehealth
+        topic: covid-19
+        schemaName: waters/direct-covid-19
+        format: CSV
+
+  - name: cue
+    description: Cue
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: cue
         topic: covid-19
         schemaName: waters/direct-covid-19
         format: CSV

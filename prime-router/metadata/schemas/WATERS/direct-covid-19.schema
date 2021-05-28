@@ -195,6 +195,9 @@ elements:
     csvFields: [{ name: orderingProviderPhoneArea}]
 
   - name: first_test
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
     csvFields: [{ name: firstTest}]
 
   - name: previous_test_type
@@ -214,6 +217,9 @@ elements:
     csvFields: [{ name: previousTestResult}]
 
   - name: employed_in_healthcare
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
     csvFields: [{ name: healthcareEmployee}]
 
   - name: healthcare_employee_type
@@ -223,6 +229,9 @@ elements:
     csvFields: [{ name: healthcareEmployeeType}]
 
   - name: symptomatic_for_disease
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
     csvFields: [{ name: symptomatic}]
 
   - name: symptoms_list
@@ -231,6 +240,9 @@ elements:
     csvFields: [{ name: symptomsList}]
 
   - name: hospitalized
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
     csvFields: [{ name: hospitalized}]
 
   - name: hospitalized_code
@@ -240,9 +252,15 @@ elements:
     valueSet: covid-19/test_result
 
   - name: icu
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
     csvFields: [{ name: symptomsIcu}]
 
   - name: resident_congregate_setting
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
     csvFields: [{ name: congregateResident}]
 
   - name: site_of_care
@@ -252,7 +270,6 @@ elements:
     csvFields: [{ name: congregateResidentType}]
 
   - name: pregnant
-    documentation: eg, 60001007
     csvFields: [{ name: pregnant}]
 
   - name: pregnantText
