@@ -80,6 +80,18 @@ Usually NPI
 
 ---
 
+**Name**: patient_middle_initial
+
+**Type**: PERSON_NAME
+
+**PII**: Yes
+
+**HL7 Field**: 
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patient_id_assigner
 
 **Type**: HD
@@ -1358,16 +1370,6 @@ The patient's last name
 **PII**: No
 
 **HL7 Field**: PID-5-7
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: patient_middle_initial
-
-**Type**: PERSON_NAME
-
-**PII**: Yes
 
 **Cardinality**: [0..1]
 
