@@ -887,13 +887,13 @@ Custom.  Not currently used. ReportStream assumes area code is in orderingProvid
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
+YES|Yes
+NO|No
 UNK|Unknown
 
 **Documentation**:
 
-Is this the patient's first test for this condition?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -978,13 +978,13 @@ Custom field.  Example - 260415000
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
+YES|Yes
+NO|No
 UNK|Unknown
 
 **Documentation**:
 
-Is the patient employed in health care?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1517,13 +1517,13 @@ Custom.  eg, 6816002
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
+YES|Yes
+NO|No
 UNK|Unknown
 
 **Documentation**:
 
-Is the patient symptomatic?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1557,13 +1557,13 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
+YES|Yes
+NO|No
 UNK|Unknown
 
 **Documentation**:
 
-Is the patient hospitalized?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1620,13 +1620,13 @@ Custom.  eg, 840539006, same valueset as testResult
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
+YES|Yes
+NO|No
 UNK|Unknown
 
 **Documentation**:
 
-Is the patient in the ICU?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1646,13 +1646,13 @@ Is the patient in the ICU?
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
+YES|Yes
+NO|No
 UNK|Unknown
 
 **Documentation**:
 
-Does the patient reside in a congregate care setting?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1712,7 +1712,7 @@ Code | Display
 
 **Documentation**:
 
-eg, 60001007
+Is the patient pregnant?
 
 ---
 

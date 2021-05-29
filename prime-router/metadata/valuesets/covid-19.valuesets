@@ -189,6 +189,19 @@
       display: Nasal structure (body structure)
       version: 2020-09-01
 
+- name: covid-19/yesno
+  # See YES, NO, UNK in the reference URL.
+  reference: Painfully, slightly different from the display values in hl7-136, which are Yes, No, Unknown, and code values, which are Y,N,UNK.
+  system: LOCAL
+  referenceUrl: https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf
+  values:
+    - code: YES
+      display: Yes
+    - code: NO
+      display: No
+    - code: UNK
+      display: Unknown
+
 
 
 
