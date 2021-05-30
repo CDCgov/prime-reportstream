@@ -179,6 +179,44 @@ class AllowAll : JurisdictionalFilter {
 
 
 /**
+ * Implements a specific check for CLIA number format.
+ * Pass in any number of columns you expect to be valid clia numbers.
+ * Example:  isValidCLIA(testing_lab_clia,reporting_facility_clia)
+ * This test passes if at least one of the columns exists, and its value has exactly 10 alphanumeric chars.
+ * Otherwise, this test fails.
+ *
+ * (It appears that the 3rd position in all CLIAs is the letter "D", but I could
+ * find no official documentation confirming that, so that is not enforced)
+ *
+ */
+class IsValidCLIA : JurisdictionalFilter {
+    override val name = "isValidCLIA"
+
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
+        if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
+        var selection = Selection.withRange(0, 0)
+        val columnNames = table.columnNames()
+        var atLeastOneColumnFound = false
+        args.forEach {
+            if (columnNames.contains(it)) {
+                selection = selection.or(
+                    table.stringColumn(it).lengthEquals(10).and(table.stringColumn(it).isAlphaNumeric)
+                )
+                atLeastOneColumnFound = true
+            }
+        }
+        if (!atLeastOneColumnFound) {
+            logger.warn("Report for ${receiver.fullName} does not contain any of these columns:" +
+                " ${args.joinToString(",")}" +
+                ".  All data in this report will fail the $name check")
+        }
+        return selection
+    }
+
+}
+
+
+/**
  * Implements a quality check match.  If a row has valid data for all the columns, the row is selected.
  * If any column name does not exist, nothing passes thru the filter.
  * hasValidDataFor(columnName1, columnName2, columnName3, ...)
@@ -196,14 +234,13 @@ class HasValidDataFor : JurisdictionalFilter {
                 selection = selection.andNot(table.stringColumn(it).isEmptyString)
             } else {
                 logger.warn("Report for ${receiver.fullName} does not contain column $it." +
-                    "  All data in this report will fail the quality check")
+                    "  All data in this report will fail the $name check")
                 return Selection.withRange(0, 0)
             }
         }
         return selection
     }
 }
-
 /**
  * hasAtLeastOneOf(columnName1, columnName2, columnName3, ...)
  * Implements a quality check match.  If a row has valid data for any of the columns, the row is selected.
@@ -225,7 +262,7 @@ class HasAtLeastOneOf : JurisdictionalFilter {
         if (!atLeastOneColumnFound) {
             logger.warn("Report for ${receiver.fullName} does not contain any of these columns:" +
                 " ${args.joinToString(",")}" +
-                ".  All data in this report will fail the quality check")
+                ".  All data in this report will fail the $name check")
         }
         return selection
     }
@@ -252,8 +289,8 @@ object JurisdictionalFilters {
         "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)",
         // has valid date (for relevance/urgency)
         "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
-        // has a valid CLIA
-        "hasAtLeastOneOf(testing_lab_clia,reporting_facility_clia)",
+        // has at least one valid CLIA
+        "isValidCLIA(testing_lab_clia,reporting_facility_clia)",
     )
 
     /**
