@@ -14,7 +14,7 @@
       nameFormat: "STANDARD"
       receivingOrganization: null
       type: "CUSTOM"
-    jurisdictionFilter: [ "matches(sender_id,SafeHealth)" ]
+    jurisdictionalFilter: [ "matches(sender_id,SafeHealth)" ]
     qualityFilter:
     - "allowAll()"
     deidentify: true

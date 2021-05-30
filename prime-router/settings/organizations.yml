@@ -818,7 +818,8 @@
     - name: "elr"
       organizationName: "hhsprotect"
       topic: "covid-19"
-      jurisdictionFilter: [ "matches(sender_id,.*SafeHealth,*,.*CueHlth.*,.*ImageMover.*)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*)" ]
+      qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
         schemaName: "waters/direct-covid-19"
