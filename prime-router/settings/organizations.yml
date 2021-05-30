@@ -34,7 +34,7 @@
       - name: default
         organizationName: cue
         topic: covid-19
-        schemaName: waters/direct-covid-19
+        schemaName: waters/cue-covid-19
         format: CSV
 
   - name: waters
