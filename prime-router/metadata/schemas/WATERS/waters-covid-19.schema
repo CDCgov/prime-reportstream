@@ -6,9 +6,9 @@ trackingElement: message_id
 basedOn: covid-19
 elements:
 
-  # Waters sends RS the name of the company sending them data in this field
-  - name: submitter_uid
+  - name: sender_id
     type: TEXT
+    documentation: Include the name of the sender as a substring here.
     csvFields: [{ name: SubmitterUID }]
 
   # This is waters unique id for each row.

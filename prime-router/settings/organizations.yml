@@ -812,15 +812,16 @@
           timeZone: EASTERN
 
   - name: "hhsprotect"
-    description: "HHS Protect"
+    description: "HHSProtect"
     jurisdiction: "FEDERAL"
     receivers:
     - name: "elr"
       organizationName: "hhsprotect"
       topic: "covid-19"
+      jurisdictionFilter: [ "matches(sender_id,.*SafeHealth,*,.*CueHlth.*,.*ImageMover.*)" ]
       translation:
         type: "CUSTOM"
-        schemaName: "waters/waters-covid-19"
+        schemaName: "waters/direct-covid-19"
         format: "CSV"
       deidentify: true
       timing:
