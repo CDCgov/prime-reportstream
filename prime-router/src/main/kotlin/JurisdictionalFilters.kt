@@ -178,6 +178,34 @@ class AllowAll : JurisdictionalFilter {
 }
 
 
+
+/**
+ * Implements a quality check match.  If a row has valid data for all the columns, the row is selected.
+ * If any column name does not exist, nothing passes thru the filter.
+ * hasValidDataFor(columnName1, columnName2, columnName3, ...)
+ * If no columns are passed, all rows are selected.  So, any number of args is acceptable.
+ */
+class HasValidDataFor : JurisdictionalFilter {
+    override val name = "hasValidDataFor"
+
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
+        var selection = Selection.withRange(0, table.rowCount())
+
+        val columnNames = table.columnNames()
+        args.forEach { colName ->
+            if (columnNames.contains(colName)) {
+                val before = selection.or(Selection.withRange(0,0))  // hack copy constructor!  For logging only.
+                selection = selection.andNot(table.stringColumn(colName).isEmptyString)
+                JurisdictionalFilters.logFiltering(before, selection,"$name($colName)", receiver)
+            } else {
+                JurisdictionalFilters.logAllEliminated(table.rowCount(),"$name($colName): column not found", receiver)
+                return Selection.withRange(0, 0)
+            }
+        }
+        return selection
+    }
+}
+
 /**
  * Implements a specific check for CLIA number format.
  * Pass in any number of columns you expect to be valid clia numbers.
@@ -197,50 +225,27 @@ class IsValidCLIA : JurisdictionalFilter {
         var selection = Selection.withRange(0, 0)
         val columnNames = table.columnNames()
         var atLeastOneColumnFound = false
-        args.forEach {
-            if (columnNames.contains(it)) {
+        args.forEach { colName ->
+            if (columnNames.contains(colName)) {
                 selection = selection.or(
-                    table.stringColumn(it).lengthEquals(10).and(table.stringColumn(it).isAlphaNumeric)
+                    table.stringColumn(colName).lengthEquals(10).and(table.stringColumn(colName).isAlphaNumeric)
                 )
                 atLeastOneColumnFound = true
             }
         }
         if (!atLeastOneColumnFound) {
-            logger.warn("Report for ${receiver.fullName} does not contain any of these columns:" +
-                " ${args.joinToString(",")}" +
-                ".  All data in this report will fail the $name check")
-        }
-        return selection
-    }
-
-}
-
-
-/**
- * Implements a quality check match.  If a row has valid data for all the columns, the row is selected.
- * If any column name does not exist, nothing passes thru the filter.
- * hasValidDataFor(columnName1, columnName2, columnName3, ...)
- * If no columns are passed, all rows are selected.  So, any number of args is acceptable.
- */
-class HasValidDataFor : JurisdictionalFilter {
-    override val name = "hasValidDataFor"
-
-    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
-        var selection = Selection.withRange(0, table.rowCount())
-
-        val columnNames = table.columnNames()
-        args.forEach {
-            if (columnNames.contains(it)) {
-                selection = selection.andNot(table.stringColumn(it).isEmptyString)
-            } else {
-                logger.warn("Report for ${receiver.fullName} does not contain column $it." +
-                    "  All data in this report will fail the $name check")
-                return Selection.withRange(0, 0)
+            JurisdictionalFilters.logAllEliminated(table.rowCount(),
+                "$name(${args.joinToString(",")}): none of these columns found.", receiver)
+        } else {
+            if (selection.size() < table.rowCount()) {
+                JurisdictionalFilters.logFiltering(Selection.withRange(0, table.rowCount()), selection,
+                    "$name(${args.joinToString(",")})", receiver)
             }
         }
         return selection
     }
 }
+
 /**
  * hasAtLeastOneOf(columnName1, columnName2, columnName3, ...)
  * Implements a quality check match.  If a row has valid data for any of the columns, the row is selected.
@@ -253,16 +258,20 @@ class HasAtLeastOneOf : JurisdictionalFilter {
         var selection = Selection.withRange(0, 0)
         val columnNames = table.columnNames()
         var atLeastOneColumnFound = false
-        args.forEach {
-            if (columnNames.contains(it)) {
-                selection = selection.or(table.stringColumn(it).isNotMissing)
+        args.forEach { colName ->
+            if (columnNames.contains(colName)) {
+                selection = selection.or(table.stringColumn(colName).isNotMissing)
                 atLeastOneColumnFound = true
             }
         }
         if (!atLeastOneColumnFound) {
-            logger.warn("Report for ${receiver.fullName} does not contain any of these columns:" +
-                " ${args.joinToString(",")}" +
-                ".  All data in this report will fail the $name check")
+            JurisdictionalFilters.logAllEliminated(table.rowCount(),
+                "$name(${args.joinToString(",")}): none of these columns found.", receiver)
+        } else {
+            if (selection.size() < table.rowCount()) {
+                JurisdictionalFilters.logFiltering(Selection.withRange(0, table.rowCount()), selection,
+                    "$name(${args.joinToString(",")})", receiver)
+            }
         }
         return selection
     }
@@ -271,7 +280,7 @@ class HasAtLeastOneOf : JurisdictionalFilter {
 
 
 
-object JurisdictionalFilters {
+object JurisdictionalFilters: Logging {
     // covid-19 default quality check consists of these filters
     // todo move this to a GLOBAL Setting in the settings table
     val defaultCovid19QualityCheck = listOf(
@@ -312,5 +321,24 @@ object JurisdictionalFilters {
         val match = Regex("([a-zA-Z0-9]+)\\x28(.*)\\x29").find(filterFunction)
             ?: error("JurisdictionalFilter field $filterFunction does not parse")
         return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
+    }
+
+    fun logAllEliminated(beforeSize: Int, filterDescription: String , receiver: Receiver) {
+        logger.warn("For ${receiver.fullName}, qualityFilter $filterDescription" +
+            " reduced the Items from $beforeSize to 0.  All rows eliminated")
+    }
+
+    fun logFiltering(before: Selection, after: Selection, filterDescription: String , receiver: Receiver) {
+        if (after.size() < before.size()) {
+            if (after.size() == 0) {
+                logAllEliminated(before.size(), filterDescription, receiver)
+            } else {
+                val eliminatedRows = before.andNot(after)
+                logger.warn("For ${receiver.fullName}, qualityFilter $filterDescription" +
+                    " reduced the Item count from ${before.size()} to ${after.size()}.  " +
+                    "These rows eliminated: ${eliminatedRows.joinToString(",")}")
+
+            }
+        }
     }
 }
