@@ -194,7 +194,7 @@ class HasValidDataFor : JurisdictionalFilter {
         val columnNames = table.columnNames()
         args.forEach { colName ->
             if (columnNames.contains(colName)) {
-                val before = selection.or(Selection.withRange(0,0))  // hack copy constructor!  For logging only.
+                val before = Selection.with(*selection.toArray())  // hack way to copy to a new Selection obj
                 selection = selection.andNot(table.stringColumn(colName).isEmptyString)
                 JurisdictionalFilters.logFiltering(before, selection,"$name($colName)", receiver)
             } else {
@@ -333,10 +333,12 @@ object JurisdictionalFilters: Logging {
             if (after.size() == 0) {
                 logAllEliminated(before.size(), filterDescription, receiver)
             } else {
+                // Note:  the expression 'before.andNot(after)' actually changes the 'before' obj!
+                val beforeSize = before.size()
                 val eliminatedRows = before.andNot(after)
                 logger.warn("For ${receiver.fullName}, qualityFilter $filterDescription" +
-                    " reduced the Item count from ${before.size()} to ${after.size()}.  " +
-                    "These rows eliminated: ${eliminatedRows.joinToString(",")}")
+                    " reduced the Item count from $beforeSize to ${after.size()}.  " +
+                    "Row numbers eliminated: ${eliminatedRows.joinToString(",")}")
 
             }
         }

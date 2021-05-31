@@ -1093,6 +1093,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*)" ]
+#      jurisdictionalFilter: [ "matches(sender_id,SafeHealth)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
