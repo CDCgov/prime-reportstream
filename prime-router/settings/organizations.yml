@@ -822,7 +822,7 @@
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
-        schemaName: "waters/direct-covid-19"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
       timing:

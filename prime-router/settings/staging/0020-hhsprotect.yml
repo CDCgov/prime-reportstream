@@ -1,14 +1,14 @@
 # Run this:   ./prime multiple-settings set --input ./settings/staging/0020-hhsprotect.yml --env staging
 ---
 - name: "hhsprotect"
-  description: "HHS Protect"
+  description: "HHSProtect"
   jurisdiction: "FEDERAL"
   receivers:
   - name: "elr"
     organizationName: "hhsprotect"
     topic: "covid-19"
     translation: !<CUSTOM>
-      schemaName: "waters/direct-covid-19"
+      schemaName: "hhsprotect/hhsprotect-covid-19"
       format: "CSV"
       defaults: {}
       nameFormat: "STANDARD"
