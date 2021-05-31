@@ -4,6 +4,20 @@
 
 ---
 
+**Name**: senderId
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for chain of custody tracking.  Not to be confused with sending_application, which in which ReportStream is the 'sender'
+
+---
+
 **Name**: testOrdered
 
 **Type**: TABLE
@@ -675,6 +689,16 @@ The patient's first name
 
 ---
 
+**Name**: patientUniqueIdHash
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patientHomeAddress
 
 **Type**: STREET
@@ -877,6 +901,8 @@ Custom.  Not currently used. ReportStream assumes area code is in orderingProvid
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95417-2
@@ -887,9 +913,9 @@ Custom.  Not currently used. ReportStream assumes area code is in orderingProvid
 
 Code | Display
 ---- | -------
-YES|Yes
-NO|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
@@ -968,6 +994,8 @@ Custom field.  Example - 260415000
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95418-0
@@ -978,9 +1006,9 @@ Custom field.  Example - 260415000
 
 Code | Display
 ---- | -------
-YES|Yes
-NO|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
@@ -1507,6 +1535,8 @@ Custom.  eg, 6816002
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95419-8
@@ -1517,9 +1547,9 @@ Custom.  eg, 6816002
 
 Code | Display
 ---- | -------
-YES|Yes
-NO|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
@@ -1547,6 +1577,8 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 77974-4
@@ -1557,9 +1589,9 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 
 Code | Display
 ---- | -------
-YES|Yes
-NO|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
@@ -1610,6 +1642,8 @@ Custom.  eg, 840539006, same valueset as testResult
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95420-6
@@ -1620,9 +1654,9 @@ Custom.  eg, 840539006, same valueset as testResult
 
 Code | Display
 ---- | -------
-YES|Yes
-NO|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
@@ -1636,6 +1670,8 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95421-4
@@ -1646,9 +1682,9 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 Code | Display
 ---- | -------
-YES|Yes
-NO|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
