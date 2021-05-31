@@ -961,7 +961,7 @@
           initialTime: 00:00
         translation:
           type: CUSTOM
-          schemaName: waters/waters-covid-19
+          schemaName: hhsprotect/hhsprotect-covid-19
           format: CSV
         transport:
           type: BLOBSTORE
