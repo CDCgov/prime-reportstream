@@ -29,7 +29,7 @@ data class EmailSchedule (
     val parameters: Map<String,String>? = HashMap<String,String>()
 ) {}
 
-val sched = listOf( EmailSchedule( "daily-template", "marketing", "7 18 * * *") )
+val sched = listOf( EmailSchedule( "daily-template", "marketing", "11 21 * * *") )
 
 data class TimerInfo (
     
