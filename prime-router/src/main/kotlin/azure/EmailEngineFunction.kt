@@ -21,6 +21,12 @@ import com.cronutils.parser.CronParser;
 import com.cronutils.model.definition.CronDefinitionBuilder;
 import com.cronutils.model.CronType;
 
+import com.sendgrid.helpers.mail.objects.*;
+import com.sendgrid.*;
+import com.sendgrid.helpers.mail.Mail;
+
+import java.io.IOException;
+
 data class EmailSchedule ( 
     val template: String,
     val type: String,
@@ -29,21 +35,7 @@ data class EmailSchedule (
     val parameters: Map<String,String>? = HashMap<String,String>()
 ) {}
 
-val sched = listOf( EmailSchedule( "daily-template", "marketing", "11 21 * * *") )
-
-data class TimerInfo (
-    
-    val Schedule: Any?,
-    val ScheduleStatus: TimerInfoScheduleStatus? = null,
-    val IsPastDue: Boolean? = null
-){}
-
-
-data class TimerInfoScheduleStatus (
-    val Last: String,
-    val Next: String,
-    val LastUpdated: String
-){}
+val sched = listOf( EmailSchedule( "daily-template", "marketing", "32 18 * * *") )
  
 class EmailScheduleEngine  {
 
@@ -53,16 +45,16 @@ class EmailScheduleEngine  {
         @TimerTrigger( name = "emailScheduleEngine", schedule = "*/5 * * * *") timerInfo : String,
         context: ExecutionContext
     ){
-
-        val mapper = jacksonObjectMapper()
-        val timer:TimerInfo = mapper.readValue<TimerInfo>( timerInfo );
+        // get the schedules to fire
         val schedulesToFire : List<EmailSchedule> = getSchedules().filter{ shouldFire( it ) };
         schedulesToFire.forEach {
             val schedule: EmailSchedule = it;
-            val last: Date = getLastTimeFired(schedule,timerInfo);
+            val last: Date = getLastTimeFired( schedule );
             val orgs: List<String> = getOrgs( schedule );
 
             System.out.println( "processing ${schedule.template}" )
+
+            // get the orgs to fire for
             orgs.forEach{
                 val org: String = it;
                 val emails: List<String> = getEmails(org);
@@ -90,7 +82,7 @@ class EmailScheduleEngine  {
     /**
      * Reports the last time that the timer has been fired for this schedule
      */
-    private fun getLastTimeFired( schedule: EmailSchedule, timerInfo: String ): Date {
+    private fun getLastTimeFired( schedule: EmailSchedule ): Date {
         val parser = CronParser( CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX) );
         // Get date for last execution
         val now = ZonedDateTime.now();
@@ -126,13 +118,17 @@ class EmailScheduleEngine  {
      * TODO: Fixme!
      */
     private fun getEmails( org: String ): List<String> {
-        return ArrayList<String>();
+        return listOf( "qtv1@cdc.gov" ); //,"qom6@cdc.gov","qop5@cdc.gov","qop4@cdc.gov","qva8@cdc.gov","rdz8@cdc.gov","qpu0@cdc.gov" )
     }
 
      /**
      * TODO: Fixme!
      */
     private fun getReportsSinceLast( org: String, last: Date ): List<ReportFile> {
+
+      //  val reportFiles = workflowEngine.fetchDownloadableReportFiles(
+      //      OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
+      //  )
         return ArrayList<ReportFile>();
     }
 
@@ -144,9 +140,34 @@ class EmailScheduleEngine  {
         emails: List<String>,
         reportsSinceLast: List<ReportFile>
     ){
+        val from: Email = Email("reportstream@cdc.gov");
+        val subject = "ReportStream Daily Email - 31 MAY 2021";
+        val content: Content = Content("text/html", "text");
+        val mail : Mail = Mail()
+        val p:Personalization = Personalization();
+        emails.forEach{ p.addTo( Email(it) ) };
+        mail.setSubject( subject );
+        mail.addPersonalization( p );
+        mail.setFrom( from );
+        mail.addContent( content );
 
+        val sg:SendGrid = SendGrid("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");
+        val request:Request = Request();
+        try {
+          request.setMethod(Method.POST);
+          request.setEndpoint("mail/send");
+          request.setBody(mail.build());
+          val response:Response = sg.api(request);
+          System.out.println(response.getStatusCode());
+          System.out.println(response.getBody());
+          System.out.println(response.getHeaders());
+        } catch (ex:IOException) {
+          System.out.println( ex )
+        }
+    
     }
 
+    
 
 
 }
