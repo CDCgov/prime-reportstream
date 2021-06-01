@@ -24,7 +24,7 @@
       - name: default
         organizationName: safehealth
         topic: covid-19
-        schemaName: waters/direct-covid-19
+        schemaName: waters/safehealth-covid-19
         format: CSV
 
   - name: cue
@@ -34,7 +34,7 @@
       - name: default
         organizationName: cue
         topic: covid-19
-        schemaName: waters/direct-covid-19
+        schemaName: waters/cue-covid-19
         format: CSV
 
   - name: waters
@@ -812,15 +812,17 @@
           timeZone: EASTERN
 
   - name: "hhsprotect"
-    description: "HHS Protect"
+    description: "HHSProtect"
     jurisdiction: "FEDERAL"
     receivers:
     - name: "elr"
       organizationName: "hhsprotect"
       topic: "covid-19"
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*)" ]
+      qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
-        schemaName: "waters/waters-covid-19"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
       timing:
@@ -959,7 +961,7 @@
           initialTime: 00:00
         translation:
           type: CUSTOM
-          schemaName: waters/waters-covid-19
+          schemaName: hhsprotect/hhsprotect-covid-19
           format: CSV
         transport:
           type: BLOBSTORE

@@ -37,6 +37,25 @@ class JurisdictionalFilterTests {
     }
 
     @Test
+    fun `test Matches with multiple regexi`() {
+        val filter = Matches()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("A long list of items here", "items", "A short list here")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3"))
+        )
+        val args1 = listOf("colA", "items")
+        val selection1 = filter.getSelection(args1, table, rcvr)
+        val filteredTable1 = table.where(selection1)
+        assertThat(filteredTable1).hasRowCount(1)
+        assertThat(filteredTable1.getString(0, "colB")).isEqualTo("B2")
+
+        val args2 = listOf("colA", ".*items.*", ".*short.*") // test multiple regexi
+        val selection2 = filter.getSelection(args2, table, rcvr)
+        val filteredTable2 = table.where(selection2)
+        assertThat(filteredTable2).hasRowCount(3)
+    }
+
+    @Test
     fun `test empty Matches`() {
         val filter = Matches()
         val table = Table.create(

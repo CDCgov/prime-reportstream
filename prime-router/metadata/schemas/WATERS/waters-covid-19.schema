@@ -6,9 +6,9 @@ trackingElement: message_id
 basedOn: covid-19
 elements:
 
-  # Waters sends RS the name of the company sending them data in this field
-  - name: submitter_uid
+  - name: sender_id
     type: TEXT
+    documentation: Include the name of the sender as a substring here.
     csvFields: [{ name: SubmitterUID }]
 
   # This is waters unique id for each row.
@@ -160,7 +160,10 @@ elements:
     csvFields: [{ name: specimenCollectedDate}]
 
   - name: first_test
-    csvFields: [{ name: firstTest}]
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: firstTest, format: $display}]
 
   # Custom waters field
   - name: previous_test_date
@@ -180,7 +183,10 @@ elements:
     csvFields: [{ name: previousTestType}]
 
   - name: employed_in_healthcare
-    csvFields: [{ name: healthcareEmployee}]
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: healthcareEmployee, format: $display}]
 
   # Custom waters field but using same name as simple_report uses.
   - name: patient_role 
@@ -188,10 +194,16 @@ elements:
     type: TEXT
 
   - name: hospitalized
-    csvFields: [{ name: hospitalized}]
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: hospitalized, format: $display}]
 
   - name: symptomatic_for_disease
-    csvFields: [{ name: symptomatic}]
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: symptomatic, format: $display}]
 
   # Custom waters field
   # Format for each symptom is symtomCode^date;  
@@ -201,10 +213,16 @@ elements:
     csvFields: [{ name: symptomsList}]
 
   - name: icu
-    csvFields: [{ name: symptomsIcu}]
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: symptomsIcu, format: $display}]
 
   - name: resident_congregate_setting
-    csvFields: [{ name: congregateResident}]
+    type: CODE
+    valueSet: covid-19/yesno
+    documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
+    csvFields: [{ name: congregateResident, format: $display}]
 
   # Custom waters field
   - name: site_of_care
