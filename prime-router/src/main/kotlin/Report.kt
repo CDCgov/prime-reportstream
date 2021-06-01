@@ -496,11 +496,17 @@ class Report {
                     it.testingLabState = row.getStringOrNull("testing_lab_state")
                     it.patientCounty = row.getStringOrNull("patient_county")
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
+                    it.patientEthnicity = metadata.findValueSet("hl70189")
+                        ?.toDisplayFromCode(it.patientEthnicityCode)
                     it.patientGenderCode = row.getStringOrNull("patient_gender")
+                    it.patientGender = metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
                     it.patientPostalCode = row.getStringOrNull("patient_zip_code")
                     it.patientRaceCode = row.getStringOrNull("patient_race")
+                    it.patientRace = metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
                     it.patientState = row.getStringOrNull("patient_state")
                     it.testResultCode = row.getStringOrNull("test_result")
+                    it.testResult = metadata.findValueSet("covid-19/test_result")
+                        ?.toDisplayFromCode(it.testResultCode)
                     it.equipmentModel = row.getStringOrNull("equipment_model_name")
                     it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
                         if (!dt.isNullOrEmpty()) {
