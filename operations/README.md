@@ -107,6 +107,62 @@ docker-compose build
 ```
 
 
+
+# Deploying a new environment
+
+* Environments must have a unique resource group.
+* Resources groups are managed by the CDC.
+* Contact the IAM team at <adhelpdsk@cdc.gov> to get your resource group created.
+
+## Create the Terraform storage account
+
+1. Login to your Azure console.
+2. In the intended resource group, create a storage account named: `{prefix}terraform`
+    * Note: Storage account names do not allow punctuation
+3. Follow the screenshots and replicate the settings
+
+![Storage Account Page 1](readme-assets/storage-account-page-1.png)
+
+![Storage Account Page 2](readme-assets/storage-account-page-2.png)
+
+![Storage Account Page 3](readme-assets/storage-account-page-3.png)
+
+![Storage Account Page 4](readme-assets/storage-account-page-4.png)
+
+## Create the Terraform storage container
+
+In your newly created storage account, create a container named: `terraformstate`
+
+![Storage Account Page 5](readme-assets/storage-account-page-5.png)
+
+## Create your Terraform configuration
+
+1. Pick an existing environment and duplicate the following folders with your new environment name:
+    * `environments/{env}-network`
+    * `environments/{env}-persistent`
+    * `environments/{env}-app`
+2. Update the `docker-compose.yml` file with your three new environment configurations
+    * Ensure to replace the environment name when you copy your configuration
+3. In each of the three folders, update the `main.tf` file with the environment variables that pertain to the environment
+    * Ensure to update the `backend "azurerm"` block with your storage account created above
+
+## Deploy the environment
+
+Follow the above directions…
+
+1. Deploy the `{env}-network` module
+    * Deploy of the module for the first time will take over an hour
+2. Deploy the `{env}-persistent` module
+3. Deploy the `{env}-app` module
+
+
+
+# Tear down a environment
+
+
+
+
+
 ## Deploying a new environment
 
 The order matters for deploying an environment from scratch. While Terraform handles most of the work, the order of operations matter as items like the VPN must be stood up first.
