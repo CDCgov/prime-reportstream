@@ -9,15 +9,17 @@ import com.helger.as2lib.client.AS2ClientRequest
 import com.helger.as2lib.client.AS2ClientSettings
 import com.helger.as2lib.crypto.ECryptoAlgorithmCrypt
 import com.helger.as2lib.crypto.ECryptoAlgorithmSign
-import com.helger.security.keystore.EKeyStoreType
 import com.helger.commons.collection.CollectionHelper
+import com.helger.security.keystore.EKeyStoreType
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
-
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.system.exitProcess
 
 /**
  * Example program to send a message
@@ -42,7 +44,7 @@ const val LOCAL_PRIME_AS2ID = "CDCPRIMETEST"
 
 // PRIME sender email
 const val PRIME_SENDER_EMAIL = "reportstream@cdc.gov"
-const val HL7_MIME_TYPE = "text/x-hl7-ft"
+const val HL7_MIME_TYPE = "application/hl7-v2"
 const val CONTENT_DESCRIPTION = "COVID-19 Electronic Lab Results"
 
 // JKS key alias
@@ -57,11 +59,14 @@ class AS2ExpCommand: CliktCommand() {
     val receiverCert by option("--cert").file(mustExist = true).required()
 
     override fun run() {
+        val logger: Logger = LoggerFactory.getLogger(AS2ExpCommand::class.java)
+        logger.info("Sending one message")
+
         val client = AS2Client()
         val settings = AS2ClientSettings()
         settings.setKeyStore(EKeyStoreType.PKCS12, keystore, keypass)
-        settings.setSenderData (LOCAL_PRIME_AS2ID, PRIME_SENDER_EMAIL, PRIME_KEY_ALIAS)
-        settings.setReceiverData(LOCAL_AS2ID, OHP_KEY_ALIAS, LOCAL_AS2_URL)
+        settings.setSenderData (TEST_PRIME_AS2ID, PRIME_SENDER_EMAIL, PRIME_KEY_ALIAS)
+        settings.setReceiverData(TEST_AS2ID, OHP_KEY_ALIAS, TEST_AS2_URL)
         settings.setPartnershipName("${settings.senderAS2ID}_${settings.receiverAS2ID}")
 
         val receiverCert = readX509Certificate(receiverCert)
@@ -88,7 +93,9 @@ class AS2ExpCommand: CliktCommand() {
         request.setData(payload, Charsets.UTF_8)
 
         val response = client.sendSynchronous(settings, request)
-        echo("${response.asString}")
+        echo("MDN messageID: ${response.mdnMessageID}")
+        echo("MDN message: ${response.mdn.toString()}")
+        echo("response: ${response.asString}")
     }
 
     private fun readX509Certificate (certificateFile: File): X509Certificate {

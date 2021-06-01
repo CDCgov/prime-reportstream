@@ -29,7 +29,7 @@ keytool -delete -alias endeca -keystore waohp.jks
 openssl pkcs12 -export -inkey cdcprime.key  -in prime-cdc-gov-sender.pem -name CDCPRIME -out cdcprime.p12
 ```
 
-5. Import the private key into the keystore. Almatches the AS2ID
+5. Import the private key into the keystore. Matches the AS2ID
 ```
 keytool -importkeystore -srckeystore cdcprime.p12 -srcstoretype PKCS12 -destkeystore waohp.jks -deststoretype JKS
 ```
