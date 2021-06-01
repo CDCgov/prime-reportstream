@@ -178,6 +178,7 @@ class AllowAll : JurisdictionalFilter {
 }
 
 
+
 /**
  * Implements a quality check match.  If a row has valid data for all the columns, the row is selected.
  * If any column name does not exist, nothing passes thru the filter.
@@ -191,13 +192,54 @@ class HasValidDataFor : JurisdictionalFilter {
         var selection = Selection.withRange(0, table.rowCount())
 
         val columnNames = table.columnNames()
-        args.forEach {
-            if (columnNames.contains(it)) {
-                selection = selection.andNot(table.stringColumn(it).isEmptyString)
+        args.forEach { colName ->
+            if (columnNames.contains(colName)) {
+                val before = Selection.with(*selection.toArray())  // hack way to copy to a new Selection obj
+                selection = selection.andNot(table.stringColumn(colName).isEmptyString)
+                JurisdictionalFilters.logFiltering(before, selection,"$name($colName)", receiver)
             } else {
-                logger.warn("Report for ${receiver.fullName} does not contain column $it." +
-                    "  All data in this report will fail the quality check")
+                JurisdictionalFilters.logAllEliminated(table.rowCount(),"$name($colName): column not found", receiver)
                 return Selection.withRange(0, 0)
+            }
+        }
+        return selection
+    }
+}
+
+/**
+ * Implements a specific check for CLIA number format.
+ * Pass in any number of columns you expect to be valid clia numbers.
+ * Example:  isValidCLIA(testing_lab_clia,reporting_facility_clia)
+ * This test passes if at least one of the columns exists, and its value has exactly 10 alphanumeric chars.
+ * Otherwise, this test fails.
+ *
+ * (It appears that the 3rd position in all CLIAs is the letter "D", but I could
+ * find no official documentation confirming that, so that is not enforced)
+ *
+ */
+class IsValidCLIA : JurisdictionalFilter {
+    override val name = "isValidCLIA"
+
+    override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
+        if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
+        var selection = Selection.withRange(0, 0)
+        val columnNames = table.columnNames()
+        var atLeastOneColumnFound = false
+        args.forEach { colName ->
+            if (columnNames.contains(colName)) {
+                selection = selection.or(
+                    table.stringColumn(colName).lengthEquals(10).and(table.stringColumn(colName).isAlphaNumeric)
+                )
+                atLeastOneColumnFound = true
+            }
+        }
+        if (!atLeastOneColumnFound) {
+            JurisdictionalFilters.logAllEliminated(table.rowCount(),
+                "$name(${args.joinToString(",")}): none of these columns found.", receiver)
+        } else {
+            if (selection.size() < table.rowCount()) {
+                JurisdictionalFilters.logFiltering(Selection.withRange(0, table.rowCount()), selection,
+                    "$name(${args.joinToString(",")})", receiver)
             }
         }
         return selection
@@ -216,16 +258,20 @@ class HasAtLeastOneOf : JurisdictionalFilter {
         var selection = Selection.withRange(0, 0)
         val columnNames = table.columnNames()
         var atLeastOneColumnFound = false
-        args.forEach {
-            if (columnNames.contains(it)) {
-                selection = selection.or(table.stringColumn(it).isNotMissing)
+        args.forEach { colName ->
+            if (columnNames.contains(colName)) {
+                selection = selection.or(table.stringColumn(colName).isNotMissing)
                 atLeastOneColumnFound = true
             }
         }
         if (!atLeastOneColumnFound) {
-            logger.warn("Report for ${receiver.fullName} does not contain any of these columns:" +
-                " ${args.joinToString(",")}" +
-                ".  All data in this report will fail the quality check")
+            JurisdictionalFilters.logAllEliminated(table.rowCount(),
+                "$name(${args.joinToString(",")}): none of these columns found.", receiver)
+        } else {
+            if (selection.size() < table.rowCount()) {
+                JurisdictionalFilters.logFiltering(Selection.withRange(0, table.rowCount()), selection,
+                    "$name(${args.joinToString(",")})", receiver)
+            }
         }
         return selection
     }
@@ -234,7 +280,7 @@ class HasAtLeastOneOf : JurisdictionalFilter {
 
 
 
-object JurisdictionalFilters {
+object JurisdictionalFilters: Logging {
     // covid-19 default quality check consists of these filters
     // todo move this to a GLOBAL Setting in the settings table
     val defaultCovid19QualityCheck = listOf(
@@ -247,11 +293,13 @@ object JurisdictionalFilters {
             "patient_last_name," +
             "patient_first_name," +
             "patient_dob" +
-        ")",
+            ")",
         // has minimal valid location or other contact info (for contact tracing)
         "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)",
         // has valid date (for relevance/urgency)
         "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
+        // has at least one valid CLIA
+        "isValidCLIA(testing_lab_clia,reporting_facility_clia)",
     )
 
     /**
@@ -273,5 +321,26 @@ object JurisdictionalFilters {
         val match = Regex("([a-zA-Z0-9]+)\\x28(.*)\\x29").find(filterFunction)
             ?: error("JurisdictionalFilter field $filterFunction does not parse")
         return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
+    }
+
+    fun logAllEliminated(beforeSize: Int, filterDescription: String , receiver: Receiver) {
+        logger.warn("For ${receiver.fullName}, qualityFilter $filterDescription" +
+            " reduced the Items from $beforeSize to 0.  All rows eliminated")
+    }
+
+    fun logFiltering(before: Selection, after: Selection, filterDescription: String , receiver: Receiver) {
+        if (after.size() < before.size()) {
+            if (after.size() == 0) {
+                logAllEliminated(before.size(), filterDescription, receiver)
+            } else {
+                // Note:  the expression 'before.andNot(after)' actually changes the 'before' obj!
+                val beforeSize = before.size()
+                val eliminatedRows = before.andNot(after)
+                logger.warn("For ${receiver.fullName}, qualityFilter $filterDescription" +
+                    " reduced the Item count from $beforeSize to ${after.size()}.  " +
+                    "Row numbers eliminated: ${eliminatedRows.joinToString(",")}")
+
+            }
+        }
     }
 }

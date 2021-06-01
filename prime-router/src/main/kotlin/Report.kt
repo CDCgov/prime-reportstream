@@ -55,8 +55,8 @@ class Report {
     ) {
         INTERNAL("internal", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
-        HL7("hl7", "text/hl7", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "text/hl7"), // HL7 with BHS and FHS headers
+        HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
+        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
         REDOX("redox", "text/json", true); // Redox format
         // FHIR
 

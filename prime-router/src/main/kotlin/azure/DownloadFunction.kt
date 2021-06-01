@@ -197,7 +197,7 @@ class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
                 return response
             }
         } catch (ex: Exception) {
-            context.logger.log(Level.WARNING, "Exception during download of $requestedFile", ex)
+            context.logger.warning("Exception during download of $requestedFile")
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
                 .body("File $requestedFile not found")
                 .header("Content-Type", "text/html")

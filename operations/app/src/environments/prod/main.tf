@@ -7,7 +7,7 @@ terraform {
   required_providers {
     azurerm = {
       source = "hashicorp/azurerm"
-      version = "= 2.45.1" # This version must also be changed in other environments
+      version = ">= 2.61.0" # This version must also be changed in other environments
     }
   }
   backend "azurerm" {
@@ -33,4 +33,5 @@ module "prime_data_hub" {
   https_cert_names = ["prime-cdc-gov", "reportstream-cdc-gov"]
   rsa_key_2048 = "pdhprod-2048-key"
   rsa_key_4096 = "pdhprod-4096-key"
+  is_metabase_env = true
 }
