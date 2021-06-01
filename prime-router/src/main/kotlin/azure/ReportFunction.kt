@@ -93,6 +93,11 @@ class ReportFunction {
                     // Regular happy path workflow is here
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
+                    // write the data to the table
+                    context.logger.info("Writing deidentified report data to the DB")
+                    workflowEngine.db.transact { txn ->
+                        workflowEngine.db.saveTestData(validatedRequest.report.getDeidentifiedTestData(), txn)
+                    }
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)

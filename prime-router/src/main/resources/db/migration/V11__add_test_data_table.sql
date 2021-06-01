@@ -26,19 +26,17 @@ CREATE TABLE test_data
     ordering_facility_city VARCHAR(128) NULL,
     ordering_facility_county VARCHAR(128) NULL,
     ordering_facility_state VARCHAR(128) NULL,
-    ordering_facility_state_code VARCHAR(16) NULL,
     ordering_facility_postal_code VARCHAR(32) NULL,
 
     -- ordering provider information
     ordering_provider_name VARCHAR(512) NULL,
     ordering_provider_id VARCHAR(128) NULL,
+    ordering_provider_county VARCHAR(128) NULL,
     ordering_provider_state VARCHAR(128) NULL,
-    ordering_provider_state_code VARCHAR(16) NULL,
     ordering_provider_postal_code VARCHAR(32) NULL,
 
     -- deidentified patient data
     patient_state VARCHAR(128) NULL,
-    patient_state_code VARCHAR(16) NULL,
     patient_county VARCHAR(128) NULL,
     patient_postal_code VARCHAR(32) NULL,
     patient_age VARCHAR(64) NULL,
@@ -55,11 +53,16 @@ CREATE TABLE test_data
     -- testing lab information
     testing_lab_city VARCHAR(128) NULL,
     testing_lab_county VARCHAR(128) NULL,
+    testing_lab_postal_code VARCHAR(32) NULL,
+    testing_lab_state VARCHAR(128) NULL,
     testing_lab_name VARCHAR(512) NULL,
     testing_lab_clia VARCHAR(64) NULL,
 
-    -- the client who sent in the information (simple_report, etc)
-    client_id VARCHAR(128) NULL
+    -- the report file id
+    report_id UUID NULL,
+
+    -- the record creation date
+    created_dt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 COMMENT ON TABLE test_data IS 'A collection of deidentified data from tests to allow us to pull metrics';

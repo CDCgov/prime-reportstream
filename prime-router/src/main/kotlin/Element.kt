@@ -300,8 +300,8 @@ data class Element(
                         normalizedValue
                             .replace("(", "")
                             .replace(")", ""),
-                        "1",    // country code
-                        ""      // extension
+                        "1", // country code
+                        "" // extension
                     )
                 }
 
@@ -715,8 +715,8 @@ data class Element(
     companion object {
         const val datePattern = "yyyyMMdd"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
-        val dateFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
-        val datetimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
+        val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
+        val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
         const val displayToken = "\$display"
         const val caretToken = "\$code^\$display^\$system"
         const val codeToken = "\$code"

@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.db.tables.pojos.TestData
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
@@ -9,6 +10,7 @@ import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.random.Random
@@ -470,6 +472,69 @@ class Report {
         return Report(mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages)
     }
 
+    fun getDeidentifiedTestData(): List<TestData> {
+        return try {
+            table.map { row ->
+                TestData().also {
+                    it.trackingId = row.getStringOrNull("message_id")
+                    it.orderingProviderName = row.getStringOrNull("ordering_provider_first_name") +
+                        " " + row.getStringOrNull("ordering_provider_last_name")
+                    it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
+                    it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
+                    it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code")
+                    it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county")
+                    it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city")
+                    it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county")
+                    it.orderingFacilityName = row.getStringOrNull("ordering_facility_name")
+                    it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code")
+                    it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
+                    it.testingLabCity = row.getStringOrNull("testing_lab_city")
+                    it.testingLabClia = row.getStringOrNull("testing_lab_clia")
+                    it.testingLabCounty = row.getStringOrNull("testing_lab_county")
+                    it.testingLabName = row.getStringOrNull("testing_lab_name")
+                    it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code")
+                    it.testingLabState = row.getStringOrNull("testing_lab_state")
+                    it.patientCounty = row.getStringOrNull("patient_county")
+                    it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
+                    it.patientGenderCode = row.getStringOrNull("patient_gender")
+                    it.patientPostalCode = row.getStringOrNull("patient_zip_code")
+                    it.patientRaceCode = row.getStringOrNull("patient_race")
+                    it.patientState = row.getStringOrNull("patient_state")
+                    it.testResultCode = row.getStringOrNull("test_result")
+                    it.equipmentModel = row.getStringOrNull("equipment_model_name")
+                    it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
+                        if (!dt.isNullOrEmpty()) {
+                            try {
+                                LocalDate.parse(dt, Element.datetimeFormatter)
+                            } catch (_: Exception) {
+                                null
+                            }
+                        } else {
+                            null
+                        }
+                    }
+                    it.patientAge = row.getStringOrNull("patient_dob").let { dob ->
+                        try {
+                            val d = LocalDate.parse(dob, Element.dateFormatter)
+                            if (d != null && it.specimenCollectionDateTime != null) {
+                                Period.between(d, it.specimenCollectionDateTime).years.toString()
+                            } else {
+                                null
+                            }
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
+                    it.reportId = this.id
+                }
+            }
+        } catch (e: Exception) {
+            println(e.localizedMessage)
+            println(e.stackTraceToString())
+            emptyList()
+        }
+    }
+
     private fun buildColumnPass1(mapping: Translator.Mapping, toElement: Element): StringColumn? {
         return when (toElement.name) {
             in mapping.useDirectly -> {
@@ -772,6 +837,22 @@ class Report {
                     header.reportFile.createdAt,
                     metadata = Metadata.provideMetadata()
                 )
+            }
+        }
+
+        private fun Row.getStringOrNull(columnName: String): String? {
+            return try {
+                this.getString(columnName)
+            } catch (_: Exception) {
+                null
+            }
+        }
+
+        private fun Row.getStringOrDefault(columnName: String, default: String? = null): String? {
+            return try {
+                this.getString(columnName)
+            } catch (_: Exception) {
+                default
             }
         }
     }

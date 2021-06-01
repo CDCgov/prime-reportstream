@@ -72,15 +72,19 @@ class CsvSerializer(val metadata: Metadata) {
                 readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
                     rows.add(row)
                     if (rows.size > REPORT_MAX_ITEMS) {
-                        errors.add(ResultDetail.report(
+                        errors.add(
+                            ResultDetail.report(
                                 "Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows"
-                            ))
+                            )
+                        )
                         return@open
                     }
                     if (row.size > REPORT_MAX_ITEM_COLUMNS) {
-                        errors.add(ResultDetail.report(
+                        errors.add(
+                            ResultDetail.report(
                                 "Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS"
-                            ))
+                            )
+                        )
                         return@open
                     }
                 }
