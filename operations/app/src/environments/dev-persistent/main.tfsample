@@ -1,0 +1,38 @@
+locals {
+  environment = "dev"
+  resource_group = "prime-dev-rheft"
+  resource_prefix = "rkh"
+  location = "eastus"
+}
+
+terraform {
+  required_version = "= 0.14.5" # This version must also be changed in other environments
+
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = ">= 2.61.0" # This version must also be changed in other environments
+    }
+  }
+
+  backend "azurerm" {
+    resource_group_name = "prime-dev-rheft"
+    storage_account_name = "rheftterraform"
+    container_name = "terraformstate"
+    key = "persistent.tfstate"
+  }
+}
+
+provider "azurerm" {
+  features {}
+  skip_provider_registration = true
+  subscription_id = "7d1e3999-6577-4cd5-b296-f518e5c8e677"
+}
+
+module "key_vault" {
+  source = "../../modules/key_vault"
+  environment = local.environment
+  resource_group = local.resource_group
+  resource_prefix = local.resource_prefix
+  location = local.location
+}

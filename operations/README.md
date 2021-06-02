@@ -152,8 +152,10 @@ Follow the above directions…
 
 1. Deploy the `{env}-network` module
     * Deploy of the module for the first time will take over an hour
-2. Deploy the `{env}-persistent` module
-3. Deploy the `{env}-app` module
+2. Create a VPN profile
+    * [See PR #638 for directions on standing up a VPN.](https://github.com/CDCgov/prime-data-hub/pull/638)
+3. Deploy the `{env}-persistent` module
+4. Deploy the `{env}-app` module
 
 
 

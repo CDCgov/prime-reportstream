@@ -18,14 +18,6 @@ module "storage" {
   rsa_key_4096 = var.rsa_key_4096
 }
 
-module "network" {
-  source = "../network"
-  environment = var.environment
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-  location = local.location
-}
-
 module "container_registry" {
   source = "../container_registry"
   environment = var.environment
@@ -88,15 +80,6 @@ module "database" {
   is_metabase_env = var.is_metabase_env
 }
 
-module "key_vault" {
-  source = "../key_vault"
-  environment = var.environment
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-  location = local.location
-  endpoint_subnet_id = module.network.endpoint_subnet_id
-}
-
 module "front_door" {
   source = "../front_door"
   environment = var.environment
@@ -134,15 +117,6 @@ module "metabase" {
   public_subnet_id = module.network.public_subnet_id
   postgres_url = "postgresql://${module.database.server_name}.postgres.database.azure.com:5432/metabase?user=${module.database.postgres_user}@${module.database.server_name}&password=${module.database.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
   ai_instrumentation_key = module.application_insights.instrumentation_key
-}
-
-module "nat_gateway" {
-  source = "../nat_gateway"
-  environment = var.environment
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-  location = local.location
-  public_subnet_id = module.network.public_subnet_id
 }
 
 module "application_insights" {
