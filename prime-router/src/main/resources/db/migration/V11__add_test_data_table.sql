@@ -13,11 +13,8 @@ CREATE TABLE test_data
 
     -- equipment information
     equipment_model VARCHAR(512) NULL,
-    equipment_manufacturer VARCHAR(512) NULL,
 
     -- test result info
-    abnormal_flag VARCHAR(32) NULL,
-    abnormal_flag_code VARCHAR(32) NULL,
     test_result VARCHAR(512) NULL,
     test_result_code VARCHAR(32) NULL,
 
