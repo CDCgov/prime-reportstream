@@ -89,10 +89,7 @@ prime-router/routed_files/*
 operations/app/src/**/.terraform*
 operations/app/src/**/terraform.tfstate*
 operations/app/src/**/plan.out
-operations/app/src/environments/dev/main.tf
-operations/app/src/environments/dev-network/main.tf
-operations/app/src/environments/dev-persistent/main.tf
-operations/app/src/environments/dev-app/main.tf
+operations/app/src/environments/dev*/main.tf
 !operations/app/src/**/.terraform.lock.hcl
 
 # Hashicorp Vault Secrets
