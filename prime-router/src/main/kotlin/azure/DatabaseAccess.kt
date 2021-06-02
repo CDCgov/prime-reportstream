@@ -528,6 +528,13 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         }
     }
 
+    fun deleteTestDataForReportId(reportId: UUID, txn: DataAccessTransaction) {
+        DSL.using(txn)
+            .deleteFrom(TEST_DATA)
+            .where(TEST_DATA.REPORT_ID.eq(reportId))
+            .execute()
+    }
+
     /**
      * Common companion object
      */

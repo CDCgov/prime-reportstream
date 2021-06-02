@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.TestData
+import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
@@ -41,7 +42,7 @@ const val REPORT_MAX_ERRORS = 100
  * translated and sent to another agent-organization. Each report has a schema,
  * unique id and name as well as list of sources for the creation of the report.
  */
-class Report {
+class Report : Logging {
     enum class Format(
         val ext: String,
         val mimeType: String,
@@ -535,8 +536,7 @@ class Report {
                 }
             }
         } catch (e: Exception) {
-            println(e.localizedMessage)
-            println(e.stackTraceToString())
+            logger.warn(e)
             emptyList()
         }
     }
@@ -816,9 +816,12 @@ class Report {
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
-            val fileName = metadata.fileNameTemplates[nameFormat.lowercase()].run {
-                this?.getFileName(translationConfig)
-                    ?: "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
+            val fileName = when (translationConfig) {
+                null -> "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
+                else -> metadata.fileNameTemplates[nameFormat.lowercase()].run {
+                    this?.getFileName(translationConfig)
+                        ?: "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
+                }
             }
             return "$fileName.$nameSuffix"
         }

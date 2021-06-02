@@ -19,8 +19,8 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.time.format.DateTimeFormatter
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.logging.Level
 
 private const val CLIENT_PARAMETER = "client"
@@ -96,7 +96,9 @@ class ReportFunction {
                     // write the data to the table
                     context.logger.info("Writing deidentified report data to the DB")
                     workflowEngine.db.transact { txn ->
-                        workflowEngine.db.saveTestData(validatedRequest.report.getDeidentifiedTestData(), txn)
+                        val deidentifiedData = validatedRequest.report.getDeidentifiedTestData()
+                        workflowEngine.db.saveTestData(deidentifiedData, txn)
+                        context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
                     }
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
