@@ -141,5 +141,16 @@ curl -s -H 'x-functions-key:<SECRET FUNCTION KEY>' "https://prime.cdc.gov/api/ch
 
 In the above command you will need to have the secret function key to post commands to Azure. This will attempt to connect to the receiver, execute an `ls` and then report back if it was successful. It will *NOT* show any results from the call to `ls`, only whether or not it was able to connect and execute.
 
+You can also test sending a file to a receiver by appending `&sendfile` to the query string. This will create an empty file to send and remove as a test. You can also use this endpoint with a `POST` to send a file as well (subject to size restrictions).
+
+```
+curl -s -H 'x-functions-key:<SECRET FUNCTION KEY>' "https://prime.cdc.gov/api/check?sftpcheck=nj-doh.elr&sendfile"
+```
+```
+curl -s -H 'x-functions-key:<SECRET FUNCTION KEY>' -X POST \
+    --data-binary '@./path/to/testfile.csv' \
+    "https://prime.cdc.gov/api/check?sftpcheck=nj-doh.elr&sendfile"
+```
+
 ## Final Thoughts
 There could be a time in the future when we will need to follow these same steps to generate public/private key pairs for senders as well, especially as we move into the world of OAuth and using FHIR to communicate.

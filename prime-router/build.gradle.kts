@@ -28,6 +28,7 @@ description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
+azurefunctions.appName = azureAppName
 
 // Local database information
 val dbUser = (project.properties["DB_USER"] ?: "prime") as String
@@ -61,11 +62,13 @@ tasks.test {
     useJUnitPlatform()
     dependsOn("compileKotlin")
     // Run the test task if specified configuration files are changed
-    inputs.files(fileTree("./") {
-        include("settings/**/*.yml")
-        include("metadata/**/*")
-    })
-    outputs.upToDateWhen { 
+    inputs.files(
+        fileTree("./") {
+            include("settings/**/*.yml")
+            include("metadata/**/*")
+        }
+    )
+    outputs.upToDateWhen {
         // Call gradle with the -Pforcetest option will force the unit tests to run
         if (project.hasProperty("forcetest")) {
             println("Rerunning unit tests...")
@@ -74,6 +77,10 @@ tasks.test {
             true
         }
     }
+}
+
+tasks.withType<Test>().configureEach {
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 }
 
 tasks.processResources {
@@ -135,17 +142,6 @@ tasks.register<JavaExec>("generateDocs") {
     main = primeMainClass
     classpath = sourceSets["main"].runtimeClasspath
     args = listOf("generate-docs")
-}
-
-azurefunctions {
-    appName = azureAppName
-    setAppSettings(
-        closureOf<MutableMap<String, String>> {
-            this["WEBSITE_RUN_FROM_PACKAGE"] = "1"
-            this["FUNCTIONS_EXTENSION_VERSION"] = "3"
-            this["FUNCTIONS_WORKER_RUNTIME"] = "java"
-        }
-    )
 }
 
 tasks.azureFunctionsPackage {
@@ -282,13 +278,13 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.16.0")
     implementation("com.azure:azure-core-http-netty:1.9.2")
-    implementation("com.azure:azure-storage-blob:12.10.2") {
+    implementation("com.azure:azure-storage-blob:12.11.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.8.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.2.7") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.2.8") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -325,12 +321,13 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
-    implementation("commons-io:commons-io:2.8.0")
+    implementation("commons-io:commons-io:2.9.0")
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.flywaydb:flyway-core:7.8.2")
+    implementation("org.flywaydb:flyway-core:7.9.1")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.17.2")
+    implementation("com.google.guava:guava:30.1.1-jre")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
@@ -345,6 +342,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.11.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
 }

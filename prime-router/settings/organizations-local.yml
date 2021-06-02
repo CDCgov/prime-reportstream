@@ -27,14 +27,24 @@
         schemaName: waters/waters-covid-19
         format: CSV
 
-  - name: im
-    description: Test Sender
+  - name: safehealth
+    description: SAFE - Safe Health Systems
     jurisdiction: FEDERAL
     senders:
       - name: default
-        organizationName: im
+        organizationName: safehealth
         topic: covid-19
-        schemaName: waters/im-covid-19
+        schemaName: waters/safehealth-covid-19
+        format: CSV
+
+  - name: cue
+    description: Cue
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: cue
+        topic: covid-19
+        schemaName: waters/cue-covid-19
         format: CSV
 
   - name: strac
@@ -143,7 +153,7 @@
           redox_source_id: "d89d4057-930f-4c5b-bb39-8cddb326e928"
           redox_destination_id: "62d62d52-3771-4151-aff4-4a3d420a8b7a"
           redox_destination_name: "Colorado Dept of Public Health (CDPHE)"
-        nameFormat: "STANDARD"
+        nameFormat: "standard"
         type: "CUSTOM"
       deidentify: false
       timing:
@@ -268,7 +278,7 @@
           receivingOrganization: laoph
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
-          nameFormat: APHL
+          nameFormat: aphl
           useTestProcessingMode: false
         timing:
           operation: MERGE
@@ -301,7 +311,7 @@
           receivingFacilityOID: 2.16.840.1.114222.4.1.3674
           reportingFacilityName: CDC PRIME
           reportingFacilityId: 36DSMP9999
-          nameFormat: OHIO
+          nameFormat: ohio
           suppressHl7Fields: OBX-23-11
           # turn off UNK and ASKU for this field
           useBlankInsteadOfUnknown: patient_race
@@ -335,7 +345,7 @@
           receivingFacilityName: NMDOH
           receivingFacilityOID: 2.16.840.1.113883.3.5364
           truncateHDNamespaceIds: true
-          nameFormat: APHL_LIGHT
+          nameFormat: aphl_light
           # turn off UNK and ASKU for this field
           useBlankInsteadOfUnknown: patient_race
           suppressHl7Fields: OBX-17-1
@@ -1050,16 +1060,44 @@
           initialTime: 00:00
           timeZone: EASTERN
 
+  - name: md-phd
+    description: Maryland Public Health Department
+    jurisdiction: STATE
+    stateCode: MD
+    receivers:
+      - name: elr
+        organizationName: md-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(patient_state, MD, ordering_facility_state, MD)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+
   - name: "hhsprotect"
-    description: "HHS Protect"
+    description: "HHSProtect"
     jurisdiction: "FEDERAL"
     receivers:
     - name: "elr"
       organizationName: "hhsprotect"
       topic: "covid-19"
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*)" ]
+#      jurisdictionalFilter: [ "matches(sender_id,SafeHealth)" ]
+      qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
-        schemaName: "waters/waters-covid-19"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
       timing:
@@ -1198,7 +1236,7 @@
           initialTime: 00:00
         translation:
           type: CUSTOM
-          schemaName: waters/waters-covid-19
+          schemaName: hhsprotect/hhsprotect-covid-19
           format: CSV
         transport:
           type: BLOBSTORE

@@ -189,6 +189,19 @@
       display: Nasal structure (body structure)
       version: 2020-09-01
 
+- name: covid-19/yesno
+  # See YES, NO, UNK in the reference URL.
+  reference: This maps (YES,NO,UNK) to the ReportStream internal hl70136 (Y,N,UNK)
+  system: LOCAL
+  referenceUrl: https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf
+  values:
+    - code: Y
+      display: YES
+    - code: N
+      display: NO
+    - code: UNK
+      display: UNK
+
 
 
 

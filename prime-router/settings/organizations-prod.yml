@@ -127,7 +127,8 @@
     - name: elr
       organizationName: fl-phd
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, FL, patient_state, FL)
       deidentify: false
       translation:
         type: HL7

@@ -1,8 +1,9 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import kotlin.test.Ignore
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class DocumentationTests {
     private val documentation = """
@@ -32,7 +33,7 @@ class DocumentationTests {
 """
 
         val docString = DocumentationFactory.getElementDocumentation(elem)
-        assertEquals(expected, docString, "The messages do not match")
+        assertThat(docString).isEqualTo(expected)
     }
 
     @Test
@@ -55,7 +56,7 @@ class DocumentationTests {
 """
 
         val actual = DocumentationFactory.getSchemaDocumentation(schema)
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -76,6 +77,6 @@ $documentation
 ---
 """
         val actual = DocumentationFactory.getElementDocumentation(elemWithDocumentation)
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 }

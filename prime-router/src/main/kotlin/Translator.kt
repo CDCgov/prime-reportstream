@@ -75,7 +75,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 ?: error("JurisdictionalFilter $fnName is not found")
             Pair(filterFn, fnArgs)
         }
-        val jurisFilteredReport = input.filter(jurisFilterAndArgs,receiver)
+        val jurisFilteredReport = input.filter(jurisFilterAndArgs, receiver)
 
         // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
         if (jurisFilteredReport.isEmpty()) return buildEmptyReport(receiver, input)
@@ -86,7 +86,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             JurisdictionalFilters.defaultQualityFilters[receiver.topic] != null ->
                 JurisdictionalFilters.defaultQualityFilters[receiver.topic]!!
             else -> {
-                logger.info("No default quality filter found for topic ${receiver.topic}. Not doing qual filtering")
+                logger.info("No default qualityFilter found for topic ${receiver.topic}. Not doing qual filtering")
                 emptyList<String>()
             }
         }
@@ -99,8 +99,8 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val qualityFilteredReport = jurisFilteredReport.filter(qualityFilterAndArgs, receiver)
         if (qualityFilteredReport.itemCount != jurisFilteredReport.itemCount) {
             logger.warn("Data quality problem in report ${input.id}, receiver ${receiver.fullName}: " +
-                "There were ${jurisFilteredReport.itemCount} rows prior to quality filtering, and " +
-                "${qualityFilteredReport.itemCount} rows after quality filtering.")
+                "There were ${jurisFilteredReport.itemCount} rows prior to qualityFilter, and " +
+                "${qualityFilteredReport.itemCount} rows after qualityFilter.")
         }
 
         // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
@@ -137,7 +137,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     fun buildEmptyReport(receiver: Receiver, from: Report): Report {
         val toSchema = metadata.findSchema(receiver.schemaName)
             ?: error("${receiver.schemaName} schema is missing from catalog")
-        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
+        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")), metadata = metadata)
     }
 
     /**
