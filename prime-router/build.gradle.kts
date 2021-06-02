@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.0"
-    id("org.flywaydb.flyway") version "7.8.2"
+    id("org.flywaydb.flyway") version "7.9.1"
     id("nu.studer.jooq") version "5.2.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
@@ -278,7 +278,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.16.0")
     implementation("com.azure:azure-core-http-netty:1.9.2")
-    implementation("com.azure:azure-storage-blob:12.10.2") {
+    implementation("com.azure:azure-storage-blob:12.11.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.8.0") {
@@ -344,5 +344,5 @@ dependencies {
     testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
 }
