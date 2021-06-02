@@ -1,10 +1,12 @@
 package gov.cdc.prime.router
 
+import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
+import javax.xml.bind.DatatypeConverter
 
 /**
  * A *Mapper* is defined as a property of a schema element. It is used to create
@@ -548,14 +550,6 @@ class StripNumericDataMapper : Mapper {
     }
 }
 
-/**
- * Split a string based on a provided delimiter and obtain the string at the specified split index.
- * Arguments:
- *   element (required)
- *   index to extract (required)
- *   delimiter (optional) - defaults to space
- * Returns: a string
- */
 class SplitMapper : Mapper {
     override val name = "split"
 
@@ -611,6 +605,32 @@ class ZipCodeToCountyMapper : Mapper {
         }
         return table.lookupValue(indexColumn = "zipcode", indexValue = cleanedZip, "county")
     }
+}
+
+/**
+ * Create a SHA-256 digest hash of the concatenation of values
+ * Example:   hash(patient_last_name,patient_first_name)
+ */
+class HashMapper : Mapper {
+    override val name = "hash"
+
+    override fun valueNames(element: Element, args: List<String>) = args
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (args.isEmpty()) error("Must pass at least one element name to $name")
+        if (values.isEmpty()) return null
+        val concatenation = values.joinToString("") { it.value }
+        if (concatenation.isEmpty()) return null
+        return digest(concatenation.toByteArray()).lowercase()
+    }
+
+    companion object {
+        fun digest(input: ByteArray): String {
+            val digest = MessageDigest.getInstance("SHA-256").digest(input)
+            return DatatypeConverter.printHexBinary(digest)
+        }
+    }
+
 }
 
 /**
