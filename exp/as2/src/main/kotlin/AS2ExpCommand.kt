@@ -38,8 +38,8 @@ const val TEST_AS2ID = "ZZOHPUAT"
 const val LOCAL_AS2ID = "p1as2"
 
 // PRIME Sender IDS
-const val PROD_PRIME_AS2ID = "CDCPRIME"
-const val TEST_PRIME_AS2ID = "CDCPRIMETEST"
+const val PROD_PRIME_AS2ID = "7uycso49"
+const val TEST_PRIME_AS2ID = "7uycso49"
 const val LOCAL_PRIME_AS2ID = "CDCPRIMETEST"
 
 // PRIME sender email
