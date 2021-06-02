@@ -290,6 +290,7 @@ class CsvSerializer(val metadata: Metadata) {
                     when (element.cardinality) {
                         Element.Cardinality.ONE -> errors += error
                         Element.Cardinality.ZERO_OR_ONE -> warnings += error
+                        else -> warnings += "$error - setting value to ''"
                     }
                     return failureValue
                 }

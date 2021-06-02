@@ -33,6 +33,7 @@ class Metadata {
         ZipCodeToCountyMapper(),
         SplitByCommaMapper(),
         TimestampMapper(),
+        HashMapper(),
     )
     private var jurisdictionalFilters = listOf(
         FilterByCounty(),
@@ -42,6 +43,7 @@ class Metadata {
         HasValidDataFor(),
         HasAtLeastOneOf(),
         AllowAll(),
+        IsValidCLIA(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())

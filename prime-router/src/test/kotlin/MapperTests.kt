@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertNull
 import kotlin.test.fail
 
@@ -409,4 +410,32 @@ class MapperTests {
         val actual = mapper.apply(lookupElement, listOf("patient_zip_code"), values)
         assertEquals(expected, actual, "Expected: $expected, Actual: $actual")
     }
+
+    @Test
+    fun `test HashMapper`() {
+        val mapper = HashMapper()
+        val elementA = Element("a")
+        val elementB = Element("b")
+        val elementC = Element("c")
+
+        // Single value conversion
+        val arg = listOf("a")
+        val value = listOf(ElementAndValue(elementA, "6086edf8e412650032408e96"))
+        assertEquals("47496cafa04e9c489444b60575399f51e9abc061f4fdda40c31d814325bfc223",
+            mapper.apply(elementA, arg, value))
+        // Multiple values concatenated
+        val args = listOf("a", "b", "c")
+        val values = listOf(
+            ElementAndValue(elementA, "string1"),
+            ElementAndValue(elementB, "string2"),
+            ElementAndValue(elementC, "string3")
+        )
+        assertEquals("c8fa773cd54e7a7eb7ca08577d0bd23e6ce3a73e61df176213d9ec90f06cb45f",
+            mapper.apply(elementA, args, values))
+        // Unhappy path cases
+        assertFails { mapper.apply(elementA, listOf(), listOf()) }  // must pass a field name
+        assertNull(mapper.apply(elementA, arg, listOf()))  // column not found in the data.
+        assertNull(mapper.apply(elementA, arg, listOf(ElementAndValue(elementA,"")))) // column has empty data
+    }
+
 }

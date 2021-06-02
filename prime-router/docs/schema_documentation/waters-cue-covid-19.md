@@ -1,6 +1,6 @@
 
-### Schema:         waters/direct-covid-19
-#### Description:   Direct Submission to ReportStream COVID-19 flat file
+### Schema:         waters/cue-covid-19
+#### Description:   Cue
 
 ---
 

@@ -32,3 +32,9 @@ variable "okta_redirect_url" {
     type = string
     description = "Okta Redirect URL"
 }
+
+variable "is_metabase_env" {
+    type = bool
+    description = "Should Metabase be deployed in this environment"
+    default = false
+}
