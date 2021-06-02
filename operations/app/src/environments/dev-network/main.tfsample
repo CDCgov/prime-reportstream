@@ -1,5 +1,9 @@
 locals {
   dev_name = "rheft"
+  environment = "dev"
+  resource_group = "prime-dev-rheft"
+  resource_prefix = "rheft"
+  location = "eastus"
 }
 
 terraform {
@@ -28,8 +32,17 @@ provider "azurerm" {
 
 module "network" {
   source = "../../modules/network"
-  environment = "dev"
-  resource_group = "prime-dev-rheft"
-  resource_prefix = "rheft"
-  location = "eastus"
+  environment = local.environment
+  resource_group = local.resource_group
+  resource_prefix = local.resource_prefix
+  location = local.location
+}
+
+module "nat_gateway" {
+  source = "../../modules/nat_gateway"
+  environment = local.environment
+  resource_group = local.resource_group
+  resource_prefix = local.resource_prefix
+  location = local.location
+  public_subnet_id = module.network.public_subnet_id
 }
