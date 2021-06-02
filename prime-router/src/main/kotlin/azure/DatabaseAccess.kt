@@ -189,6 +189,24 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
     }
 
+    fun fetchAllInternalReports(
+        createdDateTime: OffsetDateTime? = null,
+        txn: DataAccessTransaction? = null
+    ): List<ReportFile> {
+        val createdDt = createdDateTime ?: OffsetDateTime.now().minusDays(30)
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val cond = Tables.REPORT_FILE.SENDING_ORG.isNotNull
+            .and(Tables.REPORT_FILE.BODY_FORMAT.eq("INTERNAL"))
+            .and(Tables.REPORT_FILE.CREATED_AT.ge(createdDt))
+        return ctx
+            .selectFrom(Tables.REPORT_FILE)
+            .where(cond)
+            .fetchArray()
+            .map {
+                it.into(ReportFile::class.java)
+            }
+    }
+
     /**
      * Returns null if report has no item-level lineage info tracked.
      */
