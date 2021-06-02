@@ -34,8 +34,6 @@ data class EmailSchedule (
     val organizations: List<String>? = ArrayList<String>(),
     val parameters: Map<String,String>? = HashMap<String,String>()
 ) {}
-
-val sched = listOf( EmailSchedule( "daily-template", "marketing", "32 18 * * *") )
  
 class EmailScheduleEngine  {
 
@@ -66,6 +64,9 @@ class EmailScheduleEngine  {
         }
     }
 
+    /**
+     * Determine if a schedule should fire
+     */
     private fun shouldFire( schedule: EmailSchedule ): Boolean{
 
         val parser = CronParser( CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX) );
@@ -111,7 +112,7 @@ class EmailScheduleEngine  {
      * TODO: Fixme!
      */
     private fun getSchedules(): List<EmailSchedule>{
-        return sched;
+        return listOf( EmailSchedule( "daily-template", "marketing", "32 18 * * *") )
     }
 
     /**
@@ -142,7 +143,6 @@ class EmailScheduleEngine  {
     ){
         val from: Email = Email("reportstream@cdc.gov");
         val subject = "ReportStream Daily Email - 31 MAY 2021";
-        val content: Content = Content("text/html", "text");
         val mail : Mail = Mail()
         val p:Personalization = Personalization();
         emails.forEach{ p.addTo( Email(it) ) };
@@ -150,6 +150,11 @@ class EmailScheduleEngine  {
         mail.addPersonalization( p );
         mail.setFrom( from );
         mail.addContent( content );
+        mail.type = "text/html";
+        mail.template = "d-415aa983fe064c02989bc7465d0c9ed8";
+        mail.parameters = {
+
+        };
 
         val sg:SendGrid = SendGrid("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");
         val request:Request = Request();
