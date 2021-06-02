@@ -1,8 +1,7 @@
 locals {
-  dev_name = "rheft"
   environment = "dev"
   resource_group = "prime-dev-rheft"
-  resource_prefix = "rheft"
+  resource_prefix = "rkh"
   location = "eastus"
 }
 
