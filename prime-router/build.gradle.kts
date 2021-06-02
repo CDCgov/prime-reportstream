@@ -37,7 +37,7 @@ val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://localhost:5432/p
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
-val kotlinVersion = "1.5.0"
+val kotlinVersion = "1.5.10"
 
 defaultTasks("package")
 
