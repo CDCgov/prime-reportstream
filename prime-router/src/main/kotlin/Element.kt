@@ -169,7 +169,7 @@ data class Element(
 
     val isCodeType get() = this.type == Type.CODE
 
-    val isOptional get() = this.cardinality == Cardinality.ZERO_OR_ONE
+    val isOptional get() = this.cardinality == ZERO_OR_ONE
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||

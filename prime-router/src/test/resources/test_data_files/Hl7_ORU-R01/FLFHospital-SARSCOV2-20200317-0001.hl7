@@ -6,10 +6,10 @@ PV1|1|O|^^^1 NORTH&1NORTH|E|||Z9PHYSICIAN^zModel^Physician^^^^MD|||CVT||||||||CL
 
 PD1||||Z9PHYSICIAN^zModel^Physician^^^^MD|||||||||
 
-ORC|RE||2107662558^LAB|1|CM||1^^^20210317115059^^R||20210317115120|parrj^Parr^Jacob^^^^MT||Z9PHYSICIAN^zModel^Physician^^^^MD|^^^1 NORTH&1NORTH|||||||1|||4270|
+ORC|RE||2107662558^LAB|1|CM||1^^^20210317115059^^R||20210317115120|parrj^Parr^Jacob^^^^MT||Z9PHYSICIAN^zModel^Physician^^^^MD|^^^1 NORTH&1NORTH|||||||1||test&test2&10^empty^NY^CA^|4270|
 
 OBR|1|^SCM|2107662558^LAB|SARSCOV2^SARS-CoV-2 RNA^LAB_IN^94500-6^^LOINC|R||20210317115059|||aabergd^Aaberg^Diane^^^^RN||||20210317115000|Swab|Z9PHYSICIAN^zModel^Physician^^^^MD||||||20210317115300||Standard|F||^^^^^R||^21076-OID-8644|||||parrj|||||||||||||||||||||INSURANCE|Standard|2107662558|||
 
-OBX|1|ST|SARS2^SARS-CoV-2^LAB_IN^94500-6^SARS-CoV-2^LN||NEGATIVE||NEGATIVE|N|||F|||20210317115059|FLHL|parrj||||||||||
+OBX|1|ST|SARS2^SARS-CoV-2^LAB_IN^94500-6^SARS-CoV-2^LN||NEGATIVE||NEGATIVE|N|||F|||20210317115059|FLHL|parrj|||||||^^^^^^^^^CA|||
 
 NTE|1||Negative results do not preclude SARS-CoV-2 infection and should not be used as the sole basis for treatment or other patient management decisions. Negative results must be combined with clinical observations, patient history, and epidemiological information.\.br\\.br\This test has been authorized by FDA under an Emergency Use Authorization (EUA) for use by authorized laboratories.\.br\\.br\Results obtained using a real-time RT-PCR test on the Cepheid GeneXpert.|||

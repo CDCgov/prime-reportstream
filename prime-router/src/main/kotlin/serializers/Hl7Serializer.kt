@@ -168,7 +168,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         fun queryTerserForValue(
             terser: Terser,
             terserSpec: String,
-            elementName: String,
+            element: Element,
             mappedRows: MutableMap<String, MutableSet<String>>,
             errors: MutableList<String>,
             warnings: MutableList<String>
@@ -179,10 +179,17 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 errors.add("Exception for $terserSpec: ${e.message}")
                 null
             }
-            // add the rows
-            if (parsedValue.isNullOrEmpty()) {
+
+            val elementName = element.name
+
+            if (parsedValue.isNullOrBlank() && element.cardinality != null && !element.isOptional && !element.canBeBlank) {
+                errors.add("Blank value for required element $terserSpec - $elementName")
+            }
+            else if (parsedValue.isNullOrEmpty()) {
                 warnings.add("Blank for $terserSpec - $elementName")
             }
+
+            // add the rows
             mergeIntoMappedRows(mappedRows, elementName, parsedValue ?: "")
         }
         val errors = mutableListOf<String>()
@@ -237,7 +244,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                                         }
                                         if (questionCode?.startsWith(question) == true) {
                                             spec = "/.OBSERVATION($c)/OBX-5"
-                                            queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
+                                            queryTerserForValue(terser, spec, it, mappedRows, errors, warnings)
                                         }
                                     }
                                     "/.AOE"
@@ -246,7 +253,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                             }
 
                             if (terserSpec != "/.AOE") {
-                                queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                                queryTerserForValue(terser, terserSpec, it, mappedRows, errors, warnings)
                             } else {
                                 if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
                             }
@@ -260,7 +267,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                         } else {
                             "/.$h"
                         }
-                        queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                        queryTerserForValue(terser, terserSpec, it, mappedRows, errors, warnings)
                     }
                 }
             }
