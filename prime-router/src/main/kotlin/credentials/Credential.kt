@@ -10,6 +10,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 
 data class UserPassCredential(val user: String, val pass: String) : Credential(), SftpCredential
 data class UserPpkCredential(val user: String, val key: String, val keyPass: String) : Credential(), SftpCredential
+data class UserJksCredential(val user: String, val key: String, val keyPass: String) : Credential(), SftpCredential
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -18,7 +19,8 @@ data class UserPpkCredential(val user: String, val key: String, val keyPass: Str
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = UserPassCredential::class, name = "UserPass"),
-    JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk")
+    JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk"),
+    JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks")
 )
 sealed class Credential {
 

@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import gov.cdc.prime.router.credentials.CredentialManagement
 import gov.cdc.prime.router.credentials.CredentialRequestReason
+import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import org.apache.logging.log4j.Level
@@ -37,7 +38,8 @@ class CredentialsCli : CredentialManagement, CliktCommand(
     val type by option(help = "Type of credential to create")
         .groupChoice(
             "UserPass" to UserPassCredentialOptions(),
-            "UserPpk" to UserPpkCredentialOptions()
+            "UserPpk" to UserPpkCredentialOptions(),
+            "UserJks" to UserJksCredentialOptions()
         ).required()
     val persist by option(help = "credentialId to persist the secret under")
 
@@ -50,6 +52,7 @@ class CredentialsCli : CredentialManagement, CliktCommand(
         val credential = when (val it = type) {
             is UserPassCredentialOptions -> UserPassCredential(it.user, it.pass)
             is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
+            is UserJksCredentialOptions -> UserJksCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
             else -> error("--type option is unknown")
         }
 
@@ -80,4 +83,10 @@ class UserPpkCredentialOptions : CredentialConfig("Options for credential type '
     val user by option("--ppk-user", help = "Username to authenticate alongside the PPK").prompt(default = "")
     val file by option("--ppk-file", help = "Path to the PPK file").file(mustExist = true).required()
     val filePass by option("--ppk-file-pass", help = "Password to decrypt the PPK (optional)").prompt(default = "")
+}
+
+class UserJksCredentialOptions : CredentialConfig("Options for credential type 'UserJks'") {
+    val user by option("--jks-user", help = "Username to authenticate alongside the JKS").prompt(default = "")
+    val file by option("--jks-file", help = "Path to the JKS file").file(mustExist = true).required()
+    val filePass by option("--jks-file-pass", help = "the JKS passcode (optional)").prompt(default = "")
 }
