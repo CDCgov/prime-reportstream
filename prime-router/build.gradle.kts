@@ -284,7 +284,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.8.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.2.7") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.2.8") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
