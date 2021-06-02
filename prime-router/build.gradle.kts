@@ -321,7 +321,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
-    implementation("commons-io:commons-io:2.8.0")
+    implementation("commons-io:commons-io:2.9.0")
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.flywaydb:flyway-core:7.8.2")
@@ -344,5 +344,5 @@ dependencies {
     testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
 }
