@@ -15,8 +15,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 plugins {
-    kotlin("jvm") version "1.5.0"
-    id("org.flywaydb.flyway") version "7.8.2"
+    kotlin("jvm") version "1.5.10"
+    id("org.flywaydb.flyway") version "7.9.1"
     id("nu.studer.jooq") version "5.2.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
@@ -37,7 +37,7 @@ val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://localhost:5432/p
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
-val kotlinVersion = "1.5.0"
+val kotlinVersion = "1.5.10"
 
 defaultTasks("package")
 
@@ -278,13 +278,13 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.16.0")
     implementation("com.azure:azure-core-http-netty:1.9.2")
-    implementation("com.azure:azure-storage-blob:12.10.2") {
+    implementation("com.azure:azure-storage-blob:12.11.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.8.0") {
+    implementation("com.azure:azure-storage-queue:12.9.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.2.7") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.2.8") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -321,10 +321,10 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
-    implementation("commons-io:commons-io:2.8.0")
+    implementation("commons-io:commons-io:2.9.0")
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.flywaydb:flyway-core:7.8.2")
+    implementation("org.flywaydb:flyway-core:7.9.1")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.17.2")
     implementation("com.google.guava:guava:30.1.1-jre")
@@ -344,5 +344,5 @@ dependencies {
     testImplementation("io.mockk:mockk:1.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
 }
