@@ -47,7 +47,16 @@ data class BlobStoreTransportType
 ) :
     TransportType("BLOBSTORE")
 
-
+data class AS2TransportType
+@JsonCreator constructor(
+    val receiverUrl: String,
+    val receiverId: String,
+    val senderId: String,
+    val senderEmail: String = "reportstream@cdc.gov", // Default,
+    val mimeType: String = "application/hl7-v2",
+    val contentDescription: String = "COVID-19 Electronic Lab Results"
+) :
+    TransportType("AS2")
 
 data class NullTransportType
 @JsonCreator constructor(

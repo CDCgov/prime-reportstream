@@ -9,14 +9,9 @@ import com.helger.as2lib.client.AS2ClientRequest
 import com.helger.as2lib.client.AS2ClientSettings
 import com.helger.as2lib.crypto.ECryptoAlgorithmCrypt
 import com.helger.as2lib.crypto.ECryptoAlgorithmSign
-import com.helger.commons.collection.CollectionHelper
 import com.helger.security.keystore.EKeyStoreType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.File
-import java.security.KeyStore
-import java.security.cert.CertificateFactory
-import java.security.cert.X509Certificate
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -50,14 +45,13 @@ const val CONTENT_DESCRIPTION = "COVID-19 Electronic Lab Results"
 
 // JKS key alias
 const val PRIME_KEY_ALIAS = "cdcprime"
-const val OHP_KEY_ALIAS = "as2ohp"
+const val RECEIVER_KEY_ALIAS = "as2ohp"
 
 class AS2ExpCommand: CliktCommand() {
 
     val payload by option("--payload", help="Payload file").file(mustExist = true).required()
     val keystore by option("--keystore", help="Keystore(.jks) file").file(mustExist = true).required()
     val keypass by option("--keypass", help="Keystore password").required()
-    val receiverCertFile by option("--cert").file(mustExist = true).required()
 
     override fun run() {
         val logger: Logger = LoggerFactory.getLogger(AS2ExpCommand::class.java)
@@ -67,11 +61,8 @@ class AS2ExpCommand: CliktCommand() {
         val settings = AS2ClientSettings()
         settings.setKeyStore(EKeyStoreType.PKCS12, keystore, keypass)
         settings.setSenderData (TEST_PRIME_AS2ID, PRIME_SENDER_EMAIL, PRIME_KEY_ALIAS)
-        settings.setReceiverData(TEST_AS2ID, OHP_KEY_ALIAS, TEST_AS2_URL)
+        settings.setReceiverData(TEST_AS2ID, RECEIVER_KEY_ALIAS, TEST_AS2_URL)
         settings.setPartnershipName("${settings.senderAS2ID}_${settings.receiverAS2ID}")
-
-        val receiverCert = readX509Certificate(receiverCertFile)
-        settings.receiverCertificate = receiverCert
 
         // Encrypt and sign
         settings.setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
@@ -97,14 +88,7 @@ class AS2ExpCommand: CliktCommand() {
         echo("MDN messageID: ${response.mdnMessageID}")
         echo("MDN message: ${response.mdn.toString()}")
         echo("response: ${response.asString}")
-    }
-
-    private fun readX509Certificate (certificateFile: File): X509Certificate {
-        certificateFile.inputStream().use { input ->
-            val cf = CertificateFactory.getInstance ("X.509");
-            val c = cf.generateCertificates (input)
-            return CollectionHelper.getFirstElement (c) as X509Certificate
-        }
+        echo("${response.mdnDisposition}")
     }
 }
 
