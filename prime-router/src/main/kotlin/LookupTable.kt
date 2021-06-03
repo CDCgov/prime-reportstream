@@ -58,6 +58,21 @@ class LookupTable(
     }
 
     /**
+     * Filters a table down based on a predicate, and then invokes the standard lookupValue above
+     * on that filtered table below
+     */
+    fun lookupValue(
+        indexColumn: String,
+        indexValue: String,
+        lookupColumn: String,
+        filters: Map<String, String>,
+        ignoreCase: Boolean = true
+    ): String? {
+        val filteredTable = filter(filters, ignoreCase)
+        return filteredTable.lookupValue(indexColumn, indexValue, lookupColumn, ignoreCase)
+    }
+
+    /**
      * Performs a search of the table by looking the indexColumn for value that starts with indexValue
      * and returning the result for the matched row at the lookupColumn.
      */
@@ -75,6 +90,21 @@ class LookupTable(
             if (rowsValue.startsWith(findValue)) return row[lookupColIndex]
         }
         return null
+    }
+
+    /**
+     * Filters a table down based on a predicate, and then invokes the standard lookupPrefixValue above
+     * on that filtered table below
+     */
+    fun lookupPrefixValue(
+        indexColumn: String,
+        indexValue: String,
+        lookupColumn: String,
+        filters: Map<String, String>,
+        ignoreCase: Boolean = true
+    ): String? {
+        val filteredTable = filter(filters, ignoreCase)
+        return filteredTable.lookupPrefixValue(indexColumn, indexValue, lookupColumn, ignoreCase)
     }
 
     /**
@@ -162,6 +192,22 @@ class LookupTable(
                 }
             }
             .map { row -> row[selectColumnNumber] }
+    }
+
+    fun filter(
+        filters: Map<String, String>,
+        ignoreCase: Boolean = true
+    ): LookupTable {
+        if (filters.isEmpty() || filters.count() == 0) return this
+        val filteredRows = table
+            .filter { row ->
+                filters.all { (k, v) ->
+                    val filterColumNumber = headerIndex[k.lowercase()] ?: error("$k doesn't exist in lookup table")
+                    row[filterColumNumber].equals(v, ignoreCase)
+                }
+            }
+        val headerAndFilteredRows = listOf(headerRow) + filteredRows
+        return LookupTable(headerAndFilteredRows)
     }
 
     /**
