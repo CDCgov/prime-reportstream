@@ -6,7 +6,7 @@
 
 **Name**: device_id
 
-**Type**: TEXT
+**Type**: TABLE
 
 **PII**: No
 
@@ -28,7 +28,7 @@ Device_id is a generated value for the OBX-17 field. It is based on the device m
 
 **Name**: device_id_type
 
-**Type**: ID
+**Type**: TABLE
 
 **PII**: No
 

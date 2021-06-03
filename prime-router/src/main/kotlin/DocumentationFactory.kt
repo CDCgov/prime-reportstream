@@ -14,7 +14,7 @@ object DocumentationFactory {
     // to end users or be converted into HTML if we want to be fancy
 
     fun getElementDocumentation(element: Element): String {
-        val csvField = element.csvFields?.get(0)
+        val csvField = if (element.csvFields?.isNotEmpty() == true) element.csvFields?.get(0) else null
         val sb = StringBuilder()
         val displayName = csvField?.name ?: element.name
 

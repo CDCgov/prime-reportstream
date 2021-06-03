@@ -20,7 +20,6 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
@@ -73,7 +72,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     /**
      * Write a report with a single item
      */
-    fun write(report: Report, outputStream: OutputStream, translatorConfig: TranslatorConfiguration? = null) {
+    fun write(report: Report, outputStream: OutputStream) {
         if (report.itemCount != 1)
             error("Internal Error: multiple item report cannot be written as a single HL7 message")
         val message = createMessage(report, 0)
@@ -346,7 +345,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = Report(schema, mappedRows, source)
+        val report = Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 

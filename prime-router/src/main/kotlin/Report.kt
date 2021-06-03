@@ -40,14 +40,6 @@ const val REPORT_MAX_ERRORS = 100
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report {
-    enum class NameFormat {
-        STANDARD,
-        APHL,
-        APHL_LIGHT,
-        OHIO,
-        CUSTOM,
-    }
-
     enum class Format(
         val ext: String,
         val mimeType: String,
@@ -126,7 +118,8 @@ class Report {
         schema.baseName,
         bodyFormat,
         createdDateTime,
-        destination?.translation
+        translationConfig = destination?.translation,
+        metadata = this.metadata
     )
 
     /**
@@ -147,6 +140,8 @@ class Report {
     //
     private val table: Table
 
+    private val metadata: Metadata
+
     /**
      * Allows us to specify a synthesize strategy when converting a report from live data
      * into synthetic data that cannot be tied back to any real persons
@@ -166,7 +161,8 @@ class Report {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        id: ReportId? = null // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
+        id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
+        metadata: Metadata
     ) {
         this.id = id ?: UUID.randomUUID()
         this.schema = schema
@@ -176,6 +172,7 @@ class Report {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.itemLineages = itemLineage
         this.table = createTable(schema, values)
+        this.metadata = metadata
     }
 
     // Test source
@@ -185,7 +182,8 @@ class Report {
         source: TestSource,
         destination: Receiver? = null,
         bodyFormat: Format? = null,
-        itemLineage: List<ItemLineage>? = null
+        itemLineage: List<ItemLineage>? = null,
+        metadata: Metadata? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -195,27 +193,8 @@ class Report {
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
+        this.metadata = metadata ?: Metadata.provideMetadata()
     }
-
-    // Client source.  Proposed deprecation of this - it is not used.
-/*    constructor(
-        schema: Schema,
-        values: List<List<String>>,
-        source: Sender,
-        destination: Receiver? = null,
-        bodyFormat: Format? = null,
-        itemLineage: List<ItemLineage>? = null
-    ) {
-        this.id = UUID.randomUUID()
-        this.schema = schema
-        this.sources = listOf(ClientSource(source.organization.name, source.name))
-        this.destination = destination
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
-        this.itemLineage = itemLineage
-        this.createdDateTime = OffsetDateTime.now()
-        this.table = createTable(schema, values)
-    }
-*/
 
     constructor(
         schema: Schema,
@@ -224,6 +203,7 @@ class Report {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
+        metadata: Metadata
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -233,6 +213,7 @@ class Report {
         this.createdDateTime = OffsetDateTime.now()
         this.itemLineages = itemLineage
         this.table = createTable(values)
+        this.metadata = metadata
     }
 
     private constructor(
@@ -251,6 +232,7 @@ class Report {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
+        this.metadata = Metadata.provideMetadata()
     }
 
     @Suppress("Destructure")
@@ -347,7 +329,7 @@ class Report {
         val filteredReport = Report(
             this.schema,
             filteredTable,
-            fromThisReport("filter: $filterFunctions"),
+            fromThisReport("filter: $filterFunctions")
         )
         filteredReport.itemLineages = createItemLineages(combinedSelection, this, filteredReport)
         return filteredReport
@@ -473,6 +455,7 @@ class Report {
                 sources = fromThisReport("split"),
                 destination = destination,
                 bodyFormat = bodyFormat,
+                metadata = this.metadata
             )
             oneItemReport.itemLineages =
                 listOf(createItemLineageForRow(this, it, oneItemReport, 0))
@@ -737,19 +720,17 @@ class Report {
             schemaName: String,
             fileFormat: Format?,
             createdDateTime: OffsetDateTime,
-            translationConfig: TranslatorConfiguration? = null
+            translationConfig: TranslatorConfiguration? = null,
+            metadata: Metadata
         ): String {
-            val hl7Config = translationConfig as? Hl7Configuration?
-            val processingModeCode = hl7Config?.processingModeCode ?: "P"
             return formFilename(
                 id,
                 schemaName,
                 fileFormat,
                 createdDateTime,
-                hl7Config?.nameFormat ?: NameFormat.STANDARD,
-                hl7Config?.receivingOrganization,
-                "cdcprime",
-                processingModeCode
+                translationConfig?.nameFormat ?: "standard",
+                translationConfig,
+                metadata = metadata
             )
         }
 
@@ -758,63 +739,20 @@ class Report {
             schemaName: String,
             fileFormat: Format?,
             createdDateTime: OffsetDateTime,
-            nameFormat: NameFormat = NameFormat.STANDARD,
-            receivingOrganization: String? = null,
-            sendingFacility: String = "cdcprime",
-            processingModeCode: String = "T",
+            nameFormat: String = "standard",
+            translationConfig: TranslatorConfiguration? = null,
+            metadata: Metadata
         ): String {
-            fun mapProcessingModeCode(processingModeCode: String = "T"): String {
-                return when (processingModeCode.lowercase()) {
-                    "p" -> "production"
-                    "d" -> "development"
-                    else -> "testing"
-                }
-            }
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
-            val so = "CDCPRIME"
-            val ts = formatter.format(createdDateTime)
-            val re = mapProcessingModeCode(processingModeCode)
-            return when (nameFormat) {
-                NameFormat.APHL -> {
-                    /*
-                        APHL has a format that requires a different file name format that looks like this:
-                        <SO>_<SF>_<RO>_<SE>_<RE>_<OF>_<Timestamp>.extension
-
-                        SO - sending organization
-                        SF - sending facility
-                        RO - receiving organization
-                        SE - sending environment (test/prod)
-                        RE - receiving environment (test/prod)
-                        OF - original file name (optional)
-                        Timestamp - creation ts of the file
-                        Extension - HL7 for hl7, csv for csv, etc
-
-                        Examples:
-                        OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
-                        ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
-                 */
-                    val se = mapProcessingModeCode(processingModeCode)
-                    // have to escape with curly braces because Kotlin allows underscores in variable names
-                    "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".lowercase()
-                }
-                NameFormat.APHL_LIGHT -> {
-                    /*
-                    A lighter version of the APHL name format that removes duplicated data. NM prefers this
-                     */
-                    "${so}_${receivingOrganization ?: ""}_${re}_$ts.$nameSuffix".lowercase()
-                }
-                NameFormat.OHIO -> {
-                    "${so}_$ts.hl7"
-                }
-                NameFormat.STANDARD -> {
-                    val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-                    "$namePrefix.$nameSuffix"
-                }
-                NameFormat.CUSTOM -> {
-                    TODO("Not done yet")
+            val fileName = when (translationConfig) {
+                null -> "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
+                else -> metadata.fileNameTemplates[nameFormat.lowercase()].run {
+                    this?.getFileName(translationConfig)
+                        ?: "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
                 }
             }
+            return "$fileName.$nameSuffix"
         }
 
         /**
@@ -834,7 +772,8 @@ class Report {
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
                     header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
-                    header.reportFile.createdAt
+                    header.reportFile.createdAt,
+                    metadata = Metadata.provideMetadata()
                 )
             }
         }

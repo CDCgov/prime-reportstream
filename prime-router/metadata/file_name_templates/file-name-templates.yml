@@ -1,0 +1,41 @@
+---
+- name: standard
+  lowerCase: true
+  elements:
+    - schemaBaseName()
+    - "-"
+    - createdDate()
+    - "-"
+    - uuid()
+
+
+- name: ohio
+  upperCase: true
+  elements:
+    - cdcprime_
+    - createdDate()
+
+
+- name: aphl_light
+  lowerCase: true
+  elements:
+    - cdcprime_
+    - receivingOrganization()
+    - "_"
+    - processingModeCode()
+    - "_"
+    - createdDate()
+
+
+- name: aphl
+  lowerCase: true
+  elements:
+    - cdcprime_cdcprime_
+    - receivingOrganization()
+    - "_"
+    - processingModeCode()
+    - "_"
+    - processingModeCode()
+    - "_"
+    - createdDate()
+

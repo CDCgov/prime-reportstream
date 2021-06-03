@@ -4,6 +4,20 @@
 
 ---
 
+**Name**: senderId
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for chain of custody tracking.  Not to be confused with sending_application, which in which ReportStream is the 'sender'
+
+---
+
 **Name**: testOrdered
 
 **Type**: TABLE
@@ -675,6 +689,16 @@ The patient's first name
 
 ---
 
+**Name**: patientUniqueIdHash
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patientHomeAddress
 
 **Type**: STREET
@@ -877,6 +901,8 @@ Custom.  Not currently used. ReportStream assumes area code is in orderingProvid
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95417-2
@@ -887,13 +913,13 @@ Custom.  Not currently used. ReportStream assumes area code is in orderingProvid
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is this the patient's first test for this condition?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -968,6 +994,8 @@ Custom field.  Example - 260415000
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95418-0
@@ -978,13 +1006,13 @@ Custom field.  Example - 260415000
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is the patient employed in health care?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1507,6 +1535,8 @@ Custom.  eg, 6816002
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95419-8
@@ -1517,13 +1547,13 @@ Custom.  eg, 6816002
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is the patient symptomatic?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1547,6 +1577,8 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 77974-4
@@ -1557,13 +1589,13 @@ Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptom
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is the patient hospitalized?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1610,6 +1642,8 @@ Custom.  eg, 840539006, same valueset as testResult
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95420-6
@@ -1620,13 +1654,13 @@ Custom.  eg, 840539006, same valueset as testResult
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is the patient in the ICU?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1635,6 +1669,8 @@ Is the patient in the ICU?
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $display
 
 **HL7 Field**: AOE
 
@@ -1646,13 +1682,13 @@ Is the patient in the ICU?
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Does the patient reside in a congregate care setting?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -1712,7 +1748,7 @@ Code | Display
 
 **Documentation**:
 
-eg, 60001007
+Is the patient pregnant?
 
 ---
 
