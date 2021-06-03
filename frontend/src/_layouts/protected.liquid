@@ -57,6 +57,8 @@ local_styles:
 <main id="main-content" {% if title == "index" %}class="padding-y-0"{% endif %}>
   {% if show_menu and documentation %}
     {% include menu_documentation %}
+  {% elsif show_menu and how_it_works %}
+    {% include menu_how_it_works %}
   {% elsif show_menu %}
     {% include menu_settings %}
   {% elsif copy_only %}

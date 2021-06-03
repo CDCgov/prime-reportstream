@@ -72,6 +72,22 @@ main {
   .usa-nav__primary > .usa-nav__primary-item > a {
     font-weight: normal;
     color: #2e2e2e;
+    padding: 1rem;
+  }
+
+  .usa-nav__primary button {
+    padding: 1rem;
+    color: #2e2e2e;
+    font-weight: normal;
+  }
+
+  .usa-nav__primary button[aria-expanded="true"] span {
+    color: #ffffff;
+  }
+
+  .usa-nav__primary button span {
+    font-weight: normal;
+    color: #2e2e2e;
   }
 
   .usa-nav__primary > .usa-nav__primary-item > a::after {
@@ -91,7 +107,11 @@ main {
     height: .25rem;
     left: 1rem;
     right: 1rem;
-    bottom: -0.25rem;
+    bottom: 0;
+  }
+
+  .usa-header--basic .usa-nav__primary-item:last-of-type .usa-nav__submenu {
+    left: 0;
   }
 
   .prime-user-account {
