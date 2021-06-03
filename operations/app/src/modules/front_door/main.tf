@@ -7,7 +7,7 @@ locals {
   name_static = var.environment != "dev" ? "prime-data-hub-${var.environment}-static" : "prime-data-hub-${var.resource_prefix}-static"
 
   functionapp_address = "${var.resource_prefix}-functionapp.azurewebsites.net"
-  metabase_address = (var.environment == "test" || var.environment == "prod" ? "${var.resource_prefix}-metabase.azurewebsites.net" : null)
+  metabase_address = var.is_metabase_env ? "${var.resource_prefix}-metabase.azurewebsites.net" : null
   static_address = trimprefix(trimsuffix(var.storage_web_endpoint, "/"), "https://")
 
   function_certs = [for cert in var.https_cert_names: cert if length(regexall("^[[:alnum:]]*?-?prime.*$", cert)) > 0]
@@ -16,7 +16,7 @@ locals {
   static_certs = [for cert in var.https_cert_names: cert if length(regexall("^[[:alnum:]]*?-?reportstream.*$", cert)) > 0]
   static_endpoints = local.static_certs
 
-  metabase_env = var.environment == "test" || var.environment == "prod" ? [1] : []
+  metabase_env = var.is_metabase_env ? [1] : []
   static_env = length(local.static_endpoints) > 0 ? [1] : []
   dev_env = length(local.static_endpoints) == 0 ? [1] : []
 }

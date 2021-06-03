@@ -6,6 +6,13 @@ trackingElement: specimen_id
 basedOn: covid-19
 elements:
 
+  # This should be in covid-19.schema - need to ask Carlos how to fix his test.
+  - name: sender_id
+    type: TEXT
+    cardinality: ONE
+    documentation:  ID name of org that is sending this data to ReportStream.  Suitable for chain of custody tracking.  Not to be confused with sending_application, which in which ReportStream is the 'sender'
+    csvFields: [{ name: senderId}]
+
   - name: ordered_test_code
     documentation: eg, 94531-1
     csvFields: [{ name: testOrdered}]
@@ -153,6 +160,12 @@ elements:
   - name: patient_id
     csvFields: [{ name: patientUniqueId}]
 
+  - name: patient_id_hash
+    # Custom.   Needs to go into covid-19. Mimic waters here.
+    type: TEXT
+    mapper: hash(patient_id)
+    csvFields: [{ name: patientUniqueIdHash}]
+
   - name: patient_street
     csvFields: [{ name: patientHomeAddress}]
 
@@ -198,7 +211,7 @@ elements:
     type: CODE
     valueSet: covid-19/yesno
     documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: firstTest}]
+    csvFields: [{ name: firstTest, format: $display}]
 
   - name: previous_test_type
     documentation:  Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
@@ -220,7 +233,7 @@ elements:
     type: CODE
     valueSet: covid-19/yesno
     documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: healthcareEmployee}]
+    csvFields: [{ name: healthcareEmployee, format: $display}]
 
   - name: healthcare_employee_type
     documentation: Custom.  eg, 6816002
@@ -232,7 +245,7 @@ elements:
     type: CODE
     valueSet: covid-19/yesno
     documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: symptomatic}]
+    csvFields: [{ name: symptomatic, format: $display}]
 
   - name: symptoms_list
     documentation:  Custom.  Just a simple text string for now. Format is symptomCode1^date1;symptomCode2^date2; ...
@@ -243,7 +256,7 @@ elements:
     type: CODE
     valueSet: covid-19/yesno
     documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: hospitalized}]
+    csvFields: [{ name: hospitalized, format: $display}]
 
   - name: hospitalized_code
     documentation:  Custom.  eg, 840539006, same valueset as testResult
@@ -255,13 +268,13 @@ elements:
     type: CODE
     valueSet: covid-19/yesno
     documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: symptomsIcu}]
+    csvFields: [{ name: symptomsIcu, format: $display}]
 
   - name: resident_congregate_setting
     type: CODE
     valueSet: covid-19/yesno
     documentation: Override the base hl70136 valueset with a custom one, to handle slightly different syntax
-    csvFields: [{ name: congregateResident}]
+    csvFields: [{ name: congregateResident, format: $display}]
 
   - name: site_of_care
     documentation: Custom field
@@ -272,7 +285,7 @@ elements:
   - name: pregnant
     csvFields: [{ name: pregnant}]
 
-  - name: pregnantText
+  - name: pregnant_text
     documentation: Custom.  ReportStream uses the 'pregnant' code, not this text value.
     type: TEXT
     csvFields: [{ name: pregnantText}]

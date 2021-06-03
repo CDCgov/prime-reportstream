@@ -12,6 +12,10 @@
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Include the name of the sender as a substring here.
+
 ---
 
 **Name**: testId
@@ -630,6 +634,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95417-2
@@ -640,13 +646,13 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is this the patient's first test for this condition?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -709,6 +715,8 @@ Code | Display
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95418-0
@@ -719,13 +727,13 @@ Code | Display
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is the patient employed in health care?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -745,6 +753,8 @@ Is the patient employed in health care?
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 77974-4
@@ -755,13 +765,13 @@ Is the patient employed in health care?
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is the patient hospitalized?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -770,6 +780,8 @@ Is the patient hospitalized?
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $display
 
 **HL7 Field**: AOE
 
@@ -781,13 +793,13 @@ Is the patient hospitalized?
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is the patient symptomatic?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -807,6 +819,8 @@ Is the patient symptomatic?
 
 **PII**: No
 
+**Format**: $display
+
 **HL7 Field**: AOE
 
 **LOINC Code**: 95420-6
@@ -817,13 +831,13 @@ Is the patient symptomatic?
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Is the patient in the ICU?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 
@@ -832,6 +846,8 @@ Is the patient in the ICU?
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $display
 
 **HL7 Field**: AOE
 
@@ -843,13 +859,13 @@ Is the patient in the ICU?
 
 Code | Display
 ---- | -------
-Y|Yes
-N|No
-UNK|Unknown
+Y|YES
+N|NO
+UNK|UNK
 
 **Documentation**:
 
-Does the patient reside in a congregate care setting?
+Override the base hl70136 valueset with a custom one, to handle slightly different syntax
 
 ---
 

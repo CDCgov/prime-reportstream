@@ -1,18 +1,23 @@
+// Copy and rename me to main.tf
+// Change variables as needed
+
 locals {
-  target_env = "staging"
+  dev_name = "rheft"
 }
 
 terraform {
   required_version = "= 0.14.5" # This version must also be changed in other environments
+
   required_providers {
     azurerm = {
       source = "hashicorp/azurerm"
       version = ">= 2.61.0" # This version must also be changed in other environments
     }
   }
+
   backend "azurerm" {
-    resource_group_name = "prime-data-hub-staging"
-    storage_account_name = "pdhstagingstorageaccount"
+    resource_group_name = "prime-dev-rheft"
+    storage_account_name = "rheftstorageaccount"
     container_name = "terraformstate"
     key = "terraform.tfstate"
   }
@@ -26,12 +31,11 @@ provider "azurerm" {
 
 module "prime_data_hub" {
   source = "../../modules/prime_data_hub"
-  environment = local.target_env
-  resource_group = "prime-data-hub-${local.target_env}"
-  resource_prefix = "pdhstaging"
-  okta_redirect_url = "https://staging.prime.cdc.gov/download"
-  https_cert_names = ["staging-prime-cdc-gov", "staging-reportstream-cdc-gov"]
-  rsa_key_2048 = "pdhstaging-2048-key"
-  rsa_key_4096 = "pdhstaging-4096-key"
-  is_metabase_env = true
+  environment = "dev"
+  resource_group = "prime-dev-${local.dev_name}"
+  resource_prefix = local.dev_name
+  okta_redirect_url = "https://prime-data-hub-${local.dev_name}.azurefd.net/download"
+  https_cert_names = []
+  rsa_key_2048 = "rkh-dev-2048-key"
+  rsa_key_4096 = "rkh-dev-4096-key"
 }
