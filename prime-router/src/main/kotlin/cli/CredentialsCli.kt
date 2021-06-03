@@ -12,6 +12,7 @@ import gov.cdc.prime.router.credentials.CredentialManagement
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
@@ -39,7 +40,8 @@ class CredentialsCli : CredentialManagement, CliktCommand(
         .groupChoice(
             "UserPass" to UserPassCredentialOptions(),
             "UserPpk" to UserPpkCredentialOptions(),
-            "UserJks" to UserJksCredentialOptions()
+            "UserJks" to UserJksCredentialOptions(),
+            "UserPem" to UserPemCredentialOptions()
         ).required()
     val persist by option(help = "credentialId to persist the secret under")
 
@@ -53,6 +55,7 @@ class CredentialsCli : CredentialManagement, CliktCommand(
             is UserPassCredentialOptions -> UserPassCredential(it.user, it.pass)
             is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
             is UserJksCredentialOptions -> UserJksCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
+            is UserPemCredentialOptions -> UserPemCredential(it.user, it.file.readText(Charsets.UTF_8))
             else -> error("--type option is unknown")
         }
 
@@ -89,4 +92,9 @@ class UserJksCredentialOptions : CredentialConfig("Options for credential type '
     val user by option("--jks-user", help = "Username to authenticate alongside the JKS").prompt(default = "")
     val file by option("--jks-file", help = "Path to the JKS file").file(mustExist = true).required()
     val filePass by option("--jks-file-pass", help = "the JKS passcode (optional)").prompt(default = "")
+}
+
+class UserPemCredentialOptions : CredentialConfig("Options for credential type 'UserPem'") {
+    val user by option("--pem-user", help = "Username to authenticate alongside the JKS").prompt(default = "")
+    val file by option("--pem-file", help = "Path to the PEM file").file(mustExist = true).required()
 }

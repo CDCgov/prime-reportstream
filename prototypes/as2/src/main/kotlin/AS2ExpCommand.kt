@@ -14,15 +14,16 @@ import com.helger.security.keystore.EKeyStoreType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.security.KeyStore
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.system.exitProcess
+
 
 /**
- * Example program to send a message
+ * Example program to send a message to One Health Port
  *
  * URL https://onehealthport-as2.axwaycloud.com/exchange/ZZOHP
  */
@@ -56,7 +57,7 @@ class AS2ExpCommand: CliktCommand() {
     val payload by option("--payload", help="Payload file").file(mustExist = true).required()
     val keystore by option("--keystore", help="Keystore(.jks) file").file(mustExist = true).required()
     val keypass by option("--keypass", help="Keystore password").required()
-    val receiverCert by option("--cert").file(mustExist = true).required()
+    val receiverCertFile by option("--cert").file(mustExist = true).required()
 
     override fun run() {
         val logger: Logger = LoggerFactory.getLogger(AS2ExpCommand::class.java)
@@ -69,7 +70,7 @@ class AS2ExpCommand: CliktCommand() {
         settings.setReceiverData(TEST_AS2ID, OHP_KEY_ALIAS, TEST_AS2_URL)
         settings.setPartnershipName("${settings.senderAS2ID}_${settings.receiverAS2ID}")
 
-        val receiverCert = readX509Certificate(receiverCert)
+        val receiverCert = readX509Certificate(receiverCertFile)
         settings.receiverCertificate = receiverCert
 
         // Encrypt and sign
