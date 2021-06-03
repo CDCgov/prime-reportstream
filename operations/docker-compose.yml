@@ -60,9 +60,9 @@ services:
         source: azure_config
         target: /root/.azure
     working_dir: /app/src/environments/dev-04-app
-
-  dev:
-    container_name: terraform_state_dev
+    
+  test-01-network:
+    container_name: terraform_state_test_network
     build:
       context: .
     volumes:
@@ -74,10 +74,10 @@ services:
       - type: volume
         source: azure_config
         target: /root/.azure
-    working_dir: /app/src/environments/dev
+    working_dir: /app/src/environments/test-01-network
 
-  test:
-    container_name: terraform_state_test
+  test-02-config:
+    container_name: terraform_state_test_config
     build:
       context: .
     volumes:
@@ -89,10 +89,10 @@ services:
       - type: volume
         source: azure_config
         target: /root/.azure
-    working_dir: /app/src/environments/test
+    working_dir: /app/src/environments/test-02-config
 
-  staging:
-    container_name: terraform_state_staging
+  test-03-persistent:
+    container_name: terraform_state_test_persistent
     build:
       context: .
     volumes:
@@ -104,10 +104,10 @@ services:
       - type: volume
         source: azure_config
         target: /root/.azure
-    working_dir: /app/src/environments/staging
+    working_dir: /app/src/environments/test-03-persistent
 
-  prod:
-    container_name: terraform_state_prod
+  test-04-app:
+    container_name: terraform_state_test_app
     build:
       context: .
     volumes:
@@ -119,7 +119,127 @@ services:
       - type: volume
         source: azure_config
         target: /root/.azure
-    working_dir: /app/src/environments/prod
+    working_dir: /app/src/environments/test-04-app
+
+  staging-01-network:
+    container_name: terraform_state_staging_network
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+      # Keep Azure config
+      - type: volume
+        source: azure_config
+        target: /root/.azure
+    working_dir: /app/src/environments/staging-01-network
+
+  staging-02-config:
+    container_name: terraform_state_staging_config
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+      # Keep Azure config
+      - type: volume
+        source: azure_config
+        target: /root/.azure
+    working_dir: /app/src/environments/staging-02-config
+
+  staging-03-persistent:
+    container_name: terraform_state_staging_persistent
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+      # Keep Azure config
+      - type: volume
+        source: azure_config
+        target: /root/.azure
+    working_dir: /app/src/environments/staging-03-persistent
+
+  staging-04-app:
+    container_name: terraform_state_staging_app
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+      # Keep Azure config
+      - type: volume
+        source: azure_config
+        target: /root/.azure
+    working_dir: /app/src/environments/staging-04-app
+
+  prod-01-network:
+    container_name: terraform_state_prod_network
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+      # Keep Azure config
+      - type: volume
+        source: azure_config
+        target: /root/.azure
+    working_dir: /app/src/environments/prod-01-network
+
+  prod-02-config:
+    container_name: terraform_state_prod_config
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+      # Keep Azure config
+      - type: volume
+        source: azure_config
+        target: /root/.azure
+    working_dir: /app/src/environments/prod-02-config
+
+  prod-03-persistent:
+    container_name: terraform_state_prod_persistent
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+      # Keep Azure config
+      - type: volume
+        source: azure_config
+        target: /root/.azure
+    working_dir: /app/src/environments/prod-03-persistent
+
+  prod-04-app:
+    container_name: terraform_state_prod_app
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+      # Keep Azure config
+      - type: volume
+        source: azure_config
+        target: /root/.azure
+    working_dir: /app/src/environments/prod-04-app
 
 volumes:
   azure_config:
