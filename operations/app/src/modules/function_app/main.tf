@@ -1,14 +1,10 @@
-terraform {
-    required_version = ">= 0.14"
-}
-
 resource "azurerm_function_app" "function_app" {
   name = "${var.resource_prefix}-functionapp"
   location = var.location
   resource_group_name = var.resource_group
-  app_service_plan_id = var.app_service_plan_id
-  storage_account_name = var.storage_account_name
-  storage_account_access_key = var.storage_account_key
+  app_service_plan_id = data.azurerm_app_service_plan.service_plan.id
+  storage_account_name = data.azurerm_storage_account.storage_account.name
+  storage_account_access_key = data.azurerm_storage_account.storage_account.primary_access_key
   https_only = true
   os_type = "linux"
   version = "~3"
@@ -19,7 +15,7 @@ resource "azurerm_function_app" "function_app" {
       action = "Allow"
       name = "AllowVNetTraffic"
       priority = 100
-      virtual_network_subnet_id = var.public_subnet_id
+      virtual_network_subnet_id = data.azurerm_subnet.public.id
     }
 
     ip_restriction {
@@ -48,7 +44,7 @@ resource "azurerm_function_app" "function_app" {
     http2_enabled = true
     always_on = true
     use_32_bit_worker_process = false
-    linux_fx_version = "DOCKER|${var.login_server}/${var.resource_prefix}:latest"
+    linux_fx_version = "DOCKER|${data.azurerm_container_registry.container_registry.login_server}/${var.resource_prefix}:latest"
 
     cors {
       allowed_origins = [
@@ -62,9 +58,9 @@ resource "azurerm_function_app" "function_app" {
   }
 
   app_settings = {
-    "POSTGRES_USER" = var.postgres_user
-    "POSTGRES_PASSWORD" = var.postgres_password
-    "POSTGRES_URL" = var.postgres_url
+    "POSTGRES_USER" = data.azurerm_key_vault_secret.postgres_user.value
+    "POSTGRES_PASSWORD" = data.azurerm_key_vault_secret.postgres_pass.value
+    "POSTGRES_URL" = "jdbc:postgresql://${data.azurerm_postgresql_server.postgres_server.name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
 
     "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
 
@@ -89,12 +85,12 @@ resource "azurerm_function_app" "function_app" {
     "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
     # HHS Protect Storage Account
-    "PartnerStorage" = var.storage_partner_connection_string
+    "PartnerStorage" = data.azurerm_storage_account.storage_partner.primary_connection_string
 
-    "DOCKER_REGISTRY_SERVER_URL" = var.login_server
-    "DOCKER_REGISTRY_SERVER_USERNAME" = var.admin_user
-    "DOCKER_REGISTRY_SERVER_PASSWORD" = var.admin_password
-    "DOCKER_CUSTOM_IMAGE_NAME" = "${var.login_server}/${var.resource_prefix}:latest"
+    "DOCKER_REGISTRY_SERVER_URL" = data.azurerm_container_registry.container_registry.login_server
+    "DOCKER_REGISTRY_SERVER_USERNAME" = data.azurerm_container_registry.container_registry.admin_username
+    "DOCKER_REGISTRY_SERVER_PASSWORD" = data.azurerm_container_registry.container_registry.admin_password
+    "DOCKER_CUSTOM_IMAGE_NAME" = "${data.azurerm_container_registry.container_registry.login_server}/${var.resource_prefix}:latest"
 
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
@@ -112,25 +108,8 @@ resource "azurerm_function_app" "function_app" {
   }
 }
 
-// DISABLED AS FRONT DOOR CAN NOT CONNECT - RKH
-
-//module "function_app_private_endpoint" {
-//  source = "../common/private_endpoint"
-//  resource_id = azurerm_function_app.function_app.id
-//  name = azurerm_function_app.function_app.name
-//  type = "function_app"
-//  resource_group = var.resource_group
-//  location = var.location
-//  endpoint_subnet_id = var.endpoint_subnet_id
-//}
-
 resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {
-  # This is a hack. The function_app module has a bug where it does not export the values until after being updated.
-  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
-  # The second deploy adds the Key Value access policy.
-  count = azurerm_function_app.function_app.identity.0.tenant_id != null ? 1 : 0
-
-  key_vault_id = var.app_config_key_vault_id
+  key_vault_id = data.azurerm_key_vault.app_config.id
   tenant_id = azurerm_function_app.function_app.identity.0.tenant_id
   object_id = azurerm_function_app.function_app.identity.0.principal_id
 
@@ -138,12 +117,7 @@ resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy
 }
 
 resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_policy" {
-  # This is a hack. The function_app module has a bug where it does not export the values until after being updated.
-  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
-  # The second deploy adds the Key Value access policy.
-  count = azurerm_function_app.function_app.identity.0.tenant_id != null ? 1 : 0
-
-  key_vault_id = var.client_config_key_vault_id
+  key_vault_id = data.azurerm_key_vault.client_config.id
   tenant_id = azurerm_function_app.function_app.identity.0.tenant_id
   object_id = azurerm_function_app.function_app.identity.0.principal_id
 
@@ -152,41 +126,5 @@ resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_pol
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
   app_service_id = azurerm_function_app.function_app.id
-  subnet_id = var.public_subnet_id
-}
-
-module "functionapp_app_log_event_hub_log" {
-  source = "../event_hub_log"
-  resource_type = "function_app"
-  log_type = "app"
-  eventhub_namespace_name = var.eventhub_namespace_name
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-}
-
-resource "azurerm_monitor_diagnostic_setting" "functionapp_app_log" {
-  name = "${var.resource_prefix}-function_app-app-log"
-  target_resource_id = azurerm_function_app.function_app.id
-  eventhub_name = module.functionapp_app_log_event_hub_log.event_hub_name
-  eventhub_authorization_rule_id = var.eventhub_manage_auth_rule_id
-
-  log {
-    category = "FunctionAppLogs"
-    enabled  = true
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
+  subnet_id = data.azurerm_subnet.public.id
 }

@@ -2,32 +2,6 @@ locals {
   location = "eastus"
 }
 
-module "function_app" {
-  source = "../function_app"
-  environment = var.environment
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-  location = local.location
-  app_service_plan_id = module.app_service_plan.app_service_plan_id
-  storage_account_name = module.storage.storage_account_name
-  storage_account_key = module.storage.storage_account_key
-  public_subnet_id = module.network.public_subnet_id
-  endpoint_subnet_id = module.network.endpoint_subnet_id
-  postgres_user = "${module.database.postgres_user}@${module.database.server_name}"
-  postgres_password = module.database.postgres_pass
-  postgres_url = "jdbc:postgresql://${module.database.server_name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
-  okta_redirect_url = var.okta_redirect_url
-  login_server = module.container_registry.login_server
-  admin_user = module.container_registry.admin_username
-  admin_password = module.container_registry.admin_password
-  ai_instrumentation_key = module.application_insights.instrumentation_key
-  eventhub_namespace_name = module.event_hub.eventhub_namespace_name
-  eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
-  app_config_key_vault_id = module.key_vault.app_config_key_vault_id
-  client_config_key_vault_id = module.key_vault.client_config_key_vault_id
-  storage_partner_connection_string = module.storage.storage_partner_connection_string
-}
-
 module "front_door" {
   source = "../front_door"
   environment = var.environment
