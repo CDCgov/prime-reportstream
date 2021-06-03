@@ -1,7 +1,3 @@
-terraform {
-    required_version = ">= 0.14"
-}
-
 resource "azurerm_network_profile" "sftp_network_profile" {
   name = "sftp_network_profile"
   location = var.location
@@ -11,13 +7,13 @@ resource "azurerm_network_profile" "sftp_network_profile" {
     name = "sftp_container_network_interface"
     ip_configuration {
       name = "sftp_container_ip_configuration"
-      subnet_id = var.container_subnet_id
+      subnet_id = data.azurerm_subnet.container.id
     }
   }
 }
 
 resource "azurerm_container_group" "sftp_container" {
-  name = var.name
+  name = "${var.resource_prefix}-sftpserver"
   location = var.location
   resource_group_name = var.resource_group
   ip_address_type = "Private"
@@ -26,7 +22,7 @@ resource "azurerm_container_group" "sftp_container" {
   restart_policy = "Always"
   
   container {
-    name = var.name
+    name = "${var.resource_prefix}-sftpserver"
     image = "atmoz/sftp:alpine"
     cpu = 1.0
     memory = 1.5
@@ -41,11 +37,11 @@ resource "azurerm_container_group" "sftp_container" {
     }
 
     volume {
-      name = var.name
+      name = "${var.resource_prefix}-sftpserver"
       share_name = azurerm_storage_share.sftp_share.name
       mount_path = "/home/foo/upload"
-      storage_account_name = var.storage_account_name
-      storage_account_key = var.storage_account_key
+      storage_account_name = data.azurerm_storage_account.storage_account.name
+      storage_account_key = data.azurerm_storage_account.storage_account.primary_access_key
     }
   }
 
@@ -55,10 +51,6 @@ resource "azurerm_container_group" "sftp_container" {
 }
 
 resource "azurerm_storage_share" "sftp_share" {
-  name = var.name
-  storage_account_name = var.storage_account_name
-}
-
-output "name" {
-  value = azurerm_container_group.sftp_container.name
+  name = "${var.resource_prefix}-sftpserver"
+  storage_account_name = data.azurerm_storage_account.storage_account.name
 }

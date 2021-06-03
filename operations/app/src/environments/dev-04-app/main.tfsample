@@ -61,3 +61,21 @@ module "front_door" {
   https_cert_names = local.https_cert_names
   is_metabase_env = local.is_metabase_env
 }
+
+module "sftp_container" {
+  source = "../../modules/sftp_container"
+  environment = local.environment
+  resource_group = local.resource_group
+  resource_prefix = local.resource_prefix
+  location = local.location
+}
+
+// Disabled in DEV
+//module "metabase" {
+//  source = "../../modules/metabase"
+//  environment = local.environment
+//  resource_group = local.resource_group
+//  resource_prefix = local.resource_prefix
+//  location = local.location
+//  ai_instrumentation_key = module.application_insights.instrumentation_key
+//}
