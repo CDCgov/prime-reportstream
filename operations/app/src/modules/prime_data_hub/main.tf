@@ -28,15 +28,6 @@ module "container_registry" {
   endpoint_subnet_id = module.network.endpoint_subnet_id
 }
 
-module "app_service_plan" {
-  source = "../app_service_plan"
-  environment = var.environment
-  resource_group = var.resource_group
-  location = local.location
-  resource_prefix = var.resource_prefix
-  key_vault_id = module.key_vault.application_key_vault_id
-}
-
 module "function_app" {
   source = "../function_app"
   environment = var.environment
