@@ -30,7 +30,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
-import org.jooq.impl.DSL.exp
 import org.jooq.impl.DSL.max
 import java.io.File
 import java.lang.Thread.sleep
@@ -206,7 +205,7 @@ Examples:
         val failures = mutableListOf<CoolTest>()
         val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir, env = env)
         tests.forEach { test ->
-            if (!test.run(environment,options))
+            if (!test.run(environment, options))
                 failures.add(test)
         }
         if (failures.isNotEmpty()) {
@@ -240,12 +239,12 @@ Examples:
     }
 }
 
-data class CoolTestOptions (
+data class CoolTestOptions(
     val items: Int = 5,
     val submits: Int = 5,
     val key: String? = null,
     val dir: String,
-    var muted: Boolean = false,  // if true, print out less stuff,
+    var muted: Boolean = false, // if true, print out less stuff,
     val sftpDir: String,
     val env: String
 )
@@ -357,10 +356,10 @@ abstract class CoolTest {
             ?: error("Unable to find sender $emptySenderName for organization ${org.name}")
 
         val allGoodReceivers = settings.receivers.filter {
-            it.organizationName == orgName
-                && !it.name.contains("FAIL")
-                && !it.name.contains("BLOBSTORE")
-                && !it.name.contains("QUALITY")
+            it.organizationName == orgName &&
+                !it.name.contains("FAIL") &&
+                !it.name.contains("BLOBSTORE") &&
+                !it.name.contains("QUALITY")
         }
         val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
 
@@ -765,7 +764,7 @@ class Strac : CoolTest() {
             } else {
                 // Current expectation is that all non-REDOX counties fail.   If those issues get fixed,
                 // then we'll need to fix this test as well.
-                bad("***strac Test FAILED: Expecting ${expectedWarningCount} warnings but got $warningCount***")
+                bad("***strac Test FAILED: Expecting $expectedWarningCount warnings but got $warningCount***")
                 passed = false
             }
             // OK, fine, the others failed.   All our hope now rests on you, REDOX - don't let us down!
@@ -778,14 +777,16 @@ class Strac : CoolTest() {
 }
 
 class StracPack : CoolTest() {
-    override val name = "stracpack"   // no its not 'strackpack'
+    override val name = "stracpack" // no its not 'strackpack'
     override val description = "Does '--submits X' simultaneous strac " +
         "submissions, each with '--items Y' items. Redox only"
     override val status = TestStatus.LOAD
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting stracpack Test: simultaneously submitting ${options.submits} batches " +
-            "of Strac ${options.items} items per batch to the ${redoxReceiver.name} receiver only.")
+        ugly(
+            "Starting stracpack Test: simultaneously submitting ${options.submits} batches " +
+                "of Strac ${options.items} items per batch to the ${redoxReceiver.name} receiver only."
+        )
         val file = FileUtilities.createFakeFile(
             metadata,
             stracSender,
@@ -818,7 +819,7 @@ class StracPack : CoolTest() {
             }
         }
         // Since we have to wait for the sends anyway, I didn't bother with a join here.
-        waitABit(5 * options.submits, environment)  // SWAG: wait extra seconds extra per file submitted
+        waitABit(5 * options.submits, environment) // SWAG: wait extra seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
                 examineLineageResults(it, listOf(redoxReceiver), options.items)
@@ -854,7 +855,7 @@ class Waters : CoolTest() {
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
         waitABit(60, environment, options.muted)
-        if (file.exists()) file.delete()  // because of RepeatWaters
+        if (file.exists()) file.delete() // because of RepeatWaters
         return examineLineageResults(reportId, listOf(blobstoreReceiver), options.items)
     }
 }
@@ -949,7 +950,7 @@ class HammerTime : CoolTest() {
             }
         }
         // Since we have to wait for the sends anyway, I didn't bother with a join here.
-        waitABit(5 * options.submits, environment)  // SWAG: wait 5 seconds extra per file submitted
+        waitABit(5 * options.submits, environment) // SWAG: wait 5 seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
                 examineLineageResults(it, listOf(receiverToTest), options.items)
@@ -1005,7 +1006,6 @@ class Garbage : CoolTest() {
     }
 }
 
-
 class QualityFilter : CoolTest() {
     override val name = "qualityfilter"
     override val description = "Test the QualityFilter feature"
@@ -1024,10 +1024,13 @@ class QualityFilter : CoolTest() {
             for (i in 0 until destinations.size()) {
                 val dest = destinations[i] as ObjectNode
                 if (dest["service"].textValue() == receiver.name) {
-                    if (dest["itemCount"].intValue() == expectedCount) {
-                        return good("Test Passed: For ${receiver.name} expected $expectedCount and found $expectedCount")
+                    return if (dest["itemCount"].intValue() == expectedCount) {
+                        good("Test Passed: For ${receiver.name} expected $expectedCount and found $expectedCount")
                     } else {
-                        return bad("***Test FAILED***; For ${receiver.name} expected $expectedCount but got ${dest["itemCount"].intValue()}")
+                        bad(
+                            "***Test FAILED***; For ${receiver.name} expected " +
+                                "$expectedCount but got ${dest["itemCount"].intValue()}"
+                        )
                     }
                 }
             }
@@ -1049,7 +1052,7 @@ class QualityFilter : CoolTest() {
             emptySender,
             fakeItemCount,
             receivingStates,
-            qualityAllReceiver.name,  // Has the 'allowAll' quality filter
+            qualityAllReceiver.name, // Has the 'allowAll' quality filter
             options.dir,
         )
         echo("Created datafile $file")
@@ -1096,8 +1099,6 @@ class QualityFilter : CoolTest() {
         return passed
     }
 }
-
-
 
 class Huge : CoolTest() {
     override val name = "huge"
@@ -1265,12 +1266,16 @@ class BadSftp : CoolTest() {
  */
 class InternationalContent : CoolTest() {
     override val name = "intcontent"
-    override val description = "Create Fake data that includes international characters, submit, wait, confirm sent via database lineage data"
+    override val description = "Create Fake data that includes international characters, " +
+        "submit, wait, confirm sent via database lineage data"
     override val status = TestStatus.DRAFT // Because this can only be run local to get access to the SFTP folder
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        if(options.env != "local") {
-            return bad("***intcontent Test FAILED***: This test can only be run locally as it needs access to the SFTP folder.")
+        if (options.env != "local") {
+            return bad(
+                "***intcontent Test FAILED***: This test can only be run locally " +
+                    "as it needs access to the SFTP folder."
+            )
         }
 
         // Make sure we have access to the SFTP folder
@@ -1278,7 +1283,7 @@ class InternationalContent : CoolTest() {
             return bad("***intcontent Test FAILED***: The folder ${options.sftpDir} cannot be found.")
         }
         val receiverName = hl7Receiver.name
-        ugly("Starting $name Test: send ${simpleRepSender.fullName} data to ${receiverName}")
+        ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $receiverName")
         val file = FileUtilities.createFakeFile(
             metadata,
             simpleRepSender,
@@ -1317,15 +1322,14 @@ class InternationalContent : CoolTest() {
                     asciiOnly = CharMatcher.ascii().matchesAllOf(contents)
                 }
             }
-            if(asciiOnly) {
+            if (asciiOnly) {
                 return bad("***intcontent Test FAILED***: File contents are only ASCII characters")
             } else {
                 return good("Test passed: for intcontent")
             }
         } catch (e: NullPointerException) {
             return bad("***intcontent Test FAILED***: Unable to properly parse response json")
-        }
-        catch (e: DataAccessException) {
+        } catch (e: DataAccessException) {
             echo(e)
             return bad("***intcontent Test FAILED***: There was an error fetching data from the database.")
         }

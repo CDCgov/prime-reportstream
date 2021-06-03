@@ -866,7 +866,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
                     // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
                     if (xtnValue.telecommunicationEquipmentType.isEmpty ||
-                        xtnValue.telecommunicationEquipmentType.value == "PH") {
+                        xtnValue.telecommunicationEquipmentType.value == "PH"
+                    ) {
                         strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
                             "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
                     }
@@ -927,7 +928,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.{0,1}[0-9]{0,4}[+-][0-9]{4}\\]\$")
                         if (!r.matches(it.value)) {
                             warnings.add(
-                                "Timestamp for ${element.hl7Field} - ${element.name} needs to provide more precision. " +
+                                "Timestamp for ${element.hl7Field} - ${element.name} needs to " +
+                                    "provide more precision. " +
                                     "Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
                             )
                         }

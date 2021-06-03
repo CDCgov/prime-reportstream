@@ -82,7 +82,10 @@ class MapperTests {
         val mapper = LIVDLookupMapper()
 
         // Test with a EUA
-        val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abbott Diagnostics Scarborough, Inc._EUA")
+        val ev1 = ElementAndValue(
+            deviceElement,
+            "BinaxNOW COVID-19 Ag Card Home Test_Abbott Diagnostics Scarborough, Inc._EUA"
+        )
         assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1)))
 
         // Test with a truncated device ID
@@ -117,7 +120,6 @@ class MapperTests {
         val ev2 = ElementAndValue(modelElement, "ID NOW")
         assertEquals("94534-5", mapper.apply(codeElement, emptyList(), listOf(ev2)))
     }
-
 
     @Test
     fun `test ifPresent`() {
@@ -421,8 +423,10 @@ class MapperTests {
         // Single value conversion
         val arg = listOf("a")
         val value = listOf(ElementAndValue(elementA, "6086edf8e412650032408e96"))
-        assertEquals("47496cafa04e9c489444b60575399f51e9abc061f4fdda40c31d814325bfc223",
-            mapper.apply(elementA, arg, value))
+        assertEquals(
+            "47496cafa04e9c489444b60575399f51e9abc061f4fdda40c31d814325bfc223",
+            mapper.apply(elementA, arg, value)
+        )
         // Multiple values concatenated
         val args = listOf("a", "b", "c")
         val values = listOf(
@@ -430,12 +434,13 @@ class MapperTests {
             ElementAndValue(elementB, "string2"),
             ElementAndValue(elementC, "string3")
         )
-        assertEquals("c8fa773cd54e7a7eb7ca08577d0bd23e6ce3a73e61df176213d9ec90f06cb45f",
-            mapper.apply(elementA, args, values))
+        assertEquals(
+            "c8fa773cd54e7a7eb7ca08577d0bd23e6ce3a73e61df176213d9ec90f06cb45f",
+            mapper.apply(elementA, args, values)
+        )
         // Unhappy path cases
-        assertFails { mapper.apply(elementA, listOf(), listOf()) }  // must pass a field name
-        assertNull(mapper.apply(elementA, arg, listOf()))  // column not found in the data.
-        assertNull(mapper.apply(elementA, arg, listOf(ElementAndValue(elementA,"")))) // column has empty data
+        assertFails { mapper.apply(elementA, listOf(), listOf()) } // must pass a field name
+        assertNull(mapper.apply(elementA, arg, listOf())) // column not found in the data.
+        assertNull(mapper.apply(elementA, arg, listOf(ElementAndValue(elementA, "")))) // column has empty data
     }
-
 }

@@ -19,8 +19,8 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.time.format.DateTimeFormatter
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.logging.Level
 
 private const val CLIENT_PARAMETER = "client"

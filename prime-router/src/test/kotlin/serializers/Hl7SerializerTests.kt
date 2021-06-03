@@ -183,7 +183,10 @@ NTE|1|L|This is a final comment|RE"""
 
         // Bad field value
         every { mockTerser.getSegment(any()) } returns null
-        var phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, Element("phone", Element.Type.TELEPHONE, hl7Field = "PID-BLAH"))
+        var phoneNumber = serializer.decodeHl7PhoneNumber(
+            mockTerser,
+            Element("phone", Element.Type.TELEPHONE, hl7Field = "PID-BLAH")
+        )
         assertEquals("", phoneNumber)
 
         // Segment not found
@@ -268,11 +271,11 @@ NTE|1|L|This is a final comment|RE"""
         val mockDR = mockk<DR>()
         val mockDTM = mockk<DTM>()
         val now = ZonedDateTime.now()
-        val nowAsDate = Date.from(now.toInstant());
+        val nowAsDate = Date.from(now.toInstant())
         val element = Element("field", hl7Field = "OBX-14")
         val warnings = mutableListOf<String>()
-        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern);
-        val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern)
+        val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
 
         // Segment not found
         every { mockTerser.getSegment(any()) } returns null
@@ -359,8 +362,10 @@ NTE|1|L|This is a final comment|RE"""
     fun `test reading message with international characters from serializer`() {
         // Sample UTF-8 taken from https://www.kermitproject.org/utf8.html as a byte array, so we are not
         // restricted by the encoding of this code file
-        val greekString = String(byteArrayOf(-50, -100, -49, -128, -50, -65, -49, -127, -49, -114),
-            Charsets.UTF_8)
+        val greekString = String(
+            byteArrayOf(-50, -100, -49, -128, -50, -65, -49, -127, -49, -114),
+            Charsets.UTF_8
+        )
 
         // Java strings are stored as UTF-16
         val intMessage = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO

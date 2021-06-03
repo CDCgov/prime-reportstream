@@ -98,9 +98,11 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         }
         val qualityFilteredReport = jurisFilteredReport.filter(qualityFilterAndArgs, receiver)
         if (qualityFilteredReport.itemCount != jurisFilteredReport.itemCount) {
-            logger.warn("Data quality problem in report ${input.id}, receiver ${receiver.fullName}: " +
-                "There were ${jurisFilteredReport.itemCount} rows prior to qualityFilter, and " +
-                "${qualityFilteredReport.itemCount} rows after qualityFilter.")
+            logger.warn(
+                "Data quality problem in report ${input.id}, receiver ${receiver.fullName}: " +
+                    "There were ${jurisFilteredReport.itemCount} rows prior to qualityFilter, and " +
+                    "${qualityFilteredReport.itemCount} rows after qualityFilter."
+            )
         }
 
         // Always succeed in translating an empty report after filtering (even if the mapping process would fail)

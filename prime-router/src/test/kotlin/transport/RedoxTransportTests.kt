@@ -141,7 +141,7 @@ class RedoxTransportTests {
     }
     @Test
     fun `test fetchSecret failure`() {
-    
+
         val header = makeHeader()
         setupLogger()
         every { redox.secretService }.returns(secretService)
@@ -158,14 +158,13 @@ class RedoxTransportTests {
         assertTrue(RetryToken.isAllItems(retryItemsOut))
 
         // Now what if fetchSecret fails in a retry situation
-         
+
         val retryItemsIn = listOf("0", "3")
         val retryItemsOut2 = redox.send(transportType, header, UUID.randomUUID(), retryItemsIn, context, actionHistory)
         assertNotNull(retryItemsOut2)
         assertEquals(2, retryItemsOut2.size)
         assertEquals("0", retryItemsOut2[0])
         assertEquals("3", retryItemsOut2[1])
-        
     }
 
     @Test

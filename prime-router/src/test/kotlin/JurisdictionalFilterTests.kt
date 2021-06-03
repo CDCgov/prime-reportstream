@@ -282,12 +282,11 @@ class JurisdictionalFilterTests {
         assertThat(filteredTable).hasRowCount(4)
     }
 
-
     @Test
     fun `test IsValidCLIA`() {
         val filter = IsValidCLIA()
         val table = Table.create(
-            StringColumn.create("colA", listOf("12D4567890", "12d4567890",           "", "1A2B3C4D5E")),
+            StringColumn.create("colA", listOf("12D4567890", "12d4567890", "", "1A2B3C4D5E")),
             StringColumn.create("colB", listOf("12D4567890", "12d4567890", "1a2b3c4d5e", "1A2B3C4D5E")),
             StringColumn.create("colC", listOf("12D4567890", "12d4567890", "1a2b3c4d5e", null))
         )

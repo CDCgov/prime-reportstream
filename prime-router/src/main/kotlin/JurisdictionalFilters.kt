@@ -48,8 +48,10 @@ class Matches : JurisdictionalFilter {
     override val name = "matches"
 
     override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
-        if (args.size < 2) error("For ${receiver.fullName}: Expecting two or more args to filter $name:" +
-            " (columnName, regex [, regex, regex])")
+        if (args.size < 2) error(
+            "For ${receiver.fullName}: Expecting two or more args to filter $name:" +
+                " (columnName, regex [, regex, regex])"
+        )
         val columnName = args[0]
         val values = args.subList(1, args.size)
         val columnNames = table.columnNames()
@@ -76,8 +78,10 @@ class DoesNotMatch : JurisdictionalFilter {
     override val name = "doesNotMatch"
 
     override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
-        if (args.size < 2) error("For ${receiver.fullName}: Expecting two or more args to filter $name:" +
-            " (columnName, value, value, ...)")
+        if (args.size < 2) error(
+            "For ${receiver.fullName}: Expecting two or more args to filter $name:" +
+                " (columnName, value, value, ...)"
+        )
         val columnName = args[0]
         // val pattern = args[1]
         val values = args.subList(1, args.size)
@@ -96,8 +100,10 @@ class FilterByCounty : JurisdictionalFilter {
     override val name = "filterByCounty"
 
     override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
-        if (args.size != 2) error("For ${receiver.fullName}: Expecting two args to filter $name:" +
-            "  (TwoLetterState, County)")
+        if (args.size != 2) error(
+            "For ${receiver.fullName}: Expecting two args to filter $name:" +
+                "  (TwoLetterState, County)"
+        )
         // Try to be very loose on county matching.   Anything with the county name embedded is ok.
         val countyRegex = "(?i).*${args[1]}.*"
 
@@ -144,7 +150,8 @@ class OrEquals : JurisdictionalFilter {
         if (args.isEmpty()) error("Expecting at least two args for filter $name.  Got none.")
         if (args.size % 2 != 0)
             error(
-                "For ${receiver.fullName}: Expecting a positive even number of args to filter $name: (col,val, col,val,...)." +
+                "For ${receiver.fullName}: Expecting a positive even number of args " +
+                    "to filter $name: (col,val, col,val,...)." +
                     " Instead got ${args.size} args"
             )
         val selection = Selection.withRange(0, 0)
@@ -161,7 +168,6 @@ class OrEquals : JurisdictionalFilter {
     }
 }
 
-
 /**
  * A filter that filter nothing -- allows all data through
  */
@@ -171,13 +177,13 @@ class AllowAll : JurisdictionalFilter {
     override fun getSelection(args: List<String>, table: Table, receiver: Receiver): Selection {
         // On empty args (eg, "allowAll()"), our regex returns args of size 1, with a single empty string.
         // Didn't bother trying to fix the regex.
-        if (args.size > 1) error("For rcvr ${receiver.fullName} Expecting no args for filter $name." +
-            " Got ${args.joinToString(",")}")
+        if (args.size > 1) error(
+            "For rcvr ${receiver.fullName} Expecting no args for filter $name." +
+                " Got ${args.joinToString(",")}"
+        )
         return Selection.withRange(0, table.rowCount())
     }
 }
-
-
 
 /**
  * Implements a quality check match.  If a row has valid data for all the columns, the row is selected.
@@ -194,11 +200,11 @@ class HasValidDataFor : JurisdictionalFilter {
         val columnNames = table.columnNames()
         args.forEach { colName ->
             if (columnNames.contains(colName)) {
-                val before = Selection.with(*selection.toArray())  // hack way to copy to a new Selection obj
+                val before = Selection.with(*selection.toArray()) // hack way to copy to a new Selection obj
                 selection = selection.andNot(table.stringColumn(colName).isEmptyString)
-                JurisdictionalFilters.logFiltering(before, selection,"$name($colName)", receiver)
+                JurisdictionalFilters.logFiltering(before, selection, "$name($colName)", receiver)
             } else {
-                JurisdictionalFilters.logAllEliminated(table.rowCount(),"$name($colName): column not found", receiver)
+                JurisdictionalFilters.logAllEliminated(table.rowCount(), "$name($colName): column not found", receiver)
                 return Selection.withRange(0, 0)
             }
         }
@@ -234,12 +240,16 @@ class IsValidCLIA : JurisdictionalFilter {
             }
         }
         if (!atLeastOneColumnFound) {
-            JurisdictionalFilters.logAllEliminated(table.rowCount(),
-                "$name(${args.joinToString(",")}): none of these columns found.", receiver)
+            JurisdictionalFilters.logAllEliminated(
+                table.rowCount(),
+                "$name(${args.joinToString(",")}): none of these columns found.", receiver
+            )
         } else {
             if (selection.size() < table.rowCount()) {
-                JurisdictionalFilters.logFiltering(Selection.withRange(0, table.rowCount()), selection,
-                    "$name(${args.joinToString(",")})", receiver)
+                JurisdictionalFilters.logFiltering(
+                    Selection.withRange(0, table.rowCount()), selection,
+                    "$name(${args.joinToString(",")})", receiver
+                )
             }
         }
         return selection
@@ -265,22 +275,23 @@ class HasAtLeastOneOf : JurisdictionalFilter {
             }
         }
         if (!atLeastOneColumnFound) {
-            JurisdictionalFilters.logAllEliminated(table.rowCount(),
-                "$name(${args.joinToString(",")}): none of these columns found.", receiver)
+            JurisdictionalFilters.logAllEliminated(
+                table.rowCount(),
+                "$name(${args.joinToString(",")}): none of these columns found.", receiver
+            )
         } else {
             if (selection.size() < table.rowCount()) {
-                JurisdictionalFilters.logFiltering(Selection.withRange(0, table.rowCount()), selection,
-                    "$name(${args.joinToString(",")})", receiver)
+                JurisdictionalFilters.logFiltering(
+                    Selection.withRange(0, table.rowCount()), selection,
+                    "$name(${args.joinToString(",")})", receiver
+                )
             }
         }
         return selection
     }
 }
 
-
-
-
-object JurisdictionalFilters: Logging {
+object JurisdictionalFilters : Logging {
     // covid-19 default quality check consists of these filters
     // todo move this to a GLOBAL Setting in the settings table
     val defaultCovid19QualityCheck = listOf(
@@ -305,11 +316,10 @@ object JurisdictionalFilters: Logging {
     /**
      * Map from topic-name to a list of filter-function-strings
      */
-    val defaultQualityFilters: Map<String,List<String>> = mapOf(
+    val defaultQualityFilters: Map<String, List<String>> = mapOf(
         "covid-19" to defaultCovid19QualityCheck,
         "CsvFileTests-topic" to listOf("hasValidDataFor(lab,state,test_time,specimen_id,observation)"),
     )
-
 
     /**
      * filterFunction must be of form "funName(arg1, arg2, etc)"
@@ -323,12 +333,14 @@ object JurisdictionalFilters: Logging {
         return match.groupValues[1] to match.groupValues[2].split(',').map { it.trim() }
     }
 
-    fun logAllEliminated(beforeSize: Int, filterDescription: String , receiver: Receiver) {
-        logger.warn("For ${receiver.fullName}, qualityFilter $filterDescription" +
-            " reduced the Items from $beforeSize to 0.  All rows eliminated")
+    fun logAllEliminated(beforeSize: Int, filterDescription: String, receiver: Receiver) {
+        logger.warn(
+            "For ${receiver.fullName}, qualityFilter $filterDescription" +
+                " reduced the Items from $beforeSize to 0.  All rows eliminated"
+        )
     }
 
-    fun logFiltering(before: Selection, after: Selection, filterDescription: String , receiver: Receiver) {
+    fun logFiltering(before: Selection, after: Selection, filterDescription: String, receiver: Receiver) {
         if (after.size() < before.size()) {
             if (after.size() == 0) {
                 logAllEliminated(before.size(), filterDescription, receiver)
@@ -336,10 +348,11 @@ object JurisdictionalFilters: Logging {
                 // Note:  the expression 'before.andNot(after)' actually changes the 'before' obj!
                 val beforeSize = before.size()
                 val eliminatedRows = before.andNot(after)
-                logger.warn("For ${receiver.fullName}, qualityFilter $filterDescription" +
-                    " reduced the Item count from $beforeSize to ${after.size()}.  " +
-                    "Row numbers eliminated: ${eliminatedRows.joinToString(",")}")
-
+                logger.warn(
+                    "For ${receiver.fullName}, qualityFilter $filterDescription" +
+                        " reduced the Item count from $beforeSize to ${after.size()}.  " +
+                        "Row numbers eliminated: ${eliminatedRows.joinToString(",")}"
+                )
             }
         }
     }

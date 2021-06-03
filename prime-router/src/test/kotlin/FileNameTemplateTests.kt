@@ -3,7 +3,6 @@ package gov.cdc.prime.router
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.startsWith

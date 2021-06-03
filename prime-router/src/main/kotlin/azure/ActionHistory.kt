@@ -414,19 +414,23 @@ class ActionHistory {
         if (reportsOut.size == 0 && parentChildReports.size > 0)
             error("There are item lineages (${parentChildReports.joinToString(",")}) but no child reports")
         // compare the set of reportIds from the item lineage vs the set from report lineage.  Should be identical.
-        val parentReports = parentChildReports.map { it.first}.toSet()
-        val childReports = parentChildReports.map { it.second}.toSet()
+        val parentReports = parentChildReports.map { it.first }.toSet()
+        val childReports = parentChildReports.map { it.second }.toSet()
         var parentReports2 = mutableSetOf<ReportId>()
         parentReports2.addAll(reportsReceived.keys)
         parentReports2.addAll(reportsIn.keys)
         val childReports2 = reportsOut.keys
         if (!parentReports.equals(parentReports2)) {
-            error("parent reports from items (${parentReports.joinToString(",")}) != from reports" +
-                "(${parentReports2.joinToString(",")})")
+            error(
+                "parent reports from items (${parentReports.joinToString(",")}) != from reports" +
+                    "(${parentReports2.joinToString(",")})"
+            )
         }
         if (!childReports.equals(childReports2)) {
-            error("child reports from items (${childReports.joinToString(",")} != from reports" +
-                "(${childReports2.joinToString(",")})")
+            error(
+                "child reports from items (${childReports.joinToString(",")} != from reports" +
+                    "(${childReports2.joinToString(",")})"
+            )
         }
         context?.logger?.info("There are ${reportLineages.size} parent->child report-level relationships")
     }

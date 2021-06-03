@@ -432,8 +432,7 @@ class TimestampMapper : Mapper {
         return try {
             val formatter = DateTimeFormatter.ofPattern(tsFormat)
             formatter.format(ts)
-        }
-        catch (_: Exception) {
+        } catch (_: Exception) {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             formatter.format(ts)
         }
@@ -630,7 +629,6 @@ class HashMapper : Mapper {
             return DatatypeConverter.printHexBinary(digest)
         }
     }
-
 }
 
 object Mappers {

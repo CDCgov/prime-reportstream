@@ -81,12 +81,12 @@ class ObservationMessageTests {
     private fun getTestFiles(path: String): List<String> {
         val files = ArrayList<String>()
         val fullDirPath = this.javaClass.getResource(path)?.path
-        if(!fullDirPath.isNullOrBlank()) {
+        if (!fullDirPath.isNullOrBlank()) {
             val dir = File(fullDirPath)
-            if(dir.exists()) {
+            if (dir.exists()) {
                 val filenames = dir.list(SuffixFileFilter(".hl7"))
                 filenames?.forEach { files.add("$fullDirPath/$it") }
-                if(files.isEmpty()) fail("There are no HL7 files present in $fullDirPath")
+                if (files.isEmpty()) fail("There are no HL7 files present in $fullDirPath")
             } else {
                 fail("Directory $path does not exist in the classpath.")
             }
@@ -105,7 +105,7 @@ class ObservationMessageTests {
      * Limitations: Date times in the HL7 data without a speficied time zone are bound by the JVM default timezone and hence
      * will generate an error against the GMT0 expected result.  GMT is the timezone of the build and deployment environments.
      */
-    class FileTest(private val hl7AbsolutePath: String): Executable {
+    class FileTest(private val hl7AbsolutePath: String) : Executable {
         /**
          * The schema to use.
          */
@@ -141,7 +141,7 @@ class ObservationMessageTests {
             val testFilename = FilenameUtils.getName(hl7AbsolutePath)
 
             println("Testing file $testFilename ...")
-            if(File(expectedResultAbsolutePath).exists()) {
+            if (File(expectedResultAbsolutePath).exists()) {
                 val report = getReport()
                 val expectedResult = readExpectedResult(expectedResultAbsolutePath)
                 compareToExpected(report, expectedResult)
@@ -163,13 +163,13 @@ class ObservationMessageTests {
             assertNotNull(result)
             assertNotNull(result.report)
 
-            if(result.errors.isNotEmpty()) {
+            if (result.errors.isNotEmpty()) {
                 println("HL7 file $filename has ${result.errors.size} HL7 decoding errors:")
-                result.errors.forEach {println("   SCHEMA ERROR: ${it.details}")}
+                result.errors.forEach { println("   SCHEMA ERROR: ${it.details}") }
             }
-            if(result.warnings.isNotEmpty()) {
+            if (result.warnings.isNotEmpty()) {
                 println("HL7 file $filename has ${result.warnings.size} HL7 decoding warnings:")
-                result.warnings.forEach {println("   SCHEMA WARNING: ${it.details}")}
+                result.warnings.forEach { println("   SCHEMA WARNING: ${it.details}") }
             }
             assertTrue(result.errors.isEmpty(), "There were data errors in the HL7 file.")
             return result.report!!
@@ -194,44 +194,49 @@ class ObservationMessageTests {
             var expectedHasHeader = false
             var expectedSize = expected.size
             val firstColName = actual.schema.elements[0].name
-            if(expected.size > 0 && expected[0][0] == firstColName) {
+            if (expected.size > 0 && expected[0][0] == firstColName) {
                 expectedHasHeader = true
                 expectedSize--
             }
 
             // Check the number of reports
-            assertEquals(actual.itemCount, expectedSize,"Number of reports does not match.")
+            assertEquals(actual.itemCount, expectedSize, "Number of reports does not match.")
 
             // Now check the data in each report.
             val errorMsgs = ArrayList<String>()
             val warningMsgs = ArrayList<String>()
 
-            for(i in 0 until actual.itemCount) {
+            for (i in 0 until actual.itemCount) {
                 val actualRow = actual.getRow(i)
-                val expectedRowIndex = if(expectedHasHeader) i + 1 else i
+                val expectedRowIndex = if (expectedHasHeader) i + 1 else i
                 val expectedRow = expected[expectedRowIndex]
-                assertEquals(actualRow.size, expectedRow.size,"Incorrect number of columns in data for report #$i.")
-                for(j in actualRow.indices) {
+                assertEquals(actualRow.size, expectedRow.size, "Incorrect number of columns in data for report #$i.")
+                for (j in actualRow.indices) {
                     val colName = actual.schema.elements[j].name
 
                     // We want to error on differences when the expected data is not empty.
-                    if(!expectedRow[j].isNullOrBlank() && actualRow[j].trim() != expectedRow[j].trim()) {
-                        errorMsgs.add("   DATA ERROR: Data value does not match in report $i column #${j+1}, '$colName'.  " +
-                            "Expected: '${expectedRow[j].trim()}', Actual: '${actualRow[j].trim()}'")
-                    }
-                    else if(expectedRow[j].trim().isEmpty() && actualRow[j].trim().isNotEmpty()){
-                        warningMsgs.add("   DATA WARNING: Actual data has value in report $i column #$${j+1}, '$colName', but no expected value.  " +
-                            "Actual: '${actualRow[j].trim()}'")
+                    if (!expectedRow[j].isNullOrBlank() && actualRow[j].trim() != expectedRow[j].trim()) {
+                        errorMsgs.add(
+                            "   DATA ERROR: Data value does not match in report $i column #${j + 1}, '$colName'.  " +
+                                "Expected: '${expectedRow[j].trim()}', Actual: '${actualRow[j].trim()}'"
+                        )
+                    } else if (expectedRow[j].trim().isEmpty() && actualRow[j].trim().isNotEmpty()) {
+                        warningMsgs.add(
+                            "   DATA WARNING: Actual data has value in report" +
+                                " $i column #$${j + 1}, '$colName', but no expected value.  " +
+                                "Actual: '${actualRow[j].trim()}'"
+                        )
                     }
                 }
             }
             // Add the errors and warnings to the assert message, so they show up in the build results.
-            assertTrue(errorMsgs.size == 0,
+            assertTrue(
+                errorMsgs.size == 0,
                 "There were ${errorMsgs.size} incorrect data value(s) detected with ${warningMsgs.size} warning(s)\n" +
-                errorMsgs.joinToString("\n") + warningMsgs.joinToString("\n"))
+                    errorMsgs.joinToString("\n") + warningMsgs.joinToString("\n")
+            )
             // Print the warning messages if any
-            if(errorMsgs.size == 0 && warningMsgs.size > 0)  println(warningMsgs.joinToString("\n"))
+            if (errorMsgs.size == 0 && warningMsgs.size > 0) println(warningMsgs.joinToString("\n"))
         }
     }
-
 }
