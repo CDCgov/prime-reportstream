@@ -1,7 +1,7 @@
 locals {
   environment = "dev"
   resource_group = "prime-dev-rheft"
-  resource_prefix = "rkh"
+  resource_prefix = "rkh5012"
   location = "eastus"
 }
 
