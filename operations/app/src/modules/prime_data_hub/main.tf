@@ -18,16 +18,6 @@ module "storage" {
   rsa_key_4096 = var.rsa_key_4096
 }
 
-module "container_registry" {
-  source = "../container_registry"
-  environment = var.environment
-  resource_group = var.resource_group
-  name = "${var.resource_prefix}containerregistry"
-  location = local.location
-  public_subnet_id = module.network.public_subnet_id
-  endpoint_subnet_id = module.network.endpoint_subnet_id
-}
-
 module "function_app" {
   source = "../function_app"
   environment = var.environment
