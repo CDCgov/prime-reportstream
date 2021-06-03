@@ -394,6 +394,7 @@ NTE|1|L|This is a final comment|RE"""
         }
 
         testForDateWarning("DT[19950101]", 0)
+        testForDateWarning("TS[19950101120101.0001+4000]", 0)
         testForDateWarning("DT[199501]", 1)
         testForDateWarning("DT[1995]", 1)
     }
