@@ -44,23 +44,6 @@ module "function_app" {
   storage_partner_connection_string = module.storage.storage_partner_connection_string
 }
 
-module "database" {
-  source = "../database"
-  environment = var.environment
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-  name = "${var.resource_prefix}-pgsql"
-  location = local.location
-  endpoint_subnet_id = module.network.endpoint_subnet_id
-  endpoint2_subnet_id = module.network.endpoint2_subnet_id
-  eventhub_namespace_name = module.event_hub.eventhub_namespace_name
-  eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
-  app_config_key_vault_id = module.key_vault.app_config_key_vault_id
-  key_vault_id = module.key_vault.application_key_vault_id
-  rsa_key_2048 = var.rsa_key_2048
-  is_metabase_env = var.is_metabase_env
-}
-
 module "front_door" {
   source = "../front_door"
   environment = var.environment

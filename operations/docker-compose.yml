@@ -1,7 +1,7 @@
 version: "3.3"
 
 services:
-  dev-network:
+  dev-01-network:
     container_name: terraform_state_dev_network
     build:
       context: .
@@ -14,9 +14,24 @@ services:
       - type: volume
         source: azure_config
         target: /root/.azure
-    working_dir: /app/src/environments/dev-network
+    working_dir: /app/src/environments/dev-01-network
 
-  dev-persistent:
+  dev-02-config:
+    container_name: terraform_state_dev_config
+    build:
+      context: .
+    volumes:
+      # Bind the app directory instead of building into the docker image for re-usability
+      - type: bind
+        source: ./app
+        target: /app
+      # Keep Azure config
+      - type: volume
+        source: azure_config
+        target: /root/.azure
+    working_dir: /app/src/environments/dev-02-config
+
+  dev-03-persistent:
     container_name: terraform_state_dev_persistent
     build:
       context: .
@@ -29,9 +44,9 @@ services:
       - type: volume
         source: azure_config
         target: /root/.azure
-    working_dir: /app/src/environments/dev-persistent
+    working_dir: /app/src/environments/dev-03-persistent
 
-  dev-app:
+  dev-04-app:
     container_name: terraform_state_dev_app
     build:
       context: .
@@ -44,7 +59,7 @@ services:
       - type: volume
         source: azure_config
         target: /root/.azure
-    working_dir: /app/src/environments/dev-app
+    working_dir: /app/src/environments/dev-04-app
 
   dev:
     container_name: terraform_state_dev
