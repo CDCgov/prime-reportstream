@@ -256,10 +256,8 @@ class ObservationMessageTests {
                             )
                         }
                     } else {
-                        fail(
-                            "Column #${j + 1}/${expectedHeaders[j]} from the" +
-                                " expected data is missing in the actual data"
-                        )
+                        fail("Column #${j + 1}/${expectedHeaders[j]} from the " 
+                             + "expected data is missing in the actual data")
                     }
                 }
             }

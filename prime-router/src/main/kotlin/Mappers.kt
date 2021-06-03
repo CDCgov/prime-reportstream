@@ -669,6 +669,25 @@ class NullMapper : Mapper {
     }
 }
 
+/**
+ * This mapper performs no operation and is meant to override mappers set on parent schemas, so no mapper runs.
+ * Arguments: None
+ * Returns: null
+ */
+class NullMapper : Mapper {
+    override val name = "none"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isNotEmpty())
+            error("Schema Error: none mapper does not expect args")
+        return emptyList()
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return null
+    }
+}
+
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
         val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&^]*)\\x29").find(field)

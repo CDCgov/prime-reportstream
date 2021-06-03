@@ -27,15 +27,15 @@
       schemaName: waters/safehealth-covid-19
       format: CSV
 
-  - name: cue
-    description: Cue
-    jurisdiction: FEDERAL
-    senders:
-      - name: default
-        organizationName: cue
-        topic: covid-19
-        schemaName: waters/cue-covid-19
-        format: CSV
+- name: cue
+  description: Cue
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: cue
+      topic: covid-19
+      schemaName: waters/cue-covid-19
+      format: CSV
 
 - name: ca-scc-phd
   description: Public Health Department - Santa Clara, California
