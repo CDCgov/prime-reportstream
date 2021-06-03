@@ -185,8 +185,7 @@ NTE|1|L|This is a final comment|RE"""
         // Bad field value
         every { mockTerser.getSegment(any()) } returns null
         var phoneNumber = serializer.decodeHl7PhoneNumber(
-            mockTerser,
-            Element("phone", Element.Type.TELEPHONE),
+            mockTerser, Element("phone", Element.Type.TELEPHONE),
             "PID-BLAH"
         )
         assertEquals("", phoneNumber)

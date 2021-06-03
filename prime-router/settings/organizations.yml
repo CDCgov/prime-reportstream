@@ -27,25 +27,14 @@
       schemaName: waters/safehealth-covid-19
       format: CSV
 
-- name: pima-az-phd
-  description: Pima County, Arizona PHD
-  jurisdiction: COUNTY
-  stateCode: AZ
-  countyName: Pima
-  receivers:
-    - name: elr
-      organizationName: pima-az-phd
-      topic: covid-19
-      jurisdictionalFilter:
-        - filterByCounty(AZ, Pima)
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute.  NOTE:  In production, they want deliveries once a day at 8am MST.
-        initialTime: 00:00
-        timeZone: ARIZONA
-      translation:
-        type: CUSTOM
-        schemaName: az/pima-az-covid-19
+  - name: cue
+    description: Cue
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: cue
+        topic: covid-19
+        schemaName: waters/cue-covid-19
         format: CSV
 
 - name: ca-scc-phd

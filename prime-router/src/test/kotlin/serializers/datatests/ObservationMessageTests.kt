@@ -220,6 +220,12 @@ class ObservationMessageTests {
                 )
             }
 
+            // Check to see if actual has more columns.  Less columns is checked later on a column by column basis
+            if (expected[0].size < actual.schema.elements.size) {
+                warningMsgs.add(
+                    "   DATA WARNING: Actual record(s) has more columns than expected record(s)"
+                )
+            }
             val expectedHeaders = expected[0]
             for (i in 0 until actual.itemCount) {
                 val actualRow = actual.getRow(i)
@@ -251,8 +257,8 @@ class ObservationMessageTests {
                         }
                     } else {
                         fail(
-                            "Column #${j + 1}/${expectedHeaders[j]} from " +
-                                "the expected data is missing in the actual data"
+                            "Column #${j + 1}/${expectedHeaders[j]} from the" +
+                                " expected data is missing in the actual data"
                         )
                     }
                 }
