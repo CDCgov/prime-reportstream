@@ -3,6 +3,10 @@ locals {
   resource_group = "prime-dev-rheft"
   resource_prefix = "rkh5012"
   location = "eastus"
+
+  is_metabase_env = false
+
+  https_cert_names = []
   okta_redirect_url = "https://prime-data-hub-${local.resource_prefix}.azurefd.net/download"
 }
 
@@ -46,4 +50,14 @@ module "function_app" {
   location = local.location
   ai_instrumentation_key = module.application_insights.instrumentation_key
   okta_redirect_url = local.okta_redirect_url
+}
+
+module "front_door" {
+  source = "../../modules/front_door"
+  environment = local.environment
+  resource_group = local.resource_group
+  resource_prefix = local.resource_prefix
+  location = local.location
+  https_cert_names = local.https_cert_names
+  is_metabase_env = local.is_metabase_env
 }
