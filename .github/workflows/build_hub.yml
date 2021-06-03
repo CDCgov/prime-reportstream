@@ -80,7 +80,7 @@ jobs:
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          bash ./gradlew primeCLI --args='generate-docs'
+          bash ./gradlew generatedocs
 
       - name: Check for Uncommited Docs
         id: check_changes
@@ -112,7 +112,7 @@ jobs:
           body: |
             The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
 
-            Please run `./gradlew primeCLI --args='generate-docs'` to generate updated documentation, then commit the results.
+            Please run `./gradlew generatedocs` to generate updated documentation, then commit the results.
 
             Expected changes in files:
 

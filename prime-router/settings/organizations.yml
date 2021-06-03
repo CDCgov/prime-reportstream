@@ -14,7 +14,7 @@
     - name: hl7test
       organizationName: simple_report
       topic: covid-19
-      schemaName: covid-19
+      schemaName: hl7/hl7-ingest-covid-19
       format: HL7
 
 - name: safehealth
@@ -26,66 +26,6 @@
       topic: covid-19
       schemaName: waters/safehealth-covid-19
       format: CSV
-
-- name: cue
-  description: Cue
-  jurisdiction: FEDERAL
-  senders:
-    - name: default
-      organizationName: cue
-      topic: covid-19
-      schemaName: waters/cue-covid-19
-      format: CSV
-
-- name: waters
-  description: Test Sender from Waters
-  jurisdiction: FEDERAL
-  senders:
-    - name: default
-      organizationName: waters
-      topic: covid-19
-      schemaName: waters/waters-covid-19
-      format: CSV
-
-- name: strac
-  description: STRAC POC testing app
-  jurisdiction: FEDERAL
-  senders:
-    - name: default
-      organizationName: strac
-      topic: covid-19
-      schemaName: strac/strac-covid-19
-      format: CSV
-
-- name: tpca
-  description: TPCA Receiver organization via A6
-  jurisdiction: FEDERAL
-  senders:
-    - name: default
-      organizationName: tpca
-      topic: covid-19
-      schemaName: tpca/tpca-covid-19
-      format: CSV
-
-- name: az-phd
-  description: Arizona PHD
-  jurisdiction: STATE
-  stateCode: AZ
-  receivers:
-    - name: elr-prod
-      organizationName: az-phd
-      topic: covid-19
-      jurisdictionalFilter:
-        - matches(ordering_facility_state,AZ)
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: ARIZONA
-      translation:
-        type: CUSTOM
-        schemaName: az/az-covid-19
-        format: CSV
 
 - name: pima-az-phd
   description: Pima County, Arizona PHD

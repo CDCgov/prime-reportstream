@@ -102,14 +102,14 @@ class ObservationMessageTests {
      * (e.g. HL7 batch files have multiple reports) and verifies all data elements match the expected values in the
      * related .internal file that exists in the same folder as the HL7 test file.
      *
-     * Limitations: Date times in the HL7 data without a speficied time zone are bound by the JVM default timezone and hence
+     * Limitations: Date times in the HL7 data without a specified time zone are bound by the JVM default timezone and hence
      * will generate an error against the GMT0 expected result.  GMT is the timezone of the build and deployment environments.
      */
     class FileTest(private val hl7AbsolutePath: String) : Executable {
         /**
          * The schema to use.
          */
-        private val schemaName = "covid-19"
+        private val schemaName = "hl7/hl7-ingest-covid-19"
 
         /**
          * The HAPI HL7 parser.
@@ -185,55 +185,84 @@ class ObservationMessageTests {
         }
 
         /**
-         * Compare the data in the [actual] report to the data in the [expected] report.
+         * Compare the data in the [actual] report to the data in the [expected] report.  This
+         * comparison uses the column names in the expected data to match it to the proper actual data,
+         * hence the order of columns in the expected data is not important.
+         * Errors are generated when:
+         *  1. The number of reports is different
+         *  2. A column in the expected values does not exist in the actual values
+         *  3. A expected value does not match the actual value
+         *
+         * Warnings are generated when:
+         *  1. An actual value exists, but no expected value.
+         *  2. There are more columns in the actual data than the expected data
+         *
          */
         private fun compareToExpected(actual: Report, expected: List<List<String>>) {
             assertTrue(actual.schema.elements.isNotEmpty())
-
-            // Is there a header row in the expected file?
-            var expectedHasHeader = false
-            var expectedSize = expected.size
-            val firstColName = actual.schema.elements[0].name
-            if (expected.size > 0 && expected[0][0] == firstColName) {
-                expectedHasHeader = true
-                expectedSize--
+            // Make sure we have a header in the expected data file
+            val firstColName = if (expected.isNotEmpty() && expected[0].isNotEmpty()) expected[0][0] else ""
+            // If we found an element it means we have a header in the data
+            if (firstColName.isBlank() || actual.schema.findElement(firstColName) == null) {
+                fail("Expected data file must have a header as the first row.")
             }
 
             // Check the number of reports
-            assertEquals(actual.itemCount, expectedSize, "Number of reports does not match.")
+            assertEquals(actual.itemCount, expected.size - 1, "Number of reports or headers do not match.")
 
             // Now check the data in each report.
             val errorMsgs = ArrayList<String>()
             val warningMsgs = ArrayList<String>()
+            // Check to see if actual has more columns.  Less columns is checked later on a column by column basis
+            if (expected[0].size < actual.schema.elements.size) {
+                warningMsgs.add(
+                    "   DATA WARNING: Actual record(s) has more columns than expected record(s)"
+                )
+            }
 
+            val expectedHeaders = expected[0]
             for (i in 0 until actual.itemCount) {
                 val actualRow = actual.getRow(i)
-                val expectedRowIndex = if (expectedHasHeader) i + 1 else i
-                val expectedRow = expected[expectedRowIndex]
-                assertEquals(actualRow.size, expectedRow.size, "Incorrect number of columns in data for report #$i.")
-                for (j in actualRow.indices) {
-                    val colName = actual.schema.elements[j].name
-
-                    // We want to error on differences when the expected data is not empty.
-                    if (!expectedRow[j].isNullOrBlank() && actualRow[j].trim() != expectedRow[j].trim()) {
-                        errorMsgs.add(
-                            "   DATA ERROR: Data value does not match in report $i column #${j + 1}, '$colName'.  " +
-                                "Expected: '${expectedRow[j].trim()}', Actual: '${actualRow[j].trim()}'"
-                        )
-                    } else if (expectedRow[j].trim().isEmpty() && actualRow[j].trim().isNotEmpty()) {
-                        warningMsgs.add(
-                            "   DATA WARNING: Actual data has value in report" +
-                                " $i column #$${j + 1}, '$colName', but no expected value.  " +
-                                "Actual: '${actualRow[j].trim()}'"
+                val expectedRow = expected[i + 1] // +1 to skip the header
+                assertEquals(
+                    actualRow.size, expectedRow.size,
+                    "Incorrect number of columns in report data for report #$i."
+                )
+                for (j in expectedRow.indices) {
+                    val actualValueIndex = actual.schema.findElementColumn(expectedHeaders[j])
+                    if (actualValueIndex != null) {
+                        // We want to error on differences when the expected data is not empty.
+                        if (expectedRow[j].isNotBlank() &&
+                            actualRow[actualValueIndex].trim() != expectedRow[j].trim()
+                        ) {
+                            errorMsgs.add(
+                                "   DATA ERROR: Data value does not match in report $i column #${j + 1}, " +
+                                    "'${expectedHeaders[j]}'. Expected: '${expectedRow[j].trim()}', " +
+                                    "Actual: '${actualRow[actualValueIndex].trim()}'"
+                            )
+                        } else if (expectedRow[j].trim().isEmpty() &&
+                            actualRow[actualValueIndex].trim().isNotEmpty()
+                        ) {
+                            warningMsgs.add(
+                                "   DATA WARNING: Actual data has value in report $i for column " +
+                                    "'${expectedHeaders[j]}' - column #${j + 1}, but no expected value.  " +
+                                    "Actual: '${actualRow[actualValueIndex].trim()}'"
+                            )
+                        }
+                    } else {
+                        fail(
+                            "Column #${j + 1}/${expectedHeaders[j]} from " +
+                                "the expected data is missing in the actual data"
                         )
                     }
                 }
             }
+
             // Add the errors and warnings to the assert message, so they show up in the build results.
             assertTrue(
                 errorMsgs.size == 0,
                 "There were ${errorMsgs.size} incorrect data value(s) detected with ${warningMsgs.size} warning(s)\n" +
-                    errorMsgs.joinToString("\n") + warningMsgs.joinToString("\n")
+                    errorMsgs.joinToString("\n") + "\n" + warningMsgs.joinToString("\n")
             )
             // Print the warning messages if any
             if (errorMsgs.size == 0 && warningMsgs.size > 0) println(warningMsgs.joinToString("\n"))
