@@ -4,6 +4,7 @@ locals {
   resource_prefix = "rkh5012"
   location = "eastus"
   rsa_key_2048 = null
+  rsa_key_4096 = null
   aad_group_postgres_admin = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
   is_metabase_env = false
 }
@@ -41,4 +42,13 @@ module "database" {
   rsa_key_2048 = local.rsa_key_2048
   aad_group_postgres_admin = local.aad_group_postgres_admin
   is_metabase_env = local.is_metabase_env
+}
+
+module "storage" {
+  source = "../../modules/storage"
+  environment = local.environment
+  resource_group = local.resource_group
+  resource_prefix = local.resource_prefix
+  location = local.location
+  rsa_key_4096 = local.rsa_key_4096
 }

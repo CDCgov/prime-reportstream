@@ -2,22 +2,6 @@ locals {
   location = "eastus"
 }
 
-module "storage" {
-  source = "../storage"
-  environment = var.environment
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-  name = "${var.resource_prefix}storageaccount"
-  location = local.location
-  public_subnet_id = module.network.public_subnet_id
-  container_subnet_id = module.network.container_subnet_id
-  endpoint_subnet_id = module.network.endpoint_subnet_id
-  eventhub_namespace_name = module.event_hub.eventhub_namespace_name
-  eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
-  key_vault_id = module.key_vault.application_key_vault_id
-  rsa_key_4096 = var.rsa_key_4096
-}
-
 module "function_app" {
   source = "../function_app"
   environment = var.environment
@@ -90,13 +74,4 @@ module "application_insights" {
   resource_prefix = var.resource_prefix
   location = local.location
   key_vault_id = module.key_vault.application_key_vault_id
-}
-
-module "event_hub" {
-  source = "../event_hub"
-  environment = var.environment
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-  location = local.location
-  endpoint_subnet_id = module.network.endpoint_subnet_id
 }
