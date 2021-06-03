@@ -102,6 +102,10 @@ tasks.jar {
     }
 }
 
+tasks.shadowJar {
+    isZip64 = true
+}
+
 // Just a nicer name to create the fat jar
 tasks.register("fatJar") {
     group = rootProject.description ?: ""

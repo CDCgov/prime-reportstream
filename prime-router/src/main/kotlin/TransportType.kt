@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(RedoxTransportType::class, name = "REDOX"),
     JsonSubTypes.Type(BlobStoreTransportType::class, name = "BLOBSTORE"),
     JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
+    JsonSubTypes.Type(AS2TransportType::class, name = "AS2")
 )
 abstract class TransportType(val type: String)
 
