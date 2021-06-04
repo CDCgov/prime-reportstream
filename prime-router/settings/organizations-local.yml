@@ -1268,6 +1268,18 @@
           type: CUSTOM
           schemaName: empty
           format: CSV
+      - name: QUALITY_REVERSED
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS)" ]
+        # This filter is identical to QUALITY_PASS
+        qualityFilter: [ "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)", "hasAtLeastOneOf(message_id,blankField)" ]
+        # But this flag says to filter by "not(qualityFilter)"
+        reverseTheQualityFilter: true
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
       - name: QUALITY_ALL
         organizationName: ignore
         topic: covid-19
