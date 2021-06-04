@@ -18,6 +18,30 @@ ID name of org that is sending this data to ReportStream.  Suitable for chain of
 
 ---
 
+**Name**: processingModeCode
+
+**Type**: CODE
+
+**PII**: No
+
+**HL7 Field**: MSH-11-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+D|Debugging
+P|Production
+T|Training
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
+
+---
+
 **Name**: testOrdered
 
 **Type**: TABLE

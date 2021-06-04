@@ -142,7 +142,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     fun buildEmptyReport(receiver: Receiver, from: Report): Report {
         val toSchema = metadata.findSchema(receiver.schemaName)
             ?: error("${receiver.schemaName} schema is missing from catalog")
-        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")))
+        return Report(toSchema, emptyList(), listOf(ReportSource(from.id, "mapping")), metadata = metadata)
     }
 
     /**

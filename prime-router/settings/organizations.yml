@@ -14,7 +14,7 @@
       - name: hl7test
         organizationName: simple_report
         topic: covid-19
-        schemaName: covid-19
+        schemaName: hl7/hl7-ingest-covid-19
         format: HL7
 
   - name: safehealth
