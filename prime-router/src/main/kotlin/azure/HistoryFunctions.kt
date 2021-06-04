@@ -460,7 +460,14 @@ open class BaseHistoryFunction {
      */
     fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         var userName = ""
-        var orgName = ""
+        // orgs in the settings table of the database have a format of "zz-phd",
+        // while the auth service claims has a format of "DHzz_phd"
+        // claimsOrgName will have the format of "DHzz_phd"
+        val claimsOrgName = request.headers["organization"] ?: ""
+
+        // orgName will have the format of "zz-phd" and is used to look up in the settings table of the database
+        var orgName = if (claimsOrgName.isNotEmpty()) claimsOrgName.substring(2).replace("_", "-") else ""
+
         var jwtToken = request.headers["authorization"] ?: ""
 
         jwtToken = if( jwtToken.length > 7 ) jwtToken.substring(7) else "";
@@ -468,11 +475,25 @@ open class BaseHistoryFunction {
         if (jwtToken.isNotBlank()) {
             try {
                 val jwtClaims = JSONObject(String(Base64.getDecoder().decode(jwtToken.split('.')[1])))
-                userName = jwtClaims.getString("sub")
+
                 val orgs = jwtClaims.getJSONArray("organization")
-                @Suppress( "UNCHECKED_CAST")
-                var org = if (orgs !== null) orgs.getString(0) else ""
-                orgName = if (org.length > 3) org.substring(2) else ""
+                userName = jwtClaims.getString("sub")
+
+                // if the "organization" header was not sent, orgName will be empty
+                // get the first orgName from the jwtClaims org array
+                if (orgName.isEmpty()) {
+                    @Suppress( "UNCHECKED_CAST")
+                    val org = if (orgs !== null) orgs.getString(0) else ""
+                    orgName = if (org.length > 3) org.substring(2) else ""
+                } else {
+                    // check if the claims organization sent in the header
+                    // is part of the user's claims from auth service
+                    if (!orgs.contains(claimsOrgName)) {
+                        // if not, they are not authorized to proceed
+                        return null;
+                    }
+                }
+
             } catch (ex: Throwable) {
                 System.out.println(ex)
             }
