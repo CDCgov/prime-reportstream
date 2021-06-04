@@ -80,8 +80,9 @@ data class Schema(
     }
 
     fun findElementByCsvName(name: String): Element? {
-        elements?.forEach{ e -> e.csvFields?.forEach { if (name.equals(it.name, true)) return e } }
-        return null
+        return elements.firstOrNull { e ->
+            e.csvFields?.map { c -> c.name.lowercase() }?.contains(name.lowercase()) ?: false
+        }
     }
 
     fun containsElement(name: String): Boolean {

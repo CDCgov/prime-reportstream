@@ -122,7 +122,7 @@ class LookupTable(
      * Get the set of distinct values in a column in the table.
      */
     fun getDistinctValuesInColumn(selectColumn: String): Set<String> {
-        val selectColumnNumber = headerIndex[selectColumn.toLowerCase()] ?: return emptySet()
+        val selectColumnNumber = headerIndex[selectColumn.lowercase()] ?: return emptySet()
         return table.drop(1)
             .map { row -> row[selectColumnNumber] }
             .toSet()
