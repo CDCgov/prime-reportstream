@@ -27,6 +27,7 @@ import java.util.logging.Level
 import fuzzycsv.FuzzyCSVTable
 import java.io.StringReader
 import fuzzycsv.FuzzyStaticApi.count
+import org.json.JSONArray
  
 class Facility private constructor(
     val organization: String?,
@@ -466,7 +467,7 @@ open class BaseHistoryFunction {
         val claimsOrgName = request.headers["organization"] ?: ""
 
         // orgName will have the format of "zz-phd" and is used to look up in the settings table of the database
-        var orgName = if (claimsOrgName.isNotEmpty()) claimsOrgName.substring(2).replace("_", "-") else ""
+        var orgName = getOrgNameFromHeader(claimsOrgName)
 
         var jwtToken = request.headers["authorization"] ?: ""
 
@@ -482,16 +483,13 @@ open class BaseHistoryFunction {
                 // if the "organization" header was not sent, orgName will be empty
                 // get the first orgName from the jwtClaims org array
                 if (orgName.isEmpty()) {
-                    @Suppress( "UNCHECKED_CAST")
-                    val org = if (orgs !== null) orgs.getString(0) else ""
-                    orgName = if (org.length > 3) org.substring(2) else ""
-                } else {
+                    orgName = getOrgNameFromJwt(orgs)
+                } else if (!orgs.contains(claimsOrgName)) {
                     // check if the claims organization sent in the header
                     // is part of the user's claims from auth service
-                    if (!orgs.contains(claimsOrgName)) {
-                        // if not, they are not authorized to proceed
-                        return null;
-                    }
+
+                    // if not, they are not authorized to proceed
+                    return null;
                 }
 
             } catch (ex: Throwable) {
@@ -507,5 +505,15 @@ open class BaseHistoryFunction {
             }
         }
         return null
+    }
+
+    private fun getOrgNameFromHeader(orgNameHeader: String): String {
+        return if (orgNameHeader.isNotEmpty()) orgNameHeader.substring(2).replace("_", "-") else ""
+    }
+
+    private fun getOrgNameFromJwt(orgs: JSONArray?): String {
+        @Suppress( "UNCHECKED_CAST")
+        val org = if (orgs !== null) orgs.getString(0) else ""
+        return if (org.length > 3) org.substring(2) else ""
     }
 }
