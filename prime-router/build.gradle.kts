@@ -79,6 +79,44 @@ tasks.test {
     }
 }
 
+// Add the testIntegration tests
+sourceSets.create("testIntegration") {
+    java.srcDir("src/testIntegration/kotlin")
+    compileClasspath += sourceSets["main"].output
+    runtimeClasspath += sourceSets["main"].output
+}
+
+val compileTestIntegrationKotlin: KotlinCompile by tasks
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+
+val testIntegrationImplementation: Configuration by configurations.getting {
+    extendsFrom(configurations["testImplementation"])
+}
+
+configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
+
+tasks.register<Test>("testIntegration") {
+    useJUnitPlatform()
+    dependsOn("compile")
+    dependsOn("compileTestIntegrationKotlin")
+    dependsOn("compileTestIntegrationJava")
+    shouldRunAfter("test")
+    testClassesDirs = sourceSets["testIntegration"].output.classesDirs
+    classpath = sourceSets["testIntegration"].runtimeClasspath
+    // Run the test task if specified configuration files are changed
+    inputs.files(
+        fileTree("./") {
+            include("settings/**/*.yml")
+            include("metadata/**/*")
+            include("src/testIntergation/resources/**/*")
+        }
+    )
+}
+
+tasks.check {
+    dependsOn("testIntegration")
+}
+
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 }
@@ -146,6 +184,7 @@ tasks.register<JavaExec>("generateDocs") {
 
 tasks.azureFunctionsPackage {
     dependsOn("test")
+    dependsOn("testIntegration")
 }
 
 val azureResourcesTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-resources/$azureAppName")
@@ -250,7 +289,6 @@ tasks.register("compile") {
 tasks.register("migrate") {
     group = rootProject.description ?: ""
     description = "Load the database with the latest schema"
-    dependsOn("flywayMigrate")
 }
 
 tasks.register("package") {

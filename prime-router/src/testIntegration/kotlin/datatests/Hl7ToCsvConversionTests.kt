@@ -35,12 +35,12 @@ import kotlin.test.fail
 // This keeps this test class from running in parallel with other test classes and letting the time zone change
 // affect other tests
 @NotThreadSafe
-class ObservationMessageTests {
+class Hl7ToCsvConversionTests {
 
     /**
      * The folder from the classpath that contains the test files
      */
-    private val testFileDir = "/test_data_files/Hl7_ORU-R01"
+    private val testFileDir = "/datatests/HL7_to_CSV"
 
     /**
      * The original timezone of the JVM
