@@ -210,11 +210,11 @@ function getBaseUrl() {
 }
 
 
-async function changeOrg( event ){
+function changeOrg( event ){
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
-    await processOrgName();
-    await processReports();
+    processOrgName();
+    processReports();
 }
 /**
  *
