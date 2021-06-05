@@ -1,0 +1,29 @@
+# This is needed because I moved the schemas.  Need to run this in staging asap after the deployment.
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0022-direct.yml --env staging
+---
+- name: "cue"
+  description: "Cue"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  senders:
+  - name: "default"
+    organizationName: "cue"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "direct/cue-covid-19"
+  receivers: []
+
+- name: "safehealth"
+  description: "SAFE - Safe Health Systems"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  senders:
+  - name: "default"
+    organizationName: "safehealth"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "waters/safehealth-covid-19"
+  receivers: []
+
