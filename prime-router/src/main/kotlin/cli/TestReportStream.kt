@@ -1046,8 +1046,8 @@ class QualityFilter : CoolTest() {
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting $name Test")
         // ALLOW ALL
-        ugly("Test the allowAll QualityFilter")
-        val fakeItemCount = options.items
+        ugly("\nTest the allowAll QualityFilter")
+        val fakeItemCount = 5
         val file = FileUtilities.createFakeFile(
             metadata,
             emptySender,
@@ -1064,13 +1064,13 @@ class QualityFilter : CoolTest() {
         var passed = checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, json)
 
         // QUALITY_PASS
-        ugly("Test a QualityFilter that allows all data through")
+        ugly("\nTest a QualityFilter that allows some data through")
         val file2 = FileUtilities.createFakeFile(
             metadata,
             emptySender,
             fakeItemCount,
             receivingStates,
-            qualityGoodReceiver.name,
+            qualityGoodReceiver.name + ",removed",   // 3 kept, 2 removed
             options.dir,
         )
         echo("Created datafile $file2")
@@ -1078,10 +1078,10 @@ class QualityFilter : CoolTest() {
         val (responseCode2, json2) =
             HttpUtilities.postReportFile(environment, file2, org.name, emptySender.name, options.key)
         echo("Response to POST: $responseCode2")
-        passed = passed and checkJsonItemCountForReceiver(qualityGoodReceiver, fakeItemCount, json2)
+        passed = passed and checkJsonItemCountForReceiver(qualityGoodReceiver, 3, json2)
 
         // FAIL
-        ugly("Test a QualityFilter that allows NO data through.")
+        ugly("\nTest a QualityFilter that allows NO data through.")
         val file3 = FileUtilities.createFakeFile(
             metadata,
             emptySender,
@@ -1098,13 +1098,13 @@ class QualityFilter : CoolTest() {
         passed = passed and checkJsonItemCountForReceiver(qualityFailReceiver, 0, json3)
 
         // QUALITY_REVERSED
-        ugly("Test the REVERSE of the QualityFilter that allows all data through")
+        ugly("\nTest the REVERSE of the QualityFilter that allows some data through")
         val file4 = FileUtilities.createFakeFile(
             metadata,
             emptySender,
             fakeItemCount,
             receivingStates,
-            qualityReversedReceiver.name,
+            qualityReversedReceiver.name + ",kept",  // 3 removed, 2 kept
             options.dir,
         )
         echo("Created datafile $file4")
@@ -1112,7 +1112,7 @@ class QualityFilter : CoolTest() {
         val (responseCode4, json4) =
             HttpUtilities.postReportFile(environment, file4, org.name, emptySender.name, options.key)
         echo("Response to POST: $responseCode4")
-        passed = passed and checkJsonItemCountForReceiver(qualityReversedReceiver, 0, json4)
+        passed = passed and checkJsonItemCountForReceiver(qualityReversedReceiver, 2, json4)
 
         return passed
     }

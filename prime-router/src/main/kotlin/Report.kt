@@ -345,7 +345,7 @@ class Report {
             filteredTable,
             fromThisReport("filter: $filterFunctions")
         )
-        filteredReport.itemLineages = createItemLineages(combinedSelection, this, filteredReport)
+        filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
         return filteredReport
     }
 
