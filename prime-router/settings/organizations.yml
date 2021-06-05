@@ -37,6 +37,26 @@
         schemaName: direct/cue-covid-19
         format: CSV
 
+  - name: inbios
+    description: InBios International, Inc.
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: inbios
+        topic: covid-19
+        schemaName: direct/inbios-covid-19
+        format: CSV
+
+  - name: imagemover
+    description: ImageMover
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: imagemover
+        topic: covid-19
+        schemaName: direct/imagemover-covid-19
+        format: CSV
+
   - name: waters
     description: Test Sender from Waters
     jurisdiction: FEDERAL

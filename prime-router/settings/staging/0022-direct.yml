@@ -1,4 +1,5 @@
-# This is needed because I moved the schemas.  Need to run this in staging asap after the deployment.
+# The first two are schema location changes.  The next two are new senders.
+# Need to run this in staging asap after the deployment.
 # Run this:  ./prime multiple-settings set --input ./settings/staging/0022-direct.yml --env staging
 ---
 - name: "cue"
@@ -27,3 +28,22 @@
     schemaName: "waters/safehealth-covid-19"
   receivers: []
 
+- name: inbios
+  description: InBios International, Inc.
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: inbios
+      topic: covid-19
+      schemaName: direct/inbios-covid-19
+      format: CSV
+
+- name: imagemover
+  description: ImageMover
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: imagemover
+      topic: covid-19
+      schemaName: direct/imagemover-covid-19
+      format: CSV
