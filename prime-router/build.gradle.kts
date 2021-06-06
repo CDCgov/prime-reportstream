@@ -103,6 +103,7 @@ tasks.jar {
 }
 
 tasks.shadowJar {
+    // our fat jar is getting fat! Or over 65K files in this case
     isZip64 = true
 }
 
