@@ -939,6 +939,33 @@ elements:
     hl7AOEQuestion: 95419-8
     documentation: Is the patient symptomatic?
 
+  - name: test_authorized_for_otc
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_otc
+    reference: Is the test authorized for over-the-counter purchase by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+
+  - name: test_authorized_for_home
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_home
+    reference: Is the test authorized for home use by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+
+  - name: test_authorized_for_unproctored
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_self
+    reference: Is the test authorized for unproctored adminsistration by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+
   - name: test_kit_name_id
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
