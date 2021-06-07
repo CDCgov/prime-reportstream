@@ -1811,3 +1811,27 @@ Custom.  Not currently used. ReportStream assumes area code is in orderingProvid
 Custom.  ReportStream uses the 'pregnant' code, not this text value.
 
 ---
+
+**Name**: processingModeCode
+
+**Type**: CODE
+
+**PII**: No
+
+**HL7 Field**: MSH-11-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+D|Debugging
+P|Production
+T|Training
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
+
+---

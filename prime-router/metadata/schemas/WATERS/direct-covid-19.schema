@@ -13,6 +13,9 @@ elements:
     documentation:  ID name of org that is sending this data to ReportStream.  Suitable for chain of custody tracking.  Not to be confused with sending_application, which in which ReportStream is the 'sender'
     csvFields: [{ name: senderId}]
 
+  - name: processing_mode_code
+    csvFields: [{name: processingModeCode}]
+
   - name: ordered_test_code
     documentation: eg, 94531-1
     csvFields: [{ name: testOrdered}]

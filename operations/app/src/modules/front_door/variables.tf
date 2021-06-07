@@ -37,3 +37,8 @@ variable "storage_web_endpoint" {
   type = string
   description = "Where the static site is located"
 }
+
+variable "is_metabase_env" {
+  type = bool
+  description = "Should Metabase be deployed in this environment"
+}

@@ -1,0 +1,16 @@
+# Run this:   ./prime receiver set --input ./settings/staging/0021-quality.yml --env staging
+---
+name: "QUALITY_REVERSED"
+organizationName: "ignore"
+topic: "covid-19"
+jurisdictionalFilter:
+- "matches(ordering_facility_state, IG)"
+- "matches(ordering_facility_county, QUALITY_REVERSED)"
+qualityFilter:
+- "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)"
+- "hasAtLeastOneOf(message_id,blankField)"
+reverseTheQualityFilter: true
+translation:
+  type: CUSTOM
+  schemaName: empty
+  format: CSV
