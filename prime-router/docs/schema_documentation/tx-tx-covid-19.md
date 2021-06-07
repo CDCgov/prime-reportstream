@@ -3028,6 +3028,10 @@ aggregator
 
 **Table Column**: is_otc
 
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
 ---
 
 **Name**: test_authorized_for_home
@@ -3046,6 +3050,10 @@ aggregator
 
 **Table Column**: is_home
 
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
 ---
 
 **Name**: test_authorized_for_unproctored
@@ -3063,6 +3071,10 @@ aggregator
 **Table**: LIVD-Supplemental-2021-06-07
 
 **Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
 

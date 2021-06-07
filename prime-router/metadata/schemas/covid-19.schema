@@ -947,6 +947,7 @@ elements:
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
     mapper: livdLookup()
     default: N
+    documentation: Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 
   - name: test_authorized_for_home
     type: TABLE
@@ -956,6 +957,7 @@ elements:
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
     mapper: livdLookup()
     default: N
+    documentation: Is the test authorized for home use by the FDA (Y, N, UNK)
 
   - name: test_authorized_for_unproctored
     type: TABLE
@@ -965,6 +967,7 @@ elements:
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
     mapper: livdLookup()
     default: N
+    documentation: Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
   - name: test_kit_name_id
     type: TABLE
