@@ -24,7 +24,7 @@
       - name: default
         organizationName: safehealth
         topic: covid-19
-        schemaName: waters/safehealth-covid-19
+        schemaName: direct/safehealth-covid-19
         format: CSV
 
   - name: cue
@@ -34,7 +34,27 @@
       - name: default
         organizationName: cue
         topic: covid-19
-        schemaName: waters/cue-covid-19
+        schemaName: direct/cue-covid-19
+        format: CSV
+
+  - name: inbios
+    description: InBios International, Inc.
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: inbios
+        topic: covid-19
+        schemaName: direct/inbios-covid-19
+        format: CSV
+
+  - name: imagemover
+    description: ImageMover
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: imagemover
+        topic: covid-19
+        schemaName: direct/imagemover-covid-19
         format: CSV
 
   - name: waters

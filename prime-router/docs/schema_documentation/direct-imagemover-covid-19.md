@@ -1,6 +1,6 @@
 
-### Schema:         waters/safehealth-covid-19
-#### Description:   SafeHealth
+### Schema:         direct/imagemover-covid-19
+#### Description:   ImageMover
 
 ---
 
