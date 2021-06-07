@@ -36,6 +36,7 @@ paths:
               - SendImmediately # Send the reports immediately, skip batching and timing
               - SkipSend # Validate and route but do not send reports. Data is kept in the hub.
               - SkipInvalidItems # Send valid ones
+              - ShowReportRouting # Show the tracking ID and the organizations where the item was sent
           example: ValidatePayload
         - in: query
           name: default
@@ -466,11 +467,22 @@ components:
         reportItemCount:
           description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
           type: integer
+        orphanItemCount:
+          description: the number of reports that do not match to any recievers
+          type: integer
+        orphanItemsIds:
+          description: an array of the tracking IDs that did not match to any receivers
+          type: array
+          items:
+            type: string
         destinations:
           description: where the report is being sent to
           type: array
           items:
             type: string
+        destinationCount:
+          description: total destinations recieving the report(s)
+          type: integer
         errorCount:
           description: total errors found during initial validation.  There may be multiple errors per item.
           type: integer

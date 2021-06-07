@@ -42,6 +42,7 @@ class ReportFunction {
         SkipSend,
         SkipInvalidItems,
         SendImmediately,
+        ShowReportRouting,
     }
 
     data class ValidatedRequest(
@@ -52,6 +53,11 @@ class ReportFunction {
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
         val report: Report? = null,
+    )
+
+    data class ReportRouting(
+        val trackingId: String = "",
+        val destinations: List<String> = emptyList(),
     )
 
     /**
@@ -329,6 +335,8 @@ class ReportFunction {
     ): String {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
+        val reportRouting = createReportRouting(result, actionHistory)
+        val orphans: List<String> = reportRouting.filter { rr -> rr.destinations.isEmpty() }.map { o -> o.trackingId}
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
@@ -337,9 +345,26 @@ class ReportFunction {
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 it.writeStringField("topic", result.report.schema.topic.toString())
                 it.writeNumberField("reportItemCount", result.report.itemCount)
+                it.writeNumberField("orphanItemCount", orphans.size)
+                it.writeArrayFieldStart("orphanItemsIds")
+                orphans.forEach { o -> it.writeString(o) }
+                it.writeEndArray()
             } else
                 it.writeNullField("id")
             actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings)
+            // show item routing by tracking id if options was sent
+            if (result.options == Options.ShowReportRouting) {
+                it.writeArrayFieldStart("reportRouting")
+                reportRouting.forEach { rr ->
+                    it.writeStartObject()
+                    it.writeStringField("trackingId", rr.trackingId)
+                    it.writeArrayFieldStart("destinations")
+                    rr.destinations.forEach{ d -> it.writeString(d) }
+                    it.writeEndArray()
+                    it.writeEndObject()
+                }
+                it.writeEndArray()
+            }
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)
@@ -360,5 +385,36 @@ class ReportFunction {
             it.writeEndObject()
         }
         return outStream.toString()
+    }
+
+    /*
+     * Creates a list of ReportRouting instances with the trackingElement and
+     * list of receiver organizations. This is used to show where eache item
+     * was sent and warn of items that went no where.
+     */
+    private fun createReportRouting(
+        validatedRequest: ValidatedRequest,
+        actionHistory: ActionHistory? = null,
+    ): List<ReportRouting> {
+        val reportRouting = mutableListOf<ReportRouting>()
+        validatedRequest.report?. let { report ->
+            // the report has all the submitted items
+            report.itemIndices.forEach {
+                val trackingId = report.getString(it, report.schema.trackingElement ?: "") ?: "row$it"
+                val destinations = mutableListOf<String?>()
+                // find all outgoing reports related to the trackingId
+                // and generate a list of the receiving organizations
+                actionHistory?. let { ah ->
+                    ah.itemLineages.filter { il ->
+                        il.trackingId.equals(trackingId)
+                    }.forEach { t ->
+                        destinations.add(ah.reportsOut[t.childReportId]?.receivingOrg)
+                    }
+                }
+                // filter out any nulls that could have been added
+                reportRouting.add(ReportRouting(trackingId, destinations.filterNotNull()))
+            }
+        }
+        return reportRouting
     }
 }
