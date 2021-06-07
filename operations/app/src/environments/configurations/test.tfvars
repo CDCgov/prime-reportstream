@@ -1,0 +1,2 @@
+environment = "test"
+location    = "eastus"

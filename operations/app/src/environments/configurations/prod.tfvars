@@ -1,0 +1,2 @@
+environment = "prod"
+location    = "eastus"
