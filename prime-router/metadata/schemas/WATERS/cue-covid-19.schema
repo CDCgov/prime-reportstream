@@ -10,4 +10,7 @@ elements:
   - name: sender_id
     default: CueHlth
 
+  - name: processing_mode_code
+    default: T
+
 

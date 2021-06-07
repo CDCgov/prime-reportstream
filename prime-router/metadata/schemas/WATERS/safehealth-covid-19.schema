@@ -11,4 +11,5 @@ elements:
   - name: sender_id
     default: SafeHealth
 
-
+  - name: processing_mode_code
+    default: T
