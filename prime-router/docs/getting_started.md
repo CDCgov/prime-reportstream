@@ -25,6 +25,9 @@
     + [Initialize the Vault](#initialize-the-vault)
     + [Re-initialize the Vault](#re-initialize-the-vault)
     + [Using the Vault locally](#using-the-vault-locally)
+  * [Troubleshooting](#troubleshooting)
+    + [prime test Utility](#prime-test-utility)
+      - [Missing env var](#missing-env-var) 
 
 
 ## Developer Workstation Setup
@@ -167,7 +170,7 @@ Some useful tools for Kotlin/Java development include:
 - [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
 - [JetBrains IntelliJ](https://www.jetbrains.com/idea/download/#section=mac)
 
-If you are using IntelliJ, you can configure it to follow standard Kotlin conventions by
+If you are using IntelliJ, you can install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions by
 ```
 cd prime_router
 brew install ktlint
@@ -329,3 +332,42 @@ Alternatively, inject them in your terminal with (useful for using the CLI):
 ```bash
 export $(cat ./.vault/env/.env.local | xargs)
 ```
+
+
+## TroubleShooting
+
+### prime test Utility
+
+The prime-router comes packaged with a executable that can help in finding misconfigurations and other problems with the appliciation.
+
+Use the following command to launch the tool. 
+
+```shell
+cd prime-router
+./prime test
+```
+
+This should be used while the prime-router application is running on your system.
+
+
+
+#### Missing env var
+
+The gradle script is supposed to install a few environment variables that will be used by the prime test utility, however this is currently prone to failure. If a run of `prime test` mentions that any are missing try manually adding them: 
+
+```shell
+POSTGRES_PASSWORD='changeIT!'
+POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+POSTGRES_USER=prime
+```
+
+If on *nix system you can also append these directly on the command to launch `prime test`. For example: 
+
+```shell
+POSTGRES_PASSWORD='changeIT!' \
+POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub \
+POSTGRES_USER=prime \
+./prime-router/prime test
+```
+
+Running the test command with the correct environment variables should "repair" a running prime-router process in progress. This fix should even persist through subsequent runs.  

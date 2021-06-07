@@ -103,7 +103,7 @@ class CsvSerializer(val metadata: Metadata) {
         }
 
         if (rows.isEmpty()) {
-            return ReadResult(Report(schema, emptyList(), sources, destination), errors, warnings)
+            return ReadResult(Report(schema, emptyList(), sources, destination, metadata = metadata), errors, warnings)
         }
 
         val csvMapping = buildMappingForReading(schema, defaultValues, rows[0])
@@ -143,7 +143,7 @@ class CsvSerializer(val metadata: Metadata) {
             )
             return ReadResult(null, errors, warnings)
         }
-        return ReadResult(Report(schema, mappedRows, sources, destination), errors, warnings)
+        return ReadResult(Report(schema, mappedRows, sources, destination, metadata = metadata), errors, warnings)
     }
 
     fun readInternal(
@@ -155,7 +155,7 @@ class CsvSerializer(val metadata: Metadata) {
     ): Report {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
         val rows: List<List<String>> = csvReader().readAll(input).drop(1)
-        return Report(schema, rows, sources, destination, id = blobReportId)
+        return Report(schema, rows, sources, destination, id = blobReportId, metadata = metadata)
     }
 
     fun write(report: Report, output: OutputStream) {
@@ -286,6 +286,7 @@ class CsvSerializer(val metadata: Metadata) {
                     when (element.cardinality) {
                         Element.Cardinality.ONE -> errors += error
                         Element.Cardinality.ZERO_OR_ONE -> warnings += error
+                        else -> warnings += "$error - setting value to ''"
                     }
                     return failureValue
                 }

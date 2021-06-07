@@ -452,7 +452,7 @@ data class Element(
                         }
                         else ->
                             if (valueSetRef.toNormalizedCode(formattedValue) != null) null else
-                                "Invalid Code: '$formattedValue' does not match any codes for $fieldMapping"
+                                "Invalid code: '$formattedValue' does not match any codes for $fieldMapping"
                     }
                 }
             }
@@ -574,7 +574,7 @@ data class Element(
                             ?: error("Invalid code: '$formattedValue' is not a display value for element $fieldMapping")
                     else ->
                         valueSetRef?.toNormalizedCode(formattedValue)
-                            ?: error("Invalid Code: '$formattedValue' does not match any codes for $fieldMapping")
+                            ?: error("Invalid code: '$formattedValue' does not match any codes for $fieldMapping")
                 }
             }
             Type.TELEPHONE -> {

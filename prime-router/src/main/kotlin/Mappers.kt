@@ -1,10 +1,12 @@
 package gov.cdc.prime.router
 
+import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
+import javax.xml.bind.DatatypeConverter
 
 /**
  * A *Mapper* is defined as a property of a schema element. It is used to create
@@ -602,6 +604,51 @@ class ZipCodeToCountyMapper : Mapper {
             zipCode
         }
         return table.lookupValue(indexColumn = "zipcode", indexValue = cleanedZip, "county")
+    }
+}
+
+/**
+ * Create a SHA-256 digest hash of the concatenation of values
+ * Example:   hash(patient_last_name,patient_first_name)
+ */
+class HashMapper : Mapper {
+    override val name = "hash"
+
+    override fun valueNames(element: Element, args: List<String>) = args
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        if (args.isEmpty()) error("Must pass at least one element name to $name")
+        if (values.isEmpty()) return null
+        val concatenation = values.joinToString("") { it.value }
+        if (concatenation.isEmpty()) return null
+        return digest(concatenation.toByteArray()).lowercase()
+    }
+
+    companion object {
+        fun digest(input: ByteArray): String {
+            val digest = MessageDigest.getInstance("SHA-256").digest(input)
+            return DatatypeConverter.printHexBinary(digest)
+        }
+    }
+
+}
+
+/**
+ * This mapper performs no operation and is meant to override mappers set on parent schemas, so no mapper runs.
+ * Arguments: None
+ * Returns: null
+ */
+class NullMapper : Mapper {
+    override val name = "none"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.isNotEmpty())
+            error("Schema Error: none mapper does not expect args")
+        return emptyList()
+    }
+
+    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        return null
     }
 }
 

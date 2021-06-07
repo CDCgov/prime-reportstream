@@ -1,0 +1,121 @@
+# Run this:   ./prime multiple-settings set --input ./settings/staging/0020-hhsprotect.yml --env staging
+# And direct is not needed as a sender any more:  ./prime organization remove --help --env staging --name direct
+---
+- name: "hhsprotect"
+  description: "HHSProtect"
+  jurisdiction: "FEDERAL"
+  receivers:
+  - name: "elr"
+    organizationName: "hhsprotect"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "hhsprotect/hhsprotect-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*)" ]
+    qualityFilter:
+    - "allowAll()"
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: "HHSProtect in staging filters by the 'sender_id' field, with no quality filter"
+    transport: !<BLOBSTORE>
+      storageName: "PartnerStorage"
+      containerName: "hhsprotect"
+      type: "BLOBSTORE"
+
+- name: safehealth
+  description: SAFE - Safe Health Systems
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: safehealth
+      topic: covid-19
+      schemaName: waters/safehealth-covid-19
+      format: CSV
+
+- name: cue
+  description: Cue
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: cue
+      topic: covid-19
+      schemaName: waters/cue-covid-19
+      format: CSV
+
+- name: "waters"
+  description: "Waters Testing Only - sends and receives Waters data only"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  senders:
+  - name: "default"
+    organizationName: "waters"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "waters/waters-covid-19"
+  receivers:
+  - name: "joe"
+    organizationName: "waters"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "waters/waters-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "hasAtLeastOneOf(waters_submitter, sender_id)"
+    - "orEquals(patient_state, JM, ordering_facility_state, JM)"
+    qualityFilter:
+    - "allowAll()"
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "3.217.175.115"
+      port: "22"
+      filePath: "./public/joe"
+      type: "SFTP"
+  - name: "giang"
+    organizationName: "waters"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "waters/waters-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "hasAtLeastOneOf(waters_submitter, sender_id)"
+    - "orEquals(patient_state, GH, ordering_facility_state, GH)"
+    qualityFilter:
+    - "allowAll()"
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<SFTP>
+      host: "3.217.175.115"
+      port: "22"
+      filePath: "./public/giang"
+      type: "SFTP"

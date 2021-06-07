@@ -1,0 +1,1 @@
+../common/.terraform.lock.hcl
