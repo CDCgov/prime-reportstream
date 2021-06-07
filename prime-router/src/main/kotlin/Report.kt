@@ -760,10 +760,10 @@ class Report {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
             val fileName = when (translationConfig) {
-                null -> "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
+                null -> "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 else -> metadata.fileNameTemplates[nameFormat.lowercase()].run {
                     this?.getFileName(translationConfig)
-                        ?: "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
+                        ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
             }
             return "$fileName.$nameSuffix"
