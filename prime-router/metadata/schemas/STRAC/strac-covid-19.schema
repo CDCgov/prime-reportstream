@@ -212,3 +212,8 @@ elements:
   # reporting facility and testing lab operate under the same CLIA with STRAC
   - name: testing_lab_clia
     mapper: use(reporting_facility_clia)
+
+  # these fields are calculated, but not outputted, for filtering purposes
+  - name: test_authorized_for_otc
+  - name: test_authorized_for_home
+  - name: test_authorized_for_unproctored

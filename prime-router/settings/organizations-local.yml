@@ -1275,9 +1275,10 @@
       - name: OTC
         organizationName: ignore
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC, kept)" ]
-        qualityFilter:
-          - matches(test_authorization_for_otc, Y)
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, IG)
+          - matches(ordering_facility_county, OTC, kept)
+          - matches(test_authorized_for_otc, Y)
         translation:
           type: CUSTOM
           schemaName: empty
