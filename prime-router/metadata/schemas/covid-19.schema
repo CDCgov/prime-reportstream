@@ -960,8 +960,8 @@ elements:
   - name: test_authorized_for_unproctored
     type: TABLE
     table: LIVD-Supplemental-2021-06-07
-    tableColumn: is_self
-    reference: Is the test authorized for unproctored adminsistration by the FDA
+    tableColumn: is_unproctored
+    reference: Is the test authorized for unproctored administration by the FDA
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
     mapper: livdLookup()
     default: N

@@ -1143,6 +1143,7 @@
         organizationName: ignore
         topic: covid-19
         jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
+        qualityFilter: [ "matches(test_authorization_for_otc, N)" ]
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -1267,6 +1268,16 @@
           - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
           - hasAtLeastOneOf(message_id,blankField)
           - matches(ordering_facility_county, QUALITY_PASS)
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
+      - name: OTC
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC, kept)" ]
+        qualityFilter:
+          - matches(test_authorization_for_otc, Y)
         translation:
           type: CUSTOM
           schemaName: empty
