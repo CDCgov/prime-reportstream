@@ -229,9 +229,11 @@ class LIVDLookupMapper : Mapper {
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        // get the test performed code
+        // get the test performed code for additional filtering of the test information in case we are
+        // dealing with tests that check for more than one type of disease, for example COVID + influenza
         val testPerformedCode = values.firstOrNull { it.element.name == TEST_PERFORMED_CODE }?.value
         val filters: MutableMap<String, String> = mutableMapOf()
+        // if the test performed code exists, we should add it to our filtering
         if (!testPerformedCode.isNullOrEmpty()) {
             filters[LIVD_TEST_PERFORMED_CODE] = testPerformedCode
         }
@@ -262,6 +264,13 @@ class LIVDLookupMapper : Mapper {
         const val TEST_KIT_NAME_ID = "test_kit_name_id"
         const val TEST_PERFORMED_CODE = "test_performed_code"
 
+        /**
+         * Does a lookup in the LIVD table based on the element Id
+         * @param element the schema element to use for lookups
+         * @param deviceId the ID of the test device to lookup LIVD information by
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
         private fun lookupByDeviceId(
             element: Element,
             deviceId: String,
@@ -301,6 +310,13 @@ class LIVDLookupMapper : Mapper {
                 ?: lookup(element, deviceId, LIVD_EQUIPMENT_UID, filters)
         }
 
+        /**
+         * Does a lookup in the LIVD table based on the element unique identifier
+         * @param element the schema element to use for lookups
+         * @param value the unique ID of the test device to lookup LIVD information by
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
         private fun lookupByEquipmentUid(
             element: Element,
             value: String,
@@ -310,6 +326,13 @@ class LIVDLookupMapper : Mapper {
             return lookup(element, value, LIVD_EQUIPMENT_UID, filters)
         }
 
+        /**
+         * Does a lookup in the LIVD table based on the test kit Id
+         * @param element the schema element to use for lookups
+         * @param value the test kit ID of the test device to lookup LIVD information by
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
         private fun lookupByTestkitId(
             element: Element,
             value: String,
@@ -319,6 +342,13 @@ class LIVDLookupMapper : Mapper {
             return lookup(element, value, LIVD_TESTKIT_NAME_ID, filters)
         }
 
+        /**
+         * Does a lookup in the LIVD table based on the equipment model name
+         * @param element the schema element to use for lookups
+         * @param value the model name of the test device to lookup LIVD information by
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
         private fun lookupByEquipmentModelName(
             element: Element,
             value: String,
@@ -328,6 +358,14 @@ class LIVDLookupMapper : Mapper {
             return lookup(element, value, LIVD_MODEL, filters)
         }
 
+        /**
+         * Does the lookup in the LIVD table based on the lookup type and the values passed in
+         * @param element the schema element to use for lookups
+         * @param onColumn the name of the index column to do the lookup in
+         * @param lookup the value to search the index column for
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
         private fun lookup(
             element: Element,
             lookup: String,
@@ -341,6 +379,15 @@ class LIVDLookupMapper : Mapper {
             return lookupTable.lookupValue(onColumn, lookup, lookupColumn, filters)
         }
 
+        /**
+         * Does the lookup in the LIVD table based on the lookup type and the values passed in,
+         * by seeing if any values in the index column starts with the index value
+         * @param element the schema element to use for lookups
+         * @param onColumn the name of the index column to do the lookup in
+         * @param lookup the value to search the index column for
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
         private fun lookupPrefix(
             element: Element,
             lookup: String,
@@ -467,8 +514,7 @@ class TimestampMapper : Mapper {
         return try {
             val formatter = DateTimeFormatter.ofPattern(tsFormat)
             formatter.format(ts)
-        }
-        catch (_: Exception) {
+        } catch (_: Exception) {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             formatter.format(ts)
         }
@@ -665,7 +711,6 @@ class HashMapper : Mapper {
             return DatatypeConverter.printHexBinary(digest)
         }
     }
-
 }
 
 /**
