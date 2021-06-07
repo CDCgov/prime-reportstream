@@ -324,7 +324,7 @@ dependencies {
     implementation("commons-io:commons-io:2.9.0")
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.flywaydb:flyway-core:7.9.1")
+    implementation("org.flywaydb:flyway-core:7.9.2")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.17.2")
     implementation("com.google.guava:guava:30.1.1-jre")
