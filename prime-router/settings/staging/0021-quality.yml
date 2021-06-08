@@ -1,0 +1,34 @@
+# Run this:   ./prime multiple-settings set --input ./settings/staging/0021-quality.yml --env staging
+---
+- name: "ignore"
+  description: "FOR TESTING ONLY"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  receivers:
+  - name: QUALITY_PASS
+    organizationName: ignore
+    topic: covid-19
+    jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
+    qualityFilter: 
+      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+      - hasAtLeastOneOf(message_id,blankField)
+      - matches(ordering_facility_county, QUALITY_PASS)
+    translation:
+      type: CUSTOM
+      schemaName: empty
+      format: CSV
+  - name: QUALITY_REVERSED
+    organizationName: ignore
+    topic: covid-19
+    jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
+    qualityFilter: 
+      - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+      - hasAtLeastOneOf(message_id,blankField)
+      - matches(ordering_facility_county, QUALITY_REVERSED)
+    # Get 'not(qualityFilter)'
+    reverseTheQualityFilter: true
+    translation:
+      type: CUSTOM
+      schemaName: empty
+      format: CSV

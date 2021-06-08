@@ -1,6 +1,6 @@
 
-### Schema:         waters/direct-covid-19
-#### Description:   Direct Submission to ReportStream COVID-19 flat file
+### Schema:         direct/imagemover-covid-19
+#### Description:   ImageMover
 
 ---
 
@@ -15,6 +15,30 @@
 **Documentation**:
 
 ID name of org that is sending this data to ReportStream.  Suitable for chain of custody tracking.  Not to be confused with sending_application, which in which ReportStream is the 'sender'
+
+---
+
+**Name**: processingModeCode
+
+**Type**: CODE
+
+**PII**: No
+
+**HL7 Field**: MSH-11-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+D|Debugging
+P|Production
+T|Training
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
 
 ---
 

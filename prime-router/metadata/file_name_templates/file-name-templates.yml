@@ -4,9 +4,9 @@
   elements:
     - schemaBaseName()
     - "-"
-    - createdDate()
-    - "-"
     - uuid()
+    - "-"
+    - createdDate()
 
 
 - name: ohio
