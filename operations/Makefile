@@ -21,7 +21,7 @@ build-tf: ## Build the Terraform docker container
 	@docker-compose build
 
 tf-cli: build-tf ## Drops into a Docker container configured with the Terraform CLI and Azure
-	docker-compose run -e TF_ENV=$(TF_ENV) -w /app/src/environments/$(TF_ENV_MODULE) tf-cli
+	docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_ENV_MODULE) tf-cli
 
 tf-01-network: ## Preconfigures Terraform network environment module
 	${MAKE} tf-cli TF_ENV_MODULE="01-network"
