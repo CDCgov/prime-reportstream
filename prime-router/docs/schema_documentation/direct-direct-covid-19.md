@@ -1,6 +1,6 @@
 
-### Schema:         waters/safehealth-covid-19
-#### Description:   SafeHealth
+### Schema:         direct/direct-covid-19
+#### Description:   Direct Submission to ReportStream COVID-19 flat file
 
 ---
 

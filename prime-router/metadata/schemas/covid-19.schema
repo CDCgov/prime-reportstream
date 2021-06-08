@@ -776,7 +776,7 @@ elements:
 
   - name: processing_mode_code
     type: CODE
-    default: D
+    default: P
     cardinality: ZERO_OR_ONE
     valueSet: hl70103
     hl7Field: MSH-11-1

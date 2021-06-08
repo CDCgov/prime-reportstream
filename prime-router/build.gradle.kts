@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.10"
-    id("org.flywaydb.flyway") version "7.9.1"
+    id("org.flywaydb.flyway") version "7.9.2"
     id("nu.studer.jooq") version "5.2.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
@@ -288,7 +288,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.2.5") {
+    implementation("com.azure:azure-identity:1.3.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -306,7 +306,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.23")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.24")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -324,7 +324,7 @@ dependencies {
     implementation("commons-io:commons-io:2.9.0")
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.flywaydb:flyway-core:7.9.1")
+    implementation("org.flywaydb:flyway-core:7.9.2")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.17.2")
     implementation("com.google.guava:guava:30.1.1-jre")
