@@ -2,7 +2,6 @@ package gov.cdc.prime.router.serializers.datatests
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
@@ -162,6 +161,11 @@ class CsvtoHl7ConversionTests : ConversionTest {
             assertThat(actual.hasNext()).isTrue()
             assertThat(expected.hasNext()).isTrue()
 
+            val errorMsgs = arrayListOf<String>()
+            val warningMsgs = arrayListOf<String>()
+
+            var recordNum = 1
+
             // Loop through the messages.  In the case of a batch message there will be multiple messages
             while (actual.hasNext()) {
                 val actualMsg = actual.next()
@@ -190,40 +194,68 @@ class CsvtoHl7ConversionTests : ConversionTest {
                         for (fieldIndex in 1..actualSegment.numFields()) {
                             val actualField = actualSegment.getField(fieldIndex)
                             val expectedField = expectedSegment.getField(fieldIndex)
-                            assertThat(actualField.size).isEqualTo(expectedField.size)
-                            compareField(actualSegment, actualSegmentName, fieldIndex, actualField, expectedField)
+                            compareField(
+                                recordNum, actualSegment, actualSegmentName, fieldIndex, actualField,
+                                expectedField, errorMsgs, warningMsgs
+                            )
                         }
                     } catch (e: HL7Exception) {
                         fail(e.message)
                     }
                 }
+                assertTrue(
+                    errorMsgs.size == 0,
+                    "There were ${errorMsgs.size} incorrect data value(s) detected with ${warningMsgs.size} " +
+                        "warning(s)\n" + errorMsgs.joinToString("\n") + "\n" +
+                        warningMsgs.joinToString("\n")
+                )
+
+                // Print the warning messages if any
+                if (errorMsgs.size == 0 && warningMsgs.size > 0) println(warningMsgs.joinToString("\n"))
+                recordNum++
             }
         }
 
         private fun compareField(
-            actualSegment: Segment,
-            actualSegmentName: String,
+            recordNum: Int,
+            segment: Segment,
+            segmentName: String,
             fieldIndex: Int,
             actualField: Array<Type>,
-            expectedField: Array<Type>
+            expectedField: Array<Type>,
+            errorMsgs: ArrayList<String>,
+            warningMsgs: ArrayList<String>
         ) {
-            if (actualField.isNotEmpty()) {
+            val maxNumComponents = if (actualField.size > expectedField.size) actualField.size else expectedField.size
+            if (maxNumComponents > 0) {
+                val fieldSpec = "$segmentName-$fieldIndex"
+                val fieldName = segment.names[fieldIndex - 1]
 
                 // Loop through all the components in a field and compare their values.
-                for (componentIndex in actualField.indices) {
+                for (componentIndex in 0 until maxNumComponents) {
                     // Compare all values except the date/time of message (MSH-7).  For MSH-7 just check
                     // there is a value.
-                    if ("${actualSegmentName}-$fieldIndex" != "MSH-7") {
-                        assertThat(
-                            actualField[componentIndex].toString(),
-                            "$actualSegmentName-$fieldIndex|${actualSegment.names[fieldIndex - 1]}"
+                    val expectedValue = if (componentIndex < expectedField.size)
+                        expectedField[componentIndex].toString().trim() else ""
+                    val actualValue = if (componentIndex < actualField.size)
+                        actualField[componentIndex].toString().trim() else ""
+                    if (fieldSpec != "MSH-7") {
+                        if (expectedValue.isNotBlank() && expectedValue != actualValue) {
+                            errorMsgs.add(
+                                "    DATA ERROR: Data value does not match in report $recordNum for " +
+                                    "$fieldSpec|$fieldName. Expected: '$expectedValue', " +
+                                    "Actual: '$actualValue'"
+                            )
+                        } else if (expectedValue.isBlank() && actualValue.isNotBlank()) {
+                            warningMsgs.add(
+                                "    DATA WARNING: Actual data has value in report $recordNum for " +
+                                    "$fieldSpec|$fieldName. Actual: '$actualValue'"
+                            )
+                        }
+                    } else if (actualField[componentIndex].isEmpty) {
+                        errorMsgs.add(
+                            "    DATA ERROR: No date/time of message for record $recordNum in field $fieldSpec"
                         )
-                            .isEqualTo(expectedField[componentIndex].toString())
-                    } else {
-                        assertThat(
-                            actualField[componentIndex].isEmpty,
-                            "${actualSegmentName}-$fieldIndex|${actualSegment.names[fieldIndex - 1]}"
-                        ).isFalse()
                     }
                 }
             }
