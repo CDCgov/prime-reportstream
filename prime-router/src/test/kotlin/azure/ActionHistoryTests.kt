@@ -302,7 +302,7 @@ class ActionHistoryTests {
         // Expecting this json:
         // {"destinations":[
         //   {"organization":"foo bar","organization_id":"org0",
-        //    "service":"service0","sending_at":"immediately","itemCount":17},
+        //    "service":"service0","sending_at":"never","itemCount":17},
         //   {"organization":"blah blah","organization_id":"org1","service":"service1",
         //    "sending_at":"2021-02-13T17:30:33.847022-05:00","itemCount":1}],
         //   "destinationCount":2}
@@ -317,7 +317,7 @@ class ActionHistoryTests {
         assertEquals(2, arr.size())
 
         assertEquals("foo bar", arr[0]["organization"].textValue())
-        assertEquals("immediately", arr[0]["sending_at"].textValue())
+        assertEquals("never", arr[0]["sending_at"].textValue())
         assertEquals(17, arr[0]["itemCount"].intValue())
 
         assertEquals("org1", arr[1]["organization_id"].textValue())

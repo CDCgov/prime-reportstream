@@ -519,7 +519,7 @@ class ActionHistory {
         jsonGen.writeStringField("service", orgReceiver.name)
         jsonGen.writeStringField(
             "sending_at",
-            if (sendingAt == null) "immediately" else "$sendingAt"
+            if (sendingAt == null) "never" else "$sendingAt"
         )
         jsonGen.writeNumberField("itemCount", countToPrint)
         jsonGen.writeEndObject()
