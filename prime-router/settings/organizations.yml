@@ -1028,17 +1028,7 @@
           type: CUSTOM
           schemaName: empty
           format: CSV
-      - name: OTC
-        organizationName: ignore
-        topic: covid-19
-        jurisdictionalFilter:
-          - matches(ordering_facility_state, IG)
-          - matches(ordering_facility_county, OTC, kept)
-          - matches(test_authorized_for_unproctored, Y)
-        translation:
-          type: CUSTOM
-          schemaName: primedatainput/pdi-covid-19
-          format: CSV
+
 
 # all the rest
 
