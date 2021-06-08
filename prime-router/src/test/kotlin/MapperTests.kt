@@ -151,6 +151,46 @@ class MapperTests {
     }
 
     @Test
+    fun `test livdLookup supplemental table by device_id`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-Supplemental-2021-06-07.csv")
+        val codeElement = Element(
+            "test_authorized_for_otc",
+            tableRef = lookupTable,
+            tableColumn = "is_otc"
+        )
+        val deviceElement = Element("device_id")
+        val mapper = LIVDLookupMapper()
+
+        // Test with an FDA device id
+        val ev1 = ElementAndValue(deviceElement, "10811877011337")
+        assertEquals("N", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+
+        // Test with a truncated device ID
+        val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home#")
+        assertEquals("Y", mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+    }
+
+    @Test
+    fun `test livdLookup supplemental table by model`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-Supplemental-2021-06-07.csv")
+        val codeElement = Element(
+            "test_authorized_for_otc",
+            tableRef = lookupTable,
+            tableColumn = "is_otc"
+        )
+        val deviceElement = Element("equipment_model_name")
+        val mapper = LIVDLookupMapper()
+
+        // Test with an FDA device id
+        val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test")
+        assertEquals("N", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+
+        // Test with another
+        val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
+        assertEquals("Y", mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+    }
+
+    @Test
     fun `test ifPresent`() {
         val element = Element("a")
         val mapper = IfPresentMapper()
