@@ -1,4 +1,4 @@
-package datatests
+package gov.cdc.prime.router.serializers.datatests
 
 import org.apache.commons.io.filefilter.SuffixFileFilter
 import java.io.File

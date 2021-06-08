@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.serializers.datatests
+package gov.cdc.prime.router.serializers.datatests.datatests
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -12,11 +12,11 @@ import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.PipeParser
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
-import datatests.ConversionTest
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import gov.cdc.prime.router.serializers.datatests.ConversionTest
 import org.apache.commons.io.FilenameUtils
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
@@ -30,14 +30,14 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
- * Runs data comparison tests for HL7 ORU R01 messages based on files in the test folder.
- * This test takes each HL7 file and compares its data to the internal.csv companion file in the
+ * Runs data comparison tests for HL7 messages based on files in the test folder.
+ * This test takes each CSV file and compares its data to the HL7 companion file in the
  * same test folder.  For example:  for a file named CareEvolution-20200415-0001.hl7 the data will
  * be compared to the file CareEvolution-20200415-0001.internal.csv.  Internal CSV files can have an
  * optional header row and follow the internal schema used by the the ReportStream router.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CsvtoHl7ConversionTests : ConversionTest {
+class CsvToHl7ConversionTests : ConversionTest {
 
     /**
      * The folder from the classpath that contains the test files
@@ -45,6 +45,8 @@ class CsvtoHl7ConversionTests : ConversionTest {
     private val testFileDir = "/datatests/CSV_to_HL7"
 
     private val inputFileSuffix = ".csv"
+
+    private val dyanmicHl7Values = arrayOf("MSH-7", "SFT-6")
 
     /**
      * Generate individual unit tests for each test file in the test folder.
@@ -65,7 +67,7 @@ class CsvtoHl7ConversionTests : ConversionTest {
      * Limitations: Date times in the HL7 data without a specified time zone are bound by the JVM default timezone and hence
      * will generate an error against the GMT0 expected result.  GMT is the timezone of the build and deployment environments.
      */
-    class FileTest(private val csvAbsolutePath: String) : Executable {
+    inner class FileTest(private val csvAbsolutePath: String) : Executable {
         /**
          * The schema to use.
          */
@@ -126,8 +128,8 @@ class CsvtoHl7ConversionTests : ConversionTest {
          */
         private fun readActualResult(): Hl7InputStreamMessageIterator {
             val result = csvSerializer.readExternal(schemaName, File(csvAbsolutePath).inputStream(), TestSource)
-            assertNotNull(result)
-            assertNotNull(result.report)
+            assertNotNull(result, "Actual result")
+            assertNotNull(result.report, "Actual result report")
             val hl7Stream = ByteArrayOutputStream()
             hl7Serializer.writeBatch(result.report!!, hl7Stream)
             return Hl7InputStreamMessageIterator(ByteArrayInputStream(hl7Stream.toByteArray()), hapiContext)
@@ -158,8 +160,8 @@ class CsvtoHl7ConversionTests : ConversionTest {
         private fun compareToExpected(actual: Hl7InputStreamMessageIterator, expected: Hl7InputStreamMessageIterator) {
             assertThat(actual).isNotNull()
             assertThat(expected).isNotNull()
-            assertThat(actual.hasNext()).isTrue()
-            assertThat(expected.hasNext()).isTrue()
+            assertThat(actual.hasNext(), "Actual has messages").isTrue()
+            assertThat(expected.hasNext(), "Expected has messages ").isTrue()
 
             val errorMsgs = arrayListOf<String>()
             val warningMsgs = arrayListOf<String>()
@@ -173,22 +175,21 @@ class CsvtoHl7ConversionTests : ConversionTest {
                 val actualTerser = Terser(actualMsg)
                 val expectedTerser = Terser(expectedMsg)
 
-                // Loop through the segments of the message.  Note that HAPI's list of segments may have more
-                // than the message itself, but those extra ones have no data.
-                var foundMshCount = 0
                 while (true) {
                     try {
                         val actualSegmentName = actualTerser.finder.iterate(true, true)
                         val expectedSegmentName = expectedTerser.finder.iterate(true, true)
 
+                        assertThat(actualSegmentName, "Actual segment name").isEqualTo(expectedSegmentName)
+
                         // The finder iteration does not give a clear indication when it is done with the entire
                         // message vs an error when it is set to not loop, but with loop we get an empty segment name.
                         if (actualSegmentName.isNullOrBlank() || expectedSegmentName.isNullOrBlank()) break
 
-                        assertThat(actualSegmentName).isEqualTo(expectedSegmentName)
                         val actualSegment = actualTerser.getSegment(actualSegmentName)
                         val expectedSegment = expectedTerser.getSegment(expectedSegmentName)
-                        assertThat(actualSegment.numFields()).isEqualTo(expectedSegment.numFields())
+                        assertThat(actualSegment.numFields(), "Actual number of fields in segment")
+                            .isEqualTo(expectedSegment.numFields())
 
                         // Loop through all the fields in the segment.
                         for (fieldIndex in 1..actualSegment.numFields()) {
@@ -239,7 +240,9 @@ class CsvtoHl7ConversionTests : ConversionTest {
                         expectedField[componentIndex].toString().trim() else ""
                     val actualValue = if (componentIndex < actualField.size)
                         actualField[componentIndex].toString().trim() else ""
-                    if (fieldSpec != "MSH-7") {
+
+                    // If this is not a dynamic value then check it against the expected value
+                    if (!dyanmicHl7Values.contains(fieldSpec)) {
                         if (expectedValue.isNotBlank() && expectedValue != actualValue) {
                             errorMsgs.add(
                                 "    DATA ERROR: Data value does not match in report $recordNum for " +
@@ -252,7 +255,9 @@ class CsvtoHl7ConversionTests : ConversionTest {
                                     "$fieldSpec|$fieldName. Actual: '$actualValue'"
                             )
                         }
-                    } else if (actualField[componentIndex].isEmpty) {
+                    }
+                    // For dynamic values we expect them to be have something
+                    else if (actualField[componentIndex].isEmpty) {
                         errorMsgs.add(
                             "    DATA ERROR: No date/time of message for record $recordNum in field $fieldSpec"
                         )

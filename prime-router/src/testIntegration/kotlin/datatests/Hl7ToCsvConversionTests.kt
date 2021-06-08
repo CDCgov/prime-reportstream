@@ -4,7 +4,6 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.PipeParser
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import datatests.ConversionTest
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.TestSource
