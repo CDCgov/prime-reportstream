@@ -1,8 +1,8 @@
 SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 
-TF_ENV = "dev"
-TF_STAGE = ""
+TF_ENV = "dev" #VAR Your target environment (e.g. dev, test, staging, prod)
+TF_STAGE = ""  # not surfaced
 
 # HELP
 # This will output the help for each task
@@ -10,7 +10,15 @@ TF_STAGE = ""
 .PHONY: help all tf-cli tf-01-network tf-02-config tf-03-persistent tf-04-app
 
 help: ## This help
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo "Invoke any of the following targets"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sed "s/^/    - /g" | sort
+	@echo ""
+	@echo "When invoking, you can specify the following variables on invocation"
+	@awk 'BEGIN {FS = " = .*?#VAR "} /^[a-zA-Z0-9_-]+ = .*?#VAR / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sed "s/^/    - /g" | sort
+	@echo ""
+	@echo "Example: "
+	@echo "    make TF_ENV=\"test\" all"
+	@echo ""
 
 .DEFAULT_GOAL := help
 
