@@ -100,4 +100,3 @@ prime-router/.vault/env/**
 
 # Gradle files
 **/.gradle/**
-prime-router/.sdkmanrc
