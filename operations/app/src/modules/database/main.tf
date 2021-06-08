@@ -43,6 +43,10 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   lifecycle {
     prevent_destroy = true
+
+    ignore_changes = [
+      storage_mb # Supports auto-grow
+    ]
   }
 
   tags = {
@@ -82,6 +86,10 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 
   lifecycle {
     prevent_destroy = true
+
+    ignore_changes = [
+      storage_mb # Supports auto-grow
+    ]
   }
 
   tags = {
@@ -173,7 +181,7 @@ resource "azurerm_postgresql_database" "prime_data_hub_db" {
 }
 
 resource "azurerm_postgresql_database" "metabase_db" {
-  count = (var.environment == "test" || var.environment == "prod" ? 1 : 0)
+  count = var.is_metabase_env ? 1 : 0
   name = "metabase"
   resource_group_name = var.resource_group
   server_name = azurerm_postgresql_server.postgres_server.name

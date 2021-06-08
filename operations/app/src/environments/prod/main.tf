@@ -33,4 +33,5 @@ module "prime_data_hub" {
   https_cert_names = ["prime-cdc-gov", "reportstream-cdc-gov"]
   rsa_key_2048 = "pdhprod-2048-key"
   rsa_key_4096 = "pdhprod-4096-key"
+  is_metabase_env = true
 }
