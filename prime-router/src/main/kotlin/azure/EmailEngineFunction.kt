@@ -6,8 +6,10 @@ import com.microsoft.azure.functions.annotation.TimerTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.WorkflowEngine
 
 import java.util.Date;
+import java.time.ZoneOffset;
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -25,7 +27,12 @@ import com.sendgrid.helpers.mail.objects.*;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 
+import gov.cdc.prime.router.azure.db.enums.SettingType;
+import org.jooq.Configuration
+
 import java.io.IOException;
+
+import khttp.get as httpGet
 
 data class EmailSchedule ( 
     val template: String,
@@ -37,29 +44,31 @@ data class EmailSchedule (
  
 class EmailScheduleEngine  {
 
+    val workflowEngine = WorkflowEngine()
+
     @FunctionName("emailScheduleEngine")
     @StorageAccount("AzureWebJobsStorage")
+    @Suppress( "UNUSED_PARAMETER" )
     fun run(
         @TimerTrigger( name = "emailScheduleEngine", schedule = "*/5 * * * *") timerInfo : String,
         context: ExecutionContext
     ){
         // get the schedules to fire
         val schedulesToFire : List<EmailSchedule> = getSchedules().filter{ shouldFire( it ) };
-        schedulesToFire.forEach {
-            val schedule: EmailSchedule = it;
+        schedulesToFire.forEach { schedule -> 
             val last: Date = getLastTimeFired( schedule );
             val orgs: List<String> = getOrgs( schedule );
 
             System.out.println( "processing ${schedule.template}" )
 
             // get the orgs to fire for
-            orgs.forEach{
-                val org: String = it;
-                val emails: List<String> = getEmails(org);
-                val reportsSinceLast: List<ReportFile> = getReportsSinceLast(org,last);
+            orgs.forEach{ org ->
+                    val emails: List<String> = getEmails(org);
+                    @Suppress( "UNRESOLVED_REFERENCE")
+                    val reportsSinceLast: List<ReportFile> = getReportsSinceLast(org,last);
 
-                System.out.println( "processing ${org}")
-                dispatchToSendGrid( schedule.template, emails, reportsSinceLast );
+                    System.out.println( "processing ${org}")
+                    dispatchToSendGrid( schedule.template, emails, reportsSinceLast );
             }
         }
     }
@@ -74,14 +83,17 @@ class EmailScheduleEngine  {
         val now = ZonedDateTime.now();
         val executionTime = ExecutionTime.forCron(parser.parse(schedule.cronSchedule));
         val timeFromLastExecution = executionTime.timeFromLastExecution(now);
-        if( timeFromLastExecution.get().toSeconds() <= 5*60) 
-            System.out.println( "Firing ${schedule.template}")
+        if( timeFromLastExecution.get().toSeconds() <= 4*60) 
+            System.out.println( "Firing ${schedule.template}; timeFromLastExecution= ${timeFromLastExecution}")
 
-        return ( timeFromLastExecution.get().toSeconds() <= 5*60);
+        return ( timeFromLastExecution.get().toSeconds() <= 4*60);
     }
 
     /**
      * Reports the last time that the timer has been fired for this schedule
+     * 
+     * @param schedule the schedule to check the last time fired against
+     * @returns Date of the last time fired
      */
     private fun getLastTimeFired( schedule: EmailSchedule ): Date {
         val parser = CronParser( CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX) );
@@ -92,6 +104,12 @@ class EmailScheduleEngine  {
         return Date.from(executionTime.lastExecution(now).get().toInstant());
     }
 
+    /**
+     * Retreives the organization to send the emailschedule to
+     * 
+     * @param schedule the schedule to check organizations against
+     * @returns List of organizations for the schedule
+     */
     private fun getOrgs( schedule: EmailSchedule ): List<String> {
         return (
             if (schedule.organizations !== null && schedule.organizations.size > 0) 
@@ -104,57 +122,77 @@ class EmailScheduleEngine  {
     /**
      * TODO: Fixme!
      */
-    private fun fetchAllOrgs(): List<String>{
-        return listOf( "pima-az-phd")
+    private fun fetchAllOrgs(): List<String>{    
+        @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )    
+        var ret = workflowEngine.db.transactReturning {  tx -> 
+            @Suppress( "UNRESOLVED_REFERENCE")
+            val settings = workflowEngine.db.fetchSettings( SettingType.ORGANIZATION, tx )
+            @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )
+            settings.map{ it.getName() }
+        }
+       
+        @Suppress("OVERLOAD_RESOLUTION_AMBIGUITY")
+        System.out.println( ret );
+        return listOf( "pima-az-phd" ); //ret;
     }
 
     /**
      * TODO: Fixme!
      */
     private fun getSchedules(): List<EmailSchedule>{
-        return listOf( EmailSchedule( "daily-template", "marketing", "32 18 * * *") )
+        return listOf( EmailSchedule( "d-415aa983fe064c02989bc7465d0c9ed8", "marketing", "25 19 * * *") )
     }
 
     /**
      * TODO: Fixme!
      */
+    @Suppress( "UNUSED_PARAMETER" )
     private fun getEmails( org: String ): List<String> {
+
+        @Suppress( "UNUSED_VARIABLE")
+        var reponse = httpGet( url="", 
+                               headers=mapOf(
+                                "header1" to "1"
+        ) );
         return listOf( "qtv1@cdc.gov" ); //,"qom6@cdc.gov","qop5@cdc.gov","qop4@cdc.gov","qva8@cdc.gov","rdz8@cdc.gov","qpu0@cdc.gov" )
     }
 
      /**
      * TODO: Fixme!
      */
+    @Suppress( "UNRESOLVED_REFERENCE")
     private fun getReportsSinceLast( org: String, last: Date ): List<ReportFile> {
 
-      //  val reportFiles = workflowEngine.fetchDownloadableReportFiles(
-      //      OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
-      //  )
+      val reportFiles = workflowEngine
+                        .fetchDownloadableReportFiles( 
+                                last.toInstant().atOffset(ZoneOffset.UTC), 
+                                org )
+
+        System.out.println( "Found ${reportFiles.size} reports since the last run ${last.toInstant().atOffset(ZoneOffset.UTC)}" );
         return ArrayList<ReportFile>();
     }
 
      /**
      * TODO: Fixme!
      */
+    @Suppress( "UNRESOLVED_REFERENCE")
     private fun dispatchToSendGrid( 
         template: String,
         emails: List<String>,
         reportsSinceLast: List<ReportFile>
     ){
         val from: Email = Email("reportstream@cdc.gov");
-        val subject = "ReportStream Daily Email - 31 MAY 2021";
+        val subject = "ReportStream Daily Email";
         val mail : Mail = Mail()
         val p:Personalization = Personalization();
-        emails.forEach{ p.addTo( Email(it) ) };
-        mail.setSubject( subject );
-        mail.addPersonalization( p );
-        mail.setFrom( from );
-        mail.addContent( content );
-        mail.type = "text/html";
-        mail.template = "d-415aa983fe064c02989bc7465d0c9ed8";
-        mail.parameters = {
+        emails.forEach{ to -> p.addTo( Email(to) ) };
+        p.setSubject(subject);
+        p.addDynamicTemplateData("reportsSinceLast", reportsSinceLast)
 
-        };
+        mail.addPersonalization( p );
+        mail.setSubject(subject);
+        mail.setFrom( from );
+        mail.setTemplateId( template )
 
         val sg:SendGrid = SendGrid("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");
         val request:Request = Request();
