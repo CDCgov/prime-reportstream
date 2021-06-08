@@ -1169,7 +1169,7 @@
           initialTime: 00:00
         translation:
           type: CUSTOM
-          schemaName: fl/fl-covid-19
+          schemaName: az/pima-az-covid-19
           format: CSV
         transport:
           type: SFTP
