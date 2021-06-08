@@ -6,6 +6,9 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.PipeParser
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
@@ -168,41 +171,61 @@ class CsvtoHl7ConversionTests : ConversionTest {
 
                 // Loop through the segments of the message.  Note that HAPI's list of segments may have more
                 // than the message itself, but those extra ones have no data.
-                do {
-                    val actualSegmentName = actualTerser.finder.iterate(true, false)
-                    val expectedSegmentName = expectedTerser.finder.iterate(true, false)
-                    assertThat(actualSegmentName).isEqualTo(expectedSegmentName)
-                    val actualSegment = actualTerser.getSegment(actualSegmentName)
-                    val expectedSegment = expectedTerser.getSegment(expectedSegmentName)
-                    assertThat(actualSegment.numFields()).isEqualTo(expectedSegment.numFields())
+                var foundMshCount = 0
+                while (true) {
+                    try {
+                        val actualSegmentName = actualTerser.finder.iterate(true, true)
+                        val expectedSegmentName = expectedTerser.finder.iterate(true, true)
 
-                    // Loop through all the fields in the segment.
-                    for (fieldIndex in 1..actualSegment.numFields()) {
-                        val actualField = actualSegment.getField(fieldIndex)
-                        val expectedField = expectedSegment.getField(fieldIndex)
-                        assertThat(actualField.size).isEqualTo(expectedField.size)
-                        if (actualField.isNotEmpty()) {
+                        // The finder iteration does not give a clear indication when it is done with the entire
+                        // message vs an error when it is set to not loop, but with loop we get an empty segment name.
+                        if (actualSegmentName.isNullOrBlank() || expectedSegmentName.isNullOrBlank()) break
 
-                            // Loop through all the components in a field and compare their values.
-                            for (componentIndex in actualField.indices) {
-                                // Compare all values except the date/time of message (MSH-7).  For MSH-7 just check
-                                // there is a value.
-                                if ("$actualSegmentName-$fieldIndex" != "MSH-7") {
-                                    assertThat(
-                                        actualField[componentIndex].toString(),
-                                        "$actualSegmentName-$fieldIndex|${actualSegment.names[fieldIndex - 1]}"
-                                    )
-                                        .isEqualTo(expectedField[componentIndex].toString())
-                                } else {
-                                    assertThat(
-                                        actualField[componentIndex].isEmpty,
-                                        "$actualSegmentName-$fieldIndex|${actualSegment.names[fieldIndex - 1]}"
-                                    ).isFalse()
-                                }
-                            }
+                        assertThat(actualSegmentName).isEqualTo(expectedSegmentName)
+                        val actualSegment = actualTerser.getSegment(actualSegmentName)
+                        val expectedSegment = expectedTerser.getSegment(expectedSegmentName)
+                        assertThat(actualSegment.numFields()).isEqualTo(expectedSegment.numFields())
+
+                        // Loop through all the fields in the segment.
+                        for (fieldIndex in 1..actualSegment.numFields()) {
+                            val actualField = actualSegment.getField(fieldIndex)
+                            val expectedField = expectedSegment.getField(fieldIndex)
+                            assertThat(actualField.size).isEqualTo(expectedField.size)
+                            compareField(actualSegment, actualSegmentName, fieldIndex, actualField, expectedField)
                         }
+                    } catch (e: HL7Exception) {
+                        fail(e.message)
                     }
-                } while (actualSegmentName.isNullOrBlank())
+                }
+            }
+        }
+
+        private fun compareField(
+            actualSegment: Segment,
+            actualSegmentName: String,
+            fieldIndex: Int,
+            actualField: Array<Type>,
+            expectedField: Array<Type>
+        ) {
+            if (actualField.isNotEmpty()) {
+
+                // Loop through all the components in a field and compare their values.
+                for (componentIndex in actualField.indices) {
+                    // Compare all values except the date/time of message (MSH-7).  For MSH-7 just check
+                    // there is a value.
+                    if ("${actualSegmentName}-$fieldIndex" != "MSH-7") {
+                        assertThat(
+                            actualField[componentIndex].toString(),
+                            "$actualSegmentName-$fieldIndex|${actualSegment.names[fieldIndex - 1]}"
+                        )
+                            .isEqualTo(expectedField[componentIndex].toString())
+                    } else {
+                        assertThat(
+                            actualField[componentIndex].isEmpty,
+                            "${actualSegmentName}-$fieldIndex|${actualSegment.names[fieldIndex - 1]}"
+                        ).isFalse()
+                    }
+                }
             }
         }
     }
