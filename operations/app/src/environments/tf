@@ -96,7 +96,7 @@ done
 az account set -s ${AZ_SUBSCRIPTION_ID:-7d1e3999-6577-4cd5-b296-f518e5c8e677}
 
 # If not set, we assume you're targetting 'dev'
-ENVIRONMENT="${TF_ENV:-dev}"
+ENVIRONMENT="${ENVIRONMENT:-dev}"
 
 # Set up the results masks
 EXPECTED_RESULTS=""
