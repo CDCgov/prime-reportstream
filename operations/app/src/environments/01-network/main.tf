@@ -1,8 +1,3 @@
-locals {
-  resource_group  = "prime-data-hub-${var.environment}"
-  resource_prefix = "pdh${var.environment}"
-}
-
 terraform {
   required_version = "= 0.14.5" # This version must also be changed in other environments
 
@@ -28,16 +23,16 @@ provider "azurerm" {
 module "network" {
   source          = "../../modules/network"
   environment     = var.environment
-  resource_group  = local.resource_group
-  resource_prefix = local.resource_prefix
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
   location        = var.location
 }
 
 module "nat_gateway" {
   source           = "../../modules/nat_gateway"
   environment      = var.environment
-  resource_group   = local.resource_group
-  resource_prefix  = local.resource_prefix
+  resource_group   = var.resource_group
+  resource_prefix  = var.resource_prefix
   location         = var.location
   public_subnet_id = module.network.public_subnet_id
 }

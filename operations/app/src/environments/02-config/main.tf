@@ -1,14 +1,12 @@
-locals {
-  resource_group  = "prime-data-hub-${var.environment}"
-  resource_prefix = "pdh${var.environment}"
-}
 terraform {
-  required_version = "= 0.14.5" # This version must also be changed in other environments
+  required_version = "= 0.14.5"
+  # This version must also be changed in other environments
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 2.61.0" # This version must also be changed in other environments
+      version = ">= 2.61.0"
+      # This version must also be changed in other environments
     }
   }
 
@@ -27,23 +25,23 @@ provider "azurerm" {
 module "app_service_plan" {
   source          = "../../modules/app_service_plan"
   environment     = var.environment
-  resource_group  = local.resource_group
-  resource_prefix = local.resource_prefix
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
   location        = var.location
 }
 
 module "key_vault" {
   source          = "../../modules/key_vault"
   environment     = var.environment
-  resource_group  = local.resource_group
-  resource_prefix = local.resource_prefix
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
   location        = var.location
 }
 
 module "container_registry" {
   source          = "../../modules/container_registry"
   environment     = var.environment
-  resource_group  = local.resource_group
-  resource_prefix = local.resource_prefix
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
   location        = var.location
 }

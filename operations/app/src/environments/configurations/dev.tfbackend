@@ -11,5 +11,5 @@
 
 container_name       = "terraformstate"
 key                  = "__STAGE__.tfstate"
-resource_group_name  = "prime-data-hub-dev"
-storage_account_name = "pdhdevterraform"
+resource_group_name  = "rheftterraform"
+storage_account_name = "rheftterraform"
