@@ -467,7 +467,7 @@ class DateTimeOffsetMapper : Mapper {
                 error("Invalid date: '$value' for element '${element.name}'")
             }
         }
-        return if (values.isEmpty() || values.size > 1) {
+        return if (values.isEmpty() || values.size > 1 || values[0].value.isNullOrBlank()) {
             null
         } else {
             val unit = args[1]

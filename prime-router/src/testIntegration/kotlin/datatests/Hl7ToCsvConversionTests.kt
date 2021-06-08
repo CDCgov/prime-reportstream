@@ -4,13 +4,13 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.PipeParser
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import datatests.ConversionTest
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import net.jcip.annotations.NotThreadSafe
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.io.filefilter.SuffixFileFilter
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DynamicTest
@@ -35,12 +35,14 @@ import kotlin.test.fail
 // This keeps this test class from running in parallel with other test classes and letting the time zone change
 // affect other tests
 @NotThreadSafe
-class Hl7ToCsvConversionTests {
+class Hl7ToCsvConversionTests : ConversionTest {
 
     /**
      * The folder from the classpath that contains the test files
      */
     private val testFileDir = "/datatests/HL7_to_CSV"
+
+    private val inputFileSuffix = ".hl7"
 
     /**
      * The original timezone of the JVM
@@ -69,32 +71,9 @@ class Hl7ToCsvConversionTests {
      */
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
-        return getTestFiles(testFileDir).map {
+        return getTestFiles(testFileDir, inputFileSuffix).map {
             DynamicTest.dynamicTest("Test ${FilenameUtils.getBaseName(it)}", FileTest(it))
         }
-    }
-
-    /**
-     * Gets a list of test files from the given [path].
-     * @return a list of absolute pathnames to the test files
-     */
-    private fun getTestFiles(path: String): List<String> {
-        val files = ArrayList<String>()
-        val fullDirPath = this.javaClass.getResource(path)?.path
-        if (!fullDirPath.isNullOrBlank()) {
-            val dir = File(fullDirPath)
-            if (dir.exists()) {
-                val filenames = dir.list(SuffixFileFilter(".hl7"))
-                filenames?.forEach { files.add("$fullDirPath/$it") }
-                if (files.isEmpty()) fail("There are no HL7 files present in $fullDirPath")
-            } else {
-                fail("Directory $path does not exist in the classpath.")
-            }
-            files.forEach { println(it) }
-        } else {
-            fail("Unable to obtain the path to the test files.")
-        }
-        return files
     }
 
     /**
@@ -142,7 +121,7 @@ class Hl7ToCsvConversionTests {
 
             println("Testing file $testFilename ...")
             if (File(expectedResultAbsolutePath).exists()) {
-                val report = getReport()
+                val report = readActualResult()
                 val expectedResult = readExpectedResult(expectedResultAbsolutePath)
                 compareToExpected(report, expectedResult)
                 assertTrue(true)
@@ -157,7 +136,7 @@ class Hl7ToCsvConversionTests {
          * Get the report for the HL7 file and check for errors.
          * @return the HL7 report
          */
-        private fun getReport(): Report {
+        private fun readActualResult(): Report {
             val result = serializer.readExternal(schemaName, File(hl7AbsolutePath).inputStream(), TestSource)
             val filename = FilenameUtils.getName(hl7AbsolutePath)
             assertNotNull(result)
