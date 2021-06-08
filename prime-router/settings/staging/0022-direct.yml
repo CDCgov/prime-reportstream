@@ -25,7 +25,7 @@
     organizationName: "safehealth"
     format: "CSV"
     topic: "covid-19"
-    schemaName: "waters/safehealth-covid-19"
+    schemaName: "direct/safehealth-covid-19"
   receivers: []
 
 - name: inbios
