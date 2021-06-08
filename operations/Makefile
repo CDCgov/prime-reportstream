@@ -2,7 +2,7 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 
 TF_ENV = "dev"
-TF_ENV_MODULE = ""
+TF_STAGE = ""
 
 # HELP
 # This will output the help for each task
@@ -21,19 +21,19 @@ build-tf: ## Build the Terraform docker container
 	@docker-compose build
 
 tf-cli: build-tf ## Drops into a Docker container configured with the Terraform CLI and Azure
-	docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_ENV_MODULE) tf-cli
+	docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) tf-cli
 
 tf-01-network: ## Preconfigures Terraform network environment module
-	${MAKE} tf-cli TF_ENV_MODULE="01-network"
+	${MAKE} tf-cli TF_STAGE="01-network"
 
 tf-02-config: ## Preconfigures Terraform config environment module
-	${MAKE} tf-cli TF_ENV_MODULE="02-config"
+	${MAKE} tf-cli TF_STAGE="02-config"
 
 tf-03-persistent: ## Preconfigures Terraform persistent environment module
-	${MAKE} tf-cli TF_ENV_MODULE="03-persistent"
+	${MAKE} tf-cli TF_STAGE="03-persistent"
 
 tf-04-app: ## Preconfigures Terraform app environment module
-	${MAKE} tf-cli TF_ENV_MODULE="04-app"
+	${MAKE} tf-cli TF_STAGE="04-app"
 
 # Not using build dependencies for this because we want to control order and concurrency
 all: build-tf ## Preconfigures all Terraform environments
