@@ -39,3 +39,13 @@ variable "is_metabase_env" {
   description = "If Metabase will be deployed in the environment"
   default     = true
 }
+
+variable "https_cert_names" {
+  type = list(string)
+  description = "List of SSL certs to associate with the Front Door"
+}
+
+variable "okta_redirect_url" {
+  type = string
+  description = "URL to redirect to after Okta login"
+}
