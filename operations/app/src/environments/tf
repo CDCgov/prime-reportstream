@@ -147,7 +147,7 @@ if [[ "${ACTUAL_RESULTS?}" == "${EXPECTED_RESULTS?}" ]]; then
         echo -e "${WHITE?}Executing terraform ${TFCMD?}${NORMAL?}..."
     fi
     case "${TFCMD?}" in
-    "graph" | "output")
+    graph|output|state*)
         # Graph & output are special in that they do not like arguments
         EXPECTED_RESULTS="${EXPECTED_RESULTS?}0"
         terraform ${TFCMD}
