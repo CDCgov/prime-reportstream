@@ -15,6 +15,7 @@ import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
+import java.util.Base64
 
 class CredentialsCli : CredentialManagement, CliktCommand(
     name = "create-credential",
@@ -52,7 +53,10 @@ class CredentialsCli : CredentialManagement, CliktCommand(
         val credential = when (val it = type) {
             is UserPassCredentialOptions -> UserPassCredential(it.user, it.pass)
             is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
-            is UserJksCredentialOptions -> UserJksCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
+            is UserJksCredentialOptions -> {
+                val jksEncoded = Base64.getEncoder().encodeToString(it.file.readBytes())
+                UserJksCredential(it.user, jksEncoded, it.filePass)
+            }
             else -> error("--type option is unknown")
         }
 

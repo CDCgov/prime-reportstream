@@ -2071,7 +2071,7 @@
           filePath: ./upload
 
   - name: wa-phd
-    description: Washington Public Health Department
+    description: Washington Department of Health
     jurisdiction: STATE
     stateCode: WA
     receivers:
@@ -2084,6 +2084,9 @@
           type: HL7
           useBatchHeaders: true
           nameFormat: "STANDARD"
+          reportingFacilityName: 7uycso49
+          reportingFacilityId: 1.3.6.1.4.1.38630.2.1.1.519
+          reportingFacilityIdType: ISO
           receivingApplicationName: WADOHPHRED
           receivingApplicationOID: 2.16.840.1.113883.3.237.4.2
           receivingFacilityName: dn1fro00
@@ -2095,7 +2098,7 @@
           timeZone: EASTERN
         transport:
           type: AS2
-          receiverUrl: http://localhost:8000/pyas2/as2receive
+          receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
           receiverId: p1as2
           senderId: CDCPRIMETEST
 

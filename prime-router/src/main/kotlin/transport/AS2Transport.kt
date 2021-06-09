@@ -20,6 +20,7 @@ import com.helger.as2lib.crypto.ECryptoAlgorithmSign
 import com.helger.security.keystore.EKeyStoreType
 
 import org.apache.logging.log4j.kotlin.Logging
+import java.util.Base64
 
 class AS2Transport : ITransport, Logging {
     override fun send(
@@ -68,7 +69,7 @@ class AS2Transport : ITransport, Logging {
 
     companion object {
         private const val PRIME_KEY_ALIAS = "cdcprime"
-        private const val RECEIVER_KEY_ALIAS = "as2ohp"
+        private const val RECEIVER_KEY_ALIAS = "p1"
         const val TIMEOUT = 10_000
 
         fun sendReport(
@@ -77,8 +78,9 @@ class AS2Transport : ITransport, Logging {
             externalFileName: String,
             contents: ByteArray
         ) {
+            val jks = Base64.getDecoder().decode(credential.key)
             val settings = AS2ClientSettings()
-                .setKeyStore(EKeyStoreType.PKCS12, credential.key.toByteArray(), credential.keyPass)
+                .setKeyStore(EKeyStoreType.PKCS12, jks, credential.keyPass)
                 .setSenderData (as2Info.senderId, as2Info.senderEmail, PRIME_KEY_ALIAS)
                 .setReceiverData(as2Info.receiverId, RECEIVER_KEY_ALIAS, as2Info.receiverUrl)
                 .setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
