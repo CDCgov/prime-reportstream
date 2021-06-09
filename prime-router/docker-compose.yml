@@ -39,7 +39,12 @@ services:
 
   # Azurite is the Azure storage emulator for local development
   azurite: 
-    image: mcr.microsoft.com/azure-storage/azurite
+    image: mcr.microsoft.com/azure-storage/azurite:3.12.0
+    # uncomment the line below to skip x-ms-version checks
+    # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
+    volumes:
+      # map to Azurite data objects to the build directory
+      - ./build/azurite:/data
     ports:  
       - 10000:10000 
       - 10001:10001

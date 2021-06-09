@@ -776,7 +776,7 @@ elements:
 
   - name: processing_mode_code
     type: CODE
-    default: D
+    default: P
     cardinality: ZERO_OR_ONE
     valueSet: hl70103
     hl7Field: MSH-11-1
@@ -938,6 +938,36 @@ elements:
     hl7Field: AOE
     hl7AOEQuestion: 95419-8
     documentation: Is the patient symptomatic?
+
+  - name: test_authorized_for_otc
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_otc
+    reference: Is the test authorized for over-the-counter purchase by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+    documentation: Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+  - name: test_authorized_for_home
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_home
+    reference: Is the test authorized for home use by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+    documentation: Is the test authorized for home use by the FDA (Y, N, UNK)
+
+  - name: test_authorized_for_unproctored
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_unproctored
+    reference: Is the test authorized for unproctored administration by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+    documentation: Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
   - name: test_kit_name_id
     type: TABLE

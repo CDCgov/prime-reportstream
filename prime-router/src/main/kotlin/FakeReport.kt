@@ -130,6 +130,10 @@ class FakeDataService {
                                 "to ${element.tableColumn}"
                         )
                 }
+                element.table?.startsWith("LIVD-Supplemental") == true -> {
+                    if (element.tableColumn == null) return ""
+                    element.default ?: ""
+                }
                 element.table == "fips-county" -> {
                     when {
                         element.nameContains("state") -> context.state
