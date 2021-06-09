@@ -467,12 +467,40 @@ class ActionHistory {
     )
 
     /**
+     * More generic signature for printing the destination json details using primitives
+     */
+    private fun prettyPrintDestinationJson(
+        jsonGen: JsonGenerator,
+        orgDescription: String,
+        orgId: String,
+        receiverName: String,
+        sendingAt: OffsetDateTime?,
+        countToPrint: Int
+    ) {
+        jsonGen.writeStartObject()
+        // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
+        jsonGen.writeStringField("organization", orgDescription)
+        jsonGen.writeStringField("organization_id", orgId)
+        jsonGen.writeStringField("service", receiverName)
+        jsonGen.writeStringField(
+            "sending_at",
+            if (sendingAt == null) "immediately" else "$sendingAt"
+        )
+        jsonGen.writeNumberField("itemCount", countToPrint)
+        jsonGen.writeEndObject()
+    }
+
+    /**
      * Generate nice json describing the destinations, suitable for returning to a Hub client.
      * Most of the ugliness here is the attempt to not print every 1-entry report, but combine and summarize them.
      *
      * This works by side-effect on jsonGen.
      */
-    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator, settings: SettingsProvider) {
+    fun prettyPrintDestinationsJson(
+        jsonGen: JsonGenerator,
+        settings: SettingsProvider,
+        noWhereItems: List<String> = emptyList(),
+    ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
         if (reportsOut.isNotEmpty()) {
@@ -501,10 +529,24 @@ class ActionHistory {
                 destinationCounter++
             }
         }
+        if (noWhereItems.isNotEmpty()) {
+            prettyPrintDestinationJson(
+                jsonGen,
+                "Data not routing to any state/local jurisdiction",
+                "nowhere-org",
+                "nowhere-receiver",
+                null,
+                noWhereItems.size
+            )
+            destinationCounter++
+        }
         jsonGen.writeEndArray()
         jsonGen.writeNumberField("destinationCount", destinationCounter)
     }
 
+    /**
+     * Generate json for destination details with given [Organization] and [Recievier] instances.
+     */
     fun prettyPrintDestinationJson(
         jsonGen: JsonGenerator,
         orgReceiver: Receiver,
@@ -512,17 +554,14 @@ class ActionHistory {
         sendingAt: OffsetDateTime?,
         countToPrint: Int
     ) {
-        jsonGen.writeStartObject()
-        // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
-        jsonGen.writeStringField("organization", organization.description)
-        jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
-        jsonGen.writeStringField("service", orgReceiver.name)
-        jsonGen.writeStringField(
-            "sending_at",
-            if (sendingAt == null) "immediately" else "$sendingAt"
+        prettyPrintDestinationJson(
+            jsonGen,
+            organization.description,
+            orgReceiver.organizationName,
+            orgReceiver.name,
+            sendingAt,
+            countToPrint
         )
-        jsonGen.writeNumberField("itemCount", countToPrint)
-        jsonGen.writeEndObject()
     }
 
     companion object {

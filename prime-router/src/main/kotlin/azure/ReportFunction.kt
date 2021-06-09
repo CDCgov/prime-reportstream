@@ -12,6 +12,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
@@ -42,7 +43,6 @@ class ReportFunction {
         SkipSend,
         SkipInvalidItems,
         SendImmediately,
-        ShowReportRouting,
     }
 
     data class ValidatedRequest(
@@ -55,9 +55,9 @@ class ReportFunction {
         val report: Report? = null,
     )
 
-    data class ReportRouting(
+    data class ItemJurisdictionRouting(
         val trackingId: String = "",
-        val destinations: List<String> = emptyList(),
+        val destinations: Map<Organization.Jurisdiction, List<String>> = emptyMap(),
     )
 
     /**
@@ -335,8 +335,7 @@ class ReportFunction {
     ): String {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
-        val reportRouting = createReportRouting(result, actionHistory)
-        val orphans: List<String> = reportRouting.filter { rr -> rr.destinations.isEmpty() }.map { o -> o.trackingId}
+        val itemRouting: List<ItemJurisdictionRouting> = createItemJurisdictionRouting(result, actionHistory)
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
@@ -345,27 +344,13 @@ class ReportFunction {
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
                 it.writeStringField("topic", result.report.schema.topic.toString())
                 it.writeNumberField("reportItemCount", result.report.itemCount)
-                it.writeNumberField("orphanItemCount", orphans.size)
-                it.writeArrayFieldStart("orphanItemsIds")
-                orphans.forEach { o -> it.writeString(o) }
-                it.writeEndArray()
             } else
                 it.writeNullField("id")
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings)
-            // show item routing by tracking id if options was sent
-            if (result.options == Options.ShowReportRouting) {
-                it.writeArrayFieldStart("reportRouting")
-                reportRouting.forEach { rr ->
-                    it.writeStartObject()
-                    it.writeStringField("trackingId", rr.trackingId)
-                    it.writeArrayFieldStart("destinations")
-                    rr.destinations.forEach{ d -> it.writeString(d) }
-                    it.writeEndArray()
-                    it.writeEndObject()
-                }
-                it.writeEndArray()
-            }
-
+            // filter items that routed nowhere or to FEDERAL jurisdictions only
+            val noWhereItems: List<String> = itemRouting.filter { ir ->
+                ir.destinations.isEmpty() || ir.destinations.keys == setOf(Organization.Jurisdiction.FEDERAL)
+            }.map { nw -> nw.trackingId}
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, noWhereItems)
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)
 
@@ -387,34 +372,37 @@ class ReportFunction {
         return outStream.toString()
     }
 
-    /*
-     * Creates a list of ReportRouting instances with the trackingElement and
-     * list of receiver organizations. This is used to show where eache item
-     * was sent and warn of items that went no where.
+    /**
+     * Creates a list of [ItemJurisdictionRouting] instances with the trackingElement
+     * and a jurisdiction keyed map with a list of the receiver organizations where
+     * the report was routed.
      */
-    private fun createReportRouting(
+    private fun createItemJurisdictionRouting(
         validatedRequest: ValidatedRequest,
         actionHistory: ActionHistory? = null,
-    ): List<ReportRouting> {
-        val reportRouting = mutableListOf<ReportRouting>()
+    ): List<ItemJurisdictionRouting> {
+        val routing = mutableListOf<ItemJurisdictionRouting>()
         validatedRequest.report?. let { report ->
             // the report has all the submitted items
             report.itemIndices.forEach {
                 val trackingId = report.getString(it, report.schema.trackingElement ?: "") ?: "row$it"
-                val destinations = mutableListOf<String?>()
-                // find all outgoing reports related to the trackingId
-                // and generate a list of the receiving organizations
+                val destinations = mutableMapOf<Organization.Jurisdiction, MutableList<String>>()
+                // find all outgoing reports related to the trackingId and generate a
+                // mapped list of the receiving organizations keyed by the jurisdiction
                 actionHistory?. let { ah ->
                     ah.itemLineages.filter { il ->
                         il.trackingId.equals(trackingId)
                     }.forEach { t ->
-                        destinations.add(ah.reportsOut[t.childReportId]?.receivingOrg)
+                        ah.reportsOut[t.childReportId]?. let { rf ->
+                            WorkflowEngine.settings.findOrganization(rf.receivingOrg)?. let { org ->
+                                destinations.getOrPut(org.jurisdiction) { mutableListOf() }.add(rf.receivingOrg)
+                            }
+                        }
                     }
                 }
-                // filter out any nulls that could have been added
-                reportRouting.add(ReportRouting(trackingId, destinations.filterNotNull()))
+                routing.add(ItemJurisdictionRouting(trackingId, destinations))
             }
         }
-        return reportRouting
+        return routing
     }
 }
