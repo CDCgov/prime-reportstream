@@ -94,6 +94,16 @@ class CsvToHl7ConversionTests : ConversionTest {
          */
         private val hl7Serializer: Hl7Serializer
 
+        /**
+         * The list of test errors.
+         */
+        val errorMsgs = arrayListOf<String>()
+
+        /**
+         * The list of test warnings.
+         */
+        val warningMsgs = arrayListOf<String>()
+
         init {
             // Make sure we have some content on the given HL7 file
             assertTrue(File(csvAbsolutePath).length() > 0)
@@ -166,9 +176,6 @@ class CsvToHl7ConversionTests : ConversionTest {
             assertThat(actual.hasNext(), "Actual has messages").isTrue()
             assertThat(expected.hasNext(), "Expected has messages ").isTrue()
 
-            val errorMsgs = arrayListOf<String>()
-            val warningMsgs = arrayListOf<String>()
-
             var recordNum = 1
 
             // Loop through the messages.  In the case of a batch message there will be multiple messages
@@ -202,7 +209,7 @@ class CsvToHl7ConversionTests : ConversionTest {
                             val expectedField = expectedSegment.getField(fieldIndex)
                             compareField(
                                 recordNum, "$actualSegmentName-$fieldIndex",
-                                actualSegment.names[fieldIndex - 1], actualField, expectedField, errorMsgs, warningMsgs
+                                actualSegment.names[fieldIndex - 1], actualField, expectedField
                             )
                         }
                     } catch (e: HL7Exception) {
@@ -223,53 +230,92 @@ class CsvToHl7ConversionTests : ConversionTest {
         }
 
         /**
-         * Compare an [actualFieldContents] to an [expectedFieldContents] HL7 field for a given [recordNum], [segment],
-         * [segmentName] and [fieldIndex]. All components in a field are compared and dynamic fields are checked
-         * they have content. Warnings [warningMsgs] and errors [errorMsgs] are generated based on the checks.
+         * Compare an [actualFieldContents] to an [expectedFieldContents] HL7 field for a given [recordNum], [fieldSpec],
+         * and [fieldName]. All components in a field are compared and dynamic fields are checked
+         * they have content.
          */
         private fun compareField(
             recordNum: Int,
             fieldSpec: String,
             fieldName: String,
             actualFieldContents: Array<Type>,
-            expectedFieldContents: Array<Type>,
-            errorMsgs: ArrayList<String>,
-            warningMsgs: ArrayList<String>
+            expectedFieldContents: Array<Type>
         ) {
-            val maxNumComponents = if (actualFieldContents.size > expectedFieldContents.size) actualFieldContents.size
+            val maxNumRepetitions = if (actualFieldContents.size > expectedFieldContents.size) actualFieldContents.size
             else expectedFieldContents.size
-            if (maxNumComponents > 0) {
+            if (maxNumRepetitions > 0) {
                 // Loop through all the components in a field and compare their values.
-                for (componentIndex in 0 until maxNumComponents) {
-                    // Compare all values except the date/time of message (MSH-7).  For MSH-7 just check
-                    // there is a value.
-                    val expectedValue = if (componentIndex < expectedFieldContents.size)
-                        expectedFieldContents[componentIndex].toString().trim() else ""
-                    val actualValue = if (componentIndex < actualFieldContents.size)
-                        actualFieldContents[componentIndex].toString().trim() else ""
-
-                    // If this is not a dynamic value then check it against the expected value
+                for (repetitionIndex in 0 until maxNumRepetitions) {
+                    // If this is not a dynamic value then check it against the expected values
                     if (!dyanmicHl7Values.contains(fieldSpec)) {
-                        // Note this comparison includes the field type as HAPI adds it to the string
-                        if (expectedValue.isNotBlank() && expectedValue != actualValue) {
-                            errorMsgs.add(
-                                "    DATA ERROR: Data value does not match in report $recordNum for " +
-                                    "$fieldSpec|$fieldName. Expected: '$expectedValue', " +
-                                    "Actual: '$actualValue'"
-                            )
-                        } else if (expectedValue.isBlank() && actualValue.isNotBlank()) {
-                            warningMsgs.add(
-                                "    DATA WARNING: Actual data has value in report $recordNum for " +
-                                    "$fieldSpec|$fieldName. Actual: '$actualValue'"
-                            )
-                        }
+                        val expectedFieldValue = if (repetitionIndex < expectedFieldContents.size)
+                            expectedFieldContents[repetitionIndex].toString().trim() else ""
+                        val actualFieldValue = if (repetitionIndex < actualFieldContents.size)
+                            actualFieldContents[repetitionIndex].toString().trim() else ""
+                        compareComponents(
+                            actualFieldValue, expectedFieldValue, recordNum,
+                            "$fieldSpec($repetitionIndex)",
+                            fieldName
+                        )
                     }
                     // For dynamic values we expect them to be have something
-                    else if (actualFieldContents[componentIndex].isEmpty) {
+                    else if (actualFieldContents[repetitionIndex].isEmpty) {
                         errorMsgs.add(
                             "    DATA ERROR: No date/time of message for record $recordNum in field $fieldSpec"
                         )
                     }
+                }
+            }
+        }
+
+        /**
+         * Compare the components of a given [actualFieldValue] and [expectedFieldValue] for the given [recordNum],
+         * [fieldSpec] and [fieldName]
+         */
+        private fun compareComponents(
+            actualFieldValue: String,
+            expectedFieldValue: String,
+            recordNum: Int,
+            fieldSpec: String,
+            fieldName: String
+        ) {
+            // Get the components.  HAPI can return a string with a type (e.g. HD[blah^blah]) or a string
+            // with a single value
+            val typeRegex = Regex(".*\\[ *(.*) *\\].*")
+            val expectedValueComponents = if (expectedFieldValue.matches(typeRegex)) {
+                typeRegex.find(expectedFieldValue)!!.destructured.component1().split("[", "]", "^")
+            } else {
+                listOf(expectedFieldValue)
+            }
+            val actualValueComponents = if (actualFieldValue.matches(typeRegex)) {
+                typeRegex.find(actualFieldValue)!!.destructured.component1().split("[", "]", "^")
+            } else {
+                listOf(actualFieldValue)
+            }
+
+            // Loop through all the components
+            val maxNumComponents = if (actualValueComponents.size > expectedValueComponents.size)
+                actualValueComponents.size else expectedValueComponents.size
+            for (componentIndex in 0 until maxNumComponents) {
+                val expectedComponentValue = if (componentIndex < expectedValueComponents.size)
+                    expectedValueComponents[componentIndex].trim() else ""
+                val actualComponentValue = if (componentIndex < actualValueComponents.size)
+                    actualValueComponents[componentIndex].trim() else ""
+
+                // If we have more than one component then show the component number is the messages
+                val componentSpec = if (maxNumComponents > 1) "$fieldSpec-${componentIndex + 1}" else fieldSpec
+
+                if (expectedComponentValue.isNotBlank() && expectedComponentValue != actualComponentValue) {
+                    errorMsgs.add(
+                        "    DATA ERROR: Data value does not match in report $recordNum for " +
+                            "$componentSpec|$fieldName. Expected: '$expectedComponentValue', " +
+                            "Actual: '$actualComponentValue'"
+                    )
+                } else if (expectedComponentValue.isBlank() && actualComponentValue.isNotBlank()) {
+                    warningMsgs.add(
+                        "    DATA WARNING: Actual data has value in report $recordNum for " +
+                            "$componentSpec|$fieldName but no expected value. Actual: '$actualComponentValue'"
+                    )
                 }
             }
         }
