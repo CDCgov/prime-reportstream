@@ -372,7 +372,7 @@ object JurisdictionalFilters: Logging {
         // has at least one valid CLIA
         "isValidCLIA(testing_lab_clia,reporting_facility_clia)",
         // never send T (Training/Test) or D (Debug) data to the states.
-        // NOT TURNED ON YET    "doesNotMatch(processing_mode_code,T,D)",
+        "doesNotMatch(processing_mode_code,T,D)",
     )
 
     /**
