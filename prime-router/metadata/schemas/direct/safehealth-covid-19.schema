@@ -4,11 +4,12 @@ description: SafeHealth
 topic: covid-19
 trackingElement: specimen_id
 basedOn: covid-19
-extends: waters/direct-covid-19
+extends: direct/direct-covid-19
 
 elements:
 
   - name: sender_id
     default: SafeHealth
 
-
+  - name: processing_mode_code
+    default: T

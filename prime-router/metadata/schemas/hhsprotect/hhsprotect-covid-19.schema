@@ -4,7 +4,7 @@ description: Schema for Submission to HHSProtect
 topic: covid-19
 trackingElement: message_id
 basedOn: covid-19
-extends: waters/direct-covid-19
+extends: direct/direct-covid-19
 elements:
 
   # Not doing these metadata fields:

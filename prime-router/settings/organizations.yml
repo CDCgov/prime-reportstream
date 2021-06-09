@@ -24,7 +24,7 @@
       - name: default
         organizationName: safehealth
         topic: covid-19
-        schemaName: waters/safehealth-covid-19
+        schemaName: direct/safehealth-covid-19
         format: CSV
 
   - name: cue
@@ -34,7 +34,27 @@
       - name: default
         organizationName: cue
         topic: covid-19
-        schemaName: waters/cue-covid-19
+        schemaName: direct/cue-covid-19
+        format: CSV
+
+  - name: inbios
+    description: InBios International, Inc.
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: inbios
+        topic: covid-19
+        schemaName: direct/inbios-covid-19
+        format: CSV
+
+  - name: imagemover
+    description: ImageMover
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: imagemover
+        topic: covid-19
+        schemaName: direct/imagemover-covid-19
         format: CSV
 
   - name: waters
@@ -874,7 +894,7 @@
           initialTime: 00:00
         translation:
           type: CUSTOM
-          schemaName: fl/fl-covid-19
+          schemaName: az/pima-az-covid-19
           format: CSV
         transport:
           type: SFTP
@@ -987,8 +1007,25 @@
       - name: QUALITY_PASS
         organizationName: ignore
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS)" ]
-        qualityFilter: [ "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)", "hasAtLeastOneOf(message_id,blankField)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
+        qualityFilter: 
+          - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+          - hasAtLeastOneOf(message_id,blankField)
+          - matches(ordering_facility_county, QUALITY_PASS)
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
+      - name: QUALITY_REVERSED
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
+        qualityFilter: 
+          - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+          - hasAtLeastOneOf(message_id,blankField)
+          - matches(ordering_facility_county, QUALITY_REVERSED)
+        # Get 'not(qualityFilter)'
+        reverseTheQualityFilter: true
         translation:
           type: CUSTOM
           schemaName: empty
@@ -996,7 +1033,7 @@
       - name: QUALITY_ALL
         organizationName: ignore
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county,QUALITY_ALL)" ]
         qualityFilter: [ "allowAll()" ]
         translation:
           type: CUSTOM
@@ -1005,12 +1042,13 @@
       - name: QUALITY_FAIL
         organizationName: ignore
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county,QUALITY_FAIL)" ]
         qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
         translation:
           type: CUSTOM
           schemaName: empty
           format: CSV
+
 
 # all the rest
 
