@@ -7,7 +7,7 @@ TF_STAGE = ""  # not surfaced
 # HELP
 # This will output the help for each task
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
-.PHONY: help all tf-cli tf-01-network tf-02-config tf-03-persistent tf-04-app
+.PHONY: help tf-cli tf-01-network tf-02-config tf-03-persistent tf-04-app
 
 help: ## This help
 	@echo "Invoke any of the following targets"
@@ -42,10 +42,3 @@ tf-03-persistent: ## Preconfigures Terraform persistent environment module
 
 tf-04-app: ## Preconfigures Terraform app environment module
 	${MAKE} tf-cli TF_STAGE="04-app"
-
-# Not using build dependencies for this because we want to control order and concurrency
-all: build-tf ## Preconfigures all Terraform environments
-	${MAKE} tf-01-network
-	${MAKE} tf-02-config
-	${MAKE} tf-03-persistent
-	${MAKE} tf-04-app
