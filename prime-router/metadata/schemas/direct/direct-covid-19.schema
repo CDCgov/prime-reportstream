@@ -6,11 +6,8 @@ trackingElement: specimen_id
 basedOn: covid-19
 elements:
 
-  # This should be in covid-19.schema - need to ask Carlos how to fix his test.
   - name: sender_id
-    type: TEXT
     cardinality: ONE
-    documentation:  ID name of org that is sending this data to ReportStream.  Suitable for chain of custody tracking.  Not to be confused with sending_application, which in which ReportStream is the 'sender'
     csvFields: [{ name: senderId}]
 
   - name: processing_mode_code
