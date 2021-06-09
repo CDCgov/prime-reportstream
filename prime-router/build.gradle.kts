@@ -298,6 +298,7 @@ tasks.register("compile") {
 tasks.register("migrate") {
     group = rootProject.description ?: ""
     description = "Load the database with the latest schema"
+    dependsOn("flywayMigrate")
 }
 
 tasks.register("package") {
