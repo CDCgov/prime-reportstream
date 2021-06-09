@@ -682,6 +682,7 @@ Code | Display
 119297000|Blood specimen (specimen)
 71836000|Nasopharyngeal structure (body structure)
 45206002|Nasal structure (body structure)
+53342003|Internal nose structure (body structure)
 
 ---
 

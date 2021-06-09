@@ -29,6 +29,8 @@ open class Receiver(
     val translation: TranslatorConfiguration,
     val jurisdictionalFilter: List<String> = emptyList(),
     val qualityFilter: List<String> = emptyList(),
+    // If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
+    val reverseTheQualityFilter: Boolean = false,
     val deidentify: Boolean = false,
     val timing: Timing? = null,
     val description: String = "",
@@ -53,6 +55,7 @@ open class Receiver(
         copy.translation,
         copy.jurisdictionalFilter,
         copy.qualityFilter,
+        copy.reverseTheQualityFilter,
         copy.deidentify,
         copy.timing,
         copy.description,
