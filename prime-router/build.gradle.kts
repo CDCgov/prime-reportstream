@@ -108,7 +108,7 @@ tasks.register<Test>("testIntegration") {
         fileTree("./") {
             include("settings/**/*.yml")
             include("metadata/**/*")
-            include("src/testIntergation/resources/**/*")
+            include("src/testIntergation/resources/datatests/**/*")
         }
     )
     outputs.upToDateWhen {
