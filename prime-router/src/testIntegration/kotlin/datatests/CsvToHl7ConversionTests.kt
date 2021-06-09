@@ -6,7 +6,6 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
-import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.PipeParser
@@ -202,8 +201,8 @@ class CsvToHl7ConversionTests : ConversionTest {
                             val actualField = actualSegment.getField(fieldIndex)
                             val expectedField = expectedSegment.getField(fieldIndex)
                             compareField(
-                                recordNum, actualSegment, actualSegmentName, fieldIndex, actualField,
-                                expectedField, errorMsgs, warningMsgs
+                                recordNum, "$actualSegmentName-$fieldIndex",
+                                actualSegment.names[fieldIndex - 1], actualField, expectedField, errorMsgs, warningMsgs
                             )
                         }
                     } catch (e: HL7Exception) {
@@ -224,33 +223,30 @@ class CsvToHl7ConversionTests : ConversionTest {
         }
 
         /**
-         * Compare an [actualField] to an [expectedField] HL7 field for a given [recordNum], [segment],
+         * Compare an [actualFieldContents] to an [expectedFieldContents] HL7 field for a given [recordNum], [segment],
          * [segmentName] and [fieldIndex]. All components in a field are compared and dynamic fields are checked
          * they have content. Warnings [warningMsgs] and errors [errorMsgs] are generated based on the checks.
          */
         private fun compareField(
             recordNum: Int,
-            segment: Segment,
-            segmentName: String,
-            fieldIndex: Int,
-            actualField: Array<Type>,
-            expectedField: Array<Type>,
+            fieldSpec: String,
+            fieldName: String,
+            actualFieldContents: Array<Type>,
+            expectedFieldContents: Array<Type>,
             errorMsgs: ArrayList<String>,
             warningMsgs: ArrayList<String>
         ) {
-            val maxNumComponents = if (actualField.size > expectedField.size) actualField.size else expectedField.size
+            val maxNumComponents = if (actualFieldContents.size > expectedFieldContents.size) actualFieldContents.size
+            else expectedFieldContents.size
             if (maxNumComponents > 0) {
-                val fieldSpec = "$segmentName-$fieldIndex"
-                val fieldName = segment.names[fieldIndex - 1]
-
                 // Loop through all the components in a field and compare their values.
                 for (componentIndex in 0 until maxNumComponents) {
                     // Compare all values except the date/time of message (MSH-7).  For MSH-7 just check
                     // there is a value.
-                    val expectedValue = if (componentIndex < expectedField.size)
-                        expectedField[componentIndex].toString().trim() else ""
-                    val actualValue = if (componentIndex < actualField.size)
-                        actualField[componentIndex].toString().trim() else ""
+                    val expectedValue = if (componentIndex < expectedFieldContents.size)
+                        expectedFieldContents[componentIndex].toString().trim() else ""
+                    val actualValue = if (componentIndex < actualFieldContents.size)
+                        actualFieldContents[componentIndex].toString().trim() else ""
 
                     // If this is not a dynamic value then check it against the expected value
                     if (!dyanmicHl7Values.contains(fieldSpec)) {
@@ -269,7 +265,7 @@ class CsvToHl7ConversionTests : ConversionTest {
                         }
                     }
                     // For dynamic values we expect them to be have something
-                    else if (actualField[componentIndex].isEmpty) {
+                    else if (actualFieldContents[componentIndex].isEmpty) {
                         errorMsgs.add(
                             "    DATA ERROR: No date/time of message for record $recordNum in field $fieldSpec"
                         )
