@@ -154,6 +154,17 @@ if [[ "${ACTUAL_RESULTS?}" == "${EXPECTED_RESULTS?}" ]]; then
         ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
         ;;
 
+    import*)
+        # Some commands require arguments in a different location
+        EXPECTED_RESULTS="${EXPECTED_RESULTS?}0"
+        TFCMD_BEFORE=$(echo "${TFCMD?}" | cut -d' ' -f 1)
+        TFCMD_AFTER=$(echo "${TFCMD?}" | sed 's/[^ ]* //')
+        terraform ${TFCMD_BEFORE?} \
+            --var-file "${TFVARS?}" \
+            ${TFCMD_AFTER?}
+        ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
+        ;;
+
     *)
         EXPECTED_RESULTS="${EXPECTED_RESULTS?}0"
         terraform ${TFCMD?} \
