@@ -30,11 +30,10 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
- * Runs data comparison tests for HL7 messages based on files in the test folder.
+ * Runs data comparison tests for CSV messages converted to HL7 based on files in the test folder.
  * This test takes each CSV file and compares its data to the HL7 companion file in the
- * same test folder.  For example:  for a file named CareEvolution-20200415-0001.hl7 the data will
- * be compared to the file CareEvolution-20200415-0001.internal.csv.  Internal CSV files can have an
- * optional header row and follow the internal schema used by the the ReportStream router.
+ * same test folder.  For example:  for a file named CE-20200415-0001.csv, the data will
+ * be compared to the file CE-20200415-0001.hl7.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CsvToHl7ConversionTests : ConversionTest {
@@ -44,8 +43,14 @@ class CsvToHl7ConversionTests : ConversionTest {
      */
     private val testFileDir = "/datatests/CSV_to_HL7"
 
+    /**
+     * The input file extension.
+     */
     private val inputFileSuffix = ".csv"
 
+    /**
+     * The list of fields that contain dynamic values that cannot be compared.
+     */
     private val dyanmicHl7Values = arrayOf("MSH-7", "SFT-6")
 
     /**
@@ -55,17 +60,14 @@ class CsvToHl7ConversionTests : ConversionTest {
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
         return getTestFiles(testFileDir, inputFileSuffix).map {
-            DynamicTest.dynamicTest("Test ${FilenameUtils.getBaseName(it)}", FileTest(it))
+            DynamicTest.dynamicTest("Test $testFileDir/${FilenameUtils.getBaseName(it)}", FileTest(it))
         }
     }
 
     /**
-     * Perform the unit test for the given HL7 [hl7AbsolutePath].  This test will compare the number of provided reports
-     * (e.g. HL7 batch files have multiple reports) and verifies all data elements match the expected values in the
-     * related .internal file that exists in the same folder as the HL7 test file.
-     *
-     * Limitations: Date times in the HL7 data without a specified time zone are bound by the JVM default timezone and hence
-     * will generate an error against the GMT0 expected result.  GMT is the timezone of the build and deployment environments.
+     * Perform the unit test for the given CSV [csvAbsolutePath].  This test will compare the number of provided reports
+     * and verifies all data elements match the expected values in the related .hl7 file that exists in the same
+     * folder as the HL7 test file.
      */
     inner class FileTest(private val csvAbsolutePath: String) : Executable {
         /**
@@ -84,10 +86,13 @@ class CsvToHl7ConversionTests : ConversionTest {
         private val hapiContext = DefaultHapiContext()
 
         /**
-         * The HL7 serializer.
+         * The CSV serializer.
          */
         private val csvSerializer: CsvSerializer
 
+        /**
+         * The HL7 serializer.
+         */
         private val hl7Serializer: Hl7Serializer
 
         init {
@@ -99,7 +104,7 @@ class CsvToHl7ConversionTests : ConversionTest {
             hapiContext.modelClassFactory = mcf
             parser = hapiContext.pipeParser
 
-            // Setup the HL7 serializer
+            // Setup the serializers
             val metadata = Metadata("./metadata")
             csvSerializer = CsvSerializer(metadata)
             hl7Serializer = Hl7Serializer(metadata)
@@ -123,8 +128,8 @@ class CsvToHl7ConversionTests : ConversionTest {
         }
 
         /**
-         * Get the report for the HL7 file and check for errors.
-         * @return the HL7 report
+         * Get the report for the CSV file and convert it to HL7.
+         * @return the actual HL7 report
          */
         private fun readActualResult(): Hl7InputStreamMessageIterator {
             val result = csvSerializer.readExternal(schemaName, File(csvAbsolutePath).inputStream(), TestSource)
@@ -137,7 +142,7 @@ class CsvToHl7ConversionTests : ConversionTest {
 
         /**
          * Read the file [expectedFileAbsolutePath] that has the expected result.
-         * @return a list of data rows
+         * @return the expected HL7 report
          */
         private fun readExpectedResult(expectedFileAbsolutePath: String): Hl7InputStreamMessageIterator {
             return Hl7InputStreamMessageIterator(File(expectedFileAbsolutePath).inputStream(), hapiContext)
@@ -145,17 +150,16 @@ class CsvToHl7ConversionTests : ConversionTest {
 
         /**
          * Compare the data in the [actual] report to the data in the [expected] report.  This
-         * comparison uses the column names in the expected data to match it to the proper actual data,
-         * hence the order of columns in the expected data is not important.
+         * comparison uses steps through all the segments in the HL7 messages and compares all the values in the
+         * existing fields.
          * Errors are generated when:
          *  1. The number of reports is different
-         *  2. A column in the expected values does not exist in the actual values
+         *  2. A segment in the expected values does not exist in the actual values
          *  3. A expected value does not match the actual value
          *
          * Warnings are generated when:
          *  1. An actual value exists, but no expected value.
          *  2. There are more columns in the actual data than the expected data
-         *
          */
         private fun compareToExpected(actual: Hl7InputStreamMessageIterator, expected: Hl7InputStreamMessageIterator) {
             assertThat(actual).isNotNull()
@@ -182,9 +186,11 @@ class CsvToHl7ConversionTests : ConversionTest {
 
                         assertThat(actualSegmentName, "Actual segment name").isEqualTo(expectedSegmentName)
 
-                        // The finder iteration does not give a clear indication when it is done with the entire
+                        // The HAPI finder iteration does not give a clear indication when it is done with the entire
                         // message vs an error when it is set to not loop, but with loop we get an empty segment name.
-                        if (actualSegmentName.isNullOrBlank() || expectedSegmentName.isNullOrBlank()) break
+                        if (actualSegmentName.isNullOrBlank() || expectedSegmentName.isNullOrBlank()) {
+                            break
+                        }
 
                         val actualSegment = actualTerser.getSegment(actualSegmentName)
                         val expectedSegment = expectedTerser.getSegment(expectedSegmentName)
@@ -217,6 +223,11 @@ class CsvToHl7ConversionTests : ConversionTest {
             }
         }
 
+        /**
+         * Compare an [actualField] to an [expectedField] HL7 field for a given [recordNum], [segment],
+         * [segmentName] and [fieldIndex]. All components in a field are compared and dynamic fields are checked
+         * they have content. Warnings [warningMsgs] and errors [errorMsgs] are generated based on the checks.
+         */
         private fun compareField(
             recordNum: Int,
             segment: Segment,
@@ -243,6 +254,7 @@ class CsvToHl7ConversionTests : ConversionTest {
 
                     // If this is not a dynamic value then check it against the expected value
                     if (!dyanmicHl7Values.contains(fieldSpec)) {
+                        // Note this comparison includes the field type as HAPI adds it to the string
                         if (expectedValue.isNotBlank() && expectedValue != actualValue) {
                             errorMsgs.add(
                                 "    DATA ERROR: Data value does not match in report $recordNum for " +

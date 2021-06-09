@@ -26,9 +26,8 @@ import kotlin.test.fail
 /**
  * Runs data comparison tests for HL7 ORU R01 messages based on files in the test folder.
  * This test takes each HL7 file and compares its data to the internal.csv companion file in the
- * same test folder.  For example:  for a file named CareEvolution-20200415-0001.hl7 the data will
- * be compared to the file CareEvolution-20200415-0001.internal.csv.  Internal CSV files can have an
- * optional header row and follow the internal schema used by the the ReportStream router.
+ * same test folder.  For example:  for a file named CE-20200415-0001.hl7 the data will
+ * be compared to the file CE-20200415-0001.internal.csv.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 // This keeps this test class from running in parallel with other test classes and letting the time zone change
@@ -41,6 +40,9 @@ class Hl7ToCsvConversionTests : ConversionTest {
      */
     private val testFileDir = "/datatests/HL7_to_CSV"
 
+    /**
+     * The input file extension.
+     */
     private val inputFileSuffix = ".hl7"
 
     /**
@@ -71,7 +73,7 @@ class Hl7ToCsvConversionTests : ConversionTest {
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
         return getTestFiles(testFileDir, inputFileSuffix).map {
-            DynamicTest.dynamicTest("Test ${FilenameUtils.getBaseName(it)}", FileTest(it))
+            DynamicTest.dynamicTest("Test $testFileDir/${FilenameUtils.getBaseName(it)}", FileTest(it))
         }
     }
 
