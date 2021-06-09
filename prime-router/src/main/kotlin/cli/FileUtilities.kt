@@ -90,18 +90,14 @@ class FileUtilities {
             val outputFile = if (outputFileName != null) {
                 File(outputFileName)
             } else {
-                // is this config HL7?
-                val hl7Config = report.destination?.translation as? Hl7Configuration?
-                // if it is, get the test processing mode
-                val processingMode = hl7Config?.processingModeCode ?: "P"
                 val fileName = Report.formFilename(
                     report.id,
                     report.schema.baseName,
                     format,
                     report.createdDateTime,
-                    nameFormat = Report.NameFormat.STANDARD,
-                    report.destination?.translation?.receivingOrganization,
-                    processingMode
+                    nameFormat = "standard",
+                    report.destination?.translation,
+                    metadata
                 )
                 File(outputDir ?: ".", fileName)
             }

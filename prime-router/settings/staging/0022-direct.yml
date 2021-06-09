@@ -1,0 +1,80 @@
+# The first two are schema location changes.  The next two are new senders.
+# Need to run this in staging asap after the deployment.
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0022-direct.yml --env staging
+---
+- name: "cue"
+  description: "Cue"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  senders:
+  - name: "default"
+    organizationName: "cue"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "direct/cue-covid-19"
+  receivers: []
+
+- name: "safehealth"
+  description: "SAFE - Safe Health Systems"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  senders:
+  - name: "default"
+    organizationName: "safehealth"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "direct/safehealth-covid-19"
+  receivers: []
+
+- name: inbios
+  description: InBios International, Inc.
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: inbios
+      topic: covid-19
+      schemaName: direct/inbios-covid-19
+      format: CSV
+
+- name: imagemover
+  description: ImageMover
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: imagemover
+      topic: covid-19
+      schemaName: direct/imagemover-covid-19
+      format: CSV
+
+- name: "hhsprotect"
+  description: "HHSProtect"
+  jurisdiction: "FEDERAL"
+  receivers:
+  - name: "elr"
+    organizationName: "hhsprotect"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "hhsprotect/hhsprotect-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios)"
+    qualityFilter:
+    - "allowAll()"
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: "HHSProtect in staging filters by the 'sender_id' field, with no quality filter"
+    transport: !<BLOBSTORE>
+      storageName: "PartnerStorage"
+      containerName: "hhsprotect"
+      type: "BLOBSTORE"

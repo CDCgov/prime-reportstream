@@ -188,6 +188,9 @@
     - code: 45206002
       display: Nasal structure (body structure)
       version: 2020-09-01
+    - code: 53342003
+      display: Internal nose structure (body structure)
+      version: 2020-09-01
 
 - name: covid-19/yesno
   # See YES, NO, UNK in the reference URL.

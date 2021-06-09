@@ -67,7 +67,8 @@ class SimpleReportTests {
                 report.id,
                 report.schema.baseName,
                 Report.Format.CSV,
-                report.createdDateTime
+                report.createdDateTime,
+                metadata = metadata
             )
             val reportFile = File(outputPath, fileName)
             csvSerializer.write(report, reportFile.outputStream())
@@ -88,7 +89,8 @@ class SimpleReportTests {
             fakeReport.id,
             fakeReport.schema.baseName,
             if (useInternal) Report.Format.INTERNAL else Report.Format.CSV,
-            fakeReport.createdDateTime
+            fakeReport.createdDateTime,
+            metadata = metadata
         )
         val fakeReportFile = File(outputPath, fakeReportFileName)
         if (useInternal)

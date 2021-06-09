@@ -50,7 +50,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     mapper: obx17()
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hhsGuidanceField: Device ID
     hl7OutputFields: [ OBX-17-1, OBX-17-9 ]
@@ -60,7 +60,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     mapper: obx17Type()
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hhsGuidanceField: Device ID
     hl7Field: OBX-17-3
@@ -99,7 +99,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Equipment UID
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField: Instrument_model_id
@@ -110,7 +110,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Equipment UID Type
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField:
@@ -121,7 +121,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Model
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField: Instrument_model_name
@@ -131,7 +131,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Manufacturer
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField: Instrument_model_name
@@ -400,7 +400,7 @@ elements:
     pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     natFlatFileField: Ordering_provider_last_name
     hhsGuidanceField:
-    hl7Field:
+    hl7Field: ORC-12-2
     hl7OutputFields: [ORC-12-2, OBR-16-2]
     documentation: The last name of provider who ordered the test
 
@@ -776,7 +776,7 @@ elements:
 
   - name: processing_mode_code
     type: CODE
-    default: D
+    default: P
     cardinality: ZERO_OR_ONE
     valueSet: hl70103
     hl7Field: MSH-11-1
@@ -939,11 +939,41 @@ elements:
     hl7AOEQuestion: 95419-8
     documentation: Is the patient symptomatic?
 
+  - name: test_authorized_for_otc
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_otc
+    reference: Is the test authorized for over-the-counter purchase by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+    documentation: Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+  - name: test_authorized_for_home
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_home
+    reference: Is the test authorized for home use by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+    documentation: Is the test authorized for home use by the FDA (Y, N, UNK)
+
+  - name: test_authorized_for_unproctored
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_unproctored
+    reference: Is the test authorized for unproctored administration by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+    documentation: Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
+
   - name: test_kit_name_id
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Testkit Name ID
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField: Test_kit_model_name
@@ -952,7 +982,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Testkit Name ID Type
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
 
