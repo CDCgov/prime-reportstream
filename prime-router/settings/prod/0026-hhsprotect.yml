@@ -1,4 +1,3 @@
-# Run this:   ./prime multiple-settings set --input ./settings/prod/0026-hhsprotect.yml --env prod
 ---
 - name: "hhsprotect"
   description: "HHSProtect"
@@ -15,8 +14,9 @@
       receivingOrganization: null
       type: "CUSTOM"
     jurisdictionalFilter: [ "matches(sender_id,SafeHealth)" ]
-    qualityFilter:
+    qualityFilter: 
     - "allowAll()"
+    - "doesNotMatch(processing_mode_code,T,D)"
     deidentify: true
     timing:
       operation: "MERGE"
@@ -24,28 +24,7 @@
       initialTime: "01:25"
       timeZone: "EASTERN"
       maxReportCount: 500
-    description: "HHSProtect in production filters by the 'sender_id' field, with no quality filter"
     transport: !<BLOBSTORE>
       storageName: "PartnerStorage"
       containerName: "hhsprotect"
       type: "BLOBSTORE"
-
-- name: safehealth
-  description: SAFE - Safe Health Systems
-  jurisdiction: FEDERAL
-  senders:
-    - name: default
-      organizationName: safehealth
-      topic: covid-19
-      schemaName: waters/safehealth-covid-19
-      format: CSV
-
-- name: cue
-  description: Cue
-  jurisdiction: FEDERAL
-  senders:
-    - name: default
-      organizationName: cue
-      topic: covid-19
-      schemaName: waters/cue-covid-19
-      format: CSV
