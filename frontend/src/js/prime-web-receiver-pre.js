@@ -128,15 +128,32 @@ function logout() {
     }
 }
 
+async function fetchReportFeeds(){
+
+    var reports = await fetchReports();
+
+    console.log( reports );
+    var receivingOrgSvc = reports.map( rep => rep.receivingOrgSvc )
+
+    console.log( receivingOrgSvc );
+
+    return Array.from( new Set( receivingOrgSvc ) );
+
+
+}
 
 /**
  *
  */
-async function fetchReports() {
+async function fetchReports( filter ) {
+
     const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
     const baseURL = getBaseUrl();
 
-    return window.jwt? axios.get(`${baseURL}/api/history/report`, config).then(res => res.data) : [];
+    var retValue = window.jwt? await axios.get(`${baseURL}/api/history/report`, config).then(res => res.data) : [];
+
+    return filter? retValue.filter( report => report.receivingOrgSvc === filter ) : retValue;
+
 }
 
 /**
@@ -262,20 +279,74 @@ async function processOrgName(){
     return orgName;
 }
 
+function titleCase(str) {
+    str = str.toLowerCase().split(' ');
+    for (var i = 0; i < str.length; i++) {
+      str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1); 
+    }
+    return str.join(' ');
+  }
+
+async function processReportFeeds(){
+    const reportFeeds = document.getElementById("reportFeeds");  
+    var feeds = []; 
+    if( reportFeeds )
+        feeds = await fetchReportFeeds();
+        console.log( feeds );
+        console.log( `found ${feeds.length} feeds`)
+        if( feeds.length > 0 ){
+            feeds.forEach( (feed, idx ) => {
+                console.log( `adding feed ${feed}` )
+                
+                reportFeeds.innerHTML += `
+                    <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx>0? "" : "checked"}>
+                    <label for="tab${idx}">${feed.replaceAll( "-", " ").toUpperCase()}</label>
+                    ` 
+                
+            })
+            
+            feeds.forEach( (feed,idx) => {
+                reportFeeds.innerHTML += `
+                    <div class="tab__content">
+                    <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+                    <thead>
+                      <tr>
+                        <th scope="col">Report Id</th>
+                        <th scope="col">Date Sent</th>
+                        <th scope="col">Expires</th>
+                        <th scope="col">Total tests</th>
+                        <th scope="col">File</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tBody${idx}" class="font-mono-2xs">
+                    </tbody>
+                  </table>
+                    </div>
+                `
+    
+            })
+        
+        }
+        return feeds;
+}
+
 /**
  *
  * @returns {Array<Report>} an array of the received reports; possibly empty
  */
-async function processReports(){
+async function processReports(feed, idx){
+
+    console.log( `feed = ${feed}, idx=${idx}`)
     let reports = [];
     try {
-        reports = await fetchReports();
+        reports = await fetchReports(feed);
     } catch (error) {
         console.log('fetchReports() is failing');
         console.error(error);
     }
     reports.forEach(_report => {
-        const tBody = document.getElementById("tBody");
+        const tBody = document.getElementById(`tBody${idx}`);
+        console.log( `found tBody${idx}`)
         if (tBody) tBody.innerHTML +=
             `<tr>
                 <th data-title="reportId" scope="row">
