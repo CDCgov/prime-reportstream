@@ -38,15 +38,6 @@ variable "endpoint_subnet_id" {
     description = "Private Endpoint Subnet ID"
 }
 
-variable "eventhub_namespace_name" {
-    type = string
-    description = "Event hub to stream logs to"
-}
-
-variable "eventhub_manage_auth_rule_id" {
-    type = string
-    description = "Event Hub Manage Authorization Rule ID"
-}
 variable "key_vault_id" {
     type = string
     description = "Key Vault used to encrypt blob storage"
