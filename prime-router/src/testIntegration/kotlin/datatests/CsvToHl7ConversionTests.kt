@@ -164,11 +164,10 @@ class CsvToHl7ConversionTests : ConversionTest {
          * Errors are generated when:
          *  1. The number of reports is different
          *  2. A segment in the expected values does not exist in the actual values
-         *  3. A expected value does not match the actual value
+         *  3. A component expected value does not match the actual value
          *
          * Warnings are generated when:
-         *  1. An actual value exists, but no expected value.
-         *  2. There are more columns in the actual data than the expected data
+         *  1. A component actual value exists, but no expected value.
          */
         private fun compareToExpected(actual: Hl7InputStreamMessageIterator, expected: Hl7InputStreamMessageIterator) {
             assertThat(actual).isNotNull()
