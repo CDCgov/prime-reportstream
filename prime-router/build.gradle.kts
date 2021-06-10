@@ -83,14 +83,6 @@ tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 }
 
-tasks.withType<JavaExec>().configureEach {
-    jvmArgs(listOf("--add-opens", "java.base/jdk.internal.loader=ALL-UNNAMED"))
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    options.forkOptions.jvmArgs?.addAll(listOf("--add-opens", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"))
-}
-
 tasks.processResources {
     // Set the proper build values in the build.properties file
     filesMatching("build.properties") {
