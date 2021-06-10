@@ -17,7 +17,12 @@ import com.helger.as2lib.client.AS2ClientRequest
 import com.helger.as2lib.client.AS2ClientSettings
 import com.helger.as2lib.crypto.ECryptoAlgorithmCrypt
 import com.helger.as2lib.crypto.ECryptoAlgorithmSign
+import com.helger.as2lib.exception.WrappedAS2Exception
+import com.helger.as2lib.processor.sender.AS2HttpResponseException
 import com.helger.security.keystore.EKeyStoreType
+import com.microsoft.azure.functions.HttpStatus
+import org.apache.http.conn.ConnectTimeoutException
+import org.apache.http.conn.HttpHostConnectException
 
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.Base64
@@ -51,7 +56,7 @@ class AS2Transport : ITransport, Logging {
             // Log the useful correlations of ids
             context.logger.info("${receiver.fullName}: Ready to send $reportId($sentReportId) to $externalFileName")
 
-            // do all the AS2 work 
+            // do all the AS2 work
             sendViaAS2(as2Info, credential, externalFileName, sentReportId, header.content)
 
             val msg = "${receiver.fullName}: Successful upload of $reportId"
@@ -68,14 +73,23 @@ class AS2Transport : ITransport, Logging {
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
         } catch (t: Throwable) {
-            val msg =
-                "FAILED AS2 upload of inputReportId $reportId to " +
-                    "$as2Info (orgService = ${header.receiver?.fullName ?: "null"})" +
-                    ", Exception: ${t.localizedMessage}"
-            context.logger.warning(msg)
-            actionHistory.setActionType(TaskAction.send_error)
-            actionHistory.trackActionResult(msg)
-            RetryToken.allItems
+            val receiverFullName = header.receiver?.fullName ?: "null"
+            if (isErrorTransient(t)) {
+                val msg = "FAILED AS2 upload of inputReportId $reportId to $as2Info (orgService = $receiverFullName);" +
+                    "Retry all items; Exception: ${t.localizedMessage}"
+                context.logger.warning(msg)
+                actionHistory.setActionType(TaskAction.send_error)
+                actionHistory.trackActionResult(msg)
+                RetryToken.allItems
+            } else {
+                val msg = "FAILED AS2 upload of inputReportId $reportId to $as2Info (orgService = $receiverFullName);" +
+                        "No retry; Exception: ${t.localizedMessage}"
+                // Dev note: Expecting severe level to trigger monitoring alerts
+                context.logger.severe(msg)
+                actionHistory.setActionType(TaskAction.send_error)
+                actionHistory.trackActionResult(msg)
+                null
+            }
         }
     }
 
@@ -127,7 +141,7 @@ class AS2Transport : ITransport, Logging {
         }
 
         /**
-         * From the credential service get a JKS for [receiverFullName]
+         * From the credential service get a JKS for [receiverFullName].
          */
         fun lookupCredentials(receiverFullName: String): UserJksCredential {
             // Covert to the upper case naming convention of the Client KeyVault
@@ -140,6 +154,20 @@ class AS2Transport : ITransport, Logging {
                 credentialLabel, "AS2Transport", CredentialRequestReason.AS2_UPLOAD
             ) as? UserJksCredential?
                 ?: error("Unable to find AS2 credentials for $receiverFullName connectionId($credentialLabel)")
+        }
+
+        /**
+         * Look at the [ex] exception and determine if the error is possibly transient and it is worth retrying.
+         */
+        fun isErrorTransient(ex: Throwable): Boolean {
+            return when {
+                // Connection to service is down, possibly a service down or under load situation
+                ex is WrappedAS2Exception && ex.cause is HttpHostConnectException -> true
+                ex is WrappedAS2Exception && ex.cause is ConnectTimeoutException -> true
+                ex is AS2HttpResponseException && ex.code == HttpStatus.SERVICE_UNAVAILABLE.value() -> true
+                ex is AS2HttpResponseException && ex.code == HttpStatus.TOO_MANY_REQUESTS.value() -> true
+                else -> false
+            }
         }
     }
 }
