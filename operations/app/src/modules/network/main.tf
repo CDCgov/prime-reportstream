@@ -127,6 +127,10 @@ resource "azurerm_container_group" "dns" {
   tags = {
     environment = var.environment
   }
+
+  lifecycle {
+    ignore_changes = [network_profile_id] // Workaround. TF thinks this is a new resource after import
+  }
 }
 
 resource "azurerm_network_profile" "dns_network_profile" {
