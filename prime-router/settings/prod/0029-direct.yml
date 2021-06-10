@@ -66,7 +66,7 @@
     - "matches(sender_id, SafeHealth,ImageMover,Cue,InBios)"
     qualityFilter:
     - "allowAll()"
-    - "doesNotMatch(processing_mode_code,T,D)"
+    - "doesNotMatch(processing_mode_code,D)"
     reverseTheQualityFilter: false
     deidentify: true
     timing:

@@ -18,16 +18,6 @@ variable "key_vault_id" {
   description = "Key Vault used for HTTPS certificate"
 }
 
-variable "eventhub_namespace_name" {
-  type = string
-  description = "Event hub to stream logs to"
-}
-
-variable "eventhub_manage_auth_rule_id" {
-  type = string
-  description = "Event Hub Manage Authorization Rule ID"
-}
-
 variable "https_cert_names" {
   type = list
   description = "The HTTPS cert to associate with the front door. Omitting will not associate a domain to the front door."

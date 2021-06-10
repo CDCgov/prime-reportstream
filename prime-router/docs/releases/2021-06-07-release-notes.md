@@ -12,6 +12,8 @@
 
 ### File name changes
 
+We are preparing the code to provide better filename formats.   More to come.
+
 ### Quality Updates
 
 #### Default Quality Filter now excludes Training/Test and Debug data
