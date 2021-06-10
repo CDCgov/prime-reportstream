@@ -58,7 +58,7 @@ resource "azurerm_function_app" "function_app" {
   }
 
   app_settings = {
-    "POSTGRES_USER" = data.azurerm_key_vault_secret.postgres_user.value
+    "POSTGRES_USER" = "${data.azurerm_key_vault_secret.postgres_user.value}@${data.azurerm_postgresql_server.postgres_server.name}"
     "POSTGRES_PASSWORD" = data.azurerm_key_vault_secret.postgres_pass.value
     "POSTGRES_URL" = "jdbc:postgresql://${data.azurerm_postgresql_server.postgres_server.name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
 
