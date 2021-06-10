@@ -31,7 +31,7 @@ class ReportTests {
         val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         assertEquals(2, report1.itemCount)
-        val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "1"))), rcvr)
+        val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "1"))), rcvr,false)
         assertEquals(one, filteredReport.schema)
         assertEquals(1, filteredReport.itemCount)
         assertEquals("2", filteredReport.getString(0, "b"))
@@ -46,23 +46,27 @@ class ReportTests {
         // each sublist is a row.
         val report1 = Report(one, listOf(listOf("row1_a", "row1_b"), listOf("row2_a", "row2_b")), source = TestSource)
         assertEquals(2, report1.itemCount)
-        val filteredReportA = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "row1.*", "row2_a"))), rcvr)
+        val filteredReportA = report1.filter(
+            listOf(Pair(jurisdictionalFilter, listOf("a", "row1.*", "row2_a"))), rcvr,false
+        )
         assertEquals(2, filteredReportA.itemCount)
         assertEquals("row1_b", filteredReportA.getString(0, "b"))
         assertEquals("row2_b", filteredReportA.getString(1, "b"))
 
-        val filteredReportB = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "row.*"))), rcvr)
+        val filteredReportB = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "row.*"))), rcvr, false)
         assertEquals(2, filteredReportA.itemCount)
         assertEquals("row1_b", filteredReportB.getString(0, "b"))
         assertEquals("row2_b", filteredReportB.getString(1, "b"))
 
         val filteredReportC = report1.filter(
-            listOf(Pair(jurisdictionalFilter, listOf("a", "row1_a", "foo", "bar", "baz"))), rcvr
+            listOf(Pair(jurisdictionalFilter, listOf("a", "row1_a", "foo", "bar", "baz"))), rcvr, false
         )
         assertEquals(1, filteredReportC.itemCount)
         assertEquals("row1_b", filteredReportC.getString(0, "b"))
 
-        val filteredReportD = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "argle", "bargle"))), rcvr)
+        val filteredReportD = report1.filter(
+            listOf(Pair(jurisdictionalFilter, listOf("a", "argle", "bargle"))), rcvr, false
+        )
         assertEquals(0, filteredReportD.itemCount)
     }
 
@@ -204,7 +208,7 @@ class ReportTests {
         // each sublist is a row.
         val report1 = Report(schema, listOf(listOf("rep1_row1_a"), listOf("rep1_row2_a")), source = TestSource)
 
-        val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "rep1_row2_a"))), rcvr)
+        val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "rep1_row2_a"))), rcvr, false)
 
         val lineage = filteredReport.itemLineages!!
         assertEquals(1, lineage.size)
@@ -259,7 +263,7 @@ class ReportTests {
         val merge2 = Report.merge(reports2)
         val copy1 = merge2.copy()
         val copy2 = copy1.copy()
-        val filteredReport = copy2.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))), rcvr)
+        val filteredReport = copy2.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))), rcvr,false)
 
         val lineage = filteredReport.itemLineages!!
         assertEquals(2, lineage.size)

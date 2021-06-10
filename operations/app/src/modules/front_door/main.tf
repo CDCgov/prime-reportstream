@@ -7,7 +7,7 @@ locals {
   name_static = var.environment != "dev" ? "prime-data-hub-${var.environment}-static" : "prime-data-hub-${var.resource_prefix}-static"
 
   functionapp_address = "${var.resource_prefix}-functionapp.azurewebsites.net"
-  metabase_address = (var.environment == "test" || var.environment == "prod" ? "${var.resource_prefix}-metabase.azurewebsites.net" : null)
+  metabase_address = var.is_metabase_env ? "${var.resource_prefix}-metabase.azurewebsites.net" : null
   static_address = trimprefix(trimsuffix(var.storage_web_endpoint, "/"), "https://")
 
   function_certs = [for cert in var.https_cert_names: cert if length(regexall("^[[:alnum:]]*?-?prime.*$", cert)) > 0]
@@ -16,7 +16,7 @@ locals {
   static_certs = [for cert in var.https_cert_names: cert if length(regexall("^[[:alnum:]]*?-?reportstream.*$", cert)) > 0]
   static_endpoints = local.static_certs
 
-  metabase_env = var.environment == "test" || var.environment == "prod" ? [1] : []
+  metabase_env = var.is_metabase_env ? [1] : []
   static_env = length(local.static_endpoints) > 0 ? [1] : []
   dev_env = length(local.static_endpoints) == 0 ? [1] : []
 }
@@ -286,98 +286,6 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
     certificate_source = "AzureKeyVault"
     azure_key_vault_certificate_secret_name = each.value
     azure_key_vault_certificate_vault_id = var.key_vault_id
-  }
-}
-
-module "frontdoor_access_log_event_hub_log" {
-  source = "../event_hub_log"
-  resource_type = "front_door"
-  log_type = "access"
-  eventhub_namespace_name = var.eventhub_namespace_name
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-}
-
-resource "azurerm_monitor_diagnostic_setting" "frontdoor_access_log" {
-  name = "${var.resource_prefix}-front_door-access-log"
-  target_resource_id = azurerm_frontdoor.front_door.id
-  eventhub_name = module.frontdoor_access_log_event_hub_log.event_hub_name
-  eventhub_authorization_rule_id = var.eventhub_manage_auth_rule_id
-
-  log {
-    category = "FrontdoorAccessLog"
-    enabled = true
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  log {
-    category = "FrontdoorWebApplicationFirewallLog"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-}
-
-module "frontdoor_waf_log_event_hub_log" {
-  source = "../event_hub_log"
-  resource_type = "front_door"
-  log_type = "waf"
-  eventhub_namespace_name = var.eventhub_namespace_name
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-}
-
-resource "azurerm_monitor_diagnostic_setting" "frontdoor_waf_log" {
-  name = "${var.resource_prefix}-front_door-waf-log"
-  target_resource_id = azurerm_frontdoor.front_door.id
-  eventhub_name = module.frontdoor_waf_log_event_hub_log.event_hub_name
-  eventhub_authorization_rule_id = var.eventhub_manage_auth_rule_id
-
-  log {
-    category = "FrontdoorAccessLog"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  log {
-    category = "FrontdoorWebApplicationFirewallLog"
-    enabled = true
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
   }
 }
 

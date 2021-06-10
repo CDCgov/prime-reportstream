@@ -1,0 +1,82 @@
+# The first two are schema location changes.  The next two are new senders.
+# Need to run this in production asap after the deployment!
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0029-direct.yml --env prod
+---
+- name: "cue"
+  description: "Cue"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  senders:
+  - name: "default"
+    organizationName: "cue"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "direct/cue-covid-19"
+  receivers: []
+
+- name: "safehealth"
+  description: "SAFE - Safe Health Systems"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  senders:
+  - name: "default"
+    organizationName: "safehealth"
+    format: "CSV"
+    topic: "covid-19"
+    schemaName: "direct/safehealth-covid-19"
+  receivers: []
+
+- name: inbios
+  description: InBios International, Inc.
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: inbios
+      topic: covid-19
+      schemaName: direct/inbios-covid-19
+      format: CSV
+
+- name: imagemover
+  description: ImageMover
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: imagemover
+      topic: covid-19
+      schemaName: direct/imagemover-covid-19
+      format: CSV
+
+- name: "hhsprotect"
+  description: "HHSProtect"
+  jurisdiction: "FEDERAL"
+  receivers:
+  - name: "elr"
+    organizationName: "hhsprotect"
+    topic: "covid-19"
+    translation: !<CUSTOM>
+      schemaName: "hhsprotect/hhsprotect-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(sender_id, SafeHealth,ImageMover,Cue,InBios)"
+    qualityFilter:
+    - "allowAll()"
+    - "doesNotMatch(processing_mode_code,D)"
+    reverseTheQualityFilter: false
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:25"
+      timeZone: "EASTERN"
+      maxReportCount: 500
+    description: ""
+    transport: !<BLOBSTORE>
+      storageName: "PartnerStorage"
+      containerName: "hhsprotect"
+      type: "BLOBSTORE"
