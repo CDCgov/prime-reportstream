@@ -38,12 +38,11 @@ local_styles:
 <head>
   {% include head_tags_universal %}
   {% include head_tags_styles_scripts %}
-  {% if current == "web receiver guide" or current == "elr guide" or current == "security practices" %}
-  <script src="../../js/prime-web-receiver-pre.js"></script>
+  {% if nestedPage %}
+    <script src="../../js/prime-web-receiver-pre.js"></script>
   {% else %}
-  <script src="../js/prime-web-receiver-pre.js"></script>
+    <script src="../js/prime-web-receiver-pre.js"></script>
   {% endif %}
-
 
 </head>
 
@@ -55,20 +54,12 @@ local_styles:
 {% endif %}
 
 <main id="main-content" {% if title == "index" %}class="padding-y-0"{% endif %}>
-  {% if show_menu and documentation %}
-    {% include menu_documentation %}
-  {% elsif show_menu and how_it_works %}
-    {% include menu_how_it_works %}
-  {% elsif show_menu %}
-    {% include menu_settings %}
-  {% elsif copy_only %}
-    <div class="grid-container margin-bottom-5">
-      <div class=" grid-col-9 usa-prose">
-        {{ content }}
-      </div>
-    </div>
-  {% else %}
+  {% if pageStyle == "fullWidth" %}
     {{ content }}
+  {% elsif pageStyle == "sidebarMenu" %}
+    {% include page_sidebar_menu %}
+  {% else %}
+    {% include page_standard %}
   {% endif %}
 </main>
 
@@ -82,13 +73,12 @@ local_styles:
     <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
   {% endfor %}
 
-
 </body>
 
-{% if current == "web receiver guide" or current == "elr guide" or current == "security practices" %}
-<script src="../../js/prime-web-receiver-post.js"></script>
+{% if nestedPage %}
+  <script src="../../js/prime-web-receiver-post.js"></script>
 {% else %}
-<script src="../js/prime-web-receiver-post.js"></script>
+  <script src="../js/prime-web-receiver-post.js"></script>
 {% endif %}
 
 </html>

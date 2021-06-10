@@ -19,20 +19,20 @@
         <li class="usa-nav__primary-item {% if about %}usa-current{% endif %}">
           <a class="usa-nav__link" href="/about/"><span>About</span></a>
         </li>
-        <li class="usa-nav__primary-item {% if documentation %}usa-current{% endif %}">
+        <li class="usa-nav__primary-item {% if how_it_works %}usa-current{% endif %}">
           <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="cdc-nav-how-it-works"><span>How it works</span></button>
           <ul id="cdc-nav-how-it-works" class="usa-nav__submenu" hidden="">
             <li class="usa-nav__submenu-item">
-              <a href="/getting-started/" class="">Getting started</a>
+              <a href="{{ site.howItWorksPath }}getting-started/" class="">Getting started</a>
             </li>
             <li class="usa-nav__submenu-item">
-              <a href="/getting-started/onboarding-checklist/" class="">Onboarding checklist</a>
+              <a href="{{ site.howItWorksPath }}onboarding-checklist/" class="">Onboarding checklist</a>
             </li>
             <li class="usa-nav__submenu-item">
-              <a href="/system-and-settings/" class="">System and settings</a>
+              <a href="{{ site.howItWorksPath }}system-and-settings/" class="">System and settings</a>
             </li>
             <li class="usa-nav__submenu-item">
-              <a href="/system-and-settings/security-practices/" class="">Security practices</a>
+              <a href="{{ site.howItWorksPath }}security-practices/" class="">Security practices</a>
             </li>
           </ul>
         </li>

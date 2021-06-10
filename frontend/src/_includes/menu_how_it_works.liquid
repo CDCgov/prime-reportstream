@@ -1,31 +1,14 @@
-<section class="grid-container margin-bottom-5">
-  <div class="grid-row grid-gap">
-    <div class="tablet:grid-col-3">
-      <nav aria-label="Secondary navigation" class="margin-bottom-6">
-        <ul class="usa-sidenav">
-          <li class="usa-sidenav__item">
-            <a href="/getting-started/" {% if current == "reportstream" %} class="usa-current"
-              {% endif %}>Getting started</a>
-              <ul class="usa-sidenav__sublist">
-                <li class="usa-sidenav__item">
-                  <a href="/getting-started/onboarding-checklist/">Onboarding checklist</a>
-                </li>
-              </ul>
-          </li>
-          <li class="usa-sidenav__item">
-            <a href="/system-and-settings/" {% if current == "web receiver guide" %}
-              class="usa-current" {% endif %}>System and settings</a>
-              <ul class="usa-sidenav__sublist">
-                <li class="usa-sidenav__item">
-                  <a href="/system-and-settings/security-practices/">Security practices</a>
-                </li>
-              </ul>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    <div class="tablet:grid-col-9 usa-prose rs-documentation">
-      {{ content }}
-    </div>
-  </div>
-</section>
+<li class="usa-sidenav__item">
+    <a href="{{ site.howItWorksPath }}getting-started/" {% if current == "reportstream" %} class="usa-current"
+    {% endif %}>Getting started</a>
+</li>
+<li class="usa-sidenav__item">
+    <a href="{{ site.howItWorksPath }}onboarding-checklist/">Onboarding checklist</a>
+</li>
+<li class="usa-sidenav__item">
+    <a href="{{ site.howItWorksPath }}system-and-settings/" {% if current == "web receiver guide" %}
+    class="usa-current" {% endif %}>System and settings</a>
+</li>
+<li class="usa-sidenav__item">
+    <a href="{{ site.howItWorksPath }}security-practices/">Security practices</a>
+</li>

@@ -2,6 +2,7 @@
 imgPath: /assets/img/
 pdfPath: /assets/pdf/
 documentationPath: /documentation/
+howItWorksPath: /how-it-works/
 
 orgs:
   CDC:

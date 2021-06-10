@@ -1,15 +1,13 @@
 ---
 layout: protected.liquid
+pageStyle: sidebarMenu
 templateEngineOverride: liquid, md
 title: Getting started
-permalink: "{{ title | slug }}/"
+permalink: "{{ site.howItWorksPath }}{{ title | slug }}/"
 protected: false
 show_navbar: true
-documentation: false
 how_it_works: true
-show_menu: true
-copy_only: false
-current: "gettings started"
+nestedPage: true
 ---
 <section id="anchor-top">
 
