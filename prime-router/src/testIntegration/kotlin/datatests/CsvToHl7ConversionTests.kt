@@ -48,9 +48,10 @@ class CsvToHl7ConversionTests : ConversionTest {
     private val inputFileSuffix = ".csv"
 
     /**
-     * The list of fields that contain dynamic values that cannot be compared.
+     * The list of fields that contain dynamic values that cannot be compared.  Source:
+     * Hl7Serializer.setLiterals()
      */
-    private val dyanmicHl7Values = arrayOf("MSH-7", "SFT-6")
+    private val dyanmicHl7Values = arrayOf("MSH-7", "SFT-2", "SFT-4", "SFT-6")
 
     /**
      * Generate individual unit tests for each test file in the test folder.
