@@ -154,39 +154,3 @@ resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vn
   app_service_id = azurerm_function_app.function_app.id
   subnet_id = var.public_subnet_id
 }
-
-module "functionapp_app_log_event_hub_log" {
-  source = "../event_hub_log"
-  resource_type = "function_app"
-  log_type = "app"
-  eventhub_namespace_name = var.eventhub_namespace_name
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-}
-
-resource "azurerm_monitor_diagnostic_setting" "functionapp_app_log" {
-  name = "${var.resource_prefix}-function_app-app-log"
-  target_resource_id = azurerm_function_app.function_app.id
-  eventhub_name = module.functionapp_app_log_event_hub_log.event_hub_name
-  eventhub_authorization_rule_id = var.eventhub_manage_auth_rule_id
-
-  log {
-    category = "FunctionAppLogs"
-    enabled  = true
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-}
