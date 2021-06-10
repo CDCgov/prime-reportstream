@@ -15,7 +15,6 @@
     - cdcprime_
     - createdDate()
 
-
 - name: aphl_light
   lowerCase: true
   elements:
@@ -39,3 +38,13 @@
     - "_"
     - createdDate()
 
+- name: aphl_light_negative
+  lowerCase: true
+  elements:
+    - cdcprime_
+    - receivingOrganization()
+    - "_"
+    - processingModeCode()
+    - "_"
+    - createdDate()
+    - "___neg"

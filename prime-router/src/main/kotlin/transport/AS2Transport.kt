@@ -20,6 +20,8 @@ import com.helger.as2lib.crypto.ECryptoAlgorithmSign
 import com.helger.security.keystore.EKeyStoreType
 
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Base64
 
 class AS2Transport : ITransport, Logging {
@@ -40,7 +42,7 @@ class AS2Transport : ITransport, Logging {
             val externalFileName = Report.formExternalFilename(header)
             context.logger.info("Ready to upload $externalFileName")
 
-            sendReport(as2Info, credential, externalFileName, header.content)
+            sendReport(as2Info, credential, externalFileName, sentReportId, header.content)
 
             val msg = "Success: AS2 upload of $reportId to $as2Info"
             context.logger.info(msg)
@@ -68,33 +70,35 @@ class AS2Transport : ITransport, Logging {
     }
 
     companion object {
-        private const val PRIME_KEY_ALIAS = "cdcprime"
-        private const val RECEIVER_KEY_ALIAS = "p1"
         const val TIMEOUT = 10_000
 
         fun sendReport(
             as2Info: AS2TransportType,
             credential: UserJksCredential,
             externalFileName: String,
+            sentReportId: ReportId,
             contents: ByteArray
         ) {
-            val jks = Base64.getDecoder().decode(credential.key)
+            val jks = Base64.getDecoder().decode(credential.jks)
             val settings = AS2ClientSettings()
-                .setKeyStore(EKeyStoreType.PKCS12, jks, credential.keyPass)
-                .setSenderData (as2Info.senderId, as2Info.senderEmail, PRIME_KEY_ALIAS)
-                .setReceiverData(as2Info.receiverId, RECEIVER_KEY_ALIAS, as2Info.receiverUrl)
+                .setKeyStore(EKeyStoreType.PKCS12, jks, credential.jksPasscode)
+                .setSenderData (as2Info.senderId, as2Info.senderEmail, credential.idAlias)
+                .setReceiverData(as2Info.receiverId, credential.trustAlias, as2Info.receiverUrl)
                 .setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
                 .setConnectTimeoutMS(TIMEOUT)
                 .setReadTimeoutMS(2*TIMEOUT)
+                .setMDNRequested(true)
             settings.setPartnershipName("${settings.senderAS2ID}_${settings.receiverAS2ID}")
 
-            // Request a synchronous MDN
-            settings.isMDNRequested = true
+            // Setup a messages id that includes the report id
+            val messageId = "cdcprime-$sentReportId@${settings.senderAS2ID}_${settings.receiverAS2ID}"
+            settings.messageIDFormat = messageId
 
             // Make a request for this payload
             val request = AS2ClientRequest(externalFileName)
                 .setContentDescription(as2Info.contentDescription)
                 .setContentType(as2Info.mimeType)
+                .setFilename(externalFileName)
                 .setData(contents.toString(Charsets.UTF_8), Charsets.UTF_8)
 
             // Send it

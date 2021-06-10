@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.groups.required
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.github.ajalt.clikt.parameters.options.required
@@ -55,7 +56,7 @@ class CredentialsCli : CredentialManagement, CliktCommand(
             is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
             is UserJksCredentialOptions -> {
                 val jksEncoded = Base64.getEncoder().encodeToString(it.file.readBytes())
-                UserJksCredential(it.user, jksEncoded, it.filePass)
+                UserJksCredential(it.user, jksEncoded, it.filePass, it.idAlias, it.trustAlias)
             }
             else -> error("--type option is unknown")
         }
@@ -90,7 +91,14 @@ class UserPpkCredentialOptions : CredentialConfig("Options for credential type '
 }
 
 class UserJksCredentialOptions : CredentialConfig("Options for credential type 'UserJks'") {
-    val user by option("--jks-user", help = "Username to authenticate alongside the JKS").prompt(default = "")
-    val file by option("--jks-file", help = "Path to the JKS file").file(mustExist = true).required()
-    val filePass by option("--jks-file-pass", help = "the JKS passcode (optional)").prompt(default = "")
+    val user by option("--jks-user", help = "Username to authenticate alongside the JKS")
+        .prompt(default = "")
+    val file by option("--jks-file", help = "Path to the JKS file").file(mustExist = true)
+        .required()
+    val filePass by option("--jks-file-pass", help = "the JKS passcode (optional)")
+        .prompt(default = "")
+    val idAlias by option("--jks-id-alias", help = "the JKS alias that points to the ID certificate")
+        .default("cdcprime")
+    val trustAlias by option("--jks-trust-alias", help = "the JKS alias that points to a trust certificate")
+        .default("as2ohp")
 }
