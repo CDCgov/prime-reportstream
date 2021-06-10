@@ -295,7 +295,7 @@ class ActionHistoryTests {
         factory.createGenerator(outStream).use {
             it.writeStartObject()
             // Finally, we're ready to run the test:
-            actionHistory.prettyPrintDestinationsJson(it, settings)
+            actionHistory.prettyPrintDestinationsJson(it, settings, ReportFunction.Options.None)
             it.writeEndObject()
         }
 
@@ -317,7 +317,7 @@ class ActionHistoryTests {
         assertEquals(2, arr.size())
 
         assertEquals("foo bar", arr[0]["organization"].textValue())
-        assertEquals("never", arr[0]["sending_at"].textValue())
+        assertEquals("immediately", arr[0]["sending_at"].textValue())
         assertEquals(17, arr[0]["itemCount"].intValue())
 
         assertEquals("org1", arr[1]["organization_id"].textValue())
@@ -331,7 +331,7 @@ class ActionHistoryTests {
         outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.writeStartObject()
-            actionHistory.prettyPrintDestinationsJson(it, settings)
+            actionHistory.prettyPrintDestinationsJson(it, settings, ReportFunction.Options.None)
             it.writeEndObject()
         }
         val json2 = outStream.toString()
@@ -342,5 +342,17 @@ class ActionHistoryTests {
         val arr2 = tree2["destinations"] as ArrayNode
         assertEquals(2, arr2.size()) // still 2 destinations, even with 3 ReportFile
         assertEquals(2, arr2[1]["itemCount"].intValue()) // second destination now has 2 items instead of 1.
+
+        // Another test, test report option SkipSend
+        outStream = ByteArrayOutputStream()
+        factory.createGenerator(outStream).use {
+            it.writeStartObject()
+            actionHistory.prettyPrintDestinationsJson(it, settings, ReportFunction.Options.SkipSend)
+            it.writeEndObject()
+        }
+        val json3 = outStream.toString()
+        val tree3: JsonNode? = jacksonObjectMapper().readTree(json3)
+        val arr3 = tree3?.get("destinations") as ArrayNode?
+        assertEquals("never - skipSend specified", arr3?.get(0)?.get("sending_at")?.textValue() ?: "")
     }
 }

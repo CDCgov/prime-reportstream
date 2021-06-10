@@ -472,7 +472,7 @@ class ActionHistory {
      *
      * This works by side-effect on jsonGen.
      */
-    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator, settings: SettingsProvider) {
+    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator, settings: SettingsProvider, reportOptions: ReportFunction.Options) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
         if (reportsOut.isNotEmpty()) {
@@ -489,14 +489,14 @@ class ActionHistory {
                     if (previous != null) previous.count++
                 } else {
                     prettyPrintDestinationJson(
-                        jsonGen, orgReceiver, organization, reportFile.nextActionAt, reportFile.itemCount
+                        jsonGen, orgReceiver, organization, reportFile.nextActionAt, reportFile.itemCount, reportOptions
                     )
                     destinationCounter++
                 }
             }
             singles.forEach { (_, destData) ->
                 prettyPrintDestinationJson(
-                    jsonGen, destData.orgReceiver, destData.organization, destData.sendingAt, destData.count
+                    jsonGen, destData.orgReceiver, destData.organization, destData.sendingAt, destData.count, reportOptions
                 )
                 destinationCounter++
             }
@@ -510,17 +510,22 @@ class ActionHistory {
         orgReceiver: Receiver,
         organization: Organization,
         sendingAt: OffsetDateTime?,
-        countToPrint: Int
+        countToPrint: Int,
+        reportOptions: ReportFunction.Options
     ) {
         jsonGen.writeStartObject()
         // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
         jsonGen.writeStringField("organization", organization.description)
         jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
         jsonGen.writeStringField("service", orgReceiver.name)
-        jsonGen.writeStringField(
-            "sending_at",
-            if (sendingAt == null) "never" else "$sendingAt"
-        )
+
+        if(reportOptions == ReportFunction.Options.SkipSend) {
+            jsonGen.writeStringField("sending_at", "never - skipSend specified")
+        }
+        else {
+            jsonGen.writeStringField("sending_at", if (sendingAt == null) "immediately" else "$sendingAt")
+        }
+
         jsonGen.writeNumberField("itemCount", countToPrint)
         jsonGen.writeEndObject()
     }
