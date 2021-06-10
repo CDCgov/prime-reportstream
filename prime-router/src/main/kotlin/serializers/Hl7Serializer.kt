@@ -932,7 +932,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     }
                     Element.Type.EMAIL -> {
                         if (xtnValue.telecommunicationEquipmentType.isEmpty ||
-                            xtnValue.telecommunicationEquipmentType.valueOrEmpty == "NET"
+                            xtnValue.telecommunicationEquipmentType.valueOrEmpty == "Internet"
                         ) {
                             strValue = element.toNormalized(xtnValue.emailAddress.valueOrEmpty)
                         }

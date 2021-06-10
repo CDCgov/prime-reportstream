@@ -306,7 +306,7 @@ NTE|1|L|This is a final comment|RE"""
         // Test repetitions.
         every { emailField.emailAddress.valueOrEmpty } returns "dummyemail@cdc.local"
         every { emailField.telecommunicationEquipmentType.isEmpty } returns false
-        every { emailField.telecommunicationEquipmentType.valueOrEmpty } returns "NET"
+        every { emailField.telecommunicationEquipmentType.valueOrEmpty } returns "Internet"
         every { mockSegment.getField(any()) } returns arrayOf(emailField, phoneField)
         email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("dummyemail@cdc.local", email)
