@@ -56,7 +56,7 @@ class CredentialsCli : CredentialManagement, CliktCommand(
             is UserPpkCredentialOptions -> UserPpkCredential(it.user, it.file.readText(Charsets.UTF_8), it.filePass)
             is UserJksCredentialOptions -> {
                 val jksEncoded = Base64.getEncoder().encodeToString(it.file.readBytes())
-                UserJksCredential(it.user, jksEncoded, it.filePass, it.idAlias, it.trustAlias)
+                UserJksCredential(it.user, jksEncoded, it.filePass, it.privateAlias, it.trustAlias)
             }
             else -> error("--type option is unknown")
         }
@@ -97,7 +97,7 @@ class UserJksCredentialOptions : CredentialConfig("Options for credential type '
         .required()
     val filePass by option("--jks-file-pass", help = "the JKS passcode (optional)")
         .prompt(default = "")
-    val idAlias by option("--jks-id-alias", help = "the JKS alias that points to the ID certificate")
+    val privateAlias by option("--jks-private-alias", help = "the JKS alias that points to the ID certificate")
         .default("cdcprime")
     val trustAlias by option("--jks-trust-alias", help = "the JKS alias that points to a trust certificate")
         .default("as2ohp")

@@ -20,11 +20,18 @@ import com.helger.as2lib.crypto.ECryptoAlgorithmSign
 import com.helger.security.keystore.EKeyStoreType
 
 import org.apache.logging.log4j.kotlin.Logging
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Base64
 
+/**
+ * The AS2 transport was built for communicating to the WA OneHealthNetwork. It is however a general transport protocol
+ * that is used in other contexts and perhaps could be used elsewhere by other PHD in the US. Here, we are using
+ * in similar fashion to SFTP.
+ */
 class AS2Transport : ITransport, Logging {
+
+    /**
+     * The send a report or return [RetryItems]
+     */
     override fun send(
         transportType: TransportType,
         header: WorkflowEngine.Header,
@@ -40,11 +47,14 @@ class AS2Transport : ITransport, Logging {
             val receiver = header.receiver ?: error("No receiver defined for report $reportId")
             val credential = lookupCredentials(receiver.fullName)
             val externalFileName = Report.formExternalFilename(header)
-            context.logger.info("Ready to upload $externalFileName")
 
-            sendReport(as2Info, credential, externalFileName, sentReportId, header.content)
+            // Log the useful correlations of ids
+            context.logger.info("${receiver.fullName}: Ready to send $reportId($sentReportId) to $externalFileName")
 
-            val msg = "Success: AS2 upload of $reportId to $as2Info"
+            // do all the AS2 work 
+            sendViaAS2(as2Info, credential, externalFileName, sentReportId, header.content)
+
+            val msg = "${receiver.fullName}: Successful upload of $reportId"
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
@@ -72,7 +82,10 @@ class AS2Transport : ITransport, Logging {
     companion object {
         const val TIMEOUT = 10_000
 
-        fun sendReport(
+        /**
+         * Do the work of sending a report over the AS2 transport.
+         */
+        fun sendViaAS2(
             as2Info: AS2TransportType,
             credential: UserJksCredential,
             externalFileName: String,
@@ -82,7 +95,7 @@ class AS2Transport : ITransport, Logging {
             val jks = Base64.getDecoder().decode(credential.jks)
             val settings = AS2ClientSettings()
                 .setKeyStore(EKeyStoreType.PKCS12, jks, credential.jksPasscode)
-                .setSenderData (as2Info.senderId, as2Info.senderEmail, credential.idAlias)
+                .setSenderData (as2Info.senderId, as2Info.senderEmail, credential.privateAlias)
                 .setReceiverData(as2Info.receiverId, credential.trustAlias, as2Info.receiverUrl)
                 .setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
                 .setConnectTimeoutMS(TIMEOUT)
@@ -113,6 +126,9 @@ class AS2Transport : ITransport, Logging {
                 error("AS2 Upload for $externalFileName: Bad MDN ${response.mdnDisposition} ")
         }
 
+        /**
+         * From the credential service get a JKS for [receiverFullName]
+         */
         fun lookupCredentials(receiverFullName: String): UserJksCredential {
             // Covert to the upper case naming convention of the Client KeyVault
             val credentialLabel = receiverFullName

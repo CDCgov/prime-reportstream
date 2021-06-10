@@ -38,9 +38,9 @@ data class UserJksCredential(
     val jksPasscode: String,
 
     /**
-     * [idAlias] is the alias for the public/private certificate stored in the JKS.
+     * [privateAlias] is the alias for the public/private certificate stored in the JKS.
      */
-    val idAlias: String,
+    val privateAlias: String,
 
     /**
      * [trustAlias] is the alias for the trust/public certificate stored in the JKS
