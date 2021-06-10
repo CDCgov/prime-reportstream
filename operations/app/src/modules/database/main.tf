@@ -29,6 +29,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes = [storage_mb] # Auto-grow will change the size
   }
 
   tags = {
@@ -81,6 +82,7 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes = [storage_mb] # Auto-grow will change the size
   }
 
   tags = {
