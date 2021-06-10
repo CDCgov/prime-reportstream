@@ -12,8 +12,6 @@ module "storage" {
   public_subnet_id = module.network.public_subnet_id
   container_subnet_id = module.network.container_subnet_id
   endpoint_subnet_id = module.network.endpoint_subnet_id
-  eventhub_namespace_name = module.event_hub.eventhub_namespace_name
-  eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
   key_vault_id = module.key_vault.application_key_vault_id
   rsa_key_4096 = var.rsa_key_4096
 }
@@ -64,8 +62,6 @@ module "function_app" {
   admin_user = module.container_registry.admin_username
   admin_password = module.container_registry.admin_password
   ai_instrumentation_key = module.application_insights.instrumentation_key
-  eventhub_namespace_name = module.event_hub.eventhub_namespace_name
-  eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
   app_config_key_vault_id = module.key_vault.app_config_key_vault_id
   client_config_key_vault_id = module.key_vault.client_config_key_vault_id
   storage_partner_connection_string = module.storage.storage_partner_connection_string
@@ -80,8 +76,6 @@ module "database" {
   location = local.location
   endpoint_subnet_id = module.network.endpoint_subnet_id
   endpoint2_subnet_id = module.network.endpoint2_subnet_id
-  eventhub_namespace_name = module.event_hub.eventhub_namespace_name
-  eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
   app_config_key_vault_id = module.key_vault.app_config_key_vault_id
   key_vault_id = module.key_vault.application_key_vault_id
   rsa_key_2048 = var.rsa_key_2048
@@ -103,8 +97,6 @@ module "front_door" {
   resource_group = var.resource_group
   resource_prefix = var.resource_prefix
   key_vault_id = module.key_vault.application_key_vault_id
-  eventhub_namespace_name = module.event_hub.eventhub_namespace_name
-  eventhub_manage_auth_rule_id = module.event_hub.manage_auth_rule_id
   https_cert_names = var.https_cert_names
   storage_web_endpoint = module.storage.storage_web_endpoint
   is_metabase_env = var.is_metabase_env
@@ -152,13 +144,4 @@ module "application_insights" {
   resource_prefix = var.resource_prefix
   location = local.location
   key_vault_id = module.key_vault.application_key_vault_id
-}
-
-module "event_hub" {
-  source = "../event_hub"
-  environment = var.environment
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-  location = local.location
-  endpoint_subnet_id = module.network.endpoint_subnet_id
 }
