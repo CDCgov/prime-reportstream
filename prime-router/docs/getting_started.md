@@ -27,13 +27,33 @@
     + [Using the Vault locally](#using-the-vault-locally)
   * [Troubleshooting](#troubleshooting)
     + [prime test Utility](#prime-test-utility)
-      - [Missing env var](#missing-env-var) 
+      - [Missing env var](#missing-env-var)
 
 
 ## Developer Workstation Setup
 
 ### Pre-requisites
-#### Mac or Linux OS
+
+#### Linux
+
+You'll need the OpenJDK (v11), Maven, the Azure CLI and Docker
+
+1. Install OpenJDK 11, Maven and some azure tools
+    * Debian/Ubuntu-based distributions:
+        ```bash
+        $ sudo apt update
+        $ sudo apt install openjdk-11-jdk maven docker-ce azure-cli
+        $ #
+        $ # install brew (needed for Azure Functions Core Tools)
+        $ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        $ # Add brew to your ${PATH} (add to your ${HOME?}/.bashrc)
+        $ export PATH="${PATH}:${HOME?}/.linuxbrew/bin"     # Assuming you did a non-sudo install (cf.https://docs.brew.sh/Homebrew-on-Linux)
+        $ brew tap azure/functions                          # Add the Azure Functions repository to brew
+        $ brew install azure-functions-core-tools@3         # Install Azure Functions Core Tools
+        $ export FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT=1    # If you are so inclined, add this to your ${HOME?}/.bashrc as well
+        ```
+
+#### Mac
 
 1. Set up Java 11 and Maven by opening up a Terminal session and
 entering:
@@ -112,10 +132,10 @@ If you need Flyway, you can install it via `apt` as above.
 #### PostgreSQL via Docker
 In [`devenv-infrastructure.sh`](../devenv-infrastructure.sh)
 ```sh
-docker-compose -f ./docker-prime-infra.yml up --detach
+docker-compose -f ./docker-infrastructure.yml up --detach
 ```
 
-## Clone the Repository    
+## Clone the Repository
 1. Use your favorite Git tool to clone the [PRIME ReportStream repository](https://github.com/CDCgov/prime-data-hub)
     - On Git Bash, use the command:
         ```
@@ -192,7 +212,7 @@ To orchestrate running the Azure function code and Azurite, Docker Compose is a 
 ```
 mkdir -p .vault/env
 touch .vault/env/.env.local
-./gradlew package  
+./gradlew package
 PRIME_ENVIRONMENT=local docker-compose up
 ```
 Docker-compose will build a `prime_dev` container with the output of the `./gradlew package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
@@ -340,7 +360,7 @@ export $(cat ./.vault/env/.env.local | xargs)
 
 The prime-router comes packaged with a executable that can help in finding misconfigurations and other problems with the appliciation.
 
-Use the following command to launch the tool. 
+Use the following command to launch the tool.
 
 ```shell
 cd prime-router
@@ -353,7 +373,7 @@ This should be used while the prime-router application is running on your system
 
 #### Missing env var
 
-The gradle script is supposed to install a few environment variables that will be used by the prime test utility, however this is currently prone to failure. If a run of `prime test` mentions that any are missing try manually adding them: 
+The gradle script is supposed to install a few environment variables that will be used by the prime test utility, however this is currently prone to failure. If a run of `prime test` mentions that any are missing try manually adding them:
 
 ```shell
 POSTGRES_PASSWORD='changeIT!'
@@ -361,7 +381,7 @@ POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
 POSTGRES_USER=prime
 ```
 
-If on *nix system you can also append these directly on the command to launch `prime test`. For example: 
+If on *nix system you can also append these directly on the command to launch `prime test`. For example:
 
 ```shell
 POSTGRES_PASSWORD='changeIT!' \
@@ -370,4 +390,4 @@ POSTGRES_USER=prime \
 ./prime-router/prime test
 ```
 
-Running the test command with the correct environment variables should "repair" a running prime-router process in progress. This fix should even persist through subsequent runs.  
+Running the test command with the correct environment variables should "repair" a running prime-router process in progress. This fix should even persist through subsequent runs.
