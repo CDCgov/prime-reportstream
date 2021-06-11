@@ -1,7 +1,3 @@
-terraform {
-    required_version = ">= 0.14"
-}
-
 locals {
   dns_zones_private = [
     "privatelink.vaultcore.azure.net",
@@ -130,6 +126,10 @@ resource "azurerm_container_group" "dns" {
 
   tags = {
     environment = var.environment
+  }
+
+  lifecycle {
+    ignore_changes = [network_profile_id] // Workaround. TF thinks this is a new resource after import
   }
 }
 
@@ -278,41 +278,4 @@ resource "azurerm_subnet" "endpoint2" {
   virtual_network_name = azurerm_virtual_network.virtual_network_2.name
   address_prefixes = ["10.1.5.0/24"]
   enforce_private_link_endpoint_network_policies = true
-}
-
-
-## Outputs
-
-output "public_subnet_id" {
-  value = azurerm_subnet.public.id
-}
-
-output "container_subnet_id" {
-  value = azurerm_subnet.container.id
-}
-
-output "private_subnet_id" {
-  value = azurerm_subnet.private.id
-}
-
-output "gateway_subnet_id" {
-  value = azurerm_subnet.gateway.id
-}
-
-output "endpoint_subnet_id" {
-  value = azurerm_subnet.endpoint.id
-
-  # Wait for the DNS zones to be created, or anything requiring this subnet will fail
-  depends_on = [azurerm_private_dns_zone.dns_zone_private]
-}
-
-output "private2_subnet_id" {
-  value = azurerm_subnet.private2.id
-}
-
-output "endpoint2_subnet_id" {
-  value = azurerm_subnet.endpoint2.id
-
-  # Wait for the DNS zones to be created, or anything requiring this subnet will fail
-  depends_on = [azurerm_private_dns_zone.dns_zone_private]
 }
