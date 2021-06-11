@@ -16,7 +16,7 @@ Ensure you have the intended git branch checked out and navigate to the `./opera
 
 Our Terraform modules are broken out into four stages, each with the dependencies on the previous stages. Each stage can be accessed with an interactive terminal via the following commands:
 
-```aidl
+```shell
 make TF_ENV=x tf-01-network
 make TF_ENV=x tf-02-config
 make TF_ENV=x tf-03-persistent
@@ -39,7 +39,7 @@ This only needs to be on first run and after your Azure credentials expire. The 
 
 A typical Terraform deployment may look as follows:
 
-```aidl
+```shell
 make TF_ENV=x tf-01-network
 tf plan -out plan.out
 tf apply plan.out
@@ -161,7 +161,7 @@ To deploy the full state follow the deployment directions at the top of this doc
 
 Destroy the Terraform stages in reverse stage order:
 
-```aidl
+```shell
 make TF_ENV=x tf-04-app
 tf destroy
 exit
