@@ -490,6 +490,7 @@ class Obx8Mapper : Mapper {
                 "895231008" -> "N" // Not detected in pooled specimen
                 "462371000124108" -> "A" // Detected in pooled specimen
                 "419984006" -> "N" // Inconclusive
+                "373121007" -> "???" // Test not done
                 else -> null
             }
         }
