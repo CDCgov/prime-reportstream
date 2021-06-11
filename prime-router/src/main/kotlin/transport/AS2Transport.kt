@@ -25,7 +25,10 @@ import org.apache.http.conn.ConnectTimeoutException
 import org.apache.http.conn.HttpHostConnectException
 
 import org.apache.logging.log4j.kotlin.Logging
+import java.net.ConnectException
 import java.util.Base64
+
+const val TIMEOUT = 10_000
 
 /**
  * The AS2 transport was built for communicating to the WA OneHealthNetwork. It is however a general transport protocol
@@ -33,7 +36,6 @@ import java.util.Base64
  * in similar fashion to SFTP.
  */
 class AS2Transport : ITransport, Logging {
-
     /**
      * The send a report or return [RetryItems]
      */
@@ -93,81 +95,77 @@ class AS2Transport : ITransport, Logging {
         }
     }
 
-    companion object {
-        const val TIMEOUT = 10_000
+    /**
+     * Do the work of sending a report over the AS2 transport.
+     */
+    internal fun sendViaAS2(
+        as2Info: AS2TransportType,
+        credential: UserJksCredential,
+        externalFileName: String,
+        sentReportId: ReportId,
+        contents: ByteArray
+    ) {
+        val jks = Base64.getDecoder().decode(credential.jks)
+        val settings = AS2ClientSettings()
+            .setKeyStore(EKeyStoreType.PKCS12, jks, credential.jksPasscode)
+            .setSenderData (as2Info.senderId, as2Info.senderEmail, credential.privateAlias)
+            .setReceiverData(as2Info.receiverId, credential.trustAlias, as2Info.receiverUrl)
+            .setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
+            .setConnectTimeoutMS(TIMEOUT)
+            .setReadTimeoutMS(2*TIMEOUT)
+            .setMDNRequested(true)
+        settings.setPartnershipName("${settings.senderAS2ID}_${settings.receiverAS2ID}")
 
-        /**
-         * Do the work of sending a report over the AS2 transport.
-         */
-        fun sendViaAS2(
-            as2Info: AS2TransportType,
-            credential: UserJksCredential,
-            externalFileName: String,
-            sentReportId: ReportId,
-            contents: ByteArray
-        ) {
-            val jks = Base64.getDecoder().decode(credential.jks)
-            val settings = AS2ClientSettings()
-                .setKeyStore(EKeyStoreType.PKCS12, jks, credential.jksPasscode)
-                .setSenderData (as2Info.senderId, as2Info.senderEmail, credential.privateAlias)
-                .setReceiverData(as2Info.receiverId, credential.trustAlias, as2Info.receiverUrl)
-                .setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
-                .setConnectTimeoutMS(TIMEOUT)
-                .setReadTimeoutMS(2*TIMEOUT)
-                .setMDNRequested(true)
-            settings.setPartnershipName("${settings.senderAS2ID}_${settings.receiverAS2ID}")
+        // Setup a messages id that includes the report id
+        val messageId = "cdcprime-$sentReportId@${settings.senderAS2ID}_${settings.receiverAS2ID}"
+        settings.messageIDFormat = messageId
 
-            // Setup a messages id that includes the report id
-            val messageId = "cdcprime-$sentReportId@${settings.senderAS2ID}_${settings.receiverAS2ID}"
-            settings.messageIDFormat = messageId
+        // Make a request for this payload
+        val request = AS2ClientRequest(externalFileName)
+            .setContentDescription(as2Info.contentDescription)
+            .setContentType(as2Info.mimeType)
+            .setFilename(externalFileName)
+            .setData(contents.toString(Charsets.UTF_8), Charsets.UTF_8)
 
-            // Make a request for this payload
-            val request = AS2ClientRequest(externalFileName)
-                .setContentDescription(as2Info.contentDescription)
-                .setContentType(as2Info.mimeType)
-                .setFilename(externalFileName)
-                .setData(contents.toString(Charsets.UTF_8), Charsets.UTF_8)
+        // Send it
+        val response = AS2Client().sendSynchronous(settings, request)
 
-            // Send it
-            val response = AS2Client().sendSynchronous(settings, request)
+        // Check the response
+        if (response.hasException())
+            throw response.exception!!
+        if (!response.hasMDN())
+            error("AS2 upload for $externalFileName: No MDN in response")
+        if (response.mdnDisposition?.contains("processed") != true)
+            error("AS2 Upload for $externalFileName: Bad MDN ${response.mdnDisposition} ")
+    }
 
-            // Check the response
-            if (response.hasException())
-                throw response.exception!!
-            if (!response.hasMDN())
-                error("AS2 upload for $externalFileName: No MDN in response")
-            if (response.mdnDisposition?.contains("processed") != true)
-                error("AS2 Upload for $externalFileName: Bad MDN ${response.mdnDisposition} ")
-        }
+    /**
+     * From the credential service get a JKS for [receiverFullName].
+     */
+    internal fun lookupCredentials(receiverFullName: String): UserJksCredential {
+        // Covert to the upper case naming convention of the Client KeyVault
+        val credentialLabel = receiverFullName
+            .replace(".", "--")
+            .replace("_", "-")
+            .uppercase()
 
-        /**
-         * From the credential service get a JKS for [receiverFullName].
-         */
-        fun lookupCredentials(receiverFullName: String): UserJksCredential {
-            // Covert to the upper case naming convention of the Client KeyVault
-            val credentialLabel = receiverFullName
-                .replace(".", "--")
-                .replace("_", "-")
-                .uppercase()
+        return CredentialHelper.getCredentialService().fetchCredential(
+            credentialLabel, "AS2Transport", CredentialRequestReason.AS2_UPLOAD
+        ) as? UserJksCredential?
+            ?: error("Unable to find AS2 credentials for $receiverFullName connectionId($credentialLabel)")
+    }
 
-            return CredentialHelper.getCredentialService().fetchCredential(
-                credentialLabel, "AS2Transport", CredentialRequestReason.AS2_UPLOAD
-            ) as? UserJksCredential?
-                ?: error("Unable to find AS2 credentials for $receiverFullName connectionId($credentialLabel)")
-        }
-
-        /**
-         * Look at the [ex] exception and determine if the error is possibly transient and it is worth retrying.
-         */
-        fun isErrorTransient(ex: Throwable): Boolean {
-            return when {
-                // Connection to service is down, possibly a service down or under load situation
-                ex is WrappedAS2Exception && ex.cause is HttpHostConnectException -> true
-                ex is WrappedAS2Exception && ex.cause is ConnectTimeoutException -> true
-                ex is AS2HttpResponseException && ex.code == HttpStatus.SERVICE_UNAVAILABLE.value() -> true
-                ex is AS2HttpResponseException && ex.code == HttpStatus.TOO_MANY_REQUESTS.value() -> true
-                else -> false
-            }
+    /**
+     * Look at the [ex] exception and determine if the error is possibly transient and it is worth retrying.
+     */
+    internal fun isErrorTransient(ex: Throwable): Boolean {
+        return when {
+            // Connection to service is down, possibly a service down or under load situation
+            ex is WrappedAS2Exception && ex.cause is ConnectException -> true
+            ex is WrappedAS2Exception && ex.cause is ConnectTimeoutException -> true
+            ex is AS2HttpResponseException && ex.code == HttpStatus.SERVICE_UNAVAILABLE.value() -> true
+            ex is AS2HttpResponseException && ex.code == HttpStatus.TOO_MANY_REQUESTS.value() -> true
+            else -> false
         }
     }
 }
