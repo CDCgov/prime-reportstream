@@ -2,7 +2,7 @@ name: Frontend
 
 on:
   pull_request:
-    branches: [ master, production ]
+    branches: [master, production]
 
 jobs:
   pre_job:

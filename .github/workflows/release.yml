@@ -2,7 +2,7 @@ name: Release to Azure
 
 on:
   push:
-    branches: [ master, production, dev-rheft ]
+    branches: [master, production, dev-rheft]
 
 defaults:
   run:
@@ -30,7 +30,7 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
+          distribution: "adopt"
           java-version: 11
 
       - name: Build Prime Router Package
@@ -76,7 +76,7 @@ jobs:
 
   deploy_release_dev:
     name: "Deploy Release: DEV"
-    needs: [ build_release, build_frontend_release ]
+    needs: [build_release, build_frontend_release]
     if: github.ref == 'refs/heads/dev-rheft'
     environment: staging
     runs-on: ubuntu-latest
@@ -112,8 +112,8 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@master
         id: connect_vpn
         with:
-          PING_URL: '127.0.0.1'
-          FILE_OVPN: '.github/vpn/dev.ovpn'
+          PING_URL: "127.0.0.1"
+          FILE_OVPN: ".github/vpn/dev.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
           CA_CRT: ${{ secrets.CA_CRT}}
@@ -178,8 +178,8 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@master
         id: connect_vpn
         with:
-          PING_URL: '127.0.0.1'
-          FILE_OVPN: '.github/vpn/staging.ovpn'
+          PING_URL: "127.0.0.1"
+          FILE_OVPN: ".github/vpn/staging.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
           CA_CRT: ${{ secrets.CA_CRT}}
@@ -205,7 +205,6 @@ jobs:
         with:
           inlineScript: |
             az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
-
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
@@ -245,8 +244,8 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@master
         id: connect_vpn
         with:
-          PING_URL: '127.0.0.1'
-          FILE_OVPN: '.github/vpn/prod.ovpn'
+          PING_URL: "127.0.0.1"
+          FILE_OVPN: ".github/vpn/prod.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
           CA_CRT: ${{ secrets.CA_CRT}}

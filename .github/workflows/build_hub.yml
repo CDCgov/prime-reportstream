@@ -2,7 +2,7 @@ name: Router
 
 on:
   pull_request:
-    branches: [ master, production ]
+    branches: [master, production]
 
 jobs:
   pre_job:
@@ -64,7 +64,7 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
+          distribution: "adopt"
           java-version: 11
 
       - name: Build Prime Router Package
@@ -137,4 +137,4 @@ jobs:
     steps:
       - name: Deprecated Job
         run: |
-            true
+          true
