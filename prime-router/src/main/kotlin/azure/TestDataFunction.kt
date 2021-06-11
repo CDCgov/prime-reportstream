@@ -34,13 +34,13 @@ class TestDataFunction : Logging {
         context.logger.info("Entering test data extraction api")
         val reportIdStr = request.queryParameters["reportId"]
             ?: return HttpUtilities.badRequestResponse(request, "Missing reportId\n")
-        if (reportIdStr.lowercase() == "all") {
+        return if (reportIdStr.lowercase() == "all") {
             context.logger.info("Starting test data extraction for all reports")
-            return saveTestDataForAllReports(context, request)
+            saveTestDataForAllReports(context, request)
         } else {
             val reportId = UUID.fromString(reportIdStr)
             context.logger.info("Starting test data extraction for $reportId")
-            return saveTestDataForSingleReport(reportId, context, request)
+            saveTestDataForSingleReport(reportId, context, request)
         }
     }
 
@@ -62,7 +62,7 @@ class TestDataFunction : Logging {
                     context.logger.info("Trying to download report $reportId")
                     val report = getReport(reportFile, schema)
                     context.logger.info("Extracting the deidentified data for $reportId")
-                    val deidentifiedData = report.getDeidentifiedTestData()
+                    val deidentifiedData = report.getDeidentifiedResultMetaData()
                     context.logger.info("Extracted ${deidentifiedData.count()} rows to insert for $reportId")
                     context.logger.info("Removing old test data records for report id $reportId")
                     workflowEngine.db.deleteTestDataForReportId(reportId, txn)
@@ -73,6 +73,8 @@ class TestDataFunction : Logging {
                     results[reportId] = "Saved ${deidentifiedData.count()} records"
                 } catch (ex: Exception) {
                     results[reportFile.reportId] = "Exception processing report: ${ex.localizedMessage}"
+                    context.logger.severe(ex.message)
+                    context.logger.severe(ex.stackTraceToString())
                 }
             }
         }
@@ -106,7 +108,7 @@ class TestDataFunction : Logging {
             context.logger.info("Trying to download the report")
             val report = getReport(reportFile, schema)
             context.logger.info("Extracting the deidentified data")
-            val deidentifiedData = report.getDeidentifiedTestData()
+            val deidentifiedData = report.getDeidentifiedResultMetaData()
             context.logger.info("Extracted ${deidentifiedData.count()} rows to insert")
             context.logger.info("Removing old test data records for report id $reportId")
             workflowEngine.db.transact { txn ->

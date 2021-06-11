@@ -9,7 +9,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
-import gov.cdc.prime.router.azure.db.Tables.TEST_DATA
+import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
@@ -17,7 +17,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.azure.db.tables.pojos.TestData
+import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
@@ -504,52 +504,52 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.getValue(DSL.max(SETTING.VERSION)) ?: -1
     }
 
-    fun saveTestData(testData: List<TestData>, txn: DataAccessTransaction) {
+    fun saveTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
         testData.forEach {
             DSL
                 .using(txn)
-                .insertInto(TEST_DATA)
-                .set(TEST_DATA.TRACKING_ID, it.trackingId)
-                .set(TEST_DATA.REPORT_ID, it.reportId)
-                .set(TEST_DATA.ORDERING_PROVIDER_NAME, it.orderingProviderName)
-                .set(TEST_DATA.ORDERING_PROVIDER_ID, it.orderingProviderId)
-                .set(TEST_DATA.ORDERING_PROVIDER_STATE, it.orderingProviderState)
-                .set(TEST_DATA.ORDERING_PROVIDER_POSTAL_CODE, it.orderingProviderPostalCode)
-                .set(TEST_DATA.ORDERING_PROVIDER_COUNTY, it.orderingProviderCounty)
-                .set(TEST_DATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
-                .set(TEST_DATA.TEST_RESULT_CODE, it.testResultCode)
-                .set(TEST_DATA.TEST_RESULT, it.testResult)
-                .set(TEST_DATA.EQUIPMENT_MODEL, it.equipmentModel)
-                .set(TEST_DATA.ORDERING_FACILITY_CITY, it.orderingFacilityCity)
-                .set(TEST_DATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
-                .set(TEST_DATA.ORDERING_FACILITY_NAME, it.orderingFacilityName)
-                .set(TEST_DATA.ORDERING_FACILITY_POSTAL_CODE, it.orderingFacilityPostalCode)
-                .set(TEST_DATA.ORDERING_FACILITY_STATE, it.orderingFacilityState)
-                .set(TEST_DATA.TESTING_LAB_CITY, it.testingLabCity)
-                .set(TEST_DATA.TESTING_LAB_CLIA, it.testingLabClia)
-                .set(TEST_DATA.TESTING_LAB_COUNTY, it.testingLabCounty)
-                .set(TEST_DATA.TESTING_LAB_NAME, it.testingLabName)
-                .set(TEST_DATA.TESTING_LAB_STATE, it.testingLabState)
-                .set(TEST_DATA.TESTING_LAB_POSTAL_CODE, it.testingLabPostalCode)
-                .set(TEST_DATA.PATIENT_COUNTY, it.patientCounty)
-                .set(TEST_DATA.PATIENT_ETHNICITY_CODE, it.patientEthnicityCode)
-                .set(TEST_DATA.PATIENT_ETHNICITY, it.patientEthnicity)
-                .set(TEST_DATA.PATIENT_GENDER_CODE, it.patientGenderCode)
-                .set(TEST_DATA.PATIENT_GENDER, it.patientGender)
-                .set(TEST_DATA.PATIENT_POSTAL_CODE, it.patientPostalCode)
-                .set(TEST_DATA.PATIENT_RACE_CODE, it.patientRaceCode)
-                .set(TEST_DATA.PATIENT_RACE, it.patientRace)
-                .set(TEST_DATA.PATIENT_STATE, it.patientState)
-                .set(TEST_DATA.PATIENT_AGE, it.patientAge)
-                .set(TEST_DATA.SPECIMEN_COLLECTION_DATE_TIME, it.specimenCollectionDateTime)
+                .insertInto(COVID_RESULT_METADATA)
+                .set(COVID_RESULT_METADATA.MESSAGE_ID, it.messageId)
+                .set(COVID_RESULT_METADATA.REPORT_ID, it.reportId)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME, it.orderingProviderName)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_ID, it.orderingProviderId)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE, it.orderingProviderState)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_POSTAL_CODE, it.orderingProviderPostalCode)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY, it.orderingProviderCounty)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
+                .set(COVID_RESULT_METADATA.TEST_RESULT_CODE, it.testResultCode)
+                .set(COVID_RESULT_METADATA.TEST_RESULT, it.testResult)
+                .set(COVID_RESULT_METADATA.EQUIPMENT_MODEL, it.equipmentModel)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_CITY, it.orderingFacilityCity)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_NAME, it.orderingFacilityName)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_POSTAL_CODE, it.orderingFacilityPostalCode)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_STATE, it.orderingFacilityState)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_CITY, it.testingLabCity)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_CLIA, it.testingLabClia)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_COUNTY, it.testingLabCounty)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_NAME, it.testingLabName)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_STATE, it.testingLabState)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_POSTAL_CODE, it.testingLabPostalCode)
+                .set(COVID_RESULT_METADATA.PATIENT_COUNTY, it.patientCounty)
+                .set(COVID_RESULT_METADATA.PATIENT_ETHNICITY_CODE, it.patientEthnicityCode)
+                .set(COVID_RESULT_METADATA.PATIENT_ETHNICITY, it.patientEthnicity)
+                .set(COVID_RESULT_METADATA.PATIENT_GENDER_CODE, it.patientGenderCode)
+                .set(COVID_RESULT_METADATA.PATIENT_GENDER, it.patientGender)
+                .set(COVID_RESULT_METADATA.PATIENT_POSTAL_CODE, it.patientPostalCode)
+                .set(COVID_RESULT_METADATA.PATIENT_RACE_CODE, it.patientRaceCode)
+                .set(COVID_RESULT_METADATA.PATIENT_RACE, it.patientRace)
+                .set(COVID_RESULT_METADATA.PATIENT_STATE, it.patientState)
+                .set(COVID_RESULT_METADATA.PATIENT_AGE, it.patientAge)
+                .set(COVID_RESULT_METADATA.SPECIMEN_COLLECTION_DATE_TIME, it.specimenCollectionDateTime)
                 .executeAsync()
         }
     }
 
     fun deleteTestDataForReportId(reportId: UUID, txn: DataAccessTransaction) {
         DSL.using(txn)
-            .deleteFrom(TEST_DATA)
-            .where(TEST_DATA.REPORT_ID.eq(reportId))
+            .deleteFrom(COVID_RESULT_METADATA)
+            .where(COVID_RESULT_METADATA.REPORT_ID.eq(reportId))
             .execute()
     }
 

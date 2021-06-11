@@ -2,7 +2,7 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
-import gov.cdc.prime.router.azure.db.tables.pojos.TestData
+import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
@@ -487,11 +487,11 @@ class Report : Logging {
         return Report(mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages)
     }
 
-    fun getDeidentifiedTestData(): List<TestData> {
+    fun getDeidentifiedResultMetaData(): List<CovidResultMetadata> {
         return try {
             table.map { row ->
-                TestData().also {
-                    it.trackingId = row.getStringOrNull("message_id")
+                CovidResultMetadata().also {
+                    it.messageId = row.getStringOrNull("message_id")
                     it.orderingProviderName = row.getStringOrNull("ordering_provider_first_name") +
                         " " + row.getStringOrNull("ordering_provider_last_name")
                     it.orderingProviderId = row.getStringOrNull("ordering_provider_id")

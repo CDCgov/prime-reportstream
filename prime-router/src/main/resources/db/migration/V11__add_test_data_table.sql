@@ -6,10 +6,10 @@ use VARCHAR(63) for names in organization and schema
 
 Copy a version of this comment into the next migration
 */
-CREATE TABLE test_data
+CREATE TABLE covid_result_metadata
 (
     -- the message id, ties back to the item_lineage table
-    tracking_id VARCHAR(128) NULL,
+    message_id VARCHAR(128) NULL,
 
     -- equipment information
     equipment_model VARCHAR(512) NULL,
@@ -62,6 +62,7 @@ CREATE TABLE test_data
     created_dt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-COMMENT ON TABLE test_data IS 'A collection of deidentified data from tests to allow us to pull metrics';
+COMMENT ON TABLE covid_result_metadata IS 'A collection of deidentified data from tests to allow us to pull metrics';
 
-CREATE INDEX ON test_data(tracking_id);
+CREATE INDEX ON covid_result_metadata(message_id);
+
