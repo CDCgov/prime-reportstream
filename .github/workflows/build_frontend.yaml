@@ -33,7 +33,7 @@ jobs:
         working-directory: frontend
 
     steps:
-      - name: Check out changes
+      - name: "Check out changes"
         uses: actions/checkout@v2
 
       - name: Run Build Script
