@@ -17,7 +17,8 @@ jobs:
       POSTGRES_USER: prime
       POSTGRES_PASSWORD: changeIT!
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Setup PostgreSQL
         uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
@@ -85,7 +86,8 @@ jobs:
       ACR_REPO: rheftcontainerregistry.azurecr.io
       PREFIX: rheft
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Download Router Artifact
         uses: actions/download-artifact@v2
@@ -151,7 +153,8 @@ jobs:
       ACR_REPO: pdhstagingcontainerregistry.azurecr.io
       PREFIX: pdhstaging
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Download Router Artifact
         uses: actions/download-artifact@v2
@@ -217,7 +220,8 @@ jobs:
       ACR_REPO: pdhprodcontainerregistry.azurecr.io
       PREFIX: pdhprod
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Download Router Artifact
         uses: actions/download-artifact@v2
