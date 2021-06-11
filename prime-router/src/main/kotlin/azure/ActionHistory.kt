@@ -414,19 +414,23 @@ class ActionHistory {
         if (reportsOut.size == 0 && parentChildReports.size > 0)
             error("There are item lineages (${parentChildReports.joinToString(",")}) but no child reports")
         // compare the set of reportIds from the item lineage vs the set from report lineage.  Should be identical.
-        val parentReports = parentChildReports.map { it.first}.toSet()
-        val childReports = parentChildReports.map { it.second}.toSet()
+        val parentReports = parentChildReports.map { it.first }.toSet()
+        val childReports = parentChildReports.map { it.second }.toSet()
         var parentReports2 = mutableSetOf<ReportId>()
         parentReports2.addAll(reportsReceived.keys)
         parentReports2.addAll(reportsIn.keys)
         val childReports2 = reportsOut.keys
         if (!parentReports.equals(parentReports2)) {
-            error("parent reports from items (${parentReports.joinToString(",")}) != from reports" +
-                "(${parentReports2.joinToString(",")})")
+            error(
+                "parent reports from items (${parentReports.joinToString(",")}) != from reports" +
+                    "(${parentReports2.joinToString(",")})"
+            )
         }
         if (!childReports.equals(childReports2)) {
-            error("child reports from items (${childReports.joinToString(",")} != from reports" +
-                "(${childReports2.joinToString(",")})")
+            error(
+                "child reports from items (${childReports.joinToString(",")} != from reports" +
+                    "(${childReports2.joinToString(",")})"
+            )
         }
         context?.logger?.info("There are ${reportLineages.size} parent->child report-level relationships")
     }
@@ -472,7 +476,11 @@ class ActionHistory {
      *
      * This works by side-effect on jsonGen.
      */
-    fun prettyPrintDestinationsJson(jsonGen: JsonGenerator, settings: SettingsProvider, reportOptions: ReportFunction.Options) {
+    fun prettyPrintDestinationsJson(
+        jsonGen: JsonGenerator,
+        settings: SettingsProvider,
+        reportOptions: ReportFunction.Options
+    ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
         if (reportsOut.isNotEmpty()) {
@@ -496,7 +504,12 @@ class ActionHistory {
             }
             singles.forEach { (_, destData) ->
                 prettyPrintDestinationJson(
-                    jsonGen, destData.orgReceiver, destData.organization, destData.sendingAt, destData.count, reportOptions
+                    jsonGen,
+                    destData.orgReceiver,
+                    destData.organization,
+                    destData.sendingAt,
+                    destData.count,
+                    reportOptions
                 )
                 destinationCounter++
             }
@@ -519,12 +532,20 @@ class ActionHistory {
         jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
         jsonGen.writeStringField("service", orgReceiver.name)
 
-        if(reportOptions == ReportFunction.Options.SkipSend) {
-            jsonGen.writeStringField("sending_at", "never - skipSend specified")
-        }
-        else {
-            jsonGen.writeStringField("sending_at", if (sendingAt == null) "immediately" else "$sendingAt")
-        }
+        jsonGen.writeStringField(
+            "sending_at",
+            when {
+                reportOptions == ReportFunction.Options.SkipSend -> {
+                    "never - skipSend specified"
+                }
+                sendingAt == null -> {
+                    "immediately"
+                }
+                else -> {
+                    "$sendingAt"
+                }
+            }
+        )
 
         jsonGen.writeNumberField("itemCount", countToPrint)
         jsonGen.writeEndObject()
