@@ -68,14 +68,17 @@ jobs:
 
       - name: Build Prime Router Package
         run: bash ./gradlew clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
-        
+                
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/test/**/*.xml
-        
+ 
+      - name: Run Integration Tests
+        run: bash ./gradlew testIntegration
+ 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()

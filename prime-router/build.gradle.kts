@@ -193,7 +193,6 @@ tasks.register<JavaExec>("generateDocs") {
 
 tasks.azureFunctionsPackage {
     dependsOn("test")
-    dependsOn("testIntegration")
 }
 
 val azureResourcesTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-resources/$azureAppName")
