@@ -33,7 +33,8 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out changes
+        uses: actions/checkout@v2
 
       - name: Run Build Script
         run: bash ci_build.bash

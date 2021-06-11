@@ -37,7 +37,8 @@ jobs:
         working-directory: prime-router
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out changes
+        uses: actions/checkout@v2
 
       - name: Set Environment Variables
         run: |
@@ -68,7 +69,7 @@ jobs:
 
       - name: Build Prime Router Package
         run: bash ./gradlew clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
-        
+
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
@@ -124,7 +125,7 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-          
+
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
 
@@ -137,4 +138,3 @@ jobs:
       - name: Deprecated Job
         run: |
             true
-
