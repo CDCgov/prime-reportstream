@@ -119,7 +119,6 @@ tasks.register<JavaExec>("primeCLI") {
     environment["POSTGRES_URL"] = dbUrl
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
-    println(environment)
     doFirst {
         println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
         println(
