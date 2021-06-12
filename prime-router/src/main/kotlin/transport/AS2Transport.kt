@@ -64,6 +64,7 @@ class AS2Transport : ITransport, Logging {
             // do all the AS2 work
             sendViaAS2(as2Info, credential, externalFileName, sentReportId, header.content)
 
+            // Record the history of this transaction
             val msg = "${receiver.fullName}: Successful upload of $reportId"
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)
@@ -168,6 +169,7 @@ class AS2Transport : ITransport, Logging {
             ex is WrappedAS2Exception && ex.cause is ConnectTimeoutException -> true
             ex is AS2HttpResponseException && ex.code == HttpStatus.SERVICE_UNAVAILABLE.value() -> true
             ex is AS2HttpResponseException && ex.code == HttpStatus.TOO_MANY_REQUESTS.value() -> true
+            // Assume everything else is not transient
             else -> false
         }
     }
