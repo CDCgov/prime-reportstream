@@ -43,8 +43,8 @@ data class RedoxTransportType
 
 data class BlobStoreTransportType
 @JsonCreator constructor(
-    val storageName: String,   // this looks for an env var with this name. env var value is the connection string.
-    val containerName: String  // eg, hhsprotect
+    val storageName: String, // this looks for an env var with this name. env var value is the connection string.
+    val containerName: String // eg, hhsprotect
 ) :
     TransportType("BLOBSTORE")
 

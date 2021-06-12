@@ -10,10 +10,8 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserJksCredential
-import gov.cdc.prime.router.secrets.SecretService
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.spyk
 import org.junit.jupiter.api.BeforeEach
@@ -24,8 +22,6 @@ import assertk.assertThat
 import assertk.assertions.isNull
 import assertk.assertions.isSameAs
 import com.helger.as2lib.exception.WrappedAS2Exception
-import org.apache.http.conn.HttpHostConnectException
-import java.io.IOException
 import java.net.ConnectException
 import java.time.OffsetDateTime
 

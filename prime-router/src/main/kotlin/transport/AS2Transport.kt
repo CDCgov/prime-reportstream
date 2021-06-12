@@ -22,7 +22,6 @@ import com.helger.as2lib.processor.sender.AS2HttpResponseException
 import com.helger.security.keystore.EKeyStoreType
 import com.microsoft.azure.functions.HttpStatus
 import org.apache.http.conn.ConnectTimeoutException
-import org.apache.http.conn.HttpHostConnectException
 
 import org.apache.logging.log4j.kotlin.Logging
 import java.net.ConnectException
