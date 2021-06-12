@@ -3185,3 +3185,17 @@ XPN|Extended Person Name
 XTN|Extended Telecommunications Number
 
 ---
+
+**Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
+
+---
