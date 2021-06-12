@@ -76,7 +76,7 @@
         receivingOrganization: null
         type: "HL7"
       jurisdictionalFilter:
-        - "matches(abnormal_flag, N)"
+        - "doesNotMatch(abnormal_flag, A)"
         - "orEquals(ordering_facility_state, WA, patient_state, WA)"
       qualityFilter: []
       reverseTheQualityFilter: false

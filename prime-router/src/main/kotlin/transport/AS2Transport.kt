@@ -31,8 +31,10 @@ const val TIMEOUT = 10_000
 
 /**
  * The AS2 transport was built for communicating to the WA OneHealthNetwork. It is however a general transport protocol
- * that is used in other contexts and perhaps could be used elsewhere by other PHD in the US. Here, we are using
- * in similar fashion to SFTP.
+ * that is used in other contexts and perhaps could be used elsewhere by other PHD in the US.
+ *
+ * See [Wikapedia AS2](https://en.wikipedia.org/wiki/AS2) for details on AS2.
+ * See [PHAX as2-lib](https://github.com/phax/as2-lib) for the details on the library we use.
  */
 class AS2Transport : ITransport, Logging {
     /**
@@ -46,6 +48,8 @@ class AS2Transport : ITransport, Logging {
         context: ExecutionContext,
         actionHistory: ActionHistory,
     ): RetryItems? {
+        // DevNote: This code is similar to the SFTP code in structure
+        //
         val as2Info = transportType as AS2TransportType
         val reportId = header.reportFile.reportId
         return try {
@@ -157,7 +161,7 @@ class AS2Transport : ITransport, Logging {
     /**
      * Look at the [ex] exception and determine if the error is possibly transient and it is worth retrying.
      */
-    internal fun isErrorTransient(ex: Throwable): Boolean {
+    private fun isErrorTransient(ex: Throwable): Boolean {
         return when {
             // Connection to service is down, possibly a service down or under load situation
             ex is WrappedAS2Exception && ex.cause is ConnectException -> true
