@@ -55,7 +55,7 @@ data class AS2TransportType
     val senderId: String,
     val senderEmail: String = "reportstream@cdc.gov", // Default,
     val mimeType: String = "application/hl7-v2",
-    val contentDescription: String = "COVID-19 Electronic Lab Results"
+    val contentDescription: String = "SARS-CoV-2 Electronic Lab Results"
 ) :
     TransportType("AS2")
 
