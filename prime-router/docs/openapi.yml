@@ -1,6 +1,6 @@
 openapi: 3.0.2
 info:
-  title: Prime Data Hub
+  title: Prime ReportStream
   description: A router of public health data from multiple senders and receivers
   contact:
     name: USDS at Centers for Disease Control and Prevention
