@@ -510,8 +510,14 @@ class PutMultipleSettings : SettingCommand(
     name = "set",
     help = "set all settings from a 'organizations.yml' file"
 ) {
+
     override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
         .inputStream()
+
+    private val verbose by option(
+        "--verbose",
+        help = "Verbose output"
+    ).flag(default = false)
 
     override fun run() {
         val environment = getEnvironment()
@@ -528,16 +534,31 @@ class PutMultipleSettings : SettingCommand(
         deepOrgs.forEach { deepOrg ->
             val org = Organization(deepOrg)
             val payload = jsonMapper.writeValueAsString(org)
+
+            if(verbose) {
+                println("""Organization :: $payload""")
+            }
+
             results += put(environment, accessToken, SettingType.ORG, deepOrg.name, payload)
         }
         // Put senders
         deepOrgs.flatMap { it.senders }.forEach { sender ->
             val payload = jsonMapper.writeValueAsString(sender)
+
+            if(verbose) {
+                println("""Sender :: $payload""")
+            }
+
             results += put(environment, accessToken, SettingType.SENDER, sender.fullName, payload)
         }
         // Put receivers
         deepOrgs.flatMap { it.receivers }.forEach { receiver ->
             val payload = jsonMapper.writeValueAsString(receiver)
+
+            if(verbose) {
+                println("""Receiver :: $receiver""")
+            }
+
             results += put(environment, accessToken, SettingType.RECEIVER, receiver.fullName, payload)
         }
         return results
