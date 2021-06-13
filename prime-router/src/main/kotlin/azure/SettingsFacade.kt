@@ -17,6 +17,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import org.jooq.JSON
 import org.jooq.JSONB
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 /**
  * Settings for Organization, Receivers, and Senders from the Azure Database.
@@ -75,6 +76,10 @@ class SettingsFacade(
     ): String? {
         val result = findSetting(name, clazz, organizationName) ?: return null
         return mapper.writeValueAsString(result)
+    }
+
+    fun getLastModified(): OffsetDateTime? {
+        return db.fetchLastModified()
     }
 
     private fun <T : SettingAPI> findSetting(
