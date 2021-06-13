@@ -131,11 +131,7 @@ function logout() {
 async function fetchReportFeeds(){
 
     var reports = await fetchReports();
-
-    console.log( reports );
     var receivingOrgSvc = reports.map( rep => rep.receivingOrgSvc )
-
-    console.log( receivingOrgSvc );
 
     return Array.from( new Set( receivingOrgSvc ) );
 
@@ -201,7 +197,6 @@ function getBaseUrl() {
 function changeOrg( event ){
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
-    console.log( `event.value = ${event.value}`);
 }
 /**
  *
@@ -288,26 +283,25 @@ function titleCase(str) {
   }
 
 async function processReportFeeds(){
+    var feeds = await fetchReportFeeds();
+    const tabs = document.getElementById("tabs");  
+
+    if( tabs ) tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
     const reportFeeds = document.getElementById("reportFeeds");  
-    var feeds = []; 
-    if( reportFeeds )
-        feeds = await fetchReportFeeds();
-        console.log( feeds );
-        console.log( `found ${feeds.length} feeds`)
-        if( feeds.length > 0 ){
+    if( reportFeeds )        
+        if( feeds.length > 1 ){
             feeds.forEach( (feed, idx ) => {
-                console.log( `adding feed ${feed}` )
-                
                 reportFeeds.innerHTML += `
                     <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx>0? "" : "checked"}>
                     <label for="tab${idx}">${feed.replaceAll( "-", " ").toUpperCase()}</label>
                     ` 
                 
             })
+        }
             
             feeds.forEach( (feed,idx) => {
                 reportFeeds.innerHTML += `
-                    <div class="tab__content">
+                    <div class=${feeds.length>1?"tab__content":""}>
                     <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
                     <thead>
                       <tr>
@@ -318,7 +312,7 @@ async function processReportFeeds(){
                         <th scope="col">File</th>
                       </tr>
                     </thead>
-                    <tbody id="tBody${idx}" class="font-mono-2xs">
+                    <tbody id="tBody${idx?idx:''}" class="font-mono-2xs">
                     </tbody>
                   </table>
                     </div>
@@ -326,7 +320,6 @@ async function processReportFeeds(){
     
             })
         
-        }
         return feeds;
 }
 
@@ -336,7 +329,6 @@ async function processReportFeeds(){
  */
 async function processReports(feed, idx){
 
-    console.log( `feed = ${feed}, idx=${idx}`)
     let reports = [];
     try {
         reports = await fetchReports(feed);
@@ -345,8 +337,7 @@ async function processReports(feed, idx){
         console.error(error);
     }
     reports.forEach(_report => {
-        const tBody = document.getElementById(`tBody${idx}`);
-        console.log( `found tBody${idx}`)
+        const tBody = document.getElementById(`tBody${idx?idx:''}`);
         if (tBody) tBody.innerHTML +=
             `<tr>
                 <th data-title="reportId" scope="row">
