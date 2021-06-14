@@ -142,7 +142,8 @@ class TestDataFunction : Logging {
             schema.name,
             ByteArrayInputStream(bytes),
             emptyList(),
-            blobReportId = reportFile.reportId
+            blobReportId = reportFile.reportId,
+            useDefaultsForMissing = true
         )
     }
 
