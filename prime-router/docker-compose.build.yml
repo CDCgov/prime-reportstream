@@ -25,7 +25,7 @@ services:
     networks:
       - prime-router_build
 
-  # NOTE: this pre-empts the docker-infrastructure yaml file
+  # NOTE: this replaces the docker-infrastructure yaml file
   # There is also no adminer or any other Admin UI that is part of this
   # build docker-compose as we do not want to dictate that.
   # You can connect using psql, or pgAdmin, or ... just point at localhost:5432
