@@ -1,3 +1,43 @@
+locals {
+  all_app_settings = {
+    "POSTGRES_USER" = "${data.azurerm_key_vault_secret.postgres_user.value}@${data.azurerm_postgresql_server.postgres_server.name}"
+    "POSTGRES_PASSWORD" = data.azurerm_key_vault_secret.postgres_pass.value
+
+    "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
+
+    "OKTA_baseUrl" = "hhs-prime.okta.com"
+    "OKTA_redirect" = var.okta_redirect_url
+
+    # Manage client secrets via a Key Vault
+    "CREDENTIAL_STORAGE_METHOD" ="AZURE"
+    "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"
+
+    # Manage app secrets via a Key Vault
+    "SECRET_STORAGE_METHOD" = "AZURE"
+    "SECRET_KEY_VAULT_NAME" = "${var.resource_prefix}-appconfig"
+
+    # Route outbound traffic through the VNET
+    "WEBSITE_VNET_ROUTE_ALL" = 1
+
+    # Route storage account access through the VNET
+    "WEBSITE_CONTENTOVERVNET" = 1
+
+    # Use the VNET DNS server (so we receive private endpoint URLs
+    "WEBSITE_DNS_SERVER" = "168.63.129.16"
+
+    "DOCKER_REGISTRY_SERVER_URL" = data.azurerm_container_registry.container_registry.login_server
+    "DOCKER_REGISTRY_SERVER_USERNAME" = data.azurerm_container_registry.container_registry.admin_username
+    "DOCKER_REGISTRY_SERVER_PASSWORD" = data.azurerm_container_registry.container_registry.admin_password
+    "DOCKER_CUSTOM_IMAGE_NAME" = "${data.azurerm_container_registry.container_registry.login_server}/${var.resource_prefix}:latest"
+
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
+
+    "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
+
+    "FEATURE_FLAG_SETTINGS_ENABLED" = true
+  }
+}
+
 resource "azurerm_function_app" "function_app" {
   name = "${var.resource_prefix}-functionapp"
   location = var.location
@@ -25,20 +65,6 @@ resource "azurerm_function_app" "function_app" {
       service_tag = "AzureFrontDoor.Backend"
     }
 
-    ip_restriction {
-      action = "Allow"
-      name = "Ron IP"
-      priority = 120
-      ip_address = "165.225.48.87/31" # /31 is correct, can be 165.225.48.87 or 165.225.48.88
-    }
-
-    ip_restriction {
-      action = "Allow"
-      name = "Jim IP"
-      priority = 130
-      ip_address = "108.51.58.151/32"
-    }
-
     scm_use_main_ip_restriction = true
 
     http2_enabled = true
@@ -57,47 +83,12 @@ resource "azurerm_function_app" "function_app" {
     }
   }
 
-  app_settings = {
-    "POSTGRES_USER" = "${data.azurerm_key_vault_secret.postgres_user.value}@${data.azurerm_postgresql_server.postgres_server.name}"
-    "POSTGRES_PASSWORD" = data.azurerm_key_vault_secret.postgres_pass.value
+  app_settings = merge(local.all_app_settings, {
     "POSTGRES_URL" = "jdbc:postgresql://${data.azurerm_postgresql_server.postgres_server.name}.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
-
-    "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
-
-    "OKTA_baseUrl" = "hhs-prime.okta.com"
-    "OKTA_redirect" = var.okta_redirect_url
-
-    # Manage client secrets via a Key Vault
-    "CREDENTIAL_STORAGE_METHOD" ="AZURE"
-    "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"
-
-    # Manage app secrets via a Key Vault
-    "SECRET_STORAGE_METHOD" = "AZURE"
-    "SECRET_KEY_VAULT_NAME" = "${var.resource_prefix}-appconfig"
-
-    # Route outbound traffic through the VNET
-    "WEBSITE_VNET_ROUTE_ALL" = 1
-
-    # Route storage account access through the VNET
-    "WEBSITE_CONTENTOVERVNET" = 1
-
-    # Use the VNET DNS server (so we receive private endpoint URLs
-    "WEBSITE_DNS_SERVER" = "168.63.129.16"
 
     # HHS Protect Storage Account
     "PartnerStorage" = data.azurerm_storage_account.storage_partner.primary_connection_string
-
-    "DOCKER_REGISTRY_SERVER_URL" = data.azurerm_container_registry.container_registry.login_server
-    "DOCKER_REGISTRY_SERVER_USERNAME" = data.azurerm_container_registry.container_registry.admin_username
-    "DOCKER_REGISTRY_SERVER_PASSWORD" = data.azurerm_container_registry.container_registry.admin_password
-    "DOCKER_CUSTOM_IMAGE_NAME" = "${data.azurerm_container_registry.container_registry.login_server}/${var.resource_prefix}:latest"
-
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
-
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
-
-    "FEATURE_FLAG_SETTINGS_ENABLED" = true
-  }
+  })
 
   identity {
     type = "SystemAssigned"
