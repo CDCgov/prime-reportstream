@@ -80,7 +80,7 @@ jobs:
     environment: dev
     runs-on: ubuntu-latest
     env:
-      RESOURCE_GROUP: prime-dev-rkh5012
+      RESOURCE_GROUP: prime-dev-rheft
       ACR_REPO: rkh5012containerregistry.azurecr.io
       PREFIX: rkh5012
     steps:
