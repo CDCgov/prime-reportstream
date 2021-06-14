@@ -6,6 +6,7 @@ resource "azurerm_storage_account" "storage_account" {
   account_replication_type = "GRS"
   min_tls_version = "TLS1_2"
   allow_blob_public_access = false
+  enable_https_traffic_only = true
 
   network_rules {
     default_action = "Deny"
@@ -124,6 +125,7 @@ resource "azurerm_storage_account" "storage_public" {
   account_replication_type = "GRS"
   min_tls_version = "TLS1_2"
   allow_blob_public_access = false
+  enable_https_traffic_only = true
 
   static_website {
     index_document = "index.html"
@@ -156,6 +158,7 @@ resource "azurerm_storage_account" "storage_partner" {
   account_replication_type = "GRS"
   min_tls_version = "TLS1_2"
   allow_blob_public_access = false
+  enable_https_traffic_only = true
 
   network_rules {
     default_action = "Deny"
