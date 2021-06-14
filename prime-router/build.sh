@@ -8,7 +8,7 @@ BUILDER_IMAGE_NAME="prime-router_builder"
 
 # Defaults
 ACTION=${ACTION:-builder}
-REBUILD=${REBUILD:-0}
+FRESH_BUILDER=${REFRESH_BUILDER:-0}
 
 while [[ -n "${1}" && "${1:0:1}" == "-" ]]; do
   if [[ "${1}" == "--" ]]; then
@@ -22,8 +22,8 @@ while [[ -n "${1}" && "${1:0:1}" == "-" ]]; do
     ACTION=${2}
     shift
     ;;
-  "--rebuild" | "-r")
-    REBUILD=1
+  "--refresh" | "--refresh-builder" | "-r")
+    REFRESH_BUILDER=1
     ;;
   *)
     echo "Unrecognized switch \"${1}\""
@@ -36,8 +36,10 @@ done
 
 pushd "${HERE?}" 2>&1 1>/dev/null
 
-# Clean if requested
-if [[ ${REBUILD} != 0 ]]; then
+# Clean if requested, bring down the docker-compose environment
+# so that we can cleanly get rid of the image
+if [[ ${REFRESH_BUILDER?} != 0 ]]; then
+  docker-compose --file "${DOCKER_COMPOSE?}" down
   docker image rm "${BUILDER_IMAGE_NAME?}"
 fi
 
