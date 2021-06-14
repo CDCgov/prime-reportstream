@@ -77,12 +77,12 @@ jobs:
     name: "Deploy Release: DEV"
     needs: [ build_release, build_frontend_release ]
     if: github.ref == 'refs/heads/dev-rheft'
-    environment: staging
+    environment: dev
     runs-on: ubuntu-latest
     env:
-      RESOURCE_GROUP: prime-dev-rheft
-      ACR_REPO: rheftcontainerregistry.azurecr.io
-      PREFIX: rheft
+      RESOURCE_GROUP: prime-dev-rkh5012
+      ACR_REPO: rkh5012containerregistry.azurecr.io
+      PREFIX: rkh5012
     steps:
       - uses: actions/checkout@v2
 
