@@ -5,7 +5,7 @@ FROM debian:buster as builder
 
 # --override via --build-arg JDK_VERSION=11 or via builder.build.args stanza in docker-compose.build.yml
 # most outer value wins, thus command line > docker-compose file > dockerfile
-ARG JDK_VERSION 11
+ARG JAVA_VERSION 11
 
 # Pre-requisites
 RUN apt-get update \
@@ -14,7 +14,7 @@ RUN apt-get update \
     gpg \
     lsb-release \
     maven \
-    openjdk-${JDK_VERSION}-jdk
+    openjdk-${JAVA_VERSION}-jdk
 
 # Azure Function Core Tools
 ENV FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT 1

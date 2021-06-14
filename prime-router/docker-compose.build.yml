@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile.build
       args:
-        JDK_VERSION: 11
+        JAVA_VERSION: 11
     environment:
       FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
     volumes: # Attach the pwd into the image
