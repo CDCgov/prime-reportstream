@@ -6,6 +6,13 @@ DOCKER_COMPOSE="${HERE?}/docker-compose.build.yml"
 
 BUILDER_IMAGE_NAME="prime-router_builder"
 
+function usage() {
+  echo "usage: ${0} [--action|-a \"<action>\"] [--refresh[-build]|-r]"
+  echo ""
+  echo -e "\t--action|-a              Which container to run (default: builder)"
+  echo -e "\t--refresh[-builder]|-r   Refreshes your builder container (i.e. removes any previous ones and rebuilds your builder-container image)"
+}
+
 # Defaults
 ACTION=${ACTION:-builder}
 REFRESH_BUILDER=${REFRESH_BUILDER:-0}
@@ -25,7 +32,13 @@ while [[ -n "${1}" && "${1:0:1}" == "-" ]]; do
   "--refresh" | "--refresh-builder" | "-r")
     REFRESH_BUILDER=1
     ;;
+  "--help" | "-h")
+    usage
+    exit 0
+    ;;
   *)
+    usage
+    echo ""
     echo "Unrecognized switch \"${1}\""
     exit 1
     ;;
