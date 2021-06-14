@@ -29,6 +29,7 @@ class FakeDataService {
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
+                element.nameContains("sender_id") -> "ImageMover"
                 element.nameContains("facility_name") -> "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
@@ -129,6 +130,10 @@ class FakeDataService {
                             "Schema Error: Could not lookup ${context.equipmentModel} " +
                                 "to ${element.tableColumn}"
                         )
+                }
+                element.table?.startsWith("LIVD-Supplemental") == true -> {
+                    if (element.tableColumn == null) return ""
+                    element.default ?: ""
                 }
                 element.table == "fips-county" -> {
                     when {

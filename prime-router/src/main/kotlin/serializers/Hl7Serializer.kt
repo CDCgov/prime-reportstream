@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v251.datatype.DR
+import ca.uhn.hl7v2.model.v251.datatype.DT
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
@@ -23,6 +24,8 @@ import gov.cdc.prime.router.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
+import java.time.Instant
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -250,19 +253,28 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 var value = ""
                 for (i in 0 until hl7Fields.size) {
                     val hl7Field = hl7Fields[i]
-                    value = when {
+                    value =
                         // Decode a phone number
-                        element.type == Element.Type.TELEPHONE -> decodeHl7PhoneNumber(terser, element, hl7Field)
+                        if (element.type == Element.Type.TELEPHONE) {
+                            decodeHl7PhoneNumber(terser, element, hl7Field)
+                        }
                         // Decode a timestamp
-                        element.type == Element.Type.DATETIME -> decodeHl7DateTime(terser, element, hl7Field, warnings)
+                        else if (element.type == Element.Type.DATETIME ||
+                            element.type == Element.Type.DATE
+                        ) {
+                            decodeHl7DateTime(terser, element, hl7Field, warnings)
+                        }
                         // Decode an AOE question
-                        hl7Field == "AOE" -> decodeAOEQuestion(element, terser, errors, warnings)
+                        else if (hl7Field == "AOE") {
+                            decodeAOEQuestion(element, terser, errors, warnings)
+                        }
                         // No special case here, so get a value from an HL7 field
-                        else -> queryTerserForValue(
-                            terser, getTerserSpec(hl7Field), element.name,
-                            errors, warnings
-                        )
-                    }
+                        else {
+                            queryTerserForValue(
+                                terser, getTerserSpec(hl7Field), element.name,
+                                errors, warnings
+                            )
+                        }
                     if (value.isNotBlank()) break
                 }
 
@@ -954,37 +966,63 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         hl7Field: String,
         warnings: MutableList<String>
     ): String {
-        var dateTime = ""
+        var valueString = ""
         val fieldParts = getTerserSpec(hl7Field).split("-")
         if (fieldParts.size > 1) {
             val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
             if (segment != null && fieldNumber != null) {
-                val dtm = when (val value = segment.getField(fieldNumber, 0)) {
+                var dtm: Instant? = null
+                var rawValue = ""
+                when (val value = segment.getField(fieldNumber, 0)) {
                     // Timestamp
-                    is TS -> value.time
+                    is TS -> {
+                        dtm = value.time?.valueAsDate?.toInstant()
+                        rawValue = value.toString()
+                    }
                     // Date range. For getting a date time, use the start of the range
-                    is DR -> value.rangeStartDateTime?.time
-                    else -> null
+                    is DR -> {
+                        dtm = value.rangeStartDateTime?.time?.valueAsDate?.toInstant()
+                        rawValue = value.toString()
+                    }
+                    is DT -> {
+                        dtm = LocalDate.of(value.year, value.month, value.day)
+                            .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                        rawValue = value.toString()
+                    }
                 }
 
                 dtm?.let {
-                    if (it.valueAsDate != null) {
-                        // Check to see if we have all the precision we want including the time zone offset
-                        val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
-                        if (!r.matches(it.value)) {
-                            warnings.add(
-                                "Timestamp for $hl7Field - ${element.name} needs to provide more " +
-                                    "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
-                            )
+                    // Now check to see if we have all the precision we want
+                    when (element.type) {
+                        Element.Type.DATETIME -> {
+                            valueString = DateTimeFormatter.ofPattern(Element.datetimePattern)
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.systemDefault()))
+                            val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.{0,1}[0-9]{0,4}[+-][0-9]{4}\\]\$")
+                            if (!r.matches(rawValue)) {
+                                warnings.add(
+                                    "Timestamp for $hl7Field - ${element.name} needs to provide more " +
+                                        "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
+                                )
+                            }
                         }
-                        dateTime = DateTimeFormatter.ofPattern(Element.datetimePattern)
-                            .format(OffsetDateTime.ofInstant(it.valueAsDate.toInstant(), ZoneId.systemDefault()))
+                        Element.Type.DATE -> {
+                            valueString = DateTimeFormatter.ofPattern(Element.datePattern)
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.systemDefault()))
+                            // Note that some schema fields of type date could be derived from HL7 date time fields
+                            val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
+                            if (!r.matches(rawValue)) {
+                                warnings.add(
+                                    "Date for $hl7Field - ${element.name} needs to provide more " +
+                                        "precision. Should be formatted as YYYYMMDD"
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
-        return dateTime
+        return valueString
     }
 
     /**

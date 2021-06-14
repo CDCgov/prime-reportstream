@@ -1,12 +1,6 @@
-terraform {
-    required_version = ">= 0.14"
-}
-
-data "azurerm_client_config" "current" {}
-
 resource "azurerm_storage_account" "storage_account" {
   resource_group_name = var.resource_group
-  name = var.name
+  name = "${var.resource_prefix}storageaccount"
   location = var.location
   account_tier = "Standard"
   account_replication_type = "GRS"
@@ -14,7 +8,11 @@ resource "azurerm_storage_account" "storage_account" {
   network_rules {
     default_action = "Deny"
     ip_rules = []
-    virtual_network_subnet_ids = [var.public_subnet_id, var.container_subnet_id, var.endpoint_subnet_id]
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.public.id,
+      data.azurerm_subnet.container.id,
+      data.azurerm_subnet.endpoint.id
+    ]
   }
 
   # Required for customer-managed encryption
@@ -38,7 +36,7 @@ module "storageaccount_blob_private_endpoint" {
   type = "storage_account_blob"
   resource_group = var.resource_group
   location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }
 
 module "storageaccount_file_private_endpoint" {
@@ -48,7 +46,7 @@ module "storageaccount_file_private_endpoint" {
   type = "storage_account_file"
   resource_group = var.resource_group
   location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }
 
 module "storageaccount_queue_private_endpoint" {
@@ -58,7 +56,7 @@ module "storageaccount_queue_private_endpoint" {
   type = "storage_account_queue"
   resource_group = var.resource_group
   location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }
 
 # Point-in-time restore, soft delete, versioning, and change feed were
@@ -95,9 +93,7 @@ resource "azurerm_storage_management_policy" "retention_policy" {
 
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_policy" {
-  count = azurerm_storage_account.storage_account.identity.0.principal_id != null ? 1 : 0
-
-  key_vault_id = var.key_vault_id
+  key_vault_id = data.azurerm_key_vault.application.id
   tenant_id = data.azurerm_client_config.current.tenant_id
   object_id = azurerm_storage_account.storage_account.identity.0.principal_id
 
@@ -107,78 +103,11 @@ resource "azurerm_key_vault_access_policy" "storage_policy" {
 resource "azurerm_storage_account_customer_managed_key" "storage_key" {
   count = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
   key_name = var.rsa_key_4096
-  key_vault_id = var.key_vault_id
+  key_vault_id = data.azurerm_key_vault.application.id
   key_version = null // Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_account.id
 
   depends_on = [azurerm_key_vault_access_policy.storage_policy]
-}
-
-module "storageaccount_access_log_event_hub_log" {
-  source = "../event_hub_log"
-  resource_type = "storage_account"
-  log_type = "access"
-  eventhub_namespace_name = var.eventhub_namespace_name
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-}
-
-resource "azurerm_monitor_diagnostic_setting" "storageaccount_access_log" {
-  name = "${var.resource_prefix}-storage_account-access-log"
-  # Workaround for target resource id here: https://github.com/terraform-providers/terraform-provider-azurerm/issues/8275#issuecomment-755222989
-  target_resource_id = "${azurerm_storage_account.storage_account.id}/blobServices/default/"
-  eventhub_name = module.storageaccount_access_log_event_hub_log.event_hub_name
-  eventhub_authorization_rule_id = var.eventhub_manage_auth_rule_id
-
-  log {
-    category = "StorageRead"
-    enabled  = true
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  log {
-    category = "StorageWrite"
-    enabled  = true
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  log {
-    category = "StorageDelete"
-    enabled  = true
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  metric {
-    category = "Transaction"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  metric {
-    category = "Capacity"
-    enabled  = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
 }
 
 
@@ -229,7 +158,10 @@ resource "azurerm_storage_account" "storage_partner" {
   network_rules {
     default_action = "Deny"
     ip_rules = split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value)
-    virtual_network_subnet_ids = [var.public_subnet_id, var.endpoint_subnet_id]
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.public.id,
+      data.azurerm_subnet.endpoint.id
+    ]
   }
 
   # Required for customer-managed encryption
@@ -246,14 +178,11 @@ resource "azurerm_storage_account" "storage_partner" {
   }
 }
 
-data "azurerm_key_vault_secret" "hhsprotect_ip_ingress" {
-  name = "hhsprotect-ip-ingress"
-  key_vault_id = var.key_vault_id
-}
+
 
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_partner_policy" {
-  key_vault_id = var.key_vault_id
+  key_vault_id = data.azurerm_key_vault.application.id
   tenant_id = data.azurerm_client_config.current.tenant_id
   object_id = azurerm_storage_account.storage_partner.identity.0.principal_id
 
@@ -263,7 +192,7 @@ resource "azurerm_key_vault_access_policy" "storage_partner_policy" {
 resource "azurerm_storage_account_customer_managed_key" "storage_partner_key" {
   count = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
   key_name = var.rsa_key_4096
-  key_vault_id = var.key_vault_id
+  key_vault_id = data.azurerm_key_vault.application.id
   key_version = null // Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_partner.id
 
@@ -277,7 +206,7 @@ module "storageaccountpartner_blob_private_endpoint" {
   type = "storage_account_blob"
   resource_group = var.resource_group
   location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }
 
 resource "azurerm_storage_container" "storage_container_hhsprotect" {
@@ -308,27 +237,4 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
       # This needs to be manually checked in the policy and set to 30 days
     }
   }
-}
-
-
-
-output "storage_account_name" {
-  value = azurerm_storage_account.storage_account.name
-}
-
-output "storage_account_key" {
-  value = azurerm_storage_account.storage_account.primary_access_key
-}
-
-output "storage_account_public_id" {
-  value = azurerm_storage_account.storage_public.id
-}
-
-output "storage_web_endpoint" {
-  value = azurerm_storage_account.storage_public.primary_web_endpoint
-}
-
-output "storage_partner_connection_string" {
-  value = azurerm_storage_account.storage_partner.primary_connection_string
-  sensitive = true
 }
