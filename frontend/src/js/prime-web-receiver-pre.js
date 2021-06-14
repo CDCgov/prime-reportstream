@@ -51,7 +51,7 @@ async function fetchOrgName() {
 
     if (!window.org || !window.jwt) return null;
 
-    return Promise.all([
+    return isLocalhost()? "Localhost Public Health Department" : Promise.all([
         axios.get(`${baseURL}/api/settings/organizations/${window.org.substring(2).replaceAll("_", "-")}`, config)
             .then(res => res.data)
             .then(org => org.description)
@@ -136,7 +136,7 @@ async function fetchReports() {
     const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
     const baseURL = getBaseUrl();
 
-    return window.jwt? axios.get(`${baseURL}/api/history/report`, config).then(res => res.data) : [];
+    return isLocalhost()? ReportData : window.jwt? axios.get(`${baseURL}/api/history/report`, config).then(res => res.data) : [];
 }
 
 /**
@@ -166,6 +166,15 @@ function signIn() {
     }
 }
 */
+
+/**
+ * Determines if the system is running as localhost
+ * 
+ * @returns 
+ */
+function isLocalhost(){
+    return window.location.origin.includes("localhost:8088");    
+}
 
 /**
  *
