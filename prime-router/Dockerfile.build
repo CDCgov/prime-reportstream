@@ -1,0 +1,32 @@
+#
+# This Dockerfile defines the container in which we perform the build
+#
+FROM debian:buster as builder
+
+# --override via --build-arg JDK_VERSION=11 or via builder.build.args stanza in docker-compose.build.yml
+# most outer value wins, thus command line > docker-compose file > dockerfile
+ARG JDK_VERSION 11
+
+# Pre-requisites
+RUN apt-get update \
+    && apt-get --yes install \
+    curl \
+    git \
+    gpg \
+    lsb-release \
+    maven \
+    openjdk-${JDK_VERSION}-jdk
+
+# Azure Function Core Tools
+ENV FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT 1
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg
+RUN echo "deb [arch=amd64] https://packages.microsoft.com/debian/$(lsb_release -rs | cut -d'.' -f 1)/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list
+RUN apt-get update \
+    && apt-get --yes install \
+    azure-functions-core-tools-3
+
+# A place to mount our source
+RUN mkdir -p "/src"
+WORKDIR "/src"
+
+ENTRYPOINT [ "./gradlew", "clean", "package" ]
