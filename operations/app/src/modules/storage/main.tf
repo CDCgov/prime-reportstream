@@ -4,6 +4,8 @@ resource "azurerm_storage_account" "storage_account" {
   location = var.location
   account_tier = "Standard"
   account_replication_type = "GRS"
+  min_tls_version = "TLS1_2"
+  allow_blob_public_access = false
 
   network_rules {
     default_action = "Deny"
