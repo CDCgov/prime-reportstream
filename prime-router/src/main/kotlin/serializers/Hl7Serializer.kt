@@ -321,6 +321,21 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             errors.add(msg)
         }
 
+        // Check for required fields now that we are done processing all the fields
+        schema.elements.forEach { element ->
+            if (!element.isOptional) {
+                var isValueEmpty = true
+                mappedRows[element.name]?.forEach { elementValues ->
+                    if (!elementValues.isNullOrEmpty()) {
+                        isValueEmpty = false
+                    }
+                }
+                if (isValueEmpty) {
+                    errors.add("The Value for ${element.name} for field ${element.hl7Field} is required")
+                }
+            }
+        }
+
         // convert sets to lists
         val rows = mappedRows.keys.associateWith {
             (mappedRows[it]?.toList() ?: emptyList())

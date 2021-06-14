@@ -169,7 +169,9 @@ data class Element(
 
     val isCodeType get() = this.type == Type.CODE
 
-    val isOptional get() = this.cardinality == Cardinality.ZERO_OR_ONE
+    val isOptional get() = this.cardinality == null || this.cardinality == Cardinality.ZERO_OR_ONE ||
+        this.type == Type.BLANK || this.type == Type.STREET_OR_BLANK || this.type == Type.TABLE_OR_BLANK ||
+        this.type == Type.TEXT_OR_BLANK
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||
@@ -300,8 +302,8 @@ data class Element(
                         normalizedValue
                             .replace("(", "")
                             .replace(")", ""),
-                        "1",    // country code
-                        ""      // extension
+                        "1", // country code
+                        "" // extension
                     )
                 }
 
