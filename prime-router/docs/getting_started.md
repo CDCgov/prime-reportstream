@@ -42,15 +42,11 @@ You'll need the OpenJDK (v11), Maven, the Azure CLI and Docker
     * Debian/Ubuntu-based distributions:
         ```bash
         $ sudo apt update
-        $ sudo apt install openjdk-11-jdk maven docker-ce azure-cli
-        $ #
-        $ # install brew (needed for Azure Functions Core Tools)
-        $ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        $ # Add brew to your ${PATH} (add to your ${HOME?}/.bashrc)
-        $ export PATH="${PATH}:${HOME?}/.linuxbrew/bin"     # Assuming you did a non-sudo install (cf.https://docs.brew.sh/Homebrew-on-Linux)
-        $ brew tap azure/functions                          # Add the Azure Functions repository to brew
-        $ brew install azure-functions-core-tools@3         # Install Azure Functions Core Tools
-        $ export FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT=1    # If you are so inclined, add this to your ${HOME?}/.bashrc as well
+        $ sudo apt-get --yes install openjdk-11-jdk maven docker-ce azure-cli lsb-release gpg
+        $ curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > "/etc/apt/trusted.gpg.d/microsoft.gpg"
+        $ echo "deb [arch=amd64] https://packages.microsoft.com/debian/$(lsb_release -rs | cut -d'.' -f 1)/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list
+        $ apt-get update
+        $ apt-get --yes install azure-functions-core-tools-3
         ```
 
 #### Mac
