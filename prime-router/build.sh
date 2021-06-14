@@ -8,7 +8,7 @@ BUILDER_IMAGE_NAME="prime-router_builder"
 
 # Defaults
 ACTION=${ACTION:-builder}
-FRESH_BUILDER=${REFRESH_BUILDER:-0}
+REFRESH_BUILDER=${REFRESH_BUILDER:-0}
 
 while [[ -n "${1}" && "${1:0:1}" == "-" ]]; do
   if [[ "${1}" == "--" ]]; then
