@@ -314,6 +314,11 @@ abstract class SingleSettingCommandNoSettingName(
         help = "Use the JSON format instead of YAML"
     ).flag(default = false)
 
+    private val verbose by option(
+        "--verbose",
+        help = "Verbose output"
+    ).flag(default = false)
+
     override fun run() {
         // Authenticate
         val environment = getEnvironment()
@@ -337,6 +342,11 @@ abstract class SingleSettingCommandNoSettingName(
                 else
                     fromYaml(readInput(), settingType)
                 val output = put(environment, accessToken, settingType, name, payload)
+
+                if(verbose) {
+                    println("put ${settingType.toString().lowercase()} :: $payload")
+                }
+
                 writeOutput(output)
             }
             Operation.DELETE -> {
@@ -556,7 +566,7 @@ class PutMultipleSettings : SettingCommand(
             val payload = jsonMapper.writeValueAsString(receiver)
 
             if(verbose) {
-                println("""Receiver :: $receiver""")
+                println("""Receiver :: $payload""")
             }
 
             results += put(environment, accessToken, SettingType.RECEIVER, receiver.fullName, payload)
