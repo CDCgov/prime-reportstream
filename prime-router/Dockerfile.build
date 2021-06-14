@@ -3,8 +3,9 @@
 #
 FROM debian:buster as builder
 
-# --override via --build-arg JDK_VERSION=11 or via builder.build.args stanza in docker-compose.build.yml
-# most outer value wins, thus command line > docker-compose file > dockerfile
+# Override this argument via --build-arg JDK_VERSION=11 or via builder.build.args stanza
+# in docker-compose.build.yml; the most outer value wins, thus:
+# command line > docker-compose file > dockerfile
 ARG JAVA_VERSION 11
 
 # Pre-requisites
