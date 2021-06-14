@@ -7,8 +7,6 @@ basedOn: covid-19
 elements:
 
   - name: sender_id
-    type: TEXT
-    documentation: Include the name of the sender as a substring here.
     csvFields: [{ name: SubmitterUID }]
 
   # This is waters unique id for each row.

@@ -1,14 +1,10 @@
-terraform {
-  required_version = ">= 0.14"
-}
-
 locals {
   name = var.environment != "dev" ? "prime-data-hub-${var.environment}" : "prime-data-hub-${var.resource_prefix}"
   name_static = var.environment != "dev" ? "prime-data-hub-${var.environment}-static" : "prime-data-hub-${var.resource_prefix}-static"
 
   functionapp_address = "${var.resource_prefix}-functionapp.azurewebsites.net"
   metabase_address = var.is_metabase_env ? "${var.resource_prefix}-metabase.azurewebsites.net" : null
-  static_address = trimprefix(trimsuffix(var.storage_web_endpoint, "/"), "https://")
+  static_address = trimprefix(trimsuffix(data.azurerm_storage_account.storage_public.primary_web_endpoint, "/"), "https://")
 
   function_certs = [for cert in var.https_cert_names: cert if length(regexall("^[[:alnum:]]*?-?prime.*$", cert)) > 0]
   frontend_endpoints = (length(local.function_certs) > 0) ? concat(["DefaultFrontendEndpoint"], local.function_certs) : ["DefaultFrontendEndpoint"]
@@ -285,20 +281,6 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
   custom_https_configuration {
     certificate_source = "AzureKeyVault"
     azure_key_vault_certificate_secret_name = each.value
-    azure_key_vault_certificate_vault_id = var.key_vault_id
+    azure_key_vault_certificate_vault_id = data.azurerm_key_vault.application.id
   }
-}
-
-data "azurerm_key_vault_secret" "https_cert" {
-  count = length(var.https_cert_names)
-  key_vault_id = var.key_vault_id
-  name = var.https_cert_names[count.index]
-}
-
-output "id" {
-  value = azurerm_frontdoor.front_door.id
-}
-
-output "cname" {
-  value = azurerm_frontdoor.front_door.cname
 }

@@ -1,21 +1,7 @@
-terraform {
-    required_version = ">= 0.14"
-}
-
-data "azurerm_client_config" "current" {}
-
-data "azurerm_key_vault_secret" "postgres_user" {
-  key_vault_id = var.app_config_key_vault_id
-  name = "functionapp-postgres-user"
-}
-
-data "azurerm_key_vault_secret" "postgres_pass" {
-  key_vault_id = var.app_config_key_vault_id
-  name = "functionapp-postgres-pass"
-}
+// Postgres Server
 
 resource "azurerm_postgresql_server" "postgres_server" {
-  name = var.name
+  name = "${var.resource_prefix}-pgsql"
   location = var.location
   resource_group_name = var.resource_group
   administrator_login = data.azurerm_key_vault_secret.postgres_user.value
@@ -43,9 +29,9 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   lifecycle {
     prevent_destroy = true
-
     ignore_changes = [
-      storage_mb # Supports auto-grow
+      storage_mb, # Auto-grow will change the size
+      administrator_login_password # This can't change without a redeploy
     ]
   }
 
@@ -54,8 +40,21 @@ resource "azurerm_postgresql_server" "postgres_server" {
   }
 }
 
+module "postgres_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_postgresql_server.postgres_server.id
+  name = azurerm_postgresql_server.postgres_server.name
+  type = "postgres_server"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+}
+
+
+// Replicate Server
+
 resource "azurerm_postgresql_server" "postgres_server_replica" {
-  name = "${var.name}-replica"
+  name = "${azurerm_postgresql_server.postgres_server.name}-replica"
   location = "westus"
   resource_group_name = var.resource_group
   administrator_login = data.azurerm_key_vault_secret.postgres_user.value
@@ -86,9 +85,9 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 
   lifecycle {
     prevent_destroy = true
-
     ignore_changes = [
-      storage_mb # Supports auto-grow
+      storage_mb, # Auto-grow will change the size
+      administrator_login_password # This can't change without a redeploy
     ]
   }
 
@@ -97,46 +96,36 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   }
 }
 
-module "postgres_private_endpoint" {
-  source = "../common/private_endpoint"
-  resource_id = azurerm_postgresql_server.postgres_server.id
-  name = azurerm_postgresql_server.postgres_server.name
-  type = "postgres_server"
-  resource_group = var.resource_group
-  location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
-}
-
-module "postgres_private2_endpoint" {
+module "postgres_private_endpoint_replica" {
   source = "../common/private_endpoint"
   resource_id = azurerm_postgresql_server.postgres_server_replica.id
   name = azurerm_postgresql_server.postgres_server_replica.name
   type = "postgres_server"
   resource_group = var.resource_group
   location = azurerm_postgresql_server.postgres_server_replica.location
-  endpoint_subnet_id = var.endpoint2_subnet_id
+  endpoint_subnet_id = data.azurerm_subnet.endpoint_replica.id
 }
 
-# Grant the database Key Vault access, to access encryption keys
-resource "azurerm_key_vault_access_policy" "postgres_policy" {
-  # This is a hack. The postgres module has a bug where it does not export the values until after being updated.
-  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
-  # The second deploy adds the Key Value access policy.
-  count = azurerm_postgresql_server.postgres_server.identity.0.principal_id != null ? 1 : 0
 
-  key_vault_id = var.key_vault_id
+// User Administration
+
+resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
+  server_name = azurerm_postgresql_server.postgres_server.name
+  resource_group_name = var.resource_group
+  login = "reportstream_pgsql_admin"
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = var.aad_group_postgres_admin
+}
+
+
+// Encryption
+
+resource "azurerm_key_vault_access_policy" "postgres_policy" {
+  key_vault_id = data.azurerm_key_vault.application.id
   tenant_id = data.azurerm_client_config.current.tenant_id
   object_id = azurerm_postgresql_server.postgres_server.identity.0.principal_id
 
   key_permissions = ["get", "unwrapkey", "wrapkey"]
-}
-
-data "azurerm_key_vault_key" "postgres_server_encryption_key" {
-  count = var.rsa_key_2048 != null && var.rsa_key_2048 != "" && azurerm_postgresql_server.postgres_server.identity.0.principal_id != null ? 1 : 0
-  key_vault_id = var.key_vault_id
-  name = var.rsa_key_2048
-
-  depends_on = [azurerm_key_vault_access_policy.postgres_policy[0]]
 }
 
 resource "azurerm_postgresql_server_key" "postgres_server_key" {
@@ -145,28 +134,7 @@ resource "azurerm_postgresql_server_key" "postgres_server_key" {
   key_vault_key_id = data.azurerm_key_vault_key.postgres_server_encryption_key[0].id
 }
 
-# Grant the database Key Vault access, to access encryption keys
-resource "azurerm_key_vault_access_policy" "postgres_replica_policy" {
-  # This is a hack. The postgres module has a bug where it does not export the values until after being updated.
-  # By using a count, we workout the bug by running two deploy. The first deploy created the system-assigned identity.
-  # The second deploy adds the Key Value access policy.
-  count = azurerm_postgresql_server.postgres_server_replica.identity.0.principal_id != null ? 1 : 0
-
-  key_vault_id = var.key_vault_id
-  tenant_id = data.azurerm_client_config.current.tenant_id
-  object_id = azurerm_postgresql_server.postgres_server_replica.identity.0.principal_id
-
-  key_permissions = ["get", "unwrapkey", "wrapkey"]
-}
-
-resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
-  server_name = azurerm_postgresql_server.postgres_server.name
-  resource_group_name = var.resource_group
-  login = "reportstream_pgsql_admin"
-  tenant_id = data.azurerm_client_config.current.tenant_id
-  # pgsql_admin AAD group
-  object_id = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
-}
+// Databases
 
 resource "azurerm_postgresql_database" "prime_data_hub_db" {
   name = "prime_data_hub"
@@ -191,18 +159,4 @@ resource "azurerm_postgresql_database" "metabase_db" {
   lifecycle {
     prevent_destroy = true
   }
-}
-
-output "server_name" {
-  value = azurerm_postgresql_server.postgres_server.name
-}
-
-output "postgres_user" {
-  value = data.azurerm_key_vault_secret.postgres_user.value
-  sensitive = true
-}
-
-output "postgres_pass" {
-  value = data.azurerm_key_vault_secret.postgres_pass.value
-  sensitive = true
 }

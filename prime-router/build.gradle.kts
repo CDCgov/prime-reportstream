@@ -121,7 +121,9 @@ tasks.register<JavaExec>("primeCLI") {
     classpath = sourceSets["main"].runtimeClasspath
     // Default arguments is to display the help
     args = listOf("-h")
-    environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
+    environment["POSTGRES_URL"] = dbUrl
+    environment["POSTGRES_USER"] = dbUser
+    environment["POSTGRES_PASSWORD"] = dbPassword
     doFirst {
         println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
         println(

@@ -499,6 +499,7 @@ class Obx8Mapper : Mapper {
                 "840536004" -> "A" // Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
                 "840535000" -> "A" // Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
                 "840534001" -> "A" // Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+                "373121007" -> "N" // Test not done
                 else -> null
             }
         }
