@@ -507,6 +507,10 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         if (!hl7Config?.reportingFacilityId.isNullOrEmpty()) {
             val pathSpec = formPathSpec("MSH-4-2")
             terser.set(pathSpec, hl7Config?.reportingFacilityId)
+            if (!hl7Config?.reportingFacilityIdType.isNullOrEmpty()) {
+                val pathSpec = formPathSpec("MSH-4-3")
+                terser.set(pathSpec, hl7Config?.reportingFacilityIdType)
+            }
         }
     }
 
