@@ -118,55 +118,6 @@ testlogger {
     }
 }
 
-// Add the testIntegration tests
-sourceSets.create("testIntegration") {
-    java.srcDir("src/testIntegration/kotlin")
-    compileClasspath += sourceSets["main"].output
-    runtimeClasspath += sourceSets["main"].output
-}
-
-val compileTestIntegrationKotlin: KotlinCompile by tasks
-compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
-
-val testIntegrationImplementation: Configuration by configurations.getting {
-    extendsFrom(configurations["testImplementation"])
-}
-
-configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
-
-tasks.register<Test>("testIntegration") {
-    useJUnitPlatform()
-    // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
-    dependsOn("compile")
-    dependsOn("compileTestIntegrationKotlin")
-    dependsOn("compileTestIntegrationJava")
-    shouldRunAfter("test")
-    testClassesDirs = sourceSets["testIntegration"].output.classesDirs
-    classpath = sourceSets["testIntegration"].runtimeClasspath
-    // Run the test task if specified configuration files are changed
-    inputs.files(
-        fileTree("./") {
-            include("settings/**/*.yml")
-            include("metadata/**/*")
-            include("src/testIntergation/resources/datatests/**/*")
-        }
-    )
-    outputs.upToDateWhen {
-        // Call gradle with the -Pforcetest option will force the unit tests to run
-        if (project.hasProperty("forcetest")) {
-            println("Rerunning unit tests...")
-            false
-        } else {
-            true
-        }
-    }
-}
-
-tasks.check {
-    dependsOn("testIntegration")
-}
-
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 }
