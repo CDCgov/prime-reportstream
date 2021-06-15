@@ -18,10 +18,6 @@ services:
         source: ./
         target: /src
     working_dir: /src
-    # entrypoint:
-    #   - gradle
-    #   - "-PDB_URL=jdbc:postgresql://postgresql:5432/prime_data_hub"
-    #   - package
     dns:
       - 1.1.1.1
     networks:
