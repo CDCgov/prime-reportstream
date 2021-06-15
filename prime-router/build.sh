@@ -99,6 +99,11 @@ if [[ ${PERFORM_CLEAN?} != 0 || ${REFRESH_BUILDER?} != 0 ]]; then
   if [[ ${PERFORM_CLEAN?} != 0 ]]; then
     echo -e "${WHITE?}INFO:${PLAIN?} Cleaning previous build artifacts (and removing postgres DB)"
     rm -rf "${HERE?}/build"
+    if [[ $? != 0 ]]; then
+      # Try again with elevated permissions if this failed
+      echo -e "${YELLOW?}WARNING: ${PLAIN?} The build directory (${HERE?}/build) could not be removed; try again with elevated permissions."
+      sudo rm -rf "${HERE?}/build"
+    fi
     ensure_build_dir
     docker volume rm prime-router_vol_postgresql_data
     docker-compose \
