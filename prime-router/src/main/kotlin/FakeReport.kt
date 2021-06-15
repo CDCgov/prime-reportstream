@@ -101,6 +101,9 @@ class FakeDataService {
                 "specimen_source_site_code" -> "71836000"
                 "test_result_status" -> randomChoice("F", "C")
                 "processing_mode_code" -> "P"
+                "test_result" ->
+                    // Reduce the choice to between detected, not detected, and uncertain for more typical results
+                    randomChoice("260373001", "260415000", "419984006")
                 else -> {
                     val altValues = element.altValues
                     val valueSet = element.valueSetRef

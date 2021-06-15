@@ -35,6 +35,7 @@ abstract class CredentialService : Logging {
 
 enum class CredentialRequestReason {
     SFTP_UPLOAD,
+    AS2_UPLOAD,
     AUTOMATED_TEST,
     PERSIST_VERIFY
 }

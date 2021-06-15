@@ -27,6 +27,7 @@ import java.util.logging.Level
 import fuzzycsv.FuzzyCSVTable
 import java.io.StringReader
 import fuzzycsv.FuzzyStaticApi.count
+import com.okta.jwt.JwtVerifiers
  
 class Facility private constructor(
     val organization: String?,
@@ -479,18 +480,26 @@ open class BaseHistoryFunction {
         var orgName = ""
         var jwtToken = request.headers["authorization"] ?: ""
 
-        jwtToken = if( jwtToken.length > 7 ) jwtToken.substring(7) else "";
+        jwtToken = if(jwtToken.length > 7) jwtToken.substring(7) else ""
 
         if (jwtToken.isNotBlank()) {
             try {
-                val jwtClaims = JSONObject(String(Base64.getDecoder().decode(jwtToken.split('.')[1])))
-                userName = jwtClaims.getString("sub")
-                val orgs = jwtClaims.getJSONArray("organization")
-                @Suppress( "UNCHECKED_CAST")
-                var org = if (orgs !== null) orgs.getString(0) else ""
+                // get the access token verifier
+                val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
+                    .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
+                    .build()
+                // get it to decode the token from the header
+                val jwt = jwtVerifier.decode(jwtToken)
+                    ?: throw Throwable("Error in validation of jwt token")
+                // get the user name and org
+                userName = jwt.claims["sub"].toString()
+                val orgs = jwt.claims["organization"]
+                @Suppress("UNCHECKED_CAST")
+                val org = if (orgs !== null) (orgs as List<String>)[0] else ""
                 orgName = if (org.length > 3) org.substring(2) else ""
             } catch (ex: Throwable) {
-                System.out.println(ex)
+                context.logger.log(Level.WARNING, "Error in verification of token", ex)
+                return null
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
