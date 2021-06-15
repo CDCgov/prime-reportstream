@@ -289,11 +289,27 @@ open class BaseHistoryFunction {
                 val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 
                 val fileReturn = FileReturn( String(header.content), filename, mimeType);
-                return request
+                response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
                     .body( fileReturn )
                     .build()
+
+                val actionHistory = ActionHistory(TaskAction.download, context)
+                actionHistory.trackActionRequestResponse(request, response)
+                // Give the external report_file a new UUID, so we can track its history distinct from the
+                // internal blob.   This is going to be very confusing.
+                val externalReportId = UUID.randomUUID()
+                actionHistory.trackDownloadedReport(
+                    header,
+                    filename,
+                    externalReportId,
+                    authClaims.userName,
+                )
+                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
+                WorkflowEngine().recordAction(actionHistory)
+
+                return response
             }
         } catch (ex: Exception) {
             context.logger.warning("Exception during download of $reportIdIn - file not found")
