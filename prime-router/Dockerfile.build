@@ -1,12 +1,34 @@
 #
 # This Dockerfile defines the container in which we perform the build
 #
-FROM debian:buster as builder
 
-# Override this argument via --build-arg JDK_VERSION=11 or via builder.build.args stanza
+# Override these argument via --build-arg JDK_VERSION=11 or via builder.build.args stanza
 # in docker-compose.build.yml; the most outer value wins, thus:
 # command line > docker-compose file > dockerfile
+
+ARG GRADLE_VERSION 7.1
 ARG JAVA_VERSION 11
+
+#
+# STAGE 1: Get an unpacked gradle distribution
+#
+FROM alpine:latest AS gradle_downloader
+ARG GRADLE_VERSION
+
+RUN apk update && apk add wget
+RUN mkdir -p /opt/gradle
+WORKDIR /opt/gradle
+RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
+RUN unzip gradle-${GRADLE_VERSION}-bin.zip
+RUN rm "gradle-${GRADLE_VERSION}-bin.zip"
+
+
+#
+# STAGE 2: Build the actual container that does the build
+#
+FROM debian:buster AS builder
+ARG JAVA_VERSION
+ARG GRADLE_VERSION
 
 # Pre-requisites
 RUN apt-get update \
@@ -25,8 +47,17 @@ RUN apt-get update \
     && apt-get --yes install \
     azure-functions-core-tools-3
 
+# Get the unpacked gradle binaries from the gradle_downloader stage
+RUN mkdir -p /opt/gradle
+COPY --from=gradle_downloader /opt/gradle/ /opt/gradle/
+
 # A place to mount our source
 RUN mkdir -p "/src"
 WORKDIR "/src"
 
-ENTRYPOINT [ "./gradlew", "clean", "package" ]
+# Make it so that we can call gradle from anywhere
+ENV PATH "${PATH}:/opt/gradle/gradle-${GRADLE_VERSION}/bin"
+
+# ENTRYPOINT [ "gradle", "--version" ]
+# ENTRYPOINT [ "/usr/bin/env", "bash" ]
+# ENTRYPOINT [ "./gradlew", "clean", "package" ]
