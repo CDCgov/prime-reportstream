@@ -11,6 +11,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.google.errorprone.annotations.CompatibleWith
+import com.okta.jwt.JwtVerifiers
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -467,14 +468,25 @@ open class BaseHistoryFunction {
 
         if (jwtToken.isNotBlank()) {
             try {
-                val jwtClaims = JSONObject(String(Base64.getDecoder().decode(jwtToken.split('.')[1])))
-                userName = jwtClaims.getString("sub")
-                val orgs = jwtClaims.getJSONArray("organization")
+                // get the access token verifier
+                val jwtVerifier = JwtVerifiers.idTokenVerifierBuilder()
+                    .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
+                    .build()
+                // get it to decode the token from the header
+                val jwt = jwtVerifier.decode(jwtToken)
+                if( jwt == null ){
+                    context.logger.log( Level.WARNING, "Error in validation of jwt token" )
+                    return null;
+                }                    
+                // get the user name and org
+                userName = jwt.claims["sub"].toString()
+                val orgs = jwt.claims["organization"]
                 @Suppress( "UNCHECKED_CAST")
-                var org = if (orgs !== null) orgs.getString(0) else ""
+                val org = if (orgs !== null) (orgs as List<String>)[0] else ""
                 orgName = if (org.length > 3) org.substring(2) else ""
             } catch (ex: Throwable) {
-                System.out.println(ex)
+                context.logger.log(Level.WARNING, "Error in verification of token", ex )
+                return null;
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {

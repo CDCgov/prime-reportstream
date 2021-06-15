@@ -102,6 +102,11 @@ tasks.jar {
     }
 }
 
+tasks.shadowJar {
+    // our fat jar is getting fat! Or over 65K files in this case
+    isZip64 = true
+}
+
 // Just a nicer name to create the fat jar
 tasks.register("fatJar") {
     group = rootProject.description ?: ""
@@ -330,6 +335,7 @@ dependencies {
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.17.2")
     implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.helger.as2:as2-lib:4.7.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
