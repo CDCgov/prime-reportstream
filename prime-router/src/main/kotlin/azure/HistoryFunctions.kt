@@ -464,28 +464,26 @@ open class BaseHistoryFunction {
         var orgName = ""
         var jwtToken = request.headers["authorization"] ?: ""
 
-        jwtToken = if( jwtToken.length > 7 ) jwtToken.substring(7) else "";
+        jwtToken = if(jwtToken.length > 7) jwtToken.substring(7) else ""
 
         if (jwtToken.isNotBlank()) {
             try {
                 // get the access token verifier
-                val jwtVerifier = JwtVerifiers.idTokenVerifierBuilder()
+                val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
                     .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
                     .build()
                 // get it to decode the token from the header
-                val jwt = jwtVerifier.decode( jwtToken, null)
-                if( jwt == null ){
-                    throw Throwable("Error in validation of jwt token" )
-                }                    
+                val jwt = jwtVerifier.decode(jwtToken)
+                    ?: throw Throwable("Error in validation of jwt token")
                 // get the user name and org
                 userName = jwt.claims["sub"].toString()
                 val orgs = jwt.claims["organization"]
-                @Suppress( "UNCHECKED_CAST")
+                @Suppress("UNCHECKED_CAST")
                 val org = if (orgs !== null) (orgs as List<String>)[0] else ""
                 orgName = if (org.length > 3) org.substring(2) else ""
             } catch (ex: Throwable) {
-                context.logger.log(Level.WARNING, "Error in verification of token", ex )
-                return null;
+                context.logger.log(Level.WARNING, "Error in verification of token", ex)
+                return null
             }
         }
         if (userName.isNotBlank() && orgName.isNotBlank()) {
