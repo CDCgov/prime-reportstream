@@ -64,6 +64,7 @@ tasks.clean {
     delete("target")
 }
 
+val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
@@ -87,11 +88,24 @@ tasks.test {
             true
         }
     }
+    configure<JacocoTaskExtension> {
+        // This excludes classes from being analyzed, but not from being added to the report
+        excludes = coverageExcludedClasses
+    }
 }
 
 tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
-    sourceDirectories.from.add("src/main/kotlin")
+    dependsOn(tasks.test)
+    // Remove the exclusions, so they do not appear in the report
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it).matching {
+                    exclude(coverageExcludedClasses)
+                }
+            }
+        )
+    )
 }
 
 testlogger {
@@ -102,7 +116,6 @@ testlogger {
         showPassed = false
         showSkipped = false
     }
-
 }
 
 // Add the testIntegration tests
