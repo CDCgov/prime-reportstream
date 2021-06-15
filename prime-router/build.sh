@@ -37,6 +37,11 @@ function get_gradle_command() {
   fi
 }
 
+function ensure_build_dir() {
+  mkdir -p "${HERE?}/build"
+  chmod 777 "${HERE?}/build"
+}
+
 # Defaults
 ACTION=${ACTION:-builder}
 REFRESH_BUILDER=${REFRESH_BUILDER:-0}
@@ -79,6 +84,8 @@ done
 
 pushd "${HERE?}" 2>&1 1>/dev/null
 
+ensure_build_dir
+
 if [[ ${PERFORM_CLEAN?} != 0 || ${REFRESH_BUILDER?} != 0 ]]; then
   echo -e "${WHITE?}INFO:${PLAIN?} Bringing down builder docker composition"
   docker-compose --file "${DOCKER_COMPOSE?}" down
@@ -91,6 +98,8 @@ if [[ ${PERFORM_CLEAN?} != 0 || ${REFRESH_BUILDER?} != 0 ]]; then
 
   if [[ ${PERFORM_CLEAN?} != 0 ]]; then
     echo -e "${WHITE?}INFO:${PLAIN?} Cleaning previous build artifacts (and removing postgres DB)"
+    rm -rf "${HERE?}/build"
+    ensure_build_dir
     docker volume rm prime-router_vol_postgresql_data
     docker-compose \
       --file "${DOCKER_COMPOSE?}" \
