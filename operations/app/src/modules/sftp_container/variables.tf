@@ -8,28 +8,12 @@ variable "resource_group" {
     description = "Resource Group Name"
 }
 
-variable "name" {
+variable "resource_prefix" {
     type = string
-    description = "Database Server Name"
+    description = "Resource Prefix"
 }
 
 variable "location" {
     type = string
     description = "Function App Location"
-}
-
-variable "container_subnet_id" {
-    type = string
-    description = "Container Subnet ID"
-}
-
-variable "storage_account_name" {
-    type = string
-    description = "Storage Account Name"
-}
-
-variable "storage_account_key" {
-    type = string
-    description = "Storage Account Key"
-    sensitive = true
 }

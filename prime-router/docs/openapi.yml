@@ -1,11 +1,11 @@
 openapi: 3.0.2
 info:
-  title: Prime Data Hub
+  title: Prime ReportStream
   description: A router of public health data from multiple senders and receivers
   contact:
     name: USDS at Centers for Disease Control and Prevention
-    url: https://open.cdc.gov
-    email: usds@cdc.gov
+    url: https://reportstream.cdc.gov
+    email: reportstream@cdc.gov
   version: 0.2.0-oas3
 paths:
 
@@ -655,7 +655,6 @@ components:
               - $ref: '#/components/schemas/CustomConfiguration'
               - $ref: '#/components/schemas/StandardHL7Configuration'
               - $ref: '#/components/schemas/RedoxConfiguration'
-              # TODO: add the email configuration
             discriminator:
               propertyName: type
         timing:
@@ -715,50 +714,24 @@ components:
           description: The receiving facility name
           type: string
           default: null
+        reportingFacilityName:
+          description: The reporting facility name (if different from CDC PRIME)
+          type: string
+          default: null
+        reportingFacilityId:
+          description: The reporting facility id (if different from CDC PRIME's OID)
+          type: string
+          default: null
+        reportingFacilityIdType:
+          description: The reporting facility id type (if different from OID)
+          type: string
+          default: null
         transport:
           oneOf:
             - $ref: '#/components/schemas/SFTPTransport'
-            - $ref: '#/components/schemas/DownloadTransport'
-
-    RedoxConfiguration:
-      description: A Redox configuration
-      type: object
-      required:
-        - type
-        - destinationId
-        - destinationName
-        - sourceId
-        - sourceName
-        - transport
-      properties:
-        type:
-          description: the discrimenator
-          type: string
-          example: REDOX
-        useTestProcessingMode:
-          description: Set a test process mode flag
-          type: boolean
-          default: false
-        destinationId:
-          description: the Redox destination id
-          type: string
-          example: fcafe93a-9e04-4e3f-9aac-203518f6c4c9
-        destinationName:
-          description: the Redox destination Name
-          type: string
-          example: CDC Bucks County PDH Destination (p)
-        sourceId:
-          description: The Redox source id
-          type: string
-          example: a3834c9d-e3ff-4602-b360-dcb0ad08fce5
-        sourceName:
-          description: The Redox source name
-          type: string
-          example: Prime Data Hub (Prod)
-        transport:
-          description: The redox transport
-          oneOf:
-            - $ref: '#/components/schemas/RedoxTransport'
+            - $ref: '#/components/schemas/AS2Transport'
+            - $ref: '#/components/schemas/BlobStoreTransport'
+            - $ref: '#/components/schemas/NullTransport'
 
     CustomConfiguration:
       description: A custom configuration for a custom schema
@@ -790,7 +763,9 @@ components:
           description: The transport to use
           oneOf:
             - $ref: '#/components/schemas/SFTPTransport'
-            - $ref: '#/components/schemas/DownloadTransport'
+            - $ref: '#/components/schemas/AS2Transport'
+            - $ref: '#/components/schemas/BlobStoreTransport'
+            - $ref: '#/components/schemas/NullTransport'
 
     SFTPTransport:
       description: Describes a single SFTP connection in all of it variations
@@ -817,7 +792,6 @@ components:
           description: The file path to place the report
           type: string
           example: /in/test
-  # TODO: Add userName and password when the secrets service is supported
 
     RedoxTransport:
       description: Describe the Redox transport
@@ -833,15 +807,77 @@ components:
           type: string
           default: null
 
-    DownloadTransport:
-      description: Make the report available for download. A null transport.
+    BlobStoreTransport:
+      description: Moves results to a Azure Blob Store. Typcially used for HHS Protect interfaces.
       type: object
-      required: [type]
+      required:
+        - type
+        - storageName
+        - containerName
       properties:
         type:
           description: The discriminator
           type: string
-          example: DOWNLOAD
+          example: BLOBSTORE
+        storageName:
+          description: This looks for an env var with this name. env var value is the connection string
+          type: string
+        containerName:
+          description: This name of the Azure container
+          type: string
+          example: hhsprotect
+
+    AS2Transport:
+      description: Describes a single AS2 connection in all of it variations
+      type: object
+      required:
+        - type
+        - receiverUrl
+        - receiverId
+        - senderId
+      properties:
+        type:
+          description: The discriminator
+          type: string
+          example: AS2
+        receiverUrl:
+          description: The URL to the AS2 end-point
+          type: string
+          example: https://as2.example.com/receiver.aspx
+        receiverId:
+          description: The AS2 id of the receiver. Usually, the same for all senders.
+          type: string
+          example: exampleAS2Id
+        senderId:
+          description: The AS2 id of the sender. Usually, assigned by receiver to PRIME.
+          type: string
+          example: primeAS2Id
+        senderEmail:
+          description: The email address to contact someone about the message
+          type: string
+          default: reportstream@cdc.gov
+        mimeType:
+          description: The MIME type of the message
+          type: string
+          default: application/hl7-v2
+        contentDescription:
+          description: A description of the content of the message. Usually, the same for all messages.
+          type: string
+          default: SARS-CoV-2 Electronic Lab Results
+
+    NullTransport:
+      description: A transport type that does not do anything
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          description: The discriminator
+          type: string
+          example: NULL
+        dummy:
+          description: A dummy value
+          type: string
 
   securitySchemes:
     ApiKeyAuth:

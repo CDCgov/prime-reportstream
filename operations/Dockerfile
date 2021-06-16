@@ -27,4 +27,8 @@ RUN yum -y install terraform-${TERRAFORM_VERSION}-1
 # Create directory for terraform
 RUN mkdir /app
 
+# Set alias tf
+RUN echo -e '#!/bin/bash\nTFCMD="$@" exec /app/src/environments/tf --env $ENVIRONMENT' > /usr/bin/tf && \
+    chmod +x /usr/bin/tf
+
 ENTRYPOINT /bin/bash

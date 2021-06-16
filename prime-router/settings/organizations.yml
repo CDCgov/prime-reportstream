@@ -24,7 +24,7 @@
       - name: default
         organizationName: safehealth
         topic: covid-19
-        schemaName: waters/safehealth-covid-19
+        schemaName: direct/safehealth-covid-19
         format: CSV
 
   - name: cue
@@ -34,7 +34,27 @@
       - name: default
         organizationName: cue
         topic: covid-19
-        schemaName: waters/cue-covid-19
+        schemaName: direct/cue-covid-19
+        format: CSV
+
+  - name: inbios
+    description: InBios International, Inc.
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: inbios
+        topic: covid-19
+        schemaName: direct/inbios-covid-19
+        format: CSV
+
+  - name: imagemover
+    description: ImageMover
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: imagemover
+        topic: covid-19
+        schemaName: direct/imagemover-covid-19
         format: CSV
 
   - name: waters
@@ -818,7 +838,7 @@
     - name: "elr"
       organizationName: "hhsprotect"
       topic: "covid-19"
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -874,7 +894,7 @@
           initialTime: 00:00
         translation:
           type: CUSTOM
-          schemaName: fl/fl-covid-19
+          schemaName: az/pima-az-covid-19
           format: CSV
         transport:
           type: SFTP
@@ -937,6 +957,19 @@
           type: REDOX
           apiKey: some_key
           baseUrl: http://redox:1080
+      - name: AS2
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, AS2)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        transport:
+          type: NULL
       - name: HL7_NULL
         organizationName: ignore
         topic: covid-19
@@ -987,8 +1020,25 @@
       - name: QUALITY_PASS
         organizationName: ignore
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS)" ]
-        qualityFilter: [ "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)", "hasAtLeastOneOf(message_id,blankField)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
+        qualityFilter: 
+          - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+          - hasAtLeastOneOf(message_id,blankField)
+          - matches(ordering_facility_county, QUALITY_PASS)
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
+      - name: QUALITY_REVERSED
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
+        qualityFilter: 
+          - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+          - hasAtLeastOneOf(message_id,blankField)
+          - matches(ordering_facility_county, QUALITY_REVERSED)
+        # Get 'not(qualityFilter)'
+        reverseTheQualityFilter: true
         translation:
           type: CUSTOM
           schemaName: empty
@@ -996,7 +1046,7 @@
       - name: QUALITY_ALL
         organizationName: ignore
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county,QUALITY_ALL)" ]
         qualityFilter: [ "allowAll()" ]
         translation:
           type: CUSTOM
@@ -1005,12 +1055,13 @@
       - name: QUALITY_FAIL
         organizationName: ignore
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county,QUALITY_FAIL)" ]
         qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
         translation:
           type: CUSTOM
           schemaName: empty
           format: CSV
+
 
 # all the rest
 
@@ -1449,7 +1500,7 @@
           useBatchHeaders: true
 
   - name: wa-phd
-    description: Washington Public Health Department
+    description: Washington Department of Health
     jurisdiction: STATE
     stateCode: WA
     receivers:
@@ -1457,10 +1508,36 @@
         organizationName: wa-phd
         topic: covid-19
         jurisdictionalFilter:
+          - matches(abnormal_flag, A)
           - orEquals(ordering_facility_state, WA, patient_state, WA)
         translation:
           type: HL7
           useBatchHeaders: true
+          nameFormat: washington
+          reportingFacilityName: 7uycso49
+          reportingFacilityId: 1.3.6.1.4.1.38630.2.1.1.519
+          reportingFacilityIdType: ISO
+          receivingApplicationName: WADOHPHRED
+          receivingApplicationOID: 2.16.840.1.113883.3.237.4.2
+          receivingFacilityName: dn1fro00
+          receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
+      - name: elr_neg
+        organizationName: wa-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(abnormal_flag, N)
+          - orEquals(ordering_facility_state, WA, patient_state, WA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          nameFormat: washington_negative
+          reportingFacilityName: 7uycso49
+          reportingFacilityId: 1.3.6.1.4.1.38630.2.1.1.519
+          reportingFacilityIdType: ISO
+          receivingApplicationName: WADOHPHRED
+          receivingApplicationOID: 2.16.840.1.113883.3.237.4.2
+          receivingFacilityName: dn1fro00
+          receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
 
   - name: wv-phd
     description: West Virginia Public Health Department

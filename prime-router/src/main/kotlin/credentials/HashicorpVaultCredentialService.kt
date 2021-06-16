@@ -37,7 +37,8 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
             .body(credential.toJSON())
             .response()
         if (response.statusCode != 204) {
-            logger.error(response)
+            logger.error("Status: ${response.statusCode}")
+            logger.error("Message: ${response.responseMessage}")
             throw Exception("Failed to save credentials for: $connectionId")
         }
     }

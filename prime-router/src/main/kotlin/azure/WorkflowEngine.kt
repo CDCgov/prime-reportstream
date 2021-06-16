@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
+import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RedoxTransport
@@ -53,6 +54,7 @@ class WorkflowEngine(
     val redoxTransport: RedoxTransport = RedoxTransport(),
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(),
     val nullTransport: NullTransport = NullTransport(),
+    val as2Transport: AS2Transport = AS2Transport()
 ) {
     /**
      * Check the connections to Azure Storage and DB

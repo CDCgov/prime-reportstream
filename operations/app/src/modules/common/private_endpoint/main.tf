@@ -1,7 +1,3 @@
-terraform {
-  required_version = ">= 0.14"
-}
-
 locals {
   # Create a list of common configuration options for each endpoint service
   # You would link Microsoft would have constants for these, or automatically register them, but they do not
@@ -76,7 +72,4 @@ data "azurerm_private_dns_zone" "private_dns_cname" {
   for_each = toset(local.option.cnames_private)
   name = each.value
   resource_group_name = var.resource_group
-
-  # The subnet must exist before DNS exists
-  depends_on = [var.endpoint_subnet_id]
 }

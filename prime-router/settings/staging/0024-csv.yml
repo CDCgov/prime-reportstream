@@ -1,0 +1,28 @@
+---
+name: "CSV"
+organizationName: "ignore"
+topic: "covid-19"
+translation: !<CUSTOM>
+  schemaName: az/pima-az-covid-19
+  format: "CSV"
+  defaults: {}
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "CUSTOM"
+jurisdictionalFilter:
+- "matches(ordering_facility_state, IG)"
+- "matches(ordering_facility_county, CSV)"
+reverseTheQualityFilter: false
+deidentify: false
+timing:
+  operation: "MERGE"
+  numberPerDay: 1440
+  initialTime: "00:00"
+  timeZone: "EASTERN"
+  maxReportCount: 100
+description: "For testing only."
+transport: !<SFTP>
+  host: "10.0.2.4"
+  port: "22"
+  filePath: "./upload"
+  type: "SFTP"

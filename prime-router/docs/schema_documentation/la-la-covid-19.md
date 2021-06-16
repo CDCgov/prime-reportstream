@@ -2139,6 +2139,7 @@ Code | Display
 119297000|Blood specimen (specimen)
 71836000|Nasopharyngeal structure (body structure)
 45206002|Nasal structure (body structure)
+53342003|Internal nose structure (body structure)
 
 ---
 
@@ -2287,13 +2288,14 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
-840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
 840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
 840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
 840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
 840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+373121007|Test not done
 
 **Documentation**:
 
@@ -3011,6 +3013,72 @@ aggregator
 
 ---
 
+**Name**: test_authorized_for_otc
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_otc
+
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_home
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_home
+
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_unproctored
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
+
+---
+
 **Name**: test_kit_name_id
 
 **Type**: TABLE
@@ -3116,5 +3184,19 @@ XCN|Extended Composite Name and Number For Persons
 XON|Extended Composite Name and Number For Organizations
 XPN|Extended Person Name
 XTN|Extended Telecommunications Number
+
+---
+
+**Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
