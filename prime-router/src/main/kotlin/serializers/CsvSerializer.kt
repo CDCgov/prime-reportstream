@@ -150,15 +150,38 @@ class CsvSerializer(val metadata: Metadata) {
         return ReadResult(Report(schema, mappedRows, sources, destination, metadata = metadata), errors, warnings)
     }
 
+    /**
+     * Reads an internal format document (one that is in CSV, but matching the internal "kitchen sink" schema)
+     * and returns the Report object for the file.
+     * @param useDefaultsForMissing if a field is missing that the Report object expects, this instructs the
+     * function to use the default value provided by the schema (or empty string) if it doesn't exist. This was
+     * added because some older files might need to be reprocessed, and this allows that to happen without error
+     * due to a missing column
+     */
     fun readInternal(
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
         destination: Receiver? = null,
-        blobReportId: ReportId? = null
+        blobReportId: ReportId? = null,
+        useDefaultsForMissing: Boolean = false
     ): Report {
+        // find our schema
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
-        val rows: List<List<String>> = csvReader().readAll(input).drop(1)
+        // get our rows
+        val rows = if (useDefaultsForMissing) {
+            // walk through the rows in the file with the header included
+            csvReader().readAllWithHeader(input).map {
+                // for each element name, if it doesn't exist in the map, then we add it with a default
+                // doing it this ways means that even if someone adds a new element in the middle of the schema
+                // (please don't), this should still be okay and it won't necessarily break
+                schema.elements.map { element ->
+                    it.getOrDefault(element.name, element.default ?: "")
+                }
+            }
+        } else {
+            csvReader().readAll(input).drop(1)
+        }
         return Report(schema, rows, sources, destination, id = blobReportId, metadata = metadata)
     }
 

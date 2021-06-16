@@ -186,8 +186,8 @@ class OrEquals : JurisdictionalFilter {
         if (args.isEmpty()) error("Expecting at least two args for filter $name.  Got none.")
         if (args.size % 2 != 0)
             error(
-                "For ${receiver.fullName}: Expecting a positive even number of args " +
-                    "to filter $name: (col,val, col,val,...)." +
+                "For ${receiver.fullName}: Expecting a positive even number " +
+                    "of args to filter $name: (col,val, col,val,...)." +
                     " Instead got ${args.size} args"
             )
         val selection = Selection.withRange(0, 0)
@@ -415,6 +415,7 @@ object JurisdictionalFilters : Logging {
         doAuditing: Boolean
     ) {
         if (!doAuditing) return
+
         if (after.size() < before.size()) {
             if (after.size() == 0) {
                 logAllEliminated(before.size(), filterDescription, receiver, true)

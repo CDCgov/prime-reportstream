@@ -725,8 +725,8 @@ data class Element(
     companion object {
         const val datePattern = "yyyyMMdd"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
-        val dateFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
-        val datetimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
+        val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
+        val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
         const val displayToken = "\$display"
         const val caretToken = "\$code^\$display^\$system"
         const val codeToken = "\$code"

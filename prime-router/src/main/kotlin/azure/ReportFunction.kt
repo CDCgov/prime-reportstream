@@ -93,6 +93,19 @@ class ReportFunction {
                     // Regular happy path workflow is here
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
+                    // write the data to the table if we're dealing with covid-19
+                    if (validatedRequest.report.schema.topic.lowercase() == "covid-19") {
+                        // next check that we're dealing with an external file
+                        val clientSource = validatedRequest.report.sources.firstOrNull { it is ClientSource }
+                        if (clientSource != null) {
+                            context.logger.info("Writing deidentified report data to the DB")
+                            workflowEngine.db.transact { txn ->
+                                val deidentifiedData = validatedRequest.report.getDeidentifiedResultMetaData()
+                                workflowEngine.db.saveTestData(deidentifiedData, txn)
+                                context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
+                            }
+                        }
+                    }
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)
