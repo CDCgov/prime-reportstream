@@ -24,14 +24,6 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Setup PostgreSQL
-        uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
-        with:
-          postgresql version: 11
-          postgresql db: prime_data_hub
-          postgresql user: ${{ env.POSTGRES_USER }}
-          postgresql password: ${{ env.POSTGRES_PASSWORD }}
-
       - name: Build Prime Router Package through Docker
         run: bash ./build.sh --refresh-builder --clean -- gradle clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
 
