@@ -87,5 +87,22 @@ jobs:
         run: |
           false
 
+      - name: Set Environment Variables
+        run: |
+          if [ "$GITHUB_BASE_REF" == "production" ]
+          then
+              echo "Building for the production environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV ACR_REPO=invalid_repo_prod
+              echo >> $GITHUB_ENV PREFIX=pdhprod
+              echo >> $GITHUB_ENV PREFIX=invalid_prefix_prod
+          else
+              echo "Building for the test environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV ACR_REPO=invalid_repo_staging
+              echo >> $GITHUB_ENV PREFIX=pdhstaging
+              echo >> $GITHUB_ENV PREFIX=invalid_prefix_staging
+          fi
+
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
