@@ -2,62 +2,57 @@
 # This Dockerfile defines the container in which we perform the build
 #
 
-# Override these argument via --build-arg JDK_VERSION=11 or via builder.build.args stanza
-# in docker-compose.build.yml; the most outer value wins, thus:
-# command line > docker-compose file > dockerfile
-
-ARG GRADLE_VERSION 7.1
-ARG JAVA_VERSION 11
-
 #
 # STAGE 1: Get an unpacked gradle distribution
 #
 FROM alpine:latest AS downloader
 ARG GRADLE_VERSION
+ARG AFCT_VERSION
 
-RUN apk update && apk add wget
+RUN apk update && apk add wget --no-cache
 
+# Get Gradle into /var/downloads/gradle (whithout version sub-directory
+# this makes it so that the GRADLE_VERSION does not need to leak into the
+# builder image below and only needs JAVA_VERSION as a build-arg
 RUN mkdir -p /var/downloads/gradle
 WORKDIR /var/downloads/gradle
-RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
-    && unzip gradle-${GRADLE_VERSION}-bin.zip \
-    && rm "gradle-${GRADLE_VERSION}-bin.zip"
+RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
+RUN unzip gradle-${GRADLE_VERSION}-bin.zip
+RUN mv /var/downloads/gradle/gradle-${GRADLE_VERSION}/* .
+RUN rm -r /var/downloads/gradle/gradle-${GRADLE_VERSION}/ gradle-${GRADLE_VERSION}-bin.zip
 
+# Get Azure Functions Core Tools into /var/downloads/azure-functions
 RUN mkdir -p /var/downloads/azure-functions
 WORKDIR /var/downloads/azure-functions
-RUN wget https://github.com/Azure/azure-functions-core-tools/releases/download/3.0.3568/Azure.Functions.Cli.linux-x64.3.0.3568.zip \
-    && unzip Azure.Functions.Cli.linux-x64.3.0.3568.zip \
-    && rm Azure.Functions.Cli.linux-x64.3.0.3568.zip
+RUN wget https://github.com/Azure/azure-functions-core-tools/releases/download/${AFCT_VERSION}/Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
+RUN unzip Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
+RUN rm Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 
 
-
-# #
-# # STAGE 2: Build the actual container that does the build
-# #
+#
+# STAGE 2: Build the actual container that does the build
+#
 FROM debian:buster AS builder
 ARG JAVA_VERSION
-ARG GRADLE_VERSION
+
+# Get the unpacked gradle binaries from the downloader stage
+RUN mkdir -p /opt/gradle
+COPY --from=downloader /var/downloads/gradle/ /opt/gradle/
+ENV PATH "${PATH}:/opt/gradle/bin"
+
+# Overlay the Azure Function binaries from the downloader
+# cf https://github.com/Azure/azure-functions-core-tools/blob/master/README.md#linux
+RUN mkdir -p /opt/azure-functions
+COPY --from=downloader /var/downloads/azure-functions/ /opt/azure-functions/
+RUN chmod +x /opt/azure-functions/func /opt/azure-functions/gozip
+ENV PATH "${PATH}:/opt/azure-functions/"
+ENV FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT 1
 
 # Install pre-requisites
 RUN apt-get update \
     && apt-get --yes install \
     maven \
     openjdk-${JAVA_VERSION}-jdk
-
-# Azure Function Core Tools
-ENV FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT 1
-
-# Get the unpacked gradle binaries from the downloader stage
-RUN mkdir -p /opt/gradle
-COPY --from=downloader /var/downloads/gradle/ /opt/gradle/
-ENV PATH "${PATH}:/opt/gradle/gradle-${GRADLE_VERSION}/bin"
-
-# Get the Azure Function binaries from the downloader
-# cf https://github.com/Azure/azure-functions-core-tools/blob/master/README.md#linux
-RUN mkdir -p /opt/azure-functions
-COPY --from=downloader /var/downloads/azure-functions/ /opt/azure-functions/
-RUN chmod +x /opt/azure-functions/func /opt/azure-functions/gozip
-ENV PATH "${PATH}:/opt/azure-functions/"
 
 # A place to mount our source
 RUN mkdir -p "/src"

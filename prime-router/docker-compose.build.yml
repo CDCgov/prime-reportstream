@@ -10,6 +10,7 @@ services:
       args:
         JAVA_VERSION: 11
         GRADLE_VERSION: 7.1
+        AFCT_VERSION: 3.0.3568
     environment:
       FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
       DB_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
