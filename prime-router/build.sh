@@ -14,11 +14,12 @@ DOCKER_COMPOSE="${HERE?}/docker-compose.build.yml"
 BUILDER_IMAGE_NAME="prime-router_builder"
 
 function usage() {
-  echo "usage: ${0} [--action|-a \"<action>\"] [--clean] [--refresh[-build]|-r]"
+  echo "usage: ${0} [--action|-a \"<action>\"] [--clean] [--refresh[-build]|-r] [-- <args>]"
   echo ""
   echo -e "\t--action|-a              Which container to run (default: builder)"
   echo -e "\t--clean                  Cleans up as much as possible from any previous run"
   echo -e "\t--refresh[-builder]|-r   Refreshes your builder container (i.e. removes any previous ones and rebuilds your builder-container image)"
+  echo -e "\t<args>                   What you want the container to run (default: \"gradle package\")"
 }
 
 function get_gradle_command() {
