@@ -52,3 +52,9 @@ elements:
   - name: testing_lab_specimen_received_datetime
     hl7Field: SPM-18-1
     mapper: none()
+
+  # these fields are calculated for filtering purposes
+  - name: test_authorized_for_otc
+  - name: test_authorized_for_home
+  - name: test_authorized_for_unproctored
+  - name: abnormal_flag

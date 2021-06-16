@@ -1,0 +1,31 @@
+# Run ./prime receiver set --input ./settings/staging/0025-hhsprotect.yml --env staging
+# The change is additions to the juris Filter.
+---
+name: "elr"
+organizationName: "hhsprotect"
+topic: "covid-19"
+translation: !<CUSTOM>
+  schemaName: "hhsprotect/hhsprotect-covid-19"
+  format: "CSV"
+  defaults: {}
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "CUSTOM"
+jurisdictionalFilter:
+- "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,Anavasi)"
+qualityFilter:
+- "allowAll()"
+reverseTheQualityFilter: false
+deidentify: true
+timing:
+  operation: "MERGE"
+  numberPerDay: 1440
+  initialTime: "00:00"
+  timeZone: "EASTERN"
+  maxReportCount: 500
+transport: !<BLOBSTORE>
+  storageName: "PartnerStorage"
+  containerName: "hhsprotect"
+  type: "BLOBSTORE"
+
+

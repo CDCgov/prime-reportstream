@@ -5,9 +5,10 @@ topic: covid-19
 trackingElement: placer_order_id # placer_order_id is the internal STRAC id number
 basedOn: covid-19
 elements:
-  #
-  # These are the CSV fields from the STRAC file
-  #
+  - name: sender_id
+    cardinality: ONE
+    default: Strac
+    csvFields: [{name: senderId}]
 
   - name: reporting_facility_name
     csvFields: [{name: reporting_facility_name}]
