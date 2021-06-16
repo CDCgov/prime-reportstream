@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.10"
-    id("org.flywaydb.flyway") version "7.9.2"
+    id("org.flywaydb.flyway") version "7.10.0"
     id("nu.studer.jooq") version "5.2.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
@@ -100,6 +100,11 @@ tasks.jar {
         attributes("Main-Class" to primeMainClass)
         attributes("Multi-Release" to true)
     }
+}
+
+tasks.shadowJar {
+    // our fat jar is getting fat! Or over 65K files in this case
+    isZip64 = true
 }
 
 // Just a nicer name to create the fat jar
@@ -308,7 +313,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.24")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.25")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -326,10 +331,11 @@ dependencies {
     implementation("commons-io:commons-io:2.10.0")
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.flywaydb:flyway-core:7.9.2")
+    implementation("org.flywaydb:flyway-core:7.10.0")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.17.2")
     implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.helger.as2:as2-lib:4.7.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

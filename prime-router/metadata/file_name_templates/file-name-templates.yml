@@ -15,7 +15,6 @@
     - cdcprime_
     - createdDate()
 
-
 - name: aphl_light
   lowerCase: true
   elements:
@@ -39,3 +38,23 @@
     - "_"
     - createdDate()
 
+- name: washington
+  lowerCase: true
+  elements:
+    - cdcprime_
+    - processingModeCode()
+    - "_"
+    - createdDate()
+    - "_"
+    - rand6()
+
+- name: washington_negative
+  lowerCase: true
+  elements:
+    - cdcprime_
+    - processingModeCode()
+    - "_"
+    - createdDate()
+    - "_"
+    - rand6()
+    - "___neg"
