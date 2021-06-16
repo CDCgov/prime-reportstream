@@ -26,7 +26,7 @@ function get_gradle_command() {
   if [[ -n "${1}" ]]; then
     case "${1}" in
     "gradle")
-      echo $* \"-PDB_URL=jdbc:postgresql://postgresql:5432/prime_data_hub\"
+      echo $* -PDB_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
       ;;
     *)
       # Lets you bash into the build container
@@ -89,11 +89,11 @@ ensure_build_dir
 
 if [[ ${PERFORM_CLEAN?} != 0 || ${REFRESH_BUILDER?} != 0 ]]; then
   echo -e "${WHITE?}INFO:${PLAIN?} Bringing down builder docker composition"
-  docker-compose --file "${DOCKER_COMPOSE?}" down
+  docker-compose --force --file "${DOCKER_COMPOSE?}" down
 
   if [[ ${REFRESH_BUILDER?} != 0 ]]; then
     echo -e "${WHITE?}INFO:${PLAIN?} Refreshing the builder container image"
-    docker image rm "${BUILDER_IMAGE_NAME?}"
+    docker image rm --force "${BUILDER_IMAGE_NAME?}"
     docker-compose --file "${DOCKER_COMPOSE?}" build
   fi
 
