@@ -1,14 +1,16 @@
 <li class="usa-sidenav__item">
-    <a href="{{ site.howItWorksPath }}getting-started/" {% if current == "reportstream" %} class="usa-current"
+    <a href="{{ site.howItWorksPath }}getting-started/" {% if title == "Getting started" %} class="usa-current"
     {% endif %}>Getting started</a>
 </li>
 <li class="usa-sidenav__item">
-    <a href="{{ site.howItWorksPath }}onboarding-checklist/">Onboarding checklist</a>
+    <a href="{{ site.howItWorksPath }}onboarding-checklist/" {% if title == "Onboarding checklist" %} class="usa-current"
+        {% endif %}>Onboarding checklist</a>
 </li>
 <li class="usa-sidenav__item">
-    <a href="{{ site.howItWorksPath }}system-and-settings/" {% if current == "web receiver guide" %}
+    <a href="{{ site.howItWorksPath }}system-and-settings/" {% if title == "System and settings" %}
     class="usa-current" {% endif %}>System and settings</a>
 </li>
 <li class="usa-sidenav__item">
-    <a href="{{ site.howItWorksPath }}security-practices/">Security practices</a>
+    <a href="{{ site.howItWorksPath }}security-practices/" {% if title == "Security practices" %} class="usa-current"
+    {% endif %}>Security practices</a>
 </li>
