@@ -20,7 +20,7 @@ RUN mkdir -p /var/downloads/gradle
 WORKDIR /var/downloads/gradle
 RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 RUN unzip gradle-${GRADLE_VERSION}-bin.zip
-RUN mv /var/downloads/gradle/gradle-${GRADLE_VERSION}/* .
+RUN mv /var/downloads/gradle/gradle-${GRADLE_VERSION}/* /var/downloads/gradle
 RUN rm -r /var/downloads/gradle/gradle-${GRADLE_VERSION}/ gradle-${GRADLE_VERSION}-bin.zip
 
 # Get Azure Functions Core Tools into /var/downloads/azure-functions
