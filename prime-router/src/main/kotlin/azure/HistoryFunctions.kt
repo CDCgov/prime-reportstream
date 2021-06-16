@@ -487,7 +487,14 @@ open class BaseHistoryFunction {
      */
     fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         var userName = ""
-        var orgName = ""
+        // orgs in the settings table of the database have a format of "zz-phd",
+        // while the auth service claims has a format of "DHzz_phd"
+        // claimsOrgName will have the format of "DHzz_phd"
+        val claimsOrgName = request.headers["organization"] ?: ""
+
+        // orgName will have the format of "zz-phd" and is used to look up in the settings table of the database
+        var orgName = getOrgNameFromHeader(claimsOrgName)
+
         var jwtToken = request.headers["authorization"] ?: ""
 
         jwtToken = if (jwtToken.length > 7) jwtToken.substring(7) else ""
@@ -521,5 +528,15 @@ open class BaseHistoryFunction {
             }
         }
         return null
+    }
+
+    private fun getOrgNameFromHeader(orgNameHeader: String): String {
+        return if (orgNameHeader.isNotEmpty()) orgNameHeader.substring(2).replace("_", "-") else ""
+    }
+
+    private fun getOrgNameFromJwt(orgs: JSONArray?): String {
+        @Suppress( "UNCHECKED_CAST")
+        val org = if (orgs !== null) orgs.getString(0) else ""
+        return if (org.length > 3) org.substring(2) else ""
     }
 }
