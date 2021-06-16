@@ -178,10 +178,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 errors.add("Exception for $terserSpec: ${e.message}")
                 null
             }
-            // add the rows
-            if (parsedValue.isNullOrEmpty()) {
-                warnings.add("Blank for $terserSpec - $elementName")
-            }
+
             return parsedValue ?: ""
         }
 
@@ -477,7 +474,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     value
                 }
                 setComponent(terser, element, element.hl7Field, truncatedValue, report)
-            } else if (element.hl7Field != null) {
+            } else if (!element.hl7Field.isNullOrEmpty()) {
                 setComponent(terser, element, element.hl7Field, value, report)
             }
         }

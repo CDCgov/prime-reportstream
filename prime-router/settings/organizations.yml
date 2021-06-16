@@ -883,6 +883,11 @@
         topic: covid-19
         schemaName: empty
         format: CSV
+      - name: ignore-hl7      # Use this to test sending data from the HL7 schema
+        organizationName: ignore
+        topic: covid-19
+        schemaName: hl7/hl7-ingest-covid-19
+        format: HL7
     receivers:
       - name: CSV
         organizationName: ignore
