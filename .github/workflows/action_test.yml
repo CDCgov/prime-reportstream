@@ -6,8 +6,8 @@ on:
       - td/1256-build-app-in-docker-container
 
 jobs:
-  do_build:
-    name: Ignore
+  build_in_docker:
+    name: build_in_docker
     # needs: pre_job
     if: ${{ github.ref == 'refs/heads/td/1256-build-app-in-docker-container' }}
     # if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
@@ -24,8 +24,11 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
+      - name: Install docker-compose
+        run: apt-get update && apt-get --yes install docker-compose
+
       - name: Build Prime Router Package through Docker
-        run: bash ./build.sh --refresh-builder --clean -- gradle clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
+        run: bash ./build.sh -- gradle clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
 
       - name: Show build content after build
-        run: ls -hal ./build/
+        run: ls -hal ./ ./build/
