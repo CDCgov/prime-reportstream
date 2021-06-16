@@ -533,10 +533,4 @@ open class BaseHistoryFunction {
     private fun getOrgNameFromHeader(orgNameHeader: String): String {
         return if (orgNameHeader.isNotEmpty()) orgNameHeader.substring(2).replace("_", "-") else ""
     }
-
-    private fun getOrgNameFromJwt(orgs: JSONArray?): String {
-        @Suppress( "UNCHECKED_CAST")
-        val org = if (orgs !== null) orgs.getString(0) else ""
-        return if (org.length > 3) org.substring(2) else ""
-    }
 }
