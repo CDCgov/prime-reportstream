@@ -23,6 +23,10 @@
             <AppenderRef ref="Console"/>
         </Logger>
         -->
+        <!-- <Logger name="com.helger.as2lib" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        -->
 
         <Root level="INFO">
             <AppenderRef ref="Console"/>
