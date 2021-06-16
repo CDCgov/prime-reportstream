@@ -32,5 +32,11 @@ jobs:
           postgresql user: ${{ env.POSTGRES_USER }}
           postgresql password: ${{ env.POSTGRES_PASSWORD }}
 
+      - name: Show build content before build
+        run: ls -hal ./build/
+
       - name: Build Prime Router Package through Docker
         run: bash ./build.sh --refresh-builder --clean -- gradle clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
+
+      - name: Show build content after build
+        run: ls -hal ./build/
