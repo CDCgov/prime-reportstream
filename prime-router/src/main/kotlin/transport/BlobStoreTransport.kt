@@ -8,7 +8,6 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import java.util.logging.Level
 
 class BlobStoreTransport : ITransport {
     override fun send(
@@ -26,7 +25,7 @@ class BlobStoreTransport : ITransport {
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
             val bodyUrl = header.reportFile.bodyUrl ?: error("Report ${header.reportFile.reportId} has no blob to copy")
             context.logger.info("About to copy $bodyUrl to $envVar:$storageName")
-            var newUrl = WorkflowEngine().blob.copyBlob(bodyUrl,envVar, storageName)
+            var newUrl = WorkflowEngine().blob.copyBlob(bodyUrl, envVar, storageName)
             val msg = "Successfully copied $bodyUrl to $newUrl"
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)
@@ -45,11 +44,10 @@ class BlobStoreTransport : ITransport {
                 "FAILED Blob copy of inputReportId ${header.reportFile.reportId} to " +
                     "$blobTransportType ($envVar:$storageName)" +
                     ", Exception: ${t.localizedMessage}"
-            context.logger.warning( msg )
+            context.logger.warning(msg)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
         }
     }
-
 }

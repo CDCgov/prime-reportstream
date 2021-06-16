@@ -200,7 +200,6 @@ class ObservationMessageTests {
          */
         private fun compareToExpected(actual: Report, expected: List<List<String>>) {
             assertTrue(actual.schema.elements.isNotEmpty())
-
             // Make sure we have a header in the expected data file
             val firstColName = if (expected.isNotEmpty() && expected[0].isNotEmpty()) expected[0][0] else ""
             // If we found an element it means we have a header in the data
@@ -214,7 +213,6 @@ class ObservationMessageTests {
             // Now check the data in each report.
             val errorMsgs = ArrayList<String>()
             val warningMsgs = ArrayList<String>()
-
             // Check to see if actual has more columns.  Less columns is checked later on a column by column basis
             if (expected[0].size < actual.schema.elements.size) {
                 warningMsgs.add(
@@ -222,6 +220,12 @@ class ObservationMessageTests {
                 )
             }
 
+            // Check to see if actual has more columns.  Less columns is checked later on a column by column basis
+            if (expected[0].size < actual.schema.elements.size) {
+                warningMsgs.add(
+                    "   DATA WARNING: Actual record(s) has more columns than expected record(s)"
+                )
+            }
             val expectedHeaders = expected[0]
             for (i in 0 until actual.itemCount) {
                 val actualRow = actual.getRow(i)
@@ -248,7 +252,10 @@ class ObservationMessageTests {
                             )
                         }
                     } else {
-                        fail("Column #${j + 1}/${expectedHeaders[j]} from the expected data is missing in the actual data")
+                        fail(
+                            "Column #${j + 1}/${expectedHeaders[j]} from the " +
+                                "expected data is missing in the actual data"
+                        )
                     }
                 }
             }

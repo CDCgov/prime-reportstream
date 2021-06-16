@@ -124,8 +124,7 @@ class GenerateDocs : CliktCommand(
         if (!generateMarkup && !generateHtml) {
             println("Nothing generated.  You need to specify at least one type of output.")
             return
-        }
-        else if (inputSchema.isNullOrBlank()) {
+        } else if (inputSchema.isNullOrBlank()) {
             println("Generating documentation for all schemas")
 
             // Clear the existing schema (we want to remove deleted schemas)
@@ -157,8 +156,10 @@ class GenerateDocs : CliktCommand(
             if (outputHl7Elements) {
                 schema = buildMappedHl7Schema(schema)
             }
-            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps,
-                generateMarkup, generateHtml)
+            DocumentationFactory.writeDocumentationForSchema(
+                schema, outputDir, outputFileName, includeTimestamps,
+                generateMarkup, generateHtml
+            )
         }
     }
 

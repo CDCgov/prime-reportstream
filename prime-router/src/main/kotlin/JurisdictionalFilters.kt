@@ -248,6 +248,7 @@ class HasValidDataFor : JurisdictionalFilter {
             if (columnNames.contains(colName)) {
                 val before = Selection.with(*selection.toArray()) // hack way to copy to a new Selection obj
                 selection = selection.andNot(table.stringColumn(colName).isEmptyString)
+
                 JurisdictionalFilters.logFiltering(before, selection, "$name($colName)", receiver, doAuditing)
             } else {
                 JurisdictionalFilters.logAllEliminated(

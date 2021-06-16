@@ -564,17 +564,27 @@ data class Element(
                     altDisplayToken ->
                         toAltCode(formattedValue)
                             ?: error(
-                                "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping"
+                                "Invalid code: '$formattedValue' is not a display value in altValues set " +
+                                    "for $fieldMapping"
                             )
                     codeToken ->
                         toCode(formattedValue)
-                            ?: error("Invalid code '$formattedValue' is not a display value in valueSet for $fieldMapping")
+                            ?: error(
+                                "Invalid code '$formattedValue' is not a display value in valueSet " +
+                                    "for $fieldMapping"
+                            )
                     displayToken ->
                         valueSetRef?.toCodeFromDisplay(formattedValue)
-                            ?: error("Invalid code: '$formattedValue' is not a display value for element $fieldMapping")
+                            ?: error(
+                                "Invalid code: '$formattedValue' is not a display value " +
+                                    "for element $fieldMapping"
+                            )
                     else ->
                         valueSetRef?.toNormalizedCode(formattedValue)
-                            ?: error("Invalid code: '$formattedValue' does not match any codes for $fieldMapping")
+                            ?: error(
+                                "Invalid code: '$formattedValue' does not match any codes " +
+                                    "for $fieldMapping"
+                            )
                 }
             }
             Type.TELEPHONE -> {

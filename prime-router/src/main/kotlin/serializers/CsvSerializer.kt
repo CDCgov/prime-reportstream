@@ -273,9 +273,12 @@ class CsvSerializer(val metadata: Metadata) {
         val missingRequiredHeaders = requiredHeaders - actualHeaders
         val missingOptionalHeaders = optionalHeaders - actualHeaders
         val ignoredHeaders = actualHeaders - requiredHeaders - optionalHeaders - headersWithDefault
-        val errors = missingRequiredHeaders.map { "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header" }
-        val warnings = missingOptionalHeaders.map { "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header" } +
-            ignoredHeaders.map { "Unexpected '$it' header is ignored" }
+        val errors = missingRequiredHeaders.map {
+            "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
+        }
+        val warnings = missingOptionalHeaders.map {
+            "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
+        } + ignoredHeaders.map { "Unexpected '$it' header is ignored" }
 
         return CsvMapping(useCsv, useMapper, useDefault, errors, warnings)
     }
