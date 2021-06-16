@@ -272,10 +272,8 @@ NTE|1|L|This is a final comment|RE"""
         val serializer = Hl7Serializer(metadata)
         val mockTerser = mockk<Terser>()
         val mockSegment = mockk<Segment>()
-        val emptyEmailField = mockk<XTN>()
         val emailField = mockk<XTN>()
         val phoneField = mockk<XTN>()
-        val emailEquipType = mockk<ID>()
         val element = Element("email", Element.Type.EMAIL, hl7Field = "PID-13")
 
         // Bad field value
