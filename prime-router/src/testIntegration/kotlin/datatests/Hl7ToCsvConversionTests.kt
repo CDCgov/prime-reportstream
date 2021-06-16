@@ -202,21 +202,11 @@ class Hl7ToCsvConversionTests : ConversionTest {
                 )
             }
 
-            // Check to see if actual has more columns.  Less columns is checked later on a column by column basis
-            if (expected[0].size < actual.schema.elements.size) {
-                warningMsgs.add(
-                    "   DATA WARNING: Actual record(s) has more columns than expected record(s)"
-                )
-            }
-
             val expectedHeaders = expected[0]
             for (i in 0 until actual.itemCount) {
                 val actualRow = actual.getRow(i)
                 val expectedRow = expected[i + 1] // +1 to skip the header
-                assertEquals(
-                    actualRow.size, expectedRow.size,
-                    "Incorrect number of columns in report data for report #$i."
-                )
+
                 for (j in expectedRow.indices) {
                     val actualValueIndex = actual.schema.findElementColumn(expectedHeaders[j])
                     if (actualValueIndex != null) {
