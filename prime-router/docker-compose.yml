@@ -1,11 +1,11 @@
-# This docker compose is intended to setup a developer 
+# This docker compose is intended to setup a developer
 version: "3.3"
 services:
-  # This container runs our Azure function code. 
+  # This container runs our Azure function code.
   prime_dev:
     build:
       context: .
-      dockerfile: Dockerfile_dev
+      dockerfile: Dockerfile.dev
       args:
         INSECURE_SSL: "${PRIME_DATA_HUB_INSECURE_SSL}"
     volumes: # Attach the PWD into the image
@@ -38,15 +38,15 @@ services:
       - 5005:5005 # Java debug port
 
   # Azurite is the Azure storage emulator for local development
-  azurite: 
+  azurite:
     image: mcr.microsoft.com/azure-storage/azurite:3.12.0
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:
       # map to Azurite data objects to the build directory
       - ./build/azurite:/data
-    ports:  
-      - 10000:10000 
+    ports:
+      - 10000:10000
       - 10001:10001
 
   #local SFTP server as a receive point
@@ -105,7 +105,7 @@ services:
       - "8090:80"
     volumes:
       - "../frontend/dist:/usr/share/nginx/html"
-    depends_on: 
+    depends_on:
       - prime_dev
     command: "'nginx' '-g' 'daemon off;'"
     entrypoint: "/docker-entrypoint.sh"
@@ -113,5 +113,3 @@ services:
 volumes:
   # For storing a local encrypted secrets database
   vault:
-
-
