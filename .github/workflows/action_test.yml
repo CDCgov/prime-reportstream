@@ -42,7 +42,7 @@ jobs:
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          bbash ./build.sh -- gradle generatedocs
+          bash ./build.sh -- gradle generatedocs
 
       - name: Check for Uncommited Docs
         id: check_changes
