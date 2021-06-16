@@ -37,7 +37,7 @@ function checkJWT() {
     const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
 
     if (!token || !claims || moment().isAfter(moment.unix(claims.exp)))
-        window.location.replace('/sign-in/?return=/daily-data/');
+        window.location.replace('/log-in/?return=/daily-data/');
 }
 
 /**
@@ -62,7 +62,7 @@ async function fetchOrgName() {
 /**
  *  If the user is logged in, starts an idle timer that when expires
  *      after 15 min, clears session storage and redirects to the
- *      sign-in page
+ *      login page
  */
 function idleTimer() {
     const loggedIn = window.sessionStorage.getItem("jwt");
@@ -71,7 +71,7 @@ function idleTimer() {
         window.sessionStorage.setItem("idle-timer", "true");
         idleTimeout(() => {
             window.sessionStorage.clear();
-            window.location.replace(`/sign-in/`);
+            window.location.replace(`/log-in/`);
         },
             {
                 element: document,
