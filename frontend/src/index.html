@@ -32,6 +32,34 @@ hide-signin: false
 </section>
 
 <div class="grid-container">
+  
+  {% for section in content.index.sections %}
+    <section class="usa-section margin-y-0 padding-y-0" role="region">
+      <div class="grid-row grid-gap margin-bottom-0">
+        <div class="tablet:grid-col-8">
+          <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2>
+          <p class="font-sans-lg margin-top-1 text-base">{{ section.summary }}</p>
+        </div>
+      </div>
+      <div class="grid-row grid-gap margin-bottom-8{% if forloop.last == true %} padding-bottom-8 border-bottom-1px border-base-lighter{% endif %}">
+        {% for feature in section.features %}
+          <div class="tablet:grid-col-4 margin-bottom-0">
+            <h3>
+              <img src="{{ site.imgPath }}{{ feature.icon }}" aria-hidden="true" focusable="false" alt="Icon of {{ feature.iconDescription }}" />
+              {{ feature.title }}
+            </h3>
+            <p class="usa-prose">{{ feature.summary }}</p>
+          </div>
+        {% endfor %}
+        {% if section.body %}
+          <div class="tablet:grid-col-8 margin-bottom-0 usa-prose">
+            {{ section.body }}
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% endfor %}
+
   {% for partner in content.index.partners %}
     <section class="usa-section margin-y-0 padding-y-0" role="region">
       <div class="grid-row grid-gap margin-bottom-0">
