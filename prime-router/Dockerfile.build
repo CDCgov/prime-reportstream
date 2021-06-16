@@ -12,52 +12,53 @@ ARG JAVA_VERSION 11
 #
 # STAGE 1: Get an unpacked gradle distribution
 #
-FROM alpine:latest AS gradle_downloader
+FROM alpine:latest AS downloader
 ARG GRADLE_VERSION
 
 RUN apk update && apk add wget
-RUN mkdir -p /opt/gradle
-WORKDIR /opt/gradle
-RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
-RUN unzip gradle-${GRADLE_VERSION}-bin.zip
-RUN rm "gradle-${GRADLE_VERSION}-bin.zip"
+
+RUN mkdir -p /var/downloads/gradle
+WORKDIR /var/downloads/gradle
+RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
+    && unzip gradle-${GRADLE_VERSION}-bin.zip \
+    && rm "gradle-${GRADLE_VERSION}-bin.zip"
+
+RUN mkdir -p /var/downloads/azure-functions
+WORKDIR /var/downloads/azure-functions
+RUN wget https://github.com/Azure/azure-functions-core-tools/releases/download/3.0.3568/Azure.Functions.Cli.linux-x64.3.0.3568.zip \
+    && unzip Azure.Functions.Cli.linux-x64.3.0.3568.zip \
+    && rm Azure.Functions.Cli.linux-x64.3.0.3568.zip
 
 
-#
-# STAGE 2: Build the actual container that does the build
-#
+
+# #
+# # STAGE 2: Build the actual container that does the build
+# #
 FROM debian:buster AS builder
 ARG JAVA_VERSION
 ARG GRADLE_VERSION
 
-# Pre-requisites
+# Install pre-requisites
 RUN apt-get update \
     && apt-get --yes install \
-    curl \
-    gpg \
-    lsb-release \
     maven \
     openjdk-${JAVA_VERSION}-jdk
 
 # Azure Function Core Tools
 ENV FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT 1
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg
-RUN echo "deb [arch=amd64] https://packages.microsoft.com/debian/$(lsb_release -rs | cut -d'.' -f 1)/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list
-RUN apt-get update \
-    && apt-get --yes install \
-    azure-functions-core-tools-3
 
-# Get the unpacked gradle binaries from the gradle_downloader stage
+# Get the unpacked gradle binaries from the downloader stage
 RUN mkdir -p /opt/gradle
-COPY --from=gradle_downloader /opt/gradle/ /opt/gradle/
+COPY --from=downloader /var/downloads/gradle/ /opt/gradle/
+ENV PATH "${PATH}:/opt/gradle/gradle-${GRADLE_VERSION}/bin"
+
+# Get the Azure Function binaries from the downloader
+# cf https://github.com/Azure/azure-functions-core-tools/blob/master/README.md#linux
+RUN mkdir -p /opt/azure-functions
+COPY --from=downloader /var/downloads/azure-functions/ /opt/azure-functions/
+RUN chmod +x /opt/azure-functions/func /opt/azure-functions/gozip
+ENV PATH "${PATH}:/opt/azure-functions/"
 
 # A place to mount our source
 RUN mkdir -p "/src"
 WORKDIR "/src"
-
-# Make it so that we can call gradle from anywhere
-ENV PATH "${PATH}:/opt/gradle/gradle-${GRADLE_VERSION}/bin"
-
-# ENTRYPOINT [ "gradle", "--version" ]
-# ENTRYPOINT [ "/usr/bin/env", "bash" ]
-# ENTRYPOINT [ "./gradlew", "clean", "package" ]
