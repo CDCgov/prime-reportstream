@@ -216,7 +216,7 @@ Examples:
     }
 
     companion object {
-        val coolTestList = listOf<CoolTest>(
+        val coolTestList = listOf(
             Ping(),
             End2End(),
             Merge(),
@@ -234,7 +234,8 @@ Examples:
             HammerTime(),
             Waters(),
             RepeatWaters(),
-            InternationalContent()
+            InternationalContent(),
+            SantaClaus()
         )
     }
 }
@@ -1355,5 +1356,23 @@ class InternationalContent : CoolTest() {
             echo(e)
             return bad("***intcontent Test FAILED***: There was an error fetching data from the database.")
         }
+    }
+}
+
+class SantaClaus : CoolTest() {
+
+    override val name = "santaclaus"
+    override val description = "creates fake data as if from a sender and tries to send it to every state and territory"
+    override val status = TestStatus.GOODSTUFF
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+
+        if (options.env == "prod") {
+            return bad(
+                "***santaclaus Test FAILED***: This test can only be run on staging or locally"
+            )
+        }
+
+        return true
     }
 }
