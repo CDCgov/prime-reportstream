@@ -13,34 +13,9 @@ variable "resource_prefix" {
     description = "Resource Prefix"
 }
 
-variable "name" {
-    type = string
-    description = "Storage Account Name"
-}
-
 variable "location" {
     type = string
     description = "Storage Account Location"
-}
-
-variable "public_subnet_id" {
-    type = string
-    description = "Public Subnet ID"
-}
-
-variable "container_subnet_id" {
-    type = string
-    description = "Container Subnet ID"
-}
-
-variable "endpoint_subnet_id" {
-    type = string
-    description = "Private Endpoint Subnet ID"
-}
-
-variable "key_vault_id" {
-    type = string
-    description = "Key Vault used to encrypt blob storage"
 }
 
 variable "rsa_key_4096" {

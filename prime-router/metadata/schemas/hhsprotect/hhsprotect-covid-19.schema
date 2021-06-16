@@ -256,3 +256,7 @@ elements:
     csvFields: []
   - name: pregnant_text
     csvFields: []
+
+  - name: processing_mode_code
+    default: T
+    csvFields: [{name: processingModeCode}]

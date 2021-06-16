@@ -490,6 +490,16 @@ class Obx8Mapper : Mapper {
                 "895231008" -> "N" // Not detected in pooled specimen
                 "462371000124108" -> "A" // Detected in pooled specimen
                 "419984006" -> "N" // Inconclusive
+                "125154007" -> "N" // Specimen unsatisfactory for evaluation
+                "455371000124106" -> "N" // Invalid result
+                "840539006" -> "A" // Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+                "840544004" -> "A" // Disease caused by severe acute respiratory coronavirus 2 (situation)
+                "840546002" -> "A" // Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+                "840533007" -> "A" // Severe acute respiratory syndrome coronavirus 2 (organism)
+                "840536004" -> "A" // Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+                "840535000" -> "A" // Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+                "840534001" -> "A" // Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+                "373121007" -> "N" // Test not done
                 else -> null
             }
         }
@@ -548,7 +558,7 @@ class DateTimeOffsetMapper : Mapper {
                 error("Invalid date: '$value' for element '${element.name}'")
             }
         }
-        return if (values.isEmpty() || values.size > 1) {
+        return if (values.isEmpty() || values.size > 1 || values[0].value.isNullOrBlank()) {
             null
         } else {
             val unit = args[1]

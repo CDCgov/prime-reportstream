@@ -8,22 +8,12 @@ variable "resource_group" {
     description = "Resource Group Name"
 }
 
-variable "name" {
+variable "resource_prefix" {
     type = string
-    description = "Container Registry Name"
+    description = "Resource Prefix"
 }
 
 variable "location" {
     type = string
     description = "Container Registry Location"
-}
-
-variable "public_subnet_id" {
-    type = string
-    description = "Public Subnet ID"
-}
-
-variable "endpoint_subnet_id" {
-    type = string
-    description = "Private Endpoint Subnet ID"
 }

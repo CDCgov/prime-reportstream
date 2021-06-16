@@ -16,10 +16,11 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.10"
-    id("org.flywaydb.flyway") version "7.9.2"
+    id("org.flywaydb.flyway") version "7.10.0"
     id("nu.studer.jooq") version "5.2.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
+    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
 }
 
 group = "gov.cdc.prime"
@@ -79,6 +80,53 @@ tasks.test {
     }
 }
 
+// Add the testIntegration tests
+sourceSets.create("testIntegration") {
+    java.srcDir("src/testIntegration/kotlin")
+    compileClasspath += sourceSets["main"].output
+    runtimeClasspath += sourceSets["main"].output
+}
+
+val compileTestIntegrationKotlin: KotlinCompile by tasks
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+
+val testIntegrationImplementation: Configuration by configurations.getting {
+    extendsFrom(configurations["testImplementation"])
+}
+
+configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
+
+tasks.register<Test>("testIntegration") {
+    useJUnitPlatform()
+    dependsOn("compile")
+    dependsOn("compileTestIntegrationKotlin")
+    dependsOn("compileTestIntegrationJava")
+    shouldRunAfter("test")
+    testClassesDirs = sourceSets["testIntegration"].output.classesDirs
+    classpath = sourceSets["testIntegration"].runtimeClasspath
+    // Run the test task if specified configuration files are changed
+    inputs.files(
+        fileTree("./") {
+            include("settings/**/*.yml")
+            include("metadata/**/*")
+            include("src/testIntergation/resources/datatests/**/*")
+        }
+    )
+    outputs.upToDateWhen {
+        // Call gradle with the -Pforcetest option will force the unit tests to run
+        if (project.hasProperty("forcetest")) {
+            println("Rerunning unit tests...")
+            false
+        } else {
+            true
+        }
+    }
+}
+
+tasks.check {
+    dependsOn("testIntegration")
+}
+
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 }
@@ -102,6 +150,11 @@ tasks.jar {
     }
 }
 
+tasks.shadowJar {
+    // our fat jar is getting fat! Or over 65K files in this case
+    isZip64 = true
+}
+
 // Just a nicer name to create the fat jar
 tasks.register("fatJar") {
     group = rootProject.description ?: ""
@@ -116,7 +169,9 @@ tasks.register<JavaExec>("primeCLI") {
     classpath = sourceSets["main"].runtimeClasspath
     // Default arguments is to display the help
     args = listOf("-h")
-    environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
+    environment["POSTGRES_URL"] = dbUrl
+    environment["POSTGRES_USER"] = dbUser
+    environment["POSTGRES_PASSWORD"] = dbPassword
     doFirst {
         println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
         println(
@@ -277,7 +332,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.16.0")
-    implementation("com.azure:azure-core-http-netty:1.9.2")
+    implementation("com.azure:azure-core-http-netty:1.10.0")
     implementation("com.azure:azure-storage-blob:12.11.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -288,7 +343,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.3.0") {
+    implementation("com.azure:azure-identity:1.3.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -306,7 +361,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.24")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.25")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -316,18 +371,19 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20210307")
     implementation("com.hierynomus:sshj:0.31.0")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.68")
+    implementation("org.bouncycastle:bcprov-jdk15on:1.69")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
-    implementation("commons-io:commons-io:2.9.0")
+    implementation("commons-io:commons-io:2.10.0")
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.flywaydb:flyway-core:7.9.2")
+    implementation("org.flywaydb:flyway-core:7.10.0")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.17.2")
     implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.helger.as2:as2-lib:4.7.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
