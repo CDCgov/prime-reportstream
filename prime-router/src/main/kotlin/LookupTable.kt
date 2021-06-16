@@ -4,21 +4,19 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import java.io.File
 import java.io.InputStream
 
+/**
+ * Represents a table of metadata that we use to perform lookups on, for example the LIVD table, or FIPS values
+ * @constructor creates a new instance from a List of Lists of String.
+ */
 class LookupTable(
     private val table: List<List<String>>
 ) {
-    private val headerRow: List<String>
-    private val headerIndex: Map<String, Int>
-    private val columnIndex: MutableMap<String, Map<String, Int>>
+    private val headerRow: List<String> = table[0].map { it.lowercase() }
+    private val headerIndex: Map<String, Int> = headerRow.mapIndexed { index, header -> header to index }.toMap()
+    private val columnIndex: MutableMap<String, Map<String, Int>> = mutableMapOf()
     private val indexDelimiter = "|"
 
     val rowCount: Int get() = table.size - 1
-
-    init {
-        headerRow = table[0].map { it.lowercase() }
-        headerIndex = headerRow.mapIndexed { index, header -> header to index }.toMap()
-        columnIndex = mutableMapOf()
-    }
 
     fun hasColumn(column: String): Boolean {
         return headerIndex.containsKey(column.lowercase())
@@ -58,8 +56,38 @@ class LookupTable(
     }
 
     /**
+     * Filters a table down based on a predicate, and then invokes the standard lookupValue above
+     * on that filtered table below
+     * By default the search is case-insensitive, though you can pass in the flag
+     * to make it respect case.
+     *
+     * @param indexColumn The column to index looking for your value
+     * @param indexValue The value to look for in the index column
+     * @param lookupColumn The column to pull your value from based on the index
+     * @param ignoreCase Whether or not to perform a case insensitive search
+     * @param filters a Map of columnName and String which will filter the LookupTable down before doing its lookup
+     * @return The value you're looking for in the table base on the index look up value
+     */
+    fun lookupValue(
+        indexColumn: String,
+        indexValue: String,
+        lookupColumn: String,
+        filters: Map<String, String>,
+        ignoreCase: Boolean = true
+    ): String? {
+        val filteredTable = filter(filters, ignoreCase)
+        return filteredTable.lookupValue(indexColumn, indexValue, lookupColumn, ignoreCase)
+    }
+
+    /**
      * Performs a search of the table by looking the indexColumn for value that starts with indexValue
      * and returning the result for the matched row at the lookupColumn.
+     *
+     * @param indexColumn The column to index looking for your value
+     * @param indexValue The value to look for in the index column
+     * @param lookupColumn The column to pull your value from based on the index
+     * @param ignoreCase Whether or not to perform a case insensitive search
+     * @return The value you're looking for in the table base on the index look up value
      */
     fun lookupPrefixValue(
         indexColumn: String,
@@ -75,6 +103,28 @@ class LookupTable(
             if (rowsValue.startsWith(findValue)) return row[lookupColIndex]
         }
         return null
+    }
+
+    /**
+     * Filters a table down based on a predicate, and then invokes the standard lookupPrefixValue above
+     * on that filtered table below
+     *
+     * @param indexColumn The column to index looking for your value
+     * @param indexValue The value to look for in the index column
+     * @param lookupColumn The column to pull your value from based on the index
+     * @param ignoreCase Whether or not to perform a case insensitive search
+     * @param filters a Map of columnName and String which will filter the LookupTable down before doing its lookup
+     * @return The value you're looking for in the table base on the index look up value
+     */
+    fun lookupPrefixValue(
+        indexColumn: String,
+        indexValue: String,
+        lookupColumn: String,
+        filters: Map<String, String>,
+        ignoreCase: Boolean = true
+    ): String? {
+        val filteredTable = filter(filters, ignoreCase)
+        return filteredTable.lookupPrefixValue(indexColumn, indexValue, lookupColumn, ignoreCase)
     }
 
     /**
@@ -162,6 +212,48 @@ class LookupTable(
                 }
             }
             .map { row -> row[selectColumnNumber] }
+    }
+
+    /**
+     * This filters a LookupTable by comparing values in the table columns specified by the values in the Map
+     *
+     * <p>
+     *     In certain instances we need to be able to filter out some of the records we consider when we do
+     *     a lookup in the lookup table. For example, the Sofia 2 test in the LIVD table checks for not only
+     *     COVID-19, but also for Influenza A+B, and the only thing that distinguishes between the three possible
+     *     result codes are looking for is the test_performed_code (LOINC), and the description for the LOINC code.
+     * </p>
+     * <p>
+     *     This means it is possible if we match on the test_ordered_code, or the device name, we could potentially
+     *     return the influenza result code instead of the COVID result code, or vice versa.
+     * </p>
+     * <p>
+     *     This fix allows us to pass in an arbitrary number of indexing columns and create a new table that
+     *     we then operate off of.
+     * </p>
+     * <p>
+     *     The goal by returning a new LookupTable is to leverage existing code written for the class while having
+     *     additional filtering options
+     * </p>
+     *
+     * @param filters       the map of column name and value to search for in that column
+     * @param ignoreCase    whether or not to perform a case insensitive search
+     * @return The filtered LookupTable
+     */
+    fun filter(
+        filters: Map<String, String>,
+        ignoreCase: Boolean = true
+    ): LookupTable {
+        if (filters.isEmpty() || filters.count() == 0) return this
+        val filteredRows = table
+            .filter { row ->
+                filters.all { (k, v) ->
+                    val filterColumNumber = headerIndex[k.lowercase()] ?: error("$k doesn't exist in lookup table")
+                    row[filterColumNumber].equals(v, ignoreCase)
+                }
+            }
+        val headerAndFilteredRows = listOf(headerRow) + filteredRows
+        return LookupTable(headerAndFilteredRows)
     }
 
     /**

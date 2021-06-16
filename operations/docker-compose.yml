@@ -1,8 +1,8 @@
 version: "3.3"
 
 services:
-  dev:
-    container_name: terraform_state_dev
+  tf-cli:
+    container_name: terraform_state
     build:
       context: .
     volumes:
@@ -14,52 +14,7 @@ services:
       - type: volume
         source: azure_config
         target: /root/.azure
-    working_dir: /app/src/environments/dev
-
-  test:
-    container_name: terraform_state_test
-    build:
-      context: .
-    volumes:
-      # Bind the app directory instead of building into the docker image for re-usability
-      - type: bind
-        source: ./app
-        target: /app
-      # Keep Azure config
-      - type: volume
-        source: azure_config
-        target: /root/.azure
-    working_dir: /app/src/environments/test
-
-  staging:
-    container_name: terraform_state_staging
-    build:
-      context: .
-    volumes:
-      # Bind the app directory instead of building into the docker image for re-usability
-      - type: bind
-        source: ./app
-        target: /app
-      # Keep Azure config
-      - type: volume
-        source: azure_config
-        target: /root/.azure
-    working_dir: /app/src/environments/staging
-
-  prod:
-    container_name: terraform_state_prod
-    build:
-      context: .
-    volumes:
-      # Bind the app directory instead of building into the docker image for re-usability
-      - type: bind
-        source: ./app
-        target: /app
-      # Keep Azure config
-      - type: volume
-        source: azure_config
-        target: /root/.azure
-    working_dir: /app/src/environments/prod
+    working_dir: /app/src/environments/
 
 volumes:
   azure_config:

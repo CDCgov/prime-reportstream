@@ -230,10 +230,6 @@ class ObservationMessageTests {
             for (i in 0 until actual.itemCount) {
                 val actualRow = actual.getRow(i)
                 val expectedRow = expected[i + 1] // +1 to skip the header
-                assertEquals(
-                    actualRow.size, expectedRow.size,
-                    "Incorrect number of columns in report data for report #$i."
-                )
                 for (j in expectedRow.indices) {
                     val actualValueIndex = actual.schema.findElementColumn(expectedHeaders[j])
                     if (actualValueIndex != null) {

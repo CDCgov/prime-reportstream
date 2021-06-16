@@ -29,6 +29,7 @@ class FakeDataService {
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
+                element.nameContains("sender_id") -> "ImageMover"
                 element.nameContains("facility_name") -> "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
@@ -99,6 +100,10 @@ class FakeDataService {
             return when (element.name) {
                 "specimen_source_site_code" -> "71836000"
                 "test_result_status" -> randomChoice("F", "C")
+                "processing_mode_code" -> "P"
+                "test_result" ->
+                    // Reduce the choice to between detected, not detected, and uncertain for more typical results
+                    randomChoice("260373001", "260415000", "419984006")
                 else -> {
                     val altValues = element.altValues
                     val valueSet = element.valueSetRef
@@ -128,6 +133,10 @@ class FakeDataService {
                             "Schema Error: Could not lookup ${context.equipmentModel} " +
                                 "to ${element.tableColumn}"
                         )
+                }
+                element.table?.startsWith("LIVD-Supplemental") == true -> {
+                    if (element.tableColumn == null) return ""
+                    element.default ?: ""
                 }
                 element.table == "fips-county" -> {
                     when {

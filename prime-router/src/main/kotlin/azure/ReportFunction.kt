@@ -339,7 +339,8 @@ class ReportFunction {
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings)
+
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)

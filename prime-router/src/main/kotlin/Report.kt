@@ -319,19 +319,33 @@ class Report {
         }
     }
 
-    fun filter(filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>, receiver: Receiver): Report {
+    fun filter(
+        filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>,
+        receiver: Receiver,
+        isQualityFilter: Boolean,
+        reverseTheFilter: Boolean = false
+    ): Report {
+        // First, only do detailed logging on qualityFilters.
+        // But, **don't** do detailed logging if reverseTheFilter is true.
+        // This is a hack, but its because the logging is nonsensical if the filter is reversed.
+        // (Its nontrivial to fix the detailed logging of a reversed filter, per deMorgan's law)
+        val doDetailedFilterLogging = isQualityFilter && !reverseTheFilter
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
-            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver)
+            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doDetailedFilterLogging)
             combinedSelection.and(filterFnSelection)
         }
-        val filteredTable = table.where(combinedSelection)
+        val finalCombinedSelection = if (reverseTheFilter)
+            Selection.withRange(0, table.rowCount()).andNot(combinedSelection)
+        else
+            combinedSelection
+        val filteredTable = table.where(finalCombinedSelection)
         val filteredReport = Report(
             this.schema,
             filteredTable,
             fromThisReport("filter: $filterFunctions")
         )
-        filteredReport.itemLineages = createItemLineages(combinedSelection, this, filteredReport)
+        filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
         return filteredReport
     }
 
@@ -746,10 +760,10 @@ class Report {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
             val fileName = when (translationConfig) {
-                null -> "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
+                null -> "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 else -> metadata.fileNameTemplates[nameFormat.lowercase()].run {
                     this?.getFileName(translationConfig)
-                        ?: "${Schema.formBaseName(schemaName)}-${formatter.format(createdDateTime)}-$id"
+                        ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
             }
             return "$fileName.$nameSuffix"

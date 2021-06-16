@@ -225,16 +225,25 @@ class LIVDLookupMapper : Mapper {
             error("Schema Error: livdLookup mapper does not expect args")
         // EQUIPMENT_MODEL_NAME is the more stable id so it goes first. Device_id will change as devices change from
         // emergency use to fully authorized status in the LIVD table
-        return listOf(EQUIPMENT_MODEL_NAME, DEVICE_ID, EQUIPMENT_MODEL_ID, TEST_KIT_NAME_ID)
+        return listOf(EQUIPMENT_MODEL_NAME, DEVICE_ID, EQUIPMENT_MODEL_ID, TEST_KIT_NAME_ID, TEST_PERFORMED_CODE)
     }
 
     override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
+        // get the test performed code for additional filtering of the test information in case we are
+        // dealing with tests that check for more than one type of disease, for example COVID + influenza
+        val testPerformedCode = values.firstOrNull { it.element.name == TEST_PERFORMED_CODE }?.value
+        val filters: MutableMap<String, String> = mutableMapOf()
+        // if the test performed code exists, we should add it to our filtering
+        if (!testPerformedCode.isNullOrEmpty()) {
+            filters[LIVD_TEST_PERFORMED_CODE] = testPerformedCode
+        }
+        // carry on as usual
         values.forEach {
             val result = when (it.element.name) {
-                DEVICE_ID -> lookupByDeviceId(element, it.value)
-                EQUIPMENT_MODEL_ID -> lookupByEquipmentUid(element, it.value)
-                TEST_KIT_NAME_ID -> lookupByTestkitId(element, it.value)
-                EQUIPMENT_MODEL_NAME -> lookupByEquipmentModelName(element, it.value)
+                DEVICE_ID -> lookupByDeviceId(element, it.value, filters)
+                EQUIPMENT_MODEL_ID -> lookupByEquipmentUid(element, it.value, filters)
+                TEST_KIT_NAME_ID -> lookupByTestkitId(element, it.value, filters)
+                EQUIPMENT_MODEL_NAME -> lookupByEquipmentModelName(element, it.value, filters)
                 else -> null
             }
             if (result != null) return result
@@ -247,13 +256,26 @@ class LIVDLookupMapper : Mapper {
         const val LIVD_TESTKIT_NAME_ID = "Testkit Name ID"
         const val LIVD_EQUIPMENT_UID = "Equipment UID"
         const val LIVD_MODEL = "Model"
+        const val LIVD_TEST_PERFORMED_CODE = "Test Performed LOINC Code"
 
         const val DEVICE_ID = "device_id"
         const val EQUIPMENT_MODEL_ID = "equipment_model_id"
         const val EQUIPMENT_MODEL_NAME = "equipment_model_name"
         const val TEST_KIT_NAME_ID = "test_kit_name_id"
+        const val TEST_PERFORMED_CODE = "test_performed_code"
 
-        private fun lookupByDeviceId(element: Element, deviceId: String): String? {
+        /**
+         * Does a lookup in the LIVD table based on the element Id
+         * @param element the schema element to use for lookups
+         * @param deviceId the ID of the test device to lookup LIVD information by
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
+        private fun lookupByDeviceId(
+            element: Element,
+            deviceId: String,
+            filters: Map<String, String>
+        ): String? {
             /*
              Dev Note:
 
@@ -272,51 +294,111 @@ class LIVDLookupMapper : Mapper {
             val suffix = deviceId.substringAfterLast('_', "")
             if (standard99ELRTypes.contains(suffix)) {
                 val value = deviceId.substringBeforeLast('_', "")
-                return lookup(element, value, LIVD_TESTKIT_NAME_ID)
-                    ?: lookup(element, value, LIVD_EQUIPMENT_UID)
+                return lookup(element, value, LIVD_TESTKIT_NAME_ID, filters)
+                    ?: lookup(element, value, LIVD_EQUIPMENT_UID, filters)
             }
 
             // truncated 99ELR type
             if (deviceId.endsWith("#")) {
                 val value = deviceId.substringBeforeLast('#', "")
-                return lookupPrefix(element, value, LIVD_TESTKIT_NAME_ID)
-                    ?: lookupPrefix(element, value, LIVD_EQUIPMENT_UID)
+                return lookupPrefix(element, value, LIVD_TESTKIT_NAME_ID, filters)
+                    ?: lookupPrefix(element, value, LIVD_EQUIPMENT_UID, filters)
             }
 
             // May be the DI from a GUDID either test-kit or equipment
-            return lookup(element, deviceId, LIVD_TESTKIT_NAME_ID)
-                ?: lookup(element, deviceId, LIVD_EQUIPMENT_UID)
+            return lookup(element, deviceId, LIVD_TESTKIT_NAME_ID, filters)
+                ?: lookup(element, deviceId, LIVD_EQUIPMENT_UID, filters)
         }
 
-        private fun lookupByEquipmentUid(element: Element, value: String): String? {
+        /**
+         * Does a lookup in the LIVD table based on the element unique identifier
+         * @param element the schema element to use for lookups
+         * @param value the unique ID of the test device to lookup LIVD information by
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
+        private fun lookupByEquipmentUid(
+            element: Element,
+            value: String,
+            filters: Map<String, String>
+        ): String? {
             if (value.isBlank()) return null
-            return lookup(element, value, LIVD_EQUIPMENT_UID)
+            return lookup(element, value, LIVD_EQUIPMENT_UID, filters)
         }
 
-        private fun lookupByTestkitId(element: Element, value: String): String? {
+        /**
+         * Does a lookup in the LIVD table based on the test kit Id
+         * @param element the schema element to use for lookups
+         * @param value the test kit ID of the test device to lookup LIVD information by
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
+        private fun lookupByTestkitId(
+            element: Element,
+            value: String,
+            filters: Map<String, String>
+        ): String? {
             if (value.isBlank()) return null
-            return lookup(element, value, LIVD_TESTKIT_NAME_ID)
+            return lookup(element, value, LIVD_TESTKIT_NAME_ID, filters)
         }
 
-        private fun lookupByEquipmentModelName(element: Element, value: String): String? {
+        /**
+         * Does a lookup in the LIVD table based on the equipment model name
+         * @param element the schema element to use for lookups
+         * @param value the model name of the test device to lookup LIVD information by
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
+        private fun lookupByEquipmentModelName(
+            element: Element,
+            value: String,
+            filters: Map<String, String>
+        ): String? {
             if (value.isBlank()) return null
-            return lookup(element, value, LIVD_MODEL)
+            return lookup(element, value, LIVD_MODEL, filters)
         }
 
-        private fun lookup(element: Element, lookup: String, onColumn: String): String? {
+        /**
+         * Does the lookup in the LIVD table based on the lookup type and the values passed in
+         * @param element the schema element to use for lookups
+         * @param onColumn the name of the index column to do the lookup in
+         * @param lookup the value to search the index column for
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
+        private fun lookup(
+            element: Element,
+            lookup: String,
+            onColumn: String,
+            filters: Map<String, String>
+        ): String? {
             val lookupTable = element.tableRef
                 ?: error("Schema Error: could not find table '${element.table}'")
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${element.name}'")
-            return lookupTable.lookupValue(onColumn, lookup, lookupColumn)
+            return lookupTable.lookupValue(onColumn, lookup, lookupColumn, filters)
         }
 
-        private fun lookupPrefix(element: Element, lookup: String, onColumn: String): String? {
+        /**
+         * Does the lookup in the LIVD table based on the lookup type and the values passed in,
+         * by seeing if any values in the index column starts with the index value
+         * @param element the schema element to use for lookups
+         * @param onColumn the name of the index column to do the lookup in
+         * @param lookup the value to search the index column for
+         * @param filters an optional list of additional filters to limit our search by
+         * @return a possible String? value based on the lookup
+         */
+        private fun lookupPrefix(
+            element: Element,
+            lookup: String,
+            onColumn: String,
+            filters: Map<String, String>
+        ): String? {
             val lookupTable = element.tableRef
                 ?: error("Schema Error: could not find table '${element.table}'")
             val lookupColumn = element.tableColumn
                 ?: error("Schema Error: no tableColumn for element '${element.name}'")
-            return lookupTable.lookupPrefixValue(onColumn, lookup, lookupColumn)
+            return lookupTable.lookupPrefixValue(onColumn, lookup, lookupColumn, filters)
         }
     }
 }
@@ -408,6 +490,16 @@ class Obx8Mapper : Mapper {
                 "895231008" -> "N" // Not detected in pooled specimen
                 "462371000124108" -> "A" // Detected in pooled specimen
                 "419984006" -> "N" // Inconclusive
+                "125154007" -> "N" // Specimen unsatisfactory for evaluation
+                "455371000124106" -> "N" // Invalid result
+                "840539006" -> "A" // Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+                "840544004" -> "A" // Disease caused by severe acute respiratory coronavirus 2 (situation)
+                "840546002" -> "A" // Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+                "840533007" -> "A" // Severe acute respiratory syndrome coronavirus 2 (organism)
+                "840536004" -> "A" // Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+                "840535000" -> "A" // Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+                "840534001" -> "A" // Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+                "373121007" -> "N" // Test not done
                 else -> null
             }
         }
@@ -628,44 +720,6 @@ class HashMapper : Mapper {
             val digest = MessageDigest.getInstance("SHA-256").digest(input)
             return DatatypeConverter.printHexBinary(digest)
         }
-    }
-}
-
-/**
- * This mapper performs no operation and is meant to override mappers set on parent schemas, so no mapper runs.
- * Arguments: None
- * Returns: null
- */
-class NullMapper : Mapper {
-    override val name = "none"
-
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.isNotEmpty())
-            error("Schema Error: none mapper does not expect args")
-        return emptyList()
-    }
-
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return null
-    }
-}
-
-/**
- * This mapper performs no operation and is meant to override mappers set on parent schemas, so no mapper runs.
- * Arguments: None
- * Returns: null
- */
-class NullMapper : Mapper {
-    override val name = "none"
-
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.isNotEmpty())
-            error("Schema Error: none mapper does not expect args")
-        return emptyList()
-    }
-
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return null
     }
 }
 
