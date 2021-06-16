@@ -511,6 +511,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 .insertInto(COVID_RESULT_METADATA)
                 .set(COVID_RESULT_METADATA.MESSAGE_ID, it.messageId)
                 .set(COVID_RESULT_METADATA.REPORT_ID, it.reportId)
+                .set(COVID_RESULT_METADATA.REPORT_INDEX, it.reportIndex)
                 .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME, it.orderingProviderName)
                 .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_ID, it.orderingProviderId)
                 .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE, it.orderingProviderState)

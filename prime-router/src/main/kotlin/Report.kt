@@ -489,7 +489,7 @@ class Report : Logging {
 
     fun getDeidentifiedResultMetaData(): List<CovidResultMetadata> {
         return try {
-            table.map { row ->
+            table.mapIndexed { idx, row ->
                 CovidResultMetadata().also {
                     it.messageId = row.getStringOrNull("message_id")
                     it.orderingProviderName = row.getStringOrNull("ordering_provider_first_name") +
@@ -547,6 +547,7 @@ class Report : Logging {
                         }
                     }
                     it.reportId = this.id
+                    it.reportIndex = idx
                 }
             }
         } catch (e: Exception) {
