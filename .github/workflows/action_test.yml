@@ -24,8 +24,9 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Install docker-compose
-        run: apt-get update && apt-get --yes install docker-compose
+      # Appears not to be needed on GitHub (but needed when running act locally)
+      # - name: Install docker-compose
+      #   run: apt-get update && apt-get --yes install docker-compose
 
       - name: Build Prime Router Package through Docker
         run: bash ./build.sh -- gradle clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
