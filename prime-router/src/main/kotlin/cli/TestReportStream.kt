@@ -359,7 +359,8 @@ abstract class CoolTest {
             it.organizationName == orgName &&
                 !it.name.contains("FAIL") &&
                 !it.name.contains("BLOBSTORE") &&
-                !it.name.contains("QUALITY")
+                !it.name.contains("QUALITY") &&
+                !it.name.contains("AS2")
         }
         val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
 
@@ -1027,10 +1028,13 @@ class QualityFilter : CoolTest() {
             for (i in 0 until destinations.size()) {
                 val dest = destinations[i] as ObjectNode
                 if (dest["service"].textValue() == receiver.name) {
-                    if (dest["itemCount"].intValue() == expectedCount) {
-                        return good("Test Passed: For ${receiver.name} expected $expectedCount and found $expectedCount")
+                    return if (dest["itemCount"].intValue() == expectedCount) {
+                        good("Test Passed: For ${receiver.name} expected $expectedCount and found $expectedCount")
                     } else {
-                        return bad("***Test FAILED***; For ${receiver.name} expected $expectedCount but got ${dest["itemCount"].intValue()}")
+                        bad(
+                            "***Test FAILED***; For ${receiver.name} expected " +
+                                "$expectedCount but got ${dest["itemCount"].intValue()}"
+                        )
                     }
                 }
             }
@@ -1284,12 +1288,16 @@ class BadSftp : CoolTest() {
  */
 class InternationalContent : CoolTest() {
     override val name = "intcontent"
-    override val description = "Create Fake data that includes international characters, submit, wait, confirm sent via database lineage data"
+    override val description = "Create Fake data that includes international characters, " +
+        "submit, wait, confirm sent via database lineage data"
     override val status = TestStatus.DRAFT // Because this can only be run local to get access to the SFTP folder
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         if (options.env != "local") {
-            return bad("***intcontent Test FAILED***: This test can only be run locally as it needs access to the SFTP folder.")
+            return bad(
+                "***intcontent Test FAILED***: This test can only be run locally " +
+                    "as it needs access to the SFTP folder."
+            )
         }
 
         // Make sure we have access to the SFTP folder

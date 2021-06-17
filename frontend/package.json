@@ -4,9 +4,9 @@
   "dependencies": {
     "axios": "^0.21.1",
     "chart.js": "^3.2",
-    "cypress": "^7.4.0",
-    "http-proxy-middleware": "^2.0.0",
-    "moment": "^2.29.1"
+    "cypress": "^7.5.0",
+    "moment": "^2.29.1",
+    "http-proxy-middleware": "^2.0.0"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.12.1",
