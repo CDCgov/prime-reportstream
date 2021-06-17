@@ -24,6 +24,7 @@ import gov.cdc.prime.router.ValueSet
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.IllegalStateException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -319,6 +320,21 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
             errors.add(msg)
+        }
+
+        // Check for required fields now that we are done processing all the fields
+        schema.elements.forEach { element ->
+            if (!element.isOptional) {
+                var isValueEmpty = true
+                mappedRows[element.name]?.forEach { elementValues ->
+                    if (!elementValues.isNullOrEmpty()) {
+                        isValueEmpty = false
+                    }
+                }
+                if (isValueEmpty) {
+                    errors.add("The Value for ${element.name} for field ${element.hl7Field} is required")
+                }
+            }
         }
 
         // convert sets to lists
@@ -1033,6 +1049,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                                 )
                             }
                         }
+                        else -> throw IllegalStateException("${element.type} not supported by decodeHl7DateTime")
                     }
                 }
             }
