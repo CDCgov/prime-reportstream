@@ -204,7 +204,8 @@ class FakeReport(val metadata: Metadata, val locale : Locale? = null) {
         val patientName: Name = faker.name()
         val schoolName: String = faker.university().name()
         val equipmentModel = randomChoice(
-            "BinaxNOW COVID-19 Ag Card",
+            // Use only equipment that have equipment UID and equipment UID type to pass quality gate for HL7 messages
+            "Architect i1000SR",
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
         // find our state

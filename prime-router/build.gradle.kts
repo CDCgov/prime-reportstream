@@ -277,8 +277,7 @@ tasks.register("quickPackage") {
     tasks["test"].enabled = false
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
-    tasks["jar"].enabled = false
-    tasks["generateJooq"].enabled = false
+    tasks["flywayMigrate"].enabled = false
 }
 
 repositories {
