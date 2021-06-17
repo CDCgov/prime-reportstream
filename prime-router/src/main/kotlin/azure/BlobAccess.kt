@@ -19,7 +19,7 @@ class BlobAccess(
     private val csvSerializer: CsvSerializer,
     private val hl7Serializer: Hl7Serializer,
     private val redoxSerializer: RedoxSerializer
-): Logging {
+) : Logging {
     private val defaultConnEnvVar = "AzureWebJobsStorage"
 
     // Basic info about a blob: its format, url in azure, and its sha256 hash
@@ -86,10 +86,10 @@ class BlobAccess(
     fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
         val fromBytes = this.downloadBlob(fromBlobUrl)
         logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
-        val fromBlobClient = getBlobClient(fromBlobUrl)  // only used to get the filename.
+        val fromBlobClient = getBlobClient(fromBlobUrl) // only used to get the filename.
         val toFilename = fromBlobClient.blobName
         logger.info("New blob filename will be $toFilename")
-        val toBlobUrl = uploadBlob(toFilename,fromBytes,toBlobContainer,toBlobConnEnvVar)
+        val toBlobUrl = uploadBlob(toFilename, fromBytes, toBlobContainer, toBlobConnEnvVar)
         logger.info("New blob URL is $toBlobUrl")
         return toBlobUrl
     }

@@ -256,8 +256,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     val hl7Field = hl7Fields[i]
                     value =
                         // Decode a phone number
-                        if (element.type == Element.Type.TELEPHONE) {
-                            decodeHl7PhoneNumber(terser, element, hl7Field)
+                        if (element.type == Element.Type.TELEPHONE || element.type == Element.Type.EMAIL) {
+                            decodeHl7TelecomData(terser, element, hl7Field)
                         }
                         // Decode a timestamp
                         else if (element.type == Element.Type.DATETIME ||
@@ -523,6 +523,10 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         if (!hl7Config?.reportingFacilityId.isNullOrEmpty()) {
             val pathSpec = formPathSpec("MSH-4-2")
             terser.set(pathSpec, hl7Config?.reportingFacilityId)
+            if (!hl7Config?.reportingFacilityIdType.isNullOrEmpty()) {
+                val pathSpec = formPathSpec("MSH-4-3")
+                terser.set(pathSpec, hl7Config?.reportingFacilityIdType)
+            }
         }
     }
 
@@ -922,32 +926,43 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
      * @param element the element to decode
      * @return the phone number or empty string
      */
-    internal fun decodeHl7PhoneNumber(terser: Terser, element: Element, hl7Field: String): String {
+    internal fun decodeHl7TelecomData(terser: Terser, element: Element, hl7Field: String): String {
 
         /**
          * Extract a phone number from a value [xtnValue] of an XTN HL7 field.
          * @return a normalized phone number or empty if no phone number was found
          */
-        fun getPhoneNumber(xtnValue: Type): String {
+        fun getTelecomValue(xtnValue: Type): String {
             var strValue = ""
             if (xtnValue is XTN) {
-                // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
-                if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
-                    // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                    if (xtnValue.telecommunicationEquipmentType.isEmpty ||
-                        xtnValue.telecommunicationEquipmentType.value == "PH"
-                    ) {
-                        strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
-                            "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
+                when (element.type) {
+                    Element.Type.TELEPHONE -> {
+                        // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
+                        if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
+                            // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                            if (xtnValue.telecommunicationEquipmentType.isEmpty ||
+                                xtnValue.telecommunicationEquipmentType.valueOrEmpty == "PH"
+                            ) {
+                                strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
+                                    "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
+                            }
+                        } else if (!xtnValue.telephoneNumber.isEmpty) {
+                            strValue = element.toNormalized(xtnValue.telephoneNumber.valueOrEmpty)
+                        }
                     }
-                } else if (!xtnValue.telephoneNumber.isEmpty) {
-                    strValue = element.toNormalized(xtnValue.telephoneNumber.value)
+                    Element.Type.EMAIL -> {
+                        if (xtnValue.telecommunicationEquipmentType.isEmpty ||
+                            xtnValue.telecommunicationEquipmentType.valueOrEmpty == "Internet"
+                        ) {
+                            strValue = element.toNormalized(xtnValue.emailAddress.valueOrEmpty)
+                        }
+                    }
                 }
             }
             return strValue
         }
 
-        var phoneNumber = ""
+        var telecomValue = ""
 
         // Get the field values by going through the terser segment.  This method gives us an
         // array with a maximum number of repetitions, but it may return multiple array elements even if
@@ -959,14 +974,14 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             if (segment != null && fieldNumber != null) {
                 segment.getField(fieldNumber)?.forEach {
                     // The first phone number wins
-                    if (phoneNumber.isBlank()) {
-                        phoneNumber = getPhoneNumber(it)
+                    if (telecomValue.isBlank()) {
+                        telecomValue = getTelecomValue(it)
                     }
                 }
             }
         }
 
-        return phoneNumber
+        return telecomValue
     }
 
     /**

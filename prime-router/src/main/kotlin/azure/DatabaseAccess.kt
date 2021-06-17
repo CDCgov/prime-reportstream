@@ -6,12 +6,14 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
+import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
@@ -185,6 +187,24 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 "Could not find $reportId in REPORT_FILE" +
                     if (org != null) { " associated with organization ${org.name}" } else ""
             )
+    }
+
+    fun fetchAllInternalReports(
+        createdDateTime: OffsetDateTime? = null,
+        txn: DataAccessTransaction? = null
+    ): List<ReportFile> {
+        val createdDt = createdDateTime ?: OffsetDateTime.now().minusDays(30)
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val cond = Tables.REPORT_FILE.SENDING_ORG.isNotNull
+            .and(Tables.REPORT_FILE.BODY_FORMAT.eq("INTERNAL"))
+            .and(Tables.REPORT_FILE.CREATED_AT.ge(createdDt))
+        return ctx
+            .selectFrom(Tables.REPORT_FILE)
+            .where(cond)
+            .fetchArray()
+            .map {
+                it.into(ReportFile::class.java)
+            }
     }
 
     /**
@@ -482,6 +502,56 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
             .fetchOne()
             ?.getValue(DSL.max(SETTING.VERSION)) ?: -1
+    }
+
+    fun saveTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
+        testData.forEach {
+            DSL
+                .using(txn)
+                .insertInto(COVID_RESULT_METADATA)
+                .set(COVID_RESULT_METADATA.MESSAGE_ID, it.messageId)
+                .set(COVID_RESULT_METADATA.REPORT_ID, it.reportId)
+                .set(COVID_RESULT_METADATA.REPORT_INDEX, it.reportIndex)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME, it.orderingProviderName)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_ID, it.orderingProviderId)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE, it.orderingProviderState)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_POSTAL_CODE, it.orderingProviderPostalCode)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY, it.orderingProviderCounty)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
+                .set(COVID_RESULT_METADATA.TEST_RESULT_CODE, it.testResultCode)
+                .set(COVID_RESULT_METADATA.TEST_RESULT, it.testResult)
+                .set(COVID_RESULT_METADATA.EQUIPMENT_MODEL, it.equipmentModel)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_CITY, it.orderingFacilityCity)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_NAME, it.orderingFacilityName)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_POSTAL_CODE, it.orderingFacilityPostalCode)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_STATE, it.orderingFacilityState)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_CITY, it.testingLabCity)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_CLIA, it.testingLabClia)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_COUNTY, it.testingLabCounty)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_NAME, it.testingLabName)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_STATE, it.testingLabState)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_POSTAL_CODE, it.testingLabPostalCode)
+                .set(COVID_RESULT_METADATA.PATIENT_COUNTY, it.patientCounty)
+                .set(COVID_RESULT_METADATA.PATIENT_ETHNICITY_CODE, it.patientEthnicityCode)
+                .set(COVID_RESULT_METADATA.PATIENT_ETHNICITY, it.patientEthnicity)
+                .set(COVID_RESULT_METADATA.PATIENT_GENDER_CODE, it.patientGenderCode)
+                .set(COVID_RESULT_METADATA.PATIENT_GENDER, it.patientGender)
+                .set(COVID_RESULT_METADATA.PATIENT_POSTAL_CODE, it.patientPostalCode)
+                .set(COVID_RESULT_METADATA.PATIENT_RACE_CODE, it.patientRaceCode)
+                .set(COVID_RESULT_METADATA.PATIENT_RACE, it.patientRace)
+                .set(COVID_RESULT_METADATA.PATIENT_STATE, it.patientState)
+                .set(COVID_RESULT_METADATA.PATIENT_AGE, it.patientAge)
+                .set(COVID_RESULT_METADATA.SPECIMEN_COLLECTION_DATE_TIME, it.specimenCollectionDateTime)
+                .executeAsync()
+        }
+    }
+
+    fun deleteTestDataForReportId(reportId: UUID, txn: DataAccessTransaction) {
+        DSL.using(txn)
+            .deleteFrom(COVID_RESULT_METADATA)
+            .where(COVID_RESULT_METADATA.REPORT_ID.eq(reportId))
+            .execute()
     }
 
     /**

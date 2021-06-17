@@ -10,7 +10,6 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import net.jcip.annotations.NotThreadSafe
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.io.filefilter.SuffixFileFilter
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DynamicTest
@@ -27,20 +26,24 @@ import kotlin.test.fail
 /**
  * Runs data comparison tests for HL7 ORU R01 messages based on files in the test folder.
  * This test takes each HL7 file and compares its data to the internal.csv companion file in the
- * same test folder.  For example:  for a file named CareEvolution-20200415-0001.hl7 the data will
- * be compared to the file CareEvolution-20200415-0001.internal.csv.  Internal CSV files can have an
- * optional header row and follow the internal schema used by the the ReportStream router.
+ * same test folder.  For example:  for a file named CE-20200415-0001.hl7 the data will
+ * be compared to the file CE-20200415-0001.internal.csv.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 // This keeps this test class from running in parallel with other test classes and letting the time zone change
 // affect other tests
 @NotThreadSafe
-class ObservationMessageTests {
+class Hl7ToCsvConversionTests : ConversionTest {
 
     /**
      * The folder from the classpath that contains the test files
      */
-    private val testFileDir = "/test_data_files/Hl7_ORU-R01"
+    private val testFileDir = "/datatests/HL7_to_CSV"
+
+    /**
+     * The input file extension.
+     */
+    private val inputFileSuffix = ".hl7"
 
     /**
      * The original timezone of the JVM
@@ -69,32 +72,9 @@ class ObservationMessageTests {
      */
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
-        return getTestFiles(testFileDir).map {
-            DynamicTest.dynamicTest("Test ${FilenameUtils.getBaseName(it)}", FileTest(it))
+        return getTestFiles(testFileDir, inputFileSuffix).map {
+            DynamicTest.dynamicTest("Test $testFileDir/${FilenameUtils.getBaseName(it)}", FileTest(it))
         }
-    }
-
-    /**
-     * Gets a list of test files from the given [path].
-     * @return a list of absolute pathnames to the test files
-     */
-    private fun getTestFiles(path: String): List<String> {
-        val files = ArrayList<String>()
-        val fullDirPath = this.javaClass.getResource(path)?.path
-        if (!fullDirPath.isNullOrBlank()) {
-            val dir = File(fullDirPath)
-            if (dir.exists()) {
-                val filenames = dir.list(SuffixFileFilter(".hl7"))
-                filenames?.forEach { files.add("$fullDirPath/$it") }
-                if (files.isEmpty()) fail("There are no HL7 files present in $fullDirPath")
-            } else {
-                fail("Directory $path does not exist in the classpath.")
-            }
-            files.forEach { println(it) }
-        } else {
-            fail("Unable to obtain the path to the test files.")
-        }
-        return files
     }
 
     /**
@@ -142,7 +122,7 @@ class ObservationMessageTests {
 
             println("Testing file $testFilename ...")
             if (File(expectedResultAbsolutePath).exists()) {
-                val report = getReport()
+                val report = readActualResult()
                 val expectedResult = readExpectedResult(expectedResultAbsolutePath)
                 compareToExpected(report, expectedResult)
                 assertTrue(true)
@@ -157,7 +137,7 @@ class ObservationMessageTests {
          * Get the report for the HL7 file and check for errors.
          * @return the HL7 report
          */
-        private fun getReport(): Report {
+        private fun readActualResult(): Report {
             val result = serializer.readExternal(schemaName, File(hl7AbsolutePath).inputStream(), TestSource)
             val filename = FilenameUtils.getName(hl7AbsolutePath)
             assertNotNull(result)
@@ -226,6 +206,7 @@ class ObservationMessageTests {
             for (i in 0 until actual.itemCount) {
                 val actualRow = actual.getRow(i)
                 val expectedRow = expected[i + 1] // +1 to skip the header
+
                 for (j in expectedRow.indices) {
                     val actualValueIndex = actual.schema.findElementColumn(expectedHeaders[j])
                     if (actualValueIndex != null) {
@@ -248,7 +229,10 @@ class ObservationMessageTests {
                             )
                         }
                     } else {
-                        fail("Column #${j + 1}/${expectedHeaders[j]} from the expected data is missing in the actual data")
+                        fail(
+                            "Column #${j + 1}/${expectedHeaders[j]} from the " +
+                                "expected data is missing in the actual data"
+                        )
                     }
                 }
             }

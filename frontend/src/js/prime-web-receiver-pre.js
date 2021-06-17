@@ -1,14 +1,44 @@
+/** Convert Org name
+ * from DHzz_phd
+ * to zz-phd
+ * which is the format the ReportStream API endpoints are expecting
+ * @returns {*|string}
+ */
+function convertOrgName(claimsOrgName) {
+    return claimsOrgName.substring(2).replaceAll("_", "-");
+}
+
+/** getClaimsOrgValue
+ * ensures a string is returned for window.org
+ * @returns {*|string}
+ */
+function getClaimsOrgValue() {
+    return window.org ? window.org : "";
+}
+
+/** apiConfig
+ * used for axios headers to call ReportStream api endpoints
+ * @returns {{headers: {Authorization: string, Organization: (*|string)}}}
+ */
+function apiConfig() {
+    return {
+        headers: {
+            'Authorization': `Bearer ${window.jwt}`,
+            'Organization': getClaimsOrgValue()
+        }
+    };
+}
+
 /**
  * Fetch all information for the display of the cards
  *
  * @returns Array of card objects for the cardGrid
  */
 async function fetchCards() {
-    const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
     const baseURL = getBaseUrl();
 
     return window.jwt? Promise.all([
-        axios.get(`${baseURL}/api/history/summary/tests`, config).then(res => res.data)
+        axios.get(`${baseURL}/api/history/summary/tests`, apiConfig()).then(res => res.data)
     ]) : [];
 }
 
@@ -46,13 +76,15 @@ function checkJWT() {
  * @returns Promise, eventually a String organization name
  */
 async function fetchOrgName() {
-    const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } }
-    const baseURL = getBaseUrl();
 
     if (!window.org || !window.jwt) return null;
 
+    const baseURL = getBaseUrl();
+
+    const orgName = convertOrgName(window.org);
+
     return Promise.all([
-        axios.get(`${baseURL}/api/settings/organizations/${window.org.substring(2).replaceAll("_", "-")}`, config)
+        axios.get(`${baseURL}/api/settings/organizations/${orgName}`, apiConfig())
             .then(res => res.data)
             .then(org => org.description)
     ]);
@@ -128,15 +160,13 @@ function logout() {
     }
 }
 
-
 /**
  *
  */
 async function fetchReports() {
-    const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
     const baseURL = getBaseUrl();
 
-    return window.jwt? axios.get(`${baseURL}/api/history/report`, config).then(res => res.data) : [];
+    return window.jwt? axios.get(`${baseURL}/api/history/report`, apiConfig()).then(res => res.data) : [];
 }
 
 /**
@@ -144,9 +174,8 @@ async function fetchReports() {
  */
 function requestFile(reportId) {
     let baseURL = getBaseUrl();
-    let config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
 
-    return window.jwt? axios.get(`${baseURL}/api/history/report/${reportId}`, config)
+    return window.jwt? axios.get(`${baseURL}/api/history/report/${reportId}`, apiConfig())
         .then(res => res.data)
         .then(csv => download(csv.content, csv.filename, csv.mimetype)) : null;
 }
@@ -184,7 +213,8 @@ function getBaseUrl() {
 function changeOrg( event ){
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
-    console.log( `event.value = ${event.value}`);
+    processOrgName();
+    processReports();
 }
 /**
  *
@@ -214,24 +244,32 @@ function processJwtToken(){
         window.orgs = _org;
         window.user = claims.sub;
         window.jwt = token;
-        /*
-        const _dropdown = document.getElementById("dropdown");
-        if (_dropdown &&  claims.organization.includes( "DHPrimeAdmins" ) ) {
-            _dropdown.innerHTML +=
-                `<label class="usa-label" for="orgs">Select Org:</label>
-                  <select name="orgs" id="orgs" onchange='changeOrg(this)'>
-                  </select>
+
+        if (claims.organization.includes( "DHPrimeAdmins" ) ) {
+            const dropDownWrapper = document.getElementById("orgDropdown");
+            dropDownWrapper.classList.remove("display-none");
+            dropDownWrapper.classList.add("display-block");
+            const _dropdown = document.createElement("div");
+            _dropdown.id = "dropdown";
+
+            let _orgsOptions = "";
+
+            window.orgs.forEach( org => {
+                _orgsOptions +=
+                    `
+                        <option value="${org}" ${window.org === org ? 'selected="selected"' : ""} >
+                            ${convertOrgName(org).toUpperCase()}
+                        </option>
+                    `;
+            });
+            _dropdown.innerHTML =
+                `
+                    <select aria-label="Select Org" class="usa-select" name="orgs" id="orgs" onchange="changeOrg(this)">
+                        ${_orgsOptions}
+                    </select>
                 `;
-                const _orgsId = document.getElementById( "orgs");
-
-                window.orgs.forEach( org => {
-                    console.log( `${window.org} == ${org} ${window.org == org}` );
-                    if( _orgsId ) _orgsId.innerHTML +=
-                        window.org == org? `<option value="${org}" selected="selected">${org.substring(2).replaceAll("_", "-").toUpperCase()}</option>` : `<option value="${org}">${org.substring(2).replaceAll("_", "-").toUpperCase()}</option>`;
-                });
+            dropDownWrapper.prepend(_dropdown);
         }
-        */
-
     }
     else{
         const navmenu = document.getElementById( "navmenu" );
@@ -257,7 +295,7 @@ async function processOrgName(){
     }
 
     const orgNameHtml = document.getElementById("orgName");
-    if (orgNameHtml && orgName) orgNameHtml.innerHTML += orgName;
+    if (orgNameHtml && orgName) orgNameHtml.innerHTML = orgName;
 
     return orgName;
 }
@@ -268,6 +306,9 @@ async function processOrgName(){
  */
 async function processReports(){
     let reports = [];
+    const tBody = document.getElementById("tBody");
+    // clear the table body because we can get reports from different PHDs
+    if (tBody) tBody.innerHTML = "";
     try {
         reports = await fetchReports();
     } catch (error) {
@@ -275,7 +316,6 @@ async function processReports(){
         console.error(error);
     }
     reports.forEach(_report => {
-        const tBody = document.getElementById("tBody");
         if (tBody) tBody.innerHTML +=
             `<tr>
                 <th data-title="reportId" scope="row">
