@@ -5,7 +5,6 @@ import { useOktaAuth } from '@okta/okta-react';
 import { useEffect, useState } from 'react';
 
 
-
 const SignInOrUser = () => {
 
   const { oktaAuth, authState } = useOktaAuth();
@@ -21,7 +20,7 @@ const SignInOrUser = () => {
     authState.isAuthenticated? 
     <div className="prime-user-account"><span id="emailUser">{ user? user : '' }</span>
       <br />
-      <a href="/" id="logout" className="usa-link">Logout</a>
+      <a href="/" id="logout" onClick={()=>oktaAuth.signOut()} className="usa-link">Logout</a>
     </div> :
     <Button type="button" outline><Link href="/daily">Sign In</Link></Button>
   );

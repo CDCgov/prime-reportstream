@@ -6,6 +6,7 @@ import { SpinnerCircularFixed } from "spinners-react";
 import ReportResource from "../resources/ReportResource";
 import LineChart from "react-chartjs-2";
 import CardResource from "../resources/CardResource";
+import OrganizationResource from "../resources/OrganizationResource";
 
 const ChartData = () => {
 
@@ -57,6 +58,8 @@ const ChartData = () => {
 const TableData = ({ sortBy }: { sortBy?: string }) => {
   const [reports] = useResource(
     [ReportResource.list(), {sortBy}] );
+
+
 
   return (
     <tbody id="tBody" className="font-mono-2xs">
@@ -126,25 +129,32 @@ const TableReports = () => {
   );
 };
 
+const OrgName = () => {
+  const org = useResource( OrganizationResource.detail(), {name: "pima-az-phd"} )
+  console.log( org )
+  
+  return (
+    <span id="orgName" className="text-normal text-base">
+      orgName
+    </span>
+
+  )
+}
+
 export const Daily = () => {
+
+
+
   return (
     <>
       <section className="grid-container margin-bottom-5">
         <h3 className="margin-bottom-0">
-          <span id="orgName" className="text-normal text-base">
-            Pima County, Arizona PHD
-          </span>
+          <OrgName />
         </h3>
         <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
       </section>
       <section className="grid-container margin-top-0">
-        <div id="cards" className="grid-row margin-top-0">
-        <Suspense fallback={<SpinnerCircularFixed />}>
-            <NetworkErrorBoundary fallbackComponent={NoData}>
-              <ChartData />
-            </NetworkErrorBoundary>
-        </Suspense>
-        </div>
+
       </section>
       <TableReports />
     </>
