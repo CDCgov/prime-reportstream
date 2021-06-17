@@ -6,11 +6,28 @@ on:
       - td/1256-build-app-in-docker-container
 
 jobs:
-  build_in_docker:
-    name: build_in_docker
-    # needs: pre_job
-    if: ${{ github.ref == 'refs/heads/td/1256-build-app-in-docker-container' }}
-    # if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_router_change: ${{ steps.skip_check.outputs.router }}
+      is_fork: ${{ steps.fork_check.outputs.is_fork }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: skip_check
+        with:
+          list-files: csv
+          filters: |
+            router:
+              - 'prime-router/**'
+              - '.github/workflows/build_hub.yml'
+      - id: fork_check
+        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
+
+  build_router:
+    name: Build Router
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
     runs-on: ubuntu-latest
     env:
       # These are for CI and not credentials of any system
@@ -24,11 +41,32 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
+      # TODO: remove the INVALID overrides, these are currently just there as a stopgap to ensure
+      # we don't do bad things with our container registry while testing
+      - name: Set Environment Variables
+        run: |
+          if [ "$GITHUB_BASE_REF" == "production" ]
+          then
+              echo "Building for the production environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV PREFIX=pdhprod
+
+              echo >> $GITHUB_ENV ACR_REPO=invalid_repo_prod
+              echo >> $GITHUB_ENV PREFIX=invalid_prefix_prod
+          else
+              echo "Building for the test environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV PREFIX=pdhstaging
+
+              echo >> $GITHUB_ENV ACR_REPO=invalid_repo_staging
+              echo >> $GITHUB_ENV PREFIX=invalid_prefix_staging
+          fi
+
       # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
 
-      - name: Build Prime Router Package through Docker
+      - name: Build Prime Router Package
         run: bash ./build.sh -- gradle clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
 
       - name: Publish Unit Test Results
@@ -86,23 +124,6 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-
-      - name: Set Environment Variables
-        run: |
-          if [ "$GITHUB_BASE_REF" == "production" ]
-          then
-              echo "Building for the production environment."
-              #echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
-              echo >> $GITHUB_ENV ACR_REPO=invalid_repo_prod
-              #echo >> $GITHUB_ENV PREFIX=pdhprod
-              echo >> $GITHUB_ENV PREFIX=invalid_prefix_prod
-          else
-              echo "Building for the test environment."
-              #echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
-              echo >> $GITHUB_ENV ACR_REPO=invalid_repo_staging
-              #echo >> $GITHUB_ENV PREFIX=pdhstaging
-              echo >> $GITHUB_ENV PREFIX=invalid_prefix_staging
-          fi
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
