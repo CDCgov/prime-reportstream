@@ -10,11 +10,10 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.transport.SftpTransport
-import java.util.UUID
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.RemoteResourceInfo
 import org.apache.logging.log4j.kotlin.Logging
-
+import java.util.UUID
 
 /*
  * Check API
@@ -60,7 +59,7 @@ class CheckFunction : Logging {
              * request body as the file contents. The file name is generated as
              * hello-{UUID}.txt with details in as StfpFile instance.
              */
-            val sftpFile : SftpFile? = when {
+            val sftpFile: SftpFile? = when {
                 "&sendfile" !in request.uri.query -> null
                 request.httpMethod == HttpMethod.POST -> SftpFile(
                     "hello-${UUID.randomUUID()}.txt",
@@ -86,7 +85,11 @@ class CheckFunction : Logging {
                 if (receiver.transport == null) {
                     return HttpUtilities.badRequestResponse(request, "$receiverFullName: no transport defined")
                 }
-                httpStatus = if (testTransport(receiver, sftpFile, responseBody)) HttpStatus.OK else HttpStatus.BAD_REQUEST
+                httpStatus = if (testTransport(receiver, sftpFile, responseBody)) {
+                    HttpStatus.OK
+                } else {
+                    HttpStatus.BAD_REQUEST
+                }
             }
         } catch (t: Throwable) {
             responseBody.add(t.localizedMessage)
@@ -98,7 +101,11 @@ class CheckFunction : Logging {
     /**
      * Return true if even one sftp worked; return false if all failed.
      */
-    private fun testAllTransports(receivers: Collection<Receiver>, sftpFile: SftpFile?, responseBody: MutableList<String>): Boolean {
+    private fun testAllTransports(
+        receivers: Collection<Receiver>,
+        sftpFile: SftpFile?,
+        responseBody: MutableList<String>
+    ): Boolean {
         var overallPass = false
         receivers.forEach { receiver ->
             if (testTransport(receiver, sftpFile, responseBody)) {
@@ -146,7 +153,12 @@ class CheckFunction : Logging {
     /**
      * Any normal return is success.  Any exception thrown is failure.
      */
-    fun testSftp(sftpTransportType: SFTPTransportType, receiver: Receiver, sftpFile: SftpFile?, responseBody: MutableList<String>) {
+    fun testSftp(
+        sftpTransportType: SFTPTransportType,
+        receiver: Receiver,
+        sftpFile: SftpFile?,
+        responseBody: MutableList<String>
+    ) {
         val host = sftpTransportType.host
         val port = sftpTransportType.port
         val path = sftpTransportType.filePath

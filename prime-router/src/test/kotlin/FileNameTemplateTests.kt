@@ -70,7 +70,6 @@ class FileNameTemplateTests {
         assertThat(actual).isEqualTo(expected)
     }
 
-
     @Test
     fun `test concatenating multiple elements`() {
         // arrange
@@ -120,7 +119,7 @@ class FileNameTemplateTests {
         val actualLast6 = actual.takeLast(6)
         // assert
         assertThat(actualLast6.length).isEqualTo(6)
-        assertThat{ actualLast6.toInt() }.isSuccess()
+        assertThat { actualLast6.toInt() }.isSuccess()
     }
 
     @Test

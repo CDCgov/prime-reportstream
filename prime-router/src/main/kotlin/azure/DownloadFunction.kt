@@ -26,7 +26,6 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.UUID
-import java.util.logging.Level
 
 class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
     val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
