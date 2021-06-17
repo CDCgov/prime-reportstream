@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.12.1",
+    "cross-env": "^7.0.3",
     "express": "^4.17.1",
     "js-yaml": "^4.1.0",
     "jshint": "^2.13.0",
@@ -23,7 +24,7 @@
     "prebuild": "npm -s run clean",
     "build": "eleventy --config eleventy.config.js",
     "watch": "eleventy --watch --config eleventy.config.js",
-    "serve": "eleventy --serve --config eleventy.config.js"
+    "serve": "cross-env ELEVENTY_PORT=8088 eleventy --serve --config eleventy.config.js"
   },
   "jshintConfig": {
     "undef": true,
