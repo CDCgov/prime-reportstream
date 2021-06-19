@@ -54,3 +54,11 @@ open class Sender(
         }
     }
 }
+
+fun Sender.Format.toReportFormat(): Report.Format {
+    return if (this == Sender.Format.CSV) {
+        Report.Format.CSV
+    } else {
+        Report.Format.HL7_BATCH
+    }
+}

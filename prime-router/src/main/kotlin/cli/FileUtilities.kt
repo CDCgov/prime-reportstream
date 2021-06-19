@@ -9,6 +9,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Locale
 
@@ -117,6 +118,29 @@ class FileUtilities {
                 }
             }
             return outputFile
+        }
+
+        fun writeReportToByteArray(
+            report: Report,
+            format: Report.Format,
+            metadata: Metadata
+        ): ByteArray {
+
+            val csvSerializer = CsvSerializer(metadata)
+            val hl7Serializer = Hl7Serializer(metadata)
+            val redoxSerializer = RedoxSerializer(metadata)
+            val baos = ByteArrayOutputStream()
+
+            baos.use {
+                when (format) {
+                    Report.Format.INTERNAL -> csvSerializer.writeInternal(report, it)
+                    Report.Format.CSV -> csvSerializer.write(report, it)
+                    Report.Format.HL7 -> hl7Serializer.write(report, it)
+                    Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, it)
+                    Report.Format.REDOX -> redoxSerializer.write(report, it)
+                }
+            }
+            return baos.toByteArray()
         }
     }
 }
