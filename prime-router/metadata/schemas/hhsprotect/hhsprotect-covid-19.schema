@@ -77,6 +77,10 @@ elements:
     # Not sure why this name doesn't follow pattern,eg, patientAge
     csvFields: [{ name: patAge}]
 
+  - name: patient_age_units
+    # Should be 'yr' or 'mo'
+    csvFields: [{ name: patAgeUnits}]
+
   - name: patient_race
     csvFields: [{ name: patientRace}]
 

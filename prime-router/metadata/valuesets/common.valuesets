@@ -131,7 +131,7 @@
       display: weeks
     - code: mo
       display: months
-    - code: a
+    - code: yr
       display: years
 
 - name: hl70001

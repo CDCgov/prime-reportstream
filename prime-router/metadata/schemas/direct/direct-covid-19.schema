@@ -85,6 +85,9 @@ elements:
   - name: patient_age
     csvFields: [{ name: patientAge}]
 
+  - name: patient_age_units
+    csvFields: [{ name: patientAgeUnits}]
+
   - name: patient_dob
     csvFields: [{ name: patientDob}]
 
