@@ -75,7 +75,9 @@ jobs:
 
   deploy_release_dev:
     name: "Deploy Release: DEV"
-    needs: [build_release, build_frontend_release]
+    needs:
+      - build_release
+      - build_frontend_release
     if: github.ref == 'refs/heads/dev-rheft'
     environment: staging
     runs-on: ubuntu-latest
@@ -142,7 +144,9 @@ jobs:
 
   deploy_release_staging:
     name: "Deploy Release: STAGING"
-    needs: [build_release, build_frontend_release]
+    needs:
+      - build_release
+      - build_frontend_release
     if: github.ref == 'refs/heads/master'
     environment: staging
     runs-on: ubuntu-latest
@@ -209,7 +213,9 @@ jobs:
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
-    needs: [build_release, build_frontend_release]
+    needs:
+      - build_release
+      - build_frontend_release
     if: github.ref == 'refs/heads/production'
     environment: prod
     runs-on: ubuntu-latest
