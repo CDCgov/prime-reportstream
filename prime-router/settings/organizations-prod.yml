@@ -484,7 +484,7 @@
       timing:
         operation: MERGE
         numberPerDay: 12
-        initialTime: 01:30
+        initialTime: 09:15
         timeZone: EASTERN
 
 - name: pa-phd
