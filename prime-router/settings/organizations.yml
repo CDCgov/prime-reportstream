@@ -641,6 +641,7 @@
         receivingFacilityName: MA-MDPH
         receivingFacilityOID: 2.16.840.1.113883.19.3.2
         truncateHDNamespaceIds: true
+        nameFormat: massachusetts
 
 - name: nh-dphs
   description: New Hampshire Division of Public Health Services

@@ -475,6 +475,7 @@
         receivingFacilityName: MA-MDPH
         receivingFacilityOID: 2.16.840.1.113883.19.3.2
         truncateHDNamespaceIds: true
+        nameFormat: massachusetts
       transport:
         type: SFTP
         host: sftp-dph.ehs.mass.gov

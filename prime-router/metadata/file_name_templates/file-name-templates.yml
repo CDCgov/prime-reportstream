@@ -8,7 +8,6 @@
     - "-"
     - createdDate()
 
-
 - name: ohio
   upperCase: true
   elements:
@@ -24,7 +23,6 @@
     - processingModeCode()
     - "_"
     - createdDate()
-
 
 - name: aphl
   lowerCase: true
@@ -58,3 +56,9 @@
     - "_"
     - rand6()
     - "___neg"
+
+- name: massachusetts
+  lowerCase: true
+  elements:
+    - "prime-"
+    - createdDate()
