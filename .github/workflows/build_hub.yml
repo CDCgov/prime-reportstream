@@ -1,8 +1,8 @@
-name: Router
+name: IGNORE - build router inside docker container
 
 on:
   pull_request:
-    branches: [master, production]
+    branches: [master, production, td/1256-build-app-in-docker-container]
 
 jobs:
   pre_job:
@@ -19,7 +19,7 @@ jobs:
           filters: |
             router:
               - 'prime-router/**'
-              - '.github/workflows/build_hub.yml'
+              - '.github/workflows/action_test.yml'
       - id: fork_check
         run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
@@ -40,35 +40,36 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
+      # TODO: remove the INVALID overrides, these are currently just there as a stopgap to ensure
+      # we don't do bad things with our container registry while testing
       - name: Set Environment Variables
         run: |
+          echo "Setting DB_*"
+          echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
+          echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
           if [ "$GITHUB_BASE_REF" == "production" ]
           then
               echo "Building for the production environment."
               echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
               echo >> $GITHUB_ENV PREFIX=pdhprod
+
+              echo >> $GITHUB_ENV ACR_REPO=invalid_repo_prod
+              echo >> $GITHUB_ENV PREFIX=invalid_prefix_prod
           else
               echo "Building for the test environment."
               echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
               echo >> $GITHUB_ENV PREFIX=pdhstaging
+
+              echo >> $GITHUB_ENV ACR_REPO=invalid_repo_staging
+              echo >> $GITHUB_ENV PREFIX=invalid_prefix_staging
           fi
 
-      - name: Setup PostgreSQL
-        uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
-        with:
-          postgresql version: 11
-          postgresql db: prime_data_hub
-          postgresql user: ${{ env.POSTGRES_USER }}
-          postgresql password: ${{ env.POSTGRES_PASSWORD }}
-
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: "adopt"
-          java-version: 11
+      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
+      # - name: Install docker-compose
+      #   run: apt-get update && apt-get --yes install docker-compose
 
       - name: Build Prime Router Package
-        run: bash ./gradlew clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
+        run: bash ./build.sh -- gradle clean package -x fatjar
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -81,7 +82,7 @@ jobs:
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          bash ./gradlew generatedocs
+          bash ./build.sh -- gradle generatedocs
 
       - name: Check for Uncommited Docs
         id: check_changes
@@ -128,13 +129,3 @@ jobs:
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
-
-  update_docs:
-    name: Verify Router Docs
-    runs-on: ubuntu-latest
-    # Skip this deprecated job - This job needs to be removed once all other branches pull the latest build script
-    if: false
-    steps:
-      - name: Deprecated Job
-        run: |
-          true
