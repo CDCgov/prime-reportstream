@@ -15,8 +15,6 @@ services:
         source: ./
         target: /src
     working_dir: /src
-    dns: # TODO: Remove the dns stanza
-      - 1.1.1.1
     networks:
       - prime-router_build
 
