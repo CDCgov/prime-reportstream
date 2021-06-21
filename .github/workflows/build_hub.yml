@@ -1,8 +1,14 @@
-name: IGNORE - build router inside docker container
+name: Build router
 
 on:
   pull_request:
-    branches: [master, production, td/1256-build-app-in-docker-container]
+    branches:
+      - master
+      - production
+      - td/1256-build-app-in-docker-container
+  push:
+    branches:
+      - td/1256-build-app-in-docker-container
 
 jobs:
   pre_job:
