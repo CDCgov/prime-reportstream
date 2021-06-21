@@ -79,7 +79,7 @@ jobs:
           files: prime-router/build/test-results/test/**/*.xml
 
       - name: Run Integration Tests
-        run: bash ./gradlew testIntegration -Pshowtests
+        run: bash ./build.sh -- gradle testIntegration -Pshowtests
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
