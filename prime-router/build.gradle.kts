@@ -33,7 +33,7 @@ azurefunctions.appName = azureAppName
 // Local database information
 val dbUser = (project.properties["DB_USER"] ?: "prime") as String
 val dbPassword = (project.properties["DB_PASSWORD"] ?: "changeIT!") as String
-val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://localhost:5432/prime_data_hub") as String
+val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://172.17.0.1:5432/prime_data_hub") as String
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 

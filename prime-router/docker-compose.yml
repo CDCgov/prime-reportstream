@@ -24,7 +24,7 @@ services:
       - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
-      - POSTGRES_URL=jdbc:postgresql://host.docker.internal:5432/prime_data_hub
+      - POSTGRES_URL=jdbc:postgresql://172.17.0.1:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
       - REDOX_SECRET=some_secret
       - VAULT_API_ADDR=http://host.docker.internal:8200
@@ -36,6 +36,8 @@ services:
     ports:
       - 7071:7071 # default function port
       - 5005:5005 # Java debug port
+    networks:
+      - prime-router_build
 
   # Azurite is the Azure storage emulator for local development
   azurite:
@@ -48,6 +50,8 @@ services:
     ports:
       - 10000:10000
       - 10001:10001
+    networks:
+      - prime-router_build
 
   #local SFTP server as a receive point
   sftp:
@@ -57,6 +61,8 @@ services:
     volumes:
       - ./build/sftp:/home/foo/upload
     command: foo:pass:1001::upload
+    networks:
+      - prime-router_build
 
   redox:
     image: mockserver/mockserver:mockserver-5.11.1
@@ -69,6 +75,8 @@ services:
       - type: bind
         source: ./src/test/redox
         target: /config
+    networks:
+      - prime-router_build
 
   settings:
     build: settings/.
@@ -79,6 +87,8 @@ services:
       - type: bind
         source: ./settings
         target: /settings
+    networks:
+      - prime-router_build
 
   # Secrets management
   vault:
@@ -98,6 +108,8 @@ services:
       - 8200:8200
     # Override the command with our custom init script
     command: "/vault/config/init.sh"
+    networks:
+      - prime-router_build
 
   web_receiver:
     image: nginx:latest
@@ -109,7 +121,12 @@ services:
       - prime_dev
     command: "'nginx' '-g' 'daemon off;'"
     entrypoint: "/docker-entrypoint.sh"
+    networks:
+      - prime-router_build
 
 volumes:
   # For storing a local encrypted secrets database
   vault:
+
+networks:
+  prime-router_build:
