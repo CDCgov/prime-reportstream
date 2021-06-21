@@ -72,6 +72,7 @@ class ReportFunction {
     ): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.receive, context)
+        var report: Report? = null
         actionHistory.trackActionParams(request)
         val httpResponseMessage = try {
             val validatedRequest = validateRequest(workflowEngine, request)
@@ -93,30 +94,8 @@ class ReportFunction {
                 else -> {
                     // Regular happy path workflow is here
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
+                    report = validatedRequest.report
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
-                    // write the data to the table if we're dealing with covid-19
-                    if (validatedRequest.report.schema.topic.lowercase() == "covid-19") {
-                        // next check that we're dealing with an external file
-                        val clientSource = validatedRequest.report.sources.firstOrNull { it is ClientSource }
-                        if (clientSource != null) {
-                            context.logger.info("Writing deidentified report data to the DB")
-                            // wrap the insert into an exception handler
-                            try {
-                                workflowEngine.db.transact { txn ->
-                                    val deidentifiedData = validatedRequest.report.getDeidentifiedResultMetaData()
-                                    workflowEngine.db.saveTestData(deidentifiedData, txn)
-                                    context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
-                                }
-                            } catch (pse: PSQLException) {
-                                // report this but move on
-                                context.logger.severe(
-                                    "Exception writing COVID test metadata " +
-                                        "for ${validatedRequest.report.id}: ${pse.localizedMessage}"
-                                )
-                                context.logger.severe(pse.stackTraceToString())
-                            }
-                        }
-                    }
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)
@@ -130,7 +109,39 @@ class ReportFunction {
         actionHistory.trackActionResult(httpResponseMessage)
         workflowEngine.recordAction(actionHistory)
         actionHistory.queueMessages() // Must be done after creating TASK record.
+        // write the data to the table if we're dealing with covid-19. this has to happen
+        // here AFTER we've written the report to the DB
+        writeCovidResultMetadataForReport(report, context, workflowEngine)
         return httpResponseMessage
+    }
+
+    private fun writeCovidResultMetadataForReport(
+        report: Report?,
+        context: ExecutionContext,
+        workflowEngine: WorkflowEngine
+    ) {
+        if (report != null && report.schema.topic.lowercase() == "covid-19") {
+            // next check that we're dealing with an external file
+            val clientSource = report.sources.firstOrNull { it is ClientSource }
+            if (clientSource != null) {
+                context.logger.info("Writing deidentified report data to the DB")
+                // wrap the insert into an exception handler
+                try {
+                    workflowEngine.db.transact { txn ->
+                        val deidentifiedData = report.getDeidentifiedResultMetaData()
+                        workflowEngine.db.saveTestData(deidentifiedData, txn)
+                        context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
+                    }
+                } catch (pse: PSQLException) {
+                    // report this but move on
+                    context.logger.severe(
+                        "Exception writing COVID test metadata " +
+                            "for ${report.id}: ${pse.localizedMessage}"
+                    )
+                    context.logger.severe(pse.stackTraceToString())
+                }
+            }
+        }
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {

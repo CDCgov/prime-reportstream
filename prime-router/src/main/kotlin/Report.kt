@@ -513,7 +513,7 @@ class Report : Logging {
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
                     it.patientEthnicity = metadata.findValueSet("hl70189")
                         ?.toDisplayFromCode(it.patientEthnicityCode)
-                    it.patientGenderCode = row.getStringOrNull("patient_gender").trimToNull()
+                    it.patientGenderCode = row.getStringOrNull("patient_gender")
                     it.patientGender = metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
                     it.patientPostalCode = row.getStringOrNull("patient_zip_code").trimToNull()
                     it.patientRaceCode = row.getStringOrNull("patient_race")

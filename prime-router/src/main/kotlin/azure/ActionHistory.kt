@@ -25,6 +25,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
+import org.postgresql.util.PSQLException
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 
