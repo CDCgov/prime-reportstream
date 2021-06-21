@@ -15,6 +15,7 @@ import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.ResultDetail.ResultDetailSummary
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.ByteArrayInputStream
@@ -358,21 +359,35 @@ class ReportFunction {
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)
 
-            fun writeDetailsArray(field: String, array: List<ResultDetail>) {
+            fun writeDetailsArray(field: String, array: List<ResultDetailSummary>) {
                 it.writeArrayFieldStart(field)
                 array.forEach { error ->
                     it.writeStartObject()
                     it.writeStringField("scope", error.scope.toString())
-                    it.writeStringField("id", error.id)
-                    it.writeStringField("details", error.message.detailMsg())
+                    it.writeArrayFieldStart("ids")
+                    error.ids.forEach{ id -> it.writeString(id) }
+                    it.writeEndArray()
+                    it.writeStringField("details", error.message)
                     it.writeEndObject()
                 }
                 it.writeEndArray()
             }
-            writeDetailsArray("errors", result.errors)
-            writeDetailsArray("warnings", result.warnings)
+            writeDetailsArray("errors", summarizeMessages(result.errors))
+            writeDetailsArray("warnings", summarizeMessages(result.warnings))
             it.writeEndObject()
         }
         return outStream.toString()
+    }
+
+    private fun summarizeMessages(messages: List<ResultDetail>): List<ResultDetailSummary> {
+        val summaryMessages: MutableList<ResultDetailSummary> = mutableListOf()
+        val grouping = mutableMapOf<ResultDetail.ResponseMsgType, MutableList<ResultDetail>>()
+        messages.forEach {
+            grouping.getOrPut(it.message.type) { mutableListOf() }.add(it)
+        }
+        grouping.forEach { msgType, mutableList ->
+            summaryMessages += ResultDetailSummary.summaryMsg(msgType, mutableList)
+        }
+        return summaryMessages.toList()
     }
 }

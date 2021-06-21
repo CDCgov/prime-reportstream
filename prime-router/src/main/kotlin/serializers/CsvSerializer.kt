@@ -16,6 +16,9 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.ResultDetail.GenericMessage
+import gov.cdc.prime.router.ResultDetail.ResponseMessage
+import gov.cdc.prime.router.ResultDetail.ResponseMsgType
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
 import java.io.InputStream
@@ -37,8 +40,8 @@ class CsvSerializer(val metadata: Metadata) {
         val useCsv: Map<String, List<Element.CsvField>>,
         val useMapper: Map<String, Pair<Mapper, List<String>>>,
         val useDefault: Map<String, String>,
-        val errors: List<String>,
-        val warnings: List<String>,
+        val errors: List<ResponseMessage>,
+        val warnings: List<ResponseMessage>,
     )
 
     private data class RowResult(
@@ -274,11 +277,13 @@ class CsvSerializer(val metadata: Metadata) {
         val missingOptionalHeaders = optionalHeaders - actualHeaders
         val ignoredHeaders = actualHeaders - requiredHeaders - optionalHeaders - headersWithDefault
         val errors = missingRequiredHeaders.map {
-            "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
+            val fieldMapping: String? = schema.findElementByCsvName(it)?.fieldMapping
+            GenericMessage(ResponseMsgType.MISSING, "Missing $fieldMapping header", fieldMapping ?: "")
         }
         val warnings = missingOptionalHeaders.map {
-            "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
-        } + ignoredHeaders.map { "Unexpected '$it' header is ignored" }
+            val fieldMapping: String? = schema.findElementByCsvName(it)?.fieldMapping
+            GenericMessage(ResponseMsgType.MISSING, "Missing $fieldMapping header", fieldMapping ?: "")
+        } + ignoredHeaders.map { GenericMessage(ResponseMsgType.UNEXPECTED,"Unexpected '$it' header is ignored", it) }
 
         return CsvMapping(useCsv, useMapper, useDefault, errors, warnings)
     }

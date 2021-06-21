@@ -11,6 +11,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
      * @property ITEM scope for the detail
      */
     enum class DetailScope { PARAMETER, REPORT, ITEM, TRANSLATION }
+    enum class ResponseMsgType { NONE, PAYLOAD_SIZE, OPTION, ROUTE_TO, MISSING, UNEXPECTED, INVALID_DATE, INVALID_CODE, TRANSLATION }
 
     override fun toString(): String {
         return "${scope.toString().lowercase()}${if (id.isBlank()) "" else " $id"}: ${message.detailMsg()}"
@@ -50,7 +51,27 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
         }
     }
 
-    enum class ResponseMsgType { NONE, PAYLOAD_SIZE, OPTION, ROUTE_TO, REPORT, ELEMENT, MISSING, UNEXPECTED, INVALID_DATE, INVALID_CODE, TRANSLATION }
+    data class ResultDetailSummary(val scope: DetailScope, val ids: List<String>, val message: String) {
+        companion object {
+            fun summaryMsg(type: ResponseMsgType, messages: List<ResultDetail>): List<ResultDetailSummary> {
+                return when (type) {
+                    ResponseMsgType.MISSING ->
+                        listOf(ResultDetailSummary(
+                            DetailScope.REPORT, messages.map { it.message.groupingId() }.distinct(),
+                            "Missing ${messages.size} header(s)."
+                        ))
+                    ResponseMsgType.UNEXPECTED ->
+                        listOf(ResultDetailSummary(
+                            DetailScope.REPORT, messages.map { it.message.groupingId() }.distinct(),
+                            "${messages.size} unexpected header(s) will be ignored."
+                        ))
+                    else -> {
+                        messages.map { ResultDetailSummary(it.scope, listOf(it.id), it.message.detailMsg()) }
+                    }
+                }
+            }
+        }
+    }
 
     interface ResponseMessage {
         val type: ResponseMsgType
@@ -61,7 +82,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
     }
 
     data class GenericMessage(
-        override val type: ResponseMsgType = ResponseMsgType.ELEMENT,
+        override val type: ResponseMsgType = ResponseMsgType.NONE,
         val message: String = "",
         val fieldMapping: String = ""
     ): ResponseMessage {
@@ -75,7 +96,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
     }
 
     data class PayloadMessage(
-        override val type: ResponseMsgType = ResponseMsgType.REPORT,
+        override val type: ResponseMsgType = ResponseMsgType.PAYLOAD_SIZE,
         val reason: Reason = Reason.NONE,
         val contentLength: Long = 0,
         val bodyLength: Int = 0
@@ -142,7 +163,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
         }
     }
 
-    class InvalidCodeMessage(
+    data class InvalidCodeMessage(
         override val type: ResponseMsgType = ResponseMsgType.INVALID_CODE,
         val reason: Reason = Reason.NONE,
         val formattedValue: String = "",
