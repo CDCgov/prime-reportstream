@@ -356,8 +356,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema)
         val mappedRows = mapping.mappedRows
-        errors.addAll(mapping.errors.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
-        warnings.addAll(mapping.warnings.map { ResultDetail(ResultDetail.DetailScope.ITEM, "", it) })
+        errors.addAll(mapping.errors.map { ResultDetail.item("", it) })
+        warnings.addAll(mapping.warnings.map { ResultDetail.item("", it) })
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }

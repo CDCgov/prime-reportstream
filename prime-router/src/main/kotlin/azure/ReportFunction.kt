@@ -364,7 +364,7 @@ class ReportFunction {
                     it.writeStartObject()
                     it.writeStringField("scope", error.scope.toString())
                     it.writeStringField("id", error.id)
-                    it.writeStringField("details", error.details)
+                    it.writeStringField("details", error.message.detailMsg())
                     it.writeEndObject()
                 }
                 it.writeEndArray()

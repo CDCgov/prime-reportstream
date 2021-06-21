@@ -53,8 +53,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 // catching individual translation exceptions enables overall work to continue
                 warnings?.let {
                     warnings.add(
-                        ResultDetail(
-                            ResultDetail.DetailScope.TRANSLATION,
+                        ResultDetail.translation(
                             "TO:${receiver.fullName}:${receiver.schemaName}", e.localizedMessage
                         )
                     )
