@@ -6,7 +6,10 @@ Properties that can be overridden using the Gradle -P arguments:
   DB_PASSWORD - Postgres database password (defaults to changeIT!)
   DB_URL - Postgres database URL (defaults to jdbc:postgresql://172.17.0.1:5432/prime_data_hub, which is the gateway address for the docker 'bridge' network, i.e. your local machine)
 
-  E.g. ./build.sh -- gradle clean package -Pg.user=myuser -Dpg.password=mypassword
+Properties to control the execution and output using the Gradle -P arguments:
+  forcetest - Force the running of the test regardless of changes
+  showtests - Verbose output of the unit tests
+  E.g. ./build.sh -- gradle clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -16,10 +19,13 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.10"
-    id("org.flywaydb.flyway") version "7.9.2"
+    id("org.flywaydb.flyway") version "7.10.0"
     id("nu.studer.jooq") version "5.2.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
+    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
+    id("com.adarshr.test-logger") version "3.0.0"
+    id("jacoco")
 }
 
 group = "gov.cdc.prime"
@@ -37,9 +43,10 @@ val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://172.17.0.1:5432/
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
-val kotlinVersion = "1.5.10"
-
 defaultTasks("package")
+
+val kotlinVersion = "1.5.10"
+jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
 java {
@@ -57,10 +64,14 @@ tasks.clean {
     delete("target")
 }
 
+val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
+    // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
     dependsOn("compileKotlin")
+    finalizedBy("jacocoTestReport")
     // Run the test task if specified configuration files are changed
     inputs.files(
         fileTree("./") {
@@ -77,6 +88,81 @@ tasks.test {
             true
         }
     }
+    configure<JacocoTaskExtension> {
+        // This excludes classes from being analyzed, but not from being added to the report
+        excludes = coverageExcludedClasses
+    }
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    // Remove the exclusions, so they do not appear in the report
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it).matching {
+                    exclude(coverageExcludedClasses)
+                }
+            }
+        )
+    )
+}
+
+testlogger {
+    if (project.hasProperty("showtests")) {
+        showPassed = true
+        showSkipped = true
+    } else {
+        showPassed = false
+        showSkipped = false
+    }
+}
+
+// Add the testIntegration tests
+sourceSets.create("testIntegration") {
+    java.srcDir("src/testIntegration/kotlin")
+    compileClasspath += sourceSets["main"].output
+    runtimeClasspath += sourceSets["main"].output
+}
+
+val compileTestIntegrationKotlin: KotlinCompile by tasks
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+
+val testIntegrationImplementation: Configuration by configurations.getting {
+    extendsFrom(configurations["testImplementation"])
+}
+
+configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
+
+tasks.register<Test>("testIntegration") {
+    useJUnitPlatform()
+    dependsOn("compile")
+    dependsOn("compileTestIntegrationKotlin")
+    dependsOn("compileTestIntegrationJava")
+    shouldRunAfter("test")
+    testClassesDirs = sourceSets["testIntegration"].output.classesDirs
+    classpath = sourceSets["testIntegration"].runtimeClasspath
+    // Run the test task if specified configuration files are changed
+    inputs.files(
+        fileTree("./") {
+            include("settings/**/*.yml")
+            include("metadata/**/*")
+            include("src/testIntergation/resources/datatests/**/*")
+        }
+    )
+    outputs.upToDateWhen {
+        // Call gradle with the -Pforcetest option will force the unit tests to run
+        if (project.hasProperty("forcetest")) {
+            println("Rerunning unit tests...")
+            false
+        } else {
+            true
+        }
+    }
+}
+
+tasks.check {
+    dependsOn("testIntegration")
 }
 
 tasks.withType<Test>().configureEach {
@@ -100,6 +186,11 @@ tasks.jar {
         attributes("Main-Class" to primeMainClass)
         attributes("Multi-Release" to true)
     }
+}
+
+tasks.shadowJar {
+    // our fat jar is getting fat! Or over 65K files in this case
+    isZip64 = true
 }
 
 // Just a nicer name to create the fat jar
@@ -308,7 +399,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.24")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.25")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -326,10 +417,11 @@ dependencies {
     implementation("commons-io:commons-io:2.10.0")
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.flywaydb:flyway-core:7.9.2")
+    implementation("org.flywaydb:flyway-core:7.10.0")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
     implementation("org.commonmark:commonmark:0.17.2")
     implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.helger.as2:as2-lib:4.7.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
