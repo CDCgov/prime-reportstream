@@ -1,7 +1,7 @@
 name: IGNORE - build router inside docker container
 
 on:
-  push:
+  pull_request:
     branches:
       - td/1256-build-app-in-docker-container
 
