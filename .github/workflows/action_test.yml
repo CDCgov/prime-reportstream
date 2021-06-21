@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - production
+      - td/1256-build-app-in-docker-container
 
 jobs:
   pre_job:
