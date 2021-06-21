@@ -273,6 +273,22 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 ---
 
+**Name**: ordering_facility_county
+
+**Type**: TABLE
+
+**PII**: No
+
+**HL7 Field**: ORC-22-8
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
+
+---
+
 **Name**: comment
 
 **Type**: TEXT
@@ -780,20 +796,6 @@ Z|No record of this patient
 **Documentation**:
 
 The city of the facility which the test was ordered from
-
----
-
-**Name**: ordering_facility_county
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
 
 ---
 
