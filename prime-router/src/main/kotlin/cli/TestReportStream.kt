@@ -466,28 +466,6 @@ abstract class CoolTest {
             }
         }
 
-
-//        fun itemLineageCountQueryPablo(
-//            txn: DataAccessTransaction,
-//            reportId: ReportId,
-//            receivingOrgSvc: String,
-//            receivingOrg: String,
-//            action: TaskAction,
-//        ): Int? {
-//            val ctx = DSL.using(txn)
-//            val sql = """select count(*)
-//              from item_lineage as IL
-//              join report_file as RF on IL.child_report_id = RF.report_id
-//              join action as A on A.action_id = RF.action_id
-//              where RF.receiving_org_svc = ?
-//              and RF.receiving_org = ?
-//              and A.action_name = ?
-//              and IL.item_lineage_id in
-//              (select item_descendants(?)) """
-//
-//            return ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
-//        }
-
         fun reportLineageCountQuery(
             txn: DataAccessTransaction,
             reportId: ReportId,
@@ -1428,25 +1406,6 @@ class SantaClaus : CoolTest() {
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
 
-//        var passed = true
-//        db = WorkflowEngine().db
-//        db.transact { txn ->
-//
-//            val ctx = DSL.using(txn)
-//            val sql = """select count(*)
-//              from item_lineage as IL
-//              join report_file as RF on IL.child_report_id = RF.report_id
-//              join action as A on A.action_id = RF.action_id
-//              where RF.receiving_org_svc = ?
-//              and A.action_name = ?
-//              and IL.item_lineage_id in
-//              (select item_descendants(?)) """
-//
-//             ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
-//
-//
-//        }
-
         if (options.env == "prod") {
             return createBad("This test can only be run on staging or locally")
         }
@@ -1471,84 +1430,81 @@ class SantaClaus : CoolTest() {
 
             states.forEach { state ->
 
-//                if (state == "MD") {
+                ugly("Starting $name Test: send ${sender.fullName} data to $state")
 
-                    ugly("Starting $name Test: send ${sender.fullName} data to $state")
+                val report = FileUtilities.createFakeReport(
+                    metadata,
+                    sender,
+                    1,
+                    state
+                )
 
-                    val report = FileUtilities.createFakeReport(
-                        metadata,
-                        sender,
-                        1,
-                        state
-                    )
+                val reportBytes = FileUtilities.writeReportToByteArray(report, Report.Format.CSV, metadata)
 
-                    val reportBytes = FileUtilities.writeReportToByteArray(report, Report.Format.CSV, metadata)
+                val (responseCode, json) = HttpUtilities.postReportBytes(
+                    environment,
+                    reportBytes,
+                    sender.organizationName,
+                    sender.name,
+                    null,
+                    null
+                )
 
-                    val (responseCode, json) = HttpUtilities.postReportBytes(
-                        environment,
-                        reportBytes,
-                        sender.organizationName,
-                        sender.name,
-                        null,
-                        null
-                    )
+                if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                    bad("***$name Test FAILED***:  response code $responseCode")
+                } else {
+                    good("Posting of report succeeded with response code $responseCode")
+                }
+                echo(json)
 
-                    if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                        bad("***$name Test FAILED***:  response code $responseCode")
-                    } else {
-                        good("Posting of report succeeded with response code $responseCode")
-                    }
-                    echo(json)
+                val tree = jacksonObjectMapper().readTree(json)
+                val reportId = ReportId.fromString(tree["id"].textValue())
 
-                    val tree = jacksonObjectMapper().readTree(json)
-                    val reportId = ReportId.fromString(tree["id"].textValue())
+                val destinations = tree["destinations"]
+                if (destinations != null && destinations.size() > 0) {
 
-                    val destinations = tree["destinations"]
-                    if (destinations != null && destinations.size() > 0) {
+                    val receivers = mutableListOf<Receiver>()
 
-                        val receivers = mutableListOf<Receiver>()
+                    destinations.forEach { destination ->
+                        if (destination != null && destination.has("service")) {
 
-                        destinations.forEach { destination ->
-                            if (destination != null && destination.has("service")) {
+                            val receiverName = destination["service"].textValue()
+                            val organizationId = destination["organization_id"].textValue()
 
-                                val receiverName = destination["service"].textValue()
-                                val organizationId = destination["organization_id"].textValue()
-
-                                receivers.addAll(settings.receivers.filter {
-                                    it.organizationName == organizationId && it.name == receiverName
-                                })
-                            }
-                        }
-
-                        if (!receivers.isNullOrEmpty()) {
-
-                            // give some time to let the system
-                            // finish with the expected output
-                            waitWithConditionalRetry(90, {
-                                examineLineageResults(
-                                    reportId = reportId,
-                                    receivers = receivers,
-                                    totalItems = receivers.size,
-                                    filterOrgName = true,
-                                    silent = true
-                                )
-                            }, callback = { succeed, retryCount ->
-                                if (!succeed) {
-                                    ugly("Retry for ${receivers.joinToString(separator = ",") { it.fullName }} #$retryCount")
-                                }
+                            receivers.addAll(settings.receivers.filter {
+                                it.organizationName == organizationId && it.name == receiverName
                             })
+                        }
+                    }
 
-                            // just to print to console some beautified output
+                    if (!receivers.isNullOrEmpty()) {
+
+                        // give some time to let the system
+                        // finish with the expected output
+                        waitWithConditionalRetry(90, {
                             examineLineageResults(
                                 reportId = reportId,
                                 receivers = receivers,
                                 totalItems = receivers.size,
                                 filterOrgName = true,
-                                silent = false
+                                silent = true
                             )
-                        }
+                        }, callback = { succeed, retryCount ->
+                            if (!succeed) {
+                                ugly("Retry for ${receivers.joinToString(separator = ",") { it.fullName }} #$retryCount")
+                            }
+                        })
+
+                        // just to print to console some beautified output
+                        examineLineageResults(
+                            reportId = reportId,
+                            receivers = receivers,
+                            totalItems = receivers.size,
+                            filterOrgName = true,
+                            silent = false
+                        )
                     }
-//                }
+                }
             }
         }
 
