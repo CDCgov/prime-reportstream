@@ -128,7 +128,7 @@ If you need Flyway, you can install it via `apt` as above.
 #### PostgreSQL via Docker
 In [`devenv-infrastructure.sh`](../devenv-infrastructure.sh)
 ```sh
-docker-compose -f ./docker-infrastructure.yml up --detach
+docker-compose --file ./docker-compose.build.yml up --detach
 ```
 
 ## Clone the Repository
