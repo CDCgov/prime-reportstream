@@ -10,13 +10,12 @@ services:
     environment:
       FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
       DB_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
-      volumes: # Attach 'here' into the image
+    volumes:
       - type: bind
         source: ./
         target: /src
     working_dir: /src
-    # TODO: Remove the dns stanza
-    dns:
+    dns: # TODO: Remove the dns stanza
       - 1.1.1.1
     networks:
       - prime-router_build
