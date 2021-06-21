@@ -46,6 +46,9 @@ jobs:
       # we don't do bad things with our container registry while testing
       - name: Set Environment Variables
         run: |
+          echo "Setting DB_*"
+          echo >> $GITHUB_ENV DB_USER${POSTGRES_USER}
+          echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
           if [ "$GITHUB_BASE_REF" == "production" ]
           then
               echo "Building for the production environment."
@@ -68,7 +71,7 @@ jobs:
       #   run: apt-get update && apt-get --yes install docker-compose
 
       - name: Build Prime Router Package
-        run: bash ./build.sh -- gradle clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
+        run: bash ./build.sh -- gradle clean package -x fatjar
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
