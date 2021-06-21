@@ -46,7 +46,6 @@ jobs:
       # we don't do bad things with our container registry while testing
       - name: Set Environment Variables
         run: |
-          echo "Setting DB_*"
           echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
           echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
           if [ "$GITHUB_BASE_REF" == "production" ]
