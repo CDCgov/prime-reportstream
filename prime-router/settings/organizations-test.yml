@@ -32,6 +32,16 @@
       schemaName: tpca/tpca-covid-19
       format: CSV
 
+- name: careevolution
+  description: Care Evolution
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: careevolution
+      topic: covid-19
+      schemaName: direct/careevolution-covid-19
+      format: HL7
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
