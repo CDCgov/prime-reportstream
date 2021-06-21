@@ -130,9 +130,7 @@ const TableReports = () => {
 };
 
 const OrgName = () => {
-  const org = useResource( OrganizationResource.detail(), {name: "pima-az-phd"} )
-  console.log( org )
-  
+
   return (
     <span id="orgName" className="text-normal text-base">
       orgName
