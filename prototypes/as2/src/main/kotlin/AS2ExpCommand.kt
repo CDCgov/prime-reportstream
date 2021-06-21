@@ -26,7 +26,7 @@ import java.util.*
 // AS2 endpoints
 const val PROD_AS2_URL = "https://onehealthport-as2.axwaycloud.com/exchange/ZZOHP"
 const val TEST_AS2_URL = "https://uat-onehealthport-as2.axwaycloud.com/exchange/ZZOHPUAT"
-const val LOCAL_AS2_URL = "http://localhost:8000/pyas2/as2receive"
+const val LOCAL_AS2_URL = "http://172.17.0.1:8000/pyas2/as2receive"
 
 // AS2 Receiver IDS
 const val PROD_AS2ID = "ZZOHP"
