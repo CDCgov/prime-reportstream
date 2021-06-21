@@ -448,6 +448,7 @@ abstract class CoolTest {
               and A.action_name = ? 
               and IL.item_lineage_id in 
               (select item_descendants(?)) """
+
             return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
         }
 
@@ -1414,77 +1415,82 @@ class SantaClaus : CoolTest() {
 
             states.forEach { state ->
 
-                ugly("Starting $name Test: send ${sender.fullName} data to $state")
+//                if (state == "MD") {
 
-                val report = FileUtilities.createFakeReport(
-                    metadata,
-                    sender,
-                    1,
-                    state
-                )
+                    ugly("Starting $name Test: send ${sender.fullName} data to $state")
 
-                val reportBytes = FileUtilities.writeReportToByteArray(report, Report.Format.CSV, metadata)
+                    val report = FileUtilities.createFakeReport(
+                        metadata,
+                        sender,
+                        1,
+                        state
+                    )
 
-                val (responseCode, json) = HttpUtilities.postReportBytes(
-                    environment,
-                    reportBytes,
-                    sender.organizationName,
-                    sender.name,
-                    null,
-                    null
-                )
+                    val reportBytes = FileUtilities.writeReportToByteArray(report, Report.Format.CSV, metadata)
 
-                if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                    bad("***$name Test FAILED***:  response code $responseCode")
-                } else {
-                    good("Posting of report succeeded with response code $responseCode")
-                }
-                echo(json)
+                    val (responseCode, json) = HttpUtilities.postReportBytes(
+                        environment,
+                        reportBytes,
+                        sender.organizationName,
+                        sender.name,
+                        null,
+                        null
+                    )
 
-                val tree = jacksonObjectMapper().readTree(json)
-                val reportId = ReportId.fromString(tree["id"].textValue())
+                    if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                        bad("***$name Test FAILED***:  response code $responseCode")
+                    } else {
+                        good("Posting of report succeeded with response code $responseCode")
+                    }
+                    echo(json)
 
-                val destinations = tree["destinations"]
-                if (destinations != null && destinations.size() > 0) {
-                    destinations.forEach { destination ->
-                        if (destination != null && destination.has("service")) {
+                    val tree = jacksonObjectMapper().readTree(json)
+                    val reportId = ReportId.fromString(tree["id"].textValue())
 
-                            val receiverName = destination["service"].textValue()
-                            val organizationId = destination["organization_id"].textValue()
+                    val destinations = tree["destinations"]
+                    if (destinations != null && destinations.size() > 0) {
 
-                            val receivers = settings.receivers.filter {
-                                it.organizationName == organizationId && it.name == receiverName
-                            }
+                        val receivers = mutableListOf<Receiver>()
 
-                            if (!receivers.isNullOrEmpty()) {
+                        destinations.forEach { destination ->
+                            if (destination != null && destination.has("service")) {
 
-                                val receiver = receivers[0]
+                                val receiverName = destination["service"].textValue()
+                                val organizationId = destination["organization_id"].textValue()
 
-                                // give some time to let the system
-                                // finish with the expected output
-                                waitWithConditionalRetry(90, {
-                                    examineLineageResults(
-                                        reportId = reportId,
-                                        receivers = listOf(receiver),
-                                        totalItems = 1,
-                                        silent = true
-                                    )
-                                }, callback = { succeed, retryCount ->
-                                    if (!succeed) {
-                                        ugly("Retry for ${receiver.fullName} #$retryCount")
-                                    }
+                                receivers.addAll(settings.receivers.filter {
+                                    it.organizationName == organizationId && it.name == receiverName
                                 })
-
-                                // just to print to console some beautified output
-                                examineLineageResults(
-                                    reportId = reportId,
-                                    receivers = listOf(receiver),
-                                    totalItems = 1,
-                                    silent = false
-                                )
                             }
                         }
-                    }
+
+
+                        if (!receivers.isNullOrEmpty()) {
+
+                            // give some time to let the system
+                            // finish with the expected output
+                            waitWithConditionalRetry(90, {
+                                examineLineageResults(
+                                    reportId = reportId,
+                                    receivers = receivers,
+                                    totalItems = receivers.size,
+                                    silent = true
+                                )
+                            }, callback = { succeed, retryCount ->
+                                if (!succeed) {
+                                    ugly("Retry for ${receivers.joinToString(separator = ",") { it.fullName }} #$retryCount")
+                                }
+                            })
+
+                            // just to print to console some beautified output
+                            examineLineageResults(
+                                reportId = reportId,
+                                receivers = receivers,
+                                totalItems = receivers.size,
+                                silent = false
+                            )
+                        }
+//                    }
                 }
             }
         }
