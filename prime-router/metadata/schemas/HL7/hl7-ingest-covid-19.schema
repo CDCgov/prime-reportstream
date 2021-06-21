@@ -59,9 +59,6 @@ elements:
   - name: test_authorized_for_unproctored
   - name: abnormal_flag
 
-  - name: value_type
-    hl7Field: ""
-
   # County can be ORC-22-8, but preferred is county code in ORC-22-9
   - name: ordering_facility_county
     hl7Field: ORC-22-8

@@ -102,6 +102,7 @@ class FakeDataService {
                 "specimen_source_site_code" -> "71836000"
                 "test_result_status" -> randomChoice("F", "C")
                 "processing_mode_code" -> "P"
+                "value_type" -> "CWE"
                 "test_result" ->
                     // Reduce the choice to between detected, not detected, and uncertain for more typical results
                     randomChoice("260373001", "260415000", "419984006")
