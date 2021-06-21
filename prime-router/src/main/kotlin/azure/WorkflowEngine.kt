@@ -21,6 +21,7 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
+import gov.cdc.prime.router.transport.FTPSTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
@@ -52,7 +53,8 @@ class WorkflowEngine(
     val queue: QueueAccess = QueueAccess,
     val sftpTransport: SftpTransport = SftpTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
-    val as2Transport: AS2Transport = AS2Transport()
+    val as2Transport: AS2Transport = AS2Transport(),
+    val ftpsTransport: FTPSTransport = FTPSTransport(),
 ) {
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
 

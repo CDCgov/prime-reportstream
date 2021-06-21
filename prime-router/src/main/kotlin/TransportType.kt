@@ -15,7 +15,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(RedoxTransportType::class, name = "REDOX"),
     JsonSubTypes.Type(BlobStoreTransportType::class, name = "BLOBSTORE"),
     JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
-    JsonSubTypes.Type(AS2TransportType::class, name = "AS2")
+    JsonSubTypes.Type(AS2TransportType::class, name = "AS2"),
+    JsonSubTypes.Type(FTPSTransportType::class, name = "FTPS")
 )
 abstract class TransportType(val type: String)
 
@@ -59,6 +60,20 @@ data class AS2TransportType
     val contentDescription: String = "SARS-CoV-2 Electronic Lab Results"
 ) :
     TransportType("AS2")
+
+data class FTPSTransportType
+@JsonCreator constructor(
+    val host: String,
+    val port: String,
+    val username: String,
+    val password: String,
+    val remote: String,
+    val local: String,
+    val protocol: String = "SSL", // TODO: make enum SSL/TLS
+    val filePath: String,
+    val binaryTransfer: Boolean = false
+) :
+    TransportType("FTPS")
 
 data class NullTransportType
 @JsonCreator constructor(

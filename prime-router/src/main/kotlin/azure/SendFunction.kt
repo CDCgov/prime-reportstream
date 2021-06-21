@@ -11,6 +11,7 @@ import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
+import gov.cdc.prime.router.FTPSTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.transport.ITransport
@@ -107,6 +108,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             is RedoxTransportType -> workflowEngine.redoxTransport
             is BlobStoreTransportType -> workflowEngine.blobStoreTransport
             is AS2TransportType -> workflowEngine.as2Transport
+            is FTPSTransportType -> workflowEngine.ftpsTransport
             is NullTransportType -> NullTransport()
             else -> null
         }
