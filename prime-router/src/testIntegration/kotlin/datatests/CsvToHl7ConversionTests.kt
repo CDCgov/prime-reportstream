@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.serializers.datatests.datatests
+package gov.cdc.prime.router.serializers.datatests
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -15,7 +15,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
-import gov.cdc.prime.router.serializers.datatests.ConversionTest
 import org.apache.commons.io.FilenameUtils
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
