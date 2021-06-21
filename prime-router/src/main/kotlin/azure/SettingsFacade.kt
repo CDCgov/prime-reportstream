@@ -14,7 +14,6 @@ import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
-import org.jooq.JSON
 import org.jooq.JSONB
 import java.time.OffsetDateTime
 

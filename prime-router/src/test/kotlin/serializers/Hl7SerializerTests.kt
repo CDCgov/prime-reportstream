@@ -5,6 +5,7 @@ import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import ca.uhn.hl7v2.model.v251.datatype.DTM
+import ca.uhn.hl7v2.model.v251.datatype.ID
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
@@ -186,20 +187,20 @@ NTE|1|L|This is a final comment|RE"""
 
         // Bad field value
         every { mockTerser.getSegment(any()) } returns null
-        var phoneNumber = serializer.decodeHl7PhoneNumber(
+        var phoneNumber = serializer.decodeHl7TelecomData(
             mockTerser, Element("phone", Element.Type.TELEPHONE),
             "PID-BLAH"
         )
         assertEquals("", phoneNumber)
 
         // Segment not found
-        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element, element.hl7Field!!)
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("", phoneNumber)
 
         // No phone number due to zero repetitions
         every { mockTerser.getSegment(any()) } returns mockSegment
         every { mockSegment.getField(any()) } returns emptyArray()
-        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element, element.hl7Field!!)
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("", phoneNumber)
 
         // No phone number
@@ -208,21 +209,21 @@ NTE|1|L|This is a final comment|RE"""
         every { emptyPhoneField.areaCityCode.isEmpty } returns true
         every { emptyPhoneField.localNumber.isEmpty } returns true
         every { emptyPhoneField.telephoneNumber.isEmpty } returns true
-        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element, element.hl7Field!!)
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("", phoneNumber)
 
         // Multiple repetitions with no phone number
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emptyPhoneField, emptyPhoneField)
-        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element, element.hl7Field!!)
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("", phoneNumber)
 
         // Phone number in deprecated component
         every { deprecatedPhoneField.areaCityCode.isEmpty } returns true
         every { deprecatedPhoneField.localNumber.isEmpty } returns true
         every { deprecatedPhoneField.telephoneNumber.isEmpty } returns false
-        every { deprecatedPhoneField.telephoneNumber.value } returns "(555)5555555"
+        every { deprecatedPhoneField.telephoneNumber.valueOrEmpty } returns "(555)5555555"
         every { mockSegment.getField(any()) } returns arrayOf(deprecatedPhoneField)
-        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element, element.hl7Field!!)
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("5555555555:1:", phoneNumber)
 
         // Phone number in newer components.  Will ignore phone number in deprecated component
@@ -231,37 +232,82 @@ NTE|1|L|This is a final comment|RE"""
         every { phoneField.localNumber.isEmpty } returns false
         every { phoneField.telephoneNumber.value } returns "(555)5555555"
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
-        every { phoneField.telecommunicationEquipmentType.value } returns "PH"
+        every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
         every { phoneField.countryCode.value } returns "1"
         every { phoneField.areaCityCode.value } returns "666"
         every { phoneField.localNumber.value } returns "7777777"
         every { phoneField.extension.value } returns "9999"
-        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element, element.hl7Field!!)
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("6667777777:1:9999", phoneNumber)
 
         // No type assumed to be a phone number
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns true
-        every { phoneField.telecommunicationEquipmentType.value } returns null
-        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element, element.hl7Field!!)
+        every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns null
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("6667777777:1:9999", phoneNumber)
 
         // A Fax number is not used
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
-        every { phoneField.telecommunicationEquipmentType.value } returns "FX"
-        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element, element.hl7Field!!)
+        every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "FX"
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("", phoneNumber)
 
         // Test repetitions.  The first repetition for the XTN type can be empty when there is no primary phone number
-        every { phoneField.telecommunicationEquipmentType.value } returns "PH"
+        every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
         every { emailField.areaCityCode.isEmpty } returns true
         every { emailField.localNumber.isEmpty } returns true
         every { emailField.telephoneNumber.isEmpty } returns true
-        every { emailField.emailAddress.value } returns "dummyemail@cdc.local"
-        every { emailField.telecommunicationEquipmentType.value } returns "Internet"
-        every { emailField.telecommunicationUseCode.value } returns "NET"
+        every { emailField.emailAddress.valueOrEmpty } returns "dummyemail@cdc.local"
+        every { emailField.telecommunicationEquipmentType.isEmpty } returns false
+        every { emailField.telecommunicationEquipmentType.valueOrEmpty } returns "Internet"
+        every { emailField.telecommunicationUseCode.valueOrEmpty } returns "NET"
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emailField, phoneField)
-        phoneNumber = serializer.decodeHl7PhoneNumber(mockTerser, element, element.hl7Field!!)
+        phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("6667777777:1:9999", phoneNumber)
+    }
+
+    @Test
+    fun `test XTN email decoding`() {
+        val metadata = Metadata("./metadata")
+        val serializer = Hl7Serializer(metadata)
+        val mockTerser = mockk<Terser>()
+        val mockSegment = mockk<Segment>()
+        val emailField = mockk<XTN>()
+        val phoneField = mockk<XTN>()
+        val element = Element("email", Element.Type.EMAIL, hl7Field = "PID-13")
+
+        // Bad field value
+        every { mockTerser.getSegment(any()) } returns null
+        var email = serializer.decodeHl7TelecomData(
+            mockTerser, Element("email", Element.Type.EMAIL),
+            "PID-BLAH"
+        )
+        assertEquals("", email)
+
+        // Segment not found
+        email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
+        assertEquals("", email)
+
+        // No email number due to zero repetitions
+        every { mockTerser.getSegment(any()) } returns mockSegment
+        every { mockSegment.getField(any()) } returns emptyArray()
+        email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
+        assertEquals("", email)
+
+        // No email
+        every { mockSegment.getField(any()) } returns arrayOf(phoneField)
+        every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
+        every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
+        email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
+        assertEquals("", email)
+
+        // Test repetitions.
+        every { emailField.emailAddress.valueOrEmpty } returns "dummyemail@cdc.local"
+        every { emailField.telecommunicationEquipmentType.isEmpty } returns false
+        every { emailField.telecommunicationEquipmentType.valueOrEmpty } returns "Internet"
+        every { mockSegment.getField(any()) } returns arrayOf(emailField, phoneField)
+        email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
+        assertEquals("dummyemail@cdc.local", email)
     }
 
     @Test

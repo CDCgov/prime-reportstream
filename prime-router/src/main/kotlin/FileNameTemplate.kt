@@ -1,7 +1,9 @@
 package gov.cdc.prime.router
 
+import org.apache.commons.lang3.StringUtils
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Random
 import java.util.UUID
 
 // a file name element should be a pure function, which does not modify
@@ -110,6 +112,18 @@ class CreatedDate : FileNameElement {
     }
 }
 
+/**
+ * Use to add a bit randomness to a file name. Like UUID, helpful to generate unique names.
+ */
+class Rand6 : FileNameElement {
+    override val name = "rand6"
+
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
+        val value = Random().nextInt(1000000)
+        return StringUtils.leftPad(value.toString(), 6, "0")
+    }
+}
+
 open class FileNameTemplate(
     val elements: List<String>,
     val lowerCase: Boolean? = null,
@@ -151,6 +165,7 @@ open class FileNameTemplate(
             FileUuid(),
             SchemaBaseName(),
             ProcessingModeCode(),
+            Rand6()
         )
 
         private fun findFileNameElement(elementName: String): FileNameElement? {

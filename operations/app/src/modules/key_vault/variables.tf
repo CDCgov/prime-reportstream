@@ -17,8 +17,3 @@ variable "location" {
   type = string
   description = "Network Location"
 }
-
-variable "endpoint_subnet_id" {
-  type = string
-  description = "Private Endpoint Subnet ID"
-}
