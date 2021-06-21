@@ -115,7 +115,7 @@ jobs:
           body: |
             The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
 
-            Please run `./gradlew generatedocs` to generate updated documentation, then commit the results.
+            Please run `./build.sh -- gradle generatedocs` to generate updated documentation, then commit the results.
 
             Expected changes in files:
 

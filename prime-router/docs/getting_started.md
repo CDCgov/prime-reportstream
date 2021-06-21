@@ -149,7 +149,7 @@ docker-compose -f ./docker-infrastructure.yml up --detach
 Compile the project by running the following command:
 
 ```
-./gradlew package
+./build.sh -- gradle package
 ```
 
 Other gradle tasks you can run are:
@@ -208,10 +208,10 @@ To orchestrate running the Azure function code and Azurite, Docker Compose is a 
 ```
 mkdir -p .vault/env
 touch .vault/env/.env.local
-./gradlew package
+./build.sh -- gradle package
 PRIME_ENVIRONMENT=local docker-compose up
 ```
-Docker-compose will build a `prime_dev` container with the output of the `./gradlew package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
+Docker-compose will build a `prime_dev` container with the output of the `./build.sh -- gradle package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
 
 ![Docker Compose](assets/docker_compose_log.png)
 
@@ -222,20 +222,22 @@ If you see any SSL errors during this step, follow the directions in [Getting Ar
 ## Updating Schema Documentation
 Run the following Gradle command to generate the schema documentation.  The documentation is written to `docs/schema-documentation`
 
-`./gradlew generateDocs`
+```
+./build.sh -- gradle generateDocs
+```
 
 
 ## Testing
 ### Unit Tests
 Unit tests are run as part of the build.  To run the unit tests, run the following command:
 ```
-./gradlew test
+./build.sh -- gradle test
 ```
 
 Sometimes you want to force the unit tests to run.   You can do that with the -Pforcetest option, like one of these examples:
 ```
-./gradlew test -P forcetest
-./gradlew package -P forcetest
+./build.sh -- gradle test -P forcetest
+./build.sh -- gradle package -P forcetest
 ```
 
 ### Data Conversion Quick Test
@@ -249,14 +251,14 @@ End-to-end tests check if the deployed system is configured correctly.  The test
 1. Perform a one-time setup of the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server (default of foo/pass) and change the arguments for the --user and --pass as needed.  Note that running these commands multiple times will not break anything:
     ```bash
     export $(cat ./.vault/env/.env.local | xargs)
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass'
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass'
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass'
+    ./build.sh -- gradle primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass'
+    ./build.sh -- gradle primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass'
+    ./build.sh -- gradle primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass'
     ```
 1. Run the Prime Router in the Docker container.
 1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:
     ```bash
-    ./gradlew testEnd2End
+    ./build.sh -- gradle testEnd2End
     ```
 1. Verify that all tests are successful.
 
@@ -268,7 +270,7 @@ You can change the default database properties used in the build script by setti
 
 In the command line, you can set these properties as follows:
 ```bash
-./gradlew testEnd2End -PDB_USER=prime -PDB_PASSWORD=mypassword
+./build.sh -- gradle testEnd2End -PDB_USER=prime -PDB_PASSWORD=mypassword
 ```
 
 Or you can specify these properties via environment variables per the Gradle project properties environment ORG_GRADLE_PROJECT_<property>.  For example:

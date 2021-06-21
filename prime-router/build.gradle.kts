@@ -6,7 +6,7 @@ Properties that can be overridden using the Gradle -P arguments:
   DB_PASSWORD - Postgres database password (defaults to changeIT!)
   DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
 
-  E.g. ./gradlew clean package -Pg.user=myuser -Dpg.password=mypassword
+  E.g. ./build.sh -- gradle clean package -Pg.user=myuser -Dpg.password=mypassword
  */
 
 import org.apache.tools.ant.filters.ReplaceTokens
