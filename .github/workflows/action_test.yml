@@ -6,29 +6,28 @@ on:
       - td/1256-build-app-in-docker-container
 
 jobs:
-  # pre_job:
-  #   name: Pre Job
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     has_router_change: ${{ steps.skip_check.outputs.router }}
-  #     is_fork: ${{ steps.fork_check.outputs.is_fork }}
-  #   steps:
-  #     - uses: dorny/paths-filter@v2
-  #       id: skip_check
-  #       with:
-  #         list-files: csv
-  #         # TODO: replace action_test with actual Workflow file later on
-  #         filters: |
-  #           router:
-  #             - 'prime-router/**'
-  #             - '.github/workflows/action_test.yml'
-  #     - id: fork_check
-  #       run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_router_change: ${{ steps.skip_check.outputs.router }}
+      is_fork: ${{ steps.fork_check.outputs.is_fork }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: skip_check
+        with:
+          list-files: csv
+          filters: |
+            router:
+              - 'prime-router/**'
+              - '.github/workflows/action_test.yml'
+      - id: fork_check
+        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
   build_router:
     name: Build Router
-    # needs: pre_job
-    # if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
     runs-on: ubuntu-latest
     env:
       # These are for CI and not credentials of any system
