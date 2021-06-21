@@ -263,6 +263,7 @@ abstract class CoolTest {
         reportId: ReportId,
         receivers: List<Receiver>,
         totalItems: Int,
+        filterOrgName: Boolean = false,
         silent: Boolean = false
     ): Boolean {
         var passed = true
@@ -275,7 +276,13 @@ abstract class CoolTest {
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
                 actionsList.forEach { action ->
-                    val count = itemLineageCountQuery(txn, reportId, receiver.name, action)
+                    val count = itemLineageCountQuery(
+                        txn = txn,
+                        reportId = reportId,
+                        receivingOrgSvc = receiver.name,
+                        receivingOrg = if(filterOrgName) receiver.organizationName else null,
+                        action = action
+                    )
                     if (count == null || expected != count) {
                         if (!silent) {
                             bad(
@@ -437,6 +444,7 @@ abstract class CoolTest {
             txn: DataAccessTransaction,
             reportId: ReportId,
             receivingOrgSvc: String,
+            receivingOrg: String? = null,
             action: TaskAction,
         ): Int? {
             val ctx = DSL.using(txn)
@@ -444,13 +452,41 @@ abstract class CoolTest {
               from item_lineage as IL
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
-              where RF.receiving_org_svc = ? 
+              where RF.receiving_org_svc = ?
+              ${if(receivingOrg != null) "and RF.receiving_org = ?" else ""}
               and A.action_name = ? 
               and IL.item_lineage_id in 
               (select item_descendants(?)) """
 
-            return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+            if(receivingOrg != null) {
+                return ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+            }
+            else {
+                return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+            }
         }
+
+
+//        fun itemLineageCountQueryPablo(
+//            txn: DataAccessTransaction,
+//            reportId: ReportId,
+//            receivingOrgSvc: String,
+//            receivingOrg: String,
+//            action: TaskAction,
+//        ): Int? {
+//            val ctx = DSL.using(txn)
+//            val sql = """select count(*)
+//              from item_lineage as IL
+//              join report_file as RF on IL.child_report_id = RF.report_id
+//              join action as A on A.action_id = RF.action_id
+//              where RF.receiving_org_svc = ?
+//              and RF.receiving_org = ?
+//              and A.action_name = ?
+//              and IL.item_lineage_id in
+//              (select item_descendants(?)) """
+//
+//            return ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+//        }
 
         fun reportLineageCountQuery(
             txn: DataAccessTransaction,
@@ -573,7 +609,11 @@ class End2End : CoolTest() {
                 passed = false
             }
             waitABit(25, environment)
-            return passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
+            return passed and examineLineageResults(
+                reportId = reportId,
+                receivers = allGoodReceivers,
+                totalItems = fakeItemCount
+            )
         } catch (e: NullPointerException) {
             return bad("***end2end Test FAILED***: Unable to properly parse response json")
         }
@@ -654,7 +694,11 @@ class Hl7Null : CoolTest() {
             reportId
         }
         waitABit(30, environment)
-        return examineLineageResults(reportIds[0], listOf(hl7NullReceiver), fakeItemCount)
+        return examineLineageResults(
+            reportId = reportIds[0],
+            receivers = listOf(hl7NullReceiver),
+            totalItems = fakeItemCount
+        )
     }
 }
 
@@ -779,7 +823,11 @@ class Strac : CoolTest() {
             }
             // OK, fine, the others failed.   All our hope now rests on you, REDOX - don't let us down!
             waitABit(25, environment)
-            return passed and examineLineageResults(reportId, listOf(redoxReceiver), options.items)
+            return passed and examineLineageResults(
+                reportId = reportId,
+                receivers = listOf(redoxReceiver),
+                totalItems = options.items
+            )
         } catch (e: Exception) {
             return bad("***strac Test FAILED***: Unexpected json returned")
         }
@@ -832,7 +880,7 @@ class StracPack : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait extra seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(redoxReceiver), options.items)
+                examineLineageResults(reportId = it, receivers = listOf(redoxReceiver), totalItems = options.items)
         }
         return passed
     }
@@ -866,7 +914,11 @@ class Waters : CoolTest() {
         echo("Id of submitted report: $reportId")
         waitABit(60, environment, options.muted)
         if (file.exists()) file.delete() // because of RepeatWaters
-        return examineLineageResults(reportId, listOf(blobstoreReceiver), options.items)
+        return examineLineageResults(
+            reportId = reportId,
+            receivers = listOf(blobstoreReceiver),
+            totalItems = options.items
+        )
     }
 }
 
@@ -963,7 +1015,7 @@ class HammerTime : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait 5 seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(receiverToTest), options.items)
+                examineLineageResults(reportId = it, receivers = listOf(receiverToTest), totalItems = options.items)
         }
         return passed
     }
@@ -1158,7 +1210,7 @@ class Huge : CoolTest() {
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
-        return examineLineageResults(reportId, listOf(csvReceiver), fakeItemCount)
+        return examineLineageResults(reportId = reportId, receivers = listOf(csvReceiver), totalItems = fakeItemCount)
     }
 }
 
@@ -1241,7 +1293,7 @@ class DbConnections : CoolTest() {
         var passed = true
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(hl7Receiver), options.items)
+                examineLineageResults(reportId = it, receivers = listOf(hl7Receiver), totalItems = options.items)
         }
         return passed
     }
@@ -1283,7 +1335,11 @@ class BadSftp : CoolTest() {
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
         echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
-        return examineLineageResults(reportId, listOf(sftpFailReceiver), options.items)
+        return examineLineageResults(
+            reportId = reportId,
+            receivers = listOf(sftpFailReceiver),
+            totalItems = options.items
+        )
     }
 }
 
@@ -1464,7 +1520,6 @@ class SantaClaus : CoolTest() {
                             }
                         }
 
-
                         if (!receivers.isNullOrEmpty()) {
 
                             // give some time to let the system
@@ -1474,6 +1529,7 @@ class SantaClaus : CoolTest() {
                                     reportId = reportId,
                                     receivers = receivers,
                                     totalItems = receivers.size,
+                                    filterOrgName = true,
                                     silent = true
                                 )
                             }, callback = { succeed, retryCount ->
@@ -1487,11 +1543,12 @@ class SantaClaus : CoolTest() {
                                 reportId = reportId,
                                 receivers = receivers,
                                 totalItems = receivers.size,
+                                filterOrgName = true,
                                 silent = false
                             )
                         }
-//                    }
-                }
+                    }
+//                }
             }
         }
 
