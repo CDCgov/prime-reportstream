@@ -1,4 +1,4 @@
-# Run this with   ./prime multiple-settings set --input ./settings/prod/0031-vt-la.yml --env prod
+# Run this with   ./prime multiple-settings set --input ./settings/prod/0031-oh-la-la.yml --env prod
 ---
 - name: "la-doh"
   description: "Louisiana Department of Health"
