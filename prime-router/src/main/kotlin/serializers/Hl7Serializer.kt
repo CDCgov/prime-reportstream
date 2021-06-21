@@ -192,8 +192,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         fun decodeAOEQuestion(
             element: Element,
             terser: Terser,
-            errors: MutableList<String>,
-            warnings: MutableList<String>
+            errors: MutableList<String>
         ): String {
             var value = ""
             val question = element.hl7AOEQuestion!!
@@ -262,7 +261,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         }
                         // Decode an AOE question
                         else if (hl7Field == "AOE") {
-                            decodeAOEQuestion(element, terser, errors, warnings)
+                            decodeAOEQuestion(element, terser, errors)
                         }
                         // No special case here, so get a value from an HL7 field
                         else {
