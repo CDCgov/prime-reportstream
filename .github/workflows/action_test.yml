@@ -3,7 +3,8 @@ name: IGNORE - build router inside docker container
 on:
   pull_request:
     branches:
-      - td/1256-build-app-in-docker-container
+      - master
+      - production
 
 jobs:
   pre_job:
