@@ -17,6 +17,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import org.postgresql.util.PSQLException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.Instant
@@ -99,10 +100,20 @@ class ReportFunction {
                         val clientSource = validatedRequest.report.sources.firstOrNull { it is ClientSource }
                         if (clientSource != null) {
                             context.logger.info("Writing deidentified report data to the DB")
-                            workflowEngine.db.transact { txn ->
-                                val deidentifiedData = validatedRequest.report.getDeidentifiedResultMetaData()
-                                workflowEngine.db.saveTestData(deidentifiedData, txn)
-                                context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
+                            // wrap the insert into an exception handler
+                            try {
+                                workflowEngine.db.transact { txn ->
+                                    val deidentifiedData = validatedRequest.report.getDeidentifiedResultMetaData()
+                                    workflowEngine.db.saveTestData(deidentifiedData, txn)
+                                    context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
+                                }
+                            } catch (pse: PSQLException) {
+                                // report this but move on
+                                context.logger.severe(
+                                    "Exception writing COVID test metadata " +
+                                        "for ${validatedRequest.report.id}: ${pse.localizedMessage}"
+                                )
+                                context.logger.severe(pse.stackTraceToString())
                             }
                         }
                     }
