@@ -176,7 +176,7 @@ dropdb prime_data_hub # to trash your local database
 createdb --owner=prime prime_data_hub
 
 # migrate the local database by hand
-flyway -user=prime -password=changeIT! -url=jdbc:postgresql://localhost:5432/prime_data_hub -locations=filesystem:./src/main/resources/db/migration migrate
+flyway -user=prime -password=changeIT! -url=jdbc:postgresql://172.17.0.1:5432/prime_data_hub -locations=filesystem:./src/main/resources/db/migration migrate
 ```
 
 Use any other tools that you want to develop the code. Be productive. Modify this document if you have a practice that will be useful.
@@ -266,7 +266,7 @@ End-to-end tests check if the deployed system is configured correctly.  The test
 You can change the default database properties used in the build script by setting the following properties:
 - DB_USER - Postgres database username (defaults to prime)
 - DB_PASSWORD - Postgres database password (defaults to changeIT!)
-- DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
+- DB_URL - Postgres database URL (defaults to jdbc:postgresql://172.17.0.1:5432/prime_data_hub)
 
 In the command line, you can set these properties as follows:
 ```bash
@@ -375,7 +375,7 @@ The gradle script is supposed to install a few environment variables that will b
 
 ```shell
 POSTGRES_PASSWORD='changeIT!'
-POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+POSTGRES_URL=jdbc:postgresql://172.17.0.1:5432/prime_data_hub
 POSTGRES_USER=prime
 ```
 
@@ -383,7 +383,7 @@ If on *nix system you can also append these directly on the command to launch `p
 
 ```shell
 POSTGRES_PASSWORD='changeIT!' \
-POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub \
+POSTGRES_URL=jdbc:postgresql://172.17.0.1:5432/prime_data_hub \
 POSTGRES_USER=prime \
 ./prime-router/prime test
 ```

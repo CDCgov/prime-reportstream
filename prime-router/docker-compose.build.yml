@@ -9,7 +9,9 @@ services:
       dockerfile: Dockerfile.build
     environment:
       FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
-      DB_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
+      # 172.17.0.1 is the docker bridge gateway
+      DB_URL: jdbc:postgresql://172.17.0.1:5432/prime_data_hub
+      POSTGRES_URL: jdbc:postgresql://172.17.0.1:5432/prime_data_hub
     volumes:
       - type: bind
         source: ./
@@ -21,7 +23,7 @@ services:
   # NOTE: this replaces the docker-infrastructure yaml file
   # There is also no adminer or any other Admin UI that is part of this
   # build docker-compose as we do not want to dictate that.
-  # You can connect using psql, or pgAdmin, or ... just point at localhost:5432
+  # You can connect using psql, or pgAdmin, or ... just point at 5432 on your local host
   postgresql:
     image: postgres:11
     restart: always

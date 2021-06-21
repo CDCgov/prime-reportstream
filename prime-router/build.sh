@@ -26,7 +26,7 @@ function get_gradle_command() {
   if [[ -n "${1}" ]]; then
     case "${1}" in
     "gradle")
-      echo $* -PDB_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
+      echo $* -PDB_URL=jdbc:postgresql://172.17.0.1:5432/prime_data_hub
       ;;
     *)
       # Lets you bash into the build container
@@ -34,13 +34,17 @@ function get_gradle_command() {
       ;;
     esac
   else
-    echo gradle package "-PDB_URL=jdbc:postgresql://postgresql:5432/prime_data_hub"
+    echo gradle package "-PDB_URL=jdbc:postgresql://172.17.0.1:5432/prime_data_hub"
   fi
 }
 
 function ensure_build_dir() {
   mkdir -p "${HERE?}/build"
   chmod 777 "${HERE?}/build"
+  echo "Making sure you own 'build/' and '.gradle/'... (may require elevation)"
+  sudo chown -R "$(id --user --name):$(id --group --name)" \
+    build \
+    .gradle
 }
 
 # Defaults

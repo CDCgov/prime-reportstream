@@ -173,7 +173,7 @@ function signIn() {
  */
 function getBaseUrl() {
     if (window.location.origin.includes("localhost"))
-        return "http://localhost:7071";
+        return "http://172.17.0.1:7071";
     else if (window.location.origin.includes("staging"))
         return "https://staging.prime.cdc.gov";
     else
@@ -325,7 +325,7 @@ async function processReport( reports ){
         const facilities = document.getElementById( "tBodyFac");
         if( facilities ){
             report.facilities.forEach( reportFacility => {
-                facilities.innerHTML += 
+                facilities.innerHTML +=
                     `
                     <tr>
                         <td>${reportFacility.facility}</td>
@@ -335,13 +335,13 @@ async function processReport( reports ){
                     `;
             });
         }
-       
+
         const noFac = document.getElementById( 'nofacilities' );
         const facTable = document.getElementById( 'facilitiestable');
 
 
         if( report.facilities.length ){
-            if( noFac ) noFac.setAttribute( "hidden", "hidden" );    
+            if( noFac ) noFac.setAttribute( "hidden", "hidden" );
         }
         else{
             if( facTable ) facTable.setAttribute( "hidden", "hidden" );

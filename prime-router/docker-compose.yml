@@ -19,19 +19,23 @@ services:
       # https://github.com/docker/compose/pull/3955
       - ./.vault/env/.env.local
     environment:
+      # 172.17.0.1 is the docker bridge gateway
       # this storage account key is not a secret. It just looks like one.
       - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
       - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
+      # 172.17.0.1 is the docker bridge gateway; the database runs in your build docker-compose so we have to connect to /that/
       - POSTGRES_URL=jdbc:postgresql://172.17.0.1:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
       - REDOX_SECRET=some_secret
-      - VAULT_API_ADDR=http://host.docker.internal:8200
+      # 172.17.0.1 is the docker bridge gateway
+      - VAULT_API_ADDR=http://172.17.0.1:8200
       - SENDGRID_API_KEY=SnBfxpPsQkmOh0SfU3X_ng
       - OKTA_baseUrl=hhs-prime.okta.com
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
-      - OKTA_redirect=http://localhost:7071/api/download
+      # 172.17.0.1 is the docker bridge gateway
+      - OKTA_redirect=http://172.17.0.1:7071/api/download
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port

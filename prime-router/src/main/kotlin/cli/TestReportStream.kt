@@ -57,12 +57,14 @@ class TestReportStream : CliktCommand(
     help = """Run tests of the Router functions
 
 Database connection info is supplied by environment variables.
-Examples for localhost, and Azure Staging, respectively:
+Examples for local host, and Azure Staging, respectively:
 ```
+# "local"
 export POSTGRES_USER=prime
-export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+export POSTGRES_URL=jdbc:postgresql://172.17.0.1:5432/prime_data_hub
 export POSTGRES_PASSWORD=<secret>
 
+# staging
 export POSTGRES_USER=prime@pdhstaging-pgsql
 export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub
 export POSTGRES_PASSWORD=<SECRET>
@@ -148,7 +150,7 @@ Examples:
         val problem: Boolean = when (env) {
             "staging" -> !dbEnv.contains("pdhstaging")
             "test" -> !dbEnv.contains("pdhtest")
-            "local" -> !dbEnv.contains("localhost")
+            "local" -> !dbEnv.contains("localhost") && !dbEnv.contains("172.17.0.1")
             "prod" -> !dbEnv.contains("pdhprod")
             else -> true
         }
@@ -438,9 +440,9 @@ abstract class CoolTest {
               from item_lineage as IL
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
-              where RF.receiving_org_svc = ? 
-              and A.action_name = ? 
-              and IL.item_lineage_id in 
+              where RF.receiving_org_svc = ?
+              and A.action_name = ?
+              and IL.item_lineage_id in
               (select item_descendants(?)) """
             return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
         }
@@ -455,8 +457,8 @@ abstract class CoolTest {
             val sql = """select sum(item_count)
               from report_file as RF
               join action as A on A.action_id = RF.action_id
-              where RF.receiving_org_svc = ? 
-              and A.action_name = ? 
+              where RF.receiving_org_svc = ?
+              and A.action_name = ?
               and RF.report_id in
               (select report_descendants(?)) """
             return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
@@ -475,7 +477,7 @@ abstract class CoolTest {
             val sql = """select RF.external_name
                 from report_file as RF
                 join action as A ON A.action_id = RF.action_id
-                where RF.report_id in (select find_sent_reports(?)) AND RF.receiving_org_svc = ? 
+                where RF.report_id in (select find_sent_reports(?)) AND RF.receiving_org_svc = ?
                 order by A.action_id """
             return ctx.fetchOne(sql, reportId, receivingOrgSvc)?.into(String::class.java)
         }

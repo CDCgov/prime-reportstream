@@ -4,7 +4,7 @@ Build script for Prime Router.
 Properties that can be overridden using the Gradle -P arguments:
   DB_USER - Postgres database username (defaults to prime)
   DB_PASSWORD - Postgres database password (defaults to changeIT!)
-  DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
+  DB_URL - Postgres database URL (defaults to jdbc:postgresql://172.17.0.1:5432/prime_data_hub, which is the gateway address for the docker 'bridge' network, i.e. your local machine)
 
   E.g. ./build.sh -- gradle clean package -Pg.user=myuser -Dpg.password=mypassword
  */

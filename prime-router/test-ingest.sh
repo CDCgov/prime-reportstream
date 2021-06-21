@@ -34,7 +34,7 @@ boilerplate_glop="curl -X POST -H \"client:simple_report\" -H \"Content-Type: te
 localfile_glop="--data-binary \"@./src/test/csv_test_files/input/simplereport.csv\""
 cloud_access_key=" -H \"x-functions-key:$default_function_key\""
 cloud_url="\"https://$hostname/api/reports\""
-local_url="\"http://localhost:7071/api/reports\""
+local_url="\"http://172.17.0.1:7071/api/reports\""
 
 # Now put it all together:
 printf "\nRun this to submit a test report to your cloud:\n"
@@ -45,10 +45,3 @@ printf "     $boilerplate_glop $localfile_glop $local_url\n"
 
 printf "\nTo run the prime cli locally:\n"
 printf "     ./prime data --input-schema primedatainput/pdi-covid-19 --input ./src/test/csv_test_files/input/simplereport.csv --route --output-dir . \n"
-
-
-
-
-
-
-

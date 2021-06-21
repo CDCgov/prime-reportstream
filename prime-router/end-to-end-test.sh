@@ -2,15 +2,15 @@
 
 # Run a nice end to end test, covering all our formats, and all our transports,
 # and many different schemas.
-# 
-# This assumes a localhost prime/router is already running.
+#
+# This assumes a prime/router is already running and available on your local host (accessible through 172.17.0.1).
 # This assumes batch is on a 1-minute timer.
 #
 # This script is very ugly and repetitive.  Replace with kotlin.
 #
 
 RED='\033[0;31m'
-BLUE='\033[0;34m'   
+BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
@@ -41,7 +41,7 @@ printf "$text\n"
 
 printf "${BLUE}Post first fake report to prime hub${NC}\n"
 boilerplate_front="curl --silent -X POST -H client:simple_report -H Content-Type:text/csv "
-boilerplate_back="http://localhost:7071/api/reports"
+boilerplate_back="http://172.17.0.1:7071/api/reports"
 echo Posting $testfile1 to reports endpoint
 $boilerplate_front --data-binary @$testfile1 $boilerplate_back | cat > $testfile1.json
 # Get the report_id from the output
@@ -55,7 +55,7 @@ if [ -z $report_id1 ] ; then
   exit 1
 else
   printf "${GREEN}SUCCESS: Submitted report_id=$report_id1 ${NC}(json response in $testfile1.json)\n"
-fi 
+fi
 
 printf "${BLUE}Post second fake report to prime hub${NC}\n"
 echo Posting $testfile2 to reports endpoint
@@ -71,7 +71,7 @@ if [ -z $report_id2 ] ; then
   exit 1
 else
   printf "${GREEN}SUCCESS: Submitted report_id=$report_id2 ${NC}(json response in $testfile2.json)\n"
-fi 
+fi
 
 # Assume Batch step is on a 1 minute timer.
 printf "${BLUE}Sleeping for 75 seconds to test Batching timer${NC}\n"
@@ -156,5 +156,3 @@ group by receiving_org_svc, A.action_name, schema_name
 order by receiving_org_svc, A.action_name;
 EOF
 exit 0
-
-
