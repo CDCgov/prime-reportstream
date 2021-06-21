@@ -36,7 +36,7 @@
 
 #### Linux
 
-You'll need the OpenJDK (v11), Maven, the Azure CLI and Docker
+If you want to build outside of docker, you'll need the OpenJDK (v11), Maven, the Azure CLI and Docker
 
 1. Install OpenJDK 11, Maven and some azure tools
     * Debian/Ubuntu-based distributions:
