@@ -1406,6 +1406,8 @@ class SantaClaus : CoolTest() {
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
 
+        var passed = true
+
         if (options.env == "prod") {
             return createBad("This test can only be run on staging or locally")
         }
@@ -1496,7 +1498,7 @@ class SantaClaus : CoolTest() {
                         })
 
                         // just to print to console some beautified output
-                        examineLineageResults(
+                        passed = passed and examineLineageResults(
                             reportId = reportId,
                             receivers = receivers,
                             totalItems = receivers.size,
@@ -1508,7 +1510,7 @@ class SantaClaus : CoolTest() {
             }
         }
 
-        return true
+        return passed
     }
 
     private fun waitWithConditionalRetry(
