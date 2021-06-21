@@ -184,7 +184,7 @@ class HttpUtilities {
                 Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
                 else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
             }
-            val clientStr = sendingOrgName + if (sendingOrgClient.name != null) ".${sendingOrgClient.name}" else ""
+            val clientStr = sendingOrgName + if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)
