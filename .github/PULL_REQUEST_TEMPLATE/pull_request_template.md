@@ -1,23 +1,38 @@
----
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
----
+This PR ... 
 
-**Please describe the bug this fixes or the feature this adds.**
+## Changes
+- 
+- 
 
-**Please describe how you tested this change. Include unit tests whenever possible.**
+## Checklist
 
-**Did you create or modify any associated documentation with this change? If documentation is not included in PR, please link to related documentation.**
+### Testing
+- [ ] Tested locally?
+- [ ] Ran `quickTest all`?
+- [ ] Ran `./prime test` against local Docker ReportStream container?
+- [ ] Downloaded a file from `http://localhost:7071/api/download`?
+- [ ] Added tests?
 
-**If you added or modified HTML, did you check that it was 508 compliant?**
+### Security
+- [ ] Did you check for sensitive data, and remove any? 
+- [ ] Does logging contain sensitive data?  
+- [ ] Are additional approvals needed for this change?
+- [ ] Are there potential vulnerabilities or licensing issues with any new dependencies introduced?
 
-**Please tag any specific reviewers you would like to review this PR**
+### Process
+- [ ] Includes a summary of what a code reviewer should verify?
+- [ ] Updated the release notes?
+- [ ] Database changes are submitted as a separate PR?
+- [ ] DevOps team has been notified if PR requires ops support?
 
-**Please include the following checks for open source contributing?**
+## Security
+*List potential security threats and mitigations in the PR*
 
-* [ ] Did you check for sensitive data, and remove any?
-* [ ] Are additional approvals needed for this change?
-* [ ] Are there potential vulnerabilities or licensing issues with any new dependencies introduced?
+## Fixes
+*List GitHub issues this PR fixes*
+- #issue
+
+## To Be Done
+*Create GitHub issues to track the work remaining, if any*
+- #issue 
+
