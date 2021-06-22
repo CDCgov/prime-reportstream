@@ -123,7 +123,7 @@ WHERE
 
 ALTER TABLE covid_result_metadata
     ADD CONSTRAINT  ck_testing_lab_clia
-        CHECK(testing_lab_city IS NULL OR LENGTH(testing_lab_city) > 0);
+        CHECK(testing_lab_clia IS NULL OR LENGTH(testing_lab_clia) > 0);
 
 
 UPDATE
