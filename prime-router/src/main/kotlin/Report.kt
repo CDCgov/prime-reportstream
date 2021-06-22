@@ -864,11 +864,19 @@ class Report : Logging {
             }
         }
 
+        /**
+         * Takes a nullable String and trims it down to null if the string is empty
+         */
         private fun String?.trimToNull(): String? {
             if (this?.isEmpty() == true) return null
             return this
         }
 
+        /**
+         * Tries to get a value from the underlying row and if there is an error, returns the default provided
+         * @param columnName the name of the column to try and query from in this row
+         * @param default the default value to return if there's an error getting a value. Defaults to null.
+         */
         private fun Row.getStringOrDefault(columnName: String, default: String? = null): String? {
             return try {
                 this.getString(columnName)
@@ -877,6 +885,9 @@ class Report : Logging {
             }
         }
 
+        /**
+         * Tries to get a value in the underlying row for the column name, and if it doesn't exist, returns null
+         */
         private fun Row.getStringOrNull(columnName: String): String? {
             return this.getStringOrDefault(columnName, null)
         }

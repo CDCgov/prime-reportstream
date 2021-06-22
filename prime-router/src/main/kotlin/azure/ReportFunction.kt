@@ -115,6 +115,10 @@ class ReportFunction {
         return httpResponseMessage
     }
 
+    /**
+     * Given a report object, it collects the non-PII, non-PHI out of it and then saves it to the
+     * database in the covid_results_metadata table.
+     */
     private fun writeCovidResultMetadataForReport(
         report: Report?,
         context: ExecutionContext,
@@ -128,9 +132,18 @@ class ReportFunction {
                 // wrap the insert into an exception handler
                 try {
                     workflowEngine.db.transact { txn ->
-                        val deidentifiedData = report.getDeidentifiedResultMetaData()
-                        workflowEngine.db.saveTestData(deidentifiedData, txn)
-                        context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
+                        // verify the file exists in report_file before continuing
+                        if (workflowEngine.db.checkReportExists(report.id, txn)) {
+                            val deidentifiedData = report.getDeidentifiedResultMetaData()
+                            workflowEngine.db.saveTestData(deidentifiedData, txn)
+                            context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
+                        } else {
+                            // warn if it does not exist
+                            context.logger.warning(
+                                "Skipping write to metadata table because " +
+                                    "reportId ${report.id} does not exist in report_file."
+                            )
+                        }
                     }
                 } catch (pse: PSQLException) {
                     // report this but move on

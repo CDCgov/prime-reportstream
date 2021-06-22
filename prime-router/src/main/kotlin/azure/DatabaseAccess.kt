@@ -554,6 +554,16 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .execute()
     }
 
+    fun checkReportExists(reportId: ReportId, txn: DataAccessTransaction): Boolean {
+        return (
+            DSL.using(txn)
+                .select(REPORT_FILE.REPORT_ID)
+                .from(REPORT_FILE)
+                .where(REPORT_FILE.REPORT_ID.eq(reportId))
+                .count()
+            ) > 0
+    }
+
     /**
      * Common companion object
      */
