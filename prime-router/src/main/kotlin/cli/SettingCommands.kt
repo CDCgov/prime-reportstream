@@ -343,7 +343,7 @@ abstract class SingleSettingCommandNoSettingName(
                     fromYaml(readInput(), settingType)
                 val output = put(environment, accessToken, settingType, name, payload)
 
-                if(verbose) {
+                if (verbose) {
                     println("put ${settingType.toString().lowercase()} :: $payload")
                 }
 
@@ -545,7 +545,7 @@ class PutMultipleSettings : SettingCommand(
             val org = Organization(deepOrg)
             val payload = jsonMapper.writeValueAsString(org)
 
-            if(verbose) {
+            if (verbose) {
                 println("""Organization :: $payload""")
             }
 
@@ -555,7 +555,7 @@ class PutMultipleSettings : SettingCommand(
         deepOrgs.flatMap { it.senders }.forEach { sender ->
             val payload = jsonMapper.writeValueAsString(sender)
 
-            if(verbose) {
+            if (verbose) {
                 println("""Sender :: $payload""")
             }
 
@@ -565,7 +565,7 @@ class PutMultipleSettings : SettingCommand(
         deepOrgs.flatMap { it.receivers }.forEach { receiver ->
             val payload = jsonMapper.writeValueAsString(receiver)
 
-            if(verbose) {
+            if (verbose) {
                 println("""Receiver :: $payload""")
             }
 

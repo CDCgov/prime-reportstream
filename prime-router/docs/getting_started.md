@@ -340,34 +340,14 @@ export $(cat ./.vault/env/.env.local | xargs)
 
 The prime-router comes packaged with a executable that can help in finding misconfigurations and other problems with the appliciation.
 
-Use the following command to launch the tool. 
+Use the following command to launch the tool locally: 
 
 ```shell
 cd prime-router
+export POSTGRES_PASSWORD='changeIT!'
+export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+export POSTGRES_USER=prime
 ./prime test
 ```
 
-This should be used while the prime-router application is running on your system.
-
-
-
-#### Missing env var
-
-The gradle script is supposed to install a few environment variables that will be used by the prime test utility, however this is currently prone to failure. If a run of `prime test` mentions that any are missing try manually adding them: 
-
-```shell
-POSTGRES_PASSWORD='changeIT!'
-POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
-POSTGRES_USER=prime
-```
-
-If on *nix system you can also append these directly on the command to launch `prime test`. For example: 
-
-```shell
-POSTGRES_PASSWORD='changeIT!' \
-POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub \
-POSTGRES_USER=prime \
-./prime-router/prime test
-```
-
-Running the test command with the correct environment variables should "repair" a running prime-router process in progress. This fix should even persist through subsequent runs.  
+This can be used while the prime-router application is running on your system.

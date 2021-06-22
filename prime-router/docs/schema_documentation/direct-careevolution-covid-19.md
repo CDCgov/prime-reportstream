@@ -1,6 +1,44 @@
 
-### Schema:         hl7/hl7-ingest-covid-19
-#### Description:   Schema for ingesting HL7 messages
+### Schema:         direct/careevolution-covid-19
+#### Description:   Care Evolution
+
+---
+
+**Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
+
+---
+
+**Name**: processing_mode_code
+
+**Type**: CODE
+
+**PII**: No
+
+**HL7 Field**: MSH-11-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+D|Debugging
+P|Production
+T|Training
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
 
 ---
 
@@ -270,22 +308,6 @@ W|Worse--use when direction not relevant
 **Documentation**:
 
 This field is generated based on the normalcy status of the result. A = abnormal; N = normal
-
----
-
-**Name**: ordering_facility_county
-
-**Type**: TABLE
-
-**PII**: No
-
-**HL7 Field**: ORC-22-8
-
-**Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: County
 
 ---
 
@@ -796,6 +818,20 @@ Z|No record of this patient
 **Documentation**:
 
 The city of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_county
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: fips-county
+
+**Table Column**: County
 
 ---
 
@@ -2258,30 +2294,6 @@ Is the patient pregnant?
 
 ---
 
-**Name**: processing_mode_code
-
-**Type**: CODE
-
-**PII**: No
-
-**HL7 Field**: MSH-11-1
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display
----- | -------
-D|Debugging
-P|Production
-T|Training
-
-**Documentation**:
-
-P, D, or T for Production, Debugging, or Training
-
----
-
 **Name**: message_id
 
 **Type**: ID
@@ -3186,19 +3198,5 @@ XCN|Extended Composite Name and Number For Persons
 XON|Extended Composite Name and Number For Organizations
 XPN|Extended Person Name
 XTN|Extended Telecommunications Number
-
----
-
-**Name**: sender_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
