@@ -149,9 +149,9 @@ class ReportFunction {
                     // report this but move on
                     context.logger.severe(
                         "Exception writing COVID test metadata " +
-                            "for ${report.id}: ${pse.localizedMessage}"
+                            "for ${report.id}: ${pse.localizedMessage}.\n" +
+                            pse.stackTraceToString()
                     )
-                    context.logger.severe(pse.stackTraceToString())
                 }
             }
         }
