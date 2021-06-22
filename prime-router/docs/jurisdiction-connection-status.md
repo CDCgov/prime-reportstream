@@ -21,6 +21,7 @@ ReportStream is currently live and in development in the following jurisdictions
   * Pennsylvania 
   * Texas 
   * Vermont 
+  * Florida
 
 
 ### In development 
