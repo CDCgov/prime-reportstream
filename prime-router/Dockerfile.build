@@ -33,7 +33,7 @@ RUN rm -r /var/downloads/gradle/gradle-${GRADLE_VERSION}/ gradle-${GRADLE_VERSIO
 RUN mkdir -p /var/downloads/azure-functions
 WORKDIR /var/downloads/azure-functions
 RUN wget -o /tmp/azure.functions.download.log https://github.com/Azure/azure-functions-core-tools/releases/download/${AFCT_VERSION}/Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
-RUN unzip Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
+RUN unzip Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip 2>&1 1>/tmp/azure.functions.extraction.log
 RUN rm Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 
 
