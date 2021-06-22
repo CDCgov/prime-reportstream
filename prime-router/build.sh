@@ -41,9 +41,10 @@ function get_gradle_command() {
 function ensure_build_dir() {
   mkdir -p "${HERE?}/build"
   chmod 777 "${HERE?}/build"
-  echo "Making sure you own 'build/' and '.gradle/'... (may require elevation)"
+  echo "Making sure you own 'build/', 'docs/' and '.gradle/'... (may require elevation)"
   sudo chown -R "$(id --user --name):$(id --group --name)" \
     build \
+    docs \
     .gradle
 }
 
