@@ -6,7 +6,7 @@ This document outlines our security policy for the code base and product, and ho
 
 If you think you have found a vulnerability or security-related issue, _please report them to us directly_.
 
-**Do not create GitHub issues for security issues.** Please email reports about any security related issues you find to **_TBD_**.
+**Do not create GitHub issues for security issues.** Please email reports about any security related issues you find to **_TBD_** or ask us to reach out to you directly.
 
 When informing us of security issues, please use a descriptive subject line for your report. In addition, please include the following information along with your report:
 
