@@ -24,7 +24,7 @@ RUN apk update && apk add wget --no-cache
 # builder image below and only needs JAVA_VERSION as a build-arg
 RUN mkdir -p /var/downloads/gradle
 WORKDIR /var/downloads/gradle
-RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
+RUN wget -o /tmp/gradle.download.log https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 RUN unzip gradle-${GRADLE_VERSION}-bin.zip
 RUN mv /var/downloads/gradle/gradle-${GRADLE_VERSION}/* /var/downloads/gradle
 RUN rm -r /var/downloads/gradle/gradle-${GRADLE_VERSION}/ gradle-${GRADLE_VERSION}-bin.zip
@@ -32,7 +32,7 @@ RUN rm -r /var/downloads/gradle/gradle-${GRADLE_VERSION}/ gradle-${GRADLE_VERSIO
 # Get Azure Functions Core Tools into /var/downloads/azure-functions
 RUN mkdir -p /var/downloads/azure-functions
 WORKDIR /var/downloads/azure-functions
-RUN wget https://github.com/Azure/azure-functions-core-tools/releases/download/${AFCT_VERSION}/Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
+RUN wget -o /tmp/azure.functions.download.log https://github.com/Azure/azure-functions-core-tools/releases/download/${AFCT_VERSION}/Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 RUN unzip Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 RUN rm Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 
