@@ -169,9 +169,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         fun queryTerserForValue(
             terser: Terser,
             terserSpec: String,
-            elementName: String,
             errors: MutableList<String>,
-            warnings: MutableList<String>
         ): String {
             val parsedValue = try {
                 terser.get(terserSpec)
@@ -179,10 +177,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 errors.add("Exception for $terserSpec: ${e.message}")
                 null
             }
-            // add the rows
-            if (parsedValue.isNullOrEmpty()) {
-                warnings.add("Blank for $terserSpec - $elementName")
-            }
+
             return parsedValue ?: ""
         }
 
@@ -197,8 +192,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         fun decodeAOEQuestion(
             element: Element,
             terser: Terser,
-            errors: MutableList<String>,
-            warnings: MutableList<String>
+            errors: MutableList<String>
         ): String {
             var value = ""
             val question = element.hl7AOEQuestion!!
@@ -215,7 +209,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 }
                 if (questionCode?.startsWith(question) == true) {
                     spec = "/.OBSERVATION($c)/OBX-5"
-                    value = queryTerserForValue(terser, spec, element.name, errors, warnings)
+                    value = queryTerserForValue(terser, spec, errors)
                 }
             }
             return value
@@ -267,13 +261,12 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         }
                         // Decode an AOE question
                         else if (hl7Field == "AOE") {
-                            decodeAOEQuestion(element, terser, errors, warnings)
+                            decodeAOEQuestion(element, terser, errors)
                         }
                         // No special case here, so get a value from an HL7 field
                         else {
                             queryTerserForValue(
-                                terser, getTerserSpec(hl7Field), element.name,
-                                errors, warnings
+                                terser, getTerserSpec(hl7Field), errors
                             )
                         }
                     if (value.isNotBlank()) break
@@ -493,7 +486,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     value
                 }
                 setComponent(terser, element, element.hl7Field, truncatedValue, report)
-            } else if (element.hl7Field != null) {
+            } else if (!element.hl7Field.isNullOrEmpty()) {
                 setComponent(terser, element, element.hl7Field, value, report)
             }
         }
@@ -521,10 +514,10 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             terser.set(pathSpec, hl7Config?.reportingFacilityName)
         }
         if (!hl7Config?.reportingFacilityId.isNullOrEmpty()) {
-            val pathSpec = formPathSpec("MSH-4-2")
+            var pathSpec = formPathSpec("MSH-4-2")
             terser.set(pathSpec, hl7Config?.reportingFacilityId)
             if (!hl7Config?.reportingFacilityIdType.isNullOrEmpty()) {
-                val pathSpec = formPathSpec("MSH-4-3")
+                pathSpec = formPathSpec("MSH-4-3")
                 terser.set(pathSpec, hl7Config?.reportingFacilityIdType)
             }
         }
@@ -957,6 +950,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                             strValue = element.toNormalized(xtnValue.emailAddress.valueOrEmpty)
                         }
                     }
+                    else -> error("${element.type} is unsupported to decode telecom data.")
                 }
             }
             return strValue

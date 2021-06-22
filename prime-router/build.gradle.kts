@@ -356,6 +356,17 @@ tasks.register("package") {
     dependsOn("fatJar")
 }
 
+tasks.register("quickPackage") {
+    // Quick package for development purposes.  Use with caution.
+    dependsOn("azureFunctionsPackage")
+    dependsOn("copyAzureResources")
+    dependsOn("copyAzureScripts")
+    tasks["test"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 repositories {
     mavenCentral()
     maven {
