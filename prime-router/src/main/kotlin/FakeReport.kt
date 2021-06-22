@@ -189,7 +189,7 @@ class FakeDataService {
     }
 }
 
-class FakeReport(val metadata: Metadata, val locale : Locale? = null) {
+class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
     private val fakeDataService: FakeDataService = FakeDataService()
 
     class RowContext(
@@ -197,7 +197,7 @@ class FakeReport(val metadata: Metadata, val locale : Locale? = null) {
         reportState: String? = null,
         val schemaName: String? = null,
         reportCounty: String? = null,
-        val locale : Locale? = null
+        val locale: Locale? = null
     ) {
         val faker = if (locale == null) Faker() else Faker(locale)
         val patientName: Name = faker.name()

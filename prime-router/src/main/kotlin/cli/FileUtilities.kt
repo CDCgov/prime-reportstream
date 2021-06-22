@@ -3,7 +3,7 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.output.TermUi.echo
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -11,7 +11,6 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.File
 import java.util.Locale
-import gov.cdc.prime.router.Metadata
 
 class FileUtilities {
     companion object {
@@ -23,7 +22,7 @@ class FileUtilities {
             targetCounties: String? = null,
             directory: String = ".",
             format: Report.Format = Report.Format.CSV,
-            locale : Locale? = null
+            locale: Locale? = null
         ): File {
             val report = createFakeReport(
                 metadata,
@@ -42,7 +41,7 @@ class FileUtilities {
             count: Int,
             targetStates: String? = null,
             targetCounties: String? = null,
-            locale : Locale? = null
+            locale: Locale? = null
         ): Report {
             return FakeReport(metadata, locale).build(
                 metadata.findSchema(sender.schemaName)
