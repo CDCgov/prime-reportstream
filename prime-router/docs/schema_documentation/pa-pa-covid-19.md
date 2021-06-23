@@ -8,6 +8,8 @@
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -15,6 +17,8 @@
 **Name**: PerformingFacilityName
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -28,6 +32,8 @@ The name of the facility which the test was ordered from
 
 **Type**: CITY
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -39,6 +45,8 @@ The patient's city
 **Name**: PatientDOB
 
 **Type**: DATE
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -54,6 +62,8 @@ Other states may choose to define their own formats.
 **Name**: PatientEthnicity
 
 **Type**: CODE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -77,6 +87,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -88,6 +100,8 @@ The patient's first name
 **Name**: PatientGender
 
 **Type**: CODE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -113,6 +127,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **Cardinality**: [1..1]
 
 **Documentation**:
@@ -125,6 +141,8 @@ The patient's last name
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 ---
@@ -132,6 +150,8 @@ The patient's last name
 **Name**: PatientPhoneNumber
 
 **Type**: TELEPHONE
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -144,6 +164,8 @@ The patient's phone number with area code
 **Name**: PatientRace
 
 **Type**: CODE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -171,6 +193,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [1..1]
 
 **Table**: fips-county
@@ -187,6 +211,8 @@ The patient's state
 
 **Type**: STREET
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -198,6 +224,8 @@ The patient's street address
 **Name**: PatientSuffix
 
 **Type**: PERSON_NAME
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -211,6 +239,8 @@ The suffix for the patient's name, (i.e. Jr, Sr, etc)
 
 **Type**: POSTAL_CODE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -222,6 +252,8 @@ The patient's zip code
 **Name**: SpecimenCollectedDate
 
 **Type**: DATETIME
+
+**PII**: No
 
 **HL7 Fields**
 
@@ -243,6 +275,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Type**: CODE
 
+**PII**: No
+
 **Format**: $display
 
 **Cardinality**: [0..1]
@@ -254,6 +288,7 @@ Code | Display
 119297000|Blood specimen (specimen)
 71836000|Nasopharyngeal structure (body structure)
 45206002|Nasal structure (body structure)
+53342003|Internal nose structure (body structure)
 
 **Documentation**:
 
@@ -264,6 +299,8 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 **Name**: TestName
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -299,6 +336,8 @@ The specimen source, such as Blood or Serum
 
 **Type**: CODE
 
+**PII**: No
+
 **Format**: $display
 
 **Cardinality**: [0..1]
@@ -318,13 +357,14 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
-840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
 840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
 840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
 840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
 840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+373121007|Test not done
 
 **Documentation**:
 
@@ -335,6 +375,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Name**: TestID
 
 **Type**: ID
+
+**PII**: No
 
 **Cardinality**: [0..1]
 

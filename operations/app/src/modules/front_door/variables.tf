@@ -13,22 +13,17 @@ variable "resource_prefix" {
   description = "Resource Prefix"
 }
 
-variable "key_vault_id" {
+variable "location" {
   type = string
-  description = "Key Vault used for HTTPS certificate"
+  description = "Function App Location"
 }
 
-variable "eventhub_namespace_name" {
-  type = string
-  description = "Event hub to stream logs to"
-}
-
-variable "eventhub_manage_auth_rule_id" {
-  type = string
-  description = "Event Hub Manage Authorization Rule ID"
-}
-
-variable "https_cert_name" {
-  type = string
+variable "https_cert_names" {
+  type = list
   description = "The HTTPS cert to associate with the front door. Omitting will not associate a domain to the front door."
+}
+
+variable "is_metabase_env" {
+  type = bool
+  description = "Should Metabase be deployed in this environment"
 }

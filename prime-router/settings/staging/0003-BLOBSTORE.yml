@@ -1,0 +1,62 @@
+---
+# Run this:   ./prime multiple-settings set --input ./settings/staging/0003-BLOBSTORE.yml --env staging
+- name: waters
+  description: Test Sender from Waters
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: waters
+      topic: covid-19
+      schemaName: waters/waters-covid-19
+      format: CSV
+
+- name: "hhsprotect"
+  description: "HHS Protect"
+  jurisdiction: "FEDERAL"
+  receivers:
+  - name: "elr"
+    organizationName: "hhsprotect"
+    topic: covid-19
+    description: "HHSProtect in staging is currently set to receive everything, no filters, but deidentified"
+    translation:
+      type: "CUSTOM"
+      schemaName: "waters/waters-covid-19"
+      format: "CSV"
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+    transport:
+      type: BLOBSTORE
+      storageName: PartnerStorage
+      containerName: hhsprotect
+
+- name: ignore
+  description: FOR TESTING ONLY
+  jurisdiction: FEDERAL
+  senders:
+    - name: ignore-waters      # Use this to test sending waters data
+      organizationName: ignore
+      topic: covid-19
+      schemaName: waters/waters-covid-19
+      format: CSV
+  receivers:
+    - name: BLOBSTORE
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: waters/waters-covid-19
+        format: CSV
+      deidentify: true
+      transport:
+        type: BLOBSTORE
+        storageName: PartnerStorage
+        containerName: hhsprotect

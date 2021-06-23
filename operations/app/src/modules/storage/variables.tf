@@ -13,27 +13,12 @@ variable "resource_prefix" {
     description = "Resource Prefix"
 }
 
-variable "name" {
-    type = string
-    description = "Storage Account Name"
-}
-
 variable "location" {
     type = string
     description = "Storage Account Location"
 }
 
-variable "subnet_ids" {
-    type = list(string)
-    description = "List of VNet Subnet IDs"
-}
-
-variable "eventhub_namespace_name" {
+variable "rsa_key_4096" {
     type = string
-    description = "Event hub to stream logs to"
-}
-
-variable "eventhub_manage_auth_rule_id" {
-    type = string
-    description = "Event Hub Manage Authorization Rule ID"
+    description = "Name of the 2048 length RSA key in the Key Vault. Omitting will use Azure-managed key instead of a customer-key."
 }

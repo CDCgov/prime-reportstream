@@ -2,6 +2,9 @@ package gov.cdc.prime.router.serializers
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
+import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
+import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Mapper
@@ -59,27 +62,44 @@ class CsvSerializer(val metadata: Metadata) {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
         var rows = mutableListOf<Map<String, String>>()
-        csvReader().open(input) {
-            readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
-                rows.add(row)
-                if (rows.size > REPORT_MAX_ITEMS) {
-                    errors.add(
-                        ResultDetail(
-                            ResultDetail.DetailScope.REPORT, "",
-                            "Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows"
+        csvReader {
+            quoteChar = '"'
+            delimiter = ','
+            skipEmptyLine = false
+            skipMissMatchedRow = false
+        }.open(input) {
+            try {
+                readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
+                    rows.add(row)
+                    if (rows.size > REPORT_MAX_ITEMS) {
+                        errors.add(
+                            ResultDetail.report(
+                                "Report rows ${rows.size} exceeds max allowed $REPORT_MAX_ITEMS rows"
+                            )
                         )
-                    )
-                    return@open
-                }
-                if (row.size > REPORT_MAX_ITEM_COLUMNS) {
-                    errors.add(
-                        ResultDetail(
-                            ResultDetail.DetailScope.REPORT, "",
-                            "Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS"
+                        return@open
+                    }
+                    if (row.size > REPORT_MAX_ITEM_COLUMNS) {
+                        errors.add(
+                            ResultDetail.report(
+                                "Number of report columns ${row.size} exceeds max allowed $REPORT_MAX_ITEM_COLUMNS"
+                            )
                         )
-                    )
-                    return@open
+                        return@open
+                    }
                 }
+            } catch (ex: CSVFieldNumDifferentException) {
+                errors.add(
+                    ResultDetail.report("CSV file has an inconsistent number of columns on row: ${ex.csvRowNum}")
+                )
+            } catch (ex: CSVParseFormatException) {
+                errors.add(
+                    ResultDetail.report("General CSV parsing error on row: ${ex.rowNum}")
+                )
+            } catch (ex: MalformedCSVException) {
+                errors.add(
+                    ResultDetail.report("General CSV parsing error: ${ex.message}")
+                )
             }
         }
         if (errors.size > 0) {
@@ -87,7 +107,7 @@ class CsvSerializer(val metadata: Metadata) {
         }
 
         if (rows.isEmpty()) {
-            return ReadResult(Report(schema, emptyList(), sources, destination), errors, warnings)
+            return ReadResult(Report(schema, emptyList(), sources, destination, metadata = metadata), errors, warnings)
         }
 
         val csvMapping = buildMappingForReading(schema, defaultValues, rows[0])
@@ -95,8 +115,7 @@ class CsvSerializer(val metadata: Metadata) {
         warnings.addAll(csvMapping.warnings.map { ResultDetail.report(it) })
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
-                ResultDetail(
-                    ResultDetail.DetailScope.REPORT, "",
+                ResultDetail.report(
                     "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping further work."
                 )
             )
@@ -122,26 +141,48 @@ class CsvSerializer(val metadata: Metadata) {
         }
         if (errors.size > REPORT_MAX_ERRORS) {
             errors.add(
-                ResultDetail(
-                    ResultDetail.DetailScope.REPORT, "",
+                ResultDetail.report(
                     "Number of errors (${errors.size}) exceeded $REPORT_MAX_ERRORS.  Stopping."
                 )
             )
             return ReadResult(null, errors, warnings)
         }
-        return ReadResult(Report(schema, mappedRows, sources, destination), errors, warnings)
+        return ReadResult(Report(schema, mappedRows, sources, destination, metadata = metadata), errors, warnings)
     }
 
+    /**
+     * Reads an internal format document (one that is in CSV, but matching the internal "kitchen sink" schema)
+     * and returns the Report object for the file.
+     * @param useDefaultsForMissing if a field is missing that the Report object expects, this instructs the
+     * function to use the default value provided by the schema (or empty string) if it doesn't exist. This was
+     * added because some older files might need to be reprocessed, and this allows that to happen without error
+     * due to a missing column
+     */
     fun readInternal(
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
         destination: Receiver? = null,
-        blobReportId: ReportId? = null
+        blobReportId: ReportId? = null,
+        useDefaultsForMissing: Boolean = false
     ): Report {
+        // find our schema
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
-        val rows: List<List<String>> = csvReader().readAll(input).drop(1)
-        return Report(schema, rows, sources, destination, id = blobReportId)
+        // get our rows
+        val rows = if (useDefaultsForMissing) {
+            // walk through the rows in the file with the header included
+            csvReader().readAllWithHeader(input).map {
+                // for each element name, if it doesn't exist in the map, then we add it with a default
+                // doing it this ways means that even if someone adds a new element in the middle of the schema
+                // (please don't), this should still be okay and it won't necessarily break
+                schema.elements.map { element ->
+                    it.getOrDefault(element.name, element.default ?: "")
+                }
+            }
+        } else {
+            csvReader().readAll(input).drop(1)
+        }
+        return Report(schema, rows, sources, destination, id = blobReportId, metadata = metadata)
     }
 
     fun write(report: Report, output: OutputStream) {
@@ -157,7 +198,7 @@ class CsvSerializer(val metadata: Metadata) {
                         if (element.csvFields != null) {
                             element.csvFields.map { field ->
                                 val value = report.getString(row, element.name)
-                                    ?: error("Internal Error: table is missing '${element.name} column")
+                                    ?: error("Internal Error: table is missing ${element.fieldMapping} column")
                                 element.toFormatted(value, field.format)
                             }
                         } else {
@@ -232,9 +273,12 @@ class CsvSerializer(val metadata: Metadata) {
         val missingRequiredHeaders = requiredHeaders - actualHeaders
         val missingOptionalHeaders = optionalHeaders - actualHeaders
         val ignoredHeaders = actualHeaders - requiredHeaders - optionalHeaders - headersWithDefault
-        val errors = missingRequiredHeaders.map { "Missing '$it' header" }
-        val warnings = missingOptionalHeaders.map { "Missing '$it' header" } +
-            ignoredHeaders.map { "Unexpected '$it' header is ignored" }
+        val errors = missingRequiredHeaders.map {
+            "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
+        }
+        val warnings = missingOptionalHeaders.map {
+            "Missing ${schema.findElementByCsvName(it)?.fieldMapping} header"
+        } + ignoredHeaders.map { "Unexpected '$it' header is ignored" }
 
         return CsvMapping(useCsv, useMapper, useDefault, errors, warnings)
     }
@@ -272,6 +316,7 @@ class CsvSerializer(val metadata: Metadata) {
                     when (element.cardinality) {
                         Element.Cardinality.ONE -> errors += error
                         Element.Cardinality.ZERO_OR_ONE -> warnings += error
+                        else -> warnings += "$error - setting value to ''"
                     }
                     return failureValue
                 }
@@ -290,14 +335,9 @@ class CsvSerializer(val metadata: Metadata) {
         fun useMapper(element: Element): String? {
             val (mapper, args) = csvMapping.useMapper[element.name] ?: return null
             val valueNames = mapper.valueNames(element, args)
-            val valuesForMapper = valueNames.map { elementName ->
-                val valueElement = schema.findElement(elementName)
-                    ?: error(
-                        "Schema Error: Could not find element '$elementName' for mapper " +
-                            "'${mapper.name}' from '${element.name}'."
-                    )
-                val value = lookupValues[elementName]
-                    ?: error("Schema Error: No mapper input for $elementName")
+            val valuesForMapper = valueNames.mapNotNull { elementName ->
+                val valueElement = schema.findElement(elementName) ?: return@mapNotNull null
+                val value = lookupValues[elementName] ?: return@mapNotNull null
                 ElementAndValue(valueElement, value)
             }
             return mapper.apply(element, args, valuesForMapper)
@@ -321,7 +361,7 @@ class CsvSerializer(val metadata: Metadata) {
             }
             if (value.isBlank() && !element.canBeBlank) {
                 when (element.cardinality) {
-                    Element.Cardinality.ONE -> errors += "Empty value for '${element.name}'"
+                    Element.Cardinality.ONE -> errors += "Empty value for ${element.fieldMapping}"
                     Element.Cardinality.ZERO_OR_ONE -> {
                     }
                 }

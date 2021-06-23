@@ -1,0 +1,10 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "WEBSITE_RUN_FROM_PACKAGE": "1",
+    "FUNCTIONS_WORKER_RUNTIME": "java",
+    "FUNCTIONS_EXTENSION_VERSION": "~3",
+    "JAVA_OPTS": "-Dfile.encoding=UTF-8"
+  },
+  "ConnectionStrings": {}
+}

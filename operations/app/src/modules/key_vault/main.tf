@@ -1,23 +1,23 @@
-terraform {
-  required_version = ">= 0.14"
-}
-
 locals {
   # These object ids correspond to developers with access
   # to key vault
-                     # Richard Teasley
-  dev_object_ids = [ "34232fe8-00ad-4bd0-9afb-eb9b3cc93ffe",
-                     # IAMB-Prod-KV
-                     "cd341fbc-26a3-405c-a350-c4237a27aa93",
-                     # Ron Heft
-                     "637fb7df-c200-4e0d-ba86-608576acb786",
-                     # Chris Glodosky
-                     "aabc25d7-dd99-42b9-8f3a-fd593b1f229a" ]
+  dev_object_ids = [
+    # Richard Teasley
+    "34232fe8-00ad-4bd0-9afb-eb9b3cc93ffe",
+    # IAMB-Prod-KV
+    "cd341fbc-26a3-405c-a350-c4237a27aa93",
+    # Ron Heft
+    "637fb7df-c200-4e0d-ba86-608576acb786",
+    # Maurice Reeves
+    "414537da-0ba5-4db1-93f6-dd828e9a480a",
+    # Jim Duff
+    "24669a80-a2d3-425a-8c80-92e05ea8341f",
+    # Rick Hawes
+    "96c8ed83-c3df-4a04-9dfe-7cd8487e342e"
+  ]
 
   frontdoor_object_id = "270e4d1a-12bd-4564-8a4b-c9de1bbdbe95"
 }
-
-data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "application" {
   name = "${var.resource_prefix}-keyvault"
@@ -29,6 +29,12 @@ resource "azurerm_key_vault" "application" {
   enabled_for_disk_encryption = true
   enabled_for_template_deployment = true
   purge_protection_enabled = true
+
+  network_acls {
+    bypass = "AzureServices"
+    default_action = "Deny"
+    virtual_network_subnet_ids = [] // We're using a private endpoint, so none need to be associated
+  }
 
   lifecycle {
     prevent_destroy = true
@@ -95,6 +101,16 @@ resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
   certificate_permissions = [ "Get" ]
 }
 
+module "application_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_key_vault.application.id
+  name = azurerm_key_vault.application.name
+  type = "key_vault"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+}
+
 resource "azurerm_key_vault" "app_config" {
   name = "${var.resource_prefix}-appconfig" # Does not include "-keyvault" due to char limits (24)
   location = var.location
@@ -105,6 +121,12 @@ resource "azurerm_key_vault" "app_config" {
   enabled_for_disk_encryption = true
   enabled_for_template_deployment = true
   purge_protection_enabled = true
+
+  network_acls {
+    bypass = "AzureServices"
+    default_action = "Deny"
+    virtual_network_subnet_ids = [] // We're using a private endpoint, so none need to be associated
+  }
 
   lifecycle {
     prevent_destroy = true
@@ -136,6 +158,16 @@ resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
   certificate_permissions = []
 }
 
+module "app_config_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_key_vault.app_config.id
+  name = azurerm_key_vault.app_config.name
+  type = "key_vault"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
+}
+
 resource "azurerm_key_vault" "client_config" {
   name = "${var.resource_prefix}-clientconfig" # Does not include "-keyvault" due to char limits (24)
   location = var.location
@@ -146,6 +178,12 @@ resource "azurerm_key_vault" "client_config" {
   enabled_for_disk_encryption = true
   enabled_for_template_deployment = true
   purge_protection_enabled = true
+
+  network_acls {
+    bypass = "AzureServices"
+    default_action = "Deny"
+    virtual_network_subnet_ids = [] // We're using a private endpoint, so none need to be associated
+  }
 
   lifecycle {
     prevent_destroy = true
@@ -177,14 +215,12 @@ resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
   certificate_permissions = []
 }
 
-output "application_key_vault_id" {
-  value = azurerm_key_vault.application.id
-}
-
-output "app_config_key_vault_id" {
-  value = azurerm_key_vault.app_config.id
-}
-
-output "client_config_key_vault_id" {
-  value = azurerm_key_vault.client_config.id
+module "client_config_private_endpoint" {
+  source = "../common/private_endpoint"
+  resource_id = azurerm_key_vault.client_config.id
+  name = azurerm_key_vault.client_config.name
+  type = "key_vault"
+  resource_group = var.resource_group
+  location = var.location
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }

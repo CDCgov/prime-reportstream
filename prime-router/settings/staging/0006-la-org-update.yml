@@ -1,0 +1,28 @@
+name: la-doh
+description: Louisiana Department of Health
+jurisdiction: STATE
+stateCode: LA
+receivers:
+  - name: elr
+    organizationName: la-doh
+    topic: covid-19
+    jurisdictionalFilter:
+      - matches(ordering_facility_state, LA)
+    translation:
+      type: HL7
+      useBatchHeaders: true
+      receivingOrganization: LAOPH
+      receivingApplicationName: LA-ELR
+      receivingFacilityName: LADOH
+      nameFormat: APHL
+      useTestProcessingMode: false
+    timing:
+      operation: MERGE
+      numberPerDay: 1440 # Every minute
+      initialTime: 00:00
+      timeZone: CENTRAL
+    transport:
+      type: SFTP
+      host: 10.0.2.4
+      port: 22
+      filePath: ./upload

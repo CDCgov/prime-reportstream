@@ -8,17 +8,19 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 
-const val blobContainerName = "reports"
+const val defaultBlobContainerName = "reports"
 
 class BlobAccess(
     private val csvSerializer: CsvSerializer,
     private val hl7Serializer: Hl7Serializer,
     private val redoxSerializer: RedoxSerializer
-) {
+) : Logging {
+    private val defaultConnEnvVar = "AzureWebJobsStorage"
 
     // Basic info about a blob: its format, url in azure, and its sha256 hash
     data class BlobInfo(
@@ -39,8 +41,8 @@ class BlobAccess(
         when (report.bodyFormat) {
             Report.Format.INTERNAL -> csvSerializer.writeInternal(report, outputStream)
             // HL7 needs some additional configuration we set on the translation in organization
-            Report.Format.HL7 -> hl7Serializer.write(report, outputStream, report.destination?.translation)
-            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream, report.destination?.translation)
+            Report.Format.HL7 -> hl7Serializer.write(report, outputStream)
+            Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, outputStream)
             Report.Format.CSV -> csvSerializer.write(report, outputStream)
             Report.Format.REDOX -> redoxSerializer.write(report, outputStream)
         }
@@ -48,8 +50,13 @@ class BlobAccess(
         return Pair(report.bodyFormat, contentBytes)
     }
 
-    private fun uploadBlob(fileName: String, bytes: ByteArray): String {
-        val blobClient = getBlobContainer(blobContainerName).getBlobClient(fileName)
+    private fun uploadBlob(
+        fileName: String,
+        bytes: ByteArray,
+        blobContainerName: String = defaultBlobContainerName,
+        blobConnEnvVar: String = defaultConnEnvVar
+    ): String {
+        val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(fileName)
         blobClient.upload(
             ByteArrayInputStream(bytes),
             bytes.size.toLong()
@@ -63,25 +70,49 @@ class BlobAccess(
         return stream.toByteArray()
     }
 
+    /**
+     * Returns the blobURL of the newly created copy.
+     * Right now, only copies from our internal reports blob store.
+     */
+    fun copyBlob_OLD(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
+        val fromBlobClient = getBlobClient(fromBlobUrl)
+        val blobContainer = getBlobContainer(toBlobContainer, toBlobConnEnvVar)
+        logger.info("Copying from blob ${fromBlobClient.blobName}")
+        val toBlobClient = blobContainer.getBlobClient(fromBlobClient.blobName, toBlobConnEnvVar)
+        toBlobClient.copyFromUrl(fromBlobUrl) // returns a uuid 'copy id'.  Not sure what use it it.
+        return toBlobClient.blobUrl
+    }
+
+    fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
+        val fromBytes = this.downloadBlob(fromBlobUrl)
+        logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
+        val fromBlobClient = getBlobClient(fromBlobUrl) // only used to get the filename.
+        val toFilename = fromBlobClient.blobName
+        logger.info("New blob filename will be $toFilename")
+        val toBlobUrl = uploadBlob(toFilename, fromBytes, toBlobContainer, toBlobConnEnvVar)
+        logger.info("New blob URL is $toBlobUrl")
+        return toBlobUrl
+    }
+
     fun deleteBlob(blobUrl: String) {
         getBlobClient(blobUrl).delete()
     }
 
-    fun checkConnection() {
-        val blobConnection = System.getenv("AzureWebJobsStorage")
+    fun checkConnection(blobConnEnvVar: String = defaultConnEnvVar) {
+        val blobConnection = System.getenv(blobConnEnvVar)
         BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
     }
 
-    private fun getBlobContainer(name: String): BlobContainerClient {
-        val blobConnection = System.getenv("AzureWebJobsStorage")
+    fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
+        val blobConnection = System.getenv(blobConnEnvVar)
         val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
         val containerClient = blobServiceClient.getBlobContainerClient(name)
         if (!containerClient.exists()) containerClient.create()
         return containerClient
     }
 
-    private fun getBlobClient(blobUrl: String): BlobClient {
-        val blobConnection = System.getenv("AzureWebJobsStorage")
+    fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
+        val blobConnection = System.getenv(blobConnEnvVar)
         return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
     }
 

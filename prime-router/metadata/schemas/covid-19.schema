@@ -48,19 +48,19 @@ elements:
 
   - name: device_id
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     mapper: obx17()
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hhsGuidanceField: Device ID
-    hl7Field: OBX-17-1
+    hl7OutputFields: [ OBX-17-1, OBX-17-9 ]
     documentation: Device_id is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
 
   - name: device_id_type
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     mapper: obx17Type()
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     hhsGuidanceField: Device ID
     hl7Field: OBX-17-3
@@ -99,42 +99,43 @@ elements:
 
   - name: equipment_model_id
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Equipment UID
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Instrument_model_id
     hhsGuidanceField:
     hl7Field: OBX-18-1
 
   - name: equipment_model_id_type
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Equipment UID Type
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: OBX-18-3
 
   - name: equipment_model_name
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Model
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
+    mapper: livdLookup()
     natFlatFileField: Instrument_model_name
     hhsGuidanceField:
 
   - name: equipment_manufacture
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Manufacturer
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Instrument_model_name
     hhsGuidanceField:
 
@@ -155,6 +156,7 @@ elements:
     type: ID
     hl7Field: ORC-3-1
     hl7OutputFields: [ ORC-3-1, SPM-2-2, OBR-3-1 ]
+    documentation: Accension number
 
   - name: filler_clia
     type: ID_CLIA
@@ -222,18 +224,18 @@ elements:
 
   - name: ordered_test_code
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Test Ordered LOINC Code
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
     hl7Field: OBR-4-1
 
   - name: ordered_test_name
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Test Ordered LOINC Long Name
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Ordered_test_code
     hhsGuidanceField: Test ordered
     hl7Field: OBR-4-2
@@ -249,9 +251,9 @@ elements:
 
   - name: ordered_test_encoding_version
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: LOINC Version ID
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     hl7Field: OBR-4-7
 
   - name: ordering_facility_city
@@ -292,7 +294,7 @@ elements:
 
   - name: ordering_facility_phone_number
     type: TELEPHONE
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Ordering_facility_phone_number
     hhsGuidanceField:
     hl7Field: ORC-23
@@ -331,6 +333,7 @@ elements:
 
   - name: ordering_provider_city
     type: CITY
+    pii: true   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     natFlatFileField: Ordering_provider_city
     hhsGuidanceField:
     hl7Field: ORC-24-3
@@ -338,6 +341,7 @@ elements:
 
   - name: ordering_provider_county
     type: TABLE
+    pii: false    # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     table: fips-county
     tableColumn: County
     natFlatFileField: Ordering_provider_county
@@ -345,6 +349,7 @@ elements:
 
   - name: ordering_provider_county_code
     type: TABLE
+    pii: false
     table: fips-county
     tableColumn: County
     mapper: lookup(ordering_provider_state, ordering_provider_county)
@@ -353,10 +358,12 @@ elements:
 
   - name: ordering_provider_country
     type: TEXT
+    pii: false
     default: USA
 
   - name: ordering_provider_first_name
     type: PERSON_NAME
+    pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     natFlatFileField: Ordering_provider_first_name
     hhsGuidanceField:
     hl7Field: ORC-12-3
@@ -365,6 +372,7 @@ elements:
 
   - name: ordering_provider_id
     type: ID_NPI
+    pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     natFlatFileField: Ordering_provider_id
     hhsGuidanceField: Ordering provider name; NPI
     hl7Field: ORC-12-1
@@ -373,6 +381,7 @@ elements:
 
   - name: ordering_provider_id_authority
     type: HD
+    pii: false
     natFlatFileField:
     hhsGuidanceField:
     mapper: ifPresent(ordering_provider_id, CMS^2.16.840.1.113883.3.249^ISO)
@@ -382,6 +391,7 @@ elements:
 
   - name: ordering_provider_id_authority_type
     type: TEXT
+    pii: false
     natFlatFileField:
     hhsGuidanceField:
     mapper: ifPresent(ordering_provider_id, NPI)
@@ -391,14 +401,16 @@ elements:
 
   - name: ordering_provider_last_name
     type: PERSON_NAME
+    pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     natFlatFileField: Ordering_provider_last_name
     hhsGuidanceField:
-    hl7Field:
+    hl7Field: ORC-12-2
     hl7OutputFields: [ORC-12-2, OBR-16-2]
     documentation: The last name of provider who ordered the test
 
   - name: ordering_provider_middle_name
     type: PERSON_NAME
+    pii: false
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: ORC-12-4
@@ -406,6 +418,7 @@ elements:
 
   - name: ordering_provider_middle_initial
     type: PERSON_NAME
+    pii: false
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: ORC-12-4
@@ -413,6 +426,7 @@ elements:
 
   - name: ordering_provider_phone_number
     type: TELEPHONE
+    pii: true   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     natFlatFileField: Ordering_provider_phone
     hhsGuidanceField: Ordering provider phone number
     hl7Field: ORC-14
@@ -421,6 +435,7 @@ elements:
 
   - name: ordering_provider_state
     type: TABLE
+    pii: false
     table: fips-county
     tableColumn: State
     natFlatFileField: Ordering_provider_state
@@ -430,6 +445,7 @@ elements:
 
   - name: ordering_provider_street
     type: STREET
+    pii: true
     natFlatFileField: Ordering_provider_street
     hhsGuidanceField: Ordering provider address
     hl7Field: ORC-24-1
@@ -437,6 +453,7 @@ elements:
 
   - name: ordering_provider_street2
     type: STREET_OR_BLANK
+    pii: true
     natFlatFileField: Ordering_provider_street2
     hhsGuidanceField:
     hl7Field: ORC-24-2
@@ -444,6 +461,7 @@ elements:
 
   - name: ordering_provider_zip_code
     type: POSTAL_CODE
+    pii: false    # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     natFlatFileField: Ordering_provider_zip_code
     hhsGuidanceField: Ordering provider zip code
     hl7Field: ORC-24-5
@@ -451,6 +469,7 @@ elements:
 
   - name: patient_age
     type: NUMBER
+    pii: false
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_age
     hhsGuidanceField:
@@ -459,6 +478,7 @@ elements:
 
   - name: patient_age_units
     type: CODE
+    pii: false
     cardinality: ZERO_OR_ONE
     valueSet: patient_age_units
     natFlatFileField: Patient_age_units
@@ -467,6 +487,7 @@ elements:
 
   - name: patient_city
     type: CITY
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_city
     hhsGuidanceField:
@@ -475,6 +496,7 @@ elements:
 
   - name: patient_county
     type: TABLE_OR_BLANK
+    pii: false    # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     table: fips-county
     tableColumn: County
     cardinality: ONE
@@ -482,6 +504,7 @@ elements:
 
   - name: patient_county_code
     type: TABLE
+    pii: false
     cardinality: ZERO_OR_ONE
     table: fips-county
     tableColumn: FIPS
@@ -492,21 +515,26 @@ elements:
 
   - name: patient_country
     type: TEXT
+    pii: false
     default: USA
+    hl7Field: PID-11-6
 
   - name: patient_email
     type: EMAIL
+    pii: true
     cardinality: ZERO_OR_ONE
     hl7Field: PID-13-4
 
   - name: patient_death_date
     type: DATE
+    pii: true
     natFlatFileField: Patient_death_date
     hhsGuidanceField:
     hl7Field: PID-29
 
   - name: patient_died
     type: CODE
+    pii: true
     cardinality: ZERO_OR_ONE
     default: N
     valueSet: hl70136
@@ -516,6 +544,7 @@ elements:
 
   - name: patient_dob
     type: DATE
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_DOB
     hhsGuidanceField: Patient date of birth
@@ -527,12 +556,14 @@ elements:
 
   - name: patient_drivers_license
     type: ID_DLN
+    pii: true
     cardinality: ZERO_OR_ONE
     hl7Field: PID-20-1
     documentation: The patient's drivers license number
 
   - name: patient_ethnicity
     type: CODE
+    pii: false
     cardinality: ZERO_OR_ONE
     valueSet: hl70189
     natFlatFileField: Patient_ethnicity
@@ -544,6 +575,7 @@ elements:
 
   - name: patient_first_name
     type: PERSON_NAME
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_first_name
     hhsGuidanceField: Patient name
@@ -552,6 +584,7 @@ elements:
 
   - name: patient_gender
     type: CODE
+    pii: false
     cardinality: ZERO_OR_ONE
     valueSet: hl70001
     natFlatFileField: Patient_gender
@@ -563,6 +596,7 @@ elements:
   # TODO Figure out how to encode patient id (PID-3) like AZ and others want
   - name: patient_id
     type: TEXT
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_id
     hhsGuidanceField:
@@ -573,6 +607,7 @@ elements:
 
   - name: patient_id_assigner
     type: HD
+    pii: false
     mapper: use(ordering_facility_name)
     natFlatFileField: Patient_id_assigner
     hhsGuidanceField:
@@ -582,12 +617,14 @@ elements:
 
   - name: patient_id_type
     type: TEXT
+    pii: false
     natFlatFileField: Patient_id_type
     hhsGuidanceField:
     hl7Field: PID-3-5
 
   - name: patient_last_name
     type: PERSON_NAME
+    pii: true
     cardinality: ONE
     natFlatFileField: Patient_last_name
     hhsGuidanceField:  Patient name
@@ -596,12 +633,14 @@ elements:
 
   - name: patient_name_type_code
     type: TEXT
+    pii: false
     cardinality: ZERO_OR_ONE
     hl7Field: PID-5-7
     default: L # Legal
 
   - name: patient_middle_initial
     type: PERSON_NAME
+    pii: true
     cardinality: ZERO_OR_ONE
     mapper: middleInitial(patient_middle_name)
     natFlatFileField: Patient_middle_name
@@ -610,6 +649,7 @@ elements:
 
   - name: patient_middle_name
     type: PERSON_NAME
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_middle_name
     hhsGuidanceField: Patient name
@@ -618,12 +658,14 @@ elements:
   # TODO: Need valueSet
   #- name: patient_occupation
   #  type: TEXT
+  #  pii: true
   #  natFlatFileField: Patient_occupation
   # hhsGuidanceField:
   #  hl7Field: #REPEAT_OBX_MAP_OTHER
 
   - name: patient_phone_number
     type: TELEPHONE
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_phone_number
     hhsGuidanceField: Patient phone number
@@ -632,6 +674,7 @@ elements:
 
   - name: patient_race
     type: CODE
+    pii: false
     valueSet: hl70005
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_race
@@ -642,12 +685,14 @@ elements:
 
   #- name: patient_residency_type
   #  type: CODE
+  #  pii: false
   #  natFlatFileField: Patient_residency_type
   #  hhsGuidanceField:
   #  hl7Field: REPEAT_OBX_MAP
 
   - name: patient_state
     type: TABLE
+    pii: false
     table: fips-county
     tableColumn: State
     cardinality: ONE
@@ -658,6 +703,7 @@ elements:
 
   - name: patient_street
     type: STREET
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_street
     hhsGuidanceField: Patient street address
@@ -666,6 +712,7 @@ elements:
 
   - name: patient_street2
     type: STREET_OR_BLANK
+    pii: true
     natFlatFileField: Patient_street2
     hhsGuidanceField:
     hl7Field: PID-11-2
@@ -673,6 +720,7 @@ elements:
 
   - name: patient_suffix
     type: PERSON_NAME
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_suffix
     hhsGuidanceField:
@@ -681,6 +729,7 @@ elements:
 
   - name: patient_tribal_citizenship
     type: CODE
+    pii: false
     cardinality: ZERO_OR_ONE
     valueSet: tribal_citizenship
     natFlatFileField:
@@ -690,6 +739,7 @@ elements:
 
   - name: patient_zip_code
     type: POSTAL_CODE
+    pii: false    # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_zip_code
     hhsGuidanceField: Patient residence zip code
@@ -733,13 +783,15 @@ elements:
 
   - name: prime_patient_id
     type: ID
+    pii: false
   
   - name: prime_patient_id_assigner
     type: HD
+    pii: false
 
   - name: processing_mode_code
     type: CODE
-    default: D
+    default: P
     cardinality: ZERO_OR_ONE
     valueSet: hl70103
     hl7Field: MSH-11-1
@@ -802,6 +854,7 @@ elements:
     natFlatFileField: Reporting_facility_name
     hhsGuidanceField:
     hl7Field: MSH-4-1
+    hl7OutputFields: [ MSH-4-1, PID-3-4-1 ]
     documentation: The reporting facility's name
 
   - name: reporting_facility_clia
@@ -858,6 +911,7 @@ elements:
     hl7Field: SPM-10
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10
 
+  # should this also have a lookup into LIVD?
   - name: specimen_description
     type: TEXT
     hl7Field: SPM-14
@@ -903,31 +957,60 @@ elements:
     hl7AOEQuestion: 95419-8
     documentation: Is the patient symptomatic?
 
+  - name: test_authorized_for_otc
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_otc
+    reference: Is the test authorized for over-the-counter purchase by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+    documentation: Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+  - name: test_authorized_for_home
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_home
+    reference: Is the test authorized for home use by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+    documentation: Is the test authorized for home use by the FDA (Y, N, UNK)
+
+  - name: test_authorized_for_unproctored
+    type: TABLE
+    table: LIVD-Supplemental-2021-06-07
+    tableColumn: is_unproctored
+    reference: Is the test authorized for unproctored administration by the FDA
+    referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
+    mapper: livdLookup()
+    default: N
+    documentation: Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
+
   - name: test_kit_name_id
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Testkit Name ID
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Test_kit_model_name
     documentation: Follows guidence for OBX-17 as defined in the HL7 Confluence page
 
   - name: test_kit_name_id_type
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Testkit Name ID Type
-    reference: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: lookup(equipment_model_name)
-    documentation: Follows guidence for OBX-17 as defined in the HL7 Confluence page
+    mapper: livdLookup()
 
   - name: test_kit_name_id_cwe_version
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: LOINC Version ID
     reference: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     hl7Field: OBX-17-7
     documentation: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
 
@@ -940,9 +1023,9 @@ elements:
 
   - name: test_performed_code
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Test Performed LOINC Code
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3-1
@@ -950,9 +1033,9 @@ elements:
 
   - name: test_performed_name
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2-2021-04-28
     tableColumn: Test Performed LOINC Long Name
-    mapper: lookup(equipment_model_name)
+    mapper: livdLookup()
     natFlatFileField: Test_performed_code
     hhsGuidanceField:
     hl7Field: OBX-3-2
@@ -969,8 +1052,8 @@ elements:
 
   - name: test_performed_system_version
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
-    mapper: lookup(equipment_model_name)
+    table: LIVD-SARS-CoV-2-2021-04-28
+    mapper: livdLookup()
     tableColumn: LOINC Version ID
     hl7Field: OBX-3-7
 
@@ -1085,7 +1168,7 @@ elements:
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
-    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3 ]
+    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3 ]
     documentation: |
         CLIA Number from the laboratory that sends the message to DOH
 
@@ -1096,6 +1179,7 @@ elements:
     natFlatFileField: Testing_lab_name
     hhsGuidanceField:
     hl7Field: OBX-23-1
+    hl7OutputFields: [ ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1, PID-3-4-1 ]
     documentation: The name of the laboratory which performed the test, can be the same as the sending facility name
 
   - name: testing_lab_specimen_id
@@ -1167,4 +1251,8 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-2
     valueSet: hl70125
+
+  - name: sender_id
+    type: TEXT
+    documentation:  ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 

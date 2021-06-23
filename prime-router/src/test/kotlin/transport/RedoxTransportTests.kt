@@ -76,8 +76,8 @@ class RedoxTransportTests {
         return WorkflowEngine.Header(
             task, reportFile,
             null,
-            settings.findOrganization("az-phd"),
-            settings.findReceiver("az-phd.elr-test"),
+            settings.findOrganization("ignore"),
+            settings.findReceiver("ignore.REDOX"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
         )
@@ -141,6 +141,7 @@ class RedoxTransportTests {
     }
     @Test
     fun `test fetchSecret failure`() {
+
         val header = makeHeader()
         setupLogger()
         every { redox.secretService }.returns(secretService)
@@ -150,12 +151,14 @@ class RedoxTransportTests {
             .returns(RedoxTransport.SendResult("itemId1", RedoxTransport.ResultStatus.SUCCESS, 1234))
 
         // fetchSecret fails, not on a retry situation.
+
         val retryItemsOut = redox.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
         assertNotNull(retryItemsOut)
         assertEquals(1, retryItemsOut.size)
         assertTrue(RetryToken.isAllItems(retryItemsOut))
 
         // Now what if fetchSecret fails in a retry situation
+
         val retryItemsIn = listOf("0", "3")
         val retryItemsOut2 = redox.send(transportType, header, UUID.randomUUID(), retryItemsIn, context, actionHistory)
         assertNotNull(retryItemsOut2)

@@ -17,8 +17,11 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import org.postgresql.util.PSQLException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.logging.Level
 
 private const val CLIENT_PARAMETER = "client"
@@ -44,8 +47,8 @@ class ReportFunction {
 
     data class ValidatedRequest(
         val httpStatus: HttpStatus,
-        val errors: List<ResultDetail> = emptyList(),
-        val warnings: List<ResultDetail> = emptyList(),
+        val errors: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
+        val warnings: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
         val options: Options = Options.None,
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
@@ -69,6 +72,7 @@ class ReportFunction {
     ): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.receive, context)
+        var report: Report? = null
         actionHistory.trackActionParams(request)
         val httpResponseMessage = try {
             val validatedRequest = validateRequest(workflowEngine, request)
@@ -90,6 +94,7 @@ class ReportFunction {
                 else -> {
                     // Regular happy path workflow is here
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
+                    report = validatedRequest.report
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
@@ -104,7 +109,52 @@ class ReportFunction {
         actionHistory.trackActionResult(httpResponseMessage)
         workflowEngine.recordAction(actionHistory)
         actionHistory.queueMessages() // Must be done after creating TASK record.
+        // write the data to the table if we're dealing with covid-19. this has to happen
+        // here AFTER we've written the report to the DB
+        writeCovidResultMetadataForReport(report, context, workflowEngine)
         return httpResponseMessage
+    }
+
+    /**
+     * Given a report object, it collects the non-PII, non-PHI out of it and then saves it to the
+     * database in the covid_results_metadata table.
+     */
+    private fun writeCovidResultMetadataForReport(
+        report: Report?,
+        context: ExecutionContext,
+        workflowEngine: WorkflowEngine
+    ) {
+        if (report != null && report.schema.topic.lowercase() == "covid-19") {
+            // next check that we're dealing with an external file
+            val clientSource = report.sources.firstOrNull { it is ClientSource }
+            if (clientSource != null) {
+                context.logger.info("Writing deidentified report data to the DB")
+                // wrap the insert into an exception handler
+                try {
+                    workflowEngine.db.transact { txn ->
+                        // verify the file exists in report_file before continuing
+                        if (workflowEngine.db.checkReportExists(report.id, txn)) {
+                            val deidentifiedData = report.getDeidentifiedResultMetaData()
+                            workflowEngine.db.saveTestData(deidentifiedData, txn)
+                            context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
+                        } else {
+                            // warn if it does not exist
+                            context.logger.warning(
+                                "Skipping write to metadata table because " +
+                                    "reportId ${report.id} does not exist in report_file."
+                            )
+                        }
+                    }
+                } catch (pse: PSQLException) {
+                    // report this but move on
+                    context.logger.severe(
+                        "Exception writing COVID test metadata " +
+                            "for ${report.id}: ${pse.localizedMessage}.\n" +
+                            pse.stackTraceToString()
+                    )
+                }
+            }
+        }
     }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
@@ -144,12 +194,16 @@ class ReportFunction {
         val clientName = request.headers[CLIENT_PARAMETER] ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
         if (clientName.isBlank())
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "Expected a '$CLIENT_PARAMETER' query parameter"))
+
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
-            errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$clientName' is not a valid"))
-        val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
+            errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"))
 
-        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.toLowerCase(), "")
+        val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
+        if(sender != null && schema == null)
+            errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:${clientName}': unknown schema '${sender.schemaName}'"))
+
+        val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
         } else if (sender != null && sender.format.mimeType != contentType) {
@@ -227,6 +281,21 @@ class ReportFunction {
                     null
                 }
             }
+            Sender.Format.HL7 -> {
+                try {
+                    val readResult = engine.hl7Serializer.readExternal(
+                        schemaName = sender.schemaName,
+                        input = ByteArrayInputStream(content.toByteArray()),
+                        ClientSource(organization = sender.organizationName, client = sender.name)
+                    )
+                    errors += readResult.errors
+                    warnings += readResult.warnings
+                    readResult.report
+                } catch (e: Exception) {
+                    errors.add(ResultDetail.report(e.message ?: ""))
+                    null
+                }
+            }
         }
     }
 
@@ -245,7 +314,8 @@ class ReportFunction {
                 .filterAndTranslateByReceiver(
                     validatedRequest.report!!,
                     validatedRequest.defaults,
-                    validatedRequest.routeTo
+                    validatedRequest.routeTo,
+                    validatedRequest.warnings,
                 )
                 .forEach { (report, receiver) ->
                     sendToDestination(
@@ -275,7 +345,7 @@ class ReportFunction {
             validatedRequest.options == Options.SkipSend -> {
                 // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
                 val event = ReportEvent(Event.EventAction.NONE, report.id)
-                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.timing != null && validatedRequest.options != Options.SendImmediately -> {
@@ -283,7 +353,7 @@ class ReportFunction {
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
                 val event = ReceiverEvent(Event.EventAction.BATCH, receiver.fullName, time)
-                workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn)
+                workflowEngine.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.format == Report.Format.HL7 -> {
@@ -291,13 +361,13 @@ class ReportFunction {
                     .split()
                     .forEach {
                         val event = ReportEvent(Event.EventAction.SEND, it.id)
-                        workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn)
+                        workflowEngine.dispatchReport(event, it, actionHistory, receiver, txn, context)
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
                 val event = ReportEvent(Event.EventAction.SEND, report.id)
-                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn)
+                workflowEngine.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }
@@ -316,10 +386,13 @@ class ReportFunction {
             it.writeStartObject()
             if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
+                it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+                it.writeStringField("topic", result.report.schema.topic.toString())
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings)
+
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)

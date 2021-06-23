@@ -19,6 +19,7 @@ jobs:
           filters: |
             router:
               - 'prime-router/**'
+              - '.github/workflows/build_hub.yml'
       - id: fork_check
         run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
@@ -27,6 +28,10 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
     runs-on: ubuntu-latest
+    env:
+      # These are for CI and not credentials of any system
+      POSTGRES_USER: prime
+      POSTGRES_PASSWORD: changeIT!
     defaults:
       run:
         working-directory: prime-router
@@ -41,14 +46,10 @@ jobs:
               echo "Building for the production environment."
               echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
               echo >> $GITHUB_ENV PREFIX=pdhprod
-              echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_PROD_USER }}
-              echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_PROD_PWD }}
           else
               echo "Building for the test environment."
               echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
               echo >> $GITHUB_ENV PREFIX=pdhstaging
-              echo >> $GITHUB_ENV POSTGRES_USER=${{ secrets.POSTGRESQL_TEST_USER }}
-              echo >> $GITHUB_ENV POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_TEST_PWD }}
           fi
 
       - name: Setup PostgreSQL
@@ -60,60 +61,37 @@ jobs:
           postgresql password: ${{ env.POSTGRES_PASSWORD }}
 
       - name: Setup JDK
-        uses: actions/setup-java@v1.4.3
+        uses: actions/setup-java@v2
         with:
+          distribution: 'adopt'
           java-version: 11
 
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v2
+      - name: Build Prime Router Package
+        run: bash ./gradlew clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD -Pshowtests
+        
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('prime-router/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
+          # This path is from the root of the repo as needed by the plugin
+          files: prime-router/build/test-results/test/**/*.xml
 
-      - name: Build Maven Package
-        run: mvn -B clean package --file pom.xml -Dpg.user=$POSTGRES_USER -Dpg.password=$POSTGRES_PASSWORD
+      - name: Run Integration Tests
+        run: bash ./gradlew testIntegration -Pshowtests
 
-      - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
-
-      - name: Save Build Target
-        uses: actions/upload-artifact@v2
+      - name: Publish Integration Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
         with:
-          name: build_target
-          path: prime-router/target
-
-  update_docs:
-    name: Verify Router Docs
-    needs: build_router
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: prime-router
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          # Explicitly use the head_ref here (which is a branch name, rather
-          # than a commit hash) so we can commit and push back to it.
-          ref: ${{ github.head_ref }}
-
-      - name: Setup JDK
-        uses: actions/setup-java@v1.4.3
-        with:
-          java-version: 11
-
-      - name: Restore Build Target
-        uses: actions/download-artifact@v2
-        with:
-          name: build_target
-          path: prime-router/target
+          # This path is from the root of the repo as needed by the plugin
+          files: prime-router/build/test-results/testIntegration/**/*.xml
+          check_name: "Integration Test Results"
 
       - name: Generate New Docs
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          ./prime generate-docs
+          bash ./gradlew generatedocs
 
       - name: Check for Uncommited Docs
         id: check_changes
@@ -145,7 +123,7 @@ jobs:
           body: |
             The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
 
-            Please run `./prime generate-docs` to generate updated documentation, then commit the results.
+            Please run `./gradlew generatedocs` to generate updated documentation, then commit the results.
 
             Expected changes in files:
 
@@ -157,4 +135,17 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
+          
+      - name: Build Docker Image
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+
+  update_docs:
+    name: Verify Router Docs
+    runs-on: ubuntu-latest
+    # Skip this deprecated job - This job needs to be removed once all other branches pull the latest build script
+    if: false
+    steps:
+      - name: Deprecated Job
+        run: |
+            true
 

@@ -8,6 +8,8 @@
 
 **Type**: DATETIME
 
+**PII**: No
+
 **Format**: yyyy-MM-dd
 
 **Cardinality**: [0..1]
@@ -17,6 +19,8 @@
 **Name**: Device_type
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $alt
 
@@ -42,6 +46,8 @@ Additional field per request from the County.  HHS lists 4 codes for 'Prior test
 
 **Type**: CODE
 
+**PII**: No
+
 **LOINC Code**: 95418-0
 
 **Cardinality**: [0..1]
@@ -64,6 +70,8 @@ Is the patient employed in health care?
 
 **Type**: ID
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -72,13 +80,15 @@ Is the patient employed in health care?
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Model
 
@@ -87,6 +97,8 @@ Is the patient employed in health care?
 **Name**: First_test
 
 **Type**: CODE
+
+**PII**: No
 
 **LOINC Code**: 95417-2
 
@@ -110,6 +122,8 @@ Is this the patient's first test for this condition?
 
 **Type**: DATE
 
+**PII**: No
+
 **Format**: yyyy-MM-dd
 
 **LOINC Code**: 65222-2
@@ -122,6 +136,8 @@ Is this the patient's first test for this condition?
 
 **Type**: DATE
 
+**PII**: No
+
 **Format**: yyyy-MM-dd
 
 **Cardinality**: [0..1]
@@ -131,6 +147,8 @@ Is this the patient's first test for this condition?
 **Name**: Ordering_facility_city
 
 **Type**: CITY
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -144,6 +162,8 @@ The city of the facility which the test was ordered from
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Table**: fips-county
@@ -155,6 +175,8 @@ The city of the facility which the test was ordered from
 **Name**: ordering_facility_name
 
 **Type**: TEXT
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -168,7 +190,9 @@ The name of the facility which the test was ordered from
 
 **Type**: TELEPHONE
 
-**Cardinality**: [1..1]
+**PII**: No
+
+**Cardinality**: [0..1]
 
 **Documentation**:
 
@@ -179,6 +203,8 @@ The phone number of the facility which the test was ordered from
 **Name**: Ordering_facility_state
 
 **Type**: TABLE
+
+**PII**: No
 
 **Cardinality**: [1..1]
 
@@ -196,6 +222,8 @@ The state of the facility which the test was ordered from
 
 **Type**: STREET
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -207,6 +235,8 @@ The address of the facility which the test was ordered from
 **Name**: Ordering_facility_street_2
 
 **Type**: STREET_OR_BLANK
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -220,6 +250,8 @@ The secondary address of the facility which the test was ordered from
 
 **Type**: POSTAL_CODE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -231,6 +263,8 @@ The zip code of the facility which the test was ordered from
 **Name**: Ordering_provider_city
 
 **Type**: CITY
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -244,6 +278,8 @@ The city of the provider
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Table**: fips-county
@@ -255,6 +291,8 @@ The city of the provider
 **Name**: Ordering_provider_first_name
 
 **Type**: PERSON_NAME
+
+**PII**: No
 
 **HL7 Fields**
 
@@ -273,6 +311,8 @@ The first name of the provider who ordered the test
 
 **Type**: ID_NPI
 
+**PII**: No
+
 **HL7 Fields**
 
 - [OBR-16-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.1)
@@ -289,6 +329,8 @@ The ordering provider’s National Provider Identifier
 **Name**: Ordering_provider_last_name
 
 **Type**: PERSON_NAME
+
+**PII**: No
 
 **HL7 Fields**
 
@@ -307,6 +349,8 @@ The last name of provider who ordered the test
 
 **Type**: TELEPHONE
 
+**PII**: Yes
+
 **HL7 Fields**
 
 - [OBR-17](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.17)
@@ -324,6 +368,8 @@ The phone number of the provider
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Table**: fips-county
@@ -340,6 +386,8 @@ The state of the provider
 
 **Type**: STREET
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -351,6 +399,8 @@ The street address of the provider
 **Name**: Ordering_provider_street_2
 
 **Type**: STREET_OR_BLANK
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -364,6 +414,8 @@ The street second address of the provider
 
 **Type**: POSTAL_CODE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -376,6 +428,8 @@ The zip code of the provider
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -384,6 +438,8 @@ The zip code of the provider
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -391,6 +447,8 @@ The zip code of the provider
 **Name**: organization_name
 
 **Type**: TEXT
+
+**PII**: No
 
 **Default Value**: 
 
@@ -401,6 +459,8 @@ The zip code of the provider
 **Name**: Patient_city
 
 **Type**: CITY
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -414,6 +474,8 @@ The patient's city
 
 **Type**: TABLE_OR_BLANK
 
+**PII**: No
+
 **Cardinality**: [1..1]
 
 **Table**: fips-county
@@ -425,6 +487,8 @@ The patient's city
 **Name**: Patient_DOB
 
 **Type**: DATE
+
+**PII**: Yes
 
 **Format**: yyyy-MM-dd
 
@@ -442,6 +506,8 @@ Other states may choose to define their own formats.
 **Name**: Patient_ethnicity
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -467,6 +533,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -478,6 +546,8 @@ The patient's first name
 **Name**: Patient_gender
 
 **Type**: CODE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -503,6 +573,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Type**: TEXT
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -517,6 +589,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **Cardinality**: [1..1]
 
 **Documentation**:
@@ -529,6 +603,8 @@ The patient's last name
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 ---
@@ -536,6 +612,8 @@ The patient's last name
 **Name**: Patient_phone_number
 
 **Type**: TELEPHONE
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -548,6 +626,8 @@ The patient's phone number with area code
 **Name**: Patient_race
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -577,6 +657,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -584,6 +666,8 @@ The patient's race. There is a common valueset defined for race values, but some
 **Name**: Patient_state
 
 **Type**: TABLE
+
+**PII**: No
 
 **Cardinality**: [1..1]
 
@@ -601,6 +685,8 @@ The patient's state
 
 **Type**: STREET
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -612,6 +698,8 @@ The patient's street address
 **Name**: Patient_street_2
 
 **Type**: STREET_OR_BLANK
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -625,6 +713,8 @@ The patient's second address line
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -637,6 +727,8 @@ The suffix for the patient's name, (i.e. Jr, Sr, etc)
 
 **Type**: POSTAL_CODE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -648,6 +740,8 @@ The patient's zip code
 **Name**: placer_order_id
 
 **Type**: ID
+
+**PII**: No
 
 **HL7 Fields**
 
@@ -665,6 +759,8 @@ The ID number of the lab order from the placer
 **Name**: Resident_congregate_setting
 
 **Type**: CODE
+
+**PII**: No
 
 **LOINC Code**: 95421-4
 
@@ -688,6 +784,8 @@ Does the patient reside in a congregate care setting?
 
 **Type**: DATETIME
 
+**PII**: No
+
 **Format**: yyyy-MM-dd
 
 **HL7 Fields**
@@ -710,6 +808,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Type**: CODE
 
+**PII**: No
+
 **Format**: $display
 
 **Cardinality**: [0..1]
@@ -721,6 +821,7 @@ Code | Display
 119297000|Blood specimen (specimen)
 71836000|Nasopharyngeal structure (body structure)
 45206002|Nasal structure (body structure)
+53342003|Internal nose structure (body structure)
 
 **Documentation**:
 
@@ -731,6 +832,8 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 **Name**: Specimen_type_code
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -766,6 +869,8 @@ The specimen source, such as Blood or Serum
 
 **Type**: CODE
 
+**PII**: No
+
 **LOINC Code**: 95419-8
 
 **Cardinality**: [0..1]
@@ -788,9 +893,11 @@ Is the patient symptomatic?
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -803,6 +910,8 @@ The LOINC description of the test performed as related to the LOINC code.
 **Name**: Test_result_code
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -823,13 +932,14 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
-840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
 840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
 840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
 840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
 840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+373121007|Test not done
 
 **Documentation**:
 
@@ -841,6 +951,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Type**: DATETIME
 
+**PII**: No
+
 **Format**: yyyy-MM-dd
 
 **Cardinality**: [0..1]
@@ -850,6 +962,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Name**: Testing_lab_city
 
 **Type**: CITY
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -863,10 +977,15 @@ The city of the testing lab
 
 **Type**: ID_CLIA
 
+**PII**: No
+
 **HL7 Fields**
 
+- [OBR-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.3)
+- [OBR-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.3)
 - [OBX-15-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.1)
 - [OBX-23-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.10)
+- [ORC-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.3)
 - [ORC-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.3)
 
 **Cardinality**: [1..1]
@@ -884,6 +1003,8 @@ An example of the ID is 03D2159846
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Table**: fips-county
@@ -900,6 +1021,17 @@ The text value for the testing lab county. This is used to do the lookup in the 
 
 **Type**: TEXT
 
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
+- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -911,6 +1043,8 @@ The name of the laboratory which performed the test, can be the same as the send
 **Name**: Testing_lab_phone_number
 
 **Type**: TELEPHONE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -924,6 +1058,8 @@ The phone number of the testing lab
 
 **Type**: ID
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -935,6 +1071,8 @@ The specimen-id from the testing lab
 **Name**: Testing_lab_state
 
 **Type**: TABLE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -952,6 +1090,8 @@ The state for the testing lab
 
 **Type**: STREET
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -964,6 +1104,8 @@ The street address for the testing lab
 
 **Type**: STREET_OR_BLANK
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -975,6 +1117,8 @@ Street 2 field for the testing lab
 **Name**: Testing_lab_zip_code
 
 **Type**: POSTAL_CODE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 

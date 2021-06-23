@@ -13,37 +13,22 @@ variable "resource_prefix" {
     description = "Resource Prefix"
 }
 
-variable "name" {
-    type = string
-    description = "Database Server Name"
-}
-
 variable "location" {
     type = string
     description = "Database Server Location"
 }
 
-variable "public_subnet_id" {
+variable "rsa_key_2048" {
     type = string
-    description = "Public Subnet ID"
+    description = "Name of the 2048 length RSA key in the Key Vault. Omitting will use Azure-managed key instead of a customer-key."
 }
 
-variable "private_subnet_id" {
+variable "aad_group_postgres_admin" {
     type = string
-    description = "Private Subnet ID"
+    description = "Azure Active Directory Group ID for postgres_admin"
 }
 
-variable "app_config_key_vault_id" {
-    type = string
-    description = "Key Vault used for database user/pass"
-}
-
-variable "eventhub_namespace_name" {
-    type = string
-    description = "Event hub to stream logs to"
-}
-
-variable "eventhub_manage_auth_rule_id" {
-    type = string
-    description = "Event Hub Manage Authorization Rule ID"
+variable "is_metabase_env" {
+    type = bool
+    description = "Should Metabase be deployed in this environment"
 }

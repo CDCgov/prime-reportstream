@@ -6,11 +6,14 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
+import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
+import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
@@ -24,6 +27,7 @@ import org.jooq.Field
 import org.jooq.JSON
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
@@ -182,8 +186,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.into(ReportFile::class.java)
             ?: error(
                 "Could not find $reportId in REPORT_FILE" +
-                    if (org != null) { " associated with organization $org" } else ""
+                    if (org != null) { " associated with organization ${org.name}" } else ""
             )
+    }
+
+    fun fetchAllInternalReports(
+        createdDateTime: OffsetDateTime? = null,
+        txn: DataAccessTransaction? = null
+    ): List<ReportFile> {
+        val createdDt = createdDateTime ?: OffsetDateTime.now().minusDays(30)
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val cond = Tables.REPORT_FILE.SENDING_ORG.isNotNull
+            .and(Tables.REPORT_FILE.BODY_FORMAT.eq("INTERNAL"))
+            .and(Tables.REPORT_FILE.CREATED_AT.ge(createdDt))
+        return ctx
+            .selectFrom(Tables.REPORT_FILE)
+            .where(cond)
+            .fetchArray()
+            .map {
+                it.into(ReportFile::class.java)
+            }
     }
 
     /**
@@ -235,6 +257,19 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(cond)
             .fetch()
             .into(ReportFile::class.java).toList()
+    }
+
+    fun fetchChildReports(
+        parentReportId: UUID,
+        txn: DataAccessTransaction? = null,
+    ): List<ReportId> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(REPORT_LINEAGE.CHILD_REPORT_ID)
+            .from(REPORT_LINEAGE)
+            .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(parentReportId))
+            .fetch()
+            .into(ReportId::class.java).toList()
     }
 
     /**
@@ -337,7 +372,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(
                 SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type)
-            )
+            ).orderBy(SETTING.SETTING_ID)
             .fetch()
             .into(Setting::class.java)
     }
@@ -351,7 +386,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type),
                 SETTING.ORGANIZATION_ID.eq(organizationId)
-            )
+            ).orderBy(SETTING.SETTING_ID)
             .fetch()
             .into(Setting::class.java)
     }
@@ -470,6 +505,67 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.getValue(DSL.max(SETTING.VERSION)) ?: -1
     }
 
+    fun saveTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
+        testData.forEach {
+            DSL
+                .using(txn)
+                .insertInto(COVID_RESULT_METADATA)
+                .set(COVID_RESULT_METADATA.MESSAGE_ID, it.messageId)
+                .set(COVID_RESULT_METADATA.REPORT_ID, it.reportId)
+                .set(COVID_RESULT_METADATA.REPORT_INDEX, it.reportIndex)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME, it.orderingProviderName)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_ID, it.orderingProviderId)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE, it.orderingProviderState)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_POSTAL_CODE, it.orderingProviderPostalCode)
+                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY, it.orderingProviderCounty)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
+                .set(COVID_RESULT_METADATA.TEST_RESULT_CODE, it.testResultCode)
+                .set(COVID_RESULT_METADATA.TEST_RESULT, it.testResult)
+                .set(COVID_RESULT_METADATA.EQUIPMENT_MODEL, it.equipmentModel)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_CITY, it.orderingFacilityCity)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_NAME, it.orderingFacilityName)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_POSTAL_CODE, it.orderingFacilityPostalCode)
+                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_STATE, it.orderingFacilityState)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_CITY, it.testingLabCity)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_CLIA, it.testingLabClia)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_COUNTY, it.testingLabCounty)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_NAME, it.testingLabName)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_STATE, it.testingLabState)
+                .set(COVID_RESULT_METADATA.TESTING_LAB_POSTAL_CODE, it.testingLabPostalCode)
+                .set(COVID_RESULT_METADATA.PATIENT_COUNTY, it.patientCounty)
+                .set(COVID_RESULT_METADATA.PATIENT_ETHNICITY_CODE, it.patientEthnicityCode)
+                .set(COVID_RESULT_METADATA.PATIENT_ETHNICITY, it.patientEthnicity)
+                .set(COVID_RESULT_METADATA.PATIENT_GENDER_CODE, it.patientGenderCode)
+                .set(COVID_RESULT_METADATA.PATIENT_GENDER, it.patientGender)
+                .set(COVID_RESULT_METADATA.PATIENT_POSTAL_CODE, it.patientPostalCode)
+                .set(COVID_RESULT_METADATA.PATIENT_RACE_CODE, it.patientRaceCode)
+                .set(COVID_RESULT_METADATA.PATIENT_RACE, it.patientRace)
+                .set(COVID_RESULT_METADATA.PATIENT_STATE, it.patientState)
+                .set(COVID_RESULT_METADATA.PATIENT_AGE, it.patientAge)
+                .set(COVID_RESULT_METADATA.SPECIMEN_COLLECTION_DATE_TIME, it.specimenCollectionDateTime)
+                .executeAsync()
+        }
+    }
+
+    fun deleteTestDataForReportId(reportId: UUID, txn: DataAccessTransaction) {
+        DSL.using(txn)
+            .deleteFrom(COVID_RESULT_METADATA)
+            .where(COVID_RESULT_METADATA.REPORT_ID.eq(reportId))
+            .execute()
+    }
+
+    fun checkReportExists(reportId: ReportId, txn: DataAccessTransaction): Boolean {
+        // this is how you do a select 1 from ... in jooq
+        return (
+            DSL.using(txn)
+                .select(inline(1))
+                .from(REPORT_FILE)
+                .where(REPORT_FILE.REPORT_ID.eq(reportId))
+                .count()
+            ) > 0
+    }
+
     /**
      * Common companion object
      */
@@ -502,13 +598,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.addDataSourceProperty("cachePrepStmts", "true")
             config.addDataSourceProperty("prepStmtCacheSize", "250")
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-            config.addDataSourceProperty("maximumPoolSize", "20") // Default is 10
             config.addDataSourceProperty("connectionTimeout", "60000") // Default is 30000 (30 seconds)
 
             // See this info why these are a good value
             //  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
             config.minimumIdle = 2
-            config.maximumPoolSize = 8
+            config.maximumPoolSize = 25
             // This strongly recommended to be set "be several seconds shorter than any database or infrastructure
             // imposed connection time limit". Not sure what value is but have observed that connection are closed
             // after about 10 minutes

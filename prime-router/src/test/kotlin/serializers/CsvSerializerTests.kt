@@ -226,6 +226,7 @@ class CsvSerializerTests {
 
     @Test
     fun `test missing column`() {
+        // setup a malformed CSV
         val one = Schema(
             name = "one",
             topic = "test",
@@ -239,11 +240,37 @@ class CsvSerializerTests {
             1,2
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
+        // Run it
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
-        assertEquals(0, result.errors.size)
-        assertEquals(1, result.warnings.size)
-        assertEquals("", result.report?.getString(0, "b"))
-        assertEquals("1", result.report?.getString(0, "a"))
+        // Expect the converter to catch the error. Our serializer will error on malformed CSVs.
+        assertEquals(1, result.errors.size)
+        assertEquals(0, result.warnings.size)
+        assertNull(result.report)
+    }
+
+    @Test
+    fun `test missing row`() {
+        // setup a malformed CSV
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a")),
+                Element("b", csvFields = Element.csvFields("b"))
+            )
+        )
+        val csv = """
+            a,b
+            
+            1,2
+        """.trimIndent()
+        val csvConverter = CsvSerializer(Metadata(schema = one))
+        // Run it
+        val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        // Expect the converter to catch the error. Our serializer will error on malformed CSVs.
+        assertEquals(1, result.errors.size)
+        assertEquals(0, result.warnings.size)
+        assertNull(result.report)
     }
 
     @Test
@@ -440,5 +467,42 @@ class CsvSerializerTests {
         assertEquals("", result4.report?.getString(1, "b"))
         assertEquals("y", result4.report?.getString(0, "c"))
         assertEquals("3", result4.report?.getString(1, "c"))
+    }
+
+    @Test
+    fun `test using international characters`() {
+        val one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a")),
+                Element("b", csvFields = Element.csvFields("b"))
+            )
+        )
+
+        // Sample UTF-8 taken from https://www.kermitproject.org/utf8.html as a byte array, so we are not
+        // restricted by the encoding of this code file
+        val koreanString = String(
+            byteArrayOf(-21, -126, -104, -21, -118, -108, 32, -20, -100, -96, -21, -90, -84, -21, -91, -68),
+            Charsets.UTF_8
+        )
+        val greekString = String(
+            byteArrayOf(-50, -100, -49, -128, -50, -65, -49, -127, -49, -114),
+            Charsets.UTF_8
+        )
+
+        // Java strings are stored as UTF-16
+        val csv = """
+            a,b
+            $koreanString,$greekString
+        """.trimIndent()
+
+        val csvConverter = CsvSerializer(Metadata(schema = one))
+        val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+        assertTrue(result.errors.isEmpty())
+        assertTrue(result.warnings.isEmpty())
+        assertEquals(1, result.report?.itemCount)
+        assertEquals(koreanString, result.report?.getString(0, "a"))
+        assertEquals(greekString, result.report?.getString(0, "b"))
     }
 }

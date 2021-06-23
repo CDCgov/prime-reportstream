@@ -1,22 +1,20 @@
-![Prime Data Hub](https://github.com/CDCgov/prime-data-hub/workflows/Prime%20Data%20Hub/badge.svg?branch=production)
+![PRIME ReportStream](https://github.com/CDCgov/prime-data-hub/workflows/Prime%20Data%20Hub/badge.svg?branch=production)
 
-**General disclaimer** This repository was created for use by CDC programs to collaborate on public health related projects in support of the [CDC mission](https://www.cdc.gov/about/organization/mission.htm).  GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise. 
+**General disclaimer** This repository was created for use by CDC programs to collaborate on public health related projects in support of the [CDC mission](https://www.cdc.gov/about/organization/mission.htm).  GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.
 
 ## Overview
 
-The PRIME data hub project is the part of the Pandemic Ready Interoperable Modernization Effort that works with state and local public health departments. The project is a joint effort between the CDC and USDS. Currently, we are focusing on the problem of delivering COVID-19 test data to public health departments. Later, we will work on other tools to analyze and explore this data and different types of health data.
+The PRIME ReportStream project is the part of the Pandemic Ready Interoperable Modernization Effort that works with state and local public health departments. The project is a joint effort between the CDC and USDS. Currently, we are focusing on the problem of delivering COVID-19 test data to public health departments. Later, we will work on other tools to analyze and explore this data and different types of health data. See the PRIME ReportStream website (https://reportstream.cdc.gov) for further details. 
 
-Other PRIME repositories include
+PRIME ReportStream a sibling project to [PRIME SimpleReport](https://simplereport.gov) which is better way to report COVID-19 rapid tests. 
 
-- [PRIME-Central](https://github.com/CDCgov/prime-central): a place we keep common files and documents
-- [PRIME-Data-Input-Client](https://github.com/CDCgov/prime-data-input-client): The POC COVID-19 test data input application that will use the data router
-
+PRIME ReportStream is a member of the [Open CDC](https://open.cdc.gov/) community. 
 
 **Problem Scope**
 
-Public health departments (PHDs) rely on accurate, timely data to fulfill day to day-operations to make long-term strategic decisions. Between the time when they receive report files from reporting entities like laboratories and point of care centers, to taking action on this data, there are many barriers and challenges. Data Hub aims to provide the infrastructure and tools to address these challenges.
+Public health departments (PHDs) rely on accurate, timely data to fulfill day to day-operations to make long-term strategic decisions. Between the time when they receive report files from reporting entities like laboratories and point of care centers, to taking action on this data, there are many barriers and challenges. ReportStream aims to provide the infrastructure and tools to address these challenges.
 
-Our vision is to help public health systems make faster, more effective decisions. We want to both improve the speed of receiving data to action, as well as increase the quality and effectiveness of actions they can take. 
+Our vision is to help public health systems make faster, more effective decisions. We want to both improve the speed of receiving data to action, as well as increase the quality and effectiveness of actions they can take.
 
 **Target users**
 * Senders of data
@@ -27,8 +25,6 @@ Our vision is to help public health systems make faster, more effective decision
   * Senior stakeholders who make executive decisions using aggregate health data
   * IT teams who have to support epidemiologists and external stakeholders integrating with the PHD
   * PHDs may include state, county, city, and tribal organizations
-
-
 
 ## Public Domain Standard Notice
 This repository constitutes a work of the United States Government and is not

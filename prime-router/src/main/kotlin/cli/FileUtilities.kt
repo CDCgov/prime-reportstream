@@ -10,6 +10,7 @@ import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.File
+import java.util.Locale
 
 class FileUtilities {
     companion object {
@@ -21,6 +22,7 @@ class FileUtilities {
             targetCounties: String? = null,
             directory: String = ".",
             format: Report.Format = Report.Format.CSV,
+            locale: Locale? = null
         ): File {
             val report = createFakeReport(
                 metadata,
@@ -28,6 +30,7 @@ class FileUtilities {
                 count,
                 targetStates,
                 targetCounties,
+                locale
             )
             return writeReportToFile(report, format, metadata, directory, null)
         }
@@ -38,8 +41,9 @@ class FileUtilities {
             count: Int,
             targetStates: String? = null,
             targetCounties: String? = null,
+            locale: Locale? = null
         ): Report {
-            return FakeReport(metadata).build(
+            return FakeReport(metadata, locale).build(
                 metadata.findSchema(sender.schemaName)
                     ?: error("Unable to find schema ${sender.schemaName}"),
                 count,
@@ -70,7 +74,7 @@ class FileUtilities {
                         listOf(Pair(report, format))
                     }
                 }.forEach { (report, format) ->
-                    var outputFile = writeReportToFile(report, format, metadata, outputDir, outputFileName)
+                    val outputFile = writeReportToFile(report, format, metadata, outputDir, outputFileName)
                     echo(outputFile.absolutePath)
                 }
         }
@@ -90,8 +94,9 @@ class FileUtilities {
                     report.schema.baseName,
                     format,
                     report.createdDateTime,
-                    nameFormat = Report.NameFormat.STANDARD,
-                    report.destination?.translation?.receivingOrganization,
+                    nameFormat = "standard",
+                    report.destination?.translation,
+                    metadata
                 )
                 File(outputDir ?: ".", fileName)
             }

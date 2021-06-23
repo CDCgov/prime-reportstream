@@ -24,8 +24,8 @@ internal object AzureSecretService : SecretService() {
     }
 
     override fun fetchSecretFromStore(secretName: String): String? {
-        val azureSafeSecretName = secretName.toLowerCase().replace("_", "-")
-        return secretClient.getSecret(azureSafeSecretName)?.let {
+        val azureSafeSecretName = secretName.lowercase().replace("_", "-")
+        return secretClient.getSecret("functionapp-$azureSafeSecretName")?.let {
             return it.value
         }
     }

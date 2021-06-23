@@ -8,6 +8,8 @@
 
 **Type**: CODE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -55,6 +57,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: TABLE
 
+**PII**: No
+
 **Default Value**: BinaxNOW COVID-19 Ag Card
 
 **Cardinality**: [0..1]
@@ -63,7 +67,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Model
 
@@ -73,6 +77,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: ID
 
+**PII**: No
+
 **HL7 Fields**
 
 - [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
@@ -81,11 +87,17 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+Accension number
+
 ---
 
 **Name**: patient_symptom_onset
 
 **Type**: DATE
+
+**PII**: No
 
 **LOINC Code**: 65222-2
 
@@ -93,9 +105,25 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 ---
 
+**Name**: message_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+unique id to track the usage of the message
+
+---
+
 **Name**: order_test_date
 
 **Type**: DATE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -105,9 +133,11 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -117,9 +147,11 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2-2021-04-28
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -128,6 +160,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Name**: ordered_test_system
 
 **Type**: TEXT
+
+**PII**: No
 
 **Default Value**: LOINC
 
@@ -138,6 +172,8 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Name**: Ordering_Facility_City
 
 **Type**: CITY
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -151,6 +187,8 @@ The city of the facility which the test was ordered from
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Table**: fips-county
@@ -163,6 +201,8 @@ The city of the facility which the test was ordered from
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -171,9 +211,25 @@ The name of the facility which the test was ordered from
 
 ---
 
+**Name**: Ordering_Facility_Phone_Number
+
+**Type**: TELEPHONE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The phone number of the facility which the test was ordered from
+
+---
+
 **Name**: Ordering_Facility_State
 
 **Type**: TABLE
+
+**PII**: No
 
 **Cardinality**: [1..1]
 
@@ -191,6 +247,8 @@ The state of the facility which the test was ordered from
 
 **Type**: STREET
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -203,6 +261,8 @@ The address of the facility which the test was ordered from
 
 **Type**: POSTAL_CODE
 
+**PII**: No
+
 **Format**: $zipFive
 
 **Cardinality**: [0..1]
@@ -213,26 +273,11 @@ The zip code of the facility which the test was ordered from
 
 ---
 
-**Name**: Ordering_Facility_Phone_Number
-
-**Type**: TELEPHONE
-
-**HL7 Fields**
-
-- [OBR-17](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.17)
-- [ORC-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.14)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The phone number of the provider
-
----
-
 **Name**: Ordering_Provider_State
 
 **Type**: TABLE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -250,6 +295,8 @@ The state of the provider
 
 **Type**: STREET
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -261,6 +308,8 @@ The street address of the provider
 **Name**: Ordering_Provider_ZIP
 
 **Type**: POSTAL_CODE
+
+**PII**: No
 
 **Format**: $zipFive
 
@@ -276,6 +325,8 @@ The zip code of the provider
 
 **Type**: CITY
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -288,6 +339,8 @@ The patient's city
 
 **Type**: TABLE_OR_BLANK
 
+**PII**: No
+
 **Cardinality**: [1..1]
 
 **Table**: fips-county
@@ -299,6 +352,8 @@ The patient's city
 **Name**: patient_dob
 
 **Type**: DATE
+
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -315,6 +370,8 @@ Other states may choose to define their own formats.
 
 **Type**: ID_DLN
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -327,6 +384,8 @@ The patient's drivers license number
 
 **Type**: EMAIL
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 ---
@@ -334,6 +393,8 @@ The patient's drivers license number
 **Name**: patient_ethnicity
 
 **Type**: CODE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -357,6 +418,8 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 **Type**: PERSON_NAME
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -368,6 +431,8 @@ The patient's first name
 **Name**: patient_sex
 
 **Type**: CODE
+
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -393,6 +458,8 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 **Type**: TEXT
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -407,6 +474,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Type**: TEXT
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -414,6 +483,8 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 **Name**: patient_last_name
 
 **Type**: PERSON_NAME
+
+**PII**: Yes
 
 **Cardinality**: [1..1]
 
@@ -427,6 +498,8 @@ The patient's last name
 
 **Type**: TELEPHONE
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -438,6 +511,8 @@ The patient's phone number with area code
 **Name**: patient_race
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $code
 
@@ -467,6 +542,8 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **Type**: TABLE
 
+**PII**: No
+
 **Cardinality**: [1..1]
 
 **Table**: fips-county
@@ -483,6 +560,8 @@ The patient's state
 
 **Type**: STREET
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -495,6 +574,8 @@ The patient's street address
 
 **Type**: STREET_OR_BLANK
 
+**PII**: Yes
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -506,6 +587,8 @@ The patient's second address line
 **Name**: patient_zip
 
 **Type**: POSTAL_CODE
+
+**PII**: No
 
 **Format**: $zipFive
 
@@ -520,6 +603,8 @@ The patient's zip code
 **Name**: id
 
 **Type**: ID
+
+**PII**: No
 
 **HL7 Fields**
 
@@ -537,6 +622,8 @@ The ID number of the lab order from the placer
 **Name**: patient_pregnant
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $display
 
@@ -562,6 +649,8 @@ Is the patient pregnant?
 
 **Type**: TEXT
 
+**PII**: No
+
 **Default Value**: Not Detected
 
 **Cardinality**: [0..1]
@@ -575,6 +664,8 @@ The reference range of the lab result, such as “Negative” or “Normal”. F
 **Name**: reporting_facility_CLIA
 
 **Type**: ID_CLIA
+
+**PII**: No
 
 **HL7 Fields**
 
@@ -596,6 +687,13 @@ The reporting facility's CLIA
 
 **Type**: TEXT
 
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -604,9 +702,27 @@ The reporting facility's name
 
 ---
 
+**Name**: senderId
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: Strac
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
+
+---
+
 **Name**: specimen_collection_date_time
 
 **Type**: DATETIME
+
+**PII**: No
 
 **HL7 Fields**
 
@@ -626,6 +742,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Name**: specimen_received_date_time
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -633,6 +751,8 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 **Name**: specimen_type
 
 **Type**: CODE
+
+**PII**: No
 
 **Default Value**: 258500001
 
@@ -668,13 +788,89 @@ The specimen source, such as Blood or Serum
 
 **Type**: DATETIME
 
+**PII**: No
+
 **Cardinality**: [0..1]
+
+---
+
+**Name**: test_authorized_for_home
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_home
+
+**Documentation**:
+
+Is the test authorized for home use by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_otc
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_otc
+
+**Documentation**:
+
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+
+---
+
+**Name**: test_authorized_for_unproctored
+
+**Type**: TABLE
+
+**PII**: No
+
+**Default Value**: N
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
+
+**Table**: LIVD-Supplemental-2021-06-07
+
+**Table Column**: is_unproctored
+
+**Documentation**:
+
+Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
 
 **Name**: patient_positive
 
 **Type**: CODE
+
+**PII**: No
 
 **Format**: $alt
 
@@ -695,16 +891,32 @@ Code | Display
 419984006|Inconclusive
 125154007|Specimen unsatisfactory for evaluation
 455371000124106|Invalid result
-840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
 840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
 840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
 840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
 840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
 840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
 840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+373121007|Test not done
 260373001|Detected
 260415000|Not detected
 455371000124106|Invalid result
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+840539006|Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Alt Value Sets**
 
@@ -713,6 +925,21 @@ Code | Display
 260373001|positive
 260415000|negative
 455371000124106|invalid
+720735008|Presumptive positive
+10828004|Positive
+42425007|Equivocal
+260385009|Negative
+895231008|Not detected in pooled specimen
+462371000124108|Detected in pooled specimen
+419984006|Inconclusive
+125154007|Specimen unsatisfactory for evaluation
+840539006|Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+840544004|Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
+840546002|Exposure to severe acute respiratory syndrome coronavirus 2 (event)
+840533007|Severe acute respiratory syndrome coronavirus 2 (organism)
+840536004|Antigen of severe acute respiratory syndrome coronavirus 2 (substance)
+840535000|Antibody to severe acute respiratory syndrome coronavirus 2 (substance)
+840534001|Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
 
 **Documentation**:
 
@@ -724,6 +951,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Type**: DATETIME
 
+**PII**: No
+
 **Cardinality**: [0..1]
 
 ---
@@ -731,6 +960,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Name**: test_result_status
 
 **Type**: CODE
+
+**PII**: No
 
 **Default Value**: F
 
@@ -767,9 +998,46 @@ the test result is in some intermediate status, is a correction, or is the final
 
 ---
 
+**Name**: testing_lab_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.3)
+- [OBR-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.3)
+- [OBX-15-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.1)
+- [OBX-23-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.10)
+- [ORC-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.3)
+- [ORC-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.3)
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+CLIA Number from the laboratory that sends the message to DOH
+
+An example of the ID is 03D2159846
+
+
+---
+
 **Name**: testing_lab_name
 
 **Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
+- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 
 **Cardinality**: [0..1]
 

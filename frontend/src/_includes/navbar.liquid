@@ -3,25 +3,33 @@
   <div class="usa-nav-container">
     <div class="usa-navbar">
       <div class="usa-logo" id="basic-logo">
-        <em class="usa-logo__text">
-          <img src="/css/logo.png" role="img" alt="Logo" style="width:32px;height:32px;vertical-align:middle;" /> 
+        <em class="usa-logo__text font-sans-md">
           <a href="{{ '/' | url }}" title="Home" aria-label="Home">ReportStream</a>
         </em>
       </div>
+      <button class="usa-menu-btn">Menu</button>
     </div>
     <nav aria-label="Primary navigation" class="usa-nav">
-      <button class="usa-nav__close">
-        <img
-          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAWlBMVEUAAABRXmtZWWZVYGpVXmhSW2RYYGhXW2ZWXWVVXGdVXWRVXWRXW2VWXWVWXGRXXGVVXGVWXGVXXGVWXGVWW2VXXGVWXGVWXWZWXGVWXGVWXGVWXGVWXGX///96YK5MAAAAHHRSTlMAExQYGxwgRkdIY2Zqmpucwtba29/g4eLj9P3+y59I/AAAAAFiS0dEHesDcZEAAAFpSURBVFjD7ZfLcoMwDEUVCg0pDXGhhQL3/7+zizQDJJZ0Hc90Ve/i4RweAelK5LpOYRrag1CruIxTqPd7zQwAXcnwZQcAc7Pde5sBAPh89fmqvx67vD/yjOHGbw0r7xtWfjVsec+w5W+GZsFu9caTLPv9sUsjcpoB1nDPA3MtAWANjzwQZAJriPGYZIjsRp9kFePxJW1sO3IN0fMDZyk6yqDw3UHk5QP+XVQKX4pQBpMnDA7vGlzeMRC8aaB4w0Dy6h/d9+SLpl4Def40g1Z8WYNevDmDVfwZg908fIPXfDyD37xsA9P8LAPXPHUDx+sGlte+P6p3Wzxr0Pm0/PCswebT8sMzBp+3DQxvGTheN7C8ZuD5uCG3rKv9g+r+Zv/6zw9/kB8yY14hl7yg2co3W3/jdzHmh+3suF/nDRzH/JHnfuhKyQ+xsS0lP8QGx5T8EBtdU/LDls8fvkXqMA1ndvxvxykcf3/8ACv19U47lBLKAAAAAElFTkSuQmCC"
-          role="img"
-          alt="close"
-        />
-      </button>
-      <div class="prime-user-account">
-        cbrown@cdc.gov
-        <br />
-        <a href="{{data-index}}" onclick="false">Dashboard</a> | <a href="/settings/profile.html" onclick="false">Settings</a> | <a href="#" onclick="false">Logout</a>
-      </div>
+      <button class="usa-nav__close"><img src="/assets/img/close.svg" role="img" alt="close"></button>
+      <ul class="usa-nav__primary font-sans-md">
+        <li id="navmenu" class="usa-nav__primary-item {% if title == "Daily data" %}usa-current{% endif %}">
+          <a class="usa-nav__link" href="/daily-data/"><span>Daily data</span></a>
+        </li>
+        <li class="usa-nav__primary-item {% if documentation %}usa-current{% endif %}">
+          <a class="usa-nav__link" href="{{ site.documentationPath }}"><span>Documentation</span></a>
+        </li>
+      </ul>
+      {% unless hide_signin %}
+        <span id="signInButton">
+          <a class="usa-button usa-button--outline" href="/sign-in/"><span>Sign&nbsp;in</span></a>
+        </span>
+        <div class="prime-user-account">
+          <span id="emailUser"></span>
+          <div id="orgDropdown" class="display-none"></div>
+          <br />
+          <a href="javascript:logout()" id="logout" class="usa-link"></a>
+        </div>
+      {% endunless %}
     </nav>
   </div>
 </header>

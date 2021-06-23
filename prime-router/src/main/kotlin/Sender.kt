@@ -14,11 +14,14 @@ open class Sender(
     val topic: String,
     val schemaName: String,
 ) {
+    constructor(copy: Sender) : this(copy.name, copy.organizationName, copy.format, copy.topic, copy.schemaName)
+
     @get:JsonIgnore
     val fullName: String get() = "$organizationName$fullNameSeparator$name"
 
     enum class Format(val mimeType: String) {
-        CSV("text/csv")
+        CSV("text/csv"),
+        HL7("application/hl7-v2"),
     }
 
     /**

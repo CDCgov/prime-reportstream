@@ -1,0 +1,26 @@
+# NJ DOH elr connection
+- name: nj-doh
+  description: New Jersey Department of Health
+  jurisdiction: STATE
+  stateCode: NJ
+  receivers:
+    - name: elr
+      organizationName: nj-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state, NJ)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NJELR
+        receivingFacilityName: NJ-ELR
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload

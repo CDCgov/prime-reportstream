@@ -1,13 +1,17 @@
 package gov.cdc.prime.router
 
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import org.apache.logging.log4j.kotlin.Logging
+import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.random.Random
@@ -38,13 +42,7 @@ const val REPORT_MAX_ERRORS = 100
  * translated and sent to another agent-organization. Each report has a schema,
  * unique id and name as well as list of sources for the creation of the report.
  */
-class Report {
-    enum class NameFormat {
-        STANDARD,
-        APHL,
-        OHIO,
-    }
-
+class Report : Logging {
     enum class Format(
         val ext: String,
         val mimeType: String,
@@ -52,8 +50,8 @@ class Report {
     ) {
         INTERNAL("internal", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
-        HL7("hl7", "text/hl7", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "text/hl7"), // HL7 with BHS and FHS headers
+        HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
+        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
         REDOX("redox", "text/json", true); // Redox format
         // FHIR
 
@@ -123,8 +121,8 @@ class Report {
         schema.baseName,
         bodyFormat,
         createdDateTime,
-        destination?.translation?.nameFormat ?: NameFormat.STANDARD,
-        destination?.translation?.receivingOrganization
+        translationConfig = destination?.translation,
+        metadata = this.metadata
     )
 
     /**
@@ -145,6 +143,8 @@ class Report {
     //
     private val table: Table
 
+    private val metadata: Metadata
+
     /**
      * Allows us to specify a synthesize strategy when converting a report from live data
      * into synthetic data that cannot be tied back to any real persons
@@ -164,7 +164,8 @@ class Report {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        id: ReportId? = null // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
+        id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
+        metadata: Metadata
     ) {
         this.id = id ?: UUID.randomUUID()
         this.schema = schema
@@ -174,6 +175,7 @@ class Report {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.itemLineages = itemLineage
         this.table = createTable(schema, values)
+        this.metadata = metadata
     }
 
     // Test source
@@ -183,7 +185,8 @@ class Report {
         source: TestSource,
         destination: Receiver? = null,
         bodyFormat: Format? = null,
-        itemLineage: List<ItemLineage>? = null
+        itemLineage: List<ItemLineage>? = null,
+        metadata: Metadata? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -193,27 +196,8 @@ class Report {
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
+        this.metadata = metadata ?: Metadata.provideMetadata()
     }
-
-    // Client source.  Proposed deprecation of this - it is not used.
-/*    constructor(
-        schema: Schema,
-        values: List<List<String>>,
-        source: Sender,
-        destination: Receiver? = null,
-        bodyFormat: Format? = null,
-        itemLineage: List<ItemLineage>? = null
-    ) {
-        this.id = UUID.randomUUID()
-        this.schema = schema
-        this.sources = listOf(ClientSource(source.organization.name, source.name))
-        this.destination = destination
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
-        this.itemLineage = itemLineage
-        this.createdDateTime = OffsetDateTime.now()
-        this.table = createTable(schema, values)
-    }
-*/
 
     constructor(
         schema: Schema,
@@ -222,6 +206,7 @@ class Report {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
+        metadata: Metadata
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -231,6 +216,7 @@ class Report {
         this.createdDateTime = OffsetDateTime.now()
         this.itemLineages = itemLineage
         this.table = createTable(values)
+        this.metadata = metadata
     }
 
     private constructor(
@@ -249,6 +235,7 @@ class Report {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
+        this.metadata = Metadata.provideMetadata()
     }
 
     @Suppress("Destructure")
@@ -294,20 +281,37 @@ class Report {
         return table.rowCount() == 0
     }
 
-    fun getString(row: Int, column: Int): String? {
-        return table.getString(row, column)
+    fun getString(row: Int, column: Int, maxLength: Int? = null): String? {
+        return table.getString(row, column).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
-    fun getString(row: Int, colName: String): String? {
+    fun getString(row: Int, colName: String, maxLength: Int? = null): String? {
         val column = schema.findElementColumn(colName) ?: return null
-        return table.getString(row, column)
+        return table.getString(row, column).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
-    fun getStringByHl7Field(row: Int, hl7Field: String): String? {
-        val column = schema.elements.filter { it.hl7Field.equals(hl7Field, ignoreCase = true) }.firstOrNull()
-            ?: return null
+    fun getStringByHl7Field(row: Int, hl7Field: String, maxLength: Int? = null): String? {
+        val column = schema.elements.firstOrNull { it.hl7Field.equals(hl7Field, ignoreCase = true) } ?: return null
         val index = schema.findElementColumn(column.name) ?: return null
-        return table.getString(row, index)
+        return table.getString(row, index).let {
+            if (maxLength == null || maxLength > it.length) {
+                it
+            } else {
+                it.substring(0, maxLength)
+            }
+        }
     }
 
     fun getRow(row: Int): List<String> {
@@ -318,19 +322,33 @@ class Report {
         }
     }
 
-    fun filter(filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>): Report {
+    fun filter(
+        filterFunctions: List<Pair<JurisdictionalFilter, List<String>>>,
+        receiver: Receiver,
+        isQualityFilter: Boolean,
+        reverseTheFilter: Boolean = false
+    ): Report {
+        // First, only do detailed logging on qualityFilters.
+        // But, **don't** do detailed logging if reverseTheFilter is true.
+        // This is a hack, but its because the logging is nonsensical if the filter is reversed.
+        // (Its nontrivial to fix the detailed logging of a reversed filter, per deMorgan's law)
+        val doDetailedFilterLogging = isQualityFilter && !reverseTheFilter
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
-            val filterFnSelection = filterFn.getSelection(fnArgs, table)
+            val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doDetailedFilterLogging)
             combinedSelection.and(filterFnSelection)
         }
-        val filteredTable = table.where(combinedSelection)
+        val finalCombinedSelection = if (reverseTheFilter)
+            Selection.withRange(0, table.rowCount()).andNot(combinedSelection)
+        else
+            combinedSelection
+        val filteredTable = table.where(finalCombinedSelection)
         val filteredReport = Report(
             this.schema,
             filteredTable,
-            fromThisReport("filter: $filterFunctions"),
+            fromThisReport("filter: $filterFunctions")
         )
-        filteredReport.itemLineages = createItemLineages(combinedSelection, this, filteredReport)
+        filteredReport.itemLineages = createItemLineages(finalCombinedSelection, this, filteredReport)
         return filteredReport
     }
 
@@ -359,6 +377,10 @@ class Report {
         targetCounty: String? = null,
         metadata: Metadata,
     ): Report {
+        fun safeSetStringInRow(row: Row, columnName: String, value: String) {
+            if (row.columnNames().contains(columnName))
+                row.setString(columnName, value)
+        }
         val columns = schema.elements.map {
             val synthesizedColumn = synthesizeStrategies[it.name]?.let { strategy ->
                 // we want to guard against the possibility that there are too few records
@@ -417,8 +439,25 @@ class Report {
             // if the element name is not mapping, it is handled as a pass through
             synthesizedColumn ?: table.column(it.name).copy()
         }
+        val table = Table.create(columns)
+        // unfortunate fact for how we do faking of rows, the four columns below
+        // would never match because the row context was new on each write of the
+        // column. because we synthesize the data here, we need to actually overwrite the
+        // values in each row because quality synthetic data matters
+        table.forEach {
+            val context = FakeReport.RowContext(
+                metadata::findLookupTable,
+                targetState,
+                schema.name,
+                targetCounty
+            )
+            safeSetStringInRow(it, "patient_county", context.county)
+            safeSetStringInRow(it, "patient_city", context.city)
+            safeSetStringInRow(it, "patient_state", context.state)
+            safeSetStringInRow(it, "patient_zip_code", context.zipCode)
+        }
         // return the new copy of the report here
-        return Report(schema, Table.create(columns), fromThisReport("synthesizeData"))
+        return Report(schema, table, fromThisReport("synthesizeData"))
     }
 
     /**
@@ -433,6 +472,7 @@ class Report {
                 sources = fromThisReport("split"),
                 destination = destination,
                 bodyFormat = bodyFormat,
+                metadata = this.metadata
             )
             oneItemReport.itemLineages =
                 listOf(createItemLineageForRow(this, it, oneItemReport, 0))
@@ -445,6 +485,75 @@ class Report {
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
         val newTable = Table.create(pass2Columns)
         return Report(mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages)
+    }
+
+    fun getDeidentifiedResultMetaData(): List<CovidResultMetadata> {
+        return try {
+            table.mapIndexed { idx, row ->
+                CovidResultMetadata().also {
+                    it.messageId = row.getStringOrNull("message_id")
+                    it.orderingProviderName = row.getStringOrNull("ordering_provider_first_name") +
+                        " " + row.getStringOrNull("ordering_provider_last_name")
+                    it.orderingProviderId = row.getStringOrNull("ordering_provider_id").trimToNull()
+                    it.orderingProviderState = row.getStringOrNull("ordering_provider_state").trimToNull()
+                    it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code").trimToNull()
+                    it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county").trimToNull()
+                    it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city").trimToNull()
+                    it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county").trimToNull()
+                    it.orderingFacilityName = row.getStringOrNull("ordering_facility_name").trimToNull()
+                    it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code").trimToNull()
+                    it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
+                    it.testingLabCity = row.getStringOrNull("testing_lab_city").trimToNull()
+                    it.testingLabClia = row.getStringOrNull("testing_lab_clia").trimToNull()
+                    it.testingLabCounty = row.getStringOrNull("testing_lab_county").trimToNull()
+                    it.testingLabName = row.getStringOrNull("testing_lab_name").trimToNull()
+                    it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code").trimToNull()
+                    it.testingLabState = row.getStringOrNull("testing_lab_state").trimToNull()
+                    it.patientCounty = row.getStringOrNull("patient_county").trimToNull()
+                    it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
+                    it.patientEthnicity = metadata.findValueSet("hl70189")
+                        ?.toDisplayFromCode(it.patientEthnicityCode)
+                    it.patientGenderCode = row.getStringOrNull("patient_gender")
+                    it.patientGender = metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
+                    it.patientPostalCode = row.getStringOrNull("patient_zip_code").trimToNull()
+                    it.patientRaceCode = row.getStringOrNull("patient_race")
+                    it.patientRace = metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
+                    it.patientState = row.getStringOrNull("patient_state")
+                    it.testResultCode = row.getStringOrNull("test_result")
+                    it.testResult = metadata.findValueSet("covid-19/test_result")
+                        ?.toDisplayFromCode(it.testResultCode)
+                    it.equipmentModel = row.getStringOrNull("equipment_model_name")
+                    it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
+                        if (!dt.isNullOrEmpty()) {
+                            try {
+                                LocalDate.parse(dt, Element.datetimeFormatter)
+                            } catch (_: Exception) {
+                                null
+                            }
+                        } else {
+                            null
+                        }
+                    }
+                    it.patientAge = row.getStringOrNull("patient_dob").let { dob ->
+                        try {
+                            val d = LocalDate.parse(dob, Element.dateFormatter)
+                            if (d != null && it.specimenCollectionDateTime != null) {
+                                Period.between(d, it.specimenCollectionDateTime).years.toString()
+                            } else {
+                                null
+                            }
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
+                    it.reportId = this.id
+                    it.reportIndex = idx
+                }
+            }
+        } catch (e: Exception) {
+            logger.warn(e)
+            emptyList()
+        }
     }
 
     private fun buildColumnPass1(mapping: Translator.Mapping, toElement: Element): StringColumn? {
@@ -697,47 +806,39 @@ class Report {
             schemaName: String,
             fileFormat: Format?,
             createdDateTime: OffsetDateTime,
-            nameFormat: NameFormat = NameFormat.STANDARD,
-            receivingOrganization: String? = null,
-            sendingFacility: String = "cdcprime"
+            translationConfig: TranslatorConfiguration? = null,
+            metadata: Metadata
+        ): String {
+            return formFilename(
+                id,
+                schemaName,
+                fileFormat,
+                createdDateTime,
+                translationConfig?.nameFormat ?: "standard",
+                translationConfig,
+                metadata = metadata
+            )
+        }
+
+        fun formFilename(
+            id: ReportId,
+            schemaName: String,
+            fileFormat: Format?,
+            createdDateTime: OffsetDateTime,
+            nameFormat: String = "standard",
+            translationConfig: TranslatorConfiguration? = null,
+            metadata: Metadata
         ): String {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
-            return when (nameFormat) {
-                NameFormat.APHL -> {
-                    /*
-                        APHL has a format that requires a different file name format that looks like this:
-                        <SO>_<SF>_<RO>_<SE>_<RE>_<OF>_<Timestamp>.extension
-
-                        SO - sending organization
-                        SF - sending facility
-                        RO - receiving organization
-                        SE - sending environment (test/prod)
-                        RE - receiving environment (test/prod)
-                        OF - original file name (optional)
-                        Timestamp - creation ts of the file
-                        Extension - HL7 for hl7, csv for csv, etc
-
-                        Examples:
-                        OchsnerHealth_OchsnerHealth_LAOPH_Prod_Test_ORURO112345_20200415082416800.HL7
-                        ChristusHealth_CCS_LAOPH_Prod_Test_20200415082416800.HL7
-                 */
-                    val so = "cdcprime"
-                    val se = "testing"
-                    val re = "testing"
-                    val ts = formatter.format(createdDateTime)
-                    // have to escape with curly braces because Kotlin allows underscores in variable names
-                    "${so}_${sendingFacility}_${receivingOrganization ?: ""}_${se}_${re}_$ts.$nameSuffix".toLowerCase()
-                }
-                NameFormat.OHIO -> {
-                    val ts = formatter.format(createdDateTime)
-                    "CDCPRIME_$ts.hl7"
-                }
-                NameFormat.STANDARD -> {
-                    val namePrefix = "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
-                    "$namePrefix.$nameSuffix"
+            val fileName = when (translationConfig) {
+                null -> "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
+                else -> metadata.fileNameTemplates[nameFormat.lowercase()].run {
+                    this?.getFileName(translationConfig)
+                        ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
             }
+            return "$fileName.$nameSuffix"
         }
 
         /**
@@ -757,9 +858,38 @@ class Report {
                     header.reportFile.reportId,
                     header.reportFile.schemaName,
                     header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
-                    header.reportFile.createdAt
+                    header.reportFile.createdAt,
+                    metadata = Metadata.provideMetadata()
                 )
             }
+        }
+
+        /**
+         * Takes a nullable String and trims it down to null if the string is empty
+         */
+        private fun String?.trimToNull(): String? {
+            if (this?.isEmpty() == true) return null
+            return this
+        }
+
+        /**
+         * Tries to get a value from the underlying row and if there is an error, returns the default provided
+         * @param columnName the name of the column to try and query from in this row
+         * @param default the default value to return if there's an error getting a value. Defaults to null.
+         */
+        private fun Row.getStringOrDefault(columnName: String, default: String? = null): String? {
+            return try {
+                this.getString(columnName)
+            } catch (_: Exception) {
+                default
+            }
+        }
+
+        /**
+         * Tries to get a value in the underlying row for the column name, and if it doesn't exist, returns null
+         */
+        private fun Row.getStringOrNull(columnName: String): String? {
+            return this.getStringOrDefault(columnName, null)
         }
     }
 }

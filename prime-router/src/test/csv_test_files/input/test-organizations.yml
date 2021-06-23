@@ -7,7 +7,7 @@
     receivers:
       - name: receiver
         organizationName: AZ-test
-        topic: covid-19
+        topic: CsvFileTests-topic
         jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state,AZ)" ]
 #OLD        jurisdictionalFilter: {observation: covid-19:pos, state: AZ}
         deidentify: false
@@ -23,7 +23,7 @@
     receivers:
       - name: receiver
         organizationName: federal-test
-        topic: covid-19
+        topic: CsvFileTests-topic
         jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)" ]
 #OLD        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
         deidentify: true

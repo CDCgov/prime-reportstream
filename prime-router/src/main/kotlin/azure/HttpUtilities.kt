@@ -5,6 +5,8 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Sender
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -14,7 +16,8 @@ import java.time.OffsetDateTime
 enum class ReportStreamEnv(val endPoint: String) {
     TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
     LOCAL("http://localhost:7071/api/reports"),
-    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports"),
+    STAGING("https://staging.prime.cdc.gov/api/reports"),
+//    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports"),
     PROD("not implemented"),
 }
 
@@ -155,12 +158,12 @@ class HttpUtilities {
             environment: ReportStreamEnv,
             file: File,
             sendingOrgName: String,
-            sendingOrgClientName: String? = null,
+            sendingOrgClient: Sender,
             key: String? = null,
             option: ReportFunction.Options ? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgName, sendingOrgClientName, key, option)
+            return postReportBytes(environment, file.readBytes(), sendingOrgName, sendingOrgClient, key, option)
         }
 
         /**
@@ -172,13 +175,16 @@ class HttpUtilities {
             environment: ReportStreamEnv,
             bytes: ByteArray,
             sendingOrgName: String,
-            sendingOrgClientName: String?,
+            sendingOrgClient: Sender,
             key: String?,
             option: ReportFunction.Options?
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
-            headers.add("Content-Type" to "text/csv")
-            val clientStr = sendingOrgName + if (sendingOrgClientName != null) ".$sendingOrgClientName" else ""
+            when (sendingOrgClient.format) {
+                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
+            }
+            val clientStr = sendingOrgName + if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)
@@ -208,7 +214,8 @@ class HttpUtilities {
                 } catch (e: IOException) {
                     // HttpUrlStatus treats not-success codes as IOExceptions.
                     // I found that the returned json is secretly still here:
-                    errorStream.bufferedReader().readText()
+                    errorStream?.bufferedReader()?.readText()
+                        ?: "Error stream is null! ${this.responseCode} - ${this.responseMessage}"
                 }
                 return responseCode to response
             }

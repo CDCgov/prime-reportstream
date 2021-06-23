@@ -1,0 +1,26 @@
+- name: tx-doh
+  description: Texas Department of Health
+  jurisdiction: STATE
+  stateCode: TX
+  receivers:
+    - name: elr
+      organizationName: tx-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, TX, patient_state, TX)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NEDSS
+        receivingFacilityName: TX-ELR
+        defaultAoeToUnknown: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: 10.0.2.4
+        port: 22
+        filePath: ./upload

@@ -1,0 +1,15 @@
+---
+name: careevolution-covid-19
+description: Care Evolution
+topic: covid-19
+trackingElement: specimen_id
+extends: hl7/hl7-ingest-covid-19
+
+elements:
+  - name: sender_id
+    default: careevolution
+
+  - name: processing_mode_code
+    default: T
+
+
