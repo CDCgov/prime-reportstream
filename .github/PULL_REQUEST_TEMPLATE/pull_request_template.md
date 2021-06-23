@@ -34,6 +34,8 @@ If you answered '_yes_' to any of the questions above, conduct a detailed Review
     - **I**nformation disclosure (data made available to entities who should not have it)
     - **D**enial of service (make a resource unavailable)
     - **E**levation of Privilege (reduce restrictions that apply or gain privileges one should not have)
+- Have you ensuree logging does not contain sensitive data?
+- Have you received any additional approvals needed for this change?
 
 ### Process
 - [ ] Are there licensing issues with any new dependencies introduced?
