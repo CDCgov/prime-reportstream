@@ -1521,9 +1521,11 @@ class SantaClaus : CoolTest() {
      * retries the execution in 1 second, at most the
      * quantity of retries indicated by parameter.
      *
-     * @param retries Max times to repeat the execution of 'block' param if last one failed
+     * @param retries Max times to repeat the execution of @param[block] while it returns false
      * @param block Function to evaluate its result
      * @param callback Returns the state of the last execution and the retry count
+     *
+     * @return true if the @param[block] returns true, false otherwise or if the retry count reaches to its limit
      */
     private fun waitWithConditionalRetry(
         retries: Int,
