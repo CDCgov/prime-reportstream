@@ -1,5 +1,7 @@
 This PR ...
 
+**If you are suggesting a fix for a currently exploitable issue, please disclose the issue to the prime-reportstream team directly outside of GitHub instead of filing a PR, so we may immediately patch the affected systems before a disclosure. See [SECURITY.md/Reporting a Vulnerability](https://github.com/CDCgov/prime-reportstream/blob/master/SECURITY.md#reporting-a-vulnerability) for more information.**
+
 ## Changes
 -
 -
@@ -15,9 +17,7 @@ This PR ...
 
 ### Specific Security-related subjects a reviewer should pay specific attention to
 
-**If you are suggesting a fix for a currently exploitable issue, please disclose the issue to the prime-reportstream team directly outside of GitHub instead of filing a PR, so we may immediately patch the affected systems before a disclosure. See [SECURITY.md/Reporting a Vulnerability](https://github.com/CDCgov/prime-reportstream/blob/master/SECURITY.md#reporting-a-vulnerability) for more information.**
-
-- Does this PR introduce new enpoints?
+- Does this PR introduce new endpoints?
     - new endpoint A
     - new endpoint B
 - Does this PR include changes in authentication and/or authorization of existing endpoints?
