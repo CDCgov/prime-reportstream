@@ -15,6 +15,8 @@ import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
+import gov.cdc.prime.router.ResultDetail.GenericMessage
+import gov.cdc.prime.router.ResultDetail.ResponseMsgType
 import gov.cdc.prime.router.ResultDetail.ResultDetailSummary
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -30,6 +32,8 @@ private const val DEFAULT_PARAMETER = "default"
 private const val DEFAULT_SEPARATOR = ":"
 private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val ROUTE_TO_SEPARATOR = ","
+private const val VERBOSE_PARAMETER = "verbose"
+private const val VERBOSE_ALL = "all"
 
 /**
  * Azure Functions with HTTP Trigger.
@@ -53,6 +57,7 @@ class ReportFunction {
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
         val report: Report? = null,
+        val verbose: String = "",
     )
 
     /**
@@ -164,6 +169,9 @@ class ReportFunction {
         if (sender == null)
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"))
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
+        val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
+        val verbose = if (verboseParam.equals(VERBOSE_ALL, true)) verboseParam else
+            schema?.findElementByCsvName(verboseParam)?.fieldMapping ?: ""
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
@@ -196,7 +204,7 @@ class ReportFunction {
                 }
                 val error = element.checkForError(parts[1])
                 if (error != null) {
-                    errors.add(ResultDetail.param(DEFAULT_PARAMETER, error))
+                    errors.add(ResultDetail.param(DEFAULT_PARAMETER, GenericMessage(ResponseMsgType.NONE, error)))
                     return@mapNotNull null
                 }
                 Pair(parts[0], parts[1])
@@ -215,7 +223,7 @@ class ReportFunction {
             report = null
             status = HttpStatus.BAD_REQUEST
         }
-        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report)
+        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report, verbose)
     }
 
     private fun createReport(
@@ -372,21 +380,27 @@ class ReportFunction {
                 }
                 it.writeEndArray()
             }
-            writeDetailsArray("errors", summarizeMessages(result.errors))
-            writeDetailsArray("warnings", summarizeMessages(result.warnings))
+            writeDetailsArray("errors", summarizeMessages(result.errors, result.verbose))
+            writeDetailsArray("warnings", summarizeMessages(result.warnings, result.verbose))
             it.writeEndObject()
         }
         return outStream.toString()
     }
 
-    private fun summarizeMessages(messages: List<ResultDetail>): List<ResultDetailSummary> {
+    private fun summarizeMessages(messages: List<ResultDetail>, verbose: String = ""): List<ResultDetailSummary> {
         val summaryMessages: MutableList<ResultDetailSummary> = mutableListOf()
-        val grouping = mutableMapOf<ResultDetail.ResponseMsgType, MutableList<ResultDetail>>()
-        messages.forEach {
-            grouping.getOrPut(it.message.type) { mutableListOf() }.add(it)
-        }
-        grouping.forEach { msgType, mutableList ->
-            summaryMessages += ResultDetailSummary.summaryMsg(msgType, mutableList)
+        if (VERBOSE_ALL.equals(verbose, true)) {
+            messages.forEach {
+                summaryMessages.add(ResultDetailSummary.resultSummaryFromDetail(it))
+            }
+        } else {
+            val grouping = mutableMapOf<ResultDetail.ResponseMsgType, MutableList<ResultDetail>>()
+            messages.forEach {
+                grouping.getOrPut(it.message.type) { mutableListOf() }.add(it)
+            }
+            grouping.forEach { (msgType, details) ->
+                summaryMessages.addAll(ResultDetailSummary.summaryMsg(msgType, details, verbose))
+            }
         }
         return summaryMessages.toList()
     }

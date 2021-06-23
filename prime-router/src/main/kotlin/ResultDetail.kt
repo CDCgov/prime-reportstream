@@ -11,7 +11,19 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
      * @property ITEM scope for the detail
      */
     enum class DetailScope { PARAMETER, REPORT, ITEM, TRANSLATION }
-    enum class ResponseMsgType { NONE, PAYLOAD_SIZE, OPTION, ROUTE_TO, MISSING, UNEXPECTED, INVALID_DATE, INVALID_CODE, TRANSLATION }
+    enum class ResponseMsgType {
+        NONE,
+        PAYLOAD_SIZE,
+        OPTION,
+        ROUTE_TO,
+        MISSING,
+        UNEXPECTED,
+        INVALID_DATE,
+        INVALID_CODE,
+        INVALID_PHONE,
+        INVALID_POSTAL,
+        TRANSLATION
+    }
 
     override fun toString(): String {
         return "${scope.toString().lowercase()}${if (id.isBlank()) "" else " $id"}: ${message.detailMsg()}"
@@ -51,9 +63,38 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
         }
     }
 
-    data class ResultDetailSummary(val scope: DetailScope, val ids: List<String>, val message: String) {
+    data class ResultDetailSummary(
+        val scope: DetailScope,
+        val ids: List<String>,
+        val message: String,
+    ) {
         companion object {
-            fun summaryMsg(type: ResponseMsgType, messages: List<ResultDetail>): List<ResultDetailSummary> {
+            fun resultSummaryFromDetail(detail: ResultDetail): ResultDetailSummary {
+                return ResultDetailSummary(detail.scope, listOf(detail.id), detail.message.detailMsg())
+            }
+
+            fun summaryMsg(
+                type: ResponseMsgType,
+                messages: List<ResultDetail>,
+                verbose: String = ""
+            ): List<ResultDetailSummary> {
+                fun verboseHandler(
+                    verbose: String,
+                    groupingId: String,
+                    messages: List<ResultDetail>,
+                    summaryMsg: String
+                ): List<ResultDetailSummary> {
+                    return if (verbose.isNotBlank() && verbose in groupingId) {
+                        messages.map { ResultDetailSummary.resultSummaryFromDetail(it) }
+                    } else {
+                        listOf(ResultDetailSummary(
+                            DetailScope.ITEM,
+                            messages.map { it.id },
+                            summaryMsg
+                        ))
+                    }
+                }
+
                 return when (type) {
                     ResponseMsgType.MISSING ->
                         listOf(ResultDetailSummary(
@@ -65,6 +106,29 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
                             DetailScope.REPORT, messages.map { it.message.groupingId() }.distinct(),
                             "${messages.size} unexpected header(s) will be ignored."
                         ))
+                    ResponseMsgType.INVALID_DATE, ResponseMsgType.INVALID_CODE -> {
+                        val typeString: String = when (type) {
+                            ResponseMsgType.INVALID_DATE -> "date"
+                            ResponseMsgType.INVALID_CODE -> "code"
+                            else -> type.toString()
+                        }
+                        val grouping = mutableMapOf<String, MutableList<ResultDetail>>()
+                        messages.forEach {
+                            grouping.getOrPut(it.message.groupingId()) { mutableListOf() }.add(it)
+                        }
+                        val resultSummary = mutableListOf<ResultDetailSummary>()
+                        grouping.forEach { (groupingId, details) ->
+                            resultSummary.addAll(
+                                verboseHandler(
+                                    verbose,
+                                    groupingId,
+                                    details,
+                                    "${details.size} invalid $typeString value(s) for element $groupingId"
+                                )
+                            )
+                        }
+                        resultSummary.toList()
+                    }
                     else -> {
                         messages.map { ResultDetailSummary(it.scope, listOf(it.id), it.message.detailMsg()) }
                     }
