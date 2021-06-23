@@ -33,12 +33,15 @@ import org.jooq.Configuration
 import java.io.IOException;
 
 import khttp.get as httpGet
+import org.json.JSONObject
+import org.json.JSONArray
 
 data class EmailSchedule ( 
     val template: String,
     val type: String,
     val cronSchedule: String,
     val organizations: List<String>? = ArrayList<String>(),
+    val emails: List<String>? = ArrayList<String>(),
     val parameters: Map<String,String>? = HashMap<String,String>()
 ) {}
  
@@ -120,7 +123,9 @@ class EmailScheduleEngine  {
     }
 
     /**
-     * TODO: Fixme!
+     * Retrieves the list of all organization supported
+     * 
+     * @returns List of all organizations supported
      */
     private fun fetchAllOrgs(): List<String>{    
         @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )    
@@ -133,34 +138,64 @@ class EmailScheduleEngine  {
        
         @Suppress("OVERLOAD_RESOLUTION_AMBIGUITY")
         System.out.println( ret );
-        return listOf( "pima-az-phd" ); //ret;
+        return ret;
     }
 
     /**
      * TODO: Fixme!
      */
     private fun getSchedules(): List<EmailSchedule>{
-        return listOf( EmailSchedule( "d-415aa983fe064c02989bc7465d0c9ed8", "marketing", "25 19 * * *") )
+        return listOf( EmailSchedule( template="d-415aa983fe064c02989bc7465d0c9ed8", 
+                                      type="daily", 
+                                      cronSchedule="02 14 * * *",
+                                      organizations=listOf( "pima-az-phd"),
+                                      emails=listOf( "qtv1@cdc.gov","qom6@cdc.gov","qop5@cdc.gov","qop4@cdc.gov","qva8@cdc.gov","rdz8@cdc.gov","qpu0@cdc.gov" )) )
     }
 
     /**
-     * TODO: Fixme!
+     * Converts an organization name to an OKTA group name
      */
-    @Suppress( "UNUSED_PARAMETER" )
+    private fun convertOrgToGroup( org: String ): String {
+        return "DH"+org.replace( "-","_" )
+    }
+
+    /**
+     * Retrieve a list of emails within an organization
+     * 
+     * @params org The organization to fetch emails for
+     * @returns List of emails to send to
+     */
     private fun getEmails( org: String ): List<String> {
 
+        var ssws: String = System.getenv("SSWS-OKTA") ?: "00KPnlSG2vpP3VtKDlv5lsrYXhGEpnXmP1VABopqIX"
+        var grp = convertOrgToGroup( org );
+
+        // get the OKTA Group Id
         @Suppress( "UNUSED_VARIABLE")
-        var reponse = httpGet( url="", 
-                               headers=mapOf(
-                                "header1" to "1"
-        ) );
-        return listOf( "qtv1@cdc.gov" ); //,"qom6@cdc.gov","qop5@cdc.gov","qop4@cdc.gov","qva8@cdc.gov","rdz8@cdc.gov","qpu0@cdc.gov" )
+        var response1 = httpGet( url="https://hhs-prime-admin.okta.com/api/v1/groups?q=${grp}", 
+                               headers=mapOf( "Authorization" to "SSWS ${ssws}" ) );
+        var grpId = ((response1.jsonArray).get( 0 ) as JSONObject).getString("id");
+
+        // get the users within that OKTA group
+        @Suppress( "UNUSED_VARIABLE")
+        var response = httpGet( url="https://hhs-prime-admin.okta.com/api/v1/groups/${grpId}/users", 
+                               headers=mapOf( "Authorization" to "SSWS ${ssws}" ) );
+    
+       var emails :MutableList<String> = mutableListOf()
+
+        for( user in response.jsonArray ){
+            emails.add( (user as JSONObject).getJSONObject("profile").getString("email") );
+        } 
+
+        return emails;
     }
 
      /**
-     * TODO: Fixme!
+     * Get the reports that have been generated since a given date
+     * 
+     * @param org
+     * 
      */
-    @Suppress( "UNRESOLVED_REFERENCE")
     private fun getReportsSinceLast( org: String, last: Date ): List<ReportFile> {
 
       val reportFiles = workflowEngine
@@ -169,7 +204,7 @@ class EmailScheduleEngine  {
                                 org )
 
         System.out.println( "Found ${reportFiles.size} reports since the last run ${last.toInstant().atOffset(ZoneOffset.UTC)}" );
-        return ArrayList<ReportFile>();
+        return reportFiles;
     }
 
      /**
@@ -194,7 +229,8 @@ class EmailScheduleEngine  {
         mail.setFrom( from );
         mail.setTemplateId( template )
 
-        val sg:SendGrid = SendGrid("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");
+        var sendgridId: String = System.getenv("SENDGRID-ID") ?: "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"
+        val sg:SendGrid = SendGrid(sendgridId);
         val request:Request = Request();
         try {
           request.setMethod(Method.POST);
