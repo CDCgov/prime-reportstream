@@ -4,12 +4,13 @@
   "dependencies": {
     "axios": "^0.21.1",
     "chart.js": "^3.2",
-    "cypress": "^7.4.0",
+    "cypress": "^7.5.0",
     "moment": "^2.29.1",
     "http-proxy-middleware": "^2.0.0"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.12.1",
+    "cross-env": "^7.0.3",
     "express": "^4.17.1",
     "js-yaml": "^4.1.0",
     "jshint": "^2.13.0",
@@ -23,7 +24,7 @@
     "prebuild": "npm -s run clean",
     "build": "eleventy --config eleventy.config.js",
     "watch": "eleventy --watch --config eleventy.config.js",
-    "serve": "eleventy --serve --config eleventy.config.js"
+    "serve": "cross-env ELEVENTY_PORT=8088 eleventy --serve --config eleventy.config.js"
   },
   "jshintConfig": {
     "undef": true,
