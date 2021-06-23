@@ -26,7 +26,7 @@ import java.net.HttpURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.Locale
 import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.random.Random
@@ -1398,17 +1398,20 @@ class InternationalContent : CoolTest() {
     }
 }
 
+/**
+ * Creates fake data as if from a sender and tries to send it to every state and territory
+ */
 class SantaClaus : CoolTest() {
 
     override val name = "santaclaus"
     override val description = "Creates fake data as if from a sender and tries to send it to every state and territory"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.DRAFT
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
 
         var passed = true
 
-        if (options.env == "prod") {
+        if (options.env in listOf("prod", "test")) {
             return createBad("This test can only be run on staging or locally")
         }
 
@@ -1430,82 +1433,81 @@ class SantaClaus : CoolTest() {
 
         sendersToTestWith.forEach { sender ->
 
-            states.forEach { state ->
+            ugly("Starting $name Test: send with ${sender.fullName}")
 
-                ugly("Starting $name Test: send ${sender.fullName} data to $state")
+            val file = FileUtilities.createFakeFile(
+                metadata = metadata,
+                sender = sender,
+                count = states.size,
+                directory = System.getProperty("java.io.tmpdir"),
+                targetStates = null,
+                targetCounties = null
+            )
+            echo("Created datafile $file")
 
-                val report = FileUtilities.createFakeReport(
-                    metadata,
-                    sender,
-                    1,
-                    state
-                )
+            // Now send it to ReportStream.
+            val (responseCode, json) =
+                HttpUtilities.postReportFile(environment, file, sender.organizationName, sender.name, null)
 
-                val reportBytes = FileUtilities.writeReportToByteArray(report, Report.Format.CSV, metadata)
+            if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                return bad("***$name Test FAILED***:  response code $responseCode")
+            } else {
+                good("Posting of report succeeded with response code $responseCode")
+            }
+            echo(json)
 
-                val (responseCode, json) = HttpUtilities.postReportBytes(
-                    environment,
-                    reportBytes,
-                    sender.organizationName,
-                    sender.name,
-                    null,
-                    null
-                )
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
 
-                if (responseCode != HttpURLConnection.HTTP_CREATED) {
-                    bad("***$name Test FAILED***:  response code $responseCode")
-                } else {
-                    good("Posting of report succeeded with response code $responseCode")
-                }
-                echo(json)
+            val destinations = tree["destinations"]
+            if (destinations != null && destinations.size() > 0) {
 
-                val tree = jacksonObjectMapper().readTree(json)
-                val reportId = ReportId.fromString(tree["id"].textValue())
+                val receivers = mutableListOf<Receiver>()
 
-                val destinations = tree["destinations"]
-                if (destinations != null && destinations.size() > 0) {
+                destinations.forEach { destination ->
+                    if (destination != null && destination.has("service")) {
 
-                    val receivers = mutableListOf<Receiver>()
+                        val receiverName = destination["service"].textValue()
+                        val organizationId = destination["organization_id"].textValue()
 
-                    destinations.forEach { destination ->
-                        if (destination != null && destination.has("service")) {
-
-                            val receiverName = destination["service"].textValue()
-                            val organizationId = destination["organization_id"].textValue()
-
-                            receivers.addAll(settings.receivers.filter {
-                                it.organizationName == organizationId && it.name == receiverName
-                            })
-                        }
-                    }
-
-                    if (!receivers.isNullOrEmpty()) {
-
-                        // give some time to let the system
-                        // finish with the expected output
-                        waitWithConditionalRetry(90, {
-                            examineLineageResults(
-                                reportId = reportId,
-                                receivers = receivers,
-                                totalItems = receivers.size,
-                                filterOrgName = true,
-                                silent = true
-                            )
-                        }, callback = { succeed, retryCount ->
-                            if (!succeed) {
-                                ugly("Retry for ${receivers.joinToString(separator = ",") { it.fullName }} #$retryCount")
-                            }
+                        receivers.addAll(settings.receivers.filter {
+                            it.organizationName == organizationId && it.name == receiverName
                         })
+                    }
+                }
 
-                        // just to print to console some beautified output
-                        passed = passed and examineLineageResults(
+                if (!receivers.isNullOrEmpty()) {
+
+                    // give some time to let the system
+                    // finish with the expected output
+                    waitWithConditionalRetry(90, {
+                        examineLineageResults(
                             reportId = reportId,
                             receivers = receivers,
                             totalItems = receivers.size,
                             filterOrgName = true,
-                            silent = false
+                            silent = true
                         )
-                    }
+                    }, callback = { succeed, retryCount ->
+                        if (!succeed) {
+                            if(retryCount == 0) {
+                                println("Waiting for examining lineage results of sender '${sender.fullName}'")
+                            }
+                            print(".")
+                        }
+                        else {
+                            println()
+                        }
+                    })
+
+                    // just to print to console some beautified output
+                    passed = passed and examineLineageResults(
+                        reportId = reportId,
+                        receivers = receivers,
+                        totalItems = receivers.size,
+                        filterOrgName = true,
+                        silent = false
+                    )
                 }
             }
         }
@@ -1513,6 +1515,16 @@ class SantaClaus : CoolTest() {
         return passed
     }
 
+    /**
+     * Executes the 'block' function parameter and
+     * evaluates its boolean result. If it's false it
+     * retries the execution in 1 second, at most the
+     * quantity of retries indicated by parameter.
+     *
+     * @param retries Max times to repeat the execution of 'block' param if last one failed
+     * @param block Function to evaluate its result
+     * @param callback Returns the state of the last execution and the retry count
+     */
     private fun waitWithConditionalRetry(
         retries: Int,
         block: () -> Boolean,
@@ -1535,6 +1547,6 @@ class SantaClaus : CoolTest() {
     }
 
     private fun createBad(message: String): Boolean {
-        return bad("***santaclaus Test FAILED***: $message")
+        return bad("***$name Test FAILED***: $message")
     }
 }
