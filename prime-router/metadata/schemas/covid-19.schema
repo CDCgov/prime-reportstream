@@ -88,6 +88,8 @@ elements:
     valueSet: hl70136
     natFlatFileField: Employed_in_high_risk_setting
     hhsGuidanceField:
+    documentation: |
+      Is the patient employed in a high risk setting? This AOE question doesn't have an HL7 conversion per the HHS, so it is not included in HL7 messages.
 
   - name: equipment_instance_id
     type: ID
@@ -142,6 +144,7 @@ elements:
     natFlatFileField: File_created_date
     hhsGuidanceField:
     hl7Field: MSH-7
+    documentation: When was this file created. This is only used for HL7 generation.
 
   - name: filler_name
     type: TEXT
@@ -351,6 +354,7 @@ elements:
     tableColumn: County
     mapper: lookup(ordering_provider_state, ordering_provider_county)
     hl7Field: ORC-24-9
+    documentation: The FIPS code for the ordering provider
 
   - name: ordering_provider_country
     type: TEXT
@@ -507,6 +511,7 @@ elements:
     mapper: lookup(patient_state, patient_county)
     natFlatFileField: Patient_county
     hl7Field: PID-11-9
+    documentation: The FIPS code for the patient's county
 
   - name: patient_country
     type: TEXT
@@ -554,6 +559,7 @@ elements:
     pii: true
     cardinality: ZERO_OR_ONE
     hl7Field: PID-20-1
+    documentation: The patient's drivers license number
 
   - name: patient_ethnicity
     type: CODE
@@ -595,6 +601,9 @@ elements:
     natFlatFileField: Patient_id
     hhsGuidanceField:
     hl7Field: PID-3-1
+    documentation: |
+      The ID for the patient within one of the reporting entities for this lab result. It could be the
+      the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
 
   - name: patient_id_assigner
     type: HD
@@ -604,6 +613,7 @@ elements:
     hhsGuidanceField:
     hl7Field: PID-3-4
     hl7OutputFields: [ PID-3-6-2 ]
+    documentation: The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
 
   - name: patient_id_type
     type: TEXT
@@ -715,6 +725,7 @@ elements:
     natFlatFileField: Patient_suffix
     hhsGuidanceField:
     hl7Field: PID-5-4
+    documentation: The suffix for the patient's name, (i.e. Jr, Sr, etc)
 
   - name: patient_tribal_citizenship
     type: CODE
@@ -724,6 +735,7 @@ elements:
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: PID-39
+    documentation: If the patient is a citizen of a tribal entity, we can track which entity here
 
   - name: patient_zip_code
     type: POSTAL_CODE
@@ -739,18 +751,21 @@ elements:
     natFlatFileField: Not Supported
     hl7Field: ORC-2-1
     hl7OutputFields: [ORC-2-1, OBR-2-1]
+    documentation: The ID number of the lab order from the placer
 
   - name: placer_name
     type: TEXT
     natFlatFileField: Not Supported
     hl7Field: ORC-2-2
     hl7OutputFields: [ORC-2-2, ORC-4-2, OBR-2-2]
+    documentation: The name of the placer of the lab order
 
   - name: placer_clia
     type: ID_CLIA
     natFlatFileField: Not Supported
     hl7Field: ORC-2-3
     hl7OutputFields: [ORC-2-3, ORC-4-3, OBR-2-3]
+    documentation: The CLIA of the order placer
 
   - name: placer_order_group_id
     type: ID
@@ -872,6 +887,8 @@ elements:
     default: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
     natFlatFileField:
     hl7Field: MSH-3
+    documentation: |
+      The name and OID for the application sending information to the receivers
 
   - name: specimen_collection_date_time
     type: DATETIME
@@ -921,6 +938,7 @@ elements:
     natFlatFileField: Specimen_source_site_code
     hhsGuidanceField: Specimen source
     hl7Field: SPM-8
+    documentation: Refers back to the specimen source site, which is then encoded into the SPM-8 segment
 
   - name: specimen_type
     type: CODE
@@ -977,6 +995,7 @@ elements:
     referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
     mapper: livdLookup()
     natFlatFileField: Test_kit_model_name
+    documentation: Follows guidence for OBX-17 as defined in the HL7 Confluence page
 
   - name: test_kit_name_id_type
     type: TABLE
@@ -993,12 +1012,14 @@ elements:
     reference: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
     mapper: livdLookup()
     hl7Field: OBX-17-7
+    documentation: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
 
   - name: test_method_description
     type: TEXT
     natFlatFileField: Test_method_description
     hhsGuidanceField:
     hl7Field:
+    documentation: A text field that allows the lab to provide more information aboout the test method
 
   - name: test_performed_code
     type: TABLE
@@ -1072,6 +1093,9 @@ elements:
     hhsGuidanceField:
     hl7Field: OBX-11-1
     hl7OutputFields: [OBX-11-1, OBR-25-1]
+    documentation: |
+      The test result status, which is different from the test result itself. Per the valueset, this indicates if
+      the test result is in some intermediate status, is a correction, or is the final result.
 
   - name: test_result_sub_id
     type: ID
@@ -1084,6 +1108,7 @@ elements:
     natFlatFileField: Test_result_units
     hhsGuidanceField:
     hl7Field: OBX-6
+    documentation: The units the test result is measured in.
 
   - name: testing_lab_accession_number
     type: ID
@@ -1098,6 +1123,7 @@ elements:
     natFlatFileField: Testing_lab_city
     hhsGuidanceField:
     hl7Field: OBX-24-3
+    documentation: The city of the testing lab
 
   - name: testing_lab_county
     type: TABLE
@@ -1105,6 +1131,7 @@ elements:
     tableColumn: County
     natFlatFileField: Testing_lab_county
     hhsGuidanceField:
+    documentation: The text value for the testing lab county. This is used to do the lookup in the FIPS dataset.
 
   - name: testing_lab_county_code
     type: TABLE
@@ -1114,21 +1141,26 @@ elements:
     natFlatFileField: Testing_lab_county
     hhsGuidanceField:
     hl7Field: OBX-24-9
+    documentation: |
+      The county code for the testing lab from the FIPS dataset. This is the standard code used in ELR reporting.
 
   - name: testing_lab_country
     type: TEXT
     default: USA
+    documentation: The country for the testing lab. Currently defaults to USA
 
   - name: testing_lab_id
     type: ID
     natFlatFileField: Testing_lab_id
     hhsGuidanceField:
     hl7Field: OBX-23-10
+    documentation: Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
 
   - name: testing_lab_id_assigner
     type: HD
     mapper: ifPresent(testing_lab_clia, CLIA^2.16.840.1.113883.19.4.6^ISO)
     hl7Field: OBX-23-6
+    documentation: This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
 
   - name: testing_lab_clia
     type: ID_CLIA
@@ -1164,6 +1196,11 @@ elements:
     hhsGuidanceField:
     hl7Field: SPM-18-1
     mapper: offsetDateTime(specimen_collection_date_time, seconds, 6)
+    documentation: |
+      The received date time for the specimen. This field is very important to many states for their HL7,
+      but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
+      setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
+      be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
 
   - name: testing_lab_state
     type: TABLE
@@ -1172,30 +1209,35 @@ elements:
     natFlatFileField: Testing_lab_state
     hhsGuidanceField:
     hl7Field: OBX-24-4
+    documentation: The state for the testing lab
 
   - name: testing_lab_street
     type: STREET
     natFlatFileField: Testing_lab_street
     hhsGuidanceField:
     hl7Field: OBX-24-1
+    documentation: The street address for the testing lab
 
   - name: testing_lab_street2
     type: STREET_OR_BLANK
     natFlatFileField: Testing_lab_street2
     hhsGuidanceField:
     hl7Field: OBX-24-2
+    documentation: Street 2 field for the testing lab
 
   - name: testing_lab_zip_code
     type: POSTAL_CODE
     natFlatFileField: Testing_lab_zip_code
     hhsGuidanceField:
     hl7Field: OBX-24-5
+    documentation: The postal code for the testing lab
 
   - name: testing_lab_phone_number
     type: TELEPHONE
     natFlatFileField:
     hhsGuidanceField:
     hl7Field:
+    documentation: The phone number of the testing lab
 
   #- name: travel_history
   #  type: TEXT

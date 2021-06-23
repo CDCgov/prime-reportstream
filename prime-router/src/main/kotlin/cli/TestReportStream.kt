@@ -691,7 +691,6 @@ class BadCsv : CoolTest() {
     override val name = "badcsv"
     override val description = "Submit badly formatted csv files - should get errors"
     override val status = TestStatus.SMOKE
-
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val filenames = listOf("not-a-csv-file.csv", /* "column-headers-only.csv", */ "completely-empty-file.csv")
         var passed = true
@@ -710,7 +709,7 @@ class BadCsv : CoolTest() {
             )
             echo("Response to POST: $responseCode")
             if (responseCode >= 400) {
-                good("badcsv Test $i of $filename passed: Failure HttpStatus code was returned.")
+                good("Test of Bad CSV file $filename passed: Failure HttpStatus code was returned.")
             } else {
                 bad("***badcsv Test $i of $filename FAILED: Expecting a failure HttpStatus. ***")
                 passed = false
@@ -718,13 +717,13 @@ class BadCsv : CoolTest() {
             try {
                 val tree = jacksonObjectMapper().readTree(json)
                 if (tree["id"] == null || tree["id"].isNull) {
-                    good("badcsv Test $i of $filename passed: No UUID was returned.")
+                    good("Test of Bad CSV file $filename passed: No UUID was returned.")
                 } else {
                     bad("***badcsv Test $i of $filename FAILED: RS returned a valid UUID for a bad CSV. ***")
                     passed = false
                 }
                 if (tree["errorCount"].intValue() > 0) {
-                    good("badcsv Test $i of $filename passed: At least one error was returned.")
+                    good("Test of Bad CSV file $filename passed: At least one error was returned.")
                 } else {
                     bad("***badcsv Test $i of $filename FAILED: No error***")
                     passed = false
