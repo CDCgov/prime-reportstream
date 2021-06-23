@@ -16,7 +16,7 @@ This PR ...
 ### Security
 - [ ] Did you check for sensitive data, and remove any? 
 - [ ] Have you ensured logging does not contain sensitive data?  
-- [ ] Are additional approvals needed for this change?
+- [ ] Have you received any additional approvals needed for this change?
 - [ ] Are there potential vulnerabilities or licensing issues with any new dependencies introduced?
 
 ### Process
