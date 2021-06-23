@@ -16,20 +16,25 @@ This PR contains changes which require special attention to security-related asp
 
 ## Specific Security-related subjects a reviewer should pay specific attention to
 
-- Newly introduced enpoints
+- Does this PR introduce new enpoints?
     - new endpoint A
     - new endpoint B
-- What are the potential security threats and mitigations? Please list the STRIDE threats and how they are mitigated
-    - **S**poofing
-        - Threat T, which could be achieved by A, is mitigated by M
-    - **T**ampering
-    - **R**epudiation
-    - **I**nformation disclosure
-    - **D**enial of service
-    - **E**levation of Privilege
 - Does this PR include changes in authentication and/or authorization of existing endpoints?
-- Does this change require changes to our infrastructure?
 - Does this change introduce new dependencies that need vetting?
+- Does this change require changes to our infrastructure?
+- Does logging contain sensitive data?
+- Does this PR include or remove any sensitive information itself?
+
+If you answered '_yes_' to any of the questions above, conduct a detailed Review that adresses at least:
+
+- What are the potential security threats and mitigations? Please list the _STRIDE_ threats and how they are mitigated
+    - **S**poofing (faking authenticity)
+        - Threat _T_, which could be achieved by _A_, is mitigated by _M_
+    - **T**ampering (influence or sabotage the integrity of information, data, or system)
+    - **R**epudiation (the ability to dispute the origin or originator of an action)
+    - **I**nformation disclosure (data made available to entities who should not have it)
+    - **D**enial of service (make a resource unavailable)
+    - **E**levation of Privilege (reduce restrictions that apply or gain privileges one should not have)
 
 ## Checklist
 
@@ -40,12 +45,8 @@ This PR contains changes which require special attention to security-related asp
 - [ ] Downloaded a file from `http://localhost:7071/api/download`?
 - [ ] Added tests?
 
-### Security
-- [ ] Did you check for sensitive data, and remove any?
-- [ ] Does logging contain sensitive data?
-- [ ] Are there licensing issues with any new dependencies introduced?
-
 ### Process
+- [ ] Are there licensing issues with any new dependencies introduced?
 - [ ] Includes a summary of what a code reviewer should verify?
 - [ ] Updated the release notes?
 - [ ] Database changes are submitted as a separate PR?
