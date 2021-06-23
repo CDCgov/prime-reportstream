@@ -75,14 +75,26 @@ involved with how ReportStream behaves today, but it is not expected to be too d
 
         1. Use sender and receiver data elements from the authentication service to send the CSV file to ReportStream’s API
 
-3. **ReportStream API**
-   
+3. **ReportStream Front-end**
+    1. **React**: Make new React form component underneath `pages/sender/tools/upload`
+    2. Form component
+    3. Write tests
+
+4. **ReportStream Settings**
     1. Add `sender` organizations to the database settings list
-   
+
         1. These need to match what is used in the authentication service - same naming conventions, etc. 
 
         2. Create “schema”s for ReportStream to consume to create the report
 for Public Health Departments
+
+5. **ReportStream API**
+   
+    1. /sender/reports New endpoint for uploading report in specified format that handles Okta claims tokens
+    2. **Future** 
+       
+       1. /sender/history  endpoint for a history of sent reports by entity  
+       1. capture user information of who uploaded the report  
 
 ## First Flight for MVP
 
