@@ -26,7 +26,6 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.apache.logging.log4j.kotlin.logger
 import java.io.InputStream
 import java.io.StringReader
-import java.util.logging.Level
 
 class SftpTransport : ITransport, Logging {
     override fun send(
@@ -136,7 +135,6 @@ class SftpTransport : ITransport, Logging {
                             it.put(makeSourceFile(contents, fileName), "$path/$fileName")
                         }
                     }
-
                 } finally {
                     sshClient.disconnect()
                 }

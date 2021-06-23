@@ -39,8 +39,10 @@ local_styles:
   {% include head_tags_universal %}
   {% include head_tags_styles_scripts %}
   {% if current == "web receiver guide" or current == "elr guide" or current == "security practices" %}
+  <script src="../../js/localhost_data.js"></script>
   <script src="../../js/prime-web-receiver-pre.js"></script>
   {% else %}
+  <script src="../js/localhost_data.js"></script>
   <script src="../js/prime-web-receiver-pre.js"></script>
   {% endif %}
 

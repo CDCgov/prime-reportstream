@@ -17,8 +17,3 @@ variable "location" {
     type = string
     description = "Function App Location"
 }
-
-variable "key_vault_id" {
-    type = string
-    description = "Application Key Vault ID"
-}

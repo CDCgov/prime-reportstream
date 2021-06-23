@@ -1,0 +1,9 @@
+environment       = "dev"
+resource_group    = "prime-dev-rheft"
+resource_prefix   = "rkh5012"
+location          = "eastus"
+rsa_key_2048      = null
+rsa_key_4096      = null
+is_metabase_env   = false
+https_cert_names  = []
+okta_redirect_url = "https://prime-data-hub-rkh5012.azurefd.net/download"
