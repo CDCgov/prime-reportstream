@@ -24,7 +24,7 @@ This PR ...
 - Does logging contain sensitive data?
 - Does this PR include or remove any sensitive information itself?
 
-If you answered '_yes_' to any of the questions above, conduct a detailed Review that adresses at least:
+If you answered '_yes_' to any of the questions above, conduct a detailed Review that addresses at least:
 
 - What are the potential security threats and mitigations? Please list the _STRIDE_ threats and how they are mitigated
     - **S**poofing (faking authenticity)
