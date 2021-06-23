@@ -1,6 +1,6 @@
 ---
 name: "Security Issue"
-about: "Process for reporting security-related issues"
+about: "Do NOT create GitHub issues for security issues. Please contact the prime-reportstream team directly to report and disclose security-related issues."
 title: "Security Issue"
 labels:
 assignees: "jimduff-usds"
