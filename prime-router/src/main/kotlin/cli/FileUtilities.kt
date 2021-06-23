@@ -74,7 +74,7 @@ class FileUtilities {
                         listOf(Pair(report, format))
                     }
                 }.forEach { (report, format) ->
-                    var outputFile = writeReportToFile(report, format, metadata, outputDir, outputFileName)
+                    val outputFile = writeReportToFile(report, format, metadata, outputDir, outputFileName)
                     echo(outputFile.absolutePath)
                 }
         }

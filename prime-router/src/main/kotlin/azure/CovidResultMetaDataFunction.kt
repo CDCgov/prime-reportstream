@@ -19,10 +19,10 @@ import java.lang.IllegalStateException
 import java.time.OffsetDateTime
 import java.util.UUID
 
-class TestDataFunction : Logging {
+class CovidResultMetaDataFunction : Logging {
     private val workflowEngine = WorkflowEngine()
 
-    @FunctionName("save-test-data")
+    @FunctionName("save-covid-result-metadata")
     fun run(
         @HttpTrigger(
             name = "saveTestData",
@@ -36,15 +36,15 @@ class TestDataFunction : Logging {
             ?: return HttpUtilities.badRequestResponse(request, "Missing reportId\n")
         return if (reportIdStr.lowercase() == "all") {
             context.logger.info("Starting test data extraction for all reports")
-            saveTestDataForAllReports(context, request)
+            saveCovidResultMetaDataForAllReports(context, request)
         } else {
             val reportId = UUID.fromString(reportIdStr)
             context.logger.info("Starting test data extraction for $reportId")
-            saveTestDataForSingleReport(reportId, context, request)
+            saveCovidResultMetaDataForSingleReport(reportId, context, request)
         }
     }
 
-    private fun saveTestDataForAllReports(
+    private fun saveCovidResultMetaDataForAllReports(
         context: ExecutionContext,
         request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
@@ -81,7 +81,7 @@ class TestDataFunction : Logging {
         return HttpUtilities.okResponse(request, writeResponseBody(results))
     }
 
-    private fun saveTestDataForSingleReport(
+    private fun saveCovidResultMetaDataForSingleReport(
         reportId: UUID,
         context: ExecutionContext,
         request: HttpRequestMessage<String?>
