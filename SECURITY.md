@@ -1,6 +1,6 @@
 # Security Policy
 
-This document outlines our security policy for the code base and product, and how to report vulnerabilities.
+This document outlines our security policy for the code base and product and how to report vulnerabilities.
 
 ## Reporting a Vulnerability
 
