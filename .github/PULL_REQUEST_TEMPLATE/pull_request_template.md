@@ -15,7 +15,7 @@ This PR ...
 
 ### Security
 - [ ] Did you check for sensitive data, and remove any? 
-- [ ] Does logging contain sensitive data?  
+- [ ] Have you ensured logging does not contain sensitive data?  
 - [ ] Are additional approvals needed for this change?
 - [ ] Are there potential vulnerabilities or licensing issues with any new dependencies introduced?
 
@@ -35,4 +35,3 @@ This PR ...
 ## To Be Done
 *Create GitHub issues to track the work remaining, if any*
 - #issue 
-
