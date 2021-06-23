@@ -494,28 +494,28 @@ class Report : Logging {
                     it.messageId = row.getStringOrNull("message_id")
                     it.orderingProviderName = row.getStringOrNull("ordering_provider_first_name") +
                         " " + row.getStringOrNull("ordering_provider_last_name")
-                    it.orderingProviderId = row.getStringOrNull("ordering_provider_id")
-                    it.orderingProviderState = row.getStringOrNull("ordering_provider_state")
-                    it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code")
-                    it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county")
-                    it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city")
-                    it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county")
-                    it.orderingFacilityName = row.getStringOrNull("ordering_facility_name")
-                    it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code")
+                    it.orderingProviderId = row.getStringOrNull("ordering_provider_id").trimToNull()
+                    it.orderingProviderState = row.getStringOrNull("ordering_provider_state").trimToNull()
+                    it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code").trimToNull()
+                    it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county").trimToNull()
+                    it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city").trimToNull()
+                    it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county").trimToNull()
+                    it.orderingFacilityName = row.getStringOrNull("ordering_facility_name").trimToNull()
+                    it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code").trimToNull()
                     it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
-                    it.testingLabCity = row.getStringOrNull("testing_lab_city")
-                    it.testingLabClia = row.getStringOrNull("testing_lab_clia")
-                    it.testingLabCounty = row.getStringOrNull("testing_lab_county")
-                    it.testingLabName = row.getStringOrNull("testing_lab_name")
-                    it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code")
-                    it.testingLabState = row.getStringOrNull("testing_lab_state")
-                    it.patientCounty = row.getStringOrNull("patient_county")
+                    it.testingLabCity = row.getStringOrNull("testing_lab_city").trimToNull()
+                    it.testingLabClia = row.getStringOrNull("testing_lab_clia").trimToNull()
+                    it.testingLabCounty = row.getStringOrNull("testing_lab_county").trimToNull()
+                    it.testingLabName = row.getStringOrNull("testing_lab_name").trimToNull()
+                    it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code").trimToNull()
+                    it.testingLabState = row.getStringOrNull("testing_lab_state").trimToNull()
+                    it.patientCounty = row.getStringOrNull("patient_county").trimToNull()
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
                     it.patientEthnicity = metadata.findValueSet("hl70189")
                         ?.toDisplayFromCode(it.patientEthnicityCode)
                     it.patientGenderCode = row.getStringOrNull("patient_gender")
                     it.patientGender = metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
-                    it.patientPostalCode = row.getStringOrNull("patient_zip_code")
+                    it.patientPostalCode = row.getStringOrNull("patient_zip_code").trimToNull()
                     it.patientRaceCode = row.getStringOrNull("patient_race")
                     it.patientRace = metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
                     it.patientState = row.getStringOrNull("patient_state")
@@ -864,20 +864,32 @@ class Report : Logging {
             }
         }
 
-        private fun Row.getStringOrNull(columnName: String): String? {
-            return try {
-                this.getString(columnName)
-            } catch (_: Exception) {
-                null
-            }
+        /**
+         * Takes a nullable String and trims it down to null if the string is empty
+         */
+        private fun String?.trimToNull(): String? {
+            if (this?.isEmpty() == true) return null
+            return this
         }
 
+        /**
+         * Tries to get a value from the underlying row and if there is an error, returns the default provided
+         * @param columnName the name of the column to try and query from in this row
+         * @param default the default value to return if there's an error getting a value. Defaults to null.
+         */
         private fun Row.getStringOrDefault(columnName: String, default: String? = null): String? {
             return try {
                 this.getString(columnName)
             } catch (_: Exception) {
                 default
             }
+        }
+
+        /**
+         * Tries to get a value in the underlying row for the column name, and if it doesn't exist, returns null
+         */
+        private fun Row.getStringOrNull(columnName: String): String? {
+            return this.getStringOrDefault(columnName, null)
         }
     }
 }

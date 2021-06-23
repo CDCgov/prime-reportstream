@@ -27,6 +27,7 @@ import org.jooq.Field
 import org.jooq.JSON
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
@@ -552,6 +553,17 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .deleteFrom(COVID_RESULT_METADATA)
             .where(COVID_RESULT_METADATA.REPORT_ID.eq(reportId))
             .execute()
+    }
+
+    fun checkReportExists(reportId: ReportId, txn: DataAccessTransaction): Boolean {
+        // this is how you do a select 1 from ... in jooq
+        return (
+            DSL.using(txn)
+                .select(inline(1))
+                .from(REPORT_FILE)
+                .where(REPORT_FILE.REPORT_ID.eq(reportId))
+                .count()
+            ) > 0
     }
 
     /**
