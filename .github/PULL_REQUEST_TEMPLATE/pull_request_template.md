@@ -4,7 +4,16 @@ This PR ...
 -
 -
 
-## Specific Security-related subjects a reviewer should pay specific attention to
+## Checklist
+
+### Testing
+- [ ] Tested locally?
+- [ ] Ran `quickTest all`?
+- [ ] Ran `./prime test` against local Docker ReportStream container?
+- [ ] Downloaded a file from `http://localhost:7071/api/download`?
+- [ ] Added tests?
+
+### Specific Security-related subjects a reviewer should pay specific attention to
 
 - Does this PR introduce new enpoints?
     - new endpoint A
@@ -25,15 +34,6 @@ If you answered '_yes_' to any of the questions above, conduct a detailed Review
     - **I**nformation disclosure (data made available to entities who should not have it)
     - **D**enial of service (make a resource unavailable)
     - **E**levation of Privilege (reduce restrictions that apply or gain privileges one should not have)
-
-## Checklist
-
-### Testing
-- [ ] Tested locally?
-- [ ] Ran `quickTest all`?
-- [ ] Ran `./prime test` against local Docker ReportStream container?
-- [ ] Downloaded a file from `http://localhost:7071/api/download`?
-- [ ] Added tests?
 
 ### Process
 - [ ] Are there licensing issues with any new dependencies introduced?
