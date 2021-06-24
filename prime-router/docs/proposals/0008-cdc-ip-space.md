@@ -30,7 +30,7 @@ Our Azure resources are deployed in two different regions to enable regional red
 
 For each subnet we create, [Azure reserves 5 IP addresses](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq#are-there-any-restrictions-on-using-ip-addresses-within-these-subnets). Therefore the smallest CIDR allowed for a subnet is `/29`.
 
-Some subnets show 0 IPs in use outside of the reserved IP addresses. This is because the communication over the subnet takes place with a reserved IP address [using Azure service endpoints](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview).
+Not all subnets have non-reserved IPs in use. This is because the communication over the subnet takes place under a reserved IP address [using Azure service endpoints](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview).
 
 ### East US VNET (`10.0.0.0/16`)
 
@@ -42,7 +42,7 @@ Our primary region.
 |:--|:--|--:|--:|--:|--:|
 | public | Internet-routable resources | 10.0.1.0/24 | 256 | 5 + 0 = 5 | 251 |
 | container | Docker containers (ex. SFTP test) | 10.0.2.0/24 | 256 | 5 + 2 = 7 | 249 |
-| private | VNET-only, not Internet-routable | 10.0.3.0/24 | 256 | 5 + 0 = 5 | 251 |
+| private | VNET-only; not Internet-routable | 10.0.3.0/24 | 256 | 5 + 0 = 5 | 251 |
 | GatewaySubnet | Required for a VPN gateway; smallest allowed is `/27` | 10.0.4.0/24 | 256 | 5 + 1 per connection | - |
 | endpoint | [Azure Private Endpoints](https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-overview) | 10.0.5.0/24 | 256 | 5 + 8 = 13 | 243 |
 
@@ -55,13 +55,13 @@ Our primary region.
 
 ### West US VNET (`10.1.0.0/16`)
 
-Our secondary region. Only includes a redundant database at this time.
+Our secondary region. Includes a redundant database.
 
 #### Subnet Usage
 
 | Subnet | Description | CIDR | IPs | Used | Available |
 |:--|:--|--:|--:|--:|--:|
-| private | VNET-only, not Internet-routable | 10.1.3.0/24 | 256 | 5 + 0 = 5 | 251 |
+| private | VNET-only; not Internet-routable | 10.1.3.0/24 | 256 | 5 + 0 = 5 | 251 |
 | endpoint | [Azure Private Endpoints](https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-overview) | 10.1.5.0/24 | 256 | 5 + 1 = 6 | 250 |
 
 #### VNET Summary
@@ -81,7 +81,7 @@ Looking toward the future, there will be subnets we will not utilize when we mig
     * We will be able to use the Azure Console, CLI, and Terraform to manage resources, as Azure resources connect both to the VNET and the Internet
         * We will, however, need to manually manage IP rules until CyberArk is deployed
 * **endpoint**
-    * Since some Azure resources sever their connection to the internet when a private endpoint is deployed (ex. function app), without a VPN, we will no longer be able to use private endpoints
+    * Since certain Azure resources sever their connection to the internet when a private endpoint is deployed (ex. function app), without a VPN, we will no longer be able to use private endpoints
 
 ## Proposed IP CIDR
 
@@ -92,7 +92,7 @@ With the above considerations, the proposed CIDR request per environment/region 
 ### Why a `/23`?
 
 * A `/23` will grant us 512 IP addresses per VNET
-* While we currently use an extremely limited number of IP addresses, we cannot fully anticipate our future needs
+* While we currently use a limited number of IP addresses, we cannot anticipate our future needs
 * We may want to utilize private endpoints again in the future
 * While our current utilized resources do not consume VNET ip addresses when scaled (ex. function app, database, etc), we may in the future have bare containers that need to be scaled, which will consume an IP per server
 
@@ -101,7 +101,8 @@ With the above considerations, the proposed CIDR request per environment/region 
 * Environments should be identical
     * When we conduct full-scale load testing in a lower environment, we’ll want the same number of IPs to verify our scaling logic
 * Regions should allow for full redundant replication
-    * While we currently only have a database replica deployed in our secondary region, we’ll want the capability to stand up our entire system in our secondary region in the event of a region failure
+    * While the only resource currently deployed in our secondary region is a database replica, we’ll want the capability to stand up our entire system in our secondary region
+    * This would grant us full region redundancy and/or provide a closer network path for users on the west coast
 
 #### Subnet Usage
 
@@ -109,7 +110,7 @@ With the above considerations, the proposed CIDR request per environment/region 
 |:--|:--|--:|--:|--:|--:|
 | public | Internet-routable resources | x.x.x.x/26 | 64 | 5 + 0 = 5 | 59 |
 | container | Docker containers (ex. SFTP test) | x.x.x.x/26 | 64 | 5 + 2 = 7 | 57 |
-| private | VNET-only, not Internet-routable | x.x.x.x/26 | 64 | 5 + 0 = 5 | 59 |
+| private | VNET-only; not Internet-routable | x.x.x.x/26 | 64 | 5 + 0 = 5 | 59 |
 | GatewaySubnet | Not used under a CDC VNET |  | |  |  |
 | endpoint | Not used under a CDC VNET |  | |  |  |
 
