@@ -1,4 +1,6 @@
-const oktaAuthConfig = {
+import { OktaAuthOptions } from "@okta/okta-auth-js";
+
+const oktaAuthConfig: OktaAuthOptions = {
     // Note: If your app is configured to use the Implicit flow
     // instead of the Authorization Code with Proof of Code Key Exchange (PKCE)
     // you will need to add `pkce: false`
@@ -8,7 +10,8 @@ const oktaAuthConfig = {
     responseMode: 'fragment',
     tokenManager: {
         storage: 'sessionStorage'
-    }
+    },
+    scopes: ['openid', 'email']
 
  
   };
@@ -27,7 +30,8 @@ const oktaAuthConfig = {
     redirectUri: window.location.origin + '/login/callback',    
     authParams: {
         issuer: `https://hhs-prime.okta.com/oauth2/default`
-    }        
+    },
+    scopes: ['openid', 'email'] 
   };
   
   export { oktaAuthConfig, oktaSignInConfig };

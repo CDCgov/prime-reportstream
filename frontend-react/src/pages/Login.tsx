@@ -14,7 +14,6 @@ export const Login = ({ config }) => {
     console.log('error logging in', err);
   };
 
-  if (authState.isPending) return null;
 
   return authState.isAuthenticated ?
     <Redirect to={{ pathname: '/' }}/> :

@@ -10,6 +10,7 @@ export default class AuthResource extends Resource {
     static useFetchInit = (init: RequestInit) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { oktaAuth, authState } = useOktaAuth();
+      
       return {
       ...init,
         headers: {

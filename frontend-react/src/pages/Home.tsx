@@ -77,7 +77,7 @@ export const Home = () => {
                   <div className="tablet:grid-col-8">
                     <h2 className="font-sans-xl margin-top-0 tablet:margin-bottom-0">{content.cta.title}</h2>
                     <p className="font-sans-lg margin-top-1 margin-bottom-6">{content.cta.summary}</p>
-                    <a className="usa-button" href="mailto:">Contact us at {site.orgs.RS.email}</a>
+                    <a className="usa-button" href={"mailto:" + site.orgs.RS.email}>Contact us at {site.orgs.RS.email}</a>
                   </div>
                 </div>
               </section>

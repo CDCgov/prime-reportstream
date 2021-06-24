@@ -12,12 +12,12 @@ const SignInOrUser = () => {
   const [ user, setUser ] = useState('');
 
   useEffect( () => {
-    if( authState.isAuthenticated )
+    if( authState && authState.isAuthenticated )
       oktaAuth.getUser().then( cl => setUser( cl.email? cl.email : 'unknown user' ) )
   });
 
   return (    
-    authState.isAuthenticated? 
+    authState && authState.isAuthenticated? 
     <div className="prime-user-account"><span id="emailUser">{ user? user : '' }</span>
       <br />
       <a href="/" id="logout" onClick={()=>oktaAuth.signOut()} className="usa-link">Logout</a>
@@ -33,10 +33,10 @@ export const ReportStreamHeader = () => {
 
   var itemsMenu = [
     <Link href="/daily" key="daily" data-attribute="hidden" hidden={true} className="usa-nav__link"><span>Daily data</span></Link>,
-    <Link href="/documentation" key="docs" className="usa-nav__link"><span>Documentation</span></Link>
+    <Link href="/documentation/about" key="docs" className="usa-nav__link"><span>Documentation</span></Link>
   ];
 
-  if( !authState.isAuthenticated )
+  if( !authState || !authState.isAuthenticated )
     itemsMenu = itemsMenu.slice(1);
 
     return (
