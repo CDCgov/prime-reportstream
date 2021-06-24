@@ -56,13 +56,13 @@ elements:
     csvFields: [{ name: testResultCodingSystem }]
 
   - name: order_test_date
-    csvFields: [{ name: testOrderedDate}]
+    csvFields: [{ name: testOrderedDate, format: yyyyMMdd}]
 
   - name: test_result_date
-    csvFields: [{ name: testResultDate}]
+    csvFields: [{ name: testResultDate, format: yyyyMMdd}]
 
   - name: test_result_report_date
-    csvFields: [{ name: testReportDate}]
+    csvFields: [{ name: testReportDate, format: yyyyMMdd}]
 
   - name: test_kit_name_id
     csvFields: [{ name: deviceIdentifier}]
@@ -142,7 +142,7 @@ elements:
     csvFields: [{ name: serialNumber}]
 
   - name: specimen_collection_date_time
-    csvFields: [{ name: specimenDate}]
+    csvFields: [{ name: specimenDate, format: yyyyMMdd}]
 
   - name: first_test
     type: CODE
@@ -150,7 +150,7 @@ elements:
     csvFields: [{ name: firstTest, format: $display}]
 
   - name: previous_test_date
-    csvFields: [{ name: previousTestDate}]
+    csvFields: [{ name: previousTestDate, format: yyyyMMdd}]
 
   - name: previous_test_result
     csvFields: [{ name: previousTestResult}]
