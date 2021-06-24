@@ -24,23 +24,25 @@ az functionapp config appsettings set --name <FUNCTION_APP_NAME>
 
 ## Disable HTTP Traffic
 
-If traffic to a given code path must be completely stopped, [the backend source can be removed from the load balancer](https://docs.microsoft.com/en-us/cli/azure/network/front-door/backend-pool?view=azure-cli-latest#az_network_front_door_backend_pool_delete).
+If traffic to a given code path must be completely stopped, [the backend route can be disabled in the load balancer](https://docs.microsoft.com/en-us/cli/azure/network/front-door/routing-rule?view=azure-cli-latest#az_network_front_door_routing_rule_update).
 
 ### From the CLI
 
 ```
-az network front-door backend-pool delete --front-door-name <FD_NAME>
-                                          --name <BE_POOL_NAME>
+az network front-door routing-rule update --front-door-name <FD_NAME>
+                                          --name <RULE_NAME>
                                           --resource-group <RESX_GROUP>
+                                          --enabled Disabled
 ```
 
 ### From the Azure Portal
 
 1. Login to Azure Portal
 2. Navigate to `prime-data-hub-*` > `Front Door Designer` within the Portal
-3. Click on the backend pool(s) to be removed
-4. From the bottom menu, select the `Delete` option
-5. Repeat for each affected backend pool
+3. Click on the routing rule(s) to be disabled
+4. From the top of the page, select the `Disabled` option under `Status`
+5. Repeat for each affected routing rule
+6. Save the Front Door configuration with the `Save` button at the top
 
 ## Delete Application Resources
 
