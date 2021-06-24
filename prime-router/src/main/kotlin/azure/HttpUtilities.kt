@@ -157,13 +157,12 @@ class HttpUtilities {
         fun postReportFile(
             environment: ReportStreamEnv,
             file: File,
-            sendingOrgName: String,
             sendingOrgClient: Sender,
             key: String? = null,
             option: ReportFunction.Options ? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgName, sendingOrgClient, key, option)
+            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option)
         }
 
         /**
@@ -174,7 +173,6 @@ class HttpUtilities {
         fun postReportBytes(
             environment: ReportStreamEnv,
             bytes: ByteArray,
-            sendingOrgName: String,
             sendingOrgClient: Sender,
             key: String?,
             option: ReportFunction.Options?
@@ -184,7 +182,8 @@ class HttpUtilities {
                 Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
                 else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
             }
-            val clientStr = sendingOrgName + if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)

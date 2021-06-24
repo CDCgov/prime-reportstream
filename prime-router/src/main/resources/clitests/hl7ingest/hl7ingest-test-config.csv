@@ -1,0 +1,6 @@
+Input File,Sender,Output File,Receiver,Expected count
+test-0001-hl7-ingest-covid-19.hl7,ignore.ignore-hl7,test-0001-az-covid-19-hl7.hl7,ignore.HL7_BATCH,5
+test-0001-hl7-ingest-covid-19.hl7,ignore.ignore-hl7,test-0001-az-covid-19-hl7.hl7,ignore.HL7,5
+test-0001-hl7-ingest-covid-19.hl7,ignore.ignore-hl7,test-0001-az-covid-19-hl7.hl7,ignore.HL7_NULL,5
+test-0001-hl7-ingest-covid-19.hl7,ignore.ignore-hl7,test-0001-pima-az-covid-19.csv,ignore.CSV,5
+test-0001-hl7-ingest-covid-19.hl7,ignore.ignore-hl7,test-0001-pima-az-covid-19.csv,ignore.REDOX,5
