@@ -4,7 +4,7 @@
 
 We are required to implement a firewall system provided by Palo Alto Networks as part of our ATO. The Palo Alto firewall exists in an Azure VNET that is peered with the CDC intranet.
 
-To utilize the Palo Alto firewall, we are required to peer our VNET with Palo Alto firewall VNET, so our egress traffic can filter through the firewall. In Azure, [peering VNET requires that the IP space does not overlap](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq#can-i-peer-two-vnets-with-matching-or-overlapping-address-ranges).
+To utilize the Palo Alto firewall, we are required to peer our VNET with the Palo Alto firewall VNET, so our egress traffic can filter through the firewall. In Azure, [peered VNETs require non-overlapping IP spaces](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq#can-i-peer-two-vnets-with-matching-or-overlapping-address-ranges).
 
 Unfortunately, since our project was originally setup in the CDC DMZ, we have enjoyed full control of our IP space and have chosen to IP our resources under a `10.0.0.0/16` CIDR. This is a broad IP space and conflicts with the IP space of both the Palo Alto firewall VNET and the CDC intranet.
 
@@ -14,11 +14,11 @@ To ensure we do not have an overlapping IP range, we must be assigned an IP CIDR
 
 This proposal is to reach an understanding of the size of the IP CIDR we must request from the CDC for each environment.
 
-This proposal *will not* address how we redeploy our resources to the new VNET nor will it address and Palo Alto firewall setup. Those items will be addressed in future proposals.
+This proposal *will not* address how we redeploy our resources to the new VNET nor will it address any Palo Alto firewall setup. Those items will be addressed in future proposals.
 
 ## Goals
 
-* Determine an IP CIDR range to request from the CDC per VNET-environment pair
+* Determine an IP CIDR range to request from the CDC per environment-region pair
 * The IP CIDR range must meet our current and future needs
 * We should request the smallest range possible that will meet our needs
     * If we cannot provide justification to the range size with the CDC, our request may be rejected
@@ -30,7 +30,7 @@ Our Azure resources are deployed in two different regions to enable regional red
 
 For each subnet we create, [Azure reserves 5 IP addresses](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq#are-there-any-restrictions-on-using-ip-addresses-within-these-subnets). Therefore the smallest CIDR allowed for a subnet is `/29`.
 
-Some subnets show 0 IPs in use outside of the reserved IP addresses. This is because the communication over the subnet is taking place with a reserved IP address [using Azure service endpoints](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview).
+Some subnets show 0 IPs in use outside of the reserved IP addresses. This is because the communication over the subnet takes place with a reserved IP address [using Azure service endpoints](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview).
 
 ### East US VNET (`10.0.0.0/16`)
 
@@ -50,7 +50,7 @@ Our primary region.
 
 |--:|:--|
 | 65,536 | IPs in CIDR |
-| 1280 | Allocated IPs |
+| 1280 | Allocated IPs to Subnets |
 | 64,256 | Available IPs |
 
 ### West US VNET (`10.1.0.0/16`)
@@ -68,5 +68,61 @@ Our secondary region. Only includes a redundant database at this time.
 
 |--:|:--|
 | 65,536 | IPs in CIDR |
-| 512 | Allocated IPs |
+| 512 | Allocated IPs to Subnets |
 | 65,024 | Available IPs |
+
+## What Will Change with a CDC VNET
+
+Looking toward the future, there will be subnets we will not utilize when we migrate to a CDC VNET:
+
+* **‌GatewaySubnet**
+    * We will no longer be able to manage our own VPN, as the Palo Alto firewall will not allow ingress into the VNET
+        * Ingress is allowed through CyberArk, which will be adopting in the future
+    * We will be able to use the Azure Console, CLI, and Terraform to manage resources, as Azure resources connect both to the VNET and the Internet
+        * We will, however, need to manually manage IP rules until CyberArk is deployed
+* **endpoint**
+    * Since some Azure resources sever their connection to the internet when a private endpoint is deployed (ex. function app), without a VPN, we will no longer be able to use private endpoints
+
+## Proposed IP CIDR
+
+With the above considerations, the proposed CIDR request per environment/region pair is:
+
+**x.x.x.x/23**
+
+### Why a `/23`?
+
+* A `/23` will grant us 512 IP addresses per VNET
+* While we currently use an extremely limited number of IP addresses, we cannot fully anticipate our future needs
+* We may want to utilize private endpoints again in the future
+* While our current utilized resources do not consume VNET ip addresses when scaled (ex. function app, database, etc), we may in the future have bare containers that need to be scaled, which will consume an IP per server
+
+### Why request a `/23` in each environment-region pair?
+
+* Environments should be identical
+    * When we conduct full-scale load testing in a lower environment, we’ll want the same number of IPs to verify our scaling logic
+* Regions should allow for full redundant replication
+    * While we currently only have a database replica deployed in our secondary region, we’ll want the capability to stand up our entire system in our secondary region in the event of a region failure
+
+#### Subnet Usage
+
+| Subnet | Description | CIDR | IPs | Used | Available |
+|:--|:--|--:|--:|--:|--:|
+| public | Internet-routable resources | x.x.x.x/26 | 64 | 5 + 0 = 5 | 59 |
+| container | Docker containers (ex. SFTP test) | x.x.x.x/26 | 64 | 5 + 2 = 7 | 57 |
+| private | VNET-only, not Internet-routable | x.x.x.x/26 | 64 | 5 + 0 = 5 | 59 |
+| GatewaySubnet | Not used under a CDC VNET |  | |  |  |
+| endpoint | Not used under a CDC VNET |  | |  |  |
+
+#### VNET Summary
+
+|--:|:--|
+| 512 | IPs in CIDR |
+| 192 | Allocated IPs to Subnets |
+| 320 | Available IPs |
+
+## Discussion Points
+
+* What future IP needs might we have?
+* Are we requesting too large of a CIDR?
+* Are we requesting too small of a CIDR?
+* What is the smallest CIDR we would be comfortable with?
