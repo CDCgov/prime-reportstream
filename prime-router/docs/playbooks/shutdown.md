@@ -4,7 +4,17 @@ In the event the project needs to shutdown quickly in the response to an inciden
 
 ## Disable a Function
 
-If the scope of the shutdown can be limited to one or more Azure Functions, Functions can individually be disabled. To do this:
+If the scope of the shutdown can be limited to one or more Azure Functions, [Functions can individually be disabled](https://docs.microsoft.com/en-us/azure/azure-functions/disable-function?tabs=portal).
+
+### From the CLI
+
+```
+az functionapp config appsettings set --name <FUNCTION_APP_NAME>
+                                      --resource-group <RESOURCE_GROUP_NAME>
+                                      --settings AzureWebJobs.<FUNCTION_NAME>.Disabled=true
+```
+
+### From the Azure Portal
 
 1. Login to Azure Portal
 2. Navigate to `*-functionapp` > `Functions` within the Portal
@@ -14,7 +24,17 @@ If the scope of the shutdown can be limited to one or more Azure Functions, Func
 
 ## Disable HTTP Traffic
 
-If traffic to a given code path must be completely stopped, the backend source can be removed from the load balancer. To do this:
+If traffic to a given code path must be completely stopped, [the backend source can be removed from the load balancer](https://docs.microsoft.com/en-us/cli/azure/network/front-door/backend-pool?view=azure-cli-latest#az_network_front_door_backend_pool_delete).
+
+### From the CLI
+
+```
+az network front-door backend-pool delete --front-door-name <FD_NAME>
+                                          --name <BE_POOL_NAME>
+                                          --resource-group <RESX_GROUP>
+```
+
+### From the Azure Portal
 
 1. Login to Azure Portal
 2. Navigate to `prime-data-hub-*` > `Front Door Designer` within the Portal
