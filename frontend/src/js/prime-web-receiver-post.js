@@ -6,6 +6,9 @@
     // checkJWT - no redirect
     processJwtToken();
 
+    // start the idle timer
+    idleTimer();
+
     // orgName
     let orgName = await processOrgName();
 

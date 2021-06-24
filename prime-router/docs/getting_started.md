@@ -112,7 +112,7 @@ If you need Flyway, you can install it via `apt` as above.
 #### PostgreSQL via Docker
 In [`devenv-infrastructure.sh`](../devenv-infrastructure.sh)
 ```sh
-docker-compose -f ./docker-prime-infra.yml up --detach
+docker-compose -f ./docker-infrastructure.yml up --detach
 ```
 
 ## Clone the Repository    
@@ -180,9 +180,6 @@ ktlint applyToIDEAProject
 A useful Azure tool to examine Azurite and Azure storage is (Storage Explorer)[https://azure.microsoft.com/en-us/features/storage-explorer/] from Microsoft.
 
 ## Function Development with Docker Compose
-### Local SFTP Server
-You will need an SFTP server to receive data from the router.  For local tests, refer to the [SFTP-SETUP document](SFTP-SETUP.md) to setup a local SFTP server as a receiver of data.
-
 ### Running the Router Locally
 The project's [README](../readme.md) file contains some steps to use the PRIME router in a CLI. However, for the POC app and most other users of the PRIME router will the router in the Microsoft Azure cloud. When hosted in Azure, the PRIME router uses Docker containers. The `DockerFile` describes how to build this container.
 
