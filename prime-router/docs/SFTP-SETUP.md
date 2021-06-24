@@ -36,7 +36,7 @@ docker run -p 22:22 -v sftp:/home/foo/upload -d atmoz/sftp foo:pass:::upload
             host: localhost
             port: 2222
             filePath: ./upload
-            credentials: DEFAULT-FTP
+            credentialName: DEFAULT-SFTP
     ```
     the above specifies an SFTP transport for the az-phd organization at localhost:22 writing to the ./upload directory under the account.<br><br> 
     By setting the 'credentials' field at the 'transport' node, you indicate that the credentials should be retrieved from the CredentialService with that name.<br>

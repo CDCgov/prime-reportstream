@@ -322,7 +322,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -342,7 +342,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -476,7 +476,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -500,7 +500,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -529,7 +529,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -556,7 +556,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -585,7 +585,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -610,7 +610,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -635,7 +635,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -926,7 +926,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
     - name: HL7
       organizationName: ignore
       topic: covid-19
@@ -944,7 +944,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
     - name: HL7_BATCH
       organizationName: ignore
       topic: covid-19
@@ -962,7 +962,7 @@
         host: sftp
         port: 22
         filePath: ./upload
-        credentials: DEFAULT-FTP
+        credentialName: DEFAULT-SFTP
     - name: REDOX
       organizationName: ignore
       topic: covid-19

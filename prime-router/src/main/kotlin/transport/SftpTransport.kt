@@ -47,11 +47,7 @@ class SftpTransport : ITransport, Logging {
             // if the transport definition has defined default
             // credentials use them, otherwise go with the
             // standard way by using the receiver full name
-            val credential = if (sftpTransportType.credentials != null) {
-                getCredentials(sftpTransportType.credentials)
-            } else {
-                lookupCredentials(receiver.fullName)
-            }
+            val credential = lookupCredentials(sftpTransportType.credentialName ?: receiver.fullName)
 
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
@@ -85,16 +81,9 @@ class SftpTransport : ITransport, Logging {
 
     companion object {
 
-        fun getCredentials(name: String): SftpCredential {
-            // Assumes credential will be cast as SftpCredential, if not return null, and thus the error case
-            return CredentialHelper.getCredentialService().fetchCredential(
-                name, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
-            ) as? SftpCredential?
-                ?: error("Unable to find SFTP credentials named '$name'")
-        }
+        fun lookupCredentials(credentialName: String): SftpCredential {
 
-        fun lookupCredentials(receiverFullName: String): SftpCredential {
-            val credentialLabel = receiverFullName
+            val credentialLabel = credentialName
                 .replace(".", "--")
                 .replace("_", "-")
                 .uppercase()
@@ -103,7 +92,7 @@ class SftpTransport : ITransport, Logging {
             return CredentialHelper.getCredentialService().fetchCredential(
                 credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
             ) as? SftpCredential?
-                ?: error("Unable to find SFTP credentials for $receiverFullName connectionId($credentialLabel)")
+                ?: error("Unable to find SFTP credentials for $credentialName connectionId($credentialLabel)")
         }
 
         fun connect(

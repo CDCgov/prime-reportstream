@@ -24,7 +24,7 @@ data class SFTPTransportType
     val host: String,
     val port: String,
     val filePath: String,
-    val credentials: String? = null
+    val credentialName: String? = null
 ) :
     TransportType("SFTP")
 
