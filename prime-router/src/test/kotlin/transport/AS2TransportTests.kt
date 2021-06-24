@@ -1,5 +1,9 @@
 package gov.cdc.prime.router.transport
 
+import assertk.assertThat
+import assertk.assertions.isNull
+import assertk.assertions.isSameAs
+import com.helger.as2lib.exception.WrappedAS2Exception
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.FileSettings
@@ -16,14 +20,10 @@ import io.mockk.mockkClass
 import io.mockk.spyk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
-import java.util.logging.Logger
-import assertk.assertThat
-import assertk.assertions.isNull
-import assertk.assertions.isSameAs
-import com.helger.as2lib.exception.WrappedAS2Exception
 import java.net.ConnectException
 import java.time.OffsetDateTime
+import java.util.UUID
+import java.util.logging.Logger
 
 class AS2TransportTests {
     val context = mockkClass(ExecutionContext::class)
@@ -68,8 +68,8 @@ class AS2TransportTests {
     fun setupLogger() {
         every { context.logger }.returns(logger)
         every { logger.log(any(), any(), any<Throwable>()) }.returns(Unit)
-        every { logger.warning(any<String>())}.returns(Unit)
-        every { logger.severe(any<String>())}.returns(Unit)
+        every { logger.warning(any<String>()) }.returns(Unit)
+        every { logger.severe(any<String>()) }.returns(Unit)
         every { logger.info(any<String>()) }.returns(Unit)
     }
 

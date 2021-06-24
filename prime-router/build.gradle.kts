@@ -6,7 +6,11 @@ Properties that can be overridden using the Gradle -P arguments:
   DB_PASSWORD - Postgres database password (defaults to changeIT!)
   DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
 
-  E.g. ./gradlew clean package -Pg.user=myuser -Dpg.password=mypassword
+Properties to control the execution and output using the Gradle -P arguments:
+  forcetest - Force the running of the test regardless of changes
+  showtests - Verbose output of the unit tests
+
+  E.g. ./gradlew clean package -PDB_USER=myuser -PDB_PASSWORD=mypassword -Pforcetest
  */
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -20,6 +24,9 @@ plugins {
     id("nu.studer.jooq") version "5.2.1"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
+    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
+    id("com.adarshr.test-logger") version "3.0.0"
+    id("jacoco")
 }
 
 group = "gov.cdc.prime"
@@ -37,9 +44,10 @@ val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://localhost:5432/p
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
-val kotlinVersion = "1.5.10"
-
 defaultTasks("package")
+
+val kotlinVersion = "1.5.10"
+jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
 java {
@@ -57,10 +65,14 @@ tasks.clean {
     delete("target")
 }
 
+val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
+    // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
     dependsOn("compileKotlin")
+    finalizedBy("jacocoTestReport")
     // Run the test task if specified configuration files are changed
     inputs.files(
         fileTree("./") {
@@ -77,6 +89,81 @@ tasks.test {
             true
         }
     }
+    configure<JacocoTaskExtension> {
+        // This excludes classes from being analyzed, but not from being added to the report
+        excludes = coverageExcludedClasses
+    }
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    // Remove the exclusions, so they do not appear in the report
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it).matching {
+                    exclude(coverageExcludedClasses)
+                }
+            }
+        )
+    )
+}
+
+testlogger {
+    if (project.hasProperty("showtests")) {
+        showPassed = true
+        showSkipped = true
+    } else {
+        showPassed = false
+        showSkipped = false
+    }
+}
+
+// Add the testIntegration tests
+sourceSets.create("testIntegration") {
+    java.srcDir("src/testIntegration/kotlin")
+    compileClasspath += sourceSets["main"].output
+    runtimeClasspath += sourceSets["main"].output
+}
+
+val compileTestIntegrationKotlin: KotlinCompile by tasks
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+
+val testIntegrationImplementation: Configuration by configurations.getting {
+    extendsFrom(configurations["testImplementation"])
+}
+
+configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
+
+tasks.register<Test>("testIntegration") {
+    useJUnitPlatform()
+    dependsOn("compile")
+    dependsOn("compileTestIntegrationKotlin")
+    dependsOn("compileTestIntegrationJava")
+    shouldRunAfter("test")
+    testClassesDirs = sourceSets["testIntegration"].output.classesDirs
+    classpath = sourceSets["testIntegration"].runtimeClasspath
+    // Run the test task if specified configuration files are changed
+    inputs.files(
+        fileTree("./") {
+            include("settings/**/*.yml")
+            include("metadata/**/*")
+            include("src/testIntergation/resources/datatests/**/*")
+        }
+    )
+    outputs.upToDateWhen {
+        // Call gradle with the -Pforcetest option will force the unit tests to run
+        if (project.hasProperty("forcetest")) {
+            println("Rerunning unit tests...")
+            false
+        } else {
+            true
+        }
+    }
+}
+
+tasks.check {
+    dependsOn("testIntegration")
 }
 
 tasks.withType<Test>().configureEach {
@@ -269,6 +356,17 @@ tasks.register("package") {
     dependsOn("fatJar")
 }
 
+tasks.register("quickPackage") {
+    // Quick package for development purposes.  Use with caution.
+    dependsOn("azureFunctionsPackage")
+    dependsOn("copyAzureResources")
+    dependsOn("copyAzureScripts")
+    tasks["test"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -277,13 +375,13 @@ repositories {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.2.20")
+    jooqGenerator("org.postgresql:postgresql:42.2.22")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.16.0")
+    implementation("com.azure:azure-core:1.17.0")
     implementation("com.azure:azure-core-http-netty:1.10.0")
     implementation("com.azure:azure-storage-blob:12.11.1") {
         exclude(group = "com.azure", module = "azure-core")
@@ -291,7 +389,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.9.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.2.8") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }

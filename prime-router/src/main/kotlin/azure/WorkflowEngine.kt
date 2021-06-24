@@ -104,8 +104,10 @@ class WorkflowEngine(
             // formatting errors can occur down in here.
             blob.uploadBody(report)
         } catch (ex: Exception) {
-            context?.logger?.warning("Got exception while dispatching to schema ${report.schema.name}" +
-                ", and rcvr ${receiver.fullName}")
+            context?.logger?.warning(
+                "Got exception while dispatching to schema ${report.schema.name}" +
+                    ", and rcvr ${receiver.fullName}"
+            )
             throw ex
         }
         try {
@@ -360,7 +362,8 @@ class WorkflowEngine(
                     ByteArrayInputStream(bytes),
                     emptyList(),
                     header.receiver,
-                    header.reportFile.reportId
+                    header.reportFile.reportId,
+                    true
                 )
             }
             else -> error("Unsupported read format")

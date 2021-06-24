@@ -1,6 +1,15 @@
 package gov.cdc.prime.router.transport
 
+import com.helger.as2lib.client.AS2Client
+import com.helger.as2lib.client.AS2ClientRequest
+import com.helger.as2lib.client.AS2ClientSettings
+import com.helger.as2lib.crypto.ECryptoAlgorithmCrypt
+import com.helger.as2lib.crypto.ECryptoAlgorithmSign
+import com.helger.as2lib.exception.WrappedAS2Exception
+import com.helger.as2lib.processor.sender.AS2HttpResponseException
+import com.helger.security.keystore.EKeyStoreType
 import com.microsoft.azure.functions.ExecutionContext
+import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -11,18 +20,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserJksCredential
-
-import com.helger.as2lib.client.AS2Client
-import com.helger.as2lib.client.AS2ClientRequest
-import com.helger.as2lib.client.AS2ClientSettings
-import com.helger.as2lib.crypto.ECryptoAlgorithmCrypt
-import com.helger.as2lib.crypto.ECryptoAlgorithmSign
-import com.helger.as2lib.exception.WrappedAS2Exception
-import com.helger.as2lib.processor.sender.AS2HttpResponseException
-import com.helger.security.keystore.EKeyStoreType
-import com.microsoft.azure.functions.HttpStatus
 import org.apache.http.conn.ConnectTimeoutException
-
 import org.apache.logging.log4j.kotlin.Logging
 import java.net.ConnectException
 import java.util.Base64
@@ -89,7 +87,7 @@ class AS2Transport : ITransport, Logging {
                 RetryToken.allItems
             } else {
                 val msg = "FAILED AS2 upload of inputReportId $reportId to $as2Info (orgService = $receiverFullName);" +
-                        "No retry; Exception: ${t.localizedMessage}"
+                    "No retry; Exception: ${t.localizedMessage}"
                 // Dev note: Expecting severe level to trigger monitoring alerts
                 context.logger.severe(msg)
                 actionHistory.setActionType(TaskAction.send_error)
@@ -112,11 +110,11 @@ class AS2Transport : ITransport, Logging {
         val jks = Base64.getDecoder().decode(credential.jks)
         val settings = AS2ClientSettings()
             .setKeyStore(EKeyStoreType.PKCS12, jks, credential.jksPasscode)
-            .setSenderData (as2Info.senderId, as2Info.senderEmail, credential.privateAlias)
+            .setSenderData(as2Info.senderId, as2Info.senderEmail, credential.privateAlias)
             .setReceiverData(as2Info.receiverId, credential.trustAlias, as2Info.receiverUrl)
             .setEncryptAndSign(ECryptoAlgorithmCrypt.CRYPT_3DES, ECryptoAlgorithmSign.DIGEST_SHA256)
             .setConnectTimeoutMS(TIMEOUT)
-            .setReadTimeoutMS(2*TIMEOUT)
+            .setReadTimeoutMS(2 * TIMEOUT)
             .setMDNRequested(true)
         settings.setPartnershipName("${settings.senderAS2ID}_${settings.receiverAS2ID}")
 

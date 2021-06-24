@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.cli
 
+import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
@@ -69,7 +70,8 @@ class ProcessData : CliktCommand(
         option(
             "--input",
             metavar = "<path>",
-            help = "path to CSV file to read"
+            help = "path to CSV file to read",
+            completionCandidates = CompletionCandidates.Path
         ).convert { InputSource.FileSource(it) },
         option(
             "--input-fake",
@@ -80,7 +82,8 @@ class ProcessData : CliktCommand(
         option(
             "--input-dir",
             metavar = "<dir>",
-            help = "path to directory of files"
+            help = "path to directory of files",
+            completionCandidates = CompletionCandidates.Path
         ).convert { InputSource.DirSource(it) },
     ).single()
     private val inputSchema by option(
@@ -134,7 +137,8 @@ class ProcessData : CliktCommand(
     private val outputDir by option(
         "--output-dir",
         metavar = "<path>",
-        help = "write output files to this directory instead of the working directory. Ignored if --output is set."
+        help = "write output files to this directory instead of the working directory. Ignored if --output is set.",
+        completionCandidates = CompletionCandidates.Path
     )
     private val nameFormat by option(
         "--name-format",
@@ -235,7 +239,8 @@ class ProcessData : CliktCommand(
                     csvSerializer.readInternal(
                         schema.name,
                         file.inputStream(),
-                        listOf(FileSource(file.nameWithoutExtension))
+                        listOf(FileSource(file.nameWithoutExtension)),
+                        useDefaultsForMissing = true
                     )
                 } else {
                     val result =
