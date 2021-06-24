@@ -13,39 +13,19 @@ variable "resource_prefix" {
     description = "Resource Prefix"
 }
 
-variable "name" {
-    type = string
-    description = "Database Server Name"
-}
-
 variable "location" {
     type = string
     description = "Database Server Location"
 }
 
-variable "endpoint_subnet_id" {
-    type = string
-    description = "Private Endpoint Subnet ID"
-}
-
-variable "endpoint2_subnet_id" {
-    type = string
-    description = "Private Endpoint2 Subnet ID"
-}
-
-variable "app_config_key_vault_id" {
-    type = string
-    description = "Key Vault used for database user/pass"
-}
-
-variable "key_vault_id" {
-    type = string
-    description = "Key Vault used for data encryption"
-}
-
 variable "rsa_key_2048" {
     type = string
     description = "Name of the 2048 length RSA key in the Key Vault. Omitting will use Azure-managed key instead of a customer-key."
+}
+
+variable "aad_group_postgres_admin" {
+    type = string
+    description = "Azure Active Directory Group ID for postgres_admin"
 }
 
 variable "is_metabase_env" {

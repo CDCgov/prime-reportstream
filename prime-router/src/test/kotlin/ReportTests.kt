@@ -9,7 +9,7 @@ import kotlin.test.fail
 class ReportTests {
     private val metadata: Metadata = Metadata("./metadata")
 
-    val rcvr = Receiver("name", "org","topic","schema",Report.Format.CSV)
+    val rcvr = Receiver("name", "org", "topic", "schema", Report.Format.CSV)
 
     @Test
     fun `test merge`() {
@@ -31,7 +31,7 @@ class ReportTests {
         val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         assertEquals(2, report1.itemCount)
-        val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "1"))), rcvr,false)
+        val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "1"))), rcvr, false)
         assertEquals(one, filteredReport.schema)
         assertEquals(1, filteredReport.itemCount)
         assertEquals("2", filteredReport.getString(0, "b"))
@@ -47,7 +47,7 @@ class ReportTests {
         val report1 = Report(one, listOf(listOf("row1_a", "row1_b"), listOf("row2_a", "row2_b")), source = TestSource)
         assertEquals(2, report1.itemCount)
         val filteredReportA = report1.filter(
-            listOf(Pair(jurisdictionalFilter, listOf("a", "row1.*", "row2_a"))), rcvr,false
+            listOf(Pair(jurisdictionalFilter, listOf("a", "row1.*", "row2_a"))), rcvr, false
         )
         assertEquals(2, filteredReportA.itemCount)
         assertEquals("row1_b", filteredReportA.getString(0, "b"))
@@ -263,7 +263,7 @@ class ReportTests {
         val merge2 = Report.merge(reports2)
         val copy1 = merge2.copy()
         val copy2 = copy1.copy()
-        val filteredReport = copy2.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))), rcvr,false)
+        val filteredReport = copy2.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))), rcvr, false)
 
         val lineage = filteredReport.itemLineages!!
         assertEquals(2, lineage.size)

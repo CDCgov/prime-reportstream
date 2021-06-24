@@ -12,19 +12,9 @@
 
 ---
 
-**Name**: state
+**Name**: observation
 
 **Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_time
-
-**Type**: DATE
 
 **PII**: No
 
@@ -42,9 +32,19 @@
 
 ---
 
-**Name**: observation
+**Name**: state
 
 **Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_time
+
+**Type**: DATE
 
 **PII**: No
 

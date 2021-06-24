@@ -7,8 +7,6 @@ basedOn: covid-19
 elements:
 
   - name: sender_id
-    type: TEXT
-    documentation: Include the name of the sender as a substring here.
     csvFields: [{ name: SubmitterUID }]
 
   # This is waters unique id for each row.
@@ -288,7 +286,8 @@ elements:
     type: TEXT
     csvFields: [{ name: TxInitiator }]
 
-  # these fields are calculated, but not outputted, for filtering purposes
+  # these fields are calculated for filtering purposes
   - name: test_authorized_for_otc
   - name: test_authorized_for_home
   - name: test_authorized_for_unproctored
+  - name: abnormal_flag
