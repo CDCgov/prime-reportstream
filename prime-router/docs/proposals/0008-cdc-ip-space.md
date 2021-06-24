@@ -48,6 +48,7 @@ Our primary region.
 
 #### VNET Summary
 
+| Count | Label |
 |--:|:--|
 | 65,536 | IPs in CIDR |
 | 1280 | Allocated IPs to Subnets |
@@ -66,6 +67,7 @@ Our secondary region. Includes a redundant database.
 
 #### VNET Summary
 
+| Count | Label |
 |--:|:--|
 | 65,536 | IPs in CIDR |
 | 512 | Allocated IPs to Subnets |
@@ -116,6 +118,7 @@ With the above considerations, the proposed CIDR request per environment/region 
 
 #### VNET Summary
 
+| Count | Label |
 |--:|:--|
 | 512 | IPs in CIDR |
 | 192 | Allocated IPs to Subnets |
