@@ -23,7 +23,8 @@ data class SFTPTransportType
 @JsonCreator constructor(
     val host: String,
     val port: String,
-    val filePath: String
+    val filePath: String,
+    val credentials: String? = null
 ) :
     TransportType("SFTP")
 

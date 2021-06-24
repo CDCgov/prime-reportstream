@@ -322,6 +322,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -341,6 +342,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -474,6 +476,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -497,6 +500,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -525,6 +529,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -551,6 +556,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -579,6 +585,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -603,6 +610,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -627,6 +635,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
       timing:
         operation: MERGE
         numberPerDay: 1440
@@ -917,6 +926,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
     - name: HL7
       organizationName: ignore
       topic: covid-19
@@ -934,6 +944,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
     - name: HL7_BATCH
       organizationName: ignore
       topic: covid-19
@@ -951,6 +962,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentials: DEFAULT-FTP
     - name: REDOX
       organizationName: ignore
       topic: covid-19

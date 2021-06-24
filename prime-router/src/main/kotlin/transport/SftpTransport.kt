@@ -43,7 +43,16 @@ class SftpTransport : ITransport, Logging {
             if (header.content == null)
                 error("No content to sftp for report ${header.reportFile.reportId}")
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
-            val credential = lookupCredentials(receiver.fullName)
+
+            // if the transport definition has defined default
+            // credentials use them, otherwise go with the
+            // standard way by using the receiver full name
+            val credential = if (sftpTransportType.credentials != null) {
+                getCredentials(sftpTransportType.credentials)
+            } else {
+                lookupCredentials(receiver.fullName)
+            }
+
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
             val sshClient = connect(host, port, credential)
@@ -75,6 +84,15 @@ class SftpTransport : ITransport, Logging {
     }
 
     companion object {
+
+        fun getCredentials(name: String): SftpCredential {
+            // Assumes credential will be cast as SftpCredential, if not return null, and thus the error case
+            return CredentialHelper.getCredentialService().fetchCredential(
+                name, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
+            ) as? SftpCredential?
+                ?: error("Unable to find SFTP credentials named '$name'")
+        }
+
         fun lookupCredentials(receiverFullName: String): SftpCredential {
             val credentialLabel = receiverFullName
                 .replace(".", "--")
