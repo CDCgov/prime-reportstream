@@ -59,14 +59,24 @@ function checkBrowser() {
 }
 
 /**
+ * Determines if a user is logged in
+ * 
+ * @returns truthy if logged in; falsy otherwise
+ */
+function isLoggedIn(){
+    const token = window.sessionStorage.getItem("jwt");
+    const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
+
+    return (token && claims && moment().isBefore(moment.unix(claims.exp)))
+
+}
+
+/**
  * Validates the JWT token as stored in session storage under the key "jwt";
  *  if not valid, redirects to the sign-in page; otherwise sets up the claims
  */
 function checkJWT() {
-    const token = window.sessionStorage.getItem("jwt");
-    const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
-
-    if (!token || !claims || moment().isAfter(moment.unix(claims.exp)))
+    if ( !isLoggedIn() )
         window.location.replace('/sign-in/?return=/daily-data/');
 }
 
@@ -96,9 +106,8 @@ async function fetchOrgName() {
  *      sign-in page
  */
 function idleTimer() {
-    const loggedIn = window.sessionStorage.getItem("jwt");
 
-    if (loggedIn) {
+    if ( isLoggedIn() ) {
         window.sessionStorage.setItem("idle-timer", "true");
         idleTimeout(() => {
             window.sessionStorage.clear();
