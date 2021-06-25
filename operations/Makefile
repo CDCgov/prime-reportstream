@@ -58,7 +58,7 @@ tf-04-app: ## Preconfigures Terraform app environment module
 
 # Internal target: check if the passed-in wildcard is a known environment name. Hard-coding them because let's be real here.
 .az-valid-env:
-	@case $(TF_ENV) in dev|staging|prod) ;; *) echo "$* is not a valid environment"; exit 1;; esac
+	@case $(TF_ENV) in rheft|staging|prod) ;; *) echo "$* is not a valid environment"; exit 1;; esac
 
 zdd-promote-slot: .az-logged-in .az-valid-env ## Promote the function app through a ZDD slot swap
 	az functionapp deployment slot swap -g prime-data-hub-$(TF_ENV) -n $(AZ_RESOURCE_PREFIX)-functionapp --slot $(ZDD_SOURCE_SLOT) --target-slot $(ZDD_TARGET_SLOT)
