@@ -5,6 +5,8 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Sender
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -156,12 +158,12 @@ class HttpUtilities {
             environment: ReportStreamEnv,
             file: File,
             sendingOrgName: String,
-            sendingOrgClientName: String? = null,
+            sendingOrgClient: Sender,
             key: String? = null,
             option: ReportFunction.Options ? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgName, sendingOrgClientName, key, option)
+            return postReportBytes(environment, file.readBytes(), sendingOrgName, sendingOrgClient, key, option)
         }
 
         /**
@@ -173,13 +175,16 @@ class HttpUtilities {
             environment: ReportStreamEnv,
             bytes: ByteArray,
             sendingOrgName: String,
-            sendingOrgClientName: String?,
+            sendingOrgClient: Sender,
             key: String?,
             option: ReportFunction.Options?
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
-            headers.add("Content-Type" to "text/csv")
-            val clientStr = sendingOrgName + if (sendingOrgClientName != null) ".$sendingOrgClientName" else ""
+            when (sendingOrgClient.format) {
+                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
+            }
+            val clientStr = sendingOrgName + if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)

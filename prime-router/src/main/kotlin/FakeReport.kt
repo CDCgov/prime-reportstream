@@ -33,6 +33,7 @@ class FakeDataService {
                 element.nameContains("facility_name") -> "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
+                element.nameContains("result_format") -> "CWE"
                 element.nameContains("patient_age_and_units") -> {
                     val unit = randomChoice("months", "years", "days")
                     val value = when (unit) {
@@ -101,6 +102,10 @@ class FakeDataService {
                 "specimen_source_site_code" -> "71836000"
                 "test_result_status" -> randomChoice("F", "C")
                 "processing_mode_code" -> "P"
+                "value_type" -> "CWE"
+                "test_result" ->
+                    // Reduce the choice to between detected, not detected, and uncertain for more typical results
+                    randomChoice("260373001", "260415000", "419984006")
                 else -> {
                     val altValues = element.altValues
                     val valueSet = element.valueSetRef
@@ -186,7 +191,7 @@ class FakeDataService {
     }
 }
 
-class FakeReport(val metadata: Metadata, val locale : Locale? = null) {
+class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
     private val fakeDataService: FakeDataService = FakeDataService()
 
     class RowContext(
@@ -194,13 +199,14 @@ class FakeReport(val metadata: Metadata, val locale : Locale? = null) {
         reportState: String? = null,
         val schemaName: String? = null,
         reportCounty: String? = null,
-        val locale : Locale? = null
+        val locale: Locale? = null
     ) {
         val faker = if (locale == null) Faker() else Faker(locale)
         val patientName: Name = faker.name()
         val schoolName: String = faker.university().name()
         val equipmentModel = randomChoice(
-            "BinaxNOW COVID-19 Ag Card",
+            // Use only equipment that have equipment UID and equipment UID type to pass quality gate for HL7 messages
+            "LumiraDx SARS-CoV-2 Ag Test*",
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
         // find our state
