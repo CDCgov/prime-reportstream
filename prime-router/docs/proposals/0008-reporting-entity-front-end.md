@@ -72,7 +72,7 @@ involved with how ReportStream behaves today, but it is not expected to be too d
     have `receiver` permission
        
         3. **Sample user navigation flow and permission plan:** Users are already segmented by "permissions" in Okta in ReportStream by the "DH" group that they are a part of. We can add a "Sender" group and add users to that group to enable "sending" capabilities. This image is a proposed workflow as to how the navigation will work with these different senarios:
-           ![Sample navigation flow](https://imgur.com/RDvfqwd)
+           ![Sample navigation flow](https://imgur.com/RDvfqwd.png)
 
     2. **Create the upload form** in HTML/CSS/JavaScript to send to the ReportStream API
 
