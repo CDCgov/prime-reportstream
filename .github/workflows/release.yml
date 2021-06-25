@@ -149,8 +149,10 @@ jobs:
           image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
           slot: candidate
 
-      - name: Restart Azure Functions App
-        run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
+      - name: Promote Candidate Slot
+        id: promote-candidate
+        working-directory: operations
+        run: make TF_ENV=dev AZ_RESOURCE_PREFIX=${{ env.PREFIX }} zdd-promote-slot
 
       - name: Upload Static Site
         uses: azure/CLI@v1
