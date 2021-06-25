@@ -1,0 +1,7 @@
+---
+name: or-covid-19-hl7
+description: OR COVID-19
+referenceUrl: https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/COMMUNICABLEDISEASE/REPORTINGCOMMUNICABLEDISEASE/ELECTRONICLABREPORTING/Documents/OR%20ELR%20HL7%20251%20Implementation%20Guide%20v.4.12.pdf
+trackingElement: message_id
+topic: covid-19
+extends: covid-19
