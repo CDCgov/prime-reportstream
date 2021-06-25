@@ -32,7 +32,7 @@ export const WebReceiverGuide = () => {
   <h2>Using the Web Receiver</h2>
   <h3>Recommended browser</h3>
 
-  <p>Please use a modern desktop web browser (ex: <a href="https://www.google.com/chrome/" target="_blank" rel="noopener">Chrome</a>, <a href="https://www.mozilla.org/en-US/firefox/new/" target="_blank" rel="noopener">Firefox</a>, <a href="https://www.apple.com/safari/" target="_blank" rel="noopener">Safari</a>, <a href="https://www.microsoft.com/en-us/edge" target="_blank" rel="noopener">Edge</a>) to access the Web Receiver site. Please note: the application does not support Internet Explorer 11 or below.</p>
+  <p>Please use a modern desktop web browser (ex: <a href="https://www.google.com/chrome/" target="_blank" rel="noreferrer">Chrome</a>, <a href="https://www.mozilla.org/en-US/firefox/new/" target="_blank" rel="noreferrer">Firefox</a>, <a href="https://www.apple.com/safari/" target="_blank" rel="noreferrer">Safari</a>, <a href="https://www.microsoft.com/en-us/edge" target="_blank" rel="noreferrer">Edge</a>) to access the Web Receiver site. Please note: the application does not support Internet Explorer 11 or below.</p>
 
 
   <h3>General usage</h3>

@@ -39,24 +39,13 @@ const TableData = ({ sortBy }: { sortBy?: string }) => {
   );
 };
 
-const NoData = () => {
-  return (
-    <tr>
-      <th colSpan={5}>No data found</th>
-    </tr>
-  );
-};
-
 const TableReports = () => {
   return (
     <section className="grid-container margin-top-5">
       <div className="grid-col-12">
         <h2>Test results</h2>
 
-        <table
-          className="usa-table usa-table--borderless prime-table"
-          summary="Previous results"
-        >
+        <table className="usa-table usa-table--borderless prime-table" summary="Previous results">
           <thead>
             <tr>
               <th scope="col">Report Id</th>
@@ -67,7 +56,7 @@ const TableReports = () => {
             </tr>
           </thead>
           <Suspense fallback={<tbody><tr><th><SpinnerCircularFixed /></th></tr></tbody>}>
-            <NetworkErrorBoundary fallbackComponent={NoData}>
+            <NetworkErrorBoundary fallbackComponent={() => { return (<tr><th colSpan={5}>No data found</th></tr>)}}>
               <TableData />
             </NetworkErrorBoundary>
           </Suspense>
@@ -77,23 +66,15 @@ const TableReports = () => {
   );
 };
 
-const OrgError = () => {
-  return (
-    <span>OrgError</span>
-  )
-}
 
 const OrgName = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {oktaAuth, authState} = useOktaAuth();
-
   const organization = groupToOrg( authState.accessToken?.claims.organization[0] )
-
   const org = useResource(OrganizationResource.detail(), {name: organization} );
-  return (
-    <span id="orgName" className="text-normal text-base">
-      { org.description }
-    </span>
 
+  return (
+    <span id="orgName" className="text-normal text-base">{ org?.description }</span>
   )
 }
 
@@ -103,7 +84,7 @@ export const Daily = () => {
       <section className="grid-container margin-bottom-5">
         <h3 className="margin-bottom-0">
         <Suspense fallback={<SpinnerCircularFixed />}>
-            <NetworkErrorBoundary fallbackComponent={OrgError}>
+            <NetworkErrorBoundary fallbackComponent={()=>{return (<span>OrgError</span>)}}>
               <OrgName />
             </NetworkErrorBoundary>
           </Suspense>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { Resource } from '@rest-hooks/rest';
 import { useOktaAuth } from '@okta/okta-react';
 
@@ -8,7 +9,7 @@ export default class AuthResource extends Resource {
         throw new Error('Method not implemented.');
     }
     static useFetchInit = (init: RequestInit) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { oktaAuth, authState } = useOktaAuth();
       
       return {

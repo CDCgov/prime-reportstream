@@ -20,7 +20,7 @@ export const SecurityPractices = () => {
     </li>
   </ul>
   <p>As part of the FISMA process, PRIME ReportStream has a full authority to operate (ATO). This authority was granted by CDC’s Chief Information Officer/Authorizing Official after an extensive review process that includes documenting over 500 security controls, reviews by multiple teams, and penetration testing by third-parties.</p>
-  <p>The following link contains more information about the FISMA process and <a href="https://csrc.nist.gov/projects/risk-management" className="usa-link" target="_blank" rel="noopener">NIST guidance: NIST Risk Management Framework | CSRC</a></p>
+  <p>The following link contains more information about the FISMA process and <a href="https://csrc.nist.gov/projects/risk-management" className="usa-link" target="_blank" rel="noreferrer">NIST guidance: NIST Risk Management Framework | CSRC</a></p>
 </section>
 <section>
   <h2>Is ReportStream FedRAMP approved?</h2>

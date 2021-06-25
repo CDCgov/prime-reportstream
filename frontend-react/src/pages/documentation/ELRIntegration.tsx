@@ -16,7 +16,7 @@ export const ELRIntegration = () => {
     <li>
       <h3>Receive data from SimpleReport</h3>
       <p>If your jurisdiction is interested in receiving point-of-care tests results from <a
-          href="https://simplereport.gov" target="_blank" rel="noopener"
+          href="https://simplereport.gov" target="_blank" rel="noreferrer"
           title="SimpleReport external link">SimpleReport</a>, you can access this data from the ReportStream
         connection.</p>
     </li>

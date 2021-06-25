@@ -10,38 +10,10 @@ export const Documentation = () => {
   let { path, url } = useRouteMatch();
 
   var itemsMenu = [
-    <NavLink
-      to={`${url}/about`}
-      key="daily"
-      activeClassName="usa-current"
-      className="usa-nav__link"
-    >
-      <span>About</span>
-    </NavLink>,
-    <NavLink
-      to={`${url}/elr`}
-      key="docs"
-      activeClassName="usa-current"
-      className="usa-nav__link"
-    >
-      <span>ELR integration guide</span>
-    </NavLink>,
-    <NavLink
-        to={`${url}/wrg`}
-        key="wrg"
-        activeClassName="usa-current"
-        className="usa-nav__link"
-      >
-        <span>Web receiver guide</span>
-      </NavLink>,
-    <NavLink
-        to={`${url}/security`}
-        key="security"
-        activeClassName="usa-current"
-      className="usa-nav__link"
-    >
-    <span>Security practices</span>
-    </NavLink>,      
+    <NavLink to={`${url}/about`} activeClassName="usa-current" className="usa-nav__link">About</NavLink>,
+    <NavLink to={`${url}/elr`} activeClassName="usa-current" className="usa-nav__link">ELR integration guide</NavLink>,
+    <NavLink to={`${url}/wrg`} activeClassName="usa-current" className="usa-nav__link">Web receiver guide</NavLink>,
+    <NavLink to={`${url}/security`} activeClassName="usa-current" className="usa-nav__link">Security practices</NavLink>,      
   ];
 
   return (
