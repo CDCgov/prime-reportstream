@@ -372,6 +372,14 @@ then
   parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
 fi
 
+# run OR
+if [ $RUN_OR -ne 0 ]
+then
+  echo Generate fake OR data, HL7
+  text=$(run_prime_cli data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states OR --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
+fi
+
 # run CA
 if [ $RUN_CA -ne 0 ]
 then
