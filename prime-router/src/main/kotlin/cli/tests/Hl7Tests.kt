@@ -1,3 +1,4 @@
+// ktlint-disable filename
 package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
