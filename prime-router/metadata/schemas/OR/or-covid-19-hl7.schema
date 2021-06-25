@@ -5,3 +5,12 @@ referenceUrl: https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/COMMUNICABLEDISEA
 trackingElement: message_id
 topic: covid-19
 extends: covid-19
+elements:
+  - name: receiving_application
+    default: OR ELR
+
+  - name: receiving_facility
+    default: OPHD
+
+  - name: message_profile_id
+    default: PHLabReport-NoAck^^2.16.840.1.114222.4.10.3^ISO
