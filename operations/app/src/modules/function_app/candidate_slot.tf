@@ -65,6 +65,10 @@ resource "azurerm_function_app_slot" "candidate" {
   tags = {
     environment = var.environment
   }
+
+  lifecycle {
+    ignore_changes = [site_config[0].linux_fx_version] # Allows Docker versioning via GitHub Actions
+  }
 }
 
 resource "azurerm_key_vault_access_policy" "slot_candidate_app_config_access_policy" {
