@@ -152,7 +152,7 @@ jobs:
       - name: Promote Candidate Slot
         id: promote-candidate
         working-directory: operations
-        run: make TF_ENV=rheft AZ_RESOURCE_PREFIX=${{ env.PREFIX }} zdd-promote-slot
+        run: make TF_ENV=rheft AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
 
       - name: Upload Static Site
         uses: azure/CLI@v1
@@ -228,7 +228,7 @@ jobs:
       - name: Promote Candidate Slot
         id: promote-candidate
         working-directory: operations
-        run: make TF_ENV=staging AZ_RESOURCE_PREFIX=${{ env.PREFIX }} zdd-promote-slot
+        run: make TF_ENV=staging AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
 
       - name: Upload Static Site
         uses: azure/CLI@v1
@@ -305,7 +305,7 @@ jobs:
       - name: Promote Candidate Slot
         id: promote-candidate
         working-directory: operations
-        run: make TF_ENV=prod AZ_RESOURCE_PREFIX=${{ env.PREFIX }} zdd-promote-slot
+        run: make TF_ENV=prod AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
 
       - name: Upload Static Site
         uses: azure/CLI@v1

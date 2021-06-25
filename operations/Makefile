@@ -5,6 +5,7 @@ TF_ENV = "dev" #VAR Your target environment (e.g. dev, test, staging, prod)
 TF_STAGE = ""  # not surfaced
 
 AZ_RESOURCE_PREFIX = "pdh$(TF_ENV)" ## VAR Azure environment resource prefix (e.g. pdhtest)
+AZ_RESOURCE_GROUP = "prime-data-hub-$(TF_ENV)" ## VAR Azure resource group (e.g. prime-data-hub-staging)
 
 ZDD_SOURCE_SLOT = "candidate" #VAR Source function app slot for ZDD deployment
 ZDD_TARGET_SLOT = "production" #VAR Destination function app slot to deploy to
@@ -61,4 +62,4 @@ tf-04-app: ## Preconfigures Terraform app environment module
 	@case $(TF_ENV) in rheft|staging|prod) ;; *) echo "$* is not a valid environment"; exit 1;; esac
 
 zdd-promote-slot: .az-logged-in .az-valid-env ## Promote the function app through a ZDD slot swap
-	az functionapp deployment slot swap -g prime-data-hub-$(TF_ENV) -n $(AZ_RESOURCE_PREFIX)-functionapp --slot $(ZDD_SOURCE_SLOT) --target-slot $(ZDD_TARGET_SLOT)
+	az functionapp deployment slot swap -g $(AZ_RESOURCE_GROUP) -n $(AZ_RESOURCE_PREFIX)-functionapp --slot $(ZDD_SOURCE_SLOT) --target-slot $(ZDD_TARGET_SLOT)
