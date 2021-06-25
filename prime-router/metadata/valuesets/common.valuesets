@@ -134,6 +134,16 @@
     - code: a
       display: years
 
+- name: hhs_age_units
+  reference: Per the HHS guidance, use 'yr' instead of 'a'
+  referenceUrl: https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf
+  system: LOCAL
+  values:
+    - code: mo
+      display: months
+    - code: yr
+      display: years
+
 - name: hl70001
   system: HL7
   reference: HHS guidance for sex at birth

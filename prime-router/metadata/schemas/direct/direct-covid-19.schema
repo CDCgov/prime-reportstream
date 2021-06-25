@@ -85,6 +85,15 @@ elements:
   - name: patient_age
     csvFields: [{ name: patientAge}]
 
+  # Using the HHS guidance instead of the FHIR UCUM codes (see https://www.hl7.org/fhir/valueset-age-units.html)
+  # In particular, using 'yr' for year instead of 'a'
+  - name: patient_age_units
+    type: CODE
+    pii: false
+    cardinality: ZERO_OR_ONE
+    valueSet: hhs_age_units
+    csvFields: [{ name: patientAgeUnits}]
+
   - name: patient_dob
     csvFields: [{ name: patientDob}]
 
@@ -300,6 +309,7 @@ elements:
   - name: ordering_facility_state
     cardinality:  ZERO_OR_ONE
     documentation:  Note that many states expect this field to be available, or ReportStream is not able rto route data to them.  Please provide if possible in order for us to route to as many states as possible.
+    csvFields: [{ name: orderingFacilityState}]
 
   # These fields are calculated
   - name: test_authorized_for_otc

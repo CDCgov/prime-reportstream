@@ -1304,8 +1304,6 @@
         translation:
           type: HL7
           useBatchHeaders: true
-        transport:
-          type: NULL
       - name: HL7_NULL
         organizationName: ignore
         topic: covid-19
@@ -1318,8 +1316,6 @@
           type: CUSTOM
           schemaName: tx/tx-covid-19
           format: HL7
-        transport:
-          type: "NULL"
       - name: BLOBSTORE
         organizationName: ignore
         topic: covid-19
