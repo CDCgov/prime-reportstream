@@ -85,7 +85,13 @@ elements:
   - name: patient_age
     csvFields: [{ name: patientAge}]
 
+  # Using the HHS guidance instead of the FHIR UCUM codes (see https://www.hl7.org/fhir/valueset-age-units.html)
+  # In particular, using 'yr' for year instead of 'a'
   - name: patient_age_units
+    type: CODE
+    pii: false
+    cardinality: ZERO_OR_ONE
+    valueSet: hhs_age_units
     csvFields: [{ name: patientAgeUnits}]
 
   - name: patient_dob
