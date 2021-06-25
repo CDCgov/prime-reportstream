@@ -41,7 +41,18 @@ jobs:
         if: always()
         with:
           # This path is from the root of the repo as needed by the plugin
-          files: prime-router/build/test-results/**/*.xml
+          files: prime-router/build/test-results/test/**/*.xml
+
+      - name: Run Integration Tests
+        run: bash ./gradlew testIntegration -Pshowtests
+
+      - name: Publish Integration Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          # This path is from the root of the repo as needed by the plugin
+          files: prime-router/build/test-results/testIntegration/**/*.xml
+          check_name: "Integration Test Results"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
