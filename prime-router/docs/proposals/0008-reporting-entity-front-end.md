@@ -32,7 +32,7 @@ outlines a proposal on how this CSV Upload Submission feature would work and wou
 Create a new page on the ReportStream front-end which houses a simple web portal form that accepts CSV files, formatted
 in a constrained set of data formats for which ReportStream has sender schemas configured.
 
-This will involve segmenting users in the authentication service to allow for certain actions to be performed when given
+This will involve segmenting users in the current authentication service (Okta) to allow for certain actions to be performed when given
 permissions to. For instance, if a submitting entity is also a State Public Health Department, they will have
 permissions to both see Daily Data (which is currently what they can see now), plus, they can have the permission to
 also Upload CSVs in their desired format. However, a submitting entity such as a hospital or school does not need the
@@ -46,7 +46,7 @@ their data to their respective State Health Department.
 ## Initial Implementation Plan
 
 This will involve 3 steps:
-1. **Authentication/Authorization:** The authentication service will have to be set up to send roles or permissions that
+1. **Authentication/Authorization:** The current authentication service will have to be set up to send roles or permissions that
 pertain to the user/organization, and the web portal client, as well as the API, will need to consume these permissions
 and behave accordingly.
 
@@ -69,21 +69,28 @@ involved with how ReportStream behaves today, but it is not expected to be too d
      
         2. If we have both of the `sender` and `receiver`
     permissions, we can make the experience a little easier by putting the user straight to the “sender” page if they do not
-    have `receiver` permission 
+    have `receiver` permission
+       
+        3. **Sample user navigation flow and permission plan:** Users are already segmented by "permissions" in Okta in ReportStream by the "DH" group that they are a part of. We can add a "Sender" group and add users to that group to enable "sending" capabilities. This image is a proposed workflow as to how the navigation will work with these different senarios:
+           ![Sample navigation flow](https://imgur.com/RDvfqwd)
 
     2. **Create the upload form** in HTML/CSS/JavaScript to send to the ReportStream API
 
-        1. Use sender and receiver data elements from the authentication service to send the CSV file to ReportStream’s API
+        1. Use sender and receiver data elements from the current authentication service to send the CSV file to ReportStream’s API
+    
 
 3. **ReportStream Front-end**
     1. **React**: Make new React form component underneath `pages/sender/tools/upload`
     2. Form component
-    3. Write tests
+    3. Success component
+    4. Error component
+    5. Warning component
+    6. Write tests
 
 4. **ReportStream Settings**
     1. Add `sender` organizations to the database settings list
 
-        1. These need to match what is used in the authentication service - same naming conventions, etc. 
+        1. These need to match what is used in the current authentication service - same naming conventions, etc. 
 
         2. Create “schema”s for ReportStream to consume to create the report
 for Public Health Departments
