@@ -25,6 +25,10 @@ documentation at Caristix.
 On ingestion of files from senders, ReportStream will now capture non-PII/non-PHI data allowing us to
 build metrics and visualizations off of the data and provide trend analysis to our partners.
 
+### HHSProtect
+
+Fixed data formats to be a simple yyyyMMdd
+
 ### Dependency Updates
 Updates done to:
 - Postgresql libraries
