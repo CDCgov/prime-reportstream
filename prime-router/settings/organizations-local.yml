@@ -1,0 +1,2279 @@
+---
+  #
+  # Local means a configuration that works on a Docker Compose cluster
+  #
+  - name: simple_report
+    description: PRIME's POC testing app
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: simple_report
+        topic: covid-19
+        schemaName: primedatainput/pdi-covid-19
+        format: CSV
+      - name: hl7test
+        organizationName: simple_report
+        topic: covid-19
+        schemaName: hl7/hl7-ingest-covid-19
+        format: HL7
+
+  - name: waters
+    description: Test Sender from Waters
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: waters
+        topic: covid-19
+        schemaName: waters/waters-covid-19
+        format: CSV
+
+  - name: safehealth
+    description: SAFE - Safe Health Systems
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: safehealth
+        topic: covid-19
+        schemaName: direct/safehealth-covid-19
+        format: CSV
+
+  - name: cue
+    description: Cue
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: cue
+        topic: covid-19
+        schemaName: direct/cue-covid-19
+        format: CSV
+
+  - name: inbios
+    description: InBios International, Inc.
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: inbios
+        topic: covid-19
+        schemaName: direct/inbios-covid-19
+        format: CSV
+
+  - name: imagemover
+    description: ImageMover
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: imagemover
+        topic: covid-19
+        schemaName: direct/imagemover-covid-19
+        format: CSV
+
+  - name: strac
+    description: STRAC POC testing app
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: strac
+        topic: covid-19
+        schemaName: strac/strac-covid-19
+        format: CSV
+
+  - name: tpca
+    description: TPCA Receiver organization via A6
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: tpca
+        topic: covid-19
+        schemaName: tpca/tpca-covid-19
+        format: CSV
+
+  - name: careevolution
+    description: Care Evolution
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: careevolution
+        topic: covid-19
+        schemaName: direct/careevolution-covid-19
+        format: HL7
+
+  - name: az-phd
+    description: Arizona PHD
+    jurisdiction: STATE
+    stateCode: AZ
+    receivers:
+      - name: elr-prod
+        organizationName: az-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state,AZ)
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19
+          format: CSV
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: ARIZONA
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: pima-az-phd
+    description: Pima County, Arizona PHD
+    jurisdiction: COUNTY
+    stateCode: AZ
+    countyName: Pima
+    receivers:
+      - name: elr
+        organizationName: pima-az-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - filterByCounty(AZ, Pima)
+        translation:
+          type: CUSTOM
+          schemaName: az/pima-az-covid-19
+          format: CSV
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute.  NOTE:  In production, they want deliveries once a day at 8am MST.
+          initialTime: 00:00
+          timeZone: ARIZONA
+
+  - name: ca-scc-phd
+    description: Public Health Department - Santa Clara, California
+    jurisdiction: COUNTY
+    stateCode: CA
+    countyName: Santa Clara
+    receivers:
+      - name: elr-download
+        organizationName: ca-scc-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, CA)", "matches(ordering_facility_county, Santa Clara)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: ca/ca-scc-covid-19
+          format: CSV
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+          timeZone: EASTERN
+
+  - name: "co-phd"
+    description: "Colorado Department of Public Health and Environment"
+    jurisdiction: "STATE"
+    stateCode: "CO"
+    receivers:
+    - name: "elr"
+      organizationName: "co-phd"
+      topic: "covid-19"
+      jurisdictionalFilter:
+      - "orEquals(patient_state, CO, ordering_facility_state, CO)"
+      translation:
+        schemaName: "co/co-covid-19-redox"
+        format: "REDOX"
+        defaults:
+          processing_mode_code: "P"
+          redox_source_name: "Prime Data Hub (Staging)"
+          redox_source_id: "d89d4057-930f-4c5b-bb39-8cddb326e928"
+          redox_destination_id: "62d62d52-3771-4151-aff4-4a3d420a8b7a"
+          redox_destination_name: "Colorado Dept of Public Health (CDPHE)"
+        nameFormat: "standard"
+        type: "CUSTOM"
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+      transport:
+        type: REDOX
+        apiKey: some_key
+        baseUrl: http://redox:1080
+
+  - name: tx-phd
+    description: Texas Department of State Health Services
+    jurisdiction: STATE
+    stateCode: TX
+    receivers:
+      - name: elr-test
+        organizationName: tx-phd
+        topic: covid-19
+        jurisdictionalFilter:
+         - "matches(ordering_facility_state, TX)"
+         - "matches(processing_mode_code, T)"
+        translation:
+          type: HL7
+          useBatchHeaders: false
+          receivingApplicationName: NEDSS
+          receivingFacilityName: TX-ELR
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+      - name: elr-debug
+        organizationName: tx-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - "matches(ordering_facility_state, TX)"
+          - "matches(processing_mode_code, D)"
+        translation:
+          type: HL7
+          useBatchHeaders: false
+          receivingApplicationName: NEDSS
+          receivingFacilityName: TX-ELR
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        
+  - name: fl-phd
+    description: Florida Department of Health
+    jurisdiction: STATE
+    stateCode: FL
+    receivers:
+      - name: elr
+        organizationName: fl-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, FL)
+        deidentify: false
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: FDOH-ELR
+          receivingApplicationOID: 2.16.840.1.114222.4.3.3.8.1.3
+          receivingFacilityName: FDOH
+          receivingFacilityOID: 2.16.840.1.114222.1.3645
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: gu-doh
+    description: Guam Department of Health
+    jurisdiction: STATE
+    stateCode: GU
+    receivers:
+      - name: elr
+        organizationName: gu-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, GU)
+        deidentify: false
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: GUDOH
+          receivingFacilityName: GUDOH
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: CHAMORRO
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: vt-doh
+    description: Vermont Department of Health
+    jurisdiction: STATE
+    stateCode: VT
+    receivers:
+      - name: elr
+        organizationName: vt-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, VT)
+        deidentify: false
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: NBS
+          receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+          receivingFacilityName: VDH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.185
+
+  - name: nd-doh
+    description: North Dakota Department of Health
+    jurisdiction: STATE
+    stateCode: ND
+    receivers:
+      - name: elr
+        organizationName: nd-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, ND)
+        deidentify: false
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: Maven
+          receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
+          receivingFacilityName: NDDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: CENTRAL
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: la-doh
+    description: Louisiana Department of Health
+    jurisdiction: STATE
+    stateCode: LA
+    receivers:
+      - name: elr
+        organizationName: la-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, LA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingOrganization: laoph
+          receivingApplicationName: LA-ELR
+          receivingFacilityName: LADOH
+          nameFormat: aphl
+          useTestProcessingMode: false
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: CENTRAL
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: oh-doh
+    description: Ohio Department of Health
+    jurisdiction: STATE
+    stateCode: OH
+    receivers:
+      - name: elr
+        organizationName: oh-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, OH)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          suppressQstForAoe: true
+          receivingApplicationName: OHDOH
+          receivingApplicationOID: 2.16.840.1.114222.4.1.3674
+          receivingFacilityName: OHDOH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3674
+          reportingFacilityName: CDC PRIME
+          reportingFacilityId: 36DSMP9999
+          nameFormat: ohio
+          suppressHl7Fields: OBX-23-11
+          # turn off UNK and ASKU for this field
+          useBlankInsteadOfUnknown: patient_race
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: nm-doh
+    description: New Mexico Department of Health
+    jurisdiction: STATE
+    stateCode: NM
+    receivers:
+      - name: elr
+        organizationName: nm-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, NM)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingOrganization: elr
+          receivingApplicationName: NMDOH
+          receivingApplicationOID: 2.16.840.1.113883.3.5364
+          receivingFacilityName: NMDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.5364
+          truncateHDNamespaceIds: true
+          nameFormat: aphl_light
+          # turn off UNK and ASKU for this field
+          useBlankInsteadOfUnknown: patient_race
+          suppressHl7Fields: OBX-17-1
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: MOUNTAIN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+      - name: elr-csv
+        organizationName: nm-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, NM)
+        translation:
+          type: CUSTOM
+          format: CSV
+          schemaName: nm/nm-covid-19-csv
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: MOUNTAIN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: mt-doh
+    description: Montana Department of Health
+    jurisdiction: STATE
+    stateCode: MT
+    receivers:
+      - name: elr
+        organizationName: mt-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(patient_state, MT, ordering_facility_state, MT)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: MOUNTAIN
+      - name: elr-csv
+        organizationName: mt-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(patient_state, MT, ordering_facility_state, MT)
+        translation:
+          type: CUSTOM
+          format: CSV
+          schemaName: mt/mt-covid-19-csv
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: MOUNTAIN
+
+  - name: tx-doh
+    description: Texas Department of Health
+    jurisdiction: STATE
+    stateCode: TX
+    receivers:
+      - name: elr
+        organizationName: tx-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, TX, patient_state, TX)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: NEDSS
+          receivingFacilityName: TX-ELR
+          defaultAoeToUnknown: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: CENTRAL
+
+  - name: gu-doh
+    description: Guam Department of Health
+    jurisdiction: STATE
+    stateCode: GU
+    receivers:
+      - name: elr
+        organizationName: gu-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, GU)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: GUDOH
+          receivingFacilityName: GUDOH
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: CHAMORRO
+
+  - name: vt-doh
+    description: Vermont Department of Health
+    jurisdiction: STATE
+    stateCode: VT
+    receivers:
+      - name: elr
+        organizationName: vt-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, VT, patient_state, VT)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: NBS
+          receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+          receivingFacilityName: VDH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.185
+          truncateHDNamespaceIds: true
+          usePid14ForPatientEmail: true
+          suppressHl7Fields: OBX-18
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: nj-doh
+    description: New Jersey Department of Health
+    jurisdiction: STATE
+    stateCode: NJ
+    receivers:
+      - name: elr
+        organizationName: nj-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NJ, patient_state, NJ)
+          - matches(processing_mode_code, P)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: ELRS
+          receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+          receivingFacilityName: NJDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.1299
+          truncateHDNamespaceIds: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+      - name: elr-test
+        organizationName: nj-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NJ, patient_state, NJ)
+          - matches(processing_mode_code, T)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: ELRS
+          receivingApplicationOID: 2.16.840.1.113883.3.1299.5.1.6.1
+          receivingFacilityName: NJDOH
+          receivingFacilityOID: 2.16.840.1.113883.3.1299
+          truncateHDNamespaceIds: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: mn-doh
+    description: Minnesota Department of Health
+    jurisdiction: STATE
+    stateCode: MN
+    receivers:
+      - name: elr
+        organizationName: mn-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, MN, patient_state, MN)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: MEDSS-ELR
+          receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
+          receivingFacilityName: MN DOH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3661
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: wi-dph
+    description: Wisconsin Department of Public Health
+    jurisdiction: STATE
+    stateCode: WI
+    receivers:
+      - name: elr
+        organizationName: wi-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, P)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: vCMR
+          receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+          receivingFacilityName: WEDSS
+          receivingFacilityOID: 2.16.840.1.113883.3.33
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+      - name: elr-test
+        organizationName: wi-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, WI, patient_state, WI)
+          - matches(processing_mode_code, T)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: vCMR
+          receivingApplicationOID: 2.16.840.1.113883.3.33.4.2.2
+          receivingFacilityName: WEDSS
+          receivingFacilityOID: 2.16.840.1.113883.3.33
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: tn-doh
+    description: Tennessee Department of Health
+    jurisdiction: STATE
+    stateCode: TN
+    receivers:
+      - name: elr
+        organizationName: tn-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, TN, patient_state, TN)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: tdh-ELR
+          receivingApplicationOID: 2.16.840.1.113883.3.773.1.1.3
+          receivingFacilityName: TDH
+          receivingFacilityOID: 2.16.840.1.113883.3.773
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: ms-doh
+    description: Mississippi Department of Health
+    jurisdiction: STATE
+    stateCode: MS
+    receivers:
+      - name: elr
+        organizationName: ms-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, MS, patient_state, MS)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: MSDH-ELR
+          receivingFacilityName: MSDOH
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: nc-dph
+    description: North Carolina Division of Public Health
+    jurisdiction: STATE
+    stateCode: NC
+    receivers:
+      - name: elr
+        organizationName: nc-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NC, patient_state, NC)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: NCDPH NCEDSS
+          receivingApplicationOID: 2.16.840.1.113883.3.591.3.1
+          receivingFacilityName: NCDPH EDS
+          receivingFacilityOID: 2.16.840.1.113883.3.591.1.1
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: de-dph
+    description: Delaware Division of Public Health
+    jurisdiction: STATE
+    stateCode: DE
+    receivers:
+      - name: elr
+        organizationName: de-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, DE, patient_state, DE)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: ca-dph
+    description: California Department of Public Health
+    jurisdiction: STATE
+    stateCode: CA
+    receivers:
+      - name: elr
+        organizationName: ca-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, CA, patient_state, CA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          truncateHDNamespaceIds: true
+          receivingApplicationName: CDPH CA REDIE
+          receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
+          receivingFacilityName: CDPH CA REDIE
+          receivingFacilityOID: 2.16.840.1.114222.4.3.3 .10.1.1
+          messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: ma-phd
+    description: Massachusetts Public Health Department
+    jurisdiction: STATE
+    stateCode: MA
+    receivers:
+      - name: elr
+        organizationName: ma-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, MA, patient_state, MA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: MA-MDPH
+          receivingApplicationOID: 2.16.840.1.113883.19.3.2
+          receivingFacilityName: MA-MDPH
+          receivingFacilityOID: 2.16.840.1.113883.19.3.2
+          truncateHDNamespaceIds: true
+          nameFormat: massachusetts
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: nh-dphs
+    description: New Hampshire Division of Public Health Services
+    jurisdiction: STATE
+    stateCode: NH
+    receivers:
+      - name: elr
+        organizationName: nh-dphs
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NH, patient_state, NH)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
+          receivingFacilityName: NH_DHHS
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3669
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: al-phd
+    description: Alabama Public Health Department
+    jurisdiction: STATE
+    stateCode: AL
+    receivers:
+      - name: elr
+        organizationName: al-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, AL, patient_state, AL)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: ALNBS
+          receivingApplicationOID: 2.16.840.1.114222.4.5.1
+          receivingFacilityName: ALDOH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.3636
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: mi-phd
+    description: Michigan Public Health Department
+    jurisdiction: STATE
+    stateCode: MI
+    receivers:
+      - name: elr
+        organizationName: mi-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, MI, patient_state, MI)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: MDSS
+          receivingApplicationOID: 2.16.840.1.114222.4.3.2.2.3.161.1.6377
+          receivingFacilityName: MDSS
+          receivingFacilityOID: 2.16.840.1.114222.4.3.2.2.3.161.1.6377
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: pa-phd
+    description: Pennsylvania Department of Health
+    jurisdiction: STATE
+    stateCode: PA
+    receivers:
+      - name: elr-bucks-local
+        organizationName: pa-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Bucks)" ]
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: e0d33443-c134-4e5f-9c15-69f9ba6340bf
+            redox_destination_name: "CDC Bucks County PDH Destination (s)"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Data Hub (Staging)"
+          format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+      - name: elr-chester-local
+        topic: covid-19
+        organizationName: pa-phd
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: 86aa61ac-8864-417f-860e-d83ae46c951f
+            redox_destination_name: "CDC Chester County PDH Destination (s)"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Data Hub (Staging)"
+          format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+      - name: elr-montgomery-local
+        organizationName: pa-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: 21485dc8-8a6e-49d3-8b80-46531e015039
+            redox_destination_name: "CDC Montgomery County PDH Destination (s)"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Data Hub (Staging)"
+          format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+      - name: elr-philadelphia-local
+        organizationName: pa-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: 09261a90-bc55-4a88-953c-eff0240feab1
+            redox_destination_name: "CDC Philadelphia PDH Destination (p)"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Data Hub (Staging)"
+          format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+      - name: elr-allegheny-local
+        organizationName: pa-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Allegheny)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: eb6c3769-75a4-4d10-9de0-8095cdc7f10f
+            redox_destination_name: "CDC Allegheny County PDH Destination (s)"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Data Hub (Staging)"
+          format: REDOX
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+
+  - name: pa-chester-phd
+    description: Health Department - Chester County, Pennsylvania
+    jurisdiction: COUNTY
+    stateCode: CO
+    countyName: Chester
+    receivers:
+      - name: elr-chester-download-local
+        organizationName: pa-chester-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Chester, Delaware)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: strac/strac-covid-19
+          defaults:
+            processing_mode_code: T
+          format: CSV
+
+  - name: pa-montgomery-phd
+    description: Office of Public Health - Montgomery County, Pennsylvania
+    jurisdiction: COUNTY
+    stateCode: CO
+    countyName: Montgomery
+    receivers:
+      - name: elr-montgomery-download-local
+        organizationName: pa-montgomery-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Montgomery)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: strac/strac-covid-19
+          defaults:
+            processing_mode_code: T
+          format: CSV
+
+  - name: pa-philadelphia-phd
+    description: Philadelphia Department of Public Health
+    jurisdiction: COUNTY
+    stateCode: CO
+    countyName: Philadelphia
+    receivers:
+      - name: elr-philadelphia-download
+        organizationName: pa-philadelphia-phd
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, PA)", "matches(ordering_facility_county, Philadelphia)" ]
+        deidentify: false
+        translation:
+          type: CUSTOM
+          schemaName: strac/strac-covid-19
+          defaults:
+            processing_mode_code: T
+          format: CSV
+
+  - name: md-doh
+    description: Maryland
+    jurisdiction: STATE
+    stateCode: MD
+    receivers:
+      - name: elr
+        organizationName: md-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(patient_state, MD, ordering_facility_state, MD)
+        translation:
+          type: HL7
+          schemaName: covid-19
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+
+  - name: md-phd
+    description: Maryland Public Health Department
+    jurisdiction: STATE
+    stateCode: MD
+    receivers:
+      - name: elr
+        organizationName: md-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(patient_state, MD, ordering_facility_state, MD)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+
+  - name: "hhsprotect"
+    description: "HHSProtect"
+    jurisdiction: "FEDERAL"
+    receivers:
+    - name: "elr"
+      organizationName: "hhsprotect"
+      topic: "covid-19"
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios)" ]
+      qualityFilter: [ "allowAll()" ]
+      translation:
+        type: "CUSTOM"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
+        format: "CSV"
+      deidentify: true
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+      transport:
+        type: BLOBSTORE
+        storageName: PartnerStorage
+        containerName: hhsprotect
+
+  # 'ignore' is a test organization, designed to be safely usable across all our environments.
+  # It has four receivers, each named _exactly_ the same as the format of data.
+  # Each also has a fake "county", also named _exactly_ the same as the format of the data.
+  # This is to aid in readability.
+  - name: ignore
+    description: FOR TESTING ONLY
+    jurisdiction: FEDERAL
+    senders:
+      - name: ignore-strac      # Use this to test sending strac data
+        organizationName: ignore
+        topic: covid-19
+        schemaName: strac/strac-covid-19
+        format: CSV
+      - name: ignore-simple-report      # Use this to test sending simple_report data
+        organizationName: ignore
+        topic: covid-19
+        schemaName: primedatainput/pdi-covid-19
+        format: CSV
+      - name: ignore-waters      # Use this to test sending waters data
+        organizationName: ignore
+        topic: covid-19
+        schemaName: waters/waters-covid-19
+        format: CSV
+      - name: ignore-empty      # Use this to test sending data from the 'empty' schema
+        organizationName: ignore
+        topic: covid-19
+        schemaName: empty
+        format: CSV
+      - name: ignore-hl7      # Use this to test sending data from the HL7 schema
+        organizationName: ignore
+        topic: covid-19
+        schemaName: hl7/hl7-ingest-covid-19
+        format: HL7
+    receivers:
+      - name: CSV
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: az/pima-az-covid-19
+          format: CSV
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+      - name: HL7
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: fl/fl-covid-19
+          format: HL7
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+      - name: HL7_BATCH
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19-hl7
+          format: HL7_BATCH
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+      - name: REDOX
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, REDOX)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: pa/pa-covid-19-redox
+          format: REDOX
+          defaults:
+            processing_mode_code: T
+            redox_destination_id: 62d62d52-3771-4151-aff4-4a3d420a8b7a
+            redox_destination_name: "Prime Local Redox Destination"
+            redox_source_id: d89d4057-930f-4c5b-bb39-8cddb326e928
+            redox_source_name: "Prime Hub (Local)"
+        transport:
+          type: REDOX
+          apiKey: some_key
+          baseUrl: http://redox:1080
+      - name: AS2
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, AS2)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: HL7
+          useBatchHeaders: true
+      - name: HL7_NULL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_NULL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: tx/tx-covid-19
+          format: HL7
+      - name: BLOBSTORE
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, BLOBSTORE)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: hhsprotect/hhsprotect-covid-19
+          format: CSV
+        transport:
+          type: BLOBSTORE
+          storageName: PartnerStorage
+          containerName: hhsprotect
+      - name: SFTP_FAIL    # If you put "FAIL" in the receiver name, then the happy-path tests in TestReportStream will ignore them.
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, SFTP_FAIL)" ]
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+        translation:
+          type: CUSTOM
+          schemaName: az/az-covid-19-hl7
+          format: CSV
+        transport:
+          type: SFTP
+          host: sftp_FAIL_BAD
+          port: 2222
+          filePath: ./upload_FAIL
+      - name: QUALITY_PASS
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
+        qualityFilter: 
+          - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+          - hasAtLeastOneOf(message_id,blankField)
+          - matches(ordering_facility_county, QUALITY_PASS)
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
+      - name: QUALITY_REVERSED
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
+        qualityFilter: 
+          - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
+          - hasAtLeastOneOf(message_id,blankField)
+          - matches(ordering_facility_county, QUALITY_REVERSED)
+        # Get 'not(qualityFilter)'
+        reverseTheQualityFilter: true
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
+      - name: QUALITY_ALL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_ALL)" ]
+        qualityFilter: [ "allowAll()" ]
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
+      - name: QUALITY_FAIL
+        organizationName: ignore
+        topic: covid-19
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_FAIL)" ]
+        qualityFilter: [ "hasValidDataFor(blankField)", "hasAtLeastOneOf(message_id,blankField)" ]
+        translation:
+          type: CUSTOM
+          schemaName: empty
+          format: CSV
+
+
+# all the rest
+  - name: ak-phd
+    description: Alaska Public Health Department
+    jurisdiction: STATE
+    stateCode: AK
+    receivers:
+      - name: elr
+        organizationName: ak-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, AK, patient_state, AK)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: as-phd
+    description: American Samoa Public Health Department
+    jurisdiction: STATE
+    stateCode: AS
+    receivers:
+      - name: elr
+        organizationName: as-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, AS, patient_state, AS)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ar-phd
+    description: Arkansas Public Health Department
+    jurisdiction: STATE
+    stateCode: AR
+    receivers:
+      - name: elr
+        organizationName: ar-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, AR, patient_state, AR)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ct-phd
+    description: Connecticut Public Health Department
+    jurisdiction: STATE
+    stateCode: CT
+    receivers:
+      - name: elr
+        organizationName: ct-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, CT, patient_state, CT)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: dc-phd
+    description: District of Columbia Public Health Department
+    jurisdiction: STATE
+    stateCode: DC
+    receivers:
+      - name: elr
+        organizationName: dc-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, DC, patient_state, DC)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: fm-phd
+    description: Federated States of Micronesia Public Health Department
+    jurisdiction: STATE
+    stateCode: FM
+    receivers:
+      - name: elr
+        organizationName: fm-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, FM, patient_state, FM)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ga-phd
+    description: Georgia Public Health Department
+    jurisdiction: STATE
+    stateCode: GA
+    receivers:
+      - name: elr
+        organizationName: ga-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, GA, patient_state, GA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: hi-phd
+    description: Hawaii Public Health Department
+    jurisdiction: STATE
+    stateCode: HI
+    receivers:
+      - name: elr
+        organizationName: hi-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, HI, patient_state, HI)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: id-phd
+    description: Idaho Public Health Department
+    jurisdiction: STATE
+    stateCode: ID
+    receivers:
+      - name: elr
+        organizationName: id-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, ID, patient_state, ID)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: il-phd
+    description: Illinois Public Health Department
+    jurisdiction: STATE
+    stateCode: IL
+    receivers:
+      - name: elr
+        organizationName: il-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, IL, patient_state, IL)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: in-phd
+    description: Indiana Public Health Department
+    jurisdiction: STATE
+    stateCode: IN
+    receivers:
+      - name: elr
+        organizationName: in-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, IN, patient_state, IN)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ia-phd
+    description: Iowa Public Health Department
+    jurisdiction: STATE
+    stateCode: IA
+    receivers:
+      - name: elr
+        organizationName: ia-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, IA, patient_state, IA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ks-phd
+    description: Kansas Public Health Department
+    jurisdiction: STATE
+    stateCode: KS
+    receivers:
+      - name: elr
+        organizationName: ks-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, KS, patient_state, KS)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ky-phd
+    description: Kentucky Public Health Department
+    jurisdiction: STATE
+    stateCode: KY
+    receivers:
+      - name: elr
+        organizationName: ky-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, KY, patient_state, KY)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: me-phd
+    description: Maine Public Health Department
+    jurisdiction: STATE
+    stateCode: ME
+    receivers:
+      - name: elr
+        organizationName: me-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, ME, patient_state, ME)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: mh-phd
+    description: Marshall Islands Public Health Department
+    jurisdiction: STATE
+    stateCode: MH
+    receivers:
+      - name: elr
+        organizationName: mh-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, MH, patient_state, MH)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: mo-phd
+    description: Missouri Public Health Department
+    jurisdiction: STATE
+    stateCode: MO
+    receivers:
+      - name: elr
+        organizationName: mo-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, MO, patient_state, MO)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ne-phd
+    description: Nebraska Public Health Department
+    jurisdiction: STATE
+    stateCode: NE
+    receivers:
+      - name: elr
+        organizationName: ne-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NE, patient_state, NE)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: nv-phd
+    description: Nevada Public Health Department
+    jurisdiction: STATE
+    stateCode: NV
+    receivers:
+      - name: elr
+        organizationName: nv-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NV, patient_state, NV)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ny-phd
+    description: New York Public Health Department
+    jurisdiction: STATE
+    stateCode: NY
+    receivers:
+      - name: elr
+        organizationName: ny-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, NY, patient_state, NY)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: mp-phd
+    description: Northern Mariana Islands Public Health Department
+    jurisdiction: STATE
+    stateCode: MP
+    receivers:
+      - name: elr
+        organizationName: mp-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, MP, patient_state, MP)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ok-phd
+    description: Oklahoma Public Health Department
+    jurisdiction: STATE
+    stateCode: OK
+    receivers:
+      - name: elr
+        organizationName: ok-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, OK, patient_state, OK)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: or-phd
+    description: Oregon Public Health Department
+    jurisdiction: STATE
+    stateCode: OR
+    receivers:
+      - name: elr
+        organizationName: or-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, OR, patient_state, OR)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: pw-phd
+    description: Palau Public Health Department
+    jurisdiction: STATE
+    stateCode: PW
+    receivers:
+      - name: elr
+        organizationName: pw-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, PW, patient_state, PW)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: pr-phd
+    description: Puerto Rico Public Health Department
+    jurisdiction: STATE
+    stateCode: PR
+    receivers:
+      - name: elr
+        organizationName: pr-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, PR, patient_state, PR)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ri-phd
+    description: Rhode Island Public Health Department
+    jurisdiction: STATE
+    stateCode: RI
+    receivers:
+      - name: elr
+        organizationName: ri-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, RI, patient_state, RI)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: sc-phd
+    description: South Carolina Public Health Department
+    jurisdiction: STATE
+    stateCode: SC
+    receivers:
+      - name: elr
+        organizationName: sc-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, SC, patient_state, SC)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: sd-phd
+    description: South Dakota Public Health Department
+    jurisdiction: STATE
+    stateCode: SD
+    receivers:
+      - name: elr
+        organizationName: sd-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, SD, patient_state, SD)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: ut-phd
+    description: Utah Public Health Department
+    jurisdiction: STATE
+    stateCode: UT
+    receivers:
+      - name: elr
+        organizationName: ut-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, UT, patient_state, UT)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: vi-phd
+    description: Virgin Islands Public Health Department
+    jurisdiction: STATE
+    stateCode: VI
+    receivers:
+      - name: elr
+        organizationName: vi-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, VI, patient_state, VI)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: va-phd
+    description: Virginia Public Health Department
+    jurisdiction: STATE
+    stateCode: VA
+    receivers:
+      - name: elr
+        organizationName: va-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, VA, patient_state, VA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: wa-phd
+    description: Washington Department of Health
+    jurisdiction: STATE
+    stateCode: WA
+    receivers:
+      - name: elr
+        organizationName: wa-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(abnormal_flag, A)
+          - orEquals(ordering_facility_state, WA, patient_state, WA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          nameFormat: washington
+          reportingFacilityName: 7uycso49
+          reportingFacilityId: 1.3.6.1.4.1.38630.2.1.1.519
+          reportingFacilityIdType: ISO
+          receivingApplicationName: WADOHPHRED
+          receivingApplicationOID: 2.16.840.1.113883.3.237.4.2
+          receivingFacilityName: dn1fro00
+          receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
+        timing:
+          operation: MERGE
+          numberPerDay: 720 # Every other minute staggered with negative results
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: AS2
+          #receiverUrl: "https://uat-onehealthport-as2.axwaycloud.com/exchange/ZZOHPUAT"
+          #receiverId: ZZOHPUAT
+          #senderId: 7uycso49
+          receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
+          receiverId: p1as2
+          senderId: CDCPRIMETEST
+      - name: elr-neg
+        organizationName: wa-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - doesNotMatch(abnormal_flag, A)
+          - orEquals(ordering_facility_state, WA, patient_state, WA)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          nameFormat: washington_negative
+          reportingFacilityName: 7uycso49
+          reportingFacilityId: 1.3.6.1.4.1.38630.2.1.1.519
+          reportingFacilityIdType: ISO
+          receivingApplicationName: WADOHPHRED
+          receivingApplicationOID: 2.16.840.1.113883.3.237.4.2
+          receivingFacilityName: dn1fro00
+          receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
+        timing:
+          operation: MERGE
+          numberPerDay: 720 # Every other minute
+          initialTime: 00:01
+          timeZone: EASTERN
+        transport:
+          type: AS2
+          #receiverUrl: "https://uat-onehealthport-as2.axwaycloud.com/exchange/ZZOHPUAT"
+          #receiverId: ZZOHPUAT
+          #senderId: 7uycso49
+          receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
+          receiverId: p1as2
+          senderId: CDCPRIMETEST
+
+  - name: wv-phd
+    description: West Virginia Public Health Department
+    jurisdiction: STATE
+    stateCode: WV
+    receivers:
+      - name: elr
+        organizationName: wv-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, WV, patient_state, WV)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: wy-phd
+    description: Wyoming Public Health Department
+    jurisdiction: STATE
+    stateCode: WY
+    receivers:
+      - name: elr
+        organizationName: wy-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, WY, patient_state, WY)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: wv-phd
+    description: West Virginia Public Health Department
+    jurisdiction: STATE
+    stateCode: WV
+    receivers:
+      - name: elr
+        organizationName: wv-phd
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, WV, patient_state, WV)
+        translation:
+          type: HL7
+          useBatchHeaders: true
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: EASTERN
+        transport:
+          type: FTPS
+          host: localhost
+          port: 21
+          filePath: ./upload
