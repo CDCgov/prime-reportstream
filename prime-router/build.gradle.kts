@@ -356,6 +356,17 @@ tasks.register("package") {
     dependsOn("fatJar")
 }
 
+tasks.register("quickPackage") {
+    // Quick package for development purposes.  Use with caution.
+    dependsOn("azureFunctionsPackage")
+    dependsOn("copyAzureResources")
+    dependsOn("copyAzureScripts")
+    tasks["test"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -364,13 +375,13 @@ repositories {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.2.20")
+    jooqGenerator("org.postgresql:postgresql:42.2.22")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.16.0")
+    implementation("com.azure:azure-core:1.17.0")
     implementation("com.azure:azure-core-http-netty:1.10.0")
     implementation("com.azure:azure-storage-blob:12.11.1") {
         exclude(group = "com.azure", module = "azure-core")
@@ -378,7 +389,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.9.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.2.8") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }

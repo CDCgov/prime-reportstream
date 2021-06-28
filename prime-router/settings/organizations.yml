@@ -87,6 +87,16 @@
       schemaName: tpca/tpca-covid-19
       format: CSV
 
+- name: careevolution
+  description: Care Evolution
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: careevolution
+      topic: covid-19
+      schemaName: direct/careevolution-covid-19
+      format: HL7
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -641,6 +651,7 @@
         receivingFacilityName: MA-MDPH
         receivingFacilityOID: 2.16.840.1.113883.19.3.2
         truncateHDNamespaceIds: true
+        nameFormat: massachusetts
 
 - name: nh-dphs
   description: New Hampshire Division of Public Health Services
@@ -883,6 +894,11 @@
       topic: covid-19
       schemaName: empty
       format: CSV
+    - name: ignore-hl7      # Use this to test sending data from the HL7 schema
+      organizationName: ignore
+      topic: covid-19
+      schemaName: hl7/hl7-ingest-covid-19
+      format: HL7
   receivers:
     - name: CSV
       organizationName: ignore
@@ -968,8 +984,6 @@
       translation:
         type: HL7
         useBatchHeaders: true
-      transport:
-        type: NULL
     - name: HL7_NULL
       organizationName: ignore
       topic: covid-19
@@ -982,8 +996,6 @@
         type: CUSTOM
         schemaName: tx/tx-covid-19
         format: HL7
-      transport:
-        type: "NULL"
     - name: BLOBSTORE
       organizationName: ignore
       topic: covid-19

@@ -87,6 +87,16 @@
         schemaName: tpca/tpca-covid-19
         format: CSV
 
+  - name: careevolution
+    description: Care Evolution
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: careevolution
+        topic: covid-19
+        schemaName: direct/careevolution-covid-19
+        format: HL7
+
   - name: az-phd
     description: Arizona PHD
     jurisdiction: STATE
@@ -252,6 +262,52 @@
           host: sftp
           port: 22
           filePath: ./upload
+
+  - name: gu-doh
+    description: Guam Department of Health
+    jurisdiction: STATE
+    stateCode: GU
+    receivers:
+      - name: elr
+        organizationName: gu-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, GU)
+        deidentify: false
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: GUDOH
+          receivingFacilityName: GUDOH
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: CHAMORRO
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+
+  - name: vt-doh
+    description: Vermont Department of Health
+    jurisdiction: STATE
+    stateCode: VT
+    receivers:
+      - name: elr
+        organizationName: vt-doh
+        topic: covid-19
+        jurisdictionalFilter:
+          - matches(ordering_facility_state, VT)
+        deidentify: false
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: NBS
+          receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+          receivingFacilityName: VDH
+          receivingFacilityOID: 2.16.840.1.114222.4.1.185
 
   - name: nd-doh
     description: North Dakota Department of Health
@@ -814,6 +870,7 @@
           receivingFacilityName: MA-MDPH
           receivingFacilityOID: 2.16.840.1.113883.19.3.2
           truncateHDNamespaceIds: true
+          nameFormat: massachusetts
         transport:
           type: SFTP
           host: sftp
@@ -1157,6 +1214,11 @@
         topic: covid-19
         schemaName: empty
         format: CSV
+      - name: ignore-hl7      # Use this to test sending data from the HL7 schema
+        organizationName: ignore
+        topic: covid-19
+        schemaName: hl7/hl7-ingest-covid-19
+        format: HL7
     receivers:
       - name: CSV
         organizationName: ignore
@@ -1242,8 +1304,6 @@
         translation:
           type: HL7
           useBatchHeaders: true
-        transport:
-          type: NULL
       - name: HL7_NULL
         organizationName: ignore
         topic: covid-19
@@ -1256,8 +1316,6 @@
           type: CUSTOM
           schemaName: tx/tx-covid-19
           format: HL7
-        transport:
-          type: "NULL"
       - name: BLOBSTORE
         organizationName: ignore
         topic: covid-19

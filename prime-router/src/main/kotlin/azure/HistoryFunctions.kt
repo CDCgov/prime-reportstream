@@ -17,10 +17,13 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.WorkflowEngine.Header
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.StringReader
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
+import java.util.UUID
 import java.util.logging.Level
+import kotlin.collections.ArrayList
 
 class Facility private constructor(
     val organization: String?,
@@ -296,8 +299,10 @@ open class BaseHistoryFunction {
         reportIdIn: String,
         context: ExecutionContext
     ): HttpResponseMessage {
+
         val authClaims = checkAuthenticated(request, context)
-        if (authClaims == null) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+
         var response: HttpResponseMessage
         try {
             val reportId = ReportId.fromString(reportIdIn)
@@ -309,11 +314,27 @@ open class BaseHistoryFunction {
                 val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 
                 val fileReturn = FileReturn(String(header.content), filename, mimeType)
-                return request
+                response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
                     .body(fileReturn)
                     .build()
+
+                val actionHistory = ActionHistory(TaskAction.download, context)
+                actionHistory.trackActionRequestResponse(request, response)
+                // Give the external report_file a new UUID, so we can track its history distinct from the
+                // internal blob.   This is going to be very confusing.
+                val externalReportId = UUID.randomUUID()
+                actionHistory.trackDownloadedReport(
+                    header,
+                    filename,
+                    externalReportId,
+                    authClaims.userName,
+                )
+                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
+                WorkflowEngine().recordAction(actionHistory)
+
+                return response
             }
         } catch (ex: Exception) {
             context.logger.warning("Exception during download of $reportIdIn - file not found")

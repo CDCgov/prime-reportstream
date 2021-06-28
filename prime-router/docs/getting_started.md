@@ -112,7 +112,7 @@ If you need Flyway, you can install it via `apt` as above.
 #### PostgreSQL via Docker
 In [`devenv-infrastructure.sh`](../devenv-infrastructure.sh)
 ```sh
-docker-compose -f ./docker-prime-infra.yml up --detach
+docker-compose -f ./docker-infrastructure.yml up --detach
 ```
 
 ## Clone the Repository    
@@ -180,9 +180,6 @@ ktlint applyToIDEAProject
 A useful Azure tool to examine Azurite and Azure storage is (Storage Explorer)[https://azure.microsoft.com/en-us/features/storage-explorer/] from Microsoft.
 
 ## Function Development with Docker Compose
-### Local SFTP Server
-You will need an SFTP server to receive data from the router.  For local tests, refer to the [SFTP-SETUP document](SFTP-SETUP.md) to setup a local SFTP server as a receiver of data.
-
 ### Running the Router Locally
 The project's [README](../readme.md) file contains some steps to use the PRIME router in a CLI. However, for the POC app and most other users of the PRIME router will the router in the Microsoft Azure cloud. When hosted in Azure, the PRIME router uses Docker containers. The `DockerFile` describes how to build this container.
 
@@ -340,34 +337,14 @@ export $(cat ./.vault/env/.env.local | xargs)
 
 The prime-router comes packaged with a executable that can help in finding misconfigurations and other problems with the appliciation.
 
-Use the following command to launch the tool. 
+Use the following command to launch the tool locally: 
 
 ```shell
 cd prime-router
+export POSTGRES_PASSWORD='changeIT!'
+export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+export POSTGRES_USER=prime
 ./prime test
 ```
 
-This should be used while the prime-router application is running on your system.
-
-
-
-#### Missing env var
-
-The gradle script is supposed to install a few environment variables that will be used by the prime test utility, however this is currently prone to failure. If a run of `prime test` mentions that any are missing try manually adding them: 
-
-```shell
-POSTGRES_PASSWORD='changeIT!'
-POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
-POSTGRES_USER=prime
-```
-
-If on *nix system you can also append these directly on the command to launch `prime test`. For example: 
-
-```shell
-POSTGRES_PASSWORD='changeIT!' \
-POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub \
-POSTGRES_USER=prime \
-./prime-router/prime test
-```
-
-Running the test command with the correct environment variables should "repair" a running prime-router process in progress. This fix should even persist through subsequent runs.  
+This can be used while the prime-router application is running on your system.
