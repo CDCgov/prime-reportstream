@@ -145,7 +145,7 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.2
 
-      - name: Whitelist GitHub Action Running in Function App Slot
+      - name: Whitelist GitHub Action Runner in Function App Slot
         id: ip-whitelist-create
         run: |
           az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address ${{ steps.ip.outputs.ipv4 }} --priority 750
@@ -238,7 +238,7 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.2
 
-      - name: Whitelist GitHub Action Running in Function App Slot
+      - name: Whitelist GitHub Action Runner in Function App Slot
         id: ip-whitelist-create
         run: |
           az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address ${{ steps.ip.outputs.ipv4 }} --priority 750
@@ -332,7 +332,7 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.2
 
-      - name: Whitelist GitHub Action Running in Function App Slot
+      - name: Whitelist GitHub Action Runner in Function App Slot
         id: ip-whitelist-create
         run: |
           az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address ${{ steps.ip.outputs.ipv4 }} --priority 750
