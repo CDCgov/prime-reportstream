@@ -149,7 +149,6 @@ jobs:
         id: ip-whitelist-create
         run: |
           az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address ${{ steps.ip.outputs.ipv4 }} --priority 750
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV6 --action Allow --ip-address ${{ steps.ip.outputs.ipv6 }} --priority 751
 
       - name: Deploy to Candidate App Slot
         uses: Azure/functions-container-action@v1
@@ -169,7 +168,6 @@ jobs:
         id: ip-whitelist-destroy
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4
-          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV6
 
       - name: Upload Static Site
         uses: azure/CLI@v1
@@ -242,7 +240,6 @@ jobs:
         id: ip-whitelist-create
         run: |
           az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address ${{ steps.ip.outputs.ipv4 }} --priority 750
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV6 --action Allow --ip-address ${{ steps.ip.outputs.ipv6 }} --priority 751
 
       - name: Deploy to Candidate App Slot
         uses: Azure/functions-container-action@v1
@@ -262,7 +259,6 @@ jobs:
         id: ip-whitelist-destroy
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4
-          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV6
 
       - name: Upload Static Site
         uses: azure/CLI@v1
@@ -336,7 +332,6 @@ jobs:
         id: ip-whitelist-create
         run: |
           az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address ${{ steps.ip.outputs.ipv4 }} --priority 750
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV6 --action Allow --ip-address ${{ steps.ip.outputs.ipv6 }} --priority 751
 
       - name: Deploy to Candidate App Slot
         uses: Azure/functions-container-action@v1
@@ -356,7 +351,6 @@ jobs:
         id: ip-whitelist-destroy
         run: |
           az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4
-          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV6
 
       - name: Upload Static Site
         uses: azure/CLI@v1
