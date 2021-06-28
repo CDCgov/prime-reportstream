@@ -471,7 +471,11 @@ class CompareCsvData() {
         actualRowNum: Int,
         result: CompareData.Result = CompareData.Result()
     ): CompareData.Result {
-        if (actualRow.size < expectedRow.size) {
+        if (actualRow.isEmpty()) {
+            result.errors.add(
+                "The actual report had no rows"
+            )
+        } else if (actualRow.size < expectedRow.size) {
             result.errors.add(
                 "There are too few columns in the actual report.  Expected ${expectedRow.size} or more, but got" +
                     "${actualRow.size}"
