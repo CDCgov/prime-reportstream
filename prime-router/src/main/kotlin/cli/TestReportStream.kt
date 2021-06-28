@@ -232,7 +232,7 @@ Examples:
             Waters(),
             RepeatWaters(),
             InternationalContent(),
-            Hl7Ingest()
+            Hl7Ingest(),
             SantaClaus()
         )
     }
@@ -1452,7 +1452,7 @@ class SantaClaus : CoolTest() {
 
             // Now send it to ReportStream.
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, sender.organizationName, sender.name, null)
+                HttpUtilities.postReportFile(environment, file, sender.organizationName, sender, null)
 
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***$name Test FAILED***:  response code $responseCode")
