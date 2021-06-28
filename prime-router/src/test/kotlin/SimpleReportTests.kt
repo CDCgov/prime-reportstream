@@ -233,9 +233,10 @@ class SimpleReportTests {
 
             for (expectedKey in expected.keys) {
                 if (!actual.keys.contains(expectedKey)) fail("Key $expectedKey missing in actual dataset")
-
+                @Suppress("UNCHECKED_CAST") // Safe, as it throws exception if null.
                 val actualLines: List<String> = actual[expectedKey] as? List<String>
                     ?: fail("Cast failed for actual values")
+                @Suppress("UNCHECKED_CAST") // Safe, as it throws exception if null.
                 val expectedLines: List<String> = expected[expectedKey] as? List<String>
                     ?: fail("Cast failed for expected values")
 
