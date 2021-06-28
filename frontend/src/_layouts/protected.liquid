@@ -4,8 +4,6 @@ hide_signin: false
 cdn_styles:
   - href: "https://global.oktacdn.com/okta-signin-widget/5.5.2/css/okta-sign-in.min.css"
     integrity: "sha384-4AU/gyygVPVvyhusYR7zfD/dqlzjJ43STE4S8LYxeJtSgO43of15iAuMLhEUhqOt"
-  - href: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/css/uswds.min.css"
-    integrity: "sha384-WT15xkSvYhMfxLFeV9L2TsdadMbz0gCvu9NTc9oT3jeq/lEL64ZHF2diAnbRdPOl"
 
 cdn_scripts:
   - src: "https://global.oktacdn.com/okta-signin-widget/5.5.2/js/okta-sign-in.min.js"
@@ -26,12 +24,10 @@ cdn_scripts:
     integrity: "sha384-BqW9ZnUhs8B3bGaZeNfcY6qQnTHMeMu5/NsLjEoGGzY5eXVsGlTxQC18eAn5bY9z"
 
 post_scripts:
-  - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/js/uswds.min.js"
-    integrity: "sha512-WiP2mmg7ArMOV5qtm9TB85926NCnRhxwONQrZM1i2E7V2zwuOIrnqF/vmMfqhNdDJl7BP+5xFaXVzA6y5wTRtQ=="
+  - src: "/js/uswds.min.js"
 
 local_styles:
-  - "/assets/stylesheets/prime.css"
-  - "/assets/stylesheets/actions.css"
+  - "/assets/stylesheets/styles.css"
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -70,7 +66,7 @@ local_styles:
 {% include identifier %}
 
   {% for entry in post_scripts %}
-    <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
+    <script src="{{entry.src}}" {% if integrity %}integrity="{{entry.integrity}}"{% endif %} crossorigin="anonymous"></script>
   {% endfor %}
 
 </body>

@@ -1,7 +1,8 @@
 ---
 title: ReportStream makes it easier to collect public health data — for free
 summary: >-
-  ReportStream is an open source, cloud based platform that aggregates and delivers COVID-19 test results to health departments. Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection.
+  ReportStream is an open source, cloud based platform that aggregates and delivers COVID-19 test results to health departments.
+description: Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection. 
 bullets:
   - content: 100% free
   - content: Backed by the CDC

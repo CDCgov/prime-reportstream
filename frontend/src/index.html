@@ -15,6 +15,7 @@ hide-signin: false
       <div class="tablet:grid-col-6">
         <h1>{{ content.index.title }}</h1>
         <p class="font-sans-lg line-height-sans-4">{{ content.index.summary }}</p>
+        <p class="">{{ content.index.description }}</p>
         {% if content.index.bullets %}
           <ul class="usa-prose">
             {% for bullet in content.index.bullets %}
