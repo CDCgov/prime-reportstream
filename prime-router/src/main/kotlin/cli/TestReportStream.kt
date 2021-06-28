@@ -282,7 +282,7 @@ abstract class CoolTest {
                         txn = txn,
                         reportId = reportId,
                         receivingOrgSvc = receiver.name,
-                        receivingOrg = if(filterOrgName) receiver.organizationName else null,
+                        receivingOrg = if (filterOrgName) receiver.organizationName else null,
                         action = action
                     )
                     if (count == null || expected != count) {
@@ -459,15 +459,14 @@ abstract class CoolTest {
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
               where RF.receiving_org_svc = ?
-              ${if(receivingOrg != null) "and RF.receiving_org = ?" else ""}
+              ${if (receivingOrg != null) "and RF.receiving_org = ?" else ""}
               and A.action_name = ? 
               and IL.item_lineage_id in 
               (select item_descendants(?)) """
 
-            if(receivingOrg != null) {
+            if (receivingOrg != null) {
                 return ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
-            }
-            else {
+            } else {
                 return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
             }
         }
@@ -1475,9 +1474,11 @@ class SantaClaus : CoolTest() {
                         val receiverName = destination["service"].textValue()
                         val organizationId = destination["organization_id"].textValue()
 
-                        receivers.addAll(settings.receivers.filter {
-                            it.organizationName == organizationId && it.name == receiverName
-                        })
+                        receivers.addAll(
+                            settings.receivers.filter {
+                                it.organizationName == organizationId && it.name == receiverName
+                            }
+                        )
                     }
                 }
 
@@ -1485,25 +1486,28 @@ class SantaClaus : CoolTest() {
 
                     // give some time to let the system
                     // finish with the expected output
-                    waitWithConditionalRetry(90, {
-                        examineLineageResults(
-                            reportId = reportId,
-                            receivers = receivers,
-                            totalItems = receivers.size,
-                            filterOrgName = true,
-                            silent = true
-                        )
-                    }, callback = { succeed, retryCount ->
-                        if (!succeed) {
-                            if(retryCount == 0) {
-                                println("Waiting for examining lineage results of sender '${sender.fullName}'")
+                    waitWithConditionalRetry(
+                        90,
+                        {
+                            examineLineageResults(
+                                reportId = reportId,
+                                receivers = receivers,
+                                totalItems = receivers.size,
+                                filterOrgName = true,
+                                silent = true
+                            )
+                        },
+                        callback = { succeed, retryCount ->
+                            if (!succeed) {
+                                if (retryCount == 0) {
+                                    println("Waiting for examining lineage results of sender '${sender.fullName}'")
+                                }
+                                print(".")
+                            } else {
+                                println()
                             }
-                            print(".")
                         }
-                        else {
-                            println()
-                        }
-                    })
+                    )
 
                     // just to print to console some beautified output
                     passed = passed and examineLineageResults(
