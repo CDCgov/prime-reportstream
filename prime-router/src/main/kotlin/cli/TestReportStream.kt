@@ -1443,6 +1443,7 @@ class SantaClaus : CoolTest() {
                 metadata = metadata,
                 sender = sender,
                 count = states.size,
+                format = if(sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
                 directory = System.getProperty("java.io.tmpdir"),
                 targetStates = null,
                 targetCounties = null
