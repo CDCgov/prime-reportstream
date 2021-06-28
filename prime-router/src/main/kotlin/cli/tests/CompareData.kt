@@ -18,23 +18,80 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 
 /**
- * Generates a fake HL7 report and sends it to ReportStream, waits some time then checks the lineage to make
- * sure the data was sent to the configured senders.
+ * Uses test data provided via a configuration file, sends the data to the API, then checks the response,
+ * lineage results and compares the actual data with expected data provided in the configuration file.
+ *
+ * LIMITATIONS: Only supports CSV and HL7_BATCH receivers.  Tests are run sequentially.
  */
 class DataCompareTest : CoolTest() {
     override val name = "compare"
     override val description = "Send data to API based on config file, check lineage and compare data against expected"
     override val status = TestStatus.DRAFT
 
-    private val testDataDir = "/clitests/hl7ingest"
-    private val testConfigFile = "hl7ingest-test-config.csv"
+    private val testDataDir = "/clitests/compare-test-files"
+    private val testConfigFile = "compare-test-config.csv"
+
+    /**
+     * The input information for a test.
+     */
+    data class TestInput(val inputFile: String, val sender: String)
+
+    /**
+     * The expected output from ReportStream.
+     */
+    data class TestOutput(
+        val outputFile: String,
+        val orgName: String,
+        val receiverName: String,
+        val expectedCount: Int,
+        var receiver: Receiver? = null
+    )
+
+    /**
+     * The fields in the test configuration file
+     */
+    enum class ConfigColumns(val colName: String) {
+        /**
+         * The input file.
+         */
+        INPUT_FILE("Input File"),
+
+        /**
+         * The expected output file.
+         */
+        OUTPUT_FILE("Output File"),
+
+        /**
+         * The name of the sender to use including the organization and client name.
+         */
+        SENDER("Sender"),
+
+        /**
+         * The organization name for the receiver.
+         */
+        RECEIVER_ORG_NAME("Organization name"),
+
+        /**
+         * The receiver name.
+         */
+        RECEIVER_NAME("Receiver name"),
+
+        /**
+         * The number of expected reports in the output.  This is used to check the results in the lineage.
+         */
+        EXPECTED_COUNT("Expected count")
+    }
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         var passed = true
         val configs = readTestConfig("$testDataDir/$testConfigFile")
+
+        // Go through each input file
         if (configs.isNotEmpty()) {
             configs.forEach { config ->
+                // Collect some useful data first
                 val input = config.key
+                val inputFilePath = this.javaClass.getResource("$testDataDir/${config.key.inputFile}")?.path
                 val outputList = config.value
                 val sender = settings.findSender(input.sender)
                     ?: error("Unable to find sender ${input.sender}")
@@ -57,9 +114,8 @@ class DataCompareTest : CoolTest() {
 
                 var reportId: ReportId? = null
 
-                val inputFilePath = this.javaClass.getResource("$testDataDir/${config.key.inputFile}")?.path
                 if (!inputFilePath.isNullOrBlank()) {
-                    // Now send it to ReportStream.
+                    // Send the input file to ReportStream
                     val (responseCode, json) =
                         HttpUtilities.postReportFile(environment, File(inputFilePath), sender, options.key)
                     if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -116,6 +172,7 @@ class DataCompareTest : CoolTest() {
                     outputList.forEach { totalItemCount += it.expectedCount }
                     passed = passed and examineLineageResults(reportId, receivers, totalItemCount)
 
+                    // Compare the data
                     outputList.forEach { output ->
                         passed = passed and compareSentReports(
                             reportId,
@@ -129,31 +186,19 @@ class DataCompareTest : CoolTest() {
         return passed
     }
 
-    data class TestInput(val inputFile: String, val sender: String)
-    data class TestOutput(
-        val outputFile: String,
-        val orgName: String,
-        val receiverName: String,
-        val expectedCount: Int,
-        var receiver: Receiver? = null
-    )
-    enum class ConfigColumns(val colName: String) {
-        INPUT_FILE("Input File"),
-        OUTPUT_FILE("Output File"),
-        SENDER("Sender"),
-        ORG_NAME("Organization name"),
-        RECEIVER_NAME("Receiver name"),
-        EXPECTED_COUNT("Expected count")
-    }
-
+    /**
+     * Read the configuration file [configPathname] for this test.
+     * @return a map of input file to expected results
+     */
     private fun readTestConfig(configPathname: String): Map<TestInput, List<TestOutput>> {
         val config = mutableMapOf<TestInput, MutableList<TestOutput>>()
         val resourcePath = this.javaClass.getResource(configPathname)?.path
         if (!resourcePath.isNullOrBlank()) {
             csvReader().readAllWithHeader(File(resourcePath)).forEach {
+                // Make sure we have all the fields we need.
                 if (!it[ConfigColumns.INPUT_FILE.colName].isNullOrBlank() &&
                     !it[ConfigColumns.SENDER.colName].isNullOrBlank() &&
-                    !it[ConfigColumns.ORG_NAME.colName].isNullOrBlank() &&
+                    !it[ConfigColumns.RECEIVER_ORG_NAME.colName].isNullOrBlank() &&
                     !it[ConfigColumns.RECEIVER_NAME.colName].isNullOrBlank() &&
                     !it[ConfigColumns.EXPECTED_COUNT.colName].isNullOrBlank()
                 ) {
@@ -163,24 +208,32 @@ class DataCompareTest : CoolTest() {
                     )
                     val output = TestOutput(
                         it[ConfigColumns.OUTPUT_FILE.colName]?.trim() ?: "",
-                        it[ConfigColumns.ORG_NAME.colName]!!.trim(),
+                        it[ConfigColumns.RECEIVER_ORG_NAME.colName]!!.trim(),
                         it[ConfigColumns.RECEIVER_NAME.colName]!!.trim(),
                         Integer.parseInt(it[ConfigColumns.EXPECTED_COUNT.colName]!!)
                     )
+
+                    // Add to an existing input file config if it exists, otherwise create a new one
                     if (config.containsKey(input)) {
                         config[input]!!.add(output)
                     } else {
                         config[input] = mutableListOf(output)
                     }
                 } else {
-                    error("***$name Test FAILED***: One or more columns in config file are empty.")
+                    error("***$name Test FAILED***: One or more config columns in $configPathname are empty.")
                 }
             }
         }
         return config
     }
 
-    fun compareSentReports(
+    /**
+     * Compare the expected reports for the [reportId] to the actual [output] by getting the outputs from the
+     * database and comparing them to the expected results saved to the [sftpDir] as specified in the config
+     * file for the test.
+     * @return true if all actuals match the expected values, false otherwise
+     */
+    private fun compareSentReports(
         reportId: ReportId,
         output: TestOutput,
         sftpDir: String
@@ -188,10 +241,12 @@ class DataCompareTest : CoolTest() {
         var passed = true
         db = WorkflowEngine().db
         db.transact { txn ->
-            val expectedOutputPath = this.javaClass.getResource("$testDataDir/${output.outputFile}")?.path
+            // Get the output files from the database
             val outputFilename = sftpFilenameQuery(txn, reportId, output.receiver!!.name)
+            val expectedOutputPath = this.javaClass.getResource("$testDataDir/${output.outputFile}")?.path
             val schema = metadata.findSchema(output.receiver!!.schemaName)
             if (outputFilename != null && !expectedOutputPath.isNullOrBlank() && schema != null) {
+                TermUi.echo("----------------------------------------------------------")
                 TermUi.echo("Comparing expected data from $expectedOutputPath")
                 TermUi.echo("with actual data from $sftpDir/$outputFilename")
                 TermUi.echo("using schema ${schema.name}...")
@@ -199,86 +254,131 @@ class DataCompareTest : CoolTest() {
                     File(expectedOutputPath), File(sftpDir, outputFilename),
                     output.receiver!!.format, schema
                 )
-                if (result.isEqual) {
-                    good("Data compares SUCCESSFULLY")
+                if (result.passed) {
+                    good("Test passed: Data comparison")
                 } else {
-                    bad("Comparison was NOT successful")
+                    bad("***$name Test FAILED***: Data comparison FAILED")
                 }
                 if (result.errors.size > 0) bad(result.errors.joinToString("\n", "ERROR: "))
                 if (result.warnings.size > 0) TermUi.echo(result.warnings.joinToString("\n", "WARNING: "))
-                passed = passed and result.isEqual
+                TermUi.echo("")
+                passed = passed and result.passed
             }
         }
         return passed
     }
 }
 
+/**
+ * Compares two data files or messages.
+ */
 class CompareData {
+    /**
+     * The result of the comparison including warnings and errors.
+     */
     data class Result(
-        var isEqual: Boolean = false,
+        var passed: Boolean = true,
         val errors: ArrayList<String> = ArrayList<String>(),
         val warnings: ArrayList<String> = ArrayList<String>()
     ) {
         val hasErrors: Boolean
             get() = errors.isNotEmpty()
+
+        /**
+         * Merge results by adding [anotherResult] errors and warnings and setting the passed flag.
+         */
+        fun merge(anotherResult: Result) {
+            passed = passed and anotherResult.passed
+            errors.addAll(anotherResult.errors)
+            warnings.addAll(anotherResult.warnings)
+        }
     }
 
-    private val result = Result()
-
+    /**
+     * Compares two files, an [actual] and [expected], of the same [schema] and [format].
+     * @return the result for the comparison, with result.passed true if the comparison was successful
+     */
     fun compare(
         expected: File,
         actual: File,
         format: Report.Format,
         schema: Schema
     ): Result {
+        val result = Result()
         fun checkFile(file: File) {
             if (!file.canRead()) {
                 result.errors.add("Unable to read ${file.absolutePath}")
+                result.passed = false
             }
         }
 
         checkFile(expected)
         checkFile(actual)
-        if (!result.hasErrors) {
-            result.isEqual = compare(
+        if (result.passed) {
+            compare(
                 expected.inputStream(), actual.inputStream(),
-                format, schema
+                format, schema, result
             )
         }
         return result
     }
 
+    /**
+     * Compares two input streams, an [actual] and [expected], of the same [schema] and [format].
+     * @return the result for the comparison, with result.passed true if the comparison was successful
+     */
     fun compare(
         expected: InputStream,
         actual: InputStream,
         format: Report.Format,
-        schema: Schema
-    ): Boolean {
-        var passed = false
+        schema: Schema,
+        result: Result = Result()
+    ): Result {
         if (format == Report.Format.HL7 || format == Report.Format.HL7_BATCH) {
-            // passed = CompareHl7(expected, actual, schema)
+            result.merge(CompareHl7Data().compareHl7(expected, actual, schema))
         } else {
-            passed = compareCSV(expected, actual, schema)
+            result.merge(CompareCsvData().compare(expected, actual, schema))
         }
-        return passed
+        return result
     }
+}
+
+class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
+    fun compareHl7(
+        expected: InputStream,
+        actual: InputStream,
+        schema: Schema,
+        result: CompareData.Result = CompareData.Result()
+    ): CompareData.Result {
+        return CompareData.Result()
+    }
+}
+
+/**
+ * Compares two CSV files that use the same schema.
+ */
+class CompareCsvData() {
 
     /**
-     * Compare the data in the [actual] report to the data in the [expected] report.  This
-     * comparison uses the column names in the expected data to match it to the proper actual data,
-     * hence the order of columns in the expected data is not important.
+     * Compare the data in the [actual] report to the data in the [expected] report that use the same [schema].
      * Errors are generated when:
-     *  1. The number of reports is different
+     *  1. The number of reports is different (number of rows)
      *  2. A column in the expected values does not exist in the actual values
      *  3. A expected value does not match the actual value
+     *  4. Cannot find the actual row in the expected records
      *
      * Warnings are generated when:
      *  1. An actual value exists, but no expected value.
      *  2. There are more columns in the actual data than the expected data
      *
+     * @return the result for the comparison, with result.passed true if the comparison was successful
      */
-    private fun compareCSV(expected: InputStream, actual: InputStream, schema: Schema): Boolean {
-
+    fun compare(
+        expected: InputStream,
+        actual: InputStream,
+        schema: Schema,
+        result: CompareData.Result = CompareData.Result()
+    ): CompareData.Result {
         val expectedRows = csvReader().readAll(expected)
         val actualRows = csvReader().readAll(actual)
         val schemaMsgIdIndex = schema.findElementColumn("message_id")
@@ -311,11 +411,18 @@ class CompareData {
                             )
                 }
                 if (expectedRowRaw.size == 1) {
-                    if (!compareCsvRow(actualRow, expectedRowRaw[0], schema, i)) {
-                        result.errors.add(" Row not equal")
+                    val rowResult = compareCsvRow(actualRow, expectedRowRaw[0], schema, i)
+                    if (!rowResult.passed) {
+                        result.errors.add("Comparison for row #$i FAILED")
+                        result.merge(rowResult)
                     }
                 } else {
-                    result.errors.add(" Cannot find expected")
+                    result.errors.add(
+                        "Could not find row in expected data for message $i. " +
+                            "Was looking for ID='$actualMsgId', or patient last name='$actualLastName' " +
+                            "and state='$actualPatState'"
+                    )
+                    result.passed = false
                 }
             }
         } else {
@@ -323,21 +430,42 @@ class CompareData {
                 "Number of records does not match.  Expected ${expectedRows.size - 1} " +
                     "but got ${actualRows.size - 1}"
             )
+            result.passed = false
         }
 
-        return !result.hasErrors
+        return result
     }
 
-    fun compareCsvRow(actualRow: List<String>, expectedRow: List<String>, schema: Schema, actualRowNum: Int): Boolean {
-        var isEqual = true
+    /**
+     * Compare the data in the [actualRow] report to the data in the [expectedRow] report that use the same [schema].
+     * Errors are generated when:
+     *  1. The number of columns in the actual data is less than in the expected data
+     *  2. A column in the expected values does not exist in the actual values
+     *  3. A expected value does not match the actual value
+     *
+     * Warnings are generated when:
+     *  1. The number of columns in the actual data is more than in the expected data
+     *  2. An actual data value exists, but there is no matching expected data
+     *
+     * @return the result for the comparison, with result.passed true if the comparison was successful
+     */
+    fun compareCsvRow(
+        actualRow: List<String>,
+        expectedRow: List<String>,
+        schema: Schema,
+        actualRowNum: Int,
+        result: CompareData.Result = CompareData.Result()
+    ): CompareData.Result {
         if (actualRow.size < expectedRow.size) {
             result.errors.add(
-                "Too few cols"
+                "There are too few columns in the actual report.  Expected ${expectedRow.size} or more, but got" +
+                    "${actualRow.size}"
             )
         } else {
             if (actualRow.size > expectedRow.size) {
                 result.warnings.add(
-                    "Actual has more cols"
+                    "Actual report has more columns than expected.  Actual has ${actualRow.size} and expected " +
+                        "${expectedRow.size}"
                 )
             }
 
@@ -353,7 +481,7 @@ class CompareData {
                             "'$colName'. Expected: '${expectedRow[j].trim()}', " +
                             "Actual: '${actualRow[j].trim()}'"
                     )
-                    isEqual = false
+                    result.passed = false
                 } else if (expectedRow[j].trim().isEmpty() &&
                     actualRow[j].trim().isNotEmpty()
                 ) {
@@ -365,6 +493,6 @@ class CompareData {
                 }
             }
         }
-        return isEqual
+        return result
     }
 }
