@@ -89,16 +89,16 @@ Looking toward the future, there will be subnets we will not utilize when we mig
 
 With the above considerations, the proposed CIDR request per environment/region pair is:
 
-**x.x.x.x/23**
+**x.x.x.x/25**
 
-### Why a `/23`?
+### Why a `/25`?
 
-* A `/23` will grant us 512 IP addresses per VNET
+* A `/25` will grant us 128 IP addresses per VNET
 * While we currently use a limited number of IP addresses, we cannot anticipate our future needs
 * We may want to utilize private endpoints again in the future
 * While our current utilized resources do not consume VNET ip addresses when scaled (ex. function app, database, etc), we may in the future have bare containers that need to be scaled, which will consume an IP per server
 
-### Why request a `/23` in each environment-region pair?
+### Why request a `/25` in each environment-region pair?
 
 * Environments should be identical
     * When we conduct full-scale load testing in a lower environment, we’ll want the same number of IPs to verify our scaling logic
@@ -110,9 +110,9 @@ With the above considerations, the proposed CIDR request per environment/region 
 
 | Subnet | Description | CIDR | IPs | Used | Available |
 |:--|:--|--:|--:|--:|--:|
-| public | Internet-routable resources | x.x.x.x/26 | 64 | 5 + 0 = 5 | 59 |
-| container | Docker containers (ex. SFTP test) | x.x.x.x/26 | 64 | 5 + 2 = 7 | 57 |
-| private | VNET-only; not Internet-routable | x.x.x.x/26 | 64 | 5 + 0 = 5 | 59 |
+| public | Internet-routable resources | x.x.x.x/28 | 16 | 5 + 0 = 5 | 11 |
+| container | Docker containers (ex. SFTP test) | x.x.x.x/28 | 16 | 5 + 2 = 7 | 9 |
+| private | VNET-only; not Internet-routable | x.x.x.x/28 | 16 | 5 + 0 = 5 | 11 |
 | GatewaySubnet | Not used under a CDC VNET |  | |  |  |
 | endpoint | Not used under a CDC VNET |  | |  |  |
 
@@ -120,9 +120,9 @@ With the above considerations, the proposed CIDR request per environment/region 
 
 | Count | Label |
 |--:|:--|
-| 512 | IPs in CIDR |
-| 192 | Allocated IPs to Subnets |
-| 320 | Available IPs |
+| 128 | IPs in CIDR |
+| 48 | Allocated IPs to Subnets |
+| 80 | Available IPs |
 
 ## Discussion Points
 
