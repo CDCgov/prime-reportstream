@@ -488,38 +488,6 @@ abstract class CoolTest {
                 order by A.action_id """
             return ctx.fetchOne(sql, reportId, receivingOrgSvc)?.into(String::class.java)
         }
-        
-        data class SftpReportFile(
-            var reportId: ReportId,
-            var schemaName: String,
-            var bodyFormat: Report.Format,
-            var externalName: String
-        )
-
-        /**
-         * Fetch the data details for the one uploaded file to SFTP for a given [reportId] and [receivingOrgSvc].
-         * @return the filename of the uploaded file
-         */
-        fun sftpFileQuery(
-            txn: DataAccessTransaction,
-            reportId: ReportId,
-            receivingOrgSvc: String
-        ): SftpReportFile? {
-            val ctx = DSL.using(txn)
-            val sql = """select RF.external_name, RF.schema_name, RF.body_format
-                from report_file as RF
-                join action as A ON A.action_id = RF.action_id
-                where RF.report_id in (select find_sent_reports(?)) AND RF.receiving_org_svc = ? 
-                order by A.action_id """
-            return ctx.fetchOne(sql, reportId, receivingOrgSvc)?.let {
-                val report = SftpReportFile(
-                    reportId, it.getValue("schema_name").toString(),
-                    Report.Format.safeValueOf(it.getValue("body_format").toString()),
-                    it.getValue("external_name").toString()
-                )
-                if (report.schemaName.isNullOrEmpty() || report.externalName.isNullOrEmpty()) null else report
-            }
-        }
 
         // Find the most recent action taken in the system
         fun actionQuery(
@@ -838,7 +806,7 @@ class StracPack : CoolTest() {
         )
         echo("Created datafile $file")
         // Now send it to ReportStream over and over
-        var reportIds = mutableListOf<ReportId>()
+        val reportIds = mutableListOf<ReportId>()
         var passed = true
         // submit in thread grouping somewhat smaller than our database pool size.
         for (i in 1..options.submits) {
@@ -969,7 +937,7 @@ class HammerTime : CoolTest() {
         )
         echo("Created datafile $file")
         // Now send it to ReportStream over and over
-        var reportIds = mutableListOf<ReportId>()
+        val reportIds = mutableListOf<ReportId>()
         var passed = true
         // submit in thread grouping somewhat smaller than our database pool size.
         for (i in 1..options.submits) {
