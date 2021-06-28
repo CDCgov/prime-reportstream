@@ -179,3 +179,7 @@ make TF_ENV={dev,test,staging,prod} tf-01-network
 tf destroy
 exit
 ```
+
+**WARNING:** Removing stages beyond `04-app` will release resources that are irrecoverable. Data is preserved by Azure retention policies, but public IP addresses and other static resources may be released.
+
+Any resource that is not ephemeral is marked with a `lifecycle { prevent_destroy = true }` annotation, requiring manual intervention to tear down the resource.
