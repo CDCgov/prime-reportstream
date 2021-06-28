@@ -61,19 +61,32 @@ data class AS2TransportType
 ) :
     TransportType("AS2")
 
+/**
+ * FTPSTransportType
+ */
 data class FTPSTransportType
 @JsonCreator constructor(
     val host: String,
-    val port: String,
+    val port: Int,
     val username: String,
     val password: String,
-    val remote: String,
-    val local: String,
     val protocol: String = "SSL", // TODO: make enum SSL/TLS
-    val filePath: String,
-    val binaryTransfer: Boolean = false
-) :
-    TransportType("FTPS")
+    val binaryTransfer: Boolean = true,
+    /**
+     * @param acceptAllCerts  pass true to ignore all cert checks, helpful for testing
+     */
+    val acceptAllCerts: Boolean = false
+) : TransportType("FTPS") {
+    /**
+     * toString()
+     *
+     * Print out the parameters of the FTPSTransportType but obfuscate the password
+     *
+     * @return String
+     */
+    override fun toString(): String =
+        "host=$host, port=$port, username=$username, protocol=$protocol, binaryTransfer=$binaryTransfer"
+}
 
 data class NullTransportType
 @JsonCreator constructor(

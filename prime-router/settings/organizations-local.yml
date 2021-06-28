@@ -2254,16 +2254,16 @@
           port: 22
           filePath: ./upload
 
-  - name: wv-phd
-    description: West Virginia Public Health Department
+  - name: ut-phd
+    description: Utah Public Health Department
     jurisdiction: STATE
-    stateCode: WV
+    stateCode: UT
     receivers:
       - name: elr
-        organizationName: wv-phd
+        organizationName: ut-phd
         topic: covid-19
         jurisdictionalFilter:
-          - orEquals(ordering_facility_state, WV, patient_state, WV)
+          - orEquals(ordering_facility_state, UT, patient_state, UT)
         translation:
           type: HL7
           useBatchHeaders: true
@@ -2274,6 +2274,8 @@
           timeZone: EASTERN
         transport:
           type: FTPS
-          host: localhost
-          port: 21
+          host: ftpd_server
+          port: 2121
           filePath: ./upload
+          username: ftps
+          password: ftps

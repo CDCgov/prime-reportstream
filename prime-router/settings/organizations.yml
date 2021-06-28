@@ -2528,9 +2528,10 @@
         initialTime: 00:00
         timeZone: EASTERN
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: FTPS
+        host: ftps
+        username: ftps
+        password: ftps
+        port: 21
+        acceptAllCerts: true
 

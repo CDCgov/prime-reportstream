@@ -7,11 +7,11 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.BlobStoreTransportType
+import gov.cdc.prime.router.FTPSTransportType
 import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RedoxTransportType
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
-import gov.cdc.prime.router.FTPSTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.transport.ITransport

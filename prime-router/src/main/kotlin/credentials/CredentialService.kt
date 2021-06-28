@@ -38,5 +38,5 @@ enum class CredentialRequestReason {
     AS2_UPLOAD,
     AUTOMATED_TEST,
     PERSIST_VERIFY,
-    FTPS_UPLODAD
+    FTPS_UPLOAD
 }
