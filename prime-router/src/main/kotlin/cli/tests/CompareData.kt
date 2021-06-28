@@ -19,7 +19,22 @@ import java.net.HttpURLConnection
 
 /**
  * Uses test data provided via a configuration file, sends the data to the API, then checks the response,
- * lineage results and compares the actual data with expected data provided in the configuration file.
+ * lineage results and compares the actual data with expected data provided in the configuration file.  This
+ * test is run via a configuration file that specifies what the input and expected reports are for the test.
+ * compare-test-config.csv has the following columns:
+ *   Input File,Sender,Expected File,Organization name,Receiver name,Expected count
+ * Where:
+ *   Input File = input HL7 or CSV file relative to the config file folder
+ *   Sender = the name of the sender including organization (e.g. ignore.ignore-hl7)
+ *   Expected File = the name of one of the expected output files relative to the config file folder
+ *   Organization name = the name of the receiver organization (e.g. ignore)
+ *   Receiver name = the name of the receiver (e.g. CSV)
+ *   Expected count = The number of expected records sent as an integer
+ * You can specify one or more expected files for a given input file by having multiple lines with the same input
+ * file.  E.g.
+ *   Input File,Sender,Expected File,Organization name,Receiver name,Expected count
+ *   test-0001-input-covid-19.hl7,ignore.ignore-hl7,test-0001-az-covid-19-hl7.hl7,ignore,HL7_BATCH,5
+ *   test-0001-input-covid-19.hl7,ignore.ignore-hl7,test-0001-pima-az-covid-19.csv,ignore,CSV,5
  *
  * LIMITATIONS: Only supports CSV and HL7_BATCH receivers.  Tests are run sequentially.
  */
@@ -59,7 +74,7 @@ class DataCompareTest : CoolTest() {
         /**
          * The expected output file.
          */
-        OUTPUT_FILE("Output File"),
+        EXPECTED_FILE("Expected File"),
 
         /**
          * The name of the sender to use including the organization and client name.
@@ -207,7 +222,7 @@ class DataCompareTest : CoolTest() {
                         it[ConfigColumns.SENDER.colName]!!.trim()
                     )
                     val output = TestOutput(
-                        it[ConfigColumns.OUTPUT_FILE.colName]?.trim() ?: "",
+                        it[ConfigColumns.EXPECTED_FILE.colName]?.trim() ?: "",
                         it[ConfigColumns.RECEIVER_ORG_NAME.colName]!!.trim(),
                         it[ConfigColumns.RECEIVER_NAME.colName]!!.trim(),
                         Integer.parseInt(it[ConfigColumns.EXPECTED_COUNT.colName]!!)
