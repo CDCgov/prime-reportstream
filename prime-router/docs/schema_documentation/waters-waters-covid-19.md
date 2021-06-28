@@ -1235,6 +1235,8 @@ The postal code for the testing lab
 
 **PII**: No
 
+**Format**: yyyyMMddhhmmss
+
 **Cardinality**: [0..1]
 
 ---

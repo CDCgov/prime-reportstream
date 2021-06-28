@@ -487,6 +487,11 @@ class Report : Logging {
         return Report(mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages)
     }
 
+    /**
+     * This method takes the contents of a report and maps them a CovidResultMetadata object that is ready
+     * to be persisted to the database. This is not PII nor PHI, so it is safe to collect and build trend
+     * analysis off of.
+     */
     fun getDeidentifiedResultMetaData(): List<CovidResultMetadata> {
         return try {
             table.mapIndexed { idx, row ->
@@ -511,17 +516,31 @@ class Report : Logging {
                     it.testingLabState = row.getStringOrNull("testing_lab_state").trimToNull()
                     it.patientCounty = row.getStringOrNull("patient_county").trimToNull()
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
-                    it.patientEthnicity = metadata.findValueSet("hl70189")
-                        ?.toDisplayFromCode(it.patientEthnicityCode)
+                    it.patientEthnicity = if (it.patientEthnicityCode != null) {
+                        metadata.findValueSet("hl70189") ?.toDisplayFromCode(it.patientEthnicityCode)
+                    } else {
+                        null
+                    }
                     it.patientGenderCode = row.getStringOrNull("patient_gender")
-                    it.patientGender = metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
+                    it.patientGender = if (it.patientGenderCode != null) {
+                        metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
+                    } else {
+                        null
+                    }
                     it.patientPostalCode = row.getStringOrNull("patient_zip_code").trimToNull()
                     it.patientRaceCode = row.getStringOrNull("patient_race")
-                    it.patientRace = metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
+                    it.patientRace = if (it.patientRaceCode != null) {
+                        metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
+                    } else {
+                        null
+                    }
                     it.patientState = row.getStringOrNull("patient_state")
                     it.testResultCode = row.getStringOrNull("test_result")
-                    it.testResult = metadata.findValueSet("covid-19/test_result")
-                        ?.toDisplayFromCode(it.testResultCode)
+                    it.testResult = if (it.testResultCode != null) {
+                        metadata.findValueSet("covid-19/test_result")?.toDisplayFromCode(it.testResultCode)
+                    } else {
+                        null
+                    }
                     it.equipmentModel = row.getStringOrNull("equipment_model_name")
                     it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
                         if (!dt.isNullOrEmpty()) {
@@ -551,7 +570,7 @@ class Report : Logging {
                 }
             }
         } catch (e: Exception) {
-            logger.warn(e)
+            logger.error(e)
             emptyList()
         }
     }
