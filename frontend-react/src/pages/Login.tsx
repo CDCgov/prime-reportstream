@@ -15,7 +15,7 @@ export const Login = ({ config }) => {
   };
 
 
-  return authState.isAuthenticated ?
+  return authState && authState.isAuthenticated ?
     <Redirect to={{ pathname: '/' }}/> :
     <OktaSignInWidget
       config={config}

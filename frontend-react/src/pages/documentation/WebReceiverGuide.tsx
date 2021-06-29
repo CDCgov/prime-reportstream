@@ -1,12 +1,14 @@
+import site from '../../content/site.json'
+
 export const WebReceiverGuide = () => {
     return (<>
 <section id="anchor-top">
   <h1 className="margin-top-0">Web Receiver guide</h1>
-  <p className="usa-intro">The <a href="/sign-in/" className="usa-link">Web Receiver experience</a> enables a public health
+  <p className="usa-intro">The <a href="/login/" className="usa-link">Web Receiver experience</a> enables a public health
     department to access data from senders via a secure, online portal.</p>
-  <a href="{ site.pdfPath }ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf"
+  <a href="/assets/pdf/ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf"
     className="usa-button usa-button--outline">Download this guide</a>
-  <a href="mailto:{ site.orgs.RS.email }" className="usa-button usa-button--outline">Contact us</a>
+  <a href="mailto:reportstream@cdc.gov" className="usa-button usa-button--outline">Contact us</a>
 </section>
 <hr className="margin-y-6" />
 <section>
@@ -57,8 +59,8 @@ export const WebReceiverGuide = () => {
   <h4>Sign in to the application</h4>
 
     <ul>
-      <li>Visit <a href="/sign-in/" className="usa-link">reportstream.cdc.gov</a> to log in to the application.</li>
-      <li>If you are directed to an internal Okta page and not the data download site, don’t worry! Visit <a href="/daily-data/" className="usa-link">reportstream.cdc.gov/daily-data</a> to view your data.</li>
+      <li>Visit <a href="/login/" className="usa-link">reportstream.cdc.gov</a> to log in to the application.</li>
+      <li>If you are directed to an internal Okta page and not the data download site, don’t worry! Visit <a href="/daily/" className="usa-link">reportstream.cdc.gov/daily-data</a> to view your data.</li>
     </ul>
 
   <h4>Accessing data</h4>
@@ -68,12 +70,12 @@ export const WebReceiverGuide = () => {
 
   <h4>Account management</h4>
   <p>ReportStream will manually manage user accounts for your team. To add or remove team members, email us at <a
-      href="mailto:{ site.orgs.RS.email }" className="usa-link">site.orgs.RS.email </a>.</p>
+      href="mailto:reportstream@cdc.gov" className="usa-link">reportstream@cdc.gov</a>.</p>
 
     <h4>Password reset</h4>
     <ul>
       <li>If you forgot your password, follow the instructions under "Need help signing in?" on the login page at <a
-          href="/sign-in/" className="usa-link">reportsream.cdc.gov/sign-in</a>.</li>
+          href="/login/" className="usa-link">reportsream.cdc.gov/login</a>.</li>
       <li>If you want to update your password, log out of the application and use the password reset process outlined
         above.</li>
     </ul>
@@ -87,8 +89,8 @@ export const WebReceiverGuide = () => {
     <p>Please download data and ingest it into your systems as soon as possible.</p>
 
     <h4>Support</h4>
-    <p>Do you have questions, problems, or bugs to report? Email the team at <a href="mailto:{ site.orgs.RS.email }"
-        className="usa-link">site.orgs.RS.email</a> for help.</p>
+    <p>Do you have questions, problems, or bugs to report? Email the team at <a href="mailto:reportstream@cdc.gov"
+        className="usa-link">reportstream@cdc.gov</a> for help.</p>
 
     <p className="margin-top-8"><a href="#anchor-top" className="usa-link">Back to top</a></p>
 </section>

@@ -1,13 +1,15 @@
+import site from '../../content/site.json'
+
 export const ELRIntegration = () => {
     return (<>
 <section id="anchor-top" className="margin-bottom-6">
   <h1 className="margin-top-0">Electronic Laboratory Reporting (ELR) integration guide</h1>
   <p className="usa-intro margin-top-0 margin-bottom-4">Public health departments can build a direct connection with
     ReportStream to receive complete, well-structured COVID-19 ELR data. </p>
-  <a href="{{ site.forms.intakeElr.url }}" target="_blank" rel="noopener" className="usa-button">ELR intake form</a>
-  <a href="{{ site.pdfPath }}ReportStream-ELR-Onboarding-Guide-April-2021.pdf"
+  <a href={ site.forms.intakeElr.url } target="_blank" rel="noreferrer" className="usa-button">ELR intake form</a>
+  <a href="/assets/pdf/ReportStream-ELR-Onboarding-Guide-April-2021.pdf"
     className="usa-button usa-button--outline">Download this guide</a>
-  <a href="mailto:{{ site.orgs.RS.email }}" className="usa-button usa-button--outline">Contact us</a>
+  <a href={ "mailto:" + site.orgs.RS.email } className="usa-button usa-button--outline">Contact us</a>
 </section>
 <hr className="margin-y-6" />
 <section>
@@ -43,7 +45,7 @@ export const ELRIntegration = () => {
       <ul className="margin-top-2">
         <li><strong>Public health department (PHD)</strong> reviews the requirements for integrating with the
           ReportStream team, including the data requirements, testing process, and new site registration process.</li>
-        <li><strong>PHD</strong> submits the <a href="{{ site.forms.intakeElr.url }}" target="_blank" rel="noopener"
+        <li><strong>PHD</strong> submits the <a href={ site.forms.intakeElr.url } target="_blank" rel="noreferrer"
             className="usa-link">ReportStream intake form</a>.</li>
         <li>After <strong>PHD</strong> has completed the intake form, the ReportStream team will review the information
           and reach out to start the process of establishing the integration.</li>
@@ -164,8 +166,8 @@ export const ELRIntegration = () => {
 <hr className="margin-y-6" />
 <section>
   <h2>Onboarding checklist</h2>
-  <p><strong>To begin the process of integrating ReportStream and your ELR connection, <a href="{{ site.forms.intakeElr.url }}"
-        target="_blank" rel="noopener" className="usa-link">you will need to fill out the ReportStream intake
+  <p><strong>To begin the process of integrating ReportStream and your ELR connection, <a href={ site.forms.intakeElr.url }
+        target="_blank" rel="noreferrer" className="usa-link">you will need to fill out the ReportStream intake
         form</a>.</strong></p>
   <p>The below outline will help you gather all of the information you will need prior to filling out the intake form
     online. Everything will be captured in the intake form unless explicitly mentioned otherwise.</p>
