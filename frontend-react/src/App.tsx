@@ -5,6 +5,7 @@ import {Daily} from './pages/Daily';
 import {Documentation} from './pages/Documentation';
 import {Details} from './pages/Details';
 import {Login} from './pages/Login';
+import {TermsOfService} from './pages/TermsOfService'
 
 import { GovBanner } from '@trussworks/react-uswds'
 import {ReportStreamHeader} from './components/ReportStreamHeader';
@@ -37,6 +38,7 @@ const App = () => {
           <SecureRoute path='/daily' component={Daily} />
           <Route path='/documentation' component={Documentation} />
           <SecureRoute path='/report-details' component={Details} />
+          <Route path='/terms-of-service' component={TermsOfService} />
           <Route path='/login' render={() => <Login config={oktaSignInConfig} />} />
           <Route path='/login/callback' component={LoginCallback} />  
         </Switch>
