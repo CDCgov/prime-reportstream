@@ -141,15 +141,12 @@ jobs:
       - name: Push Docker Image
         run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
 
-      - name: Fetch GitHub Action Public IP
-        id: ip
-        uses: haythem/public-ip@v1.2
-
       - name: Whitelist GitHub Action Runner in Function App Slot
         id: ip-whitelist-create
         run: |
-          echo "::add-mask::${{ steps.ip.outputs.ipv4 }}"
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address ${{ steps.ip.outputs.ipv4 }} --priority 750 > /dev/null 2>&1
+          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+          echo "::add-mask::$RUNNER_IP"
+          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
 
       - name: Deploy to Candidate App Slot
         uses: Azure/functions-container-action@v1
@@ -233,15 +230,12 @@ jobs:
       - name: Push Docker Image
         run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
 
-      - name: Fetch GitHub Action Public IP
-        id: ip
-        uses: haythem/public-ip@v1.2
-
       - name: Whitelist GitHub Action Runner in Function App Slot
         id: ip-whitelist-create
         run: |
-          echo "::add-mask::${{ steps.ip.outputs.ipv4 }}"
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address ${{ steps.ip.outputs.ipv4 }} --priority 750 > /dev/null 2>&1
+          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+          echo "::add-mask::$RUNNER_IP"
+          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
 
       - name: Deploy to Candidate App Slot
         uses: Azure/functions-container-action@v1
@@ -326,15 +320,12 @@ jobs:
       - name: Push Docker Image
         run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
 
-      - name: Fetch GitHub Action Public IP
-        id: ip
-        uses: haythem/public-ip@v1.2
-
       - name: Whitelist GitHub Action Runner in Function App Slot
         id: ip-whitelist-create
         run: |
-          echo "::add-mask::${{ steps.ip.outputs.ipv4 }}"
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address ${{ steps.ip.outputs.ipv4 }} --priority 750 > /dev/null 2>&1
+          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+          echo "::add-mask::$RUNNER_IP"
+          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
 
       - name: Deploy to Candidate App Slot
         uses: Azure/functions-container-action@v1
