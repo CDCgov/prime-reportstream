@@ -28,7 +28,6 @@ locals {
     "DOCKER_REGISTRY_SERVER_URL"      = data.azurerm_container_registry.container_registry.login_server
     "DOCKER_REGISTRY_SERVER_USERNAME" = data.azurerm_container_registry.container_registry.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD" = data.azurerm_container_registry.container_registry.admin_password
-    "DOCKER_CUSTOM_IMAGE_NAME"        = "${data.azurerm_container_registry.container_registry.login_server}/${var.resource_prefix}:latest"
 
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
