@@ -6,9 +6,4 @@ Generate a visual representation of [dependencies.gv](dependencies.gv) by runnin
 
 # Prerequisites
 
-* Install GraphViz
-```bash
-sudo apt update
-sudo apt --yes install graphviz
-./generate.sh
-```
+* Install GraphViz: https://graphviz.org/download/
