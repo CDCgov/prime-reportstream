@@ -13,9 +13,10 @@ answered by the content of this repository, feel free to [contact us](mailto:pri
 ## Public Domain
 This project is in the public domain within the United States, and copyright and
 related rights in the work worldwide are waived through the [CC0 1.0 Universal public domain dedication](https://creativecommons.org/publicdomain/zero/1.0/).
-All contributions to this project will be released under the CC0 dedication. By
-submitting a pull request you are agreeing to comply with this waiver of
-copyright interest.
+All contributions to this project will be released under the CC0 dedication. By 
+submitting a pull request or issue, you are agreeing to comply with this waiver 
+of copyright interest and acknowledge that you have no expectation of payment, 
+unless pursuant to an existing contract or agreement.
 
 ## Bug reports
 
@@ -82,7 +83,7 @@ Once your changes and tests are ready to submit for review:
 ### Reviewer Responsibilities
 A good code review considers many aspects of the PR
 - Will the code work and will it work in the **long-term**?
-- Is the code undertandable and readable? Is documentation needed? 
+- Is the code understandable and readable? Is documentation needed? 
 - What are the security implications of the PR?
 - Does the PR contain sensitive information like secret keys or passwords? Can these be logged? 
 
