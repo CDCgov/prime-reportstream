@@ -1,7 +1,7 @@
 // Use same port as the prime-router server API being mocked out
 
 // Use different port
-const PRIME_api = process.env.PRIME_api || "http://172.17.0.1:7071/api";
+const PRIME_api = process.env.PRIME_api || "http://localhost:7071/api";
 
 const moment = require("moment");
 const yaml = require("js-yaml");

@@ -258,7 +258,7 @@ End-to-end tests check if the deployed system is configured correctly.  The test
 1. Run the Prime Router in the Docker container.
 1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:
     ```bash
-    ./gradlew testEnd2End
+    ./build.sh -- gradle testEnd2End
     ```
 1. Verify that all tests are successful.
 
@@ -270,7 +270,7 @@ You can change the default database properties used in the build script by setti
 
 In the command line, you can set these properties as follows:
 ```bash
-./gradlew testEnd2End -PDB_USER=prime -PDB_PASSWORD=mypassword
+./build.sh -- gradle testEnd2End -PDB_USER=prime -PDB_PASSWORD=mypassword
 ```
 
 Or you can specify these properties via environment variables per the Gradle project properties environment ORG_GRADLE_PROJECT_<property>.  For example:
