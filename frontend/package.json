@@ -2,11 +2,12 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
+    "@okta/jwt-verifier": "^2.2.0",
     "axios": "^0.21.1",
-    "chart.js": "^3.2",
-    "cypress": "^7.5.0",
-    "moment": "^2.29.1",
-    "http-proxy-middleware": "^2.0.0"
+    "chart.js": "^3.4",
+    "cypress": "^7.6.0",
+    "http-proxy-middleware": "^2.0.0",
+    "moment": "^2.29.1"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.12.1",

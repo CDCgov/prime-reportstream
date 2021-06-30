@@ -715,6 +715,8 @@ ReportStream copies value from the specimenId
 
 **PII**: No
 
+**Format**: yyyyMMdd
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -950,6 +952,27 @@ The zip code of the provider
 **LOINC Code**: 30525-0
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: patient_age_units
+
+**Type**: CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+mo|months
+yr|years
+
+**Documentation**:
+
+Always filled when `patient_age` is filled
 
 ---
 
@@ -1321,6 +1344,8 @@ Custom.  ReportStream uses the 'pregnant' code, not this text value.
 
 **PII**: No
 
+**Format**: yyyyMMdd
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -1498,6 +1523,8 @@ Custom field
 **Type**: DATETIME
 
 **PII**: No
+
+**Format**: yyyyMMdd
 
 **HL7 Fields**
 
@@ -1794,6 +1821,8 @@ eg, SCT.   Custom
 
 **PII**: No
 
+**Format**: yyyyMMdd
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -1807,6 +1836,8 @@ eg, 20210111
 **Type**: DATETIME
 
 **PII**: No
+
+**Format**: yyyyMMdd
 
 **Cardinality**: [0..1]
 
