@@ -19,6 +19,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
+import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
 import org.jooq.Configuration
@@ -34,6 +35,8 @@ import java.sql.DriverManager
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
+
+
 
 const val databaseVariable = "POSTGRES_URL"
 const val userVariable = "POSTGRES_USER"
@@ -503,6 +506,35 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             )
             .fetchOne()
             ?.getValue(DSL.max(SETTING.VERSION)) ?: -1
+    }
+
+    /**
+     * EmailSchedule queries
+     */
+    fun fetchEmailSchedules(txn: DataAccessTransaction? = null): List<String> {
+
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(EMAIL_SCHEDULE.VALUES)
+            .from( EMAIL_SCHEDULE )
+            .where( EMAIL_SCHEDULE.IS_ACTIVE.eq(true) )
+            .fetch()
+            .into( String::class.java )
+    }
+
+    fun insertEmailSchedule( body: String?, user: String, txn: DataAccessTransaction? = null  ): Int?{
+        val ctx = if (txn != null) DSL.using(txn) else create 
+        return ctx.insertInto( EMAIL_SCHEDULE )
+            .set(EMAIL_SCHEDULE.EMAIL_SCHEDULE_ID, DSL.defaultValue(EMAIL_SCHEDULE.EMAIL_SCHEDULE_ID))
+            .set(EMAIL_SCHEDULE.VALUES, JSON.valueOf(body) )
+            .set( EMAIL_SCHEDULE.IS_ACTIVE, true )
+            .set( EMAIL_SCHEDULE.VERSION, 1 )
+            .set( EMAIL_SCHEDULE.CREATED_BY, user )
+            .set( EMAIL_SCHEDULE.CREATED_AT, OffsetDateTime.now() )
+            .returningResult( EMAIL_SCHEDULE.EMAIL_SCHEDULE_ID )
+            .fetchOne()
+            ?.into( Int::class.java )
+
     }
 
     fun saveTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {

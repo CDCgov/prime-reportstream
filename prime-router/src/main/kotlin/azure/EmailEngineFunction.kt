@@ -36,13 +36,31 @@ import khttp.get as httpGet
 import org.json.JSONObject
 import org.json.JSONArray
 
+import gov.cdc.prime.router.secrets.SecretHelper;
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+
+import com.microsoft.azure.functions.HttpMethod
+import com.microsoft.azure.functions.HttpRequestMessage
+import com.microsoft.azure.functions.HttpResponseMessage
+import com.microsoft.azure.functions.HttpStatus
+import com.microsoft.azure.functions.annotation.AuthorizationLevel
+import com.microsoft.azure.functions.annotation.BindingName
+import com.microsoft.azure.functions.annotation.HttpTrigger
+
+import com.okta.jwt.JwtVerifiers
+import java.util.logging.Level
+
+
+
 data class EmailSchedule ( 
     val template: String,
     val type: String,
     val cronSchedule: String,
-    val organizations: List<String>? = ArrayList<String>(),
-    val emails: List<String>? = ArrayList<String>(),
-    val parameters: Map<String,String>? = HashMap<String,String>()
+    val organizations: List<String> = ArrayList<String>(),
+    val emails: List<String> = ArrayList<String>(),
+    val parameters: Map<String,String> = HashMap<String,String>()
 ) {}
  
 class EmailScheduleEngine  {
@@ -56,22 +74,27 @@ class EmailScheduleEngine  {
         @TimerTrigger( name = "emailScheduleEngine", schedule = "*/5 * * * *") timerInfo : String,
         context: ExecutionContext
     ){
+        val mapper = ObjectMapper().registerModule(KotlinModule());
+
         // get the schedules to fire
-        val schedulesToFire : List<EmailSchedule> = getSchedules().filter{ shouldFire( it ) };
+        val schedulesToFire : List<EmailSchedule> = getSchedules()
+            .map{ mapper.readValue<EmailSchedule>( it ) }
+            .filter{ shouldFire( it ) };
         schedulesToFire.forEach { schedule -> 
             val last: Date = getLastTimeFired( schedule );
             val orgs: List<String> = getOrgs( schedule );
 
-            System.out.println( "processing ${schedule.template}" )
+            context.logger.info( "processing ${schedule.template}" )
 
             // get the orgs to fire for
             orgs.forEach{ org ->
-                    val emails: List<String> = getEmails(org);
-                    @Suppress( "UNRESOLVED_REFERENCE")
+                    val emails: List<String> = if ( schedule.emails.size > 0) schedule.emails else getEmails(org, context)
                     val reportsSinceLast: List<ReportFile> = getReportsSinceLast(org,last);
-
-                    System.out.println( "processing ${org}")
-                    dispatchToSendGrid( schedule.template, emails, reportsSinceLast );
+                    context.logger.info( "processing ${org}" )
+                    emails.forEach{ email -> 
+                        context.logger.info( "sending email to ${email}" )
+                        dispatchToSendGrid( schedule.template, listOf(email), reportsSinceLast, context );
+                    }
             }
         }
     }
@@ -86,8 +109,6 @@ class EmailScheduleEngine  {
         val now = ZonedDateTime.now();
         val executionTime = ExecutionTime.forCron(parser.parse(schedule.cronSchedule));
         val timeFromLastExecution = executionTime.timeFromLastExecution(now);
-        if( timeFromLastExecution.get().toSeconds() <= 4*60) 
-            System.out.println( "Firing ${schedule.template}; timeFromLastExecution= ${timeFromLastExecution}")
 
         return ( timeFromLastExecution.get().toSeconds() <= 4*60);
     }
@@ -115,7 +136,7 @@ class EmailScheduleEngine  {
      */
     private fun getOrgs( schedule: EmailSchedule ): List<String> {
         return (
-            if (schedule.organizations !== null && schedule.organizations.size > 0) 
+            if (schedule.organizations.size > 0) 
                 schedule.organizations 
             else 
                 fetchAllOrgs() 
@@ -141,15 +162,62 @@ class EmailScheduleEngine  {
         return ret;
     }
 
+
+    @FunctionName("createEmailSchedule")
+    @StorageAccount("AzureWebJobsStorage")
+    fun createEmailSchedule(
+        @HttpTrigger(
+            name = "createEmailSchedule",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "email-schedule"
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        var user:String? = validateUser( request, context );
+        var ret = request.createResponseBuilder(HttpStatus.CREATED);
+
+        if( user !== null ){
+            WorkflowEngine.databaseAccess.insertEmailSchedule(request.body, user );
+        }
+        else{
+            ret.status(HttpStatus.UNAUTHORIZED )
+        }
+        return ret.build();
+    }
+
+
+    fun validateUser( request: HttpRequestMessage<String?>, context: ExecutionContext ): String? {
+        var jwtToken = request.headers["authorization"] ?: ""
+
+        jwtToken = if (jwtToken.length > 7) jwtToken.substring(7) else ""
+
+        if (jwtToken.isNotBlank()) {
+            try {
+                // get the access token verifier
+                val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
+                    .setIssuer("https://hhs-prime.okta.com/oauth2/default")
+                    .build()
+                // get it to decode the token from the header
+                val jwt = jwtVerifier.decode(jwtToken)
+                    ?: throw Throwable("Error in validation of jwt token")
+                // get the user name and org
+                return jwt.claims["sub"].toString();
+            }
+            catch (ex: Throwable) {
+                context.logger.log(Level.WARNING, "Error in verification of token", ex)
+                return null
+            }
+        }
+        return null;
+    }
+    
+
     /**
      * TODO: Fixme!
      */
-    private fun getSchedules(): List<EmailSchedule>{
-        return listOf( EmailSchedule( template="d-415aa983fe064c02989bc7465d0c9ed8", 
-                                      type="daily", 
-                                      cronSchedule="02 14 * * *",
-                                      organizations=listOf( "pima-az-phd"),
-                                      emails=listOf( "qtv1@cdc.gov","qom6@cdc.gov","qop5@cdc.gov","qop4@cdc.gov","qva8@cdc.gov","rdz8@cdc.gov","qpu0@cdc.gov" )) )
+    private fun getSchedules(): List<String>{
+        return WorkflowEngine.databaseAccess.fetchEmailSchedules();
     }
 
     /**
@@ -165,19 +233,23 @@ class EmailScheduleEngine  {
      * @params org The organization to fetch emails for
      * @returns List of emails to send to
      */
-    private fun getEmails( org: String ): List<String> {
+    private fun getEmails( org: String, context: ExecutionContext ): List<String> {
 
-        var ssws: String = System.getenv("SSWS-OKTA") ?: "00KPnlSG2vpP3VtKDlv5lsrYXhGEpnXmP1VABopqIX"
+        var ssws: String? = SecretHelper.getSecretService().fetchSecret("SSWS_OKTA")
+
+        if( ssws == null ){
+            context.logger.warning("Can't find SSWS_OKTA secret")
+            return listOf();
+        }
+        
         var grp = convertOrgToGroup( org );
 
         // get the OKTA Group Id
-        @Suppress( "UNUSED_VARIABLE")
         var response1 = httpGet( url="https://hhs-prime-admin.okta.com/api/v1/groups?q=${grp}", 
                                headers=mapOf( "Authorization" to "SSWS ${ssws}" ) );
         var grpId = ((response1.jsonArray).get( 0 ) as JSONObject).getString("id");
 
         // get the users within that OKTA group
-        @Suppress( "UNUSED_VARIABLE")
         var response = httpGet( url="https://hhs-prime-admin.okta.com/api/v1/groups/${grpId}/users", 
                                headers=mapOf( "Authorization" to "SSWS ${ssws}" ) );
     
@@ -203,7 +275,6 @@ class EmailScheduleEngine  {
                                 last.toInstant().atOffset(ZoneOffset.UTC), 
                                 org )
 
-        System.out.println( "Found ${reportFiles.size} reports since the last run ${last.toInstant().atOffset(ZoneOffset.UTC)}" );
         return reportFiles;
     }
 
@@ -214,7 +285,8 @@ class EmailScheduleEngine  {
     private fun dispatchToSendGrid( 
         template: String,
         emails: List<String>,
-        reportsSinceLast: List<ReportFile>
+        reportsSinceLast: List<ReportFile>,
+        context: ExecutionContext
     ){
         val from: Email = Email("reportstream@cdc.gov");
         val subject = "ReportStream Daily Email";
@@ -229,25 +301,28 @@ class EmailScheduleEngine  {
         mail.setFrom( from );
         mail.setTemplateId( template )
 
-        var sendgridId: String = System.getenv("SENDGRID-ID") ?: "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"
-        val sg:SendGrid = SendGrid(sendgridId);
-        val request:Request = Request();
-        try {
-          request.setMethod(Method.POST);
-          request.setEndpoint("mail/send");
-          request.setBody(mail.build());
-          val response:Response = sg.api(request);
-          System.out.println(response.getStatusCode());
-          System.out.println(response.getBody());
-          System.out.println(response.getHeaders());
-        } catch (ex:IOException) {
-          System.out.println( ex )
+        var sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
+        
+        if( sendgridId !== null ){
+        
+            val sg:SendGrid = SendGrid(sendgridId);
+            val request:Request = Request();
+            try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            val response:Response = sg.api(request);
+            System.out.println(response.getStatusCode());
+            System.out.println(response.getBody());
+            System.out.println(response.getHeaders());
+            } catch (ex:IOException) {
+                context.logger.warning("Can't contact sendgrid")
+            }
+        }
+        else{
+            context.logger.warning("Can't find SENDGRID_ID secret")
         }
     
     }
-
-    
-
-
 }
 
