@@ -36,10 +36,17 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 azurefunctions.appName = azureAppName
 
-// Local database information
-val dbUser = (project.properties["DB_USER"] ?: "prime") as String
-val dbPassword = (project.properties["DB_PASSWORD"] ?: "changeIT!") as String
-val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://localhost:5432/prime_data_hub") as String
+// Local database information, first one wins:
+// 1. Environment variable
+// 2. Project properties (-P<VAR>=<VALUE> flag)
+// 3. Default
+val KEY_DB_USER = "DB_USER"
+val KEY_DB_PASSWORD = "DB_PASSWORD"
+val KEY_DB_URL = "DB_URL"
+val dbUser = ( System.getenv(KEY_DB_USER) ?: project.properties[KEY_DB_USER] ?: "prime" ) as String
+val dbPassword = ( System.getenv(KEY_DB_PASSWORD) ?: project.properties[KEY_DB_PASSWORD] ?: "changeIT!" ) as String
+val dbUrl = ( System.getenv(KEY_DB_URL) ?: project.properties[KEY_DB_URL] ?: "jdbc:postgresql://localhost:5432/prime_data_hub" ) as String
+
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
