@@ -11,6 +11,8 @@ services:
       FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
       DB_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
       POSTGRES_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
+      # cf: docker-compose.yml: this is the name of the prime_dev service as defined there
+      PRIME_RS_REPORTS_API_ENDPOINT_HOST: prime_dev
     volumes:
       - type: bind
         source: ./

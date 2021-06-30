@@ -28,7 +28,7 @@ services:
       - POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
       - REDOX_SECRET=some_secret
-      - VAULT_API_ADDR=http://localhost:8200
+      - VAULT_API_ADDR=http://vault:8200
       - SENDGRID_API_KEY=SnBfxpPsQkmOh0SfU3X_ng
       - OKTA_baseUrl=hhs-prime.okta.com
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
