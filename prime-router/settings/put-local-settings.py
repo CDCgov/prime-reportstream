@@ -9,7 +9,7 @@ import time
 import argparse
 
 parser = argparse.ArgumentParser(description='Put org file into a prime service')
-parser.add_argument('host', default='172.17.0.1')
+parser.add_argument('host', default='localhost')
 parser.add_argument('org_file', default='organizations-local.yml')
 parser.add_argument('--wait', type=int, default=0)
 args = parser.parse_args()

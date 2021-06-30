@@ -44,7 +44,7 @@ cd examples/upload-fake-data
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
   --data-binary '@./Test.csv' \
-  'http://172.17.0.1:7071/api/reports'
+  'http://localhost:7071/api/reports'
 ```
 
 Example output:
@@ -72,8 +72,8 @@ Example output:
 
 ### Examine
 
-View the local download page: [http://172.17.0.1:7071/api/download](http://172.17.0.1:7071/api/download)
+View the local download page: [http://localhost:7071/api/download](http://localhost:7071/api/download)
 
 Inspect the local devenv PostgreSQL database using `psql` or
-using [`adminer`](http://172.17.0.1:8080/?pgsql=db_pgsql&username=prime&db=prime_data_hub&ns=public).
+using [`adminer`](http://localhost:8080/?pgsql=db_pgsql&username=prime&db=prime_data_hub&ns=public).
 Connection details can be found in [docker-infrastructure.yml](../../docker-infrastructure.yml)

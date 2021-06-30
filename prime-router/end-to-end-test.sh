@@ -3,7 +3,7 @@
 # Run a nice end to end test, covering all our formats, and all our transports,
 # and many different schemas.
 #
-# This assumes a prime/router is already running and available on your local host (accessible through 172.17.0.1).
+# This assumes a prime/router is already running and available on your local host
 # This assumes batch is on a 1-minute timer.
 #
 # This script is very ugly and repetitive.  Replace with kotlin.
@@ -41,7 +41,7 @@ printf "$text\n"
 
 printf "${BLUE}Post first fake report to prime hub${NC}\n"
 boilerplate_front="curl --silent -X POST -H client:simple_report -H Content-Type:text/csv "
-boilerplate_back="http://172.17.0.1:7071/api/reports"
+boilerplate_back="http://localhost:7071/api/reports"
 echo Posting $testfile1 to reports endpoint
 $boilerplate_front --data-binary @$testfile1 $boilerplate_back | cat > $testfile1.json
 # Get the report_id from the output

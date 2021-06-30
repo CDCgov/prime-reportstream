@@ -10,7 +10,7 @@ This PR ...
 - [ ] Tested locally?
 - [ ] Ran `quickTest all`?
 - [ ] Ran `./prime test` against local Docker ReportStream container?
-- [ ] Downloaded a file from `http://172.17.0.1:7071/api/download`?
+- [ ] Downloaded a file from `http://localhost:7071/api/download`?
 - [ ] Added tests?
 
 ### Security

@@ -23,4 +23,4 @@ fi
 
 cd $function_folder
 
-func host start --cors http://172.17.0.1:8090 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+func host start --cors http://localhost:8090 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"

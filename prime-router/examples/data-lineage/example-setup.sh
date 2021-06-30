@@ -31,7 +31,7 @@ echo -e "${TITLE}##### Uploading first set of fake data${NC}"
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
   --data-binary '@./Test.a.csv' \
-  'http://172.17.0.1:7071/api/reports' \
+  'http://localhost:7071/api/reports' \
   > ./Test-post.a.json
 echo
 
@@ -40,7 +40,7 @@ echo -e "${TITLE}##### Uploading second set of fake data${NC}"
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
   --data-binary '@./Test.b.csv' \
-  'http://172.17.0.1:7071/api/reports' \
+  'http://localhost:7071/api/reports' \
   > ./Test-post.b.json
 echo
 
@@ -49,7 +49,7 @@ echo -e "${TITLE}##### Uploading third set of fake data${NC}"
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
   --data-binary '@./Test.c.csv' \
-  'http://172.17.0.1:7071/api/reports' \
+  'http://localhost:7071/api/reports' \
   > ./Test-post.c.json
 echo
 
@@ -58,6 +58,6 @@ echo -e "${TITLE}Duplicate upload of second set of fake data${NC}"
 curl -X POST -H 'client: simple_report' \
   -H 'Content-Type: text/csv' \
   --data-binary '@./Test.b.csv' \
-  'http://172.17.0.1:7071/api/reports' \
+  'http://localhost:7071/api/reports' \
   > ./Test-post.bb.json
 echo

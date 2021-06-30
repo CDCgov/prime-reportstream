@@ -196,11 +196,11 @@ function signIn() {
 
 /**
  * Determines if the system is running as localhost
- * 
- * @returns 
+ *
+ * @returns
  */
 function isLocalhost(){
-    return window.location.origin.includes("localhost:8088");    
+    return window.location.origin.includes("localhost:8088");
 }
 
 /**
@@ -209,7 +209,7 @@ function isLocalhost(){
  */
 function getBaseUrl() {
     if (window.location.origin.includes("localhost"))
-        return "http://172.17.0.1:7071";
+        return "http://localhost:7071";
     else if (window.location.origin.includes("staging"))
         return "https://staging.prime.cdc.gov";
     else

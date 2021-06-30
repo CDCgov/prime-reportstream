@@ -9,9 +9,8 @@ services:
       dockerfile: Dockerfile.build
     environment:
       FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
-      # 172.17.0.1 is the docker bridge gateway
-      DB_URL: jdbc:postgresql://172.17.0.1:5432/prime_data_hub
-      POSTGRES_URL: jdbc:postgresql://172.17.0.1:5432/prime_data_hub
+      DB_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
+      POSTGRES_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
     volumes:
       - type: bind
         source: ./

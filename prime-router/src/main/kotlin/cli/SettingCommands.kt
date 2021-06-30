@@ -290,7 +290,7 @@ abstract class SettingCommand(
 
     companion object {
         val environments = listOf(
-            Environment("local", "172.17.0.1:7071", useHttp = true),
+            Environment("local", "localhost:7071", useHttp = true),
             Environment("test", "test.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),

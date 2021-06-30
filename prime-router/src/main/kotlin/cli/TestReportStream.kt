@@ -61,7 +61,7 @@ Examples for local host, and Azure Staging, respectively:
 ```
 # "local"
 export POSTGRES_USER=prime
-export POSTGRES_URL=jdbc:postgresql://172.17.0.1:5432/prime_data_hub
+export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
 export POSTGRES_PASSWORD=<secret>
 
 # staging
@@ -150,7 +150,7 @@ Examples:
         val problem: Boolean = when (env) {
             "staging" -> !dbEnv.contains("pdhstaging")
             "test" -> !dbEnv.contains("pdhtest")
-            "local" -> !dbEnv.contains("localhost") && !dbEnv.contains("172.17.0.1")
+            "local" -> !dbEnv.contains("localhost") && !dbEnv.contains("localhost")
             "prod" -> !dbEnv.contains("pdhprod")
             else -> true
         }
