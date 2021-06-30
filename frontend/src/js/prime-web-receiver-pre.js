@@ -59,14 +59,24 @@ function checkBrowser() {
 }
 
 /**
+ * Determines if a user is logged in
+ * 
+ * @returns truthy if logged in; falsy otherwise
+ */
+function isLoggedIn(){
+    const token = window.sessionStorage.getItem("jwt");
+    const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
+
+    return (token && claims && moment().isBefore(moment.unix(claims.exp)))
+
+}
+
+/**
  * Validates the JWT token as stored in session storage under the key "jwt";
  *  if not valid, redirects to the sign-in page; otherwise sets up the claims
  */
 function checkJWT() {
-    const token = window.sessionStorage.getItem("jwt");
-    const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
-
-    if (!token || !claims || moment().isAfter(moment.unix(claims.exp)))
+    if ( !isLoggedIn() )
         window.location.replace('/sign-in/?return=/daily-data/');
 }
 
@@ -83,7 +93,7 @@ async function fetchOrgName() {
     const orgName = convertOrgName(window.org);
 
     return isLocalhost()? "Localhost Public Health Department" : Promise.all([
-        axios.get(`${baseURL}/api/settings/organizations/${window.org.substring(2).replaceAll("_", "-")}`, config)
+        axios.get(`${baseURL}/api/settings/organizations/${window.org.substring(2).replaceAll("_", "-")}`, apiConfig())
             .then(res => res.data)
             .then(org => org.description)
     ]);
@@ -96,9 +106,8 @@ async function fetchOrgName() {
  *      sign-in page
  */
 function idleTimer() {
-    const loggedIn = window.sessionStorage.getItem("jwt");
 
-    if (loggedIn) {
+    if ( isLoggedIn() ) {
         window.sessionStorage.setItem("idle-timer", "true");
         idleTimeout(() => {
             window.sessionStorage.clear();
@@ -164,7 +173,7 @@ function logout() {
  */
 async function fetchReports() {
     const baseURL = getBaseUrl();
-    return isLocalhost()? ReportData : window.jwt? axios.get(`${baseURL}/api/history/report`, config).then(res => res.data) : [];
+    return isLocalhost()? ReportData : window.jwt? axios.get(`${baseURL}/api/history/report`, apiConfig()).then(res => res.data) : [];
 }
 
 /**
@@ -177,22 +186,6 @@ function requestFile(reportId) {
         .then(res => res.data)
         .then(csv => download(csv.content, csv.filename, csv.mimetype)) : null;
 }
-
-/**
- *
-
-function signIn() {
-    const _signIn = document.getElementById("signIn");
-    let _navMenu = document.getElementById("navmenu");
-    if (window.sessionStorage.getItem("jwt")) {
-        if (_signIn){ _signIn.style.display = "none"; console.log( 'setting signIn to none' ); }
-
-    } else {
-        if (_signIn){ _signIn.style.display = "block"; console.log( 'setting signIn to block' ); }
-        if (_navMenu){ _navMenu.style.display = "none"; console.log( 'setting navMenu to none' ); }
-    }
-}
-*/
 
 /**
  * Determines if the system is running as localhost

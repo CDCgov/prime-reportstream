@@ -28,6 +28,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.cli.tests.Hl7Ingest
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
@@ -49,7 +50,7 @@ enum class TestStatus(val description: String) {
     DRAFT("Experimental"), // Tests that are experimental
     FAILS("Always fails"), // For tests that just always fail, and we haven't fixed the issue yet.
     LOAD("Load Test"),
-    GOODSTUFF("Part of Smoke test"), // Only Smoke the Good Stuff.
+    SMOKE("Part of Smoke test"), // Only Smoke the Good Stuff.
 }
 
 class TestReportStream : CliktCommand(
@@ -72,7 +73,7 @@ export POSTGRES_PASSWORD=<SECRET>
 Examples:
 ```
  ./prime test --list        List detailed information about available tests
- ./prime test               Runs the set of tests labelled as '${TestStatus.GOODSTUFF.description}'
+ ./prime test               Runs the set of tests labelled as '${TestStatus.SMOKE.description}'
  ./prime test --run ping,end2end --env staging --key xxxxxxx       Runs the ping and end2end tests in azure Staging
 ```
 
@@ -185,7 +186,7 @@ Examples:
             }
         } else {
             // No --run arg:  run the smoke tests.
-            coolTestList.filter { it.status == TestStatus.GOODSTUFF }
+            coolTestList.filter { it.status == TestStatus.SMOKE }
         }
         if (tests.isNotEmpty()) {
             CoolTest.ugly("Running the following tests, POSTing to ${environment.endPoint}:")
@@ -236,7 +237,8 @@ Examples:
             HammerTime(),
             Waters(),
             RepeatWaters(),
-            InternationalContent()
+            InternationalContent(),
+            Hl7Ingest()
         )
     }
 }
@@ -356,6 +358,10 @@ abstract class CoolTest {
         const val emptySenderName = "ignore-empty"
         val emptySender = settings.findSender("$orgName.$emptySenderName")
             ?: error("Unable to find sender $emptySenderName for organization ${org.name}")
+
+        const val hl7SenderName = "ignore-hl7"
+        val hl7Sender = settings.findSender("$orgName.$hl7SenderName")
+            ?: error("Unable to find sender $hl7SenderName for organization ${org.name}")
 
         val allGoodReceivers = settings.receivers.filter {
             it.organizationName == orgName &&
@@ -498,7 +504,7 @@ abstract class CoolTest {
 class Ping : CoolTest() {
     override val name = "ping"
     override val description = "CheckConnections: Is the reports endpoint alive and listening?"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting ping Test: run CheckConnections of ${environment.endPoint}")
@@ -506,7 +512,7 @@ class Ping : CoolTest() {
             environment,
             "x".toByteArray(),
             orgName,
-            simpleReportSenderName,
+            simpleRepSender,
             options.key,
             ReportFunction.Options.CheckConnections
         )
@@ -532,7 +538,7 @@ class Ping : CoolTest() {
 class End2End : CoolTest() {
     override val name = "end2end"
     override val description = "Create Fake data, submit, wait, confirm sent via database lineage data"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         var passed = true
@@ -549,7 +555,7 @@ class End2End : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***end2end Test FAILED***:  response code $responseCode")
             passed = false
@@ -579,7 +585,7 @@ class End2End : CoolTest() {
 class Merge : CoolTest() {
     override val name = "merge"
     override val description = "Submit multiple files, wait, confirm via db that merge occurred"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         // Remove HL7 - it does not merge   TODO write a notMerging test for HL7, but its similar to end2end
@@ -599,7 +605,7 @@ class Merge : CoolTest() {
         // Now send it to ReportStream over and over
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
             echo("Response to POST: $responseCode")
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***Merge Test FAILED***:  response code $responseCode")
@@ -620,7 +626,7 @@ class Merge : CoolTest() {
 class Hl7Null : CoolTest() {
     override val name = "hl7null"
     override val description = "The NULL transport does db work, but no transport.  Uses HL7 format"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val fakeItemCount = 100
@@ -638,7 +644,7 @@ class Hl7Null : CoolTest() {
         val numResends = 1
         val reportIds = (1..numResends).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -657,7 +663,7 @@ class Hl7Null : CoolTest() {
 class TooManyCols : CoolTest() {
     override val name = "toomanycols"
     override val description = "Submit a file with more than $REPORT_MAX_ITEM_COLUMNS columns, which should error"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting toomanycols Test: submitting a file with too many columns.")
@@ -666,7 +672,7 @@ class TooManyCols : CoolTest() {
             error("Unable to find file ${file.absolutePath} to do toomanycols test")
         }
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -686,8 +692,7 @@ class TooManyCols : CoolTest() {
 class BadCsv : CoolTest() {
     override val name = "badcsv"
     override val description = "Submit badly formatted csv files - should get errors"
-    override val status = TestStatus.GOODSTUFF
-
+    override val status = TestStatus.SMOKE
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val filenames = listOf("not-a-csv-file.csv", /* "column-headers-only.csv", */ "completely-empty-file.csv")
         var passed = true
@@ -701,12 +706,12 @@ class BadCsv : CoolTest() {
                 environment,
                 file,
                 org.name,
-                simpleRepSender.name,
+                simpleRepSender,
                 options.key
             )
             echo("Response to POST: $responseCode")
             if (responseCode >= 400) {
-                good("badcsv Test $i of $filename passed: Failure HttpStatus code was returned.")
+                good("Test of Bad CSV file $filename passed: Failure HttpStatus code was returned.")
             } else {
                 bad("***badcsv Test $i of $filename FAILED: Expecting a failure HttpStatus. ***")
                 passed = false
@@ -714,13 +719,13 @@ class BadCsv : CoolTest() {
             try {
                 val tree = jacksonObjectMapper().readTree(json)
                 if (tree["id"] == null || tree["id"].isNull) {
-                    good("badcsv Test $i of $filename passed: No UUID was returned.")
+                    good("Test of Bad CSV file $filename passed: No UUID was returned.")
                 } else {
                     bad("***badcsv Test $i of $filename FAILED: RS returned a valid UUID for a bad CSV. ***")
                     passed = false
                 }
                 if (tree["errorCount"].intValue() > 0) {
-                    good("badcsv Test $i of $filename passed: At least one error was returned.")
+                    good("Test of Bad CSV file $filename passed: At least one error was returned.")
                 } else {
                     bad("***badcsv Test $i of $filename FAILED: No error***")
                     passed = false
@@ -736,7 +741,7 @@ class BadCsv : CoolTest() {
 class Strac : CoolTest() {
     override val name = "strac"
     override val description = "Submit data in strac schema, send to all formats and variety of schemas"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting bigly strac Test: sending Strac data to all of these receivers: $allGoodCounties!")
@@ -753,7 +758,7 @@ class Strac : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, stracSender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, stracSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -809,7 +814,7 @@ class StracPack : CoolTest() {
         for (i in 1..options.submits) {
             thread {
                 val (responseCode, json) =
-                    HttpUtilities.postReportFile(environment, file, org.name, stracSender.name, options.key)
+                    HttpUtilities.postReportFile(environment, file, org.name, stracSender, options.key)
                 echo("$i: Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     echo(json)
@@ -837,7 +842,7 @@ class StracPack : CoolTest() {
 class Waters : CoolTest() {
     override val name = "waters"
     override val description = "Submit data in waters schema, send to BLOBSTORE only"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting Waters: sending ${options.items} Waters items to ${blobstoreReceiver.name} receiver")
@@ -851,7 +856,7 @@ class Waters : CoolTest() {
         )
         echo("Created datafile $file")
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, watersSender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, watersSender, options.key)
         echo("Response to POST: $responseCode")
         if (!options.muted) echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -940,7 +945,7 @@ class HammerTime : CoolTest() {
         for (i in 1..options.submits) {
             thread {
                 val (responseCode, json) =
-                    HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+                    HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
                 echo("Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     echo(json)
@@ -985,7 +990,7 @@ class Garbage : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, emptySender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, emptySender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -1015,7 +1020,7 @@ class Garbage : CoolTest() {
 class QualityFilter : CoolTest() {
     override val name = "qualityfilter"
     override val description = "Test the QualityFilter feature"
-    override val status = TestStatus.GOODSTUFF
+    override val status = TestStatus.SMOKE
 
     /**
      * In the returned json, check the itemCount associated with receiver.name in the list of destinations.
@@ -1065,7 +1070,7 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, emptySender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, emptySender, options.key)
         echo("Response to POST: $responseCode")
         var passed = checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, json)
 
@@ -1082,7 +1087,7 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file2")
         // Now send it to ReportStream.
         val (responseCode2, json2) =
-            HttpUtilities.postReportFile(environment, file2, org.name, emptySender.name, options.key)
+            HttpUtilities.postReportFile(environment, file2, org.name, emptySender, options.key)
         echo("Response to POST: $responseCode2")
         passed = passed and checkJsonItemCountForReceiver(qualityGoodReceiver, 3, json2)
 
@@ -1099,7 +1104,7 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file3")
         // Now send it to ReportStream.
         val (responseCode3, json3) =
-            HttpUtilities.postReportFile(environment, file3, org.name, emptySender.name, options.key)
+            HttpUtilities.postReportFile(environment, file3, org.name, emptySender, options.key)
         echo("Response to POST: $responseCode3")
         passed = passed and checkJsonItemCountForReceiver(qualityFailReceiver, 0, json3)
 
@@ -1116,7 +1121,7 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file4")
         // Now send it to ReportStream.
         val (responseCode4, json4) =
-            HttpUtilities.postReportFile(environment, file4, org.name, emptySender.name, options.key)
+            HttpUtilities.postReportFile(environment, file4, org.name, emptySender, options.key)
         echo("Response to POST: $responseCode4")
         passed = passed and checkJsonItemCountForReceiver(qualityReversedReceiver, 2, json4)
 
@@ -1144,7 +1149,7 @@ class Huge : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1179,7 +1184,7 @@ class TooBig : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -1221,7 +1226,7 @@ class DbConnections : CoolTest() {
         // Now send it to ReportStream.   Make numResends > 1 to create merges.
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1267,7 +1272,7 @@ class BadSftp : CoolTest() {
         )
         echo("Created datafile $file")
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1322,7 +1327,7 @@ class InternationalContent : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender.name, options.key)
+            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
