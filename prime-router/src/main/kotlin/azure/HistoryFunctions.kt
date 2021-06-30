@@ -21,7 +21,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.io.StringReader
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.UUID
 import java.util.logging.Level
 import kotlin.collections.ArrayList
 

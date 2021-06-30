@@ -24,6 +24,8 @@ cdn_scripts:
     integrity: "sha384-pnYyqArzZ7HO4tSicFts5wXMpqb02zmd7pD66LSQpCR0ZeIOotIOq6ohF0lQFc1S"
   - src: "https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"
     integrity: "sha384-BqW9ZnUhs8B3bGaZeNfcY6qQnTHMeMu5/NsLjEoGGzY5eXVsGlTxQC18eAn5bY9z"
+  - src: "https://js.monitor.azure.com/scripts/b/ai.2.min.js"
+    integrity: "sha384-mfq8gQx6MY1basWBMUR6Q/GkBYbp/FWOT5QaVxg5CjgSRSDPQAgCT52qtUfYmcLV"
 
 post_scripts:
   - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/js/uswds.min.js"
@@ -41,9 +43,11 @@ local_styles:
   {% if current == "web receiver guide" or current == "elr guide" or current == "security practices" %}
   <script src="../../js/localhost_data.js"></script>
   <script src="../../js/prime-web-receiver-pre.js"></script>
+  <script src="../../js/application-insights.js"></script>
   {% else %}
   <script src="../js/localhost_data.js"></script>
   <script src="../js/prime-web-receiver-pre.js"></script>
+  <script src="../js/application-insights.js"></script>
   {% endif %}
 
 
