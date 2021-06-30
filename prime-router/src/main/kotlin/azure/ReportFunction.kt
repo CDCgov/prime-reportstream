@@ -31,7 +31,8 @@ private const val DEFAULT_PARAMETER = "default"
 private const val DEFAULT_SEPARATOR = ":"
 private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val ROUTE_TO_SEPARATOR = ","
-
+private const val VERBOSE_PARAMETER = "verbose"
+private const val VERBOSE_ALL = "all"
 /**
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
@@ -54,6 +55,7 @@ class ReportFunction {
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
         val report: Report? = null,
+        val verbose: String = "",
     )
 
     data class ItemJurisdictionRouting(
@@ -213,6 +215,11 @@ class ReportFunction {
                 )
             )
 
+        // extract the verbose param and default to empty if not present
+        val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
+        val verbose = if (verboseParam.equals(VERBOSE_ALL, true)) verboseParam else
+            schema?.findElementByCsvName(verboseParam)?.fieldMapping ?: ""
+
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
@@ -263,7 +270,7 @@ class ReportFunction {
             report = null
             status = HttpStatus.BAD_REQUEST
         }
-        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report)
+        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report, verbose)
     }
 
     private fun createReport(
@@ -407,6 +414,22 @@ class ReportFunction {
                 ir.destinations.isEmpty() || ir.destinations.keys == setOf(Organization.Jurisdiction.FEDERAL)
             }.map { nw -> nw.trackingId}
             actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options, noWhereItems)
+            // print the report routing when in verbose mode, empty array when not
+            it.writeArrayFieldStart("routing")
+            if (VERBOSE_ALL.equals(result.verbose, true)) {
+                itemRouting.forEach { ij ->
+                    it.writeStartObject()
+                    it.writeStringField("trackingId", ij.trackingId)
+                    it.writeArrayFieldStart("destinations")
+                    val destinations = mutableListOf<String>()
+                    ij.destinations.forEach { d -> destinations.addAll(d.value) }
+                    destinations.forEach { d -> it.writeString(d) }
+                    it.writeEndArray()
+                    it.writeEndObject()
+                }
+            }
+            it.writeEndArray()
+
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)
 
@@ -432,6 +455,9 @@ class ReportFunction {
      * Creates a list of [ItemJurisdictionRouting] instances with the trackingElement
      * and a jurisdiction keyed map with a list of the receiver organizations where
      * the report was routed.
+     * @param validatedRequest the instance generated while processing the report
+     * @param actionHistory the instance generated while processing the report
+     * @return the report routing for each item broken down by jurisdiction
      */
     private fun createItemJurisdictionRouting(
         validatedRequest: ValidatedRequest,
@@ -441,13 +467,14 @@ class ReportFunction {
         validatedRequest.report?. let { report ->
             // the report has all the submitted items
             report.itemIndices.forEach {
-                val trackingId = report.getString(it, report.schema.trackingElement ?: "") ?: "row$it"
+                //val trackingId = report.getString(it, report.schema.trackingElement ?: "") ?: "row$it"
+                val trackingId = report.getTrackingId(it)
                 val destinations = mutableMapOf<Organization.Jurisdiction, MutableList<String>>()
                 // find all outgoing reports related to the trackingId and generate a
                 // mapped list of the receiving organizations keyed by the jurisdiction
                 actionHistory?. let { ah ->
                     ah.itemLineages.filter { il ->
-                        il.trackingId.equals(trackingId)
+                        trackingId.equals(il.trackingId)
                     }.forEach { t ->
                         ah.reportsOut[t.childReportId]?. let { rf ->
                             WorkflowEngine.settings.findOrganization(rf.receivingOrg)?. let { org ->

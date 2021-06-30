@@ -79,6 +79,16 @@ data class Schema(
         return elementIndex[name]
     }
 
+    /**
+     * Creates a uniform trackingId based on the row number and/or the trackingElement id
+     * in the report item.
+     * @param row the zero based entry of the item in the report
+     * @param trackingId the value of the schema's trackingElement if defined
+     */
+    fun getTrackingId(row: Int, trackingId: String? = null): String {
+        return trackingId ?: "row$row"
+    }
+
     fun findElementByCsvName(name: String): Element? {
         return elements.firstOrNull { e ->
             e.csvFields?.map { c -> c.name.lowercase() }?.contains(name.lowercase()) ?: false
