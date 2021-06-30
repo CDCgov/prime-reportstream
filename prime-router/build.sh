@@ -42,10 +42,16 @@ function ensure_build_dir() {
   mkdir -p "${HERE?}/build"
   chmod 777 "${HERE?}/build"
   echo "Making sure you own 'build/', 'docs/' and '.gradle/'... (may require elevation)"
-  sudo chown -R "$(id --user --name):$(id --group --name)" \
-    build \
-    docs \
-    .gradle
+  for d in "build/" "docs/" ".gradle/"; do
+    if [[ -d "${d}" ]]; then
+      echo "    - $(pwd)/${d}"
+      sudo chown -R "$(id --user --name):$(id --group --name)" "${d}" | sed "s/^/    /g"
+      # if sudo reports failure (due to whatever reason), then stop trying
+      if [[ $? != 0 ]]; then
+        break
+      fi
+    fi
+  done
 }
 
 # Defaults
