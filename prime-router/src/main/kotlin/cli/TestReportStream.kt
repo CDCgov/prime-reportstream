@@ -150,7 +150,7 @@ Examples:
         val problem: Boolean = when (env) {
             "staging" -> !dbEnv.contains("pdhstaging")
             "test" -> !dbEnv.contains("pdhtest")
-            "local" -> !dbEnv.contains("localhost") && !dbEnv.contains("localhost")
+            "local" -> !dbEnv.contains("postgresql") && !dbEnv.contains("localhost")
             "prod" -> !dbEnv.contains("pdhprod")
             else -> true
         }
