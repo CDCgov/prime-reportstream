@@ -26,7 +26,7 @@ function get_gradle_command() {
   if [[ -n "${1}" ]]; then
     case "${1}" in
     "gradle")
-      echo $* -PDB_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+      echo $*
       ;;
     *)
       # Lets you bash into the build container
@@ -34,7 +34,7 @@ function get_gradle_command() {
       ;;
     esac
   else
-    echo gradle package "-PDB_URL=jdbc:postgresql://localhost:5432/prime_data_hub"
+    echo gradle package
   fi
 }
 
