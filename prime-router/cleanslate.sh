@@ -16,15 +16,14 @@ UNBUILD_TARGETS=(
   "./build/"
 )
 
-# This script wipes your (environmental) slate clean
 
 function usage() {
   cat <<EOF
 usage: ${0} [OPTIONS]
 
-This script attempts to bring you back to as clean a state as possible by \
-resetting and removing any environmental remnant state from previous runs \
-or builds.
+Thsi script sets up a functional development environment that is as pristine \
+as possible. It will get you there from a clean clone or get you back there \
+if your environment got messed up.
 
 OPTIONS:
   --unbuild     Removes build artifacts as well (i.e. ${UNBUILD_TARGETS[*]})
