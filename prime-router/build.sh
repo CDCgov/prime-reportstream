@@ -40,7 +40,6 @@ function get_gradle_command() {
 
 function ensure_build_dir() {
   mkdir -p "${HERE?}/build"
-  chmod 777 "${HERE?}/build"
   echo "Making sure you own 'build/', 'docs/' and '.gradle/'... (may require elevation)"
   for d in "build/" "docs/" ".gradle/"; do
     if [[ -d "${d}" ]]; then
@@ -54,7 +53,7 @@ function ensure_build_dir() {
       fi
 
       # Make sure everyone can write to anything in the dir
-      sudo chmod -R +w "${d}"
+      sudo chmod -R a+w "${d}"
     fi
   done
 }
