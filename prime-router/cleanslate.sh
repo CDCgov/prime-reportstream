@@ -94,8 +94,8 @@ function recompose_docker() {
   docker-compose --file docker-compose.yml up --detach
 }
 
-function ensure_binaries(){
-    if [[ ! -f "./build/azure-functions/prime-data-hub-router/prime-router-0.1-SNAPSHOT.jar" ]]; then
+function ensure_binaries() {
+  if [[ ! -f "./build/azure-functions/prime-data-hub-router/prime-router-0.1-SNAPSHOT.jar" ]]; then
     echo "You do not yet have any binaries, building them for you..."
     ./build.sh | sed 's/^/\t\t/g'
   fi
@@ -112,7 +112,7 @@ function configure_prime() {
     # Give the vault plenty of time to come up, so retry if we get failures
     while [[ ${RC} != 0 ]]; do
       echo -ne "\t- ${p}..."
-      ./prime create-credential --type=UserPass --persist=${p} --user foo --pass pass 1>/dev/null 2>&1
+      ./prime create-credential --type=UserPass --persist=${p} --user foo --pass pass 1>/dev/null
       RC=${PIPESTATUS[0]}
       if [[ ${RC?} == 0 ]]; then
         echo "DONE"
@@ -126,6 +126,34 @@ function configure_prime() {
   ./prime multiple-settings set --input settings/organizations-local.yml 1>/dev/null |
     sed 's/^/\t/g'
   echo "DONE"
+}
+
+# This functions loads in the local organizations' receivers' credentials
+function configure_receiver_creds() {
+  echo "Populating receiver credentials into your vault (be patient)..."
+  VENV_ROOT=$(mktemp -d)
+  pushd "${VENV_ROOT?}" 2>&1 1>/dev/null
+
+  python -m venv venv 1>/dev/null 2>&1
+  source ./venv/bin/activate 1>/dev/null 2>&1
+  pip install pyyaml 1>/dev/null 2>&1
+  popd 2>&1 1>/dev/null
+
+  python -c "import yaml;
+with open(\"${HERE?}/settings/organizations-local.yml\") as input:
+    loaded = yaml.load(input, Loader=yaml.SafeLoader)
+
+    for org in (o for o in loaded if o.get('receivers', None) is not None):
+        receivers = org['receivers']
+        for rcvr in receivers:
+            ORGNAME=rcvr['organizationName']
+            NAME=rcvr['name']
+            if ORGNAME and NAME and '_' not in NAME:
+                print('%(orgName)s--%(name)s' % {'orgName': ORGNAME, 'name': NAME})
+" | xargs -I_ -P 2 "${HERE}/prime" create-credential --type=UserPass --persist=_ --user foo --pass pass 1>/dev/null
+  deactivate
+
+  rm -rf "${VENV_ROOT?}"
 }
 
 function unbuild() {
@@ -194,6 +222,7 @@ purge_docker_volumes
 reset_vault
 recompose_docker
 configure_prime
+configure_receiver_creds
 take_ownership
 
 cat <<EOF
