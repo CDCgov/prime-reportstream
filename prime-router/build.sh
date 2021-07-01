@@ -45,11 +45,16 @@ function ensure_build_dir() {
   for d in "build/" "docs/" ".gradle/"; do
     if [[ -d "${d}" ]]; then
       echo "    - $(pwd)/${d}"
+
+      # Take ownership
       sudo chown -R "$(id --user --name):$(id --group --name)" "${d}" | sed "s/^/    /g"
       # if sudo reports failure (due to whatever reason), then stop trying
       if [[ $? != 0 ]]; then
         break
       fi
+
+      # Make sure everyone can write to anything in the dir
+      sudo chmod -R +w "${d}"
     fi
   done
 }
