@@ -27,5 +27,14 @@ which means we need to strive for maximum uptime. There is work to ensure that w
 deployments, which is a good first step, but there is more that we can do.
 
 ## Proposal
-We should separate the logic that handles the incoming work from the rest of the system and store the
-posts into our own Azure Storage Queue. This can be a very small piece of code.
+We should separate the logic that handles the incoming messages from the rest of the system and store the
+posts into our own Azure Storage Queue. The intention is to allow many results to come into the queue,
+and be processed by us when your system is back online. In many cases, this will be instantaneous, but
+if we run into extended downtime we can be assured that messages coming in are not lost, they're just waiting.
+
+On `POST` the application will push the result into the storage queue and generate (or retrieve)
+the ID of the item in the queue. At this point, it will issue a 202 HTTP status code indicating 
+that the work is still processing, and a `Location` header indicating where to get the status of the
+work in process.
+
+
