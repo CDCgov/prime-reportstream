@@ -81,6 +81,7 @@ function wait_for_vault_creds() {
 
 # Brings any necessary environments up again
 function recompose_docker() {
+  ensure_binaries
   echo -n "Recomposing Docker..."
   ./devenv-infrastructure.sh \
     1>/dev/null
@@ -93,8 +94,16 @@ function recompose_docker() {
   docker-compose --file docker-compose.yml up --detach
 }
 
+function ensure_binaries(){
+    if [[ ! -f "./build/azure-functions/prime-data-hub-router/prime-router-0.1-SNAPSHOT.jar" ]]; then
+    echo "You do not yet have any binaries, building them for you..."
+    ./build.sh | sed 's/^/\t\t/g'
+  fi
+}
+
 function configure_prime() {
   wait_for_vault_creds
+  ensure_binaries
 
   echo "Populating credentials into your vault..."
   for p in "IGNORE--HL7" "IGNORE--HL7-BATCH" "IGNORE--CSV"; do
@@ -120,6 +129,7 @@ function configure_prime() {
 }
 
 function unbuild() {
+  take_ownership
   echo "Removing build artifacts..."
   for d in ${UNBUILD_TARGETS[*]}; do
     echo -e "\t- ${d?}"
@@ -143,9 +153,13 @@ function take_ownership() {
 
   for d in ${TARGETS[*]}; do
     echo -ne "\t- ${d?}..."
-    sudo chown -R "${USER?}:${USER?}" "${d?}"
-    sudo chmod -R a+w "${d?}"
-    echo "DONE"
+    if [[ -d "${d?}" ]]; then
+      sudo chown -R "${USER?}:${USER?}" "${d?}"
+      sudo chmod -R a+w "${d?}"
+      echo "DONE"
+    else
+      echo "NOT_THERE"
+    fi
   done
 }
 
