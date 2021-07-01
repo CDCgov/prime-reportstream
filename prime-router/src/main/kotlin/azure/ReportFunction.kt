@@ -478,7 +478,9 @@ class ReportFunction {
                     }.forEach { t ->
                         ah.reportsOut[t.childReportId]?. let { rf ->
                             WorkflowEngine.settings.findOrganization(rf.receivingOrg)?. let { org ->
-                                destinations.getOrPut(org.jurisdiction) { mutableListOf() }.add(rf.receivingOrg)
+                                destinations.getOrPut(org.jurisdiction) { mutableListOf() }.add(
+                                    "${rf.receivingOrg}.${rf.receivingOrgSvc}"
+                                )
                             }
                         }
                     }
