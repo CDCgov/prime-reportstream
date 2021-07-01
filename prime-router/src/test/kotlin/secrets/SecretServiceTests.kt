@@ -18,7 +18,6 @@ internal class SecretServiceTests : SecretManagement {
     // @Test
     fun `test fetch from envVar`() {
         every { mockSecretService.fetchEnvironmentVariable("SECRET_SERVICE_TEST") } returns "value_expected"
-        // assertEquals("value_expected", secretService.fetchSecret("SECRET_SERVICE_TEST"))
         assertThat("value_expected").isEqualTo(secretService.fetchSecret("SECRET_SERVICE_TEST"))
     }
 
