@@ -25,6 +25,9 @@
     + [Initialize the Vault](#initialize-the-vault)
     + [Re-initialize the Vault](#re-initialize-the-vault)
     + [Using the Vault locally](#using-the-vault-locally)
+  * [Troubleshooting](#troubleshooting)
+    + [prime test Utility](#prime-test-utility)
+      - [Missing env var](#missing-env-var) 
 
 
 ## Developer Workstation Setup
@@ -109,7 +112,7 @@ If you need Flyway, you can install it via `apt` as above.
 #### PostgreSQL via Docker
 In [`devenv-infrastructure.sh`](../devenv-infrastructure.sh)
 ```sh
-docker-compose -f ./docker-prime-infra.yml up --detach
+docker-compose -f ./docker-infrastructure.yml up --detach
 ```
 
 ## Clone the Repository    
@@ -167,7 +170,7 @@ Some useful tools for Kotlin/Java development include:
 - [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
 - [JetBrains IntelliJ](https://www.jetbrains.com/idea/download/#section=mac)
 
-If you are using IntelliJ, you can configure it to follow standard Kotlin conventions by
+If you are using IntelliJ, you can install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions by
 ```
 cd prime_router
 brew install ktlint
@@ -177,9 +180,6 @@ ktlint applyToIDEAProject
 A useful Azure tool to examine Azurite and Azure storage is (Storage Explorer)[https://azure.microsoft.com/en-us/features/storage-explorer/] from Microsoft.
 
 ## Function Development with Docker Compose
-### Local SFTP Server
-You will need an SFTP server to receive data from the router.  For local tests, refer to the [SFTP-SETUP document](SFTP-SETUP.md) to setup a local SFTP server as a receiver of data.
-
 ### Running the Router Locally
 The project's [README](../readme.md) file contains some steps to use the PRIME router in a CLI. However, for the POC app and most other users of the PRIME router will the router in the Microsoft Azure cloud. When hosted in Azure, the PRIME router uses Docker containers. The `DockerFile` describes how to build this container.
 
@@ -329,3 +329,22 @@ Alternatively, inject them in your terminal with (useful for using the CLI):
 ```bash
 export $(cat ./.vault/env/.env.local | xargs)
 ```
+
+
+## TroubleShooting
+
+### prime test Utility
+
+The prime-router comes packaged with a executable that can help in finding misconfigurations and other problems with the appliciation.
+
+Use the following command to launch the tool locally: 
+
+```shell
+cd prime-router
+export POSTGRES_PASSWORD='changeIT!'
+export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+export POSTGRES_USER=prime
+./prime test
+```
+
+This can be used while the prime-router application is running on your system.

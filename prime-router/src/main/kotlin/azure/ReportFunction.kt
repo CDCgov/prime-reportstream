@@ -22,10 +22,11 @@ import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
 import gov.cdc.prime.router.tokens.FindSenderKeyInSettings
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
+import org.postgresql.util.PSQLException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.time.format.DateTimeFormatter
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.logging.Level
 
 private const val CLIENT_PARAMETER = "client"
@@ -109,6 +110,7 @@ class ReportFunction: Logging {
     private fun ingestReport(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.receive, context)
+        var report: Report? = null
         actionHistory.trackActionParams(request)
         val httpResponseMessage = try {
             val validatedRequest = validateRequest(workflowEngine, request)
@@ -130,6 +132,7 @@ class ReportFunction: Logging {
                 else -> {
                     // Regular happy path workflow is here
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
+                    report = validatedRequest.report
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
                     workflowEngine.receiveReport(validatedRequest, actionHistory)
@@ -144,9 +147,53 @@ class ReportFunction: Logging {
         actionHistory.trackActionResult(httpResponseMessage)
         workflowEngine.recordAction(actionHistory)
         actionHistory.queueMessages() // Must be done after creating TASK record.
+        // write the data to the table if we're dealing with covid-19. this has to happen
+        // here AFTER we've written the report to the DB
+        writeCovidResultMetadataForReport(report, context, workflowEngine)
         return httpResponseMessage
     }
 
+    /**
+     * Given a report object, it collects the non-PII, non-PHI out of it and then saves it to the
+     * database in the covid_results_metadata table.
+     */
+    private fun writeCovidResultMetadataForReport(
+        report: Report?,
+        context: ExecutionContext,
+        workflowEngine: WorkflowEngine
+    ) {
+        if (report != null && report.schema.topic.lowercase() == "covid-19") {
+            // next check that we're dealing with an external file
+            val clientSource = report.sources.firstOrNull { it is ClientSource }
+            if (clientSource != null) {
+                context.logger.info("Writing deidentified report data to the DB")
+                // wrap the insert into an exception handler
+                try {
+                    workflowEngine.db.transact { txn ->
+                        // verify the file exists in report_file before continuing
+                        if (workflowEngine.db.checkReportExists(report.id, txn)) {
+                            val deidentifiedData = report.getDeidentifiedResultMetaData()
+                            workflowEngine.db.saveTestData(deidentifiedData, txn)
+                            context.logger.info("Wrote ${deidentifiedData.count()} rows to test data table")
+                        } else {
+                            // warn if it does not exist
+                            context.logger.warning(
+                                "Skipping write to metadata table because " +
+                                    "reportId ${report.id} does not exist in report_file."
+                            )
+                        }
+                    }
+                } catch (pse: PSQLException) {
+                    // report this but move on
+                    context.logger.severe(
+                        "Exception writing COVID test metadata " +
+                            "for ${report.id}: ${pse.localizedMessage}.\n" +
+                            pse.stackTraceToString()
+                    )
+                }
+            }
+        }
+    }
 
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors = mutableListOf<ResultDetail>()
@@ -185,10 +232,18 @@ class ReportFunction: Logging {
         val clientName = request.headers[CLIENT_PARAMETER] ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
         if (clientName.isBlank())
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "Expected a '$CLIENT_PARAMETER' query parameter"))
+
         val sender = engine.settings.findSender(clientName)
         if (sender == null)
             errors.add(ResultDetail.param(CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown sender"))
+
         val schema = engine.metadata.findSchema(sender?.schemaName ?: "")
+        if (sender != null && schema == null)
+            errors.add(
+                ResultDetail.param(
+                    CLIENT_PARAMETER, "'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'"
+                )
+            )
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
@@ -378,7 +433,8 @@ class ReportFunction: Logging {
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings)
+
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)

@@ -1,14 +1,16 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import java.io.ByteArrayInputStream
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class FileSettingsTests {
@@ -64,21 +66,18 @@ class FileSettingsTests {
 
     @Test
     fun `test loading a receiver`() {
-        val settings = FileSettings()
-        settings.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray()))
+        val settings = FileSettings().also { it.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray())) }
         val result = settings.findReceiver("phd1.elr")
-
-        assertEquals(1, result?.jurisdictionalFilter?.size)
+        assertThat(result?.jurisdictionalFilter).isNotNull().hasSize(1)
     }
 
     @Test
     fun `test loading a sender and receiver`() {
-        val settings = FileSettings()
-        settings.loadOrganizations(ByteArrayInputStream(sendersAndReceiversYaml.toByteArray()))
-
+        val settings = FileSettings().also {
+            it.loadOrganizations(ByteArrayInputStream(sendersAndReceiversYaml.toByteArray()))
+        }
         val result = settings.findSender("phd1.sender")
-
-        assertEquals("sender", result?.name)
+        assertThat(result?.name).isEqualTo("sender")
     }
 
     @Test
@@ -97,25 +96,25 @@ class FileSettingsTests {
             )
         )
         val result = settings.findReceiver("single.elr") ?: fail("Expected to find service")
-        assertEquals("elr", result.name)
+        assertThat(result.name).isEqualTo("elr")
     }
 
     @Test
     fun `test loading local settings`() {
         val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-local")
-        assertNotNull(settings)
+        assertThat(settings).isNotNull()
     }
 
     @Test
     fun `test loading test settings`() {
         val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-test")
-        assertNotNull(settings)
+        assertThat(settings).isNotNull()
     }
 
     @Test
     fun `test loading prod settings`() {
         val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-prod")
-        assertNotNull(settings)
+        assertThat(settings).isNotNull()
     }
 
     @Test
@@ -126,43 +125,44 @@ class FileSettingsTests {
             "04:05",
             USTimeZone.ARIZONA
         ) // AZ is -7:00 from UTC
-        assertTrue(timing.isValid())
-
+        assertThat(timing.isValid()).isTrue()
         // The result should be in the AZ timezone
         val now1 = ZonedDateTime.of(2020, 10, 2, 0, 0, 0, 999, ZoneId.of("UTC")).toOffsetDateTime()
         val expected1 = ZonedDateTime.of(2020, 10, 1, 17, 5, 0, 0, ZoneId.of("US/Arizona")).toOffsetDateTime()
         val actual1 = timing.nextTime(now1)
-        assertEquals(expected1, actual1)
+        assertThat(actual1).isEqualTo(expected1)
 
         // Test that the minDuration comes into play
         val now2 = ZonedDateTime.of(2020, 10, 1, 0, 5, 0, 0, ZoneId.of("UTC")).toOffsetDateTime()
         val actual2 = timing.nextTime(now2)
         val expected2 = ZonedDateTime.of(2020, 9, 30, 18, 5, 0, 0, ZoneId.of("US/Arizona")).toOffsetDateTime()
-        assertEquals(expected2, actual2)
+        assertThat(actual2).isEqualTo(expected2)
     }
 
     @Test
     fun `test find sender`() {
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         val sender = settings.findSender("simple_report")
-        assertNotNull(sender)
+        assertThat(sender).isNotNull()
         val sender2 = settings.findSender("simple_report.default")
-        assertNotNull(sender2)
+        assertThat(sender2).isNotNull()
     }
 
     @Test
     fun `test find receiver`() {
-        val settings = FileSettings()
         val org1 = DeepOrganization(
             "test", "test", Organization.Jurisdiction.FEDERAL, null, null,
             receivers = listOf(
                 Receiver("service1", "test", "topic1", "schema1"),
             )
         )
-        settings.loadOrganizationList((listOf(org1)))
-        assertEquals(org1.name, settings.findOrganization("test")?.name)
-        assertEquals(org1.receivers[0].name, settings.findReceiver(fullName = "test.service1")?.name)
-        assertNull(settings.findReceiver(fullName = "service1"))
+        val settings = FileSettings().also {
+            it.loadOrganizationList(listOf(org1))
+        }
+        assertThat(settings.findOrganization("test")?.name).isNotNull().isEqualTo(org1.name)
+        assertThat(settings.findReceiver(fullName = "test.service1")?.name)
+            .isNotNull().isEqualTo(org1.receivers[0].name)
+        assertThat(settings.findReceiver(fullName = "service1")).isNull()
     }
 
     @Test
@@ -175,6 +175,8 @@ class FileSettingsTests {
                 Receiver("service1", "test", "topic1", "schema1")
             )
         )
-        assertFails { settings.loadOrganizationList(listOf(org1)) }
+        assertThat {
+            settings.loadOrganizationList(listOf(org1))
+        }.isFailure()
     }
 }

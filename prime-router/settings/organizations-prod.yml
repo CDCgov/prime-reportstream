@@ -127,7 +127,8 @@
     - name: elr
       organizationName: fl-phd
       topic: covid-19
-      jurisdictionalFilter: [ "matches(ordering_facility_state, FL)" ]
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, FL, patient_state, FL)
       deidentify: false
       translation:
         type: HL7
@@ -474,6 +475,7 @@
         receivingFacilityName: MA-MDPH
         receivingFacilityOID: 2.16.840.1.113883.19.3.2
         truncateHDNamespaceIds: true
+        nameFormat: massachusetts
       transport:
         type: SFTP
         host: sftp-dph.ehs.mass.gov
@@ -482,7 +484,7 @@
       timing:
         operation: MERGE
         numberPerDay: 12
-        initialTime: 01:30
+        initialTime: 09:15
         timeZone: EASTERN
 
 - name: pa-phd

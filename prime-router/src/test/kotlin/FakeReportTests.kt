@@ -1,13 +1,16 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.assertNotNull
 import kotlin.test.fail
 
-internal class FakeReportTests {
+class FakeReportTests {
     private val schemaName = "test"
     private val rowContext = FakeReport.RowContext(schemaName = schemaName)
     private val metadata = Metadata(
@@ -180,10 +183,9 @@ internal class FakeReportTests {
         val fieldName = "testing_lab_and_facility"
         val concatField = metadata.findSchema(schemaName)
             ?.findElement(fieldName) ?: fail("Lookup failure: $fieldName")
-
         val actual = FakeReport(metadata).buildMappedColumn(concatField, rowContext)
         val expected = "Any lab USA^Any facility USA"
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -191,22 +193,21 @@ internal class FakeReportTests {
         val fieldName = "testing_lab_and_facility2"
         val concatField = metadata.findSchema(schemaName)
             ?.findElement(fieldName) ?: fail("Lookup failure: $fieldName")
-
         val actual = FakeReport(metadata).buildMappedColumn(concatField, rowContext)
         val expected = "Any lab USA, Any facility USA"
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
     fun `test row context getting expected zip code results`() {
         // arrange
         val metadata = Metadata("./metadata")
-        assertNotNull(metadata)
+        assertThat(metadata).isNotNull()
         val zipCodeTable = metadata.findLookupTable("zip-code-data")
-        assertNotNull(zipCodeTable)
+        assertThat(zipCodeTable).isNotNull()
         val state = "VT"
         val county = "Rutland"
-        val matchingCityRows = zipCodeTable.filter(
+        val matchingCityRows = zipCodeTable!!.filter(
             "city",
             mapOf(
                 "state_abbr" to state,
@@ -231,7 +232,7 @@ internal class FakeReportTests {
         println(matchingZipRows.joinToString())
         println("${context.city} - ${context.zipCode}")
         // assert
-        assert(matchingCityRows.contains(context.city))
-        assert(matchingZipRows.contains(context.zipCode))
+        assertThat(matchingCityRows).contains(context.city)
+        assertThat(matchingZipRows).contains(context.zipCode)
     }
 }

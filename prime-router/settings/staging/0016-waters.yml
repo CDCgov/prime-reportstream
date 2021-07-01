@@ -60,3 +60,40 @@
         host: 3.217.175.115
         port: 22
         filePath: ./public
+    - name: giang
+      organizationName: waters
+      topic: covid-19
+      jurisdictionalFilter: [ "hasAtLeastOneOf(waters_submitter, submitter_uid)", "orEquals(patient_state, GH, ordering_facility_state, GH)" ]
+      qualityFilter: [ "allowAll()" ]
+      deidentify: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: waters/waters-covid-19
+        format: CSV
+      transport:
+        type: SFTP
+        host: 3.217.175.115
+        port: 22
+        filePath: ./public/giang
+    - name: joe
+      organizationName: waters
+      topic: covid-19
+      jurisdictionalFilter: [ "hasAtLeastOneOf(waters_submitter, submitter_uid)", "orEquals(patient_state, JM, ordering_facility_state, JM)" ]
+      qualityFilter: [ "allowAll()" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: waters/waters-covid-19
+        format: CSV
+      transport:
+        type: SFTP
+        host: 3.217.175.115
+        port: 22
+        filePath: ./public/joe

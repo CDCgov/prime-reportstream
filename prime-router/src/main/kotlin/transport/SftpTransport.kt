@@ -14,6 +14,7 @@ import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.StatefulSFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile
@@ -25,7 +26,6 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.apache.logging.log4j.kotlin.logger
 import java.io.InputStream
 import java.io.StringReader
-import java.util.logging.Level
 
 class SftpTransport : ITransport, Logging {
     override fun send(
@@ -47,10 +47,10 @@ class SftpTransport : ITransport, Logging {
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
             val sshClient = connect(host, port, credential)
-            context.logger.log(Level.INFO, "Successfully connected to $sftpTransportType, ready to upload $fileName")
+            context.logger.info("Successfully connected to $sftpTransportType, ready to upload $fileName")
             uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
-            context.logger.log(Level.INFO, msg)
+            context.logger.info(msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
                 receiver,
@@ -67,7 +67,7 @@ class SftpTransport : ITransport, Logging {
                 "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
                     "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
                     ", Exception: ${t.localizedMessage}"
-            context.logger.log(Level.WARNING, msg, t)
+            context.logger.warning(msg)
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
@@ -135,7 +135,6 @@ class SftpTransport : ITransport, Logging {
                             it.put(makeSourceFile(contents, fileName), "$path/$fileName")
                         }
                     }
-
                 } finally {
                     sshClient.disconnect()
                 }
@@ -152,12 +151,16 @@ class SftpTransport : ITransport, Logging {
         }
 
         fun ls(sshClient: SSHClient, path: String): List<String> {
+            return ls(sshClient, path, null)
+        }
+
+        fun ls(sshClient: SSHClient, path: String, resourceFilter: RemoteResourceFilter?): List<String> {
             val lsResults = mutableListOf<String>()
             try {
                 try {
                     sshClient.use { sshClient ->
                         sshClient.newSFTPClient().use {
-                            it.ls(path).map { l -> lsResults.add(l.toString()) }
+                            it.ls(path, resourceFilter).map { l -> lsResults.add(l.toString()) }
                         }
                     }
                 } finally {
@@ -175,6 +178,29 @@ class SftpTransport : ITransport, Logging {
             }
 
             return lsResults
+        }
+
+        fun rm(sshClient: SSHClient, path: String, fileName: String) {
+            try {
+                try {
+                    sshClient.use { sshClient ->
+                        sshClient.newSFTPClient().use {
+                            it.rm("$path/$fileName")
+                        }
+                    }
+                } finally {
+                    sshClient.disconnect()
+                }
+            } catch (ce: net.schmizz.sshj.connection.ConnectionException) {
+                // if the timeout happens on disconnect it gets wrapped up in the connectException
+                // and we need to check the root cause
+                if (ce.cause is java.util.concurrent.TimeoutException) {
+                    // do nothing. some servers just take a long time to disconnect
+                    logger().warn("Connection exception during ls: ${ce.localizedMessage}")
+                } else {
+                    throw ce
+                }
+            }
         }
 
         fun pwd(sshClient: SSHClient): String {

@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
 import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.Random
 import java.util.concurrent.TimeUnit
 
@@ -28,9 +29,11 @@ class FakeDataService {
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
+                element.nameContains("sender_id") -> "ImageMover"
                 element.nameContains("facility_name") -> "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
+                element.nameContains("result_format") -> "CWE"
                 element.nameContains("patient_age_and_units") -> {
                     val unit = randomChoice("months", "years", "days")
                     val value = when (unit) {
@@ -98,6 +101,11 @@ class FakeDataService {
             return when (element.name) {
                 "specimen_source_site_code" -> "71836000"
                 "test_result_status" -> randomChoice("F", "C")
+                "processing_mode_code" -> "P"
+                "value_type" -> "CWE"
+                "test_result" ->
+                    // Reduce the choice to between detected, not detected, and uncertain for more typical results
+                    randomChoice("260373001", "260415000", "419984006")
                 else -> {
                     val altValues = element.altValues
                     val valueSet = element.valueSetRef
@@ -128,10 +136,14 @@ class FakeDataService {
                                 "to ${element.tableColumn}"
                         )
                 }
+                element.table?.startsWith("LIVD-Supplemental") == true -> {
+                    if (element.tableColumn == null) return ""
+                    element.default ?: ""
+                }
                 element.table == "fips-county" -> {
                     when {
                         element.nameContains("state") -> context.state
-                        element.nameContains("county") -> context.county ?: ""
+                        element.nameContains("county") -> context.county
                         else -> TODO("Add this column in a table")
                     }
                 }
@@ -144,7 +156,7 @@ class FakeDataService {
         // each element has a type, and depending on the type defined on the
         // element, we call into some of the functions above
         return when (element.type) {
-            Element.Type.CITY -> context.city ?: faker.address().city()
+            Element.Type.CITY -> context.city
             Element.Type.POSTAL_CODE -> context.zipCode
             Element.Type.TEXT -> createFakeText(element)
             Element.Type.BLANK -> ""
@@ -179,20 +191,22 @@ class FakeDataService {
     }
 }
 
-class FakeReport(val metadata: Metadata) {
+class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
     private val fakeDataService: FakeDataService = FakeDataService()
 
     class RowContext(
         findLookupTable: (String) -> LookupTable? = { null },
         reportState: String? = null,
         val schemaName: String? = null,
-        reportCounty: String? = null
+        reportCounty: String? = null,
+        val locale: Locale? = null
     ) {
-        val faker = Faker()
+        val faker = if (locale == null) Faker() else Faker(locale)
         val patientName: Name = faker.name()
         val schoolName: String = faker.university().name()
         val equipmentModel = randomChoice(
-            "BinaxNOW COVID-19 Ag Card",
+            // Use only equipment that have equipment UID and equipment UID type to pass quality gate for HL7 messages
+            "LumiraDx SARS-CoV-2 Ag Test*",
             "BD Veritor System for Rapid Detection of SARS-CoV-2*"
         )
         // find our state
@@ -277,7 +291,7 @@ class FakeReport(val metadata: Metadata) {
     }
 
     private fun buildRow(schema: Schema, targetState: String? = null, targetCounty: String? = null): List<String> {
-        val context = RowContext(metadata::findLookupTable, targetState, schemaName = schema.name, targetCounty)
+        val context = RowContext(metadata::findLookupTable, targetState, schemaName = schema.name, targetCounty, locale)
         return schema.elements.map {
             if (it.mapper.isNullOrEmpty())
                 buildColumn(it, context)
@@ -298,12 +312,12 @@ class FakeReport(val metadata: Metadata) {
             metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")
                 ?.toList()
         } else {
-            targetStates?.split(",")
+            targetStates.split(",")
         }
         val rows = (0 until count).map {
             buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties))
         }.toList()
-        return Report(schema, rows, listOf(source))
+        return Report(schema, rows, listOf(source), metadata = metadata)
     }
 
     companion object {

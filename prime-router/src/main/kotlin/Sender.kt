@@ -41,7 +41,7 @@ open class Sender(
 
     enum class Format(val mimeType: String) {
         CSV("text/csv"),
-        HL7("text/hl7"),   // todo correct this.  Maybe  x-application/hl7-v2+er7
+        HL7("application/hl7-v2"),
     }
 
     /**

@@ -67,13 +67,31 @@ jobs:
           java-version: 11
 
       - name: Build Prime Router Package
-        run: bash ./gradlew clean package -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
+        run: bash ./gradlew clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD -Pshowtests
+        
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          # This path is from the root of the repo as needed by the plugin
+          files: prime-router/build/test-results/test/**/*.xml
+
+      - name: Run Integration Tests
+        run: bash ./gradlew testIntegration -Pshowtests
+
+      - name: Publish Integration Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          # This path is from the root of the repo as needed by the plugin
+          files: prime-router/build/test-results/testIntegration/**/*.xml
+          check_name: "Integration Test Results"
 
       - name: Generate New Docs
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          bash ./gradlew primeCLI --args='generate-docs'
+          bash ./gradlew generatedocs
 
       - name: Check for Uncommited Docs
         id: check_changes
@@ -105,7 +123,7 @@ jobs:
           body: |
             The changes you’ve made modify the documentation, but you haven’t included new generated documentation in your commits!
 
-            Please run `./gradlew primeCLI --args='generate-docs'` to generate updated documentation, then commit the results.
+            Please run `./gradlew generatedocs` to generate updated documentation, then commit the results.
 
             Expected changes in files:
 

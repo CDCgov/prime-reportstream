@@ -4,17 +4,17 @@
 
 ---
 
-**Name**: lab
+**Name**: firstName
 
-**PII**: No
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
 ---
 
-**Name**: firstName
+**Name**: lab
 
-**PII**: Yes
+**PII**: No
 
 **Cardinality**: [0..1]
 
@@ -28,29 +28,9 @@
 
 ---
 
-**Name**: state
+**Name**: observation
 
 **Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ssn
-
-**Type**: ID_SSN
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: testTime
-
-**Type**: DATE
 
 **PII**: No
 
@@ -68,9 +48,29 @@
 
 ---
 
-**Name**: observation
+**Name**: ssn
+
+**Type**: ID_SSN
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: state
 
 **Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testTime
+
+**Type**: DATE
 
 **PII**: No
 

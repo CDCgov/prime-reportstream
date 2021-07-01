@@ -14,7 +14,7 @@ import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
-import org.jooq.JSON
+import org.jooq.JSONB
 import java.time.OffsetDateTime
 
 /**
@@ -210,7 +210,7 @@ class SettingsFacade(
         clazz: Class<T>,
         name: String,
         organizationName: String? = null,
-    ): Triple<Boolean, String?, JSON?> {
+    ): Triple<Boolean, String?, JSONB?> {
         val input = try {
             mapper.readValue(json, clazz)
         } catch (ex: Exception) {
@@ -221,7 +221,7 @@ class SettingsFacade(
         if (input.organizationName != organizationName)
             return Triple(false, "Payload and path organization name do not match", null)
         input.consistencyErrorMessage(metadata) ?.let { return Triple(false, it, null) }
-        val normalizedJson = JSON.valueOf(mapper.writeValueAsString(input))
+        val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
         return Triple(true, null, normalizedJson)
     }
 
@@ -330,6 +330,7 @@ class ReceiverAPI
     translation: TranslatorConfiguration,
     jurisdictionalFilter: List<String> = emptyList(),
     qualityFilter: List<String> = emptyList(),
+    reverseTheQualityFilter: Boolean = false,
     deidentify: Boolean = false,
     timing: Timing? = null,
     description: String = "",
@@ -342,6 +343,7 @@ class ReceiverAPI
     translation,
     jurisdictionalFilter,
     qualityFilter,
+    reverseTheQualityFilter,
     deidentify,
     timing,
     description,
