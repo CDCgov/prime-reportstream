@@ -97,7 +97,6 @@ function configure_prime() {
   wait_for_vault_creds
 
   echo "Populating credentials into your vault..."
-  # export VAULT_API_ADDR=http://localhost:8200
   for p in "IGNORE--HL7" "IGNORE--HL7-BATCH" "IGNORE--CSV"; do
     RC=1
 
