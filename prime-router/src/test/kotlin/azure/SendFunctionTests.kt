@@ -1,5 +1,10 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
@@ -19,10 +24,6 @@ import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class SendFunctionTests {
     val context = mockkClass(ExecutionContext::class)
@@ -109,9 +110,9 @@ class SendFunctionTests {
         val event = ReportEvent(Event.EventAction.SEND, reportId)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
         // Verify
-        assertNotNull(nextEvent)
-        assertEquals(Event.EventAction.NONE, nextEvent!!.eventAction)
-        assertNull(nextEvent!!.retryToken)
+        assertThat(nextEvent).isNotNull()
+        assertThat(Event.EventAction.NONE).isEqualTo(nextEvent!!.eventAction)
+        assertThat(nextEvent!!.retryToken).isNull()
     }
 
     @Test
@@ -133,10 +134,10 @@ class SendFunctionTests {
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        assertNotNull(nextEvent)
-        assertEquals(Event.EventAction.SEND, nextEvent!!.eventAction)
-        assertNotNull(nextEvent!!.retryToken)
-        assertEquals(1, nextEvent!!.retryToken?.retryCount)
+        assertThat(nextEvent).isNotNull()
+        assertThat(Event.EventAction.SEND).isEqualTo(nextEvent!!.eventAction)
+        assertThat(nextEvent!!.retryToken).isNotNull()
+        assertThat(1).isEqualTo(nextEvent!!.retryToken?.retryCount)
     }
 
     @Test
@@ -162,12 +163,12 @@ class SendFunctionTests {
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        assertNotNull(nextEvent)
-        assertEquals(Event.EventAction.SEND, nextEvent!!.eventAction)
-        assertNotNull(nextEvent!!.retryToken)
-        assertEquals(3, nextEvent!!.retryToken?.retryCount)
-        assertTrue(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2)))
-        nextEvent!!.retryToken?.toJSON()?.let { assertTrue(it.contains("\"retryCount\":3")) }
+        assertThat(nextEvent).isNotNull()
+        assertThat(Event.EventAction.SEND).isEqualTo(nextEvent!!.eventAction)
+        assertThat(nextEvent!!.retryToken).isNotNull()
+        assertThat(3).isEqualTo(nextEvent!!.retryToken?.retryCount)
+        assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2))).isTrue()
+        nextEvent!!.retryToken?.toJSON()?.let { assertThat(it.contains("\"retryCount\":3")).isTrue() }
     }
 
     @Test
@@ -194,9 +195,9 @@ class SendFunctionTests {
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        assertNotNull(nextEvent)
-        assertEquals(Event.EventAction.SEND_ERROR, nextEvent!!.eventAction)
-        assertNull(nextEvent!!.retryToken)
+        assertThat(nextEvent).isNotNull()
+        assertThat(Event.EventAction.SEND_ERROR).isEqualTo(nextEvent!!.eventAction)
+        assertThat(nextEvent!!.retryToken).isNull()
     }
 
     @Test
