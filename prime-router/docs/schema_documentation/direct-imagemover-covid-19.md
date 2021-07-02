@@ -759,7 +759,7 @@ Should be the name that matches to Test Ordered LOINC Long Name, in LIVD table
 
 ---
 
-**Name**: ordering_facility_state
+**Name**: orderingFacilityState
 
 **Type**: TABLE
 
@@ -950,6 +950,27 @@ The zip code of the provider
 **LOINC Code**: 30525-0
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: patientAgeUnits
+
+**Type**: CODE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+mo|months
+yr|years
+
+**Documentation**:
+
+Always filled when `patient_age` is filled
 
 ---
 
