@@ -1415,8 +1415,8 @@ class SantaClaus : CoolTest() {
 
         var passed = true
 
-        if (options.env in listOf("prod", "test")) {
-            return createBad("This test can only be run on staging or locally")
+        if (options.env !in listOf("local", "staging")) {
+            return createBad("This test can only be run locally or on staging")
         }
 
         var sendersToTestWith = settings.senders.filter {
