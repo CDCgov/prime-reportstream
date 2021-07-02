@@ -86,7 +86,7 @@ data class Schema(
      * @param trackingId the value of the schema's trackingElement if defined
      */
     fun getTrackingId(row: Int, trackingId: String? = null): String {
-        return trackingId ?: "row$row"
+        return trackingId ?: "reportIndex-$row"
     }
 
     fun findElementByCsvName(name: String): Element? {
