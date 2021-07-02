@@ -43,7 +43,7 @@ azurefunctions.appName = azureAppName
 val KEY_DB_USER = "DB_USER"
 val KEY_DB_PASSWORD = "DB_PASSWORD"
 val KEY_DB_URL = "DB_URL"
-val KEY_PRIME_RS_REPORTS_API_ENDPOINT_HOST = "PRIME_RS_REPORTS_API_ENDPOINT_HOST"
+val KEY_PRIME_RS_API_ENDPOINT_HOST = "PRIME_RS_API_ENDPOINT_HOST"
 val dbUser = (
     project.properties[KEY_DB_USER]
         ?: System.getenv(KEY_DB_USER)
@@ -61,7 +61,7 @@ val dbUrl = (
     ) as String
 
 val reportsApiEndpointHost = (
-    System.getenv(KEY_PRIME_RS_REPORTS_API_ENDPOINT_HOST)
+    System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
         ?: "localhost"
     ) as String
 
@@ -255,7 +255,7 @@ tasks.register<JavaExec>("testEnd2End") {
         "POSTGRES_URL" to dbUrl,
         "POSTGRES_USER" to dbUser,
         "POSTGRES_PASSWORD" to dbPassword,
-        KEY_PRIME_RS_REPORTS_API_ENDPOINT_HOST to reportsApiEndpointHost
+        KEY_PRIME_RS_API_ENDPOINT_HOST to reportsApiEndpointHost
     )
 }
 
