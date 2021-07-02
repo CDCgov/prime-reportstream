@@ -61,7 +61,7 @@ Example Json:
     ]
 }
 ```
-To simplify, the status could be made binary (pass/fail) with more detail added on a separate API call.
+To simplify, the status could be made binary (pass/fail) with more detail added on a separate API call. Also, adding a new HttpStatus column to the action table for the receive results would simplify having to parse action_result to determine if the POST was successful. Alternatively, we could assume that if no report_file record was created for the action then the POST failed. However, I think the HttpStatus would be more useful long term.
 
 ### Action Details for a Given Id
 `GET /reports/{organization}/action/{id}`
@@ -75,7 +75,7 @@ Example Json:
     "actionName": "receive",
     "createdAt": "2021-06-30 13:03:00.305657-04",
     "status": "BAD_REQUEST",
-    "actionParams": "{\r\n   \"method\" : \"POST\",\r\n   \"Headers\" : {\r\n     \"connection\" : \"keep-alive\",\r\n     \"content-type\" : \"text\/csv\",\r\n     \"accept\" : \"text\/html, image\/gif, image\/jpeg, *; q=.2, *\/*; q=.2\",\r\n     \"host\" : \"localhost:7071\",\r\n     \"user-agent\" : \"Java\/11.0.10\",\r\n     \"content-length\" : \"0\",\r\n     \"client\" : \"ignore.ignore-simple-report\"\r\n   },\r\n   \"QueryParameters\" : { }\r\n }".
+    "actionParams": "{\r\n   \"method\" : \"POST\",\r\n   \"Headers\" : {\r\n     \"connection\" : \"keep-alive\",\r\n     \"content-type\" : \"text\/csv\",\r\n     \"accept\" : \"text\/html, image\/gif, image\/jpeg, *; q=.2, *\/*; q=.2\",\r\n     \"host\" : \"localhost:7071\",\r\n     \"user-agent\" : \"Java\/11.0.10\",\r\n     \"content-length\" : \"0\",\r\n     \"client\" : \"ignore.ignore-simple-report\"\r\n   },\r\n   \"QueryParameters\" : { }\r\n }",
     "actionResult": "{\r\n   \"id\" : null,\r\n   \"warningCount\" : 0,\r\n   \"errorCount\" : 1,\r\n   \"errors\" : [ {\r\n     \"scope\" : \"PARAMETER\",\r\n     \"id\" : \"Content\",\r\n     \"details\" : \"expecting a post message with content\"\r\n   } ],\r\n   \"warnings\" : [ ]\r\n}"
 }
 ```
@@ -91,7 +91,7 @@ Exmaple Json:
 {
     "reportId" : "18a8e461-b3f8-436d-b94e-4065c7b9d186",
     "createdAt": "2021-06-30 13:03:00.305657-04",
-    "reportItemCount" : 3,
+    "reportItemCount" : 2,
     "items": [
         {
             "trackingId": "row0",
@@ -135,11 +135,11 @@ Alternative Json Response:
 {
     "reportId" : "18a8e461-b3f8-436d-b94e-4065c7b9d186",
     "createdAt": "2021-06-30 13:03:00.305657-04",
-    "reportItemCount" : 3,
+    "reportItemCount" : 2,
     "items": [
         {
             "trackingId": "reportIndex-0",
-            "destinationCount": 2,
+            "destinationCount": 1,
             "destinations": [
                 {
                     "reportId": "33a8e478-b3d2-498d-b94e-4065f7b9e134",
@@ -167,6 +167,11 @@ Alternative Json Response:
     ]
 }
 ```
+The above Json only represents the sentOn status for the report. What are the different states/status of the destination reports that we want to represent? 
+* batch?
+* pending?
+* sent
+* error/failed
 
 ### Report Items
 `GET /report/{reportId}/item/{trackingId}`
@@ -178,11 +183,11 @@ Exmaple Json:
 {
     "reportId" : "18a8e461-b3f8-436d-b94e-4065c7b9d186",
     "createdAt": "2021-06-30 13:03:00.305657-04",
-    "reportItemCount" : 3,
+    "reportItemCount" : 1,
     "items": [
         {
             "trackingId": "reportIndex-0",
-            "destinationCount": 2,
+            "destinationCount": 1,
             "destinations": [
                 {
                     "reportId": "33a8e478-b3d2-498d-b94e-4065f7b9e134",
