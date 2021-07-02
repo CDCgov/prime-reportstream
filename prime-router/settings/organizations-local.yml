@@ -832,6 +832,32 @@
         topic: covid-19
         jurisdictionalFilter:
           - orEquals(ordering_facility_state, CA, patient_state, CA)
+        reverseTheQualityFilter: false
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          truncateHDNamespaceIds: true
+          receivingApplicationName: CDPH CA REDIE
+          receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
+          receivingFacilityName: CDPH CA REDIE
+          receivingFacilityOID: 2.16.840.1.114222.4.3.3 .10.1.1
+          messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+        timing:
+          operation: MERGE
+          numberPerDay: 1440
+          initialTime: 00:00
+          timeZone: EASTERN
+      - name: elr-secondary
+        organizationName: ca-dph
+        topic: covid-19
+        jurisdictionalFilter:
+          - orEquals(ordering_facility_state, CA, patient_state, CA)
+        reverseTheQualityFilter: true
         translation:
           type: HL7
           useBatchHeaders: true
