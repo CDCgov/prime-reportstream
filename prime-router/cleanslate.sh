@@ -46,9 +46,11 @@ function decompose_docker() {
 
 function pull_prebaked_images() {
   echo -n "Pulling pre-baked images..."
-  grep "image: " docker-compose.yml |
-    cut --delim ":" --fields 2 |
-    xargs -n 1 docker pull 1>/dev/null
+  for df in "docker-compose.yml" "docker-compose.build.yml"; do
+    grep "image: " "${df}" |
+      cut --delim ":" --fields 2- |
+      xargs -n 1 docker pull 1>/dev/null
+  done
 
   echo "DONE"
 }
