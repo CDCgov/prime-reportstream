@@ -14,7 +14,7 @@
       - name: hl7test
         organizationName: simple_report
         topic: covid-19
-        schemaName: hl7/hl7-ingest-covid-19
+        schemaName: covid-19
         format: HL7
 
   - name: waters
@@ -27,15 +27,15 @@
         schemaName: waters/waters-covid-19
         format: CSV
 
-  - name: safehealth
-    description: SAFE - Safe Health Systems
-    jurisdiction: FEDERAL
-    senders:
-      - name: default
-        organizationName: safehealth
-        topic: covid-19
-        schemaName: direct/safehealth-covid-19
-        format: CSV
+#  - name: safehealth
+#    description: SAFE - Safe Health Systems
+#    jurisdiction: FEDERAL
+#    senders:
+#      - name: default
+#        organizationName: safehealth
+#        topic: covid-19
+#        schemaName: waters/safehealth-covid-19
+#        format: CSV
 
   - name: cue
     description: Cue
@@ -44,27 +44,7 @@
       - name: default
         organizationName: cue
         topic: covid-19
-        schemaName: direct/cue-covid-19
-        format: CSV
-
-  - name: inbios
-    description: InBios International, Inc.
-    jurisdiction: FEDERAL
-    senders:
-      - name: default
-        organizationName: inbios
-        topic: covid-19
-        schemaName: direct/inbios-covid-19
-        format: CSV
-
-  - name: imagemover
-    description: ImageMover
-    jurisdiction: FEDERAL
-    senders:
-      - name: default
-        organizationName: imagemover
-        topic: covid-19
-        schemaName: direct/imagemover-covid-19
+        schemaName: waters/cue-covid-19
         format: CSV
 
   - name: strac
@@ -84,7 +64,7 @@
       - name: default
         organizationName: tpca
         topic: covid-19
-        schemaName: tpca/tpca-covid-19
+        schemaName: la/la-covid-19-csv
         format: CSV
 
   - name: careevolution
@@ -96,6 +76,16 @@
         topic: covid-19
         schemaName: direct/careevolution-covid-19
         format: HL7
+
+  - name: la-test-sender
+    description: latest Receiver organization via A6
+    jurisdiction: FEDERAL
+    senders:
+      - name: default
+        organizationName: la-test-sender
+        topic: covid-19
+        schemaName: la/la-covid-19-csv
+        format: CSV
 
   - name: az-phd
     description: Arizona PHD
@@ -183,7 +173,7 @@
           redox_source_id: "d89d4057-930f-4c5b-bb39-8cddb326e928"
           redox_destination_id: "62d62d52-3771-4151-aff4-4a3d420a8b7a"
           redox_destination_name: "Colorado Dept of Public Health (CDPHE)"
-        nameFormat: "standard"
+        nameFormat: "STANDARD"
         type: "CUSTOM"
       deidentify: false
       timing:
@@ -263,52 +253,6 @@
           port: 22
           filePath: ./upload
 
-  - name: gu-doh
-    description: Guam Department of Health
-    jurisdiction: STATE
-    stateCode: GU
-    receivers:
-      - name: elr
-        organizationName: gu-doh
-        topic: covid-19
-        jurisdictionalFilter:
-          - matches(ordering_facility_state, GU)
-        deidentify: false
-        translation:
-          type: HL7
-          useBatchHeaders: true
-          receivingApplicationName: GUDOH
-          receivingFacilityName: GUDOH
-        timing:
-          operation: MERGE
-          numberPerDay: 1440
-          initialTime: 00:00
-          timeZone: CHAMORRO
-        transport:
-          type: SFTP
-          host: sftp
-          port: 22
-          filePath: ./upload
-
-  - name: vt-doh
-    description: Vermont Department of Health
-    jurisdiction: STATE
-    stateCode: VT
-    receivers:
-      - name: elr
-        organizationName: vt-doh
-        topic: covid-19
-        jurisdictionalFilter:
-          - matches(ordering_facility_state, VT)
-        deidentify: false
-        translation:
-          type: HL7
-          useBatchHeaders: true
-          receivingApplicationName: NBS
-          receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
-          receivingFacilityName: VDH
-          receivingFacilityOID: 2.16.840.1.114222.4.1.185
-
   - name: nd-doh
     description: North Dakota Department of Health
     jurisdiction: STATE
@@ -354,7 +298,7 @@
           receivingOrganization: laoph
           receivingApplicationName: LA-ELR
           receivingFacilityName: LADOH
-          nameFormat: aphl
+          nameFormat: APHL
           useTestProcessingMode: false
         timing:
           operation: MERGE
@@ -387,7 +331,7 @@
           receivingFacilityOID: 2.16.840.1.114222.4.1.3674
           reportingFacilityName: CDC PRIME
           reportingFacilityId: 36DSMP9999
-          nameFormat: ohio
+          nameFormat: OHIO
           suppressHl7Fields: OBX-23-11
           # turn off UNK and ASKU for this field
           useBlankInsteadOfUnknown: patient_race
@@ -421,7 +365,7 @@
           receivingFacilityName: NMDOH
           receivingFacilityOID: 2.16.840.1.113883.3.5364
           truncateHDNamespaceIds: true
-          nameFormat: aphl_light
+          nameFormat: APHL_LIGHT
           # turn off UNK and ASKU for this field
           useBlankInsteadOfUnknown: patient_race
           suppressHl7Fields: OBX-17-1
@@ -870,7 +814,6 @@
           receivingFacilityName: MA-MDPH
           receivingFacilityOID: 2.16.840.1.113883.19.3.2
           truncateHDNamespaceIds: true
-          nameFormat: massachusetts
         transport:
           type: SFTP
           host: sftp
@@ -1169,7 +1112,8 @@
     - name: "elr"
       organizationName: "hhsprotect"
       topic: "covid-19"
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*)" ]
+#      jurisdictionalFilter: [ "matches(sender_id,SafeHealth)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -1214,11 +1158,6 @@
         topic: covid-19
         schemaName: empty
         format: CSV
-      - name: ignore-hl7      # Use this to test sending data from the HL7 schema
-        organizationName: ignore
-        topic: covid-19
-        schemaName: hl7/hl7-ingest-covid-19
-        format: HL7
     receivers:
       - name: CSV
         organizationName: ignore
@@ -1230,7 +1169,7 @@
           initialTime: 00:00
         translation:
           type: CUSTOM
-          schemaName: az/pima-az-covid-19
+          schemaName: fl/fl-covid-19
           format: CSV
         transport:
           type: SFTP
@@ -1293,17 +1232,6 @@
           type: REDOX
           apiKey: some_key
           baseUrl: http://redox:1080
-      - name: AS2
-        organizationName: ignore
-        topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, AS2)" ]
-        timing:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialTime: 00:00
-        translation:
-          type: HL7
-          useBatchHeaders: true
       - name: HL7_NULL
         organizationName: ignore
         topic: covid-19
@@ -1316,6 +1244,8 @@
           type: CUSTOM
           schemaName: tx/tx-covid-19
           format: HL7
+        transport:
+          type: "NULL"
       - name: BLOBSTORE
         organizationName: ignore
         topic: covid-19
@@ -1352,25 +1282,8 @@
       - name: QUALITY_PASS
         organizationName: ignore
         topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS, removed)" ]
-        qualityFilter: 
-          - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-          - hasAtLeastOneOf(message_id,blankField)
-          - matches(ordering_facility_county, QUALITY_PASS)
-        translation:
-          type: CUSTOM
-          schemaName: empty
-          format: CSV
-      - name: QUALITY_REVERSED
-        organizationName: ignore
-        topic: covid-19
-        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_REVERSED, kept)" ]
-        qualityFilter: 
-          - hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)
-          - hasAtLeastOneOf(message_id,blankField)
-          - matches(ordering_facility_county, QUALITY_REVERSED)
-        # Get 'not(qualityFilter)'
-        reverseTheQualityFilter: true
+        jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, QUALITY_PASS)" ]
+        qualityFilter: [ "hasValidDataFor(message_id,ordering_facility_county,ordering_facility_state)", "hasAtLeastOneOf(message_id,blankField)" ]
         translation:
           type: CUSTOM
           schemaName: empty
@@ -2141,7 +2054,7 @@
           filePath: ./upload
 
   - name: wa-phd
-    description: Washington Department of Health
+    description: Washington Public Health Department
     jurisdiction: STATE
     stateCode: WA
     receivers:
@@ -2149,62 +2062,20 @@
         organizationName: wa-phd
         topic: covid-19
         jurisdictionalFilter:
-          - matches(abnormal_flag, A)
           - orEquals(ordering_facility_state, WA, patient_state, WA)
         translation:
           type: HL7
           useBatchHeaders: true
-          nameFormat: washington
-          reportingFacilityName: 7uycso49
-          reportingFacilityId: 1.3.6.1.4.1.38630.2.1.1.519
-          reportingFacilityIdType: ISO
-          receivingApplicationName: WADOHPHRED
-          receivingApplicationOID: 2.16.840.1.113883.3.237.4.2
-          receivingFacilityName: dn1fro00
-          receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         timing:
           operation: MERGE
-          numberPerDay: 720 # Every other minute staggered with negative results
+          numberPerDay: 1440 # Every minute
           initialTime: 00:00
           timeZone: EASTERN
         transport:
-          type: AS2
-          #receiverUrl: "https://uat-onehealthport-as2.axwaycloud.com/exchange/ZZOHPUAT"
-          #receiverId: ZZOHPUAT
-          #senderId: 7uycso49
-          receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
-          receiverId: p1as2
-          senderId: CDCPRIMETEST
-      - name: elr-neg
-        organizationName: wa-phd
-        topic: covid-19
-        jurisdictionalFilter:
-          - doesNotMatch(abnormal_flag, A)
-          - orEquals(ordering_facility_state, WA, patient_state, WA)
-        translation:
-          type: HL7
-          useBatchHeaders: true
-          nameFormat: washington_negative
-          reportingFacilityName: 7uycso49
-          reportingFacilityId: 1.3.6.1.4.1.38630.2.1.1.519
-          reportingFacilityIdType: ISO
-          receivingApplicationName: WADOHPHRED
-          receivingApplicationOID: 2.16.840.1.113883.3.237.4.2
-          receivingFacilityName: dn1fro00
-          receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
-        timing:
-          operation: MERGE
-          numberPerDay: 720 # Every other minute
-          initialTime: 00:01
-          timeZone: EASTERN
-        transport:
-          type: AS2
-          #receiverUrl: "https://uat-onehealthport-as2.axwaycloud.com/exchange/ZZOHPUAT"
-          #receiverId: ZZOHPUAT
-          #senderId: 7uycso49
-          receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
-          receiverId: p1as2
-          senderId: CDCPRIMETEST
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
 
   - name: wv-phd
     description: West Virginia Public Health Department

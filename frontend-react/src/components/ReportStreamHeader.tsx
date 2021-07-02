@@ -3,7 +3,8 @@ import { useOktaAuth } from '@okta/okta-react';
 //import { UserClaims } from '@okta/okta-auth-js';
 //import OktaAuthBrowser from '@okta/okta-auth-js/lib/browser/browser';
 import { useEffect, useState } from 'react';
-
+import {permissionCheck, reportReceiver} from "../webreceiver-utils";
+import {PERMISSIONS} from "../resources/PermissionsResource";
 
 const SignInOrUser = () => {
 
@@ -32,9 +33,16 @@ export const ReportStreamHeader = () => {
   const { oktaAuth, authState } = useOktaAuth();
 
   var itemsMenu = [
-    <Link href="/daily" key="daily" data-attribute="hidden" hidden={true} className="usa-nav__link"><span>Daily data</span></Link>,
     <Link href="/documentation/about" key="docs" className="usa-nav__link"><span>Documentation</span></Link>
   ];
+
+  if (reportReceiver(authState)) {
+    itemsMenu.splice(0, 0, <Link href="/daily" key="daily" data-attribute="hidden" hidden={true} className="usa-nav__link"><span>Daily data</span></Link>);
+  }
+
+  if (permissionCheck(PERMISSIONS['sender'], authState)) {
+    itemsMenu.splice(1, 0, <Link href="/upload" key="upload" data-attribute="hidden" hidden={true} className="usa-nav__link"><span>Upload</span></Link>);
+  }
 
   if( !authState || !authState.isAuthenticated )
     itemsMenu = itemsMenu.slice(1);

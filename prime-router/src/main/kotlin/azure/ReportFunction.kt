@@ -7,10 +7,7 @@ import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
-import com.microsoft.azure.functions.annotation.AuthorizationLevel
-import com.microsoft.azure.functions.annotation.FunctionName
-import com.microsoft.azure.functions.annotation.HttpTrigger
-import com.microsoft.azure.functions.annotation.StorageAccount
+import com.microsoft.azure.functions.annotation.*
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -56,6 +53,29 @@ class ReportFunction {
     )
 
     /**
+     * POST uploads a report to the router via user to system
+     *
+     * @see ../../../docs/openapi.yml
+     */
+
+        @FunctionName("uploadReport")
+        @StorageAccount("AzureWebJobsStorage")
+        fun uploadReport(
+            @HttpTrigger(
+                name = "uploadReport",
+                methods = [HttpMethod.POST],
+                authLevel = AuthorizationLevel.ANONYMOUS,
+                route = "reports/upload"
+            ) request: HttpRequestMessage<String?>,
+            context: ExecutionContext,
+        ): HttpResponseMessage {
+//            val authClaims = checkAuthenticated(request, context)
+//            if (authClaims == null) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+//            return handleRequest(request)
+            return generateReport(request, context);
+        }
+
+    /**
      * POST a report to the router
      *
      * @see ../../../docs/openapi.yml
@@ -70,6 +90,11 @@ class ReportFunction {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
+        return generateReport(request, context);
+    }
+
+    private fun generateReport(request: HttpRequestMessage<String?>,
+                               context: ExecutionContext): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.receive, context)
         var report: Report? = null

@@ -172,6 +172,13 @@ function logout() {
  *
  */
 async function fetchReports() {
+    const orgName = document.getElementById('orgName').value;
+    const config = { headers:
+            {
+                'Authorization': `Bearer ${window.jwt}`,
+                'organization': `${orgName}`
+            }
+    };
     const baseURL = getBaseUrl();
     return isLocalhost()? ReportData : window.jwt? axios.get(`${baseURL}/api/history/report`, apiConfig()).then(res => res.data) : [];
 }
@@ -189,11 +196,11 @@ function requestFile(reportId) {
 
 /**
  * Determines if the system is running as localhost
- * 
- * @returns 
+ *
+ * @returns
  */
 function isLocalhost(){
-    return window.location.origin.includes("localhost:8088");    
+    return window.location.origin.includes("localhost:8088");
 }
 
 /**
