@@ -54,7 +54,7 @@ This token is only valid for 5 minutes.
 
 **STEP 3**  The SENDER (again, a server, not a human) uses that token to send a report:
 
-Grab just the `access_token` long strong of jwt glop you got back from step 3, and use it here for the bearer token:
+Grab just the `access_token` value you got back from step 3, and use it here for the bearer token:
 
 ```
 curl -H "authorization:bearer ???" -H "client:waters"  -H "content-type:text/csv" --data-binary "@./junk/waters.csv" "http://localhost:7071/api/report"
