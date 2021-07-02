@@ -180,7 +180,7 @@ function take_ownership() {
   for d in ${TARGETS[*]}; do
     echo -ne "\t- ${d?}..."
     if [[ -d "${d?}" ]]; then
-      sudo chown -R "${USER?}:${USER?}" "${d?}"
+      sudo chown -R "$(id --user --name):$(id --group --name)" "${d?}"
       sudo chmod -R a+w "${d?}"
       echo "DONE"
     else
