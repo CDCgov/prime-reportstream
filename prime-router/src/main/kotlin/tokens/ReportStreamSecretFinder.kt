@@ -15,7 +15,9 @@ class FindReportStreamSecretInVault : ReportStreamSecretFinder {
     override fun getReportStreamTokenSigningSecret(): SecretKey {
         val secretServiceAgent = SecretHelper.getSecretService()
         val secret = secretServiceAgent.fetchSecret(TOKEN_SIGNING_SECRET_NAME)
-            ?: error("Unable to find secret $TOKEN_SIGNING_SECRET_NAME.  Did you forget to create it?")
+            ?: error("Unable to find secret $TOKEN_SIGNING_SECRET_NAME.  Did you forget to create it?" +
+                " If localhost, generate key using ReportStreamSecretFinder:main, then place in" +
+                " docker-compose like this:       - TokenSigningSecret=<secret>")
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
     }
 
