@@ -230,7 +230,7 @@ the following command to load your credentials:
 
 EOF
 
-echo -e "\t\$ ${WHITE?}export \$(cat "${VAULT_ENV_LOCAL_FILE?}" | xargs)${PLAIN?}"
+echo -e "\t\$ ${WHITE?}export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")${PLAIN?}"
 echo -e "\t\$ ${WHITE?}./gradlew testEnd2End${PLAIN?}\n"
 
 popd 2>&1 1>/dev/null
