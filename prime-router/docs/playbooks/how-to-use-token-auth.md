@@ -40,6 +40,8 @@ The actual call would be a call to the REST API endpoint, which is hidden in thi
 
 Note: you will need to create and place a TokenSigningSecret in docker-compose.yml for this to work
 
+Note:  No, we are NOT intending that our customers use the prime CLI to do this!   This is just a convenience, for us (only) to test and demo.  And yes, more work is needed to provide documentation and helper tools for our senders.
+
 ```
 ./prime sender reqtoken --private-key my-es-keypair.pem --scope waters.default.report --name waters.default
 ```

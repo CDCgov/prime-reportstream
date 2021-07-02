@@ -73,7 +73,7 @@ open class Sender(
             var done = false
             orig.forEach {
                 if (it.scope == newScope) {
-                    if (it.keys.contains(newJwk)) {  // I don't think this will work.
+                    if (it.keys.contains(newJwk)) {
                         // The orig already has this key with this scope.  Just use it.
                         newJwkSetList.add(it)
                     } else {
