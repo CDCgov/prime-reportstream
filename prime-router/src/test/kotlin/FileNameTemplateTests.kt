@@ -3,9 +3,9 @@ package gov.cdc.prime.router
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+import assertk.assertions.isSuccess
 import assertk.assertions.startsWith
 import assertk.assertions.support.expected
 import assertk.assertions.support.show
@@ -102,6 +102,24 @@ class FileNameTemplateTests {
         val actual = fileName.getFileName(translatorConfig = config)
         // assert
         assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun `test rand6`() {
+        // arrange
+        val nameElementSerialized = """
+            ---
+                elements:
+                    - cdcprime_
+                    - rand6()
+        """.trimIndent()
+        val fileName = createFileName(nameElementSerialized)
+        // act
+        val actual = fileName.getFileName(translatorConfig = config)
+        val actualLast6 = actual.takeLast(6)
+        // assert
+        assertThat(actualLast6.length).isEqualTo(6)
+        assertThat { actualLast6.toInt() }.isSuccess()
     }
 
     @Test

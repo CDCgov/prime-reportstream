@@ -96,7 +96,7 @@ class RedoxTransport() : ITransport, SecretManagement {
             resultMsg =
                 "Exception during REDOX send of reportId ${header.reportFile.reportId}: " +
                 "  ${t.localizedMessage}.  "
-                context.logger.log(Level.WARNING, resultMsg, t)
+            context.logger.log(Level.WARNING, resultMsg, t)
             if (successCount == 0) {
                 nextRetryItems = (retryItems ?: RetryToken.allItems) as MutableList<String>
                 // If even one redox message got through, we'll call that 'send' rather than send_error
