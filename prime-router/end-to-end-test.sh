@@ -14,6 +14,12 @@ BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
+# Use this variable to point to a different hostname on which your 'local' API runs
+# This can be useful if you are running the end-to-end test in a container
+# as opposed to on your actual localhost (e.g. the builder container)
+# Default Value (i.e. if unspecified): localhost
+PRIME_RS_API_ENDPOINT_HOST=${PRIME_RS_API_ENDPOINT_HOST:-localhost}
+
 outputdir=./build/csv_test_files
 starter_schema=primedatainput/pdi-covid-19
 database=prime_data_hub
@@ -41,7 +47,7 @@ printf "$text\n"
 
 printf "${BLUE}Post first fake report to prime hub${NC}\n"
 boilerplate_front="curl --silent -X POST -H client:simple_report -H Content-Type:text/csv "
-boilerplate_back="http://localhost:7071/api/reports"
+boilerplate_back="http://${PRIME_RS_API_ENDPOINT_HOST?}:7071/api/reports"
 echo Posting $testfile1 to reports endpoint
 $boilerplate_front --data-binary @$testfile1 $boilerplate_back | cat > $testfile1.json
 # Get the report_id from the output

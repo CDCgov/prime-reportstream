@@ -1,10 +1,15 @@
 /*
 Build script for Prime Router.
 
-Properties that can be overridden using the Gradle -P arguments:
+Properties that can be overridden using the Gradle -P arguments or environment variables:
   DB_USER - Postgres database username (defaults to prime)
   DB_PASSWORD - Postgres database password (defaults to changeIT!)
   DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
+
+Properties that can be overriden using an environment variable only:
+  PRIME_RS_API_ENDPOINT_HOST - hostname on which your API endpoint runs (defaults to localhost);
+                               This will enable you to connect to your API endpoint from (e.g.)
+                               the builder container
 
 Properties to control the execution and output using the Gradle -P arguments:
   forcetest - Force the running of the test regardless of changes

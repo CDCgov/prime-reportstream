@@ -65,6 +65,11 @@ export POSTGRES_USER=prime
 export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
 export POSTGRES_PASSWORD=<secret>
 
+# "docker"
+export POSTGRES_USER=prime
+export POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
+export POSTGRES_PASSWORD=<secret>
+
 # staging
 export POSTGRES_USER=prime@pdhstaging-pgsql
 export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub
