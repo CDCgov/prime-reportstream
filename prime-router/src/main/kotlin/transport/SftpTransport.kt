@@ -82,12 +82,10 @@ class SftpTransport : ITransport, Logging {
     companion object {
 
         fun lookupCredentials(credentialName: String): SftpCredential {
-
             val credentialLabel = credentialName
                 .replace(".", "--")
                 .replace("_", "-")
                 .uppercase()
-
             // Assumes credential will be cast as SftpCredential, if not return null, and thus the error case
             return CredentialHelper.getCredentialService().fetchCredential(
                 credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
