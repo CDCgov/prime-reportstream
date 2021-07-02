@@ -19,15 +19,26 @@ The goals of this propsal:
 All endpoints will use the same security model as the `/settings/*` end points. Consideration should be given to check the user's role / Okta claims to ensure that they do have access to the organization to which the report is linked. Admins will be able to see all reports. Organization admins can see only their reports.
 
 ### Report Submissions for a Given Date Range by Organization
-`GET /reports/{organization}?start=YYYY-MM-DD&end=YYYY-MM-DD`
+`GET /reports/{organization}?start=YYYY-MM-DD&end=YYYY-MM-DD&limit=20&offset=0`
 
-This end point will query the action and report_file tables to generate a list of all successful and failed `POST` submissions to the /api/reports endpoint. The intent is to show report submission frequency as well as capturing failed submissions.
+Parameters:
+* start - start date (inclusive) to query against the created_at date
+* end - end date (exclusive) to queery against the created_at date
+* limit - max number of submissions to pull back
+* offset - where to start the offset for pagination
+
+This end point will query the action and report_file tables to generate a list of all successful and failed `POST` submissions to the /api/reports endpoint. The intent is to show report submission frequency as well as capturing failed submissions. Pagination is supported with the limit and offset parameters. The resultSet provided in the response will allow for the UI to create pagination navigation elements.
 
 Example Json:
 ```json
 {
-    "reportCount": 3,
-    "reports": [
+    "result_set": {
+        "count": 20,
+        "offset": 0,
+        "limit": 20,
+        "total": 3
+    },
+    "submissions": [
         {
             "actionId": 143,
             "reportId" : "18a8e461-b3f8-436d-b94e-4065c7b9d186",
@@ -79,22 +90,27 @@ Example Json:
     "actionResult": "{\r\n   \"id\" : null,\r\n   \"warningCount\" : 0,\r\n   \"errorCount\" : 1,\r\n   \"errors\" : [ {\r\n     \"scope\" : \"PARAMETER\",\r\n     \"id\" : \"Content\",\r\n     \"details\" : \"expecting a post message with content\"\r\n   } ],\r\n   \"warnings\" : [ ]\r\n}"
 }
 ```
-The actionParams and actionResult elements are escaped Json/mixed text. Both parameters should be well formatted Json once the prerequisites are implemented.
+The actionParams and actionResult elements are escaped Json/mixed text. Both parameters should be well formatted Json once the prerequisites are implemented. This response is basically serializing a record in the action table to a Json response.
 
 ### Report Items
-`GET /report/{reportId}/items`
+`GET /report/{reportId}/items?limit=20&offset=0`
 
-This end point will report the status of all items in the given reportId after verifying that the authenticated user has access to the organization that sent the report.
+This end point will report the status of all items in the given reportId after verifying that the authenticated user has access to the organization that sent the report. This endpoint will also use the same pagination pattern as the endpoint above. 
 
 Exmaple Json:
 ```json
 {
+    "result_set": {
+        "count": 20,
+        "offset": 0,
+        "limit": 20,
+        "total": 2
+    },
     "reportId" : "18a8e461-b3f8-436d-b94e-4065c7b9d186",
     "createdAt": "2021-06-30 13:03:00.305657-04",
-    "reportItemCount" : 2,
     "items": [
         {
-            "trackingId": "row0",
+            "trackingId": "reportIndex-0",
             "destinationCount": 2,
             "destinations": {
                 "COUNTY": [],
@@ -105,7 +121,7 @@ Exmaple Json:
                         "recieverName": "elr",
                         "format": "HL7_BATCH",
                         "sentOn": "2021-06-29 11:00:00.086375-04"
-                    },
+                    }
                 ],
                 "FEDERAL": [
                     {
@@ -114,10 +130,10 @@ Exmaple Json:
                         "recieverName": "elr",
                         "format": "CSV",
                         "sentOn": "2021-06-29 11:00:00.086375-04"
-                    },
+                    }
                 ]
             },
-            "trackingId": "row1",
+            "trackingId": "reportIndex-2",
             "destinationCount": 0,
             "destinations": {
                 "COUNTY": [],
@@ -133,9 +149,14 @@ Alternatively, the jurisdiction breakdown can be removed and added as an element
 Alternative Json Response:
 ```json
 {
+    "result_set": {
+        "count": 20,
+        "offset": 0,
+        "limit": 20,
+        "total": 2
+    },
     "reportId" : "18a8e461-b3f8-436d-b94e-4065c7b9d186",
     "createdAt": "2021-06-30 13:03:00.305657-04",
-    "reportItemCount" : 2,
     "items": [
         {
             "trackingId": "reportIndex-0",
@@ -183,7 +204,6 @@ Exmaple Json:
 {
     "reportId" : "18a8e461-b3f8-436d-b94e-4065c7b9d186",
     "createdAt": "2021-06-30 13:03:00.305657-04",
-    "reportItemCount" : 1,
     "items": [
         {
             "trackingId": "reportIndex-0",
