@@ -6,9 +6,12 @@
 # Default Value (i.e. if unspecified): localhost
 PRIME_RS_API_ENDPOINT_HOST=${PRIME_RS_API_ENDPOINT_HOST:-localhost}
 
-for i in $(seq 1000)
-do
-    curl -X POST -H "Content-Type:text/csv"  --data-binary @result_files/fake-pdi-covid-19.csv "http://${PRIME_RS_API_ENDPOINT_HOST?}:7071/api/reports?client=simple_report"
-    echo "Post $i times"
-    sleep .5
+for i in $(seq 1000); do
+  curl \
+    -X POST \
+    -H "Content-Type:text/csv" \
+    --data-binary @result_files/fake-pdi-covid-19.csv \
+    "http://${PRIME_RS_API_ENDPOINT_HOST?}:7071/api/reports?client=simple_report"
+  echo "Post $i times"
+  sleep .5
 done
