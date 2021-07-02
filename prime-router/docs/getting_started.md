@@ -175,8 +175,11 @@ If you need to reload the database from scratch then use the following commands.
 dropdb prime_data_hub # to trash your local database
 createdb --owner=prime prime_data_hub
 
-# migrate the local database by hand
+# migrate the local database by hand (one of these)
+# - Local Machine
 flyway -user=prime -password=changeIT! -url=jdbc:postgresql://localhost:5432/prime_data_hub -locations=filesystem:./src/main/resources/db/migration migrate
+# - Inside docker builder container
+flyway -user=prime -password=changeIT! -url=jdbc:postgresql://postgresql:5432/prime_data_hub -locations=filesystem:./src/main/resources/db/migration migrate
 ```
 
 Use any other tools that you want to develop the code. Be productive. Modify this document if you have a practice that will be useful.
@@ -260,17 +263,22 @@ End-to-end tests check if the deployed system is configured correctly.  The test
 1. Verify that all tests are successful.
 
 ### Changing the Database Properties
-You can change the default database properties used in the build script by setting the following properties:
+You can change the default database properties used in the build script by setting values for these variables as either
+build Project Properties (`-Pname=value`) or as Environment Variables. The order of evaluation precedence is:
+`Project Property > Environment Variable > Default`:
 - DB_USER - Postgres database username (defaults to prime)
 - DB_PASSWORD - Postgres database password (defaults to changeIT!)
 - DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
 
-In the command line, you can set these properties as follows:
+Example
 ```bash
-./build.sh -- gradle testEnd2End -PDB_USER=prime -PDB_PASSWORD=mypassword
+ # exported environment variable DB_URL
+export DB_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
+# Command-level environment variable (DB_PASSWORD) and project property (DB_USER)
+DB_PASSWORD=mypassword ./build.sh -- gradle testEnd2End -PDB_USER=prime
 ```
 
-Or you can specify these properties via environment variables per the Gradle project properties environment ORG_GRADLE_PROJECT_<property>.  For example:
+Alternatively, you can specify values for project properties via environment variables per the Gradle project properties environment `ORG_GRADLE_PROJECT_<property>`.  For example:
 ```bash
 export ORG_GRADLE_PROJECT_DB_USER=prime
 export ORG_GRADLE_PROJECT_DB_PASSWORD=mypass
@@ -315,7 +323,7 @@ When starting up our containers with `docker-compose up` on first-run, the conta
 * `key` - unseal key for decrypting the database
 * `.env.local` - the root token in envfile format for using the Vault api / command line
 
-The database is stored in a docker-compose container `vault` that persists across up and down events. All files are excluded in `.gitignore` and should never be persisted to source control.
+The database is stored in a docker-compose container `vault` which is persisted across up and down events. All files are excluded in `.gitignore` and should never be persisted to source control.
 
 ### Re-initialize the Vault
 
