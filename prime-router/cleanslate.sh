@@ -16,7 +16,6 @@ UNBUILD_TARGETS=(
   "./build/"
 )
 
-
 function usage() {
   cat <<EOF
 usage: ${0} [OPTIONS]
@@ -72,7 +71,7 @@ function wait_for_vault_creds() {
     sleep 1
   done
 
-  echo "Your vault credentials have been generated (you can use the token at http://localhost:8200/ui/):"
+  echo "Your vault credentials have been generated (vault: http://localhost:8200/ui/):"
   export $(cat .vault/env/.env.local | xargs)
   cat "${VAULT_ENV_LOCAL_FILE?}" |
     sed 's/^/\t/g'
