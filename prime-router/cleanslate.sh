@@ -44,6 +44,15 @@ function decompose_docker() {
   docker container prune -f 1>/dev/null
 }
 
+function pull_prebaked_images() {
+  echo -n "Pulling pre-baked images..."
+  grep "image: " docker-compose.yml |
+    cut --delim ":" --fields 2 |
+    xargs -n 1 docker pull 1>/dev/null
+
+  echo "DONE"
+}
+
 # Removes any known docker volumes
 function purge_docker_volumes() {
   echo -n "Pruning Docker volumes..."
@@ -68,7 +77,7 @@ function wait_for_vault_creds() {
   # Wait for the vault to fully spin up and populate the vault file
   while [[ $(wc --bytes "${VAULT_ENV_LOCAL_FILE?}" | cut --delim " " --fields 1) == 0 ]]; do
     echo "Waiting for ${VAULT_ENV_LOCAL_FILE?} to be populated..."
-    sleep 1
+    sleep 2
   done
 
   echo "Your vault credentials have been generated (vault: http://localhost:8200/ui/):"
@@ -81,8 +90,10 @@ function wait_for_vault_creds() {
 function recompose_docker() {
   ensure_binaries
   echo -n "Recomposing Docker..."
-  ./devenv-infrastructure.sh \
-    1>/dev/null
+  docker-compose --file docker-compose.build.yml up --detach |
+    sed 's/^/\t/g'
+  docker-compose --file docker-compose.yml up --detach |
+    sed 's/^/\t/g'
   echo "DONE"
 
   wait_for_vault_creds
@@ -213,6 +224,7 @@ fi
 pushd "${HERE?}" 2>&1 1>/dev/null
 
 decompose_docker
+pull_prebaked_images
 if [[ ${UNBUILD?} != 0 ]]; then
   unbuild
 fi
