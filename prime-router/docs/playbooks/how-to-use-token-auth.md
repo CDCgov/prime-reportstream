@@ -1,4 +1,4 @@
-#How to use token auth.
+# How To Use FHIR Style Token Authentication
 
 This playbook is a set of commandline scripts meant to exercise and demonstrate the 3 steps in FHIR style authentication.
 
