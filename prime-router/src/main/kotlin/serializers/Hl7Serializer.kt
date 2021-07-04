@@ -544,7 +544,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         if (valuesForMapper == null) {
             terser.set(pathSpec, "")
         } else {
-            terser.set(pathSpec, mapper.apply(element, args, valuesForMapper) ?: "")
+            val mappedValue = mapper.apply(element, args, valuesForMapper)
+            terser.set(pathSpec, mappedValue ?: "")
         }
     }
 
@@ -653,6 +654,12 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
                 rep += 1
             }
+            // Note from the HL7 2.5.1 specification:
+            // This component has been retained for backward compatibility only as of version 2.3.
+            // Definition: Specifies the telephone number in a predetermined format that includes an
+            // optional extension, beeper number and comment.
+            // Format: [NNN] [(999)]999-9999 [X99999] [B99999] [C any text]
+
             // primary residence number
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-1", "($areaCode)$local")
             terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
