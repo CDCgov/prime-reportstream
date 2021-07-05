@@ -600,7 +600,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 if (value.isNotEmpty()) {
                     val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
                         ?: Hl7Configuration.PhoneNumberFormatting.STANDARD
-                    setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting )
+                    setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
                 }
             }
             Element.Type.EMAIL -> {
@@ -645,7 +645,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     /**
      * Set the XTN component using [phoneNumberFormatting] to control details
      */
-    private fun setTelephoneComponent(
+    internal fun setTelephoneComponent(
         terser: Terser,
         value: String,
         pathSpec: String,
@@ -660,7 +660,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         val localWithDash = if (local.length == 7) "${local.slice(0..2)}-${local.slice(3..6)}" else local
 
         fun setComponents(pathSpec: String, component1: String) {
-            // Note from the HL7 2.5.1 specification:
+            // Note from the HL7 2.5.1 specification about components 1 and 2:
             // This component has been retained for backward compatibility only as of version 2.3.
             // Definition: Specifies the telephone number in a predetermined format that includes an
             // optional extension, beeper number and comment.
@@ -668,7 +668,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
 
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
-                    terser.set(buildComponent(pathSpec, 1), "($areaCode)$localWithDash")
+                    terser.set(buildComponent(pathSpec, 1), "$country($areaCode)$localWithDash")
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }
                 Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE -> {
@@ -888,7 +888,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     }
 
     private fun isField(spec: String): Boolean {
-        // Support the (repeat) pattern
+        // Support the SEG-# and the SEG-#(#) repeat pattern
         val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+(?:\\([0-9]+\\))?$")
         return pattern.containsMatchIn(spec)
     }
@@ -907,7 +907,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         error("Did match on component or subcomponent")
     }
 
-    private fun formPathSpec(spec: String, rep: Int? = null): String {
+    internal fun formPathSpec(spec: String, rep: Int? = null): String {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
         val repSpec = rep?.let { "($rep)" } ?: ""
