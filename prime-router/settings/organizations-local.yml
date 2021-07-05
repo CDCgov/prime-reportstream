@@ -74,7 +74,7 @@
       - name: default
         organizationName: anavasidx
         topic: covid-19
-        schemaName: direct/anavasi-covid-19
+        schemaName: direct/anavasidx-covid-19
         format: CSV
 
   - name: strac
