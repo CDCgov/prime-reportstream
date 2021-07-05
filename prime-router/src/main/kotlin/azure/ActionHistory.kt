@@ -541,7 +541,7 @@ class ActionHistory {
         if (noWhereItems.isNotEmpty()) {
             prettyPrintDestinationJson(
                 jsonGen,
-                "Data not routing to any state/local jurisdiction",
+                "Note: some data is not routing to any state/local jurisdiction",
                 NOWHERE_ORG,
                 "n/a",
                 "never - no matching receivers ",
