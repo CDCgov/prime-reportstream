@@ -70,17 +70,24 @@ data class Hl7Configuration
     val reportingFacilityIdType: String? = null,
     val suppressQstForAoe: Boolean = false,
     val suppressHl7Fields: String? = null,
+    val suppressDeprecatedPhoneNumber: Boolean = false,
     val suppressAoe: Boolean = false,
     val defaultAoeToUnknown: Boolean = false,
     val useBlankInsteadOfUnknown: String? = null,
     val truncateHDNamespaceIds: Boolean = false,
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
+    val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
     // pass this around as a property now
     val processingModeCode: String? = null,
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("HL7") {
+    /**
+     * Formatting for XTN fields
+     */
+    enum class PhoneNumberFormatting { STANDARD, ONLY_DIGITS_IN_COMPONENT_ONE, SUPPRESS_COMPONENT_ONE }
+
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 

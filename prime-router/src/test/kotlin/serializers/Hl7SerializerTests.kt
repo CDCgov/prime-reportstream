@@ -220,7 +220,7 @@ NTE|1|L|This is a final comment|RE"""
         every { deprecatedPhoneField.areaCityCode.isEmpty } returns true
         every { deprecatedPhoneField.localNumber.isEmpty } returns true
         every { deprecatedPhoneField.telephoneNumber.isEmpty } returns false
-        every { deprecatedPhoneField.telephoneNumber.valueOrEmpty } returns "(555)5555555"
+        every { deprecatedPhoneField.telephoneNumber.valueOrEmpty } returns "(555)555-5555"
         every { mockSegment.getField(any()) } returns arrayOf(deprecatedPhoneField)
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("5555555555:1:", phoneNumber)
@@ -229,7 +229,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockSegment.getField(any()) } returns arrayOf(phoneField)
         every { phoneField.areaCityCode.isEmpty } returns false
         every { phoneField.localNumber.isEmpty } returns false
-        every { phoneField.telephoneNumber.value } returns "(555)5555555"
+        every { phoneField.telephoneNumber.value } returns "(555)555-5555"
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
         every { phoneField.countryCode.value } returns "1"

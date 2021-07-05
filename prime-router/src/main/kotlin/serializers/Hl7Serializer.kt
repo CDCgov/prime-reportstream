@@ -598,7 +598,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
             Element.Type.TELEPHONE -> {
                 if (value.isNotEmpty()) {
-                    setTelephoneComponent(terser, value, pathSpec, element)
+                    val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
+                        ?: Hl7Configuration.PhoneNumberFormatting.STANDARD
+                    setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting )
                 }
             }
             Element.Type.EMAIL -> {
@@ -640,12 +642,50 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         }
     }
 
-    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
+    /**
+     * Set the XTN component using [phoneNumberFormatting] to control details
+     */
+    private fun setTelephoneComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        element: Element,
+        phoneNumberFormatting: Hl7Configuration.PhoneNumberFormatting
+    ) {
         val parts = value.split(Element.phoneDelimiter)
         val areaCode = parts[0].substring(0, 3)
         val local = parts[0].substring(3)
         val country = parts[1]
         val extension = parts[2]
+        val localWithDash = if (local.length == 7) "${local.slice(0..2)}-${local.slice(3..6)}" else local
+
+        fun setComponents(pathSpec: String, component1: String) {
+            // Note from the HL7 2.5.1 specification:
+            // This component has been retained for backward compatibility only as of version 2.3.
+            // Definition: Specifies the telephone number in a predetermined format that includes an
+            // optional extension, beeper number and comment.
+            // Format: [NNN] [(999)]999-9999 [X99999] [B99999] [C any text]
+
+            when (phoneNumberFormatting) {
+                Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
+                    terser.set(buildComponent(pathSpec, 1), "($areaCode)$localWithDash")
+                    terser.set(buildComponent(pathSpec, 2), component1)
+                }
+                Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE -> {
+                    terser.set(buildComponent(pathSpec, 1), "$areaCode$local")
+                    terser.set(buildComponent(pathSpec, 2), component1)
+                }
+                Hl7Configuration.PhoneNumberFormatting.SUPPRESS_COMPONENT_ONE -> {
+                    // Suppress
+                }
+            }
+            // it's a phone
+            terser.set(buildComponent(pathSpec, 3), "PH")
+            terser.set(buildComponent(pathSpec, 5), country)
+            terser.set(buildComponent(pathSpec, 6), areaCode)
+            terser.set(buildComponent(pathSpec, 7), local)
+            if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
+        }
 
         if (element.nameContains("patient")) {
             // PID-13 is repeatable, which means we could have more than one phone #
@@ -654,31 +694,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
                 rep += 1
             }
-            // Note from the HL7 2.5.1 specification:
-            // This component has been retained for backward compatibility only as of version 2.3.
-            // Definition: Specifies the telephone number in a predetermined format that includes an
-            // optional extension, beeper number and comment.
-            // Format: [NNN] [(999)]999-9999 [X99999] [B99999] [C any text]
-
-            // primary residence number
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-1", "($areaCode)$local")
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
-            // it's a phone
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "PH")
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-5", country)
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-6", areaCode)
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-7", local)
-            if (extension.isNotEmpty()) terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-8", extension)
+            setComponents("/PATIENT_RESULT/PATIENT/PID-13($rep)", "PRN")
         } else {
-            // work phone number
-            terser.set(buildComponent(pathSpec, 1), "($areaCode)$local")
-            terser.set(buildComponent(pathSpec, 2), "WPN")
-            // it's a phone
-            terser.set(buildComponent(pathSpec, 3), "PH")
-            terser.set(buildComponent(pathSpec, 5), country)
-            terser.set(buildComponent(pathSpec, 6), areaCode)
-            terser.set(buildComponent(pathSpec, 7), local)
-            terser.set(buildComponent(pathSpec, 8), extension)
+            setComponents(pathSpec, "WPN")
         }
     }
 
@@ -870,7 +888,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     }
 
     private fun isField(spec: String): Boolean {
-        val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+$")
+        // Support the (repeat) pattern
+        val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+(?:\\([0-9]+\\))?$")
         return pattern.containsMatchIn(spec)
     }
 
