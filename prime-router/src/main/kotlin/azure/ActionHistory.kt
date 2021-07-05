@@ -544,7 +544,7 @@ class ActionHistory {
                 "Note: some data is not routing to any state/local jurisdiction",
                 NOWHERE_ORG,
                 "n/a",
-                "never - no matching receivers ",
+                "n/a",
                 noWhereItems.size
             )
             destinationCounter++
