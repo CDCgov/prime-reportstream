@@ -543,7 +543,7 @@ class ActionHistory {
                 jsonGen,
                 "Data not routing to any state/local jurisdiction",
                 NOWHERE_ORG,
-                "nowhere-receiver",
+                "n/a",
                 "never - no matching receivers ",
                 noWhereItems.size
             )
