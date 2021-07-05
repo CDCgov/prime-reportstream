@@ -12,19 +12,8 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 import com.google.common.base.CharMatcher
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.REPORT_MAX_ITEMS
-import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.azure.DataAccessTransaction
-import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.ReportFunction
-import gov.cdc.prime.router.azure.ReportStreamEnv
-import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.*
+import gov.cdc.prime.router.azure.*
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -40,6 +29,7 @@ import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.util.Locale
 import kotlin.concurrent.thread
+import kotlin.math.abs
 import kotlin.random.Random
 import kotlin.system.exitProcess
 import kotlin.time.Duration
@@ -89,6 +79,11 @@ Examples:
         "--list",
         help = "List available tests, then quit."
     ).flag(default = false)
+
+    private val sender by option(
+        "--sender",
+        help = "Indicates the sender to use for the 'santaclaus' test."
+    )
 
     private val run by option(
         "--run",
@@ -204,7 +199,8 @@ Examples:
 
     private fun runTests(tests: List<CoolTest>, environment: ReportStreamEnv) {
         val failures = mutableListOf<CoolTest>()
-        val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir, env = env)
+        val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender)
+
         tests.forEach { test ->
             if (!test.run(environment, options))
                 failures.add(test)
@@ -217,7 +213,7 @@ Examples:
     }
 
     companion object {
-        val coolTestList = listOf<CoolTest>(
+        val coolTestList = listOf(
             Ping(),
             End2End(),
             Merge(),
@@ -236,7 +232,8 @@ Examples:
             Waters(),
             RepeatWaters(),
             InternationalContent(),
-            Hl7Ingest()
+            Hl7Ingest(),
+            SantaClaus()
         )
     }
 }
@@ -248,7 +245,8 @@ data class CoolTestOptions(
     val dir: String,
     var muted: Boolean = false, // if true, print out less stuff,
     val sftpDir: String,
-    val env: String
+    val env: String,
+    val sender: String? = null
 )
 
 abstract class CoolTest {
@@ -267,6 +265,8 @@ abstract class CoolTest {
         reportId: ReportId,
         receivers: List<Receiver>,
         totalItems: Int,
+        filterOrgName: Boolean = false,
+        silent: Boolean = false
     ): Boolean {
         var passed = true
         db = WorkflowEngine().db
@@ -278,18 +278,28 @@ abstract class CoolTest {
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
                 actionsList.forEach { action ->
-                    val count = itemLineageCountQuery(txn, reportId, receiver.name, action)
+                    val count = itemLineageCountQuery(
+                        txn = txn,
+                        reportId = reportId,
+                        receivingOrgSvc = receiver.name,
+                        receivingOrg = if (filterOrgName) receiver.organizationName else null,
+                        action = action
+                    )
                     if (count == null || expected != count) {
-                        bad(
-                            "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
-                                " Expecting $expected item lineage records but got $count"
-                        )
+                        if (!silent) {
+                            bad(
+                                "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
+                                    " Expecting $expected item lineage records but got $count"
+                            )
+                        }
                         passed = false
                     } else {
-                        good(
-                            "Test passed: for ${receiver.fullName} action $action: " +
-                                " Expecting $expected item lineage records and got $count"
-                        )
+                        if (!silent) {
+                            good(
+                                "Test passed: for ${receiver.fullName} action $action: " +
+                                    " Expecting $expected item lineage records and got $count"
+                            )
+                        }
                     }
                 }
             }
@@ -404,10 +414,12 @@ abstract class CoolTest {
             echo(ANSI_GREEN + msg + ANSI_RESET)
             return true
         }
+
         fun bad(msg: String): Boolean {
             echo(ANSI_RED + msg + ANSI_RESET)
             return false
         }
+
         fun ugly(msg: String) {
             echo(ANSI_CYAN + msg + ANSI_RESET)
         }
@@ -438,6 +450,7 @@ abstract class CoolTest {
             txn: DataAccessTransaction,
             reportId: ReportId,
             receivingOrgSvc: String,
+            receivingOrg: String? = null,
             action: TaskAction,
         ): Int? {
             val ctx = DSL.using(txn)
@@ -445,11 +458,17 @@ abstract class CoolTest {
               from item_lineage as IL
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
-              where RF.receiving_org_svc = ? 
+              where RF.receiving_org_svc = ?
+              ${if (receivingOrg != null) "and RF.receiving_org = ?" else ""}
               and A.action_name = ? 
               and IL.item_lineage_id in 
               (select item_descendants(?)) """
-            return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+
+            if (receivingOrg != null) {
+                return ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+            } else {
+                return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+            }
         }
 
         fun reportLineageCountQuery(
@@ -573,7 +592,11 @@ class End2End : CoolTest() {
                 passed = false
             }
             waitABit(25, environment)
-            return passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
+            return passed and examineLineageResults(
+                reportId = reportId,
+                receivers = allGoodReceivers,
+                totalItems = fakeItemCount
+            )
         } catch (e: NullPointerException) {
             return bad("***end2end Test FAILED***: Unable to properly parse response json")
         }
@@ -654,7 +677,11 @@ class Hl7Null : CoolTest() {
             reportId
         }
         waitABit(30, environment)
-        return examineLineageResults(reportIds[0], listOf(hl7NullReceiver), fakeItemCount)
+        return examineLineageResults(
+            reportId = reportIds[0],
+            receivers = listOf(hl7NullReceiver),
+            totalItems = fakeItemCount
+        )
     }
 }
 
@@ -778,7 +805,11 @@ class Strac : CoolTest() {
             }
             // OK, fine, the others failed.   All our hope now rests on you, REDOX - don't let us down!
             waitABit(25, environment)
-            return passed and examineLineageResults(reportId, listOf(redoxReceiver), options.items)
+            return passed and examineLineageResults(
+                reportId = reportId,
+                receivers = listOf(redoxReceiver),
+                totalItems = options.items
+            )
         } catch (e: Exception) {
             return bad("***strac Test FAILED***: Unexpected json returned")
         }
@@ -831,7 +862,7 @@ class StracPack : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait extra seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(redoxReceiver), options.items)
+                examineLineageResults(reportId = it, receivers = listOf(redoxReceiver), totalItems = options.items)
         }
         return passed
     }
@@ -865,7 +896,11 @@ class Waters : CoolTest() {
         echo("Id of submitted report: $reportId")
         waitABit(60, environment, options.muted)
         if (file.exists()) file.delete() // because of RepeatWaters
-        return examineLineageResults(reportId, listOf(blobstoreReceiver), options.items)
+        return examineLineageResults(
+            reportId = reportId,
+            receivers = listOf(blobstoreReceiver),
+            totalItems = options.items
+        )
     }
 }
 
@@ -962,7 +997,7 @@ class HammerTime : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait 5 seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(receiverToTest), options.items)
+                examineLineageResults(reportId = it, receivers = listOf(receiverToTest), totalItems = options.items)
         }
         return passed
     }
@@ -1157,7 +1192,7 @@ class Huge : CoolTest() {
         val reportId = ReportId.fromString(tree["id"].textValue())
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
-        return examineLineageResults(reportId, listOf(csvReceiver), fakeItemCount)
+        return examineLineageResults(reportId = reportId, receivers = listOf(csvReceiver), totalItems = fakeItemCount)
     }
 }
 
@@ -1240,7 +1275,7 @@ class DbConnections : CoolTest() {
         var passed = true
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(hl7Receiver), options.items)
+                examineLineageResults(reportId = it, receivers = listOf(hl7Receiver), totalItems = options.items)
         }
         return passed
     }
@@ -1282,7 +1317,11 @@ class BadSftp : CoolTest() {
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
         echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
-        return examineLineageResults(reportId, listOf(sftpFailReceiver), options.items)
+        return examineLineageResults(
+            reportId = reportId,
+            receivers = listOf(sftpFailReceiver),
+            totalItems = options.items
+        )
     }
 }
 
@@ -1360,5 +1399,166 @@ class InternationalContent : CoolTest() {
             echo(e)
             return bad("***intcontent Test FAILED***: There was an error fetching data from the database.")
         }
+    }
+}
+
+/**
+ * Creates fake data as if from a sender and tries to send it to every state and territory
+ */
+class SantaClaus : CoolTest() {
+
+    override val name = "santaclaus"
+    override val description = "Creates fake data as if from a sender and tries to send it to every state and territory"
+    override val status = TestStatus.DRAFT
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+
+        var passed = true
+
+        if (options.env !in listOf("local", "staging")) {
+            return createBad("This test can only be run locally or on staging")
+        }
+
+        var sendersToTestWith = settings.senders.filter {
+            it.organizationName in listOf("simple_report", "waters", "strac", "safehealth")
+        }
+
+        options.sender?.let {
+
+            // validates sender existence
+            val sender = settings.findSender(it) ?: return createBad("The sender indicated doesn't exists '$it'")
+
+            // replace the list of senders to test
+            // with the indicated by parameter
+            sendersToTestWith = listOf(sender)
+        }
+
+        val states = metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")?.toList() ?: listOf()
+
+        sendersToTestWith.forEach { sender ->
+
+            ugly("Starting $name Test: send with ${sender.fullName}")
+
+            val file = FileUtilities.createFakeFile(
+                metadata = metadata,
+                sender = sender,
+                count = states.size,
+                format = if(sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
+                directory = System.getProperty("java.io.tmpdir"),
+                targetStates = null,
+                targetCounties = null
+            )
+            echo("Created datafile $file")
+
+            // Now send it to ReportStream.
+            val (responseCode, json) =
+                HttpUtilities.postReportFile(environment, file, sender.organizationName, sender, null)
+
+            if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                return bad("***$name Test FAILED***:  response code $responseCode")
+            } else {
+                good("Posting of report succeeded with response code $responseCode")
+            }
+            echo(json)
+
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = ReportId.fromString(tree["id"].textValue())
+
+            val destinations = tree["destinations"]
+            if (destinations != null && destinations.size() > 0) {
+
+                val receivers = mutableListOf<Receiver>()
+
+                destinations.forEach { destination ->
+                    if (destination != null && destination.has("service")) {
+
+                        val receiverName = destination["service"].textValue()
+                        val organizationId = destination["organization_id"].textValue()
+
+                        receivers.addAll(
+                            settings.receivers.filter {
+                                it.organizationName == organizationId && it.name == receiverName
+                            }
+                        )
+                    }
+                }
+
+                if (!receivers.isNullOrEmpty()) {
+
+                    // give some time to let the system
+                    // finish with the expected output
+                    waitWithConditionalRetry(
+                        90,
+                        {
+                            examineLineageResults(
+                                reportId = reportId,
+                                receivers = receivers,
+                                totalItems = receivers.size,
+                                filterOrgName = true,
+                                silent = true
+                            )
+                        },
+                        callback = { succeed, retryCount ->
+                            if (!succeed) {
+                                if (retryCount == 0) {
+                                    println("Waiting for examining lineage results of sender '${sender.fullName}'")
+                                }
+                                print(".")
+                            } else {
+                                println()
+                            }
+                        }
+                    )
+
+                    // just to print to console some beautified output
+                    passed = passed and examineLineageResults(
+                        reportId = reportId,
+                        receivers = receivers,
+                        totalItems = receivers.size,
+                        filterOrgName = true,
+                        silent = false
+                    )
+                }
+            }
+        }
+
+        return passed
+    }
+
+    /**
+     * Executes the 'block' function parameter and
+     * evaluates its boolean result. If it's false it
+     * retries the execution in 1 second, at most the
+     * quantity of retries indicated by parameter.
+     *
+     * @param retries Max times to repeat the execution of @param[block] while it returns false
+     * @param block Function to evaluate its result
+     * @param callback Returns the state of the last execution and the retry count
+     *
+     * @return true if the @param[block] returns true, false otherwise or if the retry count reaches to its limit
+     */
+    private fun waitWithConditionalRetry(
+        retries: Int,
+        block: () -> Boolean,
+        callback: (succeed: Boolean, retryCount: Int) -> Unit
+    ): Boolean {
+
+        var retriesCopy = retries
+
+        while (retriesCopy > 0) {
+            val blockSuccess = block()
+            callback(blockSuccess, abs(retriesCopy - retries))
+            if (blockSuccess) {
+                return true
+            }
+            retriesCopy--
+            sleep(1000)
+        }
+
+        return false
+    }
+
+    private fun createBad(message: String): Boolean {
+        return bad("***$name Test FAILED***: $message")
     }
 }
