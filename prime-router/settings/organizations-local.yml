@@ -131,6 +131,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: pima-az-phd
     description: Pima County, Arizona PHD
@@ -227,6 +228,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
       - name: elr-debug
         organizationName: tx-phd
         topic: covid-19
@@ -243,6 +245,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         
   - name: fl-phd
     description: Florida Department of Health
@@ -272,6 +275,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: gu-doh
     description: Guam Department of Health
@@ -299,6 +303,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: vt-doh
     description: Vermont Department of Health
@@ -347,6 +352,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: la-doh
     description: Louisiana Department of Health
@@ -376,6 +382,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: oh-doh
     description: Ohio Department of Health
@@ -411,6 +418,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: nm-doh
     description: New Mexico Department of Health
@@ -445,6 +453,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
       - name: elr-csv
         organizationName: nm-doh
         topic: covid-19
@@ -464,6 +473,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: mt-doh
     description: Montana Department of Health
@@ -483,6 +493,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -502,6 +513,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -529,6 +541,7 @@
           host: sftp
           port: 22
           filePath: ./
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -555,6 +568,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -586,6 +600,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440 # Every minute
@@ -616,6 +631,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -640,6 +656,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -668,6 +685,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -697,6 +715,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -720,6 +739,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -748,6 +768,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -774,6 +795,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -802,6 +824,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -826,6 +849,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -882,6 +906,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -912,6 +937,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -939,6 +965,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -967,6 +994,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -995,6 +1023,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
         timing:
           operation: MERGE
           numberPerDay: 1440
@@ -1196,7 +1225,7 @@
           host: sftp
           port: 22
           filePath: ./upload
-
+          credentialName: DEFAULT-SFTP
 
   - name: "hhsprotect"
     description: "HHSProtect"
@@ -1273,6 +1302,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
       - name: HL7
         organizationName: ignore
         topic: covid-19
@@ -1290,6 +1320,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
       - name: HL7_BATCH
         organizationName: ignore
         topic: covid-19
@@ -1307,6 +1338,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
       - name: REDOX
         organizationName: ignore
         topic: covid-19
@@ -1455,6 +1487,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: as-phd
     description: American Samoa Public Health Department
@@ -1479,6 +1512,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ar-phd
     description: Arkansas Public Health Department
@@ -1503,6 +1537,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ct-phd
     description: Connecticut Public Health Department
@@ -1527,6 +1562,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: dc-phd
     description: District of Columbia Public Health Department
@@ -1551,6 +1587,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: fm-phd
     description: Federated States of Micronesia Public Health Department
@@ -1575,6 +1612,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ga-phd
     description: Georgia Public Health Department
@@ -1599,6 +1637,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: hi-phd
     description: Hawaii Public Health Department
@@ -1623,6 +1662,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: id-phd
     description: Idaho Public Health Department
@@ -1647,6 +1687,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: il-phd
     description: Illinois Public Health Department
@@ -1671,6 +1712,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: in-phd
     description: Indiana Public Health Department
@@ -1695,6 +1737,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ia-phd
     description: Iowa Public Health Department
@@ -1719,6 +1762,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ks-phd
     description: Kansas Public Health Department
@@ -1743,6 +1787,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ky-phd
     description: Kentucky Public Health Department
@@ -1767,6 +1812,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: me-phd
     description: Maine Public Health Department
@@ -1791,6 +1837,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: mh-phd
     description: Marshall Islands Public Health Department
@@ -1815,6 +1862,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: mo-phd
     description: Missouri Public Health Department
@@ -1839,6 +1887,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ne-phd
     description: Nebraska Public Health Department
@@ -1863,6 +1912,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: nv-phd
     description: Nevada Public Health Department
@@ -1887,6 +1937,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ny-phd
     description: New York Public Health Department
@@ -1911,6 +1962,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: mp-phd
     description: Northern Mariana Islands Public Health Department
@@ -1935,6 +1987,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ok-phd
     description: Oklahoma Public Health Department
@@ -1959,6 +2012,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: or-phd
     description: Oregon Public Health Department
@@ -1983,6 +2037,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: pw-phd
     description: Palau Public Health Department
@@ -2007,6 +2062,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: pr-phd
     description: Puerto Rico Public Health Department
@@ -2031,6 +2087,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ri-phd
     description: Rhode Island Public Health Department
@@ -2055,6 +2112,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: sc-phd
     description: South Carolina Public Health Department
@@ -2079,6 +2137,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: sd-phd
     description: South Dakota Public Health Department
@@ -2103,6 +2162,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: ut-phd
     description: Utah Public Health Department
@@ -2127,6 +2187,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: vi-phd
     description: Virgin Islands Public Health Department
@@ -2151,6 +2212,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: va-phd
     description: Virginia Public Health Department
@@ -2175,6 +2237,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: wa-phd
     description: Washington Department of Health
@@ -2265,6 +2328,7 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
   - name: wy-phd
     description: Wyoming Public Health Department
@@ -2289,4 +2353,5 @@
           host: sftp
           port: 22
           filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
