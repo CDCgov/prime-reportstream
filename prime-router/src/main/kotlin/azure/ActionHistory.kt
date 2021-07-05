@@ -28,7 +28,7 @@ import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 
-private const val NOWHERE_ORG = "nowhere-org"
+private const val NOWHERE_ORG = "n/a"
 
 /**
  * This is a container class that holds information to be stored, about a single action,
