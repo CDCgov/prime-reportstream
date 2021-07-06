@@ -20,7 +20,7 @@ function usage() {
   cat <<EOF
 usage: ${0} [OPTIONS]
 
-Thsi script sets up a functional development environment that is as pristine \
+This script sets up a functional development environment that is as pristine \
 as possible. It will get you there from a clean clone or get you back there \
 if your environment got messed up.
 
@@ -199,7 +199,7 @@ function take_ownership() {
   for d in ${TARGETS[*]}; do
     echo -ne "\t- ${d?}..."
     if [[ -d "${d?}" ]]; then
-      sudo chown -R "$(id --user --name):$(id --group --name)" "${d?}"
+      sudo chown -R "$(id -u -n):$(id -g -n)" "${d?}"
       sudo chmod -R a+w "${d?}"
       echo "DONE"
     else
