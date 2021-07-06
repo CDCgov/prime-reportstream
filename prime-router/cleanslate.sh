@@ -48,7 +48,7 @@ function pull_prebaked_images() {
   echo -n "Pulling pre-baked images..."
   for df in "docker-compose.yml" "docker-compose.build.yml"; do
     grep "image: " "${df}" |
-      cut --delim ":" --fields 2- |
+      cut -d ":" -f 2- |
       xargs -n 1 docker pull 1>/dev/null
   done
 
@@ -77,7 +77,7 @@ function reset_vault() {
 
 function wait_for_vault_creds() {
   # Wait for the vault to fully spin up and populate the vault file
-  while [[ $(wc --bytes "${VAULT_ENV_LOCAL_FILE?}" | cut --delim " " --fields 1) == 0 ]]; do
+  while [[ $(wc --bytes "${VAULT_ENV_LOCAL_FILE?}" | cut -d " " -f 1) == 0 ]]; do
     echo "Waiting for ${VAULT_ENV_LOCAL_FILE?} to be populated..."
     sleep 2
   done
