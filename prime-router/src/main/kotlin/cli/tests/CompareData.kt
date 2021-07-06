@@ -467,7 +467,7 @@ class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
             }
             recordNum++
         }
-        result.passed = passed
+        result.passed = result.passed and passed
         return result
     }
 
@@ -512,7 +512,7 @@ class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
                 }
             }
         }
-        result.passed = passed
+        result.passed = result.passed and passed
         return passed
     }
 
@@ -570,7 +570,7 @@ class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
                 )
             }
         }
-        result.passed = passed
+        result.passed = result.passed and passed
         return passed
     }
 }
@@ -632,7 +632,7 @@ class CompareCsvData {
                             )
                 }
                 if (expectedRowRaw.size == 1) {
-                    if (compareCsvRow(actualRow, expectedRowRaw[0], schema, i, result)) {
+                    if (!compareCsvRow(actualRow, expectedRowRaw[0], schema, i, result)) {
                         result.errors.add("Comparison for row #$i FAILED")
                     }
                 } else {
@@ -675,17 +675,18 @@ class CompareCsvData {
         actualRowNum: Int,
         result: CompareData.Result
     ): Boolean {
+        var passed = true
         if (actualRow.isEmpty()) {
             result.errors.add(
                 "The actual report had no rows"
             )
-            result.passed = false
+            passed = false
         } else if (actualRow.size < expectedRow.size) {
             result.errors.add(
                 "There are too few columns in the actual report.  Expected ${expectedRow.size} or more, but got" +
                     "${actualRow.size}"
             )
-            result.passed = false
+            passed = false
         } else {
             if (actualRow.size > expectedRow.size) {
                 result.warnings.add(
@@ -695,7 +696,7 @@ class CompareCsvData {
             }
 
             // Loop through all the expected columns ignoring the header row
-            for (j in 0 until expectedRow.size) {
+            for (j in expectedRow.indices) {
                 val colName = schema.elements[j].name
                 // We want to error on differences when the expected data is not empty.
                 if (expectedRow[j].isNotBlank() &&
@@ -706,7 +707,7 @@ class CompareCsvData {
                             "'$colName'. Expected: '${expectedRow[j].trim()}', " +
                             "Actual: '${actualRow[j].trim()}'"
                     )
-                    result.passed = false
+                    passed = false
                 } else if (expectedRow[j].trim().isEmpty() &&
                     actualRow[j].trim().isNotEmpty()
                 ) {
@@ -718,6 +719,7 @@ class CompareCsvData {
                 }
             }
         }
-        return result.passed
+        result.passed = result.passed and passed
+        return passed
     }
 }
