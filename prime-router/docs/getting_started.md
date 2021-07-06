@@ -251,9 +251,10 @@ End-to-end tests check if the deployed system is configured correctly.  The test
 1. Perform a one-time setup of the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server (default of foo/pass) and change the arguments for the --user and --pass as needed.  Note that running these commands multiple times will not break anything:
     ```bash
     export $(cat ./.vault/env/.env.local | xargs)
-    ./build.sh -- gradle primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass'
-    ./build.sh -- gradle primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass'
-    ./build.sh -- gradle primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass'
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass'
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass'
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass'
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass'
     ```
 1. Run the Prime Router in the Docker container.
 1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:

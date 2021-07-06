@@ -7,11 +7,15 @@ import requests
 import yaml
 import time
 import argparse
+import os
+import datetime
+from email.utils import parsedate_to_datetime
 
 parser = argparse.ArgumentParser(description='Put org file into a prime service')
+parser.add_argument('--wait', type=int, default=0)
+parser.add_argument('--check-last-modified', action='store_true', default=False)
 parser.add_argument('host', default='localhost')
 parser.add_argument('org_file', default='organizations-local.yml')
-parser.add_argument('--wait', type=int, default=0)
 args = parser.parse_args()
 host = args.host
 protocol = "http"
@@ -53,11 +57,28 @@ def put_receiver(receiver):
     r.raise_for_status()
 
 
+def get_last_modified():
+    url = f'{base_url}/settings/organizations'
+    r = requests.head(url, headers=headers)
+    r.raise_for_status()
+    if 'Last-Modified' in r.headers:
+        return parsedate_to_datetime(r.headers['Last-Modified'])
+    else:
+        return datetime.datetime(2000, 1, 1)  # early date to make logic work
+
+
 def main():
     try:
         if args.wait > 0:
             print(f"Waiting for {args.wait} seconds")
             time.sleep(args.wait)
+
+        if args.check_last_modified:
+            settings_modified = get_last_modified()
+            file_modified = os.path.getmtime(org_file)
+            if settings_modified.timestamp() >= file_modified:
+                print(f"Settings modified {settings_modified} after input file, do not update settings")
+                return
 
         print(f"Loading {org_file} into {base_url}")
         orgs = parse_file(org_file)
@@ -71,6 +92,7 @@ def main():
                 put_receiver(receiver)
     except Exception as err:
         print(err)
+
 
 if __name__ == "__main__":
     main()

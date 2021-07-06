@@ -567,6 +567,18 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
+     * Fetch the newest CreatedAt timestamp, active or deleted, or return [ifEmptySettings]
+     */
+    fun fetchLastModified(txn: DataAccessTransaction? = null): OffsetDateTime? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(DSL.max(SETTING.CREATED_AT))
+            .from(SETTING)
+            .fetchOne()
+            ?.getValue(DSL.max(SETTING.CREATED_AT))
+    }
+
+    /**
      * Common companion object
      */
 

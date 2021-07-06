@@ -72,10 +72,10 @@ table, tr, td {
 @media only screen {
   html {
     min-height: 100%;
-    background: #f3f3f3; } }
+    background: #ffffff; } }
 
 table.body {
-  background: #f3f3f3;
+  background: #ffffff;
   height: 100%;
   width: 100%; }
 
@@ -918,7 +918,7 @@ h6 a:visited {
   color: #2199e8; }
 
 pre {
-  background: #f3f3f3;
+  background: #ffffff;
   margin: 30px 0;
   Margin: 30px 0; }
   pre code {
@@ -955,7 +955,7 @@ span.preheader {
   visibility: hidden;
   mso-hide: all !important;
   font-size: 1px;
-  color: #f3f3f3;
+  color: #ffffff;
   line-height: 1px;
   max-height: 0px;
   max-width: 0px;
