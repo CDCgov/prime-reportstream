@@ -34,42 +34,42 @@ class CompareDataTests {
 
         // Rows equal
         var result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowA, rowA, schema!!, 1, result)
+        CompareCsvData().compareCsvRow(rowA, rowA, schema, 1, result)
         assertThat(result.passed).isTrue()
         assertThat(result.errors.size).isEqualTo(0)
         assertThat(result.warnings.size).isEqualTo(0)
 
         // Rows same number of cols, but different data
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowA, rowB, schema!!, 1, result)
+        CompareCsvData().compareCsvRow(rowA, rowB, schema, 1, result)
         assertThat(result.passed).isFalse()
         assertThat(result.errors.size).isEqualTo(1)
         assertThat(result.warnings.size).isEqualTo(0)
 
         // Actual has more cols
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowA, rowC, schema!!, 1, result)
+        CompareCsvData().compareCsvRow(rowA, rowC, schema, 1, result)
         assertThat(result.passed).isTrue()
         assertThat(result.errors.size).isEqualTo(0)
         assertThat(result.warnings.size).isEqualTo(1)
 
         // Expected has more cols
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowC, rowA, schema!!, 1, result)
+        CompareCsvData().compareCsvRow(rowC, rowA, schema, 1, result)
         assertThat(result.passed).isFalse()
         assertThat(result.errors.size).isEqualTo(1)
         assertThat(result.warnings.size).isEqualTo(0)
 
         // Actual has no cols
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowD, rowA, schema!!, 1, result)
+        CompareCsvData().compareCsvRow(rowD, rowA, schema, 1, result)
         assertThat(result.passed).isFalse()
         assertThat(result.errors.size).isEqualTo(1)
         assertThat(result.warnings.size).isEqualTo(0)
 
         // Actual has value, but no expecte value for col
         result = CompareData.Result()
-        CompareCsvData().compareCsvRow(rowA, rowE, schema!!, 1, result)
+        CompareCsvData().compareCsvRow(rowA, rowE, schema, 1, result)
         assertThat(result.passed).isTrue()
         assertThat(result.errors.size).isEqualTo(0)
         assertThat(result.warnings.size).isEqualTo(1)
