@@ -1,5 +1,11 @@
 package gov.cdc.prime.router.cli.tests
 
+import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.Type
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
+import ca.uhn.hl7v2.util.Terser
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.output.TermUi
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
@@ -293,12 +299,9 @@ class CompareData {
      */
     data class Result(
         var passed: Boolean = true,
-        val errors: ArrayList<String> = ArrayList<String>(),
-        val warnings: ArrayList<String> = ArrayList<String>()
+        val errors: ArrayList<String> = ArrayList(),
+        val warnings: ArrayList<String> = ArrayList()
     ) {
-        val hasErrors: Boolean
-            get() = errors.isNotEmpty()
-
         /**
          * Merge results by adding [anotherResult] errors and warnings and setting the passed flag.
          */
@@ -350,7 +353,7 @@ class CompareData {
         result: Result = Result()
     ): Result {
         if (format == Report.Format.HL7 || format == Report.Format.HL7_BATCH) {
-            result.merge(CompareHl7Data().compareHl7(expected, actual, schema))
+            result.merge(CompareHl7Data().compareHl7(expected, actual))
         } else {
             result.merge(CompareCsvData().compare(expected, actual, schema))
         }
@@ -358,21 +361,224 @@ class CompareData {
     }
 }
 
+/**
+ * Compares two HL7 files.
+ */
 class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
+    /**
+     * The list of fields that contain dynamic values that cannot be compared.  Source:
+     * Hl7Serializer.setLiterals()
+     */
+    internal val dynamicHl7Values = arrayOf("MSH-7", "SFT-2", "SFT-4", "SFT-6")
+
+    /**
+     * Compare the data in the [actual] report to the data in the [expected] report.  This
+     * comparison uses steps through all the segments in the HL7 messages and compares all the values in the
+     * existing fields.
+     * @return the result for the comparison, with result.passed true if the comparison was successful
+     * Errors are generated when:
+     *  1. The number of reports is different
+     *  2. A segment in the expected values does not exist in the actual values
+     *  3. A component expected value does not match the actual value
+     *
+     * Warnings are generated when:
+     *  1. A component actual value exists, but no expected value.
+     */
     fun compareHl7(
         expected: InputStream,
         actual: InputStream,
-        schema: Schema,
         result: CompareData.Result = CompareData.Result()
     ): CompareData.Result {
-        return CompareData.Result()
+        var passed = true
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        val hapiContext = DefaultHapiContext()
+        hapiContext.modelClassFactory = mcf
+        val expectedMsgs = Hl7InputStreamMessageIterator(expected, hapiContext)
+        val actualMsgs = Hl7InputStreamMessageIterator(actual, hapiContext)
+
+        var recordNum = 1
+
+        // Loop through the messages.  In the case of a batch message there will be multiple messages
+        while (actualMsgs.hasNext()) {
+            val actualMsg = actualMsgs.next()
+            val expectedMsg = try {
+                expectedMsgs.next()
+            } catch (e: NoSuchElementException) {
+                result.errors.add(
+                    "The number of expected messages is less than the actual $recordNum messages."
+                )
+                passed = false
+                break
+            }
+            val actualTerser = Terser(actualMsg)
+            val expectedTerser = Terser(expectedMsg)
+
+            while (true) {
+                try {
+                    val actualSegmentName = actualTerser.finder.iterate(true, true)
+                    val expectedSegmentName = expectedTerser.finder.iterate(true, true)
+
+                    if (actualSegmentName != expectedSegmentName) {
+                        result.errors.add(
+                            "Actual HL7 segment name does not match expected. " +
+                                "Actual: $actualSegmentName, Expected: $expectedSegmentName"
+                        )
+                        passed = false
+                        break
+                    }
+
+                    // The HAPI finder iteration does not give a clear indication when it is done with the entire
+                    // message vs an error when it is set to not loop, but with loop=true we get an empty segment name.
+                    if (actualSegmentName.isNullOrBlank() || expectedSegmentName.isNullOrBlank()) {
+                        if (!expectedSegmentName.isNullOrBlank()) {
+                            result.errors.add(
+                                "There is an extra segment named $expectedSegmentName missing from " +
+                                    " the actual message. "
+                            )
+                            passed = false
+                        }
+                        break
+                    }
+
+                    val actualSegment = actualTerser.getSegment(actualSegmentName)
+                    val expectedSegment = expectedTerser.getSegment(expectedSegmentName)
+                    if (actualSegment.numFields() != expectedSegment.numFields()) {
+                        result.errors.add(
+                            "Actual number of fields in HL7 segment does not match expected. " +
+                                "Actual: ${actualSegment.numFields()}, Expected: ${expectedSegment.numFields()}"
+                        )
+                        passed = false
+                        break
+                    }
+
+                    // Loop through all the fields in the segment.
+                    for (fieldIndex in 1..actualSegment.numFields()) {
+                        val actualField = actualSegment.getField(fieldIndex)
+                        val expectedField = expectedSegment.getField(fieldIndex)
+                        passed = passed and compareField(
+                            recordNum, "$actualSegmentName-$fieldIndex",
+                            actualSegment.names[fieldIndex - 1], actualField, expectedField, result
+                        )
+                    }
+                } catch (e: HL7Exception) {
+                    result.errors.add("There was an error parsing the HL7 messages: $e")
+                    passed = false
+                }
+            }
+            recordNum++
+        }
+        result.passed = passed
+        return result
+    }
+
+    /**
+     * Compare an [actualFieldContents] to an [expectedFieldContents] HL7 field for a given [recordNum], [fieldSpec],
+     * and [fieldName]. All components in a field are compared and dynamic fields are checked
+     * they have content.
+     * @return true if the field data is equal, false otherwise
+     */
+    fun compareField(
+        recordNum: Int,
+        fieldSpec: String,
+        fieldName: String,
+        actualFieldContents: Array<Type>,
+        expectedFieldContents: Array<Type>,
+        result: CompareData.Result
+    ): Boolean {
+        var passed = true
+        val maxNumRepetitions = if (actualFieldContents.size > expectedFieldContents.size) actualFieldContents.size
+        else expectedFieldContents.size
+        if (maxNumRepetitions > 0) {
+            // Loop through all the components in a field and compare their values.
+            for (repetitionIndex in 0 until maxNumRepetitions) {
+                // If this is not a dynamic value then check it against the expected values
+                if (!dynamicHl7Values.contains(fieldSpec)) {
+                    val expectedFieldValue = if (repetitionIndex < expectedFieldContents.size)
+                        expectedFieldContents[repetitionIndex].toString().trim() else ""
+                    val actualFieldValue = if (repetitionIndex < actualFieldContents.size)
+                        actualFieldContents[repetitionIndex].toString().trim() else ""
+                    passed = passed and compareComponent(
+                        actualFieldValue, expectedFieldValue, recordNum,
+                        "$fieldSpec($repetitionIndex)",
+                        fieldName, result
+                    )
+                }
+                // For dynamic values we expect them to be have something
+                else if (actualFieldContents[repetitionIndex].isEmpty) {
+                    result.errors.add(
+                        "No date/time of message for record $recordNum in field $fieldSpec"
+                    )
+                    passed = false
+                }
+            }
+        }
+        result.passed = passed
+        return passed
+    }
+
+    /**
+     * Compare the components of a given [actualFieldValue] and [expectedFieldValue] for the given [recordNum],
+     * [fieldSpec] and [fieldName]
+     * @return true if the field data is equal, false otherwise
+     */
+    fun compareComponent(
+        actualFieldValue: String,
+        expectedFieldValue: String,
+        recordNum: Int,
+        fieldSpec: String,
+        fieldName: String,
+        result: CompareData.Result
+    ): Boolean {
+        var passed = true
+        // Get the components.  HAPI can return a string with a type (e.g. HD[blah^blah]) or a string
+        // with a single value
+        val typeRegex = Regex(".*\\[ *(.*) *].*")
+        val expectedValueComponents = if (expectedFieldValue.matches(typeRegex)) {
+            typeRegex.find(expectedFieldValue)!!.destructured.component1().split("[", "]", "^")
+        } else {
+            listOf(expectedFieldValue)
+        }
+        val actualValueComponents = if (actualFieldValue.matches(typeRegex)) {
+            typeRegex.find(actualFieldValue)!!.destructured.component1().split("[", "]", "^")
+        } else {
+            listOf(actualFieldValue)
+        }
+
+        // Loop through all the components
+        val maxNumComponents = if (actualValueComponents.size > expectedValueComponents.size)
+            actualValueComponents.size else expectedValueComponents.size
+        for (componentIndex in 0 until maxNumComponents) {
+            val expectedComponentValue = if (componentIndex < expectedValueComponents.size)
+                expectedValueComponents[componentIndex].trim() else ""
+            val actualComponentValue = if (componentIndex < actualValueComponents.size)
+                actualValueComponents[componentIndex].trim() else ""
+
+            // If we have more than one component then show the component number is the messages
+            val componentSpec = if (maxNumComponents > 1) "$fieldSpec-${componentIndex + 1}" else fieldSpec
+
+            if (expectedComponentValue.isNotBlank() && expectedComponentValue != actualComponentValue) {
+                result.errors.add(
+                    "Data value does not match in report $recordNum for " +
+                        "$componentSpec|$fieldName. Expected: '$expectedComponentValue', " +
+                        "Actual: '$actualComponentValue'"
+                )
+                passed = false
+            } else if (expectedComponentValue.isBlank() && actualComponentValue.isNotBlank()) {
+                result.warnings.add(
+                    "Actual data has value in report $recordNum for " +
+                        "$componentSpec|$fieldName but no expected value. Actual: '$actualComponentValue'"
+                )
+            }
+        }
+        result.passed = passed
+        return passed
     }
 }
 
 /**
  * Compares two CSV files that use the same schema.
  */
-class CompareCsvData() {
+class CompareCsvData {
 
     /**
      * Compare the data in the [actual] report to the data in the [expected] report that use the same [schema].
@@ -426,10 +632,8 @@ class CompareCsvData() {
                             )
                 }
                 if (expectedRowRaw.size == 1) {
-                    val rowResult = compareCsvRow(actualRow, expectedRowRaw[0], schema, i)
-                    if (!rowResult.passed) {
+                    if (compareCsvRow(actualRow, expectedRowRaw[0], schema, i, result)) {
                         result.errors.add("Comparison for row #$i FAILED")
-                        result.merge(rowResult)
                     }
                 } else {
                     result.errors.add(
@@ -462,24 +666,26 @@ class CompareCsvData() {
      *  1. The number of columns in the actual data is more than in the expected data
      *  2. An actual data value exists, but there is no matching expected data
      *
-     * @return the result for the comparison, with result.passed true if the comparison was successful
+     * @return true if the field data is equal, false otherwise
      */
     fun compareCsvRow(
         actualRow: List<String>,
         expectedRow: List<String>,
         schema: Schema,
         actualRowNum: Int,
-        result: CompareData.Result = CompareData.Result()
-    ): CompareData.Result {
+        result: CompareData.Result
+    ): Boolean {
         if (actualRow.isEmpty()) {
             result.errors.add(
                 "The actual report had no rows"
             )
+            result.passed = false
         } else if (actualRow.size < expectedRow.size) {
             result.errors.add(
                 "There are too few columns in the actual report.  Expected ${expectedRow.size} or more, but got" +
                     "${actualRow.size}"
             )
+            result.passed = false
         } else {
             if (actualRow.size > expectedRow.size) {
                 result.warnings.add(
@@ -489,7 +695,7 @@ class CompareCsvData() {
             }
 
             // Loop through all the expected columns ignoring the header row
-            for (j in 1 until expectedRow.size) {
+            for (j in 0 until expectedRow.size) {
                 val colName = schema.elements[j].name
                 // We want to error on differences when the expected data is not empty.
                 if (expectedRow[j].isNotBlank() &&
@@ -512,6 +718,6 @@ class CompareCsvData() {
                 }
             }
         }
-        return result
+        return result.passed
     }
 }
