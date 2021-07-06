@@ -16,6 +16,23 @@ UNBUILD_TARGETS=(
   "./build/"
 )
 
+OS_FAMILY="$(uname)"
+TRUNCATE=truncate
+
+function ensure_tooling() {
+  # Ensures you have the tools needed to run this script
+  if [[ "${OS_FAMILY?}" == "Darwin" ]]; then
+    echo "We need to install the coreutils (things like gtruncate, etc...); so we're brew-installing coreutils"
+    brew install coreutils
+    if [[ $? != 0 ]]; then
+      echo -e "${RED?}ERROR:${PLAIN?} This script needs to be able to brew-install things, but couldn't..."
+      echo "This script will now terminate."
+      exit 1
+    fi
+    TRUNCATE=gtruncate
+  fi
+}
+
 function usage() {
   cat <<EOF
 usage: ${0} [OPTIONS]
@@ -35,7 +52,7 @@ EOF
 function decompose_docker() {
   echo "Decomposing Docker..."
   for compose_file in "./docker-compose.yml" "./docker-compose.build.yml"; do
-    echo -ne "\t- ${compose_file}..."
+    echo -ne "    - ${compose_file}..."
     docker-compose --file "${compose_file}" down \
       1>/dev/null \
       2>&1
@@ -67,7 +84,7 @@ function reset_vault() {
   echo -n "Resetting your vault..."
   rm -rf .vault/env/{key,.env.local}
   mkdir -p .vault/env
-  truncate -s 0 .vault/env/.env.local
+  ${TRUNCATE} -s 0 .vault/env/.env.local
   echo "DONE"
 
   # You explicitly do not need these since you are resetting everyting
@@ -85,17 +102,16 @@ function wait_for_vault_creds() {
   echo "Your vault credentials have been generated (vault: http://localhost:8200/ui/):"
   export $(cat .vault/env/.env.local | xargs)
   cat "${VAULT_ENV_LOCAL_FILE?}" |
-    sed 's/^/\t/g'
+    sed 's/^/    /g'
 }
-
-# Brings any necessary environments up again
+TRUNCATE
 function recompose_docker() {
   ensure_binaries
   echo -n "Recomposing Docker..."
   docker-compose --file docker-compose.build.yml up --detach |
-    sed 's/^/\t/g'
+    sed 's/^/    /g'
   docker-compose --file docker-compose.yml up --detach |
-    sed 's/^/\t/g'
+    sed 's/^/    /g'
   echo "DONE"
 
   wait_for_vault_creds
@@ -108,7 +124,7 @@ function recompose_docker() {
 function ensure_binaries() {
   if [[ ! -f "./build/azure-functions/prime-data-hub-router/prime-router-0.1-SNAPSHOT.jar" ]]; then
     echo "You do not yet have any binaries, building them for you..."
-    ./build.sh | sed 's/^/\t\t/g'
+    ./build.sh | sed 's/^/        /g'
   fi
 }
 
@@ -128,7 +144,7 @@ function configure_prime() {
 
     # Give the vault plenty of time to come up, so retry if we get failures
     while [[ ${RC} != 0 ]]; do
-      echo -ne "\t- ${p}..."
+      echo -ne "    - ${p}..."
       ./prime create-credential --type=UserPass --persist=${p} --user foo --pass pass 1>/dev/null
       RC=${PIPESTATUS[0]}
       if [[ ${RC?} == 0 ]]; then
@@ -141,22 +157,25 @@ function configure_prime() {
 
   echo -n "Loading organizations into PRIME ReportStream..."
   ./prime multiple-settings set --input settings/organizations-local.yml 1>/dev/null |
-    sed 's/^/\t/g'
+    sed 's/^/    /g'
   echo "DONE"
 }
 
 # This functions loads in the local organizations' receivers' credentials
 function configure_receiver_creds() {
   echo "Populating receiver credentials into your vault (be patient)..."
-  VENV_ROOT=$(mktemp -d)
-  pushd "${VENV_ROOT?}" 2>&1 1>/dev/null
+  if [[ -z "$(which python3)" ]]; then
+    echo "${YELLOW?}WARNING:${PLAIN?} It appears you do not have python3; the receiver credentials from organizations-local.yml cannot be loaded automatically (at this point)..."
+  else
+    VENV_ROOT=$(mktemp -d)
+    pushd "${VENV_ROOT?}" 2>&1 1>/dev/null
 
-  python -m venv venv 1>/dev/null 2>&1
-  source ./venv/bin/activate 1>/dev/null 2>&1
-  pip install pyyaml 1>/dev/null 2>&1
-  popd 2>&1 1>/dev/null
+    python3 -m venv venv 1>/dev/null 2>&1
+    source ./venv/bin/activate 1>/dev/null 2>&1
+    pip install pyyaml 1>/dev/null 2>&1
+    popd 2>&1 1>/dev/null
 
-  python -c "import yaml;
+    python3 -c "import yaml;
 with open(\"${HERE?}/settings/organizations-local.yml\") as input:
     loaded = yaml.load(input, Loader=yaml.SafeLoader)
 
@@ -168,16 +187,18 @@ with open(\"${HERE?}/settings/organizations-local.yml\") as input:
             if ORGNAME and NAME and '_' not in NAME:
                 print('%(orgName)s--%(name)s' % {'orgName': ORGNAME, 'name': NAME})
 " | xargs -I_ -P 2 "${HERE}/prime" create-credential --type=UserPass --persist=_ --user foo --pass pass 1>/dev/null
-  deactivate
+    deactivate
 
-  rm -rf "${VENV_ROOT?}"
+    rm -rf "${VENV_ROOT?}"
+
+  fi
 }
 
 function unbuild() {
   take_ownership
   echo "Removing build artifacts..."
   for d in ${UNBUILD_TARGETS[*]}; do
-    echo -e "\t- ${d?}"
+    echo -e "    - ${d?}"
     rm -rf "${d?}"
   done
 
@@ -197,7 +218,7 @@ function take_ownership() {
   )
 
   for d in ${TARGETS[*]}; do
-    echo -ne "\t- ${d?}..."
+    echo -ne "    - ${d?}..."
     if [[ -d "${d?}" ]]; then
       sudo chown -R "$(id -u -n):$(id -g -n)" "${d?}"
       sudo chmod -R a+w "${d?}"
@@ -231,6 +252,7 @@ fi
 
 pushd "${HERE?}" 2>&1 1>/dev/null
 
+ensure_tooling
 decompose_docker
 pull_prebaked_images
 if [[ ${UNBUILD?} != 0 ]]; then
@@ -250,7 +272,7 @@ the following command to load your credentials:
 
 EOF
 
-echo -e "\t\$ ${WHITE?}export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")${PLAIN?}"
-echo -e "\t\$ ${WHITE?}./gradlew testEnd2End${PLAIN?}\n"
+echo -e "    \$ ${WHITE?}export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")${PLAIN?}"
+echo -e "    \$ ${WHITE?}./gradlew testEnd2End${PLAIN?}\n"
 
 popd 2>&1 1>/dev/null
