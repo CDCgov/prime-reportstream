@@ -70,7 +70,6 @@ data class Hl7Configuration
     val reportingFacilityIdType: String? = null,
     val suppressQstForAoe: Boolean = false,
     val suppressHl7Fields: String? = null,
-    val suppressDeprecatedPhoneNumber: Boolean = false,
     val suppressAoe: Boolean = false,
     val defaultAoeToUnknown: Boolean = false,
     val useBlankInsteadOfUnknown: String? = null,
