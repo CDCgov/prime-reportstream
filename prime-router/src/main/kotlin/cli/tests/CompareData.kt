@@ -133,8 +133,6 @@ class DataCompareTest : CoolTest() {
                     }
                 }
 
-                var reportId: ReportId? = null
-
                 if (!inputFilePath.isNullOrBlank()) {
                     // Send the input file to ReportStream
                     val (responseCode, json) =
@@ -148,59 +146,28 @@ class DataCompareTest : CoolTest() {
 
                     // Check the response from the endpoint
                     TermUi.echo(json)
-                    try {
-                        val tree = jacksonObjectMapper().readTree(json)
-                        reportId = ReportId.fromString(tree["id"].textValue())
-                        TermUi.echo("Id of submitted report: $reportId")
-                        val topic = tree["topic"]
-                        val errorCount = tree["errorCount"]
-                        val destCount = tree["destinationCount"]
+                    passed = passed and examineRespose(json)
 
-                        if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
-                            good("'topic' is in response and correctly set to 'covid-19'")
-                        } else {
-                            bad("***$name Test FAILED***: 'topic' is missing from response json")
-                            passed = false
-                        }
+                    // Compare the data
+                    val reportId = getReportIdFromResponse(json)
+                    if (reportId != null) {
+                        // Look at the lineage results
+                        waitABit(25, environment)
+                        var totalItemCount = 0
+                        outputList.forEach { totalItemCount += it.expectedCount }
+                        passed = passed and examineLineageResults(reportId, receivers, totalItemCount)
 
-                        if (errorCount != null && !errorCount.isNull && errorCount.intValue() == 0) {
-                            good("No errors detected.")
-                        } else {
-                            bad("***$name Test FAILED***: There were errors reported.")
-                            passed = false
-                        }
-
-                        if (destCount != null && !destCount.isNull && destCount.intValue() >= receivers.size) {
-                            good("Data going to be sent to at least ${receivers.size} destinations.")
-                        } else {
-                            bad(
-                                "***$name Test FAILED***: Incorrect number of destinations.  " +
-                                    "Should be ${receivers.size}"
+                        // Compare the data
+                        outputList.forEach { output ->
+                            passed = passed and compareSentReports(
+                                reportId,
+                                output,
+                                options.sftpDir
                             )
-                            passed = false
                         }
-                    } catch (e: NullPointerException) {
-                        passed = bad("***$name Test FAILED***: Unable to properly parse response json")
                     }
                 } else {
                     error("***$name Test FAILED***: Input file $inputFilePath not found.")
-                }
-
-                if (reportId != null) {
-                    // Look at the lineage results
-                    waitABit(25, environment)
-                    var totalItemCount = 0
-                    outputList.forEach { totalItemCount += it.expectedCount }
-                    passed = passed and examineLineageResults(reportId, receivers, totalItemCount)
-
-                    // Compare the data
-                    outputList.forEach { output ->
-                        passed = passed and compareSentReports(
-                            reportId,
-                            output,
-                            options.sftpDir
-                        )
-                    }
                 }
             }
         }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -29,6 +30,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.util.Locale
+import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.random.Random
@@ -339,6 +341,62 @@ abstract class CoolTest {
                     }
                 }
             }
+        }
+        return passed
+    }
+
+    /**
+     * Get the report ID from the [jsonResponse].
+     * @return the report ID or null
+     */
+    fun getReportIdFromResponse(jsonResponse: String): ReportId? {
+        var reportId: ReportId? = null
+        val tree = jacksonObjectMapper().readTree(jsonResponse)
+        if (!tree.isNull && !tree["id"].isNull) {
+            reportId = ReportId.fromString(tree["id"].textValue())
+        }
+        return reportId
+    }
+
+    /**
+     * Examine the [jsonResponse] from the API, makes sure there is at least one destination reported
+     * and report any errors
+     * @return true if there are no errors in the reponse, false otherwise
+     */
+    fun examineRespose(jsonResponse: String): Boolean {
+
+        var passed = true
+        try {
+            val tree = jacksonObjectMapper().readTree(jsonResponse)
+            val reportId = getReportIdFromResponse(jsonResponse)
+            echo("Id of submitted report: $reportId")
+            val topic = tree["topic"]
+            val errorCount = tree["errorCount"]
+            val destCount = tree["destinationCount"]
+
+            if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
+                good("'topic' is in response and correctly set to 'covid-19'")
+            } else {
+                passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            }
+
+            if (errorCount != null && !errorCount.isNull && errorCount.intValue() == 0) {
+                good("No errors detected.")
+            } else {
+                passed = bad("***$name Test FAILED***: There were errors reported.")
+            }
+
+            if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
+                good("Data going to be sent to one or more destinations.")
+            } else {
+                passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
+            }
+
+            if (reportId == null) {
+                passed = bad("***$name Test FAILED***: Report ID was empty.")
+            }
+        } catch (e: NullPointerException) {
+            passed = bad("***$name Test FAILED***: Unable to properly parse response json")
         }
         return passed
     }
