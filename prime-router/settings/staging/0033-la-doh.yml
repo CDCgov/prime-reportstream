@@ -1,0 +1,50 @@
+---
+name: "elr"
+organizationName: "la-doh"
+topic: "covid-19"
+translation: !<HL7>
+  useTestProcessingMode: false
+  useBatchHeaders: true
+  receivingApplicationName: "LA-ELR"
+  receivingApplicationOID: null
+  receivingFacilityName: "LADOH"
+  receivingFacilityOID: null
+  messageProfileId: null
+  reportingFacilityName: null
+  reportingFacilityId: null
+  reportingFacilityIdType: null
+  suppressQstForAoe: false
+  suppressHl7Fields: null
+  suppressAoe: false
+  defaultAoeToUnknown: false
+  useBlankInsteadOfUnknown: null
+  truncateHDNamespaceIds: false
+  usePid14ForPatientEmail: false
+  convertTimestampToDateTime: null
+  processingModeCode: null
+  nameFormat: "APHL"
+  receivingOrganization: "LAOPH"
+  type: "HL7"
+jurisdictionalFilter:
+- "orEquals(ordering_facility_state, LA, patient_state, LA)"
+qualityFilter:
+- "allowAll()"
+reverseTheQualityFilter: false
+deidentify: false
+timing:
+  operation: "MERGE"
+  numberPerDay: 1440
+  initialTime: "00:00"
+  timeZone: "CENTRAL"
+  maxReportCount: 100
+description: ""
+transport: !<SFTP>
+  host: "10.0.2.4"
+  port: "22"
+  filePath: "./upload"
+  credentialName: null
+  type: "SFTP"
+meta:
+  version: 0
+  createdBy: "qom6@cdc.gov"
+  createdAt: "2021-03-20T04:33:25.162286Z"

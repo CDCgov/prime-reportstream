@@ -248,7 +248,7 @@
       organizationName: la-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(ordering_facility_state, LA)
+        - "orEquals(ordering_facility_state, LA, patient_state, LA)"
       translation:
         type: HL7
         useTestProcessingMode: false
