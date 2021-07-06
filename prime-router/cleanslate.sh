@@ -117,7 +117,13 @@ function configure_prime() {
   ensure_binaries
 
   echo "Populating credentials into your vault..."
-  for p in "IGNORE--HL7" "IGNORE--HL7-BATCH" "IGNORE--CSV" "DEFAULT-SFTP"; do
+  ITEMS=(
+    "IGNORE--HL7"
+    "IGNORE--HL7-BATCH"
+    "IGNORE--CSV"
+    "DEFAULT-SFTP"
+  )
+  for p in ${ITEMS[*]}; do
     RC=1
 
     # Give the vault plenty of time to come up, so retry if we get failures
