@@ -539,7 +539,7 @@ NTE|1|L|This is a final comment|RE"""
             Hl7Configuration.PhoneNumberFormatting.STANDARD)
 
         verify {
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "1 (555)555-5555 X3333")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "(555)555-5555X3333")
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-2", "WPN")
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-3", "PH")
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-5", "1")

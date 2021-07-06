@@ -664,12 +664,15 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             // This component has been retained for backward compatibility only as of version 2.3.
             // Definition: Specifies the telephone number in a predetermined format that includes an
             // optional extension, beeper number and comment.
-            // Format: [NNN] [(999)]999-9999 [X99999] [B99999] [C any text]
+            // Format: [NN] [(999)]999-9999[X99999][B99999][C any text]
+            // The optional first two digits are the country code. The optional X portion gives an extension.
+            // The optional B portion gives a beeper code.
+            // The optional C portion may be used for comments like, After 6:00.
 
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
-                    val phoneNumber = "$country ($areaCode)$localWithDash" +
-                        if (extension.isNotEmpty()) " X${extension}" else ""
+                    val phoneNumber = "($areaCode)$localWithDash" +
+                        if (extension.isNotEmpty()) "X${extension}" else ""
                     terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }
