@@ -16,23 +16,6 @@ UNBUILD_TARGETS=(
   "./build/"
 )
 
-OS_FAMILY="$(uname)"
-TRUNCATE=truncate
-
-function ensure_tooling() {
-  # Ensures you have the tools needed to run this script
-  if [[ "${OS_FAMILY?}" == "Darwin" ]]; then
-    echo "We need to install the coreutils (things like gtruncate, etc...); so we're brew-installing coreutils"
-    brew install coreutils
-    if [[ $? != 0 ]]; then
-      echo -e "${RED?}ERROR:${PLAIN?} This script needs to be able to brew-install things, but couldn't..."
-      echo "This script will now terminate."
-      exit 1
-    fi
-    TRUNCATE=gtruncate
-  fi
-}
-
 function usage() {
   cat <<EOF
 usage: ${0} [OPTIONS]
@@ -84,7 +67,7 @@ function reset_vault() {
   echo -n "Resetting your vault..."
   rm -rf .vault/env/{key,.env.local}
   mkdir -p .vault/env
-  ${TRUNCATE} -s 0 .vault/env/.env.local
+  cat /dev/null > .vault/env/.env.local
   echo "DONE"
 
   # You explicitly do not need these since you are resetting everyting
@@ -104,7 +87,7 @@ function wait_for_vault_creds() {
   cat "${VAULT_ENV_LOCAL_FILE?}" |
     sed 's/^/    /g'
 }
-TRUNCATE
+
 function recompose_docker() {
   ensure_binaries
   echo -n "Recomposing Docker..."
@@ -252,7 +235,6 @@ fi
 
 pushd "${HERE?}" 2>&1 1>/dev/null
 
-ensure_tooling
 decompose_docker
 pull_prebaked_images
 if [[ ${UNBUILD?} != 0 ]]; then
