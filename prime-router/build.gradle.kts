@@ -46,7 +46,7 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 defaultTasks("package")
 
-val kotlinVersion = "1.5.10"
+val kotlinVersion = "1.5.20"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
