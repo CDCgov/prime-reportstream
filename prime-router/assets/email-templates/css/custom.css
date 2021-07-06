@@ -8,16 +8,21 @@ h1, h2, h3, h4, h5, h6, p, small, ul, li {
 }
 
 h1{
+  font-size: 18px;
+  font-weight: bold;
+}
+
+h2 {
   font-size: 22px;
   font-weight: bold;
 }
 
 small{
-  font-size: 14px;
+  font-size: 16px;
 }
 
 p{
-  font-size: 16px;
+  font-size: 18px;
 }
 
 a {
@@ -25,7 +30,7 @@ a {
 }
 
 .hub-header{
-  border-bottom: 1px solid #dfe1e2;
+  border-bottom: 1px solid #1b1b1b;
 }
 
 .hub-header tr th {
@@ -45,7 +50,7 @@ a {
 }
 
 .hub-spacer-footer{
-  border-top:1px solid #dfe1e2;
+  border-top:1px solid #1b1b1b;
 }
 
 .spacer, .spacer tr, .spacer tr td {

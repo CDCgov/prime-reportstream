@@ -280,7 +280,7 @@ elements:
   # Time that waters recieved the record
   - name: waters_receive_date
     type: DATETIME
-    csvFields: [{ name: TXNTIMESTAMP}]
+    csvFields: [{ name: TXNTIMESTAMP, format: yyyyMMddhhmmss}]
 
   - name: waters_submitter
     type: TEXT

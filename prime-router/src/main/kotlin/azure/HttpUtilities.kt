@@ -12,6 +12,8 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 enum class ReportStreamEnv(val endPoint: String) {
     TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
@@ -36,6 +38,30 @@ class HttpUtilities {
                 .build()
         }
 
+        fun okResponse(
+            request: HttpRequestMessage<String?>,
+            responseBody: String,
+            lastModified: OffsetDateTime?,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .body(responseBody)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .also { addHeaderIfModified(it, lastModified) }
+                .build()
+        }
+
+        fun okResponse(
+            request: HttpRequestMessage<String?>,
+            lastModified: OffsetDateTime?,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .also { addHeaderIfModified(it, lastModified) }
+                .build()
+        }
+
         fun createdResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
@@ -48,9 +74,9 @@ class HttpUtilities {
         }
 
         /**
-         * This alllows the validator to figure out specific failure, and pass it in here.
+         * Allows the validator to figure out specific failure, and pass it in here.
          * Can be used for any response code.
-         & todo other generic failure response methods here could be removed, and replaced with this
+         * Todo: other generic failure response methods here could be removed, and replaced with this
          *      generic method, instead of having to create a new method for every HttpStatus code.
          */
         fun httpResponse(
@@ -116,6 +142,19 @@ class HttpUtilities {
 
         fun errorJson(message: String): String {
             return """{"error": "$message"}"""
+        }
+
+        private fun addHeaderIfModified(
+            builder: HttpResponseMessage.Builder,
+            lastModified: OffsetDateTime?
+        ) {
+            if (lastModified == null) return
+            // https://datatracker.ietf.org/doc/html/rfc7232#section-2.2 defines this header format
+            val lastModifiedFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss")
+            // Convert to GMT timezone
+            val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), ZoneOffset.UTC)
+            val lastModifiedFormatted = "${lastModifiedGMT.format(lastModifiedFormatter)} GMT"
+            builder.header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatted)
         }
 
         /**
