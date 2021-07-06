@@ -7,7 +7,7 @@ YELLOW="\e[1;33m"
 PLAIN="\e[0m"
 WHITE="\e[1;97m"
 
-HERE="$(dirname "$(realpath "${0}")")"
+HERE="$(dirname "${0}")"
 VAULT_ENV_LOCAL_FILE=".vault/env/.env.local"
 
 SHOW_HELP=0
