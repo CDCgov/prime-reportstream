@@ -668,15 +668,19 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
 
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
-                    terser.set(buildComponent(pathSpec, 1), "$country($areaCode)$localWithDash")
+                    val phoneNumber = "$country ($areaCode)$localWithDash" +
+                        if (extension.isNotEmpty()) " X${extension}" else ""
+                    terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }
                 Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE -> {
                     terser.set(buildComponent(pathSpec, 1), "$areaCode$local")
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }
-                Hl7Configuration.PhoneNumberFormatting.SUPPRESS_COMPONENT_ONE -> {
-                    // Suppress
+                Hl7Configuration.PhoneNumberFormatting.AREA_LOCAL_IN_COMPONENT_ONE -> {
+                    // Added for backward compatibility
+                    terser.set(buildComponent(pathSpec, 1), "($areaCode)$local")
+                    terser.set(buildComponent(pathSpec, 2), component1)
                 }
             }
             // it's a phone

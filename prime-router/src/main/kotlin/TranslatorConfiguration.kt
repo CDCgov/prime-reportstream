@@ -86,7 +86,22 @@ data class Hl7Configuration
     /**
      * Formatting for XTN fields
      */
-    enum class PhoneNumberFormatting { STANDARD, ONLY_DIGITS_IN_COMPONENT_ONE, SUPPRESS_COMPONENT_ONE }
+    enum class PhoneNumberFormatting {
+        /**
+         * Standard formatting
+         */
+        STANDARD,
+
+        /**
+         * Component 1 formatted with only digits
+         */
+        ONLY_DIGITS_IN_COMPONENT_ONE,
+
+        /**
+         * (area)local format in component 1. Backward compatibility to an earlier format.
+         */
+        AREA_LOCAL_IN_COMPONENT_ONE
+    }
 
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7

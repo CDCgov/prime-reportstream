@@ -222,7 +222,7 @@ NTE|1|L|This is a final comment|RE"""
         every { deprecatedPhoneField.areaCityCode.isEmpty } returns true
         every { deprecatedPhoneField.localNumber.isEmpty } returns true
         every { deprecatedPhoneField.telephoneNumber.isEmpty } returns false
-        every { deprecatedPhoneField.telephoneNumber.valueOrEmpty } returns "1(555)555-5555"
+        every { deprecatedPhoneField.telephoneNumber.valueOrEmpty } returns "1 (555)555-5555"
         every { mockSegment.getField(any()) } returns arrayOf(deprecatedPhoneField)
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("5555555555:1:", phoneNumber)
@@ -231,7 +231,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockSegment.getField(any()) } returns arrayOf(phoneField)
         every { phoneField.areaCityCode.isEmpty } returns false
         every { phoneField.localNumber.isEmpty } returns false
-        every { phoneField.telephoneNumber.value } returns "1(555)555-5555"
+        every { phoneField.telephoneNumber.value } returns "1 (555)555-5555"
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
         every { phoneField.countryCode.value } returns "1"
@@ -513,7 +513,7 @@ NTE|1|L|This is a final comment|RE"""
             Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE)
 
         verify {
-            mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-1", "15555555555")
+            mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-1", "5555555555")
             mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-2", "PRN")
             mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-3", "PH")
             mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-5", "1")
@@ -533,18 +533,19 @@ NTE|1|L|This is a final comment|RE"""
         val facilityElement = Element("ordering_facility_phone_number", hl7Field = "ORC-23", type = Element.Type.TELEPHONE)
         serializer.setTelephoneComponent(
             mockTerser,
-            "5555555555:1:",
+            "5555555555:1:3333",
             facilityPathSpec,
             facilityElement,
             Hl7Configuration.PhoneNumberFormatting.STANDARD)
 
         verify {
-            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "1(555)555-5555")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "1 (555)555-5555 X3333")
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-2", "WPN")
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-3", "PH")
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-5", "1")
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-6", "555")
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-7", "5555555")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-8", "3333")
         }
     }
 }
