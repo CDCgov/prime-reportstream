@@ -59,7 +59,6 @@ ENV FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT 1
 # Install pre-requisites
 RUN apt-get update \
     && apt-get --yes install \
-    maven \
     openjdk-${JAVA_VERSION}-jdk
 
 # A place to mount our source
