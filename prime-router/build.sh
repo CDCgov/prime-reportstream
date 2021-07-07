@@ -46,7 +46,7 @@ function ensure_build_dir() {
       echo "    - $(pwd)/${d}"
 
       # Take ownership
-      sudo chown -R "$(id --user --name):$(id --group --name)" "${d}" | sed "s/^/    /g"
+      sudo chown -R "$(id -u -n):$(id -g -n)" "${d}" | sed "s/^/    /g"
       # if sudo reports failure (due to whatever reason), then stop trying
       if [[ $? != 0 ]]; then
         break
