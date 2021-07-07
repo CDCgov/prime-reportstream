@@ -84,19 +84,20 @@ Explanation:
 
 ## Load the Private Key
 Now that you have a private and public key pair, you need to tell Docker about it.
-First, load the private key into your Docker Trust Store:
+First, load the private key into your Docker Trust Store, and in this process, you will be asked to enter a password for the key.
 
 ```
 docker trust key load \
-    --name "CodeSigning-key" \
+    --name "codesigning-key" \
     "my_key.priv"
 ```
 
 Explanation:
 
 * `trust key load`: we are loading a new key into the Trust Store
-* `--name "CodeSigning-key"`: The name of this key is `CodeSigning-key`
+* `--name "codesigning-key"`: The name of this key is `codesigning-key`
 * `"my_key.priv"`: the key itself can be found in the file `my_key.priv`
+
 
 ## Delegate signing using the public key
 
@@ -105,15 +106,20 @@ This section tells docker that when you are trying to sign this particular image
 ```
 docker trust signer add \
     --key "my_key.pub" \
-    "OrgName-signer" \
+    "orgname-signer" \
     "your.container.repo/image-name"
 ```
+
+You will be prompted to set up passwords to 2 keys in this process (the first time you do this for an image):
+
+* **root key** (aka 'offline key'): The root of content trust for an image tag. Docker can read the password for this key from the `DOCKER_CONTENT_TRUST_ROOT_PASSPHRASE` environment variable.
+* **repository key** (aka 'targets key'): Enables you to sign image tags. Docker can read the password for this key from the `DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE` environment variable.
 
 Explanation:
 
 * `trust signer add`: we are adding a signer to the trust store
 * `--key "my_key.pub"`: Signatures should use this public key
-* `"OrgName-signer"`: This is who '_we_' are, i.e. who are we signing as
+* `"orgname-signer"`: This is who '_we_' are, i.e. who are we signing as
 * `"your.container.repo/image-name"`: This aplies to signing attempts of this _tagless_ image. In other words, if I try to sign `your.container.repo/image-name:v1.2.3`, then the public key from `my_key.pub` will be used because the image name matches.
 
 # Signing Container Images
@@ -130,10 +136,15 @@ docker build -t your.container.repo/my-image:v1 .
 docker trust sign your.container.repo/my-image:v1
 ```
 
-You will be prompted to set up passwords to 2 keys in this process (the first time you do this for an image):
+You will be asked for the password to the (private) key you loaded earlier (cf. [Load the Private Key](#load-the-private-key) ). Alternatively, docker can use the value from the environment variable called `DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE` as the password value.
 
-* **root key** (aka 'offline key'): The root of content trust for an image tag. Docker can read the password for this key from the `DOCKER_CONTENT_TRUST_ROOT_PASSPHRASE` environment variable.
-* **repository key** (aka 'targets key'): Enables you to sign image tags. Docker can read the password for this key from the `DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE` environment variable.
+**NOTE** however that the _value_ for the environment variable called `DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE` is **_NOT_** the same as the value described in [Delegate signing using the public key](#delegate-signing-using-the-public-key) and _instead_ should be set to the value as specified for the private key when loading it into the trust store:
+
+```
+DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=key_not_repo_password \
+    docker trust sign your.container.repo/my-image:v1
+```
+
 
 Note that on (successful) signing, the signed image is pushed into the (remote) repository (i.e. `docker push`).
 
