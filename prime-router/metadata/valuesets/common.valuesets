@@ -215,9 +215,11 @@
     - display: Unknown
       code: UNK
       version: 2.5.1
+      system: NULLFL
     - display: Asked, but unknown
       code: ASKU
       version: 2.5.1
+      system: NULLFL
 
 
 - name: specimen_role
