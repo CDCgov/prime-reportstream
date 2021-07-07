@@ -8,16 +8,16 @@ export default class AuthResource extends Resource {
     pk(parent?: any, key?: string): string | undefined {
         throw new Error('Method not implemented.');
     }
-    static useFetchInit = (init: RequestInit) => {
+
+    static useFetchInit = (init: RequestInit): RequestInit => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { oktaAuth, authState } = useOktaAuth();
-      
       return {
-      ...init,
-        headers: {
-          ...init.headers,
-          'Authorization': `Bearer ${authState.accessToken?.accessToken}`
-        },
-      }
+          ...init,
+          headers: {
+              ...init.headers,
+              'Authorization': `Bearer ${authState.accessToken?.accessToken}`
+          },
+      };
     };
   }

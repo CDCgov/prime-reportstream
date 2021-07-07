@@ -1,5 +1,6 @@
 import moment from "moment";
 import { Suspense } from "react";
+import React from 'react';
 import { NetworkErrorBoundary } from "rest-hooks";
 import { useResource } from "rest-hooks";
 import { SpinnerCircularFixed } from "spinners-react";
@@ -7,6 +8,7 @@ import ReportResource from "../resources/ReportResource";
 import OrganizationResource from "../resources/OrganizationResource";
 import { useOktaAuth } from "@okta/okta-react";
 import {groupToOrg} from '../webreceiver-utils'
+import {oktaAuthConfig} from "../oktaConfig";
 
 
 const TableData = ({ sortBy }: { sortBy?: string }) => {
@@ -69,12 +71,12 @@ const TableReports = () => {
 
 const OrgName = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {oktaAuth, authState} = useOktaAuth();
-  const organization = groupToOrg( authState.accessToken?.claims.organization[0] )
-  const org = useResource(OrganizationResource.detail(), {name: organization} );
+  const { oktaAuth, authState } = useOktaAuth();
+  const organization = groupToOrg( authState.accessToken?.claims.organization[0] );
+  const org = useResource(OrganizationResource.detail(), { name: organization } );
 
   return (
-    <span id="orgName" className="text-normal text-base">{ org?.description }</span>
+      <span id="orgName" className="text-normal text-base">{ org?.description }</span>
   )
 }
 
@@ -83,8 +85,8 @@ export const Daily = () => {
     <>
       <section className="grid-container margin-bottom-5">
         <h3 className="margin-bottom-0">
-        <Suspense fallback={<SpinnerCircularFixed />}>
-            <NetworkErrorBoundary fallbackComponent={()=>{return (<span>OrgError</span>)}}>
+          <Suspense fallback={<SpinnerCircularFixed />}>
+            <NetworkErrorBoundary fallbackComponent={()=>{ return (<span>OrgError</span>) }}>
               <OrgName />
             </NetworkErrorBoundary>
           </Suspense>
