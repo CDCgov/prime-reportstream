@@ -165,6 +165,7 @@ The `--pretty` flag makes the output human-readable, omitting it outputs JSON (w
 # Enforcing Content Trust
 
 By default, docker does not enforce content trust, you can tell it to do so by setting the `DOCKER_CONTENT_TRUST` environment variable to `1`. A repository may contain both signed and unsigned images and clients that do _not_ enforce Content Trust can continue to pull down both signed and unsigned images. It's only clients that enforce Content Trust that are 'limited' (by their own volition) to be able to pull down only signed images.
+Additionally, it is good to be aware that signed images that have been pushed into your registry may be overwritten with other images at a later point in time. These overwriting (younger) images may be unsigned, signed with the same key, or signed with another key.
 
 ```
 # inline
