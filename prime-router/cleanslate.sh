@@ -108,6 +108,10 @@ function ensure_binaries() {
   if [[ ! -f "./build/azure-functions/prime-data-hub-router/prime-router-0.1-SNAPSHOT.jar" ]]; then
     echo "You do not yet have any binaries, building them for you..."
     ./build.sh | sed 's/^/        /g'
+    if [[ ${PIPESTATUS[0]} != 0 ]]; then
+      echo "The build itself failed... exiting"
+      exit 1
+    fi
   fi
 }
 
