@@ -72,7 +72,9 @@ const TableReports = () => {
 const OrgName = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { oktaAuth, authState } = useOktaAuth();
+  console.log(authState.accessToken?.claims.organization[0]);
   const organization = groupToOrg( authState.accessToken?.claims.organization[0] );
+  console.log(organization);
   const org = useResource(OrganizationResource.detail(), { name: organization } );
 
   return (
