@@ -134,4 +134,8 @@ docker-compose \
   --file "${DOCKER_COMPOSE?}" \
   run "${ACTION?}" $(get_gradle_command $*)
 
+RC=$?
+
 popd 2>&1 1>/dev/null
+
+exit ${RC}
