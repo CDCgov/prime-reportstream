@@ -174,7 +174,6 @@
       display: Non Hispanic or Latino
     - code: U
       display: Unknown
-      system: NULLFL
 
 - name: omb_ethnicity
   system: FHIR
