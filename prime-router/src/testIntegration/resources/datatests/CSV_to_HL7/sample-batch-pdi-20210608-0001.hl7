@@ -14,7 +14,7 @@ OBX|6|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||Y^Ye
 SPM|1|&&36D1332559&CLIA^885617&&36D1332559&CLIA||440500007^Dried blood spot specimen^SCT^^^^2.67||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202106040725-0400
 MSH|^~\&||Any lab USA^25D3377639^CLIA|||20210608145937.824-0400||ORU^R01^ORU_R01|982797|P|2.5.1|||NE|NE|USA|UNICODE UTF-8
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210607
-PID|1||l1hsq7vs^^^Any lab USA&25D3377639&CLIA^PI^&25D3377639&CLIA||Ortiz^Jorge^Arnulfo^Sr.||19300103|U||UNK^Unknown^NULLFL^^^^2.5.1|0045 Auer Harbor^^^IG||(216)6169236^PRN^PH^^1^216^6169236~^NET^Internet^toi.kunde@email.com|||||||||U^Unknown^NULLFL^^^^2.9
+PID|1||l1hsq7vs^^^Any lab USA&25D3377639&CLIA^PI^&25D3377639&CLIA||Ortiz^Jorge^Arnulfo^Sr.||19300103|U||UNK^Unknown^NULLFL^^^^2.5.1|0045 Auer Harbor^^^IG||(216)6169236^PRN^PH^^1^216^6169236~^NET^Internet^toi.kunde@email.com|||||||||U^Unknown^HL70189^^^^2.9
 ORC|RE|982797^Any lab USA^25D3377639^CLIA|982797^Any lab USA^25D3377639^CLIA|||||||||0859952882^Lehner^Garth||(276)0806080^WPN^PH^^1^276^0806080|20210529||||||Any facility USA|02729 Leatrice Mountains^^^IG|(274)1120273^WPN^PH^^1^274^1120273|753 Schmitt Route^^^IG
 OBR|1|982797^Any lab USA^25D3377639^CLIA|982797^Any lab USA^25D3377639^CLIA||||202106031400-0400|202106031400-0400||||||||0859952882^Lehner^Garth|(276)0806080^WPN^PH^^1^276^0806080|||||202105310000-0500|||C
 OBX|1|CWE|94558-4||840539006^Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)^SCT^^^^20200309|||A|||C|||202106031400-0400|25D3377639^CLIA||||202105280000-0500||||Any lab USA^^^^^^XX^^^25D3377639^CLIA|63207 Parisian Hill^^^IG
@@ -50,7 +50,7 @@ OBX|6|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No
 SPM|1|&&45D3831417&CLIA^872802&&45D3831417&CLIA||119342007^Saliva specimen^SCT^^^^2.67||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202105300721-0400
 MSH|^~\&||Any lab USA^89D2130616^CLIA|||20210608145937.887-0400||ORU^R01^ORU_R01|286308|P|2.5.1|||NE|NE|USA|UNICODE UTF-8
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210607
-PID|1||zodtqtlje^^^Any lab USA&89D2130616&CLIA^PI^&89D2130616&CLIA||Hoeger^Zita^Issac^II||19630923|A||2131-1^Other^HL70005^^^^2.5.1|1200 Alfonso Rue^^^IG||(243)5400764^PRN^PH^^1^243^5400764~^NET^Internet^herlinda.buckridge@email.com|||||||||U^Unknown^NULLFL^^^^2.9
+PID|1||zodtqtlje^^^Any lab USA&89D2130616&CLIA^PI^&89D2130616&CLIA||Hoeger^Zita^Issac^II||19630923|A||2131-1^Other^HL70005^^^^2.5.1|1200 Alfonso Rue^^^IG||(243)5400764^PRN^PH^^1^243^5400764~^NET^Internet^herlinda.buckridge@email.com|||||||||U^Unknown^HL70189^^^^2.9
 ORC|RE|286308^Any lab USA^89D2130616^CLIA|286308^Any lab USA^89D2130616^CLIA|||||||||7653851187^Cremin^Iris||(268)1688370^WPN^PH^^1^268^1688370|20210605||||||Any facility USA|508 Boyer View^^^IG|(226)7483874^WPN^PH^^1^226^7483874|5742 Pollich Mountains^^^IG
 OBR|1|286308^Any lab USA^89D2130616^CLIA|286308^Any lab USA^89D2130616^CLIA||||202106050336-0400|202106050336-0400||||||||7653851187^Cremin^Iris|(268)1688370^WPN^PH^^1^268^1688370|||||202105290000-0500|||C
 OBX|1|CWE|94558-4||840533007^Severe acute respiratory syndrome coronavirus 2 (organism)^SCT^^^^20200309|||A|||C|||202106050336-0400|89D2130616^CLIA||||202106050000-0500||||Any lab USA^^^^^^XX^^^89D2130616^CLIA|8845 Tremblay Village^^^IG
@@ -98,7 +98,7 @@ OBX|6|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||UNK^
 SPM|1|&&49D1792530&CLIA^707323&&49D1792530&CLIA||445297001^Swab of internal nose^SCT^^^^2.67||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202106030925-0400
 MSH|^~\&||Any lab USA^89D1065263^CLIA|||20210608145937.965-0400||ORU^R01^ORU_R01|151194|P|2.5.1|||NE|NE|USA|UNICODE UTF-8
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210607
-PID|1||q7wctkpew^^^Any lab USA&89D1065263&CLIA^PI^&89D1065263&CLIA||Steuber^Johnnie^Ed||19631115|U||UNK^Unknown^NULLFL^^^^2.5.1|05579 Glover Brook^^^IG||(210)2313552^PRN^PH^^1^210^2313552~^NET^Internet^olinda.hayes@email.com|||||||||U^Unknown^NULLFL^^^^2.9
+PID|1||q7wctkpew^^^Any lab USA&89D1065263&CLIA^PI^&89D1065263&CLIA||Steuber^Johnnie^Ed||19631115|U||UNK^Unknown^NULLFL^^^^2.5.1|05579 Glover Brook^^^IG||(210)2313552^PRN^PH^^1^210^2313552~^NET^Internet^olinda.hayes@email.com|||||||||U^Unknown^HL70189^^^^2.9
 ORC|RE|151194^Any lab USA^89D1065263^CLIA|151194^Any lab USA^89D1065263^CLIA|||||||||3664206433^Boyer^Jeanelle||(219)6873244^WPN^PH^^1^219^6873244|20210604||||||Any facility USA|354 Spinka Square^^^IG|(291)5169032^WPN^PH^^1^291^5169032|20264 Cory Path^^^IG
 OBR|1|151194^Any lab USA^89D1065263^CLIA|151194^Any lab USA^89D1065263^CLIA||||202106031111-0400|202106031111-0400||||||||3664206433^Boyer^Jeanelle|(219)6873244^WPN^PH^^1^219^6873244|||||202106030000-0500|||C
 OBX|1|CWE|94558-4||840533007^Severe acute respiratory syndrome coronavirus 2 (organism)^SCT^^^^20200309|||A|||C|||202106031111-0400|89D1065263^CLIA||||202105310000-0500||||Any lab USA^^^^^^XX^^^89D1065263^CLIA|209 Bednar Ramp^^^IG
@@ -110,7 +110,7 @@ OBX|6|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No
 SPM|1|&&89D1065263&CLIA^151194&&89D1065263&CLIA||258529004^Throat swab^SCT^^^^2.67||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202106031111-0400
 MSH|^~\&||Any lab USA^09D0394738^CLIA|||20210608145937.965-0400||ORU^R01^ORU_R01|376677|P|2.5.1|||NE|NE|USA|UNICODE UTF-8
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210607
-PID|1||ufa6o^^^Any lab USA&09D0394738&CLIA^PI^&09D0394738&CLIA||Huel^Kyle^Dominick||20121218|F||UNK^Unknown^NULLFL^^^^2.5.1|7580 Delila Mountain^^^IG||(272)4483983^PRN^PH^^1^272^4483983~^NET^Internet^ethan.medhurst@email.com|||||||||U^Unknown^NULLFL^^^^2.9
+PID|1||ufa6o^^^Any lab USA&09D0394738&CLIA^PI^&09D0394738&CLIA||Huel^Kyle^Dominick||20121218|F||UNK^Unknown^NULLFL^^^^2.5.1|7580 Delila Mountain^^^IG||(272)4483983^PRN^PH^^1^272^4483983~^NET^Internet^ethan.medhurst@email.com|||||||||U^Unknown^HL70189^^^^2.9
 ORC|RE|376677^Any lab USA^09D0394738^CLIA|376677^Any lab USA^09D0394738^CLIA|||||||||8605425980^Stanton^Marco||(215)2443935^WPN^PH^^1^215^2443935|20210602||||||Any facility USA|1340 Jones Mountain^^^IG|(241)2695132^WPN^PH^^1^241^2695132|67746 Emily Bridge^^^IG
 OBR|1|376677^Any lab USA^09D0394738^CLIA|376677^Any lab USA^09D0394738^CLIA||||202106062354-0400|202106062354-0400||||||||8605425980^Stanton^Marco|(215)2443935^WPN^PH^^1^215^2443935|||||202106050000-0500|||F
 OBX|1|CWE|94558-4||840544004^Suspected disease caused by severe acute respiratory coronavirus 2 (situation)^SCT^^^^20200309|||A|||F|||202106062354-0400|09D0394738^CLIA||||202106050000-0500||||Any lab USA^^^^^^XX^^^09D0394738^CLIA|139 Junko Vista^^^IG
@@ -122,7 +122,7 @@ OBX|6|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No
 SPM|1|&&09D0394738&CLIA^376677&&09D0394738&CLIA||258500001^Nasopharyngeal swab^SCT^^^^2.67||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202106062354-0400
 MSH|^~\&||Any lab USA^34D2959711^CLIA|||20210608145937.996-0400||ORU^R01^ORU_R01|961377|P|2.5.1|||NE|NE|USA|UNICODE UTF-8
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210607
-PID|1||ji4yeaq53^^^Any lab USA&34D2959711&CLIA^PI^&34D2959711&CLIA||Cassin^Sandy^Kerry^Jr.||19650712|M||UNK^Unknown^NULLFL^^^^2.5.1|249 Schuster Stravenue^^^IG||(200)1546103^PRN^PH^^1^200^1546103~^NET^Internet^ermelinda.nienow@email.com|||||||||U^Unknown^NULLFL^^^^2.9
+PID|1||ji4yeaq53^^^Any lab USA&34D2959711&CLIA^PI^&34D2959711&CLIA||Cassin^Sandy^Kerry^Jr.||19650712|M||UNK^Unknown^NULLFL^^^^2.5.1|249 Schuster Stravenue^^^IG||(200)1546103^PRN^PH^^1^200^1546103~^NET^Internet^ermelinda.nienow@email.com|||||||||U^Unknown^HL70189^^^^2.9
 ORC|RE|961377^Any lab USA^34D2959711^CLIA|961377^Any lab USA^34D2959711^CLIA|||||||||0602958112^Windler^Anton||(211)6301201^WPN^PH^^1^211^6301201|20210602||||||Any facility USA|0526 Frami Ranch^^^IG|(232)1953866^WPN^PH^^1^232^1953866|687 Ziemann Mission^^^IG
 OBR|1|961377^Any lab USA^34D2959711^CLIA|961377^Any lab USA^34D2959711^CLIA||||202105291824-0400|202105291824-0400||||||||0602958112^Windler^Anton|(211)6301201^WPN^PH^^1^211^6301201|||||202105280000-0500|||C
 OBX|1|CWE|94558-4||840544004^Suspected disease caused by severe acute respiratory coronavirus 2 (situation)^SCT^^^^20200309|||A|||C|||202105291824-0400|34D2959711^CLIA||||202105310000-0500||||Any lab USA^^^^^^XX^^^34D2959711^CLIA|43787 Ernie Mill^^^IG
@@ -158,7 +158,7 @@ OBX|6|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||Y^Ye
 SPM|1|&&73D4219715&CLIA^072603&&73D4219715&CLIA||119334006^Sputum specimen^SCT^^^^2.67||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202106070527-0400
 MSH|^~\&||Any lab USA^22D8539222^CLIA|||20210608145938.043-0400||ORU^R01^ORU_R01|366115|P|2.5.1|||NE|NE|USA|UNICODE UTF-8
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210607
-PID|1||0b0nn1^^^Any lab USA&22D8539222&CLIA^PI^&22D8539222&CLIA||Hackett^Danelle^Pete||20191116|A||2076-8^Native Hawaiian or Other Pacific Islander^HL70005^^^^2.5.1|875 Feil Alley^^^IG||(285)2468524^PRN^PH^^1^285^2468524~^NET^Internet^robert.cremin@email.com|||||||||U^Unknown^NULLFL^^^^2.9
+PID|1||0b0nn1^^^Any lab USA&22D8539222&CLIA^PI^&22D8539222&CLIA||Hackett^Danelle^Pete||20191116|A||2076-8^Native Hawaiian or Other Pacific Islander^HL70005^^^^2.5.1|875 Feil Alley^^^IG||(285)2468524^PRN^PH^^1^285^2468524~^NET^Internet^robert.cremin@email.com|||||||||U^Unknown^HL70189^^^^2.9
 ORC|RE|366115^Any lab USA^22D8539222^CLIA|366115^Any lab USA^22D8539222^CLIA|||||||||1277316772^Pfannerstill^Roseann||(268)8435056^WPN^PH^^1^268^8435056|20210606||||||Any facility USA|06332 Hahn Rest^^^IG|(217)2577464^WPN^PH^^1^217^2577464|67734 Cole Ridge^^^IG
 OBR|1|366115^Any lab USA^22D8539222^CLIA|366115^Any lab USA^22D8539222^CLIA||||202105292238-0400|202105292238-0400||||||||1277316772^Pfannerstill^Roseann|(268)8435056^WPN^PH^^1^268^8435056|||||202105290000-0500|||C
 OBX|1|CWE|94558-4||840533007^Severe acute respiratory syndrome coronavirus 2 (organism)^SCT^^^^20200309|||A|||C|||202105292238-0400|22D8539222^CLIA||||202106060000-0500||||Any lab USA^^^^^^XX^^^22D8539222^CLIA|50933 Bernier Ford^^^IG
@@ -182,7 +182,7 @@ OBX|6|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||Y^Ye
 SPM|1|&&33D1902967&CLIA^784287&&33D1902967&CLIA||258580003^Whole blood sample^SCT^^^^2.67||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202105300824-0400
 MSH|^~\&||Any lab USA^81D5677831^CLIA|||20210608145938.059-0400||ORU^R01^ORU_R01|217978|P|2.5.1|||NE|NE|USA|UNICODE UTF-8
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210607
-PID|1||i4nzrn^^^Any lab USA&81D5677831&CLIA^PI^&81D5677831&CLIA||West^Annetta^Sandy^Jr.||19760914|A||2028-9^Asian^HL70005^^^^2.5.1|2614 Schroeder Fork^^^IG||(208)8004033^PRN^PH^^1^208^8004033~^NET^Internet^errol.schaden@email.com|||||||||U^Unknown^NULLFL^^^^2.9
+PID|1||i4nzrn^^^Any lab USA&81D5677831&CLIA^PI^&81D5677831&CLIA||West^Annetta^Sandy^Jr.||19760914|A||2028-9^Asian^HL70005^^^^2.5.1|2614 Schroeder Fork^^^IG||(208)8004033^PRN^PH^^1^208^8004033~^NET^Internet^errol.schaden@email.com|||||||||U^Unknown^HL70189^^^^2.9
 ORC|RE|217978^Any lab USA^81D5677831^CLIA|217978^Any lab USA^81D5677831^CLIA|||||||||0060422874^Olson^Aline||(261)4634685^WPN^PH^^1^261^4634685|20210603||||||Any facility USA|477 King Overpass^^^IG|(264)5688562^WPN^PH^^1^264^5688562|89054 Waelchi Dam^^^IG
 OBR|1|217978^Any lab USA^81D5677831^CLIA|217978^Any lab USA^81D5677831^CLIA||||202106031300-0400|202106031300-0400||||||||0060422874^Olson^Aline|(261)4634685^WPN^PH^^1^261^4634685|||||202105300000-0500|||F
 OBX|1|CWE|94558-4||125154007^Specimen unsatisfactory for evaluation^SCT|||N|||F|||202106031300-0400|81D5677831^CLIA||||202106070000-0500||||Any lab USA^^^^^^XX^^^81D5677831^CLIA|7931 Schaefer Villages^^^IG
@@ -242,7 +242,7 @@ OBX|6|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||UNK^
 SPM|1|&&25D0964951&CLIA^633319&&25D0964951&CLIA||871810001^Mid-turbinate nasal swab^SCT^^^^2.67||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202106040509-0400
 MSH|^~\&||Any lab USA^72D1309902^CLIA|||20210608145938.122-0400||ORU^R01^ORU_R01|057169|P|2.5.1|||NE|NE|USA|UNICODE UTF-8
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210607
-PID|1||iqoa5^^^Any lab USA&72D1309902&CLIA^PI^&72D1309902&CLIA||Bogan^Lincoln^Rudolf||19400403|M||2054-5^Black or African American^HL70005^^^^2.5.1|997 Kertzmann Extension^^^IG||(280)7539387^PRN^PH^^1^280^7539387~^NET^Internet^waylon.schimmel@email.com|||||||||U^Unknown^NULLFL^^^^2.9
+PID|1||iqoa5^^^Any lab USA&72D1309902&CLIA^PI^&72D1309902&CLIA||Bogan^Lincoln^Rudolf||19400403|M||2054-5^Black or African American^HL70005^^^^2.5.1|997 Kertzmann Extension^^^IG||(280)7539387^PRN^PH^^1^280^7539387~^NET^Internet^waylon.schimmel@email.com|||||||||U^Unknown^HL70189^^^^2.9
 ORC|RE|057169^Any lab USA^72D1309902^CLIA|057169^Any lab USA^72D1309902^CLIA|||||||||5141695983^Abbott^August||(201)7012027^WPN^PH^^1^201^7012027|20210606||||||Any facility USA|6980 Frami Drive^^^IG|(200)3392176^WPN^PH^^1^200^3392176|962 Crist Overpass^^^IG
 OBR|1|057169^Any lab USA^72D1309902^CLIA|057169^Any lab USA^72D1309902^CLIA||||202106061949-0400|202106061949-0400||||||||5141695983^Abbott^August|(201)7012027^WPN^PH^^1^201^7012027|||||202105290000-0500|||F
 OBX|1|CWE|94558-4||260373001^Detected^SCT|||A|||F|||202106061949-0400|72D1309902^CLIA||||202105310000-0500||||Any lab USA^^^^^^XX^^^72D1309902^CLIA|981 Jeri Place^^^IG
@@ -278,7 +278,7 @@ OBX|6|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No
 SPM|1|&&89D7023282&CLIA^707069&&89D7023282&CLIA||119364003^Serum specimen^SCT^^^^2.67||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202106012302-0400
 MSH|^~\&||Any lab USA^39D1617805^CLIA|||20210608145938.153-0400||ORU^R01^ORU_R01|470414|P|2.5.1|||NE|NE|USA|UNICODE UTF-8
 SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210607
-PID|1||9t8ij3^^^Any lab USA&39D1617805&CLIA^PI^&39D1617805&CLIA||Reynolds^Lucius^Kina^Sr.||19240123|O||UNK^Unknown^NULLFL^^^^2.5.1|1892 Hand Drive^^^IG||(207)0957275^PRN^PH^^1^207^0957275~^NET^Internet^etsuko.ryan@email.com|||||||||U^Unknown^NULLFL^^^^2.9
+PID|1||9t8ij3^^^Any lab USA&39D1617805&CLIA^PI^&39D1617805&CLIA||Reynolds^Lucius^Kina^Sr.||19240123|O||UNK^Unknown^NULLFL^^^^2.5.1|1892 Hand Drive^^^IG||(207)0957275^PRN^PH^^1^207^0957275~^NET^Internet^etsuko.ryan@email.com|||||||||U^Unknown^HL70189^^^^2.9
 ORC|RE|470414^Any lab USA^39D1617805^CLIA|470414^Any lab USA^39D1617805^CLIA|||||||||2992474433^Romaguera^Carolynn||(298)2207256^WPN^PH^^1^298^2207256|20210603||||||Any facility USA|8879 Tremblay Square^^^IG|(227)5223104^WPN^PH^^1^227^5223104|564 Stroman Divide^^^IG
 OBR|1|470414^Any lab USA^39D1617805^CLIA|470414^Any lab USA^39D1617805^CLIA||||202105291944-0400|202105291944-0400||||||||2992474433^Romaguera^Carolynn|(298)2207256^WPN^PH^^1^298^2207256|||||202105300000-0500|||C
 OBX|1|CWE|94558-4||840535000^Antibody to severe acute respiratory syndrome coronavirus 2 (substance)^SCT^^^^20200309|||A|||C|||202105291944-0400|39D1617805^CLIA||||202105280000-0500||||Any lab USA^^^^^^XX^^^39D1617805^CLIA|19344 Alphonse Run^^^IG
