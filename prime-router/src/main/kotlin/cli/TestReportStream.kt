@@ -233,7 +233,8 @@ Examples:
             RepeatWaters(),
             InternationalContent(),
             Hl7Ingest(),
-            SantaClaus()
+            SantaClaus(),
+            OtcProctored()
         )
     }
 }
@@ -1560,5 +1561,42 @@ class SantaClaus : CoolTest() {
 
     private fun createBad(message: String): Boolean {
         return bad("***$name Test FAILED***: $message")
+    }
+}
+
+class OtcProctored : CoolTest() {
+    override val name = "otcproctored"
+    override val description = "Verify that otc/proctored flags are working as expected on api response"
+    override val status = TestStatus.DRAFT
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly("Starting Otc Test: submitting a file containing a device_id that matches is_otc Y, is_home Y & is_proctored Y.")
+        val file = File("./src/test/csv_test_files/input/otc_proctored.csv")
+        var passed = false
+        if (!file.exists()) {
+            error("Unable to find file ${file.absolutePath} to do otc test")
+        }
+
+        // Is this required?
+        // Load all lookup tables including LIVD-Supplemental-2021-06-07.csv (otc/proctored lookup table)
+        metadata.loadLookupTables(Metadata.defaultMetadataDirectory+"/"+Metadata.tableSubdirectory)
+
+        val (responseCode, json) = HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+
+        echo("Response to POST: $responseCode")
+        echo(json)
+
+        val tree = jacksonObjectMapper().readTree(json)
+        val destinationCount = tree["destinationCount"].intValue()
+        val destinations = tree["destinations"]
+
+        if (destinations != null && destinations.size() > 0){
+            val destinationService = destinations[0]["service"].textValue() ?: "unknown"
+            val destinationOrgId = destinations[0]["organization_id"].textValue() ?: "unknown"
+
+            passed = (destinationCount == 1) && (destinationService == "OTC_PROCTORED")
+        }
+        
+        return passed
     }
 }
