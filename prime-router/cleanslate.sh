@@ -109,7 +109,7 @@ function ensure_binaries() {
     echo "You do not yet have any binaries, building them for you..."
     ./build.sh | sed 's/^/        /g'
     if [[ ${PIPESTATUS[0]} != 0 ]]; then
-      echo "The build itself failed... exiting"
+      echo -e "${RED?}ERROR:${PLAIN?} The build itself failed... exiting!"
       exit 1
     fi
   fi
