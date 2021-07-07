@@ -1568,23 +1568,47 @@ class OtcProctored : CoolTest() {
     override val name = "otcproctored"
     override val description = "Verify that otc/proctored flags are working as expected on api response"
     override val status = TestStatus.SMOKE
-    
+    val failures = mutableListOf<String>()
+
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting Otc Test: submitting a file containing a device_id that matches is_otc Y, is_home Y & is_proctored Y.")
-        val file = File("./src/test/csv_test_files/input/otc-happy-path.csv")
-        var passed = false
-        if (!file.exists()) {
-            error("Unable to find file ${file.absolutePath} to do otc test")
+        val otcMap = mapOf(
+            "BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc." to "OTC_PROCTORED_YYY",
+            "QuickVue At-Home COVID-19 Test_Quidel Corporation" to "OTC_PROCTORED_NYY",
+            "00810055970001" to "OTC_PROCTORED_NUNKUNK"
+        )
+        for ((device_id, receiver) in otcMap) {
+            ugly("Starting Otc Test: submitting a file containing a device_id: $device_id should match receiver $receiver.")
+            val reFile = FileUtilities.replaceText(
+                "./src/test/csv_test_files/input/otc-template.csv",
+                "replaceMe",
+                "$device_id"
+            )
+
+            if (!reFile.exists()) {
+                error("Unable to find file ${reFile.absolutePath} to do otc test")
+            }
+            val (responseCode, json) = HttpUtilities.postReportFile(
+                environment,
+                reFile,
+                org.name,
+                watersSender,
+                options.key
+            )
+            echo("Response to POST: $responseCode")
+            val tree = jacksonObjectMapper().readTree(json)
+            val destinations = tree["destinations"]
+            if (destinations != null && destinations.size() > 0 && destinations[0]["service"].textValue() == "$receiver") {
+                good("Test PASSED: $device_id")
+            } else {
+                bad("Test FAILED: $device_id")
+                failures.add("$device_id")
+            }
         }
-        val (responseCode, json) = HttpUtilities.postReportFile(environment, file, org.name, watersSender, options.key)
-        echo("Response to POST: $responseCode")
-        val tree = jacksonObjectMapper().readTree(json)
-        val destinationCount = tree["destinationCount"].intValue()
-        val destinations = tree["destinations"]
-        if (destinations != null && destinations.size() > 0){
-            val destinationService = destinations[0]["service"].textValue() ?: "unknown"
-            passed = (destinationCount == 1) && (destinationService == "OTC_PROCTORED")
+
+        if( failures.size == 0 ) {
+            return true
+        } else {
+            return bad( "Tests FAILED: "+ failures)
         }
-        return passed
     }
 }
