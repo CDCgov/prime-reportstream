@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 plugins {
     kotlin("jvm") version "1.5.20"
     id("org.flywaydb.flyway") version "7.11.0"
-    id("nu.studer.jooq") version "5.2.2"
+    id("nu.studer.jooq") version "6.0"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
