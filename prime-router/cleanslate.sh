@@ -134,6 +134,7 @@ function configure_prime() {
         echo "DONE"
       else
         echo "RETRY"
+        sleep 1
       fi
     done
   done
