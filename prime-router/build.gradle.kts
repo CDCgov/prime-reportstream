@@ -19,9 +19,9 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 plugins {
-    kotlin("jvm") version "1.5.10"
-    id("org.flywaydb.flyway") version "7.10.0"
-    id("nu.studer.jooq") version "5.2.1"
+    kotlin("jvm") version "1.5.20"
+    id("org.flywaydb.flyway") version "7.11.0"
+    id("nu.studer.jooq") version "5.2.2"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.microsoft.azure.azurefunctions") version "1.5.1"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
@@ -46,7 +46,7 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
 defaultTasks("package")
 
-val kotlinVersion = "1.5.10"
+val kotlinVersion = "1.5.20"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -411,7 +411,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.25")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.26")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.7.2")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -431,7 +431,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.flywaydb:flyway-core:7.10.0")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
-    implementation("org.commonmark:commonmark:0.17.2")
+    implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("com.helger.as2:as2-lib:4.7.1")
 
@@ -447,7 +447,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.11.0")
+    testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
