@@ -1563,3 +1563,28 @@ class SantaClaus : CoolTest() {
         return bad("***$name Test FAILED***: $message")
     }
 }
+
+class OtcProctored : CoolTest() {
+    override val name = "otcproctored"
+    override val description = "Verify that otc/proctored flags are working as expected on api response"
+    override val status = TestStatus.SMOKE
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly("Starting Otc Test: submitting a file containing a device_id that matches is_otc Y, is_home Y & is_proctored Y.")
+        val file = File("./src/test/csv_test_files/input/otc-happy-path.csv")
+        var passed = false
+        if (!file.exists()) {
+            error("Unable to find file ${file.absolutePath} to do otc test")
+        }
+        val (responseCode, json) = HttpUtilities.postReportFile(environment, file, org.name, watersSender, options.key)
+        echo("Response to POST: $responseCode")
+        echo(json)
+        val tree = jacksonObjectMapper().readTree(json)
+        val destinationCount = tree["destinationCount"].intValue()
+        val destinations = tree["destinations"]
+        if (destinations != null && destinations.size() > 0){
+            val destinationService = destinations[0]["service"].textValue() ?: "unknown"
+            passed = (destinationCount == 1) && (destinationService == "OTC_PROCTORED")
+        }
+        return passed
+    }
+}
