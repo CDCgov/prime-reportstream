@@ -1568,6 +1568,7 @@ class OtcProctored : CoolTest() {
     override val name = "otcproctored"
     override val description = "Verify that otc/proctored flags are working as expected on api response"
     override val status = TestStatus.SMOKE
+    
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         ugly("Starting Otc Test: submitting a file containing a device_id that matches is_otc Y, is_home Y & is_proctored Y.")
         val file = File("./src/test/csv_test_files/input/otc-happy-path.csv")
@@ -1577,7 +1578,6 @@ class OtcProctored : CoolTest() {
         }
         val (responseCode, json) = HttpUtilities.postReportFile(environment, file, org.name, watersSender, options.key)
         echo("Response to POST: $responseCode")
-        echo(json)
         val tree = jacksonObjectMapper().readTree(json)
         val destinationCount = tree["destinationCount"].intValue()
         val destinations = tree["destinations"]
