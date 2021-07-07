@@ -28,8 +28,6 @@ import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 
-private const val NOWHERE_ORG = "nowhere-org"
-
 /**
  * This is a container class that holds information to be stored, about a single action,
  * as well as the reports that went into that Action, and were created by that Action.
@@ -502,8 +500,7 @@ class ActionHistory {
     fun prettyPrintDestinationsJson(
         jsonGen: JsonGenerator,
         settings: SettingsProvider,
-        reportOptions: ReportFunction.Options,
-        noWhereItems: List<String> = emptyList()
+        reportOptions: ReportFunction.Options
     ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
@@ -537,17 +534,6 @@ class ActionHistory {
                 )
                 destinationCounter++
             }
-        }
-        if (noWhereItems.isNotEmpty()) {
-            prettyPrintDestinationJson(
-                jsonGen,
-                "Data not routing to any state/local jurisdiction",
-                NOWHERE_ORG,
-                "nowhere-receiver",
-                "never - no matching receivers ",
-                noWhereItems.size
-            )
-            destinationCounter++
         }
         jsonGen.writeEndArray()
         jsonGen.writeNumberField("destinationCount", destinationCounter)

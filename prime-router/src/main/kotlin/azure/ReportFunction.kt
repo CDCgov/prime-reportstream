@@ -32,7 +32,7 @@ private const val DEFAULT_SEPARATOR = ":"
 private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val ROUTE_TO_SEPARATOR = ","
 private const val VERBOSE_PARAMETER = "verbose"
-private const val VERBOSE_ALL = "all"
+private const val VERBOSE_TRUE = "true"
 /**
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
@@ -217,8 +217,7 @@ class ReportFunction {
 
         // extract the verbose param and default to empty if not present
         val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
-        val verbose = if (verboseParam.equals(VERBOSE_ALL, true)) verboseParam else
-            schema?.findElementByCsvName(verboseParam)?.fieldMapping ?: ""
+        val verbose = if (verboseParam.equals(VERBOSE_TRUE, true)) verboseParam else ""
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
@@ -410,13 +409,10 @@ class ReportFunction {
             } else
                 it.writeNullField("id")
             // filter items that routed nowhere or to FEDERAL jurisdictions only
-            val noWhereItems: List<String> = itemRouting.filter { ir ->
-                ir.destinations.isEmpty() || ir.destinations.keys == setOf(Organization.Jurisdiction.FEDERAL)
-            }.map { nw -> nw.trackingId}
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options, noWhereItems)
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
             // print the report routing when in verbose mode, empty array when not
-            it.writeArrayFieldStart("routing")
-            if (VERBOSE_ALL.equals(result.verbose, true)) {
+            if (VERBOSE_TRUE.equals(result.verbose, true)) {
+                it.writeArrayFieldStart("routing")
                 itemRouting.forEach { ij ->
                     it.writeStartObject()
                     it.writeStringField("trackingId", ij.trackingId)
@@ -427,8 +423,8 @@ class ReportFunction {
                     it.writeEndArray()
                     it.writeEndObject()
                 }
+                it.writeEndArray()
             }
-            it.writeEndArray()
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)
@@ -452,7 +448,7 @@ class ReportFunction {
     }
 
     /**
-     * Creates a list of [ItemJurisdictionRouting] instances with the trackingElement
+     * Creates a list of [ItemJurisdictionRouting] instances with the report index
      * and a jurisdiction keyed map with a list of the receiver organizations where
      * the report was routed.
      * @param validatedRequest the instance generated while processing the report
