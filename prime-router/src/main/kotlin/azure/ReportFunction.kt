@@ -59,7 +59,8 @@ class ReportFunction {
     )
 
     data class ItemJurisdictionRouting(
-        val trackingId: String = "",
+        val reportIndex: Int,
+        val trackingId: String?,
         val destinations: Map<Organization.Jurisdiction, List<String>> = emptyMap(),
     )
 
@@ -408,18 +409,18 @@ class ReportFunction {
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
-            // filter items that routed nowhere or to FEDERAL jurisdictions only
             actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
-            // print the report routing when in verbose mode, empty array when not
+            // print the report routing when in verbose mode
             if (VERBOSE_TRUE.equals(result.verbose, true)) {
                 it.writeArrayFieldStart("routing")
                 itemRouting.forEach { ij ->
                     it.writeStartObject()
+                    it.writeNumberField("reportIndex", ij.reportIndex)
                     it.writeStringField("trackingId", ij.trackingId)
                     it.writeArrayFieldStart("destinations")
                     val destinations = mutableListOf<String>()
                     ij.destinations.forEach { d -> destinations.addAll(d.value) }
-                    destinations.forEach { d -> it.writeString(d) }
+                    destinations.sorted().forEach { d -> it.writeString(d) }
                     it.writeEndArray()
                     it.writeEndObject()
                 }
@@ -462,17 +463,18 @@ class ReportFunction {
         val routing = mutableListOf<ItemJurisdictionRouting>()
         validatedRequest.report?. let { report ->
             // the report has all the submitted items
-            report.itemIndices.forEach {
-                //val trackingId = report.getString(it, report.schema.trackingElement ?: "") ?: "row$it"
-                val trackingId = report.getTrackingId(it)
+            report.itemIndices.forEach { reportIndex ->
+                val trackingId = report.schema.trackingElement?. let {
+                    report.getString(reportIndex, report.schema.trackingElement)
+                }
                 val destinations = mutableMapOf<Organization.Jurisdiction, MutableList<String>>()
-                // find all outgoing reports related to the trackingId and generate a
-                // mapped list of the receiving organizations keyed by the jurisdiction
+                // find all outgoing reports based on the index and generate a mapped
+                // list of the receiving organizations keyed by the jurisdiction
                 actionHistory?. let { ah ->
                     ah.itemLineages.filter { il ->
-                        trackingId.equals(il.trackingId)
-                    }.forEach { t ->
-                        ah.reportsOut[t.childReportId]?. let { rf ->
+                        il.parentIndex == reportIndex
+                    }.forEach { il ->
+                        ah.reportsOut[il.childReportId]?. let { rf ->
                             WorkflowEngine.settings.findOrganization(rf.receivingOrg)?. let { org ->
                                 destinations.getOrPut(org.jurisdiction) { mutableListOf() }.add(
                                     "${rf.receivingOrg}.${rf.receivingOrgSvc}"
@@ -481,7 +483,7 @@ class ReportFunction {
                         }
                     }
                 }
-                routing.add(ItemJurisdictionRouting(trackingId, destinations))
+                routing.add(ItemJurisdictionRouting(reportIndex, trackingId, destinations))
             }
         }
         return routing
