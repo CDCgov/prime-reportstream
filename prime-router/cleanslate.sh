@@ -69,7 +69,7 @@ Examples:
   # you want (but it's a thing you can do)
   $ ${0} --keep-all
 
-  # Use this if you like chassing red herrings in debug-land
+  # Use this if you like chasing red herrings in debug-land
   $ ${0} --keep-images
 
 EOF
