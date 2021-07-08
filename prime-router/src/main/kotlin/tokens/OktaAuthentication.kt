@@ -1,8 +1,10 @@
 package gov.cdc.prime.router.tokens
 
 import com.google.common.net.HttpHeaders
+import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.azure.*
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -60,7 +62,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 return HttpUtilities.unauthorizedResponse(request, invalidClaim)
             }
 
-            logger.info("Settings request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+            logger.info("Request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
             return block(claims)
         } catch (ex: Exception) {
             if (ex.message != null)
@@ -69,6 +71,22 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 logger.error(ex)
             return HttpUtilities.internalErrorResponse(request)
         }
+    }
+
+    /**
+     * For endpoints that need to check if the organization is in the database
+     */
+     fun checkOrganizationExists(context: ExecutionContext, userName: String, orgName: String?): Organization? {
+        val organization = null
+        if (orgName != null) {
+                val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
+                if (organization != null) {
+                    return organization
+                } else {
+                    context.logger.info("User $userName failed auth: Organization $orgName is unknown to the system.")
+                }
+            }
+        return organization
     }
 
 }
