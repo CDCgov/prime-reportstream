@@ -108,7 +108,8 @@ class DataCompareTest : CoolTest() {
             configs.forEach { config ->
                 // Collect some useful data first
                 val input = config.key
-                val inputFilePath = this.javaClass.getResource("$testDataDir/${config.key.inputFile}")?.path
+                val inputFilePath = "$testDataDir/${config.key.inputFile}"
+                val inputFile = this::class.java.getResourceAsStream(inputFilePath)
                 val outputList = config.value
                 val sender = settings.findSender(input.sender)
                     ?: error("Unable to find sender ${input.sender}")
@@ -129,10 +130,10 @@ class DataCompareTest : CoolTest() {
                     }
                 }
 
-                if (!inputFilePath.isNullOrBlank()) {
+                if (inputFile != null) {
                     // Send the input file to ReportStream
                     val (responseCode, json) =
-                        HttpUtilities.postReportFile(environment, File(inputFilePath), sender, options.key)
+                        HttpUtilities.postReportBytes(environment, inputFile.readBytes(), sender, options.key)
                     if (responseCode != HttpURLConnection.HTTP_CREATED) {
                         bad("***$name Test FAILED***:  response code $responseCode")
                         passed = false
@@ -176,9 +177,10 @@ class DataCompareTest : CoolTest() {
      */
     private fun readTestConfig(configPathname: String): Map<TestInput, List<TestOutput>> {
         val config = mutableMapOf<TestInput, MutableList<TestOutput>>()
-        val resourcePath = this.javaClass.getResource(configPathname)?.path
-        if (!resourcePath.isNullOrBlank()) {
-            csvReader().readAllWithHeader(File(resourcePath)).forEach {
+        // Note we can only use input streams since the file may be in a JAR
+        val resourceStream = this::class.java.getResourceAsStream(configPathname)
+        if (resourceStream != null) {
+            csvReader().readAllWithHeader(resourceStream).forEach {
                 // Make sure we have all the fields we need.
                 if (!it[ConfigColumns.INPUT_FILE.colName].isNullOrBlank() &&
                     !it[ConfigColumns.SENDER.colName].isNullOrBlank() &&
@@ -227,15 +229,18 @@ class DataCompareTest : CoolTest() {
         db.transact { txn ->
             // Get the output files from the database
             val outputFilename = sftpFilenameQuery(txn, reportId, output.receiver!!.name)
-            val expectedOutputPath = this.javaClass.getResource("$testDataDir/${output.outputFile}")?.path
+            val outputFile = File(sftpDir, outputFilename)
+            val expectedOutputPath = "$testDataDir/${output.outputFile}"
+            // Note we can only use input streams since the file may be in a JAR
+            val expectedOutputStream = this::class.java.getResourceAsStream(expectedOutputPath)
             val schema = metadata.findSchema(output.receiver!!.schemaName)
-            if (outputFilename != null && !expectedOutputPath.isNullOrBlank() && schema != null) {
+            if (outputFilename != null && outputFile.canRead() && expectedOutputStream != null && schema != null) {
                 TermUi.echo("----------------------------------------------------------")
                 TermUi.echo("Comparing expected data from $expectedOutputPath")
                 TermUi.echo("with actual data from $sftpDir/$outputFilename")
                 TermUi.echo("using schema ${schema.name}...")
                 val result = CompareData().compare(
-                    File(expectedOutputPath), File(sftpDir, outputFilename),
+                    expectedOutputStream, outputFile.inputStream(),
                     output.receiver!!.format, schema
                 )
                 if (result.passed) {

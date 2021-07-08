@@ -214,7 +214,7 @@ class HttpUtilities {
             bytes: ByteArray,
             sendingOrgClient: Sender,
             key: String?,
-            option: ReportFunction.Options?
+            option: ReportFunction.Options? = null
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
