@@ -492,9 +492,6 @@ components:
           type: array
           items:
             type: string
-        destinationCount:
-          description: total destinations recieving the report(s)
-          type: integer
         errorCount:
           description: total errors found during initial validation.  There may be multiple errors per item.
           type: integer
