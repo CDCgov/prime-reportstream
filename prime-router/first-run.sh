@@ -58,7 +58,7 @@ Examples:
   # Rebuild docker container images but keep data and vault around
   $ ${0} --keep-build-artifacts --keep-vault
 
-  # Take things down, and bring them up again; rather ineffectual and likely not what you want
+  # Take things down, and bring them up again; rather ineffectual and likely not what you want (but it's a thing you can do)
   $ ${0} --keep-all
 
   # Use this if you like chassing red herrings in debug-land
