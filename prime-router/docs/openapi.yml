@@ -100,12 +100,33 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            Last-Modified:
+              description: The date and time any setting was modified in GMT.
+              example: Wed, 21 Oct 2015 07:28:00 GMT
+              required: false
+              schema:
+                type: string
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Organization'
+    head:
+      description: Retrived the last modified for all settings of the system. Must have admin access.
+      security:
+        - OAuth2: [ system_admin ]
+      responses:
+        '200':
+          description: OK
+          headers:
+            Last-Modified:
+              description: The Last-Modified response HTTP header contains the date and time any setting was modified.
+              example: Wed, 21 Oct 2015 07:28:00 GMT
+              required: false
+              schema:
+                type: string
 
   /settings/organizations/{organizationName}:
     get:
