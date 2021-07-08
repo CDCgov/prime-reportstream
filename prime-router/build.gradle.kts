@@ -434,6 +434,10 @@ dependencies {
     implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("com.helger.as2:as2-lib:4.7.1")
+    // Prevent mixed versions of these libs based on different versions being included by different packages
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
+    implementation("org.bouncycastle:bcmail-jdk15on:1.69")
+    implementation("org.bouncycastle:bcprov-jdk15on:1.69")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
