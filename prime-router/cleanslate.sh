@@ -144,7 +144,7 @@ function configure_prime() {
   done
 
   echo -n "Loading organizations into PRIME ReportStream..."
-  ./prime multiple-settings set --input settings/organizations-local.yml 1>/dev/null |
+  ./prime multiple-settings set --input settings/organizations.yml 1>/dev/null |
     sed 's/^/    /g'
   echo "DONE"
 }
@@ -153,7 +153,7 @@ function configure_prime() {
 function configure_receiver_creds() {
   echo "Populating receiver credentials into your vault (be patient)..."
   if [[ -z "$(which python3)" ]]; then
-    echo "${YELLOW?}WARNING:${PLAIN?} It appears you do not have python3; the receiver credentials from organizations-local.yml cannot be loaded automatically (at this point)..."
+    echo "${YELLOW?}WARNING:${PLAIN?} It appears you do not have python3; the receiver credentials from organizations.yml cannot be loaded automatically (at this point)..."
   else
     VENV_ROOT=$(mktemp -d)
     pushd "${VENV_ROOT?}" 2>&1 1>/dev/null
@@ -164,7 +164,7 @@ function configure_receiver_creds() {
     popd 2>&1 1>/dev/null
 
     python3 -c "import yaml;
-with open(\"${HERE?}/settings/organizations-local.yml\") as input:
+with open(\"${HERE?}/settings/organizations.yml\") as input:
     loaded = yaml.load(input, Loader=yaml.SafeLoader)
 
     for org in (o for o in loaded if o.get('receivers', None) is not None):
