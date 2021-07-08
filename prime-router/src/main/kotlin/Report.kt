@@ -302,17 +302,6 @@ class Report : Logging {
         }
     }
 
-    /**
-     * Creates the trackingId for a given row in a report using the report's schema. This
-     * relies on the Schema.getTrackingId() method to create a consistent trackingId.
-     * @param row the specific row to extract from the table and create a trackingId
-     * @return the generated trackingId
-     */
-    fun getTrackingId(row: Int): String {
-        val column = schema.trackingElement ?: return schema.getTrackingId(row)
-        return table.getString(row, column).let { schema.getTrackingId(row, it) }
-    }
-
     fun getStringByHl7Field(row: Int, hl7Field: String, maxLength: Int? = null): String? {
         val column = schema.elements.firstOrNull { it.hl7Field.equals(hl7Field, ignoreCase = true) } ?: return null
         val index = schema.findElementColumn(column.name) ?: return null
@@ -764,7 +753,8 @@ class Report : Logging {
                     null
                 )
             } else {
-                val trackingElementValue = parentReport.getTrackingId(parentRowNum)
+                val trackingElementValue =
+                    parentReport.getString(parentRowNum, parentReport.schema.trackingElement ?: "")
                 return ItemLineage(
                     null,
                     parentReport.id,

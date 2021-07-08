@@ -128,7 +128,9 @@ class CsvSerializer(val metadata: Metadata) {
         val mappedRows = rows.mapIndexedNotNull { index, row ->
             val result = mapRow(schema, csvMapping, row)
             val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
-            val trackingId = schema.getTrackingId(index, trackingColumn?.let { result.row[trackingColumn] })
+            var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
+            if (trackingId.isEmpty())
+                trackingId = "row$index"
             errors.addAll(result.errors.map { ResultDetail.item(trackingId, it) })
             warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it) })
             if (result.errors.isEmpty()) {
