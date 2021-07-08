@@ -28,8 +28,6 @@ import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 
-private const val NOWHERE_ORG = "nowhere-org"
-
 /**
  * This is a container class that holds information to be stored, about a single action,
  * as well as the reports that went into that Action, and were created by that Action.
@@ -473,27 +471,6 @@ class ActionHistory {
     )
 
     /**
-     * More generic signature for printing the destination json details using primitives
-     */
-    private fun prettyPrintDestinationJson(
-        jsonGen: JsonGenerator,
-        orgDescription: String,
-        orgId: String,
-        receiverName: String,
-        sendingAt: String,
-        countToPrint: Int
-    ) {
-        jsonGen.writeStartObject()
-        // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
-        jsonGen.writeStringField("organization", orgDescription)
-        jsonGen.writeStringField("organization_id", orgId)
-        jsonGen.writeStringField("service", receiverName)
-        jsonGen.writeStringField("sending_at", sendingAt)
-        jsonGen.writeNumberField("itemCount", countToPrint)
-        jsonGen.writeEndObject()
-    }
-
-    /**
      * Generate nice json describing the destinations, suitable for returning to a Hub client.
      * Most of the ugliness here is the attempt to not print every 1-entry report, but combine and summarize them.
      *
@@ -502,8 +479,7 @@ class ActionHistory {
     fun prettyPrintDestinationsJson(
         jsonGen: JsonGenerator,
         settings: SettingsProvider,
-        reportOptions: ReportFunction.Options,
-        noWhereItems: List<String> = emptyList()
+        reportOptions: ReportFunction.Options
     ) {
         var destinationCounter = 0
         jsonGen.writeArrayFieldStart("destinations")
@@ -538,24 +514,10 @@ class ActionHistory {
                 destinationCounter++
             }
         }
-        if (noWhereItems.isNotEmpty()) {
-            prettyPrintDestinationJson(
-                jsonGen,
-                "Data not routing to any state/local jurisdiction",
-                NOWHERE_ORG,
-                "nowhere-receiver",
-                "never - no matching receivers ",
-                noWhereItems.size
-            )
-            destinationCounter++
-        }
         jsonGen.writeEndArray()
         jsonGen.writeNumberField("destinationCount", destinationCounter)
     }
 
-    /**
-     * Generate json for destination details with given [Organization] and [Recievier] instances.
-     */
     fun prettyPrintDestinationJson(
         jsonGen: JsonGenerator,
         orgReceiver: Receiver,
@@ -564,11 +526,14 @@ class ActionHistory {
         countToPrint: Int,
         reportOptions: ReportFunction.Options
     ) {
-        prettyPrintDestinationJson(
-            jsonGen,
-            organization.description,
-            orgReceiver.organizationName,
-            orgReceiver.name,
+        jsonGen.writeStartObject()
+        // jsonGen.writeStringField("id", reportFile.reportId.toString())   // TMI?
+        jsonGen.writeStringField("organization", organization.description)
+        jsonGen.writeStringField("organization_id", orgReceiver.organizationName)
+        jsonGen.writeStringField("service", orgReceiver.name)
+
+        jsonGen.writeStringField(
+            "sending_at",
             when {
                 reportOptions == ReportFunction.Options.SkipSend -> {
                     "never - skipSend specified"
@@ -579,9 +544,11 @@ class ActionHistory {
                 else -> {
                     "$sendingAt"
                 }
-            },
-            countToPrint
+            }
         )
+
+        jsonGen.writeNumberField("itemCount", countToPrint)
+        jsonGen.writeEndObject()
     }
 
     companion object {

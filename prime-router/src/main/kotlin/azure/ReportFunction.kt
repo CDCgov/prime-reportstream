@@ -12,7 +12,6 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
@@ -31,8 +30,7 @@ private const val DEFAULT_PARAMETER = "default"
 private const val DEFAULT_SEPARATOR = ":"
 private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val ROUTE_TO_SEPARATOR = ","
-private const val VERBOSE_PARAMETER = "verbose"
-private const val VERBOSE_ALL = "all"
+
 /**
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
@@ -55,12 +53,6 @@ class ReportFunction {
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
         val report: Report? = null,
-        val verbose: String = "",
-    )
-
-    data class ItemJurisdictionRouting(
-        val trackingId: String = "",
-        val destinations: Map<Organization.Jurisdiction, List<String>> = emptyMap(),
     )
 
     /**
@@ -215,11 +207,6 @@ class ReportFunction {
                 )
             )
 
-        // extract the verbose param and default to empty if not present
-        val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
-        val verbose = if (verboseParam.equals(VERBOSE_ALL, true)) verboseParam else
-            schema?.findElementByCsvName(verboseParam)?.fieldMapping ?: ""
-
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
             errors.add(ResultDetail.param(HttpHeaders.CONTENT_TYPE, "missing"))
@@ -270,7 +257,7 @@ class ReportFunction {
             report = null
             status = HttpStatus.BAD_REQUEST
         }
-        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report, verbose)
+        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report)
     }
 
     private fun createReport(
@@ -398,7 +385,6 @@ class ReportFunction {
     ): String {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
-        val itemRouting: List<ItemJurisdictionRouting> = createItemJurisdictionRouting(result, actionHistory)
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
@@ -409,26 +395,8 @@ class ReportFunction {
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
-            // filter items that routed nowhere or to FEDERAL jurisdictions only
-            val noWhereItems: List<String> = itemRouting.filter { ir ->
-                ir.destinations.isEmpty() || ir.destinations.keys == setOf(Organization.Jurisdiction.FEDERAL)
-            }.map { nw -> nw.trackingId}
-            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options, noWhereItems)
-            // print the report routing when in verbose mode, empty array when not
-            it.writeArrayFieldStart("routing")
-            if (VERBOSE_ALL.equals(result.verbose, true)) {
-                itemRouting.forEach { ij ->
-                    it.writeStartObject()
-                    it.writeStringField("trackingId", ij.trackingId)
-                    it.writeArrayFieldStart("destinations")
-                    val destinations = mutableListOf<String>()
-                    ij.destinations.forEach { d -> destinations.addAll(d.value) }
-                    destinations.forEach { d -> it.writeString(d) }
-                    it.writeEndArray()
-                    it.writeEndObject()
-                }
-            }
-            it.writeEndArray()
+
+            actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
 
             it.writeNumberField("warningCount", result.warnings.size)
             it.writeNumberField("errorCount", result.errors.size)
@@ -449,45 +417,5 @@ class ReportFunction {
             it.writeEndObject()
         }
         return outStream.toString()
-    }
-
-    /**
-     * Creates a list of [ItemJurisdictionRouting] instances with the trackingElement
-     * and a jurisdiction keyed map with a list of the receiver organizations where
-     * the report was routed.
-     * @param validatedRequest the instance generated while processing the report
-     * @param actionHistory the instance generated while processing the report
-     * @return the report routing for each item broken down by jurisdiction
-     */
-    private fun createItemJurisdictionRouting(
-        validatedRequest: ValidatedRequest,
-        actionHistory: ActionHistory? = null,
-    ): List<ItemJurisdictionRouting> {
-        val routing = mutableListOf<ItemJurisdictionRouting>()
-        validatedRequest.report?. let { report ->
-            // the report has all the submitted items
-            report.itemIndices.forEach {
-                //val trackingId = report.getString(it, report.schema.trackingElement ?: "") ?: "row$it"
-                val trackingId = report.getTrackingId(it)
-                val destinations = mutableMapOf<Organization.Jurisdiction, MutableList<String>>()
-                // find all outgoing reports related to the trackingId and generate a
-                // mapped list of the receiving organizations keyed by the jurisdiction
-                actionHistory?. let { ah ->
-                    ah.itemLineages.filter { il ->
-                        trackingId.equals(il.trackingId)
-                    }.forEach { t ->
-                        ah.reportsOut[t.childReportId]?. let { rf ->
-                            WorkflowEngine.settings.findOrganization(rf.receivingOrg)?. let { org ->
-                                destinations.getOrPut(org.jurisdiction) { mutableListOf() }.add(
-                                    "${rf.receivingOrg}.${rf.receivingOrgSvc}"
-                                )
-                            }
-                        }
-                    }
-                }
-                routing.add(ItemJurisdictionRouting(trackingId, destinations))
-            }
-        }
-        return routing
     }
 }
