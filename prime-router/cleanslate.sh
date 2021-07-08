@@ -30,7 +30,7 @@ This script sets you up for your first run (or re-initializes your environment \
 as if it were your first run).
 
 OPTIONS:
-  --keep-all                Activates all --keep-* variables
+  --keep-all                Activates all --keep-* flags
   --keep-build-artifacts    Does not eliminate gradle's build artifacts
   --keep-images             Does not delete docker images
   --keep-vault              Does not eliminate your vault information
