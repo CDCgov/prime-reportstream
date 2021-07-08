@@ -6,7 +6,7 @@
     "axios": "^0.21.1",
     "chart.js": "^3.4",
     "cypress": "^7.6.0",
-    "http-proxy-middleware": "^2.0.0",
+    "http-proxy-middleware": "^2.0.1",
     "moment": "^2.29.1"
   },
   "devDependencies": {
