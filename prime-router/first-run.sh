@@ -357,7 +357,7 @@ if [[ ${PRUNE_VOLUMES?} != 0 ]]; then
   KEEP_VAULT=0
 fi
 
-if [[ ${KEEP_BUILD_ARTIFACTS?} == 0 ]] && [[ ${KEEP_PRIME_CONTAINER_IMAGES} ]]; then
+if [[ ${KEEP_BUILD_ARTIFACTS?} == 0 ]] && [[ ${KEEP_PRIME_CONTAINER_IMAGES} != 0 ]]; then
   # Just trying to save you some time and discomfort...
   warn "You seem to want to rebuild the product, but ${WHITE?}not${PLAIN?} the container images. Are you sure this is what you want?"
   echo -n "Enter 'YES' verbatim if this is what you really want to do: " |
