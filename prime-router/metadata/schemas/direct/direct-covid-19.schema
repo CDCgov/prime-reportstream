@@ -79,8 +79,9 @@ elements:
     csvFields: [{ name: serialNumber}]
 
   - name: message_id
-    documentation: ReportStream copies value from the specimenId
+    documentation: ReportStream copies value from the specimenId if none is provided by the sender.
     mapper: use(specimen_id)
+    csvFields: [{ name: testId}]
 
   - name: patient_age
     csvFields: [{ name: patientAge}]
