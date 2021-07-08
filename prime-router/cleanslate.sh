@@ -34,22 +34,29 @@ OPTIONS:
   --keep-build-artifacts    Does not eliminate gradle's build artifacts
   --keep-images             Does not delete docker images
   --keep-vault              Does not eliminate your vault information
-  --prune-volumes           Forces a docker volume prune -f after taking containers down (disables --keep-vault, including when set via --keep-all)
+  --prune-volumes           Forces a docker volume prune -f after taking containers
+                            down (disables --keep-vault, including when set via --keep-all)
   --verbose                 Get "more" output
   --help|-h                 Shows this help
 
 
 Examples:
 
-  # Default mode: tries to eliminate as much as possible and get you to a totally clean state; your database sticks around
+  # Default mode: tries to eliminate as much as possible and get you to a totally
+  # clean state; your vault is reset but your database sticks around
   $ ${0}
 
-  # Most aggressive mode: eliminate all build artifacts and databases, and do a full reset (including your vault)
-  # CAVEAT EMPTOR: any volume that was in use by *any* stopped container will be eliminated (this includes non-PRIME ones)!
+  # Most aggressive mode: same as default mode but also get rid of docker volumes,
+  # this affects your PostgreSQL database
+  # CAVEAT EMPTOR: this performs a `docker volume prune -f` after having stopped our
+  # own containers, make sure you understand what this means for other unattached
+  # or unused volumes on your system
   $ ${0} --prune-volumes
 
-  # Reset any stored information but keep build artifacts and images; useful to reset your vault and database
-  # NOTE that --prune-volumes overrides instructions keep the vault around (and thus deletes/resets the vault information)
+  # Reset any stored information but keep build artifacts and images; useful to reset
+  # your vault and database
+  # NOTE that --prune-volumes overrides instructions keep the vault around (and thus
+  # deletes/resets the vault information)
   $ ${0} --keep-all --prune-volumes
 
   # Keep the results of your gradle build but rebuild container images (and bring them up)
@@ -58,7 +65,8 @@ Examples:
   # Rebuild docker container images but keep data and vault around
   $ ${0} --keep-build-artifacts --keep-vault
 
-  # Take things down, and bring them up again; rather ineffectual and likely not what you want (but it's a thing you can do)
+  # Take things down, and bring them up again; rather ineffectual and likely not what
+  # you want (but it's a thing you can do)
   $ ${0} --keep-all
 
   # Use this if you like chassing red herrings in debug-land
