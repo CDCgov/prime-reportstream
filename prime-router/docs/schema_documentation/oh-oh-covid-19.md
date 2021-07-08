@@ -715,7 +715,7 @@ The city of the provider
 
 **Table**: fips-county
 
-**Table Column**: County
+**Table Column**: FIPS
 
 **Documentation**:
 
