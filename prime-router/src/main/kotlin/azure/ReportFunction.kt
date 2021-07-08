@@ -409,6 +409,7 @@ class ReportFunction {
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
+
             actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
             // print the report routing when in verbose mode
             if (VERBOSE_TRUE.equals(result.verbose, true)) {
