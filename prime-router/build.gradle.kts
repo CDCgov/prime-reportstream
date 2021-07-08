@@ -232,14 +232,14 @@ tasks.register("testSmoke") {
     finalizedBy("primeCLI")
 }
 
-tasks.register<JavaExec>("testEnd2End") {
+tasks.register("testEnd2End") {
     group = rootProject.description ?: ""
     description = "Run the end to end tests.  Requires running a Docker instance"
     project.extra["cliArgs"] = listOf("test", "--run", "end2end")
     finalizedBy("primeCLI")
 }
 
-tasks.register<JavaExec>("generateDocs") {
+tasks.register("generateDocs") {
     group = rootProject.description ?: ""
     description = "Generate the schema documentation in markup format"
     project.extra["cliArgs"] = listOf("generate-docs")
