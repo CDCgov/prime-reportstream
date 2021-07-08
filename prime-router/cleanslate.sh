@@ -114,8 +114,18 @@ function recompose_docker() {
 
   wait_for_vault_creds
 
-  # Now that we have vault credentials, make sure prime_dev can use them
-  docker-compose --file docker-compose.yml restart
+  # Now that we have vault credentials, make sure dependent containers can use them
+  echo -e "${WHITE?}INFO:${PLAIN?} Restarting prime_dev"
+  docker-compose --file docker-compose.yml restart prime_dev |
+    sed 's/^/    /g'
+
+  PRIME_DEV_DEPENDENCIES=(
+    web_receiver
+    settings
+  )
+  echo -e "${WHITE?}INFO:${PLAIN?} Restarting ${PRIME_DEV_DEPENDENCIES[*]}"
+  docker-compose --file docker-compose.yml restart ${PRIME_DEV_DEPENDENCIES[*]} |
+    sed 's/^/    /g'
 }
 
 function ensure_binaries() {
@@ -274,7 +284,7 @@ if [[ ${RUN_E2E?} != 0 ]]; then
   ensure_binaries
   wait_for_vault_creds
 
-  export $(xargs < "${VAULT_ENV_LOCAL_FILE?}")
+  export $(xargs <"${VAULT_ENV_LOCAL_FILE?}")
   ./gradlew testEnd2End |
     sed "s/^/    /g"
 fi
