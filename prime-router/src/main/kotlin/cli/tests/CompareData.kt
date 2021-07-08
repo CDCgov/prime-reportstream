@@ -6,7 +6,6 @@ import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.output.TermUi
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.Receiver
@@ -16,9 +15,6 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.cli.CoolTest
-import gov.cdc.prime.router.cli.CoolTestOptions
-import gov.cdc.prime.router.cli.TestStatus
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -146,7 +142,7 @@ class DataCompareTest : CoolTest() {
 
                     // Check the response from the endpoint
                     TermUi.echo(json)
-                    passed = passed and examineRespose(json)
+                    passed = passed and examineResponse(json)
 
                     // Compare the data
                     val reportId = getReportIdFromResponse(json)

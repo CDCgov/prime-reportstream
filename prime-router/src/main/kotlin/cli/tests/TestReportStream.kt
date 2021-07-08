@@ -1,10 +1,9 @@
-package gov.cdc.prime.router.cli
+package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -13,13 +12,24 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 import com.google.common.base.CharMatcher
-import gov.cdc.prime.router.*
-import gov.cdc.prime.router.azure.*
+import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.REPORT_MAX_ITEMS
+import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.DataAccessTransaction
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.ReportFunction
+import gov.cdc.prime.router.azure.ReportStreamEnv
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
-import gov.cdc.prime.router.cli.tests.DataCompareTest
-import gov.cdc.prime.router.cli.tests.Hl7Ingest
+import gov.cdc.prime.router.cli.FileUtilities
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
@@ -30,7 +40,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.util.Locale
-import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.random.Random
@@ -363,7 +372,7 @@ abstract class CoolTest {
      * and report any errors
      * @return true if there are no errors in the reponse, false otherwise
      */
-    fun examineRespose(jsonResponse: String): Boolean {
+    fun examineResponse(jsonResponse: String): Boolean {
 
         var passed = true
         try {
@@ -639,26 +648,14 @@ class End2End : CoolTest() {
             good("Posting of report succeeded with response code $responseCode")
         }
         echo(json)
-        try {
-            val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
-            echo("Id of submitted report: $reportId")
-            val topic = tree["topic"]
-            if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
-                good("'topic' is in response and correctly set to 'covid-19'")
-            } else {
-                bad("***end2end Test FAILED***: 'topic' is missing from response json")
-                passed = false
-            }
-            waitABit(25, environment)
-            return passed and examineLineageResults(
-                reportId = reportId,
-                receivers = allGoodReceivers,
-                totalItems = fakeItemCount
-            )
-        } catch (e: NullPointerException) {
-            return bad("***end2end Test FAILED***: Unable to properly parse response json")
+        passed = passed and examineResponse(json)
+        waitABit(25, environment)
+        val reportId = getReportIdFromResponse(json)
+        if (reportId != null) {
+            passed = passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
         }
+
+        return passed
     }
 }
 
@@ -690,8 +687,8 @@ class Merge : CoolTest() {
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***Merge Test FAILED***:  response code $responseCode")
             }
-            val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
             echo("Id of submitted report: $reportId")
             reportId
         }
@@ -730,8 +727,8 @@ class Hl7Null : CoolTest() {
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***hl7null Test FAILED***:  response code $responseCode")
             }
-            val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
             echo("Id of submitted report: $reportId")
             reportId
         }
@@ -849,7 +846,8 @@ class Strac : CoolTest() {
         }
         try {
             val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
             echo("Id of submitted report: $reportId")
             val expectedWarningCount = 0
             val warningCount = tree["warningCount"].intValue()
@@ -895,7 +893,7 @@ class StracPack : CoolTest() {
         )
         echo("Created datafile $file")
         // Now send it to ReportStream over and over
-        var reportIds = mutableListOf<ReportId>()
+        val reportIds = mutableListOf<ReportId>()
         var passed = true
         // submit in thread grouping somewhat smaller than our database pool size.
         for (i in 1..options.submits) {
@@ -907,11 +905,10 @@ class StracPack : CoolTest() {
                     echo(json)
                     passed = bad("$i: ***StracPack Test FAILED***:  response code $responseCode")
                 } else {
-                    val tree = jacksonObjectMapper().readTree(json)
-                    val reportId = ReportId.fromString(tree["id"].textValue())
+                    val reportId = getReportIdFromResponse(json)
                     echo("$i: Id of submitted report: $reportId")
                     synchronized(reportIds) {
-                        reportIds.add(reportId)
+                        reportId?.let { reportIds.add(reportId) }
                     }
                 }
             }
@@ -949,8 +946,8 @@ class Waters : CoolTest() {
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             return bad("***Waters Test FAILED***:  response code $responseCode")
         }
-        val tree = jacksonObjectMapper().readTree(json)
-        val reportId = ReportId.fromString(tree["id"].textValue())
+        val reportId = getReportIdFromResponse(json)
+            ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(60, environment, options.muted)
         if (file.exists()) file.delete() // because of RepeatWaters
@@ -1030,7 +1027,7 @@ class HammerTime : CoolTest() {
         )
         echo("Created datafile $file")
         // Now send it to ReportStream over and over
-        var reportIds = mutableListOf<ReportId>()
+        val reportIds = mutableListOf<ReportId>()
         var passed = true
         // submit in thread grouping somewhat smaller than our database pool size.
         for (i in 1..options.submits) {
@@ -1042,11 +1039,10 @@ class HammerTime : CoolTest() {
                     echo(json)
                     passed = bad("***Hammertime Test FAILED***:  response code $responseCode")
                 } else {
-                    val tree = jacksonObjectMapper().readTree(json)
-                    val reportId = ReportId.fromString(tree["id"].textValue())
+                    val reportId = getReportIdFromResponse(json)
                     echo("Id of submitted report: $reportId")
                     synchronized(reportIds) {
-                        reportIds.add(reportId)
+                        reportId?.let { reportIds.add(reportId) }
                     }
                 }
             }
@@ -1086,7 +1082,7 @@ class Garbage : CoolTest() {
         echo(json)
         try {
             val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
             echo("Id of submitted report: $reportId")
             val warningCount = tree["warningCount"].intValue()
             if (warningCount == allGoodReceivers.size) {
@@ -1246,8 +1242,8 @@ class Huge : CoolTest() {
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***Huge Test FAILED***:  response code $responseCode")
         }
-        val tree = jacksonObjectMapper().readTree(json)
-        val reportId = ReportId.fromString(tree["id"].textValue())
+        val reportId = getReportIdFromResponse(json)
+            ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
         return examineLineageResults(reportId = reportId, receivers = listOf(csvReceiver), totalItems = fakeItemCount)
@@ -1370,8 +1366,8 @@ class BadSftp : CoolTest() {
             bad("***badsftp Test FAILED***:  response code $responseCode")
             return false
         }
-        val tree = jacksonObjectMapper().readTree(json)
-        val reportId = ReportId.fromString(tree["id"].textValue())
+        val reportId = getReportIdFromResponse(json)
+            ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
         echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
@@ -1430,8 +1426,8 @@ class InternationalContent : CoolTest() {
         }
         try {
             // Read the response
-            val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
 
             echo("Id of submitted report: $reportId")
             waitABit(25, environment)
@@ -1501,7 +1497,7 @@ class SantaClaus : CoolTest() {
                 metadata = metadata,
                 sender = sender,
                 count = states.size,
-                format = if(sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
+                format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
                 directory = System.getProperty("java.io.tmpdir"),
                 targetStates = null,
                 targetCounties = null
@@ -1520,7 +1516,8 @@ class SantaClaus : CoolTest() {
             echo(json)
 
             val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
 
             val destinations = tree["destinations"]
             if (destinations != null && destinations.size() > 0) {
