@@ -74,7 +74,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * Get the Database context depending on [txn] value.
      * @return the context
      */
-    fun getContext(txn: DataAccessTransaction? = null): @NotNull DSLContext {
+    private fun getContext(txn: DataAccessTransaction? = null): @NotNull DSLContext {
         return if (txn != null) DSL.using(txn) else create
     }
 
@@ -162,8 +162,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         finishedField: Field<OffsetDateTime>,
         txn: DataAccessTransaction?
     ) {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        ctx
+        getContext(txn)
             .update(TASK)
             .set(TASK.NEXT_ACTION, nextAction)
             .set(TASK.NEXT_ACTION_AT, nextActionAt)
