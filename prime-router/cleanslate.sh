@@ -192,7 +192,7 @@ function cleanup_build_artifacts() {
   if [[ ${KEEP_PRIME_CONTAINER_IMAGES} == 0 ]]; then
     info "Removing the the ${DOCKER_COMPOSE_PREFIX} container images"
     docker images 'prime-router_*' -q |
-      xargs -I_ docker image rm "_" # 1>>"${LOG?}" 2>&1
+      xargs -I_ docker image rm "_" 1>>"${LOG?}" 2>&1
   else
     info "SKIP Removing the the ${DOCKER_COMPOSE_PREFIX} container images"
   fi
@@ -209,7 +209,7 @@ function reset_vault() {
     # Create an empty .env.local file
     cat /dev/null >"${VAULT_ENV_LOCAL_FILE?}"
     docker volume ls --filter "name=${DOCKER_COMPOSE_PREFIX?}vault" -q |
-      xargs -I_ docker volume rm "_"
+      xargs -I_ docker volume rm "_" 1>>"${LOG?}" 2>&1
   else
     info "SKIP Cleaning up vault information"
   fi
@@ -225,11 +225,6 @@ function refresh_docker_images() {
 
   for compose_file in ${COMPOSE_FILES[*]}; do
     verbose "Processing '${compose_file?}' for pre-baked images"
-
-    OUTPUT=/dev/null
-    if [[ ${VERBOSE?} != 0 ]]; then
-      OUTPUT="${LOG?}"
-    fi
 
     # The only reason for not doing this in a single piped command is debuggability and verbosity
     IMAGES=(
