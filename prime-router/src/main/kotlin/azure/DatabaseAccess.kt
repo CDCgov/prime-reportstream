@@ -21,6 +21,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
+import org.jetbrains.annotations.NotNull
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.Field
@@ -67,6 +68,14 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      */
     fun <T> transactReturning(block: (txn: DataAccessTransaction) -> T): T {
         return create.transactionResult { txn: Configuration -> block(txn) }
+    }
+
+    /**
+     * Get the Database context depending on [txn] value.
+     * @return the context
+     */
+    fun getContext(txn: DataAccessTransaction? = null): @NotNull DSLContext {
+        return if (txn != null) DSL.using(txn) else create
     }
 
     /*
@@ -172,14 +181,13 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * You should include org as a search criteria to enforce authorization to get that report.
      */
     fun fetchReportFile(reportId: ReportId, org: Organization? = null, txn: DataAccessTransaction? = null): ReportFile {
-        val ctx = if (txn != null) DSL.using(txn) else create
         val cond = if (org == null) {
             Tables.REPORT_FILE.REPORT_ID.eq(reportId)
         } else {
             Tables.REPORT_FILE.REPORT_ID.eq(reportId)
                 .and(Tables.REPORT_FILE.RECEIVING_ORG.eq(org.name))
         }
-        return ctx
+        return getContext(txn)
             .selectFrom(Tables.REPORT_FILE)
             .where(cond)
             .fetchOne()
@@ -195,11 +203,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         txn: DataAccessTransaction? = null
     ): List<ReportFile> {
         val createdDt = createdDateTime ?: OffsetDateTime.now().minusDays(30)
-        val ctx = if (txn != null) DSL.using(txn) else create
         val cond = Tables.REPORT_FILE.SENDING_ORG.isNotNull
             .and(Tables.REPORT_FILE.BODY_FORMAT.eq("INTERNAL"))
             .and(Tables.REPORT_FILE.CREATED_AT.ge(createdDt))
-        return ctx
+        return getContext(txn)
             .selectFrom(Tables.REPORT_FILE)
             .where(cond)
             .fetchArray()
@@ -216,8 +223,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         itemCount: Int,
         txn: DataAccessTransaction? = null
     ): List<ItemLineage>? {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        val itemLineages = ctx
+        val itemLineages = getContext(txn)
             .selectFrom(Tables.ITEM_LINEAGE)
             .where(Tables.ITEM_LINEAGE.CHILD_REPORT_ID.eq(reportId))
             .orderBy(Tables.ITEM_LINEAGE.CHILD_INDEX) // todo Don't know if this will be too slow?  Use a map in mem?
@@ -242,7 +248,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         orgName: String,
         txn: DataAccessTransaction? = null,
     ): List<ReportFile> {
-        val ctx = if (txn != null) DSL.using(txn) else create
         val cond = if (since == null) {
             Tables.REPORT_FILE.RECEIVING_ORG.eq(orgName)
                 .and(Tables.REPORT_FILE.NEXT_ACTION.eq(TaskAction.send))
@@ -252,7 +257,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 .and(Tables.REPORT_FILE.CREATED_AT.ge(since))
         }
 
-        return ctx
+        return getContext(txn)
             .selectFrom(Tables.REPORT_FILE)
             .where(cond)
             .fetch()
@@ -263,8 +268,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         parentReportId: UUID,
         txn: DataAccessTransaction? = null,
     ): List<ReportId> {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx
+        return getContext(txn)
             .select(REPORT_LINEAGE.CHILD_REPORT_ID)
             .from(REPORT_LINEAGE)
             .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(parentReportId))
@@ -275,9 +279,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /**
      * Settings queries
      */
-    fun fetchSetting(type: SettingType, name: String, parentId: Int?, txn: DataAccessTransaction): Setting? {
-        return DSL
-            .using(txn)
+    fun fetchSetting(type: SettingType, name: String, parentId: Int?, txn: DataAccessTransaction? = null): Setting? {
+        return getContext(txn)
             .selectFrom(SETTING)
             .where(
                 SETTING.IS_ACTIVE.isTrue,
@@ -289,11 +292,15 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             ?.into(Setting::class.java)
     }
 
-    fun fetchSetting(type: SettingType, name: String, organizationName: String, txn: DataAccessTransaction): Setting? {
+    fun fetchSetting(
+        type: SettingType,
+        name: String,
+        organizationName: String,
+        txn: DataAccessTransaction? = null
+    ): Setting? {
         val org = SETTING.`as`("org")
         val item = SETTING.`as`("item")
-        return DSL
-            .using(txn)
+        return getContext(txn)
             .select(item.asterisk())
             .from(item)
             .join(org).on(item.ORGANIZATION_ID.eq(org.SETTING_ID))
@@ -321,8 +328,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     ): Pair<Setting, Setting>? {
         val org = SETTING.`as`("org")
         val item = SETTING.`as`("item")
-        val ctx = if (txn != null) DSL.using(txn) else create
-        val result = ctx
+        val result = getContext(txn)
             .select(item.asterisk(), org.asterisk())
             .from(item)
             .join(org).on(item.ORGANIZATION_ID.eq(org.SETTING_ID))
@@ -365,9 +371,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return Pair(orgSetting, itemSetting)
     }
 
-    fun fetchSettings(type: SettingType, txn: DataAccessTransaction): List<Setting> {
-        return DSL
-            .using(txn)
+    fun fetchSettings(type: SettingType, txn: DataAccessTransaction? = null): List<Setting> {
+        return getContext(txn)
             .selectFrom(SETTING)
             .where(
                 SETTING.IS_ACTIVE.isTrue,
@@ -377,9 +382,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .into(Setting::class.java)
     }
 
-    fun fetchSettings(type: SettingType, organizationId: Int, txn: DataAccessTransaction): List<Setting> {
-        return DSL
-            .using(txn)
+    fun fetchSettings(type: SettingType, organizationId: Int, txn: DataAccessTransaction? = null): List<Setting> {
+        return getContext(txn)
             .select()
             .from(SETTING)
             .where(
@@ -488,9 +492,13 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /**
      * Find the current setting version looking through inactive and active settings. Return -1 no setting is found.
      */
-    fun findSettingVersion(type: SettingType, name: String, organizationId: Int?, txn: DataAccessTransaction): Int {
-        return DSL
-            .using(txn)
+    fun findSettingVersion(
+        type: SettingType,
+        name: String,
+        organizationId: Int?,
+        txn: DataAccessTransaction? = null
+    ): Int {
+        return getContext(txn)
             .select(DSL.max(SETTING.VERSION))
             .from(SETTING)
             .where(
@@ -570,8 +578,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
      * Fetch the newest CreatedAt timestamp, active or deleted, or return [ifEmptySettings]
      */
     fun fetchLastModified(txn: DataAccessTransaction? = null): OffsetDateTime? {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx
+        return getContext(txn)
             .select(DSL.max(SETTING.CREATED_AT))
             .from(SETTING)
             .fetchOne()

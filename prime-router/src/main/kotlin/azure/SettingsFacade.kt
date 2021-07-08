@@ -16,7 +16,6 @@ import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import org.jooq.JSONB
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 /**
  * Settings for Organization, Receivers, and Senders from the Azure Database.
@@ -86,13 +85,13 @@ class SettingsFacade(
         clazz: Class<T>,
         organizationName: String? = null
     ): T? {
-        val setting = db.transactReturning { txn ->
-            val settingType = settingTypeFromClass(clazz.name)
+        val settingType = settingTypeFromClass(clazz.name)
+        val setting = (
             if (organizationName != null)
-                db.fetchSetting(settingType, name, organizationName, txn)
+                db.fetchSetting(settingType, name, organizationName)
             else
-                db.fetchSetting(settingType, name, parentId = null, txn)
-        } ?: return null
+                db.fetchSetting(settingType, name, parentId = null)
+            ) ?: return null
         val result = mapper.readValue(setting.values.data(), clazz)
         result.meta = SettingMetadata(setting.version, setting.createdBy, setting.createdAt)
         return result
@@ -105,9 +104,7 @@ class SettingsFacade(
 
     private fun <T : SettingAPI> findSettings(clazz: Class<T>): List<T> {
         val settingType = settingTypeFromClass(clazz.name)
-        val settings = db.transactReturning { txn ->
-            db.fetchSettings(settingType, txn)
-        }
+        val settings = db.fetchSettings(settingType)
         return settings.map {
             val result = mapper.readValue(it.values.data(), clazz)
             result.meta = SettingMetadata(it.version, it.createdBy, it.createdAt)
@@ -116,15 +113,17 @@ class SettingsFacade(
     }
 
     fun <T : SettingAPI> findSettingsAsJson(organizationName: String, clazz: Class<T>): Pair<AccessResult, String> {
-        val (result, settings, errorMessage) = db.transactReturning { txn ->
-            val organization = db.fetchSetting(SettingType.ORGANIZATION, organizationName, null, txn)
-                ?: return@transactReturning Triple(
+        val organization = db.fetchSetting(SettingType.ORGANIZATION, organizationName, null)
+        val (result, settings, errorMessage) =
+            if (organization == null) {
+                Triple(
                     AccessResult.NOT_FOUND, emptyList(), errorJson("Organization not found")
                 )
-            val settingType = settingTypeFromClass(clazz.name)
-            val settings = db.fetchSettings(settingType, organization.settingId, txn)
-            Triple(AccessResult.SUCCESS, settings, "")
-        }
+            } else {
+                val settingType = settingTypeFromClass(clazz.name)
+                val settings = db.fetchSettings(settingType, organization.settingId)
+                Triple(AccessResult.SUCCESS, settings, "")
+            }
         return if (result == AccessResult.SUCCESS) {
             val settingsWithMeta = settings.map {
                 val setting = mapper.readValue(it.values.data(), clazz)
