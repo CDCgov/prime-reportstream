@@ -9,7 +9,7 @@ WHITE="\e[1;97m"
 
 # Actual variables we'll reference
 HERE="$(dirname "${0}")"
-LOG="${HERE?}/first-run.log"
+LOG="${0}.log" # myscript.sh.log
 VAULT_ENV_LOCAL_FILE=".vault/env/.env.local"
 DOCKER_COMPOSE_PREFIX="prime-router_"
 
@@ -19,6 +19,7 @@ KEEP_VAULT=0
 KEEP_BUILD_ARTIFACTS=0
 KEEP_PRIME_CONTAINER_IMAGES=0
 KEEP_ALL=0
+PRUNE_VOLUMES=0
 
 function usage() {
   cat <<EOF
@@ -33,8 +34,35 @@ OPTIONS:
   --keep-build-artifacts    Does not eliminate gradle's build artifacts
   --keep-images             Does not delete docker images
   --keep-vault              Does not eliminate your vault information
+  --prune-volumes           Forces a docker volume prune -f after taking containers down (disables --keep-vault, including when set via --keep-all)
   --verbose                 Get "more" output
   --help|-h                 Shows this help
+
+
+Examples:
+
+  # Default mode: tries to eliminate as much as possible and get you to a totally clean state; your database sticks around
+  $ ${0}
+
+  # Most aggressive mode: eliminate all build artifacts and databases, and do a full reset (including your vault)
+  # CAVEAT EMPTOR: any volume that was in use by *any* stopped container will be eliminated (this includes non-PRIME ones)!
+  $ ${0} --prune-volumes
+
+  # Reset any stored information but keep build artifacts and images; useful to reset your vault and database
+  # NOTE that --prune-volumes overrides instructions keep the vault around (and thus deletes/resets the vault information)
+  $ ${0} --keep-all --prune-volumes
+
+  # Keep the results of your gradle build but rebuild container images (and bring them up)
+  $ ${0} --keep-build-artifacts
+
+  # Rebuild docker container images but keep data and vault around
+  $ ${0} --keep-build-artifacts --keep-vault
+
+  # Take things down, and bring them up again; rather ineffectual and likely not what you want
+  $ ${0} --keep-all
+
+  # Use this if you like chassing red herrings in debug-land
+  $ ${0} --keep-images
 
 EOF
 }
@@ -128,6 +156,12 @@ function docker_decompose() {
       warn "There was an error taking down '${target?}' (this is probably fine)."
     fi
   done
+
+  if [[ ${PRUNE_VOLUMES?} != 0 ]]; then
+    verbose "Pruning docker volumes"
+    docker volume prune -f 2>/dev/null |
+      tee -a "${LOG?}"
+  fi
 }
 
 function cleanup_build_artifacts() {
@@ -281,11 +315,14 @@ while [[ -n ${1} ]]; do
   "--keep-build-artifacts")
     KEEP_BUILD_ARTIFACTS=1
     ;;
-  "--keep-prime-dev")
+  "--keep-images")
     KEEP_PRIME_CONTAINER_IMAGES=1
     ;;
   "--keep-vault")
     KEEP_VAULT=1
+    ;;
+  "--prune-volumes")
+    PRUNE_VOLUMES=1
     ;;
   "--help" | "-h")
     SHOW_HELP=1
@@ -294,7 +331,8 @@ while [[ -n ${1} ]]; do
     VERBOSE=1
     ;;
   *)
-    echo "${RED?}ERROR:${PLAIN?} Unknown command line switch '${1}'."
+    usage
+    error "Unknown command line switch '${1}'."
     exit
     ;;
   esac
@@ -313,6 +351,26 @@ pushd "${HERE?}" 2>&1 1>/dev/null
 # Stage 0: Self-setup
 #
 echo "${0} - Starting at $(date +%Y-%m-%d@%H:%M:%S)" >"${LOG}"
+
+# Fix up and sanity-check arguments
+if [[ ${PRUNE_VOLUMES?} != 0 ]]; then
+  KEEP_VAULT=0
+fi
+
+if [[ ${KEEP_BUILD_ARTIFACTS?} == 0 ]] && [[ ${KEEP_PRIME_CONTAINER_IMAGES} ]]; then
+  # Just trying to save you some time and discomfort...
+  warn "You seem to want to rebuild the product, but ${WHITE?}not${PLAIN?} the container images. Are you sure this is what you want?"
+  echo -n "Enter 'YES' verbatim if this is what you really want to do: " |
+    tee -a "${LOG?}"
+  read __YOU_SURE_ANSWER
+  echo "${__YOU_SURE_ANSWER}" >> "${LOG?}"
+  if [[ "${__YOU_SURE_ANSWER}" != "YES" ]]; then
+    info "wise choice"
+    exit 2
+  else
+    info "OK then..."
+  fi
+fi
 
 #
 # Stage 1: clean up your environment
