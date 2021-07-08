@@ -114,18 +114,14 @@ function recompose_docker() {
 
   wait_for_vault_creds
 
-  # Now that we have vault credentials, make sure dependent containers can use them
+  # Now that we have vault credentials, make everything pick it up
   echo -e "${WHITE?}INFO:${PLAIN?} Restarting prime_dev"
-  docker-compose --file docker-compose.yml restart prime_dev |
-    sed 's/^/    /g'
+  docker-compose --file docker-compose.yml restart
 
-  PRIME_DEV_DEPENDENCIES=(
-    web_receiver
-    settings
-  )
-  echo -e "${WHITE?}INFO:${PLAIN?} Restarting ${PRIME_DEV_DEPENDENCIES[*]}"
-  docker-compose --file docker-compose.yml restart ${PRIME_DEV_DEPENDENCIES[*]} |
-    sed 's/^/    /g'
+  while [[ $(curl -s -o "/dev/null" -w "%{http_code}" "localhost:7071") != 200 ]]; do
+    echo -e "${WHITE?}INFO:${PLAIN?} Waiting for prime_dev to report HTTP_OK"
+    sleep 1
+  done
 }
 
 function ensure_binaries() {
