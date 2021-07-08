@@ -12,6 +12,7 @@ VAULT_ENV_LOCAL_FILE=".vault/env/.env.local"
 
 SHOW_HELP=0
 UNBUILD=0
+RUN_E2E=0
 UNBUILD_TARGETS=(
   "./build/"
 )
@@ -26,6 +27,7 @@ if your environment got messed up.
 
 OPTIONS:
   --unbuild     Removes build artifacts as well (i.e. ${UNBUILD_TARGETS[*]})
+  --e2e         Runs the end-to-end tests on successfully cleaning your slate
   --help|-?     Display this help
 
 EOF
@@ -67,7 +69,7 @@ function reset_vault() {
   echo -n "Resetting your vault..."
   rm -rf .vault/env/{key,.env.local}
   mkdir -p .vault/env
-  cat /dev/null > .vault/env/.env.local
+  cat /dev/null >.vault/env/.env.local
   echo "DONE"
 
   # You explicitly do not need these since you are resetting everyting
@@ -88,26 +90,38 @@ function wait_for_vault_creds() {
     sed 's/^/    /g'
 }
 
+function docker_compose_build() {
+  DCFILE=${1:-docker-compose.yml}
+  echo -e "${WHITE?}INFO:${PLAIN?} Building \"${DCFILE?}\"..."
+  docker-compose --file "${DCFILE?}" build
+  if [[ $? != 0 ]]; then
+    echo -e "${RED?}ERROR:${PLAIN?} The docker-compose build of the \"${DCFILE?}\" failed... terminating!"
+    exit 1
+  fi
+}
+
 function recompose_docker() {
+  echo -e "${WHITE?}INFO:${PLAIN?} Building the docker-compose environments..."
+  docker_compose_build "docker-compose.build.yml"
   ensure_binaries
-  echo -n "Recomposing Docker..."
+  docker_compose_build "docker-compose.yml"
+
+  echo -e "${WHITE?}INFO:${PLAIN?} Bringing your docker-compose environments up..."
   docker-compose --file docker-compose.build.yml up --detach |
     sed 's/^/    /g'
   docker-compose --file docker-compose.yml up --detach |
     sed 's/^/    /g'
-  echo "DONE"
 
   wait_for_vault_creds
-  # Now that our vault credentials have populated; we need to start the prime_dev container/service
-  # back up, this time using those values
-  docker-compose --file docker-compose.yml down
-  docker-compose --file docker-compose.yml up --detach
+
+  # Now that we have vault credentials, make sure prime_dev can use them
+  docker-compose --file docker-compose.yml restart
 }
 
 function ensure_binaries() {
   if [[ ! -f "./build/azure-functions/prime-data-hub-router/prime-router-0.1-SNAPSHOT.jar" ]]; then
     echo "You do not yet have any binaries, building them for you..."
-    ./build.sh | sed 's/^/        /g'
+    ./build.sh 2>&1 | sed 's/^/        /g'
     if [[ ${PIPESTATUS[0]} != 0 ]]; then
       echo -e "${RED?}ERROR:${PLAIN?} The build itself failed... exiting!"
       exit 1
@@ -220,6 +234,9 @@ function take_ownership() {
 # Parse command line arguments
 while [[ ! -z "${1}" ]]; do
   case "${1}" in
+  "--e2e")
+    RUN_E2E=1
+    ;;
   "--help" | "-?")
     SHOW_HELP=1
     ;;
@@ -251,6 +268,16 @@ recompose_docker
 configure_prime
 configure_receiver_creds
 take_ownership
+
+if [[ ${RUN_E2E?} != 0 ]]; then
+  echo -e "${WHITE?}INFO:${PLAIN?} Running the end-to-end tests..."
+  ensure_binaries
+  wait_for_vault_creds
+
+  export $(xargs < "${VAULT_ENV_LOCAL_FILE?}")
+  ./gradlew testEnd2End |
+    sed "s/^/    /g"
+fi
 
 cat <<EOF
 
