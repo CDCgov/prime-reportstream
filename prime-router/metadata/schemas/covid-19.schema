@@ -351,7 +351,7 @@ elements:
     type: TABLE
     pii: false
     table: fips-county
-    tableColumn: County
+    tableColumn: FIPS
     mapper: lookup(ordering_provider_state, ordering_provider_county)
     hl7Field: ORC-24-9
     documentation: The FIPS code for the ordering provider
