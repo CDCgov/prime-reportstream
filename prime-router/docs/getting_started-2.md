@@ -1,13 +1,42 @@
 % Developer Getting Started Guide
 
-
 This document will walk you through the setup instructions to get a functioning development environment from first clone to completion of your first run of the end-to-end tests.
+
+# Table of contents
+
+* [Locally installed software prerequisites](#locally-installed-software-prerequisites)
+* [First build](#first-build)
+    * [Build dependencies](#build-dependencies)
+* [Building in the course of development](#building-in-the-course-of-development)
+    * [Updating schema documentation](#updating-schema-documentation)
+* [Running ReportStream](#running-reportstream)
+    * [Inspecting Logs](#inspecting-logs)
+    * [Debugging ReportStream](#debugging-reportstream)
+    * [Finding misconfigurations](#finding-misconfigurations)
+    * [Getting around SSL errors](#getting-around-ssl-errors)
+* [Function development with docker-compose](#function-development-with-docker-compose)
+    * [Running ReportStream locally](#running-reportstream-locally)
+* [Credentials and secrets vault](#credentials-and-secrets-vault)
+    * [Initializing the vault](#initializing-the-vault)
+    * [Re-initializing the vault](#re-initializing-the-vault)
+    * [Using the vault locally](#using-the-vault-locally)
+* [Testing](#testing)
+    * [Running the unit tests](#running-the-unit-tests)
+    * [Data conversion quick test](#data-conversion-quick-test)
+    * [Running the end-to-end tests](#running-the-end-to-end-tests)
+* [Resetting your environment](#resetting-your-environment)
+    * [Resetting just your database](#resetting-just-your-database)
+* [Additional tooling](#additional-tooling)
+* [Miscelanious subjects](#miscelanious-subjects)
+    * [Using different database credentials than the default](#using-different-database-credentials-than-the-default)
+    * [Using local configuration for organizations.yml](#using-local-configuration-for-organizations.yml)
+    * [PRIME_DATA_HUB_INSECURE_SSL environment variable](#prime_data_hub_insecure_ssl-environment-variable)
 
 # Locally installed software prerequisites
 
 You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug the product:
 
-* [git](getting-started/install-git.md)
+* [git](getting-started/install-git.md) including git-bash if you're on Windows
 * [Docker](getting-started/install-docker.md)
 * [OpenJDK](getting-started/install-openjdk.md) (currently targetting 11)
 * [Azure Functions Core Tools](getting-started/install-afct.md) (currently targetting 3)
@@ -165,9 +194,9 @@ Running this test command (pointed at the right database) should "repair" a runn
 
 If your agency's network intercepts SSL requests, you might have to disable SSL verifications to get around invalid certificate errors.
 
-# Function Development with docker-compose
+# Function development with docker-compose
 
-## Running the ReportStream locally
+## Running ReportStream locally
 
 The project's [README](../README.md) file contains some steps on how to use the PRIME router in a CLI. However, most uses of the PRIME router will be in the Microsoft Azure cloud. The router runs as a container in Azure. The [`DockerFile`](../Dockerfile) describes what goes in this container.
 
@@ -177,7 +206,7 @@ We use docker-compose' to orchestrate running the Azure function(s) code and Azu
 
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
-# Credentials & secrets vault
+# Credentials and secrets vault
 
 Our `docker-compose.yml` includes a Hashicorp Vault instance alongside our other containers to enable local secrets storage. Under normal circumstances, developers will not have to interact directly with the Vault configuration.
 
@@ -198,7 +227,7 @@ When starting up our containers with `docker-compose up` on first-run, the conta
 
 The database is stored in a docker-compose container `vault` which is persisted across up and down events. All files are excluded in `.gitignore` and should never be persisted to source control.
 
-## Re-initialize the vault
+## Re-initializing the vault
 
 NOTE: the cleanslate.sh script will re-initialize your vault for you (see also "[Resetting your environment](#resetting-your-environment)").
 
@@ -219,7 +248,7 @@ rm -rf .vault/env/{key,.env.local}
 cat /dev/null > .vault/env/.env.local
 ```
 
-## Using the Vault locally
+## Using the vault locally
 
 Our `docker-compose.yml` will automatically load the environment variables needed for the Vault. If you need to use the Vault outside Docker, you can find the environment variables you need in `.vault/env/.env.local`.
 When your Vault is up and running (exemplified by `.vault/env/.env.local` being populated with two environment variables: `VAULT_TOKEN` and `CREDENTIAL_STORAGE_METHOD`), you can interact with it in a couple of ways:
@@ -346,7 +375,7 @@ flyway "-user=${PGUSER?}" -password=changeIT! \
     -locations=filesystem:./src/main/resources/db/migration migrate
 ```
 
-# Additional Tooling
+# Additional tooling
 
 Use any other tools that are accessible to you to develop the code. Be productive. Modify this document if you have a practice that will be useful.
 
