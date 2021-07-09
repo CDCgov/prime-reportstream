@@ -38,11 +38,11 @@
 
 If you want to build outside of docker, you'll need the OpenJDK (v11), Maven, the Azure CLI and Docker
 
-1. Install OpenJDK 11, Maven and some azure tools
+1. Install OpenJDK 11 and some azure tools
     * Debian/Ubuntu-based distributions:
         ```bash
         $ sudo apt update
-        $ sudo apt-get --yes install openjdk-11-jdk maven docker-ce azure-cli lsb-release gpg
+        $ sudo apt-get --yes install openjdk-11-jdk docker-ce azure-cli lsb-release gpg
         $ curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > "/etc/apt/trusted.gpg.d/microsoft.gpg"
         $ echo "deb [arch=amd64] https://packages.microsoft.com/debian/$(lsb_release -rs | cut -d'.' -f 1)/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list
         $ apt-get update
@@ -204,7 +204,7 @@ The project's [README](../readme.md) file contains some steps to use the PRIME r
 
 Developers can also run the router locally with the same Azure runtime and libraries to help develop and debug Azure code. In this case, a developer can use a local Azure storage emulator, called Azurite.
 
-To orchestrate running the Azure function code and Azurite, Docker Compose is a useful tool. After installing or the equivalent, build the project using `Maven` and then run the project in Docker containers using `docker-compose.`  Note: make sure Docker Desktop or equivalent is running before running the following commands.
+To orchestrate running the Azure function code and Azurite, Docker Compose is a useful tool. After installing or the equivalent, build the project using `./gradlew` (or just `gradle` if you have it installed) and then run the project in Docker containers using `docker-compose.`  Note: make sure Docker Desktop or equivalent is running before running the following commands.
 ```
 mkdir -p .vault/env
 touch .vault/env/.env.local
