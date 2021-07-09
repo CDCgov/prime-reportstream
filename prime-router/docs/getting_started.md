@@ -71,7 +71,6 @@ Install the following applications in your Windows workstation.  Note that you w
 
 1. [OpenJDK 11 or later](https://jdk.java.net/) - the Java virtual machine and development kit
 1. [Git Bash](https://git-scm.com/download/win) - Git command line tools and Linux Bash shell
-1. [Maven](https://maven.apache.org/download.cgi) - Tool for building and managing Java based projects.  Make sure to add the Maven executable (`mvn`) to the path
 1. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli) - Azure command line tools
 1. [Azure function core tools v3](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Ccsharp%2Cbash#v2) - Azure core functions tools
 1. [Docker Desktop](https://www.docker.com/get-started) - container management application
