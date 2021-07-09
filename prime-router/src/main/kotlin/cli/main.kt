@@ -16,6 +16,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.cli.tests.TestReportStream
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths

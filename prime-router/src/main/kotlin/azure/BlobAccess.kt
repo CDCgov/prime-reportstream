@@ -4,6 +4,8 @@ import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClientBuilder
+import com.azure.storage.blob.models.BlobErrorCode
+import com.azure.storage.blob.models.BlobStorageException
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -107,7 +109,16 @@ class BlobAccess(
         val blobConnection = System.getenv(blobConnEnvVar)
         val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
         val containerClient = blobServiceClient.getBlobContainerClient(name)
-        if (!containerClient.exists()) containerClient.create()
+        try {
+            if (!containerClient.exists()) containerClient.create()
+        } catch (error: BlobStorageException) {
+            // This can happen when there are concurrent calls to the API
+            if (error.errorCode.equals(BlobErrorCode.CONTAINER_ALREADY_EXISTS)) {
+                logger.warn("Container $name already exists")
+            } else {
+                throw error
+            }
+        }
         return containerClient
     }
 

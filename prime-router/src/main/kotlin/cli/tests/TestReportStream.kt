@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.cli
+package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
@@ -19,6 +19,7 @@ import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -29,7 +30,7 @@ import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
-import gov.cdc.prime.router.cli.tests.Hl7Ingest
+import gov.cdc.prime.router.cli.FileUtilities
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
@@ -42,6 +43,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.Locale
 import kotlin.concurrent.thread
+import kotlin.math.abs
 import kotlin.random.Random
 import kotlin.system.exitProcess
 import kotlin.time.Duration
@@ -91,6 +93,11 @@ Examples:
         "--list",
         help = "List available tests, then quit."
     ).flag(default = false)
+
+    private val sender by option(
+        "--sender",
+        help = "Indicates the sender to use for the 'santaclaus' test."
+    )
 
     private val run by option(
         "--run",
@@ -206,7 +213,8 @@ Examples:
 
     private fun runTests(tests: List<CoolTest>, environment: ReportStreamEnv) {
         val failures = mutableListOf<CoolTest>()
-        val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir, env = env)
+        val options = CoolTestOptions(items, submits, key, dir, sftpDir = sftpDir, env = env, sender = sender)
+
         tests.forEach { test ->
             if (!test.run(environment, options))
                 failures.add(test)
@@ -219,7 +227,7 @@ Examples:
     }
 
     companion object {
-        val coolTestList = listOf<CoolTest>(
+        val coolTestList = listOf(
             Ping(),
             End2End(),
             Merge(),
@@ -239,7 +247,9 @@ Examples:
             RepeatWaters(),
             Jti(),
             InternationalContent(),
-            Hl7Ingest()
+            Hl7Ingest(),
+            DataCompareTest(),
+            SantaClaus()
         )
     }
 }
@@ -251,7 +261,8 @@ data class CoolTestOptions(
     val dir: String,
     var muted: Boolean = false, // if true, print out less stuff,
     val sftpDir: String,
-    val env: String
+    val env: String,
+    val sender: String? = null
 )
 
 abstract class CoolTest {
@@ -270,6 +281,8 @@ abstract class CoolTest {
         reportId: ReportId,
         receivers: List<Receiver>,
         totalItems: Int,
+        filterOrgName: Boolean = false,
+        silent: Boolean = false
     ): Boolean {
         var passed = true
         db = WorkflowEngine().db
@@ -281,18 +294,28 @@ abstract class CoolTest {
                 if (receiver.timing != null) actionsList.add(TaskAction.batch)
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
                 actionsList.forEach { action ->
-                    val count = itemLineageCountQuery(txn, reportId, receiver.name, action)
+                    val count = itemLineageCountQuery(
+                        txn = txn,
+                        reportId = reportId,
+                        receivingOrgSvc = receiver.name,
+                        receivingOrg = if (filterOrgName) receiver.organizationName else null,
+                        action = action
+                    )
                     if (count == null || expected != count) {
-                        bad(
-                            "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
-                                " Expecting $expected item lineage records but got $count"
-                        )
+                        if (!silent) {
+                            bad(
+                                "*** TEST FAILED*** for ${receiver.fullName} action $action: " +
+                                    " Expecting $expected item lineage records but got $count"
+                            )
+                        }
                         passed = false
                     } else {
-                        good(
-                            "Test passed: for ${receiver.fullName} action $action: " +
-                                " Expecting $expected item lineage records and got $count"
-                        )
+                        if (!silent) {
+                            good(
+                                "Test passed: for ${receiver.fullName} action $action: " +
+                                    " Expecting $expected item lineage records and got $count"
+                            )
+                        }
                     }
                 }
             }
@@ -330,6 +353,62 @@ abstract class CoolTest {
                     }
                 }
             }
+        }
+        return passed
+    }
+
+    /**
+     * Get the report ID from the [jsonResponse].
+     * @return the report ID or null
+     */
+    fun getReportIdFromResponse(jsonResponse: String): ReportId? {
+        var reportId: ReportId? = null
+        val tree = jacksonObjectMapper().readTree(jsonResponse)
+        if (!tree.isNull && !tree["id"].isNull) {
+            reportId = ReportId.fromString(tree["id"].textValue())
+        }
+        return reportId
+    }
+
+    /**
+     * Examine the [jsonResponse] from the API, makes sure there is at least one destination reported
+     * and report any errors
+     * @return true if there are no errors in the reponse, false otherwise
+     */
+    fun examineResponse(jsonResponse: String): Boolean {
+
+        var passed = true
+        try {
+            val tree = jacksonObjectMapper().readTree(jsonResponse)
+            val reportId = getReportIdFromResponse(jsonResponse)
+            echo("Id of submitted report: $reportId")
+            val topic = tree["topic"]
+            val errorCount = tree["errorCount"]
+            val destCount = tree["destinationCount"]
+
+            if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
+                good("'topic' is in response and correctly set to 'covid-19'")
+            } else {
+                passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            }
+
+            if (errorCount != null && !errorCount.isNull && errorCount.intValue() == 0) {
+                good("No errors detected.")
+            } else {
+                passed = bad("***$name Test FAILED***: There were errors reported.")
+            }
+
+            if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
+                good("Data going to be sent to one or more destinations.")
+            } else {
+                passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
+            }
+
+            if (reportId == null) {
+                passed = bad("***$name Test FAILED***: Report ID was empty.")
+            }
+        } catch (e: NullPointerException) {
+            passed = bad("***$name Test FAILED***: Unable to properly parse response json")
         }
         return passed
     }
@@ -407,10 +486,12 @@ abstract class CoolTest {
             echo(ANSI_GREEN + msg + ANSI_RESET)
             return true
         }
+
         fun bad(msg: String): Boolean {
             echo(ANSI_RED + msg + ANSI_RESET)
             return false
         }
+
         fun ugly(msg: String) {
             echo(ANSI_CYAN + msg + ANSI_RESET)
         }
@@ -441,6 +522,7 @@ abstract class CoolTest {
             txn: DataAccessTransaction,
             reportId: ReportId,
             receivingOrgSvc: String,
+            receivingOrg: String? = null,
             action: TaskAction,
         ): Int? {
             val ctx = DSL.using(txn)
@@ -448,11 +530,17 @@ abstract class CoolTest {
               from item_lineage as IL
               join report_file as RF on IL.child_report_id = RF.report_id
               join action as A on A.action_id = RF.action_id
-              where RF.receiving_org_svc = ? 
+              where RF.receiving_org_svc = ?
+              ${if (receivingOrg != null) "and RF.receiving_org = ?" else ""}
               and A.action_name = ? 
               and IL.item_lineage_id in 
               (select item_descendants(?)) """
-            return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+
+            if (receivingOrg != null) {
+                return ctx.fetchOne(sql, receivingOrgSvc, receivingOrg, action, reportId)?.into(Int::class.java)
+            } else {
+                return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
+            }
         }
 
         fun reportLineageCountQuery(
@@ -512,7 +600,6 @@ class Ping : CoolTest() {
         val (responseCode, json) = HttpUtilities.postReportBytes(
             environment,
             "x".toByteArray(),
-            orgName,
             simpleRepSender,
             options.key,
             ReportFunction.Options.CheckConnections
@@ -556,7 +643,7 @@ class End2End : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***end2end Test FAILED***:  response code $responseCode")
             passed = false
@@ -564,22 +651,14 @@ class End2End : CoolTest() {
             good("Posting of report succeeded with response code $responseCode")
         }
         echo(json)
-        try {
-            val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
-            echo("Id of submitted report: $reportId")
-            val topic = tree["topic"]
-            if (topic != null && !topic.isNull && topic.textValue().equals("covid-19", true)) {
-                good("'topic' is in response and correctly set to 'covid-19'")
-            } else {
-                bad("***end2end Test FAILED***: 'topic' is missing from response json")
-                passed = false
-            }
-            waitABit(25, environment)
-            return passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
-        } catch (e: NullPointerException) {
-            return bad("***end2end Test FAILED***: Unable to properly parse response json")
+        passed = passed and examineResponse(json)
+        waitABit(25, environment)
+        val reportId = getReportIdFromResponse(json)
+        if (reportId != null) {
+            passed = passed and examineLineageResults(reportId, allGoodReceivers, fakeItemCount)
         }
+
+        return passed
     }
 }
 
@@ -606,13 +685,13 @@ class Merge : CoolTest() {
         // Now send it to ReportStream over and over
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+                HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
             echo("Response to POST: $responseCode")
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***Merge Test FAILED***:  response code $responseCode")
             }
-            val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
             echo("Id of submitted report: $reportId")
             reportId
         }
@@ -645,19 +724,23 @@ class Hl7Null : CoolTest() {
         val numResends = 1
         val reportIds = (1..numResends).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+                HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
                 return bad("***hl7null Test FAILED***:  response code $responseCode")
             }
-            val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
             echo("Id of submitted report: $reportId")
             reportId
         }
         waitABit(30, environment)
-        return examineLineageResults(reportIds[0], listOf(hl7NullReceiver), fakeItemCount)
+        return examineLineageResults(
+            reportId = reportIds[0],
+            receivers = listOf(hl7NullReceiver),
+            totalItems = fakeItemCount
+        )
     }
 }
 
@@ -673,7 +756,7 @@ class TooManyCols : CoolTest() {
             error("Unable to find file ${file.absolutePath} to do toomanycols test")
         }
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -706,7 +789,6 @@ class BadCsv : CoolTest() {
             val (responseCode, json) = HttpUtilities.postReportFile(
                 environment,
                 file,
-                org.name,
                 simpleRepSender,
                 options.key
             )
@@ -759,7 +841,7 @@ class Strac : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, stracSender, options.key)
+            HttpUtilities.postReportFile(environment, file, stracSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -767,7 +849,8 @@ class Strac : CoolTest() {
         }
         try {
             val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
             echo("Id of submitted report: $reportId")
             val expectedWarningCount = 0
             val warningCount = tree["warningCount"].intValue()
@@ -781,7 +864,11 @@ class Strac : CoolTest() {
             }
             // OK, fine, the others failed.   All our hope now rests on you, REDOX - don't let us down!
             waitABit(25, environment)
-            return passed and examineLineageResults(reportId, listOf(redoxReceiver), options.items)
+            return passed and examineLineageResults(
+                reportId = reportId,
+                receivers = listOf(redoxReceiver),
+                totalItems = options.items
+            )
         } catch (e: Exception) {
             return bad("***strac Test FAILED***: Unexpected json returned")
         }
@@ -809,23 +896,22 @@ class StracPack : CoolTest() {
         )
         echo("Created datafile $file")
         // Now send it to ReportStream over and over
-        var reportIds = mutableListOf<ReportId>()
+        val reportIds = mutableListOf<ReportId>()
         var passed = true
         // submit in thread grouping somewhat smaller than our database pool size.
         for (i in 1..options.submits) {
             thread {
                 val (responseCode, json) =
-                    HttpUtilities.postReportFile(environment, file, org.name, stracSender, options.key)
+                    HttpUtilities.postReportFile(environment, file, stracSender, options.key)
                 echo("$i: Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     echo(json)
                     passed = bad("$i: ***StracPack Test FAILED***:  response code $responseCode")
                 } else {
-                    val tree = jacksonObjectMapper().readTree(json)
-                    val reportId = ReportId.fromString(tree["id"].textValue())
+                    val reportId = getReportIdFromResponse(json)
                     echo("$i: Id of submitted report: $reportId")
                     synchronized(reportIds) {
-                        reportIds.add(reportId)
+                        reportId?.let { reportIds.add(reportId) }
                     }
                 }
             }
@@ -834,7 +920,7 @@ class StracPack : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait extra seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(redoxReceiver), options.items)
+                examineLineageResults(reportId = it, receivers = listOf(redoxReceiver), totalItems = options.items)
         }
         return passed
     }
@@ -857,18 +943,22 @@ class Waters : CoolTest() {
         )
         echo("Created datafile $file")
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, watersSender, options.key)
+            HttpUtilities.postReportFile(environment, file, watersSender, options.key)
         echo("Response to POST: $responseCode")
         if (!options.muted) echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             return bad("***Waters Test FAILED***:  response code $responseCode")
         }
-        val tree = jacksonObjectMapper().readTree(json)
-        val reportId = ReportId.fromString(tree["id"].textValue())
+        val reportId = getReportIdFromResponse(json)
+            ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(60, environment, options.muted)
         if (file.exists()) file.delete() // because of RepeatWaters
-        return examineLineageResults(reportId, listOf(blobstoreReceiver), options.items)
+        return examineLineageResults(
+            reportId = reportId,
+            receivers = listOf(blobstoreReceiver),
+            totalItems = options.items
+        )
     }
 }
 
@@ -940,23 +1030,22 @@ class HammerTime : CoolTest() {
         )
         echo("Created datafile $file")
         // Now send it to ReportStream over and over
-        var reportIds = mutableListOf<ReportId>()
+        val reportIds = mutableListOf<ReportId>()
         var passed = true
         // submit in thread grouping somewhat smaller than our database pool size.
         for (i in 1..options.submits) {
             thread {
                 val (responseCode, json) =
-                    HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+                    HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
                 echo("Response to POST: $responseCode")
                 if (responseCode != HttpURLConnection.HTTP_CREATED) {
                     echo(json)
                     passed = bad("***Hammertime Test FAILED***:  response code $responseCode")
                 } else {
-                    val tree = jacksonObjectMapper().readTree(json)
-                    val reportId = ReportId.fromString(tree["id"].textValue())
+                    val reportId = getReportIdFromResponse(json)
                     echo("Id of submitted report: $reportId")
                     synchronized(reportIds) {
-                        reportIds.add(reportId)
+                        reportId?.let { reportIds.add(reportId) }
                     }
                 }
             }
@@ -965,7 +1054,7 @@ class HammerTime : CoolTest() {
         waitABit(5 * options.submits, environment) // SWAG: wait 5 seconds extra per file submitted
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(receiverToTest), options.items)
+                examineLineageResults(reportId = it, receivers = listOf(receiverToTest), totalItems = options.items)
         }
         return passed
     }
@@ -991,12 +1080,12 @@ class Garbage : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, emptySender, options.key)
+            HttpUtilities.postReportFile(environment, file, emptySender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         try {
             val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
             echo("Id of submitted report: $reportId")
             val warningCount = tree["warningCount"].intValue()
             if (warningCount == allGoodReceivers.size) {
@@ -1071,7 +1160,7 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, emptySender, options.key)
+            HttpUtilities.postReportFile(environment, file, emptySender, options.key)
         echo("Response to POST: $responseCode")
         var passed = checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, json)
 
@@ -1088,7 +1177,7 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file2")
         // Now send it to ReportStream.
         val (responseCode2, json2) =
-            HttpUtilities.postReportFile(environment, file2, org.name, emptySender, options.key)
+            HttpUtilities.postReportFile(environment, file2, emptySender, options.key)
         echo("Response to POST: $responseCode2")
         passed = passed and checkJsonItemCountForReceiver(qualityGoodReceiver, 3, json2)
 
@@ -1105,7 +1194,7 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file3")
         // Now send it to ReportStream.
         val (responseCode3, json3) =
-            HttpUtilities.postReportFile(environment, file3, org.name, emptySender, options.key)
+            HttpUtilities.postReportFile(environment, file3, emptySender, options.key)
         echo("Response to POST: $responseCode3")
         passed = passed and checkJsonItemCountForReceiver(qualityFailReceiver, 0, json3)
 
@@ -1122,7 +1211,7 @@ class QualityFilter : CoolTest() {
         echo("Created datafile $file4")
         // Now send it to ReportStream.
         val (responseCode4, json4) =
-            HttpUtilities.postReportFile(environment, file4, org.name, emptySender, options.key)
+            HttpUtilities.postReportFile(environment, file4, emptySender, options.key)
         echo("Response to POST: $responseCode4")
         passed = passed and checkJsonItemCountForReceiver(qualityReversedReceiver, 2, json4)
 
@@ -1150,17 +1239,17 @@ class Huge : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***Huge Test FAILED***:  response code $responseCode")
         }
-        val tree = jacksonObjectMapper().readTree(json)
-        val reportId = ReportId.fromString(tree["id"].textValue())
+        val reportId = getReportIdFromResponse(json)
+            ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
-        return examineLineageResults(reportId, listOf(csvReceiver), fakeItemCount)
+        return examineLineageResults(reportId = reportId, receivers = listOf(csvReceiver), totalItems = fakeItemCount)
     }
 }
 
@@ -1185,7 +1274,7 @@ class TooBig : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         try {
@@ -1227,7 +1316,7 @@ class DbConnections : CoolTest() {
         // Now send it to ReportStream.   Make numResends > 1 to create merges.
         val reportIds = (1..options.submits).map {
             val (responseCode, json) =
-                HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+                HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
             echo("Response to POST: $responseCode")
             echo(json)
             if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1243,7 +1332,7 @@ class DbConnections : CoolTest() {
         var passed = true
         reportIds.forEach {
             passed = passed and
-                examineLineageResults(it, listOf(hl7Receiver), options.items)
+                examineLineageResults(reportId = it, receivers = listOf(hl7Receiver), totalItems = options.items)
         }
         return passed
     }
@@ -1273,19 +1362,23 @@ class BadSftp : CoolTest() {
         )
         echo("Created datafile $file")
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
             bad("***badsftp Test FAILED***:  response code $responseCode")
             return false
         }
-        val tree = jacksonObjectMapper().readTree(json)
-        val reportId = ReportId.fromString(tree["id"].textValue())
+        val reportId = getReportIdFromResponse(json)
+            ?: return bad("***$name Test FAILED***: A report ID came back as null")
         echo("Id of submitted report: $reportId")
         waitABit(30, environment)
         echo("For this test, failure during send, is a 'pass'.   Need to fix this.")
-        return examineLineageResults(reportId, listOf(sftpFailReceiver), options.items)
+        return examineLineageResults(
+            reportId = reportId,
+            receivers = listOf(sftpFailReceiver),
+            totalItems = options.items
+        )
     }
 }
 
@@ -1379,7 +1472,7 @@ class InternationalContent : CoolTest() {
         echo("Created datafile $file")
         // Now send it to ReportStream.
         val (responseCode, json) =
-            HttpUtilities.postReportFile(environment, file, org.name, simpleRepSender, options.key)
+            HttpUtilities.postReportFile(environment, file, simpleRepSender, options.key)
         echo("Response to POST: $responseCode")
         echo(json)
         if (responseCode != HttpURLConnection.HTTP_CREATED) {
@@ -1387,8 +1480,8 @@ class InternationalContent : CoolTest() {
         }
         try {
             // Read the response
-            val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
 
             echo("Id of submitted report: $reportId")
             waitABit(25, environment)
@@ -1414,5 +1507,167 @@ class InternationalContent : CoolTest() {
             echo(e)
             return bad("***intcontent Test FAILED***: There was an error fetching data from the database.")
         }
+    }
+}
+
+/**
+ * Creates fake data as if from a sender and tries to send it to every state and territory
+ */
+class SantaClaus : CoolTest() {
+
+    override val name = "santaclaus"
+    override val description = "Creates fake data as if from a sender and tries to send it to every state and territory"
+    override val status = TestStatus.DRAFT
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+
+        var passed = true
+
+        if (options.env !in listOf("local", "staging")) {
+            return createBad("This test can only be run locally or on staging")
+        }
+
+        var sendersToTestWith = settings.senders.filter {
+            it.organizationName in listOf("simple_report", "waters", "strac", "safehealth")
+        }
+
+        options.sender?.let {
+
+            // validates sender existence
+            val sender = settings.findSender(it) ?: return createBad("The sender indicated doesn't exists '$it'")
+
+            // replace the list of senders to test
+            // with the indicated by parameter
+            sendersToTestWith = listOf(sender)
+        }
+
+        val states = metadata.findLookupTable("fips-county")?.getDistinctValuesInColumn("State")?.toList() ?: listOf()
+
+        sendersToTestWith.forEach { sender ->
+
+            ugly("Starting $name Test: send with ${sender.fullName}")
+
+            val file = FileUtilities.createFakeFile(
+                metadata = metadata,
+                sender = sender,
+                count = states.size,
+                format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
+                directory = System.getProperty("java.io.tmpdir"),
+                targetStates = null,
+                targetCounties = null
+            )
+            echo("Created datafile $file")
+
+            // Now send it to ReportStream.
+            val (responseCode, json) =
+                HttpUtilities.postReportFile(environment, file, sender, null)
+
+            if (responseCode != HttpURLConnection.HTTP_CREATED) {
+                return bad("***$name Test FAILED***:  response code $responseCode")
+            } else {
+                good("Posting of report succeeded with response code $responseCode")
+            }
+            echo(json)
+
+            val tree = jacksonObjectMapper().readTree(json)
+            val reportId = getReportIdFromResponse(json)
+                ?: return bad("***$name Test FAILED***: A report ID came back as null")
+
+            val destinations = tree["destinations"]
+            if (destinations != null && destinations.size() > 0) {
+
+                val receivers = mutableListOf<Receiver>()
+
+                destinations.forEach { destination ->
+                    if (destination != null && destination.has("service")) {
+
+                        val receiverName = destination["service"].textValue()
+                        val organizationId = destination["organization_id"].textValue()
+
+                        receivers.addAll(
+                            settings.receivers.filter {
+                                it.organizationName == organizationId && it.name == receiverName
+                            }
+                        )
+                    }
+                }
+
+                if (!receivers.isNullOrEmpty()) {
+
+                    // give some time to let the system
+                    // finish with the expected output
+                    waitWithConditionalRetry(
+                        90,
+                        {
+                            examineLineageResults(
+                                reportId = reportId,
+                                receivers = receivers,
+                                totalItems = receivers.size,
+                                filterOrgName = true,
+                                silent = true
+                            )
+                        },
+                        callback = { succeed, retryCount ->
+                            if (!succeed) {
+                                if (retryCount == 0) {
+                                    println("Waiting for examining lineage results of sender '${sender.fullName}'")
+                                }
+                                print(".")
+                            } else {
+                                println()
+                            }
+                        }
+                    )
+
+                    // just to print to console some beautified output
+                    passed = passed and examineLineageResults(
+                        reportId = reportId,
+                        receivers = receivers,
+                        totalItems = receivers.size,
+                        filterOrgName = true,
+                        silent = false
+                    )
+                }
+            }
+        }
+
+        return passed
+    }
+
+    /**
+     * Executes the 'block' function parameter and
+     * evaluates its boolean result. If it's false it
+     * retries the execution in 1 second, at most the
+     * quantity of retries indicated by parameter.
+     *
+     * @param retries Max times to repeat the execution of @param[block] while it returns false
+     * @param block Function to evaluate its result
+     * @param callback Returns the state of the last execution and the retry count
+     *
+     * @return true if the @param[block] returns true, false otherwise or if the retry count reaches to its limit
+     */
+    private fun waitWithConditionalRetry(
+        retries: Int,
+        block: () -> Boolean,
+        callback: (succeed: Boolean, retryCount: Int) -> Unit
+    ): Boolean {
+
+        var retriesCopy = retries
+
+        while (retriesCopy > 0) {
+            val blockSuccess = block()
+            callback(blockSuccess, abs(retriesCopy - retries))
+            if (blockSuccess) {
+                return true
+            }
+            retriesCopy--
+            sleep(1000)
+        }
+
+        return false
+    }
+
+    private fun createBad(message: String): Boolean {
+        return bad("***$name Test FAILED***: $message")
     }
 }
