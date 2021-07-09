@@ -301,7 +301,7 @@ function post_run_instructions() {
   echo "Please run the following command to load your credentials and run the End-to-End tests:"
   echo ""
   echo "    \$ export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")"
-  echo "    \$ ./gradlew testEnd2End\n"
+  echo "    \$ ./gradlew testEnd2End"
 }
 
 #
