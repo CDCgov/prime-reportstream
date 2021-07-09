@@ -22,5 +22,7 @@ mkdir -p ${HOME?}/bin/gradle-bins/
 cd ${HOME?}/bin/gradle-bins/
 VERSION=7.1.1
 wget https://services.gradle.org/distributions/gradle-${VERSION?}-bin.zip
+unzip "gradle-${VERSION?}-bin-zip"
+rm "gradle-${VERSION?}-bin-zip"
 ln -s "${HOME?}/bin/gradle-bins/gradle-${VERSION}/bin/gradle" "${HOME?}/bin/gradle"
 ```
