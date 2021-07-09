@@ -51,11 +51,10 @@ If you want to build outside of docker, you'll need the OpenJDK (v11), Maven, th
 
 #### Mac
 
-1. Set up Java 11 and Maven by opening up a Terminal session and
+1. Set up Java 11 by opening up a Terminal session and
 entering:
     ```
     brew install openjdk@11
-    brew install maven
     ```
 
 2. Install Azure tools
