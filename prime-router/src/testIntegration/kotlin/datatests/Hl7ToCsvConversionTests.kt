@@ -33,8 +33,8 @@ import kotlin.test.fail
 // This keeps this test class from running in parallel with other test classes and letting the time zone change
 // affect other tests
 @NotThreadSafe
-class Hl7ToCsvConversionTests : ConversionTest {
-
+class Hl7ToCsvConversionTests  {
+/*
     /**
      * The folder from the classpath that contains the test files
      */
@@ -247,4 +247,6 @@ class Hl7ToCsvConversionTests : ConversionTest {
             if (errorMsgs.size == 0 && warningMsgs.size > 0) println(warningMsgs.joinToString("\n"))
         }
     }
+
+ */
 }

@@ -34,7 +34,8 @@ import kotlin.test.fail
  * be compared to the file CE-20200415-0001.hl7.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CsvToHl7ConversionTests : ConversionTest {
+class CsvToHl7ConversionTests {
+    /*
 
     /**
      * The folder from the classpath that contains the test files
@@ -319,4 +320,6 @@ class CsvToHl7ConversionTests : ConversionTest {
             }
         }
     }
+
+     */
 }
