@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-# Formatting colors
-RED="\e[1;91m"
-GREEN="\e[1;92m"
-YELLOW="\e[1;33m"
-PLAIN="\e[0m"
-WHITE="\e[1;97m"
-
 # Actual variables we'll reference
 HERE="$(dirname "${0}")"
 LOG="${0}.log" # myscript.sh.log
@@ -79,23 +72,23 @@ EOF
 
 function verbose() {
   if [[ ${VERBOSE?} != 0 ]]; then
-    echo -e "${WHITE?}VERBOSE:${PLAIN?} ${*}" | tee -a "${LOG?}"
+    echo "VERBOSE: ${*}" | tee -a "${LOG?}"
   fi
 }
 
 # Helper function to output infos
 function info() {
-  echo -e "${WHITE?}INFO:${PLAIN?} ${*}" | tee -a "${LOG?}"
+  echo "INFO: ${*}" | tee -a "${LOG?}"
 }
 
 # Helper function to output warnings
 function warn() {
-  echo -e "${YELLOW?}WARNING: ${PLAIN?} ${*}" | tee -a "${LOG?}"
+  echo "WARNING: ${*}" | tee -a "${LOG?}"
 }
 
 # Helper function to output errors
 function error() {
-  echo -e "${RED?}ERROR:${PLAIN?} ${*}" | tee -a "${LOG?}"
+  echo "ERROR: ${*}" | tee -a "${LOG?}"
 }
 
 # Takes ownership of some directories that are potentially shared with container instances
@@ -138,12 +131,10 @@ function wait_for_vault_creds() {
   export $(cat .vault/env/.env.local | xargs)
   if [[ ${__SHOWN_VAULT_INFO} == 0 ]]; then
     info "Your vault credentials are:"
-    echo -en "${WHITE?}" |
       tee -a "${LOG?}"
     cat "${VAULT_ENV_LOCAL_FILE?}" |
       sed 's/^/    /g' |
       tee -a "${LOG?}"
-    echo -en "${PLAIN?}" |
       tee -a "${LOG?}"
 
     __SHOWN_VAULT_INFO=1
@@ -310,8 +301,8 @@ function initialize() {
 function post_run_instructions() {
   echo "Please run the following command to load your credentials and run the End-to-End tests:"
   echo ""
-  echo -e "    \$ ${WHITE?}export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")${PLAIN?}"
-  echo -e "    \$ ${WHITE?}./gradlew testEnd2End${PLAIN?}\n"
+  echo "    \$ export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")"
+  echo "    \$ ./gradlew testEnd2End\n"
 }
 
 #
@@ -379,7 +370,7 @@ fi
 
 if [[ ${KEEP_BUILD_ARTIFACTS?} == 0 ]] && [[ ${KEEP_PRIME_CONTAINER_IMAGES} != 0 ]]; then
   # Just trying to save you some time and discomfort...
-  warn "You seem to want to rebuild the product, but ${WHITE?}not${PLAIN?} the container images. Are you sure this is what you want?"
+  warn "You seem to want to rebuild the product, but _NOT_ the container images. Are you sure this is what you want?"
   echo -n "Enter 'YES' verbatim if this is what you really want to do: " |
     tee -a "${LOG?}"
   read __YOU_SURE_ANSWER
