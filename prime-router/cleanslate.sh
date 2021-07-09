@@ -130,11 +130,10 @@ function wait_for_vault_creds() {
 
   export $(cat .vault/env/.env.local | xargs)
   if [[ ${__SHOWN_VAULT_INFO} == 0 ]]; then
-    info "Your vault credentials are:"
+    info "Your vault credentials are:" |
       tee -a "${LOG?}"
     cat "${VAULT_ENV_LOCAL_FILE?}" |
       sed 's/^/    /g' |
-      tee -a "${LOG?}"
       tee -a "${LOG?}"
 
     __SHOWN_VAULT_INFO=1
