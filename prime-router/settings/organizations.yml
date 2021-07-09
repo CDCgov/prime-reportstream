@@ -107,6 +107,16 @@
       schemaName: direct/careevolution-covid-19
       format: HL7
 
+- name: primary
+  description: Primary Diagnostics, Inc. (primary.health)
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: primary
+      topic: covid-19
+      schemaName: direct/primary-covid-19
+      format: HL7
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
