@@ -289,10 +289,11 @@ function activate_containers() {
     docker-compose --file "docker-compose.yml" restart prime_dev 1>>"${LOG?}" 2>&1
   fi
 
-  info "=============================================="
-  info "OUTPUTTING PRIME_DEV ENVIRONMENT"
+  info "prime_dev service environment variables"
   # BUG: this assumes you're not running multiple of this; don't do that!
-  docker exec -it prime-router_prime_dev_1 export | tee -a "${LOG}"
+  docker exec -it prime-router_prime_dev_1 bash -c "export" |
+    sed "s/^declare -x /    /g" |
+    tee -a "${LOG}"
 }
 
 function populate_vault() {
