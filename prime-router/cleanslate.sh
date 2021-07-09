@@ -15,6 +15,7 @@ DOCKER_COMPOSE_PREFIX="prime-router_"
 
 VERBOSE=0
 SHOW_HELP=0
+SHOW_INSTRUCTIONS=0
 KEEP_VAULT=0
 KEEP_BUILD_ARTIFACTS=0
 KEEP_PRIME_CONTAINER_IMAGES=0
@@ -36,6 +37,7 @@ OPTIONS:
   --keep-vault              Does not eliminate your vault information
   --prune-volumes           Forces a docker volume prune -f after taking containers
                             down (disables --keep-vault, including when set via --keep-all)
+  --instructions            Shows post-run instructions
   --verbose                 Get "more" output
   --help|-h                 Shows this help
 
@@ -48,7 +50,7 @@ Examples:
 
   # Most aggressive mode: same as default mode but also get rid of docker volumes,
   # this affects your PostgreSQL database
-  # CAVEAT EMPTOR: this performs a `docker volume prune -f` after having stopped our
+  # CAVEAT EMPTOR: this performs a $(docker volume prune -f) after having stopped our
   # own containers, make sure you understand what this means for other unattached
   # or unused volumes on your system
   $ ${0} --prune-volumes
@@ -305,6 +307,13 @@ function initialize() {
   return 0
 }
 
+function post_run_instructions() {
+  echo "Please run the following command to load your credentials:"
+  echo ""
+  echo -e "    \$ ${WHITE?}export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")${PLAIN?}"
+  echo -e "    \$ ${WHITE?}./gradlew testEnd2End${PLAIN?}\n"
+}
+
 #
 # Parse arguments
 #
@@ -330,6 +339,9 @@ while [[ -n ${1} ]]; do
   "--help" | "-h")
     SHOW_HELP=1
     ;;
+  "--instructions")
+    SHOW_INSTRUCTIONS=1
+    ;;
   "--verbose")
     VERBOSE=1
     ;;
@@ -345,6 +357,11 @@ done
 
 if [[ ${SHOW_HELP?} != 0 ]]; then
   usage
+  exit 0
+fi
+
+if [[ ${SHOW_INSTRUCTIONS?} != 0 ]]; then
+  post_run_instructions
   exit 0
 fi
 
@@ -366,7 +383,7 @@ if [[ ${KEEP_BUILD_ARTIFACTS?} == 0 ]] && [[ ${KEEP_PRIME_CONTAINER_IMAGES} != 0
   echo -n "Enter 'YES' verbatim if this is what you really want to do: " |
     tee -a "${LOG?}"
   read __YOU_SURE_ANSWER
-  echo "${__YOU_SURE_ANSWER}" >> "${LOG?}"
+  echo "${__YOU_SURE_ANSWER}" >>"${LOG?}"
   if [[ "${__YOU_SURE_ANSWER}" != "YES" ]]; then
     info "wise choice"
     exit 2
@@ -393,15 +410,9 @@ if [[ ${RC?} == 0 ]]; then
   RC=$?
 fi
 
-cat <<EOF
-
-Your environment has been reset to as clean a slate as possible. Please run \
-the following command to load your credentials:
-
-EOF
-
-echo -e "    \$ ${WHITE?}export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")${PLAIN?}"
-echo -e "    \$ ${WHITE?}./gradlew testEnd2End${PLAIN?}\n"
+echo ""
+echo "Your environment has been reset to as clean a slate as possible."
+post_run_instructions
 
 popd 2>&1 1>/dev/null
 
