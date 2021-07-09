@@ -38,13 +38,13 @@ You will need to have at least the following pieces of software installed _local
 
 * [git](getting-started/install-git.md) including git-bash if you're on Windows
 * [Docker](getting-started/install-docker.md)
-* [OpenJDK](getting-started/install-openjdk.md) (currently targetting 11)
+* [OpenJDK](getting-started/install-openjdk.md) (currently targetting 11 through 15)
 * [Azure Functions Core Tools](getting-started/install-afct.md) (currently targetting 3)
 
 Optionally, you may also want to install:
 
 * [AzureCLI](getting-started/install-azurecli.md)
-* gradle
+* [Gradle](https://gradle.org/install/)
 
 # First build
 
