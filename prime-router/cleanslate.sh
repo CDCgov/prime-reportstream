@@ -101,14 +101,22 @@ function take_directory_ownership() {
     "./.vault/"
   )
 
+  # If you have no sudo, then this is a no-op and we warn
+  SUDO_CMD=$(which sudo | head -n 1)
+  if [[ -z "${SUDO_CMD}" ]]; then
+    warning "You do not apear to have 'sudo'; it is highly probable that incorrect file permissions will lead to sftp upload failures when you run tests"
+  fi
+
   for d in ${TARGETS[*]}; do
     echo -ne "    - ${d?}..."
     if [[ -d "${d?}" ]]; then
-      sudo chown -R "$(id -u -n):$(id -g -n)" "${d?}"
-      sudo chmod -R a+w "${d?}"
+      # No '?' in the variable reference, it's fine for it to not exist, this may just be a no-op
+      # and we warned you about it just above
+      ${SUDO_CMD} chown -R "$(id -u -n):$(id -g -n)" "${d?}"
+      ${SUDO_CMD} chmod -R a+w "${d?}"
       echo "DONE"
     else
-      echo "NOT_THERE"
+      echo "ABSENT(OK)"
     fi
   done
 }
@@ -263,8 +271,28 @@ function ensure_binaries() {
 function activate_containers() {
   info "Bringing up your development containers"
   docker-compose --file "docker-compose.build.yml" up --detach postgresql 1>>"${LOG?}" 2>&1
+
+  # The very first time you run this, we are in a bit of pickle: you're loading the credentials
+  # to the vault into the prime_dev container from an env-file .vault/env/.env.local but if you've never
+  # run the vault before, that file will be empty leaving your container without credentials to the vault
+  # Make this pick up the vault creds
+  # THUS
+  # We spin up the vault and wait for it to populate your vault credentials
   wait_for_vault_creds
+  # Then we make sure we have nothing running
   docker-compose --file "docker-compose.yml" up --detach 1>>"${LOG?}" 2>&1
+
+  # On mac, the prime_dev service sometimes crashes so we'll wait for a little while and then forcibly restart it
+  if [[ "${OSTYPE?}" == "darwin"* ]]; then
+    info "Making sure the prime_dev container is actually running (circumvention of provider-is-null-bug)"
+    sleep 5
+    docker-compose --file "docker-compose.yml" restart prime_dev 1>>"${LOG?}" 2>&1
+  fi
+
+  info "=============================================="
+  info "OUTPUTTING PRIME_DEV ENVIRONMENT"
+  # BUG: this assumes you're not running multiple of this; don't do that!
+  docker exec -it prime-router_prime_dev_1 export | tee -a "${LOG}"
 }
 
 function populate_vault() {
@@ -301,6 +329,10 @@ function post_run_instructions() {
   echo "Please run the following command to load your credentials and run the End-to-End tests:"
   echo ""
   echo "    \$ export \$(xargs < "${VAULT_ENV_LOCAL_FILE?}")"
+  if [[ "${OSTYPE?}" == "darwin"* ]]; then
+    echo "    \$ docker-compose down"
+    echo "    \$ docker-compose up --detach"
+  fi
   echo "    \$ ./gradlew testEnd2End"
 }
 
