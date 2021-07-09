@@ -44,7 +44,7 @@ You will need to have at least the following pieces of software installed _local
 Optionally, you may also want to install:
 
 * [AzureCLI](getting-started/install-azurecli.md)
-* [Gradle](https://gradle.org/install/)
+* [Gradle](getting-started/install-gradle.md)
 
 # First build
 
