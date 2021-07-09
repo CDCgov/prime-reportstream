@@ -149,7 +149,7 @@ docker-compose --file ./docker-compose.build.yml up --detach
 Compile the project by running the following command:
 
 ```
-./build.sh -- gradle package
+./gradlew package
 ```
 
 Other gradle tasks you can run are:
@@ -208,10 +208,10 @@ To orchestrate running the Azure function code and Azurite, Docker Compose is a 
 ```
 mkdir -p .vault/env
 touch .vault/env/.env.local
-./build.sh -- gradle package
+./gradlew package
 PRIME_ENVIRONMENT=local docker-compose up
 ```
-Docker-compose will build a `prime_dev` container with the output of the `./build.sh -- gradle package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
+Docker-compose will build a `prime_dev` container with the output of the `./gradlew package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
 
 ![Docker Compose](assets/docker_compose_log.png)
 
@@ -223,7 +223,7 @@ If you see any SSL errors during this step, follow the directions in [Getting Ar
 Run the following Gradle command to generate the schema documentation.  The documentation is written to `docs/schema-documentation`
 
 ```
-./build.sh -- gradle generateDocs
+./gradlew generateDocs
 ```
 
 
@@ -231,13 +231,13 @@ Run the following Gradle command to generate the schema documentation.  The docu
 ### Unit Tests
 Unit tests are run as part of the build.  To run the unit tests, run the following command:
 ```
-./build.sh -- gradle test
+./gradlew test
 ```
 
 Sometimes you want to force the unit tests to run.   You can do that with the -Pforcetest option, like one of these examples:
 ```
-./build.sh -- gradle test -P forcetest
-./build.sh -- gradle package -P forcetest
+./gradlew test -P forcetest
+./gradlew package -P forcetest
 ```
 
 ### Data Conversion Quick Test
@@ -259,7 +259,7 @@ End-to-end tests check if the deployed system is configured correctly.  The test
 1. Run the Prime Router in the Docker container.
 1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:
     ```bash
-    ./build.sh -- gradle testEnd2End
+    ./gradlew testEnd2End
     ```
 1. Verify that all tests are successful.
 
@@ -276,7 +276,7 @@ Example
  # exported environment variable DB_URL
 export DB_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
 # Command-level environment variable (DB_PASSWORD) and project property (DB_USER)
-DB_PASSWORD=mypassword ./build.sh -- gradle testEnd2End -PDB_USER=prime
+DB_PASSWORD=mypassword ./gradlew testEnd2End -PDB_USER=prime
 ```
 
 Alternatively, you can specify values for project properties via environment variables per the Gradle project properties environment `ORG_GRADLE_PROJECT_<property>`.  For example:
