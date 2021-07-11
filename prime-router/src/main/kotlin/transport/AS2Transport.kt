@@ -80,14 +80,14 @@ class AS2Transport : ITransport, Logging {
             val receiverFullName = header.receiver?.fullName ?: "null"
             if (isErrorTransient(t)) {
                 val msg = "FAILED AS2 upload of inputReportId $reportId to $as2Info (orgService = $receiverFullName);" +
-                    "Retry all items; Exception: ${t.localizedMessage}"
+                    "Retry all items; Exception: ${t.javaClass.canonicalName} ${t.localizedMessage}"
                 context.logger.warning(msg)
                 actionHistory.setActionType(TaskAction.send_error)
                 actionHistory.trackActionResult(msg)
                 RetryToken.allItems
             } else {
                 val msg = "FAILED AS2 upload of inputReportId $reportId to $as2Info (orgService = $receiverFullName);" +
-                    "No retry; Exception: ${t.localizedMessage}"
+                    "No retry; Exception: ${t.javaClass.canonicalName} ${t.localizedMessage}"
                 // Dev note: Expecting severe level to trigger monitoring alerts
                 context.logger.severe(msg)
                 actionHistory.setActionType(TaskAction.send_error)

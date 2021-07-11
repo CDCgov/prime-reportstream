@@ -51,6 +51,13 @@ In addition, there is the translation section, which specifies the output format
 The mechanism for how each record is translated is laid out in the schema, which is discussed below
 
 ### Set up a new schema
+*NOTE - IF YOU ARE WORKING ON AN HL7 RECEIVER, YOU DO NOT NEED TO CREATE A NEW SCHEMA.*
+
+By default, any HL7 receiver will use the COVID-19 schema and you do not need to create a schema
+specific to your receiver. If they are going to receive a CSV file you *MUST* create a schema. In lieu
+of a schema, we use the `TranslationConfig` to set default values and control HL7 processing.
+
+You should, however, still read the next section about schemas so you know how they work.
 
 - Canonical location style:   `metadata/schemas/LT/lt-covid-19.schema`
 - Canonical name style: `name: lt-covid-19`

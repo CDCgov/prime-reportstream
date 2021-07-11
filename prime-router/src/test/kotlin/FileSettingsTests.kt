@@ -101,7 +101,7 @@ class FileSettingsTests {
 
     @Test
     fun `test loading local settings`() {
-        val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-local")
+        val settings = FileSettings(FileSettings.defaultSettingsDirectory)
         assertThat(settings).isNotNull()
     }
 

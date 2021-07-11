@@ -19,7 +19,6 @@
     + [Local End-to-end Tests](#local-end-to-end-tests)
   * [Using local configuration for organizations.yml](#using-local-configuration-for-organizationsyml)
   * [Getting Around SSL Errors](#getting-around-ssl-errors)
-    + [Maven Builds](#maven-builds)
     + [Docker Builds](#docker-builds)
   * [Managing the local Hashicorp Vault secrets database](#managing-the-local-hashicorp-vault-secrets-database)
     + [Initialize the Vault](#initialize-the-vault)
@@ -35,11 +34,11 @@
 ### Pre-requisites
 #### Mac or Linux OS
 
-1. Set up Java 11 and Maven by opening up a Terminal session and
+1. Set up Java 11 and Gradle by opening up a Terminal session and
 entering:
     ```
     brew install openjdk@11
-    brew install maven
+    brew install gradle
     ```
 
 2. Install Azure tools
@@ -54,9 +53,9 @@ entering:
 #### Windows OS
 Install the following applications in your Windows workstation.  Note that you will require administrator privileges to install them
 
-1. [OpenJDK 11 or later](https://jdk.java.net/) - the Java virtual machine and development kit
+1. [OpenJDK 11 through OpenJDK 15](https://jdk.java.net/) - the Java virtual machine and development kit (*note* - OpenJDK@16 currently does not work with the application. Do not use it.)
 1. [Git Bash](https://git-scm.com/download/win) - Git command line tools and Linux Bash shell
-1. [Maven](https://maven.apache.org/download.cgi) - Tool for building and managing Java based projects.  Make sure to add the Maven executable (`mvn`) to the path
+1. [Gradle](https://gradle.org/install/) - Tool for building and managing Java based projects.  Make sure to add the Gradle executable (`gradlew`) to the path
 1. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli) - Azure command line tools
 1. [Azure function core tools v3](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Ccsharp%2Cbash#v2) - Azure core functions tools
 1. [Docker Desktop](https://www.docker.com/get-started) - container management application
@@ -185,7 +184,7 @@ The project's [README](../readme.md) file contains some steps to use the PRIME r
 
 Developers can also run the router locally with the same Azure runtime and libraries to help develop and debug Azure code. In this case, a developer can use a local Azure storage emulator, called Azurite.
 
-To orchestrate running the Azure function code and Azurite, Docker Compose is a useful tool. After installing or the equivalent, build the project using `Maven` and then run the project in Docker containers using `docker-compose.`  Note: make sure Docker Desktop or equivalent is running before running the following commands.
+To orchestrate running the Azure function code and Azurite, Docker Compose is a useful tool. After installing or the equivalent, build the project using `Gradle` and then run the project in Docker containers using `docker-compose.`  Note: make sure Docker Desktop or equivalent is running before running the following commands.
 ```
 mkdir -p .vault/env
 touch .vault/env/.env.local
@@ -233,6 +232,7 @@ End-to-end tests check if the deployed system is configured correctly.  The test
     ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass'
     ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass'
     ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass'
+    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass'
     ```
 1. Run the Prime Router in the Docker container.
 1. To run the test, run the following commands, replacing the value for Postgres URL, user and/or password as needed:

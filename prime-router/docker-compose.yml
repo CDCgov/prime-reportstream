@@ -72,7 +72,7 @@ services:
 
   settings:
     build: settings/.
-    command: "--wait=15 prime_dev /settings/organizations-local.yml"
+    command: "--wait=20 --check-last-modified prime_dev /settings/organizations.yml"
     depends_on:
       - prime_dev
     volumes:
