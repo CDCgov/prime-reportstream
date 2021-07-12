@@ -202,8 +202,10 @@ function cleanup_build_artifacts() {
 # Cleans up your vault (i.e. )
 function reset_vault() {
   if [[ ${KEEP_VAULT?} == 0 ]]; then
-    info "Cleaning up vault information"
+    info "Cleaning up vault information (may require elevation)"
+
     mkdir -p .vault/env
+    sudo chmod -R 777 .vault/env
     rm -rf .vault/env/{key,.env.local}
 
     # Create an empty .env.local file
@@ -242,7 +244,7 @@ function refresh_docker_images() {
 }
 
 function ensure_build_dependencies() {
-  verbose "Bringing up the minimum build dependencies"
+  info "Bringing up the minimum build dependencies"
   docker-compose --file "docker-compose.build.yml" up --detach 1>>"${LOG?}" 2>&1
   if [[ ${?} != 0 ]]; then
     error "The docker-compose.build.yml environment could not be brought up"
