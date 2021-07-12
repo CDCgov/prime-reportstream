@@ -92,6 +92,10 @@ resource "azurerm_function_app" "function_app" {
     "DOCKER_REGISTRY_SERVER_PASSWORD" = data.azurerm_container_registry.container_registry.admin_password
     "DOCKER_CUSTOM_IMAGE_NAME" = "${data.azurerm_container_registry.container_registry.login_server}/${var.resource_prefix}:latest"
 
+    # With this variable set, clients can only see (and pull) signed images from the registry
+    # First make signing work, then enable this
+    # "DOCKER_CONTENT_TRUST" = 1
+
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
 
     "APPINSIGHTS_INSTRUMENTATIONKEY" = var.ai_instrumentation_key
