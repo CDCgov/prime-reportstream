@@ -51,6 +51,13 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 
 import com.okta.jwt.JwtVerifiers
 import java.util.logging.Level
+import java.util.logging.Logger
+
+const val SCHEDULE = "*/5 * * * *" // every 5 minutes
+const val OKTA_ISSUER = "https://hhs-prime.okta.com/oauth2/default"
+const val OKTA_GROUPS_API = "https://hhs-prime-admin.okta.com/api/v1/groups"
+const val FROM_EMAIL = "reportstream@cdc.gov"
+const val SUBJECT_EMAIL = "ReportStream Daily Email"
 
 
 
@@ -67,33 +74,62 @@ class EmailScheduleEngine  {
 
     val workflowEngine = WorkflowEngine()
 
+
+    /**
+     * Create Email Schedule
+     */
+    @FunctionName("createEmailSchedule")
+    @StorageAccount("AzureWebJobsStorage")
+    fun createEmailSchedule(
+        @HttpTrigger(
+            name = "createEmailSchedule",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "email-schedule"
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        var user:String? = validateUser( request, context.logger );
+        var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED);
+
+        if( user !== null ){
+            WorkflowEngine.databaseAccess.insertEmailSchedule(request.body, user );
+            ret.status(HttpStatus.CREATED)
+        }
+        return ret.build();
+    }
+
+    /**
+     * Timer Trigger to fire when processing schedules
+     *   fires every 5 minutes
+     */
     @FunctionName("emailScheduleEngine")
     @StorageAccount("AzureWebJobsStorage")
     @Suppress( "UNUSED_PARAMETER" )
     fun run(
-        @TimerTrigger( name = "emailScheduleEngine", schedule = "*/5 * * * *") timerInfo : String,
+        @TimerTrigger( name = "emailScheduleEngine", schedule = SCHEDULE ) timerInfo : String,
         context: ExecutionContext
     ){
+        val logger : Logger = context.logger;
         val mapper = ObjectMapper().registerModule(KotlinModule());
 
         // get the schedules to fire
-        val schedulesToFire : List<EmailSchedule> = getSchedules()
+        val schedulesToFire : List<EmailSchedule> = WorkflowEngine.databaseAccess.fetchEmailSchedules()
             .map{ mapper.readValue<EmailSchedule>( it ) }
-            .filter{ shouldFire( it ) };
-        schedulesToFire.forEach { schedule -> 
-            val last: Date = getLastTimeFired( schedule );
-            val orgs: List<String> = getOrgs( schedule );
+            .filter{ shouldFire( it ) }
 
-            context.logger.info( "processing ${schedule.template}" )
+        schedulesToFire.forEach { schedule -> 
+            val orgs: Iterable<String> = getOrgs( schedule );
+
+            logger.info( "processing ${schedule.template}" )
 
             // get the orgs to fire for
             orgs.forEach{ org ->
-                    val emails: List<String> = if ( schedule.emails.size > 0) schedule.emails else getEmails(org, context)
-                    val reportsSinceLast: List<ReportFile> = getReportsSinceLast(org,last);
-                    context.logger.info( "processing ${org}" )
+                    val emails: List<String> = if ( schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
+                    logger.info( "processing ${org}" )
                     emails.forEach{ email -> 
-                        context.logger.info( "sending email to ${email}" )
-                        dispatchToSendGrid( schedule.template, listOf(email), reportsSinceLast, context );
+                        logger.info( "sending email to ${email}" )
+                        dispatchToSendGrid( schedule.template, listOf(email), logger );
                     }
             }
         }
@@ -101,6 +137,10 @@ class EmailScheduleEngine  {
 
     /**
      * Determine if a schedule should fire
+     * 
+     * @param schedule to check if it should fire
+     * 
+     * @returns true if the given schedule should fire; false otherwise
      */
     private fun shouldFire( schedule: EmailSchedule ): Boolean{
 
@@ -110,13 +150,14 @@ class EmailScheduleEngine  {
         val executionTime = ExecutionTime.forCron(parser.parse(schedule.cronSchedule));
         val timeFromLastExecution = executionTime.timeFromLastExecution(now);
 
-        return ( timeFromLastExecution.get().toSeconds() <= 4*60);
+        return ( timeFromLastExecution.get().toSeconds() <= 4*60 /* 4 minutes */);
     }
 
     /**
      * Reports the last time that the timer has been fired for this schedule
      * 
      * @param schedule the schedule to check the last time fired against
+     * 
      * @returns Date of the last time fired
      */
     private fun getLastTimeFired( schedule: EmailSchedule ): Date {
@@ -132,9 +173,10 @@ class EmailScheduleEngine  {
      * Retreives the organization to send the emailschedule to
      * 
      * @param schedule the schedule to check organizations against
+     * 
      * @returns List of organizations for the schedule
      */
-    private fun getOrgs( schedule: EmailSchedule ): List<String> {
+    private fun getOrgs( schedule: EmailSchedule ): Iterable<String> {
         return (
             if (schedule.organizations.size > 0) 
                 schedule.organizations 
@@ -150,80 +192,57 @@ class EmailScheduleEngine  {
      */
     private fun fetchAllOrgs(): List<String>{    
         @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )    
-        var ret = workflowEngine.db.transactReturning {  tx -> 
+        return workflowEngine.db.transactReturning {  tx -> 
             @Suppress( "UNRESOLVED_REFERENCE")
             val settings = workflowEngine.db.fetchSettings( SettingType.ORGANIZATION, tx )
             @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )
             settings.map{ it.getName() }
         }
-       
-        @Suppress("OVERLOAD_RESOLUTION_AMBIGUITY")
-        System.out.println( ret );
-        return ret;
     }
 
-
-    @FunctionName("createEmailSchedule")
-    @StorageAccount("AzureWebJobsStorage")
-    fun createEmailSchedule(
-        @HttpTrigger(
-            name = "createEmailSchedule",
-            methods = [HttpMethod.POST],
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "email-schedule"
-        ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext,
-    ): HttpResponseMessage {
-        var user:String? = validateUser( request, context );
-        var ret = request.createResponseBuilder(HttpStatus.CREATED);
-
-        if( user !== null ){
-            WorkflowEngine.databaseAccess.insertEmailSchedule(request.body, user );
-        }
-        else{
-            ret.status(HttpStatus.UNAUTHORIZED )
-        }
-        return ret.build();
-    }
-
-
-    fun validateUser( request: HttpRequestMessage<String?>, context: ExecutionContext ): String? {
+    /**
+     * Validates the JWT Token supplied in the authorization header
+     * 
+     * @param request the HTTPRequest object
+     * @param logger logger
+     * 
+     * @returns user from the token; otherwise null
+     */
+    fun validateUser( request: HttpRequestMessage<String?>, logger: Logger! ): String? {
         var jwtToken = request.headers["authorization"] ?: ""
 
         jwtToken = if (jwtToken.length > 7) jwtToken.substring(7) else ""
+
+        var user: String? = null;
 
         if (jwtToken.isNotBlank()) {
             try {
                 // get the access token verifier
                 val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-                    .setIssuer("https://hhs-prime.okta.com/oauth2/default")
+                    .setIssuer(OKTA_ISSUER)
                     .build()
                 // get it to decode the token from the header
                 val jwt = jwtVerifier.decode(jwtToken)
                     ?: throw Throwable("Error in validation of jwt token")
-                // get the user name and org
-                return jwt.claims["sub"].toString();
+                // get the user name
+                user = jwt.claims["sub"].toString();
             }
             catch (ex: Throwable) {
-                context.logger.log(Level.WARNING, "Error in verification of token", ex)
-                return null
+                logger.log(Level.WARNING, "Error in verification of token", ex)
             }
         }
-        return null;
+        return user;
     }
-    
 
-    /**
-     * TODO: Fixme!
-     */
-    private fun getSchedules(): List<String>{
-        return WorkflowEngine.databaseAccess.fetchEmailSchedules();
-    }
 
     /**
      * Converts an organization name to an OKTA group name
+     * 
+     * @param org organization name (ex. pima-az-phd )
+     * 
+     * @returns encoded org name (ex. DHpima_az_phd )
      */
-    private fun convertOrgToGroup( org: String ): String {
+    private fun encodeOrg( org: String ): String {
         return "DH"+org.replace( "-","_" )
     }
 
@@ -231,74 +250,62 @@ class EmailScheduleEngine  {
      * Retrieve a list of emails within an organization
      * 
      * @params org The organization to fetch emails for
+     * 
      * @returns List of emails to send to
      */
-    private fun getEmails( org: String, context: ExecutionContext ): List<String> {
+    private fun getEmails( org: String, logger: Logger! ): List<String> {
 
-        var ssws: String? = SecretHelper.getSecretService().fetchSecret("SSWS_OKTA")
-
-        if( ssws == null ){
-            context.logger.warning("Can't find SSWS_OKTA secret")
-            return listOf();
-        }
-        
-        var grp = convertOrgToGroup( org );
-
-        // get the OKTA Group Id
-        var response1 = httpGet( url="https://hhs-prime-admin.okta.com/api/v1/groups?q=${grp}", 
-                               headers=mapOf( "Authorization" to "SSWS ${ssws}" ) );
-        var grpId = ((response1.jsonArray).get( 0 ) as JSONObject).getString("id");
-
-        // get the users within that OKTA group
-        var response = httpGet( url="https://hhs-prime-admin.okta.com/api/v1/groups/${grpId}/users", 
-                               headers=mapOf( "Authorization" to "SSWS ${ssws}" ) );
+        var emails :MutableList<String> = mutableListOf()
     
-       var emails :MutableList<String> = mutableListOf()
+        try{
 
-        for( user in response.jsonArray ){
-            emails.add( (user as JSONObject).getJSONObject("profile").getString("email") );
-        } 
+            var ssws: String? = SecretHelper.getSecretService().fetchSecret("SSWS_OKTA")
+
+            if( ssws !== null ){
+
+                var grp = encodeOrg( org );
+
+                // get the OKTA Group Id
+                var response1 = httpGet( url="${OKTA_GROUPS_API}?q=${grp}", 
+                                    headers=mapOf( "Authorization" to "SSWS ${ssws}" ) );
+                var grpId = ((response1.jsonArray).get( 0 ) as JSONObject).getString("id");
+
+                // get the users within that OKTA group
+                var response = httpGet( url="${OKTA_GROUPS_API}/${grpId}/users", 
+                                    headers=mapOf( "Authorization" to "SSWS ${ssws}" ) );
+            
+                for( user in response.jsonArray )
+                    emails.add( (user as JSONObject).getJSONObject("profile").getString("email") );
+            }
+        }
+        catch( ex: Throwable ){
+            logger.warning( "Error in fetching emails" )
+            emails = mutableListOf()
+        }
 
         return emails;
     }
 
      /**
-     * Get the reports that have been generated since a given date
+     * Dispatches the select emails (using the desired template) to SENDGRID
      * 
-     * @param org
-     * 
+     * @param template the name of the template (in sendgrid) to use
+     * @param emails list of emails to send to
+     * @param logger context logger
      */
-    private fun getReportsSinceLast( org: String, last: Date ): List<ReportFile> {
-
-      val reportFiles = workflowEngine
-                        .fetchDownloadableReportFiles( 
-                                last.toInstant().atOffset(ZoneOffset.UTC), 
-                                org )
-
-        return reportFiles;
-    }
-
-     /**
-     * TODO: Fixme!
-     */
-    @Suppress( "UNRESOLVED_REFERENCE")
     private fun dispatchToSendGrid( 
         template: String,
         emails: List<String>,
-        reportsSinceLast: List<ReportFile>,
-        context: ExecutionContext
+        logger: Logger!
     ){
-        val from: Email = Email("reportstream@cdc.gov");
-        val subject = "ReportStream Daily Email";
-        val mail : Mail = Mail()
         val p:Personalization = Personalization();
         emails.forEach{ to -> p.addTo( Email(to) ) };
-        p.setSubject(subject);
-        p.addDynamicTemplateData("reportsSinceLast", reportsSinceLast)
+        p.setSubject(SUBJECT_EMAIL);
 
+        val mail : Mail = Mail()
         mail.addPersonalization( p );
-        mail.setSubject(subject);
-        mail.setFrom( from );
+        mail.setSubject(SUBJECT_EMAIL);
+        mail.setFrom( Email(FROM_EMAIL) );
         mail.setTemplateId( template )
 
         var sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
@@ -308,19 +315,16 @@ class EmailScheduleEngine  {
             val sg:SendGrid = SendGrid(sendgridId);
             val request:Request = Request();
             try {
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
-            val response:Response = sg.api(request);
-            System.out.println(response.getStatusCode());
-            System.out.println(response.getBody());
-            System.out.println(response.getHeaders());
+                request.setMethod(Method.POST);
+                request.setEndpoint("mail/send");
+                request.setBody(mail.build());
+                sg.api(request);
             } catch (ex:IOException) {
-                context.logger.warning("Can't contact sendgrid")
+                logger.warning("Can't contact sendgrid")
             }
         }
         else{
-            context.logger.warning("Can't find SENDGRID_ID secret")
+            logger.info("Can't find SENDGRID_ID secret")
         }
     
     }
