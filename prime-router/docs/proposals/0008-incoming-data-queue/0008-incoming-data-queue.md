@@ -37,4 +37,19 @@ the ID of the item in the queue. At this point, it will issue a 202 HTTP status 
 that the work is still processing, and a `Location` header indicating where to get the status of the
 work in process.
 
+## Available Technologies
+There are multiple options available for us to write to a queue:
+- Azure Service Bus
+- Azure Storage Queue
+- A custom solution that we build, for example RabbitMQ and Postgres, or RabbitMQ and Redis
 
+## Goals
+Currently, we cannot risk taking down our application without potentially losing incoming messages, therefore
+this type of decoupling would allow the queue application to capture and store incoming messages and
+then ReportStream would read from the queue and process items there.
+
+## What's Next?
+We would need to make a determination about what tech stack we want to go with, and how we run this
+inside Azure independently of the main ReportStream app. We would also need to look at how to 
+integrate this new application into our CI/CD pipeline, and we would need to update our code in ReportStream
+to be able to handle the processing from the queue.
