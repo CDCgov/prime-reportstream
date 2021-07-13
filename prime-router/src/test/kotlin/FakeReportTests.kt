@@ -7,8 +7,6 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class FakeReportTests {
@@ -58,14 +56,14 @@ class FakeReportTests {
             ?.findElement("blank_column")
             ?: fail("Lookup failure: blank_column")
         val fakeValue = FakeReport(metadata).buildColumn(blankColumn, rowContext)
-        assertThat("").isEqualTo(fakeValue)
+        assertThat(fakeValue).isEqualTo("")
     }
 
     @Test
     fun `test a coded fake`() {
         val state = metadata.findSchema("test")?.findElement("patient_state") ?: fail("Lookup failure: patient_state")
         val fakeValue = FakeReport(metadata).buildColumn(state, rowContext)
-        assertThat("AZ").isEqualTo(fakeValue)
+        assertThat(fakeValue).isEqualTo("AZ")
     }
 
     @Test
@@ -174,7 +172,7 @@ class FakeReportTests {
 
         val actual = FakeReport(metadata).buildMappedColumn(useField, rowContext)
         val expected = "Any lab USA"
-        assertThat(expected).isEqualTo(actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
