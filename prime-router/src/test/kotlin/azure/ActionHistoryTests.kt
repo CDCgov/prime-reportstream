@@ -235,7 +235,7 @@ class ActionHistoryTests {
      * What I'd really like to do is confirm that two sql inserts were generated,
      * one to insert into ACTION and one to insert into REPORT_FILE.
      */
-//    @Test
+//    @Test 
     fun `test saveToDb with an externally received report`() {
         val dataProvider = MockDataProvider { emptyArray<MockResult>() }
         val connection = MockConnection(dataProvider) as DSLContext // ? why won't this work?
@@ -256,15 +256,10 @@ class ActionHistoryTests {
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         actionHistory1.trackExternalInputReport(incomingReport, blobInfo1)
 
-        // Not sure how to get a transaction obj, to pass to saveToDb. ?
-//        every { connection.transaction(any()) }.returns(Unit)
-
         mockDb.transact { txn -> actionHistory1.saveToDb(txn) }
 
         verify(exactly = 1) {
-//            connection.transaction(block = any() as TransactionalRunnable)
         }
-//        confirmVerified(connection)
     }
 
     @Test
