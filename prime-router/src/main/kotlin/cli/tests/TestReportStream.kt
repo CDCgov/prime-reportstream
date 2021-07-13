@@ -246,7 +246,8 @@ Examples:
             InternationalContent(),
             Hl7Ingest(),
             DataCompareTest(),
-            SantaClaus()
+            SantaClaus(),
+            OtcProctored()
         )
     }
 }
@@ -1615,5 +1616,47 @@ class SantaClaus : CoolTest() {
 
     private fun createBad(message: String): Boolean {
         return bad("***$name Test FAILED***: $message")
+    }
+}
+
+class OtcProctored : CoolTest() {
+    override val name = "otcproctored"
+    override val description = "Verify that otc/proctored flags are working as expected on api response"
+    override val status = TestStatus.SMOKE
+    val failures = mutableListOf<String>()
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        val otcPairs = listOf(
+            Pair("BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc.", "OTC_PROCTORED_YYY"),
+            Pair("QuickVue At-Home COVID-19 Test_Quidel Corporation", "OTC_PROCTORED_NYY"),
+            Pair("00810055970001", "OTC_PROCTORED_NUNKUNK"),
+        )
+        for(pair in otcPairs) {
+            ugly("Starting Otc Test: submitting a file containing a device_id: ${pair.first} should match receiver ${pair.second}.")
+            val reFile = FileUtilities.replaceText(
+                "./src/test/csv_test_files/input/otc-template.csv",
+                "replaceMe",
+                "${pair.first}"
+            )
+
+            if (!reFile.exists()) {
+                error("Unable to find file ${reFile.absolutePath} to do otc test")
+            }
+            val (responseCode, json) = HttpUtilities.postReportFile(environment, reFile, watersSender, options.key)
+
+            echo("Response to POST: $responseCode")
+            if(examineResponse(json)){
+                good("Test PASSED: ${pair.first}")
+            } else {
+                bad("Test FAILED: ${pair.first}")
+                failures.add("${pair.first}")
+            }
+        }
+
+        if( failures.size == 0 ) {
+            return true
+        } else {
+            return bad( "Tests FAILED: "+ failures)
+        }
     }
 }
