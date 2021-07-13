@@ -6,8 +6,10 @@ services:
       - postgresql
     image: ghcr.io/cdcgov/prime-router_builder:jdk11afct3grdl7.1
     environment:
-      FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
+      DB_PASSWORD: "changeIT!"
       DB_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
+      DB_USER: "prime"
+      FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
       POSTGRES_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
       # cf: docker-compose.yml: this is the name of the prime_dev service as defined there
       PRIME_RS_API_ENDPOINT_HOST: prime_dev
