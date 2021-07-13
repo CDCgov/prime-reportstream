@@ -1,7 +1,11 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
-import assertk.assertions.* // ktlint-disable no-wildcard-imports
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
