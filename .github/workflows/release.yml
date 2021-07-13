@@ -110,7 +110,7 @@ jobs:
           path: frontend/dist
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
 
       - name: Install OpenVPN
         run: |
@@ -153,7 +153,7 @@ jobs:
         id: deploy-candidate
         with:
           app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
           slot-name: candidate
 
       - name: Promote Candidate Slot
@@ -199,7 +199,7 @@ jobs:
           path: frontend/dist
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
 
       - name: Install OpenVPN
         run: |
@@ -242,7 +242,7 @@ jobs:
         id: deploy-candidate
         with:
           app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
           slot-name: candidate
 
       - name: Promote Candidate Slot
@@ -289,7 +289,7 @@ jobs:
           path: frontend/dist
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
 
       - name: Install OpenVPN
         run: |
@@ -332,7 +332,7 @@ jobs:
         id: deploy-candidate
         with:
           app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.run_id }}
+          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
           slot-name: candidate
 
       - name: Promote Candidate Slot
