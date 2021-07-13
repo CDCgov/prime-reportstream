@@ -59,7 +59,6 @@ class SettingsFacade(
     }
 
     override fun findSender(fullName: String): Sender? {
-        System.out.println( "fullName = ${fullName}" )
         val pair = Sender.parseFullName(fullName)
         return findSetting(pair.second, SenderAPI::class.java, pair.first)
     }

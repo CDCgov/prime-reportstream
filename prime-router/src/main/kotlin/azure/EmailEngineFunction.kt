@@ -131,7 +131,6 @@ class EmailScheduleEngine  {
      */
     @FunctionName("emailScheduleEngine")
     @StorageAccount("AzureWebJobsStorage")
-    @Suppress( "UNUSED_PARAMETER" )
     fun run(
         @TimerTrigger( name = "emailScheduleEngine", schedule = SCHEDULE ) timerInfo : String,
         context: ExecutionContext
@@ -177,22 +176,6 @@ class EmailScheduleEngine  {
         val timeFromLastExecution = executionTime.timeFromLastExecution(now);
 
         return ( timeFromLastExecution.get().toSeconds() <= 4*60 /* 4 minutes */);
-    }
-
-    /**
-     * Reports the last time that the timer has been fired for this schedule
-     * 
-     * @param schedule the schedule to check the last time fired against
-     * 
-     * @returns Date of the last time fired
-     */
-    private fun getLastTimeFired( schedule: EmailSchedule ): Date {
-        val parser = CronParser( CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX) );
-        // Get date for last execution
-        val now = ZonedDateTime.now();
-        val executionTime = ExecutionTime.forCron(parser.parse(schedule.cronSchedule));
-
-        return Date.from(executionTime.lastExecution(now).get().toInstant());
     }
 
     /**
@@ -321,7 +304,7 @@ class EmailScheduleEngine  {
      */
     private fun dispatchToSendGrid( 
         template: String,
-        emails: List<String>,
+        emails: Iterable<String>,
         logger: Logger
     ){
         val p:Personalization = Personalization();
