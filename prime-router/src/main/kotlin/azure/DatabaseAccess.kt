@@ -534,7 +534,14 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .returningResult( EMAIL_SCHEDULE.EMAIL_SCHEDULE_ID )
             .fetchOne()
             ?.into( Int::class.java )
+    }
 
+    fun deleteEmailSchedule( id: Int, txn: DataAccessTransaction? = null ){
+        val ctx = if (txn != null) DSL.using(txn) else create 
+        ctx.update( EMAIL_SCHEDULE )
+            .set( EMAIL_SCHEDULE.IS_ACTIVE, false )
+            .where( EMAIL_SCHEDULE.EMAIL_SCHEDULE_ID.eq(id) )
+            .execute()
     }
 
     fun saveTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {

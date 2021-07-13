@@ -74,7 +74,6 @@ class EmailScheduleEngine  {
 
     val workflowEngine = WorkflowEngine()
 
-
     /**
      * Create Email Schedule
      */
@@ -93,15 +92,42 @@ class EmailScheduleEngine  {
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED);
 
         if( user !== null ){
-            WorkflowEngine.databaseAccess.insertEmailSchedule(request.body, user );
+            val id = WorkflowEngine.databaseAccess.insertEmailSchedule(request.body, user );
             ret.status(HttpStatus.CREATED)
+            ret.body( "created id $id")
+        }
+        return ret.build();
+    }
+
+    /**
+     * Delete (inactivate) Email Schedule
+     */
+    @FunctionName("deleteEmailSchedule")
+    @StorageAccount("AzureWebJobsStorage")
+    fun deleteEmailSchedule(
+        @HttpTrigger(
+            name = "deleteEmailSchedule",
+            methods = [HttpMethod.DELETE],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "email-schedule/{scheduleId}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("scheduleId") scheduleId: Int,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        var user:String? = validateUser( request, context.logger );
+        var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED);
+
+        if( user !== null ){
+            val id = WorkflowEngine.databaseAccess.deleteEmailSchedule(scheduleId);
+            ret.status(HttpStatus.CREATED)
+            ret.body( "deactivated id $id")
         }
         return ret.build();
     }
 
     /**
      * Timer Trigger to fire when processing schedules
-     *   fires every 5 minutes
+     *   (fires every 5 minutes)
      */
     @FunctionName("emailScheduleEngine")
     @StorageAccount("AzureWebJobsStorage")
@@ -208,7 +234,7 @@ class EmailScheduleEngine  {
      * 
      * @returns user from the token; otherwise null
      */
-    fun validateUser( request: HttpRequestMessage<String?>, logger: Logger! ): String? {
+    fun validateUser( request: HttpRequestMessage<String?>, logger: Logger): String? {
         var jwtToken = request.headers["authorization"] ?: ""
 
         jwtToken = if (jwtToken.length > 7) jwtToken.substring(7) else ""
@@ -253,7 +279,7 @@ class EmailScheduleEngine  {
      * 
      * @returns List of emails to send to
      */
-    private fun getEmails( org: String, logger: Logger! ): List<String> {
+    private fun getEmails( org: String, logger: Logger): List<String> {
 
         var emails :MutableList<String> = mutableListOf()
     
@@ -296,7 +322,7 @@ class EmailScheduleEngine  {
     private fun dispatchToSendGrid( 
         template: String,
         emails: List<String>,
-        logger: Logger!
+        logger: Logger
     ){
         val p:Personalization = Personalization();
         emails.forEach{ to -> p.addTo( Email(to) ) };
