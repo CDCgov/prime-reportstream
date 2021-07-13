@@ -40,13 +40,14 @@ function get_gradle_command() {
 
 function ensure_build_dir() {
   mkdir -p "${HERE?}/build"
-  echo "Making sure you own 'build/', 'docs/' and '.gradle/'... (may require elevation)"
+  echo "Making sure you own 'build/', 'docs/' and '.gradle/' and everyone has at least +rw... (may require elevation)"
   for d in "build/" "docs/" ".gradle/"; do
     if [[ -d "${d}" ]]; then
       echo "    - $(pwd)/${d}"
 
       # Take ownership
       sudo chown -R "$(id -u -n):$(id -g -n)" "${d}" | sed "s/^/    /g"
+      sudo chmod -R a+rw "${d}" | sed "s/^/    /g"
       # if sudo reports failure (due to whatever reason), then stop trying
       if [[ $? != 0 ]]; then
         break
