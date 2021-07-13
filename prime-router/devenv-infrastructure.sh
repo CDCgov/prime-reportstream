@@ -18,7 +18,6 @@ REMAINING_NETWORK_WARNING_MSG="error while removing network: network prime-route
 
 # Bringing things up or down may produce some warnings, some of which we can safely ignore/prevent from being displayed
 # Bring up the 'build container' (which has postgresql) up first so that the dependencies can talk to it
-docker-compose -f "./docker-compose.build.yml" build
 docker-compose -f ./docker-compose.build.yml ${STATE?} ${DETACH?} 2>&1 |
   grep -v "${ORPHAN_CONTAINER_WARNING_MSG?}"
 
