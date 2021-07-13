@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
@@ -67,29 +68,21 @@ class WorkflowEngine(
     /**
      * Place a report into the workflow
      */
-    fun receiveReport(
-        validatedRequest: ReportFunction.ValidatedRequest,
+    fun recordReceivedReport(
+        report: Report,
+        rawBody: ByteArray,
+        sender: Sender,
         actionHistory: ActionHistory,
-        txn: Configuration? = null
+        workflowEngine: WorkflowEngine
     ) {
-        if (validatedRequest.report == null) error("Cannot receive a null report")
-        val blobInfo = blob.uploadBody(
-            validatedRequest.report, validatedRequest.report.getFirstSourceName(),
-            Event.EventAction.RECEIVE
+        // Save a copy of the original report
+        val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
+        val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
+        val blobInfo = workflowEngine.blob.uploadBody(
+            senderReportFormat, rawBody,
+            blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
-        try {
-            val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, validatedRequest.report.id, null)
-            db.insertTask(
-                validatedRequest.report, blobInfo.format.toString(), blobInfo.blobUrl, receiveEvent, txn
-            )
-            // todo bodyURL is no longer needed in report; its in 'blobInfo'
-            validatedRequest.report.bodyURL = blobInfo.blobUrl
-            actionHistory.trackExternalInputReport(validatedRequest, blobInfo)
-        } catch (e: Exception) {
-            // Clean up
-            blob.deleteBlob(blobInfo.blobUrl)
-            throw e
-        }
+        actionHistory.trackExternalInputReport(report, blobInfo)
     }
 
     /**

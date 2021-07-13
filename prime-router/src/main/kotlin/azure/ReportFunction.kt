@@ -53,6 +53,7 @@ class ReportFunction {
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
         val report: Report? = null,
+        val sender: Sender? = null
     )
 
     /**
@@ -97,7 +98,10 @@ class ReportFunction {
                     report = validatedRequest.report
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
-                    workflowEngine.receiveReport(validatedRequest, actionHistory)
+                    workflowEngine.recordReceivedReport(
+                        report, request.body!!.toByteArray(), validatedRequest.sender!!,
+                        actionHistory, workflowEngine
+                    )
                     HttpUtilities.createdResponse(request, responseBody)
                 }
             }
@@ -157,7 +161,10 @@ class ReportFunction {
         }
     }
 
-    private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
+    private fun validateRequest(
+        engine: WorkflowEngine,
+        request: HttpRequestMessage<String?>
+    ): ValidatedRequest {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
 
@@ -253,22 +260,12 @@ class ReportFunction {
 
         var report = createReport(engine, sender, content, defaultValues, errors, warnings)
 
-        report?.let {
-            // Save a copy of the original report
-            val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
-            val blobFilename = it.name.replace(it.bodyFormat.ext, senderReportFormat.ext)
-            engine.blob.uploadBody(
-                senderReportFormat, request.body!!.toByteArray(),
-                blobFilename, "${sender.organizationName}.${sender.name}", Event.EventAction.RECEIVE
-            )
-        }
-
         var status = HttpStatus.OK
         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
             report = null
             status = HttpStatus.BAD_REQUEST
         }
-        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report)
+        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report, sender)
     }
 
     private fun createReport(
