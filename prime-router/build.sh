@@ -135,6 +135,9 @@ docker-compose \
   --file "${DOCKER_COMPOSE?}" \
   run "${ACTION?}" $(get_gradle_command $*)
 
+# When you're done, let's make sure you have ownership again
+ensure_build_dir
+
 RC=$?
 
 popd 2>&1 1>/dev/null
