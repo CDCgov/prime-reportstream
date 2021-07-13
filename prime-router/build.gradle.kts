@@ -370,6 +370,7 @@ tasks.register("quickPackage") {
     dependsOn("copyAzureResources")
     dependsOn("copyAzureScripts")
     tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false

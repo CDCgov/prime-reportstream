@@ -48,7 +48,7 @@ class Report : Logging {
         val mimeType: String,
         val isSingleItemFormat: Boolean = false,
     ) {
-        INTERNAL("internal", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
+        INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
@@ -572,6 +572,29 @@ class Report : Logging {
         } catch (e: Exception) {
             logger.error(e)
             emptyList()
+        }
+    }
+
+    /**
+     * Returns the name of the first source or null if no source.
+     * @return the name of the first source or null if no source
+     */
+    fun getFirstSourceName(): String? {
+        return when {
+            sources.isNullOrEmpty() -> null
+            sources[0] is ClientSource -> {
+                val source = sources[0] as ClientSource
+                "${source.organization}.${source.client}"
+            }
+            sources[0] is FileSource -> {
+                val source = sources[0] as FileSource
+                source.fileName
+            }
+            sources[0] is ReportSource -> {
+                val source = sources[0] as ReportSource
+                source.id.toString()
+            }
+            else -> null
         }
     }
 

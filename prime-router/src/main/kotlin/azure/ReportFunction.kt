@@ -252,6 +252,17 @@ class ReportFunction {
         }
 
         var report = createReport(engine, sender, content, defaultValues, errors, warnings)
+
+        report?.let {
+            // Save a copy of the original report
+            val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
+            val blobFilename = it.name.replace(it.bodyFormat.ext, senderReportFormat.ext)
+            engine.blob.uploadBody(
+                senderReportFormat, request.body!!.toByteArray(),
+                blobFilename, "${sender.organizationName}.${sender.name}", Event.EventAction.RECEIVE
+            )
+        }
+
         var status = HttpStatus.OK
         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
             report = null

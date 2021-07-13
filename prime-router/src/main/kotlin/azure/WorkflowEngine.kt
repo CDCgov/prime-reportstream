@@ -73,7 +73,10 @@ class WorkflowEngine(
         txn: Configuration? = null
     ) {
         if (validatedRequest.report == null) error("Cannot receive a null report")
-        val blobInfo = blob.uploadBody(validatedRequest.report)
+        val blobInfo = blob.uploadBody(
+            validatedRequest.report, validatedRequest.report.getFirstSourceName(),
+            Event.EventAction.RECEIVE
+        )
         try {
             val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, validatedRequest.report.id, null)
             db.insertTask(
@@ -100,9 +103,10 @@ class WorkflowEngine(
         txn: Configuration? = null,
         context: ExecutionContext? = null
     ) {
+        val receiverName = "${receiver.organizationName}.${receiver.name}"
         val blobInfo = try {
             // formatting errors can occur down in here.
-            blob.uploadBody(report)
+            blob.uploadBody(report, receiverName, nextAction.eventAction)
         } catch (ex: Exception) {
             context?.logger?.warning(
                 "Got exception while dispatching to schema ${report.schema.name}" +
@@ -110,6 +114,10 @@ class WorkflowEngine(
             )
             throw ex
         }
+        context?.logger?.fine(
+            "Saved dispatched report for receiver $receiverName" +
+                " to blob ${blobInfo.blobUrl}"
+        )
         try {
             db.insertTask(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
             // todo remove this; its now tracked in BlobInfo
@@ -269,10 +277,10 @@ class WorkflowEngine(
         val childReportIds = db.fetchChildReports(reportFile.reportId)
         childReportIds.forEach { childId ->
             val lineages = db.fetchItemLineagesForReport(childId, reportFile.itemCount)
-            lineages?.forEach { lineage ->
+            lineages?.forEach lin@{ lineage ->
                 // Once a success, always a success
                 if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
-                    return@forEach
+                    return@lin
                 itemsDispositionMap[lineage.parentIndex] = when {
                     lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ->
                         RedoxTransport.ResultStatus.FAILURE

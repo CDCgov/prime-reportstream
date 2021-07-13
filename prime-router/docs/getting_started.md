@@ -1,33 +1,36 @@
 # Developers Getting Started
 
 - [Developers Getting Started](#developers-getting-started)
-  * [Developer Workstation Setup](#developer-workstation-setup)
-    + [Pre-requisites](#pre-requisites)
-      - [Mac or Linux OS](#mac-or-linux-os)
-      - [Windows OS](#windows-os)
-    + [PostgreSQL](#postgresql)
-      - [Mac or Linux OS](#mac-or-linux-os-1)
-      - [Windows OS](#windows-os-1)
-      - [PostgreSQL via Docker](#postgresql-via-docker)
-  * [Clone the Repository](#clone-the-repository)
-  * [Compiling](#compiling)
-  * [Function Development with Docker Compose](#function-development-with-docker-compose)
-    + [Local SFTP Server](#local-sftp-server)
-    + [Running the Router Locally](#running-the-router-locally)
-  * [Testing](#testing)
-    + [Unit Tests](#unit-tests)
-    + [Local End-to-end Tests](#local-end-to-end-tests)
-  * [Using local configuration for organizations.yml](#using-local-configuration-for-organizationsyml)
-  * [Getting Around SSL Errors](#getting-around-ssl-errors)
-    + [Docker Builds](#docker-builds)
-  * [Managing the local Hashicorp Vault secrets database](#managing-the-local-hashicorp-vault-secrets-database)
-    + [Initialize the Vault](#initialize-the-vault)
-    + [Re-initialize the Vault](#re-initialize-the-vault)
-    + [Using the Vault locally](#using-the-vault-locally)
-  * [Troubleshooting](#troubleshooting)
-    + [prime test Utility](#prime-test-utility)
-      - [Missing env var](#missing-env-var) 
-
+    * [Developer Workstation Setup](#developer-workstation-setup)
+        + [Pre-requisites](#pre-requisites)
+            - [Mac or Linux OS](#mac-or-linux-os)
+            - [Windows OS](#windows-os)
+        + [PostgreSQL](#postgresql)
+            - [Mac or Linux OS](#mac-or-linux-os-1)
+                * [PostgreSQL via Brew](#postgresql-via-brew)
+                * [PostgreSQL via `apt` on Ubuntu/Debian](#postgresql-via--apt--on-ubuntu-debian)
+            - [Windows OS](#windows-os-1)
+            - [PostgreSQL via Docker](#postgresql-via-docker)
+    * [Clone the Repository](#clone-the-repository)
+    * [Compiling](#compiling)
+    * [Function Development with Docker Compose](#function-development-with-docker-compose)
+        + [Running the Router Locally](#running-the-router-locally)
+        + [Viewing the contents of the Azurite Blob Storage](#viewing-the-contents-of-the-azurite-blob-storage)
+    * [Updating Schema Documentation](#updating-schema-documentation)
+    * [Testing](#testing)
+        + [Unit Tests](#unit-tests)
+        + [Data Conversion Quick Test](#data-conversion-quick-test)
+        + [Local End-to-end Tests](#local-end-to-end-tests)
+        + [Changing the Database Properties](#changing-the-database-properties)
+    * [Using local configuration for organizations.yml](#using-local-configuration-for-organizationsyml)
+    * [Getting Around SSL Errors](#getting-around-ssl-errors)
+        + [Docker Builds](#docker-builds)
+    * [Managing the local Hashicorp Vault secrets database](#managing-the-local-hashicorp-vault-secrets-database)
+        + [Initialize the Vault](#initialize-the-vault)
+        + [Re-initialize the Vault](#re-initialize-the-vault)
+        + [Using the Vault locally](#using-the-vault-locally)
+    * [TroubleShooting](#troubleshooting)
+        + [prime test Utility](#prime-test-utility)
 
 ## Developer Workstation Setup
 
@@ -186,10 +189,11 @@ Developers can also run the router locally with the same Azure runtime and libra
 
 To orchestrate running the Azure function code and Azurite, Docker Compose is a useful tool. After installing or the equivalent, build the project using `Gradle` and then run the project in Docker containers using `docker-compose.`  Note: make sure Docker Desktop or equivalent is running before running the following commands.
 ```
+./gradlew package  
 mkdir -p .vault/env
 touch .vault/env/.env.local
-./gradlew package  
-PRIME_ENVIRONMENT=local docker-compose up
+./gradlew primeCLI --args='create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass'
+docker-compose up
 ```
 Docker-compose will build a `prime_dev` container with the output of the `./gradlew package` command and launch an Azurite container. The first time you run this command, it builds a whole new image, which may take a while. However, after the first time `docker-compose` is run, `docker-compose` should start up in a few seconds. The output should look like:
 
@@ -198,6 +202,13 @@ Docker-compose will build a `prime_dev` container with the output of the `./grad
 Looking at the log above, you may notice that container has a debug open at port `5005`. This configuration allows you to attach a Java debugger to debug your code.
 
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
+
+### Viewing the contents of the Azurite Blob Storage
+ReportStream uses an Azure blob store to store all the files used in the system.  This 
+blob store is emulated by Azurite and the storage can be found in build/azurite.  The 
+easiest way to explore the blob store is to download the free [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
+and pointing it to the Azurite emulated blob store.  Use all the provided Azure Storage Explorer
+defaults when connecting to the local Azurite folders.
 
 ## Updating Schema Documentation
 Run the following Gradle command to generate the schema documentation.  The documentation is written to `docs/schema-documentation`
@@ -229,9 +240,6 @@ End-to-end tests check if the deployed system is configured correctly.  The test
 1. Perform a one-time setup of the required SFTP credentials for the test organization using the following commands.  Use the username and password assigned to the local SFTP server (default of foo/pass) and change the arguments for the --user and --pass as needed.  Note that running these commands multiple times will not break anything:
     ```bash
     export $(cat ./.vault/env/.env.local | xargs)
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--CSV --user foo --pass pass'
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7 --user foo --pass pass'
-    ./gradlew primeCLI --args='create-credential --type=UserPass --persist=IGNORE--HL7-BATCH --user foo --pass pass'
     ./gradlew primeCLI --args='create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass'
     ```
 1. Run the Prime Router in the Docker container.
