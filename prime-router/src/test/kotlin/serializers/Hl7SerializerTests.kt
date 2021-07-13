@@ -12,12 +12,14 @@ import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSource
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -220,7 +222,7 @@ NTE|1|L|This is a final comment|RE"""
         every { deprecatedPhoneField.areaCityCode.isEmpty } returns true
         every { deprecatedPhoneField.localNumber.isEmpty } returns true
         every { deprecatedPhoneField.telephoneNumber.isEmpty } returns false
-        every { deprecatedPhoneField.telephoneNumber.valueOrEmpty } returns "(555)5555555"
+        every { deprecatedPhoneField.telephoneNumber.valueOrEmpty } returns "(555)555-5555"
         every { mockSegment.getField(any()) } returns arrayOf(deprecatedPhoneField)
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
         assertEquals("5555555555:1:", phoneNumber)
@@ -229,7 +231,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockSegment.getField(any()) } returns arrayOf(phoneField)
         every { phoneField.areaCityCode.isEmpty } returns false
         every { phoneField.localNumber.isEmpty } returns false
-        every { phoneField.telephoneNumber.value } returns "(555)5555555"
+        every { phoneField.telephoneNumber.value } returns "(555)555-5555"
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
         every { phoneField.countryCode.value } returns "1"
@@ -491,5 +493,59 @@ NTE|1|L|This is a final comment|RE"""
         assertEquals("/MSH-1-1", serializer.getTerserSpec("MSH-1-1"))
         assertEquals("/.PID-1", serializer.getTerserSpec("PID-1"))
         assertEquals("/.", serializer.getTerserSpec(""))
+    }
+
+    @Test
+    fun `test setTelephoneComponents for patient`() {
+        val metadata = Metadata("./metadata")
+        val mockTerser = mockk<Terser>()
+        val serializer = Hl7Serializer(metadata)
+        every { mockTerser.set(any(), any()) } returns Unit
+        every { mockTerser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2") } returns ""
+
+        val patientPathSpec = serializer.formPathSpec("PID-13")
+        val patientElement = Element("patient_phone_number", hl7Field = "PID-13", type = Element.Type.TELEPHONE)
+        serializer.setTelephoneComponent(
+            mockTerser,
+            "5555555555:1:",
+            patientPathSpec,
+            patientElement,
+            Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE)
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-1", "5555555555")
+            mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-2", "PRN")
+            mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-3", "PH")
+            mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-5", "1")
+            mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-6", "555")
+            mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-7", "5555555")
+        }
+    }
+
+    @Test
+    fun `test setTelephoneComponents for facility`() {
+        val metadata = Metadata("./metadata")
+        val mockTerser = mockk<Terser>()
+        val serializer = Hl7Serializer(metadata)
+        every { mockTerser.set(any(), any()) } returns Unit
+
+        val facilityPathSpec = serializer.formPathSpec("ORC-23")
+        val facilityElement = Element("ordering_facility_phone_number", hl7Field = "ORC-23", type = Element.Type.TELEPHONE)
+        serializer.setTelephoneComponent(
+            mockTerser,
+            "5555555555:1:3333",
+            facilityPathSpec,
+            facilityElement,
+            Hl7Configuration.PhoneNumberFormatting.STANDARD)
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "(555)555-5555X3333")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-2", "WPN")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-3", "PH")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-5", "1")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-6", "555")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-7", "5555555")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-8", "3333")
+        }
     }
 }

@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
@@ -506,46 +507,47 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     fun saveTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
-        testData.forEach {
-            DSL
-                .using(txn)
-                .insertInto(COVID_RESULT_METADATA)
-                .set(COVID_RESULT_METADATA.MESSAGE_ID, it.messageId)
-                .set(COVID_RESULT_METADATA.REPORT_ID, it.reportId)
-                .set(COVID_RESULT_METADATA.REPORT_INDEX, it.reportIndex)
-                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME, it.orderingProviderName)
-                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_ID, it.orderingProviderId)
-                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE, it.orderingProviderState)
-                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_POSTAL_CODE, it.orderingProviderPostalCode)
-                .set(COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY, it.orderingProviderCounty)
-                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
-                .set(COVID_RESULT_METADATA.TEST_RESULT_CODE, it.testResultCode)
-                .set(COVID_RESULT_METADATA.TEST_RESULT, it.testResult)
-                .set(COVID_RESULT_METADATA.EQUIPMENT_MODEL, it.equipmentModel)
-                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_CITY, it.orderingFacilityCity)
-                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY, it.orderingFacilityCounty)
-                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_NAME, it.orderingFacilityName)
-                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_POSTAL_CODE, it.orderingFacilityPostalCode)
-                .set(COVID_RESULT_METADATA.ORDERING_FACILITY_STATE, it.orderingFacilityState)
-                .set(COVID_RESULT_METADATA.TESTING_LAB_CITY, it.testingLabCity)
-                .set(COVID_RESULT_METADATA.TESTING_LAB_CLIA, it.testingLabClia)
-                .set(COVID_RESULT_METADATA.TESTING_LAB_COUNTY, it.testingLabCounty)
-                .set(COVID_RESULT_METADATA.TESTING_LAB_NAME, it.testingLabName)
-                .set(COVID_RESULT_METADATA.TESTING_LAB_STATE, it.testingLabState)
-                .set(COVID_RESULT_METADATA.TESTING_LAB_POSTAL_CODE, it.testingLabPostalCode)
-                .set(COVID_RESULT_METADATA.PATIENT_COUNTY, it.patientCounty)
-                .set(COVID_RESULT_METADATA.PATIENT_ETHNICITY_CODE, it.patientEthnicityCode)
-                .set(COVID_RESULT_METADATA.PATIENT_ETHNICITY, it.patientEthnicity)
-                .set(COVID_RESULT_METADATA.PATIENT_GENDER_CODE, it.patientGenderCode)
-                .set(COVID_RESULT_METADATA.PATIENT_GENDER, it.patientGender)
-                .set(COVID_RESULT_METADATA.PATIENT_POSTAL_CODE, it.patientPostalCode)
-                .set(COVID_RESULT_METADATA.PATIENT_RACE_CODE, it.patientRaceCode)
-                .set(COVID_RESULT_METADATA.PATIENT_RACE, it.patientRace)
-                .set(COVID_RESULT_METADATA.PATIENT_STATE, it.patientState)
-                .set(COVID_RESULT_METADATA.PATIENT_AGE, it.patientAge)
-                .set(COVID_RESULT_METADATA.SPECIMEN_COLLECTION_DATE_TIME, it.specimenCollectionDateTime)
-                .executeAsync()
-        }
+        DSL
+            .using(txn)
+            .batchInsert(
+                testData.map { td ->
+                    CovidResultMetadataRecord().also { record ->
+                        record.messageId = td.messageId
+                        record.reportId = td.reportId
+                        record.reportIndex = td.reportIndex
+                        record.orderingProviderName = td.orderingProviderName
+                        record.orderingProviderCounty = td.orderingProviderCounty
+                        record.orderingProviderId = td.orderingProviderId
+                        record.orderingProviderPostalCode = td.orderingProviderPostalCode
+                        record.orderingProviderState = td.orderingProviderState
+                        record.orderingFacilityCity = td.orderingFacilityCity
+                        record.orderingFacilityCounty = td.orderingFacilityCounty
+                        record.orderingFacilityName = td.orderingFacilityName
+                        record.orderingFacilityPostalCode = td.orderingFacilityPostalCode
+                        record.orderingFacilityState = td.orderingFacilityState
+                        record.testResult = td.testResult
+                        record.testResultCode = td.testResultCode
+                        record.equipmentModel = td.equipmentModel
+                        record.specimenCollectionDateTime = td.specimenCollectionDateTime
+                        record.testingLabCity = td.testingLabCity
+                        record.testingLabClia = td.testingLabClia
+                        record.testingLabCounty = td.testingLabCounty
+                        record.testingLabName = td.testingLabName
+                        record.testingLabPostalCode = td.testingLabPostalCode
+                        record.testingLabState = td.testingLabState
+                        record.patientAge = td.patientAge
+                        record.patientCounty = td.patientCounty
+                        record.patientEthnicity = td.patientEthnicity
+                        record.patientEthnicityCode = td.patientEthnicityCode
+                        record.patientGender = td.patientGender
+                        record.patientGenderCode = td.patientGenderCode
+                        record.patientPostalCode = td.patientPostalCode
+                        record.patientRace = td.patientRace
+                        record.patientRaceCode = td.patientRaceCode
+                        record.patientState = td.patientState
+                    }
+                }
+            ).execute()
     }
 
     fun deleteTestDataForReportId(reportId: UUID, txn: DataAccessTransaction) {
@@ -564,6 +566,18 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 .where(REPORT_FILE.REPORT_ID.eq(reportId))
                 .count()
             ) > 0
+    }
+
+    /**
+     * Fetch the newest CreatedAt timestamp, active or deleted, or return [ifEmptySettings]
+     */
+    fun fetchLastModified(txn: DataAccessTransaction? = null): OffsetDateTime? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .select(DSL.max(SETTING.CREATED_AT))
+            .from(SETTING)
+            .fetchOne()
+            ?.getValue(DSL.max(SETTING.CREATED_AT))
     }
 
     /**
