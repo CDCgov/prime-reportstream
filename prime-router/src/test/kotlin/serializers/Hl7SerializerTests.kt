@@ -502,7 +502,8 @@ NTE|1|L|This is a final comment|RE"""
             "5555555555:1:",
             patientPathSpec,
             patientElement,
-            Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE)
+            Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE
+        )
 
         verify {
             mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-1", "5555555555")
@@ -522,13 +523,16 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTerser.set(any(), any()) } returns Unit
 
         val facilityPathSpec = serializer.formPathSpec("ORC-23")
-        val facilityElement = Element("ordering_facility_phone_number", hl7Field = "ORC-23", type = Element.Type.TELEPHONE)
+        val facilityElement = Element(
+            "ordering_facility_phone_number", hl7Field = "ORC-23", type = Element.Type.TELEPHONE
+        )
         serializer.setTelephoneComponent(
             mockTerser,
             "5555555555:1:3333",
             facilityPathSpec,
             facilityElement,
-            Hl7Configuration.PhoneNumberFormatting.STANDARD)
+            Hl7Configuration.PhoneNumberFormatting.STANDARD
+        )
 
         verify {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "(555)555-5555X3333")
