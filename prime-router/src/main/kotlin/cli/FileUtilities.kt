@@ -118,5 +118,22 @@ class FileUtilities {
             }
             return outputFile
         }
+
+        fun replaceText(
+            path: String?,
+            findText: String,
+            replaceText: String,
+        ): File {
+            val file = File(path)
+
+            // since the files are small, trying to read the whole file
+            var content = file.readText(Charsets.UTF_8)
+            val folderDir = File("./build/tmp")
+            val fileW = File(folderDir, "otc-temp.csv")
+            fileW.parentFile.mkdirs()
+            fileW.writeBytes(content.replace(findText, replaceText).toByteArray())
+
+            return fileW
+        }
     }
 }
