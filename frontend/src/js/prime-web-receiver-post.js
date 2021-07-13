@@ -20,4 +20,5 @@
 
     // charts
     /* processCharts(); */
+    console.log("fresh!");
 })();

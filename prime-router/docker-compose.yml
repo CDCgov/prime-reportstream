@@ -109,6 +109,9 @@ services:
       - prime_dev
     command: "'nginx' '-g' 'daemon off;'"
     entrypoint: "/docker-entrypoint.sh"
+    build:
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile_dev
 
 volumes:
   # For storing a local encrypted secrets database
