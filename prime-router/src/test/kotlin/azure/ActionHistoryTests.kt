@@ -265,7 +265,6 @@ class ActionHistoryTests {
 //            connection.transaction(block = any() as TransactionalRunnable)
         }
 //        confirmVerified(connection)
-        TODO("JUnit -> AssertK")
     }
 
     @Test
