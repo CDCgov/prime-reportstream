@@ -4,9 +4,7 @@ services:
   builder:
     depends_on:
       - postgresql
-    build:
-      context: .
-      dockerfile: Dockerfile.build
+    image: ghcr.io/cdcgov/prime-router_builder:jdk11afct3grdl7.1
     environment:
       FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
       DB_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
