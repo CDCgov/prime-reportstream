@@ -5,7 +5,13 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.azure.*
+import gov.cdc.prime.router.azure.AuthenticationVerifier
+import gov.cdc.prime.router.azure.AuthenticatedClaims
+import gov.cdc.prime.router.azure.OktaAuthenticationVerifier
+import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.PrincipalLevel
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.TestAuthenticationVerifier
 import org.apache.logging.log4j.kotlin.Logging
 
 class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER): Logging {
@@ -25,17 +31,17 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             httpRequestMessage = request
         }
 
-        val claimVerifier: AuthenticationVerifier by lazy {
+        fun authenticationVerifier(): AuthenticationVerifier {
 
             // If we are running this locally and it is the initial setup from `prime-router/settings/put-local-settings.py`,
             // return the TestAuthenticationVerifier
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
-            val settingsSetup = httpRequestMessage?.headers?.get("settingssetup")
+            val localNoAuth = httpRequestMessage?.headers?.get("localnoauth")
 
-            if (primeEnv == "local" && settingsSetup == "true")
-                TestAuthenticationVerifier()
+            if (primeEnv == "local" && localNoAuth == "true")
+                return TestAuthenticationVerifier()
             else
-                OktaAuthenticationVerifier()
+                return OktaAuthenticationVerifier()
         }
     }
 
@@ -52,6 +58,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             }
             val host = request.uri.toURL().host
             setRequest(request)
+            val claimVerifier = authenticationVerifier()
             if (claimVerifier.requiredHosts.isNotEmpty() && !claimVerifier.requiredHosts.contains(host)) {
                 logger.error("Wrong Authentication Verifier being used: ${claimVerifier::class} for $host")
                 return HttpUtilities.unauthorizedResponse(request)
@@ -77,9 +84,9 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
      * For endpoints that need to check if the organization is in the database
      */
      fun checkOrganizationExists(context: ExecutionContext, userName: String, orgName: String?): Organization? {
-        val organization = null
+        var organization: Organization? = null
         if (orgName != null) {
-                val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
+                organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
                 if (organization != null) {
                     return organization
                 } else {
