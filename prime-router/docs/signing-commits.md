@@ -1,5 +1,7 @@
 # Signing Commits
 
+(See also https://github.com/CDCgov/prime-reportstream/discussions/1278)
+
 1. Generate a GPG key (you will need the GPG toolchain installed on your machine for this):
 ```bash
 $ gpg2 --full-generate-key
