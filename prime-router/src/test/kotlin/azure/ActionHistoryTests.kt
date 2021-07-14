@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
@@ -14,17 +13,16 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
-import io.mockk.verify
 import org.jooq.DSLContext
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
+import org.junit.jupiter.api.Disabled
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -60,14 +58,9 @@ class ActionHistoryTests {
             sources = listOf(ClientSource("myOrg", "myClient")),
             metadata = Metadata()
         )
-        val incomingReport = ReportFunction.ValidatedRequest(
-            HttpStatus.OK,
-            options = ReportFunction.Options.CheckConnections,
-            report = report1
-        )
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
-        actionHistory1.trackExternalInputReport(incomingReport, blobInfo1)
+        actionHistory1.trackExternalInputReport(report1, blobInfo1)
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id] !!
         assertEquals(reportFile.schemaName, "one")
@@ -79,14 +72,7 @@ class ActionHistoryTests {
         assertNull(reportFile.receivingOrg)
 
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackExternalInputReport(incomingReport, blobInfo1) }
-
-        // must pass a valid report.   Here, its set to null.
-        val incomingReport2 = ReportFunction.ValidatedRequest(
-            HttpStatus.OK,
-            options = ReportFunction.Options.CheckConnections
-        )
-        assertFails { actionHistory1.trackExternalInputReport(incomingReport2, blobInfo1) }
+        assertFails { actionHistory1.trackExternalInputReport(report1, blobInfo1) }
     }
 
     @Test
@@ -95,7 +81,7 @@ class ActionHistoryTests {
         val schema1 = Schema(name = "schema1", topic = "topic1", elements = listOf())
         val report1 = Report(
             schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")),
-            itemLineage = listOf<ItemLineage>(),
+            itemLineage = listOf(),
             metadata = Metadata()
         )
         val org =
@@ -222,7 +208,7 @@ class ActionHistoryTests {
      * What I'd really like to do is confirm that two sql inserts were generated,
      * one to insert into ACTION and one to insert into REPORT_FILE.
      */
-//    @Test
+    @Test @Disabled
     fun `test saveToDb with an externally received report`() {
         val dataProvider = MockDataProvider { emptyArray<MockResult>() }
         val connection = MockConnection(dataProvider) as DSLContext // ? why won't this work?
@@ -235,23 +221,12 @@ class ActionHistoryTests {
             sources = listOf(ClientSource("myOrg", "myClient")),
             metadata = Metadata()
         )
-        val incomingReport = ReportFunction.ValidatedRequest(
-            HttpStatus.OK,
-            report = report1,
-        )
+
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
-        actionHistory1.trackExternalInputReport(incomingReport, blobInfo1)
-
-        // Not sure how to get a transaction obj, to pass to saveToDb. ?
-//        every { connection.transaction(any()) }.returns(Unit)
+        actionHistory1.trackExternalInputReport(report1, blobInfo1)
 
         mockDb.transact { txn -> actionHistory1.saveToDb(txn) }
-
-        verify(exactly = 1) {
-//            connection.transaction(block = any() as TransactionalRunnable)
-        }
-//        confirmVerified(connection)
     }
 
     @Test
@@ -309,7 +284,7 @@ class ActionHistoryTests {
 
         val json = outStream.toString()
         assertTrue { json.isNotEmpty() }
-        var tree: JsonNode? = jacksonObjectMapper().readTree(json)
+        val tree: JsonNode? = jacksonObjectMapper().readTree(json)
         assertNotNull(tree)
         assertTrue(tree["destinationCount"].isInt)
         assertEquals(2, tree["destinationCount"].intValue())
@@ -336,7 +311,7 @@ class ActionHistoryTests {
         }
         val json2 = outStream.toString()
         assertTrue { json2.isNotEmpty() }
-        var tree2: JsonNode? = jacksonObjectMapper().readTree(json2)
+        val tree2: JsonNode? = jacksonObjectMapper().readTree(json2)
         assertNotNull(tree2)
         assertEquals(2, tree2["destinationCount"].intValue()) // still 2 destinations, even with 3 ReportFile
         val arr2 = tree2["destinations"] as ArrayNode

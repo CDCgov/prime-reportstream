@@ -66,7 +66,8 @@ class WorkflowEngine(
     }
 
     /**
-     * Place a report into the workflow
+     * Record a received [report] from a [sender] into the action history and save the original [rawBody]
+     * of the received message.
      */
     fun recordReceivedReport(
         report: Report,
