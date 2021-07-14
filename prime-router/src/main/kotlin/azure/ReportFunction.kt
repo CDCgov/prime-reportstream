@@ -12,7 +12,6 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
@@ -58,10 +57,10 @@ class ReportFunction {
         val verbose: String = "",
     )
 
-    data class ItemJurisdictionRouting(
+    data class ItemRouting(
         val reportIndex: Int,
         val trackingId: String?,
-        val destinations: Map<Organization.Jurisdiction, List<String>> = emptyMap(),
+        val destinations: MutableList<String> = mutableListOf(),
     )
 
     /**
@@ -398,7 +397,7 @@ class ReportFunction {
     ): String {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
-        val itemRouting: List<ItemJurisdictionRouting> = createItemJurisdictionRouting(result, actionHistory)
+        val itemRouting: List<ItemRouting> = createItemJurisdictionRouting(result, actionHistory)
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
@@ -419,9 +418,7 @@ class ReportFunction {
                     it.writeNumberField("reportIndex", ij.reportIndex)
                     it.writeStringField("trackingId", ij.trackingId)
                     it.writeArrayFieldStart("destinations")
-                    val destinations = mutableListOf<String>()
-                    ij.destinations.forEach { d -> destinations.addAll(d.value) }
-                    destinations.sorted().forEach { d -> it.writeString(d) }
+                    ij.destinations.sorted().forEach { d -> it.writeString(d) }
                     it.writeEndArray()
                     it.writeEndObject()
                 }
@@ -450,43 +447,28 @@ class ReportFunction {
     }
 
     /**
-     * Creates a list of [ItemJurisdictionRouting] instances with the report index
-     * and a jurisdiction keyed map with a list of the receiver organizations where
+     * Creates a list of [ItemRouting] instances with the report index
+     * and trackingId along with the list of the receiver organizations where
      * the report was routed.
      * @param validatedRequest the instance generated while processing the report
      * @param actionHistory the instance generated while processing the report
-     * @return the report routing for each item broken down by jurisdiction
+     * @return the report routing for each item
      */
     private fun createItemJurisdictionRouting(
         validatedRequest: ValidatedRequest,
         actionHistory: ActionHistory? = null,
-    ): List<ItemJurisdictionRouting> {
-        val routing = mutableListOf<ItemJurisdictionRouting>()
-        validatedRequest.report?. let { report ->
-            // the report has all the submitted items
-            report.itemIndices.forEach { reportIndex ->
-                val trackingId = report.schema.trackingElement?. let {
-                    report.getString(reportIndex, report.schema.trackingElement)
+    ): List<ItemRouting> {
+        val routing = mutableMapOf<Int, ItemRouting>()
+        actionHistory?.let { ah ->
+            ah.itemLineages.forEach { il ->
+                val item = routing.getOrPut(il.parentIndex) {
+                    ItemRouting(il.parentIndex, il.trackingId, mutableListOf())
                 }
-                val destinations = mutableMapOf<Organization.Jurisdiction, MutableList<String>>()
-                // find all outgoing reports based on the index and generate a mapped
-                // list of the receiving organizations keyed by the jurisdiction
-                actionHistory?. let { ah ->
-                    ah.itemLineages.filter { il ->
-                        il.parentIndex == reportIndex
-                    }.forEach { il ->
-                        ah.reportsOut[il.childReportId]?. let { rf ->
-                            WorkflowEngine.settings.findOrganization(rf.receivingOrg)?. let { org ->
-                                destinations.getOrPut(org.jurisdiction) { mutableListOf() }.add(
-                                    "${rf.receivingOrg}.${rf.receivingOrgSvc}"
-                                )
-                            }
-                        }
-                    }
+                ah.reportsOut[il.childReportId]?.let { rf ->
+                    item.destinations.add("${rf.receivingOrg}.${rf.receivingOrgSvc}")
                 }
-                routing.add(ItemJurisdictionRouting(reportIndex, trackingId, destinations))
             }
         }
-        return routing
+        return routing.toSortedMap().values.map{ it }
     }
 }
