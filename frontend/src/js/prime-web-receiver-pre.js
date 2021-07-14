@@ -184,7 +184,14 @@ function requestFile(reportId) {
 
     return window.jwt? axios.get(`${baseURL}/api/history/report/${reportId}`, apiConfig())
         .then(res => res.data)
-        .then(csv => download(csv.content, csv.filename, csv.mimetype)) : null;
+        .then(csv => {
+            // The filename to use for the download should not contain blob folders if present
+            let filename = decodeURIComponent(csv.filename)
+            let filenameStartIndex = filename.lastIndexOf("/")
+            if (filenameStartIndex >= 0 && filename.length > filenameStartIndex + 1) 
+                filename = filename.substring(filenameStartIndex + 1)
+            download(csv.content, filename, csv.mimetype)
+        }) : null;
 }
 
 /**
