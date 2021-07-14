@@ -575,29 +575,6 @@ class Report : Logging {
         }
     }
 
-    /**
-     * Returns the name of the first source or null if no source.
-     * @return the name of the first source or null if no source
-     */
-    fun getFirstSourceName(): String? {
-        return when {
-            sources.isNullOrEmpty() -> null
-            sources[0] is ClientSource -> {
-                val source = sources[0] as ClientSource
-                "${source.organization}.${source.client}"
-            }
-            sources[0] is FileSource -> {
-                val source = sources[0] as FileSource
-                source.fileName
-            }
-            sources[0] is ReportSource -> {
-                val source = sources[0] as ReportSource
-                source.id.toString()
-            }
-            else -> null
-        }
-    }
-
     private fun buildColumnPass1(mapping: Translator.Mapping, toElement: Element): StringColumn? {
         return when (toElement.name) {
             in mapping.useDirectly -> {

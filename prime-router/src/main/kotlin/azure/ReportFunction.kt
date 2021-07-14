@@ -161,13 +161,9 @@ class ReportFunction {
         }
     }
 
-    private fun validateRequest(
-        engine: WorkflowEngine,
-        request: HttpRequestMessage<String?>
-    ): ValidatedRequest {
+    private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
-
         val (sizeStatus, errMsg) = HttpUtilities.payloadSizeCheck(request)
         if (sizeStatus != HttpStatus.OK) {
             errors.add(ResultDetail.report(errMsg))
