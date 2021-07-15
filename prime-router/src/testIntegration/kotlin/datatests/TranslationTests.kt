@@ -29,14 +29,29 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-// This keeps this test class from running in parallel with other test classes and letting the time zone change
-// affect other tests
+// Makes this not thread safe to keep other test classes being affected by the timezone change.
 @NotThreadSafe
-class ConversionTest {
+class TranslationTests {
+    /**
+     * The folder in the resources folder where the configuration and test data reside.
+     */
     private val testDataDir = "/datatests"
+
+    /**
+     * The path to the configuration file from the test data directory.
+     */
     private val testConfigFile = "conversion-test-config.csv"
+
+    /**
+     * The metadata
+     */
     private val metadata = Metadata("./metadata")
+
+    /**
+     * The translator
+     */
     private val translator = Translator(metadata, FileSettings(FileSettings.defaultSettingsDirectory))
+
     /**
      * The original timezone of the JVM
      */
@@ -112,7 +127,7 @@ class ConversionTest {
 
     /**
      * Read the configuration file [configPathname] for this test.
-     * @return a map of input file to expected results
+     * @return a list of tests to perform
      */
     private fun readTestConfig(configPathname: String): List<TestConfig> {
         var config = emptyList<TestConfig>()
@@ -152,6 +167,10 @@ class ConversionTest {
         return config
     }
 
+    /**
+     * Get the report format from the extension of a [filename].
+     * @return the report format
+     */
     private fun getFormat(filename: String): Report.Format {
         return when {
             File(filename).extension.uppercase() == "INTERNAL" || filename.uppercase().endsWith("INTERNAL.CSV") -> {
@@ -166,8 +185,12 @@ class ConversionTest {
         }
     }
 
+    /**
+     * Perform test based on the given configuration.
+     */
     inner class FileConversionTest(private val config: TestConfig) : Executable {
         override fun execute() {
+            // First read in the data
             val inputFile = "$testDataDir/${config.inputFile}"
             val expectedFile = "$testDataDir/${config.expectedFile}"
             val inputStream = this::class.java.getResourceAsStream(inputFile)
@@ -175,7 +198,7 @@ class ConversionTest {
             if (inputStream != null && expectedStream != null) {
                 val inputReport = readReport(inputFile, inputStream, config.inputSchema, config.inputFormat)
                 val translatedReport = translateReport(inputReport, config)
-                val actualStream = writeReport(translatedReport, config.expectedFormat)
+                val actualStream = outputReport(translatedReport, config.expectedFormat)
                 val result = CompareData().compare(
                     expectedStream, actualStream, config.expectedFormat,
                     config.expectedSchema
@@ -192,6 +215,10 @@ class ConversionTest {
             }
         }
 
+        /**
+         * Read the report from an [input] based on the provided [schema] and [format].
+         * @return the report
+         */
         private fun readReport(
             inputFile: String,
             input: InputStream,
@@ -229,7 +256,11 @@ class ConversionTest {
             }
         }
 
-        private fun writeReport(
+        /**
+         * Outputs a [report] to the specified [format].
+         * @return the report output
+         */
+        private fun outputReport(
             report: Report,
             format: Report.Format
         ): InputStream {
@@ -245,6 +276,9 @@ class ConversionTest {
             return ByteArrayInputStream(outputStream.toByteArray())
         }
 
+        /**
+         * Checks the [result] of a report for errors.
+         */
         private fun checkReportResult(result: ReadResult, filename: String) {
             assertTrue(
                 result.errors.isEmpty(),
@@ -255,7 +289,10 @@ class ConversionTest {
             if (result.warnings.isNotEmpty()) println(result.warnings.joinToString("\n"))
         }
 
-        private fun translateReport(inputReport: Report, config: TestConfig): Report {
+        /**
+         * Translate an [report] based on the provided [config].
+         */
+        private fun translateReport(report: Report, config: TestConfig): Report {
             val mapping = translator.buildMapping(
                 config.expectedSchema,
                 config.inputSchema,
@@ -267,7 +304,7 @@ class ConversionTest {
                         "missing fields for ${mapping.missing.joinToString(", ")}"
                 )
             }
-            return inputReport.applyMapping(mapping)
+            return report.applyMapping(mapping)
         }
     }
 }
