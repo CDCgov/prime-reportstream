@@ -453,7 +453,8 @@ abstract class CoolTest {
                 !it.name.contains("FAIL") &&
                 !it.name.contains("BLOBSTORE") &&
                 !it.name.contains("QUALITY") &&
-                !it.name.contains("AS2")
+                !it.name.contains("AS2") &&
+                !it.name.contains("OTC")
         }
         val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
 
