@@ -46,6 +46,34 @@ Optionally, you may also want to install:
 * [AzureCLI](getting-started/install-azurecli.md)
 * [Gradle](getting-started/install-gradle.md)
 
+# Committing to this repository
+
+The `master` and `production` branches are _protected_ branches, this means that you cannot push into those directly. All submitted changes to this codebase follow the following workflow:
+
+* Pull in the latest changes and make sure your parent branch (typically `master`) reflects those:
+    ```bash
+    # '$' indicates your prompt
+    $ git checkout my_parent_branch
+    $ git pull
+
+    $ git status
+    On branch my_parent_branch
+    Your branch is up to date with 'origin/my_parent_branch'.
+
+    nothing to commit, working tree clean
+    ```
+* Create a child branch from your parent branch (again: typically `master`) that reflects what you are working on. We encourage 'scoping' your branch to your username, and you should feel free to include the GitHub Issue Number if there is one)
+    ```bash
+    # '$' indicates your prompt
+    # Assuming your username is "An ony moose" and "nnnn" is the GitHub issue you're working on
+    $ git checkout -b aom/nnnn-meaningful-branch-name
+    ```
+* Commit your changes to the branch
+    * We _highly encourage_ all committers to sign their commits. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
+    * At some point in the future, we will _require_ that all commits are signed.
+* Push your changes up
+* Open a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch (again: typically `master`); when you push up your branch, `git` will also report back to you the exact URL you can use to create a pull request directly.
+
 # First build
 
 After having installed all software dependencies, you should be able to successfully run your first build by executing:
