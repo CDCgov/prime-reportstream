@@ -320,31 +320,35 @@ jobs:
       - name: Push Docker Image
         run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
 
-      - name: Whitelist GitHub Action Runner in Function App Slot
-        id: ip-whitelist-create
-        run: |
-          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-          echo "::add-mask::$RUNNER_IP"
-          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
+      # DO NOT USE ZDD IN PROD UNTIL WE VALIDATE IN STAGING
+      - name: Restart Azure Functions App
+        run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
 
-      - name: Deploy to Candidate App Slot
-        uses: Azure/functions-container-action@v1
-        id: deploy-candidate
-        with:
-          app-name: ${{ env.PREFIX }}-functionapp
-          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
-          slot-name: candidate
-
-      - name: Promote Candidate Slot
-        id: promote-candidate
-        working-directory: operations
-        run: make TF_ENV=prod AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
-
-      - name: Remove GitHub Action IP Whitelist
-        if: ${{ always() }} # This should happen even on a failure
-        id: ip-whitelist-destroy
-        run: |
-          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
+#      - name: Whitelist GitHub Action Runner in Function App Slot
+#        id: ip-whitelist-create
+#        run: |
+#          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+#          echo "::add-mask::$RUNNER_IP"
+#          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
+#
+#      - name: Deploy to Candidate App Slot
+#        uses: Azure/functions-container-action@v1
+#        id: deploy-candidate
+#        with:
+#          app-name: ${{ env.PREFIX }}-functionapp
+#          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+#          slot-name: candidate
+#
+#      - name: Promote Candidate Slot
+#        id: promote-candidate
+#        working-directory: operations
+#        run: make TF_ENV=prod AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
+#
+#      - name: Remove GitHub Action IP Whitelist
+#        if: ${{ always() }} # This should happen even on a failure
+#        id: ip-whitelist-destroy
+#        run: |
+#          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
       - name: Upload Static Site
         uses: azure/CLI@v1
