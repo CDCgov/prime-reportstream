@@ -1055,7 +1055,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     when (element.type) {
                         Element.Type.DATETIME -> {
                             valueString = DateTimeFormatter.ofPattern(Element.datetimePattern)
-                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.systemDefault()))
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
                             val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.{0,1}[0-9]{0,4}[+-][0-9]{4}\\]\$")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
@@ -1066,7 +1066,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         }
                         Element.Type.DATE -> {
                             valueString = DateTimeFormatter.ofPattern(Element.datePattern)
-                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.systemDefault()))
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
                             // Note that some schema fields of type date could be derived from HL7 date time fields
                             val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
                             if (!r.matches(rawValue)) {

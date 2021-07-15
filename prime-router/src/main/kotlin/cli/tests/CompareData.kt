@@ -684,16 +684,19 @@ class CompareCsvData {
                     // For date/time values, the string has timezone offsets that can differ per environment, so
                     // compare the numeric value instead of just the string
                     val a = schema.elements[j].type
-                    if (schema.elements[j].type != null && schema.elements[j].type == Element.Type.DATETIME && actualRow[j].isNotBlank()) {
+                    if (schema.elements[j].type != null &&
+                        schema.elements[j].type == Element.Type.DATETIME && actualRow[j].isNotBlank()
+                    ) {
                         try {
                             val expectedTime =
                                 OffsetDateTime.parse(expectedRow[j].trim(), Element.datetimeFormatter).toEpochSecond()
                             val actualTime =
                                 OffsetDateTime.parse(actualRow[j].trim(), Element.datetimeFormatter).toEpochSecond()
                             if (expectedTime != actualTime) {
-                                result.errors.add("Date time value does not match in report $actualRowNum "+
-                                    "column #${j + 1}, '$colName'. Expected: '${expectedRow[j].trim()}', " +
-                                    "Actual: '${actualRow[j].trim()}, EpochSec: $expectedTime/$actualTime'"
+                                result.errors.add(
+                                    "Date time value does not match in report $actualRowNum " +
+                                        "column #${j + 1}, '$colName'. Expected: '${expectedRow[j].trim()}', " +
+                                        "Actual: '${actualRow[j].trim()}, EpochSec: $expectedTime/$actualTime'"
                                 )
                                 passed = false
                             }
