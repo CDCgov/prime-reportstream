@@ -46,7 +46,7 @@ You will need to fork the main code or documentation repository and clone it to 
 [github help page](https://help.github.com/articles/fork-a-repo) for help. 
 
 Create a branch for your work. 
-Since we are small team, we consider a branch to have one owner, so force-push on a branch is ok. 
+Since we are a small team, we consider a branch to have one owner, so force-push on a branch is ok. 
 If a you need to base your work on someone elses branch, talk to the branch owner and work something out.  
 
 ### Coding your changes
@@ -65,7 +65,7 @@ Once your changes and tests are ready to submit for review:
 
 1. **Test your changes**
 
-    Run the test suite to make sure that nothing is broken. 
+    Run the test suite to make sure that nothing is broken. These tests include 
 
 2. **Rebase your changes**
 
