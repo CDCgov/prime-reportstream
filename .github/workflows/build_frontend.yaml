@@ -2,7 +2,9 @@ name: Frontend
 
 on:
   pull_request:
-    branches: [ master, production ]
+    branches:
+      - master
+      - production
 
 jobs:
   pre_job:
@@ -33,7 +35,8 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Run Build Script
         run: bash ci_build.bash
