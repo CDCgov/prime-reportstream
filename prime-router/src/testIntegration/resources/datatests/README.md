@@ -35,9 +35,11 @@ E.g.
 `./prime data --input-schema primedatainput/pdi-covid-19 
 --input ./src/testIntegration/resources/datatests/CSV_to_HL7/sample-batch-pdi-20210608-0001.csv 
 --output-schema hl7/hl7-ingest-covid-19 --output-format HL7_BATCH 
---output-dir ./ --output test1.hl7`
+--output-dir ./ --output 
+./src/testIntegration/resources/datatests/CSV_to_HL7/test1.hl7`
 
 `./prime data --input-schema  hl7/hl7-ingest-covid-19 --input
 ./src/testIntegration/resources/datatests/HL7_to_INTERNAL/CE-20200415-0001.hl7
 --output-schema covid-19 --output-format INTERNAL --output-dir ./
---output test1.internal.csv`
+--output 
+./src/testIntegration/resources/datatests/HL7_to_INTERNAL/test1.internal.csv`
