@@ -1,16 +1,20 @@
 /*
 Build script for Prime Router.
 
-Properties that can be overridden using the Gradle -P arguments:
+Properties that can be overridden using the Gradle -P arguments or environment variables:
   DB_USER - Postgres database username (defaults to prime)
   DB_PASSWORD - Postgres database password (defaults to changeIT!)
   DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
 
+Properties that can be overriden using an environment variable only:
+  PRIME_RS_API_ENDPOINT_HOST - hostname on which your API endpoint runs (defaults to localhost);
+                               This will enable you to connect to your API endpoint from (e.g.)
+                               the builder container
+
 Properties to control the execution and output using the Gradle -P arguments:
   forcetest - Force the running of the test regardless of changes
   showtests - Verbose output of the unit tests
-
-  E.g. ./gradlew clean package -PDB_USER=myuser -PDB_PASSWORD=mypassword -Pforcetest
+  E.g. ./build.sh -- gradle clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -37,10 +41,35 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 azurefunctions.appName = azureAppName
 
-// Local database information
-val dbUser = (project.properties["DB_USER"] ?: "prime") as String
-val dbPassword = (project.properties["DB_PASSWORD"] ?: "changeIT!") as String
-val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://localhost:5432/prime_data_hub") as String
+// Local database information, first one wins:
+// 1. Project properties (-P<VAR>=<VALUE> flag)
+// 2. Environment variable
+// 3. Default
+val KEY_DB_USER = "DB_USER"
+val KEY_DB_PASSWORD = "DB_PASSWORD"
+val KEY_DB_URL = "DB_URL"
+val KEY_PRIME_RS_API_ENDPOINT_HOST = "PRIME_RS_API_ENDPOINT_HOST"
+val dbUser = (
+    project.properties[KEY_DB_USER]
+        ?: System.getenv(KEY_DB_USER)
+        ?: "prime"
+    ) as String
+val dbPassword = (
+    project.properties[KEY_DB_PASSWORD]
+        ?: System.getenv(KEY_DB_PASSWORD)
+        ?: "changeIT!"
+    ) as String
+val dbUrl = (
+    project.properties[KEY_DB_URL]
+        ?: System.getenv(KEY_DB_URL)
+        ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
+    ) as String
+
+val reportsApiEndpointHost = (
+    System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
+        ?: "localhost"
+    ) as String
+
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
@@ -210,6 +239,7 @@ tasks.register<JavaExec>("primeCLI") {
     environment["POSTGRES_URL"] = dbUrl
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
+    environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     if (project.extra.has("cliArgs")) {
