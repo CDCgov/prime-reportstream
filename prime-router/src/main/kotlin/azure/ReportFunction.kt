@@ -97,11 +97,17 @@ class ReportFunction {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
                     report = validatedRequest.report
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
-                    val responseBody = createResponseBody(validatedRequest, actionHistory)
-                    workflowEngine.recordReceivedReport(
-                        report, request.body!!.toByteArray(), validatedRequest.sender!!,
-                        actionHistory, workflowEngine
+                    if (request.body != null && validatedRequest.sender != null) {
+                        workflowEngine.recordReceivedReport(
+                            report, request.body!!.toByteArray(), validatedRequest.sender!!,
+                            actionHistory, workflowEngine
+                        )
+                    } else error(
+                        // This should never happen after the validation, but we do not want a mystery exception here
+                        "Unable to save original report ${report.name} due to null " +
+                            "request body or sender"
                     )
+                    val responseBody = createResponseBody(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)
                 }
             }
