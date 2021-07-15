@@ -434,7 +434,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
-    implementation("commons-io:commons-io:2.10.0")
+    implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.2.23")
     implementation("com.zaxxer:HikariCP:5.0.0")
     implementation("org.flywaydb:flyway-core:7.11.2")
