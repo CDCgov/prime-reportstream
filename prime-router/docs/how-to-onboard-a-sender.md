@@ -19,7 +19,7 @@ Create a new branch to store your work on the new sender.
 
 ### Set up a New Organization
 
-In your `organization-local.yml` file create a new organization. Senders typically are at the top of the 
+In your `organization.yml` file create a new organization. Senders typically are at the top of the 
 file.
 
 It should look something like this:
@@ -46,7 +46,7 @@ A few things to note here:
 
 ### Set up a New Schema
 
-Once you've added the sender to the `organizations-local.yml` file you next need to create a schema file.
+Once you've added the sender to the `organizations.yml` file you next need to create a schema file.
 
 The schema describes the data coming in from the sender and maps back to the base schema, which for `covid-19`
 is named `covid-19`. Schemas live in `metadata/schemas` so the one for Yoyodyne would be at

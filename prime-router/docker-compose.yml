@@ -1,7 +1,7 @@
-# This docker compose is intended to setup a developer 
+# This docker compose is intended to setup a developer
 version: "3.3"
 services:
-  # This container runs our Azure function code. 
+  # This container runs our Azure function code.
   prime_dev:
     build:
       context: .
@@ -27,26 +27,26 @@ services:
       - POSTGRES_URL=jdbc:postgresql://host.docker.internal:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
       - REDOX_SECRET=some_secret
-      - VAULT_API_ADDR=http://host.docker.internal:8200
-      - SENDGRID_API_KEY=SnBfxpPsQkmOh0SfU3X_ng
+      # - SENDGRID_API_KEY=
       - OKTA_baseUrl=hhs-prime.okta.com
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
+      - VAULT_API_ADDR=http://host.docker.internal:8200
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port
       - 5005:5005 # Java debug port
 
   # Azurite is the Azure storage emulator for local development
-  azurite: 
+  azurite:
     image: mcr.microsoft.com/azure-storage/azurite:3.12.0
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:
       # map to Azurite data objects to the build directory
       - ./build/azurite:/data
-    ports:  
-      - 10000:10000 
+    ports:
+      - 10000:10000
       - 10001:10001
 
   #local SFTP server as a receive point
@@ -72,7 +72,7 @@ services:
 
   settings:
     build: settings/.
-    command: "--wait=15 prime_dev /settings/organizations-local.yml"
+    command: "--wait=20 --check-last-modified prime_dev /settings/organizations.yml"
     depends_on:
       - prime_dev
     volumes:
@@ -105,7 +105,7 @@ services:
       - "8090:80"
     volumes:
       - "../frontend/dist:/usr/share/nginx/html"
-    depends_on: 
+    depends_on:
       - prime_dev
     command: "'nginx' '-g' 'daemon off;'"
     entrypoint: "/docker-entrypoint.sh"
@@ -113,5 +113,3 @@ services:
 volumes:
   # For storing a local encrypted secrets database
   vault:
-
-

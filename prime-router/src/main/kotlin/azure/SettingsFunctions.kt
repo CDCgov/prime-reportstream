@@ -9,6 +9,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.OffsetDateTime
 
 /*
  * Organizations API
@@ -20,15 +21,16 @@ class GetOrganizations(settingsFacade: SettingsFacade = SettingsFacade.common) :
     fun run(
         @HttpTrigger(
             name = "getOrganizations",
-            methods = [HttpMethod.GET],
+            methods = [HttpMethod.GET, HttpMethod.HEAD],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        return getList(
-            request,
-            OrganizationAPI::class.java
-        )
+        return when (request.httpMethod) {
+            HttpMethod.HEAD -> getHead(request)
+            HttpMethod.GET -> getList(request, OrganizationAPI::class.java)
+            else -> error("Unsupported method")
+        }
     }
 }
 
@@ -202,7 +204,8 @@ open class BaseFunction(
     ): HttpResponseMessage {
         return handleRequest(request, "") {
             val settings = facade.findSettingsAsJson(clazz)
-            HttpUtilities.okResponse(request, settings)
+            val lastModified = facade.getLastModified()
+            HttpUtilities.okResponse(request, settings, lastModified)
         }
     }
 
@@ -214,6 +217,15 @@ open class BaseFunction(
         return handleRequest(request, "") {
             val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
             facadeResultToResponse(request, result, outputBody)
+        }
+    }
+
+    fun getHead(
+        request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        return handleRequest(request, "") {
+            val lastModified = facade.getLastModified()
+            HttpUtilities.okResponse(request, lastModified = lastModified)
         }
     }
 
