@@ -545,6 +545,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                         record.patientRace = td.patientRace
                         record.patientRaceCode = td.patientRaceCode
                         record.patientState = td.patientState
+                        record.siteOfCare = td.siteOfCare
                     }
                 }
             ).execute()
