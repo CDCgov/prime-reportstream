@@ -5,6 +5,7 @@ This document will walk you through the setup instructions to get a functioning 
 # Table of contents
 
 * [Locally installed software prerequisites](#locally-installed-software-prerequisites)
+* [Committing to this repository](#committing-to-this-repository)
 * [First build](#first-build)
     * [Build dependencies](#build-dependencies)
 * [Building in the course of development](#building-in-the-course-of-development)
