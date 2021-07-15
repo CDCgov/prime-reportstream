@@ -45,10 +45,10 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         }
     }
 
-    fun handleRequest(
+    fun checkAccess(
         request: HttpRequestMessage<String?>,
         organizationName: String,
-        block: (claims: AuthenticatedClaims) -> HttpResponseMessage
+        block: (AuthenticatedClaims) -> HttpResponseMessage
     ): HttpResponseMessage {
         try {
             val accessToken = getAccessToken(request)
@@ -83,16 +83,16 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
     /**
      * For endpoints that need to check if the organization is in the database
      */
-     fun checkOrganizationExists(context: ExecutionContext, userName: String, orgName: String?): Organization? {
+    fun checkOrganizationExists(context: ExecutionContext, userName: String, orgName: String?): Organization? {
         var organization: Organization? = null
         if (orgName != null) {
-                organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
-                if (organization != null) {
-                    return organization
-                } else {
-                    context.logger.info("User $userName failed auth: Organization $orgName is unknown to the system.")
-                }
+            organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
+            if (organization != null) {
+                return organization
+            } else {
+                context.logger.info("User $userName failed auth: Organization $orgName is unknown to the system.")
             }
+        }
         return organization
     }
 

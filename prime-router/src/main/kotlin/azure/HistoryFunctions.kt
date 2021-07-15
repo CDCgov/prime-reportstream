@@ -244,9 +244,9 @@ open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthenticatio
     val workflowEngine = WorkflowEngine()
 
     fun GetReports(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
-        return oktaAuthentication.handleRequest(request, request.headers["organization"] ?: "") { claims ->
+        return oktaAuthentication.checkAccess(request, request.headers["organization"] ?: "") { claims ->
             val authOrganization = oktaAuthentication.checkOrganizationExists(context, claims.userName, claims.organizationName)
-                ?: return@handleRequest request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+                ?: return@checkAccess request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
 
             var response: HttpResponseMessage
             try {
@@ -293,7 +293,7 @@ open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthenticatio
                     .header("Content-Type", "text/html")
                     .build()
             }
-            return@handleRequest response
+            return@checkAccess response
         }
 
     }
@@ -303,9 +303,9 @@ open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthenticatio
         reportIdIn: String,
         context: ExecutionContext
     ): HttpResponseMessage {
-        return oktaAuthentication.handleRequest(request, request.headers["organization"] ?: "") { claims ->
+        return oktaAuthentication.checkAccess(request, request.headers["organization"] ?: "") { claims ->
             val authOrganization = oktaAuthentication.checkOrganizationExists(context, claims.userName, claims.organizationName)
-                ?: return@handleRequest request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+                ?: return@checkAccess request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
 
             var response: HttpResponseMessage
             try {
@@ -338,7 +338,7 @@ open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthenticatio
                     actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
                     WorkflowEngine().recordAction(actionHistory)
 
-                    return@handleRequest response
+                    return@checkAccess response
                 }
             } catch (ex: Exception) {
                 context.logger.warning("Exception during download of $reportIdIn - file not found")
@@ -347,7 +347,7 @@ open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthenticatio
                     .header("Content-Type", "text/html")
                     .build()
             }
-            return@handleRequest response
+            return@checkAccess response
         }
 
     }
@@ -369,10 +369,10 @@ open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthenticatio
         request: HttpRequestMessage<String?>,
         context: ExecutionContext
     ): HttpResponseMessage {
-        return oktaAuthentication.handleRequest(request, request.headers["organization"] ?: "") { claims ->
+        return oktaAuthentication.checkAccess(request, request.headers["organization"] ?: "") { claims ->
             val authOrganization =
                 oktaAuthentication.checkOrganizationExists(context, claims.userName, claims.organizationName)
-                    ?: return@handleRequest request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+                    ?: return@checkAccess request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
             var response: HttpResponseMessage
 
             try {
@@ -417,7 +417,7 @@ open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthenticatio
                     .header("Content-Type", "text/html")
                     .build()
             }
-            return@handleRequest response
+            return@checkAccess response
         }
     }
 
@@ -426,10 +426,10 @@ open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthenticatio
         field: String,
         context: ExecutionContext
     ): HttpResponseMessage {
-        return oktaAuthentication.handleRequest(request, request.headers["organization"] ?: "") { claims ->
+        return oktaAuthentication.checkAccess(request, request.headers["organization"] ?: "") { claims ->
             val authOrganization =
                 oktaAuthentication.checkOrganizationExists(context, claims.userName, claims.organizationName)
-                    ?: return@handleRequest request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+                    ?: return@checkAccess request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
             var response: HttpResponseMessage
             try {
                 val headers = workflowEngine.db.fetchDownloadableReportFiles(
@@ -456,7 +456,7 @@ open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthenticatio
                     .header("Content-Type", "text/html")
                     .build()
             }
-            return@handleRequest response
+            return@checkAccess response
         }
     }
 

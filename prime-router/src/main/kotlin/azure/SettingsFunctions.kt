@@ -210,7 +210,7 @@ open class BaseFunction(
         request: HttpRequestMessage<String?>,
         clazz: Class<T>
     ): HttpResponseMessage {
-        return oktaAuthentication.handleRequest(request, "") {
+        return oktaAuthentication.checkAccess(request, "") {
             val settings = facade.findSettingsAsJson(clazz)
             HttpUtilities.okResponse(request, settings)
         }
@@ -221,7 +221,7 @@ open class BaseFunction(
         organizationName: String,
         clazz: Class<T>
     ): HttpResponseMessage {
-        return oktaAuthentication.handleRequest(request, "") {
+        return oktaAuthentication.checkAccess(request, "") {
             val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
             facadeResultToResponse(request, result, outputBody)
         }
@@ -233,9 +233,9 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        return oktaAuthentication.handleRequest(request, organizationName ?: settingName) {
+        return oktaAuthentication.checkAccess(request, organizationName ?: settingName) {
             val setting = facade.findSettingAsJson(settingName, clazz, organizationName)
-                ?: return@handleRequest HttpUtilities.notFoundResponse(request)
+                ?: return@checkAccess HttpUtilities.notFoundResponse(request)
             HttpUtilities.okResponse(request, setting)
         }
     }
@@ -246,19 +246,19 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        return oktaAuthentication.handleRequest(request, organizationName ?: settingName) { claims ->
+        return oktaAuthentication.checkAccess(request, organizationName ?: settingName) { claims ->
             val (result, outputBody) = when (request.httpMethod) {
                 HttpMethod.PUT -> {
                     if (request.headers[HttpHeaders.CONTENT_TYPE.lowercase()] != HttpUtilities.jsonMediaType)
-                        return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("invalid media type"))
+                        return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("invalid media type"))
                     val body = request.body
-                        ?: return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
+                        ?: return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
                     facade.putSetting(settingName, body, claims, clazz, organizationName)
                 }
                 HttpMethod.DELETE ->
                     facade.deleteSetting(settingName, claims, clazz, organizationName)
                 else ->
-                    return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("unsupported method"))
+                    return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("unsupported method"))
             }
             facadeResultToResponse(request, result, outputBody)
         }
