@@ -2,6 +2,8 @@ package gov.cdc.prime.router.tokens
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.microsoft.azure.functions.HttpRequestMessage
+import com.nimbusds.jose.Algorithm
+import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import io.jsonwebtoken.Claims
@@ -206,10 +208,21 @@ class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), 
         if (!Scope.isValidScope(scope, sender)) return fail("Invalid scope for this sender: $scope")
         sender.keys.forEach { jwkSet ->
             if (Scope.scopeListContainsScope(jwkSet.scope, scope)) {
-                jwkSet.keys.forEach { jwk ->
-                    if (jwk.kid == kid) {   // todo add alg test!   && jwk.alg == alg.  Or kty???
-                        return jwk.toECPublicKey()  // todo implement RSA
-                    }
+
+                val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
+
+                // find by kid and kty
+                val key = jwkSet.keys.filter { jwk -> jwk.kid == kid }
+                    .firstOrNull { jwk -> jwk.kty == kty.value }
+
+                return if(key != null && kty == KeyType.EC) {
+                    key.toECPublicKey()
+                }
+                else if(key != null && kty == KeyType.RSA) {
+                    key.toRSAPublicKey()
+                }
+                else {
+                    null
                 }
             }
         }

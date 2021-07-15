@@ -17,7 +17,7 @@ class SenderUtils {
     companion object {
         /**
          * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
-         * This is done by the Sender, not by ReportStream.   This method is here for testing, and as an example.
+         * This is done by the Sender, not by ReportStream. This method is here for testing, and as an example.
          */
         fun generateSenderToken(
             sender: Sender,
@@ -64,15 +64,29 @@ class SenderUtils {
             val nimbusdsJwk = JWK.parseFromPEMEncodedObjects(pem)
             val jwk = jacksonObjectMapper().readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
             // All the rest of this is sanity checks
-            val prefix = "Cannot convert pemFile to EC Key. "
-            if (jwk.kty.isNullOrEmpty()) error("$prefix.  Key must have a kty keytype")
-            if (jwk.d != null) error("$prefix This looks like a private key.  Key must be a public key.")
-            if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) error("$prefix. Key missing elliptic point (x,y) value")
-            if (nimbusdsJwk.keyType != KeyType.EC) error("$prefix keyType is  ${nimbusdsJwk.keyType}.  Expecting 'EC'.")
-            // actually generate an ECPublicKey obj, just to confirm it can be done.
-            val ecPublicKey = jwk.toECPublicKey()
-            if (ecPublicKey.w == null) error("$prefix.  'w' Point obj not created")
-            if (ecPublicKey.algorithm != "EC") error("$prefix.  Alg is ${ecPublicKey.algorithm}.  Expecting 'EC'.")
+            if (jwk.kty.isNullOrEmpty()) error("Key must have a kty keytype")
+            if (nimbusdsJwk.keyType == KeyType.EC) {
+                val prefix = "Cannot convert pemFile to EC Key. "
+                if (jwk.d != null) error("$prefix This looks like a private key.  Key must be a public key.")
+                if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) error("$prefix. Key missing elliptic point (x,y) value")
+                // actually generate an ECPublicKey obj, just to confirm it can be done.
+                val ecPublicKey = jwk.toECPublicKey()
+                if (ecPublicKey.w == null) error("$prefix.  'w' Point obj not created")
+                if (ecPublicKey.algorithm != "EC") error("$prefix.  Alg is ${ecPublicKey.algorithm}.  Expecting 'EC'.")
+            }
+            else if (nimbusdsJwk.keyType == KeyType.RSA) {
+                val prefix = "Cannot convert pemFile to RSA Key. "
+                if (jwk.d != null) error("$prefix This looks like a private key.  Key must be a public key.")
+                if (jwk.e.isNullOrEmpty()) error("$prefix. Key missing exponent (e) value")
+                if (jwk.n.isNullOrEmpty()) error("$prefix. Key missing modulus (n) value")
+                // actually generate an RSAPublicKey obj, just to confirm it can be done.
+                val rsaPublicKey = jwk.toRSAPublicKey()
+                if (rsaPublicKey.algorithm != "RSA") error("$prefix. Alg is ${rsaPublicKey.algorithm}. Expecting 'RSA'.")
+            }
+            else {
+                error("keyType is ${nimbusdsJwk.keyType}.  Expecting 'EC or RSA'.")
+            }
+
             return jwk
         }
 
@@ -85,15 +99,30 @@ class SenderUtils {
             val nimbusdsJwk = JWK.parseFromPEMEncodedObjects(pem)
             val jwk = jacksonObjectMapper().readValue(nimbusdsJwk.toJSONString(), Jwk::class.java)
             // All the rest of this is sanity checks
-            val prefix = "Cannot convert pemFile to EC Key. "
-            if (jwk.kty.isNullOrEmpty()) error("$prefix.  Key must have a kty keytype")
-            if (jwk.d == null) error("$prefix This looks like a public key.  Key must be a private key.")
-            if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) error("$prefix. Key missing elliptic point (x,y) value")
-            if (nimbusdsJwk.keyType != KeyType.EC) error("$prefix keyType is  ${nimbusdsJwk.keyType}.  Expecting 'EC'.")
-            // actually generate an ECPublicKey obj, just to confirm it can be done.
-            val ecPrivateKey = jwk.toECprivateKey()
-            if (ecPrivateKey.algorithm != "EC") error("$prefix.  Alg is ${ecPrivateKey.algorithm}.  Expecting 'EC'.")
-            return ecPrivateKey
+            when (nimbusdsJwk.keyType) {
+                KeyType.EC -> {
+                    val prefix = "Cannot convert pemFile to EC Key. "
+                    if (jwk.d == null) error("$prefix This looks like a public key.  Key must be a private key.")
+                    if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) error("$prefix. Key missing elliptic point (x,y) value")
+                    // actually generate an ECPrivateKey obj, just to confirm it can be done.
+                    val ecPrivateKey = jwk.toECprivateKey()
+                    if (ecPrivateKey.algorithm != "EC") error("$prefix.  Alg is ${ecPrivateKey.algorithm}.  Expecting 'EC'.")
+                    return ecPrivateKey
+                }
+                KeyType.RSA -> {
+                    val prefix = "Cannot convert pemFile to RSA Key. "
+                    if (jwk.d == null) error("$prefix This looks like a public key.  Key must be a private key.")
+                    if (jwk.e.isNullOrEmpty()) error("$prefix. Key missing exponent (e) value")
+                    if (jwk.n.isNullOrEmpty()) error("$prefix. Key missing modulus (n) value")
+                    // actually generate an RSAPrivateKey obj, just to confirm it can be done.
+                    val rsaPrivateKey = jwk.toRSAPrivateKey()
+                    if (rsaPrivateKey.algorithm != "RSA") error("$prefix.  Alg is ${rsaPrivateKey.algorithm}.  Expecting 'RSA'.")
+                    return rsaPrivateKey
+                }
+                else -> {
+                    error("keyType is ${nimbusdsJwk.keyType}.  Expecting 'EC or RSA'.")
+                }
+            }
         }
     }
 }

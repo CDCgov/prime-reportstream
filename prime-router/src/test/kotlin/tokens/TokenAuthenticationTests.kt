@@ -331,5 +331,11 @@ class TokenAuthenticationTests {
         assertFalse(Scope.scopeListContainsScope("x   x", ""))
         assertFalse(Scope.scopeListContainsScope("x   x", " "))
     }
+}
+
+class FindSenderKeyInSettingsTests {
+
+    val findSenderKeyInSettings = FindSenderKeyInSettings()
+
 
 }

@@ -56,7 +56,5 @@ class Scope {
             val scopesTrial: List<String> = scopeList.split(" ")
             return scopesTrial.contains(desiredScope)
         }
-
-
     }
 }

@@ -32,7 +32,7 @@ services:
       - OKTA_baseUrl=hhs-prime.okta.com
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
-      # - TokenSigningSecret=<generate secret using ReportStreamSecretFinder.main>
+      - TokenSigningSecret=xrRbN4GBOG0kEXwqLmUZelUe1y1phRr/PS/dr7jrUqFrX6pAq/S8Cunklu5EqTgn
     depends_on: [azurite]
     ports:
       - 7071:7071 # default function port
