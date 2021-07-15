@@ -42,8 +42,6 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
-      # TODO: remove the INVALID overrides, these are currently just there as a stopgap to ensure
-      # we don't do bad things with our container registry while testing
       - name: Set Environment Variables
         run: |
           echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
