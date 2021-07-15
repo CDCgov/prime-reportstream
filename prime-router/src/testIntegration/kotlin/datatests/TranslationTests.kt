@@ -29,8 +29,6 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-// Makes this not thread safe to keep other test classes being affected by the timezone change.
-@NotThreadSafe
 class TranslationTests {
     /**
      * The folder in the resources folder where the configuration and test data reside.
@@ -87,6 +85,9 @@ class TranslationTests {
         OUTPUT_FORMAT("Output format")
     }
 
+    /**
+     * A test configuration.
+     */
     data class TestConfig(
         val inputFile: String,
         val inputFormat: Report.Format,
@@ -95,23 +96,6 @@ class TranslationTests {
         val expectedFormat: Report.Format,
         val expectedSchema: Schema
     )
-
-    /**
-     * Set the default timezone to GMT to match the build and deployment environments, so dates compare correctly
-     * regarless of environment.
-     */
-    @BeforeAll
-    fun setDefaultTimeZone() {
-        TimeZone.setDefault(TimeZone.getTimeZone("GMT0"))
-    }
-
-    /**
-     * Reset the timezone back to the original
-     */
-    @AfterAll
-    fun resetDefaultTimezone() {
-        TimeZone.setDefault(origDefaultTimeZone)
-    }
 
     /**
      * Generate individual unit tests for each test file in the test folder.

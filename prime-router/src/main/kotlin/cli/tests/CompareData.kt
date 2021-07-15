@@ -8,6 +8,7 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
 import com.github.ajalt.clikt.output.TermUi
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -18,6 +19,8 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
+import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 
 /**
  * Uses test data provided via a configuration file, sends the data to the API, then checks the response,
@@ -674,19 +677,43 @@ class CompareCsvData {
             // Loop through all the expected columns ignoring the header row
             for (j in expectedRow.indices) {
                 val colName = schema.elements[j].name
-                // We want to error on differences when the expected data is not empty.
-                if (expectedRow[j].isNotBlank() &&
-                    actualRow[j].trim() != expectedRow[j].trim()
-                ) {
-                    result.errors.add(
-                        "Data value does not match in report $actualRowNum column #${j + 1}, " +
-                            "'$colName'. Expected: '${expectedRow[j].trim()}', " +
-                            "Actual: '${actualRow[j].trim()}'"
-                    )
-                    passed = false
-                } else if (expectedRow[j].trim().isEmpty() &&
-                    actualRow[j].trim().isNotEmpty()
-                ) {
+
+                if (expectedRow[j].isNotBlank()) {
+                    val actualValue = actualRow[j].trim()
+                    val expectedValue = expectedRow[j].trim()
+                    // For date/time values, the string has timezone offsets that can differ per environment, so
+                    // compare the numeric value instead of just the string
+                    val a = schema.elements[j].type
+                    if (schema.elements[j].type != null && schema.elements[j].type == Element.Type.DATETIME && actualRow[j].isNotBlank()) {
+                        try {
+                            val expectedTime =
+                                OffsetDateTime.parse(expectedRow[j].trim(), Element.datetimeFormatter).toEpochSecond()
+                            val actualTime =
+                                OffsetDateTime.parse(actualRow[j].trim(), Element.datetimeFormatter).toEpochSecond()
+                            if (expectedTime != actualTime) {
+                                result.errors.add("Date time value does not match in report $actualRowNum "+
+                                    "column #${j + 1}, '$colName'. Expected: '${expectedRow[j].trim()}', " +
+                                    "Actual: '${actualRow[j].trim()}, EpochSec: $expectedTime/$actualTime'"
+                                )
+                                passed = false
+                            }
+                        } catch (e: DateTimeParseException) {
+                            result.errors.add(
+                                "Error while parsing date/time from values in report $actualRowNum column #${j + 1}, " +
+                                    "'$colName'. Expected: '${expectedRow[j].trim()}', " +
+                                    "Actual: '${actualRow[j].trim()}'"
+                            )
+                            passed = false
+                        }
+                    } else if (actualRow[j].trim() != expectedRow[j].trim()) {
+                        result.errors.add(
+                            "Data value does not match in report $actualRowNum column #${j + 1}, " +
+                                "'$colName'. Expected: '${expectedRow[j].trim()}', " +
+                                "Actual: '${actualRow[j].trim()}'"
+                        )
+                        passed = false
+                    }
+                } else if (actualRow[j].isNotBlank()) {
                     result.warnings.add(
                         "Actual data has value in report $actualRowNum for column " +
                             "'$colName' - column #${j + 1}, but no expected value.  " +
