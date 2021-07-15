@@ -7,6 +7,8 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.cli.FileUtilities
 import java.net.HttpURLConnection
+import java.io.File
+import gov.cdc.prime.router.azure.WorkflowEngine
 
 /**
  * Generates a fake HL7 report and sends it to ReportStream, waits some time then checks the lineage to make
@@ -53,6 +55,60 @@ class Hl7Ingest : CoolTest() {
         val reportId = getReportIdFromResponse(json)
         if (reportId != null) {
             passed = passed and examineLineageResults(reportId, receivers, itemCount)
+        }
+
+        return passed
+    }
+}
+
+class Hl7End2End : CoolTest() {
+    override val name = "hl7end2end"
+    override val description = "This tests end-to-end: submits a minimal hl7 file and verifies the file on sftp matches an expected file"
+    override val status = TestStatus.SMOKE
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        var passed = false
+        val sender = hl7Sender
+        val filename = "minimal.hl7"
+        ugly("Starting minimal file Test submitting with $filename")
+
+        val inputFile = File("./src/test/hl7_test_files/input/$filename")
+        val expectedFile = File("./src/test/hl7_test_files/expected/$filename")
+        if (!inputFile.exists()) {
+            error("Unable to find file ${inputFile.absolutePath} to do minimal hl7")
+        }
+        if (!expectedFile.exists()) {
+            error("Unable to find file ${expectedFile.absolutePath} to do minimal hl7")
+        }
+
+        val (responseCode, json) = HttpUtilities.postReportFile(
+            environment,
+            inputFile,
+            sender,
+            options.key
+        )
+        TermUi.echo("Response to POST: $responseCode")
+
+        waitABit(10, environment)
+        db = WorkflowEngine().db
+        val receiverName = hl7Receiver.name
+        val reportId = getReportIdFromResponse(json)
+            ?: return bad("***$name Test FAILED***: A report ID came back as null")
+
+        TermUi.echo("Id of submitted report: $reportId")
+        db.transact { txn ->
+            val sftpFilename = sftpFilenameQuery(txn, reportId, receiverName)
+            // If we get a file, compare the content with expected file.
+            TermUi.echo("File on sftp server is: $sftpFilename")
+            if (sftpFilename != null) {
+                val compareResult = CompareHl7Data().compareHl7(
+                    expectedFile.inputStream(),
+                    File(options.sftpDir, sftpFilename).inputStream())
+
+                if(compareResult.errors.size == 0){
+                    passed = true
+                }
+            }
         }
 
         return passed
