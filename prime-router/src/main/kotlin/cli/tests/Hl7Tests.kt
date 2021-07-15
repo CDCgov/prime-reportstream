@@ -61,6 +61,54 @@ class Hl7Ingest : CoolTest() {
     }
 }
 
+class BadHl7 : CoolTest() {
+    override val name = "badhl7"
+    override val description = "Submit badly formatted hl7 files - should get errors"
+    override val status = TestStatus.SMOKE
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        val listBadCharacters = listOf(
+            "ÅÍÎÏ˝ÓÔ\uF8FFÒÚÆ☃",
+            "OBR|1|A241Z^MESA_ORDPLC||P2^Procedure 2^ERL_MESA|||||||||xxx||Radiology^^^^R|7101^ESTRADA^JAIME^P^^DR|||||||||||1^once^^20000701^^R|||WALK|Modality Test 241||||||||||A||\n",
+            "PID|||||Richards^Mary||19340428|F|||||||||||||||||||\nPID|||||||19700510105000|M|||||||||||||||||||\n", /* multiple patient information*/
+            "~!@#\\\$^&*()-_=+[]\\\\{}|;':,./<>?",
+            "❤️ \uD83D\uDC94 \uD83D\uDC8C \uD83D\uDC95 \uD83D\uDC9E \uD83D\uDC93",
+            "<a href=\"javascript\\x0A:javascript:alert(1)\" id=\"fuzzelement1\">test</a>",
+            "'; EXEC sp_MSForEachTable 'DROP TABLE ?'; --",
+            "1'000'000,00"
+        )
+        var passed = false
+        val sender = hl7Sender
+        listBadCharacters.forEachIndexed { i, badCharacters ->
+            ugly("Starting badcsv file Test $i: submitting with $badCharacters")
+            val reFile = FileUtilities.replaceText(
+                "./src/test/hl7_test_files/invalid.hl7",
+                "replaceMe",
+                "$badCharacters"
+            )
+
+            if (!reFile.exists()) {
+                error("Unable to find file ${reFile.absolutePath} to do badhl7 test")
+            }
+
+            val (responseCode, json) = HttpUtilities.postReportFile(
+                environment,
+                reFile,
+                sender,
+                options.key
+            )
+            TermUi.echo("Response to POST: $responseCode")
+
+            if (responseCode >= 400) {
+                good("Test of Bad HL7 file $badCharacters passed: Failure HttpStatus code was returned.")
+                passed = true
+            } else {
+                bad("***badhl7 Test $i of $badCharacters FAILED: Expecting a failure HttpStatus. ***")
+            }
+        }
+        return passed
+    }
+}
+
 class Hl7End2End : CoolTest() {
     override val name = "hl7end2end"
     override val description = "This tests end-to-end: submits a minimal hl7 file and verifies the file on sftp matches an expected file"
@@ -69,7 +117,7 @@ class Hl7End2End : CoolTest() {
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         var passed = false
         val sender = hl7Sender
-        val filename = "minimal.hl7"
+        val filename = "happy-path.hl7"
         ugly("Starting minimal file Test submitting with $filename")
 
         val inputFile = File("./src/test/hl7_test_files/input/$filename")

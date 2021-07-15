@@ -248,6 +248,7 @@ Examples:
             DataCompareTest(),
             SantaClaus(),
             OtcProctored(),
+            BadHl7(),
             Hl7End2End()
         )
     }
