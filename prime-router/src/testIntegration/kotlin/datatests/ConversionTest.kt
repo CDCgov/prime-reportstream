@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.serializers.datatests
 
 import assertk.assertThat
-import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
@@ -9,25 +9,38 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
+import net.jcip.annotations.NotThreadSafe
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.function.Executable
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
-import kotlin.test.assertEquals
+import java.util.TimeZone
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// This keeps this test class from running in parallel with other test classes and letting the time zone change
+// affect other tests
+@NotThreadSafe
 class ConversionTest {
     private val testDataDir = "/datatests"
     private val testConfigFile = "conversion-test-config.csv"
     private val metadata = Metadata("./metadata")
     private val translator = Translator(metadata, FileSettings(FileSettings.defaultSettingsDirectory))
+    /**
+     * The original timezone of the JVM
+     */
+    private val origDefaultTimeZone = TimeZone.getDefault()
 
     /**
      * The fields in the test configuration file
@@ -51,7 +64,12 @@ class ConversionTest {
         /**
          * The organization name for the receiver.
          */
-        OUTPUT_SCHEMA("Output schema")
+        OUTPUT_SCHEMA("Output schema"),
+
+        /**
+         * The organization name for the receiver.
+         */
+        OUTPUT_FORMAT("Output format")
     }
 
     data class TestConfig(
@@ -62,6 +80,23 @@ class ConversionTest {
         val expectedFormat: Report.Format,
         val expectedSchema: Schema
     )
+
+    /**
+     * Set the default timezone to GMT to match the build and deployment environments, so dates compare correctly
+     * regarless of environment.
+     */
+    @BeforeAll
+    fun setDefaultTimeZone() {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT0"))
+    }
+
+    /**
+     * Reset the timezone back to the original
+     */
+    @AfterAll
+    fun resetDefaultTimezone() {
+        TimeZone.setDefault(origDefaultTimeZone)
+    }
 
     /**
      * Generate individual unit tests for each test file in the test folder.
@@ -89,7 +124,8 @@ class ConversionTest {
                 if (!it[ConfigColumns.INPUT_FILE.colName].isNullOrBlank() &&
                     !it[ConfigColumns.EXPECTED_FILE.colName].isNullOrBlank() &&
                     !it[ConfigColumns.INPUT_SCHEMA.colName].isNullOrBlank() &&
-                    !it[ConfigColumns.OUTPUT_SCHEMA.colName].isNullOrBlank()
+                    !it[ConfigColumns.OUTPUT_SCHEMA.colName].isNullOrBlank() &&
+                    !it[ConfigColumns.OUTPUT_FORMAT.colName].isNullOrBlank()
                 ) {
                     val inputSchema = metadata.findSchema(it[ConfigColumns.INPUT_SCHEMA.colName]!!)
                     val expectedSchema = metadata.findSchema(it[ConfigColumns.OUTPUT_SCHEMA.colName]!!)
@@ -100,7 +136,7 @@ class ConversionTest {
                             getFormat(it[ConfigColumns.INPUT_FILE.colName]!!),
                             inputSchema,
                             it[ConfigColumns.EXPECTED_FILE.colName]!!,
-                            getFormat(it[ConfigColumns.EXPECTED_FILE.colName]!!),
+                            Report.Format.safeValueOf(it[ConfigColumns.OUTPUT_FORMAT.colName]),
                             expectedSchema
                         )
                     } else if (inputSchema == null) {
@@ -133,16 +169,22 @@ class ConversionTest {
     inner class FileConversionTest(private val config: TestConfig) : Executable {
         override fun execute() {
             val inputFile = "$testDataDir/${config.inputFile}"
-            val outputFile = "$testDataDir/${config.expectedFile}"
+            val expectedFile = "$testDataDir/${config.expectedFile}"
             val inputStream = this::class.java.getResourceAsStream(inputFile)
-            val outputStream = this::class.java.getResourceAsStream(outputFile)
-            if (inputStream != null && outputStream != null) {
+            val expectedStream = this::class.java.getResourceAsStream(expectedFile)
+            if (inputStream != null && expectedStream != null) {
                 val inputReport = readReport(inputFile, inputStream, config.inputSchema, config.inputFormat)
-                val expectedReport = readReport(outputFile, outputStream, config.expectedSchema, config.expectedFormat)
-                val translatedReport = translate(inputReport, config)
-                // Sanity check. Stay sane my friends!
-                assertThat(translatedReport.schema).equals(expectedReport.schema)
-                compare(translatedReport, expectedReport, config.expectedSchema)
+                val translatedReport = translateReport(inputReport, config)
+                val actualStream = writeReport(translatedReport, config.expectedFormat)
+                val result = CompareData().compare(
+                    expectedStream, actualStream, config.expectedFormat,
+                    config.expectedSchema
+                )
+                assertTrue(
+                    result.passed,
+                    "${result.errors.joinToString("\n")}\n" +
+                        result.warnings.joinToString("\n")
+                )
             } else if (inputStream == null) {
                 fail("The file ${config.inputFile} was not found.")
             } else {
@@ -164,7 +206,7 @@ class ConversionTest {
                         input,
                         TestSource
                     )
-                    checkResult(result, inputFile)
+                    checkReportResult(result, inputFile)
                     result.report!!
                 }
                 Report.Format.INTERNAL -> {
@@ -181,13 +223,29 @@ class ConversionTest {
                         input,
                         TestSource
                     )
-                    checkResult(result, inputFile)
+                    checkReportResult(result, inputFile)
                     result.report!!
                 }
             }
         }
 
-        private fun checkResult(result: ReadResult, filename: String) {
+        private fun writeReport(
+            report: Report,
+            format: Report.Format
+        ): InputStream {
+            val outputStream = ByteArrayOutputStream()
+            when (format) {
+                Report.Format.HL7_BATCH -> Hl7Serializer(metadata).writeBatch(report, outputStream)
+                Report.Format.HL7 -> Hl7Serializer(metadata).write(report, outputStream)
+                Report.Format.INTERNAL -> CsvSerializer(metadata).writeInternal(report, outputStream)
+                else -> CsvSerializer(metadata).write(report, outputStream)
+            }
+            assertThat(outputStream.size() > 0).isTrue()
+
+            return ByteArrayInputStream(outputStream.toByteArray())
+        }
+
+        private fun checkReportResult(result: ReadResult, filename: String) {
             assertTrue(
                 result.errors.isEmpty(),
                 "There were ${result.errors.size} errors while reading $filename with " +
@@ -197,7 +255,7 @@ class ConversionTest {
             if (result.warnings.isNotEmpty()) println(result.warnings.joinToString("\n"))
         }
 
-        private fun translate(inputReport: Report, config: TestConfig): Report {
+        private fun translateReport(inputReport: Report, config: TestConfig): Report {
             val mapping = translator.buildMapping(
                 config.expectedSchema,
                 config.inputSchema,
@@ -211,84 +269,5 @@ class ConversionTest {
             }
             return inputReport.applyMapping(mapping)
         }
-    }
-
-    private fun compare(actualReport: Report, expectedReport: Report, schema: Schema) {
-        assertThat(actualReport).isNotNull()
-        assertThat(expectedReport).isNotNull()
-        assertTrue(actualReport.schema.elements.isNotEmpty())
-
-        assertEquals(
-            actualReport.itemCount, expectedReport.itemCount,
-            "The number of rows in the reports is not the same."
-        )
-
-        // Now check the data in each report.
-        val errorMsgs = ArrayList<String>()
-        val warningMsgs = ArrayList<String>()
-
-        // Loop through all the rows
-        for (i in 0 until actualReport.itemCount) {
-            val actualRow = actualReport.getRow(i)
-            val expectedRow = findRow(actualRow, expectedReport, schema)
-
-            for (j in actualRow.indices) {
-                val element = schema.elements[j]
-
-                // We want to error on differences when the expected data is not empty.
-                if (expectedRow[j].isNotBlank() &&
-                    actualRow[j].trim() != expectedRow[j].trim()
-                ) {
-                    errorMsgs.add(
-                        "Data value does not match in report $i column #$j, " +
-                            "'${element.name}'. Expected: '${expectedRow[j].trim()}', " +
-                            "Actual: '${actualRow[j].trim()}'"
-                    )
-                } else if (expectedRow[j].isBlank() &&
-                    actualRow[j].isNotBlank()
-                ) {
-                    warningMsgs.add(
-                        "Actual data has value in report $i for column " +
-                            "'${element.name}' - column #$j, but no expected value.  " +
-                            "Actual: '${actualRow[j].trim()}'"
-                    )
-                }
-            }
-        }
-
-        // Add the errors and warnings to the assert message, so they show up in the build results.
-        assertTrue(
-            errorMsgs.size == 0,
-            "There were ${errorMsgs.size} incorrect data value(s) detected with ${warningMsgs.size} warning(s)\n" +
-                errorMsgs.joinToString("\n") + "\n" + warningMsgs.joinToString("\n")
-        )
-        // Print the warning messages if any
-        if (errorMsgs.size == 0 && warningMsgs.size > 0) println(warningMsgs.joinToString("\n"))
-    }
-
-    private fun findRow(inputRow: List<String>, expectedReport: Report, schema: Schema): List<String> {
-        val lastNameIndex = schema.findElementColumn("patient_last_name")
-        val stateIndex = schema.findElementColumn("patient_state")
-        val messageIdIndex = schema.findElementColumn("message_id")
-        val inputLastName = lastNameIndex?.let { inputRow[it] }
-        val inputState = stateIndex?.let { inputRow[it] }
-        val inputMessageId = messageIdIndex?.let { inputRow[it] }
-
-        for (i in 0..expectedReport.itemCount) {
-            val expectedRow = expectedReport.getRow(i)
-            val expectedLastName = lastNameIndex?.let { expectedRow[it] }
-            val expectedState = stateIndex?.let { expectedRow[it] }
-            val expectedMessageId = messageIdIndex?.let { expectedRow[it] }
-            val messageIdMatches = !inputMessageId.isNullOrBlank() && !expectedMessageId.isNullOrBlank() &&
-                inputMessageId == expectedMessageId
-            val stateMatches = !inputState.isNullOrBlank() && !expectedState.isNullOrBlank() &&
-                inputState == expectedState
-            val lastNameMatches = !inputLastName.isNullOrBlank() && !expectedLastName.isNullOrBlank() &&
-                inputLastName == expectedLastName
-            if (messageIdMatches || (stateMatches && lastNameMatches)) {
-                return expectedRow
-            }
-        }
-        fail("A record was not found")
     }
 }

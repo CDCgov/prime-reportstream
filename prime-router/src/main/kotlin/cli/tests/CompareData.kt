@@ -321,7 +321,7 @@ class CompareData {
         result: Result = Result()
     ): Result {
         if (format == Report.Format.HL7 || format == Report.Format.HL7_BATCH) {
-            result.merge(CompareHl7Data().compareHl7(expected, actual))
+            result.merge(CompareHl7Data().compare(expected, actual))
         } else {
             result.merge(CompareCsvData().compare(expected, actual, schema))
         }
@@ -352,7 +352,7 @@ class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
      * Warnings are generated when:
      *  1. A component actual value exists, but no expected value.
      */
-    fun compareHl7(
+    fun compare(
         expected: InputStream,
         actual: InputStream,
         result: CompareData.Result = CompareData.Result()
@@ -574,6 +574,14 @@ class CompareCsvData {
         val schemaPatLastNameIndex = schema.findElementColumn("patient_last_name")
         val schemaPatStateIndex = schema.findElementColumn("patient_state")
 
+        // Check to see if the expected CSV file has headers
+        var startRowIndex = 0
+        if (actualRows.isNotEmpty() && actualRows[0].isNotEmpty()) {
+            val elementCol = schema.findElement(actualRows[0][0])
+            val csvCol = schema.findElementByCsvName(actualRows[0][0])
+            if (elementCol != null || csvCol != null) startRowIndex = 1
+        }
+
         // Sanity check.  The schema need either the message ID, or patient last name and state.
         if (schemaMsgIdIndex == null && (schemaPatLastNameIndex == null || schemaPatStateIndex == null)) {
             error("Schema ${schema.name} needs to have message ID or (patient last name and state) for the test.")
@@ -582,7 +590,7 @@ class CompareCsvData {
         // Check that we have the same number of records
         if (expectedRows.size == actualRows.size) {
             // Loop through all the actual rows ignoring the header row
-            for (i in 1 until actualRows.size) {
+            for (i in startRowIndex until actualRows.size) {
                 val actualRow = actualRows[i]
                 val actualMsgId = if (schemaMsgIdIndex != null) actualRow[schemaMsgIdIndex].trim() else null
                 val actualLastName = if (schemaPatLastNameIndex != null)
