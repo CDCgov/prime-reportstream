@@ -24,5 +24,8 @@ CREATE TABLE email_schedule (
     -- Metadata
     version INT NOT NULL,
     created_by VARCHAR(63) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+
+    constraint "CHK_email_schedule.version" check ("version" > 0),
+    constraint "CHK_email_schedule.created_by" check (length("created_by") > 0)
 );

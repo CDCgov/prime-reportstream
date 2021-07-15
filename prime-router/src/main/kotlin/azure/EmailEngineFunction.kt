@@ -58,6 +58,7 @@ const val OKTA_ISSUER = "https://hhs-prime.okta.com/oauth2/default"
 const val OKTA_GROUPS_API = "https://hhs-prime-admin.okta.com/api/v1/groups"
 const val FROM_EMAIL = "reportstream@cdc.gov"
 const val SUBJECT_EMAIL = "ReportStream Daily Email"
+const val FIVE_MINUTES_IN_SECONDS = 5*60;
 
 
 
@@ -94,7 +95,7 @@ class EmailScheduleEngine  {
         if( user !== null ){
             val id = WorkflowEngine.databaseAccess.insertEmailSchedule(request.body, user );
             ret.status(HttpStatus.CREATED)
-            ret.body( "created id $id")
+            ret.body( "$id")
         }
         return ret.build();
     }
@@ -119,8 +120,8 @@ class EmailScheduleEngine  {
 
         if( user !== null ){
             val id = WorkflowEngine.databaseAccess.deleteEmailSchedule(scheduleId);
-            ret.status(HttpStatus.CREATED)
-            ret.body( "deactivated id $id")
+            ret.status(HttpStatus.OK)
+            ret.body( "$id")
         }
         return ret.build();
     }
@@ -146,14 +147,14 @@ class EmailScheduleEngine  {
         schedulesToFire.forEach { schedule -> 
             val orgs: Iterable<String> = getOrgs( schedule );
 
-            logger.info( "processing ${schedule.template}" )
+            logger.info( "EmailEngineFunction:: processing schedule ${schedule.template}" )
 
             // get the orgs to fire for
             orgs.forEach{ org ->
                     val emails: List<String> = if ( schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
-                    logger.info( "processing ${org}" )
+                    logger.info( "EmailEngineFunction:: processing organization ${org} within ${schedule.template}" )
                     emails.forEach{ email -> 
-                        logger.info( "sending email to ${email}" )
+                        logger.info( "EmailEngineFunction:: sending email to ${email}" )
                         dispatchToSendGrid( schedule.template, listOf(email), logger );
                     }
             }
@@ -175,7 +176,13 @@ class EmailScheduleEngine  {
         val executionTime = ExecutionTime.forCron(parser.parse(schedule.cronSchedule));
         val timeFromLastExecution = executionTime.timeFromLastExecution(now);
 
-        return ( timeFromLastExecution.get().toSeconds() <= 4*60 /* 4 minutes */);
+        /*
+        So, the timer function doesn't fire on exactly every 5 minutes, so this is the "catch" at assure that anytime within 
+        less than 5 minutes of the last timer execution is valid (i.e. timer trigger fires at 11:59 but the cron for the 
+        schedule is at noon, without this, they don't "line up" and the schedule is always reported as shouldFire = false)  
+        This accounts for a difference in cron timers (Azures and the one referenced here)
+        */
+        return ( timeFromLastExecution.get().toSeconds() < FIVE_MINUTES_IN_SECONDS );
     }
 
     /**
@@ -199,7 +206,7 @@ class EmailScheduleEngine  {
      * 
      * @returns List of all organizations supported
      */
-    private fun fetchAllOrgs(): List<String>{    
+    private fun fetchAllOrgs(): Iterable<String>{    
         @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )    
         return workflowEngine.db.transactReturning {  tx -> 
             @Suppress( "UNRESOLVED_REFERENCE")
@@ -216,6 +223,8 @@ class EmailScheduleEngine  {
      * @param logger logger
      * 
      * @returns user from the token; otherwise null
+     * 
+     * @todo Consolidate Authentication and claims processing #1594
      */
     fun validateUser( request: HttpRequestMessage<String?>, logger: Logger): String? {
         var jwtToken = request.headers["authorization"] ?: ""
@@ -233,8 +242,9 @@ class EmailScheduleEngine  {
                 // get it to decode the token from the header
                 val jwt = jwtVerifier.decode(jwtToken)
                     ?: throw Throwable("Error in validation of jwt token")
+
                 // get the user name
-                user = jwt.claims["sub"].toString();
+                user = if ((jwt.claims["organization'] as List<String>).contains( "DHPrimeAdmin" ) ) jwt.claims["sub"].toString();
             }
             catch (ex: Throwable) {
                 logger.log(Level.WARNING, "Error in verification of token", ex)
