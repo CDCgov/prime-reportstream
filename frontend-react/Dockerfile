@@ -14,5 +14,6 @@ COPY ./tsconfig.json /app/tsconfig.json
 RUN [ "npm", "install", "--silent", "--only=production" ]
 RUN [ "npm", "run", "build", "--production" ]
 
+ENV NODE_ENV=production
 EXPOSE 3000
 ENTRYPOINT [ "npm", "run", "start" ]
