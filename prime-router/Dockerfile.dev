@@ -3,13 +3,13 @@
 #  - The Azure image, JVM and CLI tools
 #  - And a few development tools
 #
-# The intent is for the prime-router to be mounted into this container, 
+# The intent is for the prime-router to be mounted into this container,
 # allowing the content of this container to be stable
 #
 ARG JAVA_VERSION=11
 
 # This Debian image additionally contains function core tools – useful when using custom extensions
-FROM mcr.microsoft.com/azure-functions/java:3.0-java$JAVA_VERSION-core-tools 
+FROM mcr.microsoft.com/azure-functions/java:3.0-java$JAVA_VERSION-core-tools
 
 # Disable SSL verification for agencies that re-sign SSL connections
 ARG INSECURE_SSL=false
@@ -19,15 +19,14 @@ RUN if [ -n "$INSECURE_SSL" ] && [ "$INSECURE_SSL" = "true" ]; then \
     fi
 
 # Standard stuff needed for Azure setup
-RUN apt update && \
-    apt upgrade -y && \
-    apt install -y gpg curl lsb-release gnupg ca-certificates apt-transport-https
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get --yes install gpg curl lsb-release gnupg ca-certificates apt-transport-https
 
 # Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 # Tools that we like
-RUN apt install -y nano fish vim
+RUN apt-get --yes install nano fish vim
 
 CMD ["/bin/bash"]
-
