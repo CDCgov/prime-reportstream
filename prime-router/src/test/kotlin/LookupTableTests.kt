@@ -7,7 +7,6 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
-import kotlin.test.assertTrue
 
 class LookupTableTests {
     private val table: LookupTable
