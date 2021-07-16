@@ -59,6 +59,10 @@ const val OKTA_GROUPS_API = "https://hhs-prime-admin.okta.com/api/v1/groups"
 const val FROM_EMAIL = "reportstream@cdc.gov"
 const val SUBJECT_EMAIL = "ReportStream Daily Email"
 const val FIVE_MINUTES_IN_SECONDS = 5*60;
+const val AUTH_KEY = "Bearer "
+const val ORG_CLAIM = "organization"
+const val USER_CLAIM = "sub"
+const val ADMIN_GRP = "DHPrimeAdmins"
 
 
 
@@ -89,10 +93,10 @@ class EmailScheduleEngine  {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        var user:String? = validateUser( request, context.logger );
+        var user:String? = validateUser( request.headers["authorization"] ?: "", context.logger );
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED);
 
-        if( user !== null ){
+        if( !user.isNullOrEmpty() ){
             val id = WorkflowEngine.databaseAccess.insertEmailSchedule(request.body, user );
             ret.status(HttpStatus.CREATED)
             ret.body( "$id")
@@ -115,10 +119,10 @@ class EmailScheduleEngine  {
         @BindingName("scheduleId") scheduleId: Int,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        var user:String? = validateUser( request, context.logger );
+        var user:String? = validateUser( request.headers["authorization"] ?: "", context.logger );
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED);
 
-        if( user !== null ){
+        if( !user.isNullOrEmpty() ){
             val id = WorkflowEngine.databaseAccess.deleteEmailSchedule(scheduleId);
             ret.status(HttpStatus.OK)
             ret.body( "$id")
@@ -133,14 +137,14 @@ class EmailScheduleEngine  {
     @FunctionName("emailScheduleEngine")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
-        @TimerTrigger( name = "emailScheduleEngine", schedule = SCHEDULE ) timerInfo : String,
+        @Suppress("UNUSED_PARAMETER") @TimerTrigger( name = "emailScheduleEngine", schedule = SCHEDULE ) timerInfo : String,
         context: ExecutionContext
     ){
         val logger : Logger = context.logger;
         val mapper = ObjectMapper().registerModule(KotlinModule());
 
         // get the schedules to fire
-        val schedulesToFire : List<EmailSchedule> = WorkflowEngine.databaseAccess.fetchEmailSchedules()
+        val schedulesToFire : Iterable<EmailSchedule> = WorkflowEngine.databaseAccess.fetchEmailSchedules()
             .map{ mapper.readValue<EmailSchedule>( it ) }
             .filter{ shouldFire( it ) }
 
@@ -151,7 +155,7 @@ class EmailScheduleEngine  {
 
             // get the orgs to fire for
             orgs.forEach{ org ->
-                    val emails: List<String> = if ( schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
+                    val emails: Iterable<String> = if ( schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
                     logger.info( "EmailEngineFunction:: processing organization ${org} within ${schedule.template}" )
                     emails.forEach{ email -> 
                         logger.info( "EmailEngineFunction:: sending email to ${email}" )
@@ -180,7 +184,7 @@ class EmailScheduleEngine  {
         So, the timer function doesn't fire on exactly every 5 minutes, so this is the "catch" at assure that anytime within 
         less than 5 minutes of the last timer execution is valid (i.e. timer trigger fires at 11:59 but the cron for the 
         schedule is at noon, without this, they don't "line up" and the schedule is always reported as shouldFire = false)  
-        This accounts for a difference in cron timers (Azures and the one referenced here)
+        This accounts for a difference in cron timers (Azure's and the one referenced here)
         */
         return ( timeFromLastExecution.get().toSeconds() < FIVE_MINUTES_IN_SECONDS );
     }
@@ -217,7 +221,9 @@ class EmailScheduleEngine  {
     }
 
     /**
-     * Validates the JWT Token supplied in the authorization header
+     * Validates the JWT Token supplied in the authorization header.  To be
+     *  valid, the token must be from okta and must be part of the DHPrimeAdmins
+     *  group
      * 
      * @param request the HTTPRequest object
      * @param logger logger
@@ -226,12 +232,11 @@ class EmailScheduleEngine  {
      * 
      * @todo Consolidate Authentication and claims processing #1594
      */
-    fun validateUser( request: HttpRequestMessage<String?>, logger: Logger): String? {
-        var jwtToken = request.headers["authorization"] ?: ""
+    fun validateUser( requestToken: String, logger: Logger): String? {
 
-        jwtToken = if (jwtToken.length > 7) jwtToken.substring(7) else ""
+        val jwtToken = if (requestToken.length > AUTH_KEY.length ) requestToken.substring(AUTH_KEY.length) else ""
 
-        var user: String? = null;
+        var user: String? = null
 
         if (jwtToken.isNotBlank()) {
             try {
@@ -244,7 +249,8 @@ class EmailScheduleEngine  {
                     ?: throw Throwable("Error in validation of jwt token")
 
                 // get the user name
-                user = if ((jwt.claims["organization'] as List<String>).contains( "DHPrimeAdmin" ) ) jwt.claims["sub"].toString();
+                @Suppress("UNCHECKED_CAST")
+                user = if ((jwt.claims[ORG_CLAIM] as List<String>).contains( ADMIN_GRP ) ) jwt.claims[USER_CLAIM].toString() else null;
             }
             catch (ex: Throwable) {
                 logger.log(Level.WARNING, "Error in verification of token", ex)
