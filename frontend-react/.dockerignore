@@ -1,0 +1,6 @@
+.dockerignore
+*.sh
+build
+Dockerfile
+Dockerfile.prod
+node_modules
