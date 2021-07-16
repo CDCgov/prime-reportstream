@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser(description='Put org file into a prime service'
 parser.add_argument('--wait', type=int, default=0)
 parser.add_argument('--check-last-modified', action='store_true', default=False)
 parser.add_argument('host', default='localhost')
-parser.add_argument('org_file', default='organizations-local.yml')
+parser.add_argument('org_file', default='organizations.yml')
 args = parser.parse_args()
 host = args.host
 protocol = "http"

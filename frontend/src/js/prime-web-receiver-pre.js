@@ -189,11 +189,11 @@ function requestFile(reportId) {
 
 /**
  * Determines if the system is running as localhost
- * 
- * @returns 
+ *
+ * @returns
  */
 function isLocalhost(){
-    return window.location.origin.includes("localhost:8088");    
+    return window.location.origin.includes("localhost:8088");
 }
 
 /**
@@ -365,7 +365,7 @@ async function processReport( reports ){
         const facilities = document.getElementById( "tBodyFac");
         if( facilities ){
             report.facilities.forEach( reportFacility => {
-                facilities.innerHTML += 
+                facilities.innerHTML +=
                     `
                     <tr>
                         <td>${reportFacility.facility}</td>
@@ -375,13 +375,13 @@ async function processReport( reports ){
                     `;
             });
         }
-       
+
         const noFac = document.getElementById( 'nofacilities' );
         const facTable = document.getElementById( 'facilitiestable');
 
 
         if( report.facilities.length ){
-            if( noFac ) noFac.setAttribute( "hidden", "hidden" );    
+            if( noFac ) noFac.setAttribute( "hidden", "hidden" );
         }
         else{
             if( facTable ) facTable.setAttribute( "hidden", "hidden" );
