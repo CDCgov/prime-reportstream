@@ -105,7 +105,6 @@ const Facilities = (props: {reportId?:String}) => {
 export const Details = ({sortBy}: { sortBy?:String }) => {
 
   let queryMap = useQuery();
-  console.log( queryMap );
 
   return (
     <>
@@ -113,7 +112,6 @@ export const Details = ({sortBy}: { sortBy?:String }) => {
         <NetworkErrorBoundary fallbackComponent={ NoData }>
           <Summary reportId={queryMap["reportId"] }/>
           <ReportDetails reportId={queryMap["reportId"] }/>
-          <Facilities reportId={queryMap["reportId"]} />
         </NetworkErrorBoundary>
       </Suspense>
     </>
