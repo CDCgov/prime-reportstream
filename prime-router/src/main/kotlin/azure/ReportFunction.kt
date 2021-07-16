@@ -458,17 +458,31 @@ class ReportFunction {
         validatedRequest: ValidatedRequest,
         actionHistory: ActionHistory? = null,
     ): List<ItemRouting> {
-        val routing = mutableMapOf<Int, ItemRouting>()
+        // create the item routing from the item lineage
+        val routingMap = mutableMapOf<Int, ItemRouting>()
         actionHistory?.let { ah ->
             ah.itemLineages.forEach { il ->
-                val item = routing.getOrPut(il.parentIndex) {
-                    ItemRouting(il.parentIndex, il.trackingId, mutableListOf())
-                }
+                val item = routingMap.getOrPut(il.parentIndex) { ItemRouting(il.parentIndex, il.trackingId) }
                 ah.reportsOut[il.childReportId]?.let { rf ->
                     item.destinations.add("${rf.receivingOrg}.${rf.receivingOrgSvc}")
                 }
             }
         }
-        return routing.toSortedMap().values.map{ it }
+        // account for any items that routed no where and were not in the item lineage
+        return validatedRequest.report?.let { report ->
+            val items = mutableListOf<ItemRouting>()
+            // the report has all the submitted items
+            report.itemIndices.forEach { i ->
+                // if an item was not present, create the routing with empty destinations
+                items.add(routingMap.getOrDefault(
+                    i,
+                    ItemRouting(i, report.getString(i, report.schema.trackingElement ?: ""))
+                ))
+            }
+            items
+        } ?: run {
+            // unlikely, but in case the report is null...
+            routingMap.toSortedMap().values.map{ it }
+        }
     }
 }

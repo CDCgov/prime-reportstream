@@ -1,6 +1,6 @@
 #  ReportStream Release Notes
 
-*July 16, 2021*
+*July 20, 2021*
 
 ## General useful links:
 
