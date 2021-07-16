@@ -11,8 +11,8 @@ COPY ./package.json /app/package.json
 COPY ./package-lock.json /app/package-lock.json
 COPY ./tsconfig.json /app/tsconfig.json
 
-RUN ["npm", "install", "--silent" ]
-RUN [ "npm", "run", "build" ]
+RUN [ "npm", "install", "--silent", "--only=production" ]
+RUN [ "npm", "run", "build", "--production" ]
 
 EXPOSE 3000
 ENTRYPOINT [ "npm", "run", "start" ]
