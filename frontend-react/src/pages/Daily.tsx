@@ -8,7 +8,6 @@ import ReportResource from "../resources/ReportResource";
 import OrganizationResource from "../resources/OrganizationResource";
 import { useOktaAuth } from "@okta/okta-react";
 import {groupToOrg} from '../webreceiver-utils'
-import {oktaAuthConfig} from "../oktaConfig";
 import download from "downloadjs"
 
 
@@ -56,8 +55,8 @@ const ReportLink = ({reportId}) => {
   };
 
   return(
-    <a href="#" onClick={handleClick} className="usa-link">
-     { report !== undefined ? report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : report.fileType : "" }
+    <a href="/" onClick={handleClick} className="usa-link">
+     { report !== undefined ? report.fileType === "HL7_BATCH" ? "HL7(BATCH)" : report.fileType : "" }
   </a>
 
   )

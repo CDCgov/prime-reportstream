@@ -1,4 +1,4 @@
-import site from '../../content/site.json'
+
 
 export const WebReceiverGuide = () => {
     return (<>

@@ -66,6 +66,7 @@ const ReportDetails = ( props: {reportId?:String}) => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Facilities = (props: {reportId?:String}) => {
   let report = useResource( ReportResource.list(), {sortBy: undefined} )
                 .find( (report)=>report.reportId === props.reportId)
