@@ -225,6 +225,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
+            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
             az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
 
   deploy_release_prod:
@@ -294,4 +295,5 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
+            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
             az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
