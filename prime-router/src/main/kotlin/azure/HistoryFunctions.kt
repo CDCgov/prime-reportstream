@@ -81,7 +81,10 @@ class ReportView private constructor(
     val sendingOrg: String?,
     val receivingOrg: String?,
     val facilities: ArrayList<Facility>?,
-    val actions: ArrayList<Action>?
+    val actions: ArrayList<Action>?,
+    val content: String?,
+    val fileName: String?,
+    val mimeType: String?
 ) {
 
     data class Builder(
@@ -96,7 +99,11 @@ class ReportView private constructor(
         var sendingOrg: String? = null,
         var receivingOrg: String? = null,
         var facilities: ArrayList<Facility>? = ArrayList<Facility>(),
-        var actions: ArrayList<Action>? = ArrayList<Action>()
+        var actions: ArrayList<Action>? = ArrayList<Action>(),
+        var content: String? = null,
+        var fileName: String? = null,
+        var mimeType: String? = null
+
     ) {
 
         fun sent(sent: Long) = apply { this.sent = sent }
@@ -111,6 +118,10 @@ class ReportView private constructor(
         fun receivingOrg(receivingOrg: String) = apply { this.receivingOrg = receivingOrg }
         fun facilities(facilities: ArrayList<Facility>) = apply { this.facilities = facilities }
         fun actions(actions: ArrayList<Action>) = apply { this.actions = actions }
+        fun content(content: String) = apply { this.content = content }
+        fun fileName(fileName:String) = apply { this.fileName = fileName }
+        fun mimeType(mimeType:String) = apply {this.mimeType = mimeType }
+
         fun build() = ReportView(
             sent,
             via,
@@ -123,7 +134,10 @@ class ReportView private constructor(
             sendingOrg,
             receivingOrg,
             facilities,
-            actions
+            actions,
+            content,
+            fileName,
+            mimeType
         )
     }
 }
@@ -267,6 +281,12 @@ open class BaseHistoryFunction {
 
                 var actions = getActionsForReportId(it.reportId.toString(), authClaims)
 
+                val header = workflowEngine.fetchHeader(it.reportId, authClaims.organization)
+
+                val content = if( header.content !== null) String(header.content) else "";
+                val filename = Report.formExternalFilename(header)
+                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
+
                 ReportView.Builder()
                     .reportId(it.reportId.toString())
                     .sent(it.createdAt.toEpochSecond() * 1000)
@@ -277,6 +297,9 @@ open class BaseHistoryFunction {
                     .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
                     .facilities(facilities)
                     .actions(actions)
+                    .content(content)
+                    .fileName(filename)
+                    .mimeType(mimeType)
                     .build()
             }
 
