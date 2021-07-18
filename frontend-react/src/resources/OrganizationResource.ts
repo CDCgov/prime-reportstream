@@ -11,5 +11,5 @@ export default class OrganizationResource extends AuthResource {
         return this.name;
     }
 
-    static urlRoot = 'http://localhost:7071/api/settings/organizations';
+    static urlRoot = `{${AuthResource.getBaseUrl()}/api/settings/organizations`;
 }

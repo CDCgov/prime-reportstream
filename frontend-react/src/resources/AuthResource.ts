@@ -20,4 +20,13 @@ export default class AuthResource extends Resource {
           },
       };
     };
+
+    static getBaseUrl = () => {
+        if (window.location.origin.includes("localhost"))
+            return "http://localhost:7071";
+        else if (window.location.origin.includes("staging"))
+            return "https://staging.prime.cdc.gov";
+        else
+            return "https://prime.cdc.gov";
+    }
   }

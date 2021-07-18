@@ -1,4 +1,3 @@
-import { Resource } from '@rest-hooks/rest';
 import AuthResource from './AuthResource';
 
 export default class ActionResource extends AuthResource {

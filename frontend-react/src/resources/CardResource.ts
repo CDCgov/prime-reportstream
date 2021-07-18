@@ -14,5 +14,5 @@ export default class CardResource extends AuthResource {
         return this.id;
     }
 
-    static urlRoot = 'http://localhost:7071/api/history/summary/tests';
+    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/summary/tests`;
 }
