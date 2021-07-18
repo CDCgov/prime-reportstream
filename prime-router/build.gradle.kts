@@ -407,9 +407,11 @@ tasks.register("quickPackage") {
 
 repositories {
     mavenCentral()
+    jcenter()
     maven {
         url = uri("https://jitpack.io")
     }
+
 }
 
 dependencies {
@@ -476,6 +478,9 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
+
+    implementation("com.cronutils:cron-utils:9.1.5")
+    implementation("khttp:khttp:0.1.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
