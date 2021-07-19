@@ -44,7 +44,7 @@ You will need to have at least the following pieces of software installed _local
 
 Optionally, you may or will probably also want to install at least some of:
 
-* [Azure Storage Explorer](getting-started/install-ase.md)
+* [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
 * [AzureCLI](getting-started/install-azurecli.md)
 * [Gradle](getting-started/install-gradle.md)
 * One or more [PostgreSQL Clients](getting-started/psql-clients.md)
