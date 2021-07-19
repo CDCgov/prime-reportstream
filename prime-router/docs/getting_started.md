@@ -5,9 +5,9 @@ This document will walk you through the setup instructions to get a functioning 
 # Table of contents
 
 * [Locally installed software prerequisites](#locally-installed-software-prerequisites)
-* [Committing to this repository](#committing-to-this-repository)
 * [First build](#first-build)
     * [Build dependencies](#build-dependencies)
+* [Committing to this repository](#committing-to-this-repository)
 * [Building in the course of development](#building-in-the-course-of-development)
     * [Updating schema documentation](#updating-schema-documentation)
 * [Running ReportStream](#running-reportstream)
@@ -42,38 +42,12 @@ You will need to have at least the following pieces of software installed _local
 * [OpenJDK](getting-started/install-openjdk.md) (currently targetting 11 through 15)
 * [Azure Functions Core Tools](getting-started/install-afct.md) (currently targetting 3)
 
-Optionally, you may also want to install:
+The following tools may be installed for development or debugging purposes:
 
+* [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
 * [AzureCLI](getting-started/install-azurecli.md)
 * [Gradle](getting-started/install-gradle.md)
-
-# Committing to this repository
-
-The `master` and `production` branches are _protected_ branches, this means that you cannot push into those directly. All submitted changes to this codebase follow the following workflow:
-
-* Pull in the latest changes and make sure your parent branch (typically `master`) reflects those:
-    ```bash
-    # '$' indicates your prompt
-    $ git checkout my_parent_branch
-    $ git pull
-
-    $ git status
-    On branch my_parent_branch
-    Your branch is up to date with 'origin/my_parent_branch'.
-
-    nothing to commit, working tree clean
-    ```
-* Create a child branch from your parent branch (again: typically `master`) that reflects what you are working on. We encourage 'scoping' your branch to your username, and you should feel free to include the GitHub Issue Number if there is one)
-    ```bash
-    # '$' indicates your prompt
-    # Assuming your username is "An ony moose" and "nnnn" is the GitHub issue you're working on
-    $ git checkout -b aom/nnnn-meaningful-branch-name
-    ```
-* Commit your changes to the branch
-    * We _highly encourage_ all committers to sign their commits. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
-    * At some point in the future, we will _require_ that all commits are signed.
-* Push your changes up
-* Open a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch (again: typically `master`); when you push up your branch, `git` will also report back to you the exact URL you can use to create a pull request directly.
+* One or more [PostgreSQL Clients](getting-started/psql-clients.md)
 
 # First build
 
@@ -119,6 +93,11 @@ Running this instance as a docker container enables you to easily clean it (and 
 
 (*) _Note that this `docker-compose.build.yml` file contains other artifacts that are used in our CI/CD build pipeline. Specifically there is a '`builder`' service which will start and terminate on bringing this docker-compose environment. For all intents and purposes, you can ignore this service._
 
+# Committing to this repository
+
+* Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
+* Make your changes in topic/feature branches and file a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch.
+
 # Building in the course of development
 
 You can invoke gradle from the `./prime-router` directory to build the product:
@@ -140,12 +119,13 @@ Your most used gradle tasks will be:
 * `package`: packages the build artifacts for deployment
 * `primeCLI`: run the prime CLI.  Specify arguments with `"--args=<args>"`
 * `test`: runs the unit tests
-* `testEnd2End`: runs the end to end tests. Requires [that you are running ReportStream](#running-reportstream)
+* `testEnd2End`: runs the end to end tests; this requires [that you are running ReportStream](#running-reportstream)
+* `testIntegration`: runs the integration tests; this requires [that you are running ReportStream](#running-reportstream)
 
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
 ## Updating schema documentation
-Run the following gradle command to generate the schema documentation. THis documentation is written to `docs/schema-documentation`
+Run the following gradle command to generate the schema documentation. This documentation is written to `docs/schema-documentation`
 
 ```bash
 ./gradlew generateDocs
