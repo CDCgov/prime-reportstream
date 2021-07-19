@@ -95,55 +95,8 @@ Running this instance as a docker container enables you to easily clean it (and 
 
 # Committing to this repository
 
-Now that you've completed your first successful build, you're ready to start committing into this repository. Keep in mind that both the `master` and `production` branches are _protected_ branches, this means that you cannot push into those directly. All submitted changes to this codebase follow the following workflow:
-
-* Pull in the latest changes and make sure your parent branch (typically `master` - here using "`my_parent_branch`" as an example) reflects those:
-    ```bash
-    # '$' indicates your prompt
-    $ git checkout my_parent_branch
-    $ git pull
-
-    $ git status
-    On branch my_parent_branch
-    Your branch is up to date with 'origin/my_parent_branch'.
-
-    nothing to commit, working tree clean
-    ```
-* Create a child branch from your parent branch (again: typically `master`) that reflects what you are working on. We encourage 'scoping' your branch to your username, and you should feel free to include the GitHub Issue Number if there is one)
-    ```bash
-    # '$' indicates your prompt
-    # Assuming your username is "An Ony Moose" and "nnnn" is the GitHub issue you're working on
-    $ git checkout -b aom/nnnn-meaningful-branch-name
-    ```
-* Commit your changes to the branch and ensure those commits are signed
-    * Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
-* Push your changes up, if this is the first time you push this branch up, you will have to tell git about this:
-    ```bash
-    # '$' indicates your prompt
-    $ git push
-    fatal: The current branch aom/nnnn-meaningful-branch-name has no upstream branch.
-    To push the current branch and set the remote as upstream, use
-
-        git push --set-upstream origin aom/nnnn-meaningful-branch-name
-
-    $ git push --set-upstream origin aom/nnnn-meaningful-branch-name
-    Enumerating objects: nn, done.
-    Counting objects: 100% (nn/nn), done.
-    Delta compression using up to nn threads
-    Compressing objects: 100% (nn/nn), done.
-    Writing objects: 100% (nn/nn), nn.nn KiB | nn.nn MiB/s, done.
-    Total nn (delta nn), reused nn (delta nn), pack-reused 0
-    remote: Resolving deltas: 100% (nn/nn), completed with nn local objects.
-    remote:
-    remote: Create a pull request for 'aom/nnnn-meaningful-branch-name' on GitHub by visiting:
-    remote:      https://github.com/CDCgov/prime-reportstream/pull/new/aom/nnnn-meaningful-branch-name
-    remote:
-    To github.com:CDCgov/prime-reportstream.git
-    * [new branch]        aom/nnnn-meaningful-branch-name -> aom/nnnn-meaningful-branch-name
-    Branch 'aom/nnnn-meaningful-branch-name' set up to track remote branch 'aom/nnnn-meaningful-branch-name' from 'origin'.
-    ```
-* If there are more commits, continue committing (in a signed fashion) and pushing up
-* When your code is ready to be integrated, open a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch (again: typically `master`); when you push up your branch, `git` will also report back to you the exact URL you can use to create a pull request directly (in the example above: "_`https://github.com/CDCgov/prime-reportstream/pull/new/aom/nnnn-meaningful-branch-name`_").
+* Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
+* Make your changes in topic/feature branches and file a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch.
 
 # Building in the course of development
 
