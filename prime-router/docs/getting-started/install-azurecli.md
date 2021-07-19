@@ -28,4 +28,4 @@ sudo apt-get update
 sudo apt-get --yes install azure-cli
 ```
 
-See https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=linux for further instructions (including instructions for Ubuntu-specific ones).[]
+See https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=linux for further instructions (including instructions for Ubuntu-specific ones).
