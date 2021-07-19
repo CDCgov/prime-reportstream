@@ -112,7 +112,7 @@ The `master` and `production` branches are _protected_ branches, this means that
 * Create a child branch from your parent branch (again: typically `master`) that reflects what you are working on. We encourage 'scoping' your branch to your username, and you should feel free to include the GitHub Issue Number if there is one)
     ```bash
     # '$' indicates your prompt
-    # Assuming your username is "An ony moose" and "nnnn" is the GitHub issue you're working on
+    # Assuming your username is "An Ony Moose" and "nnnn" is the GitHub issue you're working on
     $ git checkout -b aom/nnnn-meaningful-branch-name
     ```
 * Commit your changes to the branch
