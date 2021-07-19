@@ -15,7 +15,7 @@ open class Sender(
     val format: Format,
     val topic: String,
     val schemaName: String,
-    val keys: List<JwkSet>? = null,  // used to track server-to-server auths for this Sender via public keys sets
+    val keys: List<JwkSet>? = null // used to track server-to-server auths for this Sender via public keys sets
 ) {
     constructor(copy: Sender) : this(
         copy.name,
@@ -67,7 +67,7 @@ open class Sender(
          */
         fun addJwkSet(orig: List<JwkSet>?, newScope: String, newJwk: Jwk): List<JwkSet> {
             if (orig == null) {
-                return listOf(JwkSet(newScope, listOf(newJwk)))  // create brand new
+                return listOf(JwkSet(newScope, listOf(newJwk))) // create brand new
             }
             val newJwkSetList = mutableListOf<JwkSet>()
             var done = false
@@ -84,7 +84,7 @@ open class Sender(
                     }
                     done = true
                 } else {
-                    newJwkSetList.add(it)  // existing different scope, make sure we keep it.
+                    newJwkSetList.add(it) // existing different scope, make sure we keep it.
                 }
             }
             // If the old/new scopes didn't match, then the new scope was never added.  Add a new JwkSet now.

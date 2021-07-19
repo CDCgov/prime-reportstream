@@ -3,6 +3,9 @@ package gov.cdc.prime.router.tokens
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.cli.DeleteSenderSetting
+import gov.cdc.prime.router.cli.PutSenderSetting
+import gov.cdc.prime.router.cli.SettingCommand
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
 import io.jsonwebtoken.SignatureAlgorithm
@@ -37,18 +40,18 @@ val exampleRsaPrivateKeyStr = """
         "dq":"cEglOkMPgwC7tdS48vGT-fSfVP8GUg5CpDUge5P_T9lDrKHd_3aP4rC0zA25s1J_3z4u2AONIIe0DKvzfQ3aEW0o7tEBx-8BOvJ1mgl13nG1VRWOH58ZqiRNAG-wLrw6A5IzxSdMMEk-mc2PCSOgG4Zr36iyuN42Ny0O2jw1eGk",
         "n":"xJRuufBk_axjyO1Kpy5uwmnAY0VUhCzG8G4OiDVgnaXeLMzj91bcQdYOMQ_82PTGrUbck3qSFXbug_Ljj8NZDT0J1ZSKv8Oce-GdkeNzA5W9yvChvorGotAUWMS7_EXXxz8mjlrwu6kyKfCpuJAMg5VrZaYA0nAlv-e7zoRE9pQ0VHNrEaj6Uikw3M02oVHUNiRtL5Y5tYyz_yRBauVLPdHf5Yf-cZeO2x02qFSGcl_2EzWZcGb6PkQZ_9QeOq_iJ9h-NU_wb9lnbebnBhPGAyc1-_9vnFlFzkH2lt0BVtfhW0E4ieKkntbC0QFxNu91Gf4jfFmsOAsCf3UpVqWIQw"
     }
-    """.trimIndent()
+""".trimIndent()
 
 // corresponding public key to above.
 val exampleKeyId = "11209921-860e-4b6d-8d7e-adc8778e1c6c"
-val exampleRsaPublicKeyStr  = """
+val exampleRsaPublicKeyStr = """
         {
           "kty":"RSA",
           "kid":"$exampleKeyId",
           "n":"xJRuufBk_axjyO1Kpy5uwmnAY0VUhCzG8G4OiDVgnaXeLMzj91bcQdYOMQ_82PTGrUbck3qSFXbug_Ljj8NZDT0J1ZSKv8Oce-GdkeNzA5W9yvChvorGotAUWMS7_EXXxz8mjlrwu6kyKfCpuJAMg5VrZaYA0nAlv-e7zoRE9pQ0VHNrEaj6Uikw3M02oVHUNiRtL5Y5tYyz_yRBauVLPdHf5Yf-cZeO2x02qFSGcl_2EzWZcGb6PkQZ_9QeOq_iJ9h-NU_wb9lnbebnBhPGAyc1-_9vnFlFzkH2lt0BVtfhW0E4ieKkntbC0QFxNu91Gf4jfFmsOAsCf3UpVqWIQw",
           "e":"AQAB"
         }
-    """.trimIndent()
+""".trimIndent()
 
 val differentRsaPublicKeyStr = """
     {
@@ -58,23 +61,21 @@ val differentRsaPublicKeyStr = """
         "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
         "e":"AQAB"
     }
-    """.trimIndent()
-
+""".trimIndent()
 
 class TokenAuthenticationTests {
-    val sender = Sender(
+    private val sender = Sender(
         "foo",
         "bar",
         Sender.Format.CSV,
         "covid-19",
         "mySchema",
-        keys = null)
-    val tokenAuthentication = TokenAuthentication(MemoryJtiCache())
-
-
+        keys = null
+    )
+    private val tokenAuthentication = TokenAuthentication(MemoryJtiCache())
 
     // return the hardcoded public key used with this test.  This is the Sender's public key.
-    class UseTestKey(val rsaPublicKeyStr: String) : SigningKeyResolverAdapter() {
+    class UseTestKey(private val rsaPublicKeyStr: String) : SigningKeyResolverAdapter() {
         override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key {
             val jwk = jacksonObjectMapper().readValue(rsaPublicKeyStr, Jwk::class.java)
             return jwk.toRSAPublicKey()
@@ -82,10 +83,10 @@ class TokenAuthenticationTests {
     }
 
     // return a ReportStream secret, used by ReportStream to sign a short-lived token
-    class GetTestSecret: ReportStreamSecretFinder {
+    class GetTestSecret : ReportStreamSecretFinder {
         private val TOKEN_SIGNING_KEY_ALGORITHM = SignatureAlgorithm.HS384
         // Good for testing:  Each time you create a new GetTestSecret() obj, its a totally new secret.
-        val tokenSigningSecret = this.generateSecret()
+        private val tokenSigningSecret = this.generateSecret()
 
         override fun getReportStreamTokenSigningSecret(): SecretKey {
             return Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenSigningSecret))
@@ -106,7 +107,7 @@ class TokenAuthenticationTests {
         val jwk = jacksonObjectMapper().readValue(exampleRsaPublicKeyStr, Jwk::class.java)
         val rsaPublicKey = jwk.toRSAPublicKey()
         assertNotNull(rsaPublicKey)
-        assertEquals("RSA",rsaPublicKey.algorithm)
+        assertEquals("RSA", rsaPublicKey.algorithm)
         assertEquals(BigInteger(jwk.e?.decodeBase64()), rsaPublicKey.publicExponent)
 
         // 2. Private.  Again, two step conversion instead of calling Jwk.generateRSAPublicKey() directly
@@ -114,7 +115,7 @@ class TokenAuthenticationTests {
         val jwk2 = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java)
         val rsaPrivateKey = jwk2.toRSAPrivateKey()
         assertNotNull(rsaPrivateKey)
-        assertEquals("RSA",rsaPrivateKey.algorithm)
+        assertEquals("RSA", rsaPrivateKey.algorithm)
         assertEquals(BigInteger(jwk2.d?.decodeBase64()), rsaPrivateKey.privateExponent)
     }
 
@@ -139,11 +140,11 @@ class TokenAuthenticationTests {
 
     @Test
     fun `test createAccessToken and checkAccessToken happy path`() {
-        val rslookup = GetTestSecret()  // callback to look up the Reportstream secret, using to sign token.
+        val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign token.
         val token = tokenAuthentication.createAccessToken("foobar", rslookup)
         assertTrue(token.accessToken.isNotEmpty())
         // must expire later than now, but in less than 10 minutes
-        val now: Int = (System.currentTimeMillis()/1000).toInt()
+        val now: Int = (System.currentTimeMillis() / 1000).toInt()
         assertTrue(token.expiresAtSeconds >= now)
         assertTrue(token.expiresAtSeconds < now + 600)
         assertEquals("foobar", token.scope)
@@ -186,7 +187,7 @@ class TokenAuthenticationTests {
         val senderToken = SenderUtils.generateSenderToken(sender, baseUrl, privateKey, exampleKeyId)
 
         // Step 2: ReportStream gets the token and checks it.
-        val rslookup = GetTestSecret()  // callback to look up the Reportstream secret, using to sign RS token.
+        val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign RS token.
         val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // callback to lookup the sender's public key.
         val accessToken = if (tokenAuthentication.checkSenderToken(senderToken, senderLookup)) {
             // Step 3:  Report stream creates a new accessToken
@@ -239,13 +240,13 @@ class TokenAuthenticationTests {
             "http://baz.quux",
             privateKey,
             exampleKeyId,
-            -65)  // expires in the past.  Need to back past the clock skew
+            -65
+        ) // expires in the past.  Need to back past the clock skew
 
         val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
         assertFalse(tokenAuthentication.checkSenderToken(senderToken, senderLookup))
     }
-
 
     @Test
     fun `test previously used Sender token`() {
@@ -254,7 +255,8 @@ class TokenAuthenticationTests {
             sender,
             "http://baz.quux",
             privateKey,
-            exampleKeyId)
+            exampleKeyId
+        )
 
         val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // It should work the first time.
@@ -295,7 +297,7 @@ class TokenAuthenticationTests {
 
     @Test
     fun `test checkAccessToken happy path`() {
-        val rslookup = GetTestSecret()  // callback to look up the Reportstream secret, using to sign RS token.
+        val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign RS token.
         val accessToken = tokenAuthentication.createAccessToken("myScope", rslookup)
         val claims = tokenAuthentication.checkAccessToken(accessToken.accessToken, "myScope", rslookup)
         // if claims is non-null then the sender's accessToken is valid.
@@ -315,7 +317,7 @@ class TokenAuthenticationTests {
     fun `test checkAccessToken wrong reportstream secret`() {
         val rslookup1 = GetTestSecret()
         val accessToken = tokenAuthentication.createAccessToken("MyScope", rslookup1)
-        val rslookup2 = GetTestSecret()  // new/different secret
+        val rslookup2 = GetTestSecret() // new/different secret
         val claims = tokenAuthentication.checkAccessToken(accessToken.accessToken, "MyScope", rslookup2)
         // if claims is non-null then the sender's accessToken is valid.
         assertNull(claims)
@@ -331,11 +333,46 @@ class TokenAuthenticationTests {
         assertFalse(Scope.scopeListContainsScope("x   x", ""))
         assertFalse(Scope.scopeListContainsScope("x   x", " "))
     }
+
+    @Test
+    fun `end to end happy path -- full round-trip`() {
+
+        // create sender in 'ignore' organization
+        val environment = SettingCommand.Environment("local", "localhost:7071", useHttp = true)
+        val accessToken = "dummy"
+        val senderName = "temporary_sender_auth_test"
+
+//        val org = GetOrganizationSetting().get(environment, accessToken, SettingCommand.SettingType.ORG, "simple_report")
+//        println(org)
+
+        val newSender =
+"""{
+    "name": "$senderName",
+    "organizationName": "simple_report",
+    "format": "CSV",
+    "topic": "covid-19",
+    "schemaName": "primedatainput/pdi-covid-19"
 }
+""".trimMargin()
 
-class FindSenderKeyInSettingsTests {
+        PutSenderSetting()
+            .put(
+                environment,
+                accessToken,
+                SettingCommand.SettingType.SENDER,
+                "simple_report.$senderName",
+                newSender
+            )
 
-    val findSenderKeyInSettings = FindSenderKeyInSettings()
 
 
+
+        DeleteSenderSetting()
+            .delete(
+                environment,
+                accessToken,
+                SettingCommand.SettingType.SENDER,
+                "simple_report.$senderName"
+            )
+    }
 }
