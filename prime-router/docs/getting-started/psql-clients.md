@@ -2,7 +2,7 @@
 
 There are a variety of options to interact with your PostgreSQL instance:
 
-* DBeaver Community Edition can be [downloaded here](https://dbeaver.io/download/). It is a graphical tool that lets you connect to a variety of database systems, including PostgreSQL with [very extensive documentation wiki](https://github.com/dbeaver/dbeaver/wiki).
+* DBeaver Community Edition can be [downloaded here](https://dbeaver.io/download/). It is a locally installed, graphical tool that lets you connect to a variety of database systems, including PostgreSQL with [very extensive documentation wiki](https://github.com/dbeaver/dbeaver/wiki).
 * pgAdmin: if you want to install pgAdmin, we recomment running it as a docker container inside the `prime-router_build` network so that it can talk to the `postgresql` container.
 * `psql`: the command-line tool for text-based interactions with PostgreSQL
 

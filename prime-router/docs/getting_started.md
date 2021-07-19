@@ -42,11 +42,12 @@ You will need to have at least the following pieces of software installed _local
 * [OpenJDK](getting-started/install-openjdk.md) (currently targetting 11 through 15)
 * [Azure Functions Core Tools](getting-started/install-afct.md) (currently targetting 3)
 
-Optionally, you may also want to install:
+Optionally, you may or will probably also want to install at least some of:
 
 * [Azure Storage Explorer](getting-started/install-ase.md)
 * [AzureCLI](getting-started/install-azurecli.md)
 * [Gradle](getting-started/install-gradle.md)
+* One or more [PostgreSQL Clients](getting-started/psql-clients.md)
 
 # First build
 
