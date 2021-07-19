@@ -120,6 +120,7 @@ Your most used gradle tasks will be:
 * `primeCLI`: run the prime CLI.  Specify arguments with `"--args=<args>"`
 * `test`: runs the unit tests
 * `testEnd2End`: runs the end to end tests; this requires [that you are running ReportStream](#running-reportstream)
+* `testIntegration`: runs the integration tests; this requires [that you are running ReportStream](#running-reportstream)
 
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
