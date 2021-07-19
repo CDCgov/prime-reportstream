@@ -111,7 +111,7 @@ resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" 
 
 resource "azurerm_storage_account" "storage_partner_candidate" {
   resource_group_name = var.resource_group
-  name = "${var.resource_prefix}candidatepartner"
+  name = "${var.resource_prefix}candpartner"
   location = var.location
   account_tier = "Standard"
   account_kind = "StorageV2"
