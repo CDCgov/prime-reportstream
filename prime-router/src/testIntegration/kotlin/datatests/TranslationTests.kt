@@ -12,10 +12,6 @@ import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
-import gov.cdc.prime.router.serializers.ReadResult
-import net.jcip.annotations.NotThreadSafe
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
@@ -24,8 +20,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
-import java.util.TimeZone
-import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -38,7 +33,7 @@ class TranslationTests {
     /**
      * The path to the configuration file from the test data directory.
      */
-    private val testConfigFile = "conversion-test-config.csv"
+    private val testConfigFile = "translation-test-config.csv"
 
     /**
      * The metadata
@@ -49,11 +44,6 @@ class TranslationTests {
      * The translator
      */
     private val translator = Translator(metadata, FileSettings(FileSettings.defaultSettingsDirectory))
-
-    /**
-     * The original timezone of the JVM
-     */
-    private val origDefaultTimeZone = TimeZone.getDefault()
 
     /**
      * The fields in the test configuration file
@@ -82,7 +72,12 @@ class TranslationTests {
         /**
          * The organization name for the receiver.
          */
-        OUTPUT_FORMAT("Output format")
+        OUTPUT_FORMAT("Output format"),
+
+        /**
+         * The expected result of the test
+         */
+        RESULT("Result")
     }
 
     /**
@@ -94,7 +89,8 @@ class TranslationTests {
         val inputSchema: Schema,
         val expectedFile: String,
         val expectedFormat: Report.Format,
-        val expectedSchema: Schema
+        val expectedSchema: Schema,
+        val shouldPass: Boolean = true
     )
 
     /**
@@ -128,6 +124,8 @@ class TranslationTests {
                 ) {
                     val inputSchema = metadata.findSchema(it[ConfigColumns.INPUT_SCHEMA.colName]!!)
                     val expectedSchema = metadata.findSchema(it[ConfigColumns.OUTPUT_SCHEMA.colName]!!)
+                    val shouldPass = !it[ConfigColumns.RESULT.colName].isNullOrBlank() &&
+                        it[ConfigColumns.RESULT.colName].equals("PASS", true)
 
                     if (inputSchema != null && expectedSchema != null) {
                         TestConfig(
@@ -136,7 +134,8 @@ class TranslationTests {
                             inputSchema,
                             it[ConfigColumns.EXPECTED_FILE.colName]!!,
                             Report.Format.safeValueOf(it[ConfigColumns.OUTPUT_FORMAT.colName]),
-                            expectedSchema
+                            expectedSchema,
+                            shouldPass
                         )
                     } else if (inputSchema == null) {
                         fail("Input schema $inputSchema was not found.")
@@ -174,24 +173,34 @@ class TranslationTests {
      */
     inner class FileConversionTest(private val config: TestConfig) : Executable {
         override fun execute() {
+            val result = CompareData.Result()
             // First read in the data
             val inputFile = "$testDataDir/${config.inputFile}"
             val expectedFile = "$testDataDir/${config.expectedFile}"
             val inputStream = this::class.java.getResourceAsStream(inputFile)
             val expectedStream = this::class.java.getResourceAsStream(expectedFile)
             if (inputStream != null && expectedStream != null) {
-                val inputReport = readReport(inputFile, inputStream, config.inputSchema, config.inputFormat)
-                val translatedReport = translateReport(inputReport, config)
-                val actualStream = outputReport(translatedReport, config.expectedFormat)
-                val result = CompareData().compare(
-                    expectedStream, actualStream, config.expectedFormat,
-                    config.expectedSchema
-                )
-                assertTrue(
-                    result.passed,
+                val inputReport = readReport(inputStream, config.inputSchema, config.inputFormat, result)
+                if (result.passed) {
+                    val translatedReport = translateReport(inputReport, config)
+                    val actualStream = outputReport(translatedReport, config.expectedFormat)
+                    result.merge(
+                        CompareData().compare(
+                            expectedStream, actualStream, config.expectedFormat,
+                            config.expectedSchema
+                        )
+                    )
+                }
+
+                if (!config.shouldPass && result.passed) result.errors.add("Test was expected to fail, but passed.")
+                assertEquals(
+                    config.shouldPass, result.passed,
                     "${result.errors.joinToString("\n")}\n" +
                         result.warnings.joinToString("\n")
                 )
+                // Print the errors and warnings after the test completed successfully.
+                if (result.errors.isNotEmpty()) println(result.errors.joinToString("\n", "ERRORS: "))
+                if (result.warnings.isNotEmpty()) println(result.warnings.joinToString("\n", "WARNINGS: "))
             } else if (inputStream == null) {
                 fail("The file ${config.inputFile} was not found.")
             } else {
@@ -204,21 +213,23 @@ class TranslationTests {
          * @return the report
          */
         private fun readReport(
-            inputFile: String,
             input: InputStream,
             schema: Schema,
-            format: Report.Format
+            format: Report.Format,
+            result: CompareData.Result
         ): Report {
 
             return when (format) {
                 Report.Format.HL7 -> {
-                    val result = Hl7Serializer(metadata).readExternal(
+                    val readResult = Hl7Serializer(metadata).readExternal(
                         schema.name,
                         input,
                         TestSource
                     )
-                    checkReportResult(result, inputFile)
-                    result.report!!
+                    readResult.errors.forEach { result.errors.add(it.details) }
+                    readResult.warnings.forEach { result.warnings.add(it.details) }
+                    result.passed = readResult.errors.isEmpty()
+                    readResult.report!!
                 }
                 Report.Format.INTERNAL -> {
                     CsvSerializer(metadata).readInternal(
@@ -229,13 +240,15 @@ class TranslationTests {
                     )
                 }
                 else -> {
-                    val result = CsvSerializer(metadata).readExternal(
+                    val readResult = CsvSerializer(metadata).readExternal(
                         schema.name,
                         input,
                         TestSource
                     )
-                    checkReportResult(result, inputFile)
-                    result.report!!
+                    readResult.errors.forEach { result.errors.add(it.details) }
+                    readResult.warnings.forEach { result.warnings.add(it.details) }
+                    result.passed = readResult.errors.isEmpty()
+                    readResult.report!!
                 }
             }
         }
@@ -258,19 +271,6 @@ class TranslationTests {
             assertThat(outputStream.size() > 0).isTrue()
 
             return ByteArrayInputStream(outputStream.toByteArray())
-        }
-
-        /**
-         * Checks the [result] of a report for errors.
-         */
-        private fun checkReportResult(result: ReadResult, filename: String) {
-            assertTrue(
-                result.errors.isEmpty(),
-                "There were ${result.errors.size} errors while reading $filename with " +
-                    " ${result.warnings.size} warning(s)\n" + result.errors.joinToString("\n") + "\n" +
-                    result.warnings.joinToString("\n")
-            )
-            if (result.warnings.isNotEmpty()) println(result.warnings.joinToString("\n"))
         }
 
         /**
