@@ -138,7 +138,7 @@ Now that you've completed your first successful build, you're ready to start com
     remote: Create a pull request for 'aom/nnnn-meaningful-branch-name' on GitHub by visiting:
     remote:      https://github.com/CDCgov/prime-reportstream/pull/new/aom/nnnn-meaningful-branch-name
     remote:
-    To usds.github.com:CDCgov/prime-reportstream.git
+    To github.com:CDCgov/prime-reportstream.git
     * [new branch]        aom/nnnn-meaningful-branch-name -> aom/nnnn-meaningful-branch-name
     Branch 'aom/nnnn-meaningful-branch-name' set up to track remote branch 'aom/nnnn-meaningful-branch-name' from 'origin'.
     ```
