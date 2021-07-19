@@ -3,7 +3,6 @@
 There are a variety of options to interact with your PostgreSQL instance:
 
 * DBeaver Community Edition can be downloaded [from here](https://dbeaver.io/download/). It is a locally installed, graphical tool that lets you connect to a variety of database systems, including PostgreSQL with [very extensive documentation wiki](https://github.com/dbeaver/dbeaver/wiki).
-* pgAdmin: if you want to install pgAdmin, we recommend running it as a docker container attached to the `prime-router_build` network so that it can talk to the `postgresql` container used by ReportStream.
 * `psql`: the command-line tool for text-based interactions with PostgreSQL, this should come with your PostgreSQL installation
 
     ```
