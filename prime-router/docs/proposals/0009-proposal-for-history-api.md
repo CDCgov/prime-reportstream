@@ -75,6 +75,7 @@ This endpoint is intended to show the contents of the new `action_response` colu
 This end point will report the status of all items in the given reportId after verifying that the authenticated user has access to the organization that sent the report. This endpoint will also use the same pagination pattern as the endpoint above. 
 
 Exmaple Json:
+
 ```json
 {
     "result_set": {
@@ -84,7 +85,7 @@ Exmaple Json:
         "total": 2
     },
     "actionId": 143,
-    "reportId" : "18a8e461-b3f8-436d-b94e-4065c7b9d186",
+    "reportId": "18a8e461-b3f8-436d-b94e-4065c7b9d186",
     "createdAt": "2021-06-30 13:03:00.305657-04",
     "reportItemCount" : 23,
     "status": "received"
@@ -95,6 +96,60 @@ Exmaple Json:
             "metadata": {
                 "foo": "bar"
             },
+            "reportIndex": 0,
+            "trackingId": "123456",
+            "destinationCount": 2,
+            "destinations": {
+                "COUNTY": [],
+                "STATE": [
+                    {
+                        "reportId": "33a8e478-b3d2-498d-b94e-4065f7b9e134",
+                        "receiverOrg": "md-doh",
+                        "recieverName": "elr",
+                        "format": "HL7_BATCH",
+                        "sentOn": "2021-06-29 11:00:00.086375-04"
+                    }
+                ],
+                "FEDERAL": [
+                    {
+                        "reportId": "44a8e478-c3f2-498d-b94d-5068f7b9e134",
+                        "receiverOrg": "hhsprotect",
+                        "recieverName": "elr",
+                        "format": "CSV",
+                        "sentOn": "2021-06-29 11:00:00.086375-04"
+                    }
+                ]
+            },
+            "reportIndex": 1,
+            "trackingId": null,
+            "destinationCount": 0,
+            "destinations": {
+                "COUNTY": [],
+                "STATE": [],
+                "FEDERAL": []
+            }
+        }
+    ]
+}
+```
+Alternatively, the jurisdiction breakdown can be removed and added as an element to each individual report. Items routing no where would have a destination count of zero and empty jurisdiction arrays (unless the structure is changed).
+
+Alternative Json Response:
+```json
+{
+    "result_set": {
+        "count": 20,
+        "offset": 0,
+        "limit": 20,
+        "total": 2
+    },
+    "reportId" : "18a8e461-b3f8-436d-b94e-4065c7b9d186",
+    "createdAt": "2021-06-30 13:03:00.305657-04",
+    "items": [
+        {
+            "reportIndex": 0,
+            "trackingId": "123456",
+            "destinationCount": 2,
             "destinations": [
                 {
                     "reportId": "33a8e478-b3d2-498d-b94e-4065f7b9e134",
@@ -116,7 +171,8 @@ Exmaple Json:
         },
         {
             "reportIndex": 1,
-            "trackingId": "987654",
+            "trackingId": null,
+            "destinationCount": 0,
             "destinations": []
         }
     ]
@@ -129,8 +185,9 @@ The above Json only represents the sentOn status for the report. What are the di
 * sent
 * error/failed
 
-### Report Items
-`GET /report/{reportId}/item/{trackingId}`
+### Specific Report Item Given a Report Id and Item Id (trackingId or reportIndex)
+`GET /reports/submitted/{reportId}/item/index/{reportIndex}`
+`GET /reports/submitted/{reportId}/item/tracking/{trackingId}`
 
 This endpoint will return the individual response for a report item. The Json response is structured the same as for all items just an array of one so consumers can use that same Json parsing.
 
@@ -141,7 +198,8 @@ Exmaple Json:
     "createdAt": "2021-06-30 13:03:00.305657-04",
     "items": [
         {
-            "trackingId": "reportIndex-0",
+            "reportIndex": 0,
+            "trackingId": "123456",
             "destinationCount": 1,
             "destinations": [
                 {
@@ -163,5 +221,96 @@ Exmaple Json:
             ]
         }
     ]
+}
+```
+
+### Reports Delivered for a Given date range
+`GET /reports/delivered/{organization}?start=YYYY-MM-DD&end=YYYY-MM-DD&limit=20&offset=0`
+
+Parameters:
+* start - start date (inclusive) to query against the created_at date
+* end - end date (exclusive) to queery against the created_at date
+* limit - max number of submissions to pull back
+* offset - where to start the offset for pagination
+
+This endpoint is intended to return delivered reports to the organization. The authenticated user must be able to view the organizations reports.
+
+Example Json:
+```json
+{
+    "result_set": {
+        "count": 20,
+        "offset": 0,
+        "limit": 20,
+        "total": 2
+    },
+    "reports": [
+        {
+            "reportId": "33a8e478-b3d2-498d-b94e-4065f7b9e134",
+            "actionId": 400
+            "format": "HL7_BATCH",
+            "itemCount": 10,
+            "transportResult": "",
+            "createdAt": "2021-06-29 08:15:00.086375-04",
+            "sentOn": "2021-06-29 11:00:00.086375-04",
+            "downloadedBy": "John Doe",
+            "wipedAt": "2021-07-08 13:00:00.086375-04"
+        },
+        {
+            "reportId": "3s8d7478-b3c42-49bb-b94e-4123f7b9e134",
+            "actionId": 402
+            "format": "CSV",
+            "itemCount": 5,
+            "transportResult": "",
+            "createdAt": "2021-06-29 08:15:00.086375-04",
+            "sentOn": "2021-06-29 11:00:00.086375-04",
+            "downloadedBy": "John Doe",
+            "wipedAt": "2021-07-08 13:00:00.086375-04"
+        }
+    ]
+}
+```
+
+### Report Delivered for a Given reportId
+`GET /report/delivered/{reportId}`
+
+This end point will lookup the processed and delivered reportId providing information pertaining to the receiving organization (format, sentOn). In addition, we can use the `covid_result_metadata` to add aggregate information to the response for all the items received in the report.
+
+Potential Metadata items to include:
+* aggregate counts for test result summary i.e. Detected, Not Detected, Inconclusive
+* aggregate counts for equipment model summary
+* aggregate counts ordering facility / ordering provider
+* aggregate counts by patient state, county, age ranges, gender, race, ethnicity
+* aggregate counts by testing lab
+
+Example Json:
+
+```json
+{
+    "reportId": "33a8e478-b3d2-498d-b94e-4065f7b9e134",
+    "actionId": 400
+    "format": "HL7_BATCH",
+    "itemCount": 10,
+    "transportResult": "",
+    "createdAt": "2021-06-29 08:15:00.086375-04",
+    "sentOn": "2021-06-29 11:00:00.086375-04",
+    "downloadedBy": "John Doe",
+    "wipedAt": "2021-07-08 13:00:00.086375-04",
+    "metadata": {
+        "testResults": [
+            {
+                "result": "Detected",
+                "value": "1"
+            },
+            {
+                "result": "Not Detected",
+                "value": "7"
+            },
+            {
+                "result": "Inconclusive",
+                "value": "2"
+            }
+        ]
+    }
 }
 ```
