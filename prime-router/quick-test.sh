@@ -98,7 +98,7 @@ mkdir -p $outputdir
 function run_prime_cli {
   # We need to pass the arguments as one string
   args="$@"
-  output=$(./build.sh -- gradle -q primeCLI --args="$args")
+  output=$(./gradlew -q primeCLI --args="$args")
   exit_value=$?
   echo $output
   return $exit_value
