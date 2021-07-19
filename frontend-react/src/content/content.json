@@ -1,0 +1,74 @@
+{
+  "title": "ReportStream makes it easier to collect public health data — for free",
+  "summary": "ReportStream is a free, open source data platform that makes it easier for health departments to get faster, more accurate public health data from testing facilities.",
+  "heroImg": "report-stream-application.png",
+  "heroImgAlt": "Example screenshot of the ReportStream web application",
+  "partners": [
+    {
+      "type": "State",
+      "title": "Public health departments",
+      "summary": "Get fast, complete COVID-19 electronic test results from your jurisdiction",
+      "features": [
+        {
+          "title": "Support fewer connections",
+          "summary": "ReportStream's model focuses on aggregating data from multiple sources and senders, which you receive together in a single feed at your preferred frequency and format.",
+          "icon": "code.svg",
+          "iconDescription": "computer code"
+        },
+        {
+          "title": "Receive data from SimpleReport",
+          "summary": "If your jurisdiction is interested in receiving point-of-care tests results from SimpleReport, you can get this data via ReportStream.",
+          "icon": "content_copy.svg",
+          "iconDescription": "multiple documents"
+        },
+        {
+          "title": "Get valuable insights",
+          "summary": "ReportStream gives you insights about your data, such as reporting trends, and alerts you if there are any errors.",
+          "icon": "assessment.svg",
+          "iconDescription": "a chart"
+        }
+      ]
+    }
+  ],
+  "documentation": {
+    "title": "Documentation",
+    "summary": "For states interested in making an ELR connection with ReportStream, please check out the following resources to learn more.",
+    "files": [
+      {
+        "name": "About PRIME",
+        "type": "pdf",
+        "url": "PRIME-1-pager.pdf"
+      },
+      {
+        "name": "ELR integration guide",
+        "type": "pdf",
+        "url": "ReportStream-ELR-Onboarding-Guide-April-2021.pdf"
+      },
+      {
+        "name": "Web receiver guide",
+        "type": "pdf",
+        "url": "ReportStream-Web-Receiver-Onboarding-Guide-April-2021.pdf"
+      }
+    ]
+  },
+  "freeSecure": [
+    {
+      "title": "Free and created by the CDC",
+      "summary": "Developed for testing sites and public health departments, ReportStream is 100% free.",
+      "icon": "cdc-logo.svg",
+      "iconDescription": "CDC logo"
+    },
+    {
+      "title": "Safe and secure",
+      "summary": "Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.",
+      "icon": "shield.svg",
+      "iconDescription": "Icon of a shield"
+    }
+  ],
+  "cta": {
+    "title": "Get started with ReportStream",
+    "summary": "Ready to bring ReportStream to your jurisdiction?",
+    "buttonText": "Contact us at",
+    "buttonUrlSubject": "?subject=I'm interested in learning more about ReportStream"
+  }
+}

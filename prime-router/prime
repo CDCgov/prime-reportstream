@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # DEPRECATED: This script has been replaced by a Gradle task.  Run
-#   ./build.sh -- gradle primeCLI --args='<args>'
+#   ./gradlew primeCLI --args='<args>'
 #
 # This script runs the CLI of the project.
 #
