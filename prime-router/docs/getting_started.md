@@ -95,9 +95,9 @@ Running this instance as a docker container enables you to easily clean it (and 
 
 # Committing to this repository
 
-The `master` and `production` branches are _protected_ branches, this means that you cannot push into those directly. All submitted changes to this codebase follow the following workflow:
+Now that you've completed your first successful build, you're ready to start committing into this repository. Keep in mind that both the `master` and `production` branches are _protected_ branches, this means that you cannot push into those directly. All submitted changes to this codebase follow the following workflow:
 
-* Pull in the latest changes and make sure your parent branch (typically `master`) reflects those:
+* Pull in the latest changes and make sure your parent branch (typically `master` - here using "`my_parent_branch`" as an example) reflects those:
     ```bash
     # '$' indicates your prompt
     $ git checkout my_parent_branch
@@ -115,11 +115,35 @@ The `master` and `production` branches are _protected_ branches, this means that
     # Assuming your username is "An Ony Moose" and "nnnn" is the GitHub issue you're working on
     $ git checkout -b aom/nnnn-meaningful-branch-name
     ```
-* Commit your changes to the branch
-    * We _highly encourage_ all committers to sign their commits. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
-    * At some point in the future, we will _require_ that all commits are signed.
-* Push your changes up
-* Open a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch (again: typically `master`); when you push up your branch, `git` will also report back to you the exact URL you can use to create a pull request directly.
+* Commit your changes to the branch and ensure those commits are signed
+    * Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
+* Push your changes up, if this is the first time you push this branch up, you will have to tell git about this:
+    ```bash
+    # '$' indicates your prompt
+    $ git push
+    fatal: The current branch aom/nnnn-meaningful-branch-name has no upstream branch.
+    To push the current branch and set the remote as upstream, use
+
+        git push --set-upstream origin aom/nnnn-meaningful-branch-name
+
+    $ git push --set-upstream origin aom/nnnn-meaningful-branch-name
+    Enumerating objects: nn, done.
+    Counting objects: 100% (nn/nn), done.
+    Delta compression using up to nn threads
+    Compressing objects: 100% (nn/nn), done.
+    Writing objects: 100% (nn/nn), nn.nn KiB | nn.nn MiB/s, done.
+    Total nn (delta nn), reused nn (delta nn), pack-reused 0
+    remote: Resolving deltas: 100% (nn/nn), completed with nn local objects.
+    remote:
+    remote: Create a pull request for 'aom/nnnn-meaningful-branch-name' on GitHub by visiting:
+    remote:      https://github.com/CDCgov/prime-reportstream/pull/new/aom/nnnn-meaningful-branch-name
+    remote:
+    To usds.github.com:CDCgov/prime-reportstream.git
+    * [new branch]        aom/nnnn-meaningful-branch-name -> aom/nnnn-meaningful-branch-name
+    Branch 'aom/nnnn-meaningful-branch-name' set up to track remote branch 'aom/nnnn-meaningful-branch-name' from 'origin'.
+    ```
+* If there are more commits, continue committing (in a signed fashion) and pushing up
+* When your code is ready to be integrated, open a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch (again: typically `master`); when you push up your branch, `git` will also report back to you the exact URL you can use to create a pull request directly (in the example above: "_`https://github.com/CDCgov/prime-reportstream/pull/new/aom/nnnn-meaningful-branch-name`_").
 
 # Building in the course of development
 
@@ -142,7 +166,7 @@ Your most used gradle tasks will be:
 * `package`: packages the build artifacts for deployment
 * `primeCLI`: run the prime CLI.  Specify arguments with `"--args=<args>"`
 * `test`: runs the unit tests
-* `testEnd2End`: runs the end to end tests. Requires [that you are running ReportStream](#running-reportstream)
+* `testEnd2End`: runs the end to end tests; this requires [that you are running ReportStream](#running-reportstream)
 
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
