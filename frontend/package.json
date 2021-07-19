@@ -2,10 +2,10 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "@okta/jwt-verifier": "^2.2.0",
+    "@okta/jwt-verifier": "^2.3.0",
     "axios": "^0.21.1",
     "chart.js": "^3.4",
-    "cypress": "^7.6.0",
+    "cypress": "^7.7.0",
     "http-proxy-middleware": "^2.0.1",
     "moment": "^2.29.1"
   },
