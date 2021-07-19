@@ -44,6 +44,7 @@ You will need to have at least the following pieces of software installed _local
 
 Optionally, you may also want to install:
 
+* [Azure Storage Explorer](getting-started/install-ase.md)
 * [AzureCLI](getting-started/install-azurecli.md)
 * [Gradle](getting-started/install-gradle.md)
 
