@@ -42,7 +42,7 @@ You will need to have at least the following pieces of software installed _local
 * [OpenJDK](getting-started/install-openjdk.md) (currently targetting 11 through 15)
 * [Azure Functions Core Tools](getting-started/install-afct.md) (currently targetting 3)
 
-Optionally, you may or will probably also want to install at least some of:
+The following tools may be installed for development or debugging purposes:
 
 * [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
 * [AzureCLI](getting-started/install-azurecli.md)
