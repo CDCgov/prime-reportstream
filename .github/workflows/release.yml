@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend-react
+        working-directory: frontend
 
     steps:
       - name: Checkout Repository
@@ -86,7 +86,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
-          path: frontend-react/build
+          path: frontend/dist
           retention-days: 7
 
   deploy_release_dev:
@@ -115,7 +115,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
-          path: frontend-react/build
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
@@ -156,7 +156,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
 
   deploy_release_staging:
     name: "Deploy Release: STAGING"
@@ -184,7 +184,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
-          path: frontend-react/build
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
@@ -226,7 +226,7 @@ jobs:
         with:
           inlineScript: |
             az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
@@ -254,7 +254,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
-          path: frontend-react/build
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
@@ -296,4 +296,4 @@ jobs:
         with:
           inlineScript: |
             az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist

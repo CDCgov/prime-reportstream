@@ -33,7 +33,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: frontend-react
+        working-directory: frontend
 
     steps:
       - name: Checkout Repository
@@ -54,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: static_website
-          path: frontend-react/build
+          path: frontend/dist
