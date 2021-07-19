@@ -171,7 +171,7 @@ Your most used gradle tasks will be:
 If you see any SSL errors during this step, follow the directions in [Getting Around SSL Errors](#getting-around-ssl-errors).
 
 ## Updating schema documentation
-Run the following gradle command to generate the schema documentation. THis documentation is written to `docs/schema-documentation`
+Run the following gradle command to generate the schema documentation. This documentation is written to `docs/schema-documentation`
 
 ```bash
 ./gradlew generateDocs
