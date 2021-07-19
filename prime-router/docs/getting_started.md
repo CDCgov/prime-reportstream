@@ -5,9 +5,9 @@ This document will walk you through the setup instructions to get a functioning 
 # Table of contents
 
 * [Locally installed software prerequisites](#locally-installed-software-prerequisites)
-* [Committing to this repository](#committing-to-this-repository)
 * [First build](#first-build)
     * [Build dependencies](#build-dependencies)
+* [Committing to this repository](#committing-to-this-repository)
 * [Building in the course of development](#building-in-the-course-of-development)
     * [Updating schema documentation](#updating-schema-documentation)
 * [Running ReportStream](#running-reportstream)
@@ -46,34 +46,6 @@ Optionally, you may also want to install:
 
 * [AzureCLI](getting-started/install-azurecli.md)
 * [Gradle](getting-started/install-gradle.md)
-
-# Committing to this repository
-
-The `master` and `production` branches are _protected_ branches, this means that you cannot push into those directly. All submitted changes to this codebase follow the following workflow:
-
-* Pull in the latest changes and make sure your parent branch (typically `master`) reflects those:
-    ```bash
-    # '$' indicates your prompt
-    $ git checkout my_parent_branch
-    $ git pull
-
-    $ git status
-    On branch my_parent_branch
-    Your branch is up to date with 'origin/my_parent_branch'.
-
-    nothing to commit, working tree clean
-    ```
-* Create a child branch from your parent branch (again: typically `master`) that reflects what you are working on. We encourage 'scoping' your branch to your username, and you should feel free to include the GitHub Issue Number if there is one)
-    ```bash
-    # '$' indicates your prompt
-    # Assuming your username is "An ony moose" and "nnnn" is the GitHub issue you're working on
-    $ git checkout -b aom/nnnn-meaningful-branch-name
-    ```
-* Commit your changes to the branch
-    * We _highly encourage_ all committers to sign their commits. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
-    * At some point in the future, we will _require_ that all commits are signed.
-* Push your changes up
-* Open a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch (again: typically `master`); when you push up your branch, `git` will also report back to you the exact URL you can use to create a pull request directly.
 
 # First build
 
@@ -118,6 +90,34 @@ docker-compose --file "docker-compose.build.yml" up --detach
 Running this instance as a docker container enables you to easily clean it (and its data) up without affecting any other parts of your local system.
 
 (*) _Note that this `docker-compose.build.yml` file contains other artifacts that are used in our CI/CD build pipeline. Specifically there is a '`builder`' service which will start and terminate on bringing this docker-compose environment. For all intents and purposes, you can ignore this service._
+
+# Committing to this repository
+
+The `master` and `production` branches are _protected_ branches, this means that you cannot push into those directly. All submitted changes to this codebase follow the following workflow:
+
+* Pull in the latest changes and make sure your parent branch (typically `master`) reflects those:
+    ```bash
+    # '$' indicates your prompt
+    $ git checkout my_parent_branch
+    $ git pull
+
+    $ git status
+    On branch my_parent_branch
+    Your branch is up to date with 'origin/my_parent_branch'.
+
+    nothing to commit, working tree clean
+    ```
+* Create a child branch from your parent branch (again: typically `master`) that reflects what you are working on. We encourage 'scoping' your branch to your username, and you should feel free to include the GitHub Issue Number if there is one)
+    ```bash
+    # '$' indicates your prompt
+    # Assuming your username is "An ony moose" and "nnnn" is the GitHub issue you're working on
+    $ git checkout -b aom/nnnn-meaningful-branch-name
+    ```
+* Commit your changes to the branch
+    * We _highly encourage_ all committers to sign their commits. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
+    * At some point in the future, we will _require_ that all commits are signed.
+* Push your changes up
+* Open a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch (again: typically `master`); when you push up your branch, `git` will also report back to you the exact URL you can use to create a pull request directly.
 
 # Building in the course of development
 
