@@ -206,16 +206,23 @@ async function fetchAllOrgs() {
 function requestFile(reportId) {
     return window.jwt? axios(apiConfig(`history/report/${reportId}`))
         .then(res => res.data)
-        .then(csv => download(csv.content, csv.filename, csv.mimetype)) : null;
+        .then(csv => {
+            // The filename to use for the download should not contain blob folders if present
+            let filename = decodeURIComponent(csv.filename)
+            let filenameStartIndex = filename.lastIndexOf("/")
+            if (filenameStartIndex >= 0 && filename.length > filenameStartIndex + 1) 
+                filename = filename.substring(filenameStartIndex + 1)
+            download(csv.content, filename, csv.mimetype)
+        }) : null;
 }
 
 /**
  * Determines if the system is running as localhost
- * 
- * @returns 
+ *
+ * @returns
  */
 function isLocalhost(){
-    return window.location.origin.includes("localhost:8088");    
+    return window.location.origin.includes("localhost:8088");
 }
 
 /**
@@ -405,7 +412,7 @@ async function processReport( reports ){
         const facilities = document.getElementById( "tBodyFac");
         if (facilities) {
             report.facilities.forEach( reportFacility => {
-                facilities.innerHTML += 
+                facilities.innerHTML +=
                     `
                     <tr>
                         <td>${reportFacility.facility}</td>
@@ -415,10 +422,9 @@ async function processReport( reports ){
                     `;
             });
         }
-       
+
         const noFac = document.getElementById( 'nofacilities' );
         const facTable = document.getElementById( 'facilitiestable');
-
 
         if (report.facilities.length) {
             if( noFac ) noFac.setAttribute( "hidden", "hidden" );    

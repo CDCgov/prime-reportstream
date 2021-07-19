@@ -1,0 +1,36 @@
+{
+  "imgPath": "/assets/img/",
+  "pdfPath": "/assets/pdf/",
+  "documentationPath": "/documentation/",
+  "orgs": {
+    "CDC": {
+      "name": "Centers for Disease Control and Prevention",
+      "url": "https://cdc.gov"
+    },
+    "PRIME": {
+      "name": "Pandemic Ready Interoperability Modernization Effort",
+      "email": "usds@cdc.gov"
+    },
+    "RS": {
+      "name": "ReportStream",
+      "url": "https://reportstream.cdc.gov",
+      "email": "reportstream@cdc.gov"
+    },
+    "SR": {
+      "name": "SimpleReport",
+      "url": "https://simplereport.gov",
+      "email": "support@simplereport.gov"
+    },
+    "USDS": {
+      "name": "U.S. Digital Service",
+      "url": "https://usds.gov",
+      "email": "USDS@omb.eop.gov"
+    }
+  },
+  "forms": {
+    "intakeElr": {
+      "name": "ELR intake form",
+      "url": "https://prime.powerappsportals.us/siw/"
+    }
+  }
+}
