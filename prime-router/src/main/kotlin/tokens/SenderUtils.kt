@@ -105,7 +105,7 @@ class SenderUtils {
                     if (jwk.d == null) error("$prefix This looks like a public key.  Key must be a private key.")
                     if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) error("$prefix. Key missing elliptic point (x,y) value")
                     // actually generate an ECPrivateKey obj, just to confirm it can be done.
-                    val ecPrivateKey = jwk.toECprivateKey()
+                    val ecPrivateKey = jwk.toECPrivateKey()
                     if (ecPrivateKey.algorithm != "EC") error("$prefix.  Alg is ${ecPrivateKey.algorithm}.  Expecting 'EC'.")
                     return ecPrivateKey
                 }

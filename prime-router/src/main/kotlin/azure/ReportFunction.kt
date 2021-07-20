@@ -79,6 +79,7 @@ class ReportFunction: Logging {
     }
 
     /**
+     * TODO Jim do we want to change the 'reports' endpoint to this one 'report' ?
      * POST a report to the router, using FHIR auth security
      * This one is "/api/report".  The other one is "/api/reports"
      */
