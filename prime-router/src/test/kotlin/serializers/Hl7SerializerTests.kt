@@ -1,5 +1,9 @@
 package gov.cdc.prime.router.serializers
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.v251.datatype.DR
@@ -21,6 +25,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -510,7 +515,8 @@ NTE|1|L|This is a final comment|RE"""
             "5555555555:1:",
             patientPathSpec,
             patientElement,
-            Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE)
+            Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE
+        )
 
         verify {
             mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-1", "5555555555")
@@ -536,7 +542,8 @@ NTE|1|L|This is a final comment|RE"""
             "5555555555:1:3333",
             facilityPathSpec,
             facilityElement,
-            Hl7Configuration.PhoneNumberFormatting.STANDARD)
+            Hl7Configuration.PhoneNumberFormatting.STANDARD
+        )
 
         verify {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "(555)555-5555X3333")
@@ -561,7 +568,8 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser,
             "XYZ",
             "OBX-23-10",
-            cliaElement)
+            cliaElement
+        )
 
         verify {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "XYZ")
@@ -582,11 +590,48 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser,
             value,
             hl7Field,
-            cliaElement)
+            cliaElement
+        )
 
         verify {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
         }
+    }
+
+    @Test
+    fun `test incorrect HL7 content`() {
+        val metadata = Metadata("./metadata")
+        val serializer = Hl7Serializer(metadata)
+
+        val emptyHL7 = ByteArrayInputStream("".toByteArray())
+        var result = serializer.readExternal(hl7SchemaName, emptyHL7, TestSource)
+        assertThat(result.warnings.isNotEmpty()).isTrue()
+        assertThat(result.report).isNotNull()
+        assertThat(result.report!!.itemCount).isEqualTo(0)
+
+        val csvContent = ByteArrayInputStream("a,b,c\n1,2,3".toByteArray())
+        result = serializer.readExternal(hl7SchemaName, csvContent, TestSource)
+        assertThat(result.errors.isNotEmpty()).isTrue()
+        assertThat(result.report).isNotNull()
+        assertThat(result.report!!.itemCount).isEqualTo(0)
+
+        val incompleteHL7 = ByteArrayInputStream("MSH|^~\\&|CD".toByteArray())
+        result = serializer.readExternal(hl7SchemaName, incompleteHL7, TestSource)
+        assertThat(result.errors.isNotEmpty()).isTrue()
+        assertThat(result.report).isNotNull()
+        assertThat(result.report!!.itemCount).isEqualTo(0)
+
+        val incompleteHL7v2 = ByteArrayInputStream(
+            """
+            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+            """.trimIndent().toByteArray()
+        )
+        result = serializer.readExternal(hl7SchemaName, incompleteHL7v2, TestSource)
+        assertThat(result.errors.isNotEmpty()).isTrue()
+        assertThat(result.report).isNotNull()
+        assertThat(result.report!!.itemCount).isEqualTo(1)
     }
 }

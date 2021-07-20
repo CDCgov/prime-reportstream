@@ -9,6 +9,7 @@ import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
@@ -226,11 +227,18 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         // if the message is empty, return a row result that warns of empty data
         if (cleanedMessage.isEmpty()) {
             logger.debug("Skipping empty message during parsing")
-            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty message"))
+            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty HL7 message"))
+        }
+
+        val hapiMsg = try {
+            parser.parse(cleanedMessage)
+        } catch (e: EncodingNotSupportedException) {
+            logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
+            errors.add("Invalid HL7 message format")
+            return RowResult(emptyMap(), errors, warnings)
         }
 
         try {
-            val hapiMsg = parser.parse(cleanedMessage)
             val terser = Terser(hapiMsg)
 
             // First, extract any data elements from the HL7 message.
