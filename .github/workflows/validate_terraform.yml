@@ -11,7 +11,7 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_router_change: ${{ steps.skip_check.outputs.router }}
+      has_operations_change: ${{ steps.skip_check.outputs.operations }}
       is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
       - uses: dorny/paths-filter@v2
