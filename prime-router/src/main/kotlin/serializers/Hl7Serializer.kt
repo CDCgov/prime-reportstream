@@ -232,9 +232,14 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
 
         val hapiMsg = try {
             parser.parse(cleanedMessage)
-        } catch (e: EncodingNotSupportedException) {
+        } catch (e: HL7Exception) {
             logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
-            errors.add("Invalid HL7 message format")
+            if (e is EncodingNotSupportedException) {
+                // This exception error message is a bit cryptic, so let's provide a better one.
+                errors.add("Error parsing HL7 message: Invalid HL7 message format")
+            } else {
+                errors.add("Error parsing HL7 message: ${e.localizedMessage}")
+            }
             return RowResult(emptyMap(), errors, warnings)
         }
 

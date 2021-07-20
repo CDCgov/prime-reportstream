@@ -536,7 +536,10 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTerser.set(any(), any()) } returns Unit
 
         val facilityPathSpec = serializer.formPathSpec("ORC-23")
-        val facilityElement = Element("ordering_facility_phone_number", hl7Field = "ORC-23", type = Element.Type.TELEPHONE)
+        val facilityElement = Element(
+            "ordering_facility_phone_number", hl7Field = "ORC-23",
+            type = Element.Type.TELEPHONE
+        )
         serializer.setTelephoneComponent(
             mockTerser,
             "5555555555:1:3333",
@@ -622,6 +625,7 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(result.report).isNotNull()
         assertThat(result.report!!.itemCount).isEqualTo(0)
 
+        // This data will throw a EncodingNotSupportedException in the serializer when parsing the message
         val incompleteHL7v2 = ByteArrayInputStream(
             """
             MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
@@ -633,5 +637,21 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(result.errors.isNotEmpty()).isTrue()
         assertThat(result.report).isNotNull()
         assertThat(result.report!!.itemCount).isEqualTo(1)
+
+        // This data will throw a HL7Exception in the serializer when parsing the message
+        val wrongHL7Version = ByteArrayInputStream(
+            """
+            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|5.0.0|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+            ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+            OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+            OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+            """.trimIndent().toByteArray()
+        )
+        result = serializer.readExternal(hl7SchemaName, wrongHL7Version, TestSource)
+        assertThat(result.errors.isNotEmpty()).isTrue()
+        assertThat(result.report).isNotNull()
+        assertThat(result.report!!.itemCount).isEqualTo(0)
     }
 }
