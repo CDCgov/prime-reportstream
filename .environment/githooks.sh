@@ -29,9 +29,6 @@ function install_hooks() {
         echo "    ${GITHOOKS[${key?}]}"
         ${CAPTURE?} cp "${key}" "${GITHOOKS[${key?}]}"
     done
-
-    echo "> Pulling down the gitleaks docker image (needed for one or more hooks)..."
-    ${CAPTURE?} docker pull "zricethezav/gitleaks" 1>/dev/null
 }
 
 # ./githooks.sh remove

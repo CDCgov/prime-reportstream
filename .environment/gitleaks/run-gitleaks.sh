@@ -6,8 +6,8 @@ function usage() {
     echo "Runs the gitleaks container on top of your code"
 }
 
-# NOTE: we are
-GITLEAKS_IMG_NAME="zricethezav/gitleaks"
+# Use a well known, stable version
+GITLEAKS_IMG_NAME="zricethezav/gitleaks:v7.5.0"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 CONTAINER_SOURCE_LOCATION="/repo"
 VERBOSE=${VERBOSE:-0}
