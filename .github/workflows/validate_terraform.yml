@@ -44,3 +44,7 @@ jobs:
       - name: "Validate all modules"
         run: |
           make TF_ENV="staging" tf-validate
+
+      - name: "Generate 01-network plan"
+        run: |
+          make TF_ENV="staging" TF_STAGE="01-network" TF_CMD="tf plan -no-color > /app/plan/01-network.txt" tf-cmd
