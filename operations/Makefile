@@ -14,7 +14,7 @@ ZDD_TARGET_SLOT = "production" #VAR Destination function app slot to deploy to
 # HELP
 # This will output the help for each task
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
-.PHONY: help tf-cli tf-cmd tf-01-network tf-02-config tf-03-persistent tf-04-app tf-validate zdd-promote-slot
+.PHONY: help tf-cli tf-cmd tf-01-network tf-02-config tf-03-persistent tf-04-app tf-validate tf-plan zdd-promote-slot
 
 help: ## This help
 	@echo "Invoke any of the following targets"
@@ -59,6 +59,12 @@ tf-validate: ## Validates the Terraform configuration across all modules
 	${MAKE} tf-cmd TF_STAGE="02-config" TF_CMD="tf validate"
 	${MAKE} tf-cmd TF_STAGE="03-persistent" TF_CMD="tf validate"
 	${MAKE} tf-cmd TF_STAGE="04-app" TF_CMD="tf validate"
+
+tf-plan: ## Outputs the text plan for all modules in /app/plan
+	${MAKE} tf-cmd TF_STAGE="01-network" TF_CMD="tf plan-file"
+	${MAKE} tf-cmd TF_STAGE="02-config" TF_CMD="tf plan-file"
+	${MAKE} tf-cmd TF_STAGE="03-persistent" TF_CMD="tf plan-file"
+	${MAKE} tf-cmd TF_STAGE="04-app" TF_CMD="tf plan-file"
 
 
 # AZURE

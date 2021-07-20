@@ -17,6 +17,7 @@ VERBOSE=${VERBOSE:-0}
 # Where is this script located (and thus, where are the configuration files)?
 SCRIPT_DIR="$(dirname "$(realpath "${0}")")"
 CONFIGS_DIR="${SCRIPT_DIR?}/configurations"
+PLAN_DIR="${SCRIPT_DIR?}/../../plan"
 
 # Does the command require an Azure backend?
 case "${TFCMD?}" in
@@ -174,6 +175,18 @@ if [[ "${ACTUAL_RESULTS?}" == "${EXPECTED_RESULTS?}" ]]; then
         terraform ${TFCMD_BEFORE?} \
             --var-file "${TFVARS?}" \
             ${TFCMD_AFTER?}
+        ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
+        ;;
+
+    plan-file*)
+        # Custom command we made for the purpose of CI/CD
+        EXPECTED_RESULTS="${EXPECTED_RESULTS?}0"
+        terraform plan \
+            --var-file "${TFVARS?}" \
+            >/dev/null -out=${PLAN_DIR?}/${ENVIRONMENT?}-${HERE?}.tfplan
+        terraform show -no-color \
+            ${PLAN_DIR?}/${ENVIRONMENT?}-${HERE?}.tfplan \
+            > ${PLAN_DIR?}/${ENVIRONMENT?}-${HERE?}.txt
         ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
         ;;
 

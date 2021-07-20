@@ -36,7 +36,6 @@ jobs:
     defaults:
       run:
         working-directory: operations
-
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
@@ -45,6 +44,15 @@ jobs:
         run: |
           make TF_ENV="staging" tf-validate
 
-      - name: "Generate 01-network plan"
+  generate_terraform_plan:
+    name: Generate Terraform Plan
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: operations
+    steps:
+      - name: "Generate plan for all modules"
         run: |
-          make TF_ENV="staging" TF_STAGE="01-network" TF_CMD="tf plan -no-color > /app/plan/01-network.txt" tf-cmd
+          make TF_ENV="staging" tf-plan
