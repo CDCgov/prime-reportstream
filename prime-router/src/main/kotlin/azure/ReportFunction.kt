@@ -407,7 +407,6 @@ class ReportFunction {
     ): String {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
-        val itemRouting: List<ItemRouting> = createItemRouting(result, actionHistory)
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
@@ -423,7 +422,7 @@ class ReportFunction {
             // print the report routing when in verbose mode
             if (VERBOSE_TRUE.equals(result.verbose, true)) {
                 it.writeArrayFieldStart("routing")
-                itemRouting.forEach { ij ->
+                createItemRouting(result, actionHistory).forEach { ij ->
                     it.writeStartObject()
                     it.writeNumberField("reportIndex", ij.reportIndex)
                     it.writeStringField("trackingId", ij.trackingId)
