@@ -75,6 +75,6 @@ jobs:
       - name: "Generate plan for all modules"
         working-directory: operations
         env:
-          SERVICE_PRINCIPAL_CREDS: ${{ secrets.FAKE_SERVICE_PRINCIPAL_CREDS) }}
+          SERVICE_PRINCIPAL_CREDS: ${{ secrets.FAKE_SERVICE_PRINCIPAL_CREDS }}
         run: |
           make TF_ENV="staging" AZ_SERVICE_PRINCIPAL="$SERVICE_PRINCIPAL_CREDS" tf-plan
