@@ -50,36 +50,34 @@ jobs:
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
     environment: staging
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: operations
     steps:
-#      - name: Install OpenVPN
-#        run: |
-#          sudo apt-get update
-#          sudo apt-get install openvpn
-#          sudo apt install openvpn-systemd-resolved
-#
-#      - name: Connect VPN
-#        uses: golfzaptw/action-connect-ovpn@master
-#        id: connect_vpn
-#        with:
-#          PING_URL: "127.0.0.1"
-#          FILE_OVPN: ".github/vpn/staging.ovpn"
-#          TLS_KEY: ${{ secrets.TLS_KEY }}
-#        env:
-#          CA_CRT: ${{ secrets.CA_CRT}}
-#          USER_CRT: ${{ secrets.USER_CRT }}
-#          USER_KEY: ${{ secrets.USER_KEY }}
-
-      - name: "Generate plan for all modules"
+      - name: Install OpenVPN
         run: |
-          AZ_SP_APPID="${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientId }}" 2> /dev/null
-          AZ_SP_PASS="${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientSecret }}" 2> /dev/null
-          AZ_SP_TENANT="${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).tenantId }}" 2> /dev/null
+          sudo apt-get update
+          sudo apt-get install openvpn
+          sudo apt install openvpn-systemd-resolved
 
-          echo "::add-mask::$AZ_SP_APPID"
-          echo "::add-mask::$AZ_SP_PASS"
-          echo "::add-mask::$AZ_SP_TENANT"
+      - name: Connect VPN
+        uses: golfzaptw/action-connect-ovpn@master
+        id: connect_vpn
+        with:
+          PING_URL: "127.0.0.1"
+          FILE_OVPN: ".github/vpn/staging.ovpn"
+          TLS_KEY: ${{ secrets.TLS_KEY }}
+        env:
+          CA_CRT: ${{ secrets.CA_CRT}}
+          USER_CRT: ${{ secrets.USER_CRT }}
+          USER_KEY: ${{ secrets.USER_KEY }}
 
-          make TF_ENV="staging" AZ_SP_APPID="$AZ_SP_APPID" AZ_SP_PASS="$AZ_SP_PASS" AZ_SP_TENANT="$AZ_SP_TENANT" tf-plan
+#      - name: "Generate plan for all modules"
+#        working-directory: operations
+#        run: |
+#          AZ_SP_APPID="${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientId }}" 2> /dev/null
+#          AZ_SP_PASS="${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientSecret }}" 2> /dev/null
+#          AZ_SP_TENANT="${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).tenantId }}" 2> /dev/null
+#
+#          echo "::add-mask::$AZ_SP_APPID"
+#          echo "::add-mask::$AZ_SP_PASS"
+#          echo "::add-mask::$AZ_SP_TENANT"
+#
+#          make TF_ENV="staging" AZ_SP_APPID="$AZ_SP_APPID" AZ_SP_PASS="$AZ_SP_PASS" AZ_SP_TENANT="$AZ_SP_TENANT" tf-plan
