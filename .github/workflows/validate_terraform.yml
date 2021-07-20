@@ -51,6 +51,9 @@ jobs:
     environment: staging
     runs-on: ubuntu-latest
     steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+
       - name: Install OpenVPN
         run: |
           sudo apt-get update
@@ -69,15 +72,11 @@ jobs:
           USER_CRT: ${{ secrets.USER_CRT }}
           USER_KEY: ${{ secrets.USER_KEY }}
 
-#      - name: "Generate plan for all modules"
-#        working-directory: operations
-#        run: |
-#          AZ_SP_APPID="${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientId }}" 2> /dev/null
-#          AZ_SP_PASS="${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientSecret }}" 2> /dev/null
-#          AZ_SP_TENANT="${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).tenantId }}" 2> /dev/null
-#
-#          echo "::add-mask::$AZ_SP_APPID"
-#          echo "::add-mask::$AZ_SP_PASS"
-#          echo "::add-mask::$AZ_SP_TENANT"
-#
-#          make TF_ENV="staging" AZ_SP_APPID="$AZ_SP_APPID" AZ_SP_PASS="$AZ_SP_PASS" AZ_SP_TENANT="$AZ_SP_TENANT" tf-plan
+      - name: "Generate plan for all modules"
+        working-directory: operations
+        env:
+          AZ_SP_APPID: ${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientId }}
+        with:
+          AZ_SP_APPID: ${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientId }}
+        run: |
+          make TF_ENV="staging" AZ_SP_APPID="$AZ_SP_APPID" AZ_SP_PASS="$AZ_SP_PASS" AZ_SP_TENANT="$AZ_SP_TENANT" tf-plan
