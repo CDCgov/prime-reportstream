@@ -21,8 +21,8 @@ function scan_uncommitted() {
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
         "${GITLEAKS_IMG_NAME?}" \
         --path="${CONTAINER_SOURCE_LOCATION?}" \
+        --repo-config-path=".environment/gitleaks/gitleaks-config.toml" \
         --unstaged \
-        --additional-config="${CONTAINER_SOURCE_LOCATION?}/.environment/gitleaks/gitleaks-config.toml" \
         --report="${CONTAINER_SOURCE_LOCATION?}/${REPORT_JSON?}" \
         $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
         2>"${LOGFILE?}"
