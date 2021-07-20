@@ -101,4 +101,5 @@ prime-router/.vault/env/**
 # Gradle files
 **/.gradle/**
 
-gitleaks.log.json
+gitleaks.report.json
+gitleaks.log

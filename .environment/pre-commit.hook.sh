@@ -1,37 +1,22 @@
 #!/usr/bin/env bash
-RC=0
 
-# Hop into the root of your repo
-pushd "$(dirname "${0}")/.." 1>/dev/null 2>&1
-REPO_ROOT=$(pwd)/..
+# This script is what gets installed into $REPO_ROOT/.git/hooks/pre-commit
+# and all it does is delegate to the "real" script in $REPO_ROOT/.environment/pre-commit.runner.sh
+# This enables us to change what we do during a pre-commit check without having to have everyone re-install their hooks
+# We can just change the called file, and their installed hook (which calls that file) can remain as is
 
-RC=0
-CHECKS=(
-    ${REPO_ROOT}/.environment/gitleaks/run-gitleaks.sh
-)
+RC=1
 
-echo "> Running pre-commit hooks"
-pushd "${REPO_ROOT?}" 1>/dev/null 2>&1
-for item in ${CHECKS[*]}; do
-    echo "   - ${item?}"
-    ${item?}
-    NEW_RC=${?}
-
-    if [ ${RC} == 0 ]; then
-        RC=${NEW_RC?}
-    fi
-done
-
-if [ $RC = 0 ]; then
-
-    echo "OK> pre-commit hooks passed!"
-else
-    echo "ERROR>"
-    echo "ERROR> One or more pre-commit hooks failed - NOT committed!"
-    echo "ERROR>"
+# Make sure we know where we are
+REPO_ROOT="$(pwd)"
+REPORTED_ROOT="$(git rev-parse --show-toplevel)"
+if [[ $? != 0 || "${REPORTED_ROOT?}" != "${REPO_ROOT}" ]]; then
+    echo "ERROR: Something is wrong, your hooks are not running at the root of your repository."
+    exit 1
 fi
 
-popd 1>/dev/null 2>&1
-popd 1>/dev/null 2>&1
+# Execute the actual hook report its success as our success
+${REPO_ROOT?}/.environment/pre-commit.runner.sh
+RC=$?
 
 exit ${RC?}
