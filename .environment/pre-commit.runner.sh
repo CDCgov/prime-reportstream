@@ -31,7 +31,7 @@ if [ ${RC?} == 0 ]; then
     echo "OK> pre-commit hooks passed!"
 else
     echo "ERROR>"
-    echo "ERROR> One or more pre-commit hooks failed - NOT committed!"
+    echo "ERROR> One or more pre-commit hooks failed - the changes will NOT committed!"
     echo "ERROR>"
 fi
 
