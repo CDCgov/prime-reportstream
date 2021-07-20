@@ -48,7 +48,7 @@ class Report : Logging {
         val mimeType: String,
         val isSingleItemFormat: Boolean = false,
     ) {
-        INTERNAL("internal", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
+        INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers

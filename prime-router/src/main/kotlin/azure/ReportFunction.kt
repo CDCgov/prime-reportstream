@@ -54,6 +54,7 @@ class ReportFunction {
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
         val report: Report? = null,
+        val sender: Sender? = null,
         val verbose: String = "",
     )
 
@@ -104,8 +105,17 @@ class ReportFunction {
                     context.logger.info("Successfully reported: ${validatedRequest.report.id}.")
                     report = validatedRequest.report
                     routeReport(context, workflowEngine, validatedRequest, actionHistory)
+                    if (request.body != null && validatedRequest.sender != null) {
+                        workflowEngine.recordReceivedReport(
+                            report, request.body!!.toByteArray(), validatedRequest.sender!!,
+                            actionHistory, workflowEngine
+                        )
+                    } else error(
+                        // This should never happen after the validation, but we do not want a mystery exception here
+                        "Unable to save original report ${report.name} due to null " +
+                            "request body or sender"
+                    )
                     val responseBody = createResponseBody(validatedRequest, actionHistory)
-                    workflowEngine.receiveReport(validatedRequest, actionHistory)
                     HttpUtilities.createdResponse(request, responseBody)
                 }
             }
@@ -168,7 +178,6 @@ class ReportFunction {
     private fun validateRequest(engine: WorkflowEngine, request: HttpRequestMessage<String?>): ValidatedRequest {
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
-
         val (sizeStatus, errMsg) = HttpUtilities.payloadSizeCheck(request)
         if (sizeStatus != HttpStatus.OK) {
             errors.add(ResultDetail.report(errMsg))
@@ -269,7 +278,7 @@ class ReportFunction {
             report = null
             status = HttpStatus.BAD_REQUEST
         }
-        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report, verbose)
+        return ValidatedRequest(status, errors, warnings, options, defaultValues, routeTo, report, sender, verbose)
     }
 
     private fun createReport(

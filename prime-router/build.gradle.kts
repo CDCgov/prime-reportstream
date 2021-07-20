@@ -14,7 +14,7 @@ Properties that can be overriden using an environment variable only:
 Properties to control the execution and output using the Gradle -P arguments:
   forcetest - Force the running of the test regardless of changes
   showtests - Verbose output of the unit tests
-  E.g. ./build.sh -- gradle clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
+  E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -400,6 +400,7 @@ tasks.register("quickPackage") {
     dependsOn("copyAzureResources")
     dependsOn("copyAzureScripts")
     tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
@@ -407,9 +408,11 @@ tasks.register("quickPackage") {
 
 repositories {
     mavenCentral()
+    jcenter()
     maven {
         url = uri("https://jitpack.io")
     }
+
 }
 
 dependencies {
@@ -476,6 +479,9 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
+
+    implementation("com.cronutils:cron-utils:9.1.5")
+    implementation("khttp:khttp:0.1.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
