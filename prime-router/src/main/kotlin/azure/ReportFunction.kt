@@ -273,6 +273,7 @@ class ReportFunction {
         }
 
         var report = createReport(engine, sender, content, defaultValues, errors, warnings)
+
         var status = HttpStatus.OK
         if (options != Options.SkipInvalidItems && errors.isNotEmpty()) {
             report = null

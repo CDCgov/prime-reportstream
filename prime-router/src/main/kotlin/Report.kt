@@ -565,7 +565,6 @@ class Report : Logging {
                             null
                         }
                     }
-                    it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
                     it.reportIndex = idx
                 }
