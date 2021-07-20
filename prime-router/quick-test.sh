@@ -42,7 +42,7 @@ RUN_ALL=0
 RUN_MERGE=0
 
 # If no args, run everything.
-if [ $# -eq 0 ] 
+if [ $# -eq 0 ]
 then
   RUN_ALL=1
 fi
@@ -393,4 +393,3 @@ then
 fi
 
 exit 0
-
