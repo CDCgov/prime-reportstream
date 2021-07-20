@@ -407,7 +407,7 @@ class ReportFunction {
     ): String {
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
-        val itemRouting: List<ItemRouting> = createItemJurisdictionRouting(result, actionHistory)
+        val itemRouting: List<ItemRouting> = createItemRouting(result, actionHistory)
         factory.createGenerator(outStream).use {
             it.useDefaultPrettyPrinter()
             it.writeStartObject()
@@ -464,7 +464,7 @@ class ReportFunction {
      * @param actionHistory the instance generated while processing the report
      * @return the report routing for each item
      */
-    private fun createItemJurisdictionRouting(
+    private fun createItemRouting(
         validatedRequest: ValidatedRequest,
         actionHistory: ActionHistory? = null,
     ): List<ItemRouting> {
