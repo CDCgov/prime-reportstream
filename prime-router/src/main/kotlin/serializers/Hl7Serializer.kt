@@ -672,7 +672,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
                     val phoneNumber = "($areaCode)$localWithDash" +
-                        if (extension.isNotEmpty()) "X${extension}" else ""
+                        if (extension.isNotEmpty()) "X$extension" else ""
                     terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }

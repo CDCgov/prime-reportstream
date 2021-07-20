@@ -227,7 +227,7 @@ class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
         var userName = ""
         var orgName = ""
         val cookies = request.headers["cookie"] ?: ""
-        var jwtString = ""
+        var jwtString: String
         cookies.replace(" ", "").split(";").forEach {
             val cookie = it.split("=")
             jwtString = if (cookie[0] == "jwt") cookie[1] else ""

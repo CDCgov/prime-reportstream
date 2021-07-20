@@ -16,7 +16,6 @@ import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import org.jooq.JSONB
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 /**
  * Settings for Organization, Receivers, and Senders from the Azure Database.
