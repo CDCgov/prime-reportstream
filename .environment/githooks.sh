@@ -4,6 +4,7 @@ pushd "$(dirname "${0}")" 1>/dev/null 2>&1
 
 REPO_ROOT="$(pwd)/.."
 
+# mapping of "source file" to "destination location"
 declare -A GITHOOKS
 GITHOOKS["pre-commit.hook.sh"]="${REPO_ROOT}/.git/hooks/pre-commit"
 
@@ -20,6 +21,7 @@ function usage(){
     echo ""
 }
 
+# ./githooks.sh install
 function install_hooks() {
     echo "> Setting up your git hooks"
 
@@ -32,6 +34,7 @@ function install_hooks() {
     ${CAPTURE?} docker pull "zricethezav/gitleaks" 1>/dev/null
 }
 
+# ./githooks.sh remove
 function remove_hooks() {
     echo "> Removing your git hooks"
 
@@ -41,10 +44,12 @@ function remove_hooks() {
     done
 }
 
+# ./githooks.sh
 function _hooks(){
     usage
 }
 
+# if you say '--whatif' then instead of really 'doing' things, we just echo what we're about to do
 if [[ "${2}" == "--whatif" ]]; then
     CAPTURE="echo"
 fi
