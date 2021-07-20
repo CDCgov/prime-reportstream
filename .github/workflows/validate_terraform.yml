@@ -54,23 +54,23 @@ jobs:
       run:
         working-directory: operations
     steps:
-      - name: Install OpenVPN
-        run: |
-          sudo apt-get update
-          sudo apt-get install openvpn
-          sudo apt install openvpn-systemd-resolved
-
-      - name: Connect VPN
-        uses: golfzaptw/action-connect-ovpn@master
-        id: connect_vpn
-        with:
-          PING_URL: "127.0.0.1"
-          FILE_OVPN: ".github/vpn/staging.ovpn"
-          TLS_KEY: ${{ secrets.TLS_KEY }}
-        env:
-          CA_CRT: ${{ secrets.CA_CRT}}
-          USER_CRT: ${{ secrets.USER_CRT }}
-          USER_KEY: ${{ secrets.USER_KEY }}
+#      - name: Install OpenVPN
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install openvpn
+#          sudo apt install openvpn-systemd-resolved
+#
+#      - name: Connect VPN
+#        uses: golfzaptw/action-connect-ovpn@master
+#        id: connect_vpn
+#        with:
+#          PING_URL: "127.0.0.1"
+#          FILE_OVPN: ".github/vpn/staging.ovpn"
+#          TLS_KEY: ${{ secrets.TLS_KEY }}
+#        env:
+#          CA_CRT: ${{ secrets.CA_CRT}}
+#          USER_CRT: ${{ secrets.USER_CRT }}
+#          USER_KEY: ${{ secrets.USER_KEY }}
 
       - name: "Generate plan for all modules"
         run: |
