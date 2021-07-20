@@ -28,6 +28,18 @@ elements:
   - name: patient_state
     default: AZ
 
+  - name: patient_ethnicity
+    altValues:
+      - display: H     # Hispanic
+        code: 2135-2
+      - display: NH    # Non-Hispanic
+        code: 2186-5
+      - display: U     # Unknown
+        code: UNK
+    csvFields:
+      - name: Ethnicity
+        format: $alt
+
   - name: message_id
     mapper: use(testing_lab_specimen_id)
 
