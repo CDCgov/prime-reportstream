@@ -1,19 +1,16 @@
 // ktlint-disable filename
 package gov.cdc.prime.router.cli.tests
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.output.TermUi
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.ReportStreamEnv
 import gov.cdc.prime.router.cli.FileUtilities
-import java.net.HttpURLConnection
 import java.io.File
+import java.net.HttpURLConnection
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
-import gov.cdc.prime.router.azure.WorkflowEngine
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-
-
 
 /**
  * Generates a fake HL7 report and sends it to ReportStream, waits some time then checks the lineage to make
@@ -89,38 +86,47 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
         """.trimIndent()
         val foo = "*".repeat(60000000)
         val special_char = "!@#\\\\\\\$*()-_=+[]\\\\\\\\{};':,./<>?"
+        val xml_data = """
+            <?xml version="1.0"?>
+            <Tests xmlns="http://www.adatum.com">
+              <Test TestId="0001" TestType="CMD">
+                <Name>Convert number to string</Name>
+                <CommandLine>Examp1.EXE</CommandLine>
+                <Input>1</Input>
+                <Output>One</Output>
+              </Test>
+            </Tests>
+        """.trimIndent()
         val otcPairs = listOf(
+            /* Missing Required Fields */
             Pair("MISSING PATIENT LASTNAME", cleanedMessage.replace("Patlast", "")),
             Pair("MISSING ORDERING FACILITY STATE", cleanedMessage.replace("^IG^", "")),
+            Pair("MISSING ORDERING FACILITY STATE", cleanedMessage.replace("^IG^", special_char)),
             Pair("MISSING MESSAGE ID", cleanedMessage.replace("2.5.1", "")),
+            Pair("MISSING MESSAGE ID", cleanedMessage.replace("2.5.1", special_char)),
             Pair("MISSING TESTING LAB CLIA", cleanedMessage.replace("10D08761999", "")),
             Pair("MISSING PATIENT STATE", cleanedMessage.replace("^MD^", "^^")),
+            /* Invalid data type */
             Pair("INVALID DOB", cleanedMessage.replace("19670202", "19")),
-            Pair("EMPTY", ""),
-            Pair("CSV DATA", csv),
-            Pair("Duplicate PID", cleanedMessage+"PID|||||Richards^Mary||19340428|F|||||||||||||||||||\\nPID|||||||19700510105000|M|||||||||||||||||||"),
-            Pair("RANDOM TEXT", "foobar"),
+            Pair("INVALID DOB", cleanedMessage.replace("19670202", special_char)),
+            /* Bad hl7 files */
+            Pair("EMPTY FILE", ""),
+            Pair("CSV FILE", csv),
+            Pair("XML FILE", xml_data),
             Pair("JSON", "{\"alive\": true}"),
+            /* Bad data */
+            Pair("Duplicate PID", cleanedMessage + "PID|||||Richards^Mary||19340428|F|||||||||||||||||||\\nPID|||||||19700510105000|M|||||||||||||||||||"),
+            Pair("Only MSH", "MSH|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime Data Hub|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO"),
+            Pair("RANDOM TEXT", "foobar"),
             Pair("NON-UTF", "®"),
             Pair("EMOJI", "❤️ \uD83D\uDC94 \uD83D\uDC8C \uD83D\uDC95 \uD83D\uDC9E \uD83D\uDC93"),
             Pair("LARGE POST BODY", foo),
-//            Pair("working", cleanedMessage),
-//            Pair("QuickVue At-Home COVID-19 Test_Quidel Corporation", "OTC_PROCTORED_NYY"),
-//            Pair("00810055970001", "OTC_PROCTORED_NUNKUNK"),
-//            "ÅÍÎÏ˝ÓÔ\uF8FFÒÚÆ☃",
-//            "OBR|1|A241Z^MESA_ORDPLC||P2^Procedure 2^ERL_MESA|||||||||xxx||Radiology^^^^R|7101^ESTRADA^JAIME^P^^DR|||||||||||1^once^^20000701^^R|||WALK|Modality Test 241||||||||||A||\n",
-//            "PID|||||Richards^Mary||19340428|F|||||||||||||||||||\nPID|||||||19700510105000|M|||||||||||||||||||\n", /* multiple patient information*/
-//            "~!@#\\\$^&*()-_=+[]\\\\{}|;':,./<>?",
-//            "❤️ \uD83D\uDC94 \uD83D\uDC8C \uD83D\uDC95 \uD83D\uDC9E \uD83D\uDC93",
-//            "<a href=\"javascript\\x0A:javascript:alert(1)\" id=\"fuzzelement1\">test</a>",
-//            "'; EXEC sp_MSForEachTable 'DROP TABLE ?'; --",
-//            "1'000'000,00"
         )
 
-        for(pair in otcPairs) {
+        for (pair in otcPairs) {
             val reFile = File(outputDir)
-            val isNewFileCreated :Boolean = reFile.createNewFile()
-            if(!isNewFileCreated){
+            val isNewFileCreated: Boolean = reFile.createNewFile()
+            if (!isNewFileCreated) {
                 reFile.writeText("")
             }
 
@@ -137,9 +143,8 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                 options.key
             )
             TermUi.echo("ResponseCode to POST: $responseCode")
-//            TermUi.echo("Response to POST: $jsonResponse")
             val tree = jacksonObjectMapper().readTree(jsonResponse)
-            if (responseCode >= 400 && tree["id"].isNull  && tree["errorCount"].intValue()!=0) {
+            if (responseCode >= 400 && responseCode < 500 && tree["id"].isNull && tree["errorCount"].intValue() == tree["errors"].size() ) {
                 good("Test of Bad HL7 file ${pair.first} passed: Failure HttpStatus code was returned.")
             } else {
                 bad("***badhl7 Tes of ${pair.first} FAILED: Expecting a failure HttpStatus. ***")
@@ -147,10 +152,10 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
             }
         }
 
-        if( failures.size == 0 ) {
+        if (failures.size == 0) {
             return true
         } else {
-            return bad( "Tests FAILED: "+ failures)
+            return bad("Tests FAILED: " + failures)
         }
     }
 }
