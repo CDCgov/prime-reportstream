@@ -1133,13 +1133,13 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         /**
          * List of fields that have the local HD type.
          */
-        val HD_FIELDS_LOCAL = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2",
+        val HD_FIELDS_LOCAL = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
             "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2")
 
         /**
          * List of fields that have the universal HD type
          */
-        val HD_FIELDS_UNIVERSAL = listOf("MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3",
+        val HD_FIELDS_UNIVERSAL = listOf("MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
             "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3")
 
         /**
