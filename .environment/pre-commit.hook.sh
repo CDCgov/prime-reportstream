@@ -10,7 +10,7 @@
 
 RC=1
 
-# Make sure we know where we are
+# Make sure we have some certainty of where we are
 REPO_ROOT="$(pwd)"
 REPORTED_ROOT="$(git rev-parse --show-toplevel)"
 if [[ $? != 0 || "${REPORTED_ROOT?}" != "${REPO_ROOT}" ]]; then
