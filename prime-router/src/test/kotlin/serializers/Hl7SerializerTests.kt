@@ -548,4 +548,45 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-8", "3333")
         }
     }
+
+    @Test
+    fun `test setCliaComponents`() {
+        val metadata = Metadata("./metadata")
+        val mockTerser = mockk<Terser>()
+        val serializer = Hl7Serializer(metadata)
+        every { mockTerser.set(any(), any()) } returns Unit
+
+        val cliaElement = Element("testing_lab_clia", hl7Field = "OBX-23-10", type = Element.Type.ID_CLIA)
+        serializer.setCliaComponent(
+            mockTerser,
+            "XYZ",
+            "OBX-23-10",
+            cliaElement)
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-10", "XYZ")
+        }
+    }
+
+    @Test
+    fun `test setCliaComponents in HD`() {
+        val metadata = Metadata("./metadata")
+        val mockTerser = mockk<Terser>()
+        val serializer = Hl7Serializer(metadata)
+        every { mockTerser.set(any(), any()) } returns Unit
+        val hl7Field = "ORC-3-3"
+        val value = "dummy"
+
+        val cliaElement = Element("testing_lab_clia", hl7Field = hl7Field, type = Element.Type.ID_CLIA)
+        serializer.setCliaComponent(
+            mockTerser,
+            value,
+            hl7Field,
+            cliaElement)
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
+        }
+    }
 }
