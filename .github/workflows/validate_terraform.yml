@@ -76,7 +76,5 @@ jobs:
         working-directory: operations
         env:
           AZ_SP_APPID: ${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientId }}
-        with:
-          AZ_SP_APPID: ${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientId }}
         run: |
           make TF_ENV="staging" AZ_SP_APPID="$AZ_SP_APPID" AZ_SP_PASS="$AZ_SP_PASS" AZ_SP_TENANT="$AZ_SP_TENANT" tf-plan
