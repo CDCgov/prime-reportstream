@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
 # This script is what gets installed into $REPO_ROOT/.git/hooks/pre-commit
-# and all it does is delegate to the "real" script in $REPO_ROOT/.environment/pre-commit.runner.sh
-# This enables us to change what we do during a pre-commit check without having to have everyone re-install their hooks
-# We can just change the called file, and their installed hook (which calls that file) can remain as is
+# and all it does is delegate to the "real" script which is located in
+# $REPO_ROOT/.environment/pre-commit.runner.sh
+# This approach enables us to change what we do during a pre-commit check
+# without having to have everyone re-install their hooks on these changes
+# We can just change the called file, and their installed hook (which
+# calls that file) can remain as is
 
 RC=1
 
