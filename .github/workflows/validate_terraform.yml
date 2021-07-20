@@ -50,6 +50,10 @@ jobs:
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
     environment: staging
     runs-on: ubuntu-latest
+    env:
+      AZ_SP_APPID: ${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientId }}
+      AZ_SP_PASS: ${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).clientSecret }}
+      AZ_SP_TENANT: ${{ fromJson(secrets.FAKE_SERVICE_PRINCIPAL_CREDS).tenantId }}
     defaults:
       run:
         working-directory: operations
@@ -74,4 +78,4 @@ jobs:
 
       - name: "Generate plan for all modules"
         run: |
-          make TF_ENV="staging" tf-plan
+          make TF_ENV="staging" AZ_SP_APPID="$AZ_SP_APPID" AZ_SP_PASS="$AZ_SP_PASS" AZ_SP_TENANT="$AZ_SP_TENANT" tf-plan
