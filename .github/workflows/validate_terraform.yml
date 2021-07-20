@@ -43,4 +43,4 @@ jobs:
 
       - name: "Validate all modules"
         run: |
-          make tf-validate
+          make TF_ENV="staging" tf-validate
