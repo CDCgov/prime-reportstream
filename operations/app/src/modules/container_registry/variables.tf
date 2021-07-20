@@ -19,6 +19,6 @@ variable "location" {
 }
 
 variable "enable_content_trust" {
-  type        = boolean
+  type        = bool
   description = "Boolean value indicating enabledness of Content Trust"
 }

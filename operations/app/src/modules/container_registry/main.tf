@@ -14,7 +14,7 @@ resource "azurerm_container_registry" "container_registry" {
     }
   }
 
-  trust_policy = {
+  trust_policy {
     enabled = var.enable_content_trust
   }
 
