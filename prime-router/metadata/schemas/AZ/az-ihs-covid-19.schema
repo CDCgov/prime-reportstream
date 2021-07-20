@@ -5,7 +5,7 @@
 #  - The lab and ordering_facility where the same place in these tests
 #  -
 name: az-ihs-covid-19
-description: AZ COVID-19 flat file
+description: Schema for the john_hopkins sender. Modeled after the AZ flat-file.
 topic: covid-19
 trackingElement: testing_lab_specimen_id
 extends: az/az-covid-19

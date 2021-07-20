@@ -97,6 +97,16 @@
       schemaName: direct/careevolution-covid-19
       format: HL7
 
+- name: "john_hopkins"
+  description: "John Hopkin's / IHS school testing program"
+  jurisdiction: "FEDERAL"
+  senders:
+    - name: "default"
+      organizationName: "john_hopkins"
+      format: "CSV"
+      topic: "covid-19"
+      schemaName: "AZ/az-ihs-covid-19"
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
