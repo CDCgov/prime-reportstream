@@ -31,7 +31,7 @@ jobs:
   validate_terraform_yaml:
     name: Validate Terraform YAML
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
