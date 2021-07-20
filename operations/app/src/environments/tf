@@ -141,11 +141,6 @@ fi
 _DASH_INDEX=$(expr index "${HERE?}" '-')
 HERE=${HERE?:${_DASH_INDEX?}}
 
-# Login with an Azure service principal
-if [[ ! -z "${AZ_SP_APPID}" ]]; then
-    az login --service-principal -u ${AZ_SP_APPID?} -p ${AZ_SP_PASS?} --tenant ${AZ_SP_TENANT?}
-fi
-
 # Initialize with our backend
 EXPECTED_RESULTS="${EXPECTED_RESULTS?}0"
 if [[ ${AZ_BACKEND_REQUIRED?} == 1 ]]; then
@@ -154,7 +149,9 @@ if [[ ${AZ_BACKEND_REQUIRED?} == 1 ]]; then
         --reconfigure \
         --backend-config=<(cat ${BACKEND_CONFIG?} | sed "s/__STAGE__/${HERE?}/g")
 else
-    terraform init -backend=false
+    terraform init \
+        --reconfigure \
+        -backend=false
 fi
 ACTUAL_RESULTS="${ACTUAL_RESULTS?}${?}"
 

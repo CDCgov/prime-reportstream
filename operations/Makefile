@@ -8,9 +8,7 @@ TF_CMD = ""  # not surfaced
 AZ_RESOURCE_PREFIX = "pdh$(TF_ENV)" ## VAR Azure environment resource prefix (e.g. pdhtest)
 AZ_RESOURCE_GROUP = "prime-data-hub-$(TF_ENV)" ## VAR Azure resource group (e.g. prime-data-hub-staging)
 
-AZ_SP_APPID = "" #VAR Authenticate Azure with a service principal app id
-AZ_SP_PASS = "" #VAR Authenticate Azure with a service principal password
-AZ_SP_TENANT = "" #VAR Authenticate Azure with a service principal tenant
+AZ_SERVICE_PRINCIPAL = "" #VAR JSON of Azure Service Principal
 
 ZDD_SOURCE_SLOT = "candidate" #VAR Source function app slot for ZDD deployment
 ZDD_TARGET_SLOT = "production" #VAR Destination function app slot to deploy to
@@ -43,12 +41,18 @@ build-tf: ## Build the Terraform docker container
 tf-cli: build-tf ## Drops into a Docker container configured with the Terraform CLI and Azure
 	docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) tf-cli
 
-tf-cmd: build-tf ## Runa a command in the Docker container configured with the Terraform CLI and Azure
-	@docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) \
-		-e AZ_SP_APPID=$(AZ_SP_APPID) \
-		-e AZ_SP_PASS=$(AZ_SP_PASS) \
-		-e AZ_SP_TENANT=$(AZ_SP_TENANT) \
-		--entrypoint "${TF_CMD}" tf-cli
+tf-cmd: build-tf ## Run a command in the Docker container configured with the Terraform CLI and Azure
+	@if [[ -z "${AZ_SERVICE_PRINCIPAL}" ]]; then\
+  		docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) \
+  			-e ARM_CLIENT_ID="$(${AZ_SERVICE_PRINCIPAL} | python3 -c "import sys, json; print(json.load(sys.stdin)['clientId'])")" \
+  			-e ARM_CLIENT_SECRET="$(${AZ_SERVICE_PRINCIPAL} | python3 -c "import sys, json; print(json.load(sys.stdin)['clientSecret'])")" \
+  			-e ARM_SUBSCRIPTION_ID="$(${AZ_SERVICE_PRINCIPAL} | python3 -c "import sys, json; print(json.load(sys.stdin)['subscriptionId'])")" \
+  			-e ARM_TENANT_ID="$(${AZ_SERVICE_PRINCIPAL} | python3 -c "import sys, json; print(json.load(sys.stdin)['tenantId'])")" \
+        	--entrypoint "${TF_CMD}" tf-cli;\
+  	else\
+  		docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) \
+        	--entrypoint "${TF_CMD}" tf-cli;\
+  	fi
 
 tf-01-network: ## Preconfigures Terraform network environment module
 	${MAKE} tf-cli TF_STAGE="01-network"
