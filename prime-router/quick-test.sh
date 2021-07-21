@@ -35,6 +35,7 @@ RUN_MI=0
 RUN_AL=0
 RUN_MA=0
 RUN_NH=0
+RUN_OR=0
 RUN_WATERS=0
 # always should run, but we'll leave this here for now in case that could change at some point
 RUN_STANDARD=1
@@ -65,6 +66,7 @@ do
     ma | MA) RUN_MA=1;;
     al | AL) RUN_AL=1;;
     mi | MI) RUN_MI=1;;
+    or | OR) RUN_OR=1;;
     waters | WATERS) RUN_WATERS=1;;
     all | ALL) RUN_ALL=1;;
     merge | MERGE) RUN_MERGE=1;;
@@ -88,6 +90,7 @@ then
   RUN_AL=1
   RUN_MI=1
   RUN_MA=1
+  RUN_OR=1
   RUN_WATERS=1
   RUN_STANDARD=1
   RUN_MERGE=1
@@ -369,6 +372,14 @@ if [ $RUN_MI -ne 0 ]
 then
   echo Generate fake MI data, HL7
   text=$(run_prime_cli data --input-fake 50 --input-schema covid-19 --output-dir $outputdir --target-states MI --output-format HL7_BATCH)
+  parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
+fi
+
+# run OR
+if [ $RUN_OR -ne 0 ]
+then
+  echo Generate fake OR data, HL7
+  text=$(run_prime_cli data --input-fake 50 --input-schema or/or-covid-19-hl7 --output-dir $outputdir --target-states OR --output-format HL7_BATCH)
   parse_prime_output_for_filename "$text" "[/\\].*\.hl7"
 fi
 
