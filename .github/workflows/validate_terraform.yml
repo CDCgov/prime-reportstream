@@ -91,5 +91,6 @@ jobs:
           inlineScript: |
             az storage blob upload-batch --account-name pdhstagingterraform \
               --destination terraformplan \
-              --destination-path "${{ github.run_id }}-${{ github.sha }}-" \
-              --source operations/app/plan
+              --destination-path "${{ github.run_id }}-${{ github.sha }}" \
+              --source operations/app/plan \
+              --pattern staging-*
