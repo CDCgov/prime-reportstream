@@ -131,7 +131,7 @@ function logout() {
 async function fetchReportFeeds(){
 
     var reports = await fetchReports();
-    var receivingOrgSvc = reports.map( rep => rep.receivingOrgSvc )
+    var receivingOrgSvc = reports.map( rep => rep.externalName )
 
     return Array.from( new Set( receivingOrgSvc ) );
 
@@ -148,7 +148,7 @@ async function fetchReports( filter ) {
 
     var retValue = window.jwt? await axios.get(`${baseURL}/api/history/report`, config).then(res => res.data) : [];
 
-    return filter? retValue.filter( report => report.receivingOrgSvc === filter ) : retValue;
+    return filter? retValue.filter( report => report.externalName === filter ) : retValue;
 
 }
 
