@@ -98,11 +98,6 @@ jobs:
       - name: Directions for Downloading Plan
         if: ${{ always() }}
         run: |
-          echo -e "\033[96m"
-          echo -e "###"
           echo -e "DOWNLOAD THE TERRAFORM PLAN LOCALLY WITH THIS COMMAND:"
           echo -e ""
           echo -e "az storage blob directory download --account-name pdhstagingterraform --container terraformplan --source-path ${{ github.run_id }}-${{ github.sha }} --recursive --destination-path ."
-          echo -e ""
-          echo -e "###"
-          echo -e "\033[0m"
