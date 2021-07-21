@@ -1,7 +1,3 @@
-terraform {
-    required_version = ">= 0.14"
-}
-
 locals{
   ping_url = (var.environment == "prod" ? "https://prime.cdc.gov" : "https://${var.environment}.prime.cdc.gov")
   alerting_enabled = (var.environment == "prod" || var.environment == "staging" ? 1 : 0)
@@ -175,17 +171,4 @@ resource "azurerm_application_insights_web_test" "ping_test" {
     # This prevents terraform from seeing a tag change for each plan/apply
     "hidden-link:/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/microsoft.insights/components/${var.resource_prefix}-appinsights" = "Resource"
   }
-}
-
-data "azurerm_key_vault_secret" "pagerduty_url" {
-    key_vault_id = var.key_vault_id
-    name = "pagerduty-integration-url"
-}
-
-output "instrumentation_key" {
-  value = azurerm_application_insights.app_insights.instrumentation_key
-}
-
-output "app_id" {
-  value = azurerm_application_insights.app_insights.app_id
 }

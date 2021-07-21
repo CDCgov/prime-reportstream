@@ -7,7 +7,6 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -249,7 +248,6 @@ class CsvSerializerTests {
         assertNull(result.report)
     }
 
-
     @Test
     fun `test missing row`() {
         // setup a malformed CSV
@@ -484,10 +482,14 @@ class CsvSerializerTests {
 
         // Sample UTF-8 taken from https://www.kermitproject.org/utf8.html as a byte array, so we are not
         // restricted by the encoding of this code file
-        val koreanString = String(byteArrayOf(-21, -126, -104, -21, -118, -108, 32, -20, -100, -96, -21, -90, -84, -21, -91, -68),
-            Charsets.UTF_8)
-        val greekString = String(byteArrayOf(-50, -100, -49, -128, -50, -65, -49, -127, -49, -114),
-            Charsets.UTF_8)
+        val koreanString = String(
+            byteArrayOf(-21, -126, -104, -21, -118, -108, 32, -20, -100, -96, -21, -90, -84, -21, -91, -68),
+            Charsets.UTF_8
+        )
+        val greekString = String(
+            byteArrayOf(-50, -100, -49, -128, -50, -65, -49, -127, -49, -114),
+            Charsets.UTF_8
+        )
 
         // Java strings are stored as UTF-16
         val csv = """

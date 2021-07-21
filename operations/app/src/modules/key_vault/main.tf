@@ -1,7 +1,3 @@
-terraform {
-  required_version = ">= 0.14"
-}
-
 locals {
   # These object ids correspond to developers with access
   # to key vault
@@ -22,8 +18,6 @@ locals {
 
   frontdoor_object_id = "270e4d1a-12bd-4564-8a4b-c9de1bbdbe95"
 }
-
-data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "application" {
   name = "${var.resource_prefix}-keyvault"
@@ -114,7 +108,7 @@ module "application_private_endpoint" {
   type = "key_vault"
   resource_group = var.resource_group
   location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }
 
 resource "azurerm_key_vault" "app_config" {
@@ -171,7 +165,7 @@ module "app_config_private_endpoint" {
   type = "key_vault"
   resource_group = var.resource_group
   location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }
 
 resource "azurerm_key_vault" "client_config" {
@@ -228,18 +222,5 @@ module "client_config_private_endpoint" {
   type = "key_vault"
   resource_group = var.resource_group
   location = var.location
-  endpoint_subnet_id = var.endpoint_subnet_id
-}
-
-
-output "application_key_vault_id" {
-  value = azurerm_key_vault.application.id
-}
-
-output "app_config_key_vault_id" {
-  value = azurerm_key_vault.app_config.id
-}
-
-output "client_config_key_vault_id" {
-  value = azurerm_key_vault.client_config.id
+  endpoint_subnet_id = data.azurerm_subnet.endpoint.id
 }

@@ -1,14 +1,59 @@
+/** Convert Org name
+ * from DHzz_phd
+ * to zz-phd
+ * which is the format the ReportStream API endpoints are expecting
+ * @returns {*|string}
+ */
+function convertOrgName(claimsOrgName) {
+    return claimsOrgName.indexOf("DH") === 0 ?
+        claimsOrgName.substring(2).replaceAll("_", "-") :
+        claimsOrgName;
+}
+
+/**
+ * gets the base url
+ * @returns {string}
+ */
+function getBaseUrl() {
+    if (window.location.origin.includes("localhost"))
+        return "http://localhost:7071";
+    else if (window.location.origin.includes("staging"))
+        return "https://staging.prime.cdc.gov";
+    else
+        return "https://prime.cdc.gov";
+}
+
+/** getClaimsOrgValue
+ * ensures a string is returned for window.org
+ * @returns {*|string}
+ */
+function getClaimsOrgValue() {
+    return window.org ? window.org : "";
+}
+
+/** apiConfig
+ * used for axios headers to call ReportStream api endpoints
+ * @returns {{headers: {Authorization: string, Organization: (*|string)}}}
+ */
+function apiConfig(url) {
+    return {
+        url: url,
+        baseURL: `${getBaseUrl()}/api/`,
+        headers: {
+            'Authorization': `Bearer ${window.jwt}`,
+            'Organization': getClaimsOrgValue()
+        }
+    };
+}
+
 /**
  * Fetch all information for the display of the cards
  *
  * @returns Array of card objects for the cardGrid
  */
 async function fetchCards() {
-    const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
-    const baseURL = getBaseUrl();
-
-    return window.jwt? Promise.all([
-        axios.get(`${baseURL}/api/history/summary/tests`, config).then(res => res.data)
+    return window.jwt ? Promise.all([
+        axios(apiConfig('history/summary/tests')).then(res => res.data)
     ]) : [];
 }
 
@@ -29,14 +74,23 @@ function checkBrowser() {
 }
 
 /**
+ * Determines if a user is logged in
+ * 
+ * @returns truthy if logged in; falsy otherwise
+ */
+function isLoggedIn(){
+    const token = window.sessionStorage.getItem("jwt");
+    const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
+
+    return (token && claims && moment().isBefore(moment.unix(claims.exp)))
+}
+
+/**
  * Validates the JWT token as stored in session storage under the key "jwt";
  *  if not valid, redirects to the sign-in page; otherwise sets up the claims
  */
 function checkJWT() {
-    const token = window.sessionStorage.getItem("jwt");
-    const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
-
-    if (!token || !claims || moment().isAfter(moment.unix(claims.exp)))
+    if ( !isLoggedIn() )
         window.location.replace('/sign-in/?return=/daily-data/');
 }
 
@@ -46,13 +100,13 @@ function checkJWT() {
  * @returns Promise, eventually a String organization name
  */
 async function fetchOrgName() {
-    const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } }
-    const baseURL = getBaseUrl();
-
     if (!window.org || !window.jwt) return null;
-
+    const orgName = convertOrgName(window.org);
+    console.log(`getting orgName for ${orgName}: ${window.org}`)
+    const url = `settings/organizations/${orgName}`;
+    console.log(url);
     return Promise.all([
-        axios.get(`${baseURL}/api/settings/organizations/${window.org.substring(2).replaceAll("_", "-")}`, config)
+        axios(apiConfig(url))
             .then(res => res.data)
             .then(org => org.description)
     ]);
@@ -65,9 +119,7 @@ async function fetchOrgName() {
  *      sign-in page
  */
 function idleTimer() {
-    const loggedIn = window.sessionStorage.getItem("jwt");
-
-    if (loggedIn) {
+    if ( isLoggedIn() ) {
         window.sessionStorage.setItem("idle-timer", "true");
         idleTimeout(() => {
             window.sessionStorage.clear();
@@ -108,7 +160,7 @@ function login() {
 
     new OktaSignIn(config).showSignInToGetTokens({ scopes: ['openid', 'email', 'profile'] })
         .then(function (tokens) {
-            var jwt = tokens.accessToken.value;
+            const jwt = tokens.accessToken.value;
             window.sessionStorage.setItem('jwt', jwt);
             window.location.replace(`${window.location.origin}/daily-data/`);
         });
@@ -134,70 +186,103 @@ async function fetchReportFeeds(){
     var receivingOrgSvc = reports.map( rep => rep.externalName )
 
     return Array.from( new Set( receivingOrgSvc ) );
-
-
 }
+
 
 /**
  *
  */
 async function fetchReports( filter ) {
-
-    const config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
-    const baseURL = getBaseUrl();
-
-    var retValue = window.jwt? await axios.get(`${baseURL}/api/history/report`, config).then(res => res.data) : [];
-
+    let url = 'history/report';
+    if (isAnAdmin()) {
+        console.log("user is an admin, they get special sauce");
+        url = `${url}s/${window.org}`
+    }
+    console.log(`calling for ${url}`);
+    var retValue window.jwt ? axios(apiConfig(url))
+        .then(res => res.data)
+        .catch(e => console.log(e)): [];
     return filter? retValue.filter( report => report.externalName === filter ) : retValue;
+}
 
+async function fetchAllOrgs() {
+    return window.jwt ? axios(apiConfig('settings/organizations'))
+        .then(res => res.data) : [];
 }
 
 /**
  *
  */
 function requestFile(reportId) {
-    let baseURL = getBaseUrl();
-    let config = { headers: { 'Authorization': `Bearer ${window.jwt}` } };
-
-    return window.jwt? axios.get(`${baseURL}/api/history/report/${reportId}`, config)
+    return window.jwt? axios(apiConfig(`history/report/${reportId}`))
         .then(res => res.data)
-        .then(csv => download(csv.content, csv.filename, csv.mimetype)) : null;
+        .then(csv => {
+            // The filename to use for the download should not contain blob folders if present
+            let filename = decodeURIComponent(csv.filename)
+            let filenameStartIndex = filename.lastIndexOf("/")
+            if (filenameStartIndex >= 0 && filename.length > filenameStartIndex + 1) 
+                filename = filename.substring(filenameStartIndex + 1)
+            download(csv.content, filename, csv.mimetype)
+        }) : null;
 }
 
 /**
+ * Determines if the system is running as localhost
  *
-
-function signIn() {
-    const _signIn = document.getElementById("signIn");
-    let _navMenu = document.getElementById("navmenu");
-    if (window.sessionStorage.getItem("jwt")) {
-        if (_signIn){ _signIn.style.display = "none"; console.log( 'setting signIn to none' ); }
-
-    } else {
-        if (_signIn){ _signIn.style.display = "block"; console.log( 'setting signIn to block' ); }
-        if (_navMenu){ _navMenu.style.display = "none"; console.log( 'setting navMenu to none' ); }
-    }
+ * @returns
+ */
+function isLocalhost(){
+    return window.location.origin.includes("localhost:8088");
 }
-*/
 
 /**
  *
  * @returns
  */
-function getBaseUrl() {
-    if (window.location.origin.includes("localhost"))
-        return "http://localhost:7071";
-    else if (window.location.origin.includes("staging"))
-        return "https://staging.prime.cdc.gov";
-    else
-        return "https://prime.cdc.gov";
-}
 
 
 function changeOrg( event ){
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
+    processOrgName();
+    processReports();
 }
+
+function populateOrgDropdown() {
+    // it's possible someone could be a part of more than one sending/receiving org
+    if (window.orgs && window.orgs.length > 0) {
+        const dropDownWrapper = document.getElementById("orgDropdown");
+        dropDownWrapper.classList.remove("display-none");
+        dropDownWrapper.classList.add("display-block");
+        const _dropdown = document.createElement("div");
+        _dropdown.id = "dropdown";
+
+        let _orgsOptions = "";
+
+        window.orgs.sort().forEach( org => {
+            _orgsOptions +=
+                `
+                        <option value="${org}" ${convertOrgName(window.org) === org ? 'selected="selected"' : ""} >
+                            ${convertOrgName(org).toUpperCase()}
+                        </option>
+                    `;
+        });
+        _dropdown.innerHTML =
+            `
+                    <select aria-label="Select Org" class="usa-select" name="orgs" id="orgs" onchange="changeOrg(this)">
+                        ${_orgsOptions}
+                    </select>
+                `;
+        dropDownWrapper.prepend(_dropdown);
+    }
+}
+
+function isAnAdmin() {
+    const token = window.sessionStorage.getItem("jwt");
+    const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
+    return !!(claims && claims.organization && claims.organization.includes("DHPrimeAdmins"));
+}
+
 /**
  *
  * @param {boolean} redirect
@@ -207,45 +292,37 @@ function processJwtToken(){
     let claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
 
     if (token && claims && moment().isBefore(moment.unix(claims.exp))) {
-
+        // update the email user link
         const emailUser = document.getElementById("emailUser");
         if (emailUser) emailUser.innerHTML = claims.sub;
+        // refresh the logout link
         const logout = document.getElementById("logout");
         if (logout) logout.innerHTML = 'Logout';
-
+        // refresh our signin link/remove it
         const _signIn = document.getElementById("signInButton");
         if (_signIn) { _signIn.setAttribute( "hidden", "hidden"); }
-
+        // process the org so the dropdown looks correct
         const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");
-
         const oldOrg = window.sessionStorage.getItem( "oldOrg");
-
-        window.org = oldOrg? oldOrg : (_org && _org.length > 0) ? _org[0] : null;
-
+        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? _org[0] : null;
         window.sessionStorage.setItem( "oldOrg", window.org );
-        window.orgs = _org;
         window.user = claims.sub;
+        // set the token here
         window.jwt = token;
-        /*
-        const _dropdown = document.getElementById("dropdown");
-        if (_dropdown &&  claims.organization.includes( "DHPrimeAdmins" ) ) {
-            _dropdown.innerHTML +=
-                `<label class="usa-label" for="orgs">Select Org:</label>
-                  <select name="orgs" id="orgs" onchange='changeOrg(this)'>
-                  </select>
-                `;
-                const _orgsId = document.getElementById( "orgs");
 
-                window.orgs.forEach( org => {
-                    console.log( `${window.org} == ${org} ${window.org == org}` );
-                    if( _orgsId ) _orgsId.innerHTML +=
-                        window.org == org? `<option value="${org}" selected="selected">${org.substring(2).replaceAll("_", "-").toUpperCase()}</option>` : `<option value="${org}">${org.substring(2).replaceAll("_", "-").toUpperCase()}</option>`;
+        if (claims.organization.includes("DHPrimeAdmins")) {
+            fetchAllOrgs().then((data) => {
+                const allOrgs = data.map((org) => {
+                    return org.name;
                 });
+                window.orgs = allOrgs.sort();
+                populateOrgDropdown();
+            });
+        } else {
+            window.orgs = claims.organization.filter(c => c !== "DHPrimeAdmins").sort();
+            populateOrgDropdown();
         }
-        */
-
-    }
-    else{
+    } else {
         const navmenu = document.getElementById( "navmenu" );
         if( navmenu ) navmenu.setAttribute( "hidden", "hidden" );
 
@@ -269,7 +346,7 @@ async function processOrgName(){
     }
 
     const orgNameHtml = document.getElementById("orgName");
-    if (orgNameHtml && orgName) orgNameHtml.innerHTML += orgName;
+    if (orgNameHtml && orgName) orgNameHtml.innerHTML = orgName;
 
     return orgName;
 }
@@ -330,6 +407,9 @@ async function processReportFeeds(){
 async function processReports(feed, idx){
 
     let reports = [];
+    const tBody = document.getElementById("tBody");
+    // clear the table body because we can get reports from different PHDs
+    if (tBody) tBody.innerHTML = "";
     try {
         reports = await fetchReports(feed);
     } catch (error) {
@@ -338,6 +418,7 @@ async function processReports(feed, idx){
     }
     reports.forEach(_report => {
         const tBody = document.getElementById(`tBody${idx?idx:''}`);
+
         if (tBody) tBody.innerHTML +=
             `<tr>
                 <th data-title="reportId" scope="row">
@@ -355,6 +436,12 @@ async function processReports(feed, idx){
                 </th>
               </tr>`;
     });
+    if (reports && reports.length === 0) {
+        if (tBody) tBody.innerHTML +=
+            `<tr>
+                <th colspan="5">No reports found</th>
+            </tr>`;
+    }
     return reports;
 }
 
@@ -385,9 +472,9 @@ async function processReport( reports ){
                             <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>`;
         const facilities = document.getElementById( "tBodyFac");
-        if( facilities ){
+        if (facilities) {
             report.facilities.forEach( reportFacility => {
-                facilities.innerHTML += 
+                facilities.innerHTML +=
                     `
                     <tr>
                         <td>${reportFacility.facility}</td>
@@ -397,16 +484,14 @@ async function processReport( reports ){
                     `;
             });
         }
-       
+
         const noFac = document.getElementById( 'nofacilities' );
         const facTable = document.getElementById( 'facilitiestable');
 
-
-        if( report.facilities.length ){
+        if (report.facilities.length) {
             if( noFac ) noFac.setAttribute( "hidden", "hidden" );    
-        }
-        else{
-            if( facTable ) facTable.setAttribute( "hidden", "hidden" );
+        } else {
+            if (facTable) facTable.setAttribute( "hidden", "hidden" );
         }
 
         const reportId = document.getElementById("report.id");
@@ -419,6 +504,7 @@ async function processReport( reports ){
         const reportFileType = document.getElementById("report.fileType");
         if (reportFileType) reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
     }
+
     return report;
 }
 
@@ -495,5 +581,4 @@ async function processCharts(){
             options: options
         });
     }
-
 }

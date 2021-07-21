@@ -9,12 +9,33 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 const val HL7_SCHEMA = "covid-19"
 const val REDOX_SCHEMA = "covid-19-redox"
 
-// Common set of properties for all translators
+/**
+ * The Translator properties are common properties used to
+ */
 interface TranslatorProperties {
+    /**
+     * [format] is the format used for translation
+     */
     val format: Report.Format
+
+    /**
+     * [schemaName] is a the full name of the schema used in the translation
+     */
     val schemaName: String
+
+    /**
+     * [defaults] are a dictionary of element names and values
+     */
     val defaults: Map<String, String>
+
+    /**
+     * [nameFormat] is the name of the format used or the translation
+     */
     val nameFormat: String
+
+    /**
+     * [receivingOrganization] is the full receiver name
+     */
     val receivingOrganization: String?
 }
 
@@ -46,6 +67,7 @@ data class Hl7Configuration
     val messageProfileId: String?,
     val reportingFacilityName: String? = null,
     val reportingFacilityId: String? = null,
+    val reportingFacilityIdType: String? = null,
     val suppressQstForAoe: Boolean = false,
     val suppressHl7Fields: String? = null,
     val suppressAoe: Boolean = false,
@@ -54,11 +76,32 @@ data class Hl7Configuration
     val truncateHDNamespaceIds: Boolean = false,
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
+    val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
     // pass this around as a property now
     val processingModeCode: String? = null,
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("HL7") {
+    /**
+     * Formatting for XTN fields
+     */
+    enum class PhoneNumberFormatting {
+        /**
+         * Standard formatting
+         */
+        STANDARD,
+
+        /**
+         * Component 1 formatted with only digits
+         */
+        ONLY_DIGITS_IN_COMPONENT_ONE,
+
+        /**
+         * (area)local format in component 1. Backward compatibility to an earlier format.
+         */
+        AREA_LOCAL_IN_COMPONENT_ONE
+    }
+
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 
@@ -70,19 +113,24 @@ data class Hl7Configuration
         val receivingApplication = when {
             receivingApplicationName != null && receivingApplicationOID != null ->
                 "$receivingApplicationName^$receivingApplicationOID^ISO"
-            receivingApplicationName != null && receivingApplicationOID == null -> receivingApplicationName
+            receivingApplicationName != null && receivingApplicationOID == null ->
+                receivingApplicationName
             else -> ""
         }
         val receivingFacility = when {
             receivingFacilityName != null && receivingFacilityOID != null ->
                 "$receivingFacilityName^$receivingFacilityOID^ISO"
-            receivingFacilityName != null && receivingFacilityOID == null -> receivingFacilityName
+            receivingFacilityName != null && receivingFacilityOID == null ->
+                receivingFacilityName
             else -> ""
         }
         val reportingFacility = when {
-            reportingFacilityName != null && reportingFacilityId != null ->
+            reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType == null ->
                 "$reportingFacilityName^$reportingFacilityId^CLIA"
-            reportingFacilityName != null && reportingFacilityId == null -> reportingFacilityName
+            reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType != null ->
+                "$reportingFacilityName^$reportingFacilityId^$reportingFacilityIdType"
+            reportingFacilityName != null && reportingFacilityId == null ->
+                reportingFacilityName
             else -> ""
         }
         return mapOf(

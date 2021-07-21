@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
@@ -9,6 +8,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -74,7 +74,7 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("myRcvr", "topic", "mytopic", "mySchema")
 
-        every { blobMock.uploadBody(report = eq(report1)) }
+        every { blobMock.uploadBody(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
@@ -90,8 +90,7 @@ class WorkflowEngineTests {
                 nextAction = any()
             )
             actionHistory.trackCreatedReport(any(), any(), any(), any())
-            blobMock.uploadBody(report = any())
-//            queueMock.sendMessage(event = any())
+            blobMock.uploadBody(report = any(), any(), any())
         }
         confirmVerified(accessSpy, blobMock, queueMock)
     }
@@ -109,7 +108,7 @@ class WorkflowEngineTests {
         val actionHistory = mockk<ActionHistory>()
         val receiver = Receiver("MyRcvr", "topic", "mytopic", "mySchema")
 
-        every { blobMock.uploadBody(report = eq(report1)) }
+        every { blobMock.uploadBody(report = eq(report1), any(), any()) }
             .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
         every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
 
@@ -127,7 +126,7 @@ class WorkflowEngineTests {
                 bodyUrl = any(),
                 nextAction = any()
             )
-            blobMock.uploadBody(report = any())
+            blobMock.uploadBody(report = any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), any(), any())
 // todo           queueMock.sendMessage(event = any())
 // todo           blobMock.deleteBlob(blobUrl = any())
@@ -141,35 +140,21 @@ class WorkflowEngineTests {
         val metadata = Metadata(schema = one)
         val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        val event = ReportEvent(Event.EventAction.RECEIVE, UUID.randomUUID())
-        val bodyFormat = Report.Format.CSV
-        val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
+        val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", one.name)
 
-        every { blobMock.uploadBody(report = eq(report1)) }
-            .returns(BlobAccess.BlobInfo(bodyFormat, bodyUrl, "".toByteArray()))
-        every { accessSpy.insertTask(report = eq(report1), bodyFormat.toString(), bodyUrl, eq(event)) }.returns(Unit)
-        every { queueMock.sendMessage(eq(event)) }.returns(Unit)
+        every { blobMock.uploadBody(Report.Format.CSV, any(), any(), sender.fullName, Event.EventAction.RECEIVE) }
+            .returns(BlobAccess.BlobInfo(Report.Format.CSV, "http://anyblob.com", "".toByteArray()))
         every { actionHistory.trackExternalInputReport(any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        val validatedRequest = ReportFunction.ValidatedRequest(HttpStatus.OK, report = report1)
-        engine.receiveReport(validatedRequest, actionHistory)
+        engine.recordReceivedReport(report1, "body".toByteArray(), sender, actionHistory, engine)
 
         verify(exactly = 1) {
-            accessSpy.insertTask(
-                report = any(),
-                bodyFormat = any(),
-                bodyUrl = any(),
-                nextAction = any()
-            )
             actionHistory.trackExternalInputReport(any(), any())
-            blobMock.uploadBody(report = any())
+            blobMock.uploadBody(any(), any(), any(), any(), any())
         }
-        verify(exactly = 0) {
-            queueMock.sendMessage(event = any())
-        }
-        confirmVerified(blobMock, accessSpy, queueMock)
+        confirmVerified(blobMock)
     }
 
     @Test

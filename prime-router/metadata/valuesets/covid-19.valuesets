@@ -75,7 +75,7 @@
     - code: 455371000124106
       display: Invalid result
     - code: 840539006
-      display: Disease caused by sever acute respitory syndrome coronavirus 2 (disorder)
+      display: Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)
       version: 20200309
     - code: 840544004
       display: Suspected disease caused by severe acute respiratory coronavirus 2 (situation)
@@ -95,6 +95,8 @@
     - code: 840534001
       display: Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
       version: 20200309
+    - code: 373121007
+      display: Test not done
 
 - name: covid-19/order
   system: LOINC
