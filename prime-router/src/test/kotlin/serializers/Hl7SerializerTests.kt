@@ -2,6 +2,7 @@ package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -610,18 +611,18 @@ NTE|1|L|This is a final comment|RE"""
 
         val emptyHL7 = ByteArrayInputStream("".toByteArray())
         var result = serializer.readExternal(hl7SchemaName, emptyHL7, TestSource)
-        assertThat(result.warnings.isNotEmpty()).isTrue()
+        assertThat(result.warnings).isNotEmpty()
         assertThat(result.report).isNotNull()
         assertThat(result.report!!.itemCount).isEqualTo(0)
 
         val csvContent = ByteArrayInputStream("a,b,c\n1,2,3".toByteArray())
         result = serializer.readExternal(hl7SchemaName, csvContent, TestSource)
-        assertThat(result.errors.isNotEmpty()).isTrue()
+        assertThat(result.errors).isNotEmpty()
         assertThat(result.report).isNull()
 
         val incompleteHL7 = ByteArrayInputStream("MSH|^~\\&|CD".toByteArray())
         result = serializer.readExternal(hl7SchemaName, incompleteHL7, TestSource)
-        assertThat(result.errors.isNotEmpty()).isTrue()
+        assertThat(result.errors).isNotEmpty()
         assertThat(result.report).isNull()
 
         // This data will throw a EncodingNotSupportedException in the serializer when parsing the message
@@ -633,7 +634,7 @@ NTE|1|L|This is a final comment|RE"""
             """.trimIndent().toByteArray()
         )
         result = serializer.readExternal(hl7SchemaName, incompleteHL7v2, TestSource)
-        assertThat(result.errors.isNotEmpty()).isTrue()
+        assertThat(result.errors).isNotEmpty()
         assertThat(result.report).isNull()
 
         // This data will throw a HL7Exception in the serializer when parsing the message
@@ -648,7 +649,7 @@ NTE|1|L|This is a final comment|RE"""
             """.trimIndent().toByteArray()
         )
         result = serializer.readExternal(hl7SchemaName, wrongHL7Version, TestSource)
-        assertThat(result.errors.isNotEmpty()).isTrue()
+        assertThat(result.errors).isNotEmpty()
         assertThat(result.report).isNull()
     }
 }

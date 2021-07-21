@@ -2,6 +2,7 @@ package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -311,7 +312,7 @@ class CsvSerializerTests {
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
-        assertTrue(result.warnings.isEmpty())
+        assertTrue(result.warnings.isNotEmpty())
         assertTrue(result.errors.isEmpty())
         assertEquals(0, result.report?.itemCount)
     }
@@ -525,13 +526,13 @@ class CsvSerializerTests {
 
         val emptyCSV = ByteArrayInputStream("".toByteArray())
         var result = serializer.readExternal(schema.name, emptyCSV, TestSource)
-        assertThat(result.warnings.isNotEmpty()).isTrue()
+        assertThat(result.warnings).isNotEmpty()
         assertThat(result.report).isNotNull()
         assertThat(result.report!!.itemCount).isEqualTo(0)
 
         val incompleteCSV = ByteArrayInputStream("a,b".toByteArray())
         result = serializer.readExternal(schema.name, incompleteCSV, TestSource)
-        assertThat(result.warnings.isNotEmpty()).isTrue()
+        assertThat(result.warnings).isNotEmpty()
         assertThat(result.report).isNotNull()
         assertThat(result.report!!.itemCount).isEqualTo(0)
 
@@ -546,7 +547,7 @@ class CsvSerializerTests {
             """.trimIndent().toByteArray()
         )
         result = serializer.readExternal(schema.name, hl7Data, TestSource)
-        assertThat(result.errors.isNotEmpty()).isTrue()
+        assertThat(result.errors).isNotEmpty()
         assertThat(result.report).isNull()
     }
 }
