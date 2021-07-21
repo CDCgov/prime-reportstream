@@ -81,7 +81,8 @@ class ReportView private constructor(
     val receivingOrg: String?,
     val receivingOrgSvc: String?,
     val facilities: ArrayList<Facility>?,
-    val actions: ArrayList<Action>? ){
+    val actions: ArrayList<Action>?,
+    val externalName: String? ){
     
     data class Builder(
         var sent: Long? = null,
@@ -96,7 +97,8 @@ class ReportView private constructor(
         var receivingOrg: String? = null,
         var receivingOrgSvc: String? = null,
         var facilities: ArrayList<Facility>? = ArrayList<Facility>(),
-        var actions: ArrayList<Action>? = ArrayList<Action>() ){
+        var actions: ArrayList<Action>? = ArrayList<Action>(),
+        var externalName: String? = null ){
 
         fun sent( sent: Long ) = apply { this.sent = sent }
         fun via( via: String ) = apply { this.via = via }
@@ -111,7 +113,8 @@ class ReportView private constructor(
         fun receivingOrgSvc( receivingOrgSvc: String ) = apply { this.receivingOrgSvc = receivingOrgSvc }
         fun facilities( facilities: ArrayList<Facility> ) = apply { this.facilities = facilities }
         fun actions( actions: ArrayList<Action> ) = apply { this.actions = actions }
-        fun build() = ReportView( sent, via, positive, total, fileType, type, reportId, expires, sendingOrg, receivingOrg, receivingOrgSvc, facilities, actions )
+        fun externalName( externalName: String ) = apply { this.externalName = externalName }
+        fun build() = ReportView( sent, via, positive, total, fileType, type, reportId, expires, sendingOrg, receivingOrg, receivingOrgSvc, facilities, actions, externalName )
     }
 
 }
@@ -242,14 +245,16 @@ open class BaseHistoryFunction {
             var reports = headers.sortedByDescending{ it.createdAt }.map {
 
                 var facilities = arrayListOf<Facility>();
+                /* 
                 if( it.bodyFormat == "CSV")
                     try{ 
                         facilities = getFieldSummaryForReportId(arrayOf("Testing_lab_name","Testing_lab_CLIA"),it.reportId.toString(), authClaims)
                     }catch( ex: Exception ){
                         //context.logger.info( "Exception during getFieldSummaryForReportId - TestingLabName was not found - no facilities data will be published" );
                     }
-
-                var actions = getActionsForReportId( it.reportId.toString(), authClaims );
+                */
+                var actions = arrayListOf<Action>(); 
+                // getActionsForReportId( it.reportId.toString(), authClaims );
 
                 ReportView.Builder()
                     .reportId( it.reportId.toString() )
@@ -263,6 +268,7 @@ open class BaseHistoryFunction {
                     .actions(actions)
                     .receivingOrg(it.receivingOrg)
                     .receivingOrgSvc(it.receivingOrgSvc)
+                    .externalName( if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName )
                 .build()        
             }
 
@@ -272,6 +278,7 @@ open class BaseHistoryFunction {
                 .build()
         }catch (ex: Exception) {
             context.logger.info("Exception during creating of reports list - file not found")
+            System.out.println( ex );
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
                 .body("File not found")
                 .header("Content-Type", "text/html")
