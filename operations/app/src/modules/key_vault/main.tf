@@ -167,6 +167,14 @@ resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
   certificate_permissions = []
 }
 
+resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" {
+    key_vault_id = azurerm_key_vault.app_config.id
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = local.terraform_object_id
+
+    secret_permissions = [ "Get" ]
+}
+
 module "app_config_private_endpoint" {
   source = "../common/private_endpoint"
   resource_id = azurerm_key_vault.app_config.id
