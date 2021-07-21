@@ -3,7 +3,7 @@
 # DEPRECATED: This script has been replaced by a Gradle task.  Run
 #   ./gradlew primeCLI --args='<args>'
 #
-# This script runs the CLI of the project. 
+# This script runs the CLI of the project.
 #
 # It handles four different configurations in this order of preference
 #  1. Where a fat jar (a jar with all dependencies) is present in the working directory

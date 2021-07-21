@@ -290,7 +290,14 @@ abstract class SettingCommand(
 
     companion object {
         val environments = listOf(
-            Environment("local", "localhost:7071", useHttp = true),
+            Environment(
+                "local",
+                (
+                    System.getenv("PRIME_RS_API_ENDPOINT_HOST")
+                        ?: "localhost"
+                    ) + ":7071",
+                useHttp = true
+            ),
             Environment("test", "test.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),
@@ -312,6 +319,11 @@ abstract class SingleSettingCommandNoSettingName(
     private val useJson by option(
         "--json",
         help = "Use the JSON format instead of YAML"
+    ).flag(default = false)
+
+    private val verbose by option(
+        "--verbose",
+        help = "Verbose output"
     ).flag(default = false)
 
     override fun run() {
@@ -337,6 +349,11 @@ abstract class SingleSettingCommandNoSettingName(
                 else
                     fromYaml(readInput(), settingType)
                 val output = put(environment, accessToken, settingType, name, payload)
+
+                if (verbose) {
+                    println("put ${settingType.toString().lowercase()} :: $payload")
+                }
+
                 writeOutput(output)
             }
             Operation.DELETE -> {
@@ -510,8 +527,14 @@ class PutMultipleSettings : SettingCommand(
     name = "set",
     help = "set all settings from a 'organizations.yml' file"
 ) {
+
     override val inStream by option("-i", "--input", help = "Input from file", metavar = "<file>")
         .inputStream()
+
+    private val verbose by option(
+        "--verbose",
+        help = "Verbose output"
+    ).flag(default = false)
 
     override fun run() {
         val environment = getEnvironment()
@@ -528,16 +551,31 @@ class PutMultipleSettings : SettingCommand(
         deepOrgs.forEach { deepOrg ->
             val org = Organization(deepOrg)
             val payload = jsonMapper.writeValueAsString(org)
+
+            if (verbose) {
+                println("""Organization :: $payload""")
+            }
+
             results += put(environment, accessToken, SettingType.ORG, deepOrg.name, payload)
         }
         // Put senders
         deepOrgs.flatMap { it.senders }.forEach { sender ->
             val payload = jsonMapper.writeValueAsString(sender)
+
+            if (verbose) {
+                println("""Sender :: $payload""")
+            }
+
             results += put(environment, accessToken, SettingType.SENDER, sender.fullName, payload)
         }
         // Put receivers
         deepOrgs.flatMap { it.receivers }.forEach { receiver ->
             val payload = jsonMapper.writeValueAsString(receiver)
+
+            if (verbose) {
+                println("""Receiver :: $payload""")
+            }
+
             results += put(environment, accessToken, SettingType.RECEIVER, receiver.fullName, payload)
         }
         return results

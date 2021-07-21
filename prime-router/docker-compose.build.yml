@@ -1,0 +1,49 @@
+# Build environment
+version: "3.3"
+services:
+  builder:
+    depends_on:
+      - postgresql
+    image: ghcr.io/cdcgov/prime-router_builder:jdk11afct3grdl7.1
+    environment:
+      DB_PASSWORD: "changeIT!"
+      DB_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
+      DB_USER: "prime"
+      FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT: 1
+      POSTGRES_URL: jdbc:postgresql://postgresql:5432/prime_data_hub
+      # cf: docker-compose.yml: this is the name of the prime_dev service as defined there
+      PRIME_RS_API_ENDPOINT_HOST: prime_dev
+    volumes:
+      - type: bind
+        source: ./
+        target: /src
+    working_dir: /src
+    networks:
+      - prime-router_build
+
+  # NOTE: this is part of this docker-compose file and not the
+  # "development infrastructure" docker-compose file because we want to just
+  # spin up these two items in the GitHub build (and not everything else);
+  # if that changes, we'll move this service into the "main" docker-compose file
+  # There is also no adminer or any other Admin UI that is part of this
+  # build docker-compose as we do not want to dictate that.
+  # You can connect using psql, or pgAdmin, or ... just point at 5432 on your local host
+  postgresql:
+    image: postgres:11
+    restart: always
+    environment:
+      POSTGRES_DB: "prime_data_hub"
+      POSTGRES_PASSWORD: "changeIT!"
+      POSTGRES_USER: "prime"
+    ports:
+      - 5432:5432
+    volumes:
+      - vol_postgresql_data:/var/lib/postgresql/data
+    networks:
+      - prime-router_build
+
+networks:
+  prime-router_build:
+
+volumes:
+  vol_postgresql_data:

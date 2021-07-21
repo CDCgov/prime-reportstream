@@ -101,7 +101,7 @@ class JurisdictionalFilterTests {
             StringColumn.create("colB", listOf("B1", "B2", "B3"))
         )
 
-        val args1 = listOf("x", "y")  // no such column
+        val args1 = listOf("x", "y") // no such column
         val selection1 = filter.getSelection(args1, table, rcvr)
         val filteredTable1 = table.where(selection1)
         assertThat(filteredTable1).hasRowCount(3)
@@ -122,7 +122,7 @@ class JurisdictionalFilterTests {
             StringColumn.create("processing_mode_code", listOf("T", "P", "D", "")),
             StringColumn.create("colB", listOf("B1", "B2", "B3", "B4"))
         )
-        val args1 = listOf("processing_mode_code", "T", "D")  // no such column
+        val args1 = listOf("processing_mode_code", "T", "D") // no such column
         val selection1 = filter.getSelection(args1, table, rcvr)
         val filteredTable1 = table.where(selection1)
         assertThat(filteredTable1).hasRowCount(2)
@@ -133,7 +133,7 @@ class JurisdictionalFilterTests {
             StringColumn.create("processing_toad_code", listOf("T", "P", "D", "")),
             StringColumn.create("colB", listOf("B1", "B2", "B3", "B4"))
         )
-        val args2 = listOf("processing_mode_code", "T", "D")  // no such column
+        val args2 = listOf("processing_mode_code", "T", "D") // no such column
         val selection2 = filter.getSelection(args2, table2, rcvr)
         val filteredTable2 = table2.where(selection2)
         assertThat(filteredTable2).hasRowCount(4)
@@ -354,12 +354,11 @@ class JurisdictionalFilterTests {
         assertThat(filteredTable).hasRowCount(4)
     }
 
-
     @Test
     fun `test IsValidCLIA`() {
         val filter = IsValidCLIA()
         val table = Table.create(
-            StringColumn.create("colA", listOf("12D4567890", "12d4567890",           "", "1A2B3C4D5E")),
+            StringColumn.create("colA", listOf("12D4567890", "12d4567890", "", "1A2B3C4D5E")),
             StringColumn.create("colB", listOf("12D4567890", "12d4567890", "1a2b3c4d5e", "1A2B3C4D5E")),
             StringColumn.create("colC", listOf("12D4567890", "12d4567890", "1a2b3c4d5e", null))
         )

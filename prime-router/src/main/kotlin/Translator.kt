@@ -103,9 +103,11 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             receiver.reverseTheQualityFilter
         )
         if (qualityFilteredReport.itemCount != jurisFilteredReport.itemCount) {
-            logger.warn("Data quality problem in report ${input.id}, receiver ${receiver.fullName}: " +
-                "There were ${jurisFilteredReport.itemCount} rows prior to qualityFilter, and " +
-                "${qualityFilteredReport.itemCount} rows after qualityFilter.")
+            logger.warn(
+                "Data quality problem in report ${input.id}, receiver ${receiver.fullName}: " +
+                    "There were ${jurisFilteredReport.itemCount} rows prior to qualityFilter, and " +
+                    "${qualityFilteredReport.itemCount} rows after qualityFilter."
+            )
         }
 
         // Always succeed in translating an empty report after filtering (even if the mapping process would fail)
@@ -159,10 +161,10 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         defaultValues: DefaultValues = emptyMap()
     ): Pair<Report, Receiver>? {
         if (input.isEmpty()) return null
-        val service = settings.findReceiver(toReceiver) ?: error("invalid service name $toReceiver")
-        val mappedReport = translateByReceiver(input, service, defaultValues)
+        val receiver = settings.findReceiver(toReceiver) ?: error("invalid receiver name $toReceiver")
+        val mappedReport = translateByReceiver(input, receiver, defaultValues)
         if (mappedReport.itemCount == 0) return null
-        return Pair(mappedReport, service)
+        return Pair(mappedReport, receiver)
     }
 
     /**

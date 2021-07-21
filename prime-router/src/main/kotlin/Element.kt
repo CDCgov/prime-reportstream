@@ -169,7 +169,8 @@ data class Element(
 
     val isCodeType get() = this.type == Type.CODE
 
-    val isOptional get() = this.cardinality == Cardinality.ZERO_OR_ONE
+    val isOptional get() = this.cardinality == null ||
+        this.cardinality == Cardinality.ZERO_OR_ONE || canBeBlank
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||
@@ -300,8 +301,8 @@ data class Element(
                         normalizedValue
                             .replace("(", "")
                             .replace(")", ""),
-                        "1",    // country code
-                        ""      // extension
+                        "1", // country code
+                        "" // extension
                     )
                 }
 
@@ -564,17 +565,27 @@ data class Element(
                     altDisplayToken ->
                         toAltCode(formattedValue)
                             ?: error(
-                                "Invalid code: '$formattedValue' is not a display value in altValues set for $fieldMapping"
+                                "Invalid code: '$formattedValue' is not a display value in altValues set " +
+                                    "for $fieldMapping"
                             )
                     codeToken ->
                         toCode(formattedValue)
-                            ?: error("Invalid code '$formattedValue' is not a display value in valueSet for $fieldMapping")
+                            ?: error(
+                                "Invalid code '$formattedValue' is not a display value in valueSet " +
+                                    "for $fieldMapping"
+                            )
                     displayToken ->
                         valueSetRef?.toCodeFromDisplay(formattedValue)
-                            ?: error("Invalid code: '$formattedValue' is not a display value for element $fieldMapping")
+                            ?: error(
+                                "Invalid code: '$formattedValue' is not a display value " +
+                                    "for element $fieldMapping"
+                            )
                     else ->
                         valueSetRef?.toNormalizedCode(formattedValue)
-                            ?: error("Invalid code: '$formattedValue' does not match any codes for $fieldMapping")
+                            ?: error(
+                                "Invalid code: '$formattedValue' does not match any codes " +
+                                    "for $fieldMapping"
+                            )
                 }
             }
             Type.TELEPHONE -> {
@@ -715,8 +726,8 @@ data class Element(
     companion object {
         const val datePattern = "yyyyMMdd"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
-        val dateFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
-        val datetimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
+        val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
+        val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
         const val displayToken = "\$display"
         const val caretToken = "\$code^\$display^\$system"
         const val codeToken = "\$code"

@@ -1,48 +1,24 @@
-terraform {
-    required_version = ">= 0.14"
-}
-
 resource "azurerm_container_registry" "container_registry" {
-  name = var.name
+  name                = "${var.resource_prefix}containerregistry"
   resource_group_name = var.resource_group
-  location = var.location
-  sku = "Premium"
-  admin_enabled = true
+  location            = var.location
+  sku                 = "Premium"
+  admin_enabled       = true
 
   network_rule_set {
     default_action = "Allow"
 
     virtual_network {
-      action = "Allow"
-      subnet_id = var.public_subnet_id
+      action    = "Allow"
+      subnet_id = data.azurerm_subnet.public.id
     }
+  }
+
+  trust_policy {
+    enabled = var.enable_content_trust
   }
 
   tags = {
     environment = var.environment
   }
-}
-
-// DISABLED AS FUNCTION APP CAN NOT CONNECT - RKH
-
-//module "container_registry_private_endpoint" {
-//  source = "../common/private_endpoint"
-//  resource_id = azurerm_container_registry.container_registry.id
-//  name = azurerm_container_registry.container_registry.name
-//  type = "container_registry"
-//  resource_group = var.resource_group
-//  location = var.location
-//  endpoint_subnet_id = var.endpoint_subnet_id
-//}
-
-output "login_server" {
-  value = azurerm_container_registry.container_registry.login_server
-}
-
-output "admin_username" {
-  value = azurerm_container_registry.container_registry.admin_username
-}
-
-output "admin_password" {
-  value = azurerm_container_registry.container_registry.admin_password
 }
