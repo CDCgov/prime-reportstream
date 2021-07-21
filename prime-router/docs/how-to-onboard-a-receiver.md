@@ -5,7 +5,7 @@
 Our goal is to onboard as many states and local jurisdictions as we can, to receive Hub data!
 This is our internal documentation for how we _currently_ do that onboarding work.
 
-As a simple running example, we'll pretend we're creating a new state, the State of Love and Trust, **LT**.  
+As a simple running example, we'll pretend we're creating a new state, the State of Love and Trust, **LT**.
 
 ## Steps
 
@@ -36,9 +36,9 @@ Below is an example of the organization file
         type: HL7
         useBatchHeaders: true
         receivingApplicationName: LT-PDH
-        receivingApplicationOID: 
+        receivingApplicationOID:
         receivingFacilityName: LT-PDH
-        receivingFacilityOID: 
+        receivingFacilityOID:
 ```
 
 In the above example, the jurisdictional filter searches the `ordering_facility_state` field in the report for anything that matches the code LT.
@@ -51,6 +51,13 @@ In addition, there is the translation section, which specifies the output format
 The mechanism for how each record is translated is laid out in the schema, which is discussed below
 
 ### Set up a new schema
+*NOTE - IF YOU ARE WORKING ON AN HL7 RECEIVER, YOU DO NOT NEED TO CREATE A NEW SCHEMA.*
+
+By default, any HL7 receiver will use the COVID-19 schema and you do not need to create a schema
+specific to your receiver. If they are going to receive a CSV file you *MUST* create a schema. In lieu
+of a schema, we use the `TranslationConfig` to set default values and control HL7 processing.
+
+You should, however, still read the next section about schemas so you know how they work.
 
 - Canonical location style:   `metadata/schemas/LT/lt-covid-19.schema`
 - Canonical name style: `name: lt-covid-19`
@@ -132,7 +139,7 @@ There is a lot to go over here, so we'll take this a piece at a time. Note, not 
 Generate fake, or better, synthesized test data. Prime has two ways to generate anonymous fake data:
 
 - Fake data - Fake data uses a library to generate purely fake data for ALL data points except for the city, state, postal code, and county, which are tied to actual locations. The data that is generated is somewhat constrained to resemble reasonable defaults, but is designed to be very random, which allows us to test the limits of validation systems. *THERE IS NO PII OR PHI IN FAKE DATA*
-- Synthetic data - Synthetic data takes a file of actual clinical results and does a combination of shuffling some PHI/PII and faking other data points, so the records cannot be traced back to the patient, but the actual portion of positive to negative tests, lab names & CLIA's, names of ordering providers, etc will be actual valid information. The goal is to provide a higher-quality, less-random, dataset that can then be used to validate the information being sent from PRIME to the receivers. *While great care has been taken to ensure we do not leak PII/PHI, this should not be used except with receivers we are in the process of onboarding.* 
+- Synthetic data - Synthetic data takes a file of actual clinical results and does a combination of shuffling some PHI/PII and faking other data points, so the records cannot be traced back to the patient, but the actual portion of positive to negative tests, lab names & CLIA's, names of ordering providers, etc will be actual valid information. The goal is to provide a higher-quality, less-random, dataset that can then be used to validate the information being sent from PRIME to the receivers. *While great care has been taken to ensure we do not leak PII/PHI, this should not be used except with receivers we are in the process of onboarding.*
 
 #### Generate some fake data for testing
 ```
@@ -174,7 +181,7 @@ The best way to test locally is to use the `quick-test.sh` shell script that we 
         merge | MERGE) RUN_MERGE=1;;
       esac
     done
-    
+
     # and add the state here as well
     if [ $RUN_ALL -ne 0 ]
     then
@@ -183,7 +190,7 @@ The best way to test locally is to use the `quick-test.sh` shell script that we 
       RUN_STANDARD=1
       RUN_MERGE=1
     fi
-    
+
     # and then at a minimum run your state like this
     # run LT
     if [ $RUN_LT -ne 0 ]
@@ -203,7 +210,7 @@ If you are generating CSV data, then you can test a roundtrip in the code:
       echo Generate fake LT data
       actual_lt=$(./prime data --input-fake 50 --input-schema lt/lt-covid-19 --output-dir $outputdir --target-states LT --output-format HL7_BATCH)
       parse_prime_output_for_filename "$text" $LT_FILE_SEARCH_STR
-      
+
       # Now read the data back in to their own schema and export again.
       # LT again
       echo Test sending LT data into its own Schema:
@@ -238,13 +245,15 @@ curl -X POST -H 'client: simple_report' -H 'Content-Type: text/csv' --data-binar
 ```
 You will then see a report of the result of your post to the local container.  After a few minutes, you can sftp into the container and view the results of your file:
 
-`sftp foo@localhost`
+```shell
+ftp foo@localhost
+```
 
 You then change into the `./upload` folder and can download and view the files you've created.
 
 ### Create access to the Download site
 
-- Set up an Okta account for **LT**.  Be sure to include an internal Hub staffperson as a user, so they can test connectivity.  
+- Set up an Okta account for **LT**.  Be sure to include an internal Hub staffperson as a user, so they can test connectivity.
 - If you are testing in Test, obviously you'll need to set up access to that download site.
 
 ### Validation in Prod

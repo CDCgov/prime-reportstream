@@ -433,7 +433,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     val truncatedValue = if (
                         value.length > HD_TRUNCATION_LIMIT &&
                         element.type == Element.Type.TEXT &&
-                        hl7Field in HD_FIELDS &&
+                        hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
                         value.substring(0, HD_TRUNCATION_LIMIT)
@@ -472,7 +472,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
                 setComponentForTable(terser, element, report, row)
             } else if (
-                element.type == Element.Type.TEXT && !element.hl7Field.isNullOrEmpty() && element.hl7Field in HD_FIELDS
+                element.type == Element.Type.TEXT && !element.hl7Field.isNullOrEmpty() && element.hl7Field in HD_FIELDS_LOCAL
             ) {
                 // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                 // text, but need to be truncated because they're the first part of an HD field. For example,
@@ -544,7 +544,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         if (valuesForMapper == null) {
             terser.set(pathSpec, "")
         } else {
-            terser.set(pathSpec, mapper.apply(element, args, valuesForMapper) ?: "")
+            val mappedValue = mapper.apply(element, args, valuesForMapper)
+            terser.set(pathSpec, mappedValue ?: "")
         }
     }
 
@@ -563,12 +564,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         }
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
-            Element.Type.ID_CLIA -> {
-                if (value.isNotEmpty()) {
-                    terser.set(pathSpec, value)
-                    terser.set(nextComponent(pathSpec), "CLIA")
-                }
-            }
+            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, element)
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
                     val hd = Element.parseHD(value, hdFieldMaximumLength)
@@ -597,7 +593,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
             Element.Type.TELEPHONE -> {
                 if (value.isNotEmpty()) {
-                    setTelephoneComponent(terser, value, pathSpec, element)
+                    val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
+                        ?: Hl7Configuration.PhoneNumberFormatting.STANDARD
+                    setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
                 }
             }
             Element.Type.EMAIL -> {
@@ -639,12 +637,78 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         }
     }
 
-    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
+    /**
+     * Set the [value] into the [hl7Field] in the passed in [terser].
+     * If [hl7Field] points to a universal HD field, set [value] as the Universal ID field
+     * and set 'CLIA' as the Universal ID Type.
+     * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
+     */
+    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String, element: Element) {
+        if (value.isEmpty()) return
+
+        val pathSpec = formPathSpec(hl7Field)
+        terser.set(pathSpec, value)
+
+        when (hl7Field) {
+            in HD_FIELDS_UNIVERSAL,
+            in CE_FIELDS -> {
+                val nextComponent = nextComponent(pathSpec)
+                terser.set(nextComponent, "CLIA")
+            }
+        }
+    }
+
+    /**
+     * Set the XTN component using [phoneNumberFormatting] to control details
+     */
+    internal fun setTelephoneComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        element: Element,
+        phoneNumberFormatting: Hl7Configuration.PhoneNumberFormatting
+    ) {
         val parts = value.split(Element.phoneDelimiter)
         val areaCode = parts[0].substring(0, 3)
         val local = parts[0].substring(3)
         val country = parts[1]
         val extension = parts[2]
+        val localWithDash = if (local.length == 7) "${local.slice(0..2)}-${local.slice(3..6)}" else local
+
+        fun setComponents(pathSpec: String, component1: String) {
+            // Note from the HL7 2.5.1 specification about components 1 and 2:
+            // This component has been retained for backward compatibility only as of version 2.3.
+            // Definition: Specifies the telephone number in a predetermined format that includes an
+            // optional extension, beeper number and comment.
+            // Format: [NN] [(999)]999-9999[X99999][B99999][C any text]
+            // The optional first two digits are the country code. The optional X portion gives an extension.
+            // The optional B portion gives a beeper code.
+            // The optional C portion may be used for comments like, After 6:00.
+
+            when (phoneNumberFormatting) {
+                Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
+                    val phoneNumber = "($areaCode)$localWithDash" +
+                        if (extension.isNotEmpty()) "X${extension}" else ""
+                    terser.set(buildComponent(pathSpec, 1), phoneNumber)
+                    terser.set(buildComponent(pathSpec, 2), component1)
+                }
+                Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE -> {
+                    terser.set(buildComponent(pathSpec, 1), "$areaCode$local")
+                    terser.set(buildComponent(pathSpec, 2), component1)
+                }
+                Hl7Configuration.PhoneNumberFormatting.AREA_LOCAL_IN_COMPONENT_ONE -> {
+                    // Added for backward compatibility
+                    terser.set(buildComponent(pathSpec, 1), "($areaCode)$local")
+                    terser.set(buildComponent(pathSpec, 2), component1)
+                }
+            }
+            // it's a phone
+            terser.set(buildComponent(pathSpec, 3), "PH")
+            terser.set(buildComponent(pathSpec, 5), country)
+            terser.set(buildComponent(pathSpec, 6), areaCode)
+            terser.set(buildComponent(pathSpec, 7), local)
+            if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
+        }
 
         if (element.nameContains("patient")) {
             // PID-13 is repeatable, which means we could have more than one phone #
@@ -653,25 +717,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
                 rep += 1
             }
-            // primary residence number
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-1", "($areaCode)$local")
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
-            // it's a phone
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "PH")
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-5", country)
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-6", areaCode)
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-7", local)
-            if (extension.isNotEmpty()) terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-8", extension)
+            setComponents("/PATIENT_RESULT/PATIENT/PID-13($rep)", "PRN")
         } else {
-            // work phone number
-            terser.set(buildComponent(pathSpec, 1), "($areaCode)$local")
-            terser.set(buildComponent(pathSpec, 2), "WPN")
-            // it's a phone
-            terser.set(buildComponent(pathSpec, 3), "PH")
-            terser.set(buildComponent(pathSpec, 5), country)
-            terser.set(buildComponent(pathSpec, 6), areaCode)
-            terser.set(buildComponent(pathSpec, 7), local)
-            terser.set(buildComponent(pathSpec, 8), extension)
+            setComponents(pathSpec, "WPN")
         }
     }
 
@@ -863,7 +911,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     }
 
     private fun isField(spec: String): Boolean {
-        val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+$")
+        // Support the SEG-# and the SEG-#(#) repeat pattern
+        val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+(?:\\([0-9]+\\))?$")
         return pattern.containsMatchIn(spec)
     }
 
@@ -881,7 +930,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         error("Did match on component or subcomponent")
     }
 
-    private fun formPathSpec(spec: String, rep: Int? = null): String {
+    internal fun formPathSpec(spec: String, rep: Int? = null): String {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
         val repSpec = rep?.let { "($rep)" } ?: ""
@@ -1070,6 +1119,32 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
-        val HD_FIELDS = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "PID-3-4-1")
+
+        /*
+        From the HL7 2.5.1 Ch 2A spec...
+
+        The Hierarchical Designator identifies an entity that has responsibility for managing or
+        assigning a defined set of instance identifiers.
+
+        The HD is designed to be used either as a local identifier (with only the <namespace ID> valued)
+        or a publicly-assigned identifier, a UID (<universal ID> and <universal ID type> both valued)
+         */
+
+        /**
+         * List of fields that have the local HD type.
+         */
+        val HD_FIELDS_LOCAL = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
+            "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2")
+
+        /**
+         * List of fields that have the universal HD type
+         */
+        val HD_FIELDS_UNIVERSAL = listOf("MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
+            "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3")
+
+        /**
+         * List of fields that have a CE type
+         */
+        val CE_FIELDS = listOf("OBX-15-1")
     }
 }

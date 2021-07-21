@@ -11,12 +11,14 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "@trussworks/react-uswds": "^1.17.0",
+    "@types/downloadjs": "^1.4.2",
     "@types/hookrouter": "^2.2.5",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.3.0",
     "@types/react": "^17.0.6",
     "@types/react-dom": "^17.0.5",
     "chart.js": "^3.3.2",
+    "downloadjs": "^1.4.7",
     "eslint-config-airbnb-base": "^14.2.1",
     "hookrouter": "^1.2.5",
     "moment": "^2.29.1",
@@ -36,7 +38,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "postbuild": "react-snap"
   },
   "eslintConfig": {
     "extends": [
@@ -66,6 +69,7 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "react-snap": "^1.23.0",
     "yaml-loader": "^0.6.0"
   }
 }

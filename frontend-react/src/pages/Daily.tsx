@@ -8,7 +8,7 @@ import ReportResource from "../resources/ReportResource";
 import OrganizationResource from "../resources/OrganizationResource";
 import { useOktaAuth } from "@okta/okta-react";
 import {groupToOrg} from '../webreceiver-utils'
-import {oktaAuthConfig} from "../oktaConfig";
+import download from "downloadjs"
 
 
 const TableData = ({ sortBy }: { sortBy?: string }) => {
@@ -31,15 +31,37 @@ const TableData = ({ sortBy }: { sortBy?: string }) => {
           </th>
           <th scope="row">{report.total}</th>
           <th scope="row">
-            <a href={report.reportId} className="usa-link">
-              {report.fileType === "HL7_BATCH" ? "HL7(BATCH)" : report.fileType}
-            </a>
+            <ReportLink reportId={report.reportId} />
           </th>
         </tr>
       ))}
     </tbody>
   );
 };
+
+const ReportLink = ({reportId}) => {
+
+  let report = useResource( ReportResource.list(), {sortBy: undefined} )
+                .find( (report)=>report.reportId === reportId)
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    if( report !== undefined ){
+      console.log( report.content )
+      console.log( report.fileName )
+      console.log( report.mimeType )
+      download( report.content, report.fileName, report.mimeType)
+    }
+  };
+
+  return(
+    <a href="/" onClick={handleClick} className="usa-link">
+     { report !== undefined ? report.fileType === "HL7_BATCH" ? "HL7(BATCH)" : report.fileType : "" }
+  </a>
+
+  )
+  //download(report.content, report.filename, report.mimetype);
+}
 
 const TableReports = () => {
   return (

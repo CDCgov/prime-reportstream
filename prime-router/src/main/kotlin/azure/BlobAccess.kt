@@ -31,10 +31,41 @@ class BlobAccess(
         val digest: ByteArray,
     )
 
-    fun uploadBody(report: Report): BlobInfo {
+    /**
+     * Upload the [report] to the blob store using the [action] to determine a folder as needed.  A [subfolderName]
+     * is optional and is added as a prefix to the blob filename.
+     * @return the information about the uploaded blob
+     */
+    fun uploadBody(
+        report: Report,
+        subfolderName: String? = null,
+        action: Event.EventAction = Event.EventAction.NONE
+    ): BlobInfo {
         val (bodyFormat, blobBytes) = createBodyBytes(report)
+        return uploadBody(bodyFormat, blobBytes, report.name, subfolderName, action)
+    }
+
+    /**
+     * Upload a raw [blobBytes] in the [bodyFormat] for a given [reportName].  The [action] is used to determine
+     * the folder to store the blob in.  A [subfolderName] name is optional.
+     * @return the information about the uploaded blob
+     */
+    fun uploadBody(
+        bodyFormat: Report.Format,
+        blobBytes: ByteArray,
+        reportName: String,
+        subfolderName: String? = null,
+        action: Event.EventAction = Event.EventAction.NONE
+    ): BlobInfo {
+        val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
+        val blobName = when (action) {
+            Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName"
+            Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
+            Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
+            else -> error("Cannot determine folder to store blob.  Unsupported action $action for report $reportName")
+        }
         val digest = sha256Digest(blobBytes)
-        val blobUrl = uploadBlob(report.name, blobBytes)
+        val blobUrl = uploadBlob(blobName, blobBytes)
         return BlobInfo(bodyFormat, blobUrl, digest)
     }
 
@@ -53,12 +84,12 @@ class BlobAccess(
     }
 
     private fun uploadBlob(
-        fileName: String,
+        blobName: String,
         bytes: ByteArray,
         blobContainerName: String = defaultBlobContainerName,
         blobConnEnvVar: String = defaultConnEnvVar
     ): String {
-        val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(fileName)
+        val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(blobName)
         blobClient.upload(
             ByteArrayInputStream(bytes),
             bytes.size.toLong()
@@ -70,19 +101,6 @@ class BlobAccess(
         val stream = ByteArrayOutputStream()
         stream.use { getBlobClient(blobUrl).download(it) }
         return stream.toByteArray()
-    }
-
-    /**
-     * Returns the blobURL of the newly created copy.
-     * Right now, only copies from our internal reports blob store.
-     */
-    fun copyBlob_OLD(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
-        val fromBlobClient = getBlobClient(fromBlobUrl)
-        val blobContainer = getBlobContainer(toBlobContainer, toBlobConnEnvVar)
-        logger.info("Copying from blob ${fromBlobClient.blobName}")
-        val toBlobClient = blobContainer.getBlobClient(fromBlobClient.blobName, toBlobConnEnvVar)
-        toBlobClient.copyFromUrl(fromBlobUrl) // returns a uuid 'copy id'.  Not sure what use it it.
-        return toBlobClient.blobUrl
     }
 
     fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {

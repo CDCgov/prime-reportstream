@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter
 
 enum class ReportStreamEnv(val endPoint: String) {
     TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
-    LOCAL("http://localhost:7071/api/reports"),
+    LOCAL("http://" + (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071/api/reports"),
     STAGING("https://staging.prime.cdc.gov/api/reports"),
 //    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports"),
     PROD("not implemented"),
@@ -196,13 +196,12 @@ class HttpUtilities {
         fun postReportFile(
             environment: ReportStreamEnv,
             file: File,
-            sendingOrgName: String,
             sendingOrgClient: Sender,
             key: String? = null,
             option: ReportFunction.Options ? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgName, sendingOrgClient, key, option)
+            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option)
         }
 
         /**
@@ -213,17 +212,17 @@ class HttpUtilities {
         fun postReportBytes(
             environment: ReportStreamEnv,
             bytes: ByteArray,
-            sendingOrgName: String,
             sendingOrgClient: Sender,
             key: String?,
-            option: ReportFunction.Options?
+            option: ReportFunction.Options? = null
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
                 Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
                 else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
             }
-            val clientStr = sendingOrgName + if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)
