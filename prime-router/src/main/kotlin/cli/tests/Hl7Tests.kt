@@ -1,4 +1,3 @@
-// ktlint-disable filename
 package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -94,7 +93,7 @@ class BadHl7 : CoolTest() {
     override val status = TestStatus.SMOKE
     val failures = mutableListOf<String>()
 
-    val strHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime Data Hub|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+    val strHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime Data Hub|20210210170737||ORU^R01^ORU_R01|3719999|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 PID|1|ABC123DF|AND234DA_PID3|PID_4_ALTID|Patlast^Patfirst^Mid||19670202|F|||4505 21 st^^LAKE COUNTRY^MD^FO||222-555-8484|||||MF0050356/15|
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^IG^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D08761999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
@@ -126,12 +125,12 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
             /* Missing Required Fields */
             Pair("MISSING PATIENT LASTNAME", cleanedHl7Message.replace("Patlast", "")),
             Pair("MISSING ORDERING FACILITY STATE", cleanedHl7Message.replace("^IG^", "")),
-            Pair("MISSING MESSAGE ID", cleanedHl7Message.replace("2.5.1", "")),
+            Pair("MISSING MESSAGE ID", cleanedHl7Message.replace("3719999", "")),
             Pair("MISSING TESTING LAB CLIA", cleanedHl7Message.replace("10D08761999", "")),
             Pair("MISSING PATIENT STATE", cleanedHl7Message.replace("^MD^", "^^")),
             /* Invalid data type */
-            Pair("INVALID DOB", cleanedHl7Message.replace("19670202", "19")),
-            Pair("INVALID DOB", cleanedHl7Message.replace("19670202", special_char)),
+            Pair("INVALID DOB Partial", cleanedHl7Message.replace("19670202", "19")),
+            Pair("INVALID DOB Special Chars", cleanedHl7Message.replace("19670202", special_char)),
             /* Bad hl7 files */
             Pair("EMPTY FILE", ""),
             Pair("CSV FILE", csv),
@@ -156,12 +155,33 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
             )
 
             TermUi.echo("ResponseCode to POST: $responseCode")
-            val tree = jacksonObjectMapper().readTree(jsonResponse)
-            if (responseCode >= 400 && responseCode < 500 && tree["id"].isNull && tree["errorCount"].intValue() == tree["errors"].size() ) {
-                good("Test of Bad HL7 file ${pair.first} passed: Failure HttpStatus code was returned.")
+
+            if (responseCode >= 400 && responseCode < 500) {
+                good("Test for $name ${pair.first} passed: received $responseCode response code.")
             } else {
-                bad("***badhl7 Tes of ${pair.first} FAILED: Expecting a failure HttpStatus. ***")
                 failures.add("${pair.first}")
+                bad("***Test for $name ${pair.first} FAILED***: Expected a failure HttpStatus***")
+                continue
+            }
+            try {
+                val tree = jacksonObjectMapper().readTree(jsonResponse)
+                val errorCount = tree["errorCount"].intValue()
+                if (errorCount > 0) {
+                    good("Test for $name ${pair.first} passed: ErrorCount of $errorCount was returned.")
+                } else {
+                    bad("***Test for $name ${pair.first} FAILED***: Expected a non-zero ErrorCount, got $errorCount error(s)")
+                    failures.add("${pair.first}")
+                    continue
+                }
+                val warningCount = tree["warningCount"].intValue()
+                if (warningCount == 0) {
+                    good("Test for BadHl7 ${pair.first} passed: $warningCount warning was returned.")
+                } else {
+                    bad("***Test for $name ${pair.first} FAILED***: Expected zero warning, got $warningCount warning(s)")
+                    failures.add("${pair.first}")
+                }
+            } catch (e: NullPointerException) {
+                return bad("***Test for $name ${pair.first} FAILED***: Unable to properly parse response json")
             }
         }
 
