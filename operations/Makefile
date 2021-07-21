@@ -1,6 +1,10 @@
 SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 
+# Pretty colors
+COLOR_PURPLE = \033[1;35m
+COLOR_NONE = \033[0m
+
 TF_ENV = "dev" #VAR Your target environment (e.g. dev, test, staging, prod)
 TF_STAGE = ""  # not surfaced
 TF_CMD = ""  # not surfaced
@@ -42,12 +46,12 @@ tf-cli: build-tf ## Drops into a Docker container configured with the Terraform 
 	@docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) tf-cli
 
 tf-cmd: build-tf .az-configure-service-principal ## Run a command in the Docker container configured with the Terraform CLI and Azure
-	$(info )
-	$(info )
-	$(info ---)
-	$(info RUNNING COMMAND "$(TF_CMD)" AGAINST TERRAFORM STAGE "$(TF_STAGE)" IN ENVIRONMENT "$(TF_ENV)")
-	$(info ---)
-	$(info )
+	@echo -e "$(COLOR_PURPLE)"
+	@echo -e ""
+	@echo -e "---"
+	@echo -e "RUNNING COMMAND \"$(TF_CMD)\" AGAINST TERRAFORM STAGE \"$(TF_STAGE)\" IN ENVIRONMENT \"$(TF_ENV)\""
+	@echo -e "---"
+	@echo -e "$(COLOR_NONE)"
 ifdef AZ_SERVICE_PRINCIPAL
 	@docker-compose run \
 		-e ARM_CLIENT_ID='$(ARM_CLIENT_ID)' \
