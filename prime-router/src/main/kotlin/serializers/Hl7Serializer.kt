@@ -472,7 +472,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
                 setComponentForTable(terser, element, report, row)
             } else if (
-                element.type == Element.Type.TEXT && !element.hl7Field.isNullOrEmpty() && element.hl7Field in HD_FIELDS_LOCAL
+                element.type == Element.Type.TEXT &&
+                !element.hl7Field.isNullOrEmpty() &&
+                element.hl7Field in HD_FIELDS_LOCAL
             ) {
                 // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                 // text, but need to be truncated because they're the first part of an HD field. For example,
@@ -688,7 +690,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
                     val phoneNumber = "($areaCode)$localWithDash" +
-                        if (extension.isNotEmpty()) "X${extension}" else ""
+                        if (extension.isNotEmpty()) "X$extension" else ""
                     terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }
@@ -1133,14 +1135,18 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         /**
          * List of fields that have the local HD type.
          */
-        val HD_FIELDS_LOCAL = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
-            "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2")
+        val HD_FIELDS_LOCAL = listOf(
+            "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
+            "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2"
+        )
 
         /**
          * List of fields that have the universal HD type
          */
-        val HD_FIELDS_UNIVERSAL = listOf("MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
-            "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3")
+        val HD_FIELDS_UNIVERSAL = listOf(
+            "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
+            "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
+        )
 
         /**
          * List of fields that have a CE type
