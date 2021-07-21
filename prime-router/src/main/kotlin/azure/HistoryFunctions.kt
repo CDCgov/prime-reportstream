@@ -477,12 +477,13 @@ open class BaseHistoryFunction {
     }
 
     fun getActionsForReportId(reportId: String, authClaim: AuthClaims): ArrayList<Action> {
-        var header: Header?
-        var actions: ArrayList<Action> = ArrayList<Action>()
+        val actions: ArrayList<Action> = ArrayList<Action>()
 
-        try {
-            header = workflowEngine.fetchHeader(ReportId.fromString(reportId), authClaim.organization)
-        } catch (ex: Exception) { header = null }
+        val header: Header? = try {
+            workflowEngine.fetchHeader(ReportId.fromString(reportId), authClaim.organization)
+        } catch (ex: Exception) {
+            null
+        }
 
         /* 
         if( header !== null && header.itemLineages !== null ){

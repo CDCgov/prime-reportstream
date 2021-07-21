@@ -28,9 +28,8 @@ import java.util.Calendar
 import java.util.UUID
 
 class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
-    val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
-    val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
-    val FILENOTFOUND_PAGE = "./assets/csv-download-site/nosuchfile__inline.html"
+    private val LOGIN_PAGE = "./assets/csv-download-site/login__inline.html"
+    private val DOWNLOAD_PAGE = "./assets/csv-download-site/index__inline.html"
 
     data class TestResult(
         val date: String?,
@@ -58,15 +57,15 @@ class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        var authClaims = checkAuthenticatedCookie(request, context)
-        if (authClaims != null) {
+        val authClaims = checkAuthenticatedCookie(request, context)
+        return if (authClaims != null) {
             val file: String = request.queryParameters["file"] ?: ""
             if (file.isBlank())
-                return responsePage(request, authClaims)
+                responsePage(request, authClaims)
             else
-                return responseFile(request, file, authClaims, context)
+                responseFile(request, file, authClaims, context)
         } else {
-            return serveAuthenticatePage(request)
+            serveAuthenticatePage(request)
         }
     }
 
@@ -80,12 +79,11 @@ class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
         )
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)
-        var response = request.createResponseBuilder(HttpStatus.OK)
+
+        return request.createResponseBuilder(HttpStatus.OK)
             .body(html)
             .header("Content-Type", "text/html")
             .build()
-
-        return response
     }
 
     private fun generateTestResults(reportFiles: List<ReportFile>, authClaims: AuthClaims): List<TestResult> {
@@ -111,7 +109,7 @@ class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
         reportFiles: List<ReportFile>,
         authClaims: AuthClaims
     ): List<TestResult> {
-        var filtered = reportFiles.filter { filter(it) }
+        val filtered = reportFiles.filter { filter(it) }
         return generateTestResults(filtered, authClaims)
     }
 
@@ -126,7 +124,7 @@ class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
         reportFiles: List<ReportFile>,
         authClaims: AuthClaims
     ): List<TestResult> {
-        var filtered = reportFiles.filterNot { filter(it) }
+        val filtered = reportFiles.filterNot { filter(it) }
         return generateTestResults(filtered, authClaims)
     }
 
@@ -151,12 +149,10 @@ class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
 
         val html = getTemplateFromAttributes(htmlTemplate, attr)
 
-        var response = request.createResponseBuilder(HttpStatus.OK)
+        return request.createResponseBuilder(HttpStatus.OK)
             .body(html)
             .header("Content-Type", "text/html")
             .build()
-
-        return response
     }
 
     private fun responseFile(
@@ -215,7 +211,7 @@ class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
     private fun getTemplateFromAttributes(htmlContent: String, attr: Map<String, Any?>): String {
         val templateEngine = getTemplateEngine()
         val context = Context()
-        if (!attr.isEmpty())
+        if (attr.isNotEmpty())
             attr.forEach { (k, v) -> context.setVariable(k, v) }
         return templateEngine.process(htmlContent, context)
     }
@@ -237,12 +233,13 @@ class DownloadFunction() : SecretManagement, BaseHistoryFunction() {
                         .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
                         .build()
                     val jwt = jwtVerifier.decode(jwtString)
-                    userName = jwt.getClaims().get("sub").toString()
-                    val orgs = jwt.getClaims().get("organization")
-                    var org = if (orgs !== null) (orgs as List<String>)[0] else ""
+                    userName = jwt.claims["sub"].toString()
+                    val orgs = jwt.claims["organization"]
+                    @Suppress("UNCHECKED_CAST")
+                    val org = if (orgs !== null) (orgs as List<String>)[0] else ""
                     orgName = if (org.length > 3) org.substring(2) else ""
                 } catch (ex: Throwable) {
-                    System.out.println(ex)
+                    println(ex)
                 }
             }
         }
