@@ -12,17 +12,20 @@ gpgcheck=1\n\
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc" | tee /etc/yum.repos.d/azure-cli.repo
 RUN yum -y install azure-cli-${AZURE_CLI_VERSION}-1.el7
 
-# Changing the terraform version must also be done in:
+# The following files need a Maj.min.rev specification that matches the values from $TERRAFORM_VERSION:
 # - app/src/environments/dev/main.tf
 # - app/src/environments/test/main.tf
 # - app/src/environments/staging/main.tf
 # - app/src/environments/prod/main.tf
-ENV TERRAFORM_VERSION=0.14.5
+#
+# i.e. for terraform version 1.0.2-1, you will need to reflect this as follows:
+#  required_version = "= 1.0.2"
+ENV TERRAFORM_VERSION=1.0.2-1
 
 # Install Terraform
 RUN yum install -y yum-utils
 RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-RUN yum -y install terraform-${TERRAFORM_VERSION}-1
+RUN yum -y install terraform-${TERRAFORM_VERSION}
 
 # Create directory for terraform
 RUN mkdir /app
