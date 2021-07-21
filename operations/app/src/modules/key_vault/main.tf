@@ -107,7 +107,7 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = local.terraform_object_id
 
-    secret_permissions = [ "Get" ]
+    secret_permissions = [ "Get", "List" ]
 }
 
 module "application_private_endpoint" {
@@ -172,7 +172,7 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = local.terraform_object_id
 
-    secret_permissions = [ "Get" ]
+    secret_permissions = [ "Get", "List" ]
 }
 
 module "app_config_private_endpoint" {
