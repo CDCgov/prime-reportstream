@@ -98,7 +98,7 @@ jobs:
       - name: Directions for Downloading Plan
         if: ${{ always() }}
         run: |
-          echp -e "\e[96m"
+          echo -e "\e[96m"
           echo -e "###"
           echo -e "DOWNLOAD THE TERRAFORM PLAN LOCALLY WITH THIS COMMAND:"
           echo -e ""
