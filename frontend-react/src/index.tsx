@@ -2,7 +2,7 @@ import './index.css';
 import App from './App';
 //import reportWebVitals from './reportWebVitals';
 import { CacheProvider } from 'rest-hooks';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 
 import { hydrate, render } from "react-dom";
 
