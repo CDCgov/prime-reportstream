@@ -54,6 +54,11 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@v2
 
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
       - name: Install OpenVPN
         run: |
           sudo apt-get update
