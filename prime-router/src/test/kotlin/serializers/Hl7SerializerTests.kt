@@ -3,6 +3,7 @@ package gov.cdc.prime.router.serializers
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
@@ -616,14 +617,12 @@ NTE|1|L|This is a final comment|RE"""
         val csvContent = ByteArrayInputStream("a,b,c\n1,2,3".toByteArray())
         result = serializer.readExternal(hl7SchemaName, csvContent, TestSource)
         assertThat(result.errors.isNotEmpty()).isTrue()
-        assertThat(result.report).isNotNull()
-        assertThat(result.report!!.itemCount).isEqualTo(0)
+        assertThat(result.report).isNull()
 
         val incompleteHL7 = ByteArrayInputStream("MSH|^~\\&|CD".toByteArray())
         result = serializer.readExternal(hl7SchemaName, incompleteHL7, TestSource)
         assertThat(result.errors.isNotEmpty()).isTrue()
-        assertThat(result.report).isNotNull()
-        assertThat(result.report!!.itemCount).isEqualTo(0)
+        assertThat(result.report).isNull()
 
         // This data will throw a EncodingNotSupportedException in the serializer when parsing the message
         val incompleteHL7v2 = ByteArrayInputStream(
@@ -635,8 +634,7 @@ NTE|1|L|This is a final comment|RE"""
         )
         result = serializer.readExternal(hl7SchemaName, incompleteHL7v2, TestSource)
         assertThat(result.errors.isNotEmpty()).isTrue()
-        assertThat(result.report).isNotNull()
-        assertThat(result.report!!.itemCount).isEqualTo(1)
+        assertThat(result.report).isNull()
 
         // This data will throw a HL7Exception in the serializer when parsing the message
         val wrongHL7Version = ByteArrayInputStream(
@@ -651,7 +649,6 @@ NTE|1|L|This is a final comment|RE"""
         )
         result = serializer.readExternal(hl7SchemaName, wrongHL7Version, TestSource)
         assertThat(result.errors.isNotEmpty()).isTrue()
-        assertThat(result.report).isNotNull()
-        assertThat(result.report!!.itemCount).isEqualTo(0)
+        assertThat(result.report).isNull()
     }
 }

@@ -367,7 +367,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = Report(schema, mappedRows, source, metadata = metadata)
+        val report = if (errors.size > 0) null else Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 
