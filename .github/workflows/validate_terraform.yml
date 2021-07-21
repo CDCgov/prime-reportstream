@@ -94,3 +94,15 @@ jobs:
               --destination-path "${{ github.run_id }}-${{ github.sha }}" \
               --source operations/app/plan \
               --pattern staging-*
+
+      - name: Directions for Downloading Plan
+        if: ${{ always() }}
+        run: |
+          echp -e "\e[96m"
+          echo -e "###"
+          echo -e "DOWNLOAD THE TERRAFORM PLAN LOCALLY WITH THIS COMMAND:"
+          echo -e ""
+          echo -e "az storage blob --account-name pdhstagingterraform --container terraformplan --source-path ${{ github.run_id }}-${{ github.sha }} --destination-path ."
+          echo -e ""
+          echo -e "###"
+          echo -e "\033[0m"
