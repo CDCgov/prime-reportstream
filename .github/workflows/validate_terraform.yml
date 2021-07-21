@@ -37,10 +37,10 @@ jobs:
       run:
         working-directory: operations
     steps:
-      - name: "Check out changes"
+      - name: Check Out Changes
         uses: actions/checkout@v2
 
-      - name: "Validate all modules"
+      - name: Validate All Terraform Modules
         run: |
           make TF_ENV=staging tf-validate
 
@@ -51,7 +51,7 @@ jobs:
     environment: staging
     runs-on: ubuntu-latest
     steps:
-      - name: "Check out changes"
+      - name: Check Out Changes
         uses: actions/checkout@v2
 
       - name: Login to Azure CLI
@@ -77,7 +77,7 @@ jobs:
           USER_CRT: ${{ secrets.USER_CRT }}
           USER_KEY: ${{ secrets.USER_KEY }}
 
-      - name: "Generate plan for all modules"
+      - name: Generate a Plan for All Terraform Modules
         working-directory: operations
         env:
           SERVICE_PRINCIPAL_CREDS: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
