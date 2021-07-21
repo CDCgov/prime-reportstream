@@ -1,5 +1,4 @@
 // Use same port as the prime-router server API being mocked out
-//const PRIME_api = process.env.PRIME_api || "http://localhost:7071/api";
 
 // Use different port
 const PRIME_api = process.env.PRIME_api || "http://localhost:7071/api";

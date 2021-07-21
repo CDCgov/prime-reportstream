@@ -304,7 +304,21 @@
       organizationName: vt-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(ordering_facility_state, VT)
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+      deidentify: false
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NBS
+        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+        receivingFacilityName: VDH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.185
+    - name: elr-secondary
+      organizationName: vt-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+      reverseTheQualityFilter: true
       deidentify: false
       translation:
         type: HL7
@@ -1250,6 +1264,7 @@
       format: HL7
   receivers:
     - name: CSV
+      externalName: The CSV receiver for Ignore
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
@@ -1268,6 +1283,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: HL7
+      externalName: Ignore HL7
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
@@ -1286,6 +1302,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: HL7_BATCH
+      externalName: Ignore HL7_BATCH
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
@@ -1425,7 +1442,36 @@
         type: CUSTOM
         schemaName: empty
         format: CSV
-
+    - name: OTC_PROCTORED_YYY
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      qualityFilter: [ "matches(test_authorized_for_otc, Y)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
+      translation:
+        type: "CUSTOM"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
+        format: "CSV"
+      deidentify: true
+    - name: OTC_PROCTORED_NYY
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, Y)","matches(test_authorized_for_unproctored, Y)" ]
+      translation:
+        type: "CUSTOM"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
+        format: "CSV"
+      deidentify: true
+    - name: OTC_PROCTORED_NUNKUNK
+      organizationName: ignore
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, OTC_PROCTORED)" ]
+      qualityFilter: [ "matches(test_authorized_for_otc, N)","matches(test_authorized_for_home, UNK)","matches(test_authorized_for_unproctored, UNK)" ]
+      translation:
+        type: "CUSTOM"
+        schemaName: "hhsprotect/hhsprotect-covid-19"
+        format: "CSV"
+      deidentify: true
 
 # all the rest
 - name: ak-phd
