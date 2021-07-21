@@ -5,6 +5,9 @@ on:
     branches:
       - master
       - production
+  push:
+    branches:
+      - master
 
 jobs:
   pre_job:
