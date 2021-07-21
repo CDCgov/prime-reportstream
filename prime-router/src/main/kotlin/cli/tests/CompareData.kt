@@ -689,30 +689,33 @@ class CompareCsvData {
                     ) {
                         try {
                             val expectedTime =
-                                OffsetDateTime.parse(expectedRow[j].trim(), Element.datetimeFormatter).toEpochSecond()
+                                OffsetDateTime.parse(expectedValue, Element.datetimeFormatter).toEpochSecond()
                             val actualTime =
-                                OffsetDateTime.parse(actualRow[j].trim(), Element.datetimeFormatter).toEpochSecond()
+                                OffsetDateTime.parse(actualValue, Element.datetimeFormatter).toEpochSecond()
                             if (expectedTime != actualTime) {
                                 result.errors.add(
                                     "Date time value does not match in report $actualRowNum " +
-                                        "column #${j + 1}, '$colName'. Expected: '${expectedRow[j].trim()}', " +
-                                        "Actual: '${actualRow[j].trim()}, EpochSec: $expectedTime/$actualTime'"
+                                        "column #${j + 1}, '$colName'. Expected: '$expectedValue', " +
+                                        "Actual: '$actualValue, EpochSec: $expectedTime/$actualTime'"
                                 )
                                 passed = false
                             }
                         } catch (e: DateTimeParseException) {
-                            result.errors.add(
-                                "Error while parsing date/time from values in report $actualRowNum column #${j + 1}, " +
-                                    "'$colName'. Expected: '${expectedRow[j].trim()}', " +
-                                    "Actual: '${actualRow[j].trim()}'"
-                            )
-                            passed = false
+                            // This is not a true date/time since it was not parse, probably a date.  Compare as strings.
+                            if (actualValue != expectedValue) {
+                                result.errors.add(
+                                    "Data value does not match in report $actualRowNum column #${j + 1}, " +
+                                        "'$colName'. Expected: '$expectedValue', " +
+                                        "Actual: '$actualValue'"
+                                )
+                                passed = false
+                            }
                         }
-                    } else if (actualRow[j].trim() != expectedRow[j].trim()) {
+                    } else if (actualValue != expectedValue) {
                         result.errors.add(
                             "Data value does not match in report $actualRowNum column #${j + 1}, " +
-                                "'$colName'. Expected: '${expectedRow[j].trim()}', " +
-                                "Actual: '${actualRow[j].trim()}'"
+                                "'$colName'. Expected: '$expectedValue', " +
+                                "Actual: '$actualValue'"
                         )
                         passed = false
                     }
