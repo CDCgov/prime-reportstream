@@ -108,6 +108,7 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
     object_id = local.terraform_object_id
 
     secret_permissions = [ "Get" ]
+    key_permissions = [ "Get" ]
 }
 
 module "application_private_endpoint" {
