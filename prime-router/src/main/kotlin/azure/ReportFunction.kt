@@ -55,7 +55,7 @@ class ReportFunction {
         val routeTo: List<String> = emptyList(),
         val report: Report? = null,
         val sender: Sender? = null,
-        val verbose: String = "",
+        val verbose: Boolean = false,
     )
 
     data class ItemRouting(
@@ -226,7 +226,7 @@ class ReportFunction {
 
         // extract the verbose param and default to empty if not present
         val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
-        val verbose = if (verboseParam.equals(VERBOSE_TRUE, true)) verboseParam else ""
+        val verbose = verboseParam.equals(VERBOSE_TRUE, true)
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
@@ -420,7 +420,7 @@ class ReportFunction {
 
             actionHistory?.prettyPrintDestinationsJson(it, WorkflowEngine.settings, result.options)
             // print the report routing when in verbose mode
-            if (VERBOSE_TRUE.equals(result.verbose, true)) {
+            if (result.verbose) {
                 it.writeArrayFieldStart("routing")
                 createItemRouting(result, actionHistory).forEach { ij ->
                     it.writeStartObject()
