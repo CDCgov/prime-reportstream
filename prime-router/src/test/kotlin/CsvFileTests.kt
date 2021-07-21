@@ -60,6 +60,7 @@ class CsvFileTests {
         }
         assertThat(result).hasNoWarnings().hasNoErrors()
         val inputReport = result.report ?: fail()
+        translateReport(inputReport, baseName)
     }
 
     @Test

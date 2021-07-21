@@ -567,13 +567,11 @@ NTE|1|L|This is a final comment|RE"""
         val mockTerser = mockk<Terser>()
         val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
-
-        val cliaElement = Element("testing_lab_clia", hl7Field = "OBX-23-10", type = Element.Type.ID_CLIA)
+        
         serializer.setCliaComponent(
             mockTerser,
             "XYZ",
-            "OBX-23-10",
-            cliaElement
+            "OBX-23-10"
         )
 
         verify {
@@ -590,12 +588,10 @@ NTE|1|L|This is a final comment|RE"""
         val hl7Field = "ORC-3-3"
         val value = "dummy"
 
-        val cliaElement = Element("testing_lab_clia", hl7Field = hl7Field, type = Element.Type.ID_CLIA)
         serializer.setCliaComponent(
             mockTerser,
             value,
-            hl7Field,
-            cliaElement
+            hl7Field
         )
 
         verify {

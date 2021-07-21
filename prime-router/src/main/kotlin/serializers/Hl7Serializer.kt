@@ -577,7 +577,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         }
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
-            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, element)
+            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field)
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
                     val hd = Element.parseHD(value, hdFieldMaximumLength)
@@ -656,7 +656,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
      * and set 'CLIA' as the Universal ID Type.
      * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
      */
-    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String, element: Element) {
+    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String) {
         if (value.isEmpty()) return
 
         val pathSpec = formPathSpec(hl7Field)
