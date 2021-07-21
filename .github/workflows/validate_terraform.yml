@@ -78,3 +78,12 @@ jobs:
           SERVICE_PRINCIPAL_CREDS: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
         run: |
           make TF_ENV=staging AZ_SERVICE_PRINCIPAL="$SERVICE_PRINCIPAL_CREDS" tf-plan
+
+      - name: Upload Terraform Plan to Storage Account
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name pdhstagingterraform \
+              --destination terraformplan \
+              --destination-path "${{ github.run_id }}-${{ github.sha }}-" \
+              --source operations/app/plan
