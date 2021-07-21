@@ -144,7 +144,10 @@ HERE=${HERE?:${_DASH_INDEX?}}
 # Initialize with our backend
 EXPECTED_RESULTS="${EXPECTED_RESULTS?}0"
 if [[ ${AZ_BACKEND_REQUIRED?} == 1 ]]; then
-    az account set -s ${AZ_SUBSCRIPTION_ID:-7d1e3999-6577-4cd5-b296-f518e5c8e677}
+    # If not using a service principal, set the subscription id for Azure
+    if [[ -v ARM_SUBSCRIPTION_ID ]]; then
+        az account set -s ${AZ_SUBSCRIPTION_ID:-7d1e3999-6577-4cd5-b296-f518e5c8e677}
+    fi
     terraform init \
         --reconfigure \
         --backend-config=<(cat ${BACKEND_CONFIG?} | sed "s/__STAGE__/${HERE?}/g")
