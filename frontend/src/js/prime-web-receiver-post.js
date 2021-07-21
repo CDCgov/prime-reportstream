@@ -17,14 +17,9 @@
 
     // reports
     feeds.forEach( async (feed,idx) => {
+        console.log(`processing Reports ${feed} ${idx}`)
         await processReports( feed, idx );
     })
-    let reports = await processReports();
-
-    
-
-    // report
-    let report = await processReport( await fetchReports() );
 
     // charts
     /* processCharts(); */

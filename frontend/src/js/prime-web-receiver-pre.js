@@ -183,7 +183,7 @@ function logout() {
 async function fetchReportFeeds(){
 
     var reports = await fetchReports();
-    var receivingOrgSvc = reports.map( rep => rep.externalName )
+    var receivingOrgSvc = reports ? reports.map( rep => rep.externalName ) : []
 
     return Array.from( new Set( receivingOrgSvc ) );
 }
@@ -199,22 +199,24 @@ async function fetchReports( filter ) {
         url = `${url}s/${window.org}`
     }
     console.log(`calling for ${url}`);
-    var retValue window.jwt ? axios(apiConfig(url))
+    var retValue = [];
+    var retValue = window.jwt ? await axios(apiConfig(url))
         .then(res => res.data)
-        .catch(e => console.log(e)): [];
+        .catch(e => {console.log(e); return []}): [];
+    
     return filter? retValue.filter( report => report.externalName === filter ) : retValue;
 }
 
 async function fetchAllOrgs() {
-    return window.jwt ? axios(apiConfig('settings/organizations'))
+    return window.jwt ? await axios(apiConfig('settings/organizations'))
         .then(res => res.data) : [];
 }
 
 /**
  *
  */
-function requestFile(reportId) {
-    return window.jwt? axios(apiConfig(`history/report/${reportId}`))
+async function requestFile(reportId) {
+    return window.jwt? await axios(apiConfig(`history/report/${reportId}`))
         .then(res => res.data)
         .then(csv => {
             // The filename to use for the download should not contain blob folders if present
@@ -362,7 +364,7 @@ function titleCase(str) {
 async function processReportFeeds(){
     var feeds = await fetchReportFeeds();
     const tabs = document.getElementById("tabs");  
-
+    console.log( feeds );
     if( tabs ) tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
     const reportFeeds = document.getElementById("reportFeeds");  
     if( reportFeeds )        
@@ -416,6 +418,7 @@ async function processReports(feed, idx){
         console.log('fetchReports() is failing');
         console.error(error);
     }
+    if( reports )
     reports.forEach(_report => {
         const tBody = document.getElementById(`tBody${idx?idx:''}`);
 
@@ -436,7 +439,7 @@ async function processReports(feed, idx){
                 </th>
               </tr>`;
     });
-    if (reports && reports.length === 0) {
+    if (!reports || reports.length === 0) {
         if (tBody) tBody.innerHTML +=
             `<tr>
                 <th colspan="5">No reports found</th>

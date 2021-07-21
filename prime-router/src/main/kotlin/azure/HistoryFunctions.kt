@@ -84,7 +84,7 @@ class ReportView private constructor(
     val receivingOrgSvc: String?,
     val facilities: ArrayList<Facility>?,
     val actions: ArrayList<Action>?,
-    val externalName: String? ){
+    val externalName: String?,
     val content: String?,
     val fileName: String?,
     val mimeType: String?
@@ -137,6 +137,7 @@ class ReportView private constructor(
             expires,
             sendingOrg,
             receivingOrg,
+            receivingOrgSvc,
             facilities,
             actions,
             externalName,
