@@ -1,6 +1,6 @@
 
 ### Schema:         az/az-ihs-covid-19
-#### Description:   Schema for the john_hopkins sender. Modeled after the AZ flat-file.
+#### Description:   Schema for the John Hopkins sender. Modeled after the Arizona flat-file specification.
 
 ---
 
@@ -233,6 +233,10 @@ Other states may choose to define their own formats.
 **Format**: $alt
 
 **Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://www.azdhs.gov/documents/preparedness/emergency-preparedness/guidance-facilities-point-of-care.pdf](https://www.azdhs.gov/documents/preparedness/emergency-preparedness/guidance-facilities-point-of-care.pdf) 
 
 **Value Sets**
 
