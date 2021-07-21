@@ -9,7 +9,6 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import org.apache.logging.log4j.kotlin.Logging
-import java.time.OffsetDateTime
 
 /*
  * Organizations API
