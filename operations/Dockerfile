@@ -18,9 +18,9 @@ RUN yum -y install azure-cli-${AZURE_CLI_VERSION}-1.el7
 # - app/src/environments/staging/main.tf
 # - app/src/environments/prod/main.tf
 #
-# i.e. for terraform version 1.0.2-1, you will need to reflect this as follows:
-#  required_version = "= 1.0.2"
-ENV TERRAFORM_VERSION=1.0.2-1
+# i.e. for terraform version 1.0.3-1, you will need to reflect this as follows:
+#  required_version = "= 1.0.3"
+ENV TERRAFORM_VERSION=1.0.3-1
 
 # Install Terraform
 RUN yum install -y yum-utils
