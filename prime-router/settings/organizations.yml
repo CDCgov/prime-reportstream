@@ -1264,6 +1264,7 @@
       format: HL7
   receivers:
     - name: CSV
+      externalName: The CSV receiver for Ignore
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
@@ -1282,6 +1283,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: HL7
+      externalName: Ignore HL7
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
@@ -1300,6 +1302,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: HL7_BATCH
+      externalName: Ignore HL7_BATCH
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]

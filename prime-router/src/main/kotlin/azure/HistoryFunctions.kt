@@ -120,8 +120,8 @@ class ReportView private constructor(
         fun facilities(facilities: ArrayList<Facility>) = apply { this.facilities = facilities }
         fun actions(actions: ArrayList<Action>) = apply { this.actions = actions }
         fun content(content: String) = apply { this.content = content }
-        fun fileName(fileName:String) = apply { this.fileName = fileName }
-        fun mimeType(mimeType:String) = apply {this.mimeType = mimeType }
+        fun fileName(fileName: String) = apply { this.fileName = fileName }
+        fun mimeType(mimeType: String) = apply { this.mimeType = mimeType }
 
         fun build() = ReportView(
             sent,
@@ -306,7 +306,7 @@ open class BaseHistoryFunction : Logging {
 
                 val header = workflowEngine.fetchHeader(it.reportId, authClaims.organization)
 
-                val content = if( header.content !== null) String(header.content) else "";
+                val content = if (header.content !== null) String(header.content) else ""
                 val filename = Report.formExternalFilename(header)
                 val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 

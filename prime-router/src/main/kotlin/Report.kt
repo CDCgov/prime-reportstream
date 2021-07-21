@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -867,7 +868,7 @@ class Report : Logging {
         fun formExternalFilename(header: WorkflowEngine.Header): String {
             // extract the filename from the blob url.
             val filename = if (header.reportFile.bodyUrl != null)
-                header.reportFile.bodyUrl.split("/").last()
+                BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
             else ""
             return if (filename.isNotEmpty())
                 filename
