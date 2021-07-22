@@ -68,9 +68,14 @@ jobs:
 
       - name: Build Prime Router Package
         run: bash ./build.sh -- gradle clean package -x fatjar -Pshowtests
+        
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/test/**/*.xml
@@ -80,7 +85,11 @@ jobs:
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/testIntegration/**/*.xml
