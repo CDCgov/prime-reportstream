@@ -97,8 +97,6 @@ PID|1|ABC123DF|AND234DA_PID3|PID_4_ALTID|Patlast^Patfirst^Mid||19670202|F|||4505
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^IG^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D08761999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
 SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||718IG36000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||20201102063552-0500|20201102063552-0500"""
-    val reg = "[\r\n]".toRegex()
-    var cleanedHl7Message = reg.replace(strHl7Message, "\r")
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val sender = hl7Sender
         val csv = """
@@ -120,21 +118,21 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
         """.trimIndent()
         val badHl7Pairs = listOf(
             /* Missing Required Fields */
-            Pair("MISSING PATIENT LASTNAME", cleanedHl7Message.replace("Patlast", "")),
-            Pair("MISSING ORDERING FACILITY STATE", cleanedHl7Message.replace("^IG^", "")),
-            Pair("MISSING MESSAGE ID", cleanedHl7Message.replace("3719999", "")),
-            Pair("MISSING TESTING LAB CLIA", cleanedHl7Message.replace("10D08761999", "")),
-            Pair("MISSING PATIENT STATE", cleanedHl7Message.replace("^MD^", "^^")),
+            Pair("MISSING PATIENT LASTNAME", strHl7Message.replace("Patlast", "")),
+            Pair("MISSING ORDERING FACILITY STATE", strHl7Message.replace("^IG^", "")),
+            Pair("MISSING MESSAGE ID", strHl7Message.replace("3719999", "")),
+            Pair("MISSING TESTING LAB CLIA", strHl7Message.replace("10D08761999", "")),
+            Pair("MISSING PATIENT STATE", strHl7Message.replace("^MD^", "^^")),
             /* Invalid data type */
-            Pair("INVALID DOB Partial", cleanedHl7Message.replace("19670202", "19")),
-            Pair("INVALID DOB Special Chars", cleanedHl7Message.replace("19670202", special_char)),
+            Pair("INVALID DOB Partial", strHl7Message.replace("19670202", "19")),
+            Pair("INVALID DOB Special Chars", strHl7Message.replace("19670202", special_char)),
             /* Bad hl7 files */
             Pair("EMPTY FILE", ""),
             Pair("CSV FILE", csv),
             Pair("XML FILE", xml_data),
             Pair("JSON", "{\"alive\": true}"),
             /* Bad data */
-            Pair("Duplicate PID", cleanedHl7Message + "PID|||||Richards^Mary||19340428|F|||||||||||||||||||\\nPID|||||||19700510105000|M|||||||||||||||||||"),
+            Pair("Duplicate PID", strHl7Message + "PID|||||Richards^Mary||19340428|F|||||||||||||||||||\\nPID|||||||19700510105000|M|||||||||||||||||||"),
             Pair("Only MSH", "MSH|^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime Data Hub|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO"),
             Pair("Partially Terminated", "MSH|^~\\&"),
             Pair("RANDOM TEXT", "foobar"),
