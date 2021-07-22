@@ -1,6 +1,6 @@
 ---
 - name: "ca-scc-phd"
-  description: "Public Health Department - Santa Clara, California"
+  description: "Public Health Department - Santa Clara, California" 
   jurisdiction: "COUNTY"
   stateCode: "CA"
   countyName: "Santa Clara"
