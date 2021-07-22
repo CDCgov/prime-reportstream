@@ -162,6 +162,13 @@ class ReportFunction {
                             "for ${report.id}: ${pse.localizedMessage}.\n" +
                             pse.stackTraceToString()
                     )
+                } catch (e: Exception) {
+                    // catch all as we have seen jooq Exceptions thrown
+                    context.logger.severe(
+                        "Exception writing COVID test metadata " +
+                            "for ${report.id}: ${e.localizedMessage}.\n" +
+                            e.stackTraceToString()
+                    )
                 }
             }
         }
