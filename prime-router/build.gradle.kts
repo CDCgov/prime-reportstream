@@ -14,7 +14,7 @@ Properties that can be overriden using an environment variable only:
 Properties to control the execution and output using the Gradle -P arguments:
   forcetest - Force the running of the test regardless of changes
   showtests - Verbose output of the unit tests
-  E.g. ./build.sh -- gradle clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
+  E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -412,7 +412,6 @@ repositories {
     maven {
         url = uri("https://jitpack.io")
     }
-
 }
 
 dependencies {

@@ -324,7 +324,21 @@
       organizationName: vt-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(ordering_facility_state, VT)
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+      deidentify: false
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NBS
+        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+        receivingFacilityName: VDH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.185
+    - name: elr-secondary
+      organizationName: vt-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+      reverseTheQualityFilter: true
       deidentify: false
       translation:
         type: HL7
@@ -1290,6 +1304,7 @@
       format: HL7
   receivers:
     - name: CSV
+      externalName: The CSV receiver for Ignore
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
@@ -1308,6 +1323,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: HL7
+      externalName: Ignore HL7
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
@@ -1326,6 +1342,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: HL7_BATCH
+      externalName: Ignore HL7_BATCH
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]
