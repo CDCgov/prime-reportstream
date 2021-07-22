@@ -242,16 +242,18 @@ tasks.register<JavaExec>("primeCLI") {
     environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
-    if (project.extra.has("cliArgs")) {
-        args = project.extra["cliArgs"] as MutableList<String>
-    } else {
-        args = listOf("-h")
-        println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
-        println(
-            "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
-                "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
-                "--target-counties 'Santa Clara' --output-format CSV\""
-        )
+    doFirst {
+        if (project.extra.has("cliArgs")) {
+            args = project.extra["cliArgs"] as MutableList<String>
+        } else if (args.isNullOrEmpty()) {
+            args = listOf("-h")
+            println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
+            println(
+                "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
+                    "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
+                    "--target-counties 'Santa Clara' --output-format CSV\""
+            )
+        }
     }
 }
 
