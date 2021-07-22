@@ -48,6 +48,16 @@ jobs:
         run: |
           echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
           echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
+          if [ "$GITHUB_BASE_REF" == "production" ]
+          then
+              echo "Building for the production environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhprodcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV PREFIX=pdhprod
+          else
+              echo "Building for the test environment."
+              echo >> $GITHUB_ENV ACR_REPO=pdhstagingcontainerregistry.azurecr.io
+              echo >> $GITHUB_ENV PREFIX=pdhstaging
+          fi
 
       # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
       # - name: Install docker-compose
