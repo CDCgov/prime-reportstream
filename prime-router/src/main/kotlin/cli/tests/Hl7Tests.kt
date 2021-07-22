@@ -91,8 +91,7 @@ class BadHl7 : CoolTest() {
     override val name = "badhl7"
     override val description = "Submit bad hl7 scenarios - should get errors"
     override val status = TestStatus.SMOKE
-    val failures = mutableListOf<String>()
-
+    val failures = mutableSetOf<String>()
     val strHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime Data Hub|20210210170737||ORU^R01^ORU_R01|3719999|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 PID|1|ABC123DF|AND234DA_PID3|PID_4_ALTID|Patlast^Patfirst^Mid||19670202|F|||4505 21 st^^LAKE COUNTRY^MD^FO||222-555-8484|||||MF0050356/15|
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^IG^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
@@ -100,8 +99,6 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
 SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||718IG36000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||20201102063552-0500|20201102063552-0500"""
     val reg = "[\r\n]".toRegex()
     var cleanedHl7Message = reg.replace(strHl7Message, "\r")
-    val outputDir = "./build/tmp/tmp.hl7"
-
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
         val sender = hl7Sender
         val csv = """
@@ -145,7 +142,6 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
             Pair("EMOJI", "❤️ \uD83D\uDC94 \uD83D\uDC8C \uD83D\uDC95 \uD83D\uDC9E \uD83D\uDC93"),
             Pair("LARGE POST BODY", a_60Meg_payload),
         )
-
         for (pair in badHl7Pairs) {
             val (responseCode, jsonResponse) = HttpUtilities.postReportBytes(
                 environment,
@@ -153,9 +149,7 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                 sender,
                 options.key
             )
-
             TermUi.echo("ResponseCode to POST: $responseCode")
-
             if (responseCode >= 400 && responseCode < 500) {
                 good("Test for $name ${pair.first} passed: received $responseCode response code.")
             } else {
@@ -165,13 +159,18 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
             }
             try {
                 val tree = jacksonObjectMapper().readTree(jsonResponse)
+                if (tree["id"].isNull) {
+                    good("Test for $name ${pair.first} passed: id is null.")
+                } else {
+                    bad("***Test for $name ${pair.first} FAILED***: Expected null Id, got ${tree["id"]}")
+                    failures.add("${pair.first}")
+                }
                 val errorCount = tree["errorCount"].intValue()
                 if (errorCount > 0) {
                     good("Test for $name ${pair.first} passed: ErrorCount of $errorCount was returned.")
                 } else {
                     bad("***Test for $name ${pair.first} FAILED***: Expected a non-zero ErrorCount, got $errorCount error(s)")
                     failures.add("${pair.first}")
-                    continue
                 }
                 val warningCount = tree["warningCount"].intValue()
                 if (warningCount == 0) {
@@ -184,11 +183,10 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
                 return bad("***Test for $name ${pair.first} FAILED***: Unable to properly parse response json")
             }
         }
-
         if (failures.size == 0) {
             return true
         } else {
-            return bad("Tests FAILED: " + failures)
+            return bad("Tests for $name FAILED***: " + failures)
         }
     }
 }
