@@ -670,7 +670,7 @@ class CompareCsvData {
         } else {
             if (actualRow.size > expectedRow.size) {
                 result.warnings.add(
-                    "Actual report has more columns than expected.  Actual has ${actualRow.size} and expected " +
+                    "Actual report has more columns than expected data.  Actual has ${actualRow.size} and expected " +
                         "${expectedRow.size}"
                 )
             }
@@ -681,20 +681,21 @@ class CompareCsvData {
                 val colName = schema.elements[j].name
                 val possibleCsvHeaders = schema.elements[j].csvFields?.map { it.name }
                 val expectedColIndexByElementIndex = expectedHeaders.indexOf(schema.elements[j].name)
-                val expectedColIndexByCsvIndex = if (!possibleCsvHeaders.isNullOrEmpty()) {
+                val expectedColIndexByCsvIndex = possibleCsvHeaders?.let {
                     var index = -1
                     possibleCsvHeaders.forEach csvLoop@{
-                        if ( expectedHeaders.indexOf(it) >= 0) {
+                        if (expectedHeaders.indexOf(it) >= 0) {
                             index = expectedHeaders.indexOf(it)
                             return@csvLoop
                         }
                     }
-                } else -1
+                    index
+                }
 
                 val expectedValue = when {
-                    expectedColIndexByElementIndex == null && expectedColIndexByElementIndex >= 0 ->
+                    expectedColIndexByElementIndex != null && expectedColIndexByElementIndex >= 0 ->
                         expectedRow[expectedColIndexByElementIndex].trim()
-                    expectedColIndexByCsvIndex == null && expectedColIndexByElementIndex >= 0 ->
+                    expectedColIndexByCsvIndex != null && expectedColIndexByElementIndex >= 0 ->
                         expectedRow[expectedColIndexByCsvIndex].trim()
                     else -> ""
                 }
