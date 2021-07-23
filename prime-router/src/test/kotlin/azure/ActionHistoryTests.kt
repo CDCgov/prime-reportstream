@@ -76,7 +76,7 @@ class ActionHistoryTests {
         assertThat(reportFile.receivingOrg).isNull()
 
         // not allowed to track the same report twice.
-        assertFails { actionHistory1.trackExternalInputReport(report1, blobInfo1) }
+        assertThat { actionHistory1.trackExternalInputReport(report1, blobInfo1) }.isFailure()
     }
 
     @Test

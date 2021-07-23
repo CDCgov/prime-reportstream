@@ -354,7 +354,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTS.time.value } returns dateFormatterWithTimeZone.format(now)
         every { mockTS.time.gmtOffset } returns 0
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)), dateTime)
+        assertThat(dateTime).isEqualTo(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)))
 
         // Field value is TS has a time, but no GMT offset
         every { mockTS.time } returns mockDTM
@@ -364,7 +364,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTS.time.value } returns dateFormatterWithTimeZone.format(now)
         every { mockTS.time.gmtOffset } returns -99
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)), dateTime)
+        assertThat(dateTime).isEqualTo(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)))
 
         // Field value is DR, but no range
         every { mockSegment.getField(any(), any()) } returns mockDR
@@ -384,7 +384,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockDR.rangeStartDateTime.time.valueAsDate } returns nowAsDate
         every { mockDR.rangeStartDateTime.time.value } returns dateFormatterWithTimeZone.format(now)
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)), dateTime)
+        assertThat(dateTime).isEqualTo(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)))
 
         // Generate a warning for not having the timezone offsets
         every { mockDR.rangeStartDateTime } returns mockTS
@@ -434,7 +434,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockDT.day } returns date.dayOfMonth
         every { mockSegment.getField(any(), any()) } returns mockDT
         val dateTime = serializer.decodeHl7DateTime(mockTerser, dateElement, dateElement.hl7Field!!, warnings)
-        assertEquals(formattedDate, dateTime)
+        assertThat(dateTime).isEqualTo(formattedDate)
 
         // Test a bit more the regex for the warning
         fun testForDateWarning(dateString: String, numExpectedWarnings: Int) {
