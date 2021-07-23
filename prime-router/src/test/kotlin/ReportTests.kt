@@ -6,7 +6,6 @@ import assertk.assertions.isNotEqualTo
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import kotlin.test.fail
 
 class ReportTests {
