@@ -21,7 +21,7 @@ PLAN_DIR="${SCRIPT_DIR?}/../../plan"
 
 # Does the command require an Azure backend?
 case "${TFCMD?}" in
-validate*)
+validate|graph)
     AZ_BACKEND_REQUIRED=0
     ;;
 *)
