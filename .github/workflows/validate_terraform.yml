@@ -92,7 +92,7 @@ jobs:
               --destination terraformplan \
               --destination-path "${{ github.run_id }}-${{ github.sha }}" \
               --source operations/app/plan \
-              --pattern staging-*
+              --pattern 'staging-*'
 
       - name: Directions for Downloading Plan
         if: ${{ always() }}
