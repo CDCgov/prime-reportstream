@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_router_change: ${{ steps.skip_check.outputs.router }}
-      is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
@@ -27,13 +26,11 @@ jobs:
             router:
               - 'prime-router/**'
               - '.github/workflows/build_hub.yml'
-      - id: fork_check
-        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
   build_router:
     name: Build Router
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     env:
       # These are for CI and not credentials of any system

@@ -269,10 +269,17 @@ class WorkflowEngine(
         val childReportIds = db.fetchChildReports(reportFile.reportId)
         childReportIds.forEach childIdFor@{ childId ->
             val lineages = db.fetchItemLineagesForReport(childId, reportFile.itemCount)
+<<<<<<< HEAD
             lineages?.forEach lineageFor@{ lineage ->
                 // Once a success, always a success
                 if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
                     return@lineageFor
+=======
+            lineages?.forEach lin@{ lineage ->
+                // Once a success, always a success
+                if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
+                    return@lin
+>>>>>>> master
                 itemsDispositionMap[lineage.parentIndex] = when {
                     lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ->
                         RedoxTransport.ResultStatus.FAILURE
