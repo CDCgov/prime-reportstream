@@ -120,8 +120,8 @@ class ReportView private constructor(
         fun facilities(facilities: ArrayList<Facility>) = apply { this.facilities = facilities }
         fun actions(actions: ArrayList<Action>) = apply { this.actions = actions }
         fun content(content: String) = apply { this.content = content }
-        fun fileName(fileName:String) = apply { this.fileName = fileName }
-        fun mimeType(mimeType:String) = apply {this.mimeType = mimeType }
+        fun fileName(fileName: String) = apply { this.fileName = fileName }
+        fun mimeType(mimeType: String) = apply { this.mimeType = mimeType }
 
         fun build() = ReportView(
             sent,
@@ -306,7 +306,7 @@ open class BaseHistoryFunction : Logging {
 
                 val header = workflowEngine.fetchHeader(it.reportId, authClaims.organization)
 
-                val content = if( header.content !== null) String(header.content) else "";
+                val content = if (header.content !== null) String(header.content) else ""
                 val filename = Report.formExternalFilename(header)
                 val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 
@@ -523,12 +523,13 @@ open class BaseHistoryFunction : Logging {
     }
 
     fun getActionsForReportId(reportId: String, authClaim: AuthClaims): ArrayList<Action> {
-        var header: Header?
-        var actions: ArrayList<Action> = ArrayList<Action>()
+        val actions: ArrayList<Action> = ArrayList<Action>()
 
-        try {
-            header = workflowEngine.fetchHeader(ReportId.fromString(reportId), authClaim.organization)
-        } catch (ex: Exception) { header = null }
+        val header: Header? = try {
+            workflowEngine.fetchHeader(ReportId.fromString(reportId), authClaim.organization)
+        } catch (ex: Exception) {
+            null
+        }
 
         /* 
         if( header !== null && header.itemLineages !== null ){

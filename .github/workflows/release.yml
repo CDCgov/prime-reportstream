@@ -37,7 +37,11 @@ jobs:
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/test/**/*.xml
@@ -47,7 +51,11 @@ jobs:
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/testIntegration/**/*.xml
@@ -65,33 +73,24 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend-react
-
-    strategy:
-      matrix:
-        node-version: [14.x]
+        working-directory: frontend
 
     steps:
-      - name: Checkout Repository
+      - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build React Site
-        run: npm run build --if-present
+      - name: Run Build Script
+        run: bash ci_build.bash
 
       - name: Save Static Website
         uses: actions/upload-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
-          path: frontend-react/build
+          path: frontend/dist
           retention-days: 7
+
+      - name: Validate static website server
+        run: bash ci_validate.bash
 
   deploy_release_dev:
     name: "Deploy Release: DEV"
@@ -119,7 +118,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
-          path: frontend-react/build
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
@@ -183,7 +182,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
 
   deploy_release_staging:
     name: "Deploy Release: STAGING"
@@ -211,7 +210,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
-          path: frontend-react/build
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
@@ -275,7 +274,8 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
@@ -303,7 +303,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: static_website-${{ github.run_id }}
-          path: frontend-react/build
+          path: frontend/dist
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
@@ -371,4 +371,5 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend-react/build
+            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
+            az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist

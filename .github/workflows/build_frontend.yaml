@@ -5,6 +5,9 @@ on:
     branches:
       - master
       - production
+  push:
+    branches:
+      - master
 
 jobs:
   pre_job:
@@ -12,8 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_frontend_change: ${{ steps.skip_check.outputs.frontend }}
-      is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
       - uses: dorny/paths-filter@v2
         id: skip_check
         with:
@@ -22,36 +26,29 @@ jobs:
             frontend:
               - 'frontend-react/**'
               - '.github/workflows/build_frontend.yml'
-      - id: fork_check
-        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
   build_frontend:
     name: Build Frontend
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_frontend_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    if: ${{ needs.pre_job.outputs.has_frontend_change == 'true' }}
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: frontend-react
+        working-directory: frontend
 
     steps:
-      - name: Checkout Repository
+      - name: "Check out changes"
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14'
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build React Site
-        run: npm run build --if-present
+      - name: Run Build Script
+        run: bash ci_build.bash
 
       - name: Save Static Website
         uses: actions/upload-artifact@v2
         with:
           name: static_website
-          path: frontend-react/build
+          path: frontend/dist
+
+      - name: Validate static website server
+        run: bash ci_validate.bash
