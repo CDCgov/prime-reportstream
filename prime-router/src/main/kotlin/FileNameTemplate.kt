@@ -146,7 +146,7 @@ open class FileNameTemplate(
                     val e = it.first as FileNameElement
                     // if the file element type is the UUID, combine args
                     val args = if (e is FileUuid) {
-                        it.second + reportId.toString()
+                        listOf(reportId.toString())
                     } else {
                         it.second
                     }

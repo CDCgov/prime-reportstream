@@ -27,6 +27,11 @@ class FileNameTemplateTests {
         elements:
           - literal(cdcprime)
     """.trimIndent()
+    private val fileIdTemplate = """
+        ---
+        elements:
+            - uuid()
+    """.trimIndent()
     private val config = mockkClass(Hl7Configuration::class).also {
         every { it.receivingApplicationName }.returns("receiving application")
         every { it.receivingFacilityName }.returns("receiving facility")
@@ -62,6 +67,13 @@ class FileNameTemplateTests {
         val fileName = mapper.readValue<FileNameTemplate>(literal)
         val actual = fileName.getFileName(reportId = reportId)
         assertThat(actual).isEqualTo("cdcprime")
+    }
+
+    @Test
+    fun `test getting file name UUID`() {
+        val fileName = mapper.readValue<FileNameTemplate>(fileIdTemplate)
+        val actual = fileName.getFileName(reportId = reportId)
+        assertThat(actual).isEqualTo(reportId.toString())
     }
 
     @Test
