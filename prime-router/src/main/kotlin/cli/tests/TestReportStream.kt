@@ -1641,8 +1641,8 @@ class OtcProctored : CoolTest() {
         )
         for (pair in otcPairs) {
             ugly(
-                "Starting Otc Test: submitting a file containing a device_id: " +
-                    "${pair.first} should match receiver ${pair.second}."
+                "Starting Otc Test: submitting a file containing a device_id:" +
+                    " ${pair.first} should match receiver ${pair.second}."
             )
             val reFile = FileUtilities.replaceText(
                 "./src/test/csv_test_files/input/otc-template.csv",
