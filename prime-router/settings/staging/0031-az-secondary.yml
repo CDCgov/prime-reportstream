@@ -17,7 +17,7 @@ reverseTheQualityFilter: true
 deidentify: false
 timing:
   operation: "MERGE"
-  numberPerDay: 1
+  numberPerDay: 1440
   initialTime: "09:16"
   timeZone: "EASTERN"
   maxReportCount: 500

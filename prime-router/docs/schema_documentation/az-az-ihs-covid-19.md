@@ -1,6 +1,6 @@
 
 ### Schema:         az/az-ihs-covid-19
-#### Description:   Schema for the John Hopkins sender. Modeled after the Arizona flat-file specification.
+#### Description:   Schema for the Johns Hopkins sender. Modeled after the Arizona flat-file specification.
 
 ---
 
