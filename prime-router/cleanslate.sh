@@ -72,7 +72,7 @@ Examples:
 
   # Use this if you like to change ownership of some directories that are
   # potentially shared with container instances
-  $ ${0} --take-ownership 
+  $ ${0} --keep-all --take-ownership 
 
 EOF
 }
@@ -102,7 +102,7 @@ function error() {
 # Parameter: TAKE_OWNERSHIP value
 function take_directory_ownership() {
   
-  if [[ ${1} != 0 ]]; then
+  if [[ ${1:-1} != 0 ]]; then
     info "Taking ownership of directories (may require elevation)..."
     TARGETS=(
       "./build/"
