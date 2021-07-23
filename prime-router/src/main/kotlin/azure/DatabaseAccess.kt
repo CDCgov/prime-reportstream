@@ -41,6 +41,10 @@ const val databaseVariable = "POSTGRES_URL"
 const val userVariable = "POSTGRES_USER"
 const val passwordVariable = "POSTGRES_PASSWORD"
 
+// general max length of free from metadata strings since jooq/postgres
+// does not truncate values when persisting to the database
+const val METADATA_MAX_LENGTH = 512;
+
 typealias DataAccessTransaction = Configuration
 
 /**
@@ -565,36 +569,44 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .execute()
     }
 
+    /**
+     * Saves metadata to database. Since jooq/postgres does not truncate data that
+     * is too long, any columns that can be of varying length are truncated so the
+     * batch transaction is not lost. All of these columns have been normalized to
+     * METADATA_MAX_LENGTH out of convenience.
+     * @param testData : the report meta data to persist
+     * @param txn : the database transaction to use for this insert/update
+     */
     fun saveTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
         DSL.using(txn)
             .batchInsert(
                 testData.map { td ->
                     CovidResultMetadataRecord().also { record ->
-                        record.messageId = td.messageId
+                        record.messageId = td.messageId?.take(METADATA_MAX_LENGTH)
                         record.reportId = td.reportId
                         record.reportIndex = td.reportIndex
-                        record.orderingProviderName = td.orderingProviderName
-                        record.orderingProviderCounty = td.orderingProviderCounty
-                        record.orderingProviderId = td.orderingProviderId
+                        record.orderingProviderName = td.orderingProviderName?.take(METADATA_MAX_LENGTH)
+                        record.orderingProviderCounty = td.orderingProviderCounty?.take(METADATA_MAX_LENGTH)
+                        record.orderingProviderId = td.orderingProviderId?.take(METADATA_MAX_LENGTH)
                         record.orderingProviderPostalCode = td.orderingProviderPostalCode
-                        record.orderingProviderState = td.orderingProviderState
-                        record.orderingFacilityCity = td.orderingFacilityCity
-                        record.orderingFacilityCounty = td.orderingFacilityCounty
-                        record.orderingFacilityName = td.orderingFacilityName
+                        record.orderingProviderState = td.orderingProviderState?.take(METADATA_MAX_LENGTH)
+                        record.orderingFacilityCity = td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
+                        record.orderingFacilityCounty = td.orderingFacilityCounty?.take(METADATA_MAX_LENGTH)
+                        record.orderingFacilityName = td.orderingFacilityName?.take(METADATA_MAX_LENGTH)
                         record.orderingFacilityPostalCode = td.orderingFacilityPostalCode
-                        record.orderingFacilityState = td.orderingFacilityState
-                        record.testResult = td.testResult
+                        record.orderingFacilityState = td.orderingFacilityState?.take(METADATA_MAX_LENGTH)
+                        record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
                         record.testResultCode = td.testResultCode
-                        record.equipmentModel = td.equipmentModel
+                        record.equipmentModel = td.equipmentModel?.take(METADATA_MAX_LENGTH)
                         record.specimenCollectionDateTime = td.specimenCollectionDateTime
-                        record.testingLabCity = td.testingLabCity
+                        record.testingLabCity = td.testingLabCity?.take(METADATA_MAX_LENGTH)
                         record.testingLabClia = td.testingLabClia
-                        record.testingLabCounty = td.testingLabCounty
-                        record.testingLabName = td.testingLabName
+                        record.testingLabCounty = td.testingLabCounty?.take(METADATA_MAX_LENGTH)
+                        record.testingLabName = td.testingLabName?.take(METADATA_MAX_LENGTH)
                         record.testingLabPostalCode = td.testingLabPostalCode
-                        record.testingLabState = td.testingLabState
+                        record.testingLabState = td.testingLabState?.take(METADATA_MAX_LENGTH)
                         record.patientAge = td.patientAge
-                        record.patientCounty = td.patientCounty
+                        record.patientCounty = td.patientCounty?.take(METADATA_MAX_LENGTH)
                         record.patientEthnicity = td.patientEthnicity
                         record.patientEthnicityCode = td.patientEthnicityCode
                         record.patientGender = td.patientGender
@@ -602,7 +614,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                         record.patientPostalCode = td.patientPostalCode
                         record.patientRace = td.patientRace
                         record.patientRaceCode = td.patientRaceCode
-                        record.patientState = td.patientState
+                        record.patientState = td.patientState?.take(METADATA_MAX_LENGTH)
+                        record.siteOfCare = td.siteOfCare?.take(METADATA_MAX_LENGTH)
                     }
                 }
             )
