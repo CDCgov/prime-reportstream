@@ -1,4 +1,4 @@
-name: Pushing Docker to GitHub
+name: Publish Container to GitHub
 
 on:
   pull_request:
