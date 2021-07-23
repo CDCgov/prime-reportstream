@@ -30,8 +30,10 @@ help: ## This help
 	@awk 'BEGIN {FS = " = .*?#VAR "} /^[a-zA-Z0-9_-]+ = .*?#VAR / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sed "s/^/    - /g" | sort
 	@echo ""
 	@echo "Example: "
-	@echo "    make TF_ENV=\"test\" all"
-	@echo "    make TF_ENV=\"dev\" AZ_RESOURCE_PREFIX=\"rkh5012\" zdd-promote-slot"
+	@echo "    make TF_ENV='test' tf-01-network"
+	@echo "    make TF_ENV='staging' AZ_RESOURCE_PREFIX='pdhtest' AZ_RESOURCE_GROUP='prime-data-hub-test' zdd-promote-slot"
+	@echo "    make TF_ENV='staging' tf-validate"
+	@echo "    make TF_ENV='staging' AZ_SERVICE_PRINCIPAL=\"{...service principal json...}\" tf-plan"
 	@echo ""
 
 .DEFAULT_GOAL := help
