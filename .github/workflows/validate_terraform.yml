@@ -24,8 +24,6 @@ jobs:
               - 'operations/Dockerfile'
               - 'operations/Makefile'
               - '.github/workflows/validate_terraform.yml'
-      - id: fork_check
-        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
   validate_terraform_yaml:
     name: Validate Terraform YAML
