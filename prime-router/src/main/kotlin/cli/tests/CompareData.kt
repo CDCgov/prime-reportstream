@@ -679,6 +679,9 @@ class CompareCsvData {
             for (j in actualRow.indices) {
                 val actualValue = actualRow[j].trim()
                 val colName = schema.elements[j].name
+
+                // Find the proper column in the expected data, so we do not rely on column ordering
+                // Searching both by element name and CSV name allows for having internal.csv files.
                 val possibleCsvHeaders = schema.elements[j].csvFields?.map { it.name }
                 val expectedColIndexByElementIndex = expectedHeaders.indexOf(schema.elements[j].name)
                 val expectedColIndexByCsvIndex = possibleCsvHeaders?.let {
@@ -700,6 +703,7 @@ class CompareCsvData {
                     else -> ""
                 }
 
+                // If there is an expected value then compare it.
                 if (expectedValue.isNotBlank()) {
 
                     // For date/time values, the string has timezone offsets that can differ per environment, so
