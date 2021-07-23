@@ -44,10 +44,10 @@ help: ## This help
 build-tf: ## Build the Terraform docker container
 	@docker-compose build
 
-tf-cli: build-tf ## Drops into a Docker container configured with the Terraform CLI and Azure
+tf-cli: ## Drops into a Docker container configured with the Terraform CLI and Azure
 	@docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) tf-cli
 
-tf-cmd: build-tf .az-configure-service-principal ## Run a command in the Docker container configured with the Terraform CLI and Azure
+tf-cmd: .az-configure-service-principal ## Run a command in the Docker container configured with the Terraform CLI and Azure
 	@echo -e ""
 	@echo -e ""
 	@echo -e "$(COLOR_AZURE)---$(COLOR_NONE)"
