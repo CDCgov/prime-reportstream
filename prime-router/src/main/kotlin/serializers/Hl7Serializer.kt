@@ -1088,7 +1088,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                             val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.{0,1}[0-9]{0,4}[+-][0-9]{4}\\]\$")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    "Timestamp for $hl7Field - ${element.name} needs to provide more " +
+                                    "Timestamp for $hl7Field - ${element.name} should provide more " +
                                         "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
                                 )
                             }
@@ -1100,7 +1100,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                             val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    "Date for $hl7Field - ${element.name} needs to provide more " +
+                                    "Date for $hl7Field - ${element.name} shouldprovide more " +
                                         "precision. Should be formatted as YYYYMMDD"
                                 )
                             }
