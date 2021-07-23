@@ -14,6 +14,7 @@ KEEP_BUILD_ARTIFACTS=0
 KEEP_PRIME_CONTAINER_IMAGES=0
 KEEP_ALL=0
 PRUNE_VOLUMES=0
+RETAKE_OWNERSHIP=0
 
 function usage() {
   cat <<EOF
@@ -31,6 +32,8 @@ OPTIONS:
   --prune-volumes           Forces a docker volume prune -f after taking containers
                             down (disables --keep-vault, including when set via --keep-all)
   --instructions            Shows post-run instructions
+  --retake-ownership        Change ownership of directories that are potentially 
+                            shared with container instances
   --verbose                 Get "more" output
   --help|-h                 Shows this help
 
@@ -66,6 +69,10 @@ Examples:
 
   # Use this if you like chasing red herrings in debug-land
   $ ${0} --keep-images
+
+  # Use this if you like to change ownership of some directories that are
+  # potentially shared with container instances
+  $ ${0} --retake-ownership 
 
 EOF
 }
@@ -311,7 +318,10 @@ function populate_vault() {
 function cleanup() {
   info "> Cleaning up your environment..."
   docker_decompose
-  take_directory_ownership
+  if [[ ${RETAKE_OWNERSHIP?} != 0 ]]; then
+    info "Change directory ownership" 
+    take_directory_ownership
+  fi
   cleanup_build_artifacts
   reset_vault
   return 0
@@ -324,7 +334,10 @@ function initialize() {
   ensure_binaries
   activate_containers
   populate_vault
-  take_directory_ownership
+  if [[ ${RETAKE_OWNERSHIP?} != 0 ]]; then
+    info "Change directory ownership" 
+    take_directory_ownership
+  fi
   return 0
 }
 
@@ -369,6 +382,9 @@ while [[ -n ${1} ]]; do
     ;;
   "--verbose")
     VERBOSE=1
+    ;;
+  "--retake-ownership")
+    RETAKE_OWNERSHIP=1
     ;;
   *)
     usage
