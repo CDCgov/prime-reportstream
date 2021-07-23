@@ -48,12 +48,12 @@ tf-cli: build-tf ## Drops into a Docker container configured with the Terraform 
 	@docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) tf-cli
 
 tf-cmd: build-tf .az-configure-service-principal ## Run a command in the Docker container configured with the Terraform CLI and Azure
-	@echo -e "$(COLOR_AZURE)"
 	@echo -e ""
-	@echo -e "---"
-	@echo -e "RUNNING COMMAND \"$(TF_CMD)\" AGAINST TERRAFORM STAGE \"$(TF_STAGE)\" IN ENVIRONMENT \"$(TF_ENV)\""
-	@echo -e "---"
-	@echo -e "$(COLOR_NONE)"
+	@echo -e ""
+	@echo -e "$(COLOR_AZURE)---$(COLOR_NONE)"
+	@echo -e "$(COLOR_AZURE)RUNNING COMMAND \"$(TF_CMD)\" AGAINST TERRAFORM STAGE \"$(TF_STAGE)\" IN ENVIRONMENT \"$(TF_ENV)\"$(COLOR_NONE)"
+	@echo -e "$(COLOR_AZURE)---$(COLOR_NONE)"
+	@echo -e ""
 ifdef AZ_SERVICE_PRINCIPAL
 	@docker-compose run \
 		-e ARM_CLIENT_ID='$(ARM_CLIENT_ID)' \
