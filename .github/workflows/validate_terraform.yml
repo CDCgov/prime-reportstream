@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_operations_change: ${{ steps.skip_check.outputs.operations }}
-      is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
       - uses: dorny/paths-filter@v2
         id: skip_check
@@ -31,7 +30,7 @@ jobs:
   validate_terraform_yaml:
     name: Validate Terraform YAML
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -47,7 +46,7 @@ jobs:
   generate_terraform_plan_staging:
     name: Generate Terraform Plan for Staging
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
     environment: staging
     runs-on: ubuntu-latest
     steps:
