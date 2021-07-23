@@ -51,7 +51,7 @@ jobs:
 
       - name: Build Docker Terraform CLI
         run: |
-          make build-tf
+          make build-tf-cli
 
       - name: Push to the Container Registry
         run: |

@@ -20,7 +20,7 @@ ZDD_TARGET_SLOT = "production" #VAR Destination function app slot to deploy to
 # HELP
 # This will output the help for each task
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
-.PHONY: help tf-cli tf-cmd tf-01-network tf-02-config tf-03-persistent tf-04-app tf-validate tf-plan zdd-promote-slot
+.PHONY: help build-tf-cli pull-tf-cli tf-cli tf-cmd tf-01-network tf-02-config tf-03-persistent tf-04-app tf-validate tf-plan zdd-promote-slot
 
 help: ## This help
 	@echo "Invoke any of the following targets"
@@ -41,13 +41,16 @@ help: ## This help
 
 # TERRAFORM
 
-build-tf: ## Build the Terraform docker container
+build-tf-cli: ## Build the Terraform docker container
 	@docker-compose build
 
-tf-cli: ## Drops into a Docker container configured with the Terraform CLI and Azure
+pull-tf-cli: ## Pull the Terraform docker container
+	@docker-compose pull
+
+tf-cli: pull-tf-cli ## Drops into a Docker container configured with the Terraform CLI and Azure
 	@docker-compose run -e ENVIRONMENT=$(TF_ENV) -w /app/src/environments/$(TF_STAGE) tf-cli
 
-tf-cmd: .az-configure-service-principal ## Run a command in the Docker container configured with the Terraform CLI and Azure
+tf-cmd: pull-tf-cli .az-configure-service-principal ## Run a command in the Docker container configured with the Terraform CLI and Azure
 	@echo -e ""
 	@echo -e ""
 	@echo -e "$(COLOR_AZURE)---$(COLOR_NONE)"
