@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
@@ -20,7 +21,6 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
-import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
@@ -47,13 +47,12 @@ class WorkflowEngine(
     val redoxSerializer: RedoxSerializer = WorkflowEngine.redoxSerializer,
     val translator: Translator = Translator(metadata, settings),
     // New connection for every function
-    val db: DatabaseAccess = WorkflowEngine.databaseAccess,
+    val db: DatabaseAccess = databaseAccess,
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
     val queue: QueueAccess = QueueAccess(),
     val sftpTransport: SftpTransport = SftpTransport(),
     val redoxTransport: RedoxTransport = RedoxTransport(),
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(),
-    val nullTransport: NullTransport = NullTransport(),
     val as2Transport: AS2Transport = AS2Transport()
 ) {
     /**
@@ -65,28 +64,24 @@ class WorkflowEngine(
     }
 
     /**
-     * Place a report into the workflow
+     * Record a received [report] from a [sender] into the action history and save the original [rawBody]
+     * of the received message.
      */
-    fun receiveReport(
-        validatedRequest: ReportFunction.ValidatedRequest,
+    fun recordReceivedReport(
+        report: Report,
+        rawBody: ByteArray,
+        sender: Sender,
         actionHistory: ActionHistory,
-        txn: Configuration? = null
+        workflowEngine: WorkflowEngine
     ) {
-        if (validatedRequest.report == null) error("Cannot receive a null report")
-        val blobInfo = blob.uploadBody(validatedRequest.report)
-        try {
-            val receiveEvent = ReportEvent(Event.EventAction.RECEIVE, validatedRequest.report.id, null)
-            db.insertTask(
-                validatedRequest.report, blobInfo.format.toString(), blobInfo.blobUrl, receiveEvent, txn
-            )
-            // todo bodyURL is no longer needed in report; its in 'blobInfo'
-            validatedRequest.report.bodyURL = blobInfo.blobUrl
-            actionHistory.trackExternalInputReport(validatedRequest, blobInfo)
-        } catch (e: Exception) {
-            // Clean up
-            blob.deleteBlob(blobInfo.blobUrl)
-            throw e
-        }
+        // Save a copy of the original report
+        val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
+        val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
+        val blobInfo = workflowEngine.blob.uploadBody(
+            senderReportFormat, rawBody,
+            blobFilename, sender.fullName, Event.EventAction.RECEIVE
+        )
+        actionHistory.trackExternalInputReport(report, blobInfo)
     }
 
     /**
@@ -100,9 +95,10 @@ class WorkflowEngine(
         txn: Configuration? = null,
         context: ExecutionContext? = null
     ) {
+        val receiverName = "${receiver.organizationName}.${receiver.name}"
         val blobInfo = try {
             // formatting errors can occur down in here.
-            blob.uploadBody(report)
+            blob.uploadBody(report, receiverName, nextAction.eventAction)
         } catch (ex: Exception) {
             context?.logger?.warning(
                 "Got exception while dispatching to schema ${report.schema.name}" +
@@ -110,6 +106,10 @@ class WorkflowEngine(
             )
             throw ex
         }
+        context?.logger?.fine(
+            "Saved dispatched report for receiver $receiverName" +
+                " to blob ${blobInfo.blobUrl}"
+        )
         try {
             db.insertTask(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
             // todo remove this; its now tracked in BlobInfo
@@ -267,12 +267,12 @@ class WorkflowEngine(
             for (i in 0 until reportFile.itemCount) this[i] = RedoxTransport.ResultStatus.NEVER_ATTEMPTED
         }
         val childReportIds = db.fetchChildReports(reportFile.reportId)
-        childReportIds.forEach { childId ->
+        childReportIds.forEach childIdFor@{ childId ->
             val lineages = db.fetchItemLineagesForReport(childId, reportFile.itemCount)
-            lineages?.forEach { lineage ->
+            lineages?.forEach lineageFor@{ lineage ->
                 // Once a success, always a success
                 if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
-                    return@forEach
+                    return@lineageFor
                 itemsDispositionMap[lineage.parentIndex] = when {
                     lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ->
                         RedoxTransport.ResultStatus.FAILURE

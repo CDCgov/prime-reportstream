@@ -31,6 +31,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
+import java.util.TimeZone
 
 class Hl7Serializer(val metadata: Metadata) : Logging {
     data class Hl7Mapping(
@@ -161,9 +162,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
          * Query the terser and get a value.
          * @param terser the HAPI terser
          * @param terserSpec the HL7 field to fetch as a terser spec
-         * @param elementName the name of the element this value is for
          * @param errors the list of errors for this message decoding
-         * @param warnings the list of warnings for this message decoding
          * @return the value from the HL7 message or an empty string if no value found
          */
         fun queryTerserForValue(
@@ -186,7 +185,6 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
          * @param element the element for the AOE question
          * @param terser the HAPI terser
          * @param errors the list of errors for this message decoding
-         * @param warnings the list of warnings for this message decoding
          * @return the value from the HL7 message or an empty string if no value found
          */
         fun decodeAOEQuestion(
@@ -320,7 +318,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             if (!element.isOptional) {
                 var isValueEmpty = true
                 mappedRows[element.name]?.forEach { elementValues ->
-                    if (!elementValues.isNullOrEmpty()) {
+                    if (elementValues.isNotEmpty()) {
                         isValueEmpty = false
                     }
                 }
@@ -433,7 +431,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     val truncatedValue = if (
                         value.length > HD_TRUNCATION_LIMIT &&
                         element.type == Element.Type.TEXT &&
-                        hl7Field in HD_FIELDS &&
+                        hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
                         value.substring(0, HD_TRUNCATION_LIMIT)
@@ -472,7 +470,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
                 setComponentForTable(terser, element, report, row)
             } else if (
-                element.type == Element.Type.TEXT && !element.hl7Field.isNullOrEmpty() && element.hl7Field in HD_FIELDS
+                element.type == Element.Type.TEXT &&
+                !element.hl7Field.isNullOrEmpty() &&
+                element.hl7Field in HD_FIELDS_LOCAL
             ) {
                 // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                 // text, but need to be truncated because they're the first part of an HD field. For example,
@@ -564,12 +564,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         }
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
-            Element.Type.ID_CLIA -> {
-                if (value.isNotEmpty()) {
-                    terser.set(pathSpec, value)
-                    terser.set(nextComponent(pathSpec), "CLIA")
-                }
-            }
+            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, element)
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
                     val hd = Element.parseHD(value, hdFieldMaximumLength)
@@ -643,6 +638,27 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     }
 
     /**
+     * Set the [value] into the [hl7Field] in the passed in [terser].
+     * If [hl7Field] points to a universal HD field, set [value] as the Universal ID field
+     * and set 'CLIA' as the Universal ID Type.
+     * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
+     */
+    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String, element: Element) {
+        if (value.isEmpty()) return
+
+        val pathSpec = formPathSpec(hl7Field)
+        terser.set(pathSpec, value)
+
+        when (hl7Field) {
+            in HD_FIELDS_UNIVERSAL,
+            in CE_FIELDS -> {
+                val nextComponent = nextComponent(pathSpec)
+                terser.set(nextComponent, "CLIA")
+            }
+        }
+    }
+
+    /**
      * Set the XTN component using [phoneNumberFormatting] to control details
      */
     internal fun setTelephoneComponent(
@@ -672,7 +688,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
                     val phoneNumber = "($areaCode)$localWithDash" +
-                        if (extension.isNotEmpty()) "X${extension}" else ""
+                        if (extension.isNotEmpty()) "X$extension" else ""
                     terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }
@@ -1035,7 +1051,13 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 when (val value = segment.getField(fieldNumber, 0)) {
                     // Timestamp
                     is TS -> {
-                        dtm = value.time?.valueAsDate?.toInstant()
+                        // If the offset was not specified then set the timezone to UTC instead of the system default
+                        // -99 is the value returned from HAPI when no offset is specified
+                        if (value.time?.gmtOffset == -99) {
+                            val cal = value.time?.valueAsCalendar
+                            cal?.let { it.timeZone = TimeZone.getTimeZone("GMT") }
+                            dtm = cal?.toInstant()
+                        } else dtm = value.time?.valueAsDate?.toInstant()
                         rawValue = value.toString()
                     }
                     // Date range. For getting a date time, use the start of the range
@@ -1055,8 +1077,8 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     when (element.type) {
                         Element.Type.DATETIME -> {
                             valueString = DateTimeFormatter.ofPattern(Element.datetimePattern)
-                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.systemDefault()))
-                            val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.{0,1}[0-9]{0,4}[+-][0-9]{4}\\]\$")
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
+                            val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
                                     "Timestamp for $hl7Field - ${element.name} needs to provide more " +
@@ -1066,7 +1088,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                         }
                         Element.Type.DATE -> {
                             valueString = DateTimeFormatter.ofPattern(Element.datePattern)
-                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.systemDefault()))
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
                             // Note that some schema fields of type date could be derived from HL7 date time fields
                             val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
                             if (!r.matches(rawValue)) {
@@ -1103,6 +1125,36 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
         const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
-        val HD_FIELDS = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "PID-3-4-1")
+
+        /*
+        From the HL7 2.5.1 Ch 2A spec...
+
+        The Hierarchical Designator identifies an entity that has responsibility for managing or
+        assigning a defined set of instance identifiers.
+
+        The HD is designed to be used either as a local identifier (with only the <namespace ID> valued)
+        or a publicly-assigned identifier, a UID (<universal ID> and <universal ID type> both valued)
+         */
+
+        /**
+         * List of fields that have the local HD type.
+         */
+        val HD_FIELDS_LOCAL = listOf(
+            "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
+            "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2"
+        )
+
+        /**
+         * List of fields that have the universal HD type
+         */
+        val HD_FIELDS_UNIVERSAL = listOf(
+            "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
+            "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
+        )
+
+        /**
+         * List of fields that have a CE type
+         */
+        val CE_FIELDS = listOf("OBX-15-1")
     }
 }

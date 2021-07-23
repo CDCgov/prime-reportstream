@@ -97,6 +97,16 @@
       schemaName: direct/careevolution-covid-19
       format: HL7
 
+- name: "john_hopkins"
+  description: "John Hopkin's / IHS school testing program"
+  jurisdiction: "FEDERAL"
+  senders:
+    - name: "default"
+      organizationName: "john_hopkins"
+      format: "CSV"
+      topic: "covid-19"
+      schemaName: "AZ/az-ihs-covid-19"
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -122,6 +132,24 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: elr-secondary
+      organizationName: az-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state,AZ)
+      reverseTheQualityFilter: true
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19
+        format: CSV
+        nameFormat: standard_secondary
+
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: ARIZONA
+      # Download only, no transport
 
 - name: pima-az-phd
   description: Pima County, Arizona PHD
@@ -304,7 +332,21 @@
       organizationName: vt-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(ordering_facility_state, VT)
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+      deidentify: false
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NBS
+        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+        receivingFacilityName: VDH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.185
+    - name: elr-secondary
+      organizationName: vt-doh
+      topic: covid-19
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+      reverseTheQualityFilter: true
       deidentify: false
       translation:
         type: HL7
@@ -1250,6 +1292,7 @@
       format: HL7
   receivers:
     - name: CSV
+      externalName: The CSV receiver for Ignore
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, CSV)" ]
@@ -1268,6 +1311,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: HL7
+      externalName: Ignore HL7
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7)" ]
@@ -1286,6 +1330,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: HL7_BATCH
+      externalName: Ignore HL7_BATCH
       organizationName: ignore
       topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)", "matches(ordering_facility_county, HL7_BATCH)" ]

@@ -18,6 +18,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.WorkflowEngine.Header
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.StringReader
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
@@ -81,7 +82,10 @@ class ReportView private constructor(
     val sendingOrg: String?,
     val receivingOrg: String?,
     val facilities: ArrayList<Facility>?,
-    val actions: ArrayList<Action>?
+    val actions: ArrayList<Action>?,
+    val content: String?,
+    val fileName: String?,
+    val mimeType: String?
 ) {
 
     data class Builder(
@@ -96,7 +100,11 @@ class ReportView private constructor(
         var sendingOrg: String? = null,
         var receivingOrg: String? = null,
         var facilities: ArrayList<Facility>? = ArrayList<Facility>(),
-        var actions: ArrayList<Action>? = ArrayList<Action>()
+        var actions: ArrayList<Action>? = ArrayList<Action>(),
+        var content: String? = null,
+        var fileName: String? = null,
+        var mimeType: String? = null
+
     ) {
 
         fun sent(sent: Long) = apply { this.sent = sent }
@@ -111,6 +119,10 @@ class ReportView private constructor(
         fun receivingOrg(receivingOrg: String) = apply { this.receivingOrg = receivingOrg }
         fun facilities(facilities: ArrayList<Facility>) = apply { this.facilities = facilities }
         fun actions(actions: ArrayList<Action>) = apply { this.actions = actions }
+        fun content(content: String) = apply { this.content = content }
+        fun fileName(fileName: String) = apply { this.fileName = fileName }
+        fun mimeType(mimeType: String) = apply { this.mimeType = mimeType }
+
         fun build() = ReportView(
             sent,
             via,
@@ -123,7 +135,10 @@ class ReportView private constructor(
             sendingOrg,
             receivingOrg,
             facilities,
-            actions
+            actions,
+            content,
+            fileName,
+            mimeType
         )
     }
 }
@@ -175,13 +190,31 @@ class GetReports :
     fun run(
         @HttpTrigger(
             name = "getReports",
-            methods = [HttpMethod.GET],
+            methods = [HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "history/report"
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        return GetReports(request, context)
+        return getReports(request, context)
+    }
+}
+
+class GetReportsByOrganization :
+    BaseHistoryFunction() {
+    @FunctionName("getReportsByOrganization")
+    @StorageAccount("AzureWebJobsStorage")
+    fun run(
+        @HttpTrigger(
+            name = "getReportsByOrganization",
+            methods = [HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/reports/{organizationName}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("organizationName") organizationName: String,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+        return getReports(request, context, organizationName)
     }
 }
 
@@ -238,23 +271,28 @@ class GetSummary : BaseHistoryFunction() {
     }
 }
 
-open class BaseHistoryFunction {
-
+open class BaseHistoryFunction : Logging {
     val DAYS_TO_SHOW = 30L
     val workflowEngine = WorkflowEngine()
 
-    fun GetReports(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
+    fun getReports(
+        request: HttpRequestMessage<String?>,
+        context: ExecutionContext,
+        organizationName: String? = null
+    ): HttpResponseMessage {
+        logger.info("Checking authorization for getReports")
         val authClaims = checkAuthenticated(request, context)
-        if (authClaims == null) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
         var response: HttpResponseMessage
         try {
+            logger.info("Getting reports for ${organizationName ?: authClaims.organization.name}")
             val headers = workflowEngine.db.fetchDownloadableReportFiles(
-                OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
+                OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
+                organizationName ?: authClaims.organization.name
             )
 
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-            var reports = headers.sortedByDescending { it.createdAt }.map {
-
+            val reports = headers.sortedByDescending { it.createdAt }.map {
                 var facilities = arrayListOf<Facility>()
                 if (it.bodyFormat == "CSV")
                     try {
@@ -264,8 +302,13 @@ open class BaseHistoryFunction {
                     } catch (ex: Exception) {
                         // context.logger.info( "Exception during getFieldSummaryForReportId - TestingLabName was not found - no facilities data will be published" );
                     }
+                val actions = getActionsForReportId(it.reportId.toString(), authClaims)
 
-                var actions = getActionsForReportId(it.reportId.toString(), authClaims)
+                val header = workflowEngine.fetchHeader(it.reportId, authClaims.organization)
+
+                val content = if (header.content !== null) String(header.content) else ""
+                val filename = Report.formExternalFilename(header)
+                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 
                 ReportView.Builder()
                     .reportId(it.reportId.toString())
@@ -277,6 +320,9 @@ open class BaseHistoryFunction {
                     .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
                     .facilities(facilities)
                     .actions(actions)
+                    .content(content)
+                    .fileName(filename)
+                    .mimeType(mimeType)
                     .build()
             }
 
@@ -477,10 +523,9 @@ open class BaseHistoryFunction {
     }
 
     fun getActionsForReportId(reportId: String, authClaim: AuthClaims): ArrayList<Action> {
-        var header: Header? // variable is assigned but never used
-        var actions: ArrayList<Action> = ArrayList<Action>()
+        val actions: ArrayList<Action> = ArrayList<Action>()
 
-        header = try {
+        val header: Header? = try {
             workflowEngine.fetchHeader(ReportId.fromString(reportId), authClaim.organization)
         } catch (ex: Exception) {
             null

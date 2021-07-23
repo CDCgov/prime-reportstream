@@ -2,7 +2,6 @@
  * 
  */
  (async () => {
-
     // checkJWT - no redirect
     processJwtToken();
 
@@ -20,4 +19,6 @@
 
     // charts
     /* processCharts(); */
-})();
+})().catch(err => {
+    console.error(err);
+});

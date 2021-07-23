@@ -14,7 +14,7 @@ Properties that can be overriden using an environment variable only:
 Properties to control the execution and output using the Gradle -P arguments:
   forcetest - Force the running of the test regardless of changes
   showtests - Verbose output of the unit tests
-  E.g. ./build.sh -- gradle clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
+  E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -242,16 +242,18 @@ tasks.register<JavaExec>("primeCLI") {
     environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
-    if (project.extra.has("cliArgs")) {
-        args = project.extra["cliArgs"] as MutableList<String>
-    } else {
-        args = listOf("-h")
-        println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
-        println(
-            "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
-                "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
-                "--target-counties 'Santa Clara' --output-format CSV\""
-        )
+    doFirst {
+        if (project.extra.has("cliArgs")) {
+            args = project.extra["cliArgs"] as MutableList<String>
+        } else if (args.isNullOrEmpty()) {
+            args = listOf("-h")
+            println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
+            println(
+                "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
+                    "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
+                    "--target-counties 'Santa Clara' --output-format CSV\""
+            )
+        }
     }
 }
 
@@ -400,6 +402,7 @@ tasks.register("quickPackage") {
     dependsOn("copyAzureResources")
     dependsOn("copyAzureScripts")
     tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
@@ -407,6 +410,7 @@ tasks.register("quickPackage") {
 
 repositories {
     mavenCentral()
+    jcenter()
     maven {
         url = uri("https://jitpack.io")
     }
@@ -476,6 +480,9 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
     implementation("org.bouncycastle:bcmail-jdk15on:1.69")
     implementation("org.bouncycastle:bcprov-jdk15on:1.69")
+
+    implementation("com.cronutils:cron-utils:9.1.5")
+    implementation("khttp:khttp:0.1.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
