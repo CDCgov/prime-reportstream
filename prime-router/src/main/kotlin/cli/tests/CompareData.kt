@@ -602,7 +602,7 @@ class CompareCsvData {
                     actualRow[schemaPatStateIndex].trim() else null
 
                 // Find the expected row that matches the actual record
-                val expectedRowRaw = expectedRows.filter {
+                val matchingExpectedRow = expectedRows.filter {
                     schemaMsgIdIndex != null && it[schemaMsgIdIndex] == actualMsgId ||
                         (
                             schemaPatLastNameIndex != null && schemaPatStateIndex != null &&
@@ -610,8 +610,8 @@ class CompareCsvData {
                                 it[schemaPatStateIndex] == actualPatState
                             )
                 }
-                if (expectedRowRaw.size == 1) {
-                    if (!compareCsvRow(actualRow, expectedRowRaw[0], schema, i, result)) {
+                if (matchingExpectedRow.size == 1) {
+                    if (!compareCsvRow(actualRow, matchingExpectedRow[0], expectedRows[0], schema, i, result)) {
                         result.errors.add("Comparison for row #$i FAILED")
                     }
                 } else {
@@ -650,6 +650,7 @@ class CompareCsvData {
     fun compareCsvRow(
         actualRow: List<String>,
         expectedRow: List<String>,
+        expectedHeaders: List<String>,
         schema: Schema,
         actualRowNum: Int,
         result: CompareData.Result
@@ -674,18 +675,36 @@ class CompareCsvData {
                 )
             }
 
-            // Loop through all the expected columns ignoring the header row
-            for (j in expectedRow.indices) {
+            // Loop through all the actual columns
+            for (j in actualRow.indices) {
+                val actualValue = actualRow[j].trim()
                 val colName = schema.elements[j].name
+                val possibleCsvHeaders = schema.elements[j].csvFields?.map { it.name }
+                val expectedColIndexByElementIndex = expectedHeaders.indexOf(schema.elements[j].name)
+                val expectedColIndexByCsvIndex = if (!possibleCsvHeaders.isNullOrEmpty()) {
+                    var index = -1
+                    possibleCsvHeaders.forEach csvLoop@{
+                        if ( expectedHeaders.indexOf(it) >= 0) {
+                            index = expectedHeaders.indexOf(it)
+                            return@csvLoop
+                        }
+                    }
+                } else -1
 
-                if (expectedRow[j].isNotBlank()) {
-                    val actualValue = actualRow[j].trim()
-                    val expectedValue = expectedRow[j].trim()
+                val expectedValue = when {
+                    expectedColIndexByElementIndex == null && expectedColIndexByElementIndex >= 0 ->
+                        expectedRow[expectedColIndexByElementIndex].trim()
+                    expectedColIndexByCsvIndex == null && expectedColIndexByElementIndex >= 0 ->
+                        expectedRow[expectedColIndexByCsvIndex].trim()
+                    else -> ""
+                }
+
+                if (expectedValue.isNotBlank()) {
+
                     // For date/time values, the string has timezone offsets that can differ per environment, so
                     // compare the numeric value instead of just the string
-                    val a = schema.elements[j].type
                     if (schema.elements[j].type != null &&
-                        schema.elements[j].type == Element.Type.DATETIME && actualRow[j].isNotBlank()
+                        schema.elements[j].type == Element.Type.DATETIME && actualValue.isNotBlank()
                     ) {
                         try {
                             val expectedTime =
