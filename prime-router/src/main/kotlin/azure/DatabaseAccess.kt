@@ -43,7 +43,7 @@ const val passwordVariable = "POSTGRES_PASSWORD"
 
 // general max length of free from metadata strings since jooq/postgres
 // does not truncate values when persisting to the database
-const val METADATA_MAX_LENGTH = 512;
+const val METADATA_MAX_LENGTH = 512
 
 typealias DataAccessTransaction = Configuration
 
