@@ -17,6 +17,7 @@ import io.mockk.every
 import io.mockk.mockkClass
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -35,6 +36,7 @@ class FileNameTemplateTests {
     private val metadata = Metadata(Metadata.defaultMetadataDirectory)
     private val dateFormat = "yyyyMMdd"
     private val formatter = DateTimeFormatter.ofPattern(dateFormat)
+    private val reportId = UUID.randomUUID()
     private var formattedDate: String? = null
 
     private fun createFileName(yaml: String): FileNameTemplate {
@@ -58,7 +60,7 @@ class FileNameTemplateTests {
     @Test
     fun `test reading literal name element from yaml`() {
         val fileName = mapper.readValue<FileNameTemplate>(literal)
-        val actual = fileName.getFileName()
+        val actual = fileName.getFileName(reportId = reportId)
         assertThat(actual).isEqualTo("cdcprime")
     }
 
@@ -82,7 +84,7 @@ class FileNameTemplateTests {
         val expected = "cdcprime_yoyodyne"
         val fileName = createFileName(nameElementSerialized)
         // act
-        val actual = fileName.getFileName(translatorConfig = config)
+        val actual = fileName.getFileName(translatorConfig = config, reportId = reportId)
         // assert
         assertThat(actual).isEqualTo(expected)
     }
@@ -99,7 +101,7 @@ class FileNameTemplateTests {
         val expected = "cdcprime_yoyodyne"
         val fileName = createFileName(nameElementSerialized)
         // act
-        val actual = fileName.getFileName(translatorConfig = config)
+        val actual = fileName.getFileName(translatorConfig = config, reportId = reportId)
         // assert
         assertThat(actual).isEqualTo(expected)
     }
@@ -115,7 +117,7 @@ class FileNameTemplateTests {
         """.trimIndent()
         val fileName = createFileName(nameElementSerialized)
         // act
-        val actual = fileName.getFileName(translatorConfig = config)
+        val actual = fileName.getFileName(translatorConfig = config, reportId = reportId)
         val actualLast6 = actual.takeLast(6)
         // assert
         assertThat(actualLast6.length).isEqualTo(6)
@@ -155,7 +157,7 @@ class FileNameTemplateTests {
         val expected = expectedStartsWith.format(offsetDt)
         val fileName = createFileName(nameElementSerialized)
         // act
-        val actual = fileName.getFileName(translatorConfig = config)
+        val actual = fileName.getFileName(translatorConfig = config, reportId = reportId)
         // assert
         assertThat(actual).isEqualTo(expected)
     }
@@ -174,7 +176,7 @@ class FileNameTemplateTests {
         val expected = expectedStartsWith.format(offsetDt)
         val fileName = createFileName(nameElementSerialized)
         // act
-        val actual = fileName.getFileName(translatorConfig = config)
+        val actual = fileName.getFileName(translatorConfig = config, reportId = reportId)
         // assert
         assertThat(actual).startsWith(expected)
     }
@@ -200,7 +202,7 @@ class FileNameTemplateTests {
         val expected = "cdcprime_yoyodyne"
         val fileName = createFileName(nameElementSerialized)
         // act
-        val actual = fileName.getFileName(translatorConfig = config)
+        val actual = fileName.getFileName(translatorConfig = config, reportId = reportId)
         // assert
         assertThat(actual).isEqualTo(expected)
     }
@@ -218,7 +220,7 @@ class FileNameTemplateTests {
         val expected = "CDCPRIME_YOYODYNE"
         val fileName = createFileName(nameElementSerialized)
         // act
-        val actual = fileName.getFileName(translatorConfig = config)
+        val actual = fileName.getFileName(translatorConfig = config, reportId = reportId)
         // assert
         assertThat(actual).isEqualTo(expected)
     }
@@ -235,7 +237,7 @@ class FileNameTemplateTests {
         val expected = "CdcPrime_yoyodyne"
         val fileName = createFileName(nameElementSerialized)
         // act
-        val actual = fileName.getFileName(translatorConfig = config)
+        val actual = fileName.getFileName(translatorConfig = config, reportId = reportId)
         // assert
         assertThat(actual).isEqualTo(expected)
     }
@@ -296,7 +298,7 @@ class FileNameTemplateTests {
             every { it.receivingOrganization }.returns("laoph")
             every { it.processingModeCode }.returns("P")
         }
-        val fileName = aphlNameFormat?.getFileName(translationConfig)
+        val fileName = aphlNameFormat?.getFileName(translationConfig, reportId = reportId)
             ?: assertk.fail("error getting file name")
         assertThat(fileName).startsWith("cdcprime_cdcprime_laoph_production_production_$formattedDate")
     }
@@ -306,7 +308,7 @@ class FileNameTemplateTests {
         val key = "ohio"
         assertThat(metadata.fileNameTemplates).containsKey(key)
         val ohioNameFormat = metadata.fileNameTemplates[key]
-        val fileName = ohioNameFormat?.getFileName(null)
+        val fileName = ohioNameFormat?.getFileName(null, reportId = reportId)
             ?: assertk.fail("error getting Ohio name")
         assertThat(fileName).startsWith("CDCPRIME_$formattedDate")
     }
@@ -322,7 +324,7 @@ class FileNameTemplateTests {
         assertThat(metadata.fileNameTemplates).containsKey(key)
         // act
         val aphlNameFormat = metadata.fileNameTemplates[key]
-        val fileName = aphlNameFormat?.getFileName(config)
+        val fileName = aphlNameFormat?.getFileName(config, reportId = reportId)
             ?: assertk.fail("error getting aphl light file name")
         // assert
         assertThat(fileName).startsWith("cdcprime_laoph_production_$formattedDate")

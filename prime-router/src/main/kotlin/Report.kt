@@ -854,7 +854,7 @@ class Report : Logging {
             val fileName = when (translationConfig) {
                 null -> "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 else -> metadata.fileNameTemplates[nameFormat.lowercase()].run {
-                    this?.getFileName(translationConfig)
+                    this?.getFileName(translationConfig, id)
                         ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
             }
