@@ -17,6 +17,8 @@ jobs:
       has_frontend_change: ${{ steps.skip_check.outputs.frontend }}
       is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
       - uses: dorny/paths-filter@v2
         id: skip_check
         with:
