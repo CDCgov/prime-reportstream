@@ -1,10 +1,9 @@
 name: Publish Container to GitHub
 
 on:
-  pull_request:
+  push:
     branches:
       - master
-      - production
 
 env:
   REGISTRY: ghcr.io
