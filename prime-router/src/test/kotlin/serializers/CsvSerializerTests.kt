@@ -311,7 +311,7 @@ class CsvSerializerTests {
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
-        assertThat(result.warnings.isEmpty()).isTrue()
+        assertThat(result.warnings.isNotEmpty()).isTrue()
         assertThat(result.errors.isEmpty()).isTrue()
         assertThat(0).isEqualTo(result.report?.itemCount)
     }

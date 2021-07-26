@@ -518,7 +518,8 @@ NTE|1|L|This is a final comment|RE"""
             "5555555555:1:",
             patientPathSpec,
             patientElement,
-            Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE)
+            Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE
+        )
 
         verify {
             mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-1", "5555555555")
