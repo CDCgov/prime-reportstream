@@ -55,6 +55,14 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
+    description = "IPv6 addresses"
+    regex = '''([a-f0-9:]+:+)+[a-f0-9]+'''
+    tags = [
+        "network",
+        "IPv6"
+    ]
+
+[[rules]]
 	description = "Port"
 	regex = '''(?i)port(.{0,4})?[0-9]{1,10}'''
 	[rules.allowlist]
