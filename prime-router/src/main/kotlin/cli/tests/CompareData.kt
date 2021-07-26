@@ -702,7 +702,7 @@ class CompareCsvData {
                 val expectedValue = when {
                     expectedColIndexByElementIndex >= 0 ->
                         expectedRow[expectedColIndexByElementIndex].trim()
-                    expectedColIndexByCsvIndex != null && expectedColIndexByElementIndex >= 0 ->
+                    expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0 ->
                         expectedRow[expectedColIndexByCsvIndex].trim()
                     else -> ""
                 }
