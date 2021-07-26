@@ -16,11 +16,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
 	description = "Generic Credential"
 	regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
 	tags = ["key", "API", "generic"]
-	# ignore leaks with specific identifiers like slack and aws
+	# ignore leaks with specific identifiers like slack and aws (because those are captured in other rules)
 	[rules.allowlist]
-        files = [
-            "gitleaks-config.toml"
-        ]
 		regexes = [
 		    '''xox[baprs]-([0-9a-zA-Z]{10,48})''',
 		    '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
