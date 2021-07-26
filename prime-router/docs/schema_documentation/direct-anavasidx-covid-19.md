@@ -1,6 +1,6 @@
 
-### Schema:         hhsprotect/hhsprotect-covid-19
-#### Description:   Schema for Submission to HHSProtect
+### Schema:         direct/anavasidx-covid-19
+#### Description:   AnavasiDx
 
 ---
 
@@ -715,8 +715,6 @@ ReportStream copies value from the specimenId if none is provided by the sender.
 
 **PII**: No
 
-**Format**: yyyyMMdd
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -869,7 +867,7 @@ The phone number of the provider
 
 ---
 
-**Name**: ordering_provider_phone_number_area_code
+**Name**: orderingProviderPhoneArea
 
 **Type**: TEXT
 
@@ -943,7 +941,7 @@ The zip code of the provider
 
 ---
 
-**Name**: patAge
+**Name**: patientAge
 
 **Type**: NUMBER
 
@@ -955,7 +953,7 @@ The zip code of the provider
 
 ---
 
-**Name**: patAgeUnits
+**Name**: patientAgeUnits
 
 **Type**: CODE
 
@@ -1004,7 +1002,7 @@ The patient's city
 
 ---
 
-**Name**: patient_dob
+**Name**: patientDob
 
 **Type**: DATE
 
@@ -1051,6 +1049,7 @@ U|Unknown
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Unknown
+U|Unknown
 
 **Alt Value Sets**
 
@@ -1059,6 +1058,7 @@ Code | Display
 H|2135-2
 N|2186-5
 U|UNK
+U|ASKU
 
 **Documentation**:
 
@@ -1066,7 +1066,7 @@ Internally, ReportStream uses hl70189 (H,N,U), but should use HHS values. (2135-
 
 ---
 
-**Name**: patient_ethnicity_text
+**Name**: patientEthnicityText
 
 **Type**: TEXT
 
@@ -1120,7 +1120,7 @@ The patient's gender. There is a valueset defined based on the values in PID-8-1
 
 ---
 
-**Name**: patient_id
+**Name**: patientUniqueId
 
 **Type**: TEXT
 
@@ -1136,7 +1136,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 ---
 
-**Name**: patientUniqueId
+**Name**: patientUniqueIdHash
 
 **Type**: TEXT
 
@@ -1184,7 +1184,7 @@ The patient's phone number with area code
 
 ---
 
-**Name**: patient_phone_number_area_code
+**Name**: patientPhoneArea
 
 **Type**: TEXT
 
@@ -1226,7 +1226,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 ---
 
-**Name**: patient_race_text
+**Name**: patientRaceText
 
 **Type**: TEXT
 
@@ -1286,7 +1286,7 @@ The patient's second address line
 
 ---
 
-**Name**: patZip
+**Name**: patientZip
 
 **Type**: POSTAL_CODE
 
@@ -1324,7 +1324,7 @@ Is the patient pregnant?
 
 ---
 
-**Name**: pregnant_text
+**Name**: pregnantText
 
 **Type**: TEXT
 
@@ -1343,8 +1343,6 @@ Custom.  ReportStream uses the 'pregnant' code, not this text value.
 **Type**: DATE
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **Cardinality**: [0..1]
 
@@ -1470,11 +1468,13 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 ---
 
-**Name**: submitterId
+**Name**: senderId
 
 **Type**: TEXT
 
 **PII**: No
+
+**Default Value**: AnavasiDx
 
 **Cardinality**: [1..1]
 
@@ -1518,13 +1518,11 @@ Custom field
 
 ---
 
-**Name**: specimenDate
+**Name**: specimenCollectedDate
 
 **Type**: DATETIME
 
 **PII**: No
-
-**Format**: yyyyMMdd
 
 **HL7 Fields**
 
@@ -1821,8 +1819,6 @@ eg, SCT.   Custom
 
 **PII**: No
 
-**Format**: yyyyMMdd
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -1837,8 +1833,6 @@ eg, 20210111
 
 **PII**: No
 
-**Format**: yyyyMMdd
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -1847,7 +1841,7 @@ eg, 20210112
 
 ---
 
-**Name**: test_result_text
+**Name**: testResultText
 
 **Type**: TEXT
 
@@ -1884,7 +1878,7 @@ Expecting a CLIA number here.  eg, "10D2218834"
 
 ---
 
-**Name**: facilityZip
+**Name**: performingFacilityZip
 
 **Type**: POSTAL_CODE
 

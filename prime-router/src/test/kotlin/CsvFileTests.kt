@@ -7,6 +7,7 @@ import assertk.assertions.exists
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.prop
 import assertk.assertions.support.expected
@@ -49,22 +50,9 @@ class CsvFileTests {
 
     @Test
     fun `test the happy path`() {
-        transformFileAndTest(inputPath + "happy-path.csv")
-    }
-
-    @Test
-    fun `test a csv file with column headers but no data`() {
-        transformFileAndTest(inputPath + "column-headers-only.csv")
-    }
-
-    private fun transformFileAndTest(fileName: String) {
-        val file = File(fileName)
+        val file = File(inputPath + "happy-path.csv")
         val baseName = file.name
-        assertThat(file).exists()
-        val schema = metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
-
-        // 1) Ingest the file
-        val result = csvSerializer.readExternal(schema.name, file.inputStream(), TestSource)
+        val result = ingestFile(file)
         assertTrue(result.warnings.isEmpty() && result.errors.isEmpty())
         assertThat(result).all {
             prop("warnings") { ReadResult::warnings.call(it) }.isEmpty()
@@ -72,11 +60,35 @@ class CsvFileTests {
         }
         assertThat(result).hasNoWarnings().hasNoErrors()
         val inputReport = result.report ?: fail()
-        // 2) Create transformed objects, according to the receiver table rules
+        translateReport(inputReport, baseName)
+    }
+
+    @Test
+    fun `test a csv file with column headers but no data`() {
+        val file = File(inputPath + "column-headers-only.csv")
+        val baseName = file.name
+        val result = ingestFile(file)
+        assertTrue(result.warnings.isNotEmpty() && result.errors.isEmpty())
+        assertThat(result).all {
+            prop("warnings") { ReadResult::warnings.call(it) }.isNotEmpty()
+            prop("errors") { ReadResult::errors.call(it) }.isEmpty()
+        }
+        assertThat(result).hasNoErrors()
+        val inputReport = result.report ?: fail()
+        translateReport(inputReport, baseName)
+    }
+
+    private fun ingestFile(file: File): ReadResult {
+        assertThat(file).exists()
+        val schema = metadata.findSchema(defaultSchema) ?: error("$defaultSchema not found.")
+        return csvSerializer.readExternal(schema.name, file.inputStream(), TestSource)
+    }
+
+    private fun translateReport(inputReport: Report, baseName: String) {
         val outputReports = Translator(metadata, settings).translateByReceiver(inputReport)
         assertThat(outputReports).hasSize(2)
-        // 3) Write transformed objs to files, and check they are correct
 
+        // Write transformed objs to files, and check they are correct
         outputReports
             .zip(listOf("AZ-test-receiver-", "federal-test-receiver-"))
             .forEach { (report, prefix) ->

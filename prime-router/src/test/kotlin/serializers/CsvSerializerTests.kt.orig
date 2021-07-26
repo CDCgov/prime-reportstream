@@ -2,8 +2,12 @@ package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+<<<<<<< HEAD
+import assertk.assertions.isFailure
+=======
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+>>>>>>> master
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.Element
@@ -310,9 +314,15 @@ class CsvSerializerTests {
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
+<<<<<<< HEAD
         assertThat(result.warnings.isEmpty()).isTrue()
         assertThat(result.errors.isEmpty()).isTrue()
         assertThat(0).isEqualTo(result.report?.itemCount)
+=======
+        assertTrue(result.warnings.isNotEmpty())
+        assertTrue(result.errors.isEmpty())
+        assertEquals(0, result.report?.itemCount)
+>>>>>>> master
     }
 
     @Test
