@@ -955,7 +955,7 @@ The zip code of the provider
 
 ---
 
-**Name**: patient_age_units
+**Name**: patAgeUnits
 
 **Type**: CODE
 

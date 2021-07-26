@@ -1,0 +1,14 @@
+FROM node:alpine as static_site
+WORKDIR /usr/app
+COPY package.json ./
+ENV NODE_ENV=development
+RUN npm install --save-dev
+RUN npx @11ty/eleventy --config eleventy.config.js
+COPY . ./
+
+
+FROM nginx:latest as nginx_host
+COPY --from=static_site /usr/app/dist/* /usr/share/nginx/html/
+CMD "'nginx' '-g' 'daemon off;'"
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+
