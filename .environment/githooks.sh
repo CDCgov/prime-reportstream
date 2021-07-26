@@ -50,7 +50,7 @@ function install_hooks() {
 function remove_hooks() {
     echo "> Removing your git hooks"
 
-    let _MAX_IX=${_GHSRC_HOOK_COUNT?}-1
+    let _MAX_IX=${_GHDST_HOOK_COUNT?}-1
     for i in $(seq 0 ${_MAX_IX?}); do
         echo "    ${GITHOOKS_DST[${i}]}"
         ${CAPTURE?} rm -f "${GITHOOKS_DST[${i}]}" |
