@@ -30,6 +30,7 @@ import gov.cdc.prime.router.secrets.SecretHelper
 import org.json.JSONObject
 import java.io.IOException
 import java.time.ZonedDateTime
+import java.time.OffsetDateTime
 import java.util.logging.Level
 import java.util.logging.Logger
 import khttp.get as httpGet
@@ -136,14 +137,34 @@ class EmailScheduleEngine {
 
             // get the orgs to fire for
             orgs.forEach { org ->
+                val countOfRecords = workflowEngine.db.fetchDownloadableReportFiles(
+                    OffsetDateTime.now().minusDays(1L),
+                    org
+                ).size;     
+                val template = getTemplate(schedule.template, countOfRecords );     
                 val emails: Iterable<String> = if (schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
-                logger.info("EmailEngineFunction:: processing organization $org within ${schedule.template}")
+                logger.info("EmailEngineFunction:: processing organization $org within ${template}")
                 emails.forEach { email ->
-                    logger.info("EmailEngineFunction:: sending email to $email")
-                    dispatchToSendGrid(schedule.template, listOf(email), logger)
+                    logger.info("EmailEngineFunction:: sending email template ${template} to $email")
+                    dispatchToSendGrid(template, listOf(email), logger)
                 }
             }
         }
+    }
+
+    /**
+     * Get the template to use
+     * 
+     * @param template the template string from the database
+     * @param count of records found in the last 24hrs
+     * 
+     * @returns template name to use
+     */
+    private fun getTemplate( template: String, count: Int ): String {
+        var retValue = template;
+        if( template.split(":").size > 1 )
+            retValue = if (count == 0 ) template.split(":")[1].trim() else template.split(":")[0]
+        return retValue;
     }
 
     /**
