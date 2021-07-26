@@ -18,7 +18,7 @@ _GHSRC_HOOK_COUNT=${#GITHOOKS_SRC[@]}
 _GHDST_HOOK_COUNT=${#GITHOOKS_DST[@]}
 if [[ ${_GHSRC_HOOK_COUNT?} != ${_GHDST_HOOK_COUNT?} ]]; then
     echo "ERROR: GitHook source (${_GHSRC_HOOK_COUNT?}) and destination (${_GHDST_HOOK_COUNT?}) entries do not have the same amount of items"
-    exit
+    exit 1
 fi
 
 CAPTURE=
