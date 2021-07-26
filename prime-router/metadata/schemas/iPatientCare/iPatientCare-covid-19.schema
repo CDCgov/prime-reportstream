@@ -1,0 +1,287 @@
+# Base schema for iPatientCare clients
+# This schema is to be used to parse the standard lab report from iPatientCare
+# Created by Joel Biskie
+# Last Update: 07/23/2021
+# 
+name: ipatientcare-covid-19
+topic: covid-19
+description: iPatientCare CSV lab report schema
+basedOn: covid-19
+elements:
+
+#demographics
+    - name: patient_id
+      csvFields: [{name: MRN}]
+
+    - name: patient_last_name
+      csvFields: [{name: Last Name}]
+
+    - name: patient_middle_name
+      csvFields: [{name: Middle Name}]
+
+    - name: patient_first_name
+      csvFields: [{name: First Name}]
+
+    - name: patient_street
+      csvFields: [{name: Patient Address}]
+
+    - name: patient_city
+      csvFields: [{name: Patient City}]
+
+    - name: patient_state
+      csvFields: [{name: Patient State}]
+
+    - name: patient_zip_code
+      csvFields: [{name: Patient ZipCode}]
+
+    - name: patient_county
+      type: TABLE
+      table: zip-code-data
+      tableColumn: county
+      mapper: zipCodeToCounty(patient_zip_code)
+
+    - name: patient_phone_number
+      csvFields: [{name: Patient phone}]
+
+    - name: patient_dob
+      csvFields: [{name: Birth Date, format: "M/d/yyyy"}]
+
+    - name: patient_gender
+      csvFields: [{name: Sex}]
+
+# TODO - awaiting valid race values from iPatientCare
+    - name: patient_race
+      csvFields: [{name: RACE, format: $alt}]
+      altValues:
+        - code: 2106-3
+          display: White
+        - code: 1002-5
+          display: American Indian or Alaska Native
+        - code: 2028-9
+          display: Asian
+        - code: 2054-5
+          display: Black
+        - code: 2076-8
+          display: Native Hawaiian or Other Pacific Islander
+        - code: 2131-1
+          display: Other
+        - code: UNK
+          display: Unknown
+        - code: UNK
+          display: 
+        - code: ASKU
+          display: Asked, but unknown
+
+            
+# TODO - awaiting valid ethnicity values from iPatientCare
+    - name: patient_ethnicity
+      csvFields: [{name: Ethnicity, format: $alt}]
+      altValues:
+        - code: H
+          display: Hispanic or Latino
+        - code: N
+          display: Non Hispanic or Latino
+        - code: U
+          display: Patient Declines
+        - code: U
+          display: "NULL"
+        - code: U
+          display: WHITE    #????
+
+
+
+
+
+
+    - name: specimen_collection_date_time
+      csvFields: [{name: DateColl, format: "M/d/yyyy"}]
+
+    - name: order_test_date
+      csvFields: [{name: DateColl, format: "M/d/yyyy"}]
+
+    - name: testing_lab_specimen_received_datetime
+      csvFields: [{name: DateColl, format: "M/d/yyyy"}]
+
+    - name: test_result_date
+      csvFields: [{name: ResultDate, format: "M/d/yyyy"}]
+
+    - name: test_result_report_date
+      csvFields: [{name: ResultDate, format: "M/d/yyyy"}]
+
+
+
+    - name: test_performed_name
+      csvFields: [{name: TestName}]
+
+    - name: ordered_test_name
+      csvFields: [{name: TestName}]
+
+
+
+
+#For now, Positive and Negative are the only results
+    - name: test_result
+      csvFields: [{name: LabResult, format: $alt}]
+      altValues:
+      - code: 260385009
+        display: Negative
+      - code: 260385009
+        display: Neg
+      - code: 10828004
+        display: Positive
+      - code: 10828004
+        display: Pos
+
+    - name: test_result_status
+      default: F
+
+    - name: order_result_status
+      default: F
+
+    - name: result_format
+      default: CE
+
+
+
+
+# Ordering provider
+    - name: ordering_provider_street
+      csvFields: [{name: Fac_Addr1}]
+
+    - name: ordering_provider_city
+      csvFields: [{name: Fac_City}]
+
+    - name: ordering_provider_state
+      csvFields: [{name: Fac_State}]
+
+    - name: ordering_provider_zip_code
+      csvFields: [{name: Fac_Zip}]
+
+    - name: ordering_provider_phone_number
+      csvFields: [{name: Fac_Phone}]
+
+#ordering facility
+    - name: ordering_facility_name
+      csvFields: [{name: Facility}]
+
+    - name: ordering_facility_street
+      csvFields: [{name: Fac_Addr1}]
+
+    - name: ordering_facility_city
+      csvFields: [{name: Fac_City}]
+
+    - name: ordering_facility_state
+      csvFields: [{name: Fac_State}]
+
+    - name: ordering_facility_zip_code
+      csvFields: [{name: Fac_Zip}]
+
+    - name: ordering_facility_phone_number
+      csvFields: [{name: Fac_Phone}]
+
+#testing lab
+    - name: testing_lab_name
+      csvFields: [{name: Facility}]
+
+    - name: testing_lab_street
+      csvFields: [{name: Fac_Addr1}]
+
+    - name: testing_lab_city
+      csvFields: [{name: Fac_City}]
+
+    - name: testing_lab_state
+      csvFields: [{name: Fac_State}]
+
+    - name: testing_lab_zip_code
+      csvFields: [{name: Fac_Zip}]
+
+    - name: testing_lab_phone_number
+      csvFields: [{name: Fac_Phone}]
+
+
+#misc
+    - name: reporting_facility_name
+      csvFields: [{name: Facility}]
+
+    - name: filler_name
+      csvFields: [{name: Facility}]
+
+    - name: patient_id_assigner
+      csvFields: [{name: Facility}]
+
+
+#CLIA
+    - name: testing_lab_clia
+      csvFields: [{name: CLIA No}]
+
+    - name: testing_lab_id
+      csvFields: [{name: CLIA No}]
+
+    - name: reporting_facility_clia
+      csvFields: [{name: CLIA No}]
+
+    - name: filler_clia
+      csvFields: [{name: CLIA No}]
+
+
+
+#specimen/accession fields
+    - name: filler_order_id
+      csvFields: [{name: Accession_no}]
+
+
+
+#AOE fields
+    - name: pregnant
+      csvFields: [{name: Pregnant, format: $alt}]
+      altValues:
+        - code: 77386006
+          display: Y
+        - code: 77386006
+          display: YES
+        - code: 77386006
+          display: Pregnant
+        - code: 77386006
+          display: Currently Pregnant
+        - code: 60001007
+          display: N
+        - code: 60001007
+          display: NO
+        - code: 60001007
+          display: Not Pregnant
+        - code: 60001007
+          display: Not Currently Pregnant
+        - code: 261665006
+          display: U
+        - code: 261665006
+          display: UNK
+        - code: 261665006
+          display: Unknown
+#TODO - how to do a default case as the value of the source field?
+
+    - name: hospitalized
+      default: N
+
+    - name: icu
+      default: N
+
+
+#this lookup is in the covid-19 schema, but doesn't appear to be done in practice (?)
+    - name: equipment_model_name
+      table: LIVD-SARS-CoV-2-2021-04-28
+      tableColumn: Model
+      mapper: livdLookup()
+
+
+#unused fields
+    - name: Lab name
+      type: TEXT
+      csvFields: [{name: Lab name}]
+
+    - name: SSN
+      type: TEXT
+      csvFields: [{name: SSN}]
+
+
+
+

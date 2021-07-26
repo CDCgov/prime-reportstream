@@ -97,6 +97,16 @@
       schemaName: direct/careevolution-covid-19
       format: HL7
 
+- name: reddyfmc-la
+  description: iPatientCare CSV lab report schema, Reddy Family Medical Center, LA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: reddyfmc-la
+      topic: covid-19
+      schemaName: iPatientCare/reddyfmc-la-covid-19
+      format: CSV
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
