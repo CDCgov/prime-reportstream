@@ -88,6 +88,11 @@ title = "PRIME ReportStream Gitleaks Configuration"
 	description = "Files with keys and credentials"
 	files = '''(?i)(id_rsa|passwd|id_rsa.pub|pgpass|pem|key|shadow)'''
 
+[[rules]]
+    description = "SendGrid API Key"
+    regex = '''SG\.[\w_]{16,32}\.[\w_]{16,64}'''
+    tags = ["key", "SendGrid"]
+
 # Global allowlist
 [allowlist]
 	description = "Allowed file types and ignored location"
