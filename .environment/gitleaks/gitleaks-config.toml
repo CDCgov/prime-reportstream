@@ -18,10 +18,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
 	regex = '''(?i)(apikey|secret|key|api|password|pass|pw|host)=[0-9a-zA-Z-_.{}]{4,120}'''
 
 [[rules]]
-	description = "Files with keys and credentials"
-	files = '''(?i)(id_rsa|passwd|id_rsa.pub|pgpass|pem|key|shadow)'''
-
-[[rules]]
 	description = "Generic Credential"
 	regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
 	tags = ["key", "API", "generic"]
