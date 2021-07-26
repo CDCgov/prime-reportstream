@@ -81,13 +81,14 @@ class ReportView private constructor(
     val expires: Long?,
     val sendingOrg: String?,
     val receivingOrg: String?,
+    val receivingOrgSvc: String?,
     val facilities: ArrayList<Facility>?,
     val actions: ArrayList<Action>?,
+    val externalName: String?,
     val content: String?,
     val fileName: String?,
     val mimeType: String?
 ) {
-
     data class Builder(
         var sent: Long? = null,
         var via: String? = null,
@@ -99,12 +100,13 @@ class ReportView private constructor(
         var expires: Long? = null,
         var sendingOrg: String? = null,
         var receivingOrg: String? = null,
+        var receivingOrgSvc: String? = null,
         var facilities: ArrayList<Facility>? = ArrayList<Facility>(),
         var actions: ArrayList<Action>? = ArrayList<Action>(),
+        var externalName: String? = null,
         var content: String? = null,
         var fileName: String? = null,
         var mimeType: String? = null
-
     ) {
 
         fun sent(sent: Long) = apply { this.sent = sent }
@@ -117,8 +119,10 @@ class ReportView private constructor(
         fun expires(expires: Long) = apply { this.expires = expires }
         fun sendingOrg(sendingOrg: String) = apply { this.sendingOrg = sendingOrg }
         fun receivingOrg(receivingOrg: String) = apply { this.receivingOrg = receivingOrg }
+        fun receivingOrgSvc(receivingOrgSvc: String) = apply { this.receivingOrgSvc = receivingOrgSvc }
         fun facilities(facilities: ArrayList<Facility>) = apply { this.facilities = facilities }
         fun actions(actions: ArrayList<Action>) = apply { this.actions = actions }
+        fun externalName(externalName: String) = apply { this.externalName = externalName }
         fun content(content: String) = apply { this.content = content }
         fun fileName(fileName: String) = apply { this.fileName = fileName }
         fun mimeType(mimeType: String) = apply { this.mimeType = mimeType }
@@ -134,8 +138,10 @@ class ReportView private constructor(
             expires,
             sendingOrg,
             receivingOrg,
+            receivingOrgSvc,
             facilities,
             actions,
+            externalName,
             content,
             fileName,
             mimeType
@@ -290,17 +296,11 @@ open class BaseHistoryFunction : Logging {
                 OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
                 organizationName ?: authClaims.organization.name
             )
+
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
             val reports = headers.sortedByDescending { it.createdAt }.mapNotNull {
-                var facilities = arrayListOf<Facility>()
-                if (it.bodyFormat == "CSV")
-                    try {
-                        facilities = getFieldSummaryForReportId(
-                            arrayOf("Testing_lab_name", "Testing_lab_CLIA"), it.reportId.toString(), authClaims
-                        )
-                    } catch (ex: Exception) {
-                        // context.logger.info( "Exception during getFieldSummaryForReportId - TestingLabName was not found - no facilities data will be published" );
-                    }
+                val facilities = arrayListOf<Facility>()
+                val actions = arrayListOf<Action>()
                 // get the org passed in
                 val adminOrg = workflowEngine.settings.organizations.firstOrNull { org ->
                     org.name.lowercase() == organizationName
@@ -312,8 +312,8 @@ open class BaseHistoryFunction : Logging {
                     context.logger.severe(ex.stackTraceToString())
                     null
                 }
+
                 if (header != null) {
-                    val actions = getActionsForReportId(it.reportId.toString(), adminOrg ?: authClaims.organization)
                     val content = if (header.content !== null) String(header.content) else ""
                     val filename = Report.formExternalFilename(header)
                     val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
@@ -328,6 +328,9 @@ open class BaseHistoryFunction : Logging {
                         .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
                         .facilities(facilities)
                         .actions(actions)
+                        .receivingOrg(it.receivingOrg)
+                        .receivingOrgSvc(it.receivingOrgSvc)
+                        .externalName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
                         .content(content)
                         .fileName(filename)
                         .mimeType(mimeType)
@@ -365,7 +368,7 @@ open class BaseHistoryFunction : Logging {
         try {
             // get the organization based on the header, if it exists, and if it
             // doesn't, use the organization from the authClaim
-            val reportOrg = workflowEngine.settings.organizations.firstOrNull{
+            val reportOrg = workflowEngine.settings.organizations.firstOrNull {
                 it.name.lowercase() == request.headers["organization"]?.lowercase()
             } ?: authClaims.organization
             val reportId = ReportId.fromString(reportIdIn)

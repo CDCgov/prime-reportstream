@@ -11,11 +11,14 @@
     // orgName
     let orgName = await processOrgName();
 
-    // reports
-    let reports = await processReports();
+    console.log( 'process report feeds' );
+    let feeds = await processReportFeeds();
 
-    // report
-    let report = await processReport( reports );
+    // reports
+    feeds.forEach( async (feed,idx) => {
+        console.log(`processing Reports ${feed} ${idx}`)
+        await processReports( feed, idx );
+    })
 
     // charts
     /* processCharts(); */

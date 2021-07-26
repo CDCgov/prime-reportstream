@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.v251.datatype.DR
@@ -530,7 +529,8 @@ NTE|1|L|This is a final comment|RE"""
             "5555555555:1:",
             patientPathSpec,
             patientElement,
-            Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE)
+            Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE
+        )
 
         verify {
             mockTerser.set("/PATIENT_RESULT/PATIENT/PID-13(0)-1", "5555555555")

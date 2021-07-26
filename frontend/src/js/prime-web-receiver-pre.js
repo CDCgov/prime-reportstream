@@ -180,10 +180,18 @@ function logout() {
     }
 }
 
+async function fetchReportFeeds(){
+    let reports = await fetchReports();
+    let receivingOrgSvc = reports ? reports.map( rep => rep.displayName ) : []
+
+    return Array.from( new Set( receivingOrgSvc ) );
+}
+
+
 /**
  *
  */
-async function fetchReports() {
+async function fetchReports( filter ) {
     let url = 'history/report';
     if (isAnAdmin()) {
         console.log("user is an admin, they get special sauce");
@@ -191,25 +199,23 @@ async function fetchReports() {
         url = `${url}s/${window.org}?cache=${cacheBust}`
     }
     console.log(`calling for ${url}`);
-    return window.jwt ? axios(apiConfig(url))
+    let retValue = window.jwt ? await axios(apiConfig(url))
         .then(res => res.data)
-        .catch(e => {
-            console.log(e);
-            // return an empty collection
-            return [];
-        }): [];
+        .catch(e => {console.log(e); return []}): [];
+    
+    return filter? retValue.filter( report => report.displayName === filter ) : retValue;
 }
 
 async function fetchAllOrgs() {
-    return window.jwt ? axios(apiConfig('settings/organizations'))
+    return window.jwt ? await axios(apiConfig('settings/organizations'))
         .then(res => res.data) : [];
 }
 
 /**
  *
  */
-function requestFile(reportId) {
-    return window.jwt ? axios(apiConfig(`history/report/${reportId}`))
+async function requestFile(reportId) {
+    return window.jwt ? await axios(apiConfig(`history/report/${reportId}`))
         .then(res => res.data)
         .then(csv => {
             // The filename to use for the download should not contain blob folders if present
@@ -346,38 +352,71 @@ async function processOrgName(){
     return orgName;
 }
 
+function titleCase(str) {
+    str = str.toLowerCase().split(' ');
+    for (var i = 0; i < str.length; i++) {
+      str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1); 
+    }
+    return str.join(' ');
+  }
+
+async function processReportFeeds(){
+    let feeds = await fetchReportFeeds();
+    const tabs = document.getElementById("tabs");  
+    console.log( feeds );
+    if (tabs) tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
+    const reportFeeds = document.getElementById("reportFeeds");  
+    if (reportFeeds) {
+        if (feeds.length > 1) {
+            feeds.forEach((feed, idx) => {
+                reportFeeds.innerHTML += `
+                    <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx > 0 ? "" : "checked"}>
+                    <label for="tab${idx}">${feed.replaceAll("-", " ").toUpperCase()}</label>
+                    `
+            });
+        }
+
+        feeds.forEach((feed, idx) => {
+            reportFeeds.innerHTML += `
+                    <div class=${feeds.length > 1 ? "tab__content" : ""}>
+                    <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+                    <thead>
+                      <tr>
+                        <th scope="col">Report Id</th>
+                        <th scope="col">Date Sent</th>
+                        <th scope="col">Expires</th>
+                        <th scope="col">Total tests</th>
+                        <th scope="col">File</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tBody${idx ? idx : ''}" class="font-mono-2xs">
+                    </tbody>
+                  </table>
+                    </div>
+                `
+        });
+    }
+
+    return feeds;
+}
+
 /**
  *
  * @returns {Array<Report>} an array of the received reports; possibly empty
  */
-async function processReports(){
+async function processReports(feed, idx){
     let reports = [];
     const tBody = document.getElementById("tBody");
     // clear the table body because we can get reports from different PHDs
     if (tBody) tBody.innerHTML = "";
     try {
-        reports = await fetchReports();
+        reports = await fetchReports(feed);
     } catch (error) {
         console.log('fetchReports() is failing');
         console.error(error);
-        // write a message
-        if (tBody) tBody.innerHTML +=
-            `<tr>
-                <th colspan="5">Unable to fetch reports!</th>
-            </tr>`;
-        // exit out
-        return null;
     }
     // verify the reports exist
     if (reports) {
-        if (reports.length === 0) {
-            if (tBody) tBody.innerHTML +=
-                `<tr>
-                <th colspan="5">No reports found</th>
-            </tr>`;
-
-            return reports;
-        }
         // if they do then write them out
         reports.forEach(_report => {
             if (tBody) tBody.innerHTML +=
@@ -396,7 +435,12 @@ async function processReports(){
                     </span>
                 </th>
               </tr>`;
-        });
+    });
+    if (!reports || reports.length === 0) {
+        if (tBody) tBody.innerHTML +=
+            `<tr>
+                <th colspan="5">No reports found</th>
+            </tr>`;
     }
     return reports;
 }
@@ -409,10 +453,10 @@ async function processReports(){
 async function processReport( reports ){
     let report = null;
     if (reports && reports.length > 0) {
-        if (window.location.search == "") report = reports[0];
-        else report = reports.find(report => report.reportId == window.location.search.substring(1));
+        if (window.location.search === "") report = reports[0];
+        else report = reports.find(report => report.reportId === window.location.search.substring(1));
     }
-    if (report != null) {
+    if (report !== null) {
         const details = document.getElementById("details");
         if (details) details.innerHTML +=
             `<div class="tablet:grid-col-6">
