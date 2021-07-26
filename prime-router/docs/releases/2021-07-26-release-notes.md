@@ -37,3 +37,5 @@ An example of this routing element:
 
 - Added a new field, patAgeUnits, to payloads delivered to HHSProtect, per the HHS standard.
 - Waters data now all flowing to HHSProtect
+- Added site_of_care field as optional on all Covid data
+- Added support for HL7 date/times with no offset
