@@ -1,16 +1,29 @@
 #!/usr/bin/env bash
 
+# Make sure we are in this script's location; this gives us certainty of what is where
 pushd "$(dirname "${0}")" 1>/dev/null 2>&1
 
 REPO_ROOT="$(pwd)/.."
 
-# mapping of "source file" to "destination location"
-declare -A GITHOOKS
-GITHOOKS["pre-commit.hook.sh"]="${REPO_ROOT}/.git/hooks/pre-commit"
+# mapping of "source file" to "destination location"; since we cannot reliably use associative
+# arrays (declare -A) we're just keeping 2 regular arrays that we match up by index
+declare -a GITHOOKS_SRC
+declare -a GITHOOKS_DST
+
+GITHOOKS_SRC[0]="pre-commit.hook.sh"
+GITHOOKS_DST[0]="${REPO_ROOT}/.git/hooks/pre-commit"
+
+# Count 'em
+_GHSRC_HOOK_COUNT=${#GITHOOKS_SRC[@]}
+_GHDST_HOOK_COUNT=${#GITHOOKS_DST[@]}
+if [[ ${_GHSRC_HOOK_COUNT?} != ${_GHDST_HOOK_COUNT?} ]]; then
+    echo "ERROR: GitHook source (${_GHSRC_HOOK_COUNT?}) and destination (${_GHDST_HOOK_COUNT?}) entries do not have the same amount of items"
+    exit
+fi
 
 CAPTURE=
 
-function usage(){
+function usage() {
     echo "usage: ${0} (install|remove) [--whatif]"
     echo ""
     echo "Installs or removes the git hooks we use."
@@ -23,11 +36,13 @@ function usage(){
 
 # ./githooks.sh install
 function install_hooks() {
-    echo "> Setting up your git hooks"
+    echo "> Installing up your git hooks"
 
-    for key in ${!GITHOOKS[@]}; do
-        echo "    ${GITHOOKS[${key?}]}"
-        ${CAPTURE?} cp "${key}" "${GITHOOKS[${key?}]}"
+    let _MAX_IX=${_GHSRC_HOOK_COUNT?}-1
+    for i in $(seq 0 ${_MAX_IX?}); do
+        echo "    ${GITHOOKS_SRC[${i}]} -> ${GITHOOKS_DST[${i}]}"
+        ${CAPTURE?} cp "$(pwd)/${GITHOOKS_SRC[${i}]}" "${GITHOOKS_DST[${i}]}" |
+            sed "s/^/        /g"
     done
 }
 
@@ -35,14 +50,16 @@ function install_hooks() {
 function remove_hooks() {
     echo "> Removing your git hooks"
 
-    for key in ${!GITHOOKS[@]}; do
-        echo "    ${GITHOOKS[${key?}]}"
-        ${CAPTURE?} rm -f "${GITHOOKS[${key?}]}"
+    let _MAX_IX=${_GHSRC_HOOK_COUNT?}-1
+    for i in $(seq 0 ${_MAX_IX?}); do
+        echo "    ${GITHOOKS_DST[${i}]}"
+        ${CAPTURE?} rm -f "${GITHOOKS_DST[${i}]}" |
+            sed "s/^/        /g"
     done
 }
 
 # ./githooks.sh
-function _hooks(){
+function _hooks() {
     usage
 }
 
