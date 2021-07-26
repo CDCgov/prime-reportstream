@@ -1,11 +1,6 @@
 title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
-	description = "EC"
-	regex = '''-----BEGIN EC PRIVATE KEY-----'''
-	tags = ["key", "EC"]
-
-[[rules]]
 	description = "Email"
 	regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'''
 	tags = ["email"]
@@ -68,6 +63,11 @@ title = "PRIME ReportStream Gitleaks Configuration"
         Min = "3.5"
         Max = "4.5"
         Group = "1"
+
+[[rules]]
+	description = "Private Keys"
+	regex = '''-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'''
+	tags = ["key", "AsymmetricPrivateKey"]
 
 [[rules]]
     description = "SendGrid API Key"
