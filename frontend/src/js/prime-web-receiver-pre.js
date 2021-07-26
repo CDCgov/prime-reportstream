@@ -187,12 +187,17 @@ async function fetchReports() {
     let url = 'history/report';
     if (isAnAdmin()) {
         console.log("user is an admin, they get special sauce");
-        url = `${url}s/${window.org}`
+        const cacheBust = new Date().toISOString();
+        url = `${url}s/${window.org}?cache=${cacheBust}`
     }
     console.log(`calling for ${url}`);
     return window.jwt ? axios(apiConfig(url))
         .then(res => res.data)
-        .catch(e => console.log(e)): [];
+        .catch(e => {
+            console.log(e);
+            // return an empty collection
+            return [];
+        }): [];
 }
 
 async function fetchAllOrgs() {
@@ -204,7 +209,7 @@ async function fetchAllOrgs() {
  *
  */
 function requestFile(reportId) {
-    return window.jwt? axios(apiConfig(`history/report/${reportId}`))
+    return window.jwt ? axios(apiConfig(`history/report/${reportId}`))
         .then(res => res.data)
         .then(csv => {
             // The filename to use for the download should not contain blob folders if present
@@ -355,10 +360,28 @@ async function processReports(){
     } catch (error) {
         console.log('fetchReports() is failing');
         console.error(error);
-    }
-    reports.forEach(_report => {
+        // write a message
         if (tBody) tBody.innerHTML +=
             `<tr>
+                <th colspan="5">Unable to fetch reports!</th>
+            </tr>`;
+        // exit out
+        return null;
+    }
+    // verify the reports exist
+    if (reports) {
+        if (reports.length === 0) {
+            if (tBody) tBody.innerHTML +=
+                `<tr>
+                <th colspan="5">No reports found</th>
+            </tr>`;
+
+            return reports;
+        }
+        // if they do then write them out
+        reports.forEach(_report => {
+            if (tBody) tBody.innerHTML +=
+                `<tr>
                 <th data-title="reportId" scope="row">
                     <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>
                 </th>
@@ -373,12 +396,7 @@ async function processReports(){
                     </span>
                 </th>
               </tr>`;
-    });
-    if (reports && reports.length === 0) {
-        if (tBody) tBody.innerHTML +=
-            `<tr>
-                <th colspan="5">No reports found</th>
-            </tr>`;
+        });
     }
     return reports;
 }

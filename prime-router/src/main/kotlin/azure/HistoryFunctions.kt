@@ -232,7 +232,7 @@ class GetReportById :
         @BindingName("reportId") reportId: String,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        return GetReportById(request, reportId, context)
+        return getReportById(request, reportId, context)
     }
 }
 
@@ -290,9 +290,8 @@ open class BaseHistoryFunction : Logging {
                 OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
                 organizationName ?: authClaims.organization.name
             )
-
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-            val reports = headers.sortedByDescending { it.createdAt }.map {
+            val reports = headers.sortedByDescending { it.createdAt }.mapNotNull {
                 var facilities = arrayListOf<Facility>()
                 if (it.bodyFormat == "CSV")
                     try {
@@ -302,28 +301,40 @@ open class BaseHistoryFunction : Logging {
                     } catch (ex: Exception) {
                         // context.logger.info( "Exception during getFieldSummaryForReportId - TestingLabName was not found - no facilities data will be published" );
                     }
-                val actions = getActionsForReportId(it.reportId.toString(), authClaims)
+                // get the org passed in
+                val adminOrg = workflowEngine.settings.organizations.firstOrNull { org ->
+                    org.name.lowercase() == organizationName
+                }
+                val header = try {
+                    workflowEngine.fetchHeader(it.reportId, adminOrg ?: authClaims.organization)
+                } catch (ex: Exception) {
+                    context.logger.severe(ex.message)
+                    context.logger.severe(ex.stackTraceToString())
+                    null
+                }
+                if (header != null) {
+                    val actions = getActionsForReportId(it.reportId.toString(), adminOrg ?: authClaims.organization)
+                    val content = if (header.content !== null) String(header.content) else ""
+                    val filename = Report.formExternalFilename(header)
+                    val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 
-                val header = workflowEngine.fetchHeader(it.reportId, authClaims.organization)
-
-                val content = if (header.content !== null) String(header.content) else ""
-                val filename = Report.formExternalFilename(header)
-                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
-
-                ReportView.Builder()
-                    .reportId(it.reportId.toString())
-                    .sent(it.createdAt.toEpochSecond() * 1000)
-                    .via(it.bodyFormat)
-                    .total(it.itemCount.toLong())
-                    .fileType(it.bodyFormat)
-                    .type("ELR")
-                    .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                    .facilities(facilities)
-                    .actions(actions)
-                    .content(content)
-                    .fileName(filename)
-                    .mimeType(mimeType)
-                    .build()
+                    ReportView.Builder()
+                        .reportId(it.reportId.toString())
+                        .sent(it.createdAt.toEpochSecond() * 1000)
+                        .via(it.bodyFormat)
+                        .total(it.itemCount.toLong())
+                        .fileType(it.bodyFormat)
+                        .type("ELR")
+                        .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
+                        .facilities(facilities)
+                        .actions(actions)
+                        .content(content)
+                        .fileName(filename)
+                        .mimeType(mimeType)
+                        .build()
+                } else {
+                    null
+                }
             }
 
             response = request.createResponseBuilder(HttpStatus.OK)
@@ -332,6 +343,8 @@ open class BaseHistoryFunction : Logging {
                 .build()
         } catch (ex: Exception) {
             context.logger.info("Exception during creating of reports list - file not found")
+            context.logger.severe(ex.message)
+            context.logger.severe(ex.stackTraceToString())
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
                 .body("File not found")
                 .header("Content-Type", "text/html")
@@ -340,19 +353,23 @@ open class BaseHistoryFunction : Logging {
         return response
     }
 
-    fun GetReportById(
+    fun getReportById(
         request: HttpRequestMessage<String?>,
         reportIdIn: String,
         context: ExecutionContext
     ): HttpResponseMessage {
-
         val authClaims = checkAuthenticated(request, context)
             ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
 
         var response: HttpResponseMessage
         try {
+            // get the organization based on the header, if it exists, and if it
+            // doesn't, use the organization from the authClaim
+            val reportOrg = workflowEngine.settings.organizations.firstOrNull{
+                it.name.lowercase() == request.headers["organization"]?.lowercase()
+            } ?: authClaims.organization
             val reportId = ReportId.fromString(reportIdIn)
-            val header = workflowEngine.fetchHeader(reportId, authClaims.organization)
+            val header = workflowEngine.fetchHeader(reportId, reportOrg)
             if (header.content == null || header.content.isEmpty())
                 response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
             else {
@@ -522,11 +539,11 @@ open class BaseHistoryFunction : Logging {
         return facilties
     }
 
-    fun getActionsForReportId(reportId: String, authClaim: AuthClaims): ArrayList<Action> {
+    fun getActionsForReportId(reportId: String, organization: Organization): ArrayList<Action> {
         val actions: ArrayList<Action> = ArrayList<Action>()
 
         val header: Header? = try {
-            workflowEngine.fetchHeader(ReportId.fromString(reportId), authClaim.organization)
+            workflowEngine.fetchHeader(ReportId.fromString(reportId), organization)
         } catch (ex: Exception) {
             null
         }
