@@ -76,6 +76,10 @@ class SettingsFacade(
         return mapper.writeValueAsString(result)
     }
 
+    fun getLastModified(): OffsetDateTime? {
+        return db.fetchLastModified()
+    }
+
     private fun <T : SettingAPI> findSetting(
         name: String,
         clazz: Class<T>,

@@ -29,7 +29,7 @@ class FakeDataService {
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
-                element.nameContains("sender_id") -> "ImageMover"
+                element.nameContains("sender_id") -> "" // Allow the default to fill this in
                 element.nameContains("facility_name") -> "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
