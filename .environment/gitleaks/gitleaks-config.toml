@@ -4,11 +4,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
 	description = "EC"
 	regex = '''-----BEGIN EC PRIVATE KEY-----'''
 	tags = ["key", "EC"]
-	[rules.allowlist]
-        files = [
-            "gitleaks-config.toml"
-        ]
-		description = "Ignore gitleaks configuration "
 
 [[rules]]
 	description = "Email"
@@ -95,8 +90,14 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 # Global allowlist
 [allowlist]
-	description = "Allowed file types and ignored location"
-	files = ['''(.*?)(jpg|gif|doc|pdf|bin|md|log)$''']
+	description = "Allow-list for files and paths"
+	files = [
+	    '''^\.?gitleaks-config.toml$''',
+	    '''(.*?)(jpg|gif|doc|pdf|bin)$''',
+	    '''^package-lock\.json$''',
+	    '''yarn\.lock''',
+	    '''node_modules'''
+	]
     paths = [
         '''node_modules'''
     ]
