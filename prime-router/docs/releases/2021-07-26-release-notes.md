@@ -13,7 +13,7 @@
 ### Changes to api/reports response
 
 This release adds a new `routing` element to the Json response if the query string contains a `verbose=true` parameter. This routing shows the destination(s) for each item in the report along with the report index and trackingId. The openapi.yml has been updated to reflect these changes with the structure of the routing element. Example curl command with query string parameters:
-```aidl
+```
 curl -X POST -H 'client: sample_client' -H 'Content-Type: text/csv' \
     --data-binary '@./examples/upload-fake-data/sample_report.csv' \
     'http://localhost:7071/api/reports?verbose=true'
