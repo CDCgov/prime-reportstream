@@ -35,7 +35,9 @@ scan_uncommitted
 RC=$?
 
 if [[ ${RC?} != 0 ]]; then
-    echo "Gitleaks> ERROR: Your code may contain secrets, consult ${REPO_ROOT?}/${REPORT_JSON?} and/or ${REPO_ROOT?}/${LOGFILE?} for more details!"
+    echo "Gitleaks> ERROR: Your code may contain secrets, consult on of the following files for more details:"
+    echo "Gitleaks>     - ${REPO_ROOT?}/${REPORT_JSON?}"
+    echo "Gitleaks>     - ${REPO_ROOT?}/${LOGFILE?}"
 fi
 
 exit ${RC?}
