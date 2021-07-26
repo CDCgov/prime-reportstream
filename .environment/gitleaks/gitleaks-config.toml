@@ -63,6 +63,14 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
+	description = "MailChimp"
+	regex = '''[0-9a-f]{32}-us[0-9]{12}'''
+	tags = [
+        "key",
+        "mailchimp"
+    ]
+
+[[rules]]
 	description = "Port"
 	regex = '''(?i)port(.{0,4})?[0-9]{1,10}'''
 	[rules.allowlist]
@@ -73,7 +81,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
 	description = "Potential bash var"
-	regex='''(?i)(=)([0-9a-zA-Z-_!{}=]{4,120})'''
+	regex = '''(?i)(=)([0-9a-zA-Z-_!{}=]{4,120})'''
 	tags = ["key", "bash", "API", "generic"]
     [[rules.Entropies]]
         Min = "3.5"
@@ -101,7 +109,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 	tags = ["key", "slack"]
 
 [[rules]]
-	description = "Twilio API key"
+	description = "Twilio API Key"
 	regex = '''(?i)twilio(.{0,20})?['\"][0-9a-f]{32}['\"]'''
 	tags = ["key", "twilio"]
 
