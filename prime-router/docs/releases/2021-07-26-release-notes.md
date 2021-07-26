@@ -33,3 +33,7 @@ An example of this routing element:
   } ]  
 ```
 
+### Data Model / Schema changes
+
+- Added a new field, patAgeUnits, to payloads delivered to HHSProtect, per the HHS standard.
+- Waters data now all flowing to HHSProtect
