@@ -232,29 +232,33 @@ class DataCompareTest : CoolTest() {
         db.transact { txn ->
             // Get the output files from the database
             val outputFilename = sftpFilenameQuery(txn, reportId, output.receiver!!.name)
-            val outputFile = File(sftpDir, outputFilename)
-            val expectedOutputPath = "$testDataDir/${output.outputFile}"
-            // Note we can only use input streams since the file may be in a JAR
-            val expectedOutputStream = this::class.java.getResourceAsStream(expectedOutputPath)
-            val schema = metadata.findSchema(output.receiver!!.schemaName)
-            if (outputFilename != null && outputFile.canRead() && expectedOutputStream != null && schema != null) {
-                TermUi.echo("----------------------------------------------------------")
-                TermUi.echo("Comparing expected data from $expectedOutputPath")
-                TermUi.echo("with actual data from $sftpDir/$outputFilename")
-                TermUi.echo("using schema ${schema.name}...")
-                val result = CompareData().compare(
-                    expectedOutputStream, outputFile.inputStream(),
-                    output.receiver!!.format, schema
-                )
-                if (result.passed) {
-                    good("Test passed: Data comparison")
-                } else {
-                    bad("***$name Test FAILED***: Data comparison FAILED")
+            if (!outputFilename.isNullOrBlank()) {
+                val outputFile = File(sftpDir, outputFilename)
+                val expectedOutputPath = "$testDataDir/${output.outputFile}"
+                // Note we can only use input streams since the file may be in a JAR
+                val expectedOutputStream = this::class.java.getResourceAsStream(expectedOutputPath)
+                val schema = metadata.findSchema(output.receiver!!.schemaName)
+                if (outputFile.canRead() && expectedOutputStream != null && schema != null) {
+                    TermUi.echo("----------------------------------------------------------")
+                    TermUi.echo("Comparing expected data from $expectedOutputPath")
+                    TermUi.echo("with actual data from $sftpDir/$outputFilename")
+                    TermUi.echo("using schema ${schema.name}...")
+                    val result = CompareData().compare(
+                        expectedOutputStream, outputFile.inputStream(),
+                        output.receiver!!.format, schema
+                    )
+                    if (result.passed) {
+                        good("Test passed: Data comparison")
+                    } else {
+                        bad("***$name Test FAILED***: Data comparison FAILED")
+                    }
+                    if (result.errors.size > 0) bad(result.errors.joinToString("\n", "ERROR: "))
+                    if (result.warnings.size > 0) TermUi.echo(result.warnings.joinToString("\n", "WARNING: "))
+                    TermUi.echo("")
+                    passed = passed and result.passed
                 }
-                if (result.errors.size > 0) bad(result.errors.joinToString("\n", "ERROR: "))
-                if (result.warnings.size > 0) TermUi.echo(result.warnings.joinToString("\n", "WARNING: "))
-                TermUi.echo("")
-                passed = passed and result.passed
+            } else {
+                bad("***$name Test FAILED***: Unable to get SFTP filename from database")
             }
         }
         return passed
@@ -696,7 +700,7 @@ class CompareCsvData {
                 }
 
                 val expectedValue = when {
-                    expectedColIndexByElementIndex != null && expectedColIndexByElementIndex >= 0 ->
+                    expectedColIndexByElementIndex >= 0 ->
                         expectedRow[expectedColIndexByElementIndex].trim()
                     expectedColIndexByCsvIndex != null && expectedColIndexByElementIndex >= 0 ->
                         expectedRow[expectedColIndexByCsvIndex].trim()
