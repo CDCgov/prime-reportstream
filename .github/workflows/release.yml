@@ -99,6 +99,7 @@ jobs:
       - build_frontend_release
     if: github.ref == 'refs/heads/dev-rheft'
     environment: dev
+    concurrency: dev
     runs-on: ubuntu-latest
     env:
       RESOURCE_GROUP: prime-dev-rheft
@@ -191,6 +192,7 @@ jobs:
       - build_frontend_release
     if: github.ref == 'refs/heads/master'
     environment: staging
+    concurrency: staging
     runs-on: ubuntu-latest
     env:
       RESOURCE_GROUP: prime-data-hub-staging
@@ -284,6 +286,7 @@ jobs:
       - build_frontend_release
     if: github.ref == 'refs/heads/production'
     environment: prod
+    concurrency: prod
     runs-on: ubuntu-latest
     env:
       RESOURCE_GROUP: prime-data-hub-prod
