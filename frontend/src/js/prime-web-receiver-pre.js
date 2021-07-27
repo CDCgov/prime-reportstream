@@ -181,7 +181,7 @@ function logout() {
 
 async function fetchReportFeeds(){
     let reports = await fetchReports();
-    let receivingOrgSvc = reports ? reports.map( rep => rep.externalName ) : []
+    let receivingOrgSvc = reports ? reports.map( rep => rep.receivingOrgSvc ) : []
     console.log(reports);
     console.log(receivingOrgSvc);
     const receivers = new Set(receivingOrgSvc);
@@ -204,7 +204,7 @@ async function fetchReports( filter ) {
         .catch(e => { console.log(e); return [] }): [];
     console.log(retValue);
     
-    return filter? retValue.filter( report => report.externalName === filter ) : retValue;
+    return filter? retValue.filter( report => report.receivingOrgSvc === filter ) : retValue;
 }
 
 async function fetchAllOrgs() {
