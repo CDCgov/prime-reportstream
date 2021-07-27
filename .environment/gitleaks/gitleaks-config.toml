@@ -9,12 +9,14 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '^\.?gitleaks.report.json$',
         '^package-lock\.json$',
         'cleanslate.sh.log',
-        'yarn\.lock$'
+        'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
+        'yarn\.lock$',
     ]
     paths = [
         '.terraform/providers/',
         'frontend-react/build/',
         'frontend-react/node_modules/',
+        'prime-router/.gradle/',
         'prime-router/build/',
         'prime-router/docs/schema_documentation/',
         'prime-router/src/test/csv_test_files/input/',
@@ -29,6 +31,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
+            'adhelpdsk@cdc.gov',
             'prime@cdc.gov',
             'reportstream@cdc.gov',
             'support@simplereport.gov',
@@ -42,6 +45,10 @@ title = "PRIME ReportStream Gitleaks Configuration"
     tags = [
         "envvar",
     ]
+    [rules.allowlist]
+        files = [
+            '\.(js|ts(x)?)$' # No environment variable definitions in JS files
+        ]
 
 [[rules]]
     description = "Generic Credential"
@@ -56,9 +63,16 @@ title = "PRIME ReportStream Gitleaks Configuration"
         regexes = [
             '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
             '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}',
-            '^import (.)+ from (.)+;',
-            'apiConfig\(',
+            '(prime|changeIT!)', # Default cred, this is allowed (too broad??)
+            '(resource|data) \"azurerm',    # Terraform azure data or resource
+            '^import (.)+ from (.)+;',  # react import statement (simplified)
+            'apiConfig\(', # function call
+            'apiVersion',
+            'className=',   # this is HTML
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
+        ]
+        paths = [
+            '.terraform/modules/',
         ]
 
 [[rules]]
@@ -105,11 +119,12 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
+            '::add-mask',
             '::after',
+            '::before',
             '(?i)FROM\s[a-z0-9]',
             'a:active',
             'initialTime',
-            '::add-mask',
         ]
 
 [[rules]]
