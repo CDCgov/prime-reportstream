@@ -55,6 +55,7 @@ class WorkflowEngine(
     val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(),
     val as2Transport: AS2Transport = AS2Transport()
 ) {
+    private val testVal get() = "I am a test val"
     /**
      * Check the connections to Azure Storage and DB
      */
