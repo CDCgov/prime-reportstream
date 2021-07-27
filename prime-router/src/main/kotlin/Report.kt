@@ -790,7 +790,7 @@ class Report : Logging {
                         it.childReportId, // the prev child is the new parent
                         it.childIndex,
                         newChildReportId,
-                        it.childIndex, // 1:1 mapping
+                        it.childIndex, // one-to-one mapping
                         it.trackingId,
                         it.transportResult,
                         null

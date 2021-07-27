@@ -109,7 +109,7 @@ class CheckFunction : Logging {
         var overallPass = false
         receivers.forEach { receiver ->
             if (testTransport(receiver, sftpFile, responseBody)) {
-                // Like Gen 18:31, if even one good sftp is found, that saves the overall run.
+                // if even one good sftp is found, that saves the overall run.
                 overallPass = true
             }
             responseBody.add("") // This will add a newline when the strings are returned.
