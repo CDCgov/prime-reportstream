@@ -4,7 +4,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 [allowlist]
     description = "Allow-list for files and paths"
     files = [
-        '(.*?)(bin|doc|gif|jar|jp(e)?g|pdf|png)$',
+        '(.*?)(bin|doc|gif|jar|jp(e)?g|pdf|png|xlsx)$',
         '^\.?gitleaks-config.toml$',
         '^\.?gitleaks.report.json$',
         '^package-lock\.json$',
@@ -67,6 +67,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
         regexes = [
             '(?i)e\.g\. ',                                      # The value 'e.g.' means 'example'
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
+            'DB_USER=prime',                                    # Not real
+            'DB_PASSWORD=mypass(word)?',                           # Not real
         ]
 
 [[rules]]
@@ -78,26 +80,41 @@ title = "PRIME ReportStream Gitleaks Configuration"
         "key",
     ]
     [rules.allowlist]
-        description = "ignore gitleaks, slack, mailchimp and aws configuration because they are captured elsewhere"
         regexes = [
+            ' by option\(\"',
             '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
             '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}',
             '(patterns_to_match|key_permissions)\s*=',                                      # Terraform artifacts
             '(prime|changeIT!)',                                                            # Default cred, this is allowed (too broad??)
             '(resource|data) \"azurerm',                                                    # Terraform azure data or resource
+            '\.containsKey\(',
             '\"user(\d)*\", \"pass(\d)*\"',                                                 # Not real creds
             '\"user\":\"user1\",(\s)*\"pass\":\"pass1\"',
+            '\s*=\s*validateUser\s*\(',
+            '\s+KEY_VAULT_NAME\s*=\s*\"',
             '^import (.)+ from (.)+;',                                                      # react import statement (simplified)
             'apiConfig\(',                                                                  # function call
             'apiVersion',
             'className=',                                                                   # this is HTML
+            'const val (user|password)Variable = \"POSTGRES_(USER|PASSWORD)\"$',            # Literal value
+            'export USERNAME=\"client\"',
+            'it\.key\.contains\(',                                                          # iterator key access
+            'MockResponse\(',                                                               # Explicitly listed as Mock
+            'PrincipalLevel\.USER',
+            'private const val apiPath = \"',
             'rsa_key_(2048|4096)\s*=\s*\"pdh(prod|test|staging)-((2048|4096)-)?key\"',      # Terraform artifacts
+            'SECRET_STORAGE_METHOD(\")?\s=',                                                # Method, not a secret
+            'secretClient\.getSecret\(\"',
             'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                            # You are fetching the secret properly
+            'secretService getProperty \"',
+            'secretService\.fetchSecret\(',                                                 # You are fetching the secret properly
             'val KEY_DB_(USER|PASSWORD|URL) = (\"|\\\")DB_(USER|URL|PASSWORD)(\"|\\\")',    # contained verbatim 'DB_(USER|PASSWORD|URL)'
+            'val KEY_PRIME_RS_API_ENDPOINT_HOST = ',                                        # Setting of the name of an environment variable name
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
         ]
         paths = [
             '.terraform/modules/',
+            'prime-router/settings/prod/',
         ]
 
 [[rules]]
@@ -130,7 +147,11 @@ title = "PRIME ReportStream Gitleaks Configuration"
         files = [
             '\.ovpn$',
         ]
+        paths = [
+            'prime-router/settings/(staging|prod)/'
+        ]
         regexes = [
+            '\d+\.\d+\.\d+\.\d+\.',                     # Fix for bug in regex (allows trailing dots)
             '0\.0\.0\.0',
             '10\.(\d+\.){2}\d+',                        # Cheapo 10.0.0.0/8 range
             '127\.(\d+\.){2}\d+',                       # Cheapo 127.0.0.0/8 range
@@ -141,7 +162,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
     description = "IPv6 addresses"
-    regex = '([a-f0-9:]+:+)+[a-f0-9]+'
+    regex = '([a-f0-9:]+:+)+[a-f0-9]+'                  # Cheapo, better wanted
     tags = [
         "network",
         "IPv6",
@@ -152,20 +173,25 @@ title = "PRIME ReportStream Gitleaks Configuration"
         ]
         regexes = [
             '::1\/128',                                 # Local
-            '::(class|date|csvFields|after|before|add-mask)',    # Kotlin/css-ism
+            '(?i)::(cl|dat|cs|aft|befo|add-|fi|er)',    # Kotlin/css-ism
+            '(?i)\d+:\d+(am|pm)',
             '(?i)certificate fingerprint \(',
             '(?i)FROM\s[a-z0-9]',
-            '\d+-\d+-\d+T(\d+:\d+-\d+:\d+|\d+:\d+:\d+)',              # Timestamp: YYYY-mm-ddTHH:MM-HH:MM
+            '\d{10}',
+            '\d+-\d+-\d+T(\d+:\d+-\d+:\d+|\d+:\d+(:\d+)?(Z)?)',              # Timestamp
             '\s+(testI|i)mplementation\(',              # Probably in gradle.build.kts
             '\s+assert[a-zA-Z]+\(',                     # might make them sneak into test cases??
+            '^\s*(?i)example:',
             '^\s+-\s?[1-9][0-9]*(:[1-9][0-9]*)?',       # docker port mapping
             '0\.0\.0\.0:',                              # avoid 0.0.0.1:<port>
             '127\.0\.0\.1:',                            # avoid 127.0.0.1:<port>
-            'a:active',
+            'a:act',
             'docker exec --user ',                      # probably a sample command; local anyway
             'expiresOn',
             'foo:pass:(\d+)?::upload',                  # Local creds
             'initialTime',
+            'rsa',
+            'me:fu',
         ]
 
 [[rules]]
