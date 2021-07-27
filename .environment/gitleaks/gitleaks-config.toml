@@ -8,14 +8,15 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '^\.?gitleaks-config.toml$',
         '^\.?gitleaks.report.json$',
         '^package-lock\.json$',
-        'yarn\.lock$'
+        'yarn\.lock$',
     ]
     paths = [
         '.terraform/providers/',
         'frontend-react/build/',
         'frontend-react/node_modules/',
         'prime-router/build/',
-        'prime-router/src/test/csv_test_files/input/'
+        'prime-router/docs/schema_documentation/',
+        'prime-router/src/test/csv_test_files/input/',
     ]
 
 
