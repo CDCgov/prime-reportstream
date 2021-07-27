@@ -247,7 +247,12 @@ async function changeOrg( event ){
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
     processOrgName();
-    await processReportFeeds();
+    const feeds = await processReportFeeds();
+    const promises = feeds.map( async (feed,idx) => {
+        console.log(`processing Reports ${feed} ${idx}`);
+        await processReports( feed, idx );
+    });
+    Promise.all(promises).then((values) => console.log(values));
 }
 
 function populateOrgDropdown() {
@@ -366,7 +371,7 @@ async function processReportFeeds(){
     const tabs = document.querySelector("#tabs");
     console.log(tabs);
     if (tabs) {
-        tabs.innerHTML = `<div id="reportFeeds" class=${feeds.length > 1?"tab-wrap":""}></div>`;
+        tabs.innerHTML = `<div id="reportFeeds" class="${feeds.length > 1?"tab-wrap":""}"></div>`;
     }
     const reportFeeds = document.querySelector("#reportFeeds");
     console.log(reportFeeds);
@@ -374,7 +379,7 @@ async function processReportFeeds(){
         // if there are no feeds, then output an empty table
         if (feeds.length === 0) {
             reportFeeds.innerHTML += `
-                    <div class=${feeds.length > 1 ? "tab__content" : ""}>
+                    <div class="${feeds.length > 1 ? "tab__content" : ""}">
                         <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
                         <thead>
                           <tr>
@@ -385,7 +390,10 @@ async function processReportFeeds(){
                             <th scope="col">File</th>
                           </tr>
                         </thead>
-                        <tbody id="tBody${idx ? idx : ''}" class="font-mono-2xs" data-feed-name="${feed}">
+                        <tbody id="tBody" class="font-mono-2xs">
+                            <tr>
+                                <th colspan="5">No reports found</th>
+                            </tr>
                         </tbody>
                       </table>
                     </div>
@@ -404,7 +412,7 @@ async function processReportFeeds(){
         // loop the feeds and kick out the tables
         feeds.forEach((feed, idx) => {
             reportFeeds.innerHTML += `
-                    <div class=${feeds.length > 1 ? "tab__content" : ""} data-feed-name="${feed}">
+                    <div class="${feeds.length > 1 ? "tab__content" : ""}" data-feed-name="${feed}">
                         <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
                         <thead>
                           <tr>
