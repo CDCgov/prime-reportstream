@@ -68,7 +68,9 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '(?i)e\.g\. ',                                      # The value 'e.g.' means 'example'
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
             'DB_USER=prime',                                    # Not real
-            'DB_PASSWORD=mypass(word)?',                           # Not real
+            'DB_PASSWORD=mypass(word)?',                        # Not real
+            '(prime|changeIT!)',                                # Default cred, this is allowed (too broad??)
+            'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
         ]
 
 [[rules]]
@@ -82,6 +84,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     [rules.allowlist]
         regexes = [
             ' by option\(\"',
+            '.user\(\s*\"USER\"\s*\)$',
             '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
             '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}',
             '(patterns_to_match|key_permissions)\s*=',                                      # Terraform artifacts
@@ -94,23 +97,31 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '\s+KEY_VAULT_NAME\s*=\s*\"',
             '^import (.)+ from (.)+;',                                                      # react import statement (simplified)
             'apiConfig\(',                                                                  # function call
+            'apid\s+',
             'apiVersion',
             'className=',                                                                   # this is HTML
-            'const val (user|password)Variable = \"POSTGRES_(USER|PASSWORD)\"$',            # Literal value
+            'const val apiPath = \"',
             'export USERNAME=\"client\"',
             'it\.key\.contains\(',                                                          # iterator key access
+            'KeyVaultSecret\(\"',                                                            # You are doing the right hting
             'MockResponse\(',                                                               # Explicitly listed as Mock
             'PrincipalLevel\.USER',
-            'private const val apiPath = \"',
+            'private const val oktaAuthorizePath = \"/oauth2/default/v1/authorize\"',
+            'private const val oktaUserInfoPath = \"/oauth2/default/v1/userinfo\"',
             'rsa_key_(2048|4096)\s*=\s*\"pdh(prod|test|staging)-((2048|4096)-)?key\"',      # Terraform artifacts
             'SECRET_STORAGE_METHOD(\")?\s=',                                                # Method, not a secret
             'secretClient\.getSecret\(\"',
             'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                            # You are fetching the secret properly
             'secretService getProperty \"',
             'secretService\.fetchSecret\(',                                                 # You are fetching the secret properly
+            'val (user|password)Variable = \"POSTGRES_(USER|PASSWORD)\"$',                  # Literal value
             'val KEY_DB_(USER|PASSWORD|URL) = (\"|\\\")DB_(USER|URL|PASSWORD)(\"|\\\")',    # contained verbatim 'DB_(USER|PASSWORD|URL)'
             'val KEY_PRIME_RS_API_ENDPOINT_HOST = ',                                        # Setting of the name of an environment variable name
+            'val redoxAuthPath = \"/auth/authenticate\"',
+            'val redoxKey = \"apiKey\"',                                                    # Environment variable name, not value
+            'val secretEnvName = \"REDOX_SECRET\"',                                         # Environment variable name, not value
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
+            'private val redoxSecret = \"secret\"',
         ]
         paths = [
             '.terraform/modules/',
@@ -148,7 +159,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '\.ovpn$',
         ]
         paths = [
-            'prime-router/settings/(staging|prod)/'
+            'prime-router/settings/organizations-prod.yml',
+            'prime-router/settings/(staging|prod)/',
         ]
         regexes = [
             '\d+\.\d+\.\d+\.\d+\.',                     # Fix for bug in regex (allows trailing dots)
@@ -162,7 +174,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
     description = "IPv6 addresses"
-    regex = '([a-f0-9:]+:+)+[a-f0-9]+'                  # Cheapo, better wanted
+    regex = '([0-9a-fA-F]{0,4}|0)(\:([0-9a-fA-F]{0,4}|0)){7}'  # Cheapo, better wanted
     tags = [
         "network",
         "IPv6",
@@ -172,26 +184,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             "docker-compose.yml",                       # Local anyway
         ]
         regexes = [
-            '::1\/128',                                 # Local
-            '(?i)::(cl|dat|cs|aft|befo|add-|fi|er)',    # Kotlin/css-ism
-            '(?i)\d+:\d+(am|pm)',
-            '(?i)certificate fingerprint \(',
-            '(?i)FROM\s[a-z0-9]',
-            '\d{10}',
-            '\d+-\d+-\d+T(\d+:\d+-\d+:\d+|\d+:\d+(:\d+)?(Z)?)',              # Timestamp
-            '\s+(testI|i)mplementation\(',              # Probably in gradle.build.kts
-            '\s+assert[a-zA-Z]+\(',                     # might make them sneak into test cases??
-            '^\s*(?i)example:',
-            '^\s+-\s?[1-9][0-9]*(:[1-9][0-9]*)?',       # docker port mapping
-            '0\.0\.0\.0:',                              # avoid 0.0.0.1:<port>
-            '127\.0\.0\.1:',                            # avoid 127.0.0.1:<port>
-            'a:act',
-            'docker exec --user ',                      # probably a sample command; local anyway
-            'expiresOn',
-            'foo:pass:(\d+)?::upload',                  # Local creds
-            'initialTime',
-            'rsa',
-            'me:fu',
+            '(?i)certificate fingerprint \('
         ]
 
 [[rules]]
