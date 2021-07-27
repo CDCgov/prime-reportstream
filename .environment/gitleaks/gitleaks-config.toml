@@ -31,13 +31,14 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
-            'adhelpdsk@cdc.gov',
-            'data@cdc.gov',
-            'prime@cdc.gov',
-            'reportstream@cdc.gov',
-            'support@simplereport.gov',
-            'usds@cdc.gov',
-            'USDS@omb.eop.gov',
+            '(?i)@email.com',
+            '(?i)adhelpdsk@cdc.gov',
+            '(?i)data@cdc.gov',
+            '(?i)prime@cdc.gov',
+            '(?i)reportstream@cdc.gov',
+            '(?i)support@simplereport.gov',
+            '(?i)usds@cdc.gov',
+            '(?i)usds@omb.eop.gov',
         ]
 
 [[rules]]
@@ -48,7 +49,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         files = [
-            '\.(js|ts(x)?)$', # No environment variable definitions in Javascript/TypeScript files
+            '\.(js|ts(x)?)$',                   # No environment variable definitions in Javascript/TypeScript files
+            'docker-compose(\.build)?\.yml',    # This is local anyway
         ]
 
 [[rules]]
@@ -127,9 +129,13 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '::after',
             '::before',
             '(?i)FROM\s[a-z0-9]',
-            '^\s+-\s?[1-9][0-9]*(:[1-9][0-9]*)?',   # docker port mapping
-            '127\.0\.0\.1:',    # avoid 127.0.0.1:<port>
+            '\d+-\d+-\d+T\d+:\d+-\d+:\d+',              # Timestamp: YYYY-mm-ddTHH:MM:SS
+            '^\s+-\s?[1-9][0-9]*(:[1-9][0-9]*)?',       # docker port mapping
+            '0\.0\.0\.0:',                              # avoid 0.0.0.1:<port>
+            '127\.0\.0\.1:',                            # avoid 127.0.0.1:<port>
             'a:active',
+            '(?i)certificate fingerprint \(',
+            'docker exec --user ',                      # probably a sample command; local anyway
             'expiresOn',
             'initialTime',
         ]
