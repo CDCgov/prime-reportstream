@@ -32,16 +32,25 @@ title = "PRIME ReportStream Gitleaks Configuration"
     [rules.allowlist]
         # TODO: Filter the real ones down
         regexes = [
+            '(?i)@cdc.local',
             '(?i)@email.com',
             '(?i)@organization.tld',
+            '(?i)a@cdc.gov',
             '(?i)adhelpdsk@cdc.gov',
             '(?i)data@cdc.gov',
+            '(?i)e.ripley@weylandyutani.com',
+            '(?i)jbrush@avantecenters.com',
+            '(?i)jj@phd.gov',
+            '(?i)joe.jones@az.pima.gov',
+            '(?i)local@test.com',
+            '(?i)noreply@cdc.gov',
             '(?i)prime@cdc.gov',
+            '(?i)qtv1@cdc.gov',
+            '(?i)qva8@cdc.gov',
             '(?i)reportstream@cdc.gov',
             '(?i)support@simplereport.gov',
             '(?i)usds@cdc.gov',
             '(?i)usds@omb.eop.gov',
-            '(?i)qtv1@cdc.gov',
         ]
 
 [[rules]]
@@ -72,13 +81,16 @@ title = "PRIME ReportStream Gitleaks Configuration"
         regexes = [
             '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
             '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}',
-            '(prime|changeIT!)', # Default cred, this is allowed (too broad??)
-            '(resource|data) \"azurerm',    # Terraform azure data or resource
-            '^import (.)+ from (.)+;',  # react import statement (simplified)
-            'apiConfig\(', # function call
+            '(prime|changeIT!)',                                                        # Default cred, this is allowed (too broad??)
+            '(resource|data) \"azurerm',                                                # Terraform azure data or resource
+            '\"user(\d)*\", \"pass(\d)*\"',                                             # Not real creds
+            '\"user\":\"user1\",(\s)*\"pass\":\"pass1\"',
+            '^import (.)+ from (.)+;',                                                  # react import statement (simplified)
+            'apiConfig\(',                                                              # function call
             'apiVersion',
-            'className=',   # this is HTML
-            'key_permissions',  # Terraform artifact
+            'className=',                                                               # this is HTML
+            'key_permissions',                                                          # Terraform artifact
+            'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                        # You are fetching the secret properly
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
         ]
         paths = [
@@ -117,10 +129,11 @@ title = "PRIME ReportStream Gitleaks Configuration"
         ]
         regexes = [
             '0\.0\.0\.0',
-            '127\.(\d+\.){2}\d+',                       # Cheapo 127.0.0.0/8 range
             '10\.(\d+\.){2}\d+',                        # Cheapo 10.0.0.0/8 range
+            '127\.(\d+\.){2}\d+',                       # Cheapo 127.0.0.0/8 range
             'receivingApplicationOID',
             'receivingFacilityOID',
+            'reportingFacilityId',
         ]
 
 [[rules]]
@@ -138,9 +151,13 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '::add-mask',
             '::after',
             '::before',
+            '::class',                                  # Kotlin-ism
+            '::csvFields',
             '(?i)certificate fingerprint \(',
             '(?i)FROM\s[a-z0-9]',
             '\d+-\d+-\d+T\d+:\d+-\d+:\d+',              # Timestamp: YYYY-mm-ddTHH:MM:SS
+            '\s+(testI|i)mplementation\(',              # Probably in gradle.build.kts
+            '\s+assert[a-zA-Z]+\(',                     # might make them sneak into test cases??
             '^\s+-\s?[1-9][0-9]*(:[1-9][0-9]*)?',       # docker port mapping
             '0\.0\.0\.0:',                              # avoid 0.0.0.1:<port>
             '127\.0\.0\.1:',                            # avoid 127.0.0.1:<port>
@@ -149,7 +166,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'expiresOn',
             'foo:pass:(\d+)?::upload',                  # Local creds
             'initialTime',
-        ]
+ ]
 
 [[rules]]
     description = "MailChimp"
