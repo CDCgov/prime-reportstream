@@ -151,11 +151,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
             "docker-compose.yml",                       # Local anyway
         ]
         regexes = [
-            '::add-mask',
-            '::after',
-            '::before',
-            '::class',                                  # Kotlin-ism
-            '::csvFields',
+            '::1\/128',                                 # Local
+            '::(class|date|csvFields|after|before|add-mask)',    # Kotlin/css-ism
             '(?i)certificate fingerprint \(',
             '(?i)FROM\s[a-z0-9]',
             '\d+-\d+-\d+T(\d+:\d+-\d+:\d+|\d+:\d+:\d+)',              # Timestamp: YYYY-mm-ddTHH:MM-HH:MM
