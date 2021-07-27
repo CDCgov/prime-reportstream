@@ -166,7 +166,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'expiresOn',
             'foo:pass:(\d+)?::upload',                  # Local creds
             'initialTime',
- ]
+        ]
 
 [[rules]]
     description = "MailChimp"
