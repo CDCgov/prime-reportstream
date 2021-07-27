@@ -1,40 +1,62 @@
 title = "PRIME ReportStream Gitleaks Configuration"
 
-[[rules]]
-	description = "Email"
-	regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'''
-	tags = ["email"]
-	[rules.allowlist]
-		files = ['''(?i)bashrc''']
-		description = "ignore bashrc emails"
+# Global allowlist
+[allowlist]
+    description = "Allow-list for files and paths"
+    files = [
+        '(.*?)(bin|doc|gif|jar|jp(e)?g|pdf|png)$',
+        '^\.?gitleaks-config.toml$',
+        '^\.?gitleaks.report.json$',
+        '^package-lock\.json$',
+        'yarn\.lock$'
+    ]
+    paths = [
+        '.terraform/providers/',
+        'frontend-react/build/',
+        'frontend-react/node_modules/',
+        'prime-router/build/',
+        'prime-router/src/test/csv_test_files/input/'
+    ]
+
 
 [[rules]]
-	description = "Env Var"
-	regex = '''(?i)(apikey|secret|key|api|password|pass|pw|host)=[0-9a-zA-Z-_.{}]{4,120}'''
+    description = "Email"
+    regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'''
+    tags = ["email"]
+    [rules.allowlist]
+        files = ['''(?i)bashrc''']
+        description = "ignore bashrc emails"
+        regexes = [
+            'usds@cdc.gov'
+        ]
 
 [[rules]]
-	description = "Generic Credential"
-	regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
-	tags = ["key", "API", "generic"]
-	# ignore leaks with specific identifiers like slack and aws (because those are captured in other rules)
-	[rules.allowlist]
-		regexes = [
-		    '''xox[baprs]-([0-9a-zA-Z]{10,48})''',
-		    '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
-		    '''(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
-		]
-		description = "ignore gitleaks, slack, mailchimp and aws configuration"
+    description = "Env Var"
+    regex = '''(?i)(apikey|secret|key|api|password|pass|pw|host)=[0-9a-zA-Z-_.{}]{4,120}'''
 
 [[rules]]
-	description = "Github"
-	regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
-	tags = ["key", "Github"]
+    description = "Generic Credential"
+    regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
+    tags = ["key", "API", "generic"]
+    # ignore leaks with specific identifiers like slack and aws (because those are captured in other rules)
+    [rules.allowlist]
+        regexes = [
+            '''xox[baprs]-([0-9a-zA-Z]{10,48})''',
+            '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
+            '''(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
+        ]
+        description = "ignore gitleaks, slack, mailchimp and aws configuration"
 
 [[rules]]
-	description = "High Entropy"
-	regex = '''[0-9a-zA-Z-_!{}/=]{4,120}'''
-  	file = '''(?i)(dump.sql|high-entropy-misc.txt)$'''
-	tags = ["entropy"]
+    description = "Github"
+    regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
+    tags = ["key", "Github"]
+
+[[rules]]
+    description = "High Entropy"
+    regex = '''[0-9a-zA-Z-_!{}/=]{4,120}'''
+      file = '''(?i)(dump.sql|high-entropy-misc.txt)$'''
+    tags = ["entropy"]
     [[rules.Entropies]]
         Min = "4.3"
         Max = "7.0"
@@ -60,35 +82,32 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
-	description = "MailChimp"
-	regex = '''[0-9a-f]{32}-us[0-9]{12}'''
-	tags = [
+    description = "MailChimp"
+    regex = '''[0-9a-f]{32}-us[0-9]{12}'''
+    tags = [
         "key",
         "mailchimp"
     ]
 
 [[rules]]
-	description = "Port"
-	regex = '''(?i)port(.{0,4})?[0-9]{1,10}'''
-	[rules.allowlist]
+    description = "Port"
+    regex = '''(?i)port(.{0,4})?[0-9]{1,10}'''
+    [rules.allowlist]
         files = [
             "gitleaks-config.toml"
         ]
-		description = "ignore gitleaks configuration"
 
-[[rules]]
-	description = "Potential bash var"
-	regex = '''(?i)(=)([0-9a-zA-Z-_!{}=]{4,120})'''
-	tags = ["key", "bash", "API", "generic"]
+    regex = '''(?i)(=)([0-9a-zA-Z-_!{}=]{4,120})'''
+    tags = ["key", "bash", "API", "generic"]
     [[rules.Entropies]]
         Min = "3.5"
         Max = "4.5"
         Group = "1"
 
 [[rules]]
-	description = "Private Keys"
-	regex = '''-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'''
-	tags = ["key", "AsymmetricPrivateKey"]
+    description = "Private Keys"
+    regex = '''-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'''
+    tags = ["key", "AsymmetricPrivateKey"]
 
 [[rules]]
     description = "SendGrid API Key"
@@ -96,14 +115,14 @@ title = "PRIME ReportStream Gitleaks Configuration"
     tags = ["key", "sendgrid"]
 
 [[rules]]
-	description = "Slack"
-	regex = '''xox[baprs]-([0-9a-zA-Z]{10,48})?'''
-	tags = ["key", "Slack"]
+    description = "Slack"
+    regex = '''xox[baprs]-([0-9a-zA-Z]{10,48})?'''
+    tags = ["key", "Slack"]
 
 [[rules]]
-	description = "Slack Webhook"
-	regex = '''https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'''
-	tags = ["key", "slack"]
+    description = "Slack Webhook"
+    regex = '''https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'''
+    tags = ["key", "slack"]
 
 [[rules]]
     description = "SonarQube Docs API Key"
@@ -111,20 +130,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
     tags = ["key", "sonarqube"]
 
 [[rules]]
-	description = "Twilio API Key"
-	regex = '''(?i)twilio(.{0,20})?['\"][0-9a-f]{32}['\"]'''
-	tags = ["key", "twilio"]
-
-# Global allowlist
-[allowlist]
-	description = "Allow-list for files and paths"
-	files = [
-	    '''^\.?gitleaks-config.toml$''',
-	    '''(.*?)(jpg|gif|doc|pdf|bin)$''',
-	    '''^package-lock\.json$''',
-	    '''yarn\.lock''',
-	    '''node_modules'''
-	]
-    paths = [
-        '''node_modules'''
-    ]
+    description = "Twilio API Key"
+    regex = '''(?i)twilio(.{0,20})?['\"][0-9a-f]{32}['\"]'''
+    tags = ["key", "twilio"]
