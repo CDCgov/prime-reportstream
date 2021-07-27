@@ -478,6 +478,7 @@
   stateCode: NM
   receivers:
     - name: elr
+      externalName: Primary
       organizationName: nm-doh
       topic: covid-19
       jurisdictionalFilter:
@@ -507,6 +508,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: elr-csv
+      externalName: Secondary
       organizationName: nm-doh
       topic: covid-19
       jurisdictionalFilter:
