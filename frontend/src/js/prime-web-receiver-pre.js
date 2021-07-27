@@ -90,7 +90,7 @@ function isLoggedIn(){
  *  if not valid, redirects to the sign-in page; otherwise sets up the claims
  */
 function checkJWT() {
-    if ( !isLoggedIn() )
+    if (!isLoggedIn())
         window.location.replace('/sign-in/?return=/daily-data/');
 }
 
@@ -119,13 +119,12 @@ async function fetchOrgName() {
  *      sign-in page
  */
 function idleTimer() {
-    if ( isLoggedIn() ) {
+    if (isLoggedIn()) {
         window.sessionStorage.setItem("idle-timer", "true");
         idleTimeout(() => {
             window.sessionStorage.clear();
             window.location.replace(`/sign-in/`);
-        },
-            {
+        }, {
                 element: document,
                 timeout: 1000 * 60 * 15,
                 loop: false
@@ -182,11 +181,12 @@ function logout() {
 
 async function fetchReportFeeds(){
     let reports = await fetchReports();
-    let receivingOrgSvc = reports ? reports.map( rep => rep.displayName ) : []
-
-    return Array.from( new Set( receivingOrgSvc ) );
+    let receivingOrgSvc = reports ? reports.map( rep => rep.externalName ) : []
+    console.log(reports);
+    console.log(receivingOrgSvc);
+    const receivers = new Set(receivingOrgSvc);
+    return [...receivers];
 }
-
 
 /**
  *
@@ -199,11 +199,12 @@ async function fetchReports( filter ) {
         url = `${url}s/${window.org}?cache=${cacheBust}`
     }
     console.log(`calling for ${url}`);
-    let retValue = window.jwt ? await axios(apiConfig(url))
+    const retValue = window.jwt ? await axios(apiConfig(url))
         .then(res => res.data)
-        .catch(e => {console.log(e); return []}): [];
+        .catch(e => { console.log(e); return [] }): [];
+    console.log(retValue);
     
-    return filter? retValue.filter( report => report.displayName === filter ) : retValue;
+    return filter? retValue.filter( report => report.externalName === filter ) : retValue;
 }
 
 async function fetchAllOrgs() {
@@ -242,11 +243,16 @@ function isLocalhost(){
  */
 
 
-function changeOrg( event ){
+async function changeOrg( event ){
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
     processOrgName();
-    processReports();
+    const feeds = await processReportFeeds();
+    const promises = feeds.map( async (feed,idx) => {
+        console.log(`processing Reports ${feed} ${idx}`);
+        await processReports( feed, idx );
+    });
+    Promise.all(promises).then((values) => console.log(values));
 }
 
 function populateOrgDropdown() {
@@ -354,7 +360,7 @@ async function processOrgName(){
 
 function titleCase(str) {
     str = str.toLowerCase().split(' ');
-    for (var i = 0; i < str.length; i++) {
+    for (let i = 0; i < str.length; i++) {
       str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1); 
     }
     return str.join(' ');
@@ -362,36 +368,64 @@ function titleCase(str) {
 
 async function processReportFeeds(){
     let feeds = await fetchReportFeeds();
-    const tabs = document.getElementById("tabs");  
-    console.log( feeds );
-    if (tabs) tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
-    const reportFeeds = document.getElementById("reportFeeds");  
+    const tabs = document.querySelector("#tabs");
+    console.log(tabs);
+    if (tabs) {
+        tabs.innerHTML = `<div id="reportFeeds" class="${feeds.length > 1?"tab-wrap":""}"></div>`;
+    }
+    const reportFeeds = document.querySelector("#reportFeeds");
+    console.log(reportFeeds);
     if (reportFeeds) {
+        // if there are no feeds, then output an empty table
+        if (feeds.length === 0) {
+            reportFeeds.innerHTML += `
+                    <div class="${feeds.length > 1 ? "tab__content" : ""}">
+                        <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+                        <thead>
+                          <tr>
+                            <th scope="col">Report Id</th>
+                            <th scope="col">Date Sent</th>
+                            <th scope="col">Expires</th>
+                            <th scope="col">Total tests</th>
+                            <th scope="col">File</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tBody" class="font-mono-2xs">
+                            <tr>
+                                <th colspan="5">No reports found</th>
+                            </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                `;
+            return feeds;
+        }
+        // if there's more than one feed, add tabs
         if (feeds.length > 1) {
             feeds.forEach((feed, idx) => {
                 reportFeeds.innerHTML += `
-                    <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx > 0 ? "" : "checked"}>
+                    <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx > 0 ? "" : "checked"} data-feed-name="${feed}">
                     <label for="tab${idx}">${feed.replaceAll("-", " ").toUpperCase()}</label>
                     `
             });
         }
-
+        // loop the feeds and kick out the tables
         feeds.forEach((feed, idx) => {
             reportFeeds.innerHTML += `
-                    <div class=${feeds.length > 1 ? "tab__content" : ""}>
-                    <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
-                    <thead>
-                      <tr>
-                        <th scope="col">Report Id</th>
-                        <th scope="col">Date Sent</th>
-                        <th scope="col">Expires</th>
-                        <th scope="col">Total tests</th>
-                        <th scope="col">File</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tBody${idx ? idx : ''}" class="font-mono-2xs">
-                    </tbody>
-                  </table>
+                    <div class="${feeds.length > 1 ? "tab__content" : ""}" data-feed-name="${feed}">
+                        <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+                        <thead>
+                          <tr>
+                            <th scope="col">Report Id</th>
+                            <th scope="col">Date Sent</th>
+                            <th scope="col">Expires</th>
+                            <th scope="col">Total tests</th>
+                            <th scope="col">File</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tBody${idx ? idx : ''}" class="font-mono-2xs" data-feed-name="${feed}">
+                        </tbody>
+                      </table>
                     </div>
                 `
         });
@@ -406,7 +440,8 @@ async function processReportFeeds(){
  */
 async function processReports(feed, idx){
     let reports = [];
-    const tBody = document.getElementById("tBody");
+    const tBody = document.querySelector(`tbody[data-feed-name='${feed}']`);
+    console.log(tBody);
     // clear the table body because we can get reports from different PHDs
     if (tBody) tBody.innerHTML = "";
     try {
@@ -421,26 +456,27 @@ async function processReports(feed, idx){
         reports.forEach(_report => {
             if (tBody) tBody.innerHTML +=
                 `<tr>
-                <th data-title="reportId" scope="row">
-                    <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>
-                </th>
-                <th data-title="date" scope="row">${moment.utc(_report.sent).local().format('YYYY-MM-DD HH:mm')}</th>
-                <th date-title="expires" scope="row">${moment.utc(_report.expires).local().format('YYYY-MM-DD HH:mm')}</th>
-                <th data-title="Total tests" scope="row">${_report.total}</th>
-                <th data-title="File" scope="row">
-                    <span>
-                        <a href="javascript:requestFile( \'${_report.reportId}\');" class="usa-link">
-                            ${_report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : _report.fileType}
-                        </a>
-                    </span>
-                </th>
+                    <th data-title="reportId" scope="row">
+                        <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>
+                    </th>
+                    <th data-title="date" scope="row">${moment.utc(_report.sent).local().format('YYYY-MM-DD HH:mm')}</th>
+                    <th date-title="expires" scope="row">${moment.utc(_report.expires).local().format('YYYY-MM-DD HH:mm')}</th>
+                    <th data-title="Total tests" scope="row">${_report.total}</th>
+                    <th data-title="File" scope="row">
+                        <span>
+                            <a href="javascript:requestFile( \'${_report.reportId}\');" class="usa-link">
+                                ${_report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : _report.fileType}
+                            </a>
+                        </span>
+                    </th>
               </tr>`;
-    });
-    if (!reports || reports.length === 0) {
-        if (tBody) tBody.innerHTML +=
-            `<tr>
+        });
+        if (!reports || reports.length === 0) {
+            if (tBody) tBody.innerHTML +=
+                `<tr>
                 <th colspan="5">No reports found</th>
             </tr>`;
+        }
     }
     return reports;
 }
@@ -453,13 +489,16 @@ async function processReports(feed, idx){
 async function processReport( reports ){
     let report = null;
     if (reports && reports.length > 0) {
-        if (window.location.search === "") report = reports[0];
-        else report = reports.find(report => report.reportId === window.location.search.substring(1));
+        if (window.location.search === "")
+            report = reports[0];
+        else
+            report = reports.find(report => report.reportId === window.location.search.substring(1));
     }
     if (report !== null) {
         const details = document.getElementById("details");
-        if (details) details.innerHTML +=
-            `<div class="tablet:grid-col-6">
+        if (details) {
+            details.innerHTML +=
+                `<div class="tablet:grid-col-6">
                             <h4 class="text-base-darker text-normal margin-bottom-0">Report type</h4>
                             <p class="text-bold margin-top-0">${report.type}</p>
                             <h4 class="text-base-darker text-normal margin-bottom-0">Report sent</h4>
@@ -471,6 +510,7 @@ async function processReport( reports ){
                             <h4 class="text-base-darker text-normal margin-bottom-0">Download expires</h4>
                             <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>`;
+        }
         const facilities = document.getElementById( "tBodyFac");
         if (facilities) {
             report.facilities.forEach( reportFacility => {
@@ -489,7 +529,7 @@ async function processReport( reports ){
         const facTable = document.getElementById( 'facilitiestable');
 
         if (report.facilities.length) {
-            if( noFac ) noFac.setAttribute( "hidden", "hidden" );    
+            if (noFac) noFac.setAttribute( "hidden", "hidden" );
         } else {
             if (facTable) facTable.setAttribute( "hidden", "hidden" );
         }
@@ -497,12 +537,15 @@ async function processReport( reports ){
         const reportId = document.getElementById("report.id");
         if (reportId) reportId.innerHTML = report.reportId;
         const download = document.getElementById("download");
-        if (download) download.innerHTML +=
-            `<a id="report.fileType"
+        if (download) {
+            download.innerHTML +=
+                `<a id="report.fileType"
                 class="usa-button usa-button--outline float-right"
                 href="javascript:requestFile( \'${report.reportId}\');"</a>`;
+        }
         const reportFileType = document.getElementById("report.fileType");
-        if (reportFileType) reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
+        if (reportFileType)
+            reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
     }
 
     return report;
