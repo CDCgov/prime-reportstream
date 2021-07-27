@@ -257,7 +257,6 @@ elements:
           display: UNK
         - code: 261665006
           display: Unknown
-#TODO - how to do a default case as the value of the source field?
 
     - name: hospitalized
       default: N
@@ -266,7 +265,7 @@ elements:
       default: N
 
 
-#this lookup is in the covid-19 schema, but doesn't appear to be done in practice (?)
+#this lookup is in the covid-19 schema, but doesn't appear to execute??
     - name: equipment_model_name
       table: LIVD-SARS-CoV-2-2021-04-28
       tableColumn: Model
@@ -282,6 +281,43 @@ elements:
       type: TEXT
       csvFields: [{name: SSN}]
 
+    - name: LOINC
+      type: TEXT
+      csvFields: [{name: LOINC}]
 
+    - name: ResultUnits
+      type: TEXT
+      csvFields: [{name: ResultUnits}]
 
+    - name: Reference Range
+      type: TEXT
+      csvFields: [{name: Reference Range}]
+
+    - name: PhyAddress1
+      type: TEXT
+      csvFields: [{name: PhyAddress1}]
+
+    - name: PhysCity
+      type: TEXT
+      csvFields: [{name: PhysCity}]
+
+    - name: PhysST
+      type: TEXT
+      csvFields: [{name: PhysST}]
+
+    - name: PhysZip
+      type: TEXT
+      csvFields: [{name: PhysZip}]
+
+    - name: PhysPhone
+      type: TEXT
+      csvFields: [{name: PhysPhone}]
+
+    - name: Comments
+      type: TEXT
+      csvFields: [{name: Comments}]
+
+    - name: Specimen_Type_Ignore
+      type: TEXT
+      csvFields: [{name: Specimen_Type}]
 
