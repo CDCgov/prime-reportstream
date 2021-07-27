@@ -30,6 +30,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
         regexes = [
             'usds@cdc.gov',
             'support@simplereport.gov',
+            'reportstream@cdc.gov',
+            'USDS@omb.eop.gov',
         ]
 
 [[rules]]
@@ -81,6 +83,10 @@ title = "PRIME ReportStream Gitleaks Configuration"
         "network",
         "IPv4",
     ]
+    [rules.allowlist]
+        files = [
+            '\.ovpn$',
+        ]
 
 [[rules]]
     description = "IPv6 addresses"
