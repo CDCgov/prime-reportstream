@@ -181,9 +181,8 @@ function logout() {
 }
 
 async function fetchReportFeeds(){
-
-    var reports = await fetchReports();
-    var receivingOrgSvc = reports ? reports.map( rep => rep.externalName ) : []
+    let reports = await fetchReports();
+    let receivingOrgSvc = reports ? reports.map( rep => rep.displayName ) : []
 
     return Array.from( new Set( receivingOrgSvc ) );
 }
@@ -196,15 +195,15 @@ async function fetchReports( filter ) {
     let url = 'history/report';
     if (isAnAdmin()) {
         console.log("user is an admin, they get special sauce");
-        url = `${url}s/${window.org}`
+        const cacheBust = new Date().toISOString();
+        url = `${url}s/${window.org}?cache=${cacheBust}`
     }
     console.log(`calling for ${url}`);
-    var retValue = [];
-    var retValue = window.jwt ? await axios(apiConfig(url))
+    let retValue = window.jwt ? await axios(apiConfig(url))
         .then(res => res.data)
         .catch(e => {console.log(e); return []}): [];
     
-    return filter? retValue.filter( report => report.externalName === filter ) : retValue;
+    return filter? retValue.filter( report => report.displayName === filter ) : retValue;
 }
 
 async function fetchAllOrgs() {
@@ -216,7 +215,7 @@ async function fetchAllOrgs() {
  *
  */
 async function requestFile(reportId) {
-    return window.jwt? await axios(apiConfig(`history/report/${reportId}`))
+    return window.jwt ? await axios(apiConfig(`history/report/${reportId}`))
         .then(res => res.data)
         .then(csv => {
             // The filename to use for the download should not contain blob folders if present
@@ -362,25 +361,24 @@ function titleCase(str) {
   }
 
 async function processReportFeeds(){
-    var feeds = await fetchReportFeeds();
+    let feeds = await fetchReportFeeds();
     const tabs = document.getElementById("tabs");  
     console.log( feeds );
-    if( tabs ) tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
+    if (tabs) tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
     const reportFeeds = document.getElementById("reportFeeds");  
-    if( reportFeeds )        
-        if( feeds.length > 1 ){
-            feeds.forEach( (feed, idx ) => {
+    if (reportFeeds) {
+        if (feeds.length > 1) {
+            feeds.forEach((feed, idx) => {
                 reportFeeds.innerHTML += `
-                    <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx>0? "" : "checked"}>
-                    <label for="tab${idx}">${feed.replaceAll( "-", " ").toUpperCase()}</label>
-                    ` 
-                
-            })
+                    <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx > 0 ? "" : "checked"}>
+                    <label for="tab${idx}">${feed.replaceAll("-", " ").toUpperCase()}</label>
+                    `
+            });
         }
-            
-            feeds.forEach( (feed,idx) => {
-                reportFeeds.innerHTML += `
-                    <div class=${feeds.length>1?"tab__content":""}>
+
+        feeds.forEach((feed, idx) => {
+            reportFeeds.innerHTML += `
+                    <div class=${feeds.length > 1 ? "tab__content" : ""}>
                     <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
                     <thead>
                       <tr>
@@ -391,15 +389,15 @@ async function processReportFeeds(){
                         <th scope="col">File</th>
                       </tr>
                     </thead>
-                    <tbody id="tBody${idx?idx:''}" class="font-mono-2xs">
+                    <tbody id="tBody${idx ? idx : ''}" class="font-mono-2xs">
                     </tbody>
                   </table>
                     </div>
                 `
-    
-            })
-        
-        return feeds;
+        });
+    }
+
+    return feeds;
 }
 
 /**
@@ -407,7 +405,6 @@ async function processReportFeeds(){
  * @returns {Array<Report>} an array of the received reports; possibly empty
  */
 async function processReports(feed, idx){
-
     let reports = [];
     const tBody = document.getElementById("tBody");
     // clear the table body because we can get reports from different PHDs
@@ -418,12 +415,12 @@ async function processReports(feed, idx){
         console.log('fetchReports() is failing');
         console.error(error);
     }
-    if( reports )
-    reports.forEach(_report => {
-        const tBody = document.getElementById(`tBody${idx?idx:''}`);
-
-        if (tBody) tBody.innerHTML +=
-            `<tr>
+    // verify the reports exist
+    if (reports) {
+        // if they do then write them out
+        reports.forEach(_report => {
+            if (tBody) tBody.innerHTML +=
+                `<tr>
                 <th data-title="reportId" scope="row">
                     <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>
                 </th>
@@ -456,10 +453,10 @@ async function processReports(feed, idx){
 async function processReport( reports ){
     let report = null;
     if (reports && reports.length > 0) {
-        if (window.location.search == "") report = reports[0];
-        else report = reports.find(report => report.reportId == window.location.search.substring(1));
+        if (window.location.search === "") report = reports[0];
+        else report = reports.find(report => report.reportId === window.location.search.substring(1));
     }
-    if (report != null) {
+    if (report !== null) {
         const details = document.getElementById("details");
         if (details) details.innerHTML +=
             `<div class="tablet:grid-col-6">

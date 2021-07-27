@@ -67,6 +67,16 @@
       schemaName: direct/imagemover-covid-19
       format: CSV
 
+- name: anavasidx
+  description: AnavasiDx
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: anavasidx
+      topic: covid-19
+      schemaName: direct/anavasidx-covid-19
+      format: CSV
+
 - name: strac
   description: STRAC POC testing app
   jurisdiction: FEDERAL
@@ -97,6 +107,26 @@
       schemaName: direct/careevolution-covid-19
       format: HL7
 
+- name: primary
+  description: Primary Diagnostics, Inc. (primary.health)
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: primary
+      topic: covid-19
+      schemaName: direct/primary-covid-19
+      format: HL7
+
+- name: "johns_hopkins"
+  description: "Johns Hopkin's / IHS school testing program"
+  jurisdiction: "FEDERAL"
+  senders:
+    - name: "default"
+      organizationName: "johns_hopkins"
+      format: "CSV"
+      topic: "covid-19"
+      schemaName: "AZ/az-ihs-covid-19"
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -122,6 +152,24 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: elr-secondary
+      organizationName: az-phd
+      topic: covid-19
+      jurisdictionalFilter:
+        - matches(ordering_facility_state,AZ)
+      reverseTheQualityFilter: true
+      translation:
+        type: CUSTOM
+        schemaName: az/az-covid-19
+        format: CSV
+        nameFormat: standard_secondary
+
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: ARIZONA
+      # Download only, no transport
 
 - name: pima-az-phd
   description: Pima County, Arizona PHD
@@ -367,7 +415,7 @@
       organizationName: la-doh
       topic: covid-19
       jurisdictionalFilter:
-        - matches(ordering_facility_state, LA)
+        - "orEquals(ordering_facility_state, LA, patient_state, LA)"
       translation:
         type: HL7
         useBatchHeaders: true
@@ -870,6 +918,26 @@
       topic: covid-19
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, CA, patient_state, CA)
+      reverseTheQualityFilter: false
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-secondary
+      organizationName: ca-dph
+      topic: covid-19
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, CA, patient_state, CA)
+      reverseTheQualityFilter: true
       translation:
         type: HL7
         useBatchHeaders: true

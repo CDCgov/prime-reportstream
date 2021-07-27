@@ -1,5 +1,10 @@
 package gov.cdc.prime.router.serializers
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.v251.datatype.DR
@@ -21,12 +26,15 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Date
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -355,8 +363,19 @@ NTE|1|L|This is a final comment|RE"""
         every { mockTS.time } returns mockDTM
         every { mockTS.time.valueAsDate } returns nowAsDate
         every { mockTS.time.value } returns dateFormatterWithTimeZone.format(now)
+        every { mockTS.time.gmtOffset } returns 0
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals(dateFormatterWithTimeZone.format(now), dateTime)
+        assertEquals(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)), dateTime)
+
+        // Field value is TS has a time, but no GMT offset
+        every { mockTS.time } returns mockDTM
+        val cal = Calendar.getInstance()
+        cal.time = nowAsDate
+        every { mockTS.time.valueAsCalendar } returns cal
+        every { mockTS.time.value } returns dateFormatterWithTimeZone.format(now)
+        every { mockTS.time.gmtOffset } returns -99
+        dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
+        assertEquals(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)), dateTime)
 
         // Field value is DR, but no range
         every { mockSegment.getField(any(), any()) } returns mockDR
@@ -376,7 +395,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockDR.rangeStartDateTime.time.valueAsDate } returns nowAsDate
         every { mockDR.rangeStartDateTime.time.value } returns dateFormatterWithTimeZone.format(now)
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertEquals(dateFormatterWithTimeZone.format(now), dateTime)
+        assertEquals(dateFormatterWithTimeZone.format(now.withOffsetSameInstant(ZoneOffset.UTC)), dateTime)
 
         // Generate a warning for not having the timezone offsets
         every { mockDR.rangeStartDateTime } returns mockTS
@@ -425,7 +444,7 @@ NTE|1|L|This is a final comment|RE"""
         every { mockDT.month } returns date.monthValue
         every { mockDT.day } returns date.dayOfMonth
         every { mockSegment.getField(any(), any()) } returns mockDT
-        var dateTime = serializer.decodeHl7DateTime(mockTerser, dateElement, dateElement.hl7Field!!, warnings)
+        val dateTime = serializer.decodeHl7DateTime(mockTerser, dateElement, dateElement.hl7Field!!, warnings)
         assertEquals(formattedDate, dateTime)
 
         // Test a bit more the regex for the warning
@@ -562,12 +581,10 @@ NTE|1|L|This is a final comment|RE"""
         val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
 
-        val cliaElement = Element("testing_lab_clia", hl7Field = "OBX-23-10", type = Element.Type.ID_CLIA)
         serializer.setCliaComponent(
             mockTerser,
             "XYZ",
-            "OBX-23-10",
-            cliaElement
+            "OBX-23-10"
         )
 
         verify {
@@ -584,17 +601,64 @@ NTE|1|L|This is a final comment|RE"""
         val hl7Field = "ORC-3-3"
         val value = "dummy"
 
-        val cliaElement = Element("testing_lab_clia", hl7Field = hl7Field, type = Element.Type.ID_CLIA)
         serializer.setCliaComponent(
             mockTerser,
             value,
-            hl7Field,
-            cliaElement
+            hl7Field
         )
 
         verify {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3", value)
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4", "CLIA")
         }
+    }
+
+    @Test
+    fun `test incorrect HL7 content`() {
+        val metadata = Metadata("./metadata")
+        val serializer = Hl7Serializer(metadata)
+
+        val emptyHL7 = ByteArrayInputStream("".toByteArray())
+        var result = serializer.readExternal(hl7SchemaName, emptyHL7, TestSource)
+        assertThat(result.warnings).isNotEmpty()
+        assertThat(result.report).isNotNull()
+        assertThat(result.report!!.itemCount).isEqualTo(0)
+
+        val csvContent = ByteArrayInputStream("a,b,c\n1,2,3".toByteArray())
+        result = serializer.readExternal(hl7SchemaName, csvContent, TestSource)
+        assertThat(result.errors).isNotEmpty()
+        assertThat(result.report).isNull()
+
+        val incompleteHL7 = ByteArrayInputStream("MSH|^~\\&|CD".toByteArray())
+        result = serializer.readExternal(hl7SchemaName, incompleteHL7, TestSource)
+        assertThat(result.errors).isNotEmpty()
+        assertThat(result.report).isNull()
+
+        // This data will throw a EncodingNotSupportedException in the serializer when parsing the message
+        val incompleteHL7v2 = ByteArrayInputStream(
+            """
+            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+            """.trimIndent().toByteArray()
+        )
+        result = serializer.readExternal(hl7SchemaName, incompleteHL7v2, TestSource)
+        assertThat(result.errors).isNotEmpty()
+        assertThat(result.report).isNull()
+
+        // This data will throw a HL7Exception in the serializer when parsing the message
+        val wrongHL7Version = ByteArrayInputStream(
+            """
+            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|5.0.0|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210210
+            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+            ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+            OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+            OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+            """.trimIndent().toByteArray()
+        )
+        result = serializer.readExternal(hl7SchemaName, wrongHL7Version, TestSource)
+        assertThat(result.errors).isNotEmpty()
+        assertThat(result.report).isNull()
     }
 }

@@ -106,22 +106,23 @@ class ReportView private constructor(
         var externalName: String? = null,
         var content: String? = null,
         var fileName: String? = null,
-        var mimeType: String? = null ){
+        var mimeType: String? = null
+    ) {
 
-        fun sent( sent: Long ) = apply { this.sent = sent }
-        fun via( via: String ) = apply { this.via = via }
-        fun positive( positive: Long ) = apply { this.positive = positive }
-        fun total( total: Long ) = apply{ this.total = total }
-        fun fileType( fileType: String ) = apply { this.fileType = fileType }
-        fun type( type: String ) = apply { this.type = type }
-        fun reportId( reportId: String ) = apply { this.reportId = reportId }
-        fun expires( expires: Long ) = apply { this.expires = expires }
-        fun sendingOrg( sendingOrg: String ) = apply { this.sendingOrg = sendingOrg }
-        fun receivingOrg( receivingOrg: String ) = apply { this.receivingOrg = receivingOrg }
-        fun receivingOrgSvc( receivingOrgSvc: String ) = apply { this.receivingOrgSvc = receivingOrgSvc }
-        fun facilities( facilities: ArrayList<Facility> ) = apply { this.facilities = facilities }
-        fun actions( actions: ArrayList<Action> ) = apply { this.actions = actions }
-        fun externalName( externalName: String ) = apply { this.externalName = externalName }
+        fun sent(sent: Long) = apply { this.sent = sent }
+        fun via(via: String) = apply { this.via = via }
+        fun positive(positive: Long) = apply { this.positive = positive }
+        fun total(total: Long) = apply { this.total = total }
+        fun fileType(fileType: String) = apply { this.fileType = fileType }
+        fun type(type: String) = apply { this.type = type }
+        fun reportId(reportId: String) = apply { this.reportId = reportId }
+        fun expires(expires: Long) = apply { this.expires = expires }
+        fun sendingOrg(sendingOrg: String) = apply { this.sendingOrg = sendingOrg }
+        fun receivingOrg(receivingOrg: String) = apply { this.receivingOrg = receivingOrg }
+        fun receivingOrgSvc(receivingOrgSvc: String) = apply { this.receivingOrgSvc = receivingOrgSvc }
+        fun facilities(facilities: ArrayList<Facility>) = apply { this.facilities = facilities }
+        fun actions(actions: ArrayList<Action>) = apply { this.actions = actions }
+        fun externalName(externalName: String) = apply { this.externalName = externalName }
         fun content(content: String) = apply { this.content = content }
         fun fileName(fileName: String) = apply { this.fileName = fileName }
         fun mimeType(mimeType: String) = apply { this.mimeType = mimeType }
@@ -237,7 +238,7 @@ class GetReportById :
         @BindingName("reportId") reportId: String,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        return GetReportById(request, reportId, context)
+        return getReportById(request, reportId, context)
     }
 }
 
@@ -296,44 +297,47 @@ open class BaseHistoryFunction : Logging {
                 organizationName ?: authClaims.organization.name
             )
 
-            @Suppress( "NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER" )
-            var reports = headers.sortedByDescending{ it.createdAt }.map {
+            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
+            val reports = headers.sortedByDescending { it.createdAt }.mapNotNull {
+                val facilities = arrayListOf<Facility>()
+                val actions = arrayListOf<Action>()
+                // get the org passed in
+                val adminOrg = workflowEngine.settings.organizations.firstOrNull { org ->
+                    org.name.lowercase() == organizationName
+                }
+                val header = try {
+                    workflowEngine.fetchHeader(it.reportId, adminOrg ?: authClaims.organization)
+                } catch (ex: Exception) {
+                    context.logger.severe(ex.message)
+                    context.logger.severe(ex.stackTraceToString())
+                    null
+                }
 
-                var facilities = arrayListOf<Facility>();
-                /* 
-                if( it.bodyFormat == "CSV")
-                    try{ 
-                        facilities = getFieldSummaryForReportId(arrayOf("Testing_lab_name","Testing_lab_CLIA"),it.reportId.toString(), authClaims)
-                    }catch( ex: Exception ){
-                        //context.logger.info( "Exception during getFieldSummaryForReportId - TestingLabName was not found - no facilities data will be published" );
-                    }
-                */
-                var actions = arrayListOf<Action>(); 
-                // getActionsForReportId( it.reportId.toString(), authClaims );
+                if (header != null) {
+                    val content = if (header.content !== null) String(header.content) else ""
+                    val filename = Report.formExternalFilename(header)
+                    val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 
-                val header = workflowEngine.fetchHeader(it.reportId, authClaims.organization)
-
-                val content = if (header.content !== null) String(header.content) else ""
-                val filename = Report.formExternalFilename(header)
-                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
-
-                ReportView.Builder()
-                    .reportId(it.reportId.toString())
-                    .sent(it.createdAt.toEpochSecond() * 1000)
-                    .via(it.bodyFormat)
-                    .total(it.itemCount.toLong())
-                    .fileType(it.bodyFormat)
-                    .type("ELR")
-                    .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                    .facilities(facilities)
-                    .actions(actions)
-                    .receivingOrg(it.receivingOrg)
-                    .receivingOrgSvc(it.receivingOrgSvc)
-                    .externalName( if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName )
-                    .content(content)
-                    .fileName(filename)
-                    .mimeType(mimeType)
-                    .build()
+                    ReportView.Builder()
+                        .reportId(it.reportId.toString())
+                        .sent(it.createdAt.toEpochSecond() * 1000)
+                        .via(it.bodyFormat)
+                        .total(it.itemCount.toLong())
+                        .fileType(it.bodyFormat)
+                        .type("ELR")
+                        .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
+                        .facilities(facilities)
+                        .actions(actions)
+                        .receivingOrg(it.receivingOrg)
+                        .receivingOrgSvc(it.receivingOrgSvc)
+                        .externalName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
+                        .content(content)
+                        .fileName(filename)
+                        .mimeType(mimeType)
+                        .build()
+                } else {
+                    null
+                }
             }
 
             response = request.createResponseBuilder(HttpStatus.OK)
@@ -342,7 +346,8 @@ open class BaseHistoryFunction : Logging {
                 .build()
         } catch (ex: Exception) {
             context.logger.info("Exception during creating of reports list - file not found")
-            System.out.println( ex );
+            context.logger.severe(ex.message)
+            context.logger.severe(ex.stackTraceToString())
             response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
                 .body("File not found")
                 .header("Content-Type", "text/html")
@@ -351,19 +356,23 @@ open class BaseHistoryFunction : Logging {
         return response
     }
 
-    fun GetReportById(
+    fun getReportById(
         request: HttpRequestMessage<String?>,
         reportIdIn: String,
         context: ExecutionContext
     ): HttpResponseMessage {
-
         val authClaims = checkAuthenticated(request, context)
             ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
 
         var response: HttpResponseMessage
         try {
+            // get the organization based on the header, if it exists, and if it
+            // doesn't, use the organization from the authClaim
+            val reportOrg = workflowEngine.settings.organizations.firstOrNull {
+                it.name.lowercase() == request.headers["organization"]?.lowercase()
+            } ?: authClaims.organization
             val reportId = ReportId.fromString(reportIdIn)
-            val header = workflowEngine.fetchHeader(reportId, authClaims.organization)
+            val header = workflowEngine.fetchHeader(reportId, reportOrg)
             if (header.content == null || header.content.isEmpty())
                 response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
             else {
@@ -533,13 +542,14 @@ open class BaseHistoryFunction : Logging {
         return facilties
     }
 
-    fun getActionsForReportId(reportId: String, authClaim: AuthClaims): ArrayList<Action> {
-        var header: Header?
-        var actions: ArrayList<Action> = ArrayList<Action>()
+    fun getActionsForReportId(reportId: String, organization: Organization): ArrayList<Action> {
+        val actions: ArrayList<Action> = ArrayList<Action>()
 
-        try {
-            header = workflowEngine.fetchHeader(ReportId.fromString(reportId), authClaim.organization)
-        } catch (ex: Exception) { header = null }
+        val header: Header? = try {
+            workflowEngine.fetchHeader(ReportId.fromString(reportId), organization)
+        } catch (ex: Exception) {
+            null
+        }
 
         /* 
         if( header !== null && header.itemLineages !== null ){
