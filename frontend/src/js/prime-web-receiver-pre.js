@@ -196,7 +196,7 @@ async function fetchReports( filter ) {
         .catch(e => { console.log(e); return [] }): [];
     console.log(retValue);
     
-    return filter? retValue.filter( report => report.externalName === filter ) : retValue;
+    return filter? retValue.filter( report => report.receivingOrgSvc === filter ) : retValue;
 }
 
 async function fetchAllOrgs() {

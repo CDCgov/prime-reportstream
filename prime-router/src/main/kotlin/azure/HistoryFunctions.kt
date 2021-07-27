@@ -228,6 +228,7 @@ open class BaseHistoryFunction : Logging {
                     val content = if (header.content !== null) String(header.content) else ""
                     val filename = Report.formExternalFilename(header)
                     val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
+                    val externalOrgName = header.receiver?.displayName
 
                     ReportView.Builder()
                         .reportId(it.reportId.toString())
