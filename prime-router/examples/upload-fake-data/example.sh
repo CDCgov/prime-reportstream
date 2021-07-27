@@ -2,7 +2,7 @@
 
 cd ../../../prime-router/
 
-# Use this variable to point to a different hostname on which your 'local' API runs
+# Use this variable to point to a different host on which your 'local' API runs
 # This can be useful if you are running the end-to-end test in a container
 # as opposed to on your actual localhost (e.g. the builder container)
 # Default Value (i.e. if unspecified): localhost
