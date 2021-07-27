@@ -1,26 +1,13 @@
 package gov.cdc.prime.router.tokens
 
-import java.security.interfaces.ECPublicKey
-import java.security.interfaces.RSAPublicKey
-
-import com.nimbusds.jose.jwk.JWK
-import com.nimbusds.jose.jwk.KeyType
-import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.JWKSet
-import com.nimbusds.jose.jwk.RSAKey
-
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import java.security.PublicKey
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.RSAKey
 import java.security.interfaces.ECPrivateKey
+import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
 
 /**
  * I could not find a good library that would easily let us parse and create Jwk data
@@ -46,27 +33,27 @@ import java.security.interfaces.RSAPrivateKey
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class Jwk(
-    val kty: String,            // Key type (Alg family).  eg, RSA, EC, oct
-    val use: String? = null,    // Intended use.  eg, sig, enc.
+    val kty: String, // Key type (Alg family).  eg, RSA, EC, oct
+    val use: String? = null, // Intended use.  eg, sig, enc.
     val keyOps: String? = null, // key_ops: Intended use operations.  eg, sign, verify, encrypt
     val alg: String? = null,
-    var kid: String? = null,    // key Id
-    val x5u: String? = null,    // URI ref to certificate
+    var kid: String? = null, // key Id
+    val x5u: String? = null, // URI ref to certificate
     val x5c: List<String>? = null, // PKIX certificates. JSON array of String
-  val x5t: String? = null,    // certificate thumbprint
-  // Algorithm specific fields
-  val n: String? = null,      // RSA
-  val e: String? = null,      // RSA
-  val d: String? = null,      // EC and RSA private
-  val crv: String? = null,    // EC
-  val p: String? = null,      // RSA private
-  val q: String? = null,      // RSA private
-  val dp: String? = null,     // RSA private
-  val dq: String? = null,     // RSA private
-  val qi: String? = null,     // RSA private
-  val x: String? = null,      // EC
-  val y: String? = null,      // EC
-  val k: String? = null,      // symmetric key, eg oct
+    val x5t: String? = null, // certificate thumbprint
+    // Algorithm specific fields
+    val n: String? = null, // RSA
+    val e: String? = null, // RSA
+    val d: String? = null, // EC and RSA private
+    val crv: String? = null, // EC
+    val p: String? = null, // RSA private
+    val q: String? = null, // RSA private
+    val dp: String? = null, // RSA private
+    val dq: String? = null, // RSA private
+    val qi: String? = null, // RSA private
+    val x: String? = null, // EC
+    val y: String? = null, // EC
+    val k: String? = null, // symmetric key, eg oct
 ) {
 
     fun toECPublicKey(): ECPublicKey {
@@ -107,7 +94,6 @@ class Jwk(
         }
     }
 }
-
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class JwkSet(

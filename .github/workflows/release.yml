@@ -2,7 +2,10 @@ name: Release to Azure
 
 on:
   push:
-    branches: [ master, production, dev-rheft ]
+    branches:
+      - master
+      - production
+      - dev-rheft
 
 defaults:
   run:
@@ -17,28 +20,28 @@ jobs:
       POSTGRES_USER: prime
       POSTGRES_PASSWORD: changeIT!
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
-      - name: Setup PostgreSQL
-        uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
-        with:
-          postgresql version: 11
-          postgresql db: prime_data_hub
-          postgresql user: ${{ env.POSTGRES_USER }}
-          postgresql password: ${{ env.POSTGRES_PASSWORD }}
+      - name: Set Environment Variables
+        run: |
+          echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
+          echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
 
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: 11
+      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
+      # - name: Install docker-compose
+      #   run: apt-get update && apt-get --yes install docker-compose
 
       - name: Build Prime Router Package
-        run: bash ./gradlew clean package -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD
-        
+        run: bash ./build.sh -- gradle clean package
+
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/test/**/*.xml
@@ -48,7 +51,11 @@ jobs:
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/testIntegration/**/*.xml
@@ -69,7 +76,8 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Run Build Script
         run: bash ci_build.bash
@@ -86,16 +94,20 @@ jobs:
 
   deploy_release_dev:
     name: "Deploy Release: DEV"
-    needs: [ build_release, build_frontend_release ]
+    needs:
+      - build_release
+      - build_frontend_release
     if: github.ref == 'refs/heads/dev-rheft'
-    environment: staging
+    environment: dev
+    concurrency: dev
     runs-on: ubuntu-latest
     env:
       RESOURCE_GROUP: prime-dev-rheft
-      ACR_REPO: rheftcontainerregistry.azurecr.io
-      PREFIX: rheft
+      ACR_REPO: rkh5012containerregistry.azurecr.io
+      PREFIX: rkh5012
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Download Router Artifact
         uses: actions/download-artifact@v2
@@ -110,7 +122,7 @@ jobs:
           path: frontend/dist
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
 
       - name: Install OpenVPN
         run: |
@@ -122,8 +134,8 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@master
         id: connect_vpn
         with:
-          PING_URL: '127.0.0.1'
-          FILE_OVPN: '.github/vpn/dev.ovpn'
+          PING_URL: "127.0.0.1"
+          FILE_OVPN: ".github/vpn/dev.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
           CA_CRT: ${{ secrets.CA_CRT}}
@@ -139,10 +151,33 @@ jobs:
         run: az acr login --name ${{ env.ACR_REPO }}
 
       - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
 
-      - name: Restart Azure Functions App
-        run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
+      - name: Whitelist GitHub Action Runner in Function App Slot
+        id: ip-whitelist-create
+        run: |
+          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+          echo "::add-mask::$RUNNER_IP"
+          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
+
+      - name: Deploy to Candidate App Slot
+        uses: Azure/functions-container-action@v1
+        id: deploy-candidate
+        with:
+          app-name: ${{ env.PREFIX }}-functionapp
+          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+          slot-name: candidate
+
+      - name: Promote Candidate Slot
+        id: promote-candidate
+        working-directory: operations
+        run: make TF_ENV=rheft AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
+
+      - name: Remove GitHub Action IP Whitelist
+        if: ${{ always() }} # This should happen even on a failure
+        id: ip-whitelist-destroy
+        run: |
+          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
       - name: Upload Static Site
         uses: azure/CLI@v1
@@ -152,16 +187,20 @@ jobs:
 
   deploy_release_staging:
     name: "Deploy Release: STAGING"
-    needs: [build_release, build_frontend_release]
+    needs:
+      - build_release
+      - build_frontend_release
     if: github.ref == 'refs/heads/master'
     environment: staging
+    concurrency: staging
     runs-on: ubuntu-latest
     env:
       RESOURCE_GROUP: prime-data-hub-staging
       ACR_REPO: pdhstagingcontainerregistry.azurecr.io
       PREFIX: pdhstaging
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Download Router Artifact
         uses: actions/download-artifact@v2
@@ -176,7 +215,7 @@ jobs:
           path: frontend/dist
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
 
       - name: Install OpenVPN
         run: |
@@ -188,8 +227,8 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@master
         id: connect_vpn
         with:
-          PING_URL: '127.0.0.1'
-          FILE_OVPN: '.github/vpn/staging.ovpn'
+          PING_URL: "127.0.0.1"
+          FILE_OVPN: ".github/vpn/staging.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
           CA_CRT: ${{ secrets.CA_CRT}}
@@ -205,30 +244,57 @@ jobs:
         run: az acr login --name ${{ env.ACR_REPO }}
 
       - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
 
-      - name: Restart Azure Functions App
-        run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
+      - name: Whitelist GitHub Action Runner in Function App Slot
+        id: ip-whitelist-create
+        run: |
+          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+          echo "::add-mask::$RUNNER_IP"
+          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
+
+      - name: Deploy to Candidate App Slot
+        uses: Azure/functions-container-action@v1
+        id: deploy-candidate
+        with:
+          app-name: ${{ env.PREFIX }}-functionapp
+          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+          slot-name: candidate
+
+      - name: Promote Candidate Slot
+        id: promote-candidate
+        working-directory: operations
+        run: make TF_ENV=staging AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
+
+      - name: Remove GitHub Action IP Whitelist
+        if: ${{ always() }} # This should happen even on a failure
+        id: ip-whitelist-destroy
+        run: |
+          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
       - name: Upload Static Site
         uses: azure/CLI@v1
         with:
           inlineScript: |
+            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
             az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist
-
 
   deploy_release_prod:
     name: "Deploy Release: PROD"
-    needs: [build_release, build_frontend_release]
+    needs:
+      - build_release
+      - build_frontend_release
     if: github.ref == 'refs/heads/production'
     environment: prod
+    concurrency: prod
     runs-on: ubuntu-latest
     env:
       RESOURCE_GROUP: prime-data-hub-prod
       ACR_REPO: pdhprodcontainerregistry.azurecr.io
       PREFIX: pdhprod
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Download Router Artifact
         uses: actions/download-artifact@v2
@@ -243,7 +309,7 @@ jobs:
           path: frontend/dist
 
       - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
 
       - name: Install OpenVPN
         run: |
@@ -255,8 +321,8 @@ jobs:
         uses: golfzaptw/action-connect-ovpn@master
         id: connect_vpn
         with:
-          PING_URL: '127.0.0.1'
-          FILE_OVPN: '.github/vpn/prod.ovpn'
+          PING_URL: "127.0.0.1"
+          FILE_OVPN: ".github/vpn/prod.ovpn"
           TLS_KEY: ${{ secrets.TLS_KEY }}
         env:
           CA_CRT: ${{ secrets.CA_CRT}}
@@ -272,13 +338,41 @@ jobs:
         run: az acr login --name ${{ env.ACR_REPO }}
 
       - name: Push Docker Image
-        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
+        run: docker push ${{ env.ACR_REPO }}/${{ env.PREFIX }} --all-tags
 
+      # DO NOT USE ZDD IN PROD UNTIL WE VALIDATE IN STAGING
       - name: Restart Azure Functions App
         run: az functionapp restart --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.PREFIX }}-functionapp
+
+#      - name: Whitelist GitHub Action Runner in Function App Slot
+#        id: ip-whitelist-create
+#        run: |
+#          RUNNER_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+#          echo "::add-mask::$RUNNER_IP"
+#          az functionapp config access-restriction add -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 --action Allow --ip-address $RUNNER_IP --priority 750 > /dev/null 2>&1
+#
+#      - name: Deploy to Candidate App Slot
+#        uses: Azure/functions-container-action@v1
+#        id: deploy-candidate
+#        with:
+#          app-name: ${{ env.PREFIX }}-functionapp
+#          image: ${{ env.ACR_REPO }}/${{ env.PREFIX }}:${{ github.sha }}
+#          slot-name: candidate
+#
+#      - name: Promote Candidate Slot
+#        id: promote-candidate
+#        working-directory: operations
+#        run: make TF_ENV=prod AZ_RESOURCE_PREFIX=${{ env.PREFIX }} AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} zdd-promote-slot
+#
+#      - name: Remove GitHub Action IP Whitelist
+#        if: ${{ always() }} # This should happen even on a failure
+#        id: ip-whitelist-destroy
+#        run: |
+#          az functionapp config access-restriction remove -g ${{ env.RESOURCE_GROUP }} -n ${{ env.PREFIX }}-functionapp --slot candidate --rule-name GitHubActionIPV4 > /dev/null 2>&1
 
       - name: Upload Static Site
         uses: azure/CLI@v1
         with:
           inlineScript: |
+            az storage blob delete-batch --account-name ${{ env.PREFIX }}public -s '$web'
             az storage blob upload-batch --account-name ${{ env.PREFIX }}public -d '$web' -s frontend/dist

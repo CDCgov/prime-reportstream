@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.ExecutionContext
+import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
@@ -18,7 +18,7 @@ import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
-class TokenFunction: Logging {
+class TokenFunction : Logging {
     /**
      * Handle requests for server-to-server auth tokens.
      */

@@ -12,9 +12,9 @@ import java.lang.IllegalArgumentException
  * Example:  strac.default.report
  */
 class Scope {
-    companion object: Logging {
+    companion object : Logging {
         enum class DetailedScope {
-            report,  // ability to submit a report
+            report, // ability to submit a report
         }
 
         fun isWellFormedScope(scope: String): Boolean {
@@ -56,7 +56,5 @@ class Scope {
             val scopesTrial: List<String> = scopeList.split(" ")
             return scopesTrial.contains(desiredScope)
         }
-
-
     }
 }

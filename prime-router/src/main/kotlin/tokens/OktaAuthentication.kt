@@ -5,16 +5,16 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.azure.AuthenticationVerifier
 import gov.cdc.prime.router.azure.AuthenticatedClaims
-import gov.cdc.prime.router.azure.OktaAuthenticationVerifier
+import gov.cdc.prime.router.azure.AuthenticationVerifier
 import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.OktaAuthenticationVerifier
 import gov.cdc.prime.router.azure.PrincipalLevel
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.TestAuthenticationVerifier
+import gov.cdc.prime.router.azure.WorkflowEngine
 import org.apache.logging.log4j.kotlin.Logging
 
-class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER): Logging {
+class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER) : Logging {
     private val missingAuthorizationHeader = HttpUtilities.errorJson("Missing Authorization Header")
     private val invalidClaim = HttpUtilities.errorJson("Invalid Authorization Header")
 
@@ -24,7 +24,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         return authorization.substringAfter("Bearer ", "")
     }
 
-    companion object: Logging {
+    companion object : Logging {
         private var httpRequestMessage: HttpRequestMessage<String?>? = null
 
         fun setRequest(request: HttpRequestMessage<String?>) {
@@ -38,9 +38,10 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
             val localNoAuth = httpRequestMessage?.headers?.get("localnoauth")
 
-            if (primeEnv == "local" && localNoAuth == "true")
+            if (primeEnv == "local" && localNoAuth == "true") {
+                logger.info("No auth needed - running locally")
                 return TestAuthenticationVerifier()
-            else
+            } else
                 return OktaAuthenticationVerifier()
         }
     }
@@ -95,5 +96,4 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         }
         return organization
     }
-
 }

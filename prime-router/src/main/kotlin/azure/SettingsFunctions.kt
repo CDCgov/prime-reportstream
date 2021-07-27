@@ -15,27 +15,32 @@ import org.apache.logging.log4j.kotlin.Logging
  * Organizations API
  */
 
-class GetOrganizations(settingsFacade: SettingsFacade = SettingsFacade.common,
-                       oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)) :
+class GetOrganizations(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+) :
     BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getOrganizations")
     fun run(
         @HttpTrigger(
             name = "getOrganizations",
-            methods = [HttpMethod.GET],
+            methods = [HttpMethod.GET, HttpMethod.HEAD],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations"
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
-        return getList(
-            request,
-            OrganizationAPI::class.java
-        )
+        return when (request.httpMethod) {
+            HttpMethod.HEAD -> getHead(request)
+            HttpMethod.GET -> getList(request, OrganizationAPI::class.java)
+            else -> error("Unsupported method")
+        }
     }
 }
 
-class GetOneOrganization(settingsFacade: SettingsFacade = SettingsFacade.common,
-                         oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+class GetOneOrganization(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
     BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getOneOrganization")
     fun run(
@@ -51,8 +56,10 @@ class GetOneOrganization(settingsFacade: SettingsFacade = SettingsFacade.common,
     }
 }
 
-class UpdateOrganization(settingsFacade: SettingsFacade = SettingsFacade.common,
-                         oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)) :
+class UpdateOrganization(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+) :
     BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("updateOneOrganization")
     fun run(
@@ -75,8 +82,10 @@ class UpdateOrganization(settingsFacade: SettingsFacade = SettingsFacade.common,
 /**
  * Sender APIs
  */
-class GetSenders(settingsFacade: SettingsFacade = SettingsFacade.common,
-                 oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+class GetSenders(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
     BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getSenders")
     fun run(
@@ -92,8 +101,10 @@ class GetSenders(settingsFacade: SettingsFacade = SettingsFacade.common,
     }
 }
 
-class GetOneSender(settingsFacade: SettingsFacade = SettingsFacade.common,
-                   oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+class GetOneSender(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
     BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getOneSender")
     fun run(
@@ -110,8 +121,10 @@ class GetOneSender(settingsFacade: SettingsFacade = SettingsFacade.common,
     }
 }
 
-class UpdateSender(settingsFacade: SettingsFacade = SettingsFacade.common,
-                   oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)) :
+class UpdateSender(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)
+) :
     BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("updateOneSender")
     fun run(
@@ -137,8 +150,10 @@ class UpdateSender(settingsFacade: SettingsFacade = SettingsFacade.common,
  * Receiver APIS
  */
 
-class GetReceiver(settingsFacade: SettingsFacade = SettingsFacade.common,
-                  oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+class GetReceiver(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
     BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getReceivers")
     fun run(
@@ -154,8 +169,10 @@ class GetReceiver(settingsFacade: SettingsFacade = SettingsFacade.common,
     }
 }
 
-class GetOneReceiver(settingsFacade: SettingsFacade = SettingsFacade.common,
-                     oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+class GetOneReceiver(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
     BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getOneReceiver")
     fun run(
@@ -172,8 +189,10 @@ class GetOneReceiver(settingsFacade: SettingsFacade = SettingsFacade.common,
     }
 }
 
-class UpdateReceiver(settingsFacade: SettingsFacade = SettingsFacade.common,
-                     oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)) :
+class UpdateReceiver(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)
+) :
     BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("updateOneReceiver")
     fun run(
@@ -212,7 +231,8 @@ open class BaseFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, "") {
             val settings = facade.findSettingsAsJson(clazz)
-            HttpUtilities.okResponse(request, settings)
+            val lastModified = facade.getLastModified()
+            HttpUtilities.okResponse(request, settings, lastModified)
         }
     }
 
@@ -224,6 +244,15 @@ open class BaseFunction(
         return oktaAuthentication.checkAccess(request, "") {
             val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
             facadeResultToResponse(request, result, outputBody)
+        }
+    }
+
+    fun getHead(
+        request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        return oktaAuthentication.checkAccess(request, "") {
+            val lastModified = facade.getLastModified()
+            HttpUtilities.okResponse(request, lastModified = lastModified)
         }
     }
 
@@ -278,5 +307,4 @@ open class BaseFunction(
     }
 
     private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
-
 }

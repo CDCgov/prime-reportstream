@@ -2,7 +2,12 @@ name: Frontend
 
 on:
   pull_request:
-    branches: [ master, production ]
+    branches:
+      - master
+      - production
+  push:
+    branches:
+      - master
 
 jobs:
   pre_job:
@@ -10,30 +15,31 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_frontend_change: ${{ steps.skip_check.outputs.frontend }}
-      is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
       - uses: dorny/paths-filter@v2
         id: skip_check
         with:
           list-files: csv
           filters: |
             frontend:
-              - 'frontend/**'
+              - 'frontend-react/**'
               - '.github/workflows/build_frontend.yml'
-      - id: fork_check
-        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
   build_frontend:
     name: Build Frontend
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_frontend_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    if: ${{ needs.pre_job.outputs.has_frontend_change == 'true' }}
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Run Build Script
         run: bash ci_build.bash

@@ -3,7 +3,7 @@ package gov.cdc.prime.router.tokens
 import gov.cdc.prime.router.azure.DatabaseAccess
 import java.time.OffsetDateTime
 
-class DatabaseJtiCache(val db: DatabaseAccess): JtiCache() {
+class DatabaseJtiCache(val db: DatabaseAccess) : JtiCache() {
 
     override fun cleanupCache() {
         db.transact { txn ->

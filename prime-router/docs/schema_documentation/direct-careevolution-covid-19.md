@@ -804,7 +804,7 @@ The city of the provider
 
 **Table**: fips-county
 
-**Table Column**: County
+**Table Column**: FIPS
 
 **Documentation**:
 
@@ -2364,6 +2364,20 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 The name and OID for the application sending information to the receivers
 
+
+---
+
+**Name**: site_of_care
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The type of facility providing care (Hospital, Nursing Home, etc.).
 
 ---
 

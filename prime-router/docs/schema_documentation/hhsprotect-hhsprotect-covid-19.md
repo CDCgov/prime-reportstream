@@ -705,7 +705,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 
 **Documentation**:
 
-ReportStream copies value from the specimenId
+ReportStream copies value from the specimenId if none is provided by the sender.
 
 ---
 
@@ -955,7 +955,7 @@ The zip code of the provider
 
 ---
 
-**Name**: patient_age_units
+**Name**: patAgeUnits
 
 **Type**: CODE
 

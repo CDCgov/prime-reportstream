@@ -44,7 +44,6 @@ openssl pkcs12 -in "${USERNAME}Cert.pem" -inkey "${USERNAME}Key.pem" -certfile c
 ```
 
 * In the VPN profile, add the contents of the following files to the specified sections:
-    * `caCert.pem` to `<ca></ca>`
     * `${USEERNAME}Cert.pem` to `<cert></cert>`
     * `${USEERNAME}Key.pem` to `<key></key>`
 * Securely transmit the VPN profile to the recipient

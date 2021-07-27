@@ -4,7 +4,7 @@ import gov.cdc.prime.router.azure.PrincipalLevel
 import gov.cdc.prime.router.azure.WorkflowEngine
 import org.apache.logging.log4j.kotlin.Logging
 
-class AuthenticationStrategy(): Logging {
+class AuthenticationStrategy() : Logging {
     companion object Types {
 
         // Returns an OktaAuthentication strategy if the authenticationType is "okta"
@@ -19,6 +19,4 @@ class AuthenticationStrategy(): Logging {
             return TokenAuthentication(DatabaseJtiCache(WorkflowEngine().db))
         }
     }
-
-
 }

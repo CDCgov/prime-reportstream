@@ -198,7 +198,6 @@ abstract class SettingCommand(
         }
     }
 
-
     fun readInput(): String {
         if (inStream == null) abort("Missing input file")
         val input = String(inStream!!.readAllBytes())
@@ -259,7 +258,15 @@ abstract class SettingCommand(
 
     companion object {
         val environments = listOf(
-            Environment("local", "localhost:7071", useHttp = true),
+            Environment(
+                "local",
+                (
+                    System.getenv("PRIME_RS_API_ENDPOINT_HOST")
+                        ?: "localhost"
+                    ) + ":7071",
+                useHttp = true,
+                oktaApp = OktaCommand.OktaApp.DH_TEST
+            ),
             Environment("test", "test.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),
@@ -448,7 +455,8 @@ class SenderSettings : CliktCommand(
             DeleteSenderSetting(),
             TokenUrl(),
             AddPublicKey(),
-        ) }
+        )
+    }
 
     override fun run() {}
 }

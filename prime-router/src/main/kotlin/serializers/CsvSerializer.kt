@@ -107,6 +107,7 @@ class CsvSerializer(val metadata: Metadata) {
         }
 
         if (rows.isEmpty()) {
+            warnings.add(ResultDetail.report("No reports were found in CSV content"))
             return ReadResult(Report(schema, emptyList(), sources, destination, metadata = metadata), errors, warnings)
         }
 

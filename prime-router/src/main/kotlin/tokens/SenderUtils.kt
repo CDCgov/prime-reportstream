@@ -6,11 +6,11 @@ import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.cli.SettingCommand
 import io.jsonwebtoken.Jwts
-import java.util.Date
-import java.util.UUID
+import java.io.File
 import java.net.URL
 import java.security.PrivateKey
-import java.io.File
+import java.util.Date
+import java.util.UUID
 
 class SenderUtils {
 
@@ -27,13 +27,13 @@ class SenderUtils {
             expirationSecondsFromNow: Int = 300,
         ): String {
             val jws = Jwts.builder()
-                .setHeaderParam("kid", keyId)  // kid
-                .setHeaderParam("typ", "JWT")     // typ
-                .setIssuer(sender.fullName)        // iss
-                .setSubject(sender.fullName)       // sub
-                .setAudience(baseUrl)   // aud
-                .setExpiration(Date(System.currentTimeMillis() + expirationSecondsFromNow * 1000))  // exp
-                .setId(UUID.randomUUID().toString())   // jti
+                .setHeaderParam("kid", keyId) // kid
+                .setHeaderParam("typ", "JWT") // typ
+                .setIssuer(sender.fullName) // iss
+                .setSubject(sender.fullName) // sub
+                .setAudience(baseUrl) // aud
+                .setExpiration(Date(System.currentTimeMillis() + expirationSecondsFromNow * 1000)) // exp
+                .setId(UUID.randomUUID().toString()) // jti
                 .signWith(privateKey).compact()
             return jws
         }

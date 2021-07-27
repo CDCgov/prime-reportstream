@@ -1,19 +1,15 @@
 package gov.cdc.prime.router.cli
 
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.types.choice
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
-import gov.cdc.prime.router.tokens.TokenAuthentication
 import java.io.File
 
 class AddPublicKey : SingleSettingCommand(
@@ -32,9 +28,11 @@ class AddPublicKey : SingleSettingCommand(
     settingType = SettingType.SENDER,
     operation = Operation.GET
 ) {
-    val publicKeyFilename by option("--public-key",
+    val publicKeyFilename by option(
+        "--public-key",
         help = "Path to public key .pem file",
-        metavar = "<public-pem-key-file>")
+        metavar = "<public-pem-key-file>"
+    )
         .required()
 
     private val kid by option(
@@ -91,22 +89,23 @@ class AddPublicKey : SingleSettingCommand(
         if (useJson) writeOutput(newSenderJson) else writeOutput(toYaml(newSenderJson, settingType))
         echo("*** End Modified Sender, including new key *** ")
         if (!doIt) {
-            echo("""
+            echo(
+                """
 
             Nothing has been updated or changed. 
             To add the key permanently, review, then rerun this same command including the --doit option
-        """.trimIndent())
+                """.trimIndent()
+            )
             return
         }
-        val response = put(environment, accessToken, settingType, settingName,newSenderJson)
+        val response = put(environment, accessToken, settingType, settingName, newSenderJson)
         echo()
         echo(response)
         echo()
     }
-
 }
 
-class TokenUrl : SingleSettingCommand (
+class TokenUrl : SingleSettingCommand(
     name = "reqtoken",
     help = """
         Use my private key to request a token from ReportStream
@@ -116,9 +115,11 @@ class TokenUrl : SingleSettingCommand (
     settingType = SettingType.SENDER,
     operation = Operation.GET,
 ) {
-    val privateKeyFilename by option("--private-key",
+    val privateKeyFilename by option(
+        "--private-key",
         help = "Path to private key .pem file",
-        metavar = "<private-keyfile>")
+        metavar = "<private-keyfile>"
+    )
         .required()
 
     private val scope by option(
@@ -142,17 +143,13 @@ class TokenUrl : SingleSettingCommand (
             return
         }
         // note:  using the sender fullName as the kid here.
-        val senderToken = SenderUtils.generateSenderToken(sender, environment.baseUrl, privateKey,sender.fullName)
+        val senderToken = SenderUtils.generateSenderToken(sender, environment.baseUrl, privateKey, sender.fullName)
         val url = SenderUtils.generateSenderUrl(environment, senderToken, scope)
         echo("Using this URL to get an access token from ReportStream:")
         echo(url)
 
-        val (httpStatus, response) = HttpUtilities.postHttp(url.toString(),"".toByteArray())
+        val (httpStatus, response) = HttpUtilities.postHttp(url.toString(), "".toByteArray())
         echo("\nResponse status: $httpStatus")
         echo("\n$response\n")
     }
-
 }
-
-
-

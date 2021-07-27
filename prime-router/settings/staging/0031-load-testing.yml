@@ -1,0 +1,31 @@
+---
+name: "giang"
+organizationName: "waters"
+topic: "covid-19"
+translation: !<CUSTOM>
+  schemaName: "waters/waters-covid-19"
+  format: "CSV"
+  defaults: {}
+  nameFormat: "STANDARD"
+  receivingOrganization: null
+  type: "CUSTOM"
+jurisdictionalFilter:
+- "hasAtLeastOneOf(waters_submitter, sender_id)"
+- "orEquals(patient_state, GH, ordering_facility_state, GH)"
+qualityFilter:
+- "allowAll()"
+reverseTheQualityFilter: false
+deidentify: true
+timing:
+  operation: "MERGE"
+  numberPerDay: 1440
+  initialTime: "00:00"
+  timeZone: "EASTERN"
+  maxReportCount: 10000
+description: ""
+transport: !<SFTP>
+  host: "3.217.175.115"
+  port: "22"
+  filePath: "./public/giang"
+  credentialName: null
+  type: "SFTP"
