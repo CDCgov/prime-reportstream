@@ -4,7 +4,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 [allowlist]
     description = "Allow-list for files and paths"
     files = [
-        '(.*?)(bin|doc|gif|jar|jp(e)?g|pdf|png|xlsx)$',
+        '(.*?)(bin|doc|gif|iml|jar|jp(e)?g|pdf|png|xlsx)$',
         '^\.?gitleaks-config.toml$',
         '^\.?gitleaks.report.json$',
         '^package-lock\.json$',
@@ -12,6 +12,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'yarn\.lock$',
     ]
     paths = [
+        '.idea/',
         '.terraform/providers/',
         'frontend-react/build/',
         'frontend-react/node_modules/',
