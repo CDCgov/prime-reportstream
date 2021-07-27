@@ -54,9 +54,11 @@ title = "PRIME ReportStream Gitleaks Configuration"
     [rules.allowlist]
         description = "ignore gitleaks, slack, mailchimp and aws configuration because they are captured elsewhere"
         regexes = [
-            'xox[baprs]-([0-9a-zA-Z]{10,48})',
             '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
             '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}',
+            '^import (.)+ from (.)+;',
+            'apiConfig\(',
+            'xox[baprs]-([0-9a-zA-Z]{10,48})',
         ]
 
 [[rules]]
@@ -64,7 +66,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
     tags = [
         "key",
-         "Github",
+        "Github",
     ]
 
 [[rules]]
@@ -103,8 +105,11 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
+            '::after',
             '(?i)FROM\s[a-z0-9]',
+            'a:active',
             'initialTime',
+            '::add-mask',
         ]
 
 [[rules]]
