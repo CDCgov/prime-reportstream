@@ -30,8 +30,10 @@ title = "PRIME ReportStream Gitleaks Configuration"
         "email"
     ]
     [rules.allowlist]
+        # TODO: Filter the real ones down
         regexes = [
             '(?i)@email.com',
+            '(?i)@organization.tld',
             '(?i)adhelpdsk@cdc.gov',
             '(?i)data@cdc.gov',
             '(?i)prime@cdc.gov',
@@ -39,6 +41,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '(?i)support@simplereport.gov',
             '(?i)usds@cdc.gov',
             '(?i)usds@omb.eop.gov',
+            '(?i)qtv1@cdc.gov',
         ]
 
 [[rules]]
@@ -51,6 +54,9 @@ title = "PRIME ReportStream Gitleaks Configuration"
         files = [
             '\.(js|ts(x)?)$',                   # No environment variable definitions in Javascript/TypeScript files
             'docker-compose(\.build)?\.yml',    # This is local anyway
+        ]
+        regexes = [
+            '(?i)e\.g\. '                       # Example
         ]
 
 [[rules]]
@@ -111,7 +117,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
         ]
         regexes = [
             '0\.0\.0\.0',
-            '127\.0\.0\.1',
+            '127\.(\d+\.){2}\d+',                       # Cheapo 127.0.0.0/8 range
+            '10\.(\d+\.){2}\d+',                        # Cheapo 10.0.0.0/8 range
             'receivingApplicationOID',
             'receivingFacilityOID',
         ]
@@ -124,19 +131,23 @@ title = "PRIME ReportStream Gitleaks Configuration"
         "IPv6",
     ]
     [rules.allowlist]
+        files = [
+            "docker-compose.yml",                       # Local anyway
+        ]
         regexes = [
             '::add-mask',
             '::after',
             '::before',
+            '(?i)certificate fingerprint \(',
             '(?i)FROM\s[a-z0-9]',
             '\d+-\d+-\d+T\d+:\d+-\d+:\d+',              # Timestamp: YYYY-mm-ddTHH:MM:SS
             '^\s+-\s?[1-9][0-9]*(:[1-9][0-9]*)?',       # docker port mapping
             '0\.0\.0\.0:',                              # avoid 0.0.0.1:<port>
             '127\.0\.0\.1:',                            # avoid 127.0.0.1:<port>
             'a:active',
-            '(?i)certificate fingerprint \(',
             'docker exec --user ',                      # probably a sample command; local anyway
             'expiresOn',
+            'foo:pass:(\d+)?::upload',                  # Local creds
             'initialTime',
         ]
 
