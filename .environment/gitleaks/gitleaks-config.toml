@@ -65,7 +65,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
     description = "High Entropy"
-    regex = '''[0-9a-zA-Z-_!{}/=]{4,120}'''
+    regex = '[0-9a-zA-Z-_!{}/=]{4,120}'
     file = '''(?i)(dump.sql|high-entropy-misc.txt)$'''
     tags = [
         "entropy",
@@ -76,7 +76,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
     description = "IPv4 addresses"
-    regex = '''\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'''
+    regex = '\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'
     tags = [
         "network",
         "IPv4",
@@ -92,7 +92,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
     description = "MailChimp"
-    regex = '''[0-9a-f]{32}-us[0-9]{12}'''
+    regex = '[0-9a-f]{32}-us[0-9]{12}'
     tags = [
         "key",
         "mailchimp"
@@ -115,7 +115,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
     description = "Private Keys"
-    regex = '''-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'''
+    regex = '-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'
     tags = [
         "key",
         "AsymmetricPrivateKey",
@@ -123,7 +123,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
     description = "SendGrid API Key"
-    regex = '''SG\.[\w_]{16,32}\.[\w_]{16,64}'''
+    regex = 'SG\.[\w_]{16,32}\.[\w_]{16,64}'
     tags = [
         "key",
         "sendgrid",
@@ -131,7 +131,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
     description = "Slack"
-    regex = '''xox[baprs]-([0-9a-zA-Z]{10,48})?'''
+    regex = 'xox[baprs]-([0-9a-zA-Z]{10,48})?'
     tags = [
         "key",
         "Slack",
@@ -139,7 +139,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
 
 [[rules]]
     description = "Slack Webhook"
-    regex = '''https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'''
+    regex = 'https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'
     tags = [
         "key",
         "slack",
