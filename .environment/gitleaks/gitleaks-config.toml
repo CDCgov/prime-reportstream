@@ -65,7 +65,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'docker-compose(\.build)?\.yml',    # This is local anyway
         ]
         regexes = [
-            '(?i)e\.g\. '                       # Example
+            '(?i)e\.g\. ',                                      # The value 'e.g.' means 'example'
+            'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
         ]
 
 [[rules]]
@@ -81,16 +82,18 @@ title = "PRIME ReportStream Gitleaks Configuration"
         regexes = [
             '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
             '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}',
-            '(prime|changeIT!)',                                                        # Default cred, this is allowed (too broad??)
-            '(resource|data) \"azurerm',                                                # Terraform azure data or resource
-            '\"user(\d)*\", \"pass(\d)*\"',                                             # Not real creds
+            '(patterns_to_match|key_permissions)\s*=',                                      # Terraform artifacts
+            '(prime|changeIT!)',                                                            # Default cred, this is allowed (too broad??)
+            '(resource|data) \"azurerm',                                                    # Terraform azure data or resource
+            '\"user(\d)*\", \"pass(\d)*\"',                                                 # Not real creds
             '\"user\":\"user1\",(\s)*\"pass\":\"pass1\"',
-            '^import (.)+ from (.)+;',                                                  # react import statement (simplified)
-            'apiConfig\(',                                                              # function call
+            '^import (.)+ from (.)+;',                                                      # react import statement (simplified)
+            'apiConfig\(',                                                                  # function call
             'apiVersion',
-            'className=',                                                               # this is HTML
-            'key_permissions',                                                          # Terraform artifact
-            'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                        # You are fetching the secret properly
+            'className=',                                                                   # this is HTML
+            'rsa_key_(2048|4096)\s*=\s*\"pdh(prod|test|staging)-((2048|4096)-)?key\"',      # Terraform artifacts
+            'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                            # You are fetching the secret properly
+            'val KEY_DB_(USER|PASSWORD|URL) = (\"|\\\")DB_(USER|URL|PASSWORD)(\"|\\\")',    # contained verbatim 'DB_(USER|PASSWORD|URL)'
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
         ]
         paths = [
@@ -155,7 +158,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '::csvFields',
             '(?i)certificate fingerprint \(',
             '(?i)FROM\s[a-z0-9]',
-            '\d+-\d+-\d+T\d+:\d+-\d+:\d+',              # Timestamp: YYYY-mm-ddTHH:MM:SS
+            '\d+-\d+-\d+T(\d+:\d+-\d+:\d+|\d+:\d+:\d+)',              # Timestamp: YYYY-mm-ddTHH:MM-HH:MM
             '\s+(testI|i)mplementation\(',              # Probably in gradle.build.kts
             '\s+assert[a-zA-Z]+\(',                     # might make them sneak into test cases??
             '^\s+-\s?[1-9][0-9]*(:[1-9][0-9]*)?',       # docker port mapping
