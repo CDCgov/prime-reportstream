@@ -8,6 +8,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '^\.?gitleaks-config.toml$',
         '^\.?gitleaks.report.json$',
         '^package-lock\.json$',
+        'cleanslate.sh.log',
         'yarn\.lock$'
     ]
     paths = [
@@ -28,9 +29,10 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
-            'usds@cdc.gov',
-            'support@simplereport.gov',
+            'prime@cdc.gov',
             'reportstream@cdc.gov',
+            'support@simplereport.gov',
+            'usds@cdc.gov',
             'USDS@omb.eop.gov',
         ]
 
@@ -54,7 +56,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         regexes = [
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
             '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
-            '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'
+            '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}',
         ]
 
 [[rules]]
@@ -87,6 +89,10 @@ title = "PRIME ReportStream Gitleaks Configuration"
         files = [
             '\.ovpn$',
         ]
+        regexes = [
+            'receivingApplicationOID',
+            'receivingFacilityOID',
+        ]
 
 [[rules]]
     description = "IPv6 addresses"
@@ -95,6 +101,11 @@ title = "PRIME ReportStream Gitleaks Configuration"
         "network",
         "IPv6",
     ]
+    [rules.allowlist]
+        regexes = [
+            '(?i)FROM\s[a-z0-9]',
+            'initialTime',
+        ]
 
 [[rules]]
     description = "MailChimp"
