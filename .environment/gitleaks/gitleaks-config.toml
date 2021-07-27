@@ -27,7 +27,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
         files = ['''(?i)bashrc''']
         description = "ignore bashrc emails"
         regexes = [
-            'usds@cdc.gov'
+            'usds@cdc.gov',
+            'support@simplereport.gov'
         ]
 
 [[rules]]
