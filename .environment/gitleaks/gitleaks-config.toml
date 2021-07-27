@@ -9,7 +9,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
         '^\.?gitleaks.report.json$',
         '^package-lock\.json$',
         'cleanslate.sh.log',
-        'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
         'yarn\.lock$',
     ]
     paths = [
@@ -18,6 +17,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'frontend-react/node_modules/',
         'prime-router/.gradle/',
         'prime-router/build/',
+        'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
         'prime-router/docs/schema_documentation/',
         'prime-router/src/test/csv_test_files/input/',
     ]
@@ -32,6 +32,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     [rules.allowlist]
         regexes = [
             'adhelpdsk@cdc.gov',
+            'data@cdc.gov',
             'prime@cdc.gov',
             'reportstream@cdc.gov',
             'support@simplereport.gov',
@@ -47,16 +48,16 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         files = [
-            '\.(js|ts(x)?)$' # No environment variable definitions in JS files
+            '\.(js|ts(x)?)$', # No environment variable definitions in Javascript/TypeScript files
         ]
 
 [[rules]]
     description = "Generic Credential"
     regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
     tags = [
-        "key",
         "API",
         "generic",
+        "key",
     ]
     [rules.allowlist]
         description = "ignore gitleaks, slack, mailchimp and aws configuration because they are captured elsewhere"
@@ -69,6 +70,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'apiConfig\(', # function call
             'apiVersion',
             'className=',   # this is HTML
+            'key_permissions',  # Terraform artifact
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
         ]
         paths = [
@@ -106,6 +108,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '\.ovpn$',
         ]
         regexes = [
+            '0\.0\.0\.0',
+            '127\.0\.0\.1',
             'receivingApplicationOID',
             'receivingFacilityOID',
         ]
@@ -123,7 +127,10 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '::after',
             '::before',
             '(?i)FROM\s[a-z0-9]',
+            '^\s+-\s?[1-9][0-9]*(:[1-9][0-9]*)?',   # docker port mapping
+            '127\.0\.0\.1:',    # avoid 127.0.0.1:<port>
             'a:active',
+            'expiresOn',
             'initialTime',
         ]
 
