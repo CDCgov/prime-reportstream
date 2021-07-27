@@ -36,6 +36,8 @@ function getClaimsOrgValue() {
  * @returns {{headers: {Authorization: string, Organization: (*|string)}}}
  */
 function apiConfig(url) {
+
+    console.log( `apiConfig organization = ${getClaimsOrgValue()}`)
     return {
         url: url,
         baseURL: `${getBaseUrl()}/api/`,
@@ -46,16 +48,6 @@ function apiConfig(url) {
     };
 }
 
-/**
- * Fetch all information for the display of the cards
- *
- * @returns Array of card objects for the cardGrid
- */
-async function fetchCards() {
-    return window.jwt ? Promise.all([
-        axios(apiConfig('history/summary/tests')).then(res => res.data)
-    ]) : [];
-}
 
 /**
  * Checks that the browser is on the accepted list of browsers; if not redirects
@@ -182,7 +174,9 @@ function logout() {
 
 async function fetchReportFeeds(){
     let reports = await fetchReports();
-    let receivingOrgSvc = reports ? reports.map( rep => rep.displayName ) : []
+    let receivingOrgSvc = reports ? reports.map( rep => {
+        console.log( `display name = ${rep.displayName}` )
+        return rep.displayName }) : []
 
     return Array.from( new Set( receivingOrgSvc ) );
 }
@@ -196,13 +190,20 @@ async function fetchReports( filter ) {
     if (isAnAdmin()) {
         console.log("user is an admin, they get special sauce");
         const cacheBust = new Date().toISOString();
-        url = `${url}s/${window.org}?cache=${cacheBust}`
+        url = `${url}?cache=${cacheBust}`
     }
     console.log(`calling for ${url}`);
     let retValue = window.jwt ? await axios(apiConfig(url))
         .then(res => res.data)
         .catch(e => {console.log(e); return []}): [];
     
+    if( filter ){
+        console.log( `filtered = `)
+        retValue.filter( report => report.displayName === filter ).forEach( v => console.log( v ) )
+    }
+    else{
+        retValue.forEach( v => console.log( v ) );
+    }
     return filter? retValue.filter( report => report.displayName === filter ) : retValue;
 }
 
@@ -233,7 +234,7 @@ async function requestFile(reportId) {
  * @returns
  */
 function isLocalhost(){
-    return window.location.origin.includes("localhost:8088");
+    return window.location.origin.includes("localhost");
 }
 
 /**
@@ -242,11 +243,20 @@ function isLocalhost(){
  */
 
 
-function changeOrg( event ){
+async function changeOrg( event ){
+    console.log( `org = ${event.value}`)
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
     processOrgName();
-    processReports();
+    let feeds = await processReportFeeds();
+
+    // reports
+    feeds.forEach( async (feed,idx) => {
+        console.log(`processing Reports ${feed} ${idx}`)
+        await processReports( feed, idx );
+    })
+
+    await processReport(await fetchReports());
 }
 
 function populateOrgDropdown() {
@@ -305,7 +315,7 @@ function processJwtToken(){
         // process the org so the dropdown looks correct
         const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");
         const oldOrg = window.sessionStorage.getItem( "oldOrg");
-        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? _org[0] : null;
+        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? convertOrgName( _org[0] ) : null;
         window.sessionStorage.setItem( "oldOrg", window.org );
         window.user = claims.sub;
         // set the token here
@@ -341,6 +351,7 @@ async function processOrgName(){
 
     try {
         orgName = await fetchOrgName();
+
     } catch (error) {
         console.log('fetchOrgName() is failing');
         console.error(error);
@@ -364,11 +375,16 @@ async function processReportFeeds(){
     let feeds = await fetchReportFeeds();
     const tabs = document.getElementById("tabs");  
     console.log( feeds );
-    if (tabs) tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
+    if (tabs){ 
+        tabs.innerHTML = "";
+        tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
+    }
     const reportFeeds = document.getElementById("reportFeeds");  
     if (reportFeeds) {
+        reportFeeds.innerHTML = "";
         if (feeds.length > 1) {
             feeds.forEach((feed, idx) => {
+                console.log( `building tab${idx}`)
                 reportFeeds.innerHTML += `
                     <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx > 0 ? "" : "checked"}>
                     <label for="tab${idx}">${feed.replaceAll("-", " ").toUpperCase()}</label>
@@ -419,6 +435,7 @@ async function processReports(feed, idx){
     if (reports) {
         // if they do then write them out
         reports.forEach(_report => {
+            const tBody = document.getElementById(`tBody${idx?idx:''}`);
             if (tBody) tBody.innerHTML +=
                 `<tr>
                 <th data-title="reportId" scope="row">
@@ -436,6 +453,7 @@ async function processReports(feed, idx){
                 </th>
               </tr>`;
     });
+    }
     if (!reports || reports.length === 0) {
         if (tBody) tBody.innerHTML +=
             `<tr>
@@ -506,79 +524,4 @@ async function processReport( reports ){
     }
 
     return report;
-}
-
-/**
- *
- */
-async function processCharts(){
-    let cards = [];
-    try{
-        cards = await fetchCards();
-    } catch( error ){
-        console.log( 'fetchCards() is failing' );
-        console.error( error );
-    }
-    cards.forEach(card => {
-        const cards = document.getElementById("cards");
-        if (cards) cards.innerHTML +=
-        `<div class="tablet:grid-col-6">
-            <div class="usa-card__container">
-            <div class="usa-card__body">
-                <h4 class="text-base margin-bottom-0">${card.title}</h4>
-                <h3 class="text-bold margin-top-0">${card.subtitle}</h3>
-                <h4 class="text-base margin-bottom-0">Last 24 hours</h4>
-                <p class="text-bold margin-top-0">${card.daily} &nbsp; &nbsp; &nbsp; <span class="text-heavy ${card.positive ? "text-green" : "text-red"}">
-                    ${card.positive ? "&#8599;" : "&#8600;"} ${card.change.toFixed(2)}
-                </span></p>
-                <h4 class="text-base margin-bottom-0">Last 7 days (average)</h4>
-                <p class="text-bold margin-top-0">${card.last}</p>
-                <canvas id="${card.id}" width="200" height="40"></canvas>
-            </div>
-            </div>
-        </div>`;
-    });
-    var ctx = 'summary-tests';
-    var options = {
-        plugins: {
-            legend: {
-                display: false,
-            }
-        },
-        scales: {
-            y: {
-                ticks: {
-                    beginAtZero: false
-                },
-                display: false,
-            },
-            x: {
-                display: false,
-            }
-        }
-    };
-
-    var labels = [];
-    for (var i = 7; i >= 0; i--) {
-        labels.push(moment().subtract(i, 'days').format("YYYY-MM-DD"))
-    }
-
-    const myLineChartHtml = document.getElementById(ctx);
-    if (myLineChartHtml) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-
-                labels: labels,
-                datasets: [{
-                    data: cards[0].data,
-                    borderColor: "#4682B4",
-                    backgroundColor: "#B0C4DE",
-                    fill: 'origin',
-                    borderJoinStyle: "round"
-                }]
-            },
-            options: options
-        });
-    }
 }

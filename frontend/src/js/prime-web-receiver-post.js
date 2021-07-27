@@ -20,6 +20,8 @@
         await processReports( feed, idx );
     })
 
+    await processReport(await fetchReports());
+
     // charts
     /* processCharts(); */
 })().catch(err => {
