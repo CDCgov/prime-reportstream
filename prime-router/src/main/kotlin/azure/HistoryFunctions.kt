@@ -208,7 +208,6 @@ open class BaseHistoryFunction : Logging {
                 OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
                 organizationName ?: authClaims.organization.name
             )
-
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
             val reports = headers.sortedByDescending { it.createdAt }.mapNotNull {
                 val facilities = arrayListOf<Facility>()

@@ -12,13 +12,13 @@
     let orgName = await processOrgName();
 
     console.log( 'process report feeds' );
-    let feeds = await processReportFeeds();
+    const feeds = await processReportFeeds();
 
     // reports
     feeds.forEach( async (feed,idx) => {
-        console.log(`processing Reports ${feed} ${idx}`)
+        console.log(`processing Reports ${feed} ${idx}`);
         await processReports( feed, idx );
-    })
+    });
 
     await processReport(await fetchReports());
 
