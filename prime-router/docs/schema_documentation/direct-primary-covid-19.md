@@ -1,6 +1,6 @@
 
-### Schema:         pa/pa-covid-19-hl7
-#### Description:   Pennsylvania Department of Health HL7 messages
+### Schema:         direct/primary-covid-19
+#### Description:   Primary Diagnostics, Inc, schema
 
 ---
 
@@ -461,7 +461,7 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Default Value**: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+**Default Value**: 
 
 **Cardinality**: [0..1]
 
@@ -2171,7 +2171,7 @@ pointer/link to the unique id of a previously submitted result.  Usually blank. 
 
 **PII**: No
 
-**Default Value**: P
+**Default Value**: T
 
 **Cardinality**: [0..1]
 
@@ -2205,8 +2205,6 @@ P, D, or T for Production, Debugging, or Training
 
 **PII**: No
 
-**Default Value**: PA-ELR
-
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -2220,8 +2218,6 @@ The receiving application for the message (specified by the receiver)
 **Type**: HD
 
 **PII**: No
-
-**Default Value**: PADOH
 
 **Cardinality**: [0..1]
 
@@ -2344,6 +2340,8 @@ Does the patient reside in a congregate care setting?
 
 **PII**: No
 
+**Default Value**: primary
+
 **Cardinality**: [0..1]
 
 **Documentation**:
@@ -2358,7 +2356,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **PII**: No
 
-**Default Value**: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
+**Default Value**: 
 
 **Cardinality**: [0..1]
 

@@ -9,6 +9,7 @@ import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
@@ -224,11 +225,23 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         // if the message is empty, return a row result that warns of empty data
         if (cleanedMessage.isEmpty()) {
             logger.debug("Skipping empty message during parsing")
-            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty message"))
+            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty HL7 message"))
+        }
+
+        val hapiMsg = try {
+            parser.parse(cleanedMessage)
+        } catch (e: HL7Exception) {
+            logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
+            if (e is EncodingNotSupportedException) {
+                // This exception error message is a bit cryptic, so let's provide a better one.
+                errors.add("Error parsing HL7 message: Invalid HL7 message format")
+            } else {
+                errors.add("Error parsing HL7 message: ${e.localizedMessage}")
+            }
+            return RowResult(emptyMap(), errors, warnings)
         }
 
         try {
-            val hapiMsg = parser.parse(cleanedMessage)
             val terser = Terser(hapiMsg)
 
             // First, extract any data elements from the HL7 message.
@@ -352,7 +365,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = Report(schema, mappedRows, source, metadata = metadata)
+        val report = if (errors.size > 0) null else Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 
@@ -564,7 +577,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         }
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
-            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, element)
+            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field)
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
                     val hd = Element.parseHD(value, hdFieldMaximumLength)
@@ -643,7 +656,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
      * and set 'CLIA' as the Universal ID Type.
      * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
      */
-    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String, element: Element) {
+    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String) {
         if (value.isEmpty()) return
 
         val pathSpec = formPathSpec(hl7Field)
@@ -1081,7 +1094,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                             val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    "Timestamp for $hl7Field - ${element.name} needs to provide more " +
+                                    "Timestamp for $hl7Field - ${element.name} should provide more " +
                                         "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
                                 )
                             }
@@ -1093,7 +1106,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                             val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    "Date for $hl7Field - ${element.name} needs to provide more " +
+                                    "Date for $hl7Field - ${element.name} should provide more " +
                                         "precision. Should be formatted as YYYYMMDD"
                                 )
                             }
