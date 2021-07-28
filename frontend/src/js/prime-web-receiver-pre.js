@@ -1,3 +1,13 @@
+const debug = (message) => {
+    // get the URL
+    const params = (new URL(document.location)).searchParams;
+    // if the debug value exists
+    if (params.has("debug")) {
+        // log the message
+        console.log(message);
+    }
+};
+
 /** Convert Org name
  * from DHzz_phd
  * to zz-phd
@@ -36,8 +46,8 @@ function getClaimsOrgValue() {
  * @returns {{headers: {Authorization: string, Organization: (*|string)}}}
  */
 function apiConfig(url) {
+    debug(`apiConfig organization = ${getClaimsOrgValue()}`);
 
-    console.log( `apiConfig organization = ${getClaimsOrgValue()}`)
     return {
         url: url,
         baseURL: `${getBaseUrl()}/api/`,
@@ -47,7 +57,6 @@ function apiConfig(url) {
         }
     };
 }
-
 
 /**
  * Checks that the browser is on the accepted list of browsers; if not redirects
@@ -73,7 +82,6 @@ function checkBrowser() {
 function isLoggedIn(){
     const token = window.sessionStorage.getItem("jwt");
     const claims = token ? JSON.parse(atob(token.split('.')[1])) : null;
-
     return (token && claims && moment().isBefore(moment.unix(claims.exp)))
 }
 
@@ -94,9 +102,9 @@ function checkJWT() {
 async function fetchOrgName() {
     if (!window.org || !window.jwt) return null;
     const orgName = convertOrgName(window.org);
-    console.log(`getting orgName for ${orgName}: ${window.org}`)
+    debug(`getting orgName for ${orgName}: ${window.org}`)
     const url = `settings/organizations/${orgName}`;
-    console.log(url);
+    debug(url);
     return Promise.all([
         axios(apiConfig(url))
             .then(res => res.data)
@@ -149,7 +157,8 @@ function login() {
         }
     };
 
-    new OktaSignIn(config).showSignInToGetTokens({ scopes: ['openid', 'email', 'profile'] })
+    new OktaSignIn(config)
+        .showSignInToGetTokens({ scopes: ['openid', 'email', 'profile'] })
         .then(function (tokens) {
             const jwt = tokens.accessToken.value;
             window.sessionStorage.setItem('jwt', jwt);
@@ -174,28 +183,23 @@ function logout() {
 async function fetchReportFeeds(){
     let reports = await fetchReports();
     let receivingOrgSvc = reports ? reports.map( rep => {
-        console.log( `display name = ${rep.displayName}` )
-        return rep.displayName }) : []
-
-    return Array.from( new Set( receivingOrgSvc ) );
+        debug(`display name = ${rep.displayName}`)
+        return rep.receivingOrgSvc
+    }) : []
+    const externalNames = new Set(receivingOrgSvc);
+    return [...externalNames];
 }
 
 /**
  *
  */
-async function fetchReports( filter ) {
-    let url = 'history/report';
-    if (isAnAdmin()) {
-        console.log("user is an admin, they get special sauce");
-        const cacheBust = new Date().toISOString();
-        url = `${url}?cache=${cacheBust}`
-    }
-    console.log(`calling for ${url}`);
+async function fetchReports(filter) {
+    let url = `history/report?cache=${new Date().toISOString()}`;
+    debug(`invoking ${url}`);
     const retValue = window.jwt ? await axios(apiConfig(url))
         .then(res => res.data)
         .catch(e => { console.log(e); return [] }): [];
-    console.log(retValue);
-    
+    debug(retValue);
     return filter? retValue.filter( report => report.receivingOrgSvc === filter ) : retValue;
 }
 
@@ -212,10 +216,10 @@ async function requestFile(reportId) {
         .then(res => res.data)
         .then(csv => {
             // The filename to use for the download should not contain blob folders if present
-            let filename = decodeURIComponent(csv.filename)
-            let filenameStartIndex = filename.lastIndexOf("/")
+            let filename = decodeURIComponent(csv.filename);
+            let filenameStartIndex = filename.lastIndexOf("/");
             if (filenameStartIndex >= 0 && filename.length > filenameStartIndex + 1) 
-                filename = filename.substring(filenameStartIndex + 1)
+                filename = filename.substring(filenameStartIndex + 1);
             download(csv.content, filename, csv.mimetype)
         }) : null;
 }
@@ -233,20 +237,20 @@ function isLocalhost(){
  *
  * @returns
  */
-
-
-async function changeOrg( event ){
-    console.log( `org = ${event.value}`)
+async function changeOrg(event){
+    debug(`org = ${event.value}`)
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
     processOrgName();
     let feeds = await processReportFeeds();
 
     // reports
-    feeds.forEach( async (feed,idx) => {
-        console.log(`processing Reports ${feed} ${idx}`)
-        await processReports( feed, idx );
-    })
+    // I don't think I'm necessary now
+    let promises = feeds.map(async (feed,idx) => {
+        debug(`processing Reports ${feed} ${idx}`);
+        await processReports(feed, idx);
+    });
+    Promise.all(promises).then(_results => debug(_results));
 
     await processReport(await fetchReports());
 }
@@ -254,14 +258,13 @@ async function changeOrg( event ){
 function populateOrgDropdown() {
     // it's possible someone could be a part of more than one sending/receiving org
     if (window.orgs && window.orgs.length > 0) {
-        const dropDownWrapper = document.getElementById("orgDropdown");
+        const dropDownWrapper = document.querySelector("#orgDropdown");
         dropDownWrapper.classList.remove("display-none");
         dropDownWrapper.classList.add("display-block");
         const _dropdown = document.createElement("div");
         _dropdown.id = "dropdown";
 
         let _orgsOptions = "";
-
         window.orgs.sort().forEach( org => {
             _orgsOptions +=
                 `
@@ -296,14 +299,16 @@ function processJwtToken(){
 
     if (token && claims && moment().isBefore(moment.unix(claims.exp))) {
         // update the email user link
-        const emailUser = document.getElementById("emailUser");
+        const emailUser = document.querySelector("#emailUser");
         if (emailUser) emailUser.innerHTML = claims.sub;
         // refresh the logout link
-        const logout = document.getElementById("logout");
+        const logout = document.querySelector("#logout");
         if (logout) logout.innerHTML = 'Logout';
         // refresh our signin link/remove it
-        const _signIn = document.getElementById("signInButton");
-        if (_signIn) { _signIn.setAttribute( "hidden", "hidden"); }
+        const _signIn = document.querySelector("#signInButton");
+        if (_signIn) {
+            _signIn.setAttribute( "hidden", "hidden");
+        }
         // process the org so the dropdown looks correct
         const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");
         const oldOrg = window.sessionStorage.getItem( "oldOrg");
@@ -364,19 +369,43 @@ function titleCase(str) {
   }
 
 async function processReportFeeds(){
-    let feeds = await fetchReportFeeds();
-    const tabs = document.getElementById("tabs");  
-    console.log( feeds );
-    if (tabs){ 
+    const feeds = await fetchReportFeeds();
+    const tabs = document.querySelector("#tabs");
+    debug(feeds);
+    if (tabs) {
         tabs.innerHTML = "";
         tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
     }
-    const reportFeeds = document.getElementById("reportFeeds");  
+    const reportFeeds = document.querySelector("#reportFeeds");
     if (reportFeeds) {
         reportFeeds.innerHTML = "";
+        if (feeds.length === 0) {
+            reportFeeds.innerHTML = `
+                    <div class="${feeds.length > 1 ? "tab__content" : ""}">
+                        <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+                        <thead>
+                          <tr>
+                            <th scope="col">Report Id</th>
+                            <th scope="col">Date Sent</th>
+                            <th scope="col">Expires</th>
+                            <th scope="col">Total tests</th>
+                            <th scope="col">File</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tBody" class="font-mono-2xs">
+                            <tr>
+                                <th colspan="5">No reports found</th>
+                            </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                `
+            return [];
+        }
+
         if (feeds.length > 1) {
             feeds.forEach((feed, idx) => {
-                console.log( `building tab${idx}`)
+                debug(`building tab${idx}`);
                 reportFeeds.innerHTML += `
                     <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx > 0 ? "" : "checked"} data-feed-name="${feed}">
                     <label for="tab${idx}">${feed.replaceAll("-", " ").toUpperCase()}</label>
@@ -415,7 +444,7 @@ async function processReportFeeds(){
 async function processReports(feed, idx){
     let reports = [];
     const tBody = document.querySelector(`tbody[data-feed-name='${feed}']`);
-    console.log(tBody);
+    debug(tBody);
     // clear the table body because we can get reports from different PHDs
     if (tBody) tBody.innerHTML = "";
     try {
@@ -428,7 +457,7 @@ async function processReports(feed, idx){
     if (reports) {
         // if they do then write them out
         reports.forEach(_report => {
-            const tBody = document.getElementById(`tBody${idx?idx:''}`);
+            const tBody = document.querySelector(`tBody[data-feed-name='${feed}']`);
             if (tBody) tBody.innerHTML +=
                 `<tr>
                     <th data-title="reportId" scope="row">
@@ -456,6 +485,19 @@ async function processReports(feed, idx){
     return reports;
 }
 
+const sortFacilities = (facilityOne, facilityTwo) => {
+  const fOne = facilityOne.facility.toUpperCase();
+  const fTwo = facilityTwo.facility.toUpperCase();
+
+  if (fOne < fTwo) {
+      return -1;
+  }
+  if (fOne > fTwo) {
+      return 1;
+  }
+  return 0;
+};
+
 /**
  *
  * @param {Array<Report>} reports array
@@ -469,7 +511,7 @@ async function processReport( reports ){
         else
             report = reports.find(report => report.reportId === window.location.search.substring(1));
     }
-    if (report !== null) {
+    if (report) {
         const details = document.getElementById("details");
         if (details) {
             details.innerHTML +=
@@ -486,9 +528,9 @@ async function processReport( reports ){
                             <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>`;
         }
-        const facilities = document.getElementById( "tBodyFac");
-        if (facilities) {
-            report.facilities.forEach( reportFacility => {
+        const facilities = document.querySelector( "#tBodyFac");
+        if (facilities && report.facilities) {
+            report.facilities.sort(sortFacilities).forEach(reportFacility => {
                 facilities.innerHTML +=
                     `
                     <tr>
@@ -500,18 +542,18 @@ async function processReport( reports ){
             });
         }
 
-        const noFac = document.getElementById( 'nofacilities' );
-        const facTable = document.getElementById( 'facilitiestable');
+        const noFac = document.querySelector( '#nofacilities' );
+        const facTable = document.querySelector( '#facilitiestable');
 
-        if (report.facilities.length) {
+        if (report.facilities && report.facilities.length) {
             if (noFac) noFac.setAttribute( "hidden", "hidden" );
         } else {
             if (facTable) facTable.setAttribute( "hidden", "hidden" );
         }
 
-        const reportId = document.getElementById("report.id");
+        const reportId = document.querySelector("#report.id");
         if (reportId) reportId.innerHTML = report.reportId;
-        const download = document.getElementById("download");
+        const download = document.querySelector("#download");
         if (download) {
             download.innerHTML +=
                 `<a id="report.fileType"
@@ -534,7 +576,7 @@ async function processCharts(){
     try{
         cards = await fetchCards();
     } catch( error ){
-        console.log( 'fetchCards() is failing' );
+        console.log('fetchCards() is failing');
         console.error( error );
     }
     cards.forEach(card => {
@@ -556,8 +598,8 @@ async function processCharts(){
             </div>
         </div>`;
     });
-    var ctx = 'summary-tests';
-    var options = {
+    let ctx = 'summary-tests';
+    let options = {
         plugins: {
             legend: {
                 display: false,
