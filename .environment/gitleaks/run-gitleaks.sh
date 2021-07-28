@@ -3,10 +3,10 @@
 function usage() {
     echo "usage: ${0} [OPTION]"
     echo ""
-    echo "Runs the gitleaks container on top of your code"
+    echo "Runs the gitleaks container on top of your code. The default mode scans the files that are staged in git."
     echo ""
     echo "Options:"
-    echo "    --head        Scans the head of your current branch"
+    echo "    --no-git      Scans your current working directory as is (i.e. pretends it isn't a git repo)"
     echo "    --help|-h     Shows this help and exits successfully"
     echo ""
 }
