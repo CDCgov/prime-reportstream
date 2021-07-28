@@ -1,7 +1,7 @@
 # Schema for Reddy Family Medical Clinic Submitter
 # This schema is to be used to parse the standard lab report from iPatientCare
 # Created by Joel Biskie
-# Last Update: 07/23/2021
+# Last Update: 07/28/2021
 # 
 name: reddyfmc-la-covid-19
 topic: covid-19
@@ -17,10 +17,7 @@ elements:
       type: TEXT
       default: 10811877011290
 
-
-
 # Ordering provider
-#TODO - validate Dr Reddy's name/credentials are formatted as shown below.
     - name: ordering_provider_id
       type: CODE
       csvFields: [{name: PhyName, format: $alt}]
