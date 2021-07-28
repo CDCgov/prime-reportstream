@@ -5,9 +5,9 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
-import org.apache.logging.log4j.kotlin.Logging
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -256,7 +256,7 @@ class HttpUtilities {
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)
                 headers.add("x-functions-key" to key)
-            val url = environment.baseUrl + reportsEndpoint + if (option != null) "?option=$option" else ""
+            val url = environment.endPoint + if (option != null) "?option=$option" else ""
             return postHttp(url, bytes, headers)
         }
 
@@ -275,7 +275,8 @@ class HttpUtilities {
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             token?.let { headers.add("authorization" to "Bearer $token") }
-            val url = environment.baseUrl + reportsEndpointFhir
+	    // todo FIX THIS INCORRECT URL
+            val url = environment.endPoint + reportsEndpointFhir
             return postHttp(url, bytes, headers)
         }
 

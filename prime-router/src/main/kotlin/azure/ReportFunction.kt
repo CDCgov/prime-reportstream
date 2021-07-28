@@ -17,9 +17,8 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.tokens.DatabaseJtiCache
-import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
-import gov.cdc.prime.router.tokens.FindSenderKeyInSettings
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 import org.postgresql.util.PSQLException
@@ -41,7 +40,7 @@ private const val VERBOSE_TRUE = "true"
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
  */
-class ReportFunction: Logging {
+class ReportFunction : Logging {
     enum class Options {
         None,
         ValidatePayload,
@@ -102,18 +101,32 @@ class ReportFunction: Logging {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        val workflowEngine = WorkflowEngine()
-        val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))
+
+        logger.debug(" request headers: ${request.headers}")
+        val authenticationStrategy = AuthenticationStrategy.authStrategy(
+            request.headers["authentication-type"],
+            PrincipalLevel.USER
+        )
         val senderName = request.headers[CLIENT_PARAMETER]
             ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
-        // todo This code is redundant with validateRequest.  Remove from validateRequest once old endpoint is removed
+        // todo This code is redundant w/validateRequest. Remove from validateRequest once old endpoint is removed
         if (senderName.isBlank())
-            return HttpUtilities.bad(request,"Expected a '$CLIENT_PARAMETER' query parameter")
-        val sender = workflowEngine.settings.findSender(senderName)
+            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+        val sender = WorkflowEngine().settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
 
-        tokenAuthentication.checkAccessToken(request, "${sender.fullName}.report")
-            ?: return HttpUtilities.unauthorizedResponse(request)
+        if (authenticationStrategy is OktaAuthentication) {
+            // Okta Auth
+            return authenticationStrategy.checkAccess(request, senderName) {
+                return@checkAccess ingestReport(request, context)
+            }
+        }
+
+        if (authenticationStrategy is TokenAuthentication) {
+            authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
+                ?: return HttpUtilities.unauthorizedResponse(request)
+        }
+
         return ingestReport(request, context)
     }
 

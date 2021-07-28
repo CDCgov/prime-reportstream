@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
  * See https://github.com/CMSgov/dpc-app/blob/master/dpc-api/src/main/java/gov/cms/dpc/api/auth/jwt/IJTICache.java
  */
 
-abstract class JtiCache: Logging {
+abstract class JtiCache : Logging {
     abstract fun cleanupCache()
 
     abstract fun insertIntoCache(jti: String, expiresAt: OffsetDateTime)

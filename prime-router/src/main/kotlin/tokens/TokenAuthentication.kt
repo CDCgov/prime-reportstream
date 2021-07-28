@@ -209,7 +209,6 @@ class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), 
         if (!Scope.isValidScope(scope, sender)) return fail("Invalid scope for this sender: $scope")
         sender.keys.forEach { jwkSet ->
             if (Scope.scopeListContainsScope(jwkSet.scope, scope)) {
-
                 val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
 
                 // find by kid and kty

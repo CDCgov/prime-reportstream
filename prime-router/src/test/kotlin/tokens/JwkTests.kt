@@ -42,7 +42,10 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
     }
     """.trimIndent()
 
-    val modulus = "xJRuufBk_axjyO1Kpy5uwmnAY0VUhCzG8G4OiDVgnaXeLMzj91bcQdYOMQ_82PTGrUbck3qSFXbug_Ljj8NZDT0J1ZSKv8Oce-GdkeNzA5W9yvChvorGotAUWMS7_EXXxz8mjlrwu6kyKfCpuJAMg5VrZaYA0nAlv-e7zoRE9pQ0VHNrEaj6Uikw3M02oVHUNiRtL5Y5tYyz_yRBauVLPdHf5Yf-cZeO2x02qFSGcl_2EzWZcGb6PkQZ_9QeOq_iJ9h-NU_wb9lnbebnBhPGAyc1-_9vnFlFzkH2lt0BVtfhW0E4ieKkntbC0QFxNu91Gf4jfFmsOAsCf3UpVqWIQw"
+    val modulus = "xJRuufBk_axjyO1Kpy5uwmnAY0VUhCzG8G4OiDVgnaXeLMzj91bcQdYOMQ_82PTGrUbck3qSFXbug_Ljj8NZDT0J1ZSKv8Oce-" +
+        "GdkeNzA5W9yvChvorGotAUWMS7_EXXxz8mjlrwu6kyKfCpuJAMg5VrZaYA0nAlv-e7zoRE9pQ0VHNrEaj6Uikw3M02oVHUNiRtL5Y5tYyz_y" +
+        "RBauVLPdHf5Yf-cZeO2x02qFSGcl_2EzWZcGb6PkQZ_9QeOq_iJ9h-NU_wb9lnbebnBhPGAyc1-_9vnFlFzkH2lt0BVtfhW0E4ieKkntbC0Q" +
+        "FxNu91Gf4jfFmsOAsCf3UpVqWIQw"
     val exponent = "AQAB"
     val rsaPublicKeyStr = """
     {
@@ -59,9 +62,9 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
                 "kid": "ignore.REDOX",
                  "x5c": [ "a", "b", "c" ]
               }
-        """.trimIndent()
+    """.trimIndent()
 
-    val jwk = Jwk(kty ="ES", x = "x", y = "y", crv = "crv", kid = "myId", x5c = listOf("a", "b"))
+    val jwk = Jwk(kty = "ES", x = "x", y = "y", crv = "crv", kid = "myId", x5c = listOf("a", "b"))
 
     // this jwkset is from the RFC specification for JWKs, so I thought it would be a nice test.
     // See https://tools.ietf.org/html/rfc7517
@@ -83,7 +86,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
           "kid":"2011-04-29"}
          ]
          }
-        """.trimIndent()
+    """.trimIndent()
 
     @Test
     fun `test convert json string to Jwk obj`() {
@@ -109,8 +112,8 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
     fun `test convert JSON String to RSAPublicKey`() {
         val rsaPublicKey = Jwk.generateRSAPublicKey(rsaPublicKeyStr)
         assertNotNull(rsaPublicKey)
-        assertEquals("RSA",rsaPublicKey.algorithm)
-        assertNotNull(rsaPublicKey)  // lame test
+        assertEquals("RSA", rsaPublicKey.algorithm)
+        assertNotNull(rsaPublicKey) // lame test
         assertEquals(BigInteger(exponent.decodeBase64()), rsaPublicKey.publicExponent)
         // not so straightforward as this
         // assertEquals(BigInteger(modulus.decodeBase64()), rsaPublicKey.modulus)
@@ -121,8 +124,8 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
         val ecPublicKey = Jwk.generateECPublicKey(ecPublicKeyStr)
         assertNotNull(ecPublicKey)
         assertNotNull(ecPublicKey)
-        assertEquals("EC",ecPublicKey.algorithm)
-        assertNotNull(ecPublicKey.w)  // lame test
+        assertEquals("EC", ecPublicKey.algorithm)
+        assertNotNull(ecPublicKey.w) // lame test
         // not so straightforward as this
         // assertEquals(BigInteger(affineX.decodeBase64()), ecPublicKey.w.affineX)
     }
@@ -135,8 +138,8 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
         // Steps 2,3:  convert the JWK obj to a string, then use that to generate the public key obj
         val ecPublicKey = Jwk.generateECPublicKey(nimbusdsJwk.toJSONString())
         assertNotNull(ecPublicKey)
-        assertEquals("EC",ecPublicKey.algorithm)
-        assertNotNull(ecPublicKey.w)  // lame test
+        assertEquals("EC", ecPublicKey.algorithm)
+        assertNotNull(ecPublicKey.w) // lame test
     }
 
     @Test
@@ -161,14 +164,13 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
         assertEquals(2, jwkSet.keys.size)
         val ecPublicKey = jwkSet.keys[0].toECPublicKey()
         assertNotNull(ecPublicKey)
-        assertEquals("EC",ecPublicKey.algorithm)
-        assertNotNull(ecPublicKey.w)  // lame test
+        assertEquals("EC", ecPublicKey.algorithm)
+        assertNotNull(ecPublicKey.w) // lame test
         val rsaPublicKey = jwkSet.keys[1].toRSAPublicKey()
         assertNotNull(rsaPublicKey)
-        assertEquals("RSA",rsaPublicKey.algorithm)
-        assertNotNull(rsaPublicKey)  // lame test
+        assertEquals("RSA", rsaPublicKey.algorithm)
+        assertNotNull(rsaPublicKey) // lame test
         assertEquals(BigInteger(exponent.decodeBase64()), rsaPublicKey.publicExponent)
-
     }
 
     @Test
@@ -182,7 +184,7 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
         val jwkSet = jacksonObjectMapper().readValue(jwkSetString, JwkSet::class.java)
         val ecPublicKey = jwkSet.keys[0].toECPublicKey()
         assertNotNull(ecPublicKey)
-        assertEquals("EC",ecPublicKey.algorithm)
-        assertNotNull(ecPublicKey.w)  // lame test
+        assertEquals("EC", ecPublicKey.algorithm)
+        assertNotNull(ecPublicKey.w) // lame test
     }
 }

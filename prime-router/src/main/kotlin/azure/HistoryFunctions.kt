@@ -10,7 +10,6 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import com.okta.jwt.JwtVerifiers
 import fuzzycsv.FuzzyCSVTable
 import fuzzycsv.FuzzyStaticApi.count
 import gov.cdc.prime.router.Organization
@@ -18,12 +17,12 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.WorkflowEngine.Header
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.StringReader
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
-import java.util.logging.Level
 import kotlin.collections.ArrayList
 
 class Facility private constructor(
@@ -182,8 +181,8 @@ class CardView private constructor(
 
 data class FileReturn(val content: String, val filename: String, val mimetype: String)
 
-class GetReports :
-    BaseHistoryFunction() {
+class GetReports(oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+    BaseHistoryFunction(oktaAuthentication) {
 
     @FunctionName("getReports")
     @StorageAccount("AzureWebJobsStorage")
@@ -200,8 +199,8 @@ class GetReports :
     }
 }
 
-class GetReportsByOrganization :
-    BaseHistoryFunction() {
+class GetReportsByOrganization(oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+    BaseHistoryFunction(oktaAuthentication) {
     @FunctionName("getReportsByOrganization")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -218,8 +217,8 @@ class GetReportsByOrganization :
     }
 }
 
-class GetReportById :
-    BaseHistoryFunction() {
+class GetReportById(oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+    BaseHistoryFunction(oktaAuthentication) {
     @FunctionName("getReportById")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -236,8 +235,8 @@ class GetReportById :
     }
 }
 
-class GetSummaryTests :
-    BaseHistoryFunction() {
+class GetSummaryTests(oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+    BaseHistoryFunction(oktaAuthentication) {
 
     @FunctionName("getSummaryTests")
     @StorageAccount("AzureWebJobsStorage")
@@ -254,7 +253,8 @@ class GetSummaryTests :
     }
 }
 
-class GetSummary : BaseHistoryFunction() {
+class GetSummary(oktaAuthentication: OktaAuthentication = OktaAuthentication()) :
+    BaseHistoryFunction(oktaAuthentication) {
     @FunctionName("getSummary")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -271,7 +271,7 @@ class GetSummary : BaseHistoryFunction() {
     }
 }
 
-open class BaseHistoryFunction : Logging {
+open class BaseHistoryFunction(private val oktaAuthentication: OktaAuthentication) : Logging {
     val DAYS_TO_SHOW = 30L
     val workflowEngine = WorkflowEngine()
 
@@ -281,63 +281,74 @@ open class BaseHistoryFunction : Logging {
         organizationName: String? = null
     ): HttpResponseMessage {
         logger.info("Checking authorization for getReports")
-        val authClaims = checkAuthenticated(request, context)
-            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
-        var response: HttpResponseMessage
-        try {
-            logger.info("Getting reports for ${organizationName ?: authClaims.organization.name}")
-            val headers = workflowEngine.db.fetchDownloadableReportFiles(
-                OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
-                organizationName ?: authClaims.organization.name
-            )
+        return oktaAuthentication.checkAccess(
+            request,
+            organizationName ?: request.headers["organization"] ?: ""
+        ) { authClaims ->
+            val authOrganization = oktaAuthentication.checkOrganizationExists(
+                context,
+                authClaims.userName,
+                authClaims.organizationName
+            ) ?: return@checkAccess request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+            var response: HttpResponseMessage
+            try {
+                logger.info("Getting reports for ${authClaims.organizationName}")
+                val headers = workflowEngine.db.fetchDownloadableReportFiles(
+                    OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
+                    organizationName ?: authClaims.organizationName ?: ""
+                )
 
-            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-            val reports = headers.sortedByDescending { it.createdAt }.map {
-                var facilities = arrayListOf<Facility>()
-                if (it.bodyFormat == "CSV")
-                    try {
-                        facilities = getFieldSummaryForReportId(
-                            arrayOf("Testing_lab_name", "Testing_lab_CLIA"), it.reportId.toString(), authClaims
-                        )
-                    } catch (ex: Exception) {
-                        // context.logger.info( "Exception during getFieldSummaryForReportId - TestingLabName was not found - no facilities data will be published" );
-                    }
-                val actions = getActionsForReportId(it.reportId.toString(), authClaims)
+                @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
+                val reports = headers.sortedByDescending { it.createdAt }.map {
+                    var facilities = arrayListOf<Facility>()
+                    if (it.bodyFormat == "CSV")
+                        try {
+                            facilities = getFieldSummaryForReportId(
+                                arrayOf("Testing_lab_name", "Testing_lab_CLIA"),
+                                it.reportId.toString(), authOrganization
+                            )
+                        } catch (ex: Exception) {
+                            // context.logger.info( "Exception during getFieldSummaryForReportId - TestingLabName " +
+                            // was not found - no facilities data will be published" );
+                        }
+                    val actions = getActionsForReportId(it.reportId.toString(), authOrganization)
 
-                val header = workflowEngine.fetchHeader(it.reportId, authClaims.organization)
+                    // todo Heh?   We appear to be fetching the header twice, here, and above.
+                    val header = workflowEngine.fetchHeader(it.reportId, authOrganization)
 
-                val content = if (header.content !== null) String(header.content) else ""
-                val filename = Report.formExternalFilename(header)
-                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
+                    val content = if (header.content !== null) String(header.content) else ""
+                    val filename = Report.formExternalFilename(header)
+                    val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 
-                ReportView.Builder()
-                    .reportId(it.reportId.toString())
-                    .sent(it.createdAt.toEpochSecond() * 1000)
-                    .via(it.bodyFormat)
-                    .total(it.itemCount.toLong())
-                    .fileType(it.bodyFormat)
-                    .type("ELR")
-                    .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                    .facilities(facilities)
-                    .actions(actions)
-                    .content(content)
-                    .fileName(filename)
-                    .mimeType(mimeType)
+                    ReportView.Builder()
+                        .reportId(it.reportId.toString())
+                        .sent(it.createdAt.toEpochSecond() * 1000)
+                        .via(it.bodyFormat)
+                        .total(it.itemCount.toLong())
+                        .fileType(it.bodyFormat)
+                        .type("ELR")
+                        .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
+                        .facilities(facilities)
+                        .actions(actions)
+                        .content(content)
+                        .fileName(filename)
+                        .mimeType(mimeType)
+                        .build()
+                }
+
+                response = request.createResponseBuilder(HttpStatus.OK)
+                    .body(reports)
+                    .header("Content-Type", "application/json")
+                    .build()
+            } catch (ex: Exception) {
+                context.logger.info("Exception during creating of reports list - file not found")
+                response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                    .body("File not found")
+                    .header("Content-Type", "text/html")
                     .build()
             }
-
-            response = request.createResponseBuilder(HttpStatus.OK)
-                .body(reports)
-                .header("Content-Type", "application/json")
-                .build()
-        } catch (ex: Exception) {
-            context.logger.info("Exception during creating of reports list - file not found")
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                .body("File not found")
-                .header("Content-Type", "text/html")
-                .build()
+            return@checkAccess response
         }
-        return response
     }
 
     fun GetReportById(
@@ -345,51 +356,55 @@ open class BaseHistoryFunction : Logging {
         reportIdIn: String,
         context: ExecutionContext
     ): HttpResponseMessage {
+        return oktaAuthentication.checkAccess(request, request.headers["organization"] ?: "") { claims ->
+            val authOrganization = oktaAuthentication.checkOrganizationExists(
+                context,
+                claims.userName,
+                claims.organizationName
+            ) ?: return@checkAccess request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
 
-        val authClaims = checkAuthenticated(request, context)
-            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+            var response: HttpResponseMessage
+            try {
+                val reportId = ReportId.fromString(reportIdIn)
+                val header = workflowEngine.fetchHeader(reportId, authOrganization)
+                if (header.content == null || header.content.isEmpty())
+                    response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
+                else {
+                    val filename = Report.formExternalFilename(header)
+                    val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
 
-        var response: HttpResponseMessage
-        try {
-            val reportId = ReportId.fromString(reportIdIn)
-            val header = workflowEngine.fetchHeader(reportId, authClaims.organization)
-            if (header.content == null || header.content.isEmpty())
-                response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
-            else {
-                val filename = Report.formExternalFilename(header)
-                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
+                    val fileReturn = FileReturn(String(header.content), filename, mimeType)
+                    response = request
+                        .createResponseBuilder(HttpStatus.OK)
+                        .header("Content-Type", "application/json")
+                        .body(fileReturn)
+                        .build()
 
-                val fileReturn = FileReturn(String(header.content), filename, mimeType)
-                response = request
-                    .createResponseBuilder(HttpStatus.OK)
-                    .header("Content-Type", "application/json")
-                    .body(fileReturn)
+                    val actionHistory = ActionHistory(TaskAction.download, context)
+                    actionHistory.trackActionRequestResponse(request, response)
+                    // Give the external report_file a new UUID, so we can track its history distinct from the
+                    // internal blob.   This is going to be very confusing.
+                    val externalReportId = UUID.randomUUID()
+                    actionHistory.trackDownloadedReport(
+                        header,
+                        filename,
+                        externalReportId,
+                        claims.userName,
+                    )
+                    actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
+                    WorkflowEngine().recordAction(actionHistory)
+
+                    return@checkAccess response
+                }
+            } catch (ex: Exception) {
+                context.logger.warning("Exception during download of $reportIdIn - file not found")
+                response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                    .body("File $reportIdIn not found")
+                    .header("Content-Type", "text/html")
                     .build()
-
-                val actionHistory = ActionHistory(TaskAction.download, context)
-                actionHistory.trackActionRequestResponse(request, response)
-                // Give the external report_file a new UUID, so we can track its history distinct from the
-                // internal blob.   This is going to be very confusing.
-                val externalReportId = UUID.randomUUID()
-                actionHistory.trackDownloadedReport(
-                    header,
-                    filename,
-                    externalReportId,
-                    authClaims.userName,
-                )
-                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
-                WorkflowEngine().recordAction(actionHistory)
-
-                return response
             }
-        } catch (ex: Exception) {
-            context.logger.warning("Exception during download of $reportIdIn - file not found")
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                .body("File $reportIdIn not found")
-                .header("Content-Type", "text/html")
-                .build()
+            return@checkAccess response
         }
-        return response
     }
 
     fun isToday(date: OffsetDateTime): Boolean {
@@ -409,52 +424,56 @@ open class BaseHistoryFunction : Logging {
         request: HttpRequestMessage<String?>,
         context: ExecutionContext
     ): HttpResponseMessage {
-        val authClaims = checkAuthenticated(request, context)
-        if (authClaims == null) return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
-        var response: HttpResponseMessage
+        return oktaAuthentication.checkAccess(request, request.headers["organization"] ?: "") { claims ->
+            val authOrganization =
+                oktaAuthentication.checkOrganizationExists(context, claims.userName, claims.organizationName)
+                    ?: return@checkAccess request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+            var response: HttpResponseMessage
 
-        try {
-            val headers = workflowEngine.db.fetchDownloadableReportFiles(
-                OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
-                authClaims.organization.name
-            )
-            var daily: Long = 0L
-            var sum: Long = 0L
-            var data: Array<Long> = arrayOf(0, 0, 0, 0, 0, 0, 0, 0)
+            try {
+                val headers = workflowEngine.db.fetchDownloadableReportFiles(
+                    OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
+                    authOrganization.name
+                )
+                var daily: Long = 0L
+                var sum: Long = 0L
+                var data: Array<Long> = arrayOf(0, 0, 0, 0, 0, 0, 0, 0)
 
-            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-            headers.sortedByDescending { it.createdAt }.forEach {
-                if (isToday(it.createdAt)) daily += it.itemCount.toLong()
-                sum += it.itemCount.toLong()
-                val expires: Int = (DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS)).toInt()
-                data.set(expires, data.get(expires) + it.itemCount.toLong())
+                @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
+                headers.sortedByDescending { it.createdAt }.forEach {
+                    if (isToday(it.createdAt)) daily += it.itemCount.toLong()
+                    sum += it.itemCount.toLong()
+                    val expires: Int =
+                        (DAYS_TO_SHOW - it.createdAt.until(OffsetDateTime.now(), ChronoUnit.DAYS)).toInt()
+                    data.set(expires, data.get(expires) + it.itemCount.toLong())
+                }
+
+                var avg: Double = 0.0
+                data.forEach { avg += it }
+                avg = avg / data.size
+
+                var card = CardView.Builder()
+                    .id("summary-tests")
+                    .title("Tests")
+                    .subtitle("Tests reported")
+                    .daily(daily)
+                    .last(avg)
+                    .positive(true)
+                    .change(daily - avg)
+                    .data(data)
+                    .build()
+                response = request.createResponseBuilder(HttpStatus.OK)
+                    .body(card)
+                    .build()
+            } catch (ex: Exception) {
+                context.logger.info("Exception during download of summary/tests")
+                response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
+                    .body("File not found")
+                    .header("Content-Type", "text/html")
+                    .build()
             }
-
-            var avg: Double = 0.0
-            data.forEach { avg += it }
-            avg = avg / data.size
-
-            var card = CardView.Builder()
-                .id("summary-tests")
-                .title("Tests")
-                .subtitle("Tests reported")
-                .daily(daily)
-                .last(avg)
-                .positive(true)
-                .change(daily - avg)
-                .data(data)
-                .build()
-            response = request.createResponseBuilder(HttpStatus.OK)
-                .body(card)
-                .build()
-        } catch (ex: Exception) {
-            context.logger.info("Exception during download of summary/tests")
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                .body("File not found")
-                .header("Content-Type", "text/html")
-                .build()
+            return@checkAccess response
         }
-        return response
     }
 
     fun GetSummary(
@@ -462,48 +481,51 @@ open class BaseHistoryFunction : Logging {
         field: String,
         context: ExecutionContext
     ): HttpResponseMessage {
-        val authClaims = checkAuthenticated(request, context)
-            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
-        var response: HttpResponseMessage
-        try {
-            val headers = workflowEngine.db.fetchDownloadableReportFiles(
-                OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authClaims.organization.name
-            )
+        return oktaAuthentication.checkAccess(request, request.headers["organization"] ?: "") { claims ->
+            val authOrganization =
+                oktaAuthentication.checkOrganizationExists(context, claims.userName, claims.organizationName)
+                    ?: return@checkAccess request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+            var response: HttpResponseMessage
+            try {
+                val headers = workflowEngine.db.fetchDownloadableReportFiles(
+                    OffsetDateTime.now().minusDays(DAYS_TO_SHOW), authOrganization.name
+                )
 
-            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-            val reports = headers.sortedByDescending { it.createdAt }.map {
-                if (it.bodyFormat == "CSV") {
-                    getFieldSummaryForReportId(arrayOf(field), it.reportId.toString(), authClaims)
-                } else {
-                    arrayListOf()
+                @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
+                val reports = headers.sortedByDescending { it.createdAt }.map {
+                    if (it.bodyFormat == "CSV") {
+                        getFieldSummaryForReportId(arrayOf(field), it.reportId.toString(), authOrganization)
+                    } else {
+                        arrayListOf()
+                    }
                 }
-            }
 
-            response = request.createResponseBuilder(HttpStatus.OK)
-                .body(reports)
-                .header("Content-Type", "application/json")
-                .build()
-        } catch (ex: Exception) {
-            context.logger.info("Exception during download of summary")
-            response = request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Exception during GetSummary()")
-                .header("Content-Type", "text/html")
-                .build()
+                response = request.createResponseBuilder(HttpStatus.OK)
+                    .body(reports)
+                    .header("Content-Type", "application/json")
+                    .build()
+            } catch (ex: Exception) {
+                context.logger.info("Exception during download of summary")
+                response = request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Exception during GetSummary()")
+                    .header("Content-Type", "text/html")
+                    .build()
+            }
+            return@checkAccess response
         }
-        return response
     }
 
     fun getFieldSummaryForReportId(
         fieldName: Array<String>,
         reportId: String,
-        authClaim: AuthClaims
+        organization: Organization
     ): ArrayList<Facility> {
         var header: Header?
         var csv: FuzzyCSVTable? = null
         var facilties: ArrayList<Facility> = ArrayList<Facility>()
 
         try {
-            header = workflowEngine.fetchHeader(ReportId.fromString(reportId), authClaim.organization)
+            header = workflowEngine.fetchHeader(ReportId.fromString(reportId), organization)
         } catch (ex: Exception) { header = null }
         if (header !== null)
             csv = FuzzyCSVTable.parseCsv(StringReader(String(header.content!!)))
@@ -522,11 +544,11 @@ open class BaseHistoryFunction : Logging {
         return facilties
     }
 
-    fun getActionsForReportId(reportId: String, authClaim: AuthClaims): ArrayList<Action> {
+    fun getActionsForReportId(reportId: String, organization: Organization): ArrayList<Action> {
         val actions: ArrayList<Action> = ArrayList<Action>()
 
         val header: Header? = try {
-            workflowEngine.fetchHeader(ReportId.fromString(reportId), authClaim.organization)
+            workflowEngine.fetchHeader(ReportId.fromString(reportId), organization)
         } catch (ex: Exception) {
             null
         }
@@ -543,62 +565,5 @@ open class BaseHistoryFunction : Logging {
         }
         */
         return actions
-    }
-
-    data class AuthClaims(
-        val userName: String,
-        val organization: Organization
-    )
-
-    /**
-     * returns null if not authorized, otherwise returns a set of claims.
-     */
-    fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
-        var userName = ""
-        // orgs in the settings table of the database have a format of "zz-phd",
-        // while the auth service claims has a format of "DHzz_phd"
-        // claimsOrgName will have the format of "DHzz_phd"
-        val claimsOrgName = request.headers["organization"] ?: ""
-
-        // orgName will have the format of "zz-phd" and is used to look up in the settings table of the database
-        var orgName = getOrgNameFromHeader(claimsOrgName)
-
-        var jwtToken = request.headers["authorization"] ?: ""
-
-        jwtToken = if (jwtToken.length > 7) jwtToken.substring(7) else ""
-
-        if (jwtToken.isNotBlank()) {
-            try {
-                // get the access token verifier
-                val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-                    .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
-                    .build()
-                // get it to decode the token from the header
-                val jwt = jwtVerifier.decode(jwtToken)
-                    ?: throw Throwable("Error in validation of jwt token")
-                // get the user name and org
-                userName = jwt.claims["sub"].toString()
-                val orgs = jwt.claims["organization"]
-                @Suppress("UNCHECKED_CAST")
-                val org = if (orgs !== null) (orgs as List<String>)[0] else ""
-                orgName = if (org.length > 3) org.substring(2) else ""
-            } catch (ex: Throwable) {
-                context.logger.log(Level.WARNING, "Error in verification of token", ex)
-                return null
-            }
-        }
-        if (userName.isNotBlank() && orgName.isNotBlank()) {
-            val organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
-            if (organization != null) {
-                return AuthClaims(userName, organization)
-            } else {
-                context.logger.info("User $userName failed auth: Organization $orgName is unknown to the system.")
-            }
-        }
-        return null
-    }
-
-    private fun getOrgNameFromHeader(orgNameHeader: String): String {
-        return if (orgNameHeader.isNotEmpty()) orgNameHeader.substring(2).replace("_", "-") else ""
     }
 }

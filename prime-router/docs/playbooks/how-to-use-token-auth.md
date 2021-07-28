@@ -4,7 +4,7 @@ This playbook is a set of commandline scripts meant to exercise and demonstrate 
 
 A couple notes before we get started:
 
-- Note: To do step 3, you will need to create and place a TokenSigningSecret in docker-compose.yml for this to work.  Might as well do this now before you go any further, so you don't have to restart your container.  This is easy - run the "main" program in ReportStreamSecretFinder.kt, and it will create one for you!
+- Note: To do step 3, you will need to create and place a TokenSigningSecret in docker-compose.yml for this to work.  Might as well do this now before you go any further, so you don't have to restart your container.  This is easy - run the "main" program in ReportStreamSecretFinder.kt, and it will create one for you!   Put it in docker-compose.yml, and restart your container.
 
 - Note:  Because organizations.yml will _overwrite_ your wonderful keys you uploaded in step 2, you will have to rerun that step every time you stop/start your docker.  Need to fix this pain point.
 
