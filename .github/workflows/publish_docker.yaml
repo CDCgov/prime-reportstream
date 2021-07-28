@@ -1,0 +1,60 @@
+name: Publish Container to GitHub
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_tfcli_change: ${{ steps.skip_check.outputs.tfcli }}
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: skip_check
+        with:
+          list-files: csv
+          filters: |
+            tfcli:
+              - 'operations/docker-compose.yml'
+              - 'operations/Dockerfile'
+              - '.github/workflows/build_docker.yml'
+
+  publish_tfcli:
+    name: Publish Terraform CLI
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: operations
+    env:
+      IMAGE_NAME: cdcgov/prime-reportstream_tfcli
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@v2
+
+      - name: Log In to the Container Registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker Terraform CLI
+        run: |
+          make build-tf-cli
+
+      - name: Push to the Container Registry
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --all-tags

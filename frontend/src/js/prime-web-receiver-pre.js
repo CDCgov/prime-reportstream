@@ -36,6 +36,8 @@ function getClaimsOrgValue() {
  * @returns {{headers: {Authorization: string, Organization: (*|string)}}}
  */
 function apiConfig(url) {
+
+    console.log( `apiConfig organization = ${getClaimsOrgValue()}`)
     return {
         url: url,
         baseURL: `${getBaseUrl()}/api/`,
@@ -46,16 +48,6 @@ function apiConfig(url) {
     };
 }
 
-/**
- * Fetch all information for the display of the cards
- *
- * @returns Array of card objects for the cardGrid
- */
-async function fetchCards() {
-    return window.jwt ? Promise.all([
-        axios(apiConfig('history/summary/tests')).then(res => res.data)
-    ]) : [];
-}
 
 /**
  * Checks that the browser is on the accepted list of browsers; if not redirects
@@ -181,11 +173,11 @@ function logout() {
 
 async function fetchReportFeeds(){
     let reports = await fetchReports();
-    let receivingOrgSvc = reports ? reports.map( rep => rep.externalName ) : []
-    console.log(reports);
-    console.log(receivingOrgSvc);
-    const receivers = new Set(receivingOrgSvc);
-    return [...receivers];
+    let receivingOrgSvc = reports ? reports.map( rep => {
+        console.log( `display name = ${rep.displayName}` )
+        return rep.displayName }) : []
+
+    return Array.from( new Set( receivingOrgSvc ) );
 }
 
 /**
@@ -196,7 +188,7 @@ async function fetchReports( filter ) {
     if (isAnAdmin()) {
         console.log("user is an admin, they get special sauce");
         const cacheBust = new Date().toISOString();
-        url = `${url}s/${window.org}?cache=${cacheBust}`
+        url = `${url}?cache=${cacheBust}`
     }
     console.log(`calling for ${url}`);
     const retValue = window.jwt ? await axios(apiConfig(url))
@@ -204,7 +196,7 @@ async function fetchReports( filter ) {
         .catch(e => { console.log(e); return [] }): [];
     console.log(retValue);
     
-    return filter? retValue.filter( report => report.externalName === filter ) : retValue;
+    return filter? retValue.filter( report => report.receivingOrgSvc === filter ) : retValue;
 }
 
 async function fetchAllOrgs() {
@@ -234,7 +226,7 @@ async function requestFile(reportId) {
  * @returns
  */
 function isLocalhost(){
-    return window.location.origin.includes("localhost:8088");
+    return window.location.origin.includes("localhost");
 }
 
 /**
@@ -244,15 +236,19 @@ function isLocalhost(){
 
 
 async function changeOrg( event ){
+    console.log( `org = ${event.value}`)
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
     processOrgName();
-    const feeds = await processReportFeeds();
-    const promises = feeds.map( async (feed,idx) => {
-        console.log(`processing Reports ${feed} ${idx}`);
+    let feeds = await processReportFeeds();
+
+    // reports
+    feeds.forEach( async (feed,idx) => {
+        console.log(`processing Reports ${feed} ${idx}`)
         await processReports( feed, idx );
-    });
-    Promise.all(promises).then((values) => console.log(values));
+    })
+
+    await processReport(await fetchReports());
 }
 
 function populateOrgDropdown() {
@@ -311,7 +307,7 @@ function processJwtToken(){
         // process the org so the dropdown looks correct
         const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");
         const oldOrg = window.sessionStorage.getItem( "oldOrg");
-        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? _org[0] : null;
+        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? convertOrgName( _org[0] ) : null;
         window.sessionStorage.setItem( "oldOrg", window.org );
         window.user = claims.sub;
         // set the token here
@@ -347,6 +343,7 @@ async function processOrgName(){
 
     try {
         orgName = await fetchOrgName();
+
     } catch (error) {
         console.log('fetchOrgName() is failing');
         console.error(error);
@@ -368,41 +365,18 @@ function titleCase(str) {
 
 async function processReportFeeds(){
     let feeds = await fetchReportFeeds();
-    const tabs = document.querySelector("#tabs");
-    console.log(tabs);
-    if (tabs) {
-        tabs.innerHTML = `<div id="reportFeeds" class="${feeds.length > 1?"tab-wrap":""}"></div>`;
+    const tabs = document.getElementById("tabs");  
+    console.log( feeds );
+    if (tabs){ 
+        tabs.innerHTML = "";
+        tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
     }
-    const reportFeeds = document.querySelector("#reportFeeds");
-    console.log(reportFeeds);
+    const reportFeeds = document.getElementById("reportFeeds");  
     if (reportFeeds) {
-        // if there are no feeds, then output an empty table
-        if (feeds.length === 0) {
-            reportFeeds.innerHTML += `
-                    <div class="${feeds.length > 1 ? "tab__content" : ""}">
-                        <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
-                        <thead>
-                          <tr>
-                            <th scope="col">Report Id</th>
-                            <th scope="col">Date Sent</th>
-                            <th scope="col">Expires</th>
-                            <th scope="col">Total tests</th>
-                            <th scope="col">File</th>
-                          </tr>
-                        </thead>
-                        <tbody id="tBody" class="font-mono-2xs">
-                            <tr>
-                                <th colspan="5">No reports found</th>
-                            </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                `;
-            return feeds;
-        }
-        // if there's more than one feed, add tabs
+        reportFeeds.innerHTML = "";
         if (feeds.length > 1) {
             feeds.forEach((feed, idx) => {
+                console.log( `building tab${idx}`)
                 reportFeeds.innerHTML += `
                     <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx > 0 ? "" : "checked"} data-feed-name="${feed}">
                     <label for="tab${idx}">${feed.replaceAll("-", " ").toUpperCase()}</label>
@@ -454,6 +428,7 @@ async function processReports(feed, idx){
     if (reports) {
         // if they do then write them out
         reports.forEach(_report => {
+            const tBody = document.getElementById(`tBody${idx?idx:''}`);
             if (tBody) tBody.innerHTML +=
                 `<tr>
                     <th data-title="reportId" scope="row">
@@ -470,13 +445,13 @@ async function processReports(feed, idx){
                         </span>
                     </th>
               </tr>`;
-        });
-        if (!reports || reports.length === 0) {
-            if (tBody) tBody.innerHTML +=
-                `<tr>
+    });
+    }
+    if (!reports || reports.length === 0) {
+        if (tBody) tBody.innerHTML +=
+            `<tr>
                 <th colspan="5">No reports found</th>
             </tr>`;
-        }
     }
     return reports;
 }
