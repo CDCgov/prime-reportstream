@@ -189,8 +189,7 @@ class ActionHistory {
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(incomingReport: ReportFunction.ValidatedRequest, blobInfo: BlobAccess.BlobInfo) {
-        val report = incomingReport.report ?: error("No report to track!")
+    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }

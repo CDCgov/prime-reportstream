@@ -66,6 +66,7 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
         val jwt = jwtVerifier.decode(accessToken)
 
         val userName = jwt.claims[oktaSubjectClaim]?.toString() ?: return null
+        @Suppress("UNCHECKED_CAST")
         val memberships = jwt.claims[oktaMembershipClaim] as? Collection<String> ?: return null
         if (!checkMembership(memberships, minimumLevel, organizationName)) return null
         return AuthenticatedClaims(userName, minimumLevel, organizationName)

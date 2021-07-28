@@ -60,12 +60,19 @@ class TestReportStream : CliktCommand(
     help = """Run tests of the Router functions
 
 Database connection info is supplied by environment variables.
-Examples for localhost, and Azure Staging, respectively:
+Examples for local host, and Azure Staging, respectively:
 ```
+# "local"
 export POSTGRES_USER=prime
 export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
 export POSTGRES_PASSWORD=<secret>
 
+# "docker"
+export POSTGRES_USER=prime
+export POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
+export POSTGRES_PASSWORD=<secret>
+
+# staging
 export POSTGRES_USER=prime@pdhstaging-pgsql
 export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub
 export POSTGRES_PASSWORD=<SECRET>
@@ -156,7 +163,7 @@ Examples:
         val problem: Boolean = when (env) {
             "staging" -> !dbEnv.contains("pdhstaging")
             "test" -> !dbEnv.contains("pdhtest")
-            "local" -> !dbEnv.contains("localhost")
+            "local" -> !dbEnv.contains("postgresql") && !dbEnv.contains("localhost")
             "prod" -> !dbEnv.contains("pdhprod")
             else -> true
         }
@@ -246,7 +253,8 @@ Examples:
             InternationalContent(),
             Hl7Ingest(),
             DataCompareTest(),
-            SantaClaus()
+            SantaClaus(),
+            OtcProctored()
         )
     }
 }
@@ -445,7 +453,8 @@ abstract class CoolTest {
                 !it.name.contains("FAIL") &&
                 !it.name.contains("BLOBSTORE") &&
                 !it.name.contains("QUALITY") &&
-                !it.name.contains("AS2")
+                !it.name.contains("AS2") &&
+                !it.name.contains("OTC")
         }
         val allGoodCounties = allGoodReceivers.map { it.name }.joinToString(",")
 
@@ -529,8 +538,8 @@ abstract class CoolTest {
               join action as A on A.action_id = RF.action_id
               where RF.receiving_org_svc = ?
               ${if (receivingOrg != null) "and RF.receiving_org = ?" else ""}
-              and A.action_name = ? 
-              and IL.item_lineage_id in 
+              and A.action_name = ?
+              and IL.item_lineage_id in
               (select item_descendants(?)) """
 
             if (receivingOrg != null) {
@@ -550,8 +559,8 @@ abstract class CoolTest {
             val sql = """select sum(item_count)
               from report_file as RF
               join action as A on A.action_id = RF.action_id
-              where RF.receiving_org_svc = ? 
-              and A.action_name = ? 
+              where RF.receiving_org_svc = ?
+              and A.action_name = ?
               and RF.report_id in
               (select report_descendants(?)) """
             return ctx.fetchOne(sql, receivingOrgSvc, action, reportId)?.into(Int::class.java)
@@ -570,7 +579,7 @@ abstract class CoolTest {
             val sql = """select RF.external_name
                 from report_file as RF
                 join action as A ON A.action_id = RF.action_id
-                where RF.report_id in (select find_sent_reports(?)) AND RF.receiving_org_svc = ? 
+                where RF.report_id in (select find_sent_reports(?)) AND RF.receiving_org_svc = ?
                 order by A.action_id """
             return ctx.fetchOne(sql, reportId, receivingOrgSvc)?.into(String::class.java)
         }
@@ -1615,5 +1624,50 @@ class SantaClaus : CoolTest() {
 
     private fun createBad(message: String): Boolean {
         return bad("***$name Test FAILED***: $message")
+    }
+}
+
+class OtcProctored : CoolTest() {
+    override val name = "otcproctored"
+    override val description = "Verify that otc/proctored flags are working as expected on api response"
+    override val status = TestStatus.SMOKE
+    val failures = mutableListOf<String>()
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        val otcPairs = listOf(
+            Pair("BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc.", "OTC_PROCTORED_YYY"),
+            Pair("QuickVue At-Home COVID-19 Test_Quidel Corporation", "OTC_PROCTORED_NYY"),
+            Pair("00810055970001", "OTC_PROCTORED_NUNKUNK"),
+        )
+        for (pair in otcPairs) {
+            ugly(
+                "Starting Otc Test: submitting a file containing a device_id:" +
+                    " ${pair.first} should match receiver ${pair.second}."
+            )
+            val reFile = FileUtilities.replaceText(
+                "./src/test/csv_test_files/input/otc-template.csv",
+                "replaceMe",
+                "${pair.first}"
+            )
+
+            if (!reFile.exists()) {
+                error("Unable to find file ${reFile.absolutePath} to do otc test")
+            }
+            val (responseCode, json) = HttpUtilities.postReportFile(environment, reFile, watersSender, options.key)
+
+            echo("Response to POST: $responseCode")
+            if (examineResponse(json)) {
+                good("Test PASSED: ${pair.first}")
+            } else {
+                bad("Test FAILED: ${pair.first}")
+                failures.add("${pair.first}")
+            }
+        }
+
+        if (failures.size == 0) {
+            return true
+        } else {
+            return bad("Tests FAILED: " + failures)
+        }
     }
 }
