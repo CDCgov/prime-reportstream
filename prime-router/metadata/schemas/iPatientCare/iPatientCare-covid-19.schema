@@ -316,6 +316,7 @@ elements:
     - name: Comments
       type: TEXT
       csvFields: [{name: Comments}]
+      documentation: This field is ignored.
 
     - name: Specimen_Type_Ignore
       type: TEXT

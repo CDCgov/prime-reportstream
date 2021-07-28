@@ -12,6 +12,10 @@
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+This field is ignored.
+
 ---
 
 **Name**: LOINC
