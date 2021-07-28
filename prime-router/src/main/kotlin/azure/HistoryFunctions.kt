@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.azure.storage.blob.models.BlobStorageException
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -11,17 +12,12 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.okta.jwt.JwtVerifiers
-import fuzzycsv.FuzzyCSVTable
-import fuzzycsv.FuzzyStaticApi.count
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.azure.WorkflowEngine.Header
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import org.apache.logging.log4j.kotlin.Logging
-import java.io.StringReader
 import java.time.OffsetDateTime
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 import java.util.logging.Level
 import kotlin.collections.ArrayList
@@ -165,9 +161,9 @@ class GetReports :
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
-        val organization = request.headers["organization"]?:"";
-        context.logger.info( "organization = ${organization}")
-        return if ( organization.isNullOrBlank() ) getReports( request, context ) else getReports( request, context, organization )
+        val organization = request.headers["organization"] ?: ""
+        context.logger.info("organization = $organization")
+        return if (organization.isBlank()) getReports(request, context) else getReports(request, context, organization)
     }
 }
 
@@ -210,7 +206,7 @@ open class BaseHistoryFunction : Logging {
             )
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
             val reports = headers.sortedByDescending { it.createdAt }.mapNotNull {
-                val facilities = arrayListOf<Facility>()
+                val facilities = workflowEngine.db.getFacilitiesForDownloadableReport(it.reportId)
                 val actions = arrayListOf<Action>()
                 // get the org passed in
                 val adminOrg = workflowEngine.settings.organizations.firstOrNull { org ->
@@ -218,9 +214,8 @@ open class BaseHistoryFunction : Logging {
                 }
                 val header = try {
                     workflowEngine.fetchHeader(it.reportId, adminOrg ?: authClaims.organization)
-                } catch (ex: Exception) {
-                    context.logger.severe(ex.message)
-                    context.logger.severe(ex.stackTraceToString())
+                } catch (ex: BlobStorageException) {
+                    context.logger.severe("Unable to find file for ${it.reportId} ${ex.message}")
                     null
                 }
 
@@ -238,12 +233,12 @@ open class BaseHistoryFunction : Logging {
                         .fileType(it.bodyFormat)
                         .type("ELR")
                         .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                        .facilities(facilities)
+                        .facilities(ArrayList(facilities))
                         .actions(actions)
                         .receivingOrg(it.receivingOrg)
-                        .receivingOrgSvc(it.receivingOrgSvc)
+                        .receivingOrgSvc(externalOrgName ?: it.receivingOrgSvc)
                         .displayName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
-                        .content(content)
+                        .content("") // don't get the content for now. that can get beefy
                         .fileName(filename)
                         .mimeType(mimeType)
                         .build()
