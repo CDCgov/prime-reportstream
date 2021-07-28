@@ -26,8 +26,8 @@ enum class ReportStreamEnv(val endPoint: String) {
 class HttpUtilities {
     companion object : Logging {
         const val jsonMediaType = "application/json"
-
         const val reportsEndpoint = "/api/reports"
+        const val reportsEndpointFhir = "/api/report"
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
@@ -220,6 +220,20 @@ class HttpUtilities {
         }
 
         /**
+         * Same than #postReportFile but going to fhir enabled
+         * endpoint and sending the bearer token header
+         */
+        fun postReportFileFhir(
+            environment: ReportStreamEnv,
+            file: File,
+            sendingOrgClient: Sender,
+            token: String? = null
+        ): Pair<Int, String> {
+            if (!file.exists()) error("Unable to find file ${file.absolutePath}")
+            return postReportBytesFhir(environment, file.readBytes(), sendingOrgClient, token)
+        }
+
+        /**
          * A generic function to POST data to a particular Prime Data Hub Environment,
          * as if from sendingOrgName.sendingOrgClientName.
          * Returns Pair(Http response code, json response text)
@@ -243,6 +257,26 @@ class HttpUtilities {
             if (key != null)
                 headers.add("x-functions-key" to key)
             val url = environment.endPoint + if (option != null) "?option=$option" else ""
+            return postHttp(url, bytes, headers)
+        }
+
+        fun postReportBytesFhir(
+            environment: ReportStreamEnv,
+            bytes: ByteArray,
+            sendingOrgClient: Sender,
+            token: String? = null
+        ): Pair<Int, String> {
+            val headers = mutableListOf<Pair<String, String>>()
+            when (sendingOrgClient.format) {
+                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
+            }
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
+            headers.add("client" to clientStr)
+            token?.let { headers.add("authorization" to "Bearer $token") }
+	    // todo FIX THIS INCORRECT URL
+            val url = environment.endPoint + reportsEndpointFhir
             return postHttp(url, bytes, headers)
         }
 
