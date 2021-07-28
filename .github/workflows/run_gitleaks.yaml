@@ -11,8 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # NOTE: there is a github action for gitleaks, but this wrapper sets
-      # everything up for you and gives us a tad bit more control over how
-      # this is run
-      - name: "Run Gitleaks on the currently checked out code"
-        run: .environment/gitleaks/run-gitleaks.sh --no-git
+      # NOTE: we /had/ violations in the past that have been corrected,
+      # we do not want to have those false positives every single time
+      # The specified 'since' commit is a LKG (Last Known Good)
+      # See also git show 12fbf9d2b5dee6f11028fa6daca4f4c3cc6791b7
+      - name: "Run Gitleaks on a selected part of our history"
+        run: .environment/gitleaks/run-gitleaks.sh --since 12fbf9d2b5dee6f11028fa6daca4f4c3cc6791b7
