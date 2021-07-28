@@ -1,0 +1,18 @@
+name: Run Gitleaks on the PRIME ReportStream code-base
+
+on:
+  schedule:
+    # at GitHub midnight on the default branch
+    - cron: "0 0 * * *"
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # NOTE: there is a github action for gitleaks, but this wrapper sets
+      # everything up for you and gives us a tad bit more control over how
+      # this is run
+      - name: "Run Gitleaks on the currently checked out code"
+        run: .environment/gitleaks/run-gitleaks.sh --no-git
