@@ -601,8 +601,8 @@ async function processCharts(){
         }
     };
 
-    var labels = [];
-    for (var i = 7; i >= 0; i--) {
+    let labels = [];
+    for (let i = 7; i >= 0; i--) {
         labels.push(moment().subtract(i, 'days').format("YYYY-MM-DD"))
     }
 
