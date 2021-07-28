@@ -2,7 +2,6 @@
  * 
  */
  (async () => {
-
     // checkJWT - no redirect
     processJwtToken();
 
@@ -12,13 +11,19 @@
     // orgName
     let orgName = await processOrgName();
 
-    // reports
-    let reports = await processReports();
+    console.log( 'process report feeds' );
+    const feeds = await processReportFeeds();
 
-    // report
-    let report = await processReport( reports );
+    // reports
+    feeds.forEach( async (feed,idx) => {
+        console.log(`processing Reports ${feed} ${idx}`);
+        await processReports( feed, idx );
+    });
+
+    await processReport(await fetchReports());
 
     // charts
     /* processCharts(); */
-    console.log("fresh!");
-})();
+})().catch(err => {
+    console.error(err);
+});

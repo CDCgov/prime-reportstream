@@ -17,6 +17,7 @@ locals {
   ]
 
   frontdoor_object_id = "270e4d1a-12bd-4564-8a4b-c9de1bbdbe95"
+  terraform_object_id = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
 }
 
 resource "azurerm_key_vault" "application" {
@@ -101,6 +102,15 @@ resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
   certificate_permissions = [ "Get" ]
 }
 
+resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
+    key_vault_id = azurerm_key_vault.application.id
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = local.terraform_object_id
+
+    secret_permissions = [ "Get" ]
+    key_permissions = [ "Get" ]
+}
+
 module "application_private_endpoint" {
   source = "../common/private_endpoint"
   resource_id = azurerm_key_vault.application.id
@@ -156,6 +166,14 @@ resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
   ]
 
   certificate_permissions = []
+}
+
+resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" {
+    key_vault_id = azurerm_key_vault.app_config.id
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = local.terraform_object_id
+
+    secret_permissions = [ "Get" ]
 }
 
 module "app_config_private_endpoint" {

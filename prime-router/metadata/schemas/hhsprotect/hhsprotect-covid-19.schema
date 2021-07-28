@@ -78,8 +78,8 @@ elements:
     csvFields: [{ name: patAge}]
 
   - name: patient_age_units
-    # Should be 'yr' or 'mo'.  But I am removing this for now, to prevent 'jagged rows', pending feedback from Omkar:
-    csvFields: []
+    # Should be 'yr' or 'mo'.
+    csvFields: [{ name: patAgeUnits}]
 
   - name: patient_race
     csvFields: [{ name: patientRace}]

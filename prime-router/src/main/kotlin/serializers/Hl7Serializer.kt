@@ -9,6 +9,7 @@ import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
@@ -31,6 +32,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
+import java.util.TimeZone
 
 class Hl7Serializer(val metadata: Metadata) : Logging {
     data class Hl7Mapping(
@@ -161,9 +163,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
          * Query the terser and get a value.
          * @param terser the HAPI terser
          * @param terserSpec the HL7 field to fetch as a terser spec
-         * @param elementName the name of the element this value is for
          * @param errors the list of errors for this message decoding
-         * @param warnings the list of warnings for this message decoding
          * @return the value from the HL7 message or an empty string if no value found
          */
         fun queryTerserForValue(
@@ -186,7 +186,6 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
          * @param element the element for the AOE question
          * @param terser the HAPI terser
          * @param errors the list of errors for this message decoding
-         * @param warnings the list of warnings for this message decoding
          * @return the value from the HL7 message or an empty string if no value found
          */
         fun decodeAOEQuestion(
@@ -226,11 +225,23 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         // if the message is empty, return a row result that warns of empty data
         if (cleanedMessage.isEmpty()) {
             logger.debug("Skipping empty message during parsing")
-            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty message"))
+            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty HL7 message"))
+        }
+
+        val hapiMsg = try {
+            parser.parse(cleanedMessage)
+        } catch (e: HL7Exception) {
+            logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
+            if (e is EncodingNotSupportedException) {
+                // This exception error message is a bit cryptic, so let's provide a better one.
+                errors.add("Error parsing HL7 message: Invalid HL7 message format")
+            } else {
+                errors.add("Error parsing HL7 message: ${e.localizedMessage}")
+            }
+            return RowResult(emptyMap(), errors, warnings)
         }
 
         try {
-            val hapiMsg = parser.parse(cleanedMessage)
             val terser = Terser(hapiMsg)
 
             // First, extract any data elements from the HL7 message.
@@ -320,7 +331,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             if (!element.isOptional) {
                 var isValueEmpty = true
                 mappedRows[element.name]?.forEach { elementValues ->
-                    if (!elementValues.isNullOrEmpty()) {
+                    if (elementValues.isNotEmpty()) {
                         isValueEmpty = false
                     }
                 }
@@ -354,7 +365,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = Report(schema, mappedRows, source, metadata = metadata)
+        val report = if (errors.size > 0) null else Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 
@@ -472,7 +483,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
                 setComponentForTable(terser, element, report, row)
             } else if (
-                element.type == Element.Type.TEXT && !element.hl7Field.isNullOrEmpty() && element.hl7Field in HD_FIELDS_LOCAL
+                element.type == Element.Type.TEXT &&
+                !element.hl7Field.isNullOrEmpty() &&
+                element.hl7Field in HD_FIELDS_LOCAL
             ) {
                 // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                 // text, but need to be truncated because they're the first part of an HD field. For example,
@@ -564,7 +577,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         }
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
-            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, element)
+            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field)
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
                     val hd = Element.parseHD(value, hdFieldMaximumLength)
@@ -643,7 +656,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
      * and set 'CLIA' as the Universal ID Type.
      * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
      */
-    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String, element: Element) {
+    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String) {
         if (value.isEmpty()) return
 
         val pathSpec = formPathSpec(hl7Field)
@@ -688,7 +701,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
                     val phoneNumber = "($areaCode)$localWithDash" +
-                        if (extension.isNotEmpty()) "X${extension}" else ""
+                        if (extension.isNotEmpty()) "X$extension" else ""
                     terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
                 }
@@ -1051,7 +1064,13 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 when (val value = segment.getField(fieldNumber, 0)) {
                     // Timestamp
                     is TS -> {
-                        dtm = value.time?.valueAsDate?.toInstant()
+                        // If the offset was not specified then set the timezone to UTC instead of the system default
+                        // -99 is the value returned from HAPI when no offset is specified
+                        if (value.time?.gmtOffset == -99) {
+                            val cal = value.time?.valueAsCalendar
+                            cal?.let { it.timeZone = TimeZone.getTimeZone("GMT") }
+                            dtm = cal?.toInstant()
+                        } else dtm = value.time?.valueAsDate?.toInstant()
                         rawValue = value.toString()
                     }
                     // Date range. For getting a date time, use the start of the range
@@ -1071,23 +1090,23 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                     when (element.type) {
                         Element.Type.DATETIME -> {
                             valueString = DateTimeFormatter.ofPattern(Element.datetimePattern)
-                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.systemDefault()))
-                            val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.{0,1}[0-9]{0,4}[+-][0-9]{4}\\]\$")
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
+                            val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    "Timestamp for $hl7Field - ${element.name} needs to provide more " +
+                                    "Timestamp for $hl7Field - ${element.name} should provide more " +
                                         "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
                                 )
                             }
                         }
                         Element.Type.DATE -> {
                             valueString = DateTimeFormatter.ofPattern(Element.datePattern)
-                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.systemDefault()))
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
                             // Note that some schema fields of type date could be derived from HL7 date time fields
                             val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    "Date for $hl7Field - ${element.name} needs to provide more " +
+                                    "Date for $hl7Field - ${element.name} should provide more " +
                                         "precision. Should be formatted as YYYYMMDD"
                                 )
                             }
@@ -1133,14 +1152,18 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         /**
          * List of fields that have the local HD type.
          */
-        val HD_FIELDS_LOCAL = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
-            "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2")
+        val HD_FIELDS_LOCAL = listOf(
+            "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
+            "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2"
+        )
 
         /**
          * List of fields that have the universal HD type
          */
-        val HD_FIELDS_UNIVERSAL = listOf("MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
-            "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3")
+        val HD_FIELDS_UNIVERSAL = listOf(
+            "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
+            "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
+        )
 
         /**
          * List of fields that have a CE type

@@ -63,7 +63,7 @@ class CheckFunction : Logging {
                 "&sendfile" !in request.uri.query -> null
                 request.httpMethod == HttpMethod.POST -> SftpFile(
                     "hello-${UUID.randomUUID()}.txt",
-                    request?.body ?: ""
+                    request.body ?: ""
                 )
                 else -> SftpFile("hello-${UUID.randomUUID()}.txt", "")
             }
