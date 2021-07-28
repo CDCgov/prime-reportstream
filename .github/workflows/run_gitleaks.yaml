@@ -17,6 +17,6 @@ jobs:
       # NOTE: we /had/ violations in the past that have been corrected,
       # we do not want to have those false positives every single time
       # The specified 'since' commit is a LKG (Last Known Good)
-      # See also git show 12fbf9d2b5dee6f11028fa6daca4f4c3cc6791b7
+      # See also git show <hash>
       - name: "Run Gitleaks on a selected part of our history"
-        run: .environment/gitleaks/run-gitleaks.sh --since 12fbf9d2b5dee6f11028fa6daca4f4c3cc6791b7
+        run: .environment/gitleaks/run-gitleaks.sh --since baff524ad9d35a8dbab6e9c60a1789c6702f90a7
