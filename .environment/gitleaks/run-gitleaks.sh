@@ -25,6 +25,18 @@ function usage() {
     echo ""
 }
 
+function error() {
+    echo "Gitleaks> ERROR: ${*}"
+}
+
+function warning() {
+    echo "Gitleaks> Warning: ${*}"
+}
+
+function note() {
+    echo "Gitleaks> info: ${*}"
+}
+
 # Use a well known, stable version
 GITLEAKS_IMG_NAME="zricethezav/gitleaks:v7.5.0"
 REPO_ROOT=$(git rev-parse --show-toplevel)
@@ -102,14 +114,14 @@ while [[ ! -z "${1}" ]]; do
     case "${1}" in
     "--${RUNMODE_SINCE}")
         if [[ ! -z "${SELECTED_RUNMODE?}" ]]; then
-            echo "Gitleaks> Warning: Previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by latest run-mode '${RUNMODE_SINCE?}'."
+            warning "The previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by the latest run-mode '${RUNMODE_SINCE?}'."
         fi
         SELECTED_RUNMODE="${RUNMODE_SINCE?}"
 
         # by default, since will be the null commit but you can specify one too
         # If you specify one, it will _not_ start with dash-dash
         if [[ -z "${2}" || "${2:0:1}" == "--" ]]; then
-            echo "Gitleaks> ERROR: The commit hash to scan since (for '${RUNMODE_SINCE?}' mode) is not defined."
+            error "The commit hash to scan since (for '${RUNMODE_SINCE?}' mode) is not defined."
             exit 1
         else
             RUNMODE_SINCE_COMMIT="${2}"
@@ -120,7 +132,7 @@ while [[ ! -z "${1}" ]]; do
         ;;
     "--${RUNMODE_NO_GIT}")
         if [[ ! -z "${SELECTED_RUNMODE?}" ]]; then
-            echo "Gitleaks> Warning: Previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by latest run-mode '${RUNMODE_NO_GIT?}'."
+            warning "The previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by the latest run-mode '${RUNMODE_NO_GIT?}'."
         fi
         SELECTED_RUNMODE="${RUNMODE_NO_GIT?}"
         ;;
@@ -130,7 +142,7 @@ while [[ ! -z "${1}" ]]; do
         ;;
     *)
         # Keep collecting the unrecognized options
-        echo "Gitleaks> ERROR: Option \"${1}\" is not a recognized option."
+        error "Option \"${1}\" is not a recognized option."
         HAS_UNRECOGNIZED=1
         ;;
     esac
@@ -150,7 +162,7 @@ if [[ -z "${SELECTED_RUNMODE?}" ]]; then
     SELECTED_RUNMODE="${RUNMODE_STAGED_UNCOMMITTED?}"
 fi
 
-echo "Gitleaks> Scanning your suggested changes."
+note "Scanning your suggested changes."
 RC=1 # Nothing done, fail
 case "${SELECTED_RUNMODE?}" in
 "${RUNMODE_SINCE?}")
@@ -167,15 +179,15 @@ case "${SELECTED_RUNMODE?}" in
     RC=$?
     ;;
 *)
-    echo "The selected run-mode \"${SELECTED_RUNMODE?}\" is not a recognized one."
+    error "The selected run-mode \"${SELECTED_RUNMODE?}\" is not a recognized one."
     exit 1
     ;;
 esac
 
 if [[ ${RC?} != 0 ]]; then
-    echo "Gitleaks> ERROR (${RC?}): Your code may contain secrets, consult the output above and/or one of the following files for more details:"
-    echo "Gitleaks>     - ${REPO_ROOT?}/${REPORT_JSON?}"
-    echo "Gitleaks>     - ${REPO_ROOT?}/${LOGFILE?}"
+    error "(return code=${RC?}) Your code may contain secrets, consult the output above and/or one of the following files for more details:"
+    error "     - ${REPO_ROOT?}/${REPORT_JSON?}"
+    error "     - ${REPO_ROOT?}/${LOGFILE?}"
 fi
 
 exit ${RC?}
