@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings

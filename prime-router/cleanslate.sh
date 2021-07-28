@@ -14,6 +14,7 @@ KEEP_BUILD_ARTIFACTS=0
 KEEP_PRIME_CONTAINER_IMAGES=0
 KEEP_ALL=0
 PRUNE_VOLUMES=0
+TAKE_OWNERSHIP=0
 
 function usage() {
   cat <<EOF
@@ -31,6 +32,8 @@ OPTIONS:
   --prune-volumes           Forces a docker volume prune -f after taking containers
                             down (disables --keep-vault, including when set via --keep-all)
   --instructions            Shows post-run instructions
+  --take-ownership        Change ownership of directories that are potentially 
+                            shared with container instances
   --verbose                 Get "more" output
   --help|-h                 Shows this help
 
@@ -67,6 +70,10 @@ Examples:
   # Use this if you like chasing red herrings in debug-land
   $ ${0} --keep-images
 
+  # Use this if you like to change ownership of some directories that are
+  # potentially shared with container instances
+  $ ${0} --keep-all --take-ownership 
+
 EOF
 }
 
@@ -92,33 +99,39 @@ function error() {
 }
 
 # Takes ownership of some directories that are potentially shared with container instances
+# Parameter: TAKE_OWNERSHIP value
 function take_directory_ownership() {
-  info "Taking ownership of directories (may require elevation)..."
-  TARGETS=(
-    "./build/"
-    "./docs/"
-    "./.gradle/"
-    "./.vault/"
-  )
+  
+  if [[ ${1:-1} != 0 ]]; then
+    info "Taking ownership of directories (may require elevation)..."
+    TARGETS=(
+      "./build/"
+      "./docs/"
+      "./.gradle/"
+      "./.vault/"
+    )
 
-  # If you have no sudo, then this is a no-op and we warn
-  SUDO_CMD=$(which sudo | head -n 1)
-  if [[ -z "${SUDO_CMD}" ]]; then
-    warning "You do not apear to have 'sudo'; it is highly probable that incorrect file permissions will lead to sftp upload failures when you run tests"
-  fi
-
-  for d in ${TARGETS[*]}; do
-    echo -ne "    - ${d?}..."
-    if [[ -d "${d?}" ]]; then
-      # No '?' in the variable reference, it's fine for it to not exist, this may just be a no-op
-      # and we warned you about it just above
-      ${SUDO_CMD} chown -R "$(id -u -n):$(id -g -n)" "${d?}"
-      ${SUDO_CMD} chmod -R a+w "${d?}"
-      echo "DONE"
-    else
-      echo "ABSENT(OK)"
+    # If you have no sudo, then this is a no-op and we warn
+    SUDO_CMD=$(which sudo | head -n 1)
+    if [[ -z "${SUDO_CMD}" ]]; then
+      warning "You do not apear to have 'sudo'; it is highly probable that incorrect file permissions will lead to sftp upload failures when you run tests"
     fi
-  done
+
+    for d in ${TARGETS[*]}; do
+      echo -ne "    - ${d?}..."
+      if [[ -d "${d?}" ]]; then
+        # No '?' in the variable reference, it's fine for it to not exist, this may just be a no-op
+        # and we warned you about it just above
+        ${SUDO_CMD} chown -R "$(id -u -n):$(id -g -n)" "${d?}"
+        ${SUDO_CMD} chmod -R a+w "${d?}"
+        echo "DONE"
+      else
+        echo "ABSENT(OK)"
+      fi
+    done
+  else
+    info "Leaving directories alone...."
+  fi
 }
 
 # Helper function to wait for vault credentials to become available
@@ -311,7 +324,7 @@ function populate_vault() {
 function cleanup() {
   info "> Cleaning up your environment..."
   docker_decompose
-  take_directory_ownership
+  take_directory_ownership ${TAKE_OWNERSHIP?}
   cleanup_build_artifacts
   reset_vault
   return 0
@@ -324,7 +337,7 @@ function initialize() {
   ensure_binaries
   activate_containers
   populate_vault
-  take_directory_ownership
+  take_directory_ownership ${TAKE_OWNERSHIP?}
   return 0
 }
 
@@ -369,6 +382,9 @@ while [[ -n ${1} ]]; do
     ;;
   "--verbose")
     VERBOSE=1
+    ;;
+  "--take-ownership")
+    TAKE_OWNERSHIP=1
     ;;
   *)
     usage

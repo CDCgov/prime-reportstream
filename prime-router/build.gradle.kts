@@ -242,16 +242,18 @@ tasks.register<JavaExec>("primeCLI") {
     environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
-    if (project.extra.has("cliArgs")) {
-        args = project.extra["cliArgs"] as MutableList<String>
-    } else {
-        args = listOf("-h")
-        println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
-        println(
-            "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
-                "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
-                "--target-counties 'Santa Clara' --output-format CSV\""
-        )
+    doFirst {
+        if (project.extra.has("cliArgs")) {
+            args = project.extra["cliArgs"] as MutableList<String>
+        } else if (args.isNullOrEmpty()) {
+            args = listOf("-h")
+            println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
+            println(
+                "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
+                    "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
+                    "--target-counties 'Santa Clara' --output-format CSV\""
+            )
+        }
     }
 }
 
@@ -412,7 +414,6 @@ repositories {
     maven {
         url = uri("https://jitpack.io")
     }
-
 }
 
 dependencies {
@@ -443,7 +444,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.15.2")
-    implementation("tech.tablesaw:tablesaw-core:0.38.2")
+    implementation("tech.tablesaw:tablesaw-core:0.38.3")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")

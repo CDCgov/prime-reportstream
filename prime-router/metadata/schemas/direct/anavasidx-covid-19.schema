@@ -1,0 +1,14 @@
+---
+name: anavasidx-covid-19
+description: AnavasiDx
+topic: covid-19
+trackingElement: specimen_id
+basedOn: covid-19
+extends: direct/direct-covid-19
+
+elements:
+  - name: sender_id
+    default: AnavasiDx
+
+  - name: processing_mode_code
+    default: T

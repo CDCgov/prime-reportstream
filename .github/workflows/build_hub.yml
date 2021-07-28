@@ -1,4 +1,4 @@
-name: Build router
+name: Router
 
 on:
   pull_request:
@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_router_change: ${{ steps.skip_check.outputs.router }}
-      is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@v2
@@ -27,13 +26,11 @@ jobs:
             router:
               - 'prime-router/**'
               - '.github/workflows/build_hub.yml'
-      - id: fork_check
-        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
   build_router:
     name: Build Router
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     env:
       # These are for CI and not credentials of any system
@@ -68,9 +65,14 @@ jobs:
 
       - name: Build Prime Router Package
         run: bash ./build.sh -- gradle clean package -x fatjar -Pshowtests
+        
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/test/**/*.xml
@@ -80,7 +82,11 @@ jobs:
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/testIntegration/**/*.xml

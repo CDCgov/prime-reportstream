@@ -36,6 +36,8 @@ function getClaimsOrgValue() {
  * @returns {{headers: {Authorization: string, Organization: (*|string)}}}
  */
 function apiConfig(url) {
+
+    console.log( `apiConfig organization = ${getClaimsOrgValue()}`)
     return {
         url: url,
         baseURL: `${getBaseUrl()}/api/`,
@@ -46,16 +48,6 @@ function apiConfig(url) {
     };
 }
 
-/**
- * Fetch all information for the display of the cards
- *
- * @returns Array of card objects for the cardGrid
- */
-async function fetchCards() {
-    return window.jwt ? Promise.all([
-        axios(apiConfig('history/summary/tests')).then(res => res.data)
-    ]) : [];
-}
 
 /**
  * Checks that the browser is on the accepted list of browsers; if not redirects
@@ -90,7 +82,7 @@ function isLoggedIn(){
  *  if not valid, redirects to the sign-in page; otherwise sets up the claims
  */
 function checkJWT() {
-    if ( !isLoggedIn() )
+    if (!isLoggedIn())
         window.location.replace('/sign-in/?return=/daily-data/');
 }
 
@@ -119,13 +111,12 @@ async function fetchOrgName() {
  *      sign-in page
  */
 function idleTimer() {
-    if ( isLoggedIn() ) {
+    if (isLoggedIn()) {
         window.sessionStorage.setItem("idle-timer", "true");
         idleTimeout(() => {
             window.sessionStorage.clear();
             window.location.replace(`/sign-in/`);
-        },
-            {
+        }, {
                 element: document,
                 timeout: 1000 * 60 * 15,
                 loop: false
@@ -180,31 +171,44 @@ function logout() {
     }
 }
 
+async function fetchReportFeeds(){
+    let reports = await fetchReports();
+    let receivingOrgSvc = reports ? reports.map( rep => {
+        console.log( `display name = ${rep.displayName}` )
+        return rep.displayName }) : []
+
+    return Array.from( new Set( receivingOrgSvc ) );
+}
+
 /**
  *
  */
-async function fetchReports() {
+async function fetchReports( filter ) {
     let url = 'history/report';
     if (isAnAdmin()) {
         console.log("user is an admin, they get special sauce");
-        url = `${url}s/${window.org}`
+        const cacheBust = new Date().toISOString();
+        url = `${url}?cache=${cacheBust}`
     }
     console.log(`calling for ${url}`);
-    return window.jwt ? axios(apiConfig(url))
+    const retValue = window.jwt ? await axios(apiConfig(url))
         .then(res => res.data)
-        .catch(e => console.log(e)): [];
+        .catch(e => { console.log(e); return [] }): [];
+    console.log(retValue);
+    
+    return filter? retValue.filter( report => report.receivingOrgSvc === filter ) : retValue;
 }
 
 async function fetchAllOrgs() {
-    return window.jwt ? axios(apiConfig('settings/organizations'))
+    return window.jwt ? await axios(apiConfig('settings/organizations'))
         .then(res => res.data) : [];
 }
 
 /**
  *
  */
-function requestFile(reportId) {
-    return window.jwt? axios(apiConfig(`history/report/${reportId}`))
+async function requestFile(reportId) {
+    return window.jwt ? await axios(apiConfig(`history/report/${reportId}`))
         .then(res => res.data)
         .then(csv => {
             // The filename to use for the download should not contain blob folders if present
@@ -222,7 +226,7 @@ function requestFile(reportId) {
  * @returns
  */
 function isLocalhost(){
-    return window.location.origin.includes("localhost:8088");
+    return window.location.origin.includes("localhost");
 }
 
 /**
@@ -231,11 +235,20 @@ function isLocalhost(){
  */
 
 
-function changeOrg( event ){
+async function changeOrg( event ){
+    console.log( `org = ${event.value}`)
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
     processOrgName();
-    processReports();
+    let feeds = await processReportFeeds();
+
+    // reports
+    feeds.forEach( async (feed,idx) => {
+        console.log(`processing Reports ${feed} ${idx}`)
+        await processReports( feed, idx );
+    })
+
+    await processReport(await fetchReports());
 }
 
 function populateOrgDropdown() {
@@ -294,7 +307,7 @@ function processJwtToken(){
         // process the org so the dropdown looks correct
         const _org = claims.organization.filter(c => c !== "DHPrimeAdmins");
         const oldOrg = window.sessionStorage.getItem( "oldOrg");
-        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? _org[0] : null;
+        window.org = oldOrg ? oldOrg : (_org && _org.length > 0) ? convertOrgName( _org[0] ) : null;
         window.sessionStorage.setItem( "oldOrg", window.org );
         window.user = claims.sub;
         // set the token here
@@ -330,6 +343,7 @@ async function processOrgName(){
 
     try {
         orgName = await fetchOrgName();
+
     } catch (error) {
         console.log('fetchOrgName() is failing');
         console.error(error);
@@ -341,40 +355,99 @@ async function processOrgName(){
     return orgName;
 }
 
+function titleCase(str) {
+    str = str.toLowerCase().split(' ');
+    for (let i = 0; i < str.length; i++) {
+      str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1); 
+    }
+    return str.join(' ');
+  }
+
+async function processReportFeeds(){
+    let feeds = await fetchReportFeeds();
+    const tabs = document.getElementById("tabs");  
+    console.log( feeds );
+    if (tabs){ 
+        tabs.innerHTML = "";
+        tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
+    }
+    const reportFeeds = document.getElementById("reportFeeds");  
+    if (reportFeeds) {
+        reportFeeds.innerHTML = "";
+        if (feeds.length > 1) {
+            feeds.forEach((feed, idx) => {
+                console.log( `building tab${idx}`)
+                reportFeeds.innerHTML += `
+                    <input type="radio" id="tab${idx}" name="tabGroup1" class="tab" ${idx > 0 ? "" : "checked"} data-feed-name="${feed}">
+                    <label for="tab${idx}">${feed.replaceAll("-", " ").toUpperCase()}</label>
+                    `
+            });
+        }
+        // loop the feeds and kick out the tables
+        feeds.forEach((feed, idx) => {
+            reportFeeds.innerHTML += `
+                    <div class="${feeds.length > 1 ? "tab__content" : ""}" data-feed-name="${feed}">
+                        <table class="usa-table usa-table--borderless prime-table" summary="Previous results">
+                        <thead>
+                          <tr>
+                            <th scope="col">Report Id</th>
+                            <th scope="col">Date Sent</th>
+                            <th scope="col">Expires</th>
+                            <th scope="col">Total tests</th>
+                            <th scope="col">File</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tBody${idx ? idx : ''}" class="font-mono-2xs" data-feed-name="${feed}">
+                        </tbody>
+                      </table>
+                    </div>
+                `
+        });
+    }
+
+    return feeds;
+}
+
 /**
  *
  * @returns {Array<Report>} an array of the received reports; possibly empty
  */
-async function processReports(){
+async function processReports(feed, idx){
     let reports = [];
-    const tBody = document.getElementById("tBody");
+    const tBody = document.querySelector(`tbody[data-feed-name='${feed}']`);
+    console.log(tBody);
     // clear the table body because we can get reports from different PHDs
     if (tBody) tBody.innerHTML = "";
     try {
-        reports = await fetchReports();
+        reports = await fetchReports(feed);
     } catch (error) {
         console.log('fetchReports() is failing');
         console.error(error);
     }
-    reports.forEach(_report => {
-        if (tBody) tBody.innerHTML +=
-            `<tr>
-                <th data-title="reportId" scope="row">
-                    <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>
-                </th>
-                <th data-title="date" scope="row">${moment.utc(_report.sent).local().format('YYYY-MM-DD HH:mm')}</th>
-                <th date-title="expires" scope="row">${moment.utc(_report.expires).local().format('YYYY-MM-DD HH:mm')}</th>
-                <th data-title="Total tests" scope="row">${_report.total}</th>
-                <th data-title="File" scope="row">
-                    <span>
-                        <a href="javascript:requestFile( \'${_report.reportId}\');" class="usa-link">
-                            ${_report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : _report.fileType}
-                        </a>
-                    </span>
-                </th>
+    // verify the reports exist
+    if (reports) {
+        // if they do then write them out
+        reports.forEach(_report => {
+            const tBody = document.getElementById(`tBody${idx?idx:''}`);
+            if (tBody) tBody.innerHTML +=
+                `<tr>
+                    <th data-title="reportId" scope="row">
+                        <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>
+                    </th>
+                    <th data-title="date" scope="row">${moment.utc(_report.sent).local().format('YYYY-MM-DD HH:mm')}</th>
+                    <th date-title="expires" scope="row">${moment.utc(_report.expires).local().format('YYYY-MM-DD HH:mm')}</th>
+                    <th data-title="Total tests" scope="row">${_report.total}</th>
+                    <th data-title="File" scope="row">
+                        <span>
+                            <a href="javascript:requestFile( \'${_report.reportId}\');" class="usa-link">
+                                ${_report.fileType == "HL7_BATCH" ? "HL7(BATCH)" : _report.fileType}
+                            </a>
+                        </span>
+                    </th>
               </tr>`;
     });
-    if (reports && reports.length === 0) {
+    }
+    if (!reports || reports.length === 0) {
         if (tBody) tBody.innerHTML +=
             `<tr>
                 <th colspan="5">No reports found</th>
@@ -391,13 +464,16 @@ async function processReports(){
 async function processReport( reports ){
     let report = null;
     if (reports && reports.length > 0) {
-        if (window.location.search == "") report = reports[0];
-        else report = reports.find(report => report.reportId == window.location.search.substring(1));
+        if (window.location.search === "")
+            report = reports[0];
+        else
+            report = reports.find(report => report.reportId === window.location.search.substring(1));
     }
-    if (report != null) {
+    if (report !== null) {
         const details = document.getElementById("details");
-        if (details) details.innerHTML +=
-            `<div class="tablet:grid-col-6">
+        if (details) {
+            details.innerHTML +=
+                `<div class="tablet:grid-col-6">
                             <h4 class="text-base-darker text-normal margin-bottom-0">Report type</h4>
                             <p class="text-bold margin-top-0">${report.type}</p>
                             <h4 class="text-base-darker text-normal margin-bottom-0">Report sent</h4>
@@ -409,6 +485,7 @@ async function processReport( reports ){
                             <h4 class="text-base-darker text-normal margin-bottom-0">Download expires</h4>
                             <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>`;
+        }
         const facilities = document.getElementById( "tBodyFac");
         if (facilities) {
             report.facilities.forEach( reportFacility => {
@@ -427,7 +504,7 @@ async function processReport( reports ){
         const facTable = document.getElementById( 'facilitiestable');
 
         if (report.facilities.length) {
-            if( noFac ) noFac.setAttribute( "hidden", "hidden" );    
+            if (noFac) noFac.setAttribute( "hidden", "hidden" );
         } else {
             if (facTable) facTable.setAttribute( "hidden", "hidden" );
         }
@@ -435,88 +512,16 @@ async function processReport( reports ){
         const reportId = document.getElementById("report.id");
         if (reportId) reportId.innerHTML = report.reportId;
         const download = document.getElementById("download");
-        if (download) download.innerHTML +=
-            `<a id="report.fileType"
+        if (download) {
+            download.innerHTML +=
+                `<a id="report.fileType"
                 class="usa-button usa-button--outline float-right"
                 href="javascript:requestFile( \'${report.reportId}\');"</a>`;
+        }
         const reportFileType = document.getElementById("report.fileType");
-        if (reportFileType) reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
+        if (reportFileType)
+            reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
     }
 
     return report;
-}
-
-/**
- *
- */
-async function processCharts(){
-    let cards = [];
-    try{
-        cards = await fetchCards();
-    } catch( error ){
-        console.log( 'fetchCards() is failing' );
-        console.error( error );
-    }
-    cards.forEach(card => {
-        const cards = document.getElementById("cards");
-        if (cards) cards.innerHTML +=
-        `<div class="tablet:grid-col-6">
-            <div class="usa-card__container">
-            <div class="usa-card__body">
-                <h4 class="text-base margin-bottom-0">${card.title}</h4>
-                <h3 class="text-bold margin-top-0">${card.subtitle}</h3>
-                <h4 class="text-base margin-bottom-0">Last 24 hours</h4>
-                <p class="text-bold margin-top-0">${card.daily} &nbsp; &nbsp; &nbsp; <span class="text-heavy ${card.positive ? "text-green" : "text-red"}">
-                    ${card.positive ? "&#8599;" : "&#8600;"} ${card.change.toFixed(2)}
-                </span></p>
-                <h4 class="text-base margin-bottom-0">Last 7 days (average)</h4>
-                <p class="text-bold margin-top-0">${card.last}</p>
-                <canvas id="${card.id}" width="200" height="40"></canvas>
-            </div>
-            </div>
-        </div>`;
-    });
-    var ctx = 'summary-tests';
-    var options = {
-        plugins: {
-            legend: {
-                display: false,
-            }
-        },
-        scales: {
-            y: {
-                ticks: {
-                    beginAtZero: false
-                },
-                display: false,
-            },
-            x: {
-                display: false,
-            }
-        }
-    };
-
-    var labels = [];
-    for (var i = 7; i >= 0; i--) {
-        labels.push(moment().subtract(i, 'days').format("YYYY-MM-DD"))
-    }
-
-    const myLineChartHtml = document.getElementById(ctx);
-    if (myLineChartHtml) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-
-                labels: labels,
-                datasets: [{
-                    data: cards[0].data,
-                    borderColor: "#4682B4",
-                    backgroundColor: "#B0C4DE",
-                    fill: 'origin',
-                    borderJoinStyle: "round"
-                }]
-            },
-            options: options
-        });
-    }
 }

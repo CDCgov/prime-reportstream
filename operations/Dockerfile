@@ -1,6 +1,6 @@
 FROM centos:centos8.3.2011
 
-ENV AZURE_CLI_VERSION=2.18.0
+ARG AZURE_CLI_VERSION
 
 # Install Azure CLI
 RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -17,10 +17,7 @@ RUN yum -y install azure-cli-${AZURE_CLI_VERSION}-1.el7
 # - app/src/environments/test/main.tf
 # - app/src/environments/staging/main.tf
 # - app/src/environments/prod/main.tf
-#
-# i.e. for terraform version 1.0.3-1, you will need to reflect this as follows:
-#  required_version = "= 1.0.3"
-ENV TERRAFORM_VERSION=1.0.3-1
+ARG TERRAFORM_VERSION
 
 # Install Terraform
 RUN yum install -y yum-utils
