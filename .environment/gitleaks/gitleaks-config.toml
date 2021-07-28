@@ -205,6 +205,20 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
 
 [[rules]]
+    description = "Okta"
+    regex = '00[a-zA-Z0-9-_]{40}'
+    tags = [
+        "key",
+        "okta"
+    ]
+    [rules.allowlist]
+        regexes = [
+            '1c8d7003aeccab39bfc9451415cef045428a5332eec4a5e5a7c0337946658f7c',
+            '658195889000001-1e837a04-7d87-4498-ac86-1476354ed257',
+            'remote azuregateway-[a-f0-9]*(-[a-f0-9]+)*\.vpn\.azure\.com 443',
+        ]
+
+[[rules]]
     description = "Port"
     regex = '(?i)port(.{0,4})?[0-9]{1,10}'
     tags = [
