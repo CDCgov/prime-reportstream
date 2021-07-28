@@ -23,7 +23,6 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/src/test/csv_test_files/input/',
     ]
 
-
 [[rules]]
     description = "Email"
     regex = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'
@@ -213,9 +212,9 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         regexes = [
-            '1c8d7003aeccab39bfc9451415cef045428a5332eec4a5e5a7c0337946658f7c',
             '658195889000001-1e837a04-7d87-4498-ac86-1476354ed257',
             'remote azuregateway-[a-f0-9]*(-[a-f0-9]+)*\.vpn\.azure\.com 443',
+            'zh\:1c8d7003aeccab39bfc9451415cef045428a5332eec4a5e5a7c0337946658f7c',
         ]
 
 [[rules]]
