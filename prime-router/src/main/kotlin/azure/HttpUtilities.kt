@@ -16,11 +16,11 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-enum class ReportStreamEnv(val baseUrl: String) {
-    TEST("https://pdhtest-functionapp.azurewebsites.net"),
-    LOCAL("http://localhost:7071"),
-    STAGING("https://staging.prime.cdc.gov"),
-    PROD("not implemented")
+enum class ReportStreamEnv(val endPoint: String) {
+    TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
+    LOCAL("http://" + (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071/api/reports"),
+    STAGING("https://staging.prime.cdc.gov/api/reports"),
+    PROD("not implemented"),
 }
 
 class HttpUtilities {

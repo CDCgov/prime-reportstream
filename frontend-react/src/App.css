@@ -1,0 +1,209 @@
+@import '~@trussworks/react-uswds/lib/uswds.css';
+
+html, body {
+  height: 100%;
+}
+
+.content {
+  flex: 1 0 auto;
+  min-height: calc(100vh - 200px)
+}
+.footer {
+  flex-shrink: 0;
+}
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.usa-banner__inner, .usa-banner__header--expanded .usa-banner__inner {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.usa-overlay {
+  z-index: 300;
+}
+
+.usa-nav__close {
+  cursor: pointer;
+}
+
+.usa-nav__primary {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style: none;
+}
+
+.usa-logo {
+  margin: 1rem 0;
+}
+
+@media (min-width: 64em) {
+  .usa-header--basic .usa-nav-container {
+    max-width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    align-content: flex-start;
+  }
+
+  .usa-header--basic .usa-navbar {
+    width: auto;
+  }
+
+  .usa-header--basic .usa-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0;
+  }
+
+  .usa-header--basic .usa-nav__primary {
+    flex: 1;
+  }
+
+  .usa-header--basic .usa-nav__link {
+    position: relative;
+  }
+
+  .usa-nav__primary > .usa-nav__primary-item > a {
+    font-weight: normal;
+    color: #2e2e2e;
+  }
+
+
+  .usa-nav__primary > .usa-nav__primary-item.usa-current > a {
+    color: #0b4778;
+  }
+
+  .usa-nav__primary > .usa-current > a::after {
+    background-color: #005ea2;
+    border-radius: 0;
+    content: "";
+    display: block;
+    position: absolute;
+    height: .25rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: -0.25rem;
+  }
+
+  .prime-user-account {
+    text-align: right;
+  }
+}
+
+@media (max-width: 63.99em) {
+  .usa-logo {
+    margin-left: 1rem;
+  }
+  .usa-header--basic .usa-nav {
+    align-items: start;
+    width: 15rem;
+  }
+  .usa-header--basic .usa-navbar {
+    width: 100%;
+    z-index: 200;
+    position: relative;
+    border-bottom: none;
+  }
+  .usa-nav__primary {
+    width: 100%;
+  }
+  .prime-user-account {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 2rem;
+    margin-left: 1rem;
+  }
+}
+
+.usa-nav__request-account {
+  font-weight: normal;
+  text-decoration: underline;
+}
+
+.usa-nav__primary-item a.usa-button {
+  color: #005ea2;
+}
+
+.prime-user-account{
+  font-size: .88rem;
+  vertical-align: u-text("vertical-align");
+  line-height: 1.25rem;
+}
+
+.prime-table {
+  width: 100%;
+}
+
+.prime-table thead th {
+  border-bottom: 2px solid;
+}
+
+.prime-table tbody td,.prime-table tbody th {
+  border-color: #dfe1e2;
+}
+
+.prime-identifier {
+  background-color: #f0f0f0;
+  color: #1b1b1b;
+}
+
+.prime-identifier .prime-identifier__domain {
+  color: #565c65;
+}
+
+.prime-identifier .prime-identifier__disclaimer a:link,
+.prime-identifier .prime-identifier__disclaimer a:visited,
+.prime-identifier .prime-identifier__disclaimer a:active {
+  color: #1b1b1b;
+}
+
+.prime-identifier .prime-identifier__disclaimer a:hover {
+  color: #71767a;
+}
+
+.rs-hero {
+  background-color: #f0f0f0;
+}
+
+.rs-hero__flex-center {
+  align-items: center;
+}
+
+h3 img[src*="svg"] {
+  vertical-align: text-top;
+  margin-right: 5px;
+  float: left;
+}
+
+#okta-sign-in {
+  margin-top: 0;
+}
+
+.usa-prose > h1, .usa-prose > h2, .usa-intro {
+  font-family: Source Sans Pro Web,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;
+}
+
+.rs-documentation ul li {
+  margin-bottom: 0.75rem;
+}
+
+.rs-documentation ul li ul li ul {
+  margin-top: 0.5rem;
+}
+
+.rs-documentation h3 {
+  margin-bottom: 0;
+  margin-top: 2rem;
+}
+
+.rs-documentation h4 {
+  margin-bottom: 0.5rem;
+}
+

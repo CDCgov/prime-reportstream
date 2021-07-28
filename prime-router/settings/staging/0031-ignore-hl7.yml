@@ -1,0 +1,6 @@
+---
+name: "ignore-hl7"
+organizationName: "ignore"
+format: "HL7"
+topic: "covid-19"
+schemaName: "hl7/hl7-ingest-covid-19"
