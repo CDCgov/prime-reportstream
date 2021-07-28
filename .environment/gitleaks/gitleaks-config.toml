@@ -46,6 +46,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '(?i)local@test.com',
             '(?i)noreply@cdc.gov',
             '(?i)prime@cdc.gov',
+            '(?i)qom6@cdc.gov',
             '(?i)qtv1@cdc.gov',
             '(?i)qva8@cdc.gov',
             '(?i)reportstream@cdc.gov',
