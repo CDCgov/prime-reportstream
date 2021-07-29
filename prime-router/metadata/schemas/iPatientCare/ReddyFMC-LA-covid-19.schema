@@ -1,0 +1,66 @@
+# Schema for Reddy Family Medical Clinic Submitter
+# This schema is to be used to parse the standard lab report from iPatientCare
+# Created by Joel Biskie
+# Last Update: 07/28/2021
+# 
+name: reddyfmc-la-covid-19
+topic: covid-19
+description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
+extends: iPatientCare/ipatientcare-covid-19
+
+elements:
+
+    - name: processing_mode_code
+      default: T
+      
+    - name: sender_id
+      default: reddyfmc
+      
+    - name: message_id
+      mapper: concat(patient_id, filler_order_id)
+
+    - name: test_kit_name_id
+      type: TEXT
+      default: 10811877011290
+
+# Ordering provider
+    - name: ordering_provider_id
+      type: CODE
+      csvFields: [{name: PhyName, format: $alt}]
+      altValues:
+        - code: 1275978678
+          display: Holly Delatte NP
+        - code: 1205306602
+          display: De Anna Dark FNP-C
+        - code: 1770580508
+          display: Nagaratna Reddy MD
+            
+    - name: ordering_provider_last_name
+      type: CODE
+      csvFields: [{name: PhyName, format: $alt}]
+      altValues:
+        - code: Delatte NP
+          display: Holly Delatte NP
+        - code: Dark FNP-C
+          display: De Anna Dark FNP-C
+        - code: Reddy MD
+          display: Nagaratna Reddy MD
+
+    - name: ordering_provider_first_name
+      type: CODE
+      csvFields: [{name: PhyName, format: $alt}]
+      altValues:
+        - code: Holly
+          display: Holly Delatte NP
+        - code: De Anna
+          display: De Anna Dark FNP-C
+        - code: Nagaratna
+          display: Nagaratna Reddy MD
+
+
+    - name: specimen_type
+      type: TEXT
+      default: 445297001
+      csvFields: [{name: specimen_type}]
+
+
