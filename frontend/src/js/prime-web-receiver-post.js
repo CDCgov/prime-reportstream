@@ -15,10 +15,11 @@
     const feeds = await processReportFeeds();
 
     // reports
-    feeds.forEach( async (feed,idx) => {
+    const promises = feeds.map(async (feed,idx) => {
         console.log(`processing Reports ${feed} ${idx}`);
         await processReports( feed, idx );
     });
+    Promise.all(promises).then(_result => console.log("Done!"));
 
     await processReport(await fetchReports());
 
