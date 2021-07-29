@@ -11,23 +11,18 @@ hide-signin: false
 
 <section class="rs-hero" role="region">
   <div class="grid-container usa-section margin-bottom-10">
-    <div class="grid-row grid-gap margin-bottom-0 rs-hero__flex-center">
-      <div class="tablet:grid-col-6">
-        <h1>{{ content.index.title }}</h1>
-        <p class="font-sans-lg line-height-sans-4">{{ content.index.summary }}</p>
-        <p class="">{{ content.index.description }}</p>
-        {% if content.index.bullets %}
-          <ul class="usa-prose">
-            {% for bullet in content.index.bullets %}
-              <li>{{ bullet.content }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
+    <div class="grid-row grid-gap margin-bottom-0 rs-hero__flex-center text-center">
+      <div class="tablet:grid-col-10 tablet:grid-offset-1">
+        <h1 class="tablet:font-sans-3xl">{{ content.index.title }}</h1>
+                
       </div>
-      <div class="tablet:grid-col-6">
-        <img class="shadow-2" src="{{ site.imgPath }}{{ content.index.heroImg }}"
+      <div class="tablet:grid-col-8 tablet:grid-offset-2">
+        <p class="font-sans-lg line-height-sans-4">{{ content.index.summary }}</p>        
+      </div>
+      <!-- <div class="tablet:grid-col-6">
+        <img src="{{ site.imgPath }}{{ content.index.heroImg }}"
           alt="{{ content.index.heroImgAlt }}" />
-      </div>
+      </div> -->
     </div>
   </div>
 </section>
@@ -37,16 +32,24 @@ hide-signin: false
   {% for section in content.index.sections %}
     <section class="usa-section margin-y-0 padding-y-0" role="region">
       <div class="grid-row grid-gap margin-bottom-0">
-        <div class="tablet:grid-col-8">
+        <div class="tablet:grid-col-6">
           <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2>
           <p class="font-sans-lg margin-top-1 text-base">{{ section.summary }}</p>
+          {% if section.bullets %}
+            <ul class="usa-intro">
+              {% for bullet in section.bullets %}
+                <li>{{ bullet.content }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
         </div>
+        
       </div>
       <div class="grid-row grid-gap margin-bottom-8{% if forloop.last == true %} padding-bottom-8 border-bottom-1px border-base-lighter{% endif %}">
         {% for feature in section.features %}
           <div class="tablet:grid-col-4 margin-bottom-0">
             <h3>
-              <img src="{{ site.imgPath }}{{ feature.icon }}" aria-hidden="true" focusable="false" alt="Icon of {{ feature.iconDescription }}" />
+              
               {{ feature.title }}
             </h3>
             <p class="usa-prose">{{ feature.summary }}</p>

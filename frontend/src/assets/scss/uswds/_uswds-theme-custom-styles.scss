@@ -38,6 +38,8 @@ main {
    margin-right: 0;
 }
 
+// NAVIGATION
+
 .usa-overlay {
    z-index: 300;
 }
@@ -65,9 +67,13 @@ main {
    color: #005ea2;
 }
 
+// TYPOGRAPHY
+
 .usa-intro {
    line-height: units(4);
 }
+
+// MEDIA: DESKTOP
 
 @media (min-width: 64em) {
    .usa-header--basic .usa-nav-container {
@@ -103,11 +109,11 @@ main {
    .usa-nav__primary > .usa-nav__primary-item > a {
       font-weight: normal;
       color: #2e2e2e;
-      padding: 1rem;
+      padding: units(3);
    }
 
    .usa-nav__primary button {
-      padding: 1rem;
+      padding: units(3);
       color: #2e2e2e;
       font-weight: normal;
    }
@@ -127,6 +133,7 @@ main {
 
    .usa-nav__primary > .usa-nav__primary-item.usa-current > a {
       color: #0b4778;
+      padding: units(3);
    }
 
    .usa-nav__primary > .usa-current > a::after {
@@ -135,10 +142,10 @@ main {
       content: "";
       display: block;
       position: absolute;
+      bottom: units(-0.5);
       height: .25rem;
       left: 1rem;
       right: 1rem;
-      bottom: 0;
    }
 
    .usa-header--basic .usa-nav__primary-item:last-of-type .usa-nav__submenu {
@@ -149,6 +156,8 @@ main {
       text-align: right;
    }
 }
+
+// MEDIA: MOBILE
 
 @media (max-width: 63.99em) {
    .usa-logo {
