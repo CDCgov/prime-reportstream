@@ -10,8 +10,14 @@ extends: iPatientCare/ipatientcare-covid-19
 
 elements:
 
+    - name: processing_mode_code
+      default: T
+      
+    - name: sender_id
+      default: reddyfmc
+      
     - name: message_id
-      mapper: concat(patient_id, filler_order_id, test_performed_code)
+      mapper: concat(patient_id, filler_order_id)
 
     - name: test_kit_name_id
       type: TEXT

@@ -26,6 +26,10 @@ This field is ignored.
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+This field is ignored.
+
 ---
 
 **Name**: Lab name
@@ -35,6 +39,10 @@ This field is ignored.
 **PII**: No
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored.
 
 ---
 
@@ -46,6 +54,10 @@ This field is ignored.
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+This field is ignored.
+
 ---
 
 **Name**: PhysCity
@@ -55,6 +67,10 @@ This field is ignored.
 **PII**: No
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored.
 
 ---
 
@@ -66,6 +82,10 @@ This field is ignored.
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+This field is ignored.
+
 ---
 
 **Name**: PhysST
@@ -75,6 +95,10 @@ This field is ignored.
 **PII**: No
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored.
 
 ---
 
@@ -86,6 +110,10 @@ This field is ignored.
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+This field is ignored.
+
 ---
 
 **Name**: Reference Range
@@ -95,6 +123,10 @@ This field is ignored.
 **PII**: No
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored.
 
 ---
 
@@ -106,6 +138,10 @@ This field is ignored.
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+This field is ignored.
+
 ---
 
 **Name**: SSN
@@ -116,6 +152,10 @@ This field is ignored.
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+This field is ignored.
+
 ---
 
 **Name**: Specimen_Type
@@ -125,6 +165,10 @@ This field is ignored.
 **PII**: No
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+This field is ignored because it does not contain a valid specimen type.  Set the specimen_type in the facility-specific schema.
 
 ---
 
@@ -168,6 +212,10 @@ This field is ignored.
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+Facility populates multiple fields.  This instance populates filler_name.
 
 ---
 
@@ -213,7 +261,7 @@ UNK|Unknown
 
 **Documentation**:
 
-Is the patient hospitalized?
+iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
@@ -239,7 +287,7 @@ UNK|Unknown
 
 **Documentation**:
 
-Is the patient in the ICU?
+iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
@@ -291,6 +339,10 @@ Z|No record of this patient
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+DateColl populates multiple fields.  This instance populates order_test_date.
+
 ---
 
 **Name**: TestName
@@ -305,6 +357,10 @@ Z|No record of this patient
 
 **Table Column**: Test Ordered LOINC Long Name
 
+**Documentation**:
+
+TestName populates multiple fields.  This instance populates ordered_test_name.
+
 ---
 
 **Name**: Fac_City
@@ -317,7 +373,7 @@ Z|No record of this patient
 
 **Documentation**:
 
-The city of the facility which the test was ordered from
+Fac_City populates multiple fields.  This instance populates ordering_facility_city.
 
 ---
 
@@ -331,7 +387,7 @@ The city of the facility which the test was ordered from
 
 **Documentation**:
 
-The name of the facility which the test was ordered from
+Facility populates multiple fields.  This instance populates ordering_facility_name.
 
 ---
 
@@ -345,7 +401,7 @@ The name of the facility which the test was ordered from
 
 **Documentation**:
 
-The phone number of the facility which the test was ordered from
+Fac_Phone populates multiple fields.  This instance populates ordering_facility_phone_number.
 
 ---
 
@@ -363,7 +419,7 @@ The phone number of the facility which the test was ordered from
 
 **Documentation**:
 
-The state of the facility which the test was ordered from
+Fac_State populates multiple fields.  This instance populates ordering_facility_state.
 
 ---
 
@@ -377,7 +433,7 @@ The state of the facility which the test was ordered from
 
 **Documentation**:
 
-The address of the facility which the test was ordered from
+Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_street.
 
 ---
 
@@ -391,7 +447,7 @@ The address of the facility which the test was ordered from
 
 **Documentation**:
 
-The zip code of the facility which the test was ordered from
+Fac_Zip populates multiple fields.  This instance populates ordering_facility_zip_code.
 
 ---
 
@@ -405,7 +461,7 @@ The zip code of the facility which the test was ordered from
 
 **Documentation**:
 
-The city of the provider
+Fac_City populates multiple fields.  This instance populates ordering_provider_city.
 
 ---
 
@@ -484,7 +540,7 @@ Reddy MD|Nagaratna Reddy MD
 
 **Documentation**:
 
-The phone number of the provider
+Fac_Phone populates multiple fields.  This instance populates ordering_provider_phone_number.
 
 ---
 
@@ -502,7 +558,7 @@ The phone number of the provider
 
 **Documentation**:
 
-The state of the provider
+Fac_State populates multiple fields.  This instance populates ordering_provider_state.
 
 ---
 
@@ -516,7 +572,7 @@ The state of the provider
 
 **Documentation**:
 
-The street address of the provider
+Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_street.
 
 ---
 
@@ -530,7 +586,7 @@ The street address of the provider
 
 **Documentation**:
 
-The zip code of the provider
+Fac_Zip populates multiple fields.  This instance populates ordering_provider_zip_code.
 
 ---
 
@@ -616,9 +672,7 @@ U|WHITE
 
 **Documentation**:
 
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
-consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
-
+NOTE - awaiting valid ethnicity values from iPatientCare
 
 ---
 
@@ -693,7 +747,7 @@ the patient ID from the testing lab, the oder placer, the ordering provider, or 
 
 **Documentation**:
 
-The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
+Facility populates multiple fields.  This instance populates patient_id_assigner.
 
 ---
 
@@ -783,8 +837,7 @@ ASKU|Asked, but unknown
 
 **Documentation**:
 
-The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
+NOTE - awaiting valid race values from iPatientCare
 
 ---
 
@@ -887,6 +940,30 @@ Is the patient pregnant?
 
 ---
 
+**Name**: processing_mode_code
+
+**Type**: CODE
+
+**PII**: No
+
+**Default Value**: T
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display
+---- | -------
+D|Debugging
+P|Production
+T|Training
+
+**Documentation**:
+
+P, D, or T for Production, Debugging, or Training
+
+---
+
 **Name**: CLIA No
 
 **Type**: ID_CLIA
@@ -924,7 +1001,7 @@ The reporting facility's CLIA
 
 **Documentation**:
 
-The reporting facility's name
+Facility populates multiple fields.  This instance populates reporting_facility_name.
 
 ---
 
@@ -937,6 +1014,22 @@ The reporting facility's name
 **Default Value**: CE
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: sender_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: reddyfmc
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
 
 ---
 
@@ -959,8 +1052,7 @@ The reporting facility's name
 
 **Documentation**:
 
-The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
+DateColl populates multiple fields.  This instance populates specimen_collection_date_time.
 
 ---
 
@@ -1002,7 +1094,7 @@ The date which the specimen was collected. The default format is yyyyMMddHHmmssz
 
 **Documentation**:
 
-The LOINC description of the test performed as related to the LOINC code.
+TestName populates multiple fields.  This instance populates test_performed_name.
 
 ---
 
@@ -1055,7 +1147,7 @@ Code | Display
 
 **Documentation**:
 
-The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
+For now, Positive and Negative are the only results
 
 ---
 
@@ -1069,6 +1161,10 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Cardinality**: [0..1]
 
+**Documentation**:
+
+ResultDate populates multiple fields.  This instance populates test_result_date.
+
 ---
 
 **Name**: ResultDate
@@ -1080,6 +1176,10 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Format**: M/d/yyyy
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+ResultDate populates multiple fields.  This instance populates test_result_report_date.
 
 ---
 
@@ -1134,7 +1234,7 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **Documentation**:
 
-The city of the testing lab
+Fac_City populates multiple fields.  This instance populates testing_lab_city.
 
 ---
 
@@ -1197,7 +1297,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 
 **Documentation**:
 
-The name of the laboratory which performed the test, can be the same as the sending facility name
+Facility populates multiple fields.  This instance populates testing_lab_name.
 
 ---
 
@@ -1211,7 +1311,7 @@ The name of the laboratory which performed the test, can be the same as the send
 
 **Documentation**:
 
-The phone number of the testing lab
+Fac_Phone populates multiple fields.  This instance populates testing_lab_phone_number.
 
 ---
 
@@ -1227,11 +1327,7 @@ The phone number of the testing lab
 
 **Documentation**:
 
-The received date time for the specimen. This field is very important to many states for their HL7,
-but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
-setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
-be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
-
+DateColl populates multiple fields.  This instance populates testing_lab_specimen_received_datetime.
 
 ---
 
@@ -1249,7 +1345,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 **Documentation**:
 
-The state for the testing lab
+Fac_State populates multiple fields.  This instance populates testing_lab_state.
 
 ---
 
@@ -1263,7 +1359,7 @@ The state for the testing lab
 
 **Documentation**:
 
-The street address for the testing lab
+Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street.
 
 ---
 
@@ -1277,6 +1373,6 @@ The street address for the testing lab
 
 **Documentation**:
 
-The postal code for the testing lab
+Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code.
 
 ---

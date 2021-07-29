@@ -9,6 +9,14 @@ description: iPatientCare CSV lab report schema
 basedOn: covid-19
 elements:
 
+
+    - name: sender_id
+      csvFields: [{name: sender_id}]
+
+    - name: processing_mode_code
+      csvFields: [{name: processing_mode_code}]
+
+
 #demographics
     - name: patient_id
       csvFields: [{name: MRN}]
@@ -49,7 +57,7 @@ elements:
     - name: patient_gender
       csvFields: [{name: Sex}]
 
-# TODO - awaiting valid race values from iPatientCare
+
     - name: patient_race
       csvFields: [{name: RACE, format: $alt}]
       altValues:
@@ -71,9 +79,8 @@ elements:
           display: 
         - code: ASKU
           display: Asked, but unknown
-
+      documentation: NOTE - awaiting valid race values from iPatientCare
             
-# TODO - awaiting valid ethnicity values from iPatientCare
     - name: patient_ethnicity
       csvFields: [{name: Ethnicity, format: $alt}]
       altValues:
@@ -87,39 +94,42 @@ elements:
           display: "NULL"
         - code: U
           display: WHITE    #????
-
-
-
+      documentation: NOTE - awaiting valid ethnicity values from iPatientCare
 
 
 
     - name: specimen_collection_date_time
       csvFields: [{name: DateColl, format: "M/d/yyyy"}]
+      documentation: DateColl populates multiple fields.  This instance populates specimen_collection_date_time.
 
     - name: order_test_date
       csvFields: [{name: DateColl, format: "M/d/yyyy"}]
+      documentation: DateColl populates multiple fields.  This instance populates order_test_date.
 
     - name: testing_lab_specimen_received_datetime
       csvFields: [{name: DateColl, format: "M/d/yyyy"}]
+      documentation: DateColl populates multiple fields.  This instance populates testing_lab_specimen_received_datetime.
 
     - name: test_result_date
       csvFields: [{name: ResultDate, format: "M/d/yyyy"}]
+      documentation: ResultDate populates multiple fields.  This instance populates test_result_date.
 
     - name: test_result_report_date
       csvFields: [{name: ResultDate, format: "M/d/yyyy"}]
-
+      documentation: ResultDate populates multiple fields.  This instance populates test_result_report_date.
 
 
     - name: test_performed_name
       csvFields: [{name: TestName}]
+      documentation: TestName populates multiple fields.  This instance populates test_performed_name.
 
     - name: ordered_test_name
       csvFields: [{name: TestName}]
+      documentation: TestName populates multiple fields.  This instance populates ordered_test_name.
 
 
 
 
-#For now, Positive and Negative are the only results
     - name: test_result
       csvFields: [{name: LabResult, format: $alt}]
       altValues:
@@ -131,6 +141,9 @@ elements:
         display: Positive
       - code: 10828004
         display: Pos
+      documentation: For now, Positive and Negative are the only results
+        
+        
 
     - name: test_result_status
       default: F
@@ -147,67 +160,87 @@ elements:
 # Ordering provider
     - name: ordering_provider_street
       csvFields: [{name: Fac_Addr1}]
-
+      documentation: Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_street.
+      
     - name: ordering_provider_city
       csvFields: [{name: Fac_City}]
+      documentation: Fac_City populates multiple fields.  This instance populates ordering_provider_city.
 
     - name: ordering_provider_state
       csvFields: [{name: Fac_State}]
+      documentation: Fac_State populates multiple fields.  This instance populates ordering_provider_state.
 
     - name: ordering_provider_zip_code
       csvFields: [{name: Fac_Zip}]
+      documentation: Fac_Zip populates multiple fields.  This instance populates ordering_provider_zip_code.
 
     - name: ordering_provider_phone_number
       csvFields: [{name: Fac_Phone}]
+      documentation: Fac_Phone populates multiple fields.  This instance populates ordering_provider_phone_number.
 
 #ordering facility
     - name: ordering_facility_name
       csvFields: [{name: Facility}]
+      documentation: Facility populates multiple fields.  This instance populates ordering_facility_name.
 
     - name: ordering_facility_street
       csvFields: [{name: Fac_Addr1}]
+      documentation: Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_street.
 
     - name: ordering_facility_city
       csvFields: [{name: Fac_City}]
+      documentation: Fac_City populates multiple fields.  This instance populates ordering_facility_city.
 
     - name: ordering_facility_state
       csvFields: [{name: Fac_State}]
+      documentation: Fac_State populates multiple fields.  This instance populates ordering_facility_state.
 
     - name: ordering_facility_zip_code
       csvFields: [{name: Fac_Zip}]
+      documentation: Fac_Zip populates multiple fields.  This instance populates ordering_facility_zip_code.
 
     - name: ordering_facility_phone_number
       csvFields: [{name: Fac_Phone}]
+      documentation: Fac_Phone populates multiple fields.  This instance populates ordering_facility_phone_number.
 
 #testing lab
     - name: testing_lab_name
       csvFields: [{name: Facility}]
+      documentation: Facility populates multiple fields.  This instance populates testing_lab_name.
 
     - name: testing_lab_street
       csvFields: [{name: Fac_Addr1}]
+      documentation: Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street.
 
     - name: testing_lab_city
       csvFields: [{name: Fac_City}]
+      documentation: Fac_City populates multiple fields.  This instance populates testing_lab_city.
 
     - name: testing_lab_state
       csvFields: [{name: Fac_State}]
+      documentation: Fac_State populates multiple fields.  This instance populates testing_lab_state.
 
     - name: testing_lab_zip_code
       csvFields: [{name: Fac_Zip}]
+      documentation: Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code.
 
     - name: testing_lab_phone_number
       csvFields: [{name: Fac_Phone}]
+      documentation: Fac_Phone populates multiple fields.  This instance populates testing_lab_phone_number.
 
 
 #misc
     - name: reporting_facility_name
       csvFields: [{name: Facility}]
+      documentation: Facility populates multiple fields.  This instance populates reporting_facility_name.
 
     - name: filler_name
       csvFields: [{name: Facility}]
+      documentation: Facility populates multiple fields.  This instance populates filler_name.
 
     - name: patient_id_assigner
       csvFields: [{name: Facility}]
+      documentation: Facility populates multiple fields.  This instance populates patient_id_assigner.
 
 
 #CLIA
@@ -260,9 +293,12 @@ elements:
 
     - name: hospitalized
       default: N
+      documentation: iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
+      
 
     - name: icu
       default: N
+      documentation: iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 
 #this lookup is in the covid-19 schema, but doesn't appear to execute??
@@ -272,48 +308,58 @@ elements:
       mapper: livdLookup()
 
 
-#unused fields - here to suppress warnings.
-    - name: Lab name
+#unused fields - these are added here to suppress warnings.
+    - name: Lab name_Ignore
       type: TEXT
       csvFields: [{name: Lab name}]
+      documentation: This field is ignored.
 
-    - name: SSN
+    - name: SSN_Ignore
       type: TEXT
       csvFields: [{name: SSN}]
+      documentation: This field is ignored.
 
-    - name: LOINC
+    - name: LOINC_Ignore
       type: TEXT
       csvFields: [{name: LOINC}]
+      documentation: This field is ignored.
 
-    - name: ResultUnits
+    - name: ResultUnits_Ignore
       type: TEXT
       csvFields: [{name: ResultUnits}]
+      documentation: This field is ignored.
 
-    - name: Reference Range
+    - name: Reference Range_Ignore
       type: TEXT
       csvFields: [{name: Reference Range}]
+      documentation: This field is ignored.
 
-    - name: PhyAddress1
+    - name: PhyAddress1_Ignore
       type: TEXT
       csvFields: [{name: PhyAddress1}]
+      documentation: This field is ignored.
 
-    - name: PhysCity
+    - name: PhysCity_Ignore
       type: TEXT
       csvFields: [{name: PhysCity}]
+      documentation: This field is ignored.
 
-    - name: PhysST
+    - name: PhysST_Ignore
       type: TEXT
       csvFields: [{name: PhysST}]
+      documentation: This field is ignored.
 
-    - name: PhysZip
+    - name: PhysZip_Ignore
       type: TEXT
       csvFields: [{name: PhysZip}]
+      documentation: This field is ignored.
 
-    - name: PhysPhone
+    - name: PhysPhone_Ignore
       type: TEXT
       csvFields: [{name: PhysPhone}]
+      documentation: This field is ignored.
 
-    - name: Comments
+    - name: Comments_Ignore
       type: TEXT
       csvFields: [{name: Comments}]
       documentation: This field is ignored.
@@ -321,4 +367,5 @@ elements:
     - name: Specimen_Type_Ignore
       type: TEXT
       csvFields: [{name: Specimen_Type}]
+      documentation: This field is ignored because it does not contain a valid specimen type.  Set the specimen_type in the facility-specific schema.
 
