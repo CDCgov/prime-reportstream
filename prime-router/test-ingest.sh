@@ -11,7 +11,7 @@ resource_group=prime-dev-${PRIME_DEV_NAME}
 storage_account=${PRIME_DEV_NAME}primedev
 full_app_name="${PRIME_DEV_NAME}"-"$app_name"
 
-# Use this variable to point to a different hostname on which your 'local' API runs
+# Use this variable to point to a different host on which your 'local' API runs
 # This can be useful if you are running the end-to-end test in a container
 # as opposed to on your actual localhost (e.g. the builder container)
 # Default Value (i.e. if unspecified): localhost
