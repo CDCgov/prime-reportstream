@@ -101,12 +101,19 @@ Running this instance as a docker container enables you to easily clean it (and 
 
 ## Git Hooks
 
-We make use of git hooks, make sure these are installed by invoking either `prime-router/cleanslate.sh` or by invoking `.environment/githooks.sh install`. We currently use the following hook(s):
+We make use of git hooks in this repository and rely on them for certain levels of protections against CI/CD failures and other incidents. Install/activate these hooks by invoking either `prime-router/cleanslate.sh` or by directly invoking `.environment/githooks.sh install`.
 
-* A pre-commit hook that ensures _all_ of the following checks pass before the commit is made:
-    * gitleaks: this check will scan the files that are marked as "staged" (i.e. `git add`) for known patterns of secrets or keys. This tool can also be manually invoked through `.environment/gitleaks/run-gitleaks.sh`, specify `--help` as a command line argument for more information on its different run modes. This tool produces 2 files with output, both in the root of your repository, which can be inspected for more information about the check:
-        * `gitleaks.report.json`: the details about any leaks it finds, serialized as JSON. If no leaks are found, this file contains the literal "`null`".
+### pre-commit: Gitleaks
+
+Gitleaks is one of the checks that are run as part of the `pre-commit` hook. It must pass successfully for the commit to proceed (i.e. for the commit to actually happen, failure will prevent the commit from being made and will leave your staged files in staged status). Gitleaks scans files that are marked as "staged" (i.e. `git add`) for known patterns of secrets or keys.
+
+The output of this tool consists of 2 files, both in the root of your repository, which can be inspected for more information about the check:
+        * `gitleaks.report.json`: the details about any leaks it finds, serialized as JSON. If no leaks are found, this file contains the literal "`null`"; if leaks are found, then this file will contain an array of found leak candidates.
         * `gitleaks.log`: the simplified logging output of the gitleaks tool
+
+When gitleaks reports leaks/violations, the right course of action is typically to remove the leak and replace it with a value that is collected at run-time. There are limited cases where the leak is a false positive, in which case a _strict and narrow_ exemption may be added to the `.environment/gitleaks/gitleaks-config.toml` configuration file. _If an exemption is added, it must be signed off on by a member of the DevOps team_.
+
+This tool can also be manually invoked through `.environment/gitleaks/run-gitleaks.sh` which may be useful to validate the lack of leaks without the need of risking a commit. Invoke the tool with `--help` to find out more about its different run modes.
 
 # Building in the course of development
 
