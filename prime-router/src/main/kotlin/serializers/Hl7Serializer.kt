@@ -535,6 +535,16 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 terser.set(pathSpec, hl7Config?.reportingFacilityIdType)
             }
         }
+
+        // after all values have been set or blanked, check for values that need replacement
+        // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
+        replaceValue.forEach { element ->
+            var pathSpec = formPathSpec(element.key)
+            val valueInMessage = terser.get(pathSpec) ?: ""
+            if (valueInMessage.isNotEmpty()) {
+                terser.set(pathSpec, element.value)
+            }
+        }
     }
 
     private fun setComponentForTable(terser: Terser, element: Element, report: Report, row: Int) {
