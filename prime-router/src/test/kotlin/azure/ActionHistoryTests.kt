@@ -33,7 +33,6 @@ import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -122,7 +121,6 @@ class ActionHistoryTests {
         val uuid = UUID.randomUUID()
         val actionHistory1 = ActionHistory(TaskAction.send)
         actionHistory1.trackExistingInputReport(uuid)
-        // assertNotNull(actionHistory1.reportsIn[uuid])
         assertThat(actionHistory1.reportsIn[uuid]).isNotNull()
         val reportFile = actionHistory1.reportsIn[uuid] !!
         assertThat(reportFile.schemaName).isNull()
@@ -152,18 +150,18 @@ class ActionHistoryTests {
         actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", 15)
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         val reportFile = actionHistory1.reportsOut[uuid] !!
-        assertThat("schema1").isEqualTo(reportFile.schemaName)
-        assertThat("topic1").isEqualTo(reportFile.schemaTopic)
-        assertThat("myOrg").isEqualTo(reportFile.receivingOrg)
-        assertThat("filename1").isEqualTo(reportFile.externalName)
-        assertThat("params1").isEqualTo(reportFile.transportParams)
-        assertThat("result1").isEqualTo(reportFile.transportResult)
-        assertThat("myService").isEqualTo(reportFile.receivingOrgSvc)
-        assertThat("REDOX").isEqualTo(reportFile.bodyFormat)
+        assertThat(reportFile.schemaName).isEqualTo("schema1")
+        assertThat(reportFile.schemaTopic).isEqualTo("topic1")
+        assertThat(reportFile.receivingOrg).isEqualTo("myOrg")
+        assertThat(reportFile.externalName).isEqualTo("filename1")
+        assertThat(reportFile.transportParams).isEqualTo("params1")
+        assertThat(reportFile.transportResult).isEqualTo("result1")
+        assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
+        assertThat(reportFile.bodyFormat).isEqualTo("REDOX")
         assertThat(reportFile.sendingOrg).isNull()
         assertThat(reportFile.bodyUrl).isNull()
         assertThat(reportFile.blobDigest).isNull()
-        assertThat(15).isEqualTo(reportFile.itemCount)
+        assertThat(reportFile.itemCount).isEqualTo(15)
         // not allowed to track the same report twice.
         assertThat {
             actionHistory1.trackSentReport(
@@ -201,10 +199,10 @@ class ActionHistoryTests {
         actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob")
         assertThat(actionHistory1.reportsOut[uuid2]).isNotNull()
         val reportFile2 = actionHistory1.reportsOut[uuid2] !!
-        assertThat("myRcvr").isEqualTo(reportFile2.receivingOrgSvc)
-        assertThat("myOrg").isEqualTo(reportFile2.receivingOrg)
-        assertThat("filename1").isEqualTo(reportFile2.externalName)
-        assertThat("bob").isEqualTo(reportFile2.downloadedBy)
+        assertThat(reportFile2.receivingOrgSvc).isEqualTo("myRcvr")
+        assertThat(reportFile2.receivingOrg).isEqualTo("myOrg")
+        assertThat(reportFile2.externalName).isEqualTo("filename1")
+        assertThat(reportFile2.downloadedBy).isEqualTo("bob")
         assertThat(reportFile2.sendingOrg).isNull()
         assertThat(reportFile2.bodyUrl).isNull()
         assertThat(reportFile2.blobDigest).isNull()
@@ -300,17 +298,17 @@ class ActionHistoryTests {
         val tree: JsonNode? = jacksonObjectMapper().readTree(json)
         assertNotNull(tree)
         assertTrue(tree["destinationCount"].isInt)
-        assertEquals(2, tree["destinationCount"].intValue())
+        assertThat(tree["destinationCount"].intValue()).isEqualTo(2)
         val arr = tree["destinations"] as ArrayNode
-        assertEquals(2, arr.size())
+        assertThat(arr.size()).isEqualTo(2)
 
-        assertThat("foo bar").isEqualTo(arr[0]["organization"].textValue())
-        assertThat("immediately").isEqualTo(arr[0]["sending_at"].textValue())
-        assertThat(17).isEqualTo(arr[0]["itemCount"].intValue())
+        assertThat(arr[0]["organization"].textValue()).isEqualTo("foo bar")
+        assertThat(arr[0]["sending_at"].textValue()).isEqualTo("immediately")
+        assertThat(arr[0]["itemCount"].intValue()).isEqualTo(17)
 
-        assertThat("org1").isEqualTo(arr[1]["organization_id"].textValue())
-        assertThat("service1").isEqualTo(arr[1]["service"].textValue())
-        assertThat(1).isEqualTo(arr[1]["itemCount"].intValue())
+        assertThat(arr[1]["organization_id"].textValue()).isEqualTo("org1")
+        assertThat(arr[1]["service"].textValue()).isEqualTo("service1")
+        assertThat(arr[1]["itemCount"].intValue()).isEqualTo(1)
 
         // Another test, this time add a 3rd ReportFile with same org as the one of the others.
         val r2 = ReportFile(r1)
@@ -326,10 +324,10 @@ class ActionHistoryTests {
         assertTrue { json2.isNotEmpty() }
         val tree2: JsonNode? = jacksonObjectMapper().readTree(json2)
         assertNotNull(tree2)
-        assertEquals(2, tree2["destinationCount"].intValue()) // still 2 destinations, even with 3 ReportFile
+        assertThat(tree2["destinationCount"].intValue()).isEqualTo(2)
         val arr2 = tree2["destinations"] as ArrayNode
-        assertThat(2).isEqualTo(arr2.size()) // still 2 destinations, even with 3 ReportFile
-        assertThat(2).isEqualTo(arr2[1]["itemCount"].intValue()) // second destination now has 2 items instead of 1.
+        assertThat(arr2.size()).isEqualTo(2) // still 2 destinations, even with 3 ReportFile
+        assertThat(arr2[1]["itemCount"].intValue()).isEqualTo(2) // second destination now has 2 items instead of 1.
 
         // Another test, test report option SkipSend
         outStream = ByteArrayOutputStream()
@@ -341,8 +339,8 @@ class ActionHistoryTests {
         val json3 = outStream.toString()
         val tree3: JsonNode? = jacksonObjectMapper().readTree(json3)
         val arr3 = tree3?.get("destinations") as ArrayNode?
-        assertThat("never - skipSend specified").isEqualTo(
-            arr3?.get(0)?.get("sending_at")?.textValue() ?: ""
+        assertThat(arr3?.get(0)?.get("sending_at")?.textValue() ?: "").isEqualTo(
+            "never - skipSend specified"
         )
     }
 }
