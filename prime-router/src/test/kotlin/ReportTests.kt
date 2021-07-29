@@ -233,23 +233,23 @@ class ReportTests {
         val merged = Report.merge(listOf(report1, report2))
         val reports = merged.split()
 
-        assertThat(4).isEqualTo(reports.size)
-        assertThat(1).isEqualTo(reports[0].itemLineages!!.size)
-        assertThat(1).isEqualTo(reports[3].itemLineages!!.size)
+        assertThat(reports.size).isEqualTo(4)
+        assertThat(reports[0].itemLineages!!.size).isEqualTo(1)
+        assertThat(reports[3].itemLineages!!.size).isEqualTo(1)
 
         val firstLineage = reports[0].itemLineages!![0]
-        assertThat(report1.id).isEqualTo(firstLineage.parentReportId)
-        assertThat(0).isEqualTo(firstLineage.parentIndex)
-        assertThat(reports[0].id).isEqualTo(firstLineage.childReportId)
-        assertThat(0).isEqualTo(firstLineage.childIndex)
-        assertThat("rep1_row1_a").isEqualTo(firstLineage.trackingId)
+        assertThat(firstLineage.parentReportId).isEqualTo(report1.id)
+        assertThat(firstLineage.parentIndex).isEqualTo(0)
+        assertThat(firstLineage.childReportId).isEqualTo(reports[0].id)
+        assertThat(firstLineage.childIndex).isEqualTo(0)
+        assertThat(firstLineage.trackingId).isEqualTo("rep1_row1_a")
 
         val fourthLineage = reports[3].itemLineages!![0]
-        assertThat(report2.id).isEqualTo(fourthLineage.parentReportId)
-        assertThat(1).isEqualTo(fourthLineage.parentIndex)
-        assertThat(reports[3].id).isEqualTo(fourthLineage.childReportId)
-        assertThat(0).isEqualTo(fourthLineage.childIndex)
-        assertThat("rep2_row2_a").isEqualTo(fourthLineage.trackingId)
+        assertThat(fourthLineage.parentReportId).isEqualTo(report2.id)
+        assertThat(fourthLineage.parentIndex).isEqualTo(1)
+        assertThat(fourthLineage.childReportId).isEqualTo(reports[3].id)
+        assertThat(fourthLineage.childIndex).isEqualTo(0)
+        assertThat(fourthLineage.trackingId).isEqualTo("rep2_row2_a")
     }
 
     @Test
@@ -270,19 +270,19 @@ class ReportTests {
         val filteredReport = copy2.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))), rcvr, false)
 
         val lineage = filteredReport.itemLineages!!
-        assertThat(2).isEqualTo(lineage.size)
+        assertThat(lineage.size).isEqualTo(2)
 
-        assertThat(report1.id).isEqualTo(lineage[0].parentReportId)
-        assertThat(1).isEqualTo(lineage[0].parentIndex)
-        assertThat(filteredReport.id).isEqualTo(lineage[0].childReportId)
-        assertThat(0).isEqualTo(lineage[0].childIndex)
-        assertThat("aaa").isEqualTo(lineage[0].trackingId)
+        assertThat(lineage[0].parentReportId).isEqualTo(report1.id)
+        assertThat(lineage[0].parentIndex).isEqualTo(1)
+        assertThat(lineage[0].childReportId).isEqualTo(filteredReport.id)
+        assertThat(lineage[0].childIndex).isEqualTo(0)
+        assertThat(lineage[0].trackingId).isEqualTo("aaa")
 
-        assertThat(report1.id).isEqualTo(lineage[1].parentReportId)
-        assertThat(2).isEqualTo(lineage[1].parentIndex)
-        assertThat(filteredReport.id).isEqualTo(lineage[1].childReportId)
-        assertThat(1).isEqualTo(lineage[1].childIndex)
-        assertThat("aaa").isEqualTo(lineage[1].trackingId)
+        assertThat(lineage[1].parentReportId).isEqualTo(report1.id)
+        assertThat(lineage[1].parentIndex).isEqualTo(2)
+        assertThat(lineage[1].childReportId).isEqualTo(filteredReport.id)
+        assertThat(lineage[1].childIndex).isEqualTo(1)
+        assertThat(lineage[1].trackingId).isEqualTo("aaa")
     }
 
     @Test
@@ -303,13 +303,13 @@ class ReportTests {
         // act
         val synthesizedReport = report.synthesizeData(metadata = metadata)
         // assert
-        assertEquals(3, synthesizedReport.itemCount)
-        assertEquals("smith", synthesizedReport.getString(0, "last_name"))
-        assertEquals("jones", synthesizedReport.getString(1, "last_name"))
-        assertEquals("white", synthesizedReport.getString(2, "last_name"))
-        assertEquals("sarah", synthesizedReport.getString(0, "first_name"))
-        assertEquals("mary", synthesizedReport.getString(1, "first_name"))
-        assertEquals("roberta", synthesizedReport.getString(2, "first_name"))
+        assertThat(synthesizedReport.itemCount).isEqualTo(3)
+        assertThat(synthesizedReport.getString(0, "last_name")).isEqualTo("smith")
+        assertThat(synthesizedReport.getString(1, "last_name")).isEqualTo("jones")
+        assertThat(synthesizedReport.getString(2, "last_name")).isEqualTo("white")
+        assertThat(synthesizedReport.getString(0, "first_name")).isEqualTo("sarah")
+        assertThat(synthesizedReport.getString(1, "first_name")).isEqualTo("mary")
+        assertThat(synthesizedReport.getString(2, "first_name")).isEqualTo("roberta")
     }
 
     @Test
@@ -334,13 +334,13 @@ class ReportTests {
         // act
         val synthesizedReport = report.synthesizeData(strategies, metadata = metadata)
         // assert
-        assertThat(3).isEqualTo(synthesizedReport.itemCount)
-        assertThat("smith").isEqualTo(synthesizedReport.getString(0, "last_name"))
-        assertThat("jones").isEqualTo(synthesizedReport.getString(1, "last_name"))
-        assertThat("white").isEqualTo(synthesizedReport.getString(2, "last_name"))
-        assertThat("sarah").isEqualTo(synthesizedReport.getString(0, "first_name"))
-        assertThat("mary").isEqualTo(synthesizedReport.getString(1, "first_name"))
-        assertThat("roberta").isEqualTo(synthesizedReport.getString(2, "first_name"))
+        assertThat(synthesizedReport.itemCount).isEqualTo(3)
+        assertThat(synthesizedReport.getString(0, "last_name")).isEqualTo("smith")
+        assertThat(synthesizedReport.getString(1, "last_name")).isEqualTo("jones")
+        assertThat(synthesizedReport.getString(2, "last_name")).isEqualTo("white")
+        assertThat(synthesizedReport.getString(0, "first_name")).isEqualTo("sarah")
+        assertThat(synthesizedReport.getString(1, "first_name")).isEqualTo("mary")
+        assertThat(synthesizedReport.getString(2, "first_name")).isEqualTo("roberta")
     }
 
     @Test
@@ -370,16 +370,16 @@ class ReportTests {
         // act
         val synthesizedReport = report.synthesizeData(strategies, metadata = metadata)
         // assert
-        assertThat(3).isEqualTo(synthesizedReport.itemCount)
-        assertThat("smith").isEqualTo(synthesizedReport.getString(0, "last_name"))
-        assertThat("jones").isEqualTo(synthesizedReport.getString(1, "last_name"))
-        assertThat("white").isEqualTo(synthesizedReport.getString(2, "last_name"))
-        assertThat("sarah").isEqualTo(synthesizedReport.getString(0, "first_name"))
-        assertThat("mary").isEqualTo(synthesizedReport.getString(1, "first_name"))
-        assertThat("roberta").isEqualTo(synthesizedReport.getString(2, "first_name"))
-        assertThat("").isEqualTo(synthesizedReport.getString(0, "ssn"))
-        assertThat("").isEqualTo(synthesizedReport.getString(1, "ssn"))
-        assertThat("").isEqualTo(synthesizedReport.getString(2, "ssn"))
+        assertThat(synthesizedReport.itemCount).isEqualTo(3)
+        assertThat(synthesizedReport.getString(0, "last_name")).isEqualTo("smith")
+        assertThat(synthesizedReport.getString(1, "last_name")).isEqualTo("jones")
+        assertThat(synthesizedReport.getString(2, "last_name")).isEqualTo("white")
+        assertThat(synthesizedReport.getString(0, "first_name")).isEqualTo("sarah")
+        assertThat(synthesizedReport.getString(1, "first_name")).isEqualTo("mary")
+        assertThat(synthesizedReport.getString(2, "first_name")).isEqualTo("roberta")
+        assertThat(synthesizedReport.getString(0, "ssn")).isEqualTo("")
+        assertThat(synthesizedReport.getString(1, "ssn")).isEqualTo("")
+        assertThat(synthesizedReport.getString(2, "ssn")).isEqualTo("")
     }
 
     // ignoring this test for now because shuffling is non-deterministic
@@ -413,17 +413,11 @@ class ReportTests {
         // act
         val synthesizedReport = report.synthesizeData(strategies, metadata = metadata)
         // assert
-        // assertNotEquals("smith", synthesizedReport.getString(0, "last_name"))
-        assertThat("smith").isNotEqualTo(synthesizedReport.getString(0, "last_name"))
-        // assertNotEquals("jones", synthesizedReport.getString(1, "last_name"))
-        assertThat("jones").isNotEqualTo(synthesizedReport.getString(1, "last_name"))
-        // assertNotEquals("white", synthesizedReport.getString(2, "last_name"))
-        assertThat("white").isNotEqualTo(synthesizedReport.getString(2, "last_name"))
-        // assertNotEquals("sarah", synthesizedReport.getString(0, "first_name"))
-        assertThat("sarah").isNotEqualTo(synthesizedReport.getString(0, "first_name"))
-        // assertNotEquals("mary", synthesizedReport.getString(1, "first_name"))
-        assertThat("mary").isNotEqualTo(synthesizedReport.getString(1, "first_name"))
-        // assertNotEquals("roberta", synthesizedReport.getString(2, "first_name"))
-        assertThat("roberta").isNotEqualTo(synthesizedReport.getString(2, "first_name"))
+        assertThat(synthesizedReport.getString(0, "last_name")).isNotEqualTo("smith")
+        assertThat(synthesizedReport.getString(1, "last_name")).isNotEqualTo("jones")
+        assertThat(synthesizedReport.getString(2, "last_name")).isNotEqualTo("white")
+        assertThat(synthesizedReport.getString(0, "first_name")).isNotEqualTo("sarah")
+        assertThat(synthesizedReport.getString(1, "first_name")).isNotEqualTo("mary")
+        assertThat(synthesizedReport.getString(2, "first_name")).isNotEqualTo("roberta")
     }
 }
