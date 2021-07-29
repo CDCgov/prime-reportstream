@@ -9,19 +9,6 @@ import javax.crypto.SecretKey
 
 interface ReportStreamSecretFinder {
     fun getReportStreamTokenSigningSecret(): SecretKey
-}
-
-class FindReportStreamSecretInVault : ReportStreamSecretFinder {
-    override fun getReportStreamTokenSigningSecret(): SecretKey {
-        val secretServiceAgent = SecretHelper.getSecretService()
-        val secret = secretServiceAgent.fetchSecret(TOKEN_SIGNING_SECRET_NAME)
-            ?: error(
-                "Unable to find secret $TOKEN_SIGNING_SECRET_NAME.  Did you forget to create it?" +
-                    " If localhost, generate key using ReportStreamSecretFinder:main, then place in" +
-                    " docker-compose like this:       - TokenSigningSecret=<secret>"
-            )
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
-    }
 
     companion object {
         const val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"
@@ -33,25 +20,42 @@ class FindReportStreamSecretInVault : ReportStreamSecretFinder {
     }
 }
 
+class FindReportStreamSecretInVault : ReportStreamSecretFinder {
+    override fun getReportStreamTokenSigningSecret(): SecretKey {
+        val secretServiceAgent = SecretHelper.getSecretService()
+        val secret = secretServiceAgent.fetchSecret(ReportStreamSecretFinder.TOKEN_SIGNING_SECRET_NAME)
+            ?: error(
+                "Unable to find secret ${ReportStreamSecretFinder.TOKEN_SIGNING_SECRET_NAME}." +
+                    "  If local, check if its in .vault/env/.env.local" +
+                    "  If its there, first try a stop/restart docker (Sorry!)." +
+                    "  If not there, maybe init.sh didn't run properly."
+            )
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))
+    }
+}
+
 /**
  * Convenience function to generate a key to be used as a ReportStream secret
  */
 fun main(args: Array<String>) {
     println("Put this env var in your docker-compose file:")
     println(
-        FindReportStreamSecretInVault.TOKEN_SIGNING_SECRET_NAME + "=" +
-            FindReportStreamSecretInVault.generateSecret()
+        ReportStreamSecretFinder.TOKEN_SIGNING_SECRET_NAME + "=" +
+            ReportStreamSecretFinder.generateSecret()
     )
 }
 
 /**
  * Return a ReportStream secret, used by ReportStream to sign a short-lived token
- * This stores a secret in static memory.  For testing only.
+ * This stores a secret in static memory.  For local use.
  */
-class GetStaticSecret : ReportStreamSecretFinder {
-    var tokenSigningSecret = "UVD4QOJ3H295Zi9Ayl3ySuoXNKiE8WYuOsaXOZfug3dwTUVBC1ZIKRPpG5LEyZDZ"
+class GetInMemorySecret : ReportStreamSecretFinder {
+    private var tokenSigningSecret: String? = null
 
     override fun getReportStreamTokenSigningSecret(): SecretKey {
+        if (tokenSigningSecret == null) {
+            tokenSigningSecret = ReportStreamSecretFinder.generateSecret()
+        }
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenSigningSecret))
     }
 }

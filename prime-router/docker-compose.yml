@@ -33,7 +33,6 @@ services:
       - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
       - OKTA_redirect=http://localhost:7071/api/download
       - VAULT_API_ADDR=http://vault:8200
-      # - TokenSigningSecret=<generate secret using ReportStreamSecretFinder.main>
     depends_on:
       - azurite
       - vault

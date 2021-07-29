@@ -927,6 +927,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440

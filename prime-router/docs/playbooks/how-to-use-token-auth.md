@@ -4,9 +4,9 @@ This playbook is a set of commandline scripts meant to exercise and demonstrate 
 
 A couple notes before we get started:
 
-- Note: To do step 3, you will need to create and place a TokenSigningSecret in docker-compose.yml for this to work.  Might as well do this now before you go any further, so you don't have to restart your container.  This is easy - run the "main" program in ReportStreamSecretFinder.kt, and it will create one for you!   Put it in docker-compose.yml, and restart your container.
+- Note: ReportStream has a new 'TokenSigningSecret' as part of this.   Locally, it is created for you by ./vault/config/init.sh upon container start.  There is a bug at the moment where you might have to restart your container the first time this value is created.
 
-- Note:  Because organizations.yml will _overwrite_ your wonderful keys you uploaded in step 2, you will have to rerun that step every time you stop/start your docker.  Need to fix this pain point.
+- Note:  Because organizations.yml will _overwrite_ your wonderful keys you uploaded in step 2, you will have to rerun that step every time you stop/start your docker and that file has changed.  Need to fix this pain point.  I didn't want to put keys into that file, even bogus ones.
 
 OK, here we go...
 
@@ -38,7 +38,7 @@ First, make sure you have Reportstream running.   These calls below are what the
 
 The actual call would be a call to the REST API endpoint, which is hidden in this CLI call.
 
-Note: you will need to create and place a TokenSigningSecret in docker-compose.yml for this to work
+(Note: this is the step that requires the TokenSigningSecret, which should get generated automatically.)
 
 Note:  No, we are NOT intending that our customers use the prime CLI to do this!   This is just a convenience, for us (only) to test and demo.  And yes, more work is needed to provide documentation and helper tools for our senders.
 

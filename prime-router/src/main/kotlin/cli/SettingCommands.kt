@@ -265,7 +265,6 @@ abstract class SettingCommand(
                         ?: "localhost"
                     ) + ":7071",
                 useHttp = true,
-                oktaApp = OktaCommand.OktaApp.DH_TEST
             ),
             Environment("test", "test.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
