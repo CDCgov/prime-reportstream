@@ -111,7 +111,7 @@ class SendFunctionTests {
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(Event.EventAction.NONE).isEqualTo(nextEvent!!.eventAction)
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.NONE)
         assertThat(nextEvent!!.retryToken).isNull()
     }
 
@@ -135,7 +135,7 @@ class SendFunctionTests {
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(Event.EventAction.SEND).isEqualTo(nextEvent!!.eventAction)
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
         assertThat(nextEvent!!.retryToken).isNotNull()
         assertThat(1).isEqualTo(nextEvent!!.retryToken?.retryCount)
     }
@@ -164,7 +164,7 @@ class SendFunctionTests {
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(Event.EventAction.SEND).isEqualTo(nextEvent!!.eventAction)
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
         assertThat(nextEvent!!.retryToken).isNotNull()
         assertThat(3).isEqualTo(nextEvent!!.retryToken?.retryCount)
         assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2))).isTrue()
@@ -196,7 +196,7 @@ class SendFunctionTests {
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(Event.EventAction.SEND_ERROR).isEqualTo(nextEvent!!.eventAction)
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
         assertThat(nextEvent!!.retryToken).isNull()
     }
 

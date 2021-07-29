@@ -145,8 +145,8 @@ class SettingFacadeTests {
     fun `get orgs test`() {
         setupOrgDatabaseAccess()
         val list = SettingsFacade(testMetadata(), accessSpy).organizations
-        assertThat("test").isEqualTo(list.first().name)
-        assertThat(Organization.Jurisdiction.STATE).isEqualTo(list.first().jurisdiction)
+        assertThat(list.first().name).isEqualTo("test")
+        assertThat(list.first().jurisdiction).isEqualTo(Organization.Jurisdiction.STATE)
     }
 
     @Test
@@ -154,7 +154,7 @@ class SettingFacadeTests {
         setupOrgDatabaseAccess()
         val org = SettingsFacade(testMetadata(), accessSpy).findOrganization("test")
         assertThat("test").isEqualTo(org?.name)
-        assertThat(Organization.Jurisdiction.STATE).isEqualTo(org?.jurisdiction)
+        assertThat(org?.jurisdiction).isEqualTo(Organization.Jurisdiction.STATE)
     }
 
     @Test
@@ -168,16 +168,16 @@ class SettingFacadeTests {
     fun `get senders test`() {
         setupSenderDatabaseAccess()
         val list = SettingsFacade(testMetadata(), accessSpy).senders
-        assertThat("default").isEqualTo(list.first().name)
-        assertThat(Sender.Format.CSV).isEqualTo(list.first().format)
+        assertThat(list.first().name).isEqualTo("default")
+        assertThat(list.first().format).isEqualTo(Sender.Format.CSV)
     }
 
     @Test
     fun `get sender test`() {
         setupSenderDatabaseAccess()
         val sender = SettingsFacade(testMetadata(), accessSpy).findSender("test.default")
-        assertThat("default").isEqualTo(sender?.name)
-        assertThat(Sender.Format.CSV).isEqualTo(sender?.format)
+        assertThat(sender?.name).isEqualTo("default")
+        assertThat(sender?.format).isEqualTo(Sender.Format.CSV)
     }
 
     @Test
@@ -198,19 +198,15 @@ class SettingFacadeTests {
     fun `get receivers test`() {
         setupReceiverDatabaseAccess()
         val list = SettingsFacade(testMetadata(), accessSpy).receivers
-        // assertEquals("elr-test", list.first().name)
-        assertThat("elr-test").isEqualTo(list.first().name)
-        // assertEquals(Report.Format.CSV, list.first().format)
-        assertThat(Report.Format.CSV).isEqualTo(list.first().format)
+        assertThat(list.first().name).isEqualTo("elr-test")
+        assertThat(list.first().format).isEqualTo(Report.Format.CSV)
     }
 
     @Test
     fun `get receiver test`() {
         setupReceiverDatabaseAccess()
         val receiver = SettingsFacade(testMetadata(), accessSpy).findReceiver("test.elr-test")
-        // assertEquals("elr-test", receiver?.name)
-        assertThat("elr-test").isEqualTo(receiver?.name)
-        // assertEquals(Report.Format.CSV, receiver?.format)
-        assertThat(Report.Format.CSV).isEqualTo(receiver?.format)
+        assertThat(receiver?.name).isEqualTo("elr-test")
+        assertThat(receiver?.format).isEqualTo(Report.Format.CSV)
     }
 }

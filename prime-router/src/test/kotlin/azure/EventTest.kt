@@ -12,7 +12,7 @@ class EventTest {
         val event = ReportEvent(Event.EventAction.SEND, UUID.randomUUID())
         val message = event.toQueueMessage()
         val returnEvent = Event.parseQueueMessage(message)
-        assertThat(event).isEqualTo(returnEvent)
+        assertThat(returnEvent).isEqualTo(event)
     }
 
     @Test
@@ -20,7 +20,7 @@ class EventTest {
         val event = ReportEvent(Event.EventAction.SEND, UUID.randomUUID(), OffsetDateTime.now())
         val message = event.toQueueMessage()
         val returnEvent = Event.parseQueueMessage(message)
-        assertThat(event).isEqualTo(returnEvent)
+        assertThat(returnEvent).isEqualTo(event)
     }
 
     @Test
@@ -28,7 +28,7 @@ class EventTest {
         val event = ReceiverEvent(Event.EventAction.SEND, "test")
         val message = event.toQueueMessage()
         val returnEvent = Event.parseQueueMessage(message)
-        assertThat(event).isEqualTo(returnEvent)
+        assertThat(returnEvent).isEqualTo(event)
     }
 
     @Test
@@ -36,6 +36,6 @@ class EventTest {
         val event = ReceiverEvent(Event.EventAction.SEND, "test", OffsetDateTime.now())
         val message = event.toQueueMessage()
         val returnEvent = Event.parseQueueMessage(message)
-        assertThat(event).isEqualTo(returnEvent)
+        assertThat(returnEvent).isEqualTo(event)
     }
 }
