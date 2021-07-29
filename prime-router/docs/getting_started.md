@@ -8,6 +8,7 @@ This document will walk you through the setup instructions to get a functioning 
 * [First build](#first-build)
     * [Build dependencies](#build-dependencies)
 * [Committing to this repository](#committing-to-this-repository)
+    * [Git Hooks](#git-hooks)
 * [Building in the course of development](#building-in-the-course-of-development)
     * [Updating schema documentation](#updating-schema-documentation)
 * [Running ReportStream](#running-reportstream)
@@ -97,6 +98,15 @@ Running this instance as a docker container enables you to easily clean it (and 
 
 * Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
 * Make your changes in topic/feature branches and file a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch.
+
+## Git Hooks
+
+We make use of git hooks, make sure these are installed by invoking either `prime-router/cleanslate.sh` or by invoking `.environment/githooks.sh install`. We currently use the following hook(s):
+
+* A pre-commit hook that ensures _all_ of the following checks pass before the commit is made:
+    * gitleaks: this check will scan the files that are marked as "staged" (i.e. `git add`) for known patterns of secrets or keys. This tool can also be manually invoked through `.environment/gitleaks/run-gitleaks.sh`, specify `--help` as a command line argument for more information on its different run modes. This tool produces 2 files with output, both in the root of your repository, which can be inspected for more information about the check:
+        * `gitleaks.report.json`: the details about any leaks it finds, serialized as JSON. If no leaks are found, this file contains the literal "`null`".
+        * `gitleaks.log`: the simplified logging output of the gitleaks tool
 
 # Building in the course of development
 
