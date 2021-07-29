@@ -1,0 +1,58 @@
+---
+partners:
+  - name: Alabama
+    type: state
+    abbreviation: AL
+    partner: true
+  - name: Arizona
+    type: state
+    abbreviation: AZ
+    partner: true
+  - name: Colorado
+    type: state
+    abbreviation: CO
+    partner: true
+  - name: Guam
+    type: territory
+    abbreviation: GU
+    partner: true
+  - name: Louisiana
+    type: state
+    abbreviation: LA
+    partner: true
+  - name: Mississippi
+    type: state
+    abbreviation: MS
+    partner: true
+  - name: Montana
+    type: state
+    abbreviation: MT
+    partner: true
+  - name: New Jersey
+    type: state
+    abbreviation: NJ
+    partner: true
+  - name: New Mexico
+    type: state
+    abbreviation: NM
+    partner: true
+  - name: North Dakota
+    type: state
+    abbreviation: ND
+    partner: true
+  - name: Ohio
+    type: state
+    abbreviation: OH
+    partner: true
+  - name: Pennsylvania
+    type: state
+    abbreviation: PA
+    partner: true
+  - name: Texas
+    type: state
+    abbreviation: TX
+    partner: true
+  - name: Vermont
+    type: state
+    abbreviation: VT
+    partner: true
