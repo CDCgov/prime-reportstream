@@ -1,0 +1,22 @@
+name: Run Gitleaks on the PRIME ReportStream code-base
+
+on:
+  schedule:
+    # at GitHub midnight on the default branch
+    - cron: "0 0 * * *"
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Fetch the full history
+          fetch-depth: 0
+
+      # NOTE: we /had/ violations in the past that have been corrected,
+      # we do not want to have those false positives every single time
+      # The specified 'since' commit is a LKG (Last Known Good)
+      # See also git show <hash>
+      - name: "Run Gitleaks on a selected part of our history"
+        run: .environment/gitleaks/run-gitleaks.sh --since baff524ad9d35a8dbab6e9c60a1789c6702f90a7
