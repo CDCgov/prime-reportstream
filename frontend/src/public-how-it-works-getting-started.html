@@ -8,6 +8,7 @@ protected: false
 show_navbar: true
 how_it_works: true
 nestedPage: true
+mailtoSubject: "?subject=Getting started with ReportStream"
 ---
 <section id="anchor-top">
 
@@ -16,7 +17,7 @@ nestedPage: true
   <p class="usa-intro">First, we’ll get you connected to our web application, where you can immediately start downloading reporting data that is relevant to your jurisdiction.</p>
   <p class="usa-intro">Depending on your needs, we can also create a customized Electronic Lab Reporting (ELR) connection —  an online setup used to send digital lab reports to public health departments via a secure server. Either way, reach out to us and we’ll get back to you in about a week.</p>
 
-  <a href="mailto:{{ site.orgs.RS.email }}" class="usa-button usa-button--outline">Contact us</a>
+  <a href="mailto:{{ site.orgs.RS.email }}{{ mailtoSubject }}" class="usa-button usa-button--outline">Contact us</a>
 
   <hr class="margin-y-6" />
 
@@ -24,23 +25,21 @@ nestedPage: true
 
   - [Data download](#data-download)
   - [ELR connection](#elr-connection)
-  - [Connecting to testing facilities](#connecting-to-testing-facilities)
-
-  
+  - [Connecting to testing facilities](#connecting-to-testing-facilities)  
 
 </section>
 <hr class="margin-y-6" />
 
 <section>  
-  <span class="usa-tag margin-bottom-0">Quick start</span>
-  <h2 class="margin-top-0">Data download</h2>
+  
+  ## <a name="data-download"></a>Data download
 
   Our fastest option to get up and running, our web application gives you access to reporting results via manual download from our online portal, in just two steps.
 
   <ol class="usa-process-list">
     <li class="usa-process-list__item">
       <h4 class="usa-process-list__heading">Kickoff and onboarding</h4>
-      <p class="margin-top-05">Send us an email with the information below. In most cases we’ll review and approve your account in about a week.</p>
+      <p class="margin-top-05"><a href="mailto:{{ site.orgs.RS.email }}{{ mailtoSubject }}">Send us an email</a> with the information below. In most cases we’ll review and approve your account in about a week.</p>
       <ul>
         <li>Name of public health department</li>
         <li>Jurisdiction type (state, county, city, etc.)</li>
@@ -54,16 +53,14 @@ nestedPage: true
     </li>
   </ol>
 
-<span class="usa-tag margin-bottom-0">Advanced setup</span>
-
-## ELR connection
+## <a name="elr-connection"></a>ELR connection
 
 If you’ve decided you’ll need an ELR connection for your public health data reporting, we’ll get some information from you on your needs and requirements. Connecting with ReportStream is similar to setting up an ELR feed with a lab or hospital, and takes just a few steps.
 
 <ol class="usa-process-list">
   <li class="usa-process-list__item">
     <h4 class="usa-process-list__heading">Kickoff and onboarding</h4>
-    <p class="margin-top-05">Tell us your data configuration requirements and preferences by submitting our ReportStream ELR onboarding form.  We’ll review your requirements and reach out to start the data integration process in about a week.</p>
+    <p class="margin-top-05">Tell us your data configuration requirements and preferences by submitting our <a href="{{ site.forms.intakeElr.url}}">ReportStream ELR onboarding form</a>.  We’ll review your requirements and reach out to start the data integration process in about a week.</p>
   </li>
   <li class="usa-process-list__item">
     <h4 class="usa-process-list__heading">Connect and test</h4>
@@ -75,7 +72,7 @@ If you’ve decided you’ll need an ELR connection for your public health data 
   </li>
 </ol>
 
-## Connecting to testing facilities
+## <a name="connecting-to-testing-facilities"></a>Connecting to testing facilities
 
 New testing facilities join ReportStream on a regular basis, through our partner SimpleReport, or through other public health data aggregators and apps. After they join, their data will be sent automatically to the correct public health department(s) in their jurisdiction who are part of ReportStream. Data is accessible via our web application or the ELR connection.
 
@@ -83,12 +80,14 @@ You can request a weekly email update from ReportStream to notify you when new f
 
 ### ELR onboarding checklist
 
-Check out our <a href="/getting-started/onboarding-checklist/" class="usa-link">ELR onboarding checklist</a> to preview the information you’ll need to complete step one: the <a href="{{ site.forms.intakeElr.url }}" class="usa-link">ReportStream ELR onboarding form</a>.
+Check out our <a href="/how-it-works/elr-onboarding-checklist/" class="usa-link">ELR onboarding checklist</a> to preview the information you’ll need to complete step one: the <a href="{{ site.forms.intakeElr.url }}" class="usa-link">ReportStream ELR onboarding form</a>.
+
+<hr class="margin-y-6" />
 
 ## Get started with ReportStream
 
-Ready to bring ReportStream to your jurisdiction? Email us and we’ll follow up with next steps.
+Ready to bring ReportStream to your jurisdiction or just have more questions? Email us and we’ll follow up with next steps.
 
-<a href="mailto:{{ site.orgs.RS.email }}" class="usa-button usa-button--outline">Get in touch</a>
+<a href="mailto:{{ site.orgs.RS.email }}{{ mailtoSubject}}" class="usa-button usa-button--outline">Get in touch</a>
 
 </section>

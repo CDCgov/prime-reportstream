@@ -73,6 +73,10 @@ main {
    line-height: units(4);
 }
 
+.usa-process-list__heading {
+   @include u-font('sans', 'md');
+}
+
 // MEDIA: DESKTOP
 
 @media (min-width: 64em) {
