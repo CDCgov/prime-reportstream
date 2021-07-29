@@ -13,9 +13,10 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc" | tee /etc/yum.repos.d
 RUN yum -y install azure-cli-${AZURE_CLI_VERSION}-1.el7
 
 # The following files need a Maj.min.rev specification that matches the values from $TERRAFORM_VERSION:
-# - app/src/environments/dev/main.tf
-# - app/src/environments/test/main.tf
-# - app/src/environments/staging/main.tf
+# - app/src/environments/01-network/main.tf
+# - app/src/environments/02-config/main.tf
+# - app/src/environments/03-persistent/main.tf
+# - app/src/environments/04-app/main.tf
 # - app/src/environments/prod/main.tf
 ARG TERRAFORM_VERSION
 
