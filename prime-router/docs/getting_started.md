@@ -101,7 +101,7 @@ Running this instance as a docker container enables you to easily clean it (and 
 
 ## Git Hooks
 
-We make use of git hooks in this repository and rely on them for certain levels of protections against CI/CD failures and other incidents. Install/activate these hooks by invoking either `prime-router/cleanslate.sh` or by directly invoking `.environment/githooks.sh install`.
+We make use of git hooks in this repository and rely on them for certain levels of protections against CI/CD failures and other incidents. Install/activate these hooks by invoking either `prime-router/cleanslate.sh` or by directly invoking `.environment/githooks.sh install`. This is a _repository-level_ setting, you _must_ activate the git hooks in every clone on every device you have.
 
 ### pre-commit: Gitleaks
 
