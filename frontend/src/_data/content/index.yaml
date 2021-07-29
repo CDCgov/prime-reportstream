@@ -1,5 +1,5 @@
 ---
-title: ReportStream makes it easier to collect public health data — for free
+title: ReportStream makes it easier to send and collect public health data — for free
 summary: >-
   ReportStream is an open source, cloud based platform that aggregates and delivers COVID-19 test results to health departments.
 description: Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection. 
@@ -14,27 +14,27 @@ sections:
   - title: Why ReportStream?
     summary: Foo
     features:
-      - title: All your data in one place 
+      - title: Aggregated, clean data
         summary: >-
-          Save time formatting and cleaning data. Get aggregated, validated test results from across your jurisdiction, all through ReportStream.
+          Get aggregated, validated test results from across your jurisdiction, all through a single connection.
         icon: content_copy.svg
         iconDescription: multiple documents
-      - title: Analytics and insights  
+      - title: Analytics and insights 
         summary: >-
-          Make sense of your data. Get insights on reporting trends and real-time alerts that help you prepare and manage your COVID-19 response.
+          Get insights on reporting trends and real-time alerts that help you inform and manage your COVID-19 response.
         icon: assessment.svg
         iconDescription: a chart
-      - title: Built in compatibility  
+      - title: A built-in network  
         summary: >-
-          ReportStream works directly with COVID-19 testing facilities and apps like <a href="https://simplereport.gov" class="usa-link" target="_blank" rel="noopener">SimpleReport</a> to deliver results to public health departments across the U.S. 
+          ReportStream works directly with COVID-19 test manufacturers, labs, and apps like <a href="https://simplereport.gov">SimpleReport</a> to deliver more results to public health departments across the U.S. 
         icon: content_copy.svg
         iconDescription: multiple documents
   - title: ReportStream offers two ways to deliver data directly to your public health department 
     summary: Log in and download test results quickly through our web application, or work with ReportStream to set up a customized ELR connection.
     features:
-      - title: Set up made simple
+      - title: Data download
         summary: >-
-          Get verified, then simply log in to download data from our online portal. Give your team access to data from anyone in your jurisdiction that’s connected to ReportStream. 
+          Get access to daily COVID-19 test results, in just a few clicks. 
       - title: Industry standard data formatting 
         summary: >-
           Save time with less manual data entry. Download daily data in standard HL7 or CSV format in minutes, without setting up an ELR. 
