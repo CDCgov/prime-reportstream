@@ -7,6 +7,6 @@
   - name: default
     organizationName: reddyfmc-la
     topic: covid-19
-    schemaName: iPatientCare/reddyfmc-la-covid-19
+    schemaName: ipatientCare/reddyfmc-la-covid-19
     format: CSV
       
