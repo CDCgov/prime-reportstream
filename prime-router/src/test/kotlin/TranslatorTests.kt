@@ -10,19 +10,21 @@ class TranslatorTests {
     private val receiversYaml = """
         ---
           # Arizona PHD
-          - name: phd1
+          - name: ak-pdh
             description: Arizona PHD
             jurisdiction: STATE
             stateCode: AZ
             receivers: 
             - name: elr
-              organizationName: phd1
+              organizationName: ak-pdh
               topic: test
               jurisdictionalFilter: [ "matches(a, 1)"]
               translation: 
-                type: CUSTOM
+                type: HL7
                 schemaName: one
                 format: CSV
+                replaceValue:
+                    PID-22-3: CDCREC
     """.trimIndent()
     private val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
 

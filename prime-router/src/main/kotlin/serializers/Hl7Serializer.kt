@@ -435,14 +435,6 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 return@forEach
             }
 
-            // after unknowns have been set to blank, check for values that need replacement
-            // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
-            if (replaceValue.containsKey(element.hl7Field) && value.isNotEmpty()) {
-                val pathSpec = formPathSpec(element.hl7Field ?: "")
-                terser.set(pathSpec, replaceValue.getOrDefault(element.hl7Field, ""))
-                return@forEach
-            }
-
             if (element.hl7OutputFields != null) {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
                     if (suppressedFields.contains(hl7Field))

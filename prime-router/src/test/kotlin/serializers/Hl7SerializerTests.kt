@@ -21,10 +21,12 @@ import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
@@ -87,6 +89,34 @@ NTE|1|L|This is a final comment|RE"""
     @Test
     fun `test write a message`() {
         val output = serializer.createMessage(testReport, 0)
+        assertNotNull(output)
+    }
+
+    @Test
+    fun `test write a message with Receiver`() {
+        val inputStream = File("./src/test/unit_test_files/ak_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+
+        val hl7Config = mockkClass(Hl7Configuration::class).also {
+            every { it.replaceValue }.returns(mapOf("PID-22-3" to "CDCREC"))
+            every { it.format }.returns(Report.Format.HL7)
+            every { it.useTestProcessingMode }.returns(false)
+            every { it.suppressQstForAoe }.returns(false)
+            every { it.suppressAoe }.returns(false)
+            every { it.suppressHl7Fields }.returns(null)
+            every { it.useBlankInsteadOfUnknown }.returns(null)
+            every { it.convertTimestampToDateTime }.returns(null)
+            every { it.truncateHDNamespaceIds }.returns(false)
+            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
+            every { it.usePid14ForPatientEmail }.returns(false)
+        }
+        val receiver = mockkClass(Receiver::class).also {
+            every { it.translation }.returns(hl7Config)
+            every { it.format }.returns(Report.Format.HL7)
+        }
+
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
+        val output = serializer.createMessage(testReport, 2)
         assertNotNull(output)
     }
 
