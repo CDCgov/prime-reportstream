@@ -87,11 +87,11 @@ class ReportFunction : Logging {
     }
 
     /**
-     * TODO Jim do we want to change the 'reports' endpoint to this one 'report' ?
+     * The Waters API, in memory of Dr. Michael Waters
+     * (The older version of this API is "/api/reports")
      * POST a report to the router, using FHIR auth security
-     * This one is "/api/report".  The other one is "/api/reports"
      */
-    @FunctionName("report")
+    @FunctionName("waters")
     @StorageAccount("AzureWebJobsStorage")
     fun report(
         @HttpTrigger(

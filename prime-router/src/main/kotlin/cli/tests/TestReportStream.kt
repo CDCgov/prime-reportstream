@@ -29,8 +29,8 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
-import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
@@ -131,8 +131,8 @@ Examples:
 
     private val env by option(
         "--env",
-        help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.endPoint}," +
-            " and 'test' will connect to ${ReportStreamEnv.TEST.endPoint}"
+        help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.urlPrefix}," +
+            " and 'test' will connect to ${ReportStreamEnv.TEST.urlPrefix}"
     ).choice("test", "local", "staging", "prod").default("local").validate {
         envSanityCheck()
         when (it) {
@@ -203,7 +203,7 @@ Examples:
             coolTestList.filter { it.status == TestStatus.SMOKE }
         }
         if (tests.isNotEmpty()) {
-            CoolTest.ugly("Running the following tests, POSTing to ${environment.endPoint}:")
+            CoolTest.ugly("Running the following tests, POSTing to ${environment.urlPrefix}:")
             printTestList(tests)
             runTests(tests, environment)
         } else {
@@ -605,7 +605,7 @@ class Ping : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting ping Test: run CheckConnections of ${environment.endPoint}")
+        ugly("Starting ping Test: run CheckConnections of ${environment.urlPrefix}")
         val (responseCode, json) = HttpUtilities.postReportBytes(
             environment,
             "x".toByteArray(),

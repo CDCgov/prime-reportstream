@@ -16,18 +16,18 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-enum class ReportStreamEnv(val endPoint: String) {
-    TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
-    LOCAL("http://" + (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071/api/reports"),
-    STAGING("https://staging.prime.cdc.gov/api/reports"),
+enum class ReportStreamEnv(val urlPrefix: String) {
+    TEST("https://pdhtest-functionapp.azurewebsites.net"),
+    LOCAL("http://" + (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071"),
+    STAGING("https://staging.prime.cdc.gov"),
     PROD("not implemented"),
 }
 
 class HttpUtilities {
     companion object : Logging {
         const val jsonMediaType = "application/json"
-        const val reportsEndpoint = "/api/reports"
-        const val reportsEndpointFhir = "/api/report"
+        const val oldApi = "/api/reports"
+        const val watersApi = "/api/waters"
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
@@ -230,7 +230,7 @@ class HttpUtilities {
             token: String? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytesFhir(environment, file.readBytes(), sendingOrgClient, token)
+            return postReportBytesToWatersAPI(environment, file.readBytes(), sendingOrgClient, token)
         }
 
         /**
@@ -256,15 +256,16 @@ class HttpUtilities {
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)
                 headers.add("x-functions-key" to key)
-            val url = environment.endPoint + if (option != null) "?option=$option" else ""
+            val url = environment.urlPrefix + oldApi + if (option != null) "?option=$option" else ""
             return postHttp(url, bytes, headers)
         }
 
-        fun postReportBytesFhir(
+        fun postReportBytesToWatersAPI(
             environment: ReportStreamEnv,
             bytes: ByteArray,
             sendingOrgClient: Sender,
-            token: String? = null
+            token: String? = null,
+            option: ReportFunction.Options? = null
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -275,8 +276,7 @@ class HttpUtilities {
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             token?.let { headers.add("authorization" to "Bearer $token") }
-	    // todo FIX THIS INCORRECT URL
-            val url = environment.endPoint + reportsEndpointFhir
+            val url = environment.urlPrefix + watersApi + if (option != null) "?option=$option" else ""
             return postHttp(url, bytes, headers)
         }
 

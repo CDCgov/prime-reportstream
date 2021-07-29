@@ -7,7 +7,11 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.ReportStreamEnv
-import gov.cdc.prime.router.cli.*
+import gov.cdc.prime.router.cli.DeleteSenderSetting
+import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.cli.GetSenderSetting
+import gov.cdc.prime.router.cli.PutSenderSetting
+import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.cli.tests.CoolTest
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
@@ -16,12 +20,19 @@ import io.jsonwebtoken.SigningKeyResolverAdapter
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.io.Encoders
 import io.jsonwebtoken.security.Keys
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.security.Key
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.Date
+import java.util.UUID
 import javax.crypto.SecretKey
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertFails
+import kotlin.test.assertNotNull
 
 val exampleRsaPrivateKeyStr = """
     {
@@ -560,7 +571,7 @@ class TokenAuthenticationTests {
             val (httpStatusPostReportValidToken) =
                 HttpUtilities.postReportFileFhir(ReportStreamEnv.LOCAL, fakeReportFile, savedSender, accessToken)
 
-            assertEquals(201, httpStatusPostReportValidToken, "Should get a 200 response while sending the report")
+            assertEquals(201, httpStatusPostReportValidToken, "Should get a 201 response while sending the report")
         }
 
         "testing-kid-rsa".let { kid ->

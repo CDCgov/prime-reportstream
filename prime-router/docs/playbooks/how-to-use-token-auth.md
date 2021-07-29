@@ -1,4 +1,6 @@
-# How To Use FHIR Style Token Authentication
+# How To Use FHIR Style Token Authentication and the Waters API.
+
+The Waters API, the primary secure entrypoint to ReportStream, is named in memory of Dr. Michael Waters.
 
 This playbook is a set of commandline scripts meant to exercise and demonstrate the 3 steps in FHIR style authentication.
 
@@ -65,5 +67,5 @@ This token is only valid for 5 minutes.
 Grab just the `access_token` value you got back from step 3, and use it here for the bearer token:
 
 ```
-curl -H "authorization:bearer ???" -H "client:waters"  -H "content-type:text/csv" --data-binary "@./junk/waters.csv" "http://localhost:7071/api/report"
+curl -H "authorization:bearer ???" -H "client:waters"  -H "content-type:text/csv" --data-binary "@./junk/waters.csv" "http://localhost:7071/api/waters"
 ```
