@@ -32,9 +32,10 @@ hide-signin: false
   {% for section in content.index.sections %}
     <section class="usa-section margin-y-0 padding-y-0" role="region">
       <div class="grid-row grid-gap margin-bottom-0">
-        <div class="tablet:grid-col-6">
+        <div class="tablet:grid-col-8">
           <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2>
           <p class="font-sans-lg margin-top-1 text-base">{{ section.summary }}</p>
+          {% comment %}
           {% if section.bullets %}
             <ul class="usa-intro">
               {% for bullet in section.bullets %}
@@ -42,10 +43,11 @@ hide-signin: false
               {% endfor %}
             </ul>
           {% endif %}
+          {% endcomment %}
         </div>
         
       </div>
-      <div class="grid-row grid-gap margin-bottom-8{% if forloop.last == true %} padding-bottom-8 border-bottom-1px border-base-lighter{% endif %}">
+      <div class="grid-row grid-gap margin-bottom-8{% if forloop.first == true or forloop.last == true %} padding-bottom-8 border-bottom-1px border-base-lighter{% endif %}">
         {% for feature in section.features %}
           <div class="tablet:grid-col-4 margin-bottom-0">
             <h3>
@@ -108,16 +110,17 @@ hide-signin: false
     </ul>
   </section>
   {% endcomment %}
-  <section class="usa-section margin-top-0 padding-top-0 padding-bottom-6 border-bottom-1px border-base-lighter" role="region">
+  <section class="usa-section margin-top-0 padding-top-0 padding-bottom-6" role="region">
     <div class="grid-row grid-gap  margin-bottom-2 ">
       <div class="tablet:grid-col-8">
         <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ content.index.cta.title }}</h2>
-        <p class="font-sans-lg margin-top-1 margin-bottom-6 text-base">{{ content.index.cta.summary }}<p>
-        <a class="usa-button" href="mailto:{{ site.orgs.RS.email }}{{ content.index.cta.buttonUrlSubject }}">{{ content.index.cta.buttonText }} {{ site.orgs.RS.email }}</a>
+        <p class="usa-prose margin-bottom-4">{{ content.index.cta.summary }}<p>
+        <a class="usa-button" href="mailto:{{ site.orgs.RS.email }}{{ content.index.cta.buttonUrlSubject }}">{{ content.index.cta.buttonText }} at {{ site.orgs.RS.email }}</a>
         </p>
       </div>
     </div>
   </section>
+  {% comment %}
   <section class="usa-section" role="region">
     <div class="grid-row grid-gap  margin-bottom-2 padding-top-2">
       {% for item in content.index.freeSecure %}
@@ -129,4 +132,5 @@ hide-signin: false
       {% endfor %}
     </div>
   </section>
+  {% endcomment %}
 </div>

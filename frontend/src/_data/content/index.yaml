@@ -30,6 +30,11 @@ sections:
           ReportStream works directly with COVID-19 test manufacturers, labs, and apps like <a href="https://simplereport.gov">SimpleReport</a> to deliver more results to public health departments across the U.S. 
         icon: content_copy.svg
         iconDescription: multiple documents
+      - title: Free and created by the CDC
+        summary: Developed for testing sites and public health departments, ReportStream is 100% free.
+      - title: Safe and secure
+        summary: Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.
+
   - title: ReportStream offers two ways to deliver data directly to your public health department 
     summary: Log in and download test results quickly through our web application, or work with ReportStream to set up a customized ELR connection.
     features:
@@ -48,12 +53,6 @@ sections:
       - title: Customized, clean data
         summary: >-
           ReportStream works 1:1 with public health departments to make sure data arrives in the format you need, when you need it.
-  - title: Interested in learning more about ReportStream?
-    summary: foo
-    body: >-
-      <p>We work with public health departments looking to get better quality COVID-19 data from your jurisdiction. We also collaborate with testing facilities, organizations, and manufacturers to send test results to health departments.</p>      
-      <p>Either way, if you work sending or analyzing COVID-19 data we’d love to hear from you.</p>
-    cta: Get in touch
 
 documentation:
   title: Documentation
@@ -78,7 +77,9 @@ freeSecure:
     icon: shield.svg
     iconDescription: Icon of a shield
 cta:
-  title: Get in touch
+  title: Interested in learning more about ReportStream?
+  summary: >-
+    ReportStream works with public health departments looking to get better quality COVID-19 data from jurisdictions. We also collaborate with testing facilities, data aggregators , and manufacturers, and more to send test results to health departments.<br /><br />Either way, if you send or analyze COVID-19 data, we’d like to help.
   buttonText: Get in touch
   # email address for above button is located in template
   buttonUrlSubject: ?subject=I'm interested in learning more about ReportStream
