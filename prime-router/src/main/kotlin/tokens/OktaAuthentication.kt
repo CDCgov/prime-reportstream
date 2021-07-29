@@ -32,17 +32,19 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         }
 
         fun authenticationVerifier(): AuthenticationVerifier {
-
-            // If we are running this locally and it is the initial setup from `prime-router/settings/put-local-settings.py`,
-            // return the TestAuthenticationVerifier
+            // If we are running this locally, use the TestAuthenticationVerifier
+            // To test locally _with_ auth, add a 'localauth=true' header to your POST.
             val primeEnv = System.getenv("PRIME_ENVIRONMENT")
-            val localNoAuth = httpRequestMessage?.headers?.get("localnoauth")
+            val localAuth = httpRequestMessage?.headers?.get("localauth")
 
-            if (primeEnv == "local" && localNoAuth == "true") {
+            return if (primeEnv != "local") {
+                OktaAuthenticationVerifier()
+            } else if (localAuth != null && localAuth == "true") {
+                OktaAuthenticationVerifier()
+            } else {
                 logger.info("No auth needed - running locally")
-                return TestAuthenticationVerifier()
-            } else
-                return OktaAuthenticationVerifier()
+                TestAuthenticationVerifier()
+            }
         }
     }
 
