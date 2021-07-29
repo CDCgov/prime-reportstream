@@ -513,15 +513,18 @@ class ReportFunction {
             // the report has all the submitted items
             report.itemIndices.forEach { i ->
                 // if an item was not present, create the routing with empty destinations
-                items.add(routingMap.getOrDefault(
-                    i,
-                    ItemRouting(i, report.getString(i, report.schema.trackingElement ?: ""))
-                ))
+                items.add(
+                    routingMap.getOrDefault
+                    (
+                        i,
+                        ItemRouting(i, report.getString(i, report.schema.trackingElement ?: ""))
+                    )
+                )
             }
             items
         } ?: run {
             // unlikely, but in case the report is null...
-            routingMap.toSortedMap().values.map{ it }
+            routingMap.toSortedMap().values.map { it }
         }
     }
 }

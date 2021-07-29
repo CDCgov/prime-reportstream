@@ -792,7 +792,7 @@ class Report : Logging {
                         it.childReportId, // the prev child is the new parent
                         it.childIndex,
                         newChildReportId,
-                        it.childIndex, // 1:1 mapping
+                        it.childIndex, // one-to-one mapping
                         it.trackingId,
                         it.transportResult,
                         null
@@ -855,7 +855,7 @@ class Report : Logging {
             val fileName = when (translationConfig) {
                 null -> "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 else -> metadata.fileNameTemplates[nameFormat.lowercase()].run {
-                    this?.getFileName(translationConfig)
+                    this?.getFileName(translationConfig, id)
                         ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
             }

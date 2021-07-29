@@ -181,7 +181,7 @@ class TranslationTests {
             val expectedStream = this::class.java.getResourceAsStream(expectedFile)
             if (inputStream != null && expectedStream != null) {
                 val inputReport = readReport(inputStream, config.inputSchema, config.inputFormat, result)
-                if (result.passed) {
+                if (result.passed && inputReport != null) {
                     val translatedReport = translateReport(inputReport, config)
                     val actualStream = outputReport(translatedReport, config.expectedFormat)
                     result.merge(
@@ -217,7 +217,7 @@ class TranslationTests {
             schema: Schema,
             format: Report.Format,
             result: CompareData.Result
-        ): Report {
+        ): Report? {
 
             return when (format) {
                 Report.Format.HL7 -> {
@@ -229,7 +229,7 @@ class TranslationTests {
                     readResult.errors.forEach { result.errors.add(it.details) }
                     readResult.warnings.forEach { result.warnings.add(it.details) }
                     result.passed = readResult.errors.isEmpty()
-                    readResult.report!!
+                    readResult.report
                 }
                 Report.Format.INTERNAL -> {
                     CsvSerializer(metadata).readInternal(
@@ -248,7 +248,7 @@ class TranslationTests {
                     readResult.errors.forEach { result.errors.add(it.details) }
                     readResult.warnings.forEach { result.warnings.add(it.details) }
                     result.passed = readResult.errors.isEmpty()
-                    readResult.report!!
+                    readResult.report
                 }
             }
         }
