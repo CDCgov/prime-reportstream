@@ -61,7 +61,7 @@ class Jwk(
         return generateECPublicKey(jacksonObjectMapper().writeValueAsString(this))
     }
 
-    fun toECprivateKey(): ECPrivateKey {
+    fun toECPrivateKey(): ECPrivateKey {
         if (kty != "EC") error("Cannot convert key type $kty to ECPrivateKey")
         return generateECPrivateKey(jacksonObjectMapper().writeValueAsString(this))
     }

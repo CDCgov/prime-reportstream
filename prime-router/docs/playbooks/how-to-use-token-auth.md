@@ -12,9 +12,15 @@ OK, here we go...
 
 **STEP 1a**. The SENDER to ReportStream (a human) generates a new keypair
 
+**EC**
 ```
 openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
 openssl ec -in my-es-keypair.pem -pubout -out  my-es-public-key.pem
+```
+**RSA**
+```
+openssl genrsa -out my-rsa-keypair.pem 2048
+openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem
 ```
 
 **STEP 1b.**  The REPORTSTREAM ONBOARDING MANAGER (a human) stores the public key in ReportStream, based on trust relationship

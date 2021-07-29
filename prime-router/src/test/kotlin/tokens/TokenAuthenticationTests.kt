@@ -1,8 +1,14 @@
 package gov.cdc.prime.router.tokens
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.ReportStreamEnv
+import gov.cdc.prime.router.cli.*
+import gov.cdc.prime.router.cli.tests.CoolTest
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
 import io.jsonwebtoken.SignatureAlgorithm
@@ -13,16 +19,9 @@ import io.jsonwebtoken.security.Keys
 import java.math.BigInteger
 import java.security.Key
 import java.time.OffsetDateTime
-import java.util.Date
-import java.util.UUID
+import java.util.*
 import javax.crypto.SecretKey
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 val exampleRsaPrivateKeyStr = """
     {
@@ -60,8 +59,107 @@ val differentRsaPublicKeyStr = """
     }
 """.trimIndent()
 
+val end2EndExampleECPublicKeyStr = """
+-----BEGIN PUBLIC KEY-----
+MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE78eOugxhQPd/tUKOhsfcZ04bp/xgL2ku
+JN6ZrNgWv6qZXHXqoqVKVXlzO/Q9NXdnZo7eBcyQpAarTANsPKB95xT69Ue/cCyp
+1DBmTRk3nJBBhF6XZkT+AaYaXmGhPNWG
+-----END PUBLIC KEY-----
+""".trimIndent()
+
+val end2EndExampleECPrivateKeyStr = """
+-----BEGIN EC PRIVATE KEY-----
+MIGkAgEBBDDkoWxCGOmihAVm/LXwR9HTf5T2Exh1VAf0yLkdgrPGrchvS7Mxj3T5
+QtsvMxyppw+gBwYFK4EEACKhZANiAATvx466DGFA93+1Qo6Gx9xnThun/GAvaS4k
+3pms2Ba/qplcdeqipUpVeXM79D01d2dmjt4FzJCkBqtMA2w8oH3nFPr1R79wLKnU
+MGZNGTeckEGEXpdmRP4BphpeYaE81YY=
+-----END EC PRIVATE KEY-----
+""".trimIndent()
+
+val end2EndExampleECPrivateInvalidKeyStr = """
+-----BEGIN EC PRIVATE KEY-----
+MIGkAgEBBDBQR+wve3RP3tql7U4SW/D9F55dPSqAlUSdZaAnTDhnAfPB+OFFtibp
+9QSe2z3MLHegBwYFK4EEACKhZANiAAT+LmhSlMb0CV/+e+y/tVYmDcY/wP+9xE3a
+5OI+jtP7sDKee2MtMf5V5DHsw7alm8IeOAr86tMwOWw8WTq2c+i7IRdAFLGVoUPA
+P1wSycc45JCHVjiqRPoluf33W9ObVbQ=
+-----END EC PRIVATE KEY-----
+""".trimIndent()
+
+val end2EndExampleRSAPublicKeyStr = """
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu5aC+itz1IXrtbCow40B
+kF1A5NZFk8/bHadxvPSZGJfvzNwZS4MHf99nFAEq8JNIkbL8cls972JjqqvofIzw
+zTSMtdnBBoci3BCaOguRRC0r5gOykOsq2kID8o0eH4ntnWrmnjr3VJ0FZ5WLq3pB
+dlauXp+tUaCTnsIfrQvM3OuBabzZXIxTYGyqW5qGkjXP9u8ysqwNuTzr4WzKKbZB
+oMG4MG8xTklLKZ1kM1tflMtdALl+5jqdb96hIt+3C/WvWXw/hxRXBNie1og33gpk
+5iNBCIDgB4WATHYfXQgk0LWlFv06GL1M1BpnRvlXAOIIajvoh4fThR4fwWgKVu3O
+FQIDAQAB
+-----END PUBLIC KEY-----
+""".trimIndent()
+
+val end2EndExampleRSAPrivateKeyStr = """
+-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAu5aC+itz1IXrtbCow40BkF1A5NZFk8/bHadxvPSZGJfvzNwZ
+S4MHf99nFAEq8JNIkbL8cls972JjqqvofIzwzTSMtdnBBoci3BCaOguRRC0r5gOy
+kOsq2kID8o0eH4ntnWrmnjr3VJ0FZ5WLq3pBdlauXp+tUaCTnsIfrQvM3OuBabzZ
+XIxTYGyqW5qGkjXP9u8ysqwNuTzr4WzKKbZBoMG4MG8xTklLKZ1kM1tflMtdALl+
+5jqdb96hIt+3C/WvWXw/hxRXBNie1og33gpk5iNBCIDgB4WATHYfXQgk0LWlFv06
+GL1M1BpnRvlXAOIIajvoh4fThR4fwWgKVu3OFQIDAQABAoIBAAnPJgw053qughPf
+KAQJxJIq/jC5L6w6C0gysFTkKXlKwKRiwgPb1zGNmhNGuFsaKIpN5LuKH+P7riCH
+msGgkRr563265EgWGvGNALOWVUNOZWRCvzyqv3PoTdKKJJAbo0w/Ac42YSaQi27O
+OB6AZxnsEHQsP2DsV6vOlN90pYLLyuxtCYVdiao6EdwUugN3J/5PqldIOayUEdjb
+4z14jXgjimZA5RDhm32Px6YFzUXVwLMoJ7W8aATBetvyS9Xg2SRQjyU3EcV4oTUJ
+hnmmI7q8RThRux/XJK3Pdq1bYfIRV2qzNkHJPCqCvTOu9pBDRG0xgf0s4zqQ2q6d
+6oDdtyECgYEA4QTNQZsoJvBXFShCbSvhNeZ776h+Xb1YSuZhCeQYYhi05V1ki7wv
+YOraIpO8+rKemag2eLy5rGcNEIoBqY+rrz221ZIleIJbactdL1ecvwwhnW7hWIAN
+Ng8tK0x68xvWIho9LUn3aoqsyawOGkmDgzcGoc+yM7L4MFblhk1ow20CgYEA1Wpk
+WrHZYIWeNE1e9vLBaCEPMEszXjN9XELacOms5HwY4obmPlnNGD+QcavC5pdluEv5
+D7tix9y1NQ6CfFQfpLyzAMt1QdJQfEIq/rntDzBvc+WY/06HHd7aNdCaZMSwMJbP
+qm1AZaFIleEgG2H/rGIzK8ZV7iX01pSFkcxl5EkCgYEAp+8cfN0eL0lpxHmCcdWw
+w7hbQLaAcNdSILwlKeuYowWLZC66TmtI9MzxtaKLBJLwOP9If/1hmSBjqLdGnFSE
+LkohvOzQmEq5jJBg4GdDrXWRVNyew5z1vyW+cTUoAW4B9vucMsOkKliKsgx9jfLV
+esVDZtoKRflIr1L7A6ucB1UCgYEApOh2LUK6NwRoz/9tPyMr4duR0f557fOZjb42
+7wMRzug5jmkw5sMbYP5VDhDsJKSePD+wb8CbPtbDywCwQYP7g58wLpAIxljOSoYS
+lQx0KsWBiavDgpxaefFm6iiL9QurHZCbXRTYqu9qmC4CUkZyevDSm6PBaKk5vMm9
+QIERxskCgYBN7pF+VskMx3ZGayfYTfJidXySefT1X93uDevMGShbPx+PW0ZL+Te4
+xN40PdPzy1hcpGL/TKB+jRghYNd2inYjFk/CFqqXSj4EMRlfiGKjY1NEFFLhmrUO
+8xrAjw+G25D5Wal0/g36XhxwPgtiYV1x9mumqD90hNTk5j7zC648Jg==
+-----END RSA PRIVATE KEY-----
+""".trimIndent()
+
+val end2EndExampleRSAPrivateInvalidKeyStr = """
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEA17leyFgR4/WGFAh85rpV1ePmjxgLuiUgA3mtyjNJd4AlX1a+
+WHyKqLZBJuFWfqdIfg/mgt4vyWy8niCyEZbbZpO6bNxHc6iU8spA1VBGE2qRByK+
+MmO6cYJZHPTSH/QNbQEn5YMpciFNyJZxcKgcZbnSXxoYSvRkHkMM9Q8KoqzUPl1t
+BjXR6mbsJ2EVw+lO8UifGE4SX7JgBO5I2zjKdfzZA9+lYswasBdQEVqpURLzQNhp
+b3OJ1Fnx96+XSlaYEf8XmJn2RIsWHxdZSn3YhYNsYfvjsp346ItzpObsgTz2cVml
+F+IFXn/W8gQ+swH/XJzvZSRw7WKbcvW10JuPZQIDAQABAoIBAFlpKGLLNecQzVii
+R/ptgsQbKGVopvupBYLLPP/QkAOqplLEpjIQtHvGxmwx+2KVPROazYSySIYovmif
+zo5Bw3/ZfOw/xJGobsvOjl6bXeAQTDnz6XcDJLSFPSAmTK0XvzTNxNZ4rYXzTcT0
+reHum46CHTJzo1v1vUVZrxYm/NZ9Hr2/G2ySR7ChaUelLjMwM0g24c+ddBhPfgu4
+A4gxp8MLOS8xG38Oki4c3KW+Jh8Uo4ML7S1u/ZlxhpzE1AzQfgsGLIggxDjk3C7e
+nknCBlInXK4YTddZwlv03zItMQewO2G/yNTIF6mi0gwGBtRAGQ3FbuQSBW9z7uo/
+tGN62SUCgYEA8a7fNS3/Om7OG637v6fxSdhC6sbGyiSpAXmgpm8Ic8Nk7tF9qRTg
+FvV59KdLfTLyVzgsxyUJkDzJAze5582vYYHzsJCZwgz9kUpx6Q7RvMrE5X1OUNQv
+o9M8yu1fcKx0N3WyuE/ApRTqpzteoB7WOHejecjpTeLRvOvHXKdAqacCgYEA5IDU
+bsFXsqUyM0fw0lme5YfpEBS6W1FPj21vqg34L/mPiML0AOu+0kpi5g286nRWGQ3P
+6DVR9fgLYFUInJzjutAhMkAv9udi8oHQwJfN2Pud3OXRjEZg5Ug1D3kDJrM2GUyK
+rInYEUigVrHsrqUlNuz7Ev8AYRaY/WHmpkMoSBMCgYBk/RaGCT9iMlTrmgrdLhcU
+LUrhAcilRSZd2G35veHBRb+ST3V7xp5Q2ahpQ9K2cSh0q6OCX4acf9na/1kudHM5
+gmzKtdGaFYWLRZlNsoSPqAcYggDMo614flcj0IaV9WnmlsbkX2b3VEMtOBC1Rc1r
+8QodZIegpQvRLpCytay+dwKBgG625TcMwvsyA5LJRqwE9HJuWcSK5oicaxopgjM5
+NYm5N4yiOSvBDeJCXIzvFxvaZmUZRiVSwHWXS5vPV67abZT0h0EbzKGrF0w9DfJj
+G0AJGkIPsGpxJz2wsNTgY2B68LltVrumxmQJdnbLGsy8A74LMNPRblOcaWBL8T+Z
+xoi1AoGBAJ3tFYoDRzLBDrd+5c0xliHKXIGqotc8QUkBJKjRiA5CLWOQpEziB/bq
+an1MIPCeAMGQZKKZbhT4mjZtZm5SJIVRmijRB/re8+6DJbRinEKkM+ulZL5qXGJv
+HCRgDKGQ0+bMAS8TkY7Td4fmefbKOeb+4YaPCVrFqFTqTAjVYi2O
+-----END RSA PRIVATE KEY-----
+""".trimIndent()
+
 class TokenAuthenticationTests {
-    val sender = Sender(
+
+    private val sender = Sender(
         "foo",
         "bar",
         Sender.Format.CSV,
@@ -69,10 +167,11 @@ class TokenAuthenticationTests {
         "mySchema",
         keys = null
     )
-    val tokenAuthentication = TokenAuthentication(MemoryJtiCache())
+
+    private val tokenAuthentication = TokenAuthentication(MemoryJtiCache())
 
     // return the hardcoded public key used with this test.  This is the Sender's public key.
-    class UseTestKey(val rsaPublicKeyStr: String) : SigningKeyResolverAdapter() {
+    class UseTestKey(private val rsaPublicKeyStr: String) : SigningKeyResolverAdapter() {
         override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key {
             val jwk = jacksonObjectMapper().readValue(rsaPublicKeyStr, Jwk::class.java)
             return jwk.toRSAPublicKey()
@@ -82,8 +181,9 @@ class TokenAuthenticationTests {
     // return a ReportStream secret, used by ReportStream to sign a short-lived token
     class GetTestSecret : ReportStreamSecretFinder {
         private val TOKEN_SIGNING_KEY_ALGORITHM = SignatureAlgorithm.HS384
+
         // Good for testing:  Each time you create a new GetTestSecret() obj, its a totally new secret.
-        val tokenSigningSecret = this.generateSecret()
+        private val tokenSigningSecret = this.generateSecret()
 
         override fun getReportStreamTokenSigningSecret(): SecretKey {
             return Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenSigningSecret))
@@ -329,5 +429,185 @@ class TokenAuthenticationTests {
         assertFalse(Scope.scopeListContainsScope("xx", "x"))
         assertFalse(Scope.scopeListContainsScope("x   x", ""))
         assertFalse(Scope.scopeListContainsScope("x   x", " "))
+    }
+
+    @Test
+    @Ignore
+    fun `end to end happy path -- full round-trip`() {
+
+        // create sender in 'ignore' organization
+        val environment = SettingCommand.Environment("local", "localhost:7071", useHttp = true)
+        val accessTokenDummy = "dummy"
+        val organization = "simple_report"
+        val senderName = "temporary_sender_auth_test"
+
+        val newSender = Sender(
+            name = senderName,
+            organizationName = organization,
+            format = Sender.Format.CSV,
+            topic = "covid-19",
+            schemaName = "primedatainput/pdi-covid-19"
+        )
+
+        // save the new sender
+        PutSenderSetting()
+            .put(
+                environment,
+                accessTokenDummy,
+                SettingCommand.SettingType.SENDER,
+                "$organization.$senderName",
+                jacksonObjectMapper().writeValueAsString(newSender)
+            )
+
+        // get the sender previously written 
+        val savedSenderJson = GetSenderSetting().get(
+            environment,
+            accessTokenDummy,
+            SettingCommand.SettingType.SENDER,
+            "$organization.$senderName"
+        )
+
+        // deserialize the written sender
+        var savedSender = jacksonObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .readValue(savedSenderJson, Sender::class.java)
+
+        // create a fake report
+        val fakeReportFile = FileUtilities.createFakeFile(
+            metadata = CoolTest.metadata,
+            sender = savedSender,
+            count = 1,
+            format = Report.Format.CSV,
+            directory = System.getProperty("java.io.tmpdir"),
+            targetStates = null,
+            targetCounties = null
+        )
+
+        // try to send a report without having assigned a public key
+        val (responseCodePostReportWithoutKeys) =
+            HttpUtilities.postReportFileFhir(ReportStreamEnv.LOCAL, fakeReportFile, savedSender)
+
+        assertEquals(401, responseCodePostReportWithoutKeys, "Should get a 401 response while sending the report")
+
+        /**
+         * Associate a public key to the sender
+         * and store in on the database
+         */
+        fun saveSendersKey(key: String, kid: String) {
+
+            // associate a public key to the sender
+            val publicKeyStr = SenderUtils.readPublicKeyPem(key)
+            publicKeyStr.kid = kid
+            savedSender = Sender(savedSender, "$organization.$senderName.report", publicKeyStr)
+
+            // save the sender with the new key
+            PutSenderSetting()
+                .put(
+                    environment,
+                    accessTokenDummy,
+                    SettingCommand.SettingType.SENDER,
+                    "$organization.$senderName",
+                    jacksonObjectMapper().writeValueAsString(savedSender)
+                )
+        }
+
+        /**
+         * Given a private key and the kid tries to retrieve an access token
+         */
+        fun getToken(privateKey: String, kid: String): Pair<Int, String> {
+
+            val baseUrl = "http://localhost:7071/api/token"
+            val invalidPrivateKey = SenderUtils.readPrivateKeyPem(privateKey)
+            val senderSignedJWT = SenderUtils.generateSenderToken(savedSender, baseUrl, invalidPrivateKey, kid)
+            val senderTokenUrl =
+                SenderUtils.generateSenderUrl(environment, senderSignedJWT, "$organization.$senderName.report")
+
+            return HttpUtilities.postHttp(senderTokenUrl.toString(), "".toByteArray())
+        }
+
+        "testing-kid-ec".let { kid ->
+
+            // associate a key to the sender
+            saveSendersKey(end2EndExampleECPublicKeyStr, kid)
+
+            // try to get an access token with an invalid private key
+            assertEquals(
+                401,
+                getToken(end2EndExampleECPrivateInvalidKeyStr, kid).first,
+                "Should get a 401 response while trying to get a token with an invalid private key"
+            )
+
+            // get an access token with a valid private key
+            val (httpStatusGetToken, responseGetToken) = getToken(end2EndExampleECPrivateKeyStr, kid)
+            val accessToken = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+
+            // try to send a report with a tampered access token
+            val (httpStatusPostReportTamperedToken) =
+                HttpUtilities.postReportFileFhir(
+                    ReportStreamEnv.LOCAL,
+                    fakeReportFile,
+                    savedSender,
+                    accessToken.reversed()
+                )
+
+            assertEquals(
+                401,
+                httpStatusPostReportTamperedToken,
+                "Should get a 401 response while sending the report with a tampered token"
+            )
+
+            // try to send a report with a valid access token
+            val (httpStatusPostReportValidToken) =
+                HttpUtilities.postReportFileFhir(ReportStreamEnv.LOCAL, fakeReportFile, savedSender, accessToken)
+
+            assertEquals(201, httpStatusPostReportValidToken, "Should get a 200 response while sending the report")
+        }
+
+        "testing-kid-rsa".let { kid ->
+
+            // associate a key to the sender
+            saveSendersKey(end2EndExampleRSAPublicKeyStr, kid)
+
+            // try to get an access token with an invalid private key
+            assertEquals(
+                401,
+                getToken(end2EndExampleRSAPrivateInvalidKeyStr, kid).first,
+                "Should get a 401 response while trying to get a token with an invalid private key"
+            )
+
+            // get an access token with a valid private key
+            val (httpStatusGetToken, responseGetToken) = getToken(end2EndExampleRSAPrivateKeyStr, kid)
+            val accessToken = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
+
+            // try to send a report with a tampered access token
+            val (httpStatusPostReportTamperedToken) =
+                HttpUtilities.postReportFileFhir(
+                    ReportStreamEnv.LOCAL,
+                    fakeReportFile,
+                    savedSender,
+                    accessToken.reversed()
+                )
+
+            assertEquals(
+                401,
+                httpStatusPostReportTamperedToken,
+                "Should get a 401 response while sending the report with a tampered token"
+            )
+
+            // try to send a report with a valid access token
+            val (httpStatusPostReportValidToken) =
+                HttpUtilities.postReportFileFhir(ReportStreamEnv.LOCAL, fakeReportFile, savedSender, accessToken)
+
+            assertEquals(201, httpStatusPostReportValidToken, "Should get a 200 response while sending the report")
+        }
+
+        // delete the sender
+        DeleteSenderSetting()
+            .delete(
+                environment,
+                accessTokenDummy,
+                SettingCommand.SettingType.SENDER,
+                "simple_report.$senderName"
+            )
     }
 }
