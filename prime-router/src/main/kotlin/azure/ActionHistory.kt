@@ -10,6 +10,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
@@ -24,6 +25,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import org.jooq.Configuration
 import org.jooq.DSLContext
+import org.jooq.JSONB
 import org.jooq.impl.DSL
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
@@ -130,6 +132,14 @@ class ActionHistory {
             it.writeEndObject()
             it.writeEndObject()
         }
+        action.contentLength = request.headers["content-length"]?.let {
+            try { it.toInt() } catch (e: NumberFormatException) { null }
+        }
+        // capture the azure client IP but override with the first forwarded for if present
+        action.senderIp = request.headers["x-azure-clientip"]?.take(ACTION.SENDER_IP.dataType.length())
+        request.headers["x-forwarded-for"]?.let {
+            action.senderIp = it.split(",").firstOrNull()?.trim()?.take(ACTION.SENDER_IP.dataType.length())
+        }
         trackActionParams(outStream.toString())
     }
 
@@ -161,6 +171,33 @@ class ActionHistory {
     fun trackActionRequestResponse(request: HttpRequestMessage<String?>, response: HttpResponseMessage) {
         trackActionParams(request)
         trackActionResult(response)
+    }
+
+    /**
+     * Parses the client parameter and sets the sending organization
+     * and client in the action table.
+     * @param clientParam the client header submitted with the report
+     */
+    fun trackActionSender(clientParam: String) {
+        // only set the action properties if not null
+        if (clientParam.isNotBlank()) {
+            try {
+                val (sendingOrg, sendingOrgClient) = Sender.parseFullName(clientParam)
+                action.sendingOrg = sendingOrg.take(ACTION.SENDING_ORG.dataType.length())
+                action.sendingOrgClient = sendingOrgClient.take(ACTION.SENDING_ORG_CLIENT.dataType.length())
+            } catch (e: Exception) {
+            }
+        }
+    }
+
+    /**
+     * Set the http status and verbose JSON response in the action table.
+     * @param response the response created while processing the submitted report
+     * @param verboseResponse the generated verbose response with all details
+     */
+    fun trackActionResponse(response: HttpResponseMessage, verboseResponse: String) {
+        action.httpStatus = response.status.value()
+        action.actionResponse = JSONB.valueOf(verboseResponse)
     }
 
     /**
