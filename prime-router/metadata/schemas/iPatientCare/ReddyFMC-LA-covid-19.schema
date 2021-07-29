@@ -6,7 +6,7 @@
 name: reddyfmc-la-covid-19
 topic: covid-19
 description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
-extends: iPatientCare/ipatientcare-covid-19
+extends: ipatientCare/ipatientcare-covid-19
 
 elements:
 
