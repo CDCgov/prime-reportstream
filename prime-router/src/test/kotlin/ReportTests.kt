@@ -19,10 +19,10 @@ class ReportTests {
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
         val report2 = Report(one, listOf(listOf("5", "6"), listOf("7", "8")), source = TestSource)
         val mergedReport = Report.merge(listOf(report1, report2))
-        assertThat(4).isEqualTo(mergedReport.itemCount)
-        assertThat(2).isEqualTo(report1.itemCount)
-        assertThat("8").isEqualTo(mergedReport.getString(3, "b"))
-        assertThat(2).isEqualTo(mergedReport.sources.size)
+        assertThat(mergedReport.itemCount).isEqualTo(4)
+        assertThat(report1.itemCount).isEqualTo(2)
+        assertThat(mergedReport.getString(3, "b")).isEqualTo("8")
+        assertThat(mergedReport.sources.size).isEqualTo(2)
         assertThat(report1.id).isEqualTo((mergedReport.sources[0] as ReportSource).id)
     }
 
@@ -32,12 +32,12 @@ class ReportTests {
         val metadata = Metadata(schema = one)
         val jurisdictionalFilter = metadata.findJurisdictionalFilter("matches") ?: fail("cannot find filter")
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource)
-        assertThat(2).isEqualTo(report1.itemCount)
+        assertThat(report1.itemCount).isEqualTo(2)
         val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "1"))), rcvr, false)
-        assertThat(one).isEqualTo(filteredReport.schema)
-        assertThat(1).isEqualTo(filteredReport.itemCount)
-        assertThat("2").isEqualTo(filteredReport.getString(0, "b"))
-        assertThat(1).isEqualTo(filteredReport.sources.size)
+        assertThat(filteredReport.schema).isEqualTo(one)
+        assertThat(filteredReport.itemCount).isEqualTo(1)
+        assertThat(filteredReport.getString(0, "b")).isEqualTo("2")
+        assertThat(filteredReport.sources.size).isEqualTo(1)
     }
 
     @Test
@@ -51,44 +51,44 @@ class ReportTests {
         val filteredReportA = report1.filter(
             listOf(Pair(jurisdictionalFilter, listOf("a", "row1.*", "row2_a"))), rcvr, false
         )
-        assertThat(2).isEqualTo(filteredReportA.itemCount)
-        assertThat("row1_b").isEqualTo(filteredReportA.getString(0, "b"))
-        assertThat("row2_b").isEqualTo(filteredReportA.getString(1, "b"))
+        assertThat(filteredReportA.itemCount).isEqualTo(2)
+        assertThat(filteredReportA.getString(0, "b")).isEqualTo("row1_b")
+        assertThat(filteredReportA.getString(1, "b")).isEqualTo("row2_b")
 
         val filteredReportB = report1.filter(
             listOf(Pair(jurisdictionalFilter, listOf("a", "row.*"))), rcvr, false
         )
-        assertThat(2).isEqualTo(filteredReportA.itemCount)
-        assertThat("row1_b").isEqualTo(filteredReportB.getString(0, "b"))
-        assertThat("row2_b").isEqualTo(filteredReportB.getString(1, "b"))
+        assertThat(filteredReportA.itemCount).isEqualTo(2)
+        assertThat(filteredReportB.getString(0, "b")).isEqualTo("row1_b")
+        assertThat(filteredReportB.getString(1, "b")).isEqualTo("row2_b")
 
         val filteredReportC = report1.filter(
             listOf(Pair(jurisdictionalFilter, listOf("a", "row1_a", "foo", "bar", "baz"))), rcvr, false
         )
-        assertThat(1).isEqualTo(filteredReportC.itemCount)
-        assertThat("row1_b").isEqualTo(filteredReportC.getString(0, "b"))
+        assertThat(filteredReportC.itemCount).isEqualTo(1)
+        assertThat(filteredReportC.getString(0, "b")).isEqualTo("row1_b")
 
         val filteredReportD = report1.filter(
             listOf(Pair(jurisdictionalFilter, listOf("a", "argle", "bargle"))), rcvr, false
         )
-        assertThat(0).isEqualTo(filteredReportD.itemCount)
+        assertThat(filteredReportD.itemCount).isEqualTo(0)
     }
 
     @Test
     fun `test isEmpty`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val emptyReport = Report(one, emptyList(), source = TestSource)
-        assertThat(true).isEqualTo(emptyReport.isEmpty())
+        assertThat(emptyReport.isEmpty()).isEqualTo(true)
         val report1 = Report(one, listOf(listOf("1", "2")), source = TestSource)
-        assertThat(false).isEqualTo(report1.isEmpty())
+        assertThat(report1.isEmpty()).isEqualTo(false)
     }
 
     @Test
     fun `test create with list`() {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val report1 = Report(one, listOf(listOf("1", "2")), TestSource)
-        assertThat(one).isEqualTo(report1.schema)
-        assertThat(1).isEqualTo(report1.itemCount)
+        assertThat(report1.schema).isEqualTo(one)
+        assertThat(report1.itemCount).isEqualTo(1)
         assertThat(TestSource).isEqualTo(report1.sources[0] as TestSource)
     }
 
@@ -105,8 +105,8 @@ class ReportTests {
             .buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
 
         val twoTable = oneReport.applyMapping(mappingOneToTwo)
-        assertThat(2).isEqualTo(twoTable.itemCount)
-        assertThat("b2").isEqualTo(twoTable.getString(1, "b"))
+        assertThat(twoTable.itemCount).isEqualTo(2)
+        assertThat(twoTable.getString(1, "b")).isEqualTo("b2")
     }
 
     @Test
@@ -121,14 +121,14 @@ class ReportTests {
         metadata.loadSchemas(one, two)
 
         val twoReport = Report(schema = two, values = listOf(listOf("b1"), listOf("b2")), source = TestSource)
-        assertThat(2).isEqualTo(twoReport.itemCount)
+        assertThat(twoReport.itemCount).isEqualTo(2)
         val mappingTwoToOne = Translator(metadata, FileSettings())
             .buildMapping(fromSchema = two, toSchema = one, defaultValues = emptyMap())
 
         val oneReport = twoReport.applyMapping(mappingTwoToOne)
-        assertThat(2).isEqualTo(oneReport.itemCount)
-        assertThat("~").isEqualTo(oneReport.getString(0, "a"))
-        assertThat("b2").isEqualTo(oneReport.getString(1, "b"))
+        assertThat(oneReport.itemCount).isEqualTo(2)
+        assertThat(oneReport.getString(0, "a")).isEqualTo("~")
+        assertThat(oneReport.getString(1, "b")).isEqualTo("b2")
     }
 
     @Test
@@ -146,9 +146,9 @@ class ReportTests {
         )
 
         val oneDeidentified = oneReport.deidentify()
-        assertThat(2).isEqualTo(oneDeidentified.itemCount)
-        assertThat("").isEqualTo(oneDeidentified.getString(0, "a"))
-        assertThat("b1").isEqualTo(oneDeidentified.getString(0, "b"))
+        assertThat(oneDeidentified.itemCount).isEqualTo(2)
+        assertThat(oneDeidentified.getString(0, "a")).isEqualTo("")
+        assertThat(oneDeidentified.getString(0, "b")).isEqualTo("b1")
     }
 
     // Tests for Item lineage
@@ -161,20 +161,20 @@ class ReportTests {
 
         val merged = Report.merge(listOf(report1, report2))
 
-        assertThat(4).isEqualTo(merged.itemLineages!!.size)
+        assertThat(merged.itemLineages!!.size).isEqualTo(4)
         val firstLineage = merged.itemLineages!![0]
-        assertThat(report1.id).isEqualTo(firstLineage.parentReportId)
-        assertThat(0).isEqualTo(firstLineage.parentIndex)
-        assertThat(merged.id).isEqualTo(firstLineage.childReportId)
-        assertThat(0).isEqualTo(firstLineage.childIndex)
-        assertThat("rep1_row1_a").isEqualTo(firstLineage.trackingId)
+        assertThat(firstLineage.parentReportId).isEqualTo(report1.id)
+        assertThat(firstLineage.parentIndex).isEqualTo(0)
+        assertThat(firstLineage.childReportId).isEqualTo(merged.id)
+        assertThat(firstLineage.childIndex).isEqualTo(0)
+        assertThat(firstLineage.trackingId).isEqualTo("rep1_row1_a")
 
         val lastLineage = merged.itemLineages!![3]
-        assertThat(report2.id).isEqualTo(lastLineage.parentReportId)
-        assertThat(1).isEqualTo(lastLineage.parentIndex)
-        assertThat(merged.id).isEqualTo(lastLineage.childReportId)
-        assertThat(3).isEqualTo(lastLineage.childIndex)
-        assertThat("rep2_row2_a").isEqualTo(lastLineage.trackingId)
+        assertThat(lastLineage.parentReportId).isEqualTo(report2.id)
+        assertThat(lastLineage.parentIndex).isEqualTo(1)
+        assertThat(lastLineage.childReportId).isEqualTo(merged.id)
+        assertThat(lastLineage.childIndex).isEqualTo(3)
+        assertThat(lastLineage.trackingId).isEqualTo("rep2_row2_a")
     }
 
     @Test
@@ -185,23 +185,23 @@ class ReportTests {
 
         val reports = report1.split()
 
-        assertThat(2).isEqualTo(reports.size)
-        assertThat(1).isEqualTo(reports[0].itemLineages!!.size)
-        assertThat(1).isEqualTo(reports[1].itemLineages!!.size)
+        assertThat(reports.size).isEqualTo(2)
+        assertThat(reports[0].itemLineages!!.size).isEqualTo(1)
+        assertThat(reports[1].itemLineages!!.size).isEqualTo(1)
 
         val firstLineage = reports[0].itemLineages!![0]
-        assertThat(report1.id).isEqualTo(firstLineage.parentReportId)
-        assertThat(0).isEqualTo(firstLineage.parentIndex)
-        assertThat(reports[0].id).isEqualTo(firstLineage.childReportId)
-        assertThat(0).isEqualTo(firstLineage.childIndex)
-        assertThat("rep1_row1_a").isEqualTo(firstLineage.trackingId)
+        assertThat(firstLineage.parentReportId).isEqualTo(report1.id)
+        assertThat(firstLineage.parentIndex).isEqualTo(0)
+        assertThat(firstLineage.childReportId).isEqualTo(reports[0].id)
+        assertThat(firstLineage.childIndex).isEqualTo(0)
+        assertThat(firstLineage.trackingId).isEqualTo("rep1_row1_a")
 
         val secondLineage = reports[1].itemLineages!![0]
-        assertThat(report1.id).isEqualTo(secondLineage.parentReportId)
-        assertThat(1).isEqualTo(secondLineage.parentIndex)
-        assertThat(reports[1].id).isEqualTo(secondLineage.childReportId)
-        assertThat(0).isEqualTo(secondLineage.childIndex)
-        assertThat("rep1_row2_a").isEqualTo(secondLineage.trackingId)
+        assertThat(secondLineage.parentReportId).isEqualTo(report1.id)
+        assertThat(secondLineage.parentIndex).isEqualTo(1)
+        assertThat(secondLineage.childReportId).isEqualTo(reports[1].id)
+        assertThat(secondLineage.childIndex).isEqualTo(0)
+        assertThat(secondLineage.trackingId).isEqualTo("rep1_row2_a")
     }
 
     @Test
@@ -215,12 +215,12 @@ class ReportTests {
         val filteredReport = report1.filter(listOf(Pair(jurisdictionalFilter, listOf("a", "rep1_row2_a"))), rcvr, false)
 
         val lineage = filteredReport.itemLineages!!
-        assertThat(1).isEqualTo(lineage.size)
-        assertThat(report1.id).isEqualTo(lineage[0].parentReportId)
-        assertThat(1).isEqualTo(lineage[0].parentIndex)
-        assertThat(filteredReport.id).isEqualTo(lineage[0].childReportId)
-        assertThat(0).isEqualTo(lineage[0].childIndex)
-        assertThat("rep1_row2_a").isEqualTo(lineage[0].trackingId)
+        assertThat(lineage.size).isEqualTo(1)
+        assertThat(lineage[0].parentReportId).isEqualTo(report1.id)
+        assertThat(lineage[0].parentIndex).isEqualTo(1)
+        assertThat(lineage[0].childReportId).isEqualTo(filteredReport.id)
+        assertThat(lineage[0].childIndex).isEqualTo(0)
+        assertThat(lineage[0].trackingId).isEqualTo("rep1_row2_a")
     }
 
     @Test

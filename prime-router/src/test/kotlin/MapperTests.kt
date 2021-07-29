@@ -90,7 +90,7 @@ class MapperTests {
             deviceElement,
             "BinaxNOW COVID-19 Ag Card Home Test_Abbott Diagnostics Scarborough, Inc._EUA"
         )
-        assertThat("94558-4").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev1)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("94558-4")
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abb#")
@@ -98,11 +98,11 @@ class MapperTests {
 
         // Test with a ID NOW device id which is has a FDA number
         val ev2 = ElementAndValue(deviceElement, "10811877011269_DII")
-        assertThat("94534-5").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev2)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2))).isEqualTo("94534-5")
 
         // With GUDID DI
         val ev3 = ElementAndValue(deviceElement, "10811877011269")
-        assertThat("94534-5").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev3)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev3))).isEqualTo("94534-5")
     }
 
     @Test
@@ -118,11 +118,11 @@ class MapperTests {
 
         // Test with a EUA
         val ev1 = ElementAndValue(modelElement, "BinaxNOW COVID-19 Ag Card")
-        assertThat("94558-4").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev1)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("94558-4")
 
         // Test with a ID NOW device id
         val ev2 = ElementAndValue(modelElement, "ID NOW")
-        assertThat("94534-5").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev2)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev2))).isEqualTo("94534-5")
     }
 
     @Test
@@ -163,11 +163,11 @@ class MapperTests {
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "10811877011337")
-        assertThat("N").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev1)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("N")
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home#")
-        assertThat("Y").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("Y")
     }
 
     @Test
@@ -183,11 +183,11 @@ class MapperTests {
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test")
-        assertThat("N").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev1)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1))).isEqualTo("N")
 
         // Test with another
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
-        assertThat("Y").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("Y")
     }
 
     @Test
@@ -327,7 +327,6 @@ class MapperTests {
         val expected = "20210302000000.0000-0600"
         val actual = mapper.apply(element, args, values)
         // assert
-        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -346,7 +345,7 @@ class MapperTests {
         var expected = "c"
         var actual = mapper.apply(element, args, values)
         // assert
-        assertThat(expected).isEqualTo(actual)
+        assertThat(actual).isEqualTo(expected)
 
         values = listOf(
             ElementAndValue(Element("a"), ""),
