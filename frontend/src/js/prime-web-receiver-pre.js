@@ -248,6 +248,7 @@ async function changeOrg(event){
     debug(`org = ${event.value}`)
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
+    window.location.replace(`${window.location.origin}/daily-data/`);
     processOrgName();
     const details = document.querySelector("#details");
     if (details) {
