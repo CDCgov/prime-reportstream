@@ -20,19 +20,20 @@ import io.jsonwebtoken.SigningKeyResolverAdapter
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.io.Encoders
 import io.jsonwebtoken.security.Keys
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.security.Key
 import java.time.OffsetDateTime
 import java.util.Date
 import java.util.UUID
 import javax.crypto.SecretKey
+import kotlin.test.Ignore
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 val exampleRsaPrivateKeyStr = """
     {
