@@ -95,7 +95,7 @@ class ReportFunction : Logging {
     @StorageAccount("AzureWebJobsStorage")
     fun report(
         @HttpTrigger(
-            name = "reqWithFHIRAuth",
+            name = "waters",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
         ) request: HttpRequestMessage<String?>,
@@ -123,11 +123,11 @@ class ReportFunction : Logging {
         }
 
         if (authenticationStrategy is TokenAuthentication) {
-            authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
+            val claims = authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
                 ?: return HttpUtilities.unauthorizedResponse(request)
+            logger.info("Claims for ${claims["sub"]} validated.  Beginning ingestReport.")
+            return ingestReport(request, context)
         }
-
-        return ingestReport(request, context)
     }
 
     private fun ingestReport(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {

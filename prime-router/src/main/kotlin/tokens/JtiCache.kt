@@ -13,6 +13,8 @@ import java.time.OffsetDateTime
  */
 
 abstract class JtiCache : Logging {
+    val EXPIRATION_MINUTES: Long = 5
+
     abstract fun cleanupCache()
 
     abstract fun insertIntoCache(jti: String, expiresAt: OffsetDateTime)
@@ -24,18 +26,17 @@ abstract class JtiCache : Logging {
      */
     fun isJTIOk(jti: String, expiresAt: OffsetDateTime): Boolean {
         cleanupCache()
-        return if (isPresentInCache(jti)) {
+        if (isPresentInCache(jti)) {
             logger.warn("JTI $jti is being replayed")
-            false
+            return false
         } else {
-            // Never expire in less than 5 minutes.
-            val minimumExpirationTime = OffsetDateTime.now().plusMinutes(5)
+            val minimumExpirationTime = OffsetDateTime.now().plusMinutes(EXPIRATION_MINUTES)
             if (expiresAt.isBefore(minimumExpirationTime)) {
                 insertIntoCache(jti, minimumExpirationTime)
             } else {
                 insertIntoCache(jti, expiresAt)
             }
-            true
+            return true
         }
     }
 }

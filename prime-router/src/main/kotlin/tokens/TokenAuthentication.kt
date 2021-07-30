@@ -18,6 +18,7 @@ import java.security.Key
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.Date
+import java.util.UUID
 
 /**
  * Implementation of two-legged auth, using a sender's public key pre-authorized
@@ -31,6 +32,7 @@ import java.util.Date
  */
 class TokenAuthentication(val jtiCache: JtiCache) : Logging {
     private val MAX_CLOCK_SKEW_SECONDS: Long = 60
+    private val EXPIRATION_SECONDS = 300
 
     /**
      *  convenience method to log in two places
@@ -59,20 +61,20 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
             val jti = jws.body.id
             val exp = jws.body.expiration
             if (jti == null) {
-                logErr(actionHistory, "Sender Token has null JWT ID.  Rejecting.")
+                logErr(actionHistory, "SenderToken has null JWT ID.  Rejecting.")
                 return false
             }
             val expiresAt = exp.toInstant().atOffset(ZoneOffset.UTC)
             if (expiresAt.isBefore(OffsetDateTime.now())) {
-                logErr(actionHistory, "Sender Token has expired, at $expiresAt.  Rejecting.")
+                logErr(actionHistory, "SenderToken $jti has expired, at $expiresAt.  Rejecting.")
                 return false
             }
             return jtiCache.isJTIOk(jti, expiresAt) // check for replay attacks
         } catch (ex: JwtException) {
-            logErr(actionHistory, "Rejecting JWT: $ex")
+            logErr(actionHistory, "Rejecting SenderToken JWT: $ex")
             return false
         } catch (e: IllegalArgumentException) {
-            logErr(actionHistory, "Rejecting JWT: $e")
+            logErr(actionHistory, "Rejecting SenderToken JWT: $e")
             return false
         }
         return false
@@ -88,32 +90,33 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
         // Using Integer seconds to stay consistent with the JWT token spec, which uses seconds.
         // Search for 'NumericDate' in https://tools.ietf.org/html/rfc7519#section-2
         // This will break in 2038, which, actually, isn't that far off...
-        val expiresInSeconds = 300
+        val expiresInSeconds = EXPIRATION_SECONDS
         val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + expiresInSeconds).toInt()
         val expirationDate = Date(expiresAtSeconds.toLong() * 1000)
+        val subject = scopeAuthorized + "_" + UUID.randomUUID()
         // Keep it small:  The signed token we send back only has two claims in it.
         val token = Jwts.builder()
             .setExpiration(expirationDate) // exp
             .claim("scope", scopeAuthorized)
+            .claim("sub", subject)
             .signWith(secret).compact()
         actionHistory?.trackActionResult(
-            "Token successfully created for $scopeAuthorized. Expires at $expirationDate"
+            "AccessToken $subject successfully created for $scopeAuthorized. Expires at $expirationDate"
         )
-        return AccessToken(token, "bearer", expiresInSeconds, expiresAtSeconds, scopeAuthorized)
+        return AccessToken(subject, token, "bearer", expiresInSeconds, expiresAtSeconds, scopeAuthorized)
     }
 
     fun checkAccessToken(request: HttpRequestMessage<String?>, desiredScope: String): Claims? {
         val bearerComponent = request.headers["authorization"]
         if (bearerComponent == null) {
-            logger.error("Missing Authorization header.  Unauthorized.")
+            logger.error("Missing Authorization header.  AccessToken Unauthorized.")
             return null
         }
         val accessToken = bearerComponent.split(" ")[1]
         if (accessToken.isEmpty()) {
-            logger.error("Request has Authorization header but no token.  Unauthorized")
+            logger.error("Request has Authorization header but no token.  AccessToken Unauthorized")
             return null
         }
-// for testing only           return checkAccessToken(accessToken, desiredScope, GetStaticSecret())
         return checkAccessToken(accessToken, desiredScope, FindReportStreamSecretInVault())
     }
 
@@ -134,25 +137,36 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
                 logger.error("AccessToken check failed - no claims.  Unauthorized.")
                 return null
             }
+            val subject = jws.body["sub"] as? String
+            if (subject == null) {
+                logger.error("AccessToken missing subject.  Unauthorized.")
+                return null
+            } else {
+                logger.info("checking AccessToken $subject")
+            }
             if (isExpiredToken(jws.body.expiration)) {
-                logger.error("AccessToken expired.  Unauthorized.")
+                logger.error("AccessToken $subject expired.  Unauthorized.")
                 return null
             }
             val scope = jws.body["scope"] as? String
             if (scope == null) {
-                logger.error("Missing scope claim.  Unauthorized.")
+                logger.error("Missing scope claim in AccessToken $subject.  Unauthorized.")
                 return null
             }
             if (!Scope.scopeListContainsScope(scope, desiredScope)) {
-                logger.error("Signed key has scope $scope, but requests $desiredScope.  Unauthorized")
+                logger.error(
+                    "In AccessToken $subject," +
+                        " signed key has scope $scope, but requests $desiredScope. Unauthorized"
+                )
                 return null
             }
+            logger.info("AccessToken $subject : validated.")
             return jws.body
         } catch (ex: JwtException) {
-            logger.error("Unauthorized: $ex")
+            logger.error("AccessToken Unauthorized: $ex")
             return null
         } catch (exc: RuntimeException) {
-            logger.error("Unauthorized: $exc")
+            logger.error("AccessToken Unauthorized: $exc")
             return null
         }
     }
@@ -170,6 +184,8 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
  */
 // todo get this to work:  @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 data class AccessToken(
+    @JsonProperty("sub")
+    val sub: String, // a unique subject / id for this token, suitable for tracing
     @JsonProperty("access_token")
     val accessToken: String, // access_token - required - The access token issued by the authorization server.
     @JsonProperty("token_type")
@@ -192,21 +208,21 @@ data class AccessToken(
 class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), Logging {
     var errorMsg: String? = null
 
-    fun fail(shortMsg: String): Key? {
-        errorMsg = "Token Request Denied: Error while requesting $scope: $shortMsg"
+    fun err(shortMsg: String): Key? {
+        errorMsg = "AccessToken Request Denied: Error while requesting $scope: $shortMsg"
         logger.error(errorMsg!!)
         return null
     }
 
     override fun resolveSigningKey(jwsHeader: JwsHeader<*>?, claims: Claims): Key? {
         errorMsg = null
-        if (jwsHeader == null) return fail("JWT has missing header")
+        if (jwsHeader == null) return err("JWT has missing header")
         val issuer = claims.issuer
         val kid = jwsHeader.keyId
         val alg = jwsHeader.algorithm
-        val sender = WorkflowEngine().settings.findSender(issuer) ?: return fail("No such sender fullName $issuer")
-        if (sender.keys == null) return fail("No auth keys associated with sender $issuer")
-        if (!Scope.isValidScope(scope, sender)) return fail("Invalid scope for this sender: $scope")
+        val sender = WorkflowEngine().settings.findSender(issuer) ?: return err("No such sender fullName $issuer")
+        if (sender.keys == null) return err("No auth keys associated with sender $issuer")
+        if (!Scope.isValidScope(scope, sender)) return err("Invalid scope for this sender: $scope")
         sender.keys.forEach { jwkSet ->
             if (Scope.scopeListContainsScope(jwkSet.scope, scope)) {
                 val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
@@ -225,6 +241,6 @@ class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), 
             }
         }
         // Failed to find any key for this sender, with the requested/desired scope.
-        return fail("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
+        return err("Unable to find auth key for $issuer with scope=$scope, kid=$kid, and alg=$alg")
     }
 }

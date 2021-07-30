@@ -258,6 +258,7 @@ class TokenAuthenticationTests {
         assertTrue(token.expiresAtSeconds < now + 600)
         assertEquals("foobar", token.scope)
         assertEquals("bearer", token.tokenType)
+        assertTrue(token.sub.startsWith("foobar_"))
 
         // Now read the token back in, and confirm its valid.
         val claims = tokenAuthentication.checkAccessToken(token.accessToken, "foobar", rslookup)
@@ -265,6 +266,7 @@ class TokenAuthenticationTests {
         assertNotNull(claims)
         assertEquals(token.expiresAtSeconds, claims["exp"])
         assertEquals("foobar", claims["scope"])
+        assertEquals(token.sub, claims["sub"])
     }
 
     /*
