@@ -3,6 +3,7 @@ package gov.cdc.prime.router.credentials
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
+import kotlin.math.exp
 import kotlin.test.Test
 
 internal class CredentialTests {
@@ -11,7 +12,7 @@ internal class CredentialTests {
     fun `test polymorphic serialization of UserPassCredential`() {
         val credential = UserPassCredential("user", "pass")
         val expectedJson = "{\"@type\":\"UserPass\",\"user\":\"user\",\"pass\":\"pass\"}"
-        assertThat(expectedJson).isEqualTo(credential.toJSON())
+        assertThat(credential.toJSON()).isEqualTo(expectedJson)
     }
 
     @Test
@@ -22,8 +23,8 @@ internal class CredentialTests {
         assertThat(credential is UserPassCredential).isTrue() // Gives off warning message: instance is always 'true'
         // Needed to gain access to credential.user and credential.pass
         if (credential is UserPassCredential) {
-            assertThat("user").isEqualTo(credential.user)
-            assertThat("pass").isEqualTo(credential.pass)
+            assertThat(credential.user).isEqualTo("user")
+            assertThat(credential.pass).isEqualTo("pass")
         }
     }
 }

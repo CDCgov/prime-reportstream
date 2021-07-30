@@ -137,7 +137,7 @@ class SendFunctionTests {
         assertThat(nextEvent).isNotNull()
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
         assertThat(nextEvent!!.retryToken).isNotNull()
-        assertThat(1).isEqualTo(nextEvent!!.retryToken?.retryCount)
+        assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(1)
     }
 
     @Test
@@ -166,7 +166,7 @@ class SendFunctionTests {
         assertThat(nextEvent).isNotNull()
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
         assertThat(nextEvent!!.retryToken).isNotNull()
-        assertThat(3).isEqualTo(nextEvent!!.retryToken?.retryCount)
+        assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(3)
         assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2))).isTrue()
         nextEvent!!.retryToken?.toJSON()?.let { assertThat(it.contains("\"retryCount\":3")).isTrue() }
     }

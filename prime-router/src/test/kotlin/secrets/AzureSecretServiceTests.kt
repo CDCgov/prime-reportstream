@@ -47,7 +47,7 @@ internal class AzureSecretServiceTests {
         verify { secretClientBuilder.vaultUrl("https://$KEY_VAULT_NAME.vault.azure.net") }
         verify { secretClientBuilder.credential(mockAzureCredential) }
 
-        assertThat(secretClient).isEqualTo(retVal)
+        assertThat(retVal).isEqualTo(secretClient)
     }
 
     @Test
@@ -56,7 +56,7 @@ internal class AzureSecretServiceTests {
             secretClient.getSecret("functionapp-secret-name")
         } returns KeyVaultSecret("functionapp-secret-name", "From Azure")
         val secret = secretService.fetchSecret("SECRET_NAME")
-        assertThat("From Azure").isEqualTo(secret)
+        assertThat(secret).isEqualTo("From Azure")
     }
 
     companion object {

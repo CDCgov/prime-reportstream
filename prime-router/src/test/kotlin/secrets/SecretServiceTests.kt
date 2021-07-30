@@ -35,7 +35,7 @@ internal class SecretServiceTests : SecretManagement {
                 secretService.fetchSecret(it)
                 fail("IllegalArgumentException not thrown for $it")
             } catch (e: IllegalArgumentException) {
-                assertThat("secretName must match: ^[a-zA-Z0-9-_]*\$").isEqualTo(e.message)
+                assertThat(e.message).isEqualTo("secretName must match: ^[a-zA-Z0-9-_]*\$")
             }
         }
     }

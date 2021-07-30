@@ -102,9 +102,9 @@ NTE|1|L|This is a final comment|RE"""
         // as well, and let's test that while we're here as well
         val oru = hapiMsg as ORU_R01
         // assert
-        assertThat("CDC PRIME - Atlanta, Georgia (Dekalb)").isEqualTo(terser.get("/MSH-3-1"))
-        assertThat("2.16.840.1.114222.4.1.237821").isEqualTo(terser.get("/MSH-3-2"))
-        assertThat("South Rodneychester").isEqualTo(terser.get("/.PID-11-3"))
+        assertThat(terser.get("/MSH-3-1")).isEqualTo("CDC PRIME - Atlanta, Georgia (Dekalb)")
+        assertThat(terser.get("/MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
+        assertThat(terser.get("/.PID-11-3")).isEqualTo("South Rodneychester")
         // check the oru cast
         assertThat(oru).isNotNull()
         assertThat(oru.patienT_RESULT.patient).isNotNull()
@@ -121,7 +121,7 @@ NTE|1|L|This is a final comment|RE"""
             println("${it.key}: ${it.value.joinToString()}")
         }
         assertThat(mappedValues.containsKey("patient_city")).isTrue()
-        assertThat("South Rodneychester").isEqualTo(mappedValues["patient_city"]?.get(0))
+        assertThat(mappedValues["patient_city"]?.get(0)).isEqualTo("South Rodneychester")
     }
 
     @Test
@@ -134,7 +134,7 @@ NTE|1|L|This is a final comment|RE"""
             println("${it.key}: ${it.value.joinToString()}")
         }
         assertThat(mappedValues.containsKey("patient_city")).isTrue()
-        assertThat("South Rodneychester").isEqualTo(mappedValues["patient_city"]?.get(0))
+        assertThat(mappedValues["patient_city"]?.get(0)).isEqualTo("South Rodneychester")
     }
 
     @Test
@@ -149,7 +149,7 @@ NTE|1|L|This is a final comment|RE"""
         }
         assertThat(mappedValues.containsKey("patient_city")).isTrue()
         val cities = mappedValues["patient_city"]?.toSet()
-        assertThat(setOf("North Taylor", "South Rodneychester")).isEqualTo(cities)
+        assertThat(cities).isEqualTo(setOf("North Taylor", "South Rodneychester"))
         println("Errors:")
         mappedMessage.errors.forEach {
             println(it)
@@ -167,11 +167,11 @@ NTE|1|L|This is a final comment|RE"""
         val source = FileSource(inputFile)
         val readResult = serializer.readExternal(hl7SchemaName, message.inputStream(), source)
         val report = readResult.report ?: fail("Report was null and should not be")
-        assertThat("South Rodneychester").isEqualTo(report.getString(0, "patient_city"))
-        assertThat("North Taylor").isEqualTo(report.getString(1, "patient_city"))
+        assertThat(report.getString(0, "patient_city")).isEqualTo("South Rodneychester")
+        assertThat(report.getString(1, "patient_city")).isEqualTo("North Taylor")
         assertThat(report.itemCount == 2).isTrue()
         val hospitalized = (0 until report.itemCount).map { report.getString(it, "hospitalized") }
-        assertThat(setOf("")).isEqualTo(hospitalized.toSet())
+        assertThat(hospitalized.toSet()).isEqualTo(setOf(""))
     }
 
     @Test
@@ -192,17 +192,17 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser, Element("phone", Element.Type.TELEPHONE),
             "PID-BLAH"
         )
-        assertThat("").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // Segment not found
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // No phone number due to zero repetitions
         every { mockTerser.getSegment(any()) } returns mockSegment
         every { mockSegment.getField(any()) } returns emptyArray()
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // No phone number
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField) // This is only to get the number of reps
@@ -211,12 +211,12 @@ NTE|1|L|This is a final comment|RE"""
         every { emptyPhoneField.localNumber.isEmpty } returns true
         every { emptyPhoneField.telephoneNumber.isEmpty } returns true
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // Multiple repetitions with no phone number
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emptyPhoneField, emptyPhoneField)
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // Phone number in deprecated component
         every { deprecatedPhoneField.areaCityCode.isEmpty } returns true
@@ -225,7 +225,7 @@ NTE|1|L|This is a final comment|RE"""
         every { deprecatedPhoneField.telephoneNumber.valueOrEmpty } returns "(555)555-5555"
         every { mockSegment.getField(any()) } returns arrayOf(deprecatedPhoneField)
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("5555555555:1:").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("5555555555:1:")
 
         // Phone number in newer components.  Will ignore phone number in deprecated component
         every { mockSegment.getField(any()) } returns arrayOf(phoneField)
@@ -239,19 +239,19 @@ NTE|1|L|This is a final comment|RE"""
         every { phoneField.localNumber.value } returns "7777777"
         every { phoneField.extension.value } returns "9999"
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("6667777777:1:9999").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("6667777777:1:9999")
 
         // No type assumed to be a phone number
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns true
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns null
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("6667777777:1:9999").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("6667777777:1:9999")
 
         // A Fax number is not used
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "FX"
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("")
 
         // Test repetitions.  The first repetition for the XTN type can be empty when there is no primary phone number
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
@@ -264,7 +264,7 @@ NTE|1|L|This is a final comment|RE"""
         every { emailField.telecommunicationUseCode.valueOrEmpty } returns "NET"
         every { mockSegment.getField(any()) } returns arrayOf(emptyPhoneField, emailField, phoneField)
         phoneNumber = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("6667777777:1:9999").isEqualTo(phoneNumber)
+        assertThat(phoneNumber).isEqualTo("6667777777:1:9999")
     }
 
     @Test
@@ -283,24 +283,24 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser, Element("email", Element.Type.EMAIL),
             "PID-BLAH"
         )
-        assertThat("").isEqualTo(email)
+        assertThat(email).isEqualTo("")
 
         // Segment not found
         email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("").isEqualTo(email)
+        assertThat(email).isEqualTo("")
 
         // No email number due to zero repetitions
         every { mockTerser.getSegment(any()) } returns mockSegment
         every { mockSegment.getField(any()) } returns emptyArray()
         email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("").isEqualTo(email)
+        assertThat(email).isEqualTo("")
 
         // No email
         every { mockSegment.getField(any()) } returns arrayOf(phoneField)
         every { phoneField.telecommunicationEquipmentType.isEmpty } returns false
         every { phoneField.telecommunicationEquipmentType.valueOrEmpty } returns "PH"
         email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("").isEqualTo(email)
+        assertThat(email).isEqualTo("")
 
         // Test repetitions.
         every { emailField.emailAddress.valueOrEmpty } returns "dummyemail@cdc.local"
@@ -308,7 +308,7 @@ NTE|1|L|This is a final comment|RE"""
         every { emailField.telecommunicationEquipmentType.valueOrEmpty } returns "Internet"
         every { mockSegment.getField(any()) } returns arrayOf(emailField, phoneField)
         email = serializer.decodeHl7TelecomData(mockTerser, element, element.hl7Field!!)
-        assertThat("dummyemail@cdc.local").isEqualTo(email)
+        assertThat(email).isEqualTo("dummyemail@cdc.local")
     }
 
     @Test
@@ -330,7 +330,7 @@ NTE|1|L|This is a final comment|RE"""
         // Segment not found
         every { mockTerser.getSegment(any()) } returns null
         var dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertThat("").isEqualTo(dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Bad field value
         every { mockTerser.getSegment(any()) } returns mockSegment
@@ -338,18 +338,18 @@ NTE|1|L|This is a final comment|RE"""
             mockTerser, Element("field", hl7Field = "OBX-Blah"),
             "OBX-Blah", warnings
         )
-        assertThat("").isEqualTo(dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // No field value
         every { mockSegment.getField(any(), any()) } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertThat("").isEqualTo(dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Field value is TS, but no time
         every { mockSegment.getField(any(), any()) } returns mockTS
         every { mockTS.time } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertThat("").isEqualTo(dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Field value is TS has a time
         every { mockTS.time } returns mockDTM
@@ -373,13 +373,13 @@ NTE|1|L|This is a final comment|RE"""
         every { mockSegment.getField(any(), any()) } returns mockDR
         every { mockDR.rangeStartDateTime } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertThat("").isEqualTo(dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Field value is DR has a range, but with no time
         every { mockDR.rangeStartDateTime } returns mockTS
         every { mockDR.rangeStartDateTime.time } returns null
         dateTime = serializer.decodeHl7DateTime(mockTerser, dateTimeElement, dateTimeElement.hl7Field!!, warnings)
-        assertThat("").isEqualTo(dateTime)
+        assertThat(dateTime).isEqualTo("")
 
         // Field value is DR and has a time
         every { mockDR.rangeStartDateTime } returns mockTS
@@ -491,16 +491,16 @@ NTE|1|L|This is a final comment|RE"""
         val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
         // assert
-        assertThat(greekString).isEqualTo(terser.get("/.PID-5-1"))
+        assertThat(terser.get("/.PID-5-1")).isEqualTo(greekString)
     }
 
     @Test
     fun `test terser spec generator`() {
         val metadata = Metadata("./metadata")
         val serializer = Hl7Serializer(metadata)
-        assertThat("/MSH-1-1").isEqualTo(serializer.getTerserSpec("MSH-1-1"))
-        assertThat("/.PID-1").isEqualTo(serializer.getTerserSpec("PID-1"))
-        assertThat("/.").isEqualTo(serializer.getTerserSpec(""))
+        assertThat(serializer.getTerserSpec("MSH-1-1")).isEqualTo("/MSH-1-1")
+        assertThat(serializer.getTerserSpec("PID-1")).isEqualTo("/.PID-1")
+        assertThat(serializer.getTerserSpec("")).isEqualTo("/.")
     }
 
     @Test

@@ -19,7 +19,7 @@ internal class CredentialServiceTests : CredentialManagement {
         val retVal = credentialService.fetchCredential(
             connectionId, "CredentialServiceTest", CredentialRequestReason.AUTOMATED_TEST
         )
-        assertThat(VALID_CREDENTIAL).isEqualTo(retVal)
+        assertThat(retVal).isEqualTo(VALID_CREDENTIAL)
     }
 
     @Test
@@ -40,7 +40,7 @@ internal class CredentialServiceTests : CredentialManagement {
                 )
                 fail("IllegalArgumentException not thrown for $it")
             } catch (e: IllegalArgumentException) {
-                assertThat("connectionId must match: ^[a-zA-Z0-9-]*\$").isEqualTo(e.message)
+                assertThat(e.message).isEqualTo("connectionId must match: ^[a-zA-Z0-9-]*\$")
             }
         }
     }
@@ -59,7 +59,7 @@ internal class CredentialServiceTests : CredentialManagement {
                 credentialService.saveCredential(it, VALID_CREDENTIAL, "CredentialServiceTest")
                 fail("IllegalArgumentException not thrown for $it")
             } catch (e: IllegalArgumentException) {
-                assertThat("connectionId must match: ^[a-zA-Z0-9-]*\$").isEqualTo(e.message)
+                assertThat(e.message).isEqualTo("connectionId must match: ^[a-zA-Z0-9-]*\$")
             }
         }
     }

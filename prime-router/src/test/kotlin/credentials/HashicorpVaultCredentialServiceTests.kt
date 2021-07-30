@@ -57,8 +57,8 @@ internal class HashicorpVaultCredentialServiceTests {
         @Suppress("USELESS_IS_CHECK")
         assertThat(credential is UserPassCredential).isTrue()
         if (credential is UserPassCredential) {
-            assertThat("user").isEqualTo(credential.user)
-            assertThat("pass").isEqualTo(credential.pass)
+            assertThat(credential.user).isEqualTo("user")
+            assertThat(credential.pass).isEqualTo("pass")
         }
     }
 
