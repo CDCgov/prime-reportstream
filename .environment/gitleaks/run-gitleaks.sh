@@ -8,7 +8,7 @@ function usage() {
     echo ""
     echo "Options:"
     echo "    --no-git          Scans your current working directory as is (i.e. pretends it isn't a git repo)"
-    echo "    --since <hash>    Scans the history of your repository since the given commit. The hash is inclusive."
+    echo "    --depth <int>     Scans the <int> (topologically) last commits of the repository"
     echo "    --help|-h         Shows this help and exits successfully"
     echo ""
     echo "Examples:"
@@ -80,10 +80,8 @@ function scan_no_git() {
     return ${RC?}
 }
 
-function scan_history() {
-    # Scanning commits works backwards, you specify the youngest as 'from' and the oldest as 'to'
-    COMMIT_FROM="HEAD"
-    COMMIT_TO=${1}
+function scan_x_last_commits() {
+    DEPTH=${1}
 
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
@@ -92,8 +90,7 @@ function scan_history() {
         --repo-config-path="${REPO_CONFIG_PATH?}" \
         --report="${CONTAINER_SOURCE_LOCATION?}/${REPORT_JSON?}" \
         $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
-        --commit-from=${COMMIT_FROM?} \
-        --commit-to=${COMMIT_TO?} \
+        --depth ${DEPTH?} \
         2>"${LOGFILE?}"
 
     RC=$?
@@ -108,23 +105,21 @@ HAS_UNRECOGNIZED=0
 SELECTED_RUNMODE=""
 RUNMODE_STAGED_UNCOMMITTED="uncommitted"
 RUNMODE_NO_GIT="no-git"
-RUNMODE_SINCE="since"
-RUNMODE_SINCE_COMMIT=""
+RUNMODE_DEPTH="depth"
+RUNMODE_DEPTH_VALUE=""
 while [[ ! -z "${1}" ]]; do
     case "${1}" in
-    "--${RUNMODE_SINCE}")
+    "--${RUNMODE_DEPTH}")
         if [[ ! -z "${SELECTED_RUNMODE?}" ]]; then
-            warning "The previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by the latest run-mode '${RUNMODE_SINCE?}'."
+            warning "The previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by the latest run-mode '${RUNMODE_DEPTH?}'."
         fi
-        SELECTED_RUNMODE="${RUNMODE_SINCE?}"
+        SELECTED_RUNMODE="${RUNMODE_DEPTH?}"
 
-        # by default, since will be the null commit but you can specify one too
-        # If you specify one, it will _not_ start with dash-dash
         if [[ -z "${2}" || "${2:0:1}" == "--" ]]; then
-            error "The commit hash to scan since (for '${RUNMODE_SINCE?}' mode) is not defined."
+            error "The depth to scan since (for '${RUNMODE_DEPTH?}' mode) is not defined."
             exit 1
         else
-            RUNMODE_SINCE_COMMIT="${2}"
+            RUNMODE_DEPTH_VALUE="${2}"
 
             # We used an extra argument, shift that
             shift
@@ -165,8 +160,8 @@ fi
 note "Scanning your suggested changes."
 RC=1 # Nothing done, fail
 case "${SELECTED_RUNMODE?}" in
-"${RUNMODE_SINCE?}")
-    scan_history "${RUNMODE_SINCE_COMMIT?}"
+"${RUNMODE_DEPTH?}")
+    scan_x_last_commits ${RUNMODE_DEPTH_VALUE?}
     RC=$?
     ;;
 "${RUNMODE_NO_GIT}")
