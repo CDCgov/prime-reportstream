@@ -100,9 +100,9 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
             .claim("scope", scopeAuthorized)
             .claim("sub", subject)
             .signWith(secret).compact()
-        actionHistory?.trackActionResult(
-            "AccessToken $subject successfully created for $scopeAuthorized. Expires at $expirationDate"
-        )
+        val msg = "AccessToken $subject successfully created for $scopeAuthorized. Expires at $expirationDate"
+        actionHistory?.trackActionResult(msg)
+        logger.info(msg)
         return AccessToken(subject, token, "bearer", expiresInSeconds, expiresAtSeconds, scopeAuthorized)
     }
 
