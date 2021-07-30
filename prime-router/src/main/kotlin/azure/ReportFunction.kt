@@ -128,6 +128,7 @@ class ReportFunction : Logging {
             logger.info("Claims for ${claims["sub"]} validated.  Beginning ingestReport.")
             return ingestReport(request, context)
         }
+        return HttpUtilities.bad(request, "Failed authorization") // unreachable code.
     }
 
     private fun ingestReport(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {

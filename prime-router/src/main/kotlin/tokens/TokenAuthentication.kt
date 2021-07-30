@@ -220,23 +220,21 @@ class FindSenderKeyInSettings(val scope: String) : SigningKeyResolverAdapter(), 
         val issuer = claims.issuer
         val kid = jwsHeader.keyId
         val alg = jwsHeader.algorithm
+        val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
         val sender = WorkflowEngine().settings.findSender(issuer) ?: return err("No such sender fullName $issuer")
         if (sender.keys == null) return err("No auth keys associated with sender $issuer")
         if (!Scope.isValidScope(scope, sender)) return err("Invalid scope for this sender: $scope")
         sender.keys.forEach { jwkSet ->
             if (Scope.scopeListContainsScope(jwkSet.scope, scope)) {
-                val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
 
                 // find by kid and kty
-                val key = jwkSet.keys.filter { jwk -> jwk.kid == kid }
-                    .firstOrNull { jwk -> jwk.kty == kty.value }
+                val key = jwkSet.keys.find { jwk -> (jwk.kid == kid && jwk.kty == kty.value) }
 
-                return if (key != null && kty == KeyType.EC) {
-                    key.toECPublicKey()
-                } else if (key != null && kty == KeyType.RSA) {
-                    key.toRSAPublicKey()
-                } else {
-                    null
+                return when {
+                    key == null -> null
+                    kty == KeyType.EC -> key.toECPublicKey()
+                    kty == KeyType.RSA -> key.toRSAPublicKey()
+                    else -> null
                 }
             }
         }
