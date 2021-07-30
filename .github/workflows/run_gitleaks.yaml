@@ -15,4 +15,4 @@ jobs:
           fetch-depth: 0
 
       - name: "Run Gitleaks on a selected part of our history"
-        run: .environment/gitleaks/run-gitleaks.sh --depth 1000
+        run: .environment/gitleaks/run-gitleaks.sh --since '2021-06-01T00:00:00-0400'
