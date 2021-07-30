@@ -99,7 +99,7 @@ class ReportTests {
         metadata.loadSchemas(one, two)
 
         val oneReport = Report(schema = one, values = listOf(listOf("a1", "b1"), listOf("a2", "b2")), TestSource)
-        assertThat(2).isEqualTo(oneReport.itemCount)
+        assertThat(oneReport.itemCount).isEqualTo(2)
         val mappingOneToTwo = Translator(metadata, FileSettings())
             .buildMapping(fromSchema = one, toSchema = two, defaultValues = emptyMap())
 

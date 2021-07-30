@@ -94,7 +94,7 @@ class MapperTests {
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abb#")
-        assertThat("94558-4").isEqualTo(mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a))).isEqualTo("94558-4")
 
         // Test with a ID NOW device id which is has a FDA number
         val ev2 = ElementAndValue(deviceElement, "10811877011269_DII")

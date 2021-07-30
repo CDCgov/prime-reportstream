@@ -218,13 +218,13 @@ class MetadataTests {
         assertThat(valueSet).isSameAs(shouldBeSame)
         assertThat(valueSet).isNotSameAs(shouldBeDifferent)
 
-        assertNotNull(shouldBeSame.values.find { it.code.equals("UNK", ignoreCase = true) })
-        assertNotNull(shouldBeDifferent.values.find { it.code.equals("U", ignoreCase = true) })
-        assertNotNull(shouldBeDifferent.values.find { it.replaces.equals("UNK", ignoreCase = true) })
-        assertNull(shouldBeDifferent.values.find { it.code.equals("UNK", ignoreCase = true) })
+        assertThat(shouldBeSame.values.find { it.code.equals("UNK", ignoreCase = true) }).isNotNull()
+        assertThat(shouldBeDifferent.values.find { it.code.equals("U", ignoreCase = true) }).isNotNull()
+        assertThat(shouldBeDifferent.values.find { it.replaces.equals("UNK", ignoreCase = true) }).isNotNull()
+        assertThat(shouldBeDifferent.values.find { it.code.equals("UNK", ignoreCase = true) }).isNull()
 
-        assertNotNull(shouldBeExtended.values.find { it.code.equals("M", ignoreCase = true) })
-        assertNotNull(shouldBeExtended.values.find { it.code.equals("UNK", ignoreCase = true) })
+        assertThat(shouldBeExtended.values.find { it.code.equals("M", ignoreCase = true) }).isNotNull()
+        assertThat(shouldBeExtended.values.find { it.code.equals("UNK", ignoreCase = true) }).isNotNull()
     }
 
     companion object {
