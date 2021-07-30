@@ -132,11 +132,11 @@ class RedoxTransportTests {
 
         assertThat(retryItemsOut).isNotNull()
         if (retryItemsOut != null) {
-            assertThat(4).isEqualTo(retryItemsOut.size)
-            assertThat("0").isEqualTo(retryItemsOut[0])
-            assertThat("1").isEqualTo(retryItemsOut[1])
-            assertThat("2").isEqualTo(retryItemsOut[2])
-            assertThat("3").isEqualTo(retryItemsOut[3])
+            assertThat(retryItemsOut.size).isEqualTo(4)
+            assertThat(retryItemsOut[0]).isEqualTo("0")
+            assertThat(retryItemsOut[1]).isEqualTo("1")
+            assertThat(retryItemsOut[2]).isEqualTo("2")
+            assertThat(retryItemsOut[3]).isEqualTo("3")
         }
     }
 
@@ -156,7 +156,7 @@ class RedoxTransportTests {
         val retryItemsOut = redox.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
         assertThat(retryItemsOut).isNotNull()
         if (retryItemsOut != null) {
-            assertThat(1).isEqualTo(retryItemsOut.size)
+            assertThat(retryItemsOut.size).isEqualTo(1)
         }
         assertThat(RetryToken.isAllItems(retryItemsOut)).isTrue()
 
@@ -166,9 +166,9 @@ class RedoxTransportTests {
         val retryItemsOut2 = redox.send(transportType, header, UUID.randomUUID(), retryItemsIn, context, actionHistory)
         assertThat(retryItemsOut2).isNotNull()
         if (retryItemsOut2 != null) {
-            assertThat(2).isEqualTo(retryItemsOut2.size)
-            assertThat("0").isEqualTo(retryItemsOut2[0])
-            assertThat("3").isEqualTo(retryItemsOut2[1])
+            assertThat(retryItemsOut2.size).isEqualTo(2)
+            assertThat(retryItemsOut2[0]).isEqualTo("0")
+            assertThat(retryItemsOut2[1]).isEqualTo("3")
         }
     }
 
@@ -186,7 +186,7 @@ class RedoxTransportTests {
         val retryItemsOut = redox.send(transportType, header, UUID.randomUUID(), null, context, actionHistory)
         assertThat(retryItemsOut).isNotNull()
         if (retryItemsOut != null) {
-            assertThat(1).isEqualTo(retryItemsOut.size)
+            assertThat(retryItemsOut.size).isEqualTo(1)
         }
         assertThat(RetryToken.isAllItems(retryItemsOut)).isTrue()
 
@@ -195,9 +195,9 @@ class RedoxTransportTests {
         val retryItemsOut2 = redox.send(transportType, header, UUID.randomUUID(), retryItemsIn, context, actionHistory)
         assertThat(retryItemsOut2).isNotNull()
         if (retryItemsOut2 != null) {
-            assertThat(2).isEqualTo(retryItemsOut2.size)
-            assertThat("1").isEqualTo(retryItemsOut2[0])
-            assertThat("2").isEqualTo(retryItemsOut2[1])
+            assertThat(retryItemsOut2.size).isEqualTo(2)
+            assertThat(retryItemsOut2[0]).isEqualTo("1")
+            assertThat(retryItemsOut2[1]).isEqualTo("2")
         }
     }
 
@@ -220,8 +220,8 @@ class RedoxTransportTests {
         assertThat(retryItemsOut).isNotNull()
         if (retryItemsOut != null) {
             println("inside test")
-            assertThat(1).isEqualTo(retryItemsOut.size)
-            assertThat("1").isEqualTo(retryItemsOut[0])
+            assertThat(retryItemsOut.size).isEqualTo(1)
+            assertThat(retryItemsOut[0]).isEqualTo("1")
         }
     }
 
@@ -243,11 +243,11 @@ class RedoxTransportTests {
         val retryItemsOut = redox.send(transportType, header, UUID.randomUUID(), retryItemsIn, context, actionHistory)
         assertThat(retryItemsOut).isNotNull()
         if (retryItemsOut != null) {
-            assertThat(4).isEqualTo(retryItemsOut.size)
-            assertThat("0").isEqualTo(retryItemsOut[0])
-            assertThat("1").isEqualTo(retryItemsOut[1])
-            assertThat("2").isEqualTo(retryItemsOut[2])
-            assertThat("3").isEqualTo(retryItemsOut[3])
+            assertThat(retryItemsOut.size).isEqualTo(4)
+            assertThat(retryItemsOut[0]).isEqualTo("0")
+            assertThat(retryItemsOut[1]).isEqualTo("1")
+            assertThat(retryItemsOut[2]).isEqualTo("2")
+            assertThat(retryItemsOut[3]).isEqualTo("3")
         }
     }
     @Test
@@ -270,9 +270,9 @@ class RedoxTransportTests {
         val retryItemsOut = redox.send(transportType, header, UUID.randomUUID(), retryItemsIn, context, actionHistory)
         assertThat(retryItemsOut).isNotNull()
         if (retryItemsOut != null) {
-            assertThat(2).isEqualTo(retryItemsOut.size)
-            assertThat("0").isEqualTo(retryItemsOut[0]) // exception
-            assertThat("3").isEqualTo(retryItemsOut[1]) // returned failure code
+            assertThat(retryItemsOut.size).isEqualTo(2)
+            assertThat(retryItemsOut[0]).isEqualTo("0") // exception
+            assertThat(retryItemsOut[1]).isEqualTo("3") // returned failure code
         }
     }
 }
