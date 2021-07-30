@@ -109,6 +109,9 @@ NTE|1|L|This is a final comment|RE"""
             every { it.truncateHDNamespaceIds }.returns(false)
             every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
             every { it.usePid14ForPatientEmail }.returns(false)
+            every { it.reportingFacilityName }.returns(null)
+            every { it.reportingFacilityId }.returns(null)
+            every { it.reportingFacilityIdType }.returns(null)
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)

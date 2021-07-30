@@ -5,27 +5,28 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class TranslatorTests {
     private val receiversYaml = """
         ---
           # Arizona PHD
-          - name: ak-pdh
+          - name: phd1
             description: Arizona PHD
             jurisdiction: STATE
             stateCode: AZ
             receivers: 
             - name: elr
-              organizationName: ak-pdh
+              organizationName: phd1
               topic: test
               jurisdictionalFilter: [ "matches(a, 1)"]
               translation: 
-                type: HL7
+                type: CUSTOM
                 schemaName: one
                 format: CSV
-                replaceValue:
-                    PID-22-3: CDCREC
     """.trimIndent()
+
     private val one = Schema(name = "one", topic = "test", elements = listOf(Element("a")))
 
     @Test
@@ -93,5 +94,46 @@ class TranslatorTests {
             assertThat(1).isEqualTo(mappedTable.itemCount)
             assertThat(settings.receivers.toTypedArray()[0]).isEqualTo(forReceiver)
         }
+    }
+
+    @Test
+    fun `test mappingWithReplace`() {
+//        val metadata = Metadata()
+        val receiverAKYaml = """
+        ---
+          - name: ak-phd
+            description: Alaska Public Health Department
+            jurisdiction: STATE
+            stateCode: AK
+            receivers:
+            - name: elr
+              organizationName: ak-phd
+              topic: covid-19
+              jurisdictionalFilter:
+                - orEquals(ordering_facility_state, AK, patient_state, AK)
+              translation:
+                type: HL7
+                useBatchHeaders: true
+                suppressHl7Fields: PID-5-7, ORC-12-1, OBR-16-1
+                replaceValue:
+                  PID-22-3: CDCREC
+              timing:
+                operation: MERGE
+                numberPerDay: 1440 # Every minute
+                initialTime: 00:00
+                timeZone: EASTERN
+              transport:
+                type: SFTP
+                host: sftp
+                port: 22
+                filePath: ./upload
+                credentialName: DEFAULT-SFTP
+        """.trimIndent()
+        val settings = FileSettings().also {
+            it.loadOrganizations(ByteArrayInputStream(receiverAKYaml.toByteArray()))
+        }
+        val translation = settings.receivers.elementAt(0).translation as? Hl7Configuration?
+        val replaceVal = translation?.replaceValue?.get("PID-22-3")
+        assertEquals(replaceVal, "CDCREC")
     }
 }
