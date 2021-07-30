@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.azure.storage.blob.models.BlobStorageException
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -212,39 +211,35 @@ open class BaseHistoryFunction : Logging {
                 val adminOrg = workflowEngine.settings.organizations.firstOrNull { org ->
                     org.name.lowercase() == organizationName
                 }
-                val header = try {
-                    workflowEngine.fetchHeader(it.reportId, adminOrg ?: authClaims.organization)
-                } catch (ex: BlobStorageException) {
-                    context.logger.severe("Unable to find file for ${it.reportId} ${ex.message}")
-                    null
-                }
+                val receiver = workflowEngine.settings.findReceiver("${it.receivingOrg}.${it.receivingOrgSvc}")
 
-                if (header != null) {
-                    val content = if (header.content !== null) String(header.content) else ""
-                    val filename = Report.formExternalFilename(header)
-                    val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
-                    val externalOrgName = header.receiver?.displayName
+                val filename = Report.formExternalFilename(
+                    it.bodyUrl,
+                    it.reportId,
+                    it.schemaName,
+                    Report.Format.safeValueOf(it.bodyFormat),
+                    it.createdAt
+                )
+                val mimeType = Report.Format.safeValueOf(it.bodyFormat).mimeType
+                val externalOrgName = receiver?.displayName
 
-                    ReportView.Builder()
-                        .reportId(it.reportId.toString())
-                        .sent(it.createdAt.toEpochSecond() * 1000)
-                        .via(it.bodyFormat)
-                        .total(it.itemCount.toLong())
-                        .fileType(it.bodyFormat)
-                        .type("ELR")
-                        .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                        .facilities(ArrayList(facilities))
-                        .actions(actions)
-                        .receivingOrg(it.receivingOrg)
-                        .receivingOrgSvc(externalOrgName ?: it.receivingOrgSvc)
-                        .displayName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
-                        .content("") // don't get the content for now. that can get beefy
-                        .fileName(filename)
-                        .mimeType(mimeType)
-                        .build()
-                } else {
-                    null
-                }
+                ReportView.Builder()
+                    .reportId(it.reportId.toString())
+                    .sent(it.createdAt.toEpochSecond() * 1000)
+                    .via(it.bodyFormat)
+                    .total(it.itemCount.toLong())
+                    .fileType(it.bodyFormat)
+                    .type("ELR")
+                    .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
+                    .facilities(ArrayList(facilities))
+                    .actions(actions)
+                    .receivingOrg(it.receivingOrg)
+                    .receivingOrgSvc(externalOrgName ?: it.receivingOrgSvc)
+                    .displayName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
+                    .content("") // don't get the content for now. that can get beefy
+                    .fileName(filename)
+                    .mimeType(mimeType)
+                    .build()
             }
 
             response = request.createResponseBuilder(HttpStatus.OK)
