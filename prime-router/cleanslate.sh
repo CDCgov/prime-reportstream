@@ -2,7 +2,6 @@
 
 # Actual variables we'll reference
 HERE="$(dirname "${0}")"
-LOG="${0}.log" # myscript.sh.log
 VAULT_ENV_LOCAL_FILE=".vault/env/.env.local"
 DOCKER_COMPOSE_PREFIX="prime-router_"
 
@@ -32,7 +31,7 @@ OPTIONS:
   --prune-volumes           Forces a docker volume prune -f after taking containers
                             down (disables --keep-vault, including when set via --keep-all)
   --instructions            Shows post-run instructions
-  --take-ownership        Change ownership of directories that are potentially 
+  --take-ownership        Change ownership of directories that are potentially
                             shared with container instances
   --verbose                 Get "more" output
   --help|-h                 Shows this help
@@ -72,7 +71,7 @@ Examples:
 
   # Use this if you like to change ownership of some directories that are
   # potentially shared with container instances
-  $ ${0} --keep-all --take-ownership 
+  $ ${0} --keep-all --take-ownership
 
 EOF
 }
@@ -101,7 +100,6 @@ function error() {
 # Takes ownership of some directories that are potentially shared with container instances
 # Parameter: TAKE_OWNERSHIP value
 function take_directory_ownership() {
-  
   if [[ ${1:-1} != 0 ]]; then
     info "Taking ownership of directories (may require elevation)..."
     TARGETS=(
@@ -352,6 +350,22 @@ function post_run_instructions() {
   echo "    \$ ./gradlew testEnd2End"
 }
 
+function setup_githooks() {
+  info "Activating git hooks..."
+
+  REPO_ROOT="$(git rev-parse --show-toplevel)"
+  if [[ $? != 0 || -z "${REPO_ROOT?}" ]]; then
+    # This really ought not to happen since we call this from a place where we _are_ inside a repository
+    error "This script must be invoked from inside a repository."
+    exit 1
+  fi
+
+  pushd "${REPO_ROOT?}" 2>&1 1>/dev/null
+  .environment/githooks.sh install |
+    sed "s/^/    /g"
+  popd 2>&1 1>/dev/null
+}
+
 #
 # Parse arguments
 #
@@ -411,7 +425,8 @@ pushd "${HERE?}" 2>&1 1>/dev/null
 #
 # Stage 0: Self-setup
 #
-echo "${0} - Starting at $(date +%Y-%m-%d@%H:%M:%S)" >"${LOG}"
+LOG="$(pwd)/cleanslate.sh.log"
+echo "${0} - Starting at $(date +%Y-%m-%d@%H:%M:%S)" >"${LOG?}"
 
 # Fix up and sanity-check arguments
 if [[ ${PRUNE_VOLUMES?} != 0 ]]; then
@@ -432,6 +447,9 @@ if [[ ${KEEP_BUILD_ARTIFACTS?} == 0 ]] && [[ ${KEEP_PRIME_CONTAINER_IMAGES} != 0
     info "OK then..."
   fi
 fi
+
+setup_githooks |
+  tee -a "${LOG?}"
 
 #
 # Stage 1: clean up your environment

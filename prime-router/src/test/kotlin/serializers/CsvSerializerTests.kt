@@ -6,7 +6,6 @@ import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.assertions.isTrue
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report

@@ -127,6 +127,16 @@
       topic: "covid-19"
       schemaName: "AZ/az-ihs-covid-19"
 
+- name: reddyfmc-la
+  description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: reddyfmc-la
+      topic: covid-19
+      schemaName: iPatientCare/reddyfmc-la-covid-19
+      format: CSV
+      
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -478,6 +488,7 @@
   stateCode: NM
   receivers:
     - name: elr
+      externalName: Primary
       organizationName: nm-doh
       topic: covid-19
       jurisdictionalFilter:
@@ -507,6 +518,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     - name: elr-csv
+      externalName: Secondary
       organizationName: nm-doh
       topic: covid-19
       jurisdictionalFilter:
