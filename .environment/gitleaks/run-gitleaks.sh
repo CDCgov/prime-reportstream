@@ -20,8 +20,11 @@ function usage() {
     echo "  $ ${0} --no-git"
     echo "      Runs gitleaks over the current state of the repository"
     echo ""
-    echo "  $ VERBOSE=1 ${0} --since abcd1234"
-    echo "      Runs gitleaks on the commits in your repository since abcd1234 while setting the VERBOSE flag"
+    echo "  $ ${0} --depth 10"
+    echo "      Runs gitleaks on the 10 (topologically) last commits"
+    echo ""
+    echo "  $ VERBOSE=1 ${0} --since '2021-06-01'"
+    echo "      Runs gitleaks on the commits in your repository since June 1st, 2021 while setting the VERBOSE flag"
     echo ""
     echo ""
 }
