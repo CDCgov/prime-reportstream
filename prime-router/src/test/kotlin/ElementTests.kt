@@ -273,27 +273,29 @@ internal class ElementTests {
             csvFields = Element.csvFields("zip")
         )
         assertThat(
+            postal.toNormalized("94040")
+        ).isEqualTo(
+            postal.toFormatted("94040")
+        )
+        assertThat(
+            postal.toNormalized("94040-6000")
+        ).isEqualTo(
+            postal.toFormatted("94040-6000")
+        )
+        assertThat(
+            postal.toFormatted(
+                postal.toNormalized("94040-3600", Element.zipFiveToken), Element.zipFiveToken
+            )
+        ).isEqualTo(
             "94040"
-        ).isEqualTo(
-            postal.toFormatted(postal.toNormalized("94040"))
         )
         assertThat(
-            "94040-6000"
-        ).isEqualTo(
-            postal.toFormatted(postal.toNormalized("94040-6000"))
-        )
-        assertThat(
-            "94040"
-        ).isEqualTo(
-            postal.toFormatted(postal.toNormalized("94040-3600", Element.zipFiveToken), Element.zipFiveToken)
-        )
-        assertThat(
-            "94040-3600"
-        ).isEqualTo(
             postal.toFormatted(
                 postal.toNormalized("94040-3600", Element.zipFivePlusFourToken),
                 Element.zipFivePlusFourToken
             )
+        ).isEqualTo(
+            "94040-3600"
         )
 
         val telephone = Element(
