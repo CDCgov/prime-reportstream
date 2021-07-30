@@ -306,7 +306,7 @@ internal class ElementTests {
         assertThat(
             telephone.toFormatted(telephone.toNormalized("6509999999"))
         ).isEqualTo(
-                "6509999999"
+            "6509999999"
         )
         assertThat(
             telephone.toFormatted(telephone.toNormalized("+16509999999"))
@@ -369,9 +369,11 @@ internal class ElementTests {
             .isEqualTo(
                 "EIName"
             )
-        assertThat(postal.toFormatted(
-            ei.toNormalized("EIName^EINamespace^0.0.0.0.0.1^ISO")
-        ))
+        assertThat(
+            postal.toFormatted(
+                ei.toNormalized("EIName^EINamespace^0.0.0.0.0.1^ISO")
+            )
+        )
             .isEqualTo(
                 "EIName^EINamespace^0.0.0.0.0.1^ISO"
             )

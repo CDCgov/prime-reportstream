@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.fail
 

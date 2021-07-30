@@ -14,7 +14,6 @@ import assertk.assertions.support.expected
 import assertk.assertions.support.show
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class MetadataTests {

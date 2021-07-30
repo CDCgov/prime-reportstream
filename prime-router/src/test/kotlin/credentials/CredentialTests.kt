@@ -3,7 +3,6 @@ package gov.cdc.prime.router.credentials
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
-import kotlin.math.exp
 import kotlin.test.Test
 
 internal class CredentialTests {
