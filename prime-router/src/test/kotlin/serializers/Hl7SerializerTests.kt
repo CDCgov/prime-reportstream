@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.v251.datatype.DR
