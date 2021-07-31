@@ -9,6 +9,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
+import gov.cdc.prime.router.azure.db.Tables.REPORT_ANCESTORS
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.azure.db.Tables.TASK
@@ -31,6 +32,7 @@ import org.jooq.Field
 import org.jooq.JSON
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.count
 import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
@@ -641,6 +643,30 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 }
             )
             .execute()
+    }
+
+    fun getFacilitiesForDownloadableReport(reportId: ReportId, txn: DataAccessTransaction? = null): List<Facility> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        val result = ctx
+            .select(
+                COVID_RESULT_METADATA.TESTING_LAB_CLIA,
+                COVID_RESULT_METADATA.TESTING_LAB_NAME,
+                count(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID).`as`("COUNT_RECORDS")
+            )
+            .from(REPORT_ANCESTORS(reportId))
+            .join(COVID_RESULT_METADATA).on(REPORT_ANCESTORS.REPORT_ANCESTORS_.eq(COVID_RESULT_METADATA.REPORT_ID))
+            .groupBy(
+                COVID_RESULT_METADATA.TESTING_LAB_NAME,
+                COVID_RESULT_METADATA.TESTING_LAB_CLIA
+            ).fetch()
+
+        return result.map {
+            Facility.Builder(
+                facility = it.get(COVID_RESULT_METADATA.TESTING_LAB_NAME),
+                CLIA = it.get(COVID_RESULT_METADATA.TESTING_LAB_CLIA),
+                total = it.component3().toLong()
+            ).build()
+        }
     }
 
     fun deleteTestDataForReportId(reportId: UUID, txn: DataAccessTransaction) {
