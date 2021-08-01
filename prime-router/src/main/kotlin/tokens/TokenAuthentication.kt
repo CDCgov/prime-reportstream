@@ -77,7 +77,6 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
             logErr(actionHistory, "Rejecting SenderToken JWT: $e")
             return false
         }
-        return false
     }
 
     fun createAccessToken(

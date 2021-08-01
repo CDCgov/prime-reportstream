@@ -37,7 +37,7 @@ class FindReportStreamSecretInVault : ReportStreamSecretFinder {
 /**
  * Convenience function to generate a key to be used as a ReportStream secret
  */
-fun main(args: Array<String>) {
+fun main() {
     println("Put this env var in your docker-compose file:")
     println(
         ReportStreamSecretFinder.TOKEN_SIGNING_SECRET_NAME + "=" +
