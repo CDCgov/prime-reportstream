@@ -81,7 +81,7 @@ abstract class SettingCommand(
     }
 
     fun getEnvironment(): Environment {
-        return environments.find { it.name == env } ?: abort("bad environment")
+        return getEnvironment(env)
     }
 
     fun getAccessToken(environment: Environment): String {
@@ -209,10 +209,6 @@ abstract class SettingCommand(
         outStream.write(output.toByteArray())
     }
 
-    fun abort(message: String): Nothing {
-        throw PrintMessage(message, error = true)
-    }
-
     fun fromJson(input: String, settingType: SettingType): Pair<String, String> {
         return readStructure(input, settingType, jsonMapper)
     }
@@ -270,6 +266,14 @@ abstract class SettingCommand(
             Environment("staging", "staging.prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_TEST),
             Environment("prod", "prime.cdc.gov", oktaApp = OktaCommand.OktaApp.DH_PROD),
         )
+
+        fun abort(message: String): Nothing {
+            throw PrintMessage(message, error = true)
+        }
+
+        fun getEnvironment(env: String): Environment {
+            return environments.find { it.name == env } ?: abort("bad environment")
+        }
 
         fun formPath(
             environment: Environment,

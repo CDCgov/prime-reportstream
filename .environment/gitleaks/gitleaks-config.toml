@@ -21,6 +21,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
         'prime-router/docs/schema_documentation/',
         'prime-router/src/test/csv_test_files/input/',
+        'prime-router/src/main/kotlin/cli/tests/TestKeys.kt',
     ]
 
 [[rules]]
@@ -130,6 +131,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             '!function\(',                                                                  # ignore this ugly thing
             'Password=\"\"',                                                                # Empty anyway
             'const val RECEIVER_KEY_ALIAS = \"as2ohp\"',
+            '/api/token',
         ]
         paths = [
             '.terraform/modules/',
