@@ -79,7 +79,7 @@ class BlobAccess(
             Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName"
             Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
             Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
-            else -> error("Cannot determine folder to store blob.  Unsupported action $action for report $reportName")
+            else -> "other/$subfolderNameChecked$reportName"
         }
         val digest = sha256Digest(blobBytes)
         val blobUrl = uploadBlob(blobName, blobBytes)
@@ -123,8 +123,7 @@ class BlobAccess(
     fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
         val fromBytes = this.downloadBlob(fromBlobUrl)
         logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
-        val fromBlobClient = getBlobClient(fromBlobUrl) // only used to get the filename.
-        val toFilename = BlobInfo.getBlobFilename(fromBlobClient.blobName)
+        val toFilename = BlobInfo.getBlobFilename(fromBlobUrl)
         logger.info("New blob filename will be $toFilename")
         val toBlobUrl = uploadBlob(toFilename, fromBytes, toBlobContainer, toBlobConnEnvVar)
         logger.info("New blob URL is $toBlobUrl")

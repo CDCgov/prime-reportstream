@@ -134,11 +134,10 @@ echo -e "${WHITE?}INFO:${PLAIN?} Running ${ACTION?} $(get_gradle_command $*) thr
 docker-compose \
   --file "${DOCKER_COMPOSE?}" \
   run "${ACTION?}" $(get_gradle_command $*)
+RC=$?
 
 # When you're done, let's make sure you have ownership again
 ensure_build_dir
-
-RC=$?
 
 popd 2>&1 1>/dev/null
 
