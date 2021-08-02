@@ -76,11 +76,32 @@ data class Hl7Configuration
     val truncateHDNamespaceIds: Boolean = false,
     val usePid14ForPatientEmail: Boolean = false,
     val convertTimestampToDateTime: String? = null,
+    val phoneNumberFormatting: PhoneNumberFormatting = PhoneNumberFormatting.STANDARD,
     // pass this around as a property now
     val processingModeCode: String? = null,
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
 ) : TranslatorConfiguration("HL7") {
+    /**
+     * Formatting for XTN fields
+     */
+    enum class PhoneNumberFormatting {
+        /**
+         * Standard formatting
+         */
+        STANDARD,
+
+        /**
+         * Component 1 formatted with only digits
+         */
+        ONLY_DIGITS_IN_COMPONENT_ONE,
+
+        /**
+         * (area)local format in component 1. Backward compatibility to an earlier format.
+         */
+        AREA_LOCAL_IN_COMPONENT_ONE
+    }
+
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 

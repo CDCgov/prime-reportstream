@@ -7,15 +7,20 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.ResultDetail.GenericMessage
+import gov.cdc.prime.router.ResultDetail.PayloadMessage
+import gov.cdc.prime.router.ResultDetail.ResponseMessage
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 enum class ReportStreamEnv(val endPoint: String) {
     TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
-    LOCAL("http://localhost:7071/api/reports"),
+    LOCAL("http://" + (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071/api/reports"),
     STAGING("https://staging.prime.cdc.gov/api/reports"),
 //    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports"),
     PROD("not implemented"),
@@ -36,6 +41,30 @@ class HttpUtilities {
                 .build()
         }
 
+        fun okResponse(
+            request: HttpRequestMessage<String?>,
+            responseBody: String,
+            lastModified: OffsetDateTime?,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .body(responseBody)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .also { addHeaderIfModified(it, lastModified) }
+                .build()
+        }
+
+        fun okResponse(
+            request: HttpRequestMessage<String?>,
+            lastModified: OffsetDateTime?,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .also { addHeaderIfModified(it, lastModified) }
+                .build()
+        }
+
         fun createdResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
@@ -48,9 +77,9 @@ class HttpUtilities {
         }
 
         /**
-         * This alllows the validator to figure out specific failure, and pass it in here.
+         * Allows the validator to figure out specific failure, and pass it in here.
          * Can be used for any response code.
-         & todo other generic failure response methods here could be removed, and replaced with this
+         * Todo: other generic failure response methods here could be removed, and replaced with this
          *      generic method, instead of having to create a new method for every HttpStatus code.
          */
         fun httpResponse(
@@ -118,35 +147,45 @@ class HttpUtilities {
             return """{"error": "$message"}"""
         }
 
+        private fun addHeaderIfModified(
+            builder: HttpResponseMessage.Builder,
+            lastModified: OffsetDateTime?
+        ) {
+            if (lastModified == null) return
+            // https://datatracker.ietf.org/doc/html/rfc7232#section-2.2 defines this header format
+            val lastModifiedFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss")
+            // Convert to GMT timezone
+            val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), ZoneOffset.UTC)
+            val lastModifiedFormatted = "${lastModifiedGMT.format(lastModifiedFormatter)} GMT"
+            builder.header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatted)
+        }
+
         /**
          * Do a variety of checks on payload size.
          * Returns a Pair (http error code, human readable error message)
          */
-        fun payloadSizeCheck(request: HttpRequestMessage<String?>): Pair<HttpStatus, String> {
+        fun payloadSizeCheck(request: HttpRequestMessage<String?>): Pair<HttpStatus, ResponseMessage> {
             val contentLengthStr = request.headers["content-length"]
-                ?: return HttpStatus.LENGTH_REQUIRED to "ERROR: No content-length header found.  Refusing this request."
+                ?: return HttpStatus.LENGTH_REQUIRED to PayloadMessage.noHeader()
             val contentLength = try {
                 contentLengthStr.toLong()
             } catch (e: NumberFormatException) {
-                return HttpStatus.LENGTH_REQUIRED to "ERROR: content-length header is not a number"
+                return HttpStatus.LENGTH_REQUIRED to PayloadMessage.nonNumeric()
             }
             when {
                 contentLength < 0 -> {
-                    return HttpStatus.LENGTH_REQUIRED to "ERROR: negative content-length $contentLength"
+                    return HttpStatus.LENGTH_REQUIRED to PayloadMessage.negative(contentLength)
                 }
                 contentLength > PAYLOAD_MAX_BYTES -> {
-                    return HttpStatus.PAYLOAD_TOO_LARGE to
-                        "ERROR: content-length $contentLength is larger than max $PAYLOAD_MAX_BYTES"
+                    return HttpStatus.PAYLOAD_TOO_LARGE to PayloadMessage.headerTooLarge(contentLength)
                 }
             }
             // content-length header is ok.  Now check size of actual body as well
             val content = request.body
             if (content != null && content.length > PAYLOAD_MAX_BYTES) {
-                return HttpStatus.PAYLOAD_TOO_LARGE to
-                    "ERROR: body size ${content.length} is larger than max $PAYLOAD_MAX_BYTES " +
-                    "(content-length header = $contentLength"
+                return HttpStatus.PAYLOAD_TOO_LARGE to PayloadMessage.bodyTooLarge(contentLength, content.length)
             }
-            return HttpStatus.OK to ""
+            return HttpStatus.OK to GenericMessage()
         }
 
         /**
@@ -157,13 +196,12 @@ class HttpUtilities {
         fun postReportFile(
             environment: ReportStreamEnv,
             file: File,
-            sendingOrgName: String,
             sendingOrgClient: Sender,
             key: String? = null,
             option: ReportFunction.Options ? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgName, sendingOrgClient, key, option)
+            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option)
         }
 
         /**
@@ -174,17 +212,17 @@ class HttpUtilities {
         fun postReportBytes(
             environment: ReportStreamEnv,
             bytes: ByteArray,
-            sendingOrgName: String,
             sendingOrgClient: Sender,
             key: String?,
-            option: ReportFunction.Options?
+            option: ReportFunction.Options? = null
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
                 Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
                 else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
             }
-            val clientStr = sendingOrgName + if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)

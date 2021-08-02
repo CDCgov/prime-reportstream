@@ -110,6 +110,7 @@ class CsvSerializer(val metadata: Metadata) {
         }
 
         if (rows.isEmpty()) {
+            warnings.add(ResultDetail.report("No reports were found in CSV content"))
             return ReadResult(Report(schema, emptyList(), sources, destination, metadata = metadata), errors, warnings)
         }
 
@@ -279,12 +280,12 @@ class CsvSerializer(val metadata: Metadata) {
         val ignoredHeaders = actualHeaders - requiredHeaders - optionalHeaders - headersWithDefault
         val errors = missingRequiredHeaders.map {
             val fieldMapping: String? = schema.findElementByCsvName(it)?.fieldMapping
-            GenericMessage(ResponseMsgType.MISSING, "Missing $fieldMapping header", fieldMapping ?: "")
+            GenericMessage(ResponseMsgType.MISSING_HDR, "Missing $fieldMapping header", fieldMapping ?: "")
         }
         val warnings = missingOptionalHeaders.map {
             val fieldMapping: String? = schema.findElementByCsvName(it)?.fieldMapping
-            GenericMessage(ResponseMsgType.MISSING, "Missing $fieldMapping header", fieldMapping ?: "")
-        } + ignoredHeaders.map { GenericMessage(ResponseMsgType.UNEXPECTED,"Unexpected '$it' header is ignored", it) }
+            GenericMessage(ResponseMsgType.MISSING_HDR, "Missing $fieldMapping header", fieldMapping ?: "")
+        } + ignoredHeaders.map { GenericMessage(ResponseMsgType.UNEXPECTED_HDR, "Unexpected '$it' header is ignored", it) }
 
         return CsvMapping(useCsv, useMapper, useDefault, errors, warnings)
     }
@@ -331,9 +332,9 @@ class CsvSerializer(val metadata: Metadata) {
                 if (error != null) {
                     val msgType = messageType(element.type)
                     when (element.cardinality) {
-                        Element.Cardinality.ONE -> errors += GenericMessage(msgType, error, element.fieldMapping)
-                        Element.Cardinality.ZERO_OR_ONE -> warnings += GenericMessage(msgType, error, element.fieldMapping)
-                        else -> warnings += GenericMessage(msgType,"$error - setting value to ''", element.fieldMapping)
+                        Element.Cardinality.ONE -> errors += error
+                        Element.Cardinality.ZERO_OR_ONE -> warnings += error
+                        else -> warnings += error
                     }
                     return failureValue
                 }
@@ -379,7 +380,7 @@ class CsvSerializer(val metadata: Metadata) {
             if (value.isBlank() && !element.canBeBlank) {
                 when (element.cardinality) {
                     Element.Cardinality.ONE -> errors += GenericMessage(
-                        ResponseMsgType.MISSING,
+                        ResponseMsgType.EMPTY_VALUE,
                         "Empty value for ${element.fieldMapping}",
                         element.fieldMapping
                     )

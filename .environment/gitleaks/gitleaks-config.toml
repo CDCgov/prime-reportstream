@@ -1,0 +1,281 @@
+title = "PRIME ReportStream Gitleaks Configuration"
+
+# Global allowlist
+[allowlist]
+    description = "Allow-list for files and paths"
+    files = [
+        '(.*?)(bin|doc|gif|iml|jar|jp(e)?g|pdf|png|xlsx)$',
+        '^\.?gitleaks-config.toml$',
+        '^\.?gitleaks.report.json$',
+        '^package-lock\.json$',
+        'cleanslate.sh.log',
+        'yarn\.lock$',
+    ]
+    paths = [
+        '.idea/',
+        '.terraform/providers/',
+        'frontend-react/build/',
+        'frontend-react/node_modules/',
+        'prime-router/.gradle/',
+        'prime-router/build/',
+        'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
+        'prime-router/docs/schema_documentation/',
+        'prime-router/src/test/csv_test_files/input/',
+    ]
+
+[[rules]]
+    description = "Email"
+    regex = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'
+    tags = [
+        "email"
+    ]
+    [rules.allowlist]
+        # TODO: Filter the real ones down
+        regexes = [
+            '(?i)@cdc.local',
+            '(?i)@email.com',
+            '(?i)@organization.tld',
+            '(?i)a@cdc.gov',
+            '(?i)adhelpdsk@cdc.gov',
+            '(?i)data@cdc.gov',
+            '(?i)e.ripley@weylandyutani.com',
+            '(?i)jbrush@avantecenters.com',
+            '(?i)jj@phd.gov',
+            '(?i)joe.jones@az.pima.gov',
+            '(?i)local@test.com',
+            '(?i)noreply@cdc.gov',
+            '(?i)prime@cdc.gov',
+            '(?i)qom6@cdc.gov',
+            '(?i)qtv1@cdc.gov',
+            '(?i)qva8@cdc.gov',
+            '(?i)reportstream@cdc.gov',
+            '(?i)support@simplereport.gov',
+            '(?i)usds@cdc.gov',
+            '(?i)usds@omb.eop.gov',
+        ]
+
+[[rules]]
+    description = "Env Var"
+    regex = '(?i)(apikey|secret|key|api|password|pass|pw|host)=[0-9a-zA-Z-_.{}]{4,120}'
+    tags = [
+        "envvar",
+    ]
+    [rules.allowlist]
+        files = [
+            '\.(js|ts(x)?)$',                   # No environment variable definitions in Javascript/TypeScript files
+            'docker-compose(\.build)?\.yml',    # This is local anyway
+        ]
+        regexes = [
+            '(?i)e\.g\. ',                                      # The value 'e.g.' means 'example'
+            'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
+            'DB_USER=prime',                                    # Not real
+            'DB_PASSWORD=mypass(word)?',                        # Not real
+            '(prime|changeIT!)',                                # Default cred, this is allowed (too broad??)
+            'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
+            'gpgkey=https:\/\/packages\.microsoft\.com\/keys\/microsoft\.asc\" \| tee \/etc\/yum\.repos\.d\/azure-cli\.repo',
+        ]
+
+[[rules]]
+    description = "Generic Credential"
+    regex = '''(?i)(dbpasswd|dbuser|dbname|dbhost|api_key|apikey|secret|key|api|password|user|guid|hostname|pw|auth)(.{0,20})?['|"]([0-9a-zA-Z-_\/+!{}/=]{4,120})['|"]'''
+    tags = [
+        "API",
+        "generic",
+        "key",
+    ]
+    [rules.allowlist]
+        regexes = [
+            ' by option\(\"',
+            '.user\(\s*\"USER\"\s*\)$',
+            '''(?i)(.{0,20})?['"][0-9a-f]{32}-us[0-9]{1,2}['"]''',
+            '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}',
+            '(patterns_to_match|key_permissions)\s*=',                                      # Terraform artifacts
+            '(prime|changeIT!)',                                                            # Default cred, this is allowed (too broad??)
+            '(resource|data) \"azurerm',                                                    # Terraform azure data or resource
+            '\.containsKey\(',
+            '\"user(\d)*\", \"pass(\d)*\"',                                                 # Not real creds
+            '\"user\":\"user1\",(\s)*\"pass\":\"pass1\"',
+            '\s*=\s*validateUser\s*\(',
+            '\s+KEY_VAULT_NAME\s*=\s*\"',
+            '^import (.)+ from (.)+;',                                                      # react import statement (simplified)
+            'apiConfig\(',                                                                  # function call
+            'apid\s+',
+            'apiVersion',
+            'className=',                                                                   # this is HTML
+            'const val apiPath = \"',
+            'export USERNAME=\"client\"',
+            'it\.key\.contains\(',                                                          # iterator key access
+            'KeyVaultSecret\(\"',                                                            # You are doing the right hting
+            'MockResponse\(',                                                               # Explicitly listed as Mock
+            'PrincipalLevel\.USER',
+            'private const val oktaAuthorizePath = \"/oauth2/default/v1/authorize\"',
+            'private const val oktaUserInfoPath = \"/oauth2/default/v1/userinfo\"',
+            'rsa_key_(2048|4096)\s*=\s*\"pdh(prod|test|staging)-((2048|4096)-)?key\"',      # Terraform artifacts
+            'SECRET_STORAGE_METHOD(\")?\s=',                                                # Method, not a secret
+            'secretClient\.getSecret\(\"',
+            'SecretHelper\.getSecretService\(\)\.fetchSecret\(',                            # You are fetching the secret properly
+            'secretService getProperty \"',
+            'secretService\.fetchSecret\(',                                                 # You are fetching the secret properly
+            'val (user|password)Variable = \"POSTGRES_(USER|PASSWORD)\"$',                  # Literal value
+            'val KEY_DB_(USER|PASSWORD|URL) = (\"|\\\")DB_(USER|URL|PASSWORD)(\"|\\\")',    # contained verbatim 'DB_(USER|PASSWORD|URL)'
+            'val KEY_PRIME_RS_API_ENDPOINT_HOST = ',                                        # Setting of the name of an environment variable name
+            'val redoxAuthPath = \"/auth/authenticate\"',
+            'val redoxKey = \"apiKey\"',                                                    # Environment variable name, not value
+            'val secretEnvName = \"REDOX_SECRET\"',                                         # Environment variable name, not value
+            'xox[baprs]-([0-9a-zA-Z]{10,48})',
+            'private val redoxSecret = \"secret\"',
+            'val key = \"(ohio|aphl(_light)?|as2ohp)\"',                                    # not really secrets
+            'apiKey: \"some_key\"',
+            'API_ENDPOINT_HOST\"\) \?: \"localhost\"',
+            '!function\(',                                                                  # ignore this ugly thing
+            'Password=\"\"',                                                                # Empty anyway
+            'const val RECEIVER_KEY_ALIAS = \"as2ohp\"',
+        ]
+        paths = [
+            '.terraform/modules/',
+            'prime-router/settings/prod/',
+        ]
+
+[[rules]]
+    description = "Github"
+    regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
+    tags = [
+        "key",
+        "Github",
+    ]
+
+[[rules]]
+    description = "High Entropy"
+    regex = '[0-9a-zA-Z-_!{}/=]{4,120}'
+    file = '''(?i)(dump.sql|high-entropy-misc.txt)$'''
+    tags = [
+        "entropy",
+    ]
+    [[rules.Entropies]]
+        Min = "4.3"
+        Max = "7.0"
+
+[[rules]]
+    description = "IPv4 addresses"
+    regex = '\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'
+    tags = [
+        "network",
+        "IPv4",
+    ]
+    [rules.allowlist]
+        files = [
+            '\.ovpn$',
+        ]
+        paths = [
+            'prime-router/settings/organizations-prod.yml',
+            'prime-router/settings/(staging|prod)/',
+        ]
+        regexes = [
+            '\d+\.\d+\.\d+\.\d+\.',                     # Fix for bug in regex (allows trailing dots)
+            '0\.0\.0\.0',
+            '10\.(\d+\.){2}\d+',                        # Cheapo 10.0.0.0/8 range
+            '127\.(\d+\.){2}\d+',                       # Cheapo 127.0.0.0/8 range
+            'receivingApplicationOID',
+            'receivingFacilityOID',
+            'reportingFacilityId',
+        ]
+
+[[rules]]
+    description = "IPv6 addresses"
+    regex = '([0-9a-fA-F]{0,4}|0)(\:([0-9a-fA-F]{0,4}|0)){7}'  # Cheapo, better wanted
+    tags = [
+        "network",
+        "IPv6",
+    ]
+    [rules.allowlist]
+        files = [
+            "docker-compose.yml",                       # Local anyway
+        ]
+        regexes = [
+            '(?i)certificate fingerprint \('
+        ]
+
+[[rules]]
+    description = "MailChimp"
+    regex = '[0-9a-f]{32}-us[0-9]{12}'
+    tags = [
+        "key",
+        "mailchimp"
+    ]
+
+[[rules]]
+    description = "Okta"
+    regex = '00[a-zA-Z0-9-_]{40}'
+    tags = [
+        "key",
+        "okta"
+    ]
+    [rules.allowlist]
+        regexes = [
+            '658195889000001-1e837a04-7d87-4498-ac86-1476354ed257',
+            'remote azuregateway-[a-f0-9]*(-[a-f0-9]+)*\.vpn\.azure\.com 443',
+            'zh\:1c8d7003aeccab39bfc9451415cef045428a5332eec4a5e5a7c0337946658f7c',
+        ]
+
+[[rules]]
+    description = "Port"
+    regex = '(?i)port(.{0,4})?[0-9]{1,10}'
+    tags = [
+        "port"
+    ]
+    [rules.allowlist]
+        files = [
+        ]
+        regex = '(?i)(=)([0-9a-zA-Z-_!{}=]{4,120})'
+    [[rules.Entropies]]
+        Min = "3.5"
+        Max = "4.5"
+        Group = "1"
+
+[[rules]]
+    description = "Private Keys"
+    regex = '-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'
+    tags = [
+        "key",
+        "AsymmetricPrivateKey",
+    ]
+
+[[rules]]
+    description = "SendGrid API Key"
+    regex = 'SG\.[\w_]{16,32}\.[\w_]{16,64}'
+    tags = [
+        "key",
+        "sendgrid",
+    ]
+
+[[rules]]
+    description = "Slack"
+    regex = 'xox[baprs]-([0-9a-zA-Z]{10,48})?'
+    tags = [
+        "key",
+        "Slack",
+    ]
+
+[[rules]]
+    description = "Slack Webhook"
+    regex = 'https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'
+    tags = [
+        "key",
+        "slack",
+    ]
+
+[[rules]]
+    description = "SonarQube Docs API Key"
+    regex = '''(?i)sonar.{0,50}(\\\"|'|`)?[0-9a-f]{40}(\\\"|'|`)?'''
+    tags = [
+        "key",
+        "sonarqube",
+    ]
+
+[[rules]]
+    description = "Twilio API Key"
+    regex = '''(?i)twilio(.{0,20})?['\"][0-9a-f]{32}['\"]'''
+    tags = [
+        "key",
+        "twilio",
+    ]

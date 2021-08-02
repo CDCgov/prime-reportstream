@@ -2,7 +2,12 @@ name: Router
 
 on:
   pull_request:
-    branches: [ master, production ]
+    branches:
+      - master
+      - production
+  push:
+    branches:
+      - master
 
 jobs:
   pre_job:
@@ -10,8 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_router_change: ${{ steps.skip_check.outputs.router }}
-      is_fork: ${{ steps.fork_check.outputs.is_fork }}
     steps:
+      - name: "Check out changes"
+        uses: actions/checkout@v2
       - uses: dorny/paths-filter@v2
         id: skip_check
         with:
@@ -20,13 +26,11 @@ jobs:
             router:
               - 'prime-router/**'
               - '.github/workflows/build_hub.yml'
-      - id: fork_check
-        run: echo "::set-output name=is_fork::${{ github.event.pull_request.head.repo.full_name != github.repository }}"
 
   build_router:
     name: Build Router
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' && needs.pre_job.outputs.is_fork != 'true' }}
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     runs-on: ubuntu-latest
     env:
       # These are for CI and not credentials of any system
@@ -37,10 +41,13 @@ jobs:
         working-directory: prime-router
 
     steps:
-      - uses: actions/checkout@v2
+      - name: "Check out changes"
+        uses: actions/checkout@v2
 
       - name: Set Environment Variables
         run: |
+          echo >> $GITHUB_ENV DB_USER=${POSTGRES_USER}
+          echo >> $GITHUB_ENV DB_PASSWORD=${POSTGRES_PASSWORD}
           if [ "$GITHUB_BASE_REF" == "production" ]
           then
               echo "Building for the production environment."
@@ -52,36 +59,34 @@ jobs:
               echo >> $GITHUB_ENV PREFIX=pdhstaging
           fi
 
-      - name: Setup PostgreSQL
-        uses: Harmon758/postgresql-action@0be19fa37850b22cb4c9bbf28a03abbf44abd863
-        with:
-          postgresql version: 11
-          postgresql db: prime_data_hub
-          postgresql user: ${{ env.POSTGRES_USER }}
-          postgresql password: ${{ env.POSTGRES_PASSWORD }}
-
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: 11
+      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
+      # - name: Install docker-compose
+      #   run: apt-get update && apt-get --yes install docker-compose
 
       - name: Build Prime Router Package
-        run: bash ./gradlew clean package -x fatjar -DDB_USER=$POSTGRES_USER -DDB_PASSWORD=$POSTGRES_PASSWORD -Pshowtests
+        run: bash ./build.sh -- gradle clean package -x fatjar -Pshowtests
         
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/test/**/*.xml
 
       - name: Run Integration Tests
-        run: bash ./gradlew testIntegration -Pshowtests
+        run: bash ./build.sh -- gradle testIntegration -Pshowtests
 
       - name: Publish Integration Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         with:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/testIntegration/**/*.xml
@@ -91,7 +96,7 @@ jobs:
         run: |
           # Clean the docs before regenerating
           rm -rf docs/schema_documentation/*
-          bash ./gradlew generatedocs
+          bash ./build.sh -- gradle generatedocs
 
       - name: Check for Uncommited Docs
         id: check_changes
@@ -135,17 +140,6 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-          
+
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag ${{ env.ACR_REPO }}/${{ env.PREFIX }}:latest
-
-  update_docs:
-    name: Verify Router Docs
-    runs-on: ubuntu-latest
-    # Skip this deprecated job - This job needs to be removed once all other branches pull the latest build script
-    if: false
-    steps:
-      - name: Deprecated Job
-        run: |
-            true
-
