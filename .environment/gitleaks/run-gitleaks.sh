@@ -8,7 +8,8 @@ function usage() {
     echo ""
     echo "Options:"
     echo "    --no-git          Scans your current working directory as is (i.e. pretends it isn't a git repo)"
-    echo "    --since <hash>    Scans the history of your repository since the given commit. The hash is inclusive."
+    echo "    --depth <int>     Scans the <int> (topologically) last commits of the repository"
+    echo "    --since <datespc> Scans the commits since a date (format: 'YYYY-mm-DD[THH:MM:SS-OFFSET]'"
     echo "    --help|-h         Shows this help and exits successfully"
     echo ""
     echo "Examples:"
@@ -19,8 +20,11 @@ function usage() {
     echo "  $ ${0} --no-git"
     echo "      Runs gitleaks over the current state of the repository"
     echo ""
-    echo "  $ VERBOSE=1 ${0} --since abcd1234"
-    echo "      Runs gitleaks on the commits in your repository since abcd1234 while setting the VERBOSE flag"
+    echo "  $ ${0} --depth 10"
+    echo "      Runs gitleaks on the 10 (topologically) last commits"
+    echo ""
+    echo "  $ VERBOSE=1 ${0} --since '2021-06-01'"
+    echo "      Runs gitleaks on the commits in your repository since June 1st, 2021 while setting the VERBOSE flag"
     echo ""
     echo ""
 }
@@ -49,6 +53,7 @@ LOGFILE="gitleaks.log"
 REPO_CONFIG_PATH=".environment/gitleaks/gitleaks-config.toml"
 
 function scan_uncommitted() {
+    note "Scanning your suggested changes."
     # NOTE: ironically, the switch to scan your staged (i.e. to be committed) changes is to use the --unstaged switch
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
@@ -65,6 +70,7 @@ function scan_uncommitted() {
 }
 
 function scan_no_git() {
+    note "Scanning the current state of the repository."
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
         "${GITLEAKS_IMG_NAME?}" \
@@ -80,10 +86,9 @@ function scan_no_git() {
     return ${RC?}
 }
 
-function scan_history() {
-    # Scanning commits works backwards, you specify the youngest as 'from' and the oldest as 'to'
-    COMMIT_FROM="HEAD"
-    COMMIT_TO=${1}
+function scan_x_last_commits() {
+    DEPTH=${1}
+    note "Scanning the last ${DEPTH?} commits."
 
     docker run \
         -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
@@ -92,8 +97,26 @@ function scan_history() {
         --repo-config-path="${REPO_CONFIG_PATH?}" \
         --report="${CONTAINER_SOURCE_LOCATION?}/${REPORT_JSON?}" \
         $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
-        --commit-from=${COMMIT_FROM?} \
-        --commit-to=${COMMIT_TO?} \
+        --depth ${DEPTH?} \
+        2>"${LOGFILE?}"
+
+    RC=$?
+
+    return ${RC?}
+}
+
+function scan_since() {
+    SINCE=${1}
+    note "Scanning all commits since ${SINCE?}."
+
+    docker run \
+        -v "${REPO_ROOT?}:${CONTAINER_SOURCE_LOCATION?}" \
+        "${GITLEAKS_IMG_NAME?}" \
+        --path="${CONTAINER_SOURCE_LOCATION?}" \
+        --repo-config-path="${REPO_CONFIG_PATH?}" \
+        --report="${CONTAINER_SOURCE_LOCATION?}/${REPORT_JSON?}" \
+        $(if [[ ${VERBOSE?} != 0 ]]; then echo "--verbose"; else echo ""; fi) \
+        --commit-since "${SINCE?}" \
         2>"${LOGFILE?}"
 
     RC=$?
@@ -108,31 +131,41 @@ HAS_UNRECOGNIZED=0
 SELECTED_RUNMODE=""
 RUNMODE_STAGED_UNCOMMITTED="uncommitted"
 RUNMODE_NO_GIT="no-git"
+RUNMODE_DEPTH="depth"
+RUNMODE_DEPTH_VALUE=""
 RUNMODE_SINCE="since"
-RUNMODE_SINCE_COMMIT=""
+RUNMODE_SINCE_VALUE=""
 while [[ ! -z "${1}" ]]; do
     case "${1}" in
-    "--${RUNMODE_SINCE}")
+    "--${RUNMODE_DEPTH?}" | "--${RUNMODE_SINCE?}")
         if [[ ! -z "${SELECTED_RUNMODE?}" ]]; then
-            warning "The previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by the latest run-mode '${RUNMODE_SINCE?}'."
+            warning "The previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by the latest run-mode '${1:2}'."
         fi
-        SELECTED_RUNMODE="${RUNMODE_SINCE?}"
+        SELECTED_RUNMODE="${1:2}"
 
-        # by default, since will be the null commit but you can specify one too
-        # If you specify one, it will _not_ start with dash-dash
         if [[ -z "${2}" || "${2:0:1}" == "--" ]]; then
-            error "The commit hash to scan since (for '${RUNMODE_SINCE?}' mode) is not defined."
+            error "The value for run-mode '${1:2}' is not defined."
             exit 1
         else
-            RUNMODE_SINCE_COMMIT="${2}"
+            case "${SELECTED_RUNMODE?}" in
+            "${RUNMODE_DEPTH?}")
+                RUNMODE_DEPTH_VALUE="${2}"
+                ;;
+            "${RUNMODE_SINCE?}")
+                RUNMODE_SINCE_VALUE="${2}"
+                ;;
+            *)
+                error "'${SELECTED_RUNMODE}' is not yet handled"
+                ;;
+            esac
 
             # We used an extra argument, shift that
             shift
         fi
         ;;
-    "--${RUNMODE_NO_GIT}")
+    "--${RUNMODE_NO_GIT?}")
         if [[ ! -z "${SELECTED_RUNMODE?}" ]]; then
-            warning "The previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by the latest run-mode '${RUNMODE_NO_GIT?}'."
+            warning "The previously specified run-mode '${SELECTED_RUNMODE?}' will be overridden by the latest run-mode '${1:2}'."
         fi
         SELECTED_RUNMODE="${RUNMODE_NO_GIT?}"
         ;;
@@ -162,15 +195,18 @@ if [[ -z "${SELECTED_RUNMODE?}" ]]; then
     SELECTED_RUNMODE="${RUNMODE_STAGED_UNCOMMITTED?}"
 fi
 
-note "Scanning your suggested changes."
 RC=1 # Nothing done, fail
 case "${SELECTED_RUNMODE?}" in
-"${RUNMODE_SINCE?}")
-    scan_history "${RUNMODE_SINCE_COMMIT?}"
+"${RUNMODE_DEPTH?}")
+    scan_x_last_commits ${RUNMODE_DEPTH_VALUE?}
     RC=$?
     ;;
 "${RUNMODE_NO_GIT}")
     scan_no_git
+    RC=$?
+    ;;
+"${RUNMODE_SINCE?}")
+    scan_since "${RUNMODE_SINCE_VALUE?}"
     RC=$?
     ;;
 "${RUNMODE_STAGED_UNCOMMITTED?}")
