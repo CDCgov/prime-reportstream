@@ -21,6 +21,7 @@ import com.microsoft.azure.functions.annotation.TimerTrigger
 import com.okta.jwt.JwtVerifiers
 import com.sendgrid.Method
 import com.sendgrid.Request
+import com.sendgrid.Response
 import com.sendgrid.SendGrid
 import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
@@ -29,8 +30,8 @@ import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.secrets.SecretHelper
 import org.json.JSONObject
 import java.io.IOException
-import java.time.ZonedDateTime
 import java.time.OffsetDateTime
+import java.time.ZonedDateTime
 import java.util.logging.Level
 import java.util.logging.Logger
 import khttp.get as httpGet
@@ -141,7 +142,7 @@ class EmailScheduleEngine {
                     OffsetDateTime.now().minusDays(1L),
                     org
                 ).size;     
-                val template = getTemplate(schedule.template, countOfRecords );     
+                val template = getTemplate(schedule.template, countOfRecords, logger );     
                 val emails: Iterable<String> = if (schedule.emails.size > 0) schedule.emails else getEmails(org, logger)
                 logger.info("EmailEngineFunction:: processing organization $org within ${template}")
                 emails.forEach { email ->
@@ -153,17 +154,24 @@ class EmailScheduleEngine {
     }
 
     /**
-     * Get the template to use
+     * Get the template to use.  A template comes in 2 forms, either a straight UUID or a
+     *  pair of UUIDs separated by a ':' (the part on the left representing the 'we have results',
+     *  and the part on the right representing the 'we dont have results')
      * 
-     * @param template the template string from the database
+     * @param template the template string from the database (i.e d-12345678 or d-12345678:d-87654321)
      * @param count of records found in the last 24hrs
      * 
      * @returns template name to use
      */
-    private fun getTemplate( template: String, count: Int ): String {
+    private fun getTemplate( template: String, count: Int, logger: Logger ): String {
         var retValue = template;
-        if( template.split(":").size > 1 )
-            retValue = if (count == 0 ) template.split(":")[1].trim() else template.split(":")[0]
+        val split = template.split(":")
+
+        if( split.size > 2 )
+            logger.warning("More than one :, taking only the first 2 templates")
+
+        if( split.size > 1 )
+            retValue = if (count == 0 ) split[1].trim() else split[0]
         return retValue;
     }
 
@@ -328,7 +336,7 @@ class EmailScheduleEngine {
         template: String,
         emails: Iterable<String>,
         logger: Logger
-    ) {
+    ) : Response {
         val p: Personalization = Personalization()
         emails.forEach { to -> p.addTo(Email(to)) }
         p.setSubject(SUBJECT_EMAIL)
@@ -340,21 +348,30 @@ class EmailScheduleEngine {
         mail.setTemplateId(template)
 
         var sendgridId: String? = SecretHelper.getSecretService().fetchSecret("SENDGRID_ID")
+        var response: Response = Response()
 
         if (sendgridId !== null) {
 
             val sg: SendGrid = SendGrid(sendgridId)
             val request: Request = Request()
+
             try {
                 request.setMethod(Method.POST)
                 request.setEndpoint("mail/send")
                 request.setBody(mail.build())
-                sg.api(request)
+                response = sg.api(request)
             } catch (ex: IOException) {
                 logger.warning("Can't contact sendgrid")
+            }
+            finally {
+                logger.info( "sending to $emails - result ${response.getStatusCode()}" )
+                if( response.getStatusCode() != 200 )
+                    logger.info( "error - ${response.getBody()}")
             }
         } else {
             logger.info("Can't find SENDGRID_ID secret")
         }
+
+        return response;
     }
 }
