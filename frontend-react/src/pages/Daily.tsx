@@ -1,9 +1,5 @@
 import moment from "moment";
-import { Suspense } from "react";
-import React from 'react';
-import { NetworkErrorBoundary } from "rest-hooks";
 import { useResource } from "rest-hooks";
-import { SpinnerCircularFixed } from "spinners-react";
 import ReportResource from "../resources/ReportResource";
 import OrganizationResource from "../resources/OrganizationResource";
 import { useOktaAuth } from "@okta/okta-react";
@@ -44,12 +40,9 @@ const ReportLink = ({reportId}) => {
   let report = useResource( ReportResource.list(), {sortBy: undefined} )
                 .find( (report)=>report.reportId === reportId)
 
-  const handleClick = (e) => {
+  const handleClick = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     if( report !== undefined ){
-      console.log( report.content )
-      console.log( report.fileName )
-      console.log( report.mimeType )
       download( report.content, report.fileName, report.mimeType)
     }
   };
@@ -57,11 +50,9 @@ const ReportLink = ({reportId}) => {
   return(
     <a href="/" onClick={handleClick} className="usa-link">
      { report !== undefined ? report.fileType === "HL7_BATCH" ? "HL7(BATCH)" : report.fileType : "" }
-  </a>
-
-  )
-  //download(report.content, report.filename, report.mimetype);
-}
+    </a>
+    )
+  }
 
 const TableReports = () => {
   return (
@@ -79,11 +70,7 @@ const TableReports = () => {
               <th scope="col">File</th>
             </tr>
           </thead>
-          <Suspense fallback={<tbody><tr><th><SpinnerCircularFixed /></th></tr></tbody>}>
-            <NetworkErrorBoundary fallbackComponent={() => { return (<tr><th colSpan={5}>No data found</th></tr>)}}>
               <TableData />
-            </NetworkErrorBoundary>
-          </Suspense>
         </table>
       </div>
     </section>
@@ -92,11 +79,8 @@ const TableReports = () => {
 
 
 const OrgName = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { oktaAuth, authState } = useOktaAuth();
-  console.log(authState.accessToken?.claims.organization[0]);
+  const { authState } = useOktaAuth();
   const organization = groupToOrg( authState.accessToken?.claims.organization[0] );
-  console.log(organization);
   const org = useResource(OrganizationResource.detail(), { name: organization } );
 
   return (
@@ -109,11 +93,7 @@ export const Daily = () => {
     <>
       <section className="grid-container margin-bottom-5">
         <h3 className="margin-bottom-0">
-          <Suspense fallback={<SpinnerCircularFixed />}>
-            <NetworkErrorBoundary fallbackComponent={()=>{ return (<span>OrgError</span>) }}>
-              <OrgName />
-            </NetworkErrorBoundary>
-          </Suspense>
+            <OrgName />
         </h3>
         <h1 className="margin-top-0 margin-bottom-0">COVID-19</h1>
       </section>

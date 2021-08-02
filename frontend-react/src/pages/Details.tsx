@@ -1,12 +1,6 @@
 import moment from 'moment';
-import { Suspense } from 'react';
-import { NetworkErrorBoundary, useResource } from 'rest-hooks';
-import { SpinnerCircularFixed } from 'spinners-react';
+import { useResource } from 'rest-hooks';
 import ReportResource from "../resources/ReportResource";
-
-const NoData = () => {
-  return ( <span>No data found</span>);
-}
 
 const Summary = ( props: {reportId?:String}) => {
   let report = useResource( ReportResource.list(), {sortBy: undefined} )
@@ -45,28 +39,26 @@ const ReportDetails = ( props: {reportId?:String}) => {
                 .find( (report)=>report.reportId === props.reportId)
   return (
     <section className="grid-container margin-top-0 margin-bottom-5">
-      <hr />
-      <div id="details" className="grid-row grid-gap margin-top-0">
-      <div className="tablet:grid-col-3">
-                            <h4 className="text-base-darker text-normal margin-bottom-0">Report type</h4>
-                            <p className="text-bold margin-top-0">{report!.type}</p>
-                            <h4 className="text-base-darker text-normal margin-bottom-0">Report sent</h4>
-                            <p className="text-bold margin-top-0">{moment.utc(report!.sent).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
-                    </div>
-                    <div className="tablet:grid-col-3">
-                            <h4 className="text-base-darker text-normal margin-bottom-0">Total tests reported</h4>
-                            <p className="text-bold margin-top-0">{report!.total}</p>
-                            <h4 className="text-base-darker text-normal margin-bottom-0">Download expires</h4>
-                            <p className="text-bold margin-top-0">{moment.utc(report!.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
-                    </div>
-
+        <hr />
+        <div id="details" className="grid-row grid-gap margin-top-0">
+            <div className="tablet:grid-col-3">
+                <h4 className="text-base-darker text-normal margin-bottom-0">Report type</h4>
+                <p className="text-bold margin-top-0">{report!.type}</p>
+                <h4 className="text-base-darker text-normal margin-bottom-0">Report sent</h4>
+                <p className="text-bold margin-top-0">{moment.utc(report!.sent).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
+            </div>
+            <div className="tablet:grid-col-3">
+                <h4 className="text-base-darker text-normal margin-bottom-0">Total tests reported</h4>
+                <p className="text-bold margin-top-0">{report!.total}</p>
+                <h4 className="text-base-darker text-normal margin-bottom-0">Download expires</h4>
+                <p className="text-bold margin-top-0">{moment.utc(report!.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
+            </div>
       </div>
       <hr className="margin-top-3" />
     </section>
   );
 };
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/*
 const Facilities = (props: {reportId?:String}) => {
   let report = useResource( ReportResource.list(), {sortBy: undefined} )
                 .find( (report)=>report.reportId === props.reportId)
@@ -101,7 +93,7 @@ const Facilities = (props: {reportId?:String}) => {
 
 </section>
   )                
-}
+} */
 
 export const Details = ({sortBy}: { sortBy?:String }) => {
 
@@ -109,12 +101,8 @@ export const Details = ({sortBy}: { sortBy?:String }) => {
 
   return (
     <>
-      <Suspense fallback={<SpinnerCircularFixed />}>
-        <NetworkErrorBoundary fallbackComponent={ NoData }>
-          <Summary reportId={queryMap["reportId"] }/>
-          <ReportDetails reportId={queryMap["reportId"] }/>
-        </NetworkErrorBoundary>
-      </Suspense>
+        <Summary reportId={queryMap["reportId"] }/>
+        <ReportDetails reportId={queryMap["reportId"] }/>
     </>
   );
 };

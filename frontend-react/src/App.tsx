@@ -8,11 +8,13 @@ import {Login} from './pages/Login';
 import {TermsOfService} from './pages/TermsOfService'
 import { GovBanner } from '@trussworks/react-uswds'
 import {ReportStreamHeader} from './components/ReportStreamHeader';
-import React from 'react';
+import { Suspense } from 'react';
 import {oktaSignInConfig, oktaAuthConfig} from './oktaConfig'
 import { Route, useHistory, Switch } from 'react-router-dom';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import { Security, SecureRoute, LoginCallback } from '@okta/okta-react';
+import { NetworkErrorBoundary } from 'rest-hooks';
+import { SpinnerCircular } from 'spinners-react';
 
 const oktaAuth = new OktaAuth(oktaAuthConfig);
 
@@ -29,22 +31,26 @@ const App = () => {
 
   return (
       <Security oktaAuth={oktaAuth} onAuthRequired={customAuthHandler} restoreOriginalUri={restoreOriginalUri} >
-      <div className="content">
-        <GovBanner aria-label="Official government website" />
-        <ReportStreamHeader />      
-        <Switch>
-          <Route path='/' exact={true} component={Home} />
-          <SecureRoute path='/daily' component={Daily} />
-          <Route path='/documentation' component={Documentation} />
-          <SecureRoute path='/report-details' component={Details} />
-          <Route path='/terms-of-service' component={TermsOfService} />
-          <Route path='/login' render={() => <Login config={oktaSignInConfig} />} />
-          <Route path='/login/callback' component={LoginCallback} />  
-        </Switch>
-      </div>
-      <div className="footer">
-        <ReportStreamFooter />
-      </div>
+        <Suspense fallback={<SpinnerCircular size="30%"/>}>
+            <NetworkErrorBoundary fallbackComponent={() => { return (<div></div>)}}>
+                <div className="content">
+                    <GovBanner aria-label="Official government website" />
+                    <ReportStreamHeader />      
+                    <Switch>
+                    <Route path='/' exact={true} component={Home} />
+                    <SecureRoute path='/daily' component={Daily} />
+                    <Route path='/documentation' component={Documentation} />
+                    <SecureRoute path='/report-details' component={Details} />
+                    <Route path='/terms-of-service' component={TermsOfService} />
+                    <Route path='/login' render={() => <Login config={oktaSignInConfig} />} />
+                    <Route path='/login/callback' component={LoginCallback} />  
+                    </Switch>
+                    <div className="footer">
+                        <ReportStreamFooter />
+                    </div>
+                </div>
+            </NetworkErrorBoundary>
+      </Suspense>
     </Security>
   );
 }
