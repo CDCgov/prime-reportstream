@@ -137,6 +137,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'const val [A-Z]+_KEY_ALIAS = \"as2ohp\"',
             'const val apiPath = \"',
             'const val oldApi = "/api/reports"',
+            'const val tokenApi =  "/api/token"',
             'const val watersApi = "',
             'export USERNAME=\"client\"',
             'FindSenderKeyInSettings\(',
@@ -165,6 +166,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'secretService\.fetchSecret\(',                                                 # You are fetching the secret properly
             'user = if \(',
             'USER" to dbUser,',
+            'user\)\.isEqualTo\("user"',
             'userAgent',
             'val (user|password)Variable = \"POSTGRES_(USER|PASSWORD)\"$',                  # Literal value
             'val exampleKeyId = "',
