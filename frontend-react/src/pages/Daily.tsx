@@ -3,7 +3,7 @@ import { useResource } from "rest-hooks";
 import ReportResource from "../resources/ReportResource";
 import OrganizationResource from "../resources/OrganizationResource";
 import { useOktaAuth } from "@okta/okta-react";
-import {groupToOrg} from '../webreceiver-utils'
+import {groupToOrg } from '../webreceiver-utils'
 import download from "downloadjs"
 
 
@@ -80,7 +80,7 @@ const TableReports = () => {
 
 const OrgName = () => {
   const { authState } = useOktaAuth();
-  const organization = groupToOrg( authState.accessToken?.claims.organization[0] );
+  const organization = groupToOrg( authState!.accessToken?.claims.organization[0] );
   const org = useResource(OrganizationResource.detail(), { name: organization } );
 
   return (

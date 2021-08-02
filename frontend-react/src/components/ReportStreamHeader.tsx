@@ -9,11 +9,14 @@ import OrganizationResource from "../resources/OrganizationResource";
  * @returns OrganizationDropDown
  */
 const OrganizationDropDown = () => {
+
     let orgs = useResource( OrganizationResource.list(), {sortBy:undefined}).sort( (a,b) => a.description.localeCompare(b.description) )
-    
+
+    let setValue = (e:any) =>{}
+
     return (
-        <Dropdown id="input-dropdown" name="input-dropdown">
-        {orgs.map( org => <option key={org.name} value={org.name}>{org.description}</option>)}
+        <Dropdown id="input-dropdown" name="input-dropdown" defaultValue="pima-az-phd" onChange={e=>setValue( e.target.value)}>
+        {orgs.map( org => <option key={org.name} value={org.name}> {org.description} ({org.name})</option>)}
       </Dropdown>
     );
 }
@@ -29,8 +32,9 @@ const SignInOrUser = () => {
   const [ user, setUser ] = useState('');
 
   useEffect( () => {
-    if( authState && authState.isAuthenticated )
+    if( authState && authState.isAuthenticated ){
       oktaAuth.getUser().then( cl => setUser( cl.email? cl.email : 'unknown user' ) )
+    }
   });
 
   return (    

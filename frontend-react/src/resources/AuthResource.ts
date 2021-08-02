@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Resource } from '@rest-hooks/rest';
 import { useOktaAuth } from '@okta/okta-react';
+import { Resource } from '@rest-hooks/rest';
 
 
 export default class AuthResource extends Resource {
@@ -10,18 +10,21 @@ export default class AuthResource extends Resource {
     }
 
     static useFetchInit = (init: RequestInit): RequestInit => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { oktaAuth, authState } = useOktaAuth();
+        const organization = 'pima-az-phd'
+        const { authState } = useOktaAuth();
+
       return {
           ...init,
           headers: {
               ...init.headers,
-              'Authorization': `Bearer ${authState.accessToken?.accessToken}`
+              'Authorization': `Bearer ${authState?.accessToken?.accessToken}`,
+              'Organization': organization!
           },
       };
     };
 
     static getBaseUrl = () => {
+
         if (window.location.origin.includes("localhost"))
             return "http://localhost:7071";
         else if (window.location.origin.includes("staging"))

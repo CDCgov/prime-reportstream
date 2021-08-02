@@ -28,23 +28,23 @@ const App = () => {
   const restoreOriginalUri = async (_oktaAuth, originalUri) => {
     history.replace(toRelativeUrl(originalUri, window.location.origin));
   };
-
+  
   return (
       <Security oktaAuth={oktaAuth} onAuthRequired={customAuthHandler} restoreOriginalUri={restoreOriginalUri} >
-        <Suspense fallback={<SpinnerCircular size="30%"/>}>
+        <Suspense fallback={<div id="div"><div id="spinner"><SpinnerCircular color="rgba(57, 88, 172, 1)" size="30%"/></div></div>}>
             <NetworkErrorBoundary fallbackComponent={() => { return (<div></div>)}}>
                 <div className="content">
-                    <GovBanner aria-label="Official government website" />
-                    <ReportStreamHeader />      
-                    <Switch>
-                    <Route path='/' exact={true} component={Home} />
-                    <SecureRoute path='/daily' component={Daily} />
-                    <Route path='/documentation' component={Documentation} />
-                    <SecureRoute path='/report-details' component={Details} />
-                    <Route path='/terms-of-service' component={TermsOfService} />
-                    <Route path='/login' render={() => <Login config={oktaSignInConfig} />} />
-                    <Route path='/login/callback' component={LoginCallback} />  
-                    </Switch>
+                        <GovBanner aria-label="Official government website" />
+                        <ReportStreamHeader />      
+                        <Switch>
+                        <Route path='/' exact={true} component={Home} />
+                        <SecureRoute path='/daily' component={Daily} />
+                        <Route path='/documentation' component={Documentation} />
+                        <SecureRoute path='/report-details' component={Details} />
+                        <Route path='/terms-of-service' component={TermsOfService} />
+                        <Route path='/login' render={() => <Login config={oktaSignInConfig} />} />
+                        <Route path='/login/callback' component={LoginCallback} />  
+                        </Switch>
                     <div className="footer">
                         <ReportStreamFooter />
                     </div>

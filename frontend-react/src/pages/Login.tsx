@@ -1,13 +1,19 @@
-import React from 'react';
 import { Redirect } from 'react-router-dom';
 import OktaSignInWidget from '../components/OktaSignInWidget';
 import { useOktaAuth } from '@okta/okta-react';
+import { groupToOrg } from '../webreceiver-utils';
 
 export const Login = ({ config }) => {
   const { oktaAuth, authState } = useOktaAuth();
 
   const onSuccess = (tokens) => {
     oktaAuth.handleLoginRedirect(tokens);
+    console.log( tokens )
+    let organization = tokens?.accessToken?.claims?.organization[0];
+    console.log( `organization = ${organization}`)
+    //setValue('organization', groupToOrg( organization ))
+
+    console.log( `g2o = ${groupToOrg( organization )}` )
   };
 
   const onError = (err) => {

@@ -1,7 +1,27 @@
+import { Button } from '@trussworks/react-uswds';
+import download from 'downloadjs';
 import moment from 'moment';
 import { useResource } from 'rest-hooks';
 import ReportResource from "../resources/ReportResource";
 
+const ReportLink = ({reportId}) => {
+
+    let report = useResource( ReportResource.list(), {sortBy: undefined} )
+                  .find( (report)=>report.reportId === reportId)
+  
+    const handleClick = (e: { preventDefault: () => void; }) => {
+      e.preventDefault();
+      if( report !== undefined ){
+        download( report.content, report.fileName, report.mimeType)
+      }
+    };
+  
+    return(
+      <Button type="button" outline onClick={handleClick} className="usa-button usa-button--outline float-right">
+       { report !== undefined ? report.fileType === "HL7_BATCH" ? "HL7(BATCH)" : report.fileType : "" }
+      </Button>
+      )
+    }
 const Summary = ( props: {reportId?:String}) => {
   let report = useResource( ReportResource.list(), {sortBy: undefined} )
                 .find( (report)=>report.reportId === props.reportId)
@@ -16,8 +36,9 @@ const Summary = ( props: {reportId?:String}) => {
           <li className="usa-breadcrumb__list-item usa-current" aria-current="page">
             <span>Report details</span>
           </li>
-        </ol>
+        </ol>        
       </nav>
+      <ReportLink reportId={props.reportId} />
       <h3 className="margin-top-0 margin-bottom-4">
         <p id="download" className="margin-top-0 margin-bottom-0">
           Report: <span id="report.id">{ report? report.reportId : "this is the report id"}</span>
