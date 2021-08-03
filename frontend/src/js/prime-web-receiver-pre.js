@@ -222,6 +222,7 @@ async function requestFile(reportId) {
     return window.jwt ? await axios(apiConfig(`history/report/${reportId}`))
         .then(res => res.data)
         .then(csv => {
+            debug(csv);
             // The filename to use for the download should not contain blob folders if present
             let filename = decodeURIComponent(csv.filename);
             let filenameStartIndex = filename.lastIndexOf("/");
@@ -248,6 +249,7 @@ async function changeOrg(event){
     debug(`org = ${event.value}`)
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
+    window.location.replace(`${window.location.origin}/daily-data/`);
     processOrgName();
     const details = document.querySelector("#details");
     if (details) {
@@ -261,8 +263,6 @@ async function changeOrg(event){
         await processReports(feed, idx);
     });
     Promise.all(promises).then(_results => debug(_results));
-
-    await processReport(await fetchReports());
 }
 
 function populateOrgDropdown() {
@@ -473,7 +473,7 @@ async function processReports(feed, idx){
         reports.forEach(_report => {
             const tBody = document.querySelector(`tBody[data-feed-name='${feed}']`);
             if (tBody) {
-                tBody.innerHTML =
+                tBody.innerHTML +=
                     `<tr>
                     <th data-title="reportId" scope="row">
                         <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>

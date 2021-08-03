@@ -21,6 +21,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
         'prime-router/docs/schema_documentation/',
         'prime-router/src/test/csv_test_files/input/',
+        'prime-router/src/main/kotlin/cli/tests/TestKeys.kt',
     ]
 
 [[rules]]
@@ -179,6 +180,14 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'var keymap = require\(',
             'var tokenSigningSecret = "UVD4QOJ3H295Zi9Ayl3ySuoXNKiE8WYuOsaXOZfug3dwTUVBC1ZIKRPpG5LEyZDZ"',         # Invalidated
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
+            'private val redoxSecret = \"secret\"',
+            'val key = \"(ohio|aphl(_light)?|as2ohp)\"',                                    # not really secrets
+            'apiKey: \"some_key\"',
+            'API_ENDPOINT_HOST\"\) \?: \"localhost\"',
+            '!function\(',                                                                  # ignore this ugly thing
+            'Password=\"\"',                                                                # Empty anyway
+            'const val RECEIVER_KEY_ALIAS = \"as2ohp\"',
+            '/api/token',
         ]
         paths = [
             '.terraform/modules/',
