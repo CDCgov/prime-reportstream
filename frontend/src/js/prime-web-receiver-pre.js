@@ -8,6 +8,13 @@ const debug = (message) => {
     }
 };
 
+const getSpinner = () => {
+    return `
+        <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+        <span class="sr-only">Loading...</span>
+    `
+};
+
 /** Convert Org name
  * from DHzz_phd
  * to zz-phd
@@ -215,6 +222,7 @@ async function requestFile(reportId) {
     return window.jwt ? await axios(apiConfig(`history/report/${reportId}`))
         .then(res => res.data)
         .then(csv => {
+            debug(csv);
             // The filename to use for the download should not contain blob folders if present
             let filename = decodeURIComponent(csv.filename);
             let filenameStartIndex = filename.lastIndexOf("/");
@@ -241,9 +249,13 @@ async function changeOrg(event){
     debug(`org = ${event.value}`)
     window.org = event.value;
     window.sessionStorage.setItem( "oldOrg", window.org );
+    window.location.replace(`${window.location.origin}/daily-data/`);
     processOrgName();
+    const details = document.querySelector("#details");
+    if (details) {
+        details.innerHTML = getSpinner();
+    }
     let feeds = await processReportFeeds();
-
     // reports
     // I don't think I'm necessary now
     let promises = feeds.map(async (feed,idx) => {
@@ -251,8 +263,6 @@ async function changeOrg(event){
         await processReports(feed, idx);
     });
     Promise.all(promises).then(_results => debug(_results));
-
-    await processReport(await fetchReports());
 }
 
 function populateOrgDropdown() {
@@ -369,12 +379,16 @@ function titleCase(str) {
   }
 
 async function processReportFeeds(){
-    const feeds = await fetchReportFeeds();
+    // get our DOM elements
     const tabs = document.querySelector("#tabs");
+    // show a waiting message
+    if (tabs)
+        tabs.innerHTML = getSpinner();
+    // collect our report feeds
+    const feeds = await fetchReportFeeds();
     debug(feeds);
     if (tabs) {
-        tabs.innerHTML = "";
-        tabs.innerHTML += `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`
+        tabs.innerHTML = `<div id="reportFeeds" class=${feeds.length>1?"tab-wrap":""}></div>`;
     }
     const reportFeeds = document.querySelector("#reportFeeds");
     if (reportFeeds) {
@@ -458,8 +472,9 @@ async function processReports(feed, idx){
         // if they do then write them out
         reports.forEach(_report => {
             const tBody = document.querySelector(`tBody[data-feed-name='${feed}']`);
-            if (tBody) tBody.innerHTML +=
-                `<tr>
+            if (tBody) {
+                tBody.innerHTML +=
+                    `<tr>
                     <th data-title="reportId" scope="row">
                         <a href="/report-details/?${_report.reportId}" class="usa-link">${_report.reportId}</a>
                     </th>
@@ -474,6 +489,7 @@ async function processReports(feed, idx){
                         </span>
                     </th>
               </tr>`;
+            }
     });
     }
     if (!reports || reports.length === 0) {
@@ -504,6 +520,10 @@ const sortFacilities = (facilityOne, facilityTwo) => {
  * @returns {Report} selected report; possibly null
  */
 async function processReport( reports ){
+    const details = document.querySelector("#details");
+    const facilities = document.querySelector( "#tBodyFac");
+    const noFac = document.querySelector( '#nofacilities' );
+    const facTable = document.querySelector( '#facilitiestable');
     let report = null;
     if (reports && reports.length > 0) {
         if (window.location.search === "")
@@ -512,9 +532,8 @@ async function processReport( reports ){
             report = reports.find(report => report.reportId === window.location.search.substring(1));
     }
     if (report) {
-        const details = document.getElementById("details");
         if (details) {
-            details.innerHTML +=
+            details.innerHTML =
                 `<div class="tablet:grid-col-6">
                             <h4 class="text-base-darker text-normal margin-bottom-0">Report type</h4>
                             <p class="text-bold margin-top-0">${report.type}</p>
@@ -528,7 +547,6 @@ async function processReport( reports ){
                             <p class="text-bold margin-top-0">${moment.utc(report.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
                     </div>`;
         }
-        const facilities = document.querySelector( "#tBodyFac");
         if (facilities && report.facilities) {
             report.facilities.sort(sortFacilities).forEach(reportFacility => {
                 facilities.innerHTML +=
@@ -542,27 +560,21 @@ async function processReport( reports ){
             });
         }
 
-        const noFac = document.querySelector( '#nofacilities' );
-        const facTable = document.querySelector( '#facilitiestable');
-
         if (report.facilities && report.facilities.length) {
             if (noFac) noFac.setAttribute( "hidden", "hidden" );
         } else {
             if (facTable) facTable.setAttribute( "hidden", "hidden" );
         }
 
-        const reportId = document.querySelector("#report.id");
+        const reportId = document.querySelector("#report-id");
         if (reportId) reportId.innerHTML = report.reportId;
         const download = document.querySelector("#download");
-        if (download) {
-            download.innerHTML +=
-                `<a id="report.fileType"
+        if (download) download.innerHTML +=
+            `<a id="report-fileType"
                 class="usa-button usa-button--outline float-right"
                 href="javascript:requestFile( \'${report.reportId}\');"</a>`;
-        }
-        const reportFileType = document.getElementById("report.fileType");
-        if (reportFileType)
-            reportFileType.innerHTML = (report.fileType == "HL7" || report.fileType == "HL7_BATCH") ? "HL7" : "CSV";
+        const reportFileType = document.querySelector("#report-fileType");
+        if (reportFileType) reportFileType.innerHTML = (report.fileType === "HL7" || report.fileType === "HL7_BATCH") ? "HL7" : "CSV";
     }
 
     return report;

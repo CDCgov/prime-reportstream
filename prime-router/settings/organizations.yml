@@ -127,6 +127,16 @@
       topic: "covid-19"
       schemaName: "AZ/az-ihs-covid-19"
 
+- name: reddyfmc-la
+  description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: reddyfmc-la
+      topic: covid-19
+      schemaName: iPatientCare/reddyfmc-la-covid-19
+      format: CSV
+      
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -594,7 +604,7 @@
         type: SFTP
         host: sftp
         port: 22
-        filePath: ./
+        filePath: ./upload
         credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
@@ -929,6 +939,7 @@
         host: sftp
         port: 22
         filePath: ./upload
+        credentialName: DEFAULT-SFTP
       timing:
         operation: MERGE
         numberPerDay: 1440

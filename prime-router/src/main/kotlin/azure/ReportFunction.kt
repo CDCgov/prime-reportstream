@@ -17,6 +17,10 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.TokenAuthentication
+import org.apache.logging.log4j.kotlin.Logging
 import org.postgresql.util.PSQLException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -36,7 +40,7 @@ private const val VERBOSE_TRUE = "true"
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
  */
-class ReportFunction {
+class ReportFunction : Logging {
     enum class Options {
         None,
         ValidatePayload,
@@ -79,6 +83,55 @@ class ReportFunction {
         ) request: HttpRequestMessage<String?>,
         context: ExecutionContext,
     ): HttpResponseMessage {
+        return ingestReport(request, context)
+    }
+
+    /**
+     * The Waters API, in memory of Dr. Michael Waters
+     * (The older version of this API is "/api/reports")
+     * POST a report to the router, using FHIR auth security
+     */
+    @FunctionName("waters")
+    @StorageAccount("AzureWebJobsStorage")
+    fun report(
+        @HttpTrigger(
+            name = "waters",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS
+        ) request: HttpRequestMessage<String?>,
+        context: ExecutionContext,
+    ): HttpResponseMessage {
+
+        logger.debug(" request headers: ${request.headers}")
+        val authenticationStrategy = AuthenticationStrategy.authStrategy(
+            request.headers["authentication-type"],
+            PrincipalLevel.USER
+        )
+        val senderName = request.headers[CLIENT_PARAMETER]
+            ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")
+        // todo This code is redundant w/validateRequest. Remove from validateRequest once old endpoint is removed
+        if (senderName.isBlank())
+            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+        val sender = WorkflowEngine().settings.findSender(senderName)
+            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+
+        if (authenticationStrategy is OktaAuthentication) {
+            // Okta Auth
+            return authenticationStrategy.checkAccess(request, senderName) {
+                return@checkAccess ingestReport(request, context)
+            }
+        }
+
+        if (authenticationStrategy is TokenAuthentication) {
+            val claims = authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
+                ?: return HttpUtilities.unauthorizedResponse(request)
+            logger.info("Claims for ${claims["sub"]} validated.  Beginning ingestReport.")
+            return ingestReport(request, context)
+        }
+        return HttpUtilities.bad(request, "Failed authorization") // unreachable code.
+    }
+
+    private fun ingestReport(request: HttpRequestMessage<String?>, context: ExecutionContext): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.receive, context)
         var report: Report? = null

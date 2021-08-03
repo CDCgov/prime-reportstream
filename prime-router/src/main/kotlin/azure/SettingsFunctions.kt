@@ -8,14 +8,18 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
 /*
  * Organizations API
  */
 
-class GetOrganizations(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.SYSTEM_ADMIN) {
+class GetOrganizations(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getOrganizations")
     fun run(
         @HttpTrigger(
@@ -33,8 +37,11 @@ class GetOrganizations(settingsFacade: SettingsFacade = SettingsFacade.common) :
     }
 }
 
-class GetOneOrganization(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.USER) {
+class GetOneOrganization(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getOneOrganization")
     fun run(
         @HttpTrigger(
@@ -49,8 +56,11 @@ class GetOneOrganization(settingsFacade: SettingsFacade = SettingsFacade.common)
     }
 }
 
-class UpdateOrganization(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.SYSTEM_ADMIN) {
+class UpdateOrganization(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("updateOneOrganization")
     fun run(
         @HttpTrigger(
@@ -72,8 +82,11 @@ class UpdateOrganization(settingsFacade: SettingsFacade = SettingsFacade.common)
 /**
  * Sender APIs
  */
-class GetSenders(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.USER) {
+class GetSenders(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getSenders")
     fun run(
         @HttpTrigger(
@@ -88,8 +101,11 @@ class GetSenders(settingsFacade: SettingsFacade = SettingsFacade.common) :
     }
 }
 
-class GetOneSender(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.USER) {
+class GetOneSender(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getOneSender")
     fun run(
         @HttpTrigger(
@@ -105,8 +121,11 @@ class GetOneSender(settingsFacade: SettingsFacade = SettingsFacade.common) :
     }
 }
 
-class UpdateSender(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.ORGANIZATION_ADMIN) {
+class UpdateSender(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("updateOneSender")
     fun run(
         @HttpTrigger(
@@ -131,8 +150,11 @@ class UpdateSender(settingsFacade: SettingsFacade = SettingsFacade.common) :
  * Receiver APIS
  */
 
-class GetReceiver(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.USER) {
+class GetReceiver(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getReceivers")
     fun run(
         @HttpTrigger(
@@ -147,8 +169,11 @@ class GetReceiver(settingsFacade: SettingsFacade = SettingsFacade.common) :
     }
 }
 
-class GetOneReceiver(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.USER) {
+class GetOneReceiver(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("getOneReceiver")
     fun run(
         @HttpTrigger(
@@ -164,8 +189,11 @@ class GetOneReceiver(settingsFacade: SettingsFacade = SettingsFacade.common) :
     }
 }
 
-class UpdateReceiver(settingsFacade: SettingsFacade = SettingsFacade.common) :
-    BaseFunction(settingsFacade, minimumLevel = PrincipalLevel.ORGANIZATION_ADMIN) {
+class UpdateReceiver(
+    settingsFacade: SettingsFacade = SettingsFacade.common,
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)
+) :
+    BaseFunction(settingsFacade, oktaAuthentication) {
     @FunctionName("updateOneReceiver")
     fun run(
         @HttpTrigger(
@@ -192,7 +220,7 @@ class UpdateReceiver(settingsFacade: SettingsFacade = SettingsFacade.common) :
 
 open class BaseFunction(
     private val facade: SettingsFacade,
-    private val minimumLevel: PrincipalLevel
+    private val oktaAuthentication: OktaAuthentication
 ) : Logging {
     private val missingAuthorizationHeader = HttpUtilities.errorJson("Missing Authorization Header")
     private val invalidClaim = HttpUtilities.errorJson("Invalid Authorization Header")
@@ -201,7 +229,7 @@ open class BaseFunction(
         request: HttpRequestMessage<String?>,
         clazz: Class<T>
     ): HttpResponseMessage {
-        return handleRequest(request, "") {
+        return oktaAuthentication.checkAccess(request, "") {
             val settings = facade.findSettingsAsJson(clazz)
             val lastModified = facade.getLastModified()
             HttpUtilities.okResponse(request, settings, lastModified)
@@ -213,7 +241,7 @@ open class BaseFunction(
         organizationName: String,
         clazz: Class<T>
     ): HttpResponseMessage {
-        return handleRequest(request, "") {
+        return oktaAuthentication.checkAccess(request, "") {
             val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
             facadeResultToResponse(request, result, outputBody)
         }
@@ -222,7 +250,7 @@ open class BaseFunction(
     fun getHead(
         request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-        return handleRequest(request, "") {
+        return oktaAuthentication.checkAccess(request, "") {
             val lastModified = facade.getLastModified()
             HttpUtilities.okResponse(request, lastModified = lastModified)
         }
@@ -234,9 +262,9 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        return handleRequest(request, organizationName ?: settingName) {
+        return oktaAuthentication.checkAccess(request, organizationName ?: settingName) {
             val setting = facade.findSettingAsJson(settingName, clazz, organizationName)
-                ?: return@handleRequest HttpUtilities.notFoundResponse(request)
+                ?: return@checkAccess HttpUtilities.notFoundResponse(request)
             HttpUtilities.okResponse(request, setting)
         }
     }
@@ -247,54 +275,21 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        return handleRequest(request, organizationName ?: settingName) { claims ->
+        return oktaAuthentication.checkAccess(request, organizationName ?: settingName) { claims ->
             val (result, outputBody) = when (request.httpMethod) {
                 HttpMethod.PUT -> {
                     if (request.headers[HttpHeaders.CONTENT_TYPE.lowercase()] != HttpUtilities.jsonMediaType)
-                        return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("invalid media type"))
+                        return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("invalid media type"))
                     val body = request.body
-                        ?: return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
+                        ?: return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
                     facade.putSetting(settingName, body, claims, clazz, organizationName)
                 }
                 HttpMethod.DELETE ->
                     facade.deleteSetting(settingName, claims, clazz, organizationName)
                 else ->
-                    return@handleRequest HttpUtilities.badRequestResponse(request, errorJson("unsupported method"))
+                    return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("unsupported method"))
             }
             facadeResultToResponse(request, result, outputBody)
-        }
-    }
-
-    private fun handleRequest(
-        request: HttpRequestMessage<String?>,
-        organizationName: String,
-        block: (claims: AuthenticatedClaims) -> HttpResponseMessage
-    ): HttpResponseMessage {
-        try {
-            val accessToken = getAccessToken(request)
-            if (accessToken == null) {
-                logger.info("Missing Authorization Header: ${request.httpMethod}:${request.uri.path}")
-                return HttpUtilities.unauthorizedResponse(request, missingAuthorizationHeader)
-            }
-            val host = request.uri.toURL().host
-            if (claimVerifier.requiredHosts.isNotEmpty() && !claimVerifier.requiredHosts.contains(host)) {
-                logger.error("Wrong Authentication Verifier being used: ${claimVerifier::class} for $host")
-                return HttpUtilities.unauthorizedResponse(request)
-            }
-            val claims = claimVerifier.checkClaims(accessToken, minimumLevel, organizationName)
-            if (claims == null) {
-                logger.info("Invalid Authorization Header: ${request.httpMethod}:${request.uri.path}")
-                return HttpUtilities.unauthorizedResponse(request, invalidClaim)
-            }
-
-            logger.info("Settings request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
-            return block(claims)
-        } catch (ex: Exception) {
-            if (ex.message != null)
-                logger.error(ex.message!!, ex)
-            else
-                logger.error(ex)
-            return HttpUtilities.internalErrorResponse(request)
         }
     }
 
@@ -311,21 +306,5 @@ open class BaseFunction(
         }
     }
 
-    private fun getAccessToken(request: HttpRequestMessage<String?>): String? {
-        // RFC6750 defines the access token
-        val authorization = request.headers[HttpHeaders.AUTHORIZATION.lowercase()] ?: return null
-        return authorization.substringAfter("Bearer ", "")
-    }
-
     private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
-
-    companion object {
-        val claimVerifier: AuthenticationVerifier by lazy {
-            val primeEnv = System.getenv("PRIME_ENVIRONMENT")
-            if (primeEnv == "local")
-                TestAuthenticationVerifier()
-            else
-                OktaAuthenticationVerifier()
-        }
-    }
 }

@@ -885,6 +885,29 @@ class Report : Logging {
             }
         }
 
+        fun formExternalFilename(
+            bodyUrl: String?,
+            reportId: ReportId,
+            schemaName: String,
+            format: Format,
+            createdAt: OffsetDateTime
+        ): String {
+            // extract the filename from the blob url.
+            val filename = if (bodyUrl != null)
+                BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
+            else ""
+            return filename.ifEmpty {
+                // todo: extend this to use the APHL naming convention
+                formFilename(
+                    reportId,
+                    schemaName,
+                    format,
+                    createdAt,
+                    metadata = Metadata.provideMetadata()
+                )
+            }
+        }
+
         /**
          * Takes a nullable String and trims it down to null if the string is empty
          */
