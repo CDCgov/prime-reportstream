@@ -351,7 +351,7 @@ elements:
     type: TABLE
     pii: false
     table: fips-county
-    tableColumn: County
+    tableColumn: FIPS
     mapper: lookup(ordering_provider_state, ordering_provider_county)
     hl7Field: ORC-24-9
     documentation: The FIPS code for the ordering provider
@@ -889,6 +889,11 @@ elements:
     hl7Field: MSH-3
     documentation: |
       The name and OID for the application sending information to the receivers
+
+  - name: site_of_care
+    type: TEXT
+    natFlatFileField: Site_of_care
+    documentation: The type of facility providing care (Hospital, Nursing Home, etc.).
 
   - name: specimen_collection_date_time
     type: DATETIME

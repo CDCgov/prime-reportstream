@@ -66,6 +66,7 @@ const ReportDetails = ( props: {reportId?:String}) => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Facilities = (props: {reportId?:String}) => {
   let report = useResource( ReportResource.list(), {sortBy: undefined} )
                 .find( (report)=>report.reportId === props.reportId)
@@ -105,7 +106,6 @@ const Facilities = (props: {reportId?:String}) => {
 export const Details = ({sortBy}: { sortBy?:String }) => {
 
   let queryMap = useQuery();
-  console.log( queryMap );
 
   return (
     <>
@@ -113,7 +113,6 @@ export const Details = ({sortBy}: { sortBy?:String }) => {
         <NetworkErrorBoundary fallbackComponent={ NoData }>
           <Summary reportId={queryMap["reportId"] }/>
           <ReportDetails reportId={queryMap["reportId"] }/>
-          <Facilities reportId={queryMap["reportId"]} />
         </NetworkErrorBoundary>
       </Suspense>
     </>

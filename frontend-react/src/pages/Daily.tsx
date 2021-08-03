@@ -1,5 +1,6 @@
 import moment from "moment";
 import { Suspense } from "react";
+import React from 'react';
 import { NetworkErrorBoundary } from "rest-hooks";
 import { useResource } from "rest-hooks";
 import { SpinnerCircularFixed } from "spinners-react";
@@ -7,6 +8,7 @@ import ReportResource from "../resources/ReportResource";
 import OrganizationResource from "../resources/OrganizationResource";
 import { useOktaAuth } from "@okta/okta-react";
 import {groupToOrg} from '../webreceiver-utils'
+import download from "downloadjs"
 
 
 const TableData = ({ sortBy }: { sortBy?: string }) => {
@@ -29,15 +31,37 @@ const TableData = ({ sortBy }: { sortBy?: string }) => {
           </th>
           <th scope="row">{report.total}</th>
           <th scope="row">
-            <a href={report.reportId} className="usa-link">
-              {report.fileType === "HL7_BATCH" ? "HL7(BATCH)" : report.fileType}
-            </a>
+            <ReportLink reportId={report.reportId} />
           </th>
         </tr>
       ))}
     </tbody>
   );
 };
+
+const ReportLink = ({reportId}) => {
+
+  let report = useResource( ReportResource.list(), {sortBy: undefined} )
+                .find( (report)=>report.reportId === reportId)
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    if( report !== undefined ){
+      console.log( report.content )
+      console.log( report.fileName )
+      console.log( report.mimeType )
+      download( report.content, report.fileName, report.mimeType)
+    }
+  };
+
+  return(
+    <a href="/" onClick={handleClick} className="usa-link">
+     { report !== undefined ? report.fileType === "HL7_BATCH" ? "HL7(BATCH)" : report.fileType : "" }
+  </a>
+
+  )
+  //download(report.content, report.filename, report.mimetype);
+}
 
 const TableReports = () => {
   return (
@@ -69,12 +93,14 @@ const TableReports = () => {
 
 const OrgName = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {oktaAuth, authState} = useOktaAuth();
-  const organization = groupToOrg( authState.accessToken?.claims.organization[0] )
-  const org = useResource(OrganizationResource.detail(), {name: organization} );
+  const { oktaAuth, authState } = useOktaAuth();
+  console.log(authState.accessToken?.claims.organization[0]);
+  const organization = groupToOrg( authState.accessToken?.claims.organization[0] );
+  console.log(organization);
+  const org = useResource(OrganizationResource.detail(), { name: organization } );
 
   return (
-    <span id="orgName" className="text-normal text-base">{ org?.description }</span>
+      <span id="orgName" className="text-normal text-base">{ org?.description }</span>
   )
 }
 
@@ -83,8 +109,8 @@ export const Daily = () => {
     <>
       <section className="grid-container margin-bottom-5">
         <h3 className="margin-bottom-0">
-        <Suspense fallback={<SpinnerCircularFixed />}>
-            <NetworkErrorBoundary fallbackComponent={()=>{return (<span>OrgError</span>)}}>
+          <Suspense fallback={<SpinnerCircularFixed />}>
+            <NetworkErrorBoundary fallbackComponent={()=>{ return (<span>OrgError</span>) }}>
               <OrgName />
             </NetworkErrorBoundary>
           </Suspense>

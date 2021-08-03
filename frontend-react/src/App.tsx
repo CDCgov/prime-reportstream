@@ -7,10 +7,9 @@ import {Documentation} from './pages/Documentation';
 import {Details} from './pages/Details';
 import {Login} from './pages/Login';
 import {TermsOfService} from './pages/TermsOfService'
-
 import { GovBanner } from '@trussworks/react-uswds'
 import {ReportStreamHeader} from './components/ReportStreamHeader';
-
+import React from 'react';
 import {oktaSignInConfig, oktaAuthConfig} from './oktaConfig'
 import { Route, useHistory, Switch } from 'react-router-dom';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';

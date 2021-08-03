@@ -1,7 +1,14 @@
 import {AuthState} from "@okta/okta-auth-js";
 import {PERMISSIONS} from "./resources/PermissionsResource";
 
-const groupToOrg = ( group: String ) => { return group.slice(2).replace('_','-')}
+
+const groupToOrg = ( group: String ): String => {
+    // in order to replace all instances of the underscore we needed to use a
+    // global regex instead of a string. a string pattern only replaces the first
+    // instance
+    const re = /_/g;
+    return group.slice(2).replace(re,'-')
+};
 
 const permissionCheck = ( permission: String, authState: AuthState ) => {
     if(permission === PERMISSIONS['receiver']) {

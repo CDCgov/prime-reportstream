@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -48,7 +49,7 @@ class Report : Logging {
         val mimeType: String,
         val isSingleItemFormat: Boolean = false,
     ) {
-        INTERNAL("internal", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
+        INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
         HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
@@ -565,6 +566,7 @@ class Report : Logging {
                             null
                         }
                     }
+                    it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
                     it.reportIndex = idx
                 }
@@ -790,7 +792,7 @@ class Report : Logging {
                         it.childReportId, // the prev child is the new parent
                         it.childIndex,
                         newChildReportId,
-                        it.childIndex, // 1:1 mapping
+                        it.childIndex, // one-to-one mapping
                         it.trackingId,
                         it.transportResult,
                         null
@@ -853,7 +855,7 @@ class Report : Logging {
             val fileName = when (translationConfig) {
                 null -> "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 else -> metadata.fileNameTemplates[nameFormat.lowercase()].run {
-                    this?.getFileName(translationConfig)
+                    this?.getFileName(translationConfig, id)
                         ?: "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
                 }
             }
@@ -867,7 +869,7 @@ class Report : Logging {
         fun formExternalFilename(header: WorkflowEngine.Header): String {
             // extract the filename from the blob url.
             val filename = if (header.reportFile.bodyUrl != null)
-                header.reportFile.bodyUrl.split("/").last()
+                BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl)
             else ""
             return if (filename.isNotEmpty())
                 filename
@@ -878,6 +880,29 @@ class Report : Logging {
                     header.reportFile.schemaName,
                     header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
                     header.reportFile.createdAt,
+                    metadata = Metadata.provideMetadata()
+                )
+            }
+        }
+
+        fun formExternalFilename(
+            bodyUrl: String?,
+            reportId: ReportId,
+            schemaName: String,
+            format: Format,
+            createdAt: OffsetDateTime
+        ): String {
+            // extract the filename from the blob url.
+            val filename = if (bodyUrl != null)
+                BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
+            else ""
+            return filename.ifEmpty {
+                // todo: extend this to use the APHL naming convention
+                formFilename(
+                    reportId,
+                    schemaName,
+                    format,
+                    createdAt,
                     metadata = Metadata.provideMetadata()
                 )
             }

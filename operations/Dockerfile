@@ -1,6 +1,6 @@
 FROM centos:centos8.3.2011
 
-ENV AZURE_CLI_VERSION=2.18.0
+ARG AZURE_CLI_VERSION
 
 # Install Azure CLI
 RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -12,17 +12,18 @@ gpgcheck=1\n\
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc" | tee /etc/yum.repos.d/azure-cli.repo
 RUN yum -y install azure-cli-${AZURE_CLI_VERSION}-1.el7
 
-# Changing the terraform version must also be done in:
-# - app/src/environments/dev/main.tf
-# - app/src/environments/test/main.tf
-# - app/src/environments/staging/main.tf
+# The following files need a Maj.min.rev specification that matches the values from $TERRAFORM_VERSION:
+# - app/src/environments/01-network/main.tf
+# - app/src/environments/02-config/main.tf
+# - app/src/environments/03-persistent/main.tf
+# - app/src/environments/04-app/main.tf
 # - app/src/environments/prod/main.tf
-ENV TERRAFORM_VERSION=0.14.5
+ARG TERRAFORM_VERSION
 
 # Install Terraform
 RUN yum install -y yum-utils
 RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-RUN yum -y install terraform-${TERRAFORM_VERSION}-1
+RUN yum -y install terraform-${TERRAFORM_VERSION}
 
 # Create directory for terraform
 RUN mkdir /app

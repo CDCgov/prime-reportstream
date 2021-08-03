@@ -9,8 +9,6 @@ const oktaAuthConfig: OktaAuthOptions = {
         storage: 'sessionStorage'
     },
     scopes: ['openid', 'email']
-
- 
   };
   
   const oktaSignInConfig = {
@@ -23,9 +21,9 @@ const oktaAuthConfig: OktaAuthOptions = {
     },
     baseUrl: `https://hhs-prime.okta.com`,
     clientId: '0oa6fm8j4G1xfrthd4h6',
-    redirectUri: window.location.origin + '/login/callback',    
+    redirectUri: `${window.location.origin}/login/callback`,
     authParams: {
-        issuer: `https://hhs-prime.okta.com/oauth2/default`
+        issuer: 'https://hhs-prime.okta.com/oauth2/default'
     },
     scopes: ['openid', 'email'] 
   };

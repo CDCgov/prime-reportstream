@@ -27,7 +27,7 @@ import kotlin.test.assertTrue
 class RedoxTransportTests {
     val context = mockkClass(ExecutionContext::class)
     val metadata = Metadata(Metadata.defaultMetadataDirectory)
-    val settings = FileSettings(FileSettings.defaultSettingsDirectory, "-local")
+    val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     val logger = mockkClass(Logger::class)
     val reportId = UUID.randomUUID()
     val redox = spyk<RedoxTransport>()

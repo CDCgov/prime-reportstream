@@ -11,7 +11,7 @@ export const ReportStreamFooter = () => {
       </IdentifierLogos>
       <IdentifierIdentity domain="cdc.gov">
         {`An official website of the `}
-        <Link href="http://cdc.gov">Centers for Disease Control and Prevention</Link>
+        <Link href="https://cdc.gov">Centers for Disease Control and Prevention</Link>
       </IdentifierIdentity>
     </IdentifierMasthead>
     <IdentifierLinks navProps={{ 'aria-label': 'Important links' }}>

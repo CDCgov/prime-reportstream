@@ -1,10 +1,10 @@
-FROM node:16-buster-slim as static_site
+FROM node:alpine as static_site
 WORKDIR /usr/app
 COPY package*.json ./
 ENV NODE_ENV=production
 COPY . ./
 RUN npm install
-RUN npm -s run build
+RUN npx eleventy --config eleventy.config.js
 
 
 FROM nginx:latest as nginx_host

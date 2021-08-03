@@ -59,6 +59,7 @@ prime-router/.project
 
 # VS Code
 **/.vscode/**
+workspace.code-workspace
 
 # Eclipse
 **/.settings/**
@@ -100,3 +101,6 @@ prime-router/.vault/env/**
 
 # Gradle files
 **/.gradle/**
+
+gitleaks.report.json
+gitleaks.log

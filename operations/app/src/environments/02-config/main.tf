@@ -1,6 +1,5 @@
 terraform {
-  required_version = "= 0.14.5"
-  # This version must also be changed in other environments
+  required_version = "= 1.0.3" # This version must also be changed in other environments
 
   required_providers {
     azurerm = {
@@ -39,9 +38,10 @@ module "key_vault" {
 }
 
 module "container_registry" {
-  source          = "../../modules/container_registry"
-  environment     = var.environment
-  resource_group  = var.resource_group
-  resource_prefix = var.resource_prefix
-  location        = var.location
+  source               = "../../modules/container_registry"
+  environment          = var.environment
+  resource_group       = var.resource_group
+  resource_prefix      = var.resource_prefix
+  location             = var.location
+  enable_content_trust = true
 }

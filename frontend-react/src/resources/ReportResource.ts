@@ -16,10 +16,13 @@ export default class ReportResource extends AuthResource {
     readonly receivingOrg: string = "receivingOrg";
     readonly facilities: FacilityResource[] = [];
     readonly actions: ActionResource[] = [];
+    readonly content: string = ""
+    readonly fileName: string = ""
+    readonly mimeType: string = ""
 
     pk(){
         return this.reportId;
     }
 
-    static urlRoot = 'http://localhost:7071/api/history/report';
+    static urlRoot = `${AuthResource.getBaseUrl()}/api/history/report`;
 }

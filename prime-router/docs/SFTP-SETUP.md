@@ -10,11 +10,11 @@ docker run -p 22:22 -d atmoz/sftp foo:pass:1001::upload
 This will create an sftp server running on localhost port 22 with a user/password of foo/pass and will store all of the files in the (container's) /home/foo/upload directory.  If you want to mount the target SFTP folder to your host then add the -v option like in the following command, where the sftp folder in the current folder is used:
 
 ```
-docker run -p 22:22 -v sftp:/home/foo/upload -d atmoz/sftp foo:pass:::upload 
+docker run -p 22:22 -v sftp:/home/foo/upload -d atmoz/sftp foo:pass:::upload
 ```
 
 ## Configuring the Router to use the local SFTP server
-1.  Update the organizations.yml file to identify the transport.  Specify the host of localhost for any organizations to use the local SFTP server.  E.g. 
+1.  Update the organizations.yml file to identify the transport.  Specify the host of localhost for any organizations to use the local SFTP server.  E.g.
 
     ```
       - name: az-phd
@@ -36,8 +36,11 @@ docker run -p 22:22 -v sftp:/home/foo/upload -d atmoz/sftp foo:pass:::upload
             host: localhost
             port: 2222
             filePath: ./upload
+            credentialName: DEFAULT-SFTP
     ```
-    the above specifies an SFTP transport for the az-phd organization at localhost:22 writing to the ./upload directory under the account
+    the above specifies an SFTP transport for the az-phd organization at localhost:22 writing to the ./upload directory under the account.<br><br> 
+    By setting the 'credentialName' field at the 'transport' node, you indicate that the credentials should be retrieved from the CredentialService with that name.<br>
+    If the field is not set then the dynamic credentials will be formed on runtime using the receiver full name.<br><br> 
 
 1. Add the SFTP Username and Password to the Organization
 
@@ -47,7 +50,7 @@ docker run -p 22:22 -v sftp:/home/foo/upload -d atmoz/sftp foo:pass:::upload
     * use the service name afterward (all caps), preceded by a double dash (--), with any underscores (_) replaced by a dash (-)
 
     For the AZ-PHD organization example above, it would be AZ-PHD--ELR.  To set the password, use the following commands:
-    
+
     ```
     export $(cat ./.vault/env/.env.local | xargs)
     ./prime create-credential --type=UserPass --persist=AZ-PHD--ELR
