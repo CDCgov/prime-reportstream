@@ -1,6 +1,5 @@
 terraform {
-  required_version = "= 0.14.5"
-  # This version must also be changed in other environments
+  required_version = "= 1.0.3" # This version must also be changed in other environments
 
   required_providers {
     azurerm = {

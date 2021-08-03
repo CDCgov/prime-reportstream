@@ -792,7 +792,7 @@ class Report : Logging {
                         it.childReportId, // the prev child is the new parent
                         it.childIndex,
                         newChildReportId,
-                        it.childIndex, // 1:1 mapping
+                        it.childIndex, // one-to-one mapping
                         it.trackingId,
                         it.transportResult,
                         null
@@ -880,6 +880,29 @@ class Report : Logging {
                     header.reportFile.schemaName,
                     header.receiver?.format ?: error("Internal Error: ${header.receiver?.name} does not have a format"),
                     header.reportFile.createdAt,
+                    metadata = Metadata.provideMetadata()
+                )
+            }
+        }
+
+        fun formExternalFilename(
+            bodyUrl: String?,
+            reportId: ReportId,
+            schemaName: String,
+            format: Format,
+            createdAt: OffsetDateTime
+        ): String {
+            // extract the filename from the blob url.
+            val filename = if (bodyUrl != null)
+                BlobAccess.BlobInfo.getBlobFilename(bodyUrl)
+            else ""
+            return filename.ifEmpty {
+                // todo: extend this to use the APHL naming convention
+                formFilename(
+                    reportId,
+                    schemaName,
+                    format,
+                    createdAt,
                     metadata = Metadata.provideMetadata()
                 )
             }

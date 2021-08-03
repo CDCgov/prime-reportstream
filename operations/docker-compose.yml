@@ -3,8 +3,12 @@ version: "3.3"
 services:
   tf-cli:
     container_name: terraform_state
+    image: ghcr.io/cdcgov/prime-reportstream_tfcli:az2.18.0tf1.0.3-1
     build:
       context: .
+      args:
+        AZURE_CLI_VERSION: 2.18.0
+        TERRAFORM_VERSION: 1.0.3-1
     volumes:
       # Bind the app directory instead of building into the docker image for re-usability
       - type: bind

@@ -1,0 +1,40 @@
+name: Docker
+
+on:
+  pull_request:
+    branches:
+      - master
+      - production
+
+jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_tfcli_change: ${{ steps.skip_check.outputs.tfcli }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: skip_check
+        with:
+          list-files: csv
+          filters: |
+            tfcli:
+              - 'operations/docker-compose.yml'
+              - 'operations/Dockerfile'
+              - '.github/workflows/build_docker.yml'
+
+  build_tfcli:
+    name: Build Terraform CLI
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_tfcli_change == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: operations
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@v2
+
+      - name: Build Docker Terraform CLI
+        run: |
+          make build-tf-cli
