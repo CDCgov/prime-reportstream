@@ -490,6 +490,5 @@ internal class ElementTests {
         element.toFormatted("UNK", "\$system").run {
             assertThat(this).isEqualTo("NULLFL")
         }
-
     }
 }
