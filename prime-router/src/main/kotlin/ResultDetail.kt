@@ -3,7 +3,7 @@ package gov.cdc.prime.router
 /**
  * @property scope of the result detail
  * @property id of the result (depends on scope)
- * @property details of the result
+ * @property message of the result
  */
 data class ResultDetail(val scope: DetailScope, val id: String, val message: ResponseMessage) {
     /**
@@ -101,15 +101,19 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
             ): List<ResultDetailSummary> {
                 return when (type) {
                     ResponseMsgType.MISSING_HDR ->
-                        listOf(ResultDetailSummary(
-                            DetailScope.REPORT, messages.map { it.message.groupingId() }.distinct(),
-                            "Missing ${messages.size} header(s)."
-                        ))
+                        listOf(
+                            ResultDetailSummary(
+                                DetailScope.REPORT, messages.map { it.message.groupingId() }.distinct(),
+                                "Missing ${messages.size} header(s)."
+                            )
+                        )
                     ResponseMsgType.UNEXPECTED_HDR ->
-                        listOf(ResultDetailSummary(
-                            DetailScope.REPORT, messages.map { it.message.groupingId() }.distinct(),
-                            "${messages.size} unexpected header(s) will be ignored."
-                        ))
+                        listOf(
+                            ResultDetailSummary(
+                                DetailScope.REPORT, messages.map { it.message.groupingId() }.distinct(),
+                                "${messages.size} unexpected header(s) will be ignored."
+                            )
+                        )
                     // these message types can span multiple groupings so there is a need
                     // for further splitting the list based on the groupingId
                     ResponseMsgType.EMPTY_VALUE,
@@ -166,15 +170,15 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
     }
 
     /**
-     * Generic message impelmentation to help with transitioning all messaging.
+     * Generic message implementation to help with transitioning all messaging.
      */
     data class GenericMessage(
         override val type: ResponseMsgType = ResponseMsgType.NONE,
         val message: String = "",
         val fieldMapping: String = ""
-    ): ResponseMessage {
+    ) : ResponseMessage {
         override fun detailMsg(): String {
-            return message;
+            return message
         }
 
         override fun groupingId(): String {
@@ -191,7 +195,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
         val contentLength: Long = 0,
         val bodyLength: Int = 0
     ) : ResponseMessage {
-        enum class Reason {NONE, NO_HEADER, NAN, NEGATIVE, HDR_TOO_LARGE, BODY_TOO_LARGE}
+        enum class Reason { NONE, NO_HEADER, NAN, NEGATIVE, HDR_TOO_LARGE, BODY_TOO_LARGE }
 
         override fun detailMsg(): String {
             return when (reason) {
@@ -241,7 +245,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
         val formattedValue: String = "",
         val fieldMapping: String = ""
     ) : ResponseMessage {
-        override fun detailMsg() : String {
+        override fun detailMsg(): String {
             return "Invalid date: '$formattedValue' for element $fieldMapping"
         }
 
@@ -265,7 +269,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
         val formattedValue: String = "",
         val fieldMapping: String = ""
     ) : ResponseMessage {
-        enum class Reason {NONE, ALT_VALUES, SCHEMA, DISPLAY, CODE, NO_MATCH}
+        enum class Reason { NONE, ALT_VALUES, SCHEMA, DISPLAY, CODE, NO_MATCH }
 
         override fun detailMsg(): String {
             return when (reason) {
@@ -318,7 +322,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
         val formattedValue: String = "",
         val fieldMapping: String = ""
     ) : ResponseMessage {
-        override fun detailMsg() : String {
+        override fun detailMsg(): String {
             return "Invalid phone number '$formattedValue' for $fieldMapping"
         }
 
@@ -341,7 +345,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
         val formattedValue: String = "",
         val fieldMapping: String = ""
     ) : ResponseMessage {
-        override fun detailMsg() : String {
+        override fun detailMsg(): String {
             return "Invalid postal code '$formattedValue' for $fieldMapping"
         }
 
@@ -365,7 +369,7 @@ data class ResultDetail(val scope: DetailScope, val id: String, val message: Res
         val fieldMapping: String = "",
         val format: String = ""
     ) : ResponseMessage {
-        enum class Reason {NONE, INVALID_HD, UNSUPPORTED_HD, INVALID_EI, UNSUPPORTED_EI}
+        enum class Reason { NONE, INVALID_HD, UNSUPPORTED_HD, INVALID_EI, UNSUPPORTED_EI }
 
         override fun detailMsg(): String {
             return when (reason) {

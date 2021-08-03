@@ -30,8 +30,8 @@ import org.jooq.Field
 import org.jooq.JSON
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
-import org.jooq.impl.DSL.inline
 import org.jooq.impl.DSL.count
+import org.jooq.impl.DSL.inline
 import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
@@ -59,6 +59,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     constructor(
         dataSource: DataSource = commonDataSource
     ) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
+
     constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
 
     fun checkConnection() {
@@ -628,10 +629,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         val ctx = if (txn != null) DSL.using(txn) else create
         val result = ctx
             .select(
-                    COVID_RESULT_METADATA.TESTING_LAB_CLIA,
-                    COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                    count(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID).`as`("COUNT_RECORDS")
-                )
+                COVID_RESULT_METADATA.TESTING_LAB_CLIA,
+                COVID_RESULT_METADATA.TESTING_LAB_NAME,
+                count(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID).`as`("COUNT_RECORDS")
+            )
             .from(REPORT_ANCESTORS(reportId))
             .join(COVID_RESULT_METADATA).on(REPORT_ANCESTORS.REPORT_ANCESTORS_.eq(COVID_RESULT_METADATA.REPORT_ID))
             .groupBy(

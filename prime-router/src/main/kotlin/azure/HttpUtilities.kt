@@ -6,10 +6,10 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.ResultDetail.GenericMessage
 import gov.cdc.prime.router.ResultDetail.PayloadMessage
 import gov.cdc.prime.router.ResultDetail.ResponseMessage
+import gov.cdc.prime.router.Sender
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection

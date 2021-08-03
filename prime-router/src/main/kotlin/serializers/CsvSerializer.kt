@@ -64,7 +64,7 @@ class CsvSerializer(val metadata: Metadata) {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
         val errors = mutableListOf<ResultDetail>()
         val warnings = mutableListOf<ResultDetail>()
-        var rows = mutableListOf<Map<String, String>>()
+        val rows = mutableListOf<Map<String, String>>()
         csvReader {
             quoteChar = '"'
             delimiter = ','
@@ -132,10 +132,7 @@ class CsvSerializer(val metadata: Metadata) {
         val mappedRows = rows.mapIndexedNotNull { index, row ->
             val result = mapRow(schema, csvMapping, row)
             val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
-            val trackingId = "${index}|" + trackingColumn?.let { result.row[trackingColumn] }
-            //var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
-            //if (trackingId.isEmpty())
-            //    trackingId = "row$index"
+            val trackingId = "$index|" + trackingColumn?.let { result.row[trackingColumn] }
             errors.addAll(result.errors.map { ResultDetail.item(trackingId, it) })
             warnings.addAll(result.warnings.map { ResultDetail.item(trackingId, it) })
             if (result.errors.isEmpty()) {
@@ -285,7 +282,9 @@ class CsvSerializer(val metadata: Metadata) {
         val warnings = missingOptionalHeaders.map {
             val fieldMapping: String? = schema.findElementByCsvName(it)?.fieldMapping
             GenericMessage(ResponseMsgType.MISSING_HDR, "Missing $fieldMapping header", fieldMapping ?: "")
-        } + ignoredHeaders.map { GenericMessage(ResponseMsgType.UNEXPECTED_HDR, "Unexpected '$it' header is ignored", it) }
+        } + ignoredHeaders.map {
+            GenericMessage(ResponseMsgType.UNEXPECTED_HDR, "Unexpected '$it' header is ignored", it)
+        }
 
         return CsvMapping(useCsv, useMapper, useDefault, errors, warnings)
     }
@@ -308,16 +307,6 @@ class CsvSerializer(val metadata: Metadata) {
         val placeholderValue = "**%%placeholder**"
         val failureValue = "**^^validationFail**"
 
-        fun messageType(elementType: Element.Type?): ResponseMsgType {
-            return when(elementType) {
-                Element.Type.CODE -> ResponseMsgType.INVALID_CODE
-                Element.Type.DATE, Element.Type.DATETIME -> ResponseMsgType.INVALID_DATE
-                Element.Type.POSTAL_CODE -> ResponseMsgType.INVALID_POSTAL
-                Element.Type.TELEPHONE -> ResponseMsgType.INVALID_PHONE
-                else -> ResponseMsgType.NONE
-            }
-        }
-
         fun useCsv(element: Element): String? {
             val csvFields = csvMapping.useCsv[element.name] ?: return null
             val subValues = csvFields.map {
@@ -330,7 +319,6 @@ class CsvSerializer(val metadata: Metadata) {
                 }
                 val error = element.checkForError(subValue.value, subValue.format)
                 if (error != null) {
-                    val msgType = messageType(element.type)
                     when (element.cardinality) {
                         Element.Cardinality.ONE -> errors += error
                         Element.Cardinality.ZERO_OR_ONE -> warnings += error

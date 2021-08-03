@@ -15,7 +15,6 @@ import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.ResultDetail.GenericMessage
 import gov.cdc.prime.router.ResultDetail.ResponseMsgType
 import gov.cdc.prime.router.ResultDetail.ResultDetailSummary
 import gov.cdc.prime.router.Sender
@@ -52,8 +51,8 @@ class ReportFunction {
 
     data class ValidatedRequest(
         val httpStatus: HttpStatus,
-        val errors: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
-        val warnings: MutableList<ResultDetail> = mutableListOf<ResultDetail>(),
+        val errors: MutableList<ResultDetail> = mutableListOf(),
+        val warnings: MutableList<ResultDetail> = mutableListOf(),
         val options: Options = Options.None,
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
@@ -424,7 +423,7 @@ class ReportFunction {
             if (result.report != null) {
                 it.writeStringField("id", result.report.id.toString())
                 it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
-                it.writeStringField("topic", result.report.schema.topic.toString())
+                it.writeStringField("topic", result.report.schema.topic)
                 it.writeNumberField("reportItemCount", result.report.itemCount)
             } else
                 it.writeNullField("id")
@@ -454,7 +453,7 @@ class ReportFunction {
                     it.writeStartObject()
                     it.writeStringField("scope", error.scope.toString())
                     it.writeArrayFieldStart("ids")
-                    error.ids.forEach{ id -> it.writeString(id) }
+                    error.ids.forEach { id -> it.writeString(id) }
                     it.writeEndArray()
                     it.writeStringField("details", error.message)
                     it.writeEndObject()
@@ -483,7 +482,7 @@ class ReportFunction {
             }
         } else {
             // group the messages by message type (enum in ReportDetail)
-            val grouping = mutableMapOf<ResultDetail.ResponseMsgType, MutableList<ResultDetail>>()
+            val grouping = mutableMapOf<ResponseMsgType, MutableList<ResultDetail>>()
             messages.forEach {
                 grouping.getOrPut(it.message.type) { mutableListOf() }.add(it)
             }
