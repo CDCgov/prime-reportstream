@@ -464,4 +464,32 @@ internal class ElementTests {
             assertThat("").isEqualTo(this.truncateIfNeeded("abcde"))
         }
     }
+
+    @Test
+    fun `test toFormatted altValues for UNK`() {
+        val values = ValueSet(
+            "hl70136",
+            system = ValueSet.SetSystem.HL7,
+            values = listOf(
+                ValueSet.Value(code = "Y", display = "Yes"),
+                ValueSet.Value(code = "N", display = "No"),
+                ValueSet.Value(code = "UNK", display = "Unk")
+            )
+        )
+        val element = Element(
+            "a",
+            valueSet = "test",
+            valueSetRef = values,
+            type = Element.Type.CODE,
+            altValues = listOf(
+                ValueSet.Value(code = "Y", display = "Yes"),
+                ValueSet.Value(code = "N", display = "No"),
+                ValueSet.Value(code = "UNK", display = "Unknown")
+            )
+        )
+        element.toFormatted("UNK", "\$system").run {
+            assertThat(this).isEqualTo("NULLFL")
+        }
+
+    }
 }
