@@ -9,7 +9,7 @@ export const AuthorizedRoute = ({component: Component, authorize: permission, ..
     const {oktaAuth, authState} = useOktaAuth();
     return (<SecureRoute {...rest} render={props => {
 
-        if (!permissionCheck(permission, authState)) {
+        if (authState && !permissionCheck(permission, authState)) {
             // permission not authorized so redirect to home page
             return <Redirect to={{pathname: '/'}}/>
         }

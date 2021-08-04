@@ -100,29 +100,32 @@ export const ReportStreamHeader = () => {
         </Link>,
     ];
 
-    if (reportReceiver(authState)) {
-        itemsMenu.splice(0, 0,
-            <Link href="/daily"
-                  key="daily"
-                  data-attribute="hidden"
-                  hidden={true}
-                  className="usa-nav__link">
-                <span>Daily data</span>
-            </Link>
-        );
+    if (authState !== null) {
+        if (reportReceiver(authState)) {
+            itemsMenu.splice(0, 0,
+                <Link href="/daily"
+                      key="daily"
+                      data-attribute="hidden"
+                      hidden={true}
+                      className="usa-nav__link">
+                    <span>Daily data</span>
+                </Link>
+            );
+        }
+
+        if (permissionCheck(PERMISSIONS['sender'], authState)) {
+            itemsMenu.splice(1, 0,
+                <Link href="/upload"
+                      key="upload"
+                      data-attribute="hidden"
+                      hidden={true}
+                      className="usa-nav__link">
+                    <span>Upload</span>
+                </Link>
+            );
+        }
     }
 
-    if (permissionCheck(PERMISSIONS['sender'], authState)) {
-        itemsMenu.splice(1, 0,
-            <Link href="/upload"
-                  key="upload"
-                  data-attribute="hidden"
-                  hidden={true}
-                  className="usa-nav__link">
-                <span>Upload</span>
-            </Link>
-        );
-    }
 
     if( !authState || !authState.isAuthenticated )
         itemsMenu = itemsMenu.slice(1);
