@@ -1,72 +1,135 @@
-import moment from 'moment';
-import { Suspense } from 'react';
-import { NetworkErrorBoundary, useResource } from 'rest-hooks';
-import { SpinnerCircularFixed } from 'spinners-react';
+import { Button } from "@trussworks/react-uswds";
+import download from "downloadjs";
+import moment from "moment";
+import { useResource } from "rest-hooks";
 import ReportResource from "../resources/ReportResource";
 
-const NoData = () => {
-  return ( <span>No data found</span>);
-}
+const ReportLink = ({ reportId }) => {
+    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
+        (report) => report.reportId === reportId
+    );
 
-const Summary = ( props: {reportId?:String}) => {
-  let report = useResource( ReportResource.list(), {sortBy: undefined} )
-                .find( (report)=>report.reportId === props.reportId)
+    const handleClick = (e: { preventDefault: () => void }) => {
+        e.preventDefault();
+        if (report !== undefined) {
+            download(report.content, report.fileName, report.mimeType);
+        }
+    };
 
-  return (
-    <section className="grid-container">
-      <nav className="usa-breadcrumb usa-breadcrumb--wrap" aria-label="Breadcrumbs">
-        <ol className="usa-breadcrumb__list">
-          <li className="usa-breadcrumb__list-item">
-            <a href="/daily" className="usa-breadcrumb__link" id="orgName">COVID-19</a>
-          </li>
-          <li className="usa-breadcrumb__list-item usa-current" aria-current="page">
-            <span>Report details</span>
-          </li>
-        </ol>
-      </nav>
-      <h3 className="margin-top-0 margin-bottom-4">
-        <p id="download" className="margin-top-0 margin-bottom-0">
-          Report: <span id="report.id">{ report? report.reportId : "this is the report id"}</span>
-        </p>
-      </h3>
-    </section>
-  );
+    return (
+        <Button
+            type="button"
+            outline
+            onClick={handleClick}
+            className="usa-button usa-button--outline float-right"
+        >
+            {report !== undefined
+                ? report.fileType === "HL7_BATCH"
+                    ? "HL7(BATCH)"
+                    : report.fileType
+                : ""}
+        </Button>
+    );
+};
+const Summary = (props: { reportId?: String }) => {
+    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
+        (report) => report.reportId === props.reportId
+    );
+
+    return (
+        <section className="grid-container">
+            <nav
+                className="usa-breadcrumb usa-breadcrumb--wrap"
+                aria-label="Breadcrumbs"
+            >
+                <ol className="usa-breadcrumb__list">
+                    <li className="usa-breadcrumb__list-item">
+                        <a
+                            href="/daily"
+                            className="usa-breadcrumb__link"
+                            id="orgName"
+                        >
+                            COVID-19
+                        </a>
+                    </li>
+                    <li
+                        className="usa-breadcrumb__list-item usa-current"
+                        aria-current="page"
+                    >
+                        <span>Report details</span>
+                    </li>
+                </ol>
+            </nav>
+            <ReportLink reportId={props.reportId} />
+            <h3 className="margin-top-0 margin-bottom-4">
+                <p id="download" className="margin-top-0 margin-bottom-0">
+                    Report:{" "}
+                    <span id="report.id">
+                        {report ? report.reportId : "this is the report id"}
+                    </span>
+                </p>
+            </h3>
+        </section>
+    );
 };
 
 function useQuery() {
-  let query = window.location.search.slice(1);
-  const queryMap = {};
-  Object.assign(queryMap,...query.split(',').map( s => s.split('=')).map( ([k,v])=> ({ [k]: v})) );
-  return queryMap;
+    let query = window.location.search.slice(1);
+    const queryMap = {};
+    Object.assign(
+        queryMap,
+        ...query
+            .split(",")
+            .map((s) => s.split("="))
+            .map(([k, v]) => ({ [k]: v }))
+    );
+    return queryMap;
 }
 
-const ReportDetails = ( props: {reportId?:String}) => {
-  let report = useResource( ReportResource.list(), {sortBy: undefined} )
-                .find( (report)=>report.reportId === props.reportId)
-  return (
-    <section className="grid-container margin-top-0 margin-bottom-5">
-      <hr />
-      <div id="details" className="grid-row grid-gap margin-top-0">
-      <div className="tablet:grid-col-3">
-                            <h4 className="text-base-darker text-normal margin-bottom-0">Report type</h4>
-                            <p className="text-bold margin-top-0">{report!.type}</p>
-                            <h4 className="text-base-darker text-normal margin-bottom-0">Report sent</h4>
-                            <p className="text-bold margin-top-0">{moment.utc(report!.sent).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
-                    </div>
-                    <div className="tablet:grid-col-3">
-                            <h4 className="text-base-darker text-normal margin-bottom-0">Total tests reported</h4>
-                            <p className="text-bold margin-top-0">{report!.total}</p>
-                            <h4 className="text-base-darker text-normal margin-bottom-0">Download expires</h4>
-                            <p className="text-bold margin-top-0">{moment.utc(report!.expires).local().format('dddd, MMM DD, YYYY  HH:mm')}</p>
-                    </div>
-
-      </div>
-      <hr className="margin-top-3" />
-    </section>
-  );
+const ReportDetails = (props: { reportId?: String }) => {
+    let report = useResource(ReportResource.list(), { sortBy: undefined }).find(
+        (report) => report.reportId === props.reportId
+    );
+    return (
+        <section className="grid-container margin-top-0 margin-bottom-5">
+            <hr />
+            <div id="details" className="grid-row grid-gap margin-top-0">
+                <div className="tablet:grid-col-3">
+                    <h4 className="text-base-darker text-normal margin-bottom-0">
+                        Report type
+                    </h4>
+                    <p className="text-bold margin-top-0">{report!.type}</p>
+                    <h4 className="text-base-darker text-normal margin-bottom-0">
+                        Report sent
+                    </h4>
+                    <p className="text-bold margin-top-0">
+                        {moment
+                            .utc(report!.sent)
+                            .local()
+                            .format("dddd, MMM DD, YYYY  HH:mm")}
+                    </p>
+                </div>
+                <div className="tablet:grid-col-3">
+                    <h4 className="text-base-darker text-normal margin-bottom-0">
+                        Total tests reported
+                    </h4>
+                    <p className="text-bold margin-top-0">{report!.total}</p>
+                    <h4 className="text-base-darker text-normal margin-bottom-0">
+                        Download expires
+                    </h4>
+                    <p className="text-bold margin-top-0">
+                        {moment
+                            .utc(report!.expires)
+                            .local()
+                            .format("dddd, MMM DD, YYYY  HH:mm")}
+                    </p>
+                </div>
+            </div>
+            <hr className="margin-top-3" />
+        </section>
+    );
 };
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/*
 const Facilities = (props: {reportId?:String}) => {
   let report = useResource( ReportResource.list(), {sortBy: undefined} )
                 .find( (report)=>report.reportId === props.reportId)
@@ -101,20 +164,15 @@ const Facilities = (props: {reportId?:String}) => {
 
 </section>
   )                
-}
+} */
 
-export const Details = ({sortBy}: { sortBy?:String }) => {
+export const Details = ({ sortBy }: { sortBy?: String }) => {
+    let queryMap = useQuery();
 
-  let queryMap = useQuery();
-
-  return (
-    <>
-      <Suspense fallback={<SpinnerCircularFixed />}>
-        <NetworkErrorBoundary fallbackComponent={ NoData }>
-          <Summary reportId={queryMap["reportId"] }/>
-          <ReportDetails reportId={queryMap["reportId"] }/>
-        </NetworkErrorBoundary>
-      </Suspense>
-    </>
-  );
+    return (
+        <>
+            <Summary reportId={queryMap["reportId"]} />
+            <ReportDetails reportId={queryMap["reportId"]} />
+        </>
+    );
 };
