@@ -1,11 +1,5 @@
 {
-    "cSpell.words": [
-        "ATSDR",
-        "CFPB",
-        "ISSO",
-        "cybersecurity"
-    ],
-    "docker-compose.files": [
-        "./prime-router/docker-compose.yml"
-    ]
+    "cSpell.words": ["ATSDR", "CFPB", "ISSO", "cybersecurity"],
+    "docker-compose.files": ["./prime-router/docker-compose.yml"],
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
