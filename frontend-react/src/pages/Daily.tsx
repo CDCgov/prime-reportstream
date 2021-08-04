@@ -48,7 +48,7 @@ const ReportLink = ({ reportId }) => {
         (report) => report.reportId === reportId
     );
 
-    const handleClick = (e: { preventDefault: () => void }) => {
+    const handleClick = (e: any) => {
         e.preventDefault();
         if (report !== undefined) {
             download(report.content, report.fileName, report.mimeType);
