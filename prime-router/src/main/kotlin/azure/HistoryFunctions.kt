@@ -211,45 +211,6 @@ open class BaseHistoryFunction : Logging {
                             organizationName ?: authClaims.organization.name
                     )
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-<<<<<<< HEAD
-            val reports = headers.sortedByDescending { it.createdAt }.mapNotNull {
-                val facilities = workflowEngine.db.getFacilitiesForDownloadableReport(it.reportId)
-                val actions = arrayListOf<Action>()
-                // get the org passed in
-                val adminOrg = workflowEngine.settings.organizations.firstOrNull { org ->
-                    org.name.lowercase() == organizationName
-                }
-                val receiver = workflowEngine.settings.findReceiver("${it.receivingOrg}.${it.receivingOrgSvc}")
-
-                val filename = Report.formExternalFilename(
-                    it.bodyUrl,
-                    it.reportId,
-                    it.schemaName,
-                    Report.Format.safeValueOf(it.bodyFormat),
-                    it.createdAt
-                )
-                val mimeType = Report.Format.safeValueOf(it.bodyFormat).mimeType
-                val externalOrgName = receiver?.displayName
-
-                ReportView.Builder()
-                    .reportId(it.reportId.toString())
-                    .sent(it.createdAt.toEpochSecond() * 1000)
-                    .via(it.bodyFormat)
-                    .total(it.itemCount.toLong())
-                    .fileType(it.bodyFormat)
-                    .type("ELR")
-                    .expires(it.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                    .facilities(ArrayList(facilities))
-                    .actions(actions)
-                    .receivingOrg(it.receivingOrg)
-                    .receivingOrgSvc(externalOrgName ?: it.receivingOrgSvc)
-                    .displayName(if (it.externalName.isNullOrBlank()) it.receivingOrgSvc else it.externalName)
-                    .content("") // don't get the content for now. that can get beefy
-                    .fileName(filename)
-                    .mimeType(mimeType)
-                    .build()
-            }
-=======
             val reports =
                     headers.sortedByDescending { it.createdAt }.mapNotNull {
                         val facilities =
@@ -266,7 +227,7 @@ open class BaseHistoryFunction : Logging {
                                             it.reportId,
                                             adminOrg ?: authClaims.organization
                                     )
-                                } catch (ex: BlobStorageException) {
+                                } catch (ex: Exception) {
                                     context.logger.severe(
                                             "Unable to find file for ${it.reportId} ${ex.message}"
                                     )
@@ -310,7 +271,6 @@ open class BaseHistoryFunction : Logging {
                             null
                         }
                     }
->>>>>>> 5920465cf1aa7c9b93c860eedf5b080c17b4d403
 
             response =
                     request.createResponseBuilder(HttpStatus.OK)

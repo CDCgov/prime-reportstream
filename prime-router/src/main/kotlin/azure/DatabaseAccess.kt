@@ -545,15 +545,18 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     fun deleteExpiredJtis(txn: DataAccessTransaction) {
-        DSL.using(txn).deleteFrom(JTI_CACHE).where(JTI_CACHE.EXPIRES_AT.lt(OffsetDateTime.now())).execute()
+        DSL.using(txn)
+                .deleteFrom(JTI_CACHE)
+                .where(JTI_CACHE.EXPIRES_AT.lt(OffsetDateTime.now()))
+                .execute()
     }
 
     fun fetchJti(jti: String, txn: DataAccessTransaction): JtiCache? {
         return DSL.using(txn)
-            .selectFrom(JTI_CACHE)
-            .where(JTI_CACHE.JTI.eq(jti))
-            .fetchOne()
-            ?.into(JtiCache::class.java)
+                .selectFrom(JTI_CACHE)
+                .where(JTI_CACHE.JTI.eq(jti))
+                .fetchOne()
+                ?.into(JtiCache::class.java)
     }
 
     /** EmailSchedule queries */
@@ -659,20 +662,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             txn: DataAccessTransaction? = null
     ): List<Facility> {
         val ctx = if (txn != null) DSL.using(txn) else create
-<<<<<<< HEAD
-        val result = ctx
-            .select(
-                COVID_RESULT_METADATA.TESTING_LAB_CLIA,
-                COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                count(COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID).`as`("COUNT_RECORDS")
-            )
-            .from(REPORT_ANCESTORS(reportId))
-            .join(COVID_RESULT_METADATA).on(REPORT_ANCESTORS.REPORT_ANCESTORS_.eq(COVID_RESULT_METADATA.REPORT_ID))
-            .groupBy(
-                COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                COVID_RESULT_METADATA.TESTING_LAB_CLIA
-            ).fetch()
-=======
         val result =
                 ctx.select(
                                 COVID_RESULT_METADATA.TESTING_LAB_CLIA,
@@ -697,7 +686,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                                 COVID_RESULT_METADATA.TESTING_LAB_STATE
                         )
                         .fetch()
->>>>>>> 5920465cf1aa7c9b93c860eedf5b080c17b4d403
 
         return result.map {
             Facility.Builder(
