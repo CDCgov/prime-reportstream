@@ -1,6 +1,6 @@
 ## Supported Jurisdictions
 
-## Last updated: July 23, 2021
+## Last updated: August 4, 2021
 
 ReportStream is currently live and in development in the following jurisdictions:  
 
@@ -13,6 +13,7 @@ ReportStream is currently live and in development in the following jurisdictions
   * Colorado 
   * Guam
   * Louisiana
+  * Maryland
   * Massachusetts 
   * Mississippi 
   * Montana 
@@ -32,10 +33,11 @@ ReportStream is currently live and in development in the following jurisdictions
   * Alaska
   * California
   * Connecticut
-  * Maryland
+  * Delaware
   * Minnesota
   * New Hampshire 
   * New Jersey 
+  * York
   * Tennessee
   * Washington 
   * Wisconsin 
