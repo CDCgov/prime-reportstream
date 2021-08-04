@@ -28,6 +28,8 @@ You will receive a response that looks like:
 
 Copy the value from `accessToken`. This will be your password. It will expire in one hour after request. If your token expires, run this command again.
 
+After connecting using this password, your session will remain active beyond the token expiration.
+
 ## Login to PostgreSQL
 
 Using your PostgreSQL tool of choice, login with the following details:
