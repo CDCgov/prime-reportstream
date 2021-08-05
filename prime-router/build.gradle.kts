@@ -24,10 +24,10 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("jvm") version "1.5.21"
-    id("org.flywaydb.flyway") version "7.12.0"
+    id("org.flywaydb.flyway") version "7.12.1"
     id("nu.studer.jooq") version "6.0"
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("com.microsoft.azure.azurefunctions") version "1.5.1"
+    id("com.microsoft.azure.azurefunctions") version "1.6.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
     id("com.adarshr.test-logger") version "3.0.0"
     id("jacoco")
