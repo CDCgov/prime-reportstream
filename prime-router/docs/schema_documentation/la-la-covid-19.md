@@ -1206,6 +1206,38 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 ---
 
+**Name**: patient_ethnicity_coding_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: hl70189
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The coding system for the patient_ethnicity_id
+
+
+---
+
+**Name**: patient_ethnicity_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's ethnicity as a code related to the coding system specified in patient_ethnicity_coding_system
+
+
+---
+
 **Name**: patient_first_name
 
 **Type**: PERSON_NAME
@@ -1375,6 +1407,38 @@ ASKU|Asked, but unknown
 **Documentation**:
 
 The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
+
+
+---
+
+**Name**: patient_race_coding_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: hl70005
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The coding system for the patient_race_id
+
+
+---
+
+**Name**: patient_race_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's race as a code related to the coding system specified in patient_race_coding_system
 
 
 ---
@@ -2588,6 +2652,7 @@ Code | Display
 440500007|Dried blood spot specimen
 258580003|Whole blood sample
 122555007|Venous blood specimen
+119297000|Blood specimen
 
 **Documentation**:
 
@@ -3240,6 +3305,7 @@ CF|Coded Element With Formatted Values
 CK|Composite ID With Check Digit
 CN|Composite ID And Name
 CP|Composite Price
+CWE|Coded With Exceptions
 CX|Extended Composite ID With Check Digit
 DT|Date
 ED|Encapsulated Data
