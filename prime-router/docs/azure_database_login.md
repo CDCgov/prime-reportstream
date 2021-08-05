@@ -16,7 +16,7 @@ az account get-access-token --resource-type oss-rdbms
 
 You will receive a response that looks like:
 
-```shell
+```json
 {
   "accessToken": "token",
   "expiresOn": "2021-04-22 16:22:54.350957",
