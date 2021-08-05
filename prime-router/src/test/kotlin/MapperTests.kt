@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import java.io.ByteArrayInputStream
+import java.lang.IllegalStateException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -497,5 +498,65 @@ class MapperTests {
         assertThat(mapper.apply(elementA, arg, listOf())).isNull() // column not found in the data.
         // column has empty data
         assertThat(mapper.apply(elementA, arg, listOf(ElementAndValue(elementA, "")))).isNull()
+    }
+
+    @Test
+    fun `test coded element mapper`() {
+        val metadata = Metadata("./metadata")
+        val elementA = Element("a", valueSet = "hl70085")
+        val elementB = Element("b", valueSet = "hl70189")
+        val dummyArgList = listOf("a", "b")
+
+        val mapper = CodedElementMapper(metadata)
+
+        // Test check for arguments
+        try {
+            mapper.valueNames(Element("noValueSet"), emptyList())
+            fail("expected exception")
+        } catch (e: IllegalStateException) {
+            // Success
+        }
+
+        // Test check for element valueset
+        try {
+            mapper.valueNames(Element("noValueSet"), listOf("a", "b"))
+            fail("expected exception")
+        } catch (e: IllegalStateException) {
+            // Success
+        }
+
+        // Verify Code C in code system hl70085
+        var code = "C"
+        var values = listOf(
+            ElementAndValue(Element("z"), code),
+            ElementAndValue(Element("x"), "hl70085")
+        )
+        var result = mapper.apply(elementA, dummyArgList, values)
+        assertThat(result).equals(code)
+
+        // Verify bad Code C in code system hl70085
+        code = "DUMMY"
+        values = listOf(
+            ElementAndValue(Element("z"), code),
+            ElementAndValue(Element("x"), "hl70085")
+        )
+        result = mapper.apply(elementA, dummyArgList, values)
+        assertThat(result).isNull()
+
+        // Convert NULLFL to hl70189
+        values = listOf(
+            ElementAndValue(Element("z"), "UNK"),
+            ElementAndValue(Element("x"), "NULLFL")
+        )
+        result = mapper.apply(elementB, dummyArgList, values)
+        assertThat(result).isEqualTo("U")
+
+        // Fix incorrect UNK code sent as hl70189
+        values = listOf(
+            ElementAndValue(Element("z"), "UNK"),
+            ElementAndValue(Element("x"), "hl70189")
+        )
+        result = mapper.apply(elementB, dummyArgList, values)
+        assertThat(result).isEqualTo("U")
     }
 }

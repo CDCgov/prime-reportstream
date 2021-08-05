@@ -763,35 +763,30 @@ class CodedElementMapper(val metadata: Metadata) : Mapper {
             var value: String? = null
             if (!element.valueSet.isNullOrBlank()) {
                 val system = values[1].value
-                val verifiedCode = element.toCode(values[0].value, metadata.findValueSet(system))
+                val verifiedCode = element.toCode(values[0].value, metadata.findValueSet(system.lowercase()))
                 value = when {
+                    // Fix incorrect codes for hl70189
+                    "hl70189".equals(element.valueSet, true) && "hl70189".equals(system, true) -> {
+                        when (values[0].value.uppercase()) {
+                            "UNK" -> "U"
+                            else -> verifiedCode
+                        }
+                    }
+
                     verifiedCode.isNullOrBlank() -> null
 
                     // Convert NULLFL to hl70189
-                    "hl70189".equals(element.valueSet, true) && "NULLFL".equals(system, true) -> {
-                        when (verifiedCode) {
-                            "2135-2" -> "H"
-                            "2186-5" -> "N"
-                            else -> "U"
-                        }
-                    }
+                    "hl70189".equals(element.valueSet, true) && "NULLFL".equals(system, true) ->
+                        "U" // Any validated NULLFL code means UNKNOWN in hl70189
 
                     // Convert hl70189 to NULLFL
                     "NULLFL".equals(element.valueSet, true) && "hl70189".equals(system, true) -> {
                         when (verifiedCode) {
-                            "2135-2" -> "H"
-                            "2186-5" -> "N"
-                            else -> "U"
+                            "U" -> "UNK"
+                            else -> "" // NULLFL cannot handle other values
                         }
                     }
 
-                    // Fix incorrect codes for hl70189
-                    "hl70189".equals(element.valueSet, true) && "hl70189".equals(system, true) -> {
-                        when (verifiedCode) {
-                            "UNK", null -> "U"
-                            else -> verifiedCode
-                        }
-                    }
                     else -> verifiedCode
                 }
             }
