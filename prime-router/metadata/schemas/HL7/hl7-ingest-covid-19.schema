@@ -62,3 +62,14 @@ elements:
   # County can be ORC-22-8, but preferred is county code in ORC-22-9
   - name: ordering_facility_county
     hl7Field: ORC-22-8
+
+  - name: patient_ethnicity
+    type: CODE
+    hl7Field: ""
+    mapper: codedElement(patient_ethnicity_id, patient_ethnicity_coding_system)
+
+  - name: patient_race
+    type: CODE
+    pii: false
+    hl7Field: ""
+    mapper: codedElement(patient_race_id, patient_race_coding_system)

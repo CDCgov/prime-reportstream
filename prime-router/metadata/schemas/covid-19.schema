@@ -573,6 +573,22 @@ elements:
       The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
       consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
 
+  - name: patient_ethnicity_id
+    pii: false
+    type: TEXT
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-22-1
+    documentation: |
+      The patient's ethnicity as a code related to the coding system specified in patient_ethnicity_coding_system
+
+  - name: patient_ethnicity_coding_system
+    type: TEXT
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-22-3
+    default: hl70189
+    documentation: |
+      The coding system for the patient_ethnicity_id
+
   - name: patient_first_name
     type: PERSON_NAME
     pii: true
@@ -682,6 +698,22 @@ elements:
     hl7Field: PID-10
     documentation: |
       The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
+
+  - name: patient_race_id
+    pii: false
+    type: TEXT
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-10-1
+    documentation: |
+      The patient's race as a code related to the coding system specified in patient_race_coding_system
+
+  - name: patient_race_coding_system
+    type: TEXT
+    cardinality: ZERO_OR_ONE
+    hl7Field: PID-10-3
+    default: hl70005
+    documentation: |
+       The coding system for the patient_race_id
 
   #- name: patient_residency_type
   #  type: CODE

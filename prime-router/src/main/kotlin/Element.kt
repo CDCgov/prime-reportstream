@@ -713,10 +713,21 @@ data class Element(
         return altValue?.code
     }
 
+    /**
+     * Convert a string [code] to the code in the element's valueset.
+     * @return a code of null if the code is not found
+     */
     fun toCode(code: String): String? {
         if (!isCodeType) error("Internal Error: asking for codeValue for a non-code type")
-        // if there are alt values, use those, otherwise, use the valueSet
-        val values = valueSetRef?.values ?: error("Unable to find a value set for $fieldMapping.")
+        return toCode(code, valueSetRef)
+    }
+
+    /**
+     * Convert a string [code] to the code in the specified [valueset].
+     * @return a code of null if the code is not found
+     */
+    fun toCode(code: String, valueSet: ValueSet?): String? {
+        val values = valueSet?.values ?: error("Unable to find a value set for $fieldMapping.")
         val codeValue = values.find {
             code.equals(it.code, ignoreCase = true) || code.equals(it.replaces, ignoreCase = true)
         } ?: values.find { "*" == it.code }
