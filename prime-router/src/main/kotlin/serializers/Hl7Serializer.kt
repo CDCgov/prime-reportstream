@@ -259,27 +259,52 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 var value = ""
                 for (i in 0 until hl7Fields.size) {
                     val hl7Field = hl7Fields[i]
-                    value =
+                    value = when {
                         // Decode a phone number
-                        if (element.type == Element.Type.TELEPHONE || element.type == Element.Type.EMAIL) {
+                        element.type == Element.Type.TELEPHONE ||
+                            element.type == Element.Type.EMAIL ->
                             decodeHl7TelecomData(terser, element, hl7Field)
-                        }
+
                         // Decode a timestamp
-                        else if (element.type == Element.Type.DATETIME ||
-                            element.type == Element.Type.DATE
-                        ) {
+                        element.type == Element.Type.DATETIME ||
+                            element.type == Element.Type.DATE ->
                             decodeHl7DateTime(terser, element, hl7Field, warnings)
-                        }
+
                         // Decode an AOE question
-                        else if (hl7Field == "AOE") {
+                        hl7Field == "AOE" ->
                             decodeAOEQuestion(element, terser, errors)
+
+                        // Process a CODE type field.  IMPORTANT: Must be checked after AOE as AOE is a CODE field
+                        element.type == Element.Type.CODE -> {
+                            val rawValue = queryTerserForValue(
+                                terser, getTerserSpec(hl7Field), errors
+                            )
+                            // This verifies the code received is good.  Note the translated value will be the same as
+                            // the raw value for valuesets and altvalues
+                            try {
+                                when {
+                                    rawValue.isBlank() -> ""
+
+                                    element.altValues != null && element.altValues.isNotEmpty() ->
+                                        element.toNormalized(rawValue, Element.altDisplayToken)
+
+                                    !element.valueSet.isNullOrEmpty() ->
+                                        element.toNormalized(rawValue, Element.codeToken)
+
+                                    else -> rawValue
+                                }
+                            } catch (e: IllegalStateException) {
+                                warnings.add("The code $rawValue for field $hl7Field is invalid.")
+                                ""
+                            }
                         }
+
                         // No special case here, so get a value from an HL7 field
-                        else {
+                        else ->
                             queryTerserForValue(
                                 terser, getTerserSpec(hl7Field), errors
                             )
-                        }
+                    }
                     if (value.isNotBlank()) break
                 }
 

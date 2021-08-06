@@ -581,14 +581,6 @@ class CompareCsvData {
         val schemaPatLastNameIndex = schema.findElementColumn("patient_last_name")
         val schemaPatStateIndex = schema.findElementColumn("patient_state")
 
-        // Check to see if the expected CSV file has headers
-        var startRowIndex = 0
-        if (actualRows.isNotEmpty() && actualRows[0].isNotEmpty()) {
-            val elementCol = schema.findElement(actualRows[0][0])
-            val csvCol = schema.findElementByCsvName(actualRows[0][0])
-            if (elementCol != null || csvCol != null) startRowIndex = 1
-        }
-
         // Sanity check.  The schema need either the message ID, or patient last name and state.
         if (schemaMsgIdIndex == null && (schemaPatLastNameIndex == null || schemaPatStateIndex == null)) {
             error("Schema ${schema.name} needs to have message ID or (patient last name and state) for the test.")
@@ -596,8 +588,12 @@ class CompareCsvData {
 
         // Check that we have the same number of records
         if (expectedRows.size == actualRows.size) {
+            val expectedMsgIdIndex = getCsvColumnIndex(schema.findElement("message_id"), expectedRows[0])
+            val expectedPatLastNameIndex = getCsvColumnIndex(schema.findElement("patient_last_name"), expectedRows[0])
+            val expectedPatStateIndex = getCsvColumnIndex(schema.findElement("patient_state"), expectedRows[0])
+
             // Loop through all the actual rows ignoring the header row
-            for (i in startRowIndex until actualRows.size) {
+            for (i in actualRows.indices) {
                 val actualRow = actualRows[i]
                 val actualMsgId = if (schemaMsgIdIndex != null) actualRow[schemaMsgIdIndex].trim() else null
                 val actualLastName = if (schemaPatLastNameIndex != null)
@@ -607,11 +603,17 @@ class CompareCsvData {
 
                 // Find the expected row that matches the actual record
                 val matchingExpectedRow = expectedRows.filter {
-                    schemaMsgIdIndex != null && it[schemaMsgIdIndex] == actualMsgId ||
+                    val expectedMsgId = if (expectedMsgIdIndex >= 0) it[expectedMsgIdIndex].trim() else null
+                    val expectedLastName = if (expectedPatLastNameIndex >= 0)
+                        it[expectedPatLastNameIndex].trim() else null
+                    val expectedPatState = if (expectedPatStateIndex >= 0)
+                        it[expectedPatStateIndex].trim() else null
+
+                    schemaMsgIdIndex != null && expectedMsgId == actualMsgId ||
                         (
                             schemaPatLastNameIndex != null && schemaPatStateIndex != null &&
-                                it[schemaPatLastNameIndex] == actualLastName &&
-                                it[schemaPatStateIndex] == actualPatState
+                                expectedLastName == actualLastName &&
+                                expectedPatState == actualPatState
                             )
                 }
                 if (matchingExpectedRow.size == 1) {
@@ -684,28 +686,10 @@ class CompareCsvData {
                 val actualValue = actualRow[j].trim()
                 val colName = schema.elements[j].name
 
-                // Find the proper column in the expected data, so we do not rely on column ordering
-                // Searching both by element name and CSV name allows for having internal.csv files.
-                val possibleCsvHeaders = schema.elements[j].csvFields?.map { it.name }
-                val expectedColIndexByElementIndex = expectedHeaders.indexOf(schema.elements[j].name)
-                val expectedColIndexByCsvIndex = possibleCsvHeaders?.let {
-                    var index = -1
-                    possibleCsvHeaders.forEach csvLoop@{
-                        if (expectedHeaders.indexOf(it) >= 0) {
-                            index = expectedHeaders.indexOf(it)
-                            return@csvLoop
-                        }
-                    }
-                    index
-                }
-
-                val expectedValue = when {
-                    expectedColIndexByElementIndex >= 0 ->
-                        expectedRow[expectedColIndexByElementIndex].trim()
-                    expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0 ->
-                        expectedRow[expectedColIndexByCsvIndex].trim()
-                    else -> ""
-                }
+                val expectedColIndex = getCsvColumnIndex(schema.elements[j], expectedHeaders)
+                val expectedValue = if (expectedColIndex >= 0)
+                    expectedRow[expectedColIndex].trim()
+                else ""
 
                 // If there is an expected value then compare it.
                 if (expectedValue.isNotBlank()) {
@@ -758,5 +742,31 @@ class CompareCsvData {
         }
         result.passed = result.passed and passed
         return passed
+    }
+
+    /**
+     * Get the index of an [element]'s data column in the expected data [expectedHeaders].
+     * @return the index of the column or -1 if it is not found
+     */
+    private fun getCsvColumnIndex(element: Element?, expectedHeaders: List<String>?): Int {
+        if (element == null || expectedHeaders.isNullOrEmpty()) return -1
+
+        // Find the proper column in the expected data, so we do not rely on column ordering
+        // Searching both by element name and CSV name allows for having internal.csv files.
+        val possibleCsvHeaders = element.csvFields?.map { it.name }
+        val expectedColIndexByElementIndex = expectedHeaders.indexOf(element.name)
+        val expectedColIndexByCsvIndex = possibleCsvHeaders?.let {
+            var index = -1
+            possibleCsvHeaders.forEach csvLoop@{
+                if (expectedHeaders.indexOf(it) >= 0) {
+                    index = expectedHeaders.indexOf(it)
+                    return@csvLoop
+                }
+            }
+            index
+        }
+        return if (expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0)
+            expectedColIndexByCsvIndex
+        else expectedColIndexByElementIndex
     }
 }
