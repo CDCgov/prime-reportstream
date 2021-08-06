@@ -1,4 +1,4 @@
-% Whitelisting Gitleaks False Positives
+% Allow-listing Gitleaks False Positives
 
 # Introduction
 
