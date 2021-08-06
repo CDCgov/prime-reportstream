@@ -1206,38 +1206,6 @@ consumers are free to define their own values. Please refer to the consumer-spec
 
 ---
 
-**Name**: patient_ethnicity_coding_system
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: hl70189
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The coding system for the patient_ethnicity_id
-
-
----
-
-**Name**: patient_ethnicity_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's ethnicity as a code related to the coding system specified in patient_ethnicity_coding_system
-
-
----
-
 **Name**: patient_first_name
 
 **Type**: PERSON_NAME
@@ -1407,38 +1375,6 @@ ASKU|Asked, but unknown
 **Documentation**:
 
 The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
-
-
----
-
-**Name**: patient_race_coding_system
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: hl70005
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The coding system for the patient_race_id
-
-
----
-
-**Name**: patient_race_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's race as a code related to the coding system specified in patient_race_coding_system
 
 
 ---

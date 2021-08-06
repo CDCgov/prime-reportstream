@@ -742,60 +742,6 @@ class NullMapper : Mapper {
     }
 }
 
-/**
- * Maps a provided code ID and coding system to a verified code in a valueset containined in the [metadata]
- * using the target element's valueset. It also performs some convertions.  A valueSet is required for the
- * element using this mapper, otherwise null is returned.
- */
-class CodedElementMapper(val metadata: Metadata) : Mapper {
-    override val name = "codedElement"
-
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.size != 2) error("$name mapper requires two arguments: source code ID and coding system")
-        if (element.valueSet.isNullOrBlank()) error("Element must have a value set to use the $name mapper")
-        return args
-    }
-
-    override fun apply(element: Element, args: List<String>, values: List<ElementAndValue>): String? {
-        return if (values.isEmpty() || values.size != 2) {
-            null
-        } else {
-            var value: String? = null
-            if (!element.valueSet.isNullOrBlank()) {
-                val system = values[1].value
-                val verifiedCode = element.toCode(values[0].value, metadata.findValueSet(system.lowercase()))
-                value = when {
-                    // Fix incorrect codes for hl70189
-                    "hl70189".equals(element.valueSet, true) && "hl70189".equals(system, true) -> {
-                        when (values[0].value.uppercase()) {
-                            "UNK" -> "U"
-                            else -> verifiedCode
-                        }
-                    }
-
-                    verifiedCode.isNullOrBlank() -> null
-
-                    // Convert NULLFL to hl70189
-                    "hl70189".equals(element.valueSet, true) && "NULLFL".equals(system, true) ->
-                        "U" // Any validated NULLFL code means UNKNOWN in hl70189
-
-                    // Convert hl70189 to NULLFL
-                    "NULLFL".equals(element.valueSet, true) && "hl70189".equals(system, true) -> {
-                        when (verifiedCode) {
-                            "U" -> "UNK"
-                            else -> "" // NULLFL cannot handle other values
-                        }
-                    }
-
-                    else -> verifiedCode
-                }
-            }
-
-            return value
-        }
-    }
-}
-
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
         val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&^]*)\\x29").find(field)
