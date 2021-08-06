@@ -107,9 +107,9 @@ Sometimes you'll want to exclude a category of false positives, this can be achi
 
 ## By File or Path
 
-**CAUTION**: Using file/path-based suppressions have a **HIGH risk for false negatives**.
+**CAUTION**: Using file/path-based suppressions have a **HIGH risk for false negatives** if you exclude paths that contain more than _just_ the thing that trips the rule.
 
-Sometimes a file contains _only_ values that are not sensitive but match rules for good reasons. A good example of this are private keys that are test artifacts (i.e. they are only there for the tests to work, and aren't used anywhere else). In that case, it is highly advised to store these sensitive values in a dedicated file (e.g. `./prime-router/src/test/inputs/secrets/some.private.key.txt`) which has its content read at run-time by the test. This avoid polution of test code with artifacts and externalizes the (not really) 'sensitive' value in a single artifact on which different rules can apply as a whole:
+Sometimes a file contains _only_ values that are not sensitive but match rules for good reasons. A good example of this are private keys that are test artifacts (i.e. they are only there for the tests to work, and aren't used anywhere else). In that case, it is highly advised to store these sensitive values in a dedicated file (e.g. `./prime-router/src/test/inputs/secrets/some.private.key.txt`) which has its content read at run-time by the test. This avoid polution of test code with artifacts and externalizes the (not really) 'sensitive' value in a single artifact on which different rules can apply as a whole.
 
 ```toml
 [[rules]]
@@ -124,7 +124,7 @@ Sometimes a file contains _only_ values that are not sensitive but match rules f
             '\.testkey$',                                                   # Any file name that matches this pattern (i.e. ends with '.testkey')
         ]
         paths = [
-            './prime-router/src/test/inputs/secrets/some.private.key.txt',  # This specific file
+            './prime-router/src/test/inputs/secrets/some.private.key.txt',  # This specific file; this will typically be what you want
         ]
 ```
 
