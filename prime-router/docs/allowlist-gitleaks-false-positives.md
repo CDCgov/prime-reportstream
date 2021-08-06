@@ -44,40 +44,19 @@ It is crucial to scope the suppression as small as possible. Suppressions that a
 
 Gitleaks allows for the definition of rules by RegEx and allows for suppressions of that specific rule based on one of the following mechanisms:
 
-* By commit: do not apply this rule on the commit with hash "`H`"
 * By pattern: if a line matches your rule, but _also_ matches this other pattern, then do not flag this as a violation of the rule
+* By commit: do not apply this rule on the commit with hash "`H`"
 * By file or path: do not apply this rule on these files or files under this path
 
 _As a courtesy to your fellow developers_, when putting suppressions in place, if the suppression involves adding to a list, always terminate each added line with a comma (allowed by TOML) so that each addition (or removal) now or in the future shows up as a single line modification in the source code diffs.
 
-## By Commit
-
-As long as you "commit small, commit often", this is _typically_ the best way to put a suppression in place. However, this does require that your code is already commited (which may not always be the case).
-
-An example of a rule that contains exclusions for commits, the the `[rules.allowlist]`-section which lists a `commits` key containing a list of commits to exclude from the rule:
-
-```toml
-[[rules]]
-    description = "Private Keys"
-    regex = '-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'
-    tags = [
-        "key",
-        "AsymmetricPrivateKey",
-    ]
-    [rules.allowlist]
-        # This rule is not enforced on the following commit
-        commits = [
-            '00bc6c1bc1f51d2375e22917e95deac6f6370694',                 # Invalidated
-            'c07433b133225d9fa04ba763df7047545a5da217',                 # Test Keys
-        ]
-```
+While suppressions are certainly possible and sometimes needed, if you can rewrite your code (pre-commit) to not need even a suppression, then that is always preferred! That being said, this previous sentence is of course not an invitation to [Underhanded C Contest](https://en.wikipedia.org/wiki/Underhanded_C_Contest)-like behavior.
 
 ## By Pattern
 
-**CAUTION**: Using pattern-based suppressions have a ***moderate risk for false negatives**.
+**CAUTION**: Using pattern-based suppressions has a ***moderate risk for false negatives**; it is crucially important that suppression patterns are as narrow as you can make them.
 
-Sometimes you'll want to exclude a category of false positives, this can be achieved by pattern-based exclusions.
-
+Sometimes you'll want to exclude a category of false positives, this can be achieved by pattern-based exclusions. This is probably your first port of call to put a suppression in place.
 
 ```toml
 [[rules]]
@@ -105,6 +84,30 @@ Sometimes you'll want to exclude a category of false positives, this can be achi
         ]
         # ...
 ```
+
+## By Commit
+
+This suppression mechanism require that your code is already commited (which may not always be the case) and that you have a hash for the commit. Merge commits may throw a wrench in the works and mess this up!
+
+An example of a rule that contains exclusions for commits, the the `[rules.allowlist]`-section which lists a `commits` key containing a list of commits to exclude from the rule:
+
+```toml
+[[rules]]
+    description = "Private Keys"
+    regex = '-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'
+    tags = [
+        "key",
+        "AsymmetricPrivateKey",
+    ]
+    [rules.allowlist]
+        # This rule is not enforced on the following commit
+        commits = [
+            '00bc6c1bc1f51d2375e22917e95deac6f6370694',                 # Invalidated
+            'c07433b133225d9fa04ba763df7047545a5da217',                 # Test Keys
+        ]
+```
+
+**CAUTION**: Using commit-based suppressions have a ***moderate risk for false negatives** through merge-commit flagging.
 
 ## By Path or by File RegEx
 
