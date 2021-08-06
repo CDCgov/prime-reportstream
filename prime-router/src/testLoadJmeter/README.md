@@ -12,7 +12,7 @@ https://jmeter.apache.org/download_jmeter.cgi
 
 1. Setup authorization key to be used for x-functions-key header. This script uses the variable "authkey" as the system environment variable.
 
-    export authkey=dAos4IaabcdefghijklmnopmaZRbNMsbJj7pjHEHSQ==
+    export authkey=<function key>
 
 2. Via command-line, execute the test. The test will run for 2 minutes.
 
