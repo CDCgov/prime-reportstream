@@ -1137,7 +1137,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         const val MESSAGE_CODE = "ORU"
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
-        const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
+        const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
 
         /*
         From the HL7 2.5.1 Ch 2A spec...
