@@ -221,51 +221,6 @@
       version: 2.5.1
       system: NULLFL
 
-- name: nullfl
-  system: HL7
-  reference: HL7 V3 coding system with codes to indicate the null responses
-  referenceUrl: https://phinvads.cdc.gov/vads/ViewValueSet.action?id=A0D34BBC-617F-DD11-B38D-00188B398520
-  values:
-    - display: asked but unknown
-      code: ASKU
-      version: 3
-    - display: masked
-      code: MSK
-      version: 3
-    - display: negative infinity
-      code: NINF
-      version: 3
-    - display: NoInformation
-      code: NI
-      version: 3
-    - display: not applicable
-      code: NA
-      version: 3
-    - display: not asked
-      code: NASK
-      version: 3
-    - display: other
-      code: OTH
-      version: 3
-    - display: positive infinity
-      code: PINF
-      version: 3
-    - display: Sufficient Quantity
-      code: QS
-      version: 3
-    - display: temporarily unavailable
-      code: NAV
-      version: 3
-    - display: trace
-      code: TRC
-      version: 3
-    - display: un-encoded
-      code: UNC
-      version: 3
-    - display: unknown
-      code: UNK
-      version: 3
-
 - name: specimen_role
   system: FHIR
   referenceUrl: https://terminology.hl7.org/ValueSet-v3-SpecimenRoleType.html
