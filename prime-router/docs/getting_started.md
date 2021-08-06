@@ -115,6 +115,8 @@ When gitleaks reports leaks/violations, the right course of action is typically 
 
 This tool can also be manually invoked through `.environment/gitleaks/run-gitleaks.sh` which may be useful to validate the lack of leaks without the need of risking a commit. Invoke the tool with `--help` to find out more about its different run modes.
 
+See [Allow-listing Gitleaks False Positives](allowlist-gitleaks-false-positives.md) for more details on how to prevent False Positives!
+
 # Building in the course of development
 
 You can invoke gradle from the `./prime-router` directory to build the product:
