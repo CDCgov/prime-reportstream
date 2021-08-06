@@ -1,5 +1,6 @@
 # DRAFT History API Proposal
 
+NOTE:   We have put this proposal on hold, while we explore options to provide data lineage, metadata, and similar user-facing information via a canned 3rd party query/viz tool, rather than via adding an API layer.  
 ## Context and Motivation
 As the product feature set continues to grow along with the sending and receiving organizations being onboarded, more robust tracking and reporting is needed to help provide insight into how reports were processed, routed and delivered. This proposal will define end points to provide information to developers and organizations for testing, monitoring and reporting.      
 
