@@ -1,4 +1,4 @@
-# DRAFT History API Proposal
+# DRAFT History API Proposal -- ON HOLD FOR NOW.
 
 NOTE:   We have put this proposal on hold, while we explore options to provide data lineage, metadata, and similar user-facing information via a canned 3rd party query/viz tool, rather than via adding an API layer.  
 ## Context and Motivation
