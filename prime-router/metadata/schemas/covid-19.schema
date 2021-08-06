@@ -1163,7 +1163,7 @@ elements:
 
   - name: testing_lab_id_assigner
     type: HD
-    mapper: ifPresent(testing_lab_clia, CLIA^2.16.840.1.113883.4.7^ISO)
+    mapper: ifPresent(testing_lab_clia, CLIA^2.16.840.1.113883.19.4.6^ISO)
     hl7Field: OBX-23-6
     documentation: This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
 
