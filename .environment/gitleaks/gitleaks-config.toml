@@ -311,8 +311,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
         "AsymmetricPrivateKey",
     ]
     [rules.allowlist]
-        files = [
-            'prime-router/docs/Suppress-gitleaks-false-positives.md',                       # Contains a sample of "what not to do"
+        paths = [
+            'prime-router/docs/Suppress-gitleaks-false-positives\.md$',                       # Contains a sample of "what not to do"
         ]
         commits = [
             '00bc6c1bc1f51d2375e22917e95deac6f6370694',                                     # Invalidated
