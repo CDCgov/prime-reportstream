@@ -319,7 +319,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
     ]
     [rules.allowlist]
         paths = [
-            'prime-router/docs/Suppress-gitleaks-false-positives\.md$',                     # Contains a sample of "what not to do"
+            'prime-router/docs/allowlist-gitleaks-false-positives\.md$',                    # Contains a sample of "what not to do"
         ]
         commits = [
             '00bc6c1bc1f51d2375e22917e95deac6f6370694',                                     # Invalidated
