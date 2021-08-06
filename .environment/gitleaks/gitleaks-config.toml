@@ -90,6 +90,9 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'HOST=localhost',                                   # Default cred, this is allowed (too broad??)
             'pdhstaging-pgsql\.postgres\.database\.azure\.com', # Not a secret
         ]
+        commits = [
+            '57736fab4c8c3e6d8c72178cba621e6b13e61ef5',         # Documentation
+        ]
 
 [[rules]]
     description = "Generic Credential"
