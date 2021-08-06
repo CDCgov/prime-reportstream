@@ -939,6 +939,7 @@
         receivingFacilityName: CDPH_CID
         receivingFacilityOID: 2.16.840.1.114222.4.1.214104
         suppressAoe: true
+        truncateHDNamespaceIds: true
       transport:
         type: SFTP
         host: sftp
