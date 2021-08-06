@@ -934,6 +934,11 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingApplicationName: CDPH CA REDIE
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
+        receivingFacilityName: CDPH_CID
+        receivingFacilityOID: 2.16.840.1.114222.4.1.214104
+        suppressQstForAoe: true
       transport:
         type: SFTP
         host: sftp
