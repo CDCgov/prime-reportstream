@@ -2583,6 +2583,7 @@ Code | Display
 440500007|Dried blood spot specimen
 258580003|Whole blood sample
 122555007|Venous blood specimen
+119297000|Blood specimen
 
 **Documentation**:
 
@@ -3235,6 +3236,7 @@ CF|Coded Element With Formatted Values
 CK|Composite ID With Check Digit
 CN|Composite ID And Name
 CP|Composite Price
+CWE|Coded With Exceptions
 CX|Extended Composite ID With Check Digit
 DT|Date
 ED|Encapsulated Data

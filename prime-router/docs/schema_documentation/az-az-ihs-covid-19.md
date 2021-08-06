@@ -554,6 +554,7 @@ Code | Display
 440500007|Dried blood spot specimen
 258580003|Whole blood sample
 122555007|Venous blood specimen
+119297000|Blood specimen
 445297001|Swab of internal nose
 
 **Alt Value Sets**
