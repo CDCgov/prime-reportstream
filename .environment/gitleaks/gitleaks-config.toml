@@ -196,6 +196,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         ]
         commits = [
             '6b04ad2134d44008a2f7bdb1fc10976830ed20ff', # Update AAD group IDs
+            '2600066006d1c6d4a7fe353f08682321dada6838', # Vetted, AAD Object IDs, not credentials
         ]
 
 [[rules]]
@@ -314,6 +315,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
         commits = [
             '00bc6c1bc1f51d2375e22917e95deac6f6370694',                                     # Invalidated
             'c07433b133225d9fa04ba763df7047545a5da217',                                     # Test Keys
+            '9360bf82d85e45b53d5dcc9f7ebc17f3da52cd7d',                                     # Test Keys
+            '6c3619d2333aac47dc82a90ccbc8e9be92e1200e',                                     # Test Keys
         ]
 
 [[rules]]
