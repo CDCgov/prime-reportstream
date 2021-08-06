@@ -105,7 +105,7 @@ Sometimes you'll want to exclude a category of false positives, this can be achi
         # ...
 ```
 
-## By File or Path
+## By Path or by File RegEx
 
 **CAUTION**: Using file/path-based suppressions have a **HIGH risk for false negatives** if you exclude paths that contain more than _just_ the thing that trips the rule.
 
@@ -120,11 +120,11 @@ Sometimes a file contains _only_ values that are not sensitive but match rules f
         "AsymmetricPrivateKey",
     ]
     [rules.allowlist]
-        files = [
-            '\.testkey$',                                                   # Any file name that matches this pattern (i.e. ends with '.testkey')
-        ]
         paths = [
             './prime-router/src/test/inputs/secrets/some.private.key.txt',  # This specific file; this will typically be what you want
+        ]
+        files = [
+            '\.testkey$',                                                   # Any file name that matches this pattern (i.e. ends with '.testkey')
         ]
 ```
 
