@@ -50,7 +50,7 @@ services:
       POSTGRES_PASSWORD: changeIT!
       POSTGRES_PORT: 5432
     networks:
-      - default
+      - prime-router_build
     ports:
       - "5433:5432"
 
