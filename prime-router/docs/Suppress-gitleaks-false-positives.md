@@ -36,6 +36,7 @@ The process for adding a suppression is the same, regardless of whether or not t
     * Why the suppression will not cause False Negatives; example:
         * "Suppressing the pattern "`it\.key\.contains\(`" in the "Generic Credential" rule set is fine because this value is not a credential, it is a key lookup in an iterator."
 * Get approval for the PR and merge the PR into "`master`" on approval by at least one member of the DevOps team, when the nightly run kicks off, it will now have your suppression(s) applied and not raise a false positive on the changes in your branch.
+* To bring the suppression into your own branch, either `git merge master` into your branch or `git cherrypick` the commit that contains the suppression on to your branch.
 
 # How to Suppress
 
