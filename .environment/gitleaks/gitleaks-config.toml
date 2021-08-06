@@ -141,6 +141,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'const val tokenApi =  "/api/token"',
             'const val watersApi = "',
             'export USERNAME=\"client\"',
+            'export VPN_USERNAME=\"client\"',
             'FindSenderKeyInSettings\(',
             'if \(key !== "query"',
             'it\.key\.contains\(',                                                          # iterator key access
@@ -192,6 +193,9 @@ title = "PRIME ReportStream Gitleaks Configuration"
         paths = [
             '.terraform/modules/',
             'prime-router/settings/prod/',
+        ]
+        commits = [
+            '6b04ad2134d44008a2f7bdb1fc10976830ed20ff', # Update AAD group IDs
         ]
 
 [[rules]]
