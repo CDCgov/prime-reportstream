@@ -1,4 +1,4 @@
-# History API Proposal
+# DRAFT History API Proposal
 
 ## Context and Motivation
 As the product feature set continues to grow along with the sending and receiving organizations being onboarded, more robust tracking and reporting is needed to help provide insight into how reports were processed, routed and delivered. This proposal will define end points to provide information to developers and organizations for testing, monitoring and reporting.      
