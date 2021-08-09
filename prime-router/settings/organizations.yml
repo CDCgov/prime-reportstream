@@ -1018,8 +1018,8 @@
         messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO
         receivingFacilityName: NH_DHHS
         receivingFacilityOID: 2.16.840.1.114222.4.1.3669
-        suppressHl7Fields: ORC-23-1, ORC-23-2, ORC-23-3, ORC-23-4, ORC-23-5, ORC-23-6, ORC-23-8, ORC-23-9, ORC-23-10,
-        ORC-23-11, ORC-23-12
+        suppressHl7Fields: ORC-23-1, ORC-23-2, ORC-23-3, ORC-23-4, ORC-23-5, ORC-23-6, ORC-23-8, ORC-23-9, ORC-23-10, ORC-23-11, ORC-23-12
+        defaultAoeToUnknown: true
       transport:
         type: SFTP
         host: sftp

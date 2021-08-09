@@ -466,7 +466,7 @@ internal class ElementTests {
     }
 
     @Test
-    fun `test toFormatted altValues for UNK`() {
+    fun `test toFormatted values for UNK`() {
         val values = ValueSet(
             "hl70136",
             system = ValueSet.SetSystem.HL7,
