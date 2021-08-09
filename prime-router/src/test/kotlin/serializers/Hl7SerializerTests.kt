@@ -117,7 +117,7 @@ NTE|1|L|This is a final comment|RE"""
 
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report ?: fail()
         val output = serializer.createMessage(testReport, 2)
-        assertNotNull(output)
+        assertThat(output).isNotNull()
     }
 
     @Test
