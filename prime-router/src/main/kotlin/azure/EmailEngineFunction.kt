@@ -331,11 +331,7 @@ class EmailScheduleEngine {
      * @param emails list of emails to send to
      * @param logger context logger
      */
-    private fun dispatchToSendGrid(
-            template: String,
-            emails: Iterable<String>,
-            logger: Logger
-    ){
+    private fun dispatchToSendGrid(template: String, emails: Iterable<String>, logger: Logger) {
         val p: Personalization = Personalization()
         emails.forEach { to -> p.addTo(Email(to)) }
         p.setSubject(SUBJECT_EMAIL)
@@ -369,4 +365,5 @@ class EmailScheduleEngine {
         } else {
             logger.info("Can't find SENDGRID_ID secret")
         }
+    }
 }
