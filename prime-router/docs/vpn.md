@@ -22,6 +22,8 @@ Once you receive your VPN profile, import the profile into the OpenVPN client of
 
 ## Linux
 
+Store the `.ovpn` file(s) only on a trusted device, in a secured location to which only your user has read access (e.g. `/home/${USER}/.openvpn/`). Anyone who gets access to any one of these `.ovpn` files effectively becomes _you_ and leaves an audit trail pointing at _you_.
+
 Due to split-DNS routing, out-of-the-box NetworkManager will *not* work; instead invoke the client from the command line as follows:
 ```bash
 # This will open the VPN tunnel and make the process just sit there
