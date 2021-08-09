@@ -49,3 +49,8 @@ variable "okta_redirect_url" {
   type = string
   description = "URL to redirect to after Okta login"
 }
+
+variable "aad_object_keyvault_admin" {
+    type        = string
+    description = "Azure Active Directory ID for a user or group who will be given write access to Key Vaults"
+}

@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.max
@@ -40,6 +41,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.util.Locale
+import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.random.Random
@@ -129,8 +131,8 @@ Examples:
 
     private val env by option(
         "--env",
-        help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.endPoint}," +
-            " and 'test' will connect to ${ReportStreamEnv.TEST.endPoint}"
+        help = "Specify local, test, staging, or prod.  'local' will connect to ${ReportStreamEnv.LOCAL.urlPrefix}," +
+            " and 'test' will connect to ${ReportStreamEnv.TEST.urlPrefix}"
     ).choice("test", "local", "staging", "prod").default("local").validate {
         envSanityCheck()
         when (it) {
@@ -201,7 +203,7 @@ Examples:
             coolTestList.filter { it.status == TestStatus.SMOKE }
         }
         if (tests.isNotEmpty()) {
-            CoolTest.ugly("Running the following tests, POSTing to ${environment.endPoint}:")
+            CoolTest.ugly("Running the following tests, POSTing to ${environment.urlPrefix}:")
             printTestList(tests)
             runTests(tests, environment)
         } else {
@@ -250,11 +252,13 @@ Examples:
             HammerTime(),
             Waters(),
             RepeatWaters(),
+            Jti(),
             InternationalContent(),
             Hl7Ingest(),
             DataCompareTest(),
             SantaClaus(),
-            OtcProctored()
+            OtcProctored(),
+            WatersAuth(),
         )
     }
 }
@@ -602,7 +606,7 @@ class Ping : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
-        ugly("Starting ping Test: run CheckConnections of ${environment.endPoint}")
+        ugly("Starting ping Test: run CheckConnections of ${environment.urlPrefix}")
         val (responseCode, json) = HttpUtilities.postReportBytes(
             environment,
             "x".toByteArray(),
@@ -1385,6 +1389,56 @@ class BadSftp : CoolTest() {
             receivers = listOf(sftpFailReceiver),
             totalItems = options.items
         )
+    }
+}
+
+/**
+ * Exercise the database jticache
+ */
+class Jti : CoolTest() {
+    override val name = "jti"
+    override val description = "Test the JTI Cache"
+    override val status = TestStatus.DRAFT
+
+    override fun run(environment: ReportStreamEnv, options: CoolTestOptions): Boolean {
+        ugly("Starting jti Test: $description")
+        val db = WorkflowEngine().db
+        val jtiCache = DatabaseJtiCache(db)
+        var passed = true
+        val uuid1 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
+            echo("JTI-1 $uuid1 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        val uuid2 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid2, OffsetDateTime.now().plusMinutes(10))) {
+            echo("JTI-2 $uuid2 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        val uuid3 = UUID.randomUUID().toString()
+        if (!jtiCache.isJTIOk(uuid3, OffsetDateTime.now().minusMinutes(10))) {
+            echo("JTI-3 $uuid3 has never been seen before.   It should have been OK, but was not.")
+            passed = false
+        }
+        // Now send them all again.  All should return false
+        if (jtiCache.isJTIOk(uuid1, OffsetDateTime.now())) {
+            echo("JTI-1 $uuid1 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (jtiCache.isJTIOk(uuid2, OffsetDateTime.now())) {
+            echo("JTI-2 $uuid2 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (jtiCache.isJTIOk(uuid3, OffsetDateTime.now())) {
+            echo("JTI-3 $uuid3 has been seen before.   It should have failed, but it passed.")
+            passed = false
+        }
+        if (passed) {
+            good("JTI Database Cache test passed")
+        } else {
+            bad("JTI Database Cache test ****FAILED***")
+        }
+        return passed
     }
 }
 
