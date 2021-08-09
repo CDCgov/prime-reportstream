@@ -1,7 +1,10 @@
 package gov.cdc.prime.router.transport
 
 import assertk.assertThat
-import assertk.assertions.* // ktlint-disable no-wildcard-imports
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
