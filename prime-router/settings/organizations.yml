@@ -136,6 +136,16 @@
       topic: covid-19
       schemaName: iPatientCare/reddyfmc-la-covid-19
       format: CSV
+
+- name: guc-la
+  description: Experity CSV lab report schema, Greenlight Urgent Care, LA
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: guc-la
+      topic: covid-19
+      schemaName: Experity/guc-la-covid-19
+      format: CSV
       
 - name: az-phd
   description: Arizona PHD
