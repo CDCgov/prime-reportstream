@@ -44,4 +44,4 @@ The work would be staged in several PRs, roughly based on the steps of the solut
 A smaller scope proposal for onboarding new senders is possible. However, tackling both the deficiency in translations and the testing matrix problem together proved to be synergistic.
 
 ## Further Work
-This proposal does not touch the Schema Element class, but one could make a similar proposal for this class and its associated structures. 
+This proposal does not touch the Schema Element class, but one could make a similar proposal for this class and its associated structures. Likewise, filtering and routing improvements are not addressed. 
