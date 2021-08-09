@@ -481,7 +481,11 @@ Code | Display
 ---- | -------
 Holly|Holly Delatte NP
 De Anna|De Anna Dark FNP-C
-Nagaratna|Nagaratna Reddy MD
+Nagaratna|Nagaratna Reddy MD.
+Cassandra|Cassandra Hill-Selders NP
+Crystal|Crystal Rivet NP
+Darrell|Darrell Davis NP
+Wanda|Wanda Jefferson Wilson FNP-C
 
 ---
 
@@ -501,7 +505,11 @@ Code | Display
 ---- | -------
 1275978678|Holly Delatte NP
 1205306602|De Anna Dark FNP-C
-1770580508|Nagaratna Reddy MD
+1770580508|Nagaratna Reddy MD.
+1912515651|Cassandra Hill-Selders NP
+1699120493|Crystal Rivet NP
+1821458373|Darrell Davis NP
+1518378009|Wanda Jefferson Wilson FNP-C
 
 ---
 
@@ -521,7 +529,11 @@ Code | Display
 ---- | -------
 Delatte NP|Holly Delatte NP
 Dark FNP-C|De Anna Dark FNP-C
-Reddy MD|Nagaratna Reddy MD
+Reddy MD|Nagaratna Reddy MD.
+Hill-Selders NP|Cassandra Hill-Selders NP
+Rivet NP|Crystal Rivet NP
+Davis NP|Darrell Davis NP
+Jefferson Wilson FNP-C|Wanda Jefferson Wilson FNP-C
 
 ---
 
@@ -624,7 +636,7 @@ The patient's city
 
 **PII**: Yes
 
-**Format**: M/d/yyyy
+**Format**: M/d/yyyy H:nn
 
 **Cardinality**: [0..1]
 
@@ -639,11 +651,13 @@ Other states may choose to define their own formats.
 
 **Name**: Ethnicity
 
-**Type**: CODE
+**Type**: TEXT
 
 **PII**: No
 
 **Format**: $alt
+
+**Default Value**: U
 
 **Cardinality**: [0..1]
 
@@ -654,11 +668,6 @@ Code | Display
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Unknown
-H|Hispanic or Latino
-N|Non Hispanic or Latino
-U|Unknown
-U|Unknown
-U|Unknown
 
 **Alt Value Sets**
 
@@ -667,12 +676,10 @@ Code | Display
 H|Hispanic or Latino
 N|Non Hispanic or Latino
 U|Patient Declines
-U|NULL
-U|WHITE
 
 **Documentation**:
 
-NOTE - awaiting valid ethnicity values from iPatientCare
+Defaulting to Unknown. Reddy sends WHITE, BLACK, ASIAN, NULL, and OTHER for ethnicity
 
 ---
 
@@ -695,6 +702,8 @@ The patient's first name
 **Type**: CODE
 
 **PII**: No
+
+**Format**: $display
 
 **Cardinality**: [0..1]
 
@@ -812,11 +821,21 @@ Code | Display
 UNK|Unknown
 ASKU|Asked, but unknown
 2106-3|White
+2106-3|White
+2106-3|White
+2106-3|White
 1002-5|American Indian or Alaska Native
 2028-9|Asian
+2131-1|Other
+2054-5|Black or African American
+2054-5|Black or African American
+2054-5|Black or African American
 2054-5|Black or African American
 2076-8|Native Hawaiian or Other Pacific Islander
 2131-1|Other
+2131-1|Other
+2131-1|Other
+UNK|Unknown
 UNK|Unknown
 UNK|Unknown
 ASKU|Asked, but unknown
@@ -826,18 +845,28 @@ ASKU|Asked, but unknown
 Code | Display
 ---- | -------
 2106-3|White
+2106-3|W
+2106-3|CAUCASIAN
+2106-3|C
 1002-5|American Indian or Alaska Native
 2028-9|Asian
+2131-1|ASIAN INDIAN
 2054-5|Black
+2054-5|African American
+2054-5|AFRICAN AMERICAN,BLACK
+2054-5|B
 2076-8|Native Hawaiian or Other Pacific Islander
 2131-1|Other
+2131-1|OTHER RACE
+2131-1|OTHER RACE,WHITE
 UNK|Unknown
 UNK|null
+UNK|NULL
 ASKU|Asked, but unknown
 
 **Documentation**:
 
-NOTE - awaiting valid race values from iPatientCare
+NOTE - awaiting any additional race values from iPatientCare
 
 ---
 
@@ -914,6 +943,9 @@ Code | Display
 60001007|Not Pregnant
 60001007|Not Pregnant
 60001007|Not Pregnant
+60001007|Not Pregnant
+60001007|Not Pregnant
+60001007|Not Pregnant
 261665006|Unknown
 261665006|Unknown
 261665006|Unknown
@@ -928,6 +960,9 @@ Code | Display
 77386006|Currently Pregnant
 60001007|N
 60001007|NO
+60001007| No
+60001007| No *** High ***
+60001007| No *** Low ***
 60001007|Not Pregnant
 60001007|Not Currently Pregnant
 261665006|U
@@ -1068,15 +1103,22 @@ DateColl populates multiple fields.  This instance populates specimen_collection
 
 ---
 
-**Name**: test_kit_name_id
+**Name**: TestName
 
-**Type**: TEXT
+**Type**: CODE
 
 **PII**: No
 
-**Default Value**: 10811877011290
+**Format**: $alt
 
 **Cardinality**: [0..1]
+
+**Alt Value Sets**
+
+Code | Display
+---- | -------
+10811877011290|SARS-CoV-2 (COVID-19) Ag
+10811877011290|     SARS-CoV-2 (COVID-19) Ag
 
 ---
 
@@ -1133,6 +1175,12 @@ Code | Display
 373121007|Test not done
 260385009|Negative
 260385009|Negative
+260385009|Negative
+260385009|Negative
+10828004|Positive
+10828004|Positive
+10828004|Positive
+10828004|Positive
 10828004|Positive
 10828004|Positive
 
@@ -1141,8 +1189,14 @@ Code | Display
 Code | Display
 ---- | -------
 260385009|Negative
+260385009|Negative *** High ***
+260385009|Negative *** Low ***
 260385009|Neg
 10828004|Positive
+10828004|Positive 
+10828004|Positive *** High ***
+10828004|Positive  *** High ***
+10828004|Positive  *** Low ***
 10828004|Pos
 
 **Documentation**:

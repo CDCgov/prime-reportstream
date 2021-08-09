@@ -72,8 +72,8 @@ elements:
           display: American Indian or Alaska Native
         - code: 2028-9
           display: Asian
-        - code: 2131-1
-          display: ASIAN INDIAN     #TODO - what is the preferred mapping for Asian Indian?
+        - code: UNK
+          display: ASIAN INDIAN
         - code: 2054-5
           display: Black
         - code: 2054-5
@@ -98,7 +98,6 @@ elements:
           display: "NULL"
         - code: ASKU
           display: Asked, but unknown
-      documentation: NOTE - awaiting any additional race values from iPatientCare
 
             
     - name: patient_ethnicity
