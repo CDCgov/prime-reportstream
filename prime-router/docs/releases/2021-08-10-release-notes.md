@@ -9,4 +9,25 @@
 - [Click here for all release notes](../releases)
 
 ## For this release
+Added scanning for secrets into our CI/CD pipeline via gitleaks.
 
+HL7 serializer improvements including verification of CODE fields on HL7 ingest.
+
+Documentation enhancements.
+
+Improvements for generation of HL7 files for AK, NH, and CA.
+
+Converted unit tests to use assertK.
+
+
+### Dependency Updates
+The following dependencies were updated:
+- eslint
+- flyway
+- libphonenumber
+- azurefunctions
+- sendgrid-java
+- fontawesome
+- netty
+- azure-core
+- azure-identity
