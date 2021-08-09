@@ -10,12 +10,34 @@ Recommended clients:
 
 - [Tunnelblock](https://tunnelblick.net/index.html) (Mac)
 - [OpenVPN Connect](https://openvpn.net/client-connect-vpn-for-windows/) (Windows)
+- [OpenVPN](https://openvpn.net/) (Linux)
 
 # Using the VPN
 
-You will be provided a VPN profile that is unique to you for each environment. The profile will include all keys and certificates required to connect to the VPN Gateway.
+You will be provided a VPN profile that is unique to you for each environment. The profile will include all keys, certificates and settings required to connect to the VPN Gateway and route the appropriate traffic through it.
+
+## Mac and Linux
 
 Once you receive your VPN profile, import the profile into the OpenVPN client of your choice.
+
+## Linux
+
+Due to split-DNS routing, out-of-the-box NetworkManager will *not* work; instead invoke the client from the command line as follows:
+```bash
+# This will open the VPN tunnel and make the process just sit there
+# Terminate it with Ctrl+C
+$ openvpn --config "<path-to-ovpn-file>"
+
+# Alternatively
+
+# This will open the VPN tunnel, write the PID to "/tmp/${USER}/openvpn.pid" and return
+# NOTE: this assumes you're not prompted for your sudo password
+$ sudo openvpn --config "<path-to-ovpn-file>" --writepid "/tmp/${USER}/openvpn.pid" &
+# Take down the VPN tunnel using
+$ SIGNAL=TERM # or 'INT'
+$ kill -${SIGNAL} $(cat "/tmp/${USER}/openvpn.pid")
+# On termination, openvpn will remove the PID file
+```
 
 ## Trouble Accessing Items in the Azure Portal?
 
@@ -55,7 +77,7 @@ If a VPN profile needs to be revoked for any reason this can be done via Azure.
 * Generate a thumbprint of the VPN profile's user certificate:
 
 ```
-openssl x509 -in ${USEERNAME}Cert.pem -fingerprint -noout 
+openssl x509 -in ${USEERNAME}Cert.pem -fingerprint -noout
 ```
 
 * Add the thumbprint to `root_revoked_certificate` block of the Terraform [`virtual_network_gateway` resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway)
