@@ -450,6 +450,9 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
 
+            if (element.hl7Field == "AOE" && suppressAoe)
+                return@forEach
+
             // some fields need to be blank instead of passing in UNK
             // so in this case we'll just go by field name and set the value to blank
             if (blanksForUnknownFields.contains(element.name) &&
@@ -464,6 +467,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
+
                     // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                     // text, but need to be truncated because they're the first part of an HD field. For example,
                     // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
@@ -1173,7 +1177,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         const val MESSAGE_CODE = "ORU"
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
-        const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
+        const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
 
         /*
         From the HL7 2.5.1 Ch 2A spec...
