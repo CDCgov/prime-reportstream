@@ -3,56 +3,52 @@ partners:
   - name: Alabama
     type: state
     abbreviation: AL
-    partner: true
+    production: true
   - name: Arizona
     type: state
     abbreviation: AZ
-    partner: true
+    production: true
   - name: Colorado
     type: state
     abbreviation: CO
-    partner: true
+    production: false
   - name: Guam
     type: territory
     abbreviation: GU
-    partner: true
+    production: false
   - name: Louisiana
     type: state
     abbreviation: LA
-    partner: true
+    production: true
   - name: Mississippi
     type: state
     abbreviation: MS
-    partner: true
+    production: true
   - name: Montana
     type: state
     abbreviation: MT
-    partner: true
-  - name: New Jersey
-    type: state
-    abbreviation: NJ
-    partner: true
+    production: false
   - name: New Mexico
     type: state
     abbreviation: NM
-    partner: true
+    production: true
   - name: North Dakota
     type: state
     abbreviation: ND
-    partner: true
+    production: true
   - name: Ohio
     type: state
     abbreviation: OH
-    partner: true
+    production: true
   - name: Pennsylvania
     type: state
     abbreviation: PA
-    partner: true
+    production: false
   - name: Texas
     type: state
     abbreviation: TX
-    partner: true
+    production: true
   - name: Vermont
     type: state
     abbreviation: VT
-    partner: true
+    production: true
