@@ -826,7 +826,7 @@ ASKU|Asked, but unknown
 2106-3|White
 1002-5|American Indian or Alaska Native
 2028-9|Asian
-2131-1|Other
+UNK|Unknown
 2054-5|Black or African American
 2054-5|Black or African American
 2054-5|Black or African American
@@ -850,7 +850,7 @@ Code | Display
 2106-3|C
 1002-5|American Indian or Alaska Native
 2028-9|Asian
-2131-1|ASIAN INDIAN
+UNK|ASIAN INDIAN
 2054-5|Black
 2054-5|African American
 2054-5|AFRICAN AMERICAN,BLACK
@@ -866,7 +866,8 @@ ASKU|Asked, but unknown
 
 **Documentation**:
 
-NOTE - awaiting any additional race values from iPatientCare
+The patient's race. There is a common valueset defined for race values, but some states may choose to define different code/value combinations.
+
 
 ---
 
