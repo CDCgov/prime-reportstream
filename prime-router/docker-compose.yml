@@ -25,7 +25,7 @@ services:
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
       # postgresql comes from the build environment; it is accessible because we are connected to the build network (see "networks")
-      - POSTGRES_URL=jdbc:postgresql://db:5432/prime_data_hub
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
       - REDOX_SECRET=some_secret
       # - SENDGRID_API_KEY=
@@ -41,18 +41,6 @@ services:
       - 5005:5005 # Java debug port
     networks:
       - prime-router_build
-
-  db:
-    image: postgres
-    environment:
-      POSTGRES_DB: prime_data_hub
-      POSTGRES_USER: prime
-      POSTGRES_PASSWORD: changeIT!
-      POSTGRES_PORT: 5432
-    networks:
-      - prime-router_build
-    ports:
-      - "5433:5432"
 
   # Azurite is the Azure storage emulator for local development
   azurite:
