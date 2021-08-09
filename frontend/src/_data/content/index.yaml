@@ -68,7 +68,7 @@ sections:
     description: >-
       We’re growing quickly. Take a look at the complete <a href="/how-it-works/where-were-live">list of ReportStream partners</a>.
     features:
-      - img: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Blank_USA%2C_w_territories.svg"
+      - img: rs-live-stlt.svg
   - title: Interested in learning more about ReportStream?
     type: cta
     summary: >-

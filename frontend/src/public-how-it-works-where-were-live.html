@@ -18,14 +18,16 @@ nestedPage: true
 </section>
 <section>
 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Blank_USA%2C_w_territories.svg" class="margin-y-6" />
+  <img src="{{ site.imgPath }}rs-live-stlt.svg" class="margin-y-6" />
 
   ReportStream has established connections to send and report public health data for each of the states and territories listed here. 
 
 {% if content.where-were-live %}
 <ul>
 {% for partner in content.where-were-live.partners %}
+{% if partner.production == true %}
 <li>{{ partner.name }}</li>
+{% endif %}
 {% endfor %}
 </ul>
 {% endif %}

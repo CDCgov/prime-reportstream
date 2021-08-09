@@ -11,14 +11,26 @@ partners:
   - name: Colorado
     type: state
     abbreviation: CO
-    production: false
+    production: true
+  - name: Florida
+    type: state
+    abbreviation: FL
+    production: true
   - name: Guam
     type: territory
     abbreviation: GU
-    production: false
+    production: true
   - name: Louisiana
     type: state
     abbreviation: LA
+    production: true
+  - name: Maryland
+    type: state
+    abbreviation: MD
+    production: true
+  - name: Massachusetts
+    type: state
+    abbreviation: MA
     production: true
   - name: Mississippi
     type: state
@@ -43,7 +55,7 @@ partners:
   - name: Pennsylvania
     type: state
     abbreviation: PA
-    production: false
+    production: true
   - name: Texas
     type: state
     abbreviation: TX

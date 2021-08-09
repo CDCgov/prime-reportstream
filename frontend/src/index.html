@@ -51,10 +51,10 @@ hide-signin: false
             </div>            
           {% elsif section.type == "liveMap" %}
             <div class="tablet:grid-col-10 tablet:grid-offset-1">
-              <img src="{{ feature.img }}" class="text-align-center" />
+              <img src="{{ site.imgPath }}{{ feature.img }}" class="text-align-center" />
             </div>
             <div class="tablet:grid-col-6 tablet:grid-offset-3">
-              <p class="usa-prose margin-top-8">{{ section.description }}</p>
+              <p class="usa-prose margin-top-4">{{ section.description }}</p>
             </div>
           {% elsif section.type == "cta" %}
             <a class="usa-button" href="mailto:{{ site.orgs.RS.email }}{{ feature.buttonUrlSubject }}">{{ feature.buttonText }}</a>
