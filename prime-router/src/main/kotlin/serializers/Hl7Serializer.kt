@@ -416,6 +416,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
     ) {
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
+        val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         // and we have some fields to suppress
@@ -557,6 +558,16 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
             if (!hl7Config?.reportingFacilityIdType.isNullOrEmpty()) {
                 pathSpec = formPathSpec("MSH-4-3")
                 terser.set(pathSpec, hl7Config?.reportingFacilityIdType)
+            }
+        }
+
+        // after all values have been set or blanked, check for values that need replacement
+        // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
+        replaceValue.forEach { element ->
+            var pathSpec = formPathSpec(element.key)
+            val valueInMessage = terser.get(pathSpec) ?: ""
+            if (valueInMessage.isNotEmpty()) {
+                terser.set(pathSpec, element.value)
             }
         }
     }
