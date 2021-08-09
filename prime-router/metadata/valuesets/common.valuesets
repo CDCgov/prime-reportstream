@@ -221,7 +221,6 @@
       version: 2.5.1
       system: NULLFL
 
-
 - name: specimen_role
   system: FHIR
   referenceUrl: https://terminology.hl7.org/ValueSet-v3-SpecimenRoleType.html
@@ -399,6 +398,8 @@
         display: Composite ID And Name
       - code: CP
         display: Composite Price
+      - code: CWE
+        display: Coded With Exceptions
       - code: CX
         display: Extended Composite ID With Check Digit
       - code: DT

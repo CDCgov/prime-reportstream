@@ -5,15 +5,15 @@
     "@okta/jwt-verifier": "^2.3.0",
     "axios": "^0.21.1",
     "chart.js": "^3.5",
-    "cypress": "^8.0.0",
+    "cypress": "^8.1.0",
     "http-proxy-middleware": "^2.0.1",
     "moment": "^2.29.1"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.12.1",
-    "@fortawesome/fontawesome-free": "^5.15.3",
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "cross-env": "^7.0.3",
-    "eslint": "^7.31.0",
+    "eslint": "^7.32.0",
     "express": "^4.17.1",
     "js-yaml": "^4.1.0",
     "jshint": "^2.13.0",
