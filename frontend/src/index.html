@@ -10,10 +10,10 @@ hide-signin: false
 ---
 
 <section class="rs-hero" role="region">
-  <div class="grid-container usa-section padding-y-4 margin-bottom-4">
+  <div class="grid-container usa-section padding-y-2 tablet:padding-y-4 tablet:margin-bottom-4">
     <div class="grid-row grid-gap margin-bottom-0 rs-hero__flex-center ">
       <div class="tablet:grid-col-10 ">
-        <h1 class="tablet:font-sans-2xl margin-top-2">{{ content.index.title }}</h1>          
+        <h1 class="font-sans-xl tablet:font-sans-2xl margin-top-2">{{ content.index.title }}</h1>          
         <p class="font-sans-lg line-height-sans-4">{{ content.index.summary }}</p>        
       </div>
     </div>
@@ -27,19 +27,19 @@ hide-signin: false
        <div class="grid-row grid-gap">
         {% if section.type == "cta" %}          
           <div class="tablet:grid-col-8 tablet:grid-offset-2">
-            <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2> 
+            <h2 class="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2> 
             <p class="usa-prose">{{ section.description }}</p>
             <p class="usa-prose">{{ section.summary }}</p>
             <a class="usa-button margin-top-2" href="mailto:{{ site.orgs.RS.email }}{{ section.buttonUrlSubject }}">{{ section.buttonText }}</a>
           </div>
         {% elsif section.type == "liveMap" %}
           <div class="tablet:grid-col-8 tablet:grid-offset-2">
-            <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2>          
+            <h2 class="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2>          
             <p class="usa-intro margin-top-1 text-base">{{ section.summary }}</p>
           </div>
         {% else %}
           <div class="tablet:grid-col-8 ">
-            <h2 class="font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2>          
+            <h2 class="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">{{ section.title }}</h2>          
             <p class="usa-intro margin-top-1 text-base">{{ section.summary }}</p>
           </div>
         {% endif %}   
@@ -53,7 +53,7 @@ hide-signin: false
                     <img src="{{ site.imgPath }}{{ feature.img }}" alt="{{ feature.imgAlt }}" /> 
                   </div>
                   <div class="tablet:grid-col-6 ">              
-                    <h3 class="font-sans-lg margin-top-0 padding-top-3 margin-bottom-1 border-top-05 border-base-lighter">{{ feature.method }}. {{ feature.title }}</h3> 
+                    <h3 class="font-sans-lg margin-top-0 padding-top-3 margin-bottom-1 tablet:border-top-05 tablet:border-base-lighter">{{ feature.method }}. {{ feature.title }}</h3> 
                     <p class="usa-prose">{{ feature.summaryOne }}</p>              
                     <p class="usa-prose">{{ feature.summaryTwo }}</p> 
                   </div>
@@ -68,7 +68,7 @@ hide-signin: false
             </div>
           {% else %}
             <div class="tablet:grid-col-4 margin-bottom-0">
-              <h3 class="font-sans-lg padding-top-3 border-top-05 border-base-lighter">                
+              <h3 class="font-sans-md tablet:font-sans-lg padding-top-3 border-top-05 border-base-lighter">                
                 {{ feature.title }}
               </h3>
               <p class="usa-prose">{{ feature.summary }}</p>

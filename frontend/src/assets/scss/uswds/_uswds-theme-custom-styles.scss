@@ -186,4 +186,7 @@ main {
       margin-bottom: 2rem;
       margin-left: 1rem;
    }
+   h2 {
+      @include u-line-height('sans', 3);
+   }
 }
