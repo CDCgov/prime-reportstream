@@ -6,7 +6,6 @@ import assertk.assertions.isTrue
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class TranslatorTests {
     private val receiversYaml = """
