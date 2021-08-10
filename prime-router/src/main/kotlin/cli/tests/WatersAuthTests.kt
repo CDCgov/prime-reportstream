@@ -205,7 +205,7 @@ class WatersAuth : CoolTest() {
                 )
 
             if (responseCode3 == 401) {
-                good("EC key: Attempt to get a token with tampered token rightly failed.")
+                good("EC key: Attempt to send a report with tampered token rightly failed.")
             } else {
                 bad("EC key: " +
                 "Should get a 401 response to tampered token but instead got $responseCode3  " + json3)
@@ -260,7 +260,7 @@ class WatersAuth : CoolTest() {
                 )
 
             if (responseCode3 == 401) {
-                good("RSA key: Attempt to get a token with tampered token rightly failed.")
+                good("RSA key: Attempt to send a report with a tampered token rightly failed.")
             } else {
                 bad("RSA key: " +
                 "Should get a 401 response to tampered token but instead got $responseCode3  " + json3)
