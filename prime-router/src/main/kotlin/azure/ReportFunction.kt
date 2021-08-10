@@ -252,6 +252,7 @@ class ReportFunction : Logging {
 
     /**
      * Extract client header from request headers or query string parameters
+     * @param request the http request message from the client
      */
     private fun extractClientHeader(request: HttpRequestMessage<String?>): String {
         return request.headers[CLIENT_PARAMETER] ?: request.queryParameters.getOrDefault(CLIENT_PARAMETER, "")

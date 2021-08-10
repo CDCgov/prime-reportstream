@@ -41,7 +41,6 @@ import java.time.OffsetDateTime
  *
  */
 class ActionHistory {
-
     // todo change to Logger
     private var context: ExecutionContext?
 
@@ -49,7 +48,6 @@ class ActionHistory {
      * Throughout, using generated mutable jooq POJOs to store history information
      *
      */
-
     val action = Action()
 
     /*
@@ -147,7 +145,7 @@ class ActionHistory {
      * Always appends, to allow for actions that do a mix of work (eg, SEND)
      */
     fun trackActionParams(actionParams: String) {
-        if (actionParams.isNullOrEmpty()) return
+        if (actionParams.isEmpty()) return
         val tmp = if (action.actionParams.isNullOrBlank()) actionParams else "${action.actionParams}, $actionParams"
         // kluge to get the max size of the varchar
         val max = ACTION.ACTION_PARAMS.dataType.length()
@@ -186,6 +184,9 @@ class ActionHistory {
                 action.sendingOrg = sendingOrg.take(ACTION.SENDING_ORG.dataType.length())
                 action.sendingOrgClient = sendingOrgClient.take(ACTION.SENDING_ORG_CLIENT.dataType.length())
             } catch (e: Exception) {
+                this.context?.logger?.warning(
+                    "Exception tracking sender: ${e.localizedMessage} ${e.stackTraceToString()}"
+                )
             }
         }
     }
