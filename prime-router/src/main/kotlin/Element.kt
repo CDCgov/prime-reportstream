@@ -713,6 +713,10 @@ data class Element(
         return altValue?.code
     }
 
+    /**
+     * Convert a string [code] to the code in the element's valueset.
+     * @return a code of null if the code is not found
+     */
     fun toCode(code: String): String? {
         if (!isCodeType) error("Internal Error: asking for codeValue for a non-code type")
         // if there are alt values, use those, otherwise, use the valueSet

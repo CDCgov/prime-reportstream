@@ -10,12 +10,36 @@ Recommended clients:
 
 - [Tunnelblock](https://tunnelblick.net/index.html) (Mac)
 - [OpenVPN Connect](https://openvpn.net/client-connect-vpn-for-windows/) (Windows)
+- [OpenVPN](https://openvpn.net/) (Linux)
 
 # Using the VPN
 
-You will be provided a VPN profile that is unique to you for each environment. The profile will include all keys and certificates required to connect to the VPN Gateway.
+You will be provided a VPN profile that is unique to you for each environment. The profile will include all keys, certificates and settings required to connect to the VPN Gateway and route the appropriate traffic through it.
+
+## Mac and Linux
 
 Once you receive your VPN profile, import the profile into the OpenVPN client of your choice.
+
+## Linux
+
+Store the `.ovpn` file(s) only on a trusted device, in a secured location to which only your user has read access (e.g. `/home/${USER}/.openvpn/`). Anyone who gets access to any one of these `.ovpn` files effectively becomes _you_ and leaves an audit trail pointing at _you_.
+
+Due to split-DNS routing, out-of-the-box NetworkManager will *not* work; instead invoke the client from the command line as follows:
+```bash
+# This will open the VPN tunnel and make the process just sit there
+# Terminate it with Ctrl+C
+$ openvpn --config "<path-to-ovpn-file>"
+
+# Alternatively
+
+# This will open the VPN tunnel, write the PID to "/tmp/${USER}/openvpn.pid" and return
+# NOTE: this assumes you're not prompted for your sudo password
+$ sudo openvpn --config "<path-to-ovpn-file>" --writepid "/tmp/${USER}/openvpn.pid" &
+# Take down the VPN tunnel using
+$ SIGNAL=TERM # or 'INT'
+$ kill -${SIGNAL} $(cat "/tmp/${USER}/openvpn.pid")
+# On termination, openvpn will remove the PID file
+```
 
 ## Trouble Accessing Items in the Azure Portal?
 
@@ -31,21 +55,21 @@ To generate keys for a VPN profile, follow the below steps. These steps [are der
 * Generate a user certificate:
 
 ```
-export USERNAME="client"
+export VPN_USERNAME="client"
 
-ipsec pki --gen --outform pem > "${USERNAME}Key.pem"
-ipsec pki --pub --in "${USERNAME}Key.pem" | ipsec pki --issue --cacert caCert.pem --cakey caKey.pem --dn "CN=${USERNAME}" --san "${USERNAME}" --flag clientAuth --outform pem > "${USERNAME}Cert.pem"
+ipsec pki --gen --outform pem > "${VPN_USERNAME}Key.pem"
+ipsec pki --pub --in "${VPN_USERNAME}Key.pem" | ipsec pki --issue --cacert caCert.pem --cakey caKey.pem --dn "CN=${VPN_USERNAME}" --san "${VPN_USERNAME}" --flag clientAuth --outform pem > "${VPN_USERNAME}Cert.pem"
 ```
 
 * Generate a p12 bundle from the user certificate:
 
 ```
-openssl pkcs12 -in "${USERNAME}Cert.pem" -inkey "${USERNAME}Key.pem" -certfile caCert.pem -export -out "${USERNAME}.p12"
+openssl pkcs12 -in "${VPN_USERNAME}Cert.pem" -inkey "${VPN_USERNAME}Key.pem" -certfile caCert.pem -export -out "${VPN_USERNAME}.p12"
 ```
 
 * In the VPN profile, add the contents of the following files to the specified sections:
-    * `${USEERNAME}Cert.pem` to `<cert></cert>`
-    * `${USEERNAME}Key.pem` to `<key></key>`
+    * `${VPN_USERNAME}Cert.pem` to `<cert></cert>`
+    * `${VPN_USERNAME}Key.pem` to `<key></key>`
 * Securely transmit the VPN profile to the recipient
 
 # Revoke a VPN Profile
@@ -55,7 +79,7 @@ If a VPN profile needs to be revoked for any reason this can be done via Azure.
 * Generate a thumbprint of the VPN profile's user certificate:
 
 ```
-openssl x509 -in ${USEERNAME}Cert.pem -fingerprint -noout 
+openssl x509 -in ${USEERNAME}Cert.pem -fingerprint -noout
 ```
 
 * Add the thumbprint to `root_revoked_certificate` block of the Terraform [`virtual_network_gateway` resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway)
