@@ -4,10 +4,12 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v251.datatype.DR
+import ca.uhn.hl7v2.model.v251.datatype.DT
 import ca.uhn.hl7v2.model.v251.datatype.TS
 import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.Element
@@ -19,18 +21,20 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ResultDetail
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.ValueSet
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.IllegalStateException
+import java.time.Instant
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-import org.apache.logging.log4j.kotlin.Logging
-import java.time.ZonedDateTime
+import java.util.TimeZone
 
-class Hl7Serializer(val metadata: Metadata): Logging {
+class Hl7Serializer(val metadata: Metadata) : Logging {
     data class Hl7Mapping(
         val mappedRows: Map<String, List<String>>,
         val rows: List<RowResult>,
@@ -71,7 +75,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
     /**
      * Write a report with a single item
      */
-    fun write(report: Report, outputStream: OutputStream, translatorConfig: TranslatorConfiguration? = null) {
+    fun write(report: Report, outputStream: OutputStream) {
         if (report.itemCount != 1)
             error("Internal Error: multiple item report cannot be written as a single HL7 message")
         val message = createMessage(report, 0)
@@ -103,9 +107,9 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
         val rowResults = mutableListOf<RowResult>()
-        val reg = "(\r|\n)".toRegex()
-        val cleanedMessage = reg.replace(message, "\r")
-        val messageLines = cleanedMessage.split("\r")
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
+        val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
         val nextMessage = StringBuilder()
 
         fun deconstructStringMessage() {
@@ -150,117 +154,194 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         return Hl7Mapping(mappedRows, rowResults, errors, warnings)
     }
 
-    fun convertMessageToMap(message: String, schema: Schema): Hl7Serializer.RowResult {
-        // safely merge into the set. might not be necessary
-        fun mergeIntoMappedRows(mappedRows: MutableMap<String, MutableSet<String>>, key: String, value: String) {
-            if (!mappedRows.containsKey(key)) error("Map doesn't contain key $key")
-            // get the existing values
-            val existingValues = mappedRows[key] ?: emptySet()
-            // if the existing value doesn't exist, add it in
-            if (!existingValues.contains(value)) {
-                // making sure an empty value doesn't blow things up if we already
-                // have a value for that key
-                if (existingValues.isEmpty() || value.isNotEmpty())
-                    mappedRows[key]?.add(value)
-            }
-        }
-        // query the terser and get a value
+    /**
+     * Convert an HL7 [message] based on the specified [schema].
+     * @returns the resulting data
+     */
+    fun convertMessageToMap(message: String, schema: Schema): RowResult {
+        /**
+         * Query the terser and get a value.
+         * @param terser the HAPI terser
+         * @param terserSpec the HL7 field to fetch as a terser spec
+         * @param errors the list of errors for this message decoding
+         * @return the value from the HL7 message or an empty string if no value found
+         */
         fun queryTerserForValue(
             terser: Terser,
             terserSpec: String,
-            elementName: String,
-            mappedRows: MutableMap<String, MutableSet<String>>,
             errors: MutableList<String>,
-            warnings: MutableList<String>
-        ) {
+        ): String {
             val parsedValue = try {
                 terser.get(terserSpec)
             } catch (e: HL7Exception) {
                 errors.add("Exception for $terserSpec: ${e.message}")
                 null
             }
-            // add the rows
-            if (parsedValue.isNullOrEmpty()) {
-                warnings.add("Blank for $terserSpec - $elementName")
-            }
-            mergeIntoMappedRows(mappedRows, elementName, parsedValue ?: "")
+
+            return parsedValue ?: ""
         }
+
+        /**
+         * Decode answers to AOE questions
+         * @param element the element for the AOE question
+         * @param terser the HAPI terser
+         * @param errors the list of errors for this message decoding
+         * @return the value from the HL7 message or an empty string if no value found
+         */
+        fun decodeAOEQuestion(
+            element: Element,
+            terser: Terser,
+            errors: MutableList<String>
+        ): String {
+            var value = ""
+            val question = element.hl7AOEQuestion!!
+            val countObservations = 10
+            // todo: map each AOE by the AOE question ID
+            for (c in 0 until countObservations) {
+                var spec = "/.OBSERVATION($c)/OBX-3-1"
+                val questionCode = try {
+                    terser.get(spec)
+                } catch (e: HL7Exception) {
+                    // todo: convert to result detail, maybe
+                    errors.add("Exception for $spec: ${e.message}")
+                    null
+                }
+                if (questionCode?.startsWith(question) == true) {
+                    spec = "/.OBSERVATION($c)/OBX-5"
+                    value = queryTerserForValue(terser, spec, errors)
+                }
+            }
+            return value
+        }
+
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
         // key of the map is the column header, list is the values in the column
         val mappedRows: MutableMap<String, MutableSet<String>> = mutableMapOf()
         hapiContext.modelClassFactory = modelClassFactory
         val parser = hapiContext.pipeParser
-        val reg = "(\r|\n)".toRegex()
-        val cleanedMessage = reg.replace(message, "\r").trim()
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(message, hl7SegmentDelimiter).trim()
         // if the message is empty, return a row result that warns of empty data
         if (cleanedMessage.isEmpty()) {
             logger.debug("Skipping empty message during parsing")
-            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty message"))
+            return RowResult(emptyMap(), emptyList(), listOf("Cannot parse empty HL7 message"))
+        }
+
+        val hapiMsg = try {
+            parser.parse(cleanedMessage)
+        } catch (e: HL7Exception) {
+            logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
+            if (e is EncodingNotSupportedException) {
+                // This exception error message is a bit cryptic, so let's provide a better one.
+                errors.add("Error parsing HL7 message: Invalid HL7 message format")
+            } else {
+                errors.add("Error parsing HL7 message: ${e.localizedMessage}")
+            }
+            return RowResult(emptyMap(), errors, warnings)
         }
 
         try {
-            val hapiMsg = parser.parse(cleanedMessage)
             val terser = Terser(hapiMsg)
-            schema.elements.forEach {
-                if (!mappedRows.containsKey(it.name))
-                    mappedRows[it.name] = mutableSetOf()
 
-                if (it.hl7Field.isNullOrEmpty() && it.hl7OutputFields.isNullOrEmpty()) {
-                    mappedRows[it.name]?.add("")
-                    return@forEach
+            // First, extract any data elements from the HL7 message.
+            schema.elements.forEach { element ->
+                // If there is no value for the key, then initialize it.
+                if (!mappedRows.containsKey(element.name) || mappedRows[element.name] == null) {
+                    mappedRows[element.name] = mutableSetOf()
                 }
 
-                if (!it.hl7Field.isNullOrEmpty()) {
-                    when {
-                        it.type == Element.Type.TELEPHONE -> {
-                            mappedRows[it.name]?.add(decodeHl7PhoneNumber(terser, it))
-                        }
-                        it.type == Element.Type.DATETIME -> {
-                            mappedRows[it.name]?.add(decodeHl7DateTime(terser, it, warnings))
-                        }
-                        else -> {
-                            val terserSpec = when {
-                                it.hl7Field.startsWith("MSH") -> "/${it.hl7Field}"
-                                (it.hl7Field == "AOE") -> {
-                                    val question = it.hl7AOEQuestion!!
-                                    val countObservations = 10
-                                    // todo: map each AOE by the AOE question ID
-                                    for (c in 0 until countObservations) {
-                                        var spec = "/.OBSERVATION($c)/OBX-3-1"
-                                        val questionCode = try {
-                                            terser.get(spec)
-                                        } catch (e: HL7Exception) {
-                                            // todo: convert to result detail, maybe
-                                            errors.add("Exception for $spec: ${e.message}")
-                                            null
-                                        }
-                                        if (questionCode?.startsWith(question) == true) {
-                                            spec = "/.OBSERVATION($c)/OBX-5"
-                                            queryTerserForValue(terser, spec, it.name, mappedRows, errors, warnings)
-                                        }
-                                    }
-                                    "/.AOE"
-                                }
-                                else -> "/.${it.hl7Field}"
-                            }
+                // Make a list of all the HL7 primary and alternate fields to look into.
+                // Note that the hl7Fields list will be empty if no fields is specified
+                val hl7Fields = ArrayList<String>()
+                if (!element.hl7Field.isNullOrEmpty()) hl7Fields.add(element.hl7Field)
+                if (!element.hl7OutputFields.isNullOrEmpty()) hl7Fields.addAll(element.hl7OutputFields)
+                var value = ""
+                for (i in 0 until hl7Fields.size) {
+                    val hl7Field = hl7Fields[i]
+                    value = when {
+                        // Decode a phone number
+                        element.type == Element.Type.TELEPHONE ||
+                            element.type == Element.Type.EMAIL ->
+                            decodeHl7TelecomData(terser, element, hl7Field)
 
-                            if (terserSpec != "/.AOE") {
-                                queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
-                            } else {
-                                if (mappedRows[it.name]?.isEmpty() == true) mappedRows[it.name]?.add("")
+                        // Decode a timestamp
+                        element.type == Element.Type.DATETIME ||
+                            element.type == Element.Type.DATE ->
+                            decodeHl7DateTime(terser, element, hl7Field, warnings)
+
+                        // Decode an AOE question
+                        hl7Field == "AOE" ->
+                            decodeAOEQuestion(element, terser, errors)
+
+                        // Process a CODE type field.  IMPORTANT: Must be checked after AOE as AOE is a CODE field
+                        element.type == Element.Type.CODE -> {
+                            val rawValue = queryTerserForValue(
+                                terser, getTerserSpec(hl7Field), errors
+                            )
+                            // This verifies the code received is good.  Note the translated value will be the same as
+                            // the raw value for valuesets and altvalues
+                            try {
+                                when {
+                                    rawValue.isBlank() -> ""
+
+                                    element.altValues != null && element.altValues.isNotEmpty() ->
+                                        element.toNormalized(rawValue, Element.altDisplayToken)
+
+                                    !element.valueSet.isNullOrEmpty() ->
+                                        element.toNormalized(rawValue, Element.codeToken)
+
+                                    else -> rawValue
+                                }
+                            } catch (e: IllegalStateException) {
+                                warnings.add("The code $rawValue for field $hl7Field is invalid.")
+                                ""
                             }
+                        }
+
+                        // No special case here, so get a value from an HL7 field
+                        else ->
+                            queryTerserForValue(
+                                terser, getTerserSpec(hl7Field), errors
+                            )
+                    }
+                    if (value.isNotBlank()) break
+                }
+
+                if (value.isNotBlank()) {
+                    mappedRows[element.name]!!.add(value)
+                }
+            }
+
+            // Second, we process the mappers if we have no value from an HL7 field
+            schema.elements.forEach { element ->
+                if (element.mapperRef != null && mappedRows[element.name]!!.isEmpty()) {
+                    // This gets the requiredvalue names, then gets the value from mappedRows that has the data
+                    val args = element.mapperArgs ?: emptyList()
+                    val valueNames = element.mapperRef.valueNames(element, args)
+                    val valuesForMapper = valueNames.mapNotNull { elementName ->
+                        val valueElement = schema.findElement(elementName)
+                        if (valueElement != null && mappedRows.containsKey(elementName) &&
+                            !mappedRows[elementName].isNullOrEmpty()
+                        ) {
+                            ElementAndValue(valueElement, mappedRows[elementName]!!.first())
+                        } else {
+                            null
                         }
                     }
+                    // Only overwrite an existing value if the mapper returns a string
+                    val value = element.mapperRef.apply(element, args, valuesForMapper)
+                    if (value != null) {
+                        mappedRows[element.name] = mutableSetOf(value)
+                    }
+                }
 
-                } else {
-                    it.hl7OutputFields?.forEach { h ->
-                        val terserSpec = if (h.startsWith("MSH")) {
-                            "/$h"
-                        } else {
-                            "/.$h"
-                        }
-                        queryTerserForValue(terser, terserSpec, it.name, mappedRows, errors, warnings)
+                // Finally, add a default value or empty string to elements that still have a null value.
+                if (mappedRows[element.name].isNullOrEmpty()) {
+                    if (!element.default.isNullOrBlank()) {
+                        mappedRows[element.name]!!.add(element.default)
+                    } else {
+                        mappedRows[element.name]?.add("")
                     }
                 }
             }
@@ -268,6 +349,21 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
             errors.add(msg)
+        }
+
+        // Check for required fields now that we are done processing all the fields
+        schema.elements.forEach { element ->
+            if (!element.isOptional) {
+                var isValueEmpty = true
+                mappedRows[element.name]?.forEach { elementValues ->
+                    if (elementValues.isNotEmpty()) {
+                        isValueEmpty = false
+                    }
+                }
+                if (isValueEmpty) {
+                    errors.add("The Value for ${element.name} for field ${element.hl7Field} is required")
+                }
+            }
         }
 
         // convert sets to lists
@@ -294,7 +390,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
-        val report = Report(schema, mappedRows, source)
+        val report = if (errors.size > 0) null else Report(schema, mappedRows, source, metadata = metadata)
         return ReadResult(report, errors, warnings)
     }
 
@@ -320,6 +416,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
     ) {
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
+        val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
         // and we have some fields to suppress
@@ -353,6 +450,9 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
 
+            if (element.hl7Field == "AOE" && suppressAoe)
+                return@forEach
+
             // some fields need to be blank instead of passing in UNK
             // so in this case we'll just go by field name and set the value to blank
             if (blanksForUnknownFields.contains(element.name) &&
@@ -367,13 +467,14 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                 element.hl7OutputFields.forEach outputFields@{ hl7Field ->
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
+
                     // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                     // text, but need to be truncated because they're the first part of an HD field. For example,
                     // ORC-2-2 and ORC-3-2, so we are manually pulling them aside to truncate them
                     val truncatedValue = if (
                         value.length > HD_TRUNCATION_LIMIT &&
                         element.type == Element.Type.TEXT &&
-                        hl7Field in HD_FIELDS &&
+                        hl7Field in HD_FIELDS_LOCAL &&
                         hl7Config?.truncateHDNamespaceIds == true
                     ) {
                         value.substring(0, HD_TRUNCATION_LIMIT)
@@ -412,7 +513,9 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             } else if (element.hl7Field != null && element.mapperRef != null && element.type == Element.Type.TABLE) {
                 setComponentForTable(terser, element, report, row)
             } else if (
-                element.type == Element.Type.TEXT && !element.hl7Field.isNullOrEmpty() && element.hl7Field in HD_FIELDS
+                element.type == Element.Type.TEXT &&
+                !element.hl7Field.isNullOrEmpty() &&
+                element.hl7Field in HD_FIELDS_LOCAL
             ) {
                 // some of our schema elements are actually subcomponents of the HL7 fields, and are individually
                 // text, but need to be truncated because they're the first part of an HD field. For example,
@@ -426,7 +529,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
                     value
                 }
                 setComponent(terser, element, element.hl7Field, truncatedValue, report)
-            } else if (element.hl7Field != null) {
+            } else if (!element.hl7Field.isNullOrEmpty()) {
                 setComponent(terser, element, element.hl7Field, value, report)
             }
         }
@@ -454,8 +557,22 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             terser.set(pathSpec, hl7Config?.reportingFacilityName)
         }
         if (!hl7Config?.reportingFacilityId.isNullOrEmpty()) {
-            val pathSpec = formPathSpec("MSH-4-2")
+            var pathSpec = formPathSpec("MSH-4-2")
             terser.set(pathSpec, hl7Config?.reportingFacilityId)
+            if (!hl7Config?.reportingFacilityIdType.isNullOrEmpty()) {
+                pathSpec = formPathSpec("MSH-4-3")
+                terser.set(pathSpec, hl7Config?.reportingFacilityIdType)
+            }
+        }
+
+        // after all values have been set or blanked, check for values that need replacement
+        // isNotEmpty returns true only when a value exists. Whitespace only is considered a value
+        replaceValue.forEach { element ->
+            var pathSpec = formPathSpec(element.key)
+            val valueInMessage = terser.get(pathSpec) ?: ""
+            if (valueInMessage.isNotEmpty()) {
+                terser.set(pathSpec, element.value)
+            }
         }
     }
 
@@ -480,7 +597,8 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         if (valuesForMapper == null) {
             terser.set(pathSpec, "")
         } else {
-            terser.set(pathSpec, mapper.apply(element, args, valuesForMapper) ?: "")
+            val mappedValue = mapper.apply(element, args, valuesForMapper)
+            terser.set(pathSpec, mappedValue ?: "")
         }
     }
 
@@ -499,12 +617,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         }
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
-            Element.Type.ID_CLIA -> {
-                if (value.isNotEmpty()) {
-                    terser.set(pathSpec, value)
-                    terser.set(nextComponent(pathSpec), "CLIA")
-                }
-            }
+            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field)
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
                     val hd = Element.parseHD(value, hdFieldMaximumLength)
@@ -533,7 +646,9 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet)
             Element.Type.TELEPHONE -> {
                 if (value.isNotEmpty()) {
-                    setTelephoneComponent(terser, value, pathSpec, element)
+                    val phoneNumberFormatting = hl7Config?.phoneNumberFormatting
+                        ?: Hl7Configuration.PhoneNumberFormatting.STANDARD
+                    setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
                 }
             }
             Element.Type.EMAIL -> {
@@ -575,12 +690,78 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         }
     }
 
-    private fun setTelephoneComponent(terser: Terser, value: String, pathSpec: String, element: Element) {
+    /**
+     * Set the [value] into the [hl7Field] in the passed in [terser].
+     * If [hl7Field] points to a universal HD field, set [value] as the Universal ID field
+     * and set 'CLIA' as the Universal ID Type.
+     * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
+     */
+    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String) {
+        if (value.isEmpty()) return
+
+        val pathSpec = formPathSpec(hl7Field)
+        terser.set(pathSpec, value)
+
+        when (hl7Field) {
+            in HD_FIELDS_UNIVERSAL,
+            in CE_FIELDS -> {
+                val nextComponent = nextComponent(pathSpec)
+                terser.set(nextComponent, "CLIA")
+            }
+        }
+    }
+
+    /**
+     * Set the XTN component using [phoneNumberFormatting] to control details
+     */
+    internal fun setTelephoneComponent(
+        terser: Terser,
+        value: String,
+        pathSpec: String,
+        element: Element,
+        phoneNumberFormatting: Hl7Configuration.PhoneNumberFormatting
+    ) {
         val parts = value.split(Element.phoneDelimiter)
         val areaCode = parts[0].substring(0, 3)
         val local = parts[0].substring(3)
         val country = parts[1]
         val extension = parts[2]
+        val localWithDash = if (local.length == 7) "${local.slice(0..2)}-${local.slice(3..6)}" else local
+
+        fun setComponents(pathSpec: String, component1: String) {
+            // Note from the HL7 2.5.1 specification about components 1 and 2:
+            // This component has been retained for backward compatibility only as of version 2.3.
+            // Definition: Specifies the telephone number in a predetermined format that includes an
+            // optional extension, beeper number and comment.
+            // Format: [NN] [(999)]999-9999[X99999][B99999][C any text]
+            // The optional first two digits are the country code. The optional X portion gives an extension.
+            // The optional B portion gives a beeper code.
+            // The optional C portion may be used for comments like, After 6:00.
+
+            when (phoneNumberFormatting) {
+                Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
+                    val phoneNumber = "($areaCode)$localWithDash" +
+                        if (extension.isNotEmpty()) "X$extension" else ""
+                    terser.set(buildComponent(pathSpec, 1), phoneNumber)
+                    terser.set(buildComponent(pathSpec, 2), component1)
+                }
+                Hl7Configuration.PhoneNumberFormatting.ONLY_DIGITS_IN_COMPONENT_ONE -> {
+                    terser.set(buildComponent(pathSpec, 1), "$areaCode$local")
+                    terser.set(buildComponent(pathSpec, 2), component1)
+                }
+                Hl7Configuration.PhoneNumberFormatting.AREA_LOCAL_IN_COMPONENT_ONE -> {
+                    // Added for backward compatibility
+                    terser.set(buildComponent(pathSpec, 1), "($areaCode)$local")
+                    terser.set(buildComponent(pathSpec, 2), component1)
+                }
+            }
+            // it's a phone
+            terser.set(buildComponent(pathSpec, 3), "PH")
+            terser.set(buildComponent(pathSpec, 5), country)
+            terser.set(buildComponent(pathSpec, 6), areaCode)
+            terser.set(buildComponent(pathSpec, 7), local)
+            if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
+        }
 
         if (element.nameContains("patient")) {
             // PID-13 is repeatable, which means we could have more than one phone #
@@ -589,25 +770,9 @@ class Hl7Serializer(val metadata: Metadata): Logging {
             while (terser.get("/PATIENT_RESULT/PATIENT/PID-13($rep)-2")?.isEmpty() == false) {
                 rep += 1
             }
-            // primary residence number
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-1", "($areaCode)$local")
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-2", "PRN")
-            // it's a phone
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-3", "PH")
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-5", country)
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-6", areaCode)
-            terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-7", local)
-            if (extension.isNotEmpty()) terser.set("/PATIENT_RESULT/PATIENT/PID-13($rep)-8", extension)
+            setComponents("/PATIENT_RESULT/PATIENT/PID-13($rep)", "PRN")
         } else {
-            // work phone number
-            terser.set(buildComponent(pathSpec, 1), "($areaCode)$local")
-            terser.set(buildComponent(pathSpec, 2), "WPN")
-            // it's a phone
-            terser.set(buildComponent(pathSpec, 3), "PH")
-            terser.set(buildComponent(pathSpec, 5), country)
-            terser.set(buildComponent(pathSpec, 6), areaCode)
-            terser.set(buildComponent(pathSpec, 7), local)
-            terser.set(buildComponent(pathSpec, 8), extension)
+            setComponents(pathSpec, "WPN")
         }
     }
 
@@ -799,7 +964,8 @@ class Hl7Serializer(val metadata: Metadata): Logging {
     }
 
     private fun isField(spec: String): Boolean {
-        val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+$")
+        // Support the SEG-# and the SEG-#(#) repeat pattern
+        val pattern = Regex("[A-Z][A-Z][A-Z]-[0-9]+(?:\\([0-9]+\\))?$")
         return pattern.containsMatchIn(spec)
     }
 
@@ -817,7 +983,7 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         error("Did match on component or subcomponent")
     }
 
-    private fun formPathSpec(spec: String, rep: Int? = null): String {
+    internal fun formPathSpec(spec: String, rep: Int? = null): String {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
         val repSpec = rep?.let { "($rep)" } ?: ""
@@ -855,49 +1021,63 @@ class Hl7Serializer(val metadata: Metadata): Logging {
      * @param element the element to decode
      * @return the phone number or empty string
      */
-    internal fun decodeHl7PhoneNumber(terser: Terser, element: Element): String {
+    internal fun decodeHl7TelecomData(terser: Terser, element: Element, hl7Field: String): String {
 
         /**
          * Extract a phone number from a value [xtnValue] of an XTN HL7 field.
          * @return a normalized phone number or empty if no phone number was found
          */
-        fun getPhoneNumber(xtnValue: Type): String {
+        fun getTelecomValue(xtnValue: Type): String {
             var strValue = ""
-            if(xtnValue != null && xtnValue is XTN) {
-                // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
-                if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
-                    // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                    if (xtnValue.telecommunicationEquipmentType.isEmpty || xtnValue.telecommunicationEquipmentType.value == "PH") {
-                        strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
-                            "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
+            if (xtnValue is XTN) {
+                when (element.type) {
+                    Element.Type.TELEPHONE -> {
+                        // If we have an area code or local number then let's use the new fields, otherwise try the deprecated field
+                        if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
+                            // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                            if (xtnValue.telecommunicationEquipmentType.isEmpty ||
+                                xtnValue.telecommunicationEquipmentType.valueOrEmpty == "PH"
+                            ) {
+                                strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
+                                    "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
+                            }
+                        } else if (!xtnValue.telephoneNumber.isEmpty) {
+                            strValue = element.toNormalized(xtnValue.telephoneNumber.valueOrEmpty)
+                        }
                     }
-                } else if (!xtnValue.telephoneNumber.isEmpty) {
-                    strValue = element.toNormalized(xtnValue.telephoneNumber.value)
+                    Element.Type.EMAIL -> {
+                        if (xtnValue.telecommunicationEquipmentType.isEmpty ||
+                            xtnValue.telecommunicationEquipmentType.valueOrEmpty == "Internet"
+                        ) {
+                            strValue = element.toNormalized(xtnValue.emailAddress.valueOrEmpty)
+                        }
+                    }
+                    else -> error("${element.type} is unsupported to decode telecom data.")
                 }
             }
             return strValue
         }
 
-        var phoneNumber = ""
+        var telecomValue = ""
 
         // Get the field values by going through the terser segment.  This method gives us an
         // array with a maximum number of repetitions, but it may return multiple array elements even if
         // there is no data
-        val fieldParts = element.hl7Field?.split("-")
-        if(fieldParts != null && fieldParts.size > 1) {
-            val segment = terser.getSegment("/.${fieldParts[0]}")
+        val fieldParts = getTerserSpec(hl7Field).split("-")
+        if (fieldParts.size > 1) {
+            val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
-            if(segment != null && fieldNumber != null) {
+            if (segment != null && fieldNumber != null) {
                 segment.getField(fieldNumber)?.forEach {
                     // The first phone number wins
-                    if(phoneNumber.isBlank()) {
-                        phoneNumber = getPhoneNumber(it)
+                    if (telecomValue.isBlank()) {
+                        telecomValue = getTelecomValue(it)
                     }
                 }
             }
         }
 
-        return phoneNumber
+        return telecomValue
     }
 
     /**
@@ -907,36 +1087,88 @@ class Hl7Serializer(val metadata: Metadata): Logging {
      * @param warnings the list of warnings
      * @return the date time or empty string
      */
-    internal fun decodeHl7DateTime(terser: Terser, element: Element, warnings: MutableList<String>): String {
-        var dateTime = ""
-        val fieldParts = element.hl7Field?.split("-")
-        if(fieldParts != null && fieldParts.size > 1) {
-            val segment = terser.getSegment("/.${fieldParts[0]}")
+    internal fun decodeHl7DateTime(
+        terser: Terser,
+        element: Element,
+        hl7Field: String,
+        warnings: MutableList<String>
+    ): String {
+        var valueString = ""
+        val fieldParts = getTerserSpec(hl7Field).split("-")
+        if (fieldParts.size > 1) {
+            val segment = terser.getSegment(fieldParts[0])
             val fieldNumber = fieldParts[1].toIntOrNull()
-            if(segment != null && fieldNumber != null) {
-                val dtm = when (val value = segment.getField(fieldNumber, 0)) {
+            if (segment != null && fieldNumber != null) {
+                var dtm: Instant? = null
+                var rawValue = ""
+                when (val value = segment.getField(fieldNumber, 0)) {
                     // Timestamp
-                    is TS -> value.time
+                    is TS -> {
+                        // If the offset was not specified then set the timezone to UTC instead of the system default
+                        // -99 is the value returned from HAPI when no offset is specified
+                        if (value.time?.gmtOffset == -99) {
+                            val cal = value.time?.valueAsCalendar
+                            cal?.let { it.timeZone = TimeZone.getTimeZone("GMT") }
+                            dtm = cal?.toInstant()
+                        } else dtm = value.time?.valueAsDate?.toInstant()
+                        rawValue = value.toString()
+                    }
                     // Date range. For getting a date time, use the start of the range
-                    is DR -> value.rangeStartDateTime?.time
-                    else -> null
+                    is DR -> {
+                        dtm = value.rangeStartDateTime?.time?.valueAsDate?.toInstant()
+                        rawValue = value.toString()
+                    }
+                    is DT -> {
+                        dtm = LocalDate.of(value.year, value.month, value.day)
+                            .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                        rawValue = value.toString()
+                    }
                 }
 
                 dtm?.let {
-                    if(it.valueAsDate != null) {
-                        // Check to see if we have all the precision we want including the time zone offset
-                        val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.{0,1}[0-9]{0,4}[+-][0-9]{4}\\]\$")
-                        if (!r.matches(it.value)) {
-                            warnings.add("Timestamp for ${element.hl7Field} - ${element.name} needs to provide more precision. " +
-                                "Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ")
+                    // Now check to see if we have all the precision we want
+                    when (element.type) {
+                        Element.Type.DATETIME -> {
+                            valueString = DateTimeFormatter.ofPattern(Element.datetimePattern)
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
+                            val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
+                            if (!r.matches(rawValue)) {
+                                warnings.add(
+                                    "Timestamp for $hl7Field - ${element.name} should provide more " +
+                                        "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
+                                )
+                            }
                         }
-                        dateTime = DateTimeFormatter.ofPattern(Element.datetimePattern).
-                            format(ZonedDateTime.ofInstant(it.valueAsDate.toInstant(), ZoneId.systemDefault()))
+                        Element.Type.DATE -> {
+                            valueString = DateTimeFormatter.ofPattern(Element.datePattern)
+                                .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
+                            // Note that some schema fields of type date could be derived from HL7 date time fields
+                            val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
+                            if (!r.matches(rawValue)) {
+                                warnings.add(
+                                    "Date for $hl7Field - ${element.name} should provide more " +
+                                        "precision. Should be formatted as YYYYMMDD"
+                                )
+                            }
+                        }
+                        else -> throw IllegalStateException("${element.type} not supported by decodeHl7DateTime")
                     }
                 }
             }
         }
-        return dateTime
+        return valueString
+    }
+
+    /**
+     * Gets the HAPI Terser spec from the provided [hl7Field] string.
+     * @returns the HAPI Terser spec
+     */
+    internal fun getTerserSpec(hl7Field: String): String {
+        return if (hl7Field.isNotBlank() && hl7Field.startsWith("MSH")) {
+            "/$hl7Field"
+        } else {
+            "/.$hl7Field"
+        }
     }
 
     companion object {
@@ -945,7 +1177,37 @@ class Hl7Serializer(val metadata: Metadata): Logging {
         const val MESSAGE_CODE = "ORU"
         const val MESSAGE_TRIGGER_EVENT = "R01"
         const val SOFTWARE_VENDOR_ORGANIZATION: String = "Centers for Disease Control and Prevention"
-        const val SOFTWARE_PRODUCT_NAME: String = "PRIME Data Hub"
-        val HD_FIELDS = listOf("MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "PID-3-4-1")
+        const val SOFTWARE_PRODUCT_NAME: String = "PRIME ReportStream"
+
+        /*
+        From the HL7 2.5.1 Ch 2A spec...
+
+        The Hierarchical Designator identifies an entity that has responsibility for managing or
+        assigning a defined set of instance identifiers.
+
+        The HD is designed to be used either as a local identifier (with only the <namespace ID> valued)
+        or a publicly-assigned identifier, a UID (<universal ID> and <universal ID type> both valued)
+         */
+
+        /**
+         * List of fields that have the local HD type.
+         */
+        val HD_FIELDS_LOCAL = listOf(
+            "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
+            "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2"
+        )
+
+        /**
+         * List of fields that have the universal HD type
+         */
+        val HD_FIELDS_UNIVERSAL = listOf(
+            "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
+            "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
+        )
+
+        /**
+         * List of fields that have a CE type
+         */
+        val CE_FIELDS = listOf("OBX-15-1")
     }
 }

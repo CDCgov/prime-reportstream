@@ -222,8 +222,19 @@ elements:
   - name: ordering_provider_county
     csvFields: [{name: Ordering_provider_county}]
 
+  - name: site_of_care
+    csvFields: [{name: Site_of_care}]
+
+  # Fields that are calculated
+
   - name: reporting_facility_name
     mapper: use(testing_lab_name)
 
   - name: reporting_facility_clia
     mapper: use(testing_lab_clia)
+
+  # These fields are calculated, but not outputted, for filtering purposes
+  - name: test_authorized_for_otc
+  - name: test_authorized_for_home
+  - name: test_authorized_for_unproctored
+  - name: abnormal_flag

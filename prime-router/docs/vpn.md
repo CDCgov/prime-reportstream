@@ -31,22 +31,21 @@ To generate keys for a VPN profile, follow the below steps. These steps [are der
 * Generate a user certificate:
 
 ```
-export USERNAME="client"
+export VPN_USERNAME="client"
 
-ipsec pki --gen --outform pem > "${USERNAME}Key.pem"
-ipsec pki --pub --in "${USERNAME}Key.pem" | ipsec pki --issue --cacert caCert.pem --cakey caKey.pem --dn "CN=${USERNAME}" --san "${USERNAME}" --flag clientAuth --outform pem > "${USERNAME}Cert.pem"
+ipsec pki --gen --outform pem > "${VPN_USERNAME}Key.pem"
+ipsec pki --pub --in "${VPN_USERNAME}Key.pem" | ipsec pki --issue --cacert caCert.pem --cakey caKey.pem --dn "CN=${VPN_USERNAME}" --san "${VPN_USERNAME}" --flag clientAuth --outform pem > "${VPN_USERNAME}Cert.pem"
 ```
 
 * Generate a p12 bundle from the user certificate:
 
 ```
-openssl pkcs12 -in "${USERNAME}Cert.pem" -inkey "${USERNAME}Key.pem" -certfile caCert.pem -export -out "${USERNAME}.p12"
+openssl pkcs12 -in "${VPN_USERNAME}Cert.pem" -inkey "${VPN_USERNAME}Key.pem" -certfile caCert.pem -export -out "${VPN_USERNAME}.p12"
 ```
 
 * In the VPN profile, add the contents of the following files to the specified sections:
-    * `caCert.pem` to `<ca></ca>`
-    * `${USEERNAME}Cert.pem` to `<cert></cert>`
-    * `${USEERNAME}Key.pem` to `<key></key>`
+    * `${VPN_USERNAME}Cert.pem` to `<cert></cert>`
+    * `${VPN_USERNAME}Key.pem` to `<key></key>`
 * Securely transmit the VPN profile to the recipient
 
 # Revoke a VPN Profile

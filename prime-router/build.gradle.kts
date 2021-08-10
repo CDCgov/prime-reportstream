@@ -1,12 +1,20 @@
 /*
 Build script for Prime Router.
 
-Properties that can be overridden using the Gradle -P arguments:
+Properties that can be overridden using the Gradle -P arguments or environment variables:
   DB_USER - Postgres database username (defaults to prime)
   DB_PASSWORD - Postgres database password (defaults to changeIT!)
   DB_URL - Postgres database URL (defaults to jdbc:postgresql://localhost:5432/prime_data_hub)
 
-  E.g. ./gradlew clean package -Pg.user=myuser -Dpg.password=mypassword
+Properties that can be overriden using an environment variable only:
+  PRIME_RS_API_ENDPOINT_HOST - hostname on which your API endpoint runs (defaults to localhost);
+                               This will enable you to connect to your API endpoint from (e.g.)
+                               the builder container
+
+Properties to control the execution and output using the Gradle -P arguments:
+  forcetest - Force the running of the test regardless of changes
+  showtests - Verbose output of the unit tests
+  E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -15,11 +23,14 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 plugins {
-    kotlin("jvm") version "1.5.0"
-    id("org.flywaydb.flyway") version "7.8.2"
-    id("nu.studer.jooq") version "5.2.1"
+    kotlin("jvm") version "1.5.21"
+    id("org.flywaydb.flyway") version "7.12.1"
+    id("nu.studer.jooq") version "6.0"
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("com.microsoft.azure.azurefunctions") version "1.5.1"
+    id("com.microsoft.azure.azurefunctions") version "1.6.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
+    id("com.adarshr.test-logger") version "3.0.0"
+    id("jacoco")
 }
 
 group = "gov.cdc.prime"
@@ -30,16 +41,42 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 azurefunctions.appName = azureAppName
 
-// Local database information
-val dbUser = (project.properties["DB_USER"] ?: "prime") as String
-val dbPassword = (project.properties["DB_PASSWORD"] ?: "changeIT!") as String
-val dbUrl = (project.properties["DB_URL"] ?: "jdbc:postgresql://localhost:5432/prime_data_hub") as String
+// Local database information, first one wins:
+// 1. Project properties (-P<VAR>=<VALUE> flag)
+// 2. Environment variable
+// 3. Default
+val KEY_DB_USER = "DB_USER"
+val KEY_DB_PASSWORD = "DB_PASSWORD"
+val KEY_DB_URL = "DB_URL"
+val KEY_PRIME_RS_API_ENDPOINT_HOST = "PRIME_RS_API_ENDPOINT_HOST"
+val dbUser = (
+    project.properties[KEY_DB_USER]
+        ?: System.getenv(KEY_DB_USER)
+        ?: "prime"
+    ) as String
+val dbPassword = (
+    project.properties[KEY_DB_PASSWORD]
+        ?: System.getenv(KEY_DB_PASSWORD)
+        ?: "changeIT!"
+    ) as String
+val dbUrl = (
+    project.properties[KEY_DB_URL]
+        ?: System.getenv(KEY_DB_URL)
+        ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
+    ) as String
+
+val reportsApiEndpointHost = (
+    System.getenv(KEY_PRIME_RS_API_ENDPOINT_HOST)
+        ?: "localhost"
+    ) as String
+
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
-val kotlinVersion = "1.5.0"
-
 defaultTasks("package")
+
+val kotlinVersion = "1.5.21"
+jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
 java {
@@ -57,10 +94,14 @@ tasks.clean {
     delete("target")
 }
 
+val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/*")
 tasks.test {
     // Use JUnit 5 for running tests
     useJUnitPlatform()
+    // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
     dependsOn("compileKotlin")
+    finalizedBy("jacocoTestReport")
     // Run the test task if specified configuration files are changed
     inputs.files(
         fileTree("./") {
@@ -77,6 +118,81 @@ tasks.test {
             true
         }
     }
+    configure<JacocoTaskExtension> {
+        // This excludes classes from being analyzed, but not from being added to the report
+        excludes = coverageExcludedClasses
+    }
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    // Remove the exclusions, so they do not appear in the report
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it).matching {
+                    exclude(coverageExcludedClasses)
+                }
+            }
+        )
+    )
+}
+
+testlogger {
+    if (project.hasProperty("showtests")) {
+        showPassed = true
+        showSkipped = true
+    } else {
+        showPassed = false
+        showSkipped = false
+    }
+}
+
+// Add the testIntegration tests
+sourceSets.create("testIntegration") {
+    java.srcDir("src/testIntegration/kotlin")
+    compileClasspath += sourceSets["main"].output
+    runtimeClasspath += sourceSets["main"].output
+}
+
+val compileTestIntegrationKotlin: KotlinCompile by tasks
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+
+val testIntegrationImplementation: Configuration by configurations.getting {
+    extendsFrom(configurations["testImplementation"])
+}
+
+configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
+
+tasks.register<Test>("testIntegration") {
+    useJUnitPlatform()
+    dependsOn("compile")
+    dependsOn("compileTestIntegrationKotlin")
+    dependsOn("compileTestIntegrationJava")
+    shouldRunAfter("test")
+    testClassesDirs = sourceSets["testIntegration"].output.classesDirs
+    classpath = sourceSets["testIntegration"].runtimeClasspath
+    // Run the test task if specified configuration files are changed
+    inputs.files(
+        fileTree("./") {
+            include("settings/**/*.yml")
+            include("metadata/**/*")
+            include("src/testIntergation/resources/datatests/**/*")
+        }
+    )
+    outputs.upToDateWhen {
+        // Call gradle with the -Pforcetest option will force the unit tests to run
+        if (project.hasProperty("forcetest")) {
+            println("Rerunning unit tests...")
+            false
+        } else {
+            true
+        }
+    }
+}
+
+tasks.check {
+    dependsOn("testIntegration")
 }
 
 tasks.withType<Test>().configureEach {
@@ -102,6 +218,11 @@ tasks.jar {
     }
 }
 
+tasks.shadowJar {
+    // our fat jar is getting fat! Or over 65K files in this case
+    isZip64 = true
+}
+
 // Just a nicer name to create the fat jar
 tasks.register("fatJar") {
     group = rootProject.description ?: ""
@@ -115,33 +236,46 @@ tasks.register<JavaExec>("primeCLI") {
     main = primeMainClass
     classpath = sourceSets["main"].runtimeClasspath
     // Default arguments is to display the help
-    args = listOf("-h")
-    environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
+    environment["POSTGRES_URL"] = dbUrl
+    environment["POSTGRES_USER"] = dbUser
+    environment["POSTGRES_PASSWORD"] = dbPassword
+    environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
+
+    // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
-        println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
-        println(
-            "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
-                "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
-                "--target-counties 'Santa Clara' --output-format CSV\""
-        )
+        if (project.extra.has("cliArgs")) {
+            args = project.extra["cliArgs"] as MutableList<String>
+        } else if (args.isNullOrEmpty()) {
+            args = listOf("-h")
+            println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
+            println(
+                "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
+                    "--input-schema waters/waters-covid-19 --output-dir ./ --target-states CA " +
+                    "--target-counties 'Santa Clara' --output-format CSV\""
+            )
+        }
     }
 }
 
-tasks.register<JavaExec>("testEnd2End") {
+tasks.register("testSmoke") {
     group = rootProject.description ?: ""
-    description = "Run the end to end tests.  Requires running a Docker instance"
-    main = primeMainClass
-    classpath = sourceSets["main"].runtimeClasspath
-    args = listOf("test", "--run", "end2end")
-    environment = mapOf("POSTGRES_URL" to dbUrl, "POSTGRES_USER" to dbUser, "POSTGRES_PASSWORD" to dbPassword)
+    description = "Run the smoke tests"
+    project.extra["cliArgs"] = listOf("test")
+    finalizedBy("primeCLI")
 }
 
-tasks.register<JavaExec>("generateDocs") {
+tasks.register("testEnd2End") {
+    group = rootProject.description ?: ""
+    description = "Run the end to end tests.  Requires running a Docker instance"
+    project.extra["cliArgs"] = listOf("test", "--run", "end2end")
+    finalizedBy("primeCLI")
+}
+
+tasks.register("generateDocs") {
     group = rootProject.description ?: ""
     description = "Generate the schema documentation in markup format"
-    main = primeMainClass
-    classpath = sourceSets["main"].runtimeClasspath
-    args = listOf("generate-docs")
+    project.extra["cliArgs"] = listOf("generate-docs")
+    finalizedBy("primeCLI")
 }
 
 tasks.azureFunctionsPackage {
@@ -262,33 +396,46 @@ tasks.register("package") {
     dependsOn("fatJar")
 }
 
+tasks.register("quickPackage") {
+    // Quick package for development purposes.  Use with caution.
+    dependsOn("azureFunctionsPackage")
+    dependsOn("copyAzureResources")
+    dependsOn("copyAzureScripts")
+    tasks["test"].enabled = false
+    tasks["jacocoTestReport"].enabled = false
+    tasks["compileTestKotlin"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+
 repositories {
     mavenCentral()
+    jcenter()
     maven {
         url = uri("https://jitpack.io")
     }
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.2.20")
+    jooqGenerator("org.postgresql:postgresql:42.2.23")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.16.0")
-    implementation("com.azure:azure-core-http-netty:1.9.2")
-    implementation("com.azure:azure-storage-blob:12.10.2") {
+    implementation("com.azure:azure-core:1.19.0")
+    implementation("com.azure:azure-core-http-netty:1.10.2")
+    implementation("com.azure:azure-storage-blob:12.11.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.8.0") {
+    implementation("com.azure:azure-storage-queue:12.9.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.2.7") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.2.5") {
+    implementation("com.azure:azure-identity:1.3.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -297,18 +444,18 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.13.2,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.0.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.15.2")
-    implementation("tech.tablesaw:tablesaw-core:0.38.2")
+    implementation("tech.tablesaw:tablesaw-core:0.38.3")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.4")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.23")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.29")
     implementation("org.thymeleaf:thymeleaf:3.0.12.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.7.2")
+    implementation("com.sendgrid:sendgrid-java:4.7.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
@@ -316,18 +463,26 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20210307")
     implementation("com.hierynomus:sshj:0.31.0")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.68")
+    implementation("org.bouncycastle:bcprov-jdk15on:1.69")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
-    implementation("commons-io:commons-io:2.8.0")
-    implementation("org.postgresql:postgresql:42.2.20")
-    implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation("org.flywaydb:flyway-core:7.8.2")
+    implementation("commons-io:commons-io:2.11.0")
+    implementation("org.postgresql:postgresql:42.2.23")
+    implementation("com.zaxxer:HikariCP:5.0.0")
+    implementation("org.flywaydb:flyway-core:7.12.1")
     implementation("com.github.kayr:fuzzy-csv:1.6.48")
-    implementation("org.commonmark:commonmark:0.17.2")
+    implementation("org.commonmark:commonmark:0.18.0")
     implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.helger.as2:as2-lib:4.7.1")
+    // Prevent mixed versions of these libs based on different versions being included by different packages
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
+    implementation("org.bouncycastle:bcmail-jdk15on:1.69")
+    implementation("org.bouncycastle:bcprov-jdk15on:1.69")
+
+    implementation("com.cronutils:cron-utils:9.1.5")
+    implementation("khttp:khttp:0.1.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
@@ -339,10 +494,13 @@ dependencies {
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
     // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-native-mt")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1-native-mt")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.11.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.24")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 }

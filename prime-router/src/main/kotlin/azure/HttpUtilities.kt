@@ -5,23 +5,30 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Sender
+import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
-enum class ReportStreamEnv(val endPoint: String) {
-    TEST("https://pdhtest-functionapp.azurewebsites.net/api/reports"),
-    LOCAL("http://localhost:7071/api/reports"),
-    STAGING("https://staging.prime.cdc.gov/api/reports"),
-//    STAGING("https://pdhstaging-functionapp.azurewebsites.net/api/reports"),
+enum class ReportStreamEnv(val urlPrefix: String) {
+    TEST("https://pdhtest-functionapp.azurewebsites.net"),
+    LOCAL("http://" + (System.getenv("PRIME_RS_API_ENDPOINT_HOST") ?: "localhost") + ":7071"),
+    STAGING("https://staging.prime.cdc.gov"),
     PROD("not implemented"),
 }
 
 class HttpUtilities {
-    companion object {
+    companion object : Logging {
         const val jsonMediaType = "application/json"
+        const val oldApi = "/api/reports"
+        const val watersApi = "/api/waters"
+        const val tokenApi =  "/api/token"
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
@@ -31,6 +38,30 @@ class HttpUtilities {
                 .createResponseBuilder(HttpStatus.OK)
                 .body(responseBody)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .build()
+        }
+
+        fun okResponse(
+            request: HttpRequestMessage<String?>,
+            responseBody: String,
+            lastModified: OffsetDateTime?,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .body(responseBody)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .also { addHeaderIfModified(it, lastModified) }
+                .build()
+        }
+
+        fun okResponse(
+            request: HttpRequestMessage<String?>,
+            lastModified: OffsetDateTime?,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .also { addHeaderIfModified(it, lastModified) }
                 .build()
         }
 
@@ -46,9 +77,9 @@ class HttpUtilities {
         }
 
         /**
-         * This alllows the validator to figure out specific failure, and pass it in here.
+         * Allows the validator to figure out specific failure, and pass it in here.
          * Can be used for any response code.
-         & todo other generic failure response methods here could be removed, and replaced with this
+         * Todo: other generic failure response methods here could be removed, and replaced with this
          *      generic method, instead of having to create a new method for every HttpStatus code.
          */
         fun httpResponse(
@@ -116,6 +147,32 @@ class HttpUtilities {
             return """{"error": "$message"}"""
         }
 
+        private fun addHeaderIfModified(
+            builder: HttpResponseMessage.Builder,
+            lastModified: OffsetDateTime?
+        ) {
+            if (lastModified == null) return
+            // https://datatracker.ietf.org/doc/html/rfc7232#section-2.2 defines this header format
+            val lastModifiedFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss")
+            // Convert to GMT timezone
+            val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), ZoneOffset.UTC)
+            val lastModifiedFormatted = "${lastModifiedGMT.format(lastModifiedFormatter)} GMT"
+            builder.header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatted)
+        }
+
+        /**
+         * convenience method that combines logging, and generation of an HtttpResponse
+         * Not enforced, but meant to be used for unhappy outcomes
+         */
+        fun bad(
+            request: HttpRequestMessage<String?>,
+            msg: String,
+            status: HttpStatus = HttpStatus.BAD_REQUEST
+        ): HttpResponseMessage {
+            logger.error(msg)
+            return HttpUtilities.httpResponse(request, msg, status)
+        }
+
         /**
          * Do a variety of checks on payload size.
          * Returns a Pair (http error code, human readable error message)
@@ -148,43 +205,79 @@ class HttpUtilities {
         }
 
         /**
-         * A generic function to POST a Prime Data Hub report File to a particular Prime Data Hub Environment,
+         * A generic function to POST a Prime ReportStream report File to a particular Prime Data Hub Environment,
          * as if from sendingOrgName.sendingOrgClientName.
          * Returns Pair(Http response code, json response text)
          */
         fun postReportFile(
             environment: ReportStreamEnv,
             file: File,
-            sendingOrgName: String,
-            sendingOrgClientName: String? = null,
+            sendingOrgClient: Sender,
             key: String? = null,
             option: ReportFunction.Options ? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytes(environment, file.readBytes(), sendingOrgName, sendingOrgClientName, key, option)
+            return postReportBytes(environment, file.readBytes(), sendingOrgClient, key, option)
         }
 
         /**
-         * A generic function to POST data to a particular Prime Data Hub Environment,
+         * Same than #postReportFile but going to fhir enabled
+         * endpoint and sending the bearer token header
+         */
+        fun postReportFileFhir(
+            environment: ReportStreamEnv,
+            file: File,
+            sendingOrgClient: Sender,
+            token: String? = null
+        ): Pair<Int, String> {
+            if (!file.exists()) error("Unable to find file ${file.absolutePath}")
+            return postReportBytesToWatersAPI(environment, file.readBytes(), sendingOrgClient, token)
+        }
+
+        /**
+         * A generic function to POST data to a particular Prime ReportStream Environment,
          * as if from sendingOrgName.sendingOrgClientName.
          * Returns Pair(Http response code, json response text)
          */
         fun postReportBytes(
             environment: ReportStreamEnv,
             bytes: ByteArray,
-            sendingOrgName: String,
-            sendingOrgClientName: String?,
+            sendingOrgClient: Sender,
             key: String?,
-            option: ReportFunction.Options?
+            option: ReportFunction.Options? = null
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
-            headers.add("Content-Type" to "text/csv")
-            val clientStr = sendingOrgName + if (sendingOrgClientName != null) ".$sendingOrgClientName" else ""
+            when (sendingOrgClient.format) {
+                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
+            }
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             if (key == null && environment == ReportStreamEnv.TEST) error("key is required for Test environment")
             if (key != null)
                 headers.add("x-functions-key" to key)
-            val url = environment.endPoint + if (option != null) "?option=$option" else ""
+            val url = environment.urlPrefix + oldApi + if (option != null) "?option=$option" else ""
+            return postHttp(url, bytes, headers)
+        }
+
+        fun postReportBytesToWatersAPI(
+            environment: ReportStreamEnv,
+            bytes: ByteArray,
+            sendingOrgClient: Sender,
+            token: String? = null,
+            option: ReportFunction.Options? = null
+        ): Pair<Int, String> {
+            val headers = mutableListOf<Pair<String, String>>()
+            when (sendingOrgClient.format) {
+                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
+            }
+            val clientStr = sendingOrgClient.organizationName +
+                if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
+            headers.add("client" to clientStr)
+            token?.let { headers.add("authorization" to "Bearer $token") }
+            val url = environment.urlPrefix + watersApi + if (option != null) "?option=$option" else ""
             return postHttp(url, bytes, headers)
         }
 
@@ -210,7 +303,7 @@ class HttpUtilities {
                     // HttpUrlStatus treats not-success codes as IOExceptions.
                     // I found that the returned json is secretly still here:
                     errorStream?.bufferedReader()?.readText()
-                        ?: "Error stream is null! ${this.responseCode} - ${this.responseMessage}"
+                        ?: this.responseMessage
                 }
                 return responseCode to response
             }

@@ -26,7 +26,6 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.apache.logging.log4j.kotlin.logger
 import java.io.InputStream
 import java.io.StringReader
-import java.util.logging.Level
 
 class SftpTransport : ITransport, Logging {
     override fun send(
@@ -44,7 +43,12 @@ class SftpTransport : ITransport, Logging {
             if (header.content == null)
                 error("No content to sftp for report ${header.reportFile.reportId}")
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
-            val credential = lookupCredentials(receiver.fullName)
+
+            // if the transport definition has defined default
+            // credentials use them, otherwise go with the
+            // standard way by using the receiver full name
+            val credential = lookupCredentials(sftpTransportType.credentialName ?: receiver.fullName)
+
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
             val sshClient = connect(host, port, credential)
@@ -76,17 +80,17 @@ class SftpTransport : ITransport, Logging {
     }
 
     companion object {
-        fun lookupCredentials(receiverFullName: String): SftpCredential {
-            val credentialLabel = receiverFullName
+
+        fun lookupCredentials(credentialName: String): SftpCredential {
+            val credentialLabel = credentialName
                 .replace(".", "--")
                 .replace("_", "-")
                 .uppercase()
-
             // Assumes credential will be cast as SftpCredential, if not return null, and thus the error case
             return CredentialHelper.getCredentialService().fetchCredential(
                 credentialLabel, "SftpTransport", CredentialRequestReason.SFTP_UPLOAD
             ) as? SftpCredential?
-                ?: error("Unable to find SFTP credentials for $receiverFullName connectionId($credentialLabel)")
+                ?: error("Unable to find SFTP credentials for $credentialName connectionId($credentialLabel)")
         }
 
         fun connect(
@@ -136,7 +140,6 @@ class SftpTransport : ITransport, Logging {
                             it.put(makeSourceFile(contents, fileName), "$path/$fileName")
                         }
                     }
-
                 } finally {
                     sshClient.disconnect()
                 }
@@ -160,8 +163,8 @@ class SftpTransport : ITransport, Logging {
             val lsResults = mutableListOf<String>()
             try {
                 try {
-                    sshClient.use { sshClient ->
-                        sshClient.newSFTPClient().use {
+                    sshClient.use { ssh_Client ->
+                        ssh_Client.newSFTPClient().use {
                             it.ls(path, resourceFilter).map { l -> lsResults.add(l.toString()) }
                         }
                     }
@@ -185,8 +188,8 @@ class SftpTransport : ITransport, Logging {
         fun rm(sshClient: SSHClient, path: String, fileName: String) {
             try {
                 try {
-                    sshClient.use { sshClient ->
-                        sshClient.newSFTPClient().use {
+                    sshClient.use { ssh_Client ->
+                        ssh_Client.newSFTPClient().use {
                             it.rm("$path/$fileName")
                         }
                     }
@@ -206,7 +209,7 @@ class SftpTransport : ITransport, Logging {
         }
 
         fun pwd(sshClient: SSHClient): String {
-            var pwd = ""
+            var pwd: String
             try {
                 sshClient.newStatefulSFTPClient().use { client ->
                     val statefulClient = client as StatefulSFTPClient

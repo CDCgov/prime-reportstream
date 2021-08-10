@@ -2,15 +2,18 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
+    "@okta/jwt-verifier": "^2.3.0",
     "axios": "^0.21.1",
-    "chart.js": "^3.2",
-    "cypress": "^7.3.0",
-    "http-proxy-middleware": "^2.0.0",
+    "chart.js": "^3.5",
+    "cypress": "^8.1.0",
+    "http-proxy-middleware": "^2.0.1",
     "moment": "^2.29.1"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.12.1",
-    "autoprefixer": "^10.2.6",
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.32.0",
     "express": "^4.17.1",
     "gulp": "^4.0.2",
     "gulp-postcss": "^9.0.0",
@@ -20,7 +23,7 @@
     "gulp-sourcemaps": "^3.0.0",
     "gulp-svg-sprite": "^1.5.0",
     "js-yaml": "^4.1.0",
-    "jshint": "^2.12.0",
+    "jshint": "^2.13.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
     "postcss": "^8.3.5",
@@ -36,7 +39,7 @@
     "prebuild": "npm -s run clean",
     "build": "gulp build-sass & eleventy --config eleventy.config.js",
     "watch": "gulp watch & eleventy --watch --config eleventy.config.js",
-    "serve": "gulp watch & eleventy --serve --config eleventy.config.js"
+    "serve": "gulp watch & cross-env ELEVENTY_PORT=8088 eleventy --serve --config eleventy.config.js"
   },
   "jshintConfig": {
     "undef": true,

@@ -14,7 +14,7 @@ import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
-import org.jooq.JSON
+import org.jooq.JSONB
 import java.time.OffsetDateTime
 
 /**
@@ -74,6 +74,10 @@ class SettingsFacade(
     ): String? {
         val result = findSetting(name, clazz, organizationName) ?: return null
         return mapper.writeValueAsString(result)
+    }
+
+    fun getLastModified(): OffsetDateTime? {
+        return db.fetchLastModified()
     }
 
     private fun <T : SettingAPI> findSetting(
@@ -210,7 +214,7 @@ class SettingsFacade(
         clazz: Class<T>,
         name: String,
         organizationName: String? = null,
-    ): Triple<Boolean, String?, JSON?> {
+    ): Triple<Boolean, String?, JSONB?> {
         val input = try {
             mapper.readValue(json, clazz)
         } catch (ex: Exception) {
@@ -221,7 +225,7 @@ class SettingsFacade(
         if (input.organizationName != organizationName)
             return Triple(false, "Payload and path organization name do not match", null)
         input.consistencyErrorMessage(metadata) ?.let { return Triple(false, it, null) }
-        val normalizedJson = JSON.valueOf(mapper.writeValueAsString(input))
+        val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
         return Triple(true, null, normalizedJson)
     }
 
@@ -314,12 +318,12 @@ class SenderAPI
     schemaName: String,
     override var meta: SettingMetadata?,
 ) : Sender(
-    name,
-    organizationName,
-    format,
-    topic,
-    schemaName,
-),
+        name,
+        organizationName,
+        format,
+        topic,
+        schemaName,
+    ),
     SettingAPI
 
 class ReceiverAPI
@@ -330,21 +334,23 @@ class ReceiverAPI
     translation: TranslatorConfiguration,
     jurisdictionalFilter: List<String> = emptyList(),
     qualityFilter: List<String> = emptyList(),
+    reverseTheQualityFilter: Boolean = false,
     deidentify: Boolean = false,
     timing: Timing? = null,
     description: String = "",
     transport: TransportType? = null,
     override var meta: SettingMetadata?,
 ) : Receiver(
-    name,
-    organizationName,
-    topic,
-    translation,
-    jurisdictionalFilter,
-    qualityFilter,
-    deidentify,
-    timing,
-    description,
-    transport
-),
+        name,
+        organizationName,
+        topic,
+        translation,
+        jurisdictionalFilter,
+        qualityFilter,
+        reverseTheQualityFilter,
+        deidentify,
+        timing,
+        description,
+        transport
+    ),
     SettingAPI

@@ -16,6 +16,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.cli.tests.TestReportStream
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -124,8 +125,7 @@ class GenerateDocs : CliktCommand(
         if (!generateMarkup && !generateHtml) {
             println("Nothing generated.  You need to specify at least one type of output.")
             return
-        }
-        else if (inputSchema.isNullOrBlank()) {
+        } else if (inputSchema.isNullOrBlank()) {
             println("Generating documentation for all schemas")
 
             // Clear the existing schema (we want to remove deleted schemas)
@@ -157,8 +157,10 @@ class GenerateDocs : CliktCommand(
             if (outputHl7Elements) {
                 schema = buildMappedHl7Schema(schema)
             }
-            DocumentationFactory.writeDocumentationForSchema(schema, outputDir, outputFileName, includeTimestamps,
-                generateMarkup, generateHtml)
+            DocumentationFactory.writeDocumentationForSchema(
+                schema, outputDir, outputFileName, includeTimestamps,
+                generateMarkup, generateHtml
+            )
         }
     }
 

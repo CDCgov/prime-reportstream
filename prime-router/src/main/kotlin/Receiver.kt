@@ -14,12 +14,13 @@ import java.time.ZoneId
  * @param organizationName of the receiver
  * @param topic defines the set of schemas that can translate to each other
  * @param translation configuration to translate
- * @param jurisdictionalFilter defines the set of elements and regexs that filter the data for this receiver
- * @param qualityFilter defines the set of elements and regexs that do qualiyt filtering on the data for this receiver
+ * @param jurisdictionalFilter defines the set of elements and regexes that filter the data for this receiver
+ * @param qualityFilter defines the set of elements and regexes that do qualiyty filtering on the data for this receiver
  * @param deidentify transform
  * @param timing defines how to delay reports to the org. If null, then send immediately
  * @param description of the receiver
  * @param transport that the org wishes to receive
+ * @param externalName an external display name for the receiver. useful for display in the website
  */
 open class Receiver(
     val name: String,
@@ -28,10 +29,13 @@ open class Receiver(
     val translation: TranslatorConfiguration,
     val jurisdictionalFilter: List<String> = emptyList(),
     val qualityFilter: List<String> = emptyList(),
+    // If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
+    val reverseTheQualityFilter: Boolean = false,
     val deidentify: Boolean = false,
     val timing: Timing? = null,
     val description: String = "",
     val transport: TransportType? = null,
+    val externalName: String? = null,
 ) {
     // Custom constructor
     constructor(
@@ -42,7 +46,7 @@ open class Receiver(
         format: Report.Format = Report.Format.CSV
     ) : this(
         name, organizationName, topic,
-        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), Report.NameFormat.STANDARD, null)
+        CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null)
     )
 
     constructor(copy: Receiver) : this(
@@ -52,10 +56,12 @@ open class Receiver(
         copy.translation,
         copy.jurisdictionalFilter,
         copy.qualityFilter,
+        copy.reverseTheQualityFilter,
         copy.deidentify,
         copy.timing,
         copy.description,
         copy.transport,
+        copy.externalName,
     )
 
     @get:JsonIgnore
@@ -64,6 +70,9 @@ open class Receiver(
     val schemaName: String get() = translation.schemaName
     @get:JsonIgnore
     val format: Report.Format get() = translation.format
+    // adds a display name property that tries to show the external name, or the regular name if there isn't one
+    @get:JsonIgnore
+    val displayName: String get() = externalName ?: name
 
     /**
      * Defines how batching of sending should proceed. Allows flexibility of

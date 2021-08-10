@@ -3,7 +3,7 @@ package gov.cdc.prime.router.cli
 import com.github.ajalt.clikt.output.TermUi.echo
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -11,7 +11,6 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.File
 import java.util.Locale
-import gov.cdc.prime.router.Metadata
 
 class FileUtilities {
     companion object {
@@ -23,7 +22,7 @@ class FileUtilities {
             targetCounties: String? = null,
             directory: String = ".",
             format: Report.Format = Report.Format.CSV,
-            locale : Locale? = null
+            locale: Locale? = null
         ): File {
             val report = createFakeReport(
                 metadata,
@@ -42,7 +41,7 @@ class FileUtilities {
             count: Int,
             targetStates: String? = null,
             targetCounties: String? = null,
-            locale : Locale? = null
+            locale: Locale? = null
         ): Report {
             return FakeReport(metadata, locale).build(
                 metadata.findSchema(sender.schemaName)
@@ -75,7 +74,7 @@ class FileUtilities {
                         listOf(Pair(report, format))
                     }
                 }.forEach { (report, format) ->
-                    var outputFile = writeReportToFile(report, format, metadata, outputDir, outputFileName)
+                    val outputFile = writeReportToFile(report, format, metadata, outputDir, outputFileName)
                     echo(outputFile.absolutePath)
                 }
         }
@@ -90,18 +89,14 @@ class FileUtilities {
             val outputFile = if (outputFileName != null) {
                 File(outputFileName)
             } else {
-                // is this config HL7?
-                val hl7Config = report.destination?.translation as? Hl7Configuration?
-                // if it is, get the test processing mode
-                val processingMode = hl7Config?.processingModeCode ?: "P"
                 val fileName = Report.formFilename(
                     report.id,
                     report.schema.baseName,
                     format,
                     report.createdDateTime,
-                    nameFormat = Report.NameFormat.STANDARD,
-                    report.destination?.translation?.receivingOrganization,
-                    processingMode
+                    nameFormat = "standard",
+                    report.destination?.translation,
+                    metadata
                 )
                 File(outputDir ?: ".", fileName)
             }
@@ -122,6 +117,23 @@ class FileUtilities {
                 }
             }
             return outputFile
+        }
+
+        fun replaceText(
+            path: String?,
+            findText: String,
+            replaceText: String,
+        ): File {
+            val file = File(path)
+
+            // since the files are small, trying to read the whole file
+            var content = file.readText(Charsets.UTF_8)
+            val folderDir = File("./build/tmp")
+            val fileW = File(folderDir, "otc-temp.csv")
+            fileW.parentFile.mkdirs()
+            fileW.writeBytes(content.replace(findText, replaceText).toByteArray())
+
+            return fileW
         }
     }
 }

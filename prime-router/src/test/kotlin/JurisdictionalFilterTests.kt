@@ -37,6 +37,25 @@ class JurisdictionalFilterTests {
     }
 
     @Test
+    fun `test Matches with multiple regexi`() {
+        val filter = Matches()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("A long list of items here", "items", "A short list here")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3"))
+        )
+        val args1 = listOf("colA", "items")
+        val selection1 = filter.getSelection(args1, table, rcvr)
+        val filteredTable1 = table.where(selection1)
+        assertThat(filteredTable1).hasRowCount(1)
+        assertThat(filteredTable1.getString(0, "colB")).isEqualTo("B2")
+
+        val args2 = listOf("colA", ".*items.*", ".*short.*") // test multiple regexi
+        val selection2 = filter.getSelection(args2, table, rcvr)
+        val filteredTable2 = table.where(selection2)
+        assertThat(filteredTable2).hasRowCount(3)
+    }
+
+    @Test
     fun `test empty Matches`() {
         val filter = Matches()
         val table = Table.create(
@@ -46,6 +65,78 @@ class JurisdictionalFilterTests {
         val args1 = listOf("a", "b") // correct # args.
         // However, table doesn't have the expected columns, so an empty selection
         assertThat(filter.getSelection(args1, table, rcvr)).isEmpty()
+    }
+
+    @Test
+    fun `test DoesNotMatch`() {
+        val filter = DoesNotMatch()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("A1", "a2", "X3")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3"))
+        )
+        val args1 = listOf("colA", "A1")
+        val selection1 = filter.getSelection(args1, table, rcvr)
+        val filteredTable1 = table.where(selection1)
+        assertThat(filteredTable1).hasRowCount(2)
+        assertThat(filteredTable1.getString(0, "colB")).isEqualTo("B2")
+        assertThat(filteredTable1.getString(1, "colB")).isEqualTo("B3")
+
+        val args2 = listOf("colA", "(?i)A.*") // test a regex
+        val selection2 = filter.getSelection(args2, table, rcvr)
+        val filteredTable2 = table.where(selection2)
+        assertThat(filteredTable2).hasRowCount(1)
+        assertThat(filteredTable2.getString(0, "colB")).isEqualTo("B3")
+
+        val args3 = listOf("colA", "(?i)A.*", "X.*") // test multiple regexi
+        val selection3 = filter.getSelection(args3, table, rcvr)
+        val filteredTable3 = table.where(selection3)
+        assertThat(filteredTable3).hasRowCount(0)
+    }
+
+    @Test
+    fun `test empty DoesNotMatch`() {
+        val filter = DoesNotMatch()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("A1", null, "")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3"))
+        )
+
+        val args1 = listOf("x", "y") // no such column
+        val selection1 = filter.getSelection(args1, table, rcvr)
+        val filteredTable1 = table.where(selection1)
+        assertThat(filteredTable1).hasRowCount(3)
+
+        val args2 = listOf("colA", "A1")
+        val selection2 = filter.getSelection(args2, table, rcvr)
+        val filteredTable2 = table.where(selection2)
+        assertThat(filteredTable2).hasRowCount(2)
+        assertThat(filteredTable2.getString(0, "colB")).isEqualTo("B2")
+        assertThat(filteredTable2.getString(1, "colB")).isEqualTo("B3")
+    }
+
+    @Test
+    fun `test real world DoesNotMatch`() {
+        val filter = DoesNotMatch()
+
+        val table = Table.create(
+            StringColumn.create("processing_mode_code", listOf("T", "P", "D", "")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3", "B4"))
+        )
+        val args1 = listOf("processing_mode_code", "T", "D") // no such column
+        val selection1 = filter.getSelection(args1, table, rcvr)
+        val filteredTable1 = table.where(selection1)
+        assertThat(filteredTable1).hasRowCount(2)
+        assertThat(filteredTable1.getString(0, "colB")).isEqualTo("B2")
+        assertThat(filteredTable1.getString(1, "colB")).isEqualTo("B4")
+
+        val table2 = Table.create(
+            StringColumn.create("processing_toad_code", listOf("T", "P", "D", "")),
+            StringColumn.create("colB", listOf("B1", "B2", "B3", "B4"))
+        )
+        val args2 = listOf("processing_mode_code", "T", "D") // no such column
+        val selection2 = filter.getSelection(args2, table2, rcvr)
+        val filteredTable2 = table2.where(selection2)
+        assertThat(filteredTable2).hasRowCount(4)
     }
 
     @Test
@@ -240,7 +331,7 @@ class JurisdictionalFilterTests {
             StringColumn.create("colB", listOf(null, "B2")),
         )
         selection = filter.getSelection(allCols, table2, rcvr)
-        filteredTable = table.where(selection)
+        filteredTable = table2.where(selection)
         assertThat(filteredTable).hasRowCount(1)
         assertThat(filteredTable.getString(0, "colA")).isEqualTo("A2")
     }
@@ -261,6 +352,60 @@ class JurisdictionalFilterTests {
         val selection = filter.getSelection(emptyArgs, table, rcvr)
         val filteredTable = table.where(selection)
         assertThat(filteredTable).hasRowCount(4)
+    }
+
+    @Test
+    fun `test IsValidCLIA`() {
+        val filter = IsValidCLIA()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("12D4567890", "12d4567890", "", "1A2B3C4D5E")),
+            StringColumn.create("colB", listOf("12D4567890", "12d4567890", "1a2b3c4d5e", "1A2B3C4D5E")),
+            StringColumn.create("colC", listOf("12D4567890", "12d4567890", "1a2b3c4d5e", null))
+        )
+
+        val emptyArgs = listOf<String>()
+        assertThat { filter.getSelection(emptyArgs, table, rcvr) }.isFailure()
+
+        val junkColNames = listOf("foo", "bar", "baz")
+        var selection = filter.getSelection(junkColNames, table, rcvr)
+        var filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(0)
+
+        val oneGoodColName = listOf("foo", "bar", "colB")
+        selection = filter.getSelection(oneGoodColName, table, rcvr)
+        filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(4)
+
+        val colWithEmptyString = listOf("foo", "colA")
+        selection = filter.getSelection(colWithEmptyString, table, rcvr)
+        filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(3)
+        assertThat(filteredTable.getString(0, "colA")).isEqualTo("12D4567890")
+        assertThat(filteredTable.getString(1, "colA")).isEqualTo("12d4567890")
+        assertThat(filteredTable.getString(2, "colA")).isEqualTo("1A2B3C4D5E")
+
+        val colWithNull = listOf("colC")
+        selection = filter.getSelection(colWithNull, table, rcvr)
+        filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(3)
+        assertThat(filteredTable.getString(0, "colC")).isEqualTo("12D4567890")
+        assertThat(filteredTable.getString(1, "colC")).isEqualTo("12d4567890")
+        assertThat(filteredTable.getString(2, "colC")).isEqualTo("1a2b3c4d5e")
+
+        val allCols = listOf("colA", "colB", "colC")
+        selection = filter.getSelection(allCols, table, rcvr)
+        filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(4)
+
+        // First row and third rows are bad data.  No colC at all.
+        val table2 = Table.create(
+            StringColumn.create("colA", listOf("", "12D4567890", "abc")),
+            StringColumn.create("colB", listOf(null, "12D4567890", "spaces bad")),
+        )
+        selection = filter.getSelection(allCols, table2, rcvr)
+        filteredTable = table2.where(selection)
+        assertThat(filteredTable).hasRowCount(1)
+        assertThat(filteredTable.getString(0, "colA")).isEqualTo("12D4567890")
     }
 
     companion object {

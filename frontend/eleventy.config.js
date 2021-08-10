@@ -1,5 +1,4 @@
 // Use same port as the prime-router server API being mocked out
-//const PRIME_api = process.env.PRIME_api || "http://localhost:7071/api";
 
 // Use different port
 const PRIME_api = process.env.PRIME_api || "http://localhost:7071/api";
@@ -42,7 +41,7 @@ function _with_live_reloading(cfg) {
   const { createProxyMiddleware } = require("http-proxy-middleware")
 
   cfg.setBrowserSyncConfig({
-    port: 8090,
+    port: process.env.ELEVENTY_PORT || 8090,
     // port: 7079,
 
     // see https://browsersync.io/docs/options

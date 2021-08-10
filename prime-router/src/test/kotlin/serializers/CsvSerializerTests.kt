@@ -1,5 +1,10 @@
 package gov.cdc.prime.router.serializers
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -7,7 +12,6 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -249,7 +253,6 @@ class CsvSerializerTests {
         assertNull(result.report)
     }
 
-
     @Test
     fun `test missing row`() {
         // setup a malformed CSV
@@ -308,7 +311,7 @@ class CsvSerializerTests {
         """.trimIndent()
         val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
-        assertTrue(result.warnings.isEmpty())
+        assertTrue(result.warnings.isNotEmpty())
         assertTrue(result.errors.isEmpty())
         assertEquals(0, result.report?.itemCount)
     }
@@ -484,10 +487,14 @@ class CsvSerializerTests {
 
         // Sample UTF-8 taken from https://www.kermitproject.org/utf8.html as a byte array, so we are not
         // restricted by the encoding of this code file
-        val koreanString = String(byteArrayOf(-21, -126, -104, -21, -118, -108, 32, -20, -100, -96, -21, -90, -84, -21, -91, -68),
-            Charsets.UTF_8)
-        val greekString = String(byteArrayOf(-50, -100, -49, -128, -50, -65, -49, -127, -49, -114),
-            Charsets.UTF_8)
+        val koreanString = String(
+            byteArrayOf(-21, -126, -104, -21, -118, -108, 32, -20, -100, -96, -21, -90, -84, -21, -91, -68),
+            Charsets.UTF_8
+        )
+        val greekString = String(
+            byteArrayOf(-50, -100, -49, -128, -50, -65, -49, -127, -49, -114),
+            Charsets.UTF_8
+        )
 
         // Java strings are stored as UTF-16
         val csv = """
@@ -502,5 +509,44 @@ class CsvSerializerTests {
         assertEquals(1, result.report?.itemCount)
         assertEquals(koreanString, result.report?.getString(0, "a"))
         assertEquals(greekString, result.report?.getString(0, "b"))
+    }
+
+    @Test
+    fun `test incorrect CSV content`() {
+        val schema = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a")),
+                Element("b", csvFields = Element.csvFields("b"))
+            )
+        )
+        val serializer = CsvSerializer(Metadata(schema = schema))
+
+        val emptyCSV = ByteArrayInputStream("".toByteArray())
+        var result = serializer.readExternal(schema.name, emptyCSV, TestSource)
+        assertThat(result.warnings).isNotEmpty()
+        assertThat(result.report).isNotNull()
+        assertThat(result.report!!.itemCount).isEqualTo(0)
+
+        val incompleteCSV = ByteArrayInputStream("a,b".toByteArray())
+        result = serializer.readExternal(schema.name, incompleteCSV, TestSource)
+        assertThat(result.warnings).isNotEmpty()
+        assertThat(result.report).isNotNull()
+        assertThat(result.report!!.itemCount).isEqualTo(0)
+
+        val hl7Data = ByteArrayInputStream(
+            """
+            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|||20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
+            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Doe^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071||^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
+            ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|20210209||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^FL^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
+            OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85||94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
+            OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
+            """.trimIndent().toByteArray()
+        )
+        result = serializer.readExternal(schema.name, hl7Data, TestSource)
+        assertThat(result.errors).isNotEmpty()
+        assertThat(result.report).isNull()
     }
 }

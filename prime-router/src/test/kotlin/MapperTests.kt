@@ -1,19 +1,25 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import java.io.ByteArrayInputStream
+import java.lang.IllegalStateException
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import kotlin.test.assertFails
 import kotlin.test.fail
 
 class MapperTests {
+    private val livdPath = "./metadata/tables/LIVD-SARS-CoV-2-2021-01-20.csv"
+
     @Test
     fun `test MiddleInitialMapper`() {
         val mapper = MiddleInitialMapper()
         val args = listOf("test_element")
         val element = Element("test")
-        assertEquals("R", mapper.apply(element, args, listOf(ElementAndValue(element, "Rick"))))
-        assertEquals("R", mapper.apply(element, args, listOf(ElementAndValue(element, "rick"))))
+        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "Rick")))).isEqualTo("R")
+        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "rick")))).isEqualTo("R")
     }
 
     @Test
@@ -37,8 +43,8 @@ class MapperTests {
         val lookupElement = metadata.findSchema("test")?.findElement("c") ?: fail("")
         val mapper = LookupMapper()
         val args = listOf("a")
-        assertEquals(listOf("a"), mapper.valueNames(lookupElement, args))
-        assertEquals("y", mapper.apply(lookupElement, args, listOf(ElementAndValue(indexElement, "3"))))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a"))
+        assertThat(mapper.apply(lookupElement, args, listOf(ElementAndValue(indexElement, "3")))).isEqualTo("y")
     }
 
     @Test
@@ -65,13 +71,13 @@ class MapperTests {
         val mapper = LookupMapper()
         val args = listOf("a", "b")
         val elementAndValues = listOf(ElementAndValue(indexElement, "3"), ElementAndValue(index2Element, "4"))
-        assertEquals(listOf("a", "b"), mapper.valueNames(lookupElement, args))
-        assertEquals("y", mapper.apply(lookupElement, args, elementAndValues))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "b"))
+        assertThat(mapper.apply(lookupElement, args, elementAndValues)).isEqualTo("y")
     }
 
     @Test
     fun `test livdLookup with DeviceId`() {
-        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-01-20.csv")
+        val lookupTable = LookupTable.read(livdPath)
         val codeElement = Element(
             "ordered_test_code",
             tableRef = lookupTable,
@@ -81,7 +87,10 @@ class MapperTests {
         val mapper = LIVDLookupMapper()
 
         // Test with a EUA
-        val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test_Abbott Diagnostics Scarborough, Inc._EUA")
+        val ev1 = ElementAndValue(
+            deviceElement,
+            "BinaxNOW COVID-19 Ag Card Home Test_Abbott Diagnostics Scarborough, Inc._EUA"
+        )
         assertEquals("94558-4", mapper.apply(codeElement, emptyList(), listOf(ev1)))
 
         // Test with a truncated device ID
@@ -99,7 +108,7 @@ class MapperTests {
 
     @Test
     fun `test livdLookup with Equipment Model Name`() {
-        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-01-20.csv")
+        val lookupTable = LookupTable.read(livdPath)
         val codeElement = Element(
             "ordered_test_code",
             tableRef = lookupTable,
@@ -117,15 +126,79 @@ class MapperTests {
         assertEquals("94534-5", mapper.apply(codeElement, emptyList(), listOf(ev2)))
     }
 
+    @Test
+    fun `test livdLookup for Sofia 2`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-SARS-CoV-2-2021-04-28.csv")
+        val codeElement = Element(
+            "ordered_test_code",
+            tableRef = lookupTable,
+            tableColumn = "Test Performed LOINC Long Name"
+        )
+        val modelElement = Element("equipment_model_name")
+        val testPerformedElement = Element("test_performed_code")
+        val mapper = LIVDLookupMapper()
+
+        mapper.apply(
+            codeElement,
+            emptyList(),
+            listOf(
+                ElementAndValue(modelElement, "Sofia 2 Flu + SARS Antigen FIA*"),
+                ElementAndValue(testPerformedElement, "95209-3")
+            )
+        ).let {
+            assertThat(it)
+                .equals("SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay")
+        }
+    }
+
+    @Test
+    fun `test livdLookup supplemental table by device_id`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-Supplemental-2021-06-07.csv")
+        val codeElement = Element(
+            "test_authorized_for_otc",
+            tableRef = lookupTable,
+            tableColumn = "is_otc"
+        )
+        val deviceElement = Element("device_id")
+        val mapper = LIVDLookupMapper()
+
+        // Test with an FDA device id
+        val ev1 = ElementAndValue(deviceElement, "10811877011337")
+        assertEquals("N", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+
+        // Test with a truncated device ID
+        val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home#")
+        assertEquals("Y", mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+    }
+
+    @Test
+    fun `test livdLookup supplemental table by model`() {
+        val lookupTable = LookupTable.read("./metadata/tables/LIVD-Supplemental-2021-06-07.csv")
+        val codeElement = Element(
+            "test_authorized_for_otc",
+            tableRef = lookupTable,
+            tableColumn = "is_otc"
+        )
+        val deviceElement = Element("equipment_model_name")
+        val mapper = LIVDLookupMapper()
+
+        // Test with an FDA device id
+        val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test")
+        assertEquals("N", mapper.apply(codeElement, emptyList(), listOf(ev1)))
+
+        // Test with another
+        val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
+        assertEquals("Y", mapper.apply(codeElement, emptyList(), listOf(ev1a)))
+    }
 
     @Test
     fun `test ifPresent`() {
         val element = Element("a")
         val mapper = IfPresentMapper()
         val args = listOf("a", "const")
-        assertEquals(listOf("a"), mapper.valueNames(element, args))
-        assertEquals("const", mapper.apply(element, args, listOf(ElementAndValue(element, "3"))))
-        assertNull(mapper.apply(element, args, emptyList()))
+        assertThat(mapper.valueNames(element, args)).isEqualTo(listOf("a"))
+        assertThat(mapper.apply(element, args, listOf(ElementAndValue(element, "3")))).isEqualTo("const")
+        assertThat(mapper.apply(element, args, emptyList())).isNull()
     }
 
     @Test
@@ -135,13 +208,12 @@ class MapperTests {
         val elementC = Element("c")
         val mapper = UseMapper()
         val args = listOf("b", "c")
-        assertEquals(listOf("b", "c"), mapper.valueNames(elementA, args))
-        assertEquals(
-            "B",
+        assertThat(mapper.valueNames(elementA, args)).isEqualTo(listOf("b", "c"))
+        assertThat(
             mapper.apply(elementA, args, listOf(ElementAndValue(elementB, "B"), ElementAndValue(elementC, "C")))
-        )
-        assertEquals("C", mapper.apply(elementA, args, listOf(ElementAndValue(elementC, "C"))))
-        assertNull(mapper.apply(elementA, args, emptyList()))
+        ).isEqualTo("B")
+        assertThat(mapper.apply(elementA, args, listOf(ElementAndValue(elementC, "C")))).isEqualTo("C")
+        assertThat(mapper.apply(elementA, args, emptyList())).isNull()
     }
 
     @Test
@@ -156,8 +228,7 @@ class MapperTests {
             ElementAndValue(elementB, "string2"),
             ElementAndValue(elementC, "string3")
         )
-
-        assertEquals("string1, string2, string3", mapper.apply(elementA, args, values))
+        assertThat(mapper.apply(elementA, args, values)).isEqualTo("string1, string2, string3")
     }
 
     @Test
@@ -173,13 +244,11 @@ class MapperTests {
             ElementAndValue(elementB, "string2"),
             ElementAndValue(elementC, "string3")
         )
-
         // act
         val expected = "string1^string2^string3"
         val actual = mapper.apply(elementA, args, values)
-
         // assert
-        assertEquals(expected, actual, "Expected: $expected. Actual: $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -195,13 +264,11 @@ class MapperTests {
         val values = listOf(
             ElementAndValue(element, "202103020000-0600")
         )
-
         // act
         val expected = "20210302000006.0000-0600"
         val actual = mapper.apply(element, args, values)
-
         // assert
-        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -217,13 +284,11 @@ class MapperTests {
         val values = listOf(
             ElementAndValue(element, "20210302000006.0000-0600")
         )
-
         // act
         val expected = "20210302000000.0000-0600"
         val actual = mapper.apply(element, args, values)
-
         // assert
-        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -239,13 +304,11 @@ class MapperTests {
         val values = listOf(
             ElementAndValue(element, "202103020000-0600")
         )
-
         // act
         val expected = "20210302000100.0000-0600"
         val actual = mapper.apply(element, args, values)
-
         // assert
-        assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -261,13 +324,12 @@ class MapperTests {
         val values = listOf(
             ElementAndValue(element, "20210302000100.0000-0600")
         )
-
         // act
         val expected = "20210302000000.0000-0600"
         val actual = mapper.apply(element, args, values)
-
         // assert
         assertEquals(expected, actual, "Expected $expected. Actual: $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -294,7 +356,7 @@ class MapperTests {
         )
         expected = "b"
         actual = mapper.apply(element, args, values)
-        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -307,7 +369,7 @@ class MapperTests {
         )
         val expected = "8509999999:1:"
         val actual = mapper.apply(element, args, values)
-        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -320,7 +382,7 @@ class MapperTests {
         )
         val expected = "years"
         val actual = mapper.apply(element, args, values)
-        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -333,7 +395,7 @@ class MapperTests {
         )
         val expected = "99"
         val actual = mapper.apply(element, args, values)
-        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -346,7 +408,7 @@ class MapperTests {
         )
         val expected = "John"
         val actual = mapper.apply(element, args, values)
-        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -358,7 +420,7 @@ class MapperTests {
             ElementAndValue(Element("patient_name"), "ThereAreNoSpacesHere")
         )
         val actual = mapper.apply(element, args, values)
-        assertNull(actual, "Expected null. Actual $actual")
+        assertThat(actual).isNull()
     }
 
     @Test
@@ -371,7 +433,7 @@ class MapperTests {
         )
         val expected = "Mona"
         val actual = mapper.apply(element, args, values)
-        assertEquals(expected, actual, "Expected $expected. Actual $actual")
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -383,7 +445,7 @@ class MapperTests {
             ElementAndValue(Element("patient_name"), "I have no commas")
         )
         val actual = mapper.apply(element, args, values)
-        assertNull(actual, "Expected null. Actual $actual")
+        assertThat(actual).isNull()
     }
 
     @Test
@@ -407,6 +469,34 @@ class MapperTests {
         )
         val expected = "Leon"
         val actual = mapper.apply(lookupElement, listOf("patient_zip_code"), values)
-        assertEquals(expected, actual, "Expected: $expected, Actual: $actual")
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun `test HashMapper`() {
+        val mapper = HashMapper()
+        val elementA = Element("a")
+        val elementB = Element("b")
+        val elementC = Element("c")
+
+        // Single value conversion
+        val arg = listOf("a")
+        val value = listOf(ElementAndValue(elementA, "6086edf8e412650032408e96"))
+        assertThat(mapper.apply(elementA, arg, value))
+            .isEqualTo("47496cafa04e9c489444b60575399f51e9abc061f4fdda40c31d814325bfc223")
+        // Multiple values concatenated
+        val args = listOf("a", "b", "c")
+        val values = listOf(
+            ElementAndValue(elementA, "string1"),
+            ElementAndValue(elementB, "string2"),
+            ElementAndValue(elementC, "string3")
+        )
+        assertThat(mapper.apply(elementA, args, values))
+            .isEqualTo("c8fa773cd54e7a7eb7ca08577d0bd23e6ce3a73e61df176213d9ec90f06cb45f")
+        // Unhappy path cases
+        assertFails { mapper.apply(elementA, listOf(), listOf()) } // must pass a field name
+        assertThat(mapper.apply(elementA, arg, listOf())).isNull() // column not found in the data.
+        // column has empty data
+        assertThat(mapper.apply(elementA, arg, listOf(ElementAndValue(elementA, "")))).isNull()
     }
 }

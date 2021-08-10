@@ -1,0 +1,12 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0036-reddyfmc-la.yml --env prod
+---
+- name: reddyfmc-la
+  description: iPatientCare CSV lab report schema, Reddy Family Medical Clinic, LA
+  jurisdiction: FEDERAL
+  senders:
+  - name: default
+    organizationName: reddyfmc-la
+    topic: covid-19
+    schemaName: ipatientCare/reddyfmc-la-covid-19
+    format: CSV
+      

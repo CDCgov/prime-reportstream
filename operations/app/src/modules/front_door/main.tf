@@ -1,14 +1,10 @@
-terraform {
-  required_version = ">= 0.14"
-}
-
 locals {
   name = var.environment != "dev" ? "prime-data-hub-${var.environment}" : "prime-data-hub-${var.resource_prefix}"
   name_static = var.environment != "dev" ? "prime-data-hub-${var.environment}-static" : "prime-data-hub-${var.resource_prefix}-static"
 
   functionapp_address = "${var.resource_prefix}-functionapp.azurewebsites.net"
-  metabase_address = (var.environment == "test" || var.environment == "prod" ? "${var.resource_prefix}-metabase.azurewebsites.net" : null)
-  static_address = trimprefix(trimsuffix(var.storage_web_endpoint, "/"), "https://")
+  metabase_address = var.is_metabase_env ? "${var.resource_prefix}-metabase.azurewebsites.net" : null
+  static_address = trimprefix(trimsuffix(data.azurerm_storage_account.storage_public.primary_web_endpoint, "/"), "https://")
 
   function_certs = [for cert in var.https_cert_names: cert if length(regexall("^[[:alnum:]]*?-?prime.*$", cert)) > 0]
   frontend_endpoints = (length(local.function_certs) > 0) ? concat(["DefaultFrontendEndpoint"], local.function_certs) : ["DefaultFrontendEndpoint"]
@@ -16,8 +12,9 @@ locals {
   static_certs = [for cert in var.https_cert_names: cert if length(regexall("^[[:alnum:]]*?-?reportstream.*$", cert)) > 0]
   static_endpoints = local.static_certs
 
-  metabase_env = var.environment == "test" || var.environment == "prod" ? [1] : []
+  metabase_env = var.is_metabase_env ? [1] : []
   static_env = length(local.static_endpoints) > 0 ? [1] : []
+  dev_env = length(local.static_endpoints) == 0 ? [1] : []
 }
 
 // TODO: Terraform does not support Azure's rules engine yet
@@ -37,7 +34,6 @@ resource "azurerm_frontdoor" "front_door" {
   frontend_endpoint {
     name = "DefaultFrontendEndpoint"
     host_name = "${local.name}.azurefd.net"
-    custom_https_provisioning_enabled = false
   }
 
   dynamic "frontend_endpoint" {
@@ -45,15 +41,6 @@ resource "azurerm_frontdoor" "front_door" {
     content {
       name = frontend_endpoint.value
       host_name = replace(frontend_endpoint.value, "-", ".")
-      // This will change test-prime-cdc-gov to test.prime.cdc.gov
-      custom_https_provisioning_enabled = true
-
-      custom_https_configuration {
-        certificate_source = "AzureKeyVault"
-        azure_key_vault_certificate_secret_name = frontend_endpoint.value
-        azure_key_vault_certificate_secret_version = "Latest"
-        azure_key_vault_certificate_vault_id = var.key_vault_id
-      }
     }
   }
 
@@ -118,10 +105,32 @@ resource "azurerm_frontdoor" "front_door" {
     accepted_protocols = ["Https"]
     patterns_to_match = ["/", "/download"]
 
-    forwarding_configuration {
-      backend_pool_name = "functions"
-      forwarding_protocol = "HttpsOnly"
-      custom_forwarding_path = "/api/download"
+    # Redirect to the new download site in environments with it deployed
+    dynamic "redirect_configuration" {
+      for_each = local.static_env
+      content {
+        redirect_protocol = "MatchRequest"
+        redirect_type = "TemporaryRedirect"
+
+        # Convert test-reportstream-gov to test.reportstream.gov
+        custom_host = replace(local.static_endpoints[0], "-", ".")
+
+        # Clear any existing URL paths
+        custom_path = "/"
+        custom_query_string = ""
+        custom_fragment = ""
+      }
+    }
+
+    # Use the old download site if it's not deployed
+    # (this also applies to the dev environment, which does not have a cert)
+    dynamic "forwarding_configuration" {
+      for_each = local.dev_env
+      content {
+        backend_pool_name = "functions"
+        forwarding_protocol = "HttpsOnly"
+        custom_forwarding_path = "/api/download"
+      }
     }
   }
 
@@ -256,119 +265,22 @@ resource "azurerm_frontdoor" "front_door" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      # The Azure endpoint does not support reconfiguring HTTPS profiles with latest at this time
-      frontend_endpoint[0].custom_https_configuration,
-      frontend_endpoint[1].custom_https_configuration,
-      frontend_endpoint[2].custom_https_configuration
-    ]
-  }
 }
 
-module "frontdoor_access_log_event_hub_log" {
-  source = "../event_hub_log"
-  resource_type = "front_door"
-  log_type = "access"
-  eventhub_namespace_name = var.eventhub_namespace_name
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
+resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https" {
+  frontend_endpoint_id = azurerm_frontdoor.front_door.frontend_endpoints["DefaultFrontendEndpoint"]
+  custom_https_provisioning_enabled = false
 }
 
-resource "azurerm_monitor_diagnostic_setting" "frontdoor_access_log" {
-  name = "${var.resource_prefix}-front_door-access-log"
-  target_resource_id = azurerm_frontdoor.front_door.id
-  eventhub_name = module.frontdoor_access_log_event_hub_log.event_hub_name
-  eventhub_authorization_rule_id = var.eventhub_manage_auth_rule_id
+resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" {
+  for_each = toset(var.https_cert_names)
 
-  log {
-    category = "FrontdoorAccessLog"
-    enabled = true
+  frontend_endpoint_id = azurerm_frontdoor.front_door.frontend_endpoints[each.value]
+  custom_https_provisioning_enabled = true
 
-    retention_policy {
-      days = 0
-      enabled = false
-    }
+  custom_https_configuration {
+    certificate_source = "AzureKeyVault"
+    azure_key_vault_certificate_secret_name = each.value
+    azure_key_vault_certificate_vault_id = data.azurerm_key_vault.application.id
   }
-
-  log {
-    category = "FrontdoorWebApplicationFirewallLog"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-}
-
-module "frontdoor_waf_log_event_hub_log" {
-  source = "../event_hub_log"
-  resource_type = "front_door"
-  log_type = "waf"
-  eventhub_namespace_name = var.eventhub_namespace_name
-  resource_group = var.resource_group
-  resource_prefix = var.resource_prefix
-}
-
-resource "azurerm_monitor_diagnostic_setting" "frontdoor_waf_log" {
-  name = "${var.resource_prefix}-front_door-waf-log"
-  target_resource_id = azurerm_frontdoor.front_door.id
-  eventhub_name = module.frontdoor_waf_log_event_hub_log.event_hub_name
-  eventhub_authorization_rule_id = var.eventhub_manage_auth_rule_id
-
-  log {
-    category = "FrontdoorAccessLog"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  log {
-    category = "FrontdoorWebApplicationFirewallLog"
-    enabled = true
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled = false
-
-    retention_policy {
-      days = 0
-      enabled = false
-    }
-  }
-}
-
-data "azurerm_key_vault_secret" "https_cert" {
-  count = length(var.https_cert_names)
-  key_vault_id = var.key_vault_id
-  name = var.https_cert_names[count.index]
-}
-
-output "id" {
-  value = azurerm_frontdoor.front_door.id
-}
-
-output "cname" {
-  value = azurerm_frontdoor.front_door.cname
 }
