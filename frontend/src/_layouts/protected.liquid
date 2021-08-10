@@ -4,8 +4,6 @@ hide_signin: false
 cdn_styles:
   - href: "https://global.oktacdn.com/okta-signin-widget/5.5.2/css/okta-sign-in.min.css"
     integrity: "sha384-4AU/gyygVPVvyhusYR7zfD/dqlzjJ43STE4S8LYxeJtSgO43of15iAuMLhEUhqOt"
-  - href: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/css/uswds.min.css"
-    integrity: "sha384-WT15xkSvYhMfxLFeV9L2TsdadMbz0gCvu9NTc9oT3jeq/lEL64ZHF2diAnbRdPOl"
 
 cdn_scripts:
   - src: "https://global.oktacdn.com/okta-signin-widget/5.5.2/js/okta-sign-in.min.js"
@@ -27,12 +25,10 @@ cdn_scripts:
   - src: "https://js.monitor.azure.com/scripts/b/ai.2.min.js"
 
 post_scripts:
-  - src: "https://cdnjs.cloudflare.com/ajax/libs/uswds/2.11.1/js/uswds.min.js"
-    integrity: "sha512-WiP2mmg7ArMOV5qtm9TB85926NCnRhxwONQrZM1i2E7V2zwuOIrnqF/vmMfqhNdDJl7BP+5xFaXVzA6y5wTRtQ=="
+  - src: "/js/uswds.min.js"
 
 local_styles:
-  - "/assets/stylesheets/prime.css"
-  - "/assets/stylesheets/actions.css"
+  - "/assets/stylesheets/styles.css"
   - "/assets/stylesheets/tabs.css"
   - "/assets/stylesheets/font-awesome-all.css"
 ---
@@ -41,16 +37,15 @@ local_styles:
 <head>
   {% include head_tags_universal %}
   {% include head_tags_styles_scripts %}
-  {% if current == "web receiver guide" or current == "elr guide" or current == "security practices" %}
-  <script src="../../js/localhost_data.js"></script>
-  <script src="../../js/prime-web-receiver-pre.js"></script>
-  <script src="../../js/application-insights.js"></script>
+  {% if nestedPage %}
+    <script src="../../js/localhost_data.js"></script>
+    <script src="../../js/prime-web-receiver-pre.js"></script>
+    <script src="../../js/application-insights.js"></script>
   {% else %}
-  <script src="../js/localhost_data.js"></script>
-  <script src="../js/prime-web-receiver-pre.js"></script>
-  <script src="../js/application-insights.js"></script>
+    <script src="../js/localhost_data.js"></script>
+    <script src="../js/prime-web-receiver-pre.js"></script>
+    <script src="../js/application-insights.js"></script>
   {% endif %}
-
 
 </head>
 
@@ -62,18 +57,12 @@ local_styles:
 {% endif %}
 
 <main id="main-content" {% if title == "index" %}class="padding-y-0"{% endif %}>
-  {% if show_menu and documentation %}
-    {% include menu_documentation %}
-  {% elsif show_menu %}
-    {% include menu_settings %}
-  {% elsif copy_only %}
-    <div class="grid-container margin-bottom-5">
-      <div class=" grid-col-9 usa-prose">
-        {{ content }}
-      </div>
-    </div>
-  {% else %}
+  {% if pageStyle == "fullWidth" %}
     {{ content }}
+  {% elsif pageStyle == "sidebarMenu" %}
+    {% include page_sidebar_menu %}
+  {% else %}
+    {% include page_standard %}
   {% endif %}
 </main>
 
@@ -84,16 +73,15 @@ local_styles:
 {% include identifier %}
 
   {% for entry in post_scripts %}
-    <script src="{{entry.src}}" integrity="{{entry.integrity}}" crossorigin="anonymous"></script>
+    <script src="{{entry.src}}" {% if integrity %}integrity="{{entry.integrity}}"{% endif %} crossorigin="anonymous"></script>
   {% endfor %}
-
 
 </body>
 
-{% if current == "web receiver guide" or current == "elr guide" or current == "security practices" %}
-<script src="../../js/prime-web-receiver-post.js"></script>
+{% if nestedPage %}
+  <script src="../../js/prime-web-receiver-post.js"></script>
 {% else %}
-<script src="../js/prime-web-receiver-post.js"></script>
+  <script src="../js/prime-web-receiver-post.js"></script>
 {% endif %}
 
 </html>

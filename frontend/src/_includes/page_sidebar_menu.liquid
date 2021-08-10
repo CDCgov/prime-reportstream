@@ -1,0 +1,16 @@
+<div class="grid-container margin-bottom-5">
+  <div class="grid-row grid-gap">
+    <div class="tablet:grid-col-3">
+      <nav aria-label="Secondary navigation" class="margin-bottom-6">
+        <ul class="usa-sidenav">
+          {% if how_it_works %}
+            {% include menu_how_it_works %}
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    <div class="tablet:grid-col-8 usa-prose rs-documentation">
+      {{ content }}
+    </div>
+  </div>
+</div>

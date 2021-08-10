@@ -98,7 +98,7 @@ function isLoggedIn(){
  */
 function checkJWT() {
     if (!isLoggedIn())
-        window.location.replace('/sign-in/?return=/daily-data/');
+        window.location.replace('/log-in/?return=/daily-data/');
 }
 
 /**
@@ -123,15 +123,16 @@ async function fetchOrgName() {
 /**
  *  If the user is logged in, starts an idle timer that when expires
  *      after 15 min, clears session storage and redirects to the
- *      sign-in page
+ *      login page
  */
 function idleTimer() {
     if (isLoggedIn()) {
         window.sessionStorage.setItem("idle-timer", "true");
         idleTimeout(() => {
             window.sessionStorage.clear();
-            window.location.replace(`/sign-in/`);
-        }, {
+            window.location.replace(`/log-in/`);
+        },
+            {
                 element: document,
                 timeout: 1000 * 60 * 15,
                 loop: false
