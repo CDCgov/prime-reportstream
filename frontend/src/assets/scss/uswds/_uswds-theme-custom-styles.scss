@@ -164,6 +164,9 @@ main {
 // MEDIA: MOBILE
 
 @media (max-width: 63.99em) {
+   main {
+      padding: 2rem 0;
+   }
    .usa-logo {
       margin-left: 1rem;
    }
@@ -185,6 +188,9 @@ main {
       text-align: left;
       margin-bottom: 2rem;
       margin-left: 1rem;
+   }
+   h1 {
+      @include u-line-height('sans', 2);
    }
    h2 {
       @include u-line-height('sans', 3);
