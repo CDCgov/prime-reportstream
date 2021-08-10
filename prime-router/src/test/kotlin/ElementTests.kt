@@ -273,27 +273,29 @@ internal class ElementTests {
             csvFields = Element.csvFields("zip")
         )
         assertThat(
+            postal.toNormalized("94040")
+        ).isEqualTo(
+            postal.toFormatted("94040")
+        )
+        assertThat(
+            postal.toNormalized("94040-6000")
+        ).isEqualTo(
+            postal.toFormatted("94040-6000")
+        )
+        assertThat(
+            postal.toFormatted(
+                postal.toNormalized("94040-3600", Element.zipFiveToken), Element.zipFiveToken
+            )
+        ).isEqualTo(
             "94040"
-        ).isEqualTo(
-            postal.toFormatted(postal.toNormalized("94040"))
         )
         assertThat(
-            "94040-6000"
-        ).isEqualTo(
-            postal.toFormatted(postal.toNormalized("94040-6000"))
-        )
-        assertThat(
-            "94040"
-        ).isEqualTo(
-            postal.toFormatted(postal.toNormalized("94040-3600", Element.zipFiveToken), Element.zipFiveToken)
-        )
-        assertThat(
-            "94040-3600"
-        ).isEqualTo(
             postal.toFormatted(
                 postal.toNormalized("94040-3600", Element.zipFivePlusFourToken),
                 Element.zipFivePlusFourToken
             )
+        ).isEqualTo(
+            "94040-3600"
         )
 
         val telephone = Element(
@@ -302,14 +304,14 @@ internal class ElementTests {
             csvFields = Element.csvFields("phone")
         )
         assertThat(
-            "6509999999"
-        ).isEqualTo(
             telephone.toFormatted(telephone.toNormalized("6509999999"))
+        ).isEqualTo(
+            "6509999999"
         )
         assertThat(
-            "6509999999"
-        ).isEqualTo(
             telephone.toFormatted(telephone.toNormalized("+16509999999"))
+        ).isEqualTo(
+            "6509999999"
         )
 
         val date = Element(
@@ -318,14 +320,14 @@ internal class ElementTests {
             csvFields = Element.csvFields("date")
         )
         assertThat(
-            "20201220"
-        ).isEqualTo(
             date.toFormatted(date.toNormalized("20201220"))
+        ).isEqualTo(
+            "20201220"
         )
         assertThat(
-            "20201220"
-        ).isEqualTo(
             date.toFormatted(date.toNormalized("2020-12-20"))
+        ).isEqualTo(
+            "20201220"
         )
 
         val datetime = Element(
@@ -334,14 +336,14 @@ internal class ElementTests {
             csvFields = Element.csvFields("datetime")
         )
         assertThat(
-            "202012200000+0000"
-        ).isEqualTo(
             datetime.toFormatted(datetime.toNormalized("202012200000+0000"))
+        ).isEqualTo(
+            "202012200000+0000"
         )
         assertThat(
-            "202012200000+0000"
-        ).isEqualTo(
             datetime.toFormatted(datetime.toNormalized("2020-12-20T00:00Z"))
+        ).isEqualTo(
+            "202012200000+0000"
         )
 
         val hd = Element(
@@ -350,12 +352,12 @@ internal class ElementTests {
             csvFields = Element.csvFields("hd")
         )
         assertThat(
-            "HDName"
-        ).isEqualTo(
             hd.toFormatted(hd.toNormalized("HDName"))
+        ).isEqualTo(
+            "HDName"
         )
-        assertThat("HDName^0.0.0.0.0.1^ISO").isEqualTo(
-            postal.toFormatted(hd.toNormalized("HDName^0.0.0.0.0.1^ISO"))
+        assertThat(postal.toFormatted(hd.toNormalized("HDName^0.0.0.0.0.1^ISO"))).isEqualTo(
+            "HDName^0.0.0.0.0.1^ISO"
         )
 
         val ei = Element(
@@ -363,15 +365,17 @@ internal class ElementTests {
             type = Element.Type.EI,
             csvFields = Element.csvFields("ei")
         )
-        assertThat("EIName")
+        assertThat(ei.toFormatted(ei.toNormalized("EIName")))
             .isEqualTo(
-                ei.toFormatted(ei.toNormalized("EIName"))
+                "EIName"
             )
-        assertThat("EIName^EINamespace^0.0.0.0.0.1^ISO")
+        assertThat(
+            postal.toFormatted(
+                ei.toNormalized("EIName^EINamespace^0.0.0.0.0.1^ISO")
+            )
+        )
             .isEqualTo(
-                postal.toFormatted(
-                    ei.toNormalized("EIName^EINamespace^0.0.0.0.0.1^ISO")
-                )
+                "EIName^EINamespace^0.0.0.0.0.1^ISO"
             )
     }
 
@@ -394,9 +398,9 @@ internal class ElementTests {
         assertThat("happy^0.0.0.011^ISO").isEqualTo(normalized)
 
         val sendingAppName = sendingApp.toFormatted(normalized, Element.hdNameToken)
-        assertThat("happy").isEqualTo(sendingAppName)
+        assertThat(sendingAppName).isEqualTo("happy")
         val sendingOid = sendingApp.toFormatted(normalized, Element.hdUniversalIdToken)
-        assertThat("0.0.0.011").isEqualTo(sendingOid)
+        assertThat(sendingOid).isEqualTo("0.0.0.011")
     }
 
     @Test
@@ -434,34 +438,34 @@ internal class ElementTests {
             type = Element.Type.TEXT,
             maxLength = 2,
         ).run {
-            assertThat("ab").isEqualTo(this.truncateIfNeeded("abcde"))
+            assertThat(this.truncateIfNeeded("abcde")).isEqualTo("ab")
         }
         Element(
             name = "dos",
             type = Element.Type.ID_CLIA, // this type is never truncated.
             maxLength = 2,
         ).run {
-            assertThat("abcde").isEqualTo(this.truncateIfNeeded("abcde"))
+            assertThat(this.truncateIfNeeded("abcde")).isEqualTo("abcde")
         }
         Element(
             name = "tres",
             type = Element.Type.TEXT,
             maxLength = 20, // max > actual strlen, nothing to truncate
         ).run {
-            assertThat("abcde").isEqualTo(this.truncateIfNeeded("abcde"))
+            assertThat(this.truncateIfNeeded("abcde")).isEqualTo("abcde")
         }
         Element( // zilch is an ok valuer = Element(  // maxLength is null, don't truncate.
             name = "cuatro",
             type = Element.Type.TEXT,
         ).run {
-            assertThat("abcde").isEqualTo(this.truncateIfNeeded("abcde"))
+            assertThat(this.truncateIfNeeded("abcde")).isEqualTo("abcde")
         }
         Element(
             name = "cinco",
             type = Element.Type.TEXT,
             maxLength = 0, // zilch is an ok value
         ).run {
-            assertThat("").isEqualTo(this.truncateIfNeeded("abcde"))
+            assertThat(this.truncateIfNeeded("abcde")).isEqualTo("")
         }
     }
 }

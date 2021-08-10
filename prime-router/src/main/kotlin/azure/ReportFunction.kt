@@ -544,8 +544,7 @@ class ReportFunction : Logging {
             report.itemIndices.forEach { i ->
                 // if an item was not present, create the routing with empty destinations
                 items.add(
-                    routingMap.getOrDefault
-                    (
+                    routingMap.getOrDefault(
                         i,
                         ItemRouting(i, report.getString(i, report.schema.trackingElement ?: ""))
                     )

@@ -2,7 +2,7 @@
 
 Note:  Click here for the [FHIR Auth Implementation Plan](#initial-implementation-plan)
 
-The PRIME Data Hub[1] aims to work with multiple senders or third-parties clients that send reports to the Data-Hub. Each of these clients will need to authenticate with the Data-Hub API. This paper outlines a proposal on how these clients should provide credentials to the Data-Hub.
+The PRIME ReportStream1] aims to work with multiple senders or third-parties clients that send reports to the Data-Hub. Each of these clients will need to authenticate with the Data-Hub API. This paper outlines a proposal on how these clients should provide credentials to the Data-Hub.
 
 Today, in healthcare and public health, the most common form of authentication between two computers, also known as service to service authentication, is either a shared secret or a form of TLS mutual authentication. An SFTP service authenticated by username and password is an example of the shared secret method. The API secret key is another form of a shared secret. PHIN MS is an example of an authentication mechanism built on TLS mutual authentication.
 
