@@ -3,13 +3,14 @@ title: ReportStream makes it easier to send and collect public health data — f
 summary: >-
   ReportStream is an open source, cloud based platform that aggregates and delivers COVID-19 test results to health departments
 description: Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection. 
-heroImg: rs-test-diagram.svg
+heroImg: rs-diagram.svg
 heroImgAlt: Example screenshot of the ReportStream web application
 
 sections:
   - title: Why ReportStream?
+    type: why
     summary: >-
-      Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection.
+      Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection
     bullets:
       - content: 100% free
       - content: Backed by the CDC
@@ -30,12 +31,12 @@ sections:
           ReportStream works directly with COVID-19 test manufacturers, labs, and apps like <a href="https://simplereport.gov" class="usa-link">SimpleReport</a> to deliver more results to public health departments across the U.S. 
         icon: content_copy.svg
         iconDescription: multiple documents
-      - title: Free and created by the CDC
-        summary: Developed for testing sites and public health departments, ReportStream is 100% free.
-      - title: Safe and secure
-        summary: Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.
+      #- title: Free and created by the CDC
+      #  summary: Developed for testing sites and public health departments, ReportStream is 100% free.
+      #- title: Safe and secure
+      #  summary: Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.
   - title: ReportStream offers two ways to deliver data directly to your public health department 
-    summary: Log in and download test results quickly through our web application, or work with ReportStream to set up a customized ELR connection.
+    summary: Log in and download test results quickly through our web application, or work with ReportStream to set up a customized ELR connection
     type: deliveryMethods
     features:
       - title: Data download
@@ -54,7 +55,7 @@ sections:
         method: 2
         summary: >-
           Work with ReportStream to set up a customized ELR connection
-        img: rs-test.png
+        img: rs-diagram.svg
         imgAlt: Example screenshot of the ReportStream web application 
         itemOne: Centralize your connections
         summaryOne: >-
@@ -69,17 +70,21 @@ sections:
       We’re growing quickly. Take a look at the complete <a href="/how-it-works/where-were-live">list of ReportStream partners</a>.
     features:
       - img: rs-live-stlt.svg
+        imgAlt: Map of the U.S. showing states and territories where ReportStream is currently live
+        linkInternal: /how-it-works/where-were-live
   - title: Interested in learning more about ReportStream?
     type: cta
     summary: >-
-      ReportStream works with public health departments looking to get better quality COVID-19 data from jurisdictions. We also collaborate with testing facilities, data aggregators , and manufacturers, and more to send test results to health departments.<br /><br />Either way, if you send or analyze COVID-19 data, we’d like to help.
+      Either way, if you send or analyze COVID-19 data, we’d like to help.
+    description: >-
+      ReportStream works with public health departments looking to get better quality COVID-19 data from jurisdictions. We also collaborate with testing facilities, data aggregators, manufacturers, and more to send test results to health departments.
     buttonText: Get in touch
     # email address for above button is located in template
     buttonUrlSubject: ?subject=I'm interested in learning more about ReportStream
 
 freeSecure:
   - title: Free and created by the CDC
-    summary: Developed for testing sites and public health departments, ReportStream is 100% free.
+    summary: Developed for COVID-19 test data and public health departments, ReportStream is 100% free.
     icon: cdc-logo.svg
     iconDescription: CDC logo
   - title: Safe and secure
