@@ -109,6 +109,7 @@ NTE|1|L|This is a final comment|RE"""
             every { it.reportingFacilityName }.returns(null)
             every { it.reportingFacilityId }.returns(null)
             every { it.reportingFacilityIdType }.returns(null)
+            every { it.cliaForOutOfStateTesting }.returns(null)
         }
         val receiver = mockkClass(Receiver::class).also {
             every { it.translation }.returns(hl7Config)
@@ -603,10 +604,28 @@ NTE|1|L|This is a final comment|RE"""
         val serializer = Hl7Serializer(metadata)
         every { mockTerser.set(any(), any()) } returns Unit
 
+        val hl7Config = mockkClass(Hl7Configuration::class).also {
+            every { it.replaceValue }.returns(emptyMap())
+            every { it.format }.returns(Report.Format.HL7)
+            every { it.useTestProcessingMode }.returns(false)
+            every { it.suppressQstForAoe }.returns(false)
+            every { it.suppressAoe }.returns(false)
+            every { it.suppressHl7Fields }.returns(null)
+            every { it.useBlankInsteadOfUnknown }.returns(null)
+            every { it.convertTimestampToDateTime }.returns(null)
+            every { it.truncateHDNamespaceIds }.returns(false)
+            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
+            every { it.usePid14ForPatientEmail }.returns(false)
+            every { it.reportingFacilityName }.returns(null)
+            every { it.reportingFacilityId }.returns(null)
+            every { it.reportingFacilityIdType }.returns(null)
+            every { it.cliaForOutOfStateTesting }.returns(null)
+        }
         serializer.setCliaComponent(
             mockTerser,
             "XYZ",
-            "OBX-23-10"
+            "OBX-23-10",
+            hl7Config
         )
 
         verify {
@@ -623,10 +642,29 @@ NTE|1|L|This is a final comment|RE"""
         val hl7Field = "ORC-3-3"
         val value = "dummy"
 
+        val hl7Config = mockkClass(Hl7Configuration::class).also {
+            every { it.replaceValue }.returns(emptyMap())
+            every { it.format }.returns(Report.Format.HL7)
+            every { it.useTestProcessingMode }.returns(false)
+            every { it.suppressQstForAoe }.returns(false)
+            every { it.suppressAoe }.returns(false)
+            every { it.suppressHl7Fields }.returns(null)
+            every { it.useBlankInsteadOfUnknown }.returns(null)
+            every { it.convertTimestampToDateTime }.returns(null)
+            every { it.truncateHDNamespaceIds }.returns(false)
+            every { it.phoneNumberFormatting }.returns(Hl7Configuration.PhoneNumberFormatting.STANDARD)
+            every { it.usePid14ForPatientEmail }.returns(false)
+            every { it.reportingFacilityName }.returns(null)
+            every { it.reportingFacilityId }.returns(null)
+            every { it.reportingFacilityIdType }.returns(null)
+            every { it.cliaForOutOfStateTesting }.returns(null)
+        }
+
         serializer.setCliaComponent(
             mockTerser,
             value,
-            hl7Field
+            hl7Field,
+            hl7Config
         )
 
         verify {

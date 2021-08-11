@@ -12,16 +12,8 @@ import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Mapper
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ResultDetail
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.*
+import gov.cdc.prime.router.cli.tests.CoolTest
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -419,6 +411,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
+
         // and we have some fields to suppress
         val suppressedFields = hl7Config
             ?.suppressHl7Fields
@@ -617,7 +610,7 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
         }
         val pathSpec = formPathSpec(hl7Field)
         when (element.type) {
-            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field)
+            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, report.destination)
             Element.Type.HD -> {
                 if (value.isNotEmpty()) {
                     val hd = Element.parseHD(value, hdFieldMaximumLength)
@@ -696,11 +689,31 @@ class Hl7Serializer(val metadata: Metadata) : Logging {
      * and set 'CLIA' as the Universal ID Type.
      * If [hl7Field] points to CE field, set [value] as the Identifier and 'CLIA' as the Text.
      */
-    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String) {
+    internal fun setCliaComponent(terser: Terser, value: String, hl7Field: String, receiver: Receiver?) {
         if (value.isEmpty()) return
 
+        var useAltCLIA = false
         val pathSpec = formPathSpec(hl7Field)
-        terser.set(pathSpec, value)
+
+        if (!hl7Config?.cliaForOutOfStateTesting.isNullOrEmpty()) {
+            val testingStateField = "OBX-24-4"
+            val pathSpecTestingState = formPathSpec(testingStateField)
+            val testingState = terser.get(pathSpecTestingState)
+
+            val settings = FileSettings(FileSettings.defaultSettingsDirectory)
+            val stateCode = receiver?.let { settings.findOrganization(it.organizationName)?.stateCode }
+
+            if (!testingState.equals(stateCode)) {
+                useAltCLIA = true
+            }
+        }
+
+        if(useAltCLIA) {
+            terser.set(pathSpec, hl7Config?.cliaForOutOfStateTesting)
+        } else {
+            terser.set(pathSpec, value)
+        }
+
 
         when (hl7Field) {
             in HD_FIELDS_UNIVERSAL,
